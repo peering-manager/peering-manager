@@ -1,0 +1,56 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block content %}
+      <div class="pull-right">
+        <a href="{% url 'peering:peering_session_edit' id=peering_session.id %}" class="btn btn-warning">
+          <span class="fa fa-pencil" aria-hidden="true"></span>
+          Edit this Peering Session
+        </a>
+        <a href="{% url 'peering:peering_session_delete' id=peering_session.id %}" class="btn btn-danger">
+          <span class="fa fa-trash" aria-hidden="true"></span>
+          Delete this Peering Session
+        </a>
+      </div>
+      <h1>{% block title %}{{ peering_session }}{% endblock %}</h1>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>Peering Session Details</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+              <tr>
+                <td>Internet Exchange</td>
+                <td>{{ peering_session.internet_exchange }}</td>
+              </tr>
+              <tr>
+                <td>AS Name</td>
+                <td>{{ peering_session.autonomous_system.name }}</td>
+              </tr>
+              <tr>
+                <td>ASN</td>
+                <td>{{ peering_session.autonomous_system.asn }}</td>
+              </tr>
+              <tr>
+                <td>IP Address</td>
+                <td>{{ peering_session.ip_address }}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>Comments</strong>
+            </div>
+            <div class="panel-body">
+              {% if internet_exchange.comment %}
+              {{ internet_exchange.comment|markdown }}
+              {% else %}
+              <span class="text-muted">None</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}

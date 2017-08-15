@@ -1,0 +1,41 @@
+{% extends '_base.html' %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>Global Statistics</strong>
+            </div>
+            <div class="list-group">
+              <div class="list-group-item">
+                <span class="badge pull-right">{{ autonomous_systems_count }}</span>
+                <h4 class="list-group-item-heading">
+                  <a href="{% url 'peering:as_list' %}">Autonomous Systems</a>
+                </h4>
+              </div>
+              <div class="list-group-item">
+                <span class="badge pull-right">{{ internet_exchanges_count }}</span>
+                <h4 class="list-group-item-heading">
+                  <a href="{% url 'peering:ix_list' %}">Internet Exchanges</a>
+                </h4>
+              </div>
+              <div class="list-group-item">
+                <span class="badge pull-right">{{ peering_sessions_count }}</span>
+                <h4 class="list-group-item-heading">
+                  Peering Sessions
+                </h4>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>History</strong>
+            </div>
+            <div class="list-group">
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}

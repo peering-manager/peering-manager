@@ -1,0 +1,14 @@
+{% extends '_base.html' %}
+{% load render_table from django_tables2 %}
+{% block content %}
+      <div class="pull-right">
+        <a href="{% url 'peering:ix_add' %}" class="btn btn-primary">
+          <span class="fa fa-plus" aria-hidden="true"></span>
+          Add an IX
+        </a>
+      </div>
+      <h1>{% block title %}Internet Exchanges{% endblock %}</h1>
+      <div class="row">
+        {% render_table internet_exchanges %}
+      </div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends '_base.html' %}
+{% load render_table from django_tables2 %}
+{% block content %}
+      <div class="pull-right">
+        <a href="{% url 'peering:as_add' %}" class="btn btn-primary">
+          <span class="fa fa-plus" aria-hidden="true"></span>
+          Add an AS
+        </a>
+      </div>
+      <h1>{% block title %}Autonomous Systems{% endblock %}</h1>
+      <div class="row">
+        {% render_table autonomous_systems %}
+      </div>
+{% endblock %}

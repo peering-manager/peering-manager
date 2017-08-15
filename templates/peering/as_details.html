@@ -1,0 +1,95 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block content %}
+      <div class="pull-right">
+        <a href="{% url 'peering:as_edit' asn=autonomous_system.asn %}" class="btn btn-warning">
+          <span class="fa fa-pencil" aria-hidden="true"></span>
+          Edit this AS
+        </a>
+        <a href="{% url 'peering:as_delete' asn=autonomous_system.asn %}" class="btn btn-danger">
+          <span class="fa fa-trash" aria-hidden="true"></span>
+          Delete this AS
+        </a>
+      </div>
+      <h1>{% block title %}{{ autonomous_system }}{% endblock %}</h1>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>AS Details</strong>
+              <a class="btn btn-xs btn-primary pull-right" href="{{ settings.PEERINGDB }}{{ autonomous_system.asn }}" target="_blank">
+                <span class="fa fa-external-link" aria-hidden="true"></span>
+                PeeringDB
+              </a>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+              <tr>
+                <td>ASN</td>
+                <td>{{ autonomous_system.asn }}</td>
+              </tr>
+              <tr>
+                <td>Name</td>
+                <td>{{ autonomous_system.name }}</td>
+              </tr>
+              <tr>
+                <td>IPv6 AS-SET</td>
+                <td>{{ autonomous_system.ipv6_as_set }}</td>
+              </tr>
+              <tr>
+                <td>IPv4 AS-SET</td>
+                <td>{{ autonomous_system.ipv4_as_set }}</td>
+              </tr>
+              <tr>
+                <td>IPv6 Max Prefixes</td>
+                <td>{{ autonomous_system.ipv6_max_prefixes }}</td>
+              </tr>
+              <tr>
+                <td>IPv4 Max Prefixes</td>
+                <td>{{ autonomous_system.ipv4_max_prefixes }}</td>
+              </tr>
+            </table>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>Comments</strong>
+            </div>
+            <div class="panel-body">
+              {% if autonomous_system.comment %}
+              {{ autonomous_system.comment|markdown }}
+              {% else %}
+              <span class="text-muted">None</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>Peering Details</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+              <tr>
+                <td>Peering Count</td>
+                <td>{{ peering_sessions_count }}</td>
+              </tr>
+              <tr>
+                <td>Internet Exchanges Count</td>
+                <td>{{ internet_exchanges|length }}</td>
+              </tr>
+            </table>
+          </div>
+          {% if internet_exchanges|length > 0 %}
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>Internet Exchanges</strong>
+            </div>
+            <ul class="list-group">
+              {% for ix in internet_exchanges %}
+              <li class="list-group-item">{{ ix }}<a class="btn btn-xs btn-info pull-right" href="{% url 'peering:ix_details' slug=ix.slug %}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+{% endblock %}

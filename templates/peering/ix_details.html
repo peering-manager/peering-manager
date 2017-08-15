@@ -1,0 +1,60 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% load render_table from django_tables2 %}
+{% block content %}
+      <div class="pull-right">
+        <a href="{% url 'peering:peering_session_add' slug=internet_exchange.slug %}" class="btn btn-primary">
+          <span class="fa fa-plus" aria-hidden="true"></span>
+          Add a Peering Session
+        </a>
+        <a href="{% url 'peering:ix_edit' slug=internet_exchange.slug %}" class="btn btn-warning">
+          <span class="fa fa-pencil" aria-hidden="true"></span>
+          Edit this IX
+        </a>
+        <a href="{% url 'peering:ix_delete' slug=internet_exchange.slug %}" class="btn btn-danger">
+          <span class="fa fa-trash" aria-hidden="true"></span>
+          Delete this IX
+        </a>
+      </div>
+      <h1>{% block title %}{{ internet_exchange }}{% endblock %}</h1>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>IX Details</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+              <tr>
+                <td>Name</td>
+                <td>{{ internet_exchange.name }}</td>
+              </tr>
+              <tr>
+                <td>Members</td>
+                <td>{{ autonomous_systems_count }}</td>
+              </tr>
+              <tr>
+                <td>Peering Sessions</td>
+                <td>{{ peering_sessions_count }}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>Comments</strong>
+            </div>
+            <div class="panel-body">
+              {% if internet_exchange.comment %}
+              {{ internet_exchange.comment|markdown }}
+              {% else %}
+              <span class="text-muted">None</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        {% render_table peering_sessions %}
+      </div>
+{% endblock %}
