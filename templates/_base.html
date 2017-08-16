@@ -30,10 +30,36 @@
             <li {% if request.path|contains:'/as/' %}class="active"{% endif %}><a href="{% url 'peering:as_list' %}">Autonomous Systems</a></li>
             <li {% if request.path|contains:'/ix/' %}class="active"{% endif %}><a href="{% url 'peering:ix_list' %}">Internet Exchanges</a></li>
           </ul>
+          <ul class="nav navbar-nav navbar-right">
+            {% if request.user.is_authenticated %}
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="{{ request.user }}" role="button" aria-haspopup="true" aria-expanded="false">
+                {{ request.user|truncatechars:"30" }} <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                {% if request.user.is_staff %}
+                <li><a href="{% url 'admin:index' %}"><i class="fa fa-cogs" aria-hidden="true"></i> Admin</a></li>
+                {% endif %}
+                <li class="divider"></li>
+                <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out" aria-hidden="true"></i> Log out</a></li>
+              </ul>
+            </li>
+            {% else %}
+            <li><a href="{% url 'login' %}"><i class="fa fa-sign-in" aria-hidden="true"></i> Log in</a></li>
+            {% endif %}
+          </ul>
         </div>
       </div>
     </nav>
     <div class="container wrapper">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span>&times;</span>
+        </button>
+        {{ message }}
+      </div>
+      {% endfor %}
       {% block content %}{% endblock %}
     </div>
     <footer class="footer">

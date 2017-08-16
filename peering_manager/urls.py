@@ -19,9 +19,15 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 
+from . import views
+
 __patterns = [
     # Eveyrthing is handled in the peering app
     url(r'', include('peering.urls')),
+
+    # Users login/logout
+    url(r'^login/$', views.login, name='login'),
+    url(r'^logout/$', views.logout, name='logout'),
 
     # Admin
     url(r'^admin/', admin.site.urls),
