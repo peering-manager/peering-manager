@@ -5,8 +5,6 @@
 # Example: ALLOWED_HOSTS = ['peering.example.com', 'peering.internal.local']
 ALLOWED_HOSTS = []
 
-DEBUG = True
-
 # Must be unique to each setup.
 SECRET_KEY = ''
 
