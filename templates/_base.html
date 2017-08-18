@@ -45,7 +45,7 @@
               </ul>
             </li>
             {% else %}
-            <li><a href="{% url 'login' %}"><i class="fa fa-sign-in" aria-hidden="true"></i> Log in</a></li>
+            <li><a href="{% url 'login' %}?next={{ request.path }}"><i class="fa fa-sign-in" aria-hidden="true"></i> Log in</a></li>
             {% endif %}
           </ul>
         </div>

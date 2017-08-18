@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -31,6 +32,7 @@ def as_list(request):
     return render(request, 'peering/as_list.html', context)
 
 
+@login_required
 def as_add(request):
     if request.method == 'POST':
         form = AutonomousSystemForm(request.POST)
@@ -55,6 +57,7 @@ def as_details(request, asn):
     return render(request, 'peering/as_details.html', context)
 
 
+@login_required
 def as_edit(request, asn):
     autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
 
@@ -74,6 +77,7 @@ def as_edit(request, asn):
     return render(request, 'peering/as_edit.html', context)
 
 
+@login_required
 def as_delete(request, asn):
     autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
 
@@ -102,6 +106,7 @@ def ix_list(request):
     return render(request, 'peering/ix_list.html', context)
 
 
+@login_required
 def ix_add(request):
     if request.method == 'POST':
         form = InternetExchangeForm(request.POST)
@@ -129,6 +134,7 @@ def ix_details(request, slug):
     return render(request, 'peering/ix_details.html', context)
 
 
+@login_required
 def ix_edit(request, slug):
     internet_exchange = get_object_or_404(InternetExchange, slug=slug)
 
@@ -148,6 +154,7 @@ def ix_edit(request, slug):
     return render(request, 'peering/ix_edit.html', context)
 
 
+@login_required
 def ix_delete(request, slug):
     internet_exchange = get_object_or_404(InternetExchange, slug=slug)
 
@@ -167,6 +174,7 @@ def ix_delete(request, slug):
     return render(request, 'peering/ix_delete.html', context)
 
 
+@login_required
 def peering_session_add(request, slug):
     internet_exchange = get_object_or_404(InternetExchange, slug=slug)
 
@@ -192,6 +200,7 @@ def peering_session_details(request, id):
     return render(request, 'peering/peering_session_details.html', context)
 
 
+@login_required
 def peering_session_edit(request, id):
     peering_session = get_object_or_404(PeeringSession, id=id)
 
@@ -211,6 +220,7 @@ def peering_session_edit(request, id):
     return render(request, 'peering/peering_session_edit.html', context)
 
 
+@login_required
 def peering_session_delete(request, id):
     peering_session = get_object_or_404(PeeringSession, id=id)
 

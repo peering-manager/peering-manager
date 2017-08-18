@@ -1,6 +1,7 @@
 {% extends '_base.html' %}
 {% load helpers %}
 {% block content %}
+      {% if request.user.is_authenticated %}
       <div class="pull-right">
         <a href="{% url 'peering:as_edit' asn=autonomous_system.asn %}" class="btn btn-warning">
           <span class="fa fa-pencil" aria-hidden="true"></span>
@@ -11,6 +12,7 @@
           Delete this AS
         </a>
       </div>
+      {% endif %}
       <h1>{% block title %}{{ autonomous_system }}{% endblock %}</h1>
       <div class="row">
         <div class="col-md-6">
