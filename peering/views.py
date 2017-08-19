@@ -181,6 +181,7 @@ def peering_session_add(request, slug):
     if request.method == 'POST':
         form = PeeringSessionForm(request.POST)
         if form.is_valid():
+            peering_session = form.save()
             return redirect('peering:ix_details', slug=slug)
     else:
         form = PeeringSessionForm(
