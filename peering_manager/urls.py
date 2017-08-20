@@ -21,6 +21,9 @@ from django.contrib import admin
 
 from . import views
 
+
+handler500 = views.handle_500
+
 __patterns = [
     # Eveyrthing is handled in the peering app
     url(r'', include('peering.urls')),
@@ -31,6 +34,9 @@ __patterns = [
 
     # Admin
     url(r'^admin/', admin.site.urls),
+
+    # Error triggering
+    url(r'^error500/$', views.trigger_500),
 ]
 
 # Prepend BASE_PATH

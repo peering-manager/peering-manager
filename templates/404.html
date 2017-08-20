@@ -1,0 +1,16 @@
+{% extends '_base.html' %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> <strong>Page Not Found</strong>
+            </div>
+            <div class="panel-body">The requested page does not exist.</div>
+            <div class="panel-footer text-right">
+              <a href="{% url 'peering:home' %}" class="btn btn-xs btn-primary">Home Page</a>
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}

@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import sys
+
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.http import HttpResponseRedirect
@@ -31,3 +33,18 @@ def logout(request):
     auth_logout(request)
     messages.info(request, "You have logged out.")
     return redirect('peering:home')
+
+
+def handle_500(request):
+    """
+    Custom 500 error handler.
+    """
+    __type, error, traceback = sys.exc_info()
+    return render(request, '500.html', {'exception': str(__type), 'error': error}, status=500)
+
+
+def trigger_500(request):
+    """
+    Method to fake trigger a server error for test reporting.
+    """
+    raise Exception('Manually triggered error.')
