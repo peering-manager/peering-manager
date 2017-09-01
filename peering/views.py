@@ -34,7 +34,7 @@ def as_list(request):
         'autonomous_systems': autonomous_systems
     }
 
-    return render(request, 'peering/as_list.html', context)
+    return render(request, 'peering/as/list.html', context)
 
 
 @login_required
@@ -47,7 +47,7 @@ def as_add(request):
     else:
         form = AutonomousSystemForm()
 
-    return render(request, 'peering/as_add.html', {'form': form})
+    return render(request, 'peering/as/add.html', {'form': form})
 
 
 def as_details(request, asn):
@@ -59,7 +59,7 @@ def as_details(request, asn):
         'peering_sessions_count': autonomous_system.get_peering_sessions_count(),
     }
 
-    return render(request, 'peering/as_details.html', context)
+    return render(request, 'peering/as/details.html', context)
 
 
 @login_required
@@ -79,7 +79,7 @@ def as_edit(request, asn):
         'autonomous_system': autonomous_system,
     }
 
-    return render(request, 'peering/as_edit.html', context)
+    return render(request, 'peering/as/edit.html', context)
 
 
 @login_required
@@ -99,7 +99,7 @@ def as_delete(request, asn):
         'autonomous_system': autonomous_system,
     }
 
-    return render(request, 'peering/as_delete.html', context)
+    return render(request, 'peering/as/delete.html', context)
 
 
 def configuration_template_list(request):
@@ -110,7 +110,7 @@ def configuration_template_list(request):
         'configuration_templates': configuration_templates
     }
 
-    return render(request, 'peering/configuration_template_list.html', context)
+    return render(request, 'peering/config/list.html', context)
 
 
 @login_required
@@ -123,7 +123,7 @@ def configuration_template_add(request):
     else:
         form = ConfigurationTemplateForm()
 
-    return render(request, 'peering/configuration_template_add.html', {'form': form})
+    return render(request, 'peering/config/add.html', {'form': form})
 
 
 def configuration_template_details(request, id):
@@ -135,7 +135,7 @@ def configuration_template_details(request, id):
         'internet_exchanges': internet_exchanges,
     }
 
-    return render(request, 'peering/configuration_template_details.html', context)
+    return render(request, 'peering/config/details.html', context)
 
 
 @login_required
@@ -156,7 +156,7 @@ def configuration_template_edit(request, id):
         'configuration_template': configuration_template,
     }
 
-    return render(request, 'peering/configuration_template_edit.html', context)
+    return render(request, 'peering/config/edit.html', context)
 
 
 def configuration_template_delete(request, id):
@@ -175,7 +175,7 @@ def configuration_template_delete(request, id):
         'configuration_template': configuration_template,
     }
 
-    return render(request, 'peering/configuration_template_delete.html', context)
+    return render(request, 'peering/config/delete.html', context)
 
 
 def ix_list(request):
@@ -184,7 +184,7 @@ def ix_list(request):
     RequestConfig(request).configure(internet_exchanges)
     context = {'internet_exchanges': internet_exchanges}
 
-    return render(request, 'peering/ix_list.html', context)
+    return render(request, 'peering/ix/list.html', context)
 
 
 @login_required
@@ -197,7 +197,7 @@ def ix_add(request):
     else:
         form = InternetExchangeForm()
 
-    return render(request, 'peering/ix_add.html', {'form': form})
+    return render(request, 'peering/ix/add.html', {'form': form})
 
 
 def ix_details(request, slug):
@@ -212,7 +212,7 @@ def ix_details(request, slug):
         'peering_sessions_count': internet_exchange.get_peering_sessions_count(),
     }
 
-    return render(request, 'peering/ix_details.html', context)
+    return render(request, 'peering/ix/details.html', context)
 
 
 @login_required
@@ -232,7 +232,7 @@ def ix_edit(request, slug):
         'internet_exchange': internet_exchange,
     }
 
-    return render(request, 'peering/ix_edit.html', context)
+    return render(request, 'peering/ix/edit.html', context)
 
 
 @login_required
@@ -252,7 +252,7 @@ def ix_delete(request, slug):
         'internet_exchange': internet_exchange,
     }
 
-    return render(request, 'peering/ix_delete.html', context)
+    return render(request, 'peering/ix/delete.html', context)
 
 
 @login_required
@@ -291,7 +291,7 @@ def ix_configuration(request, slug):
         'internet_exchange_configuration': configuration,
     }
 
-    return render(request, 'peering/ix_configuration.html', context)
+    return render(request, 'peering/ix/configuration.html', context)
 
 
 @login_required
@@ -312,13 +312,13 @@ def peering_session_add(request, slug):
         'internet_exchange': internet_exchange,
     }
 
-    return render(request, 'peering/peering_session_add.html', context)
+    return render(request, 'peering/session/add.html', context)
 
 
 def peering_session_details(request, id):
     peering_session = get_object_or_404(PeeringSession, id=id)
     context = {'peering_session': peering_session}
-    return render(request, 'peering/peering_session_details.html', context)
+    return render(request, 'peering/session/details.html', context)
 
 
 @login_required
@@ -338,7 +338,7 @@ def peering_session_edit(request, id):
         'peering_session': peering_session,
     }
 
-    return render(request, 'peering/peering_session_edit.html', context)
+    return render(request, 'peering/session/edit.html', context)
 
 
 @login_required
@@ -358,4 +358,4 @@ def peering_session_delete(request, id):
         'peering_session': peering_session,
     }
 
-    return render(request, 'peering/peering_session_delete.html', context)
+    return render(request, 'peering/session/delete.html', context)
