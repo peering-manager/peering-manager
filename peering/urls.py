@@ -16,6 +16,18 @@ urlpatterns = [
     url(r'^as/(?P<asn>[0-9]+)/edit/$', views.as_edit, name='as_edit'),
     url(r'^as/(?P<asn>[0-9]+)/delete/$', views.as_delete, name='as_delete'),
 
+    # Configuration Templates
+    url(r'^template/$', views.configuration_template_list,
+        name='configuration_template_list'),
+    url(r'^template/add/$', views.configuration_template_add,
+        name='configuration_template_add'),
+    url(r'^template/(?P<id>[0-9]+)/$', views.configuration_template_details,
+        name='configuration_template_details'),
+    url(r'^template/(?P<id>[0-9]+)/edit/$',
+        views.configuration_template_edit, name='configuration_template_edit'),
+    url(r'^template/(?P<id>[0-9]+)/delete/$',
+        views.configuration_template_delete, name='configuration_template_delete'),
+
     # Internet Exchanges
     url(r'^ix/$', views.ix_list, name='ix_list'),
     url(r'^ix/add/$', views.ix_add, name='ix_add'),
@@ -24,6 +36,8 @@ urlpatterns = [
     url(r'^ix/(?P<slug>[\w-]+)/delete/$', views.ix_delete, name='ix_delete'),
     url(r'^ix/(?P<slug>[\w-]+)/add_peering/$',
         views.peering_session_add, name='peering_session_add'),
+    url(r'^ix/(?P<slug>[\w-]+)/config/$',
+        views.ix_configuration, name='ix_configuration'),
 
     # Peering Sessions
     url(r'^peering/(?P<id>[0-9]+)/$', views.peering_session_details,

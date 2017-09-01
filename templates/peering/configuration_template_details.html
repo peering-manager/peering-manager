@@ -1,0 +1,60 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block content %}
+      {% if request.user.is_authenticated %}
+      <div class="pull-right">
+        <a href="{% url 'peering:configuration_template_edit' id=configuration_template.id %}" class="btn btn-warning">
+          <span class="fa fa-pencil" aria-hidden="true"></span>
+          Edit this Configuration Template
+        </a>
+        <a href="{% url 'peering:configuration_template_delete' id=configuration_template.id %}" class="btn btn-danger">
+          <span class="fa fa-trash" aria-hidden="true"></span>
+          Delete this Configuration Template
+        </a>
+      </div>
+      {% endif %}
+      <h1>{% block title %}{{ configuration_template }}{% endblock %}</h1>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>Configuration Template Details</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+              <tr>
+                <td>Name</td>
+                <td>{{ configuration_template.name }}</td>
+              </tr>
+              <tr>
+                <td>Last update</td>
+                <td>{{ configuration_template.updated }}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>Template</strong>
+            </div>
+            <div class="panel-body">
+              <pre>{{ configuration_template.template }}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        {% if internet_exchanges|length > 0 %}
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <strong>Internet Exchanges</strong>
+          </div>
+          <ul class="list-group">
+            {% for ix in internet_exchanges %}
+            <li class="list-group-item">{{ ix }}<a class="btn btn-xs btn-info pull-right" href="{% url 'peering:ix_details' slug=ix.slug %}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+      </div>
+{% endblock %}

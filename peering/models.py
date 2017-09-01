@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import ipaddress
+
 from django.db import models
 from .fields import ASNField
 
@@ -35,10 +37,24 @@ class AutonomousSystem(models.Model):
         return 'AS{} - {}'.format(self.asn, self.name)
 
 
+class ConfigurationTemplate(models.Model):
+    name = models.CharField(max_length=128)
+    template = models.TextField()
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
 class InternetExchange(models.Model):
     name = models.CharField(max_length=128)
     slug = models.SlugField()
     comment = models.TextField(blank=True)
+    configuration_template = models.ForeignKey(
+        'ConfigurationTemplate', blank=True, null=True, on_delete=models.SET_NULL)
 
     class Meta:
         ordering = ['name']
@@ -69,6 +85,23 @@ class PeeringSession(models.Model):
         'InternetExchange', on_delete=models.CASCADE)
     ip_address = models.GenericIPAddressField()
     comment = models.TextField(blank=True)
+
+    def to_dict(self):
+        ip_version = ipaddress.ip_address(str(self.ip_address)).version
+        max_prefixes = 0
+
+        if ip_version == 6:
+            max_prefixes = self.autonomous_system.ipv6_max_prefixes
+        if ip_version == 4:
+            max_prefixes = self.autonomous_system.ipv4_max_prefixes
+
+        return {
+            'peer_as': str(self.autonomous_system.asn),
+            'ip_version': ip_version,
+            'ip_address': str(self.ip_address),
+            'max_prefixes': max_prefixes,
+            'description': 'Peering: AS{} - {}'.format(self.autonomous_system.asn, self.autonomous_system.name),
+        }
 
     def __str__(self):
         return '{} - AS{} - IP {}'.format(self.internet_exchange.name, self.autonomous_system.asn, self.ip_address)

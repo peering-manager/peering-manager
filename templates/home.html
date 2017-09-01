@@ -20,6 +20,12 @@
                 </h4>
               </div>
               <div class="list-group-item">
+                <span class="badge pull-right">{{ configuration_templates_count }}</span>
+                <h4 class="list-group-item-heading">
+                  <a href="{% url 'peering:configuration_template_list' %}">Configuration Templates</a>
+                </h4>
+              </div>
+              <div class="list-group-item">
                 <span class="badge pull-right">{{ peering_sessions_count }}</span>
                 <h4 class="list-group-item-heading">
                   Peering Sessions

@@ -1,0 +1,16 @@
+{% extends '_base.html' %}
+{% load render_table from django_tables2 %}
+{% block content %}
+      {% if request.user.is_authenticated %}
+      <div class="pull-right">
+        <a href="{% url 'peering:configuration_template_add' %}" class="btn btn-primary">
+          <span class="fa fa-plus" aria-hidden="true"></span>
+          Add a Configuration Template
+        </a>
+      </div>
+      {% endif %}
+      <h1>{% block title %}Configuration Templates{% endblock %}</h1>
+      <div class="row">
+        {% render_table configuration_templates %}
+      </div>
+{% endblock %}

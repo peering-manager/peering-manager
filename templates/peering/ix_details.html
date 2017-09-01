@@ -4,6 +4,12 @@
 {% block content %}
       {% if request.user.is_authenticated %}
       <div class="pull-right">
+        {% if internet_exchange.configuration_template %}
+        <a href="{% url 'peering:ix_configuration' slug=internet_exchange.slug %}" class="btn btn-info">
+          <span class="fa fa-terminal" aria-hidden="true"></span>
+          Get Configuration
+        </a>
+        {% endif %}
         <a href="{% url 'peering:peering_session_add' slug=internet_exchange.slug %}" class="btn btn-primary">
           <span class="fa fa-plus" aria-hidden="true"></span>
           Add a Peering Session
@@ -38,6 +44,12 @@
                 <td>Peering Sessions</td>
                 <td>{{ peering_sessions_count }}</td>
               </tr>
+              {% if internet_exchange.configuration_template %}
+              <tr>
+                <td>Configuration Template</td>
+                <td>{{ internet_exchange.configuration_template }}</td>
+              </tr>
+              {% endif %}
             </table>
           </div>
         </div>

@@ -8,7 +8,7 @@
         {% endfor %}
         <div class="row">
           <div class="col-md-8 col-md-offset-2">
-            <h3>{% block title %}Add a new IX{% endblock %}</h3>
+            <h3>{% block title %}Edit template {{ configuration_template }}{% endblock %}</h3>
             {% if form.non_field_errors %}
             <div class="panel panel-danger">
               <div class="panel-heading"><strong>Errors</strong></div>
@@ -18,25 +18,18 @@
             </div>
             {% endif %}
             <div class="panel panel-default">
-              <div class="panel-heading"><strong>Internet Exchange</strong></div>
+              <div class="panel-heading"><strong>Configuration Template</strong></div>
               <div class="panel-body">
                 {% render_field form.name %}
-                {% render_field form.slug %}
-                {% render_field form.configuration_template %}
-              </div>
-            </div>
-            <div class="panel panel-default">
-              <div class="panel-heading"><strong>Comments</strong></div>
-              <div class="panel-body">
-                {% render_field form.comment %}
+                {% render_field form.template %}
               </div>
             </div>
           </div>
         </div>
         <div class="row">
           <div class="col-md-8 col-md-offset-2 text-right">
-            <button type="submit" class="btn btn-primary">Create</button>
-            <a class="btn btn-default" href="{% url 'peering:ix_list' %}">Cancel</a>
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a class="btn btn-default" href="{% url 'peering:configuration_template_details' id=configuration_template.id %}">Cancel</a>
           </div>
         </div>
       </form>

@@ -1,5 +1,9 @@
 from __future__ import unicode_literals
 
+import ipaddress
+
+from jinja2 import Template
+
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.http import HttpResponse
@@ -7,15 +11,16 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from django_tables2 import RequestConfig
 
-from .forms import AutonomousSystemForm, ConfirmationForm, InternetExchangeForm, PeeringSessionForm
-from .models import AutonomousSystem, InternetExchange, PeeringSession
-from .tables import AutonomousSystemTable, InternetExchangeTable, PeeringSessionTable
+from .forms import AutonomousSystemForm, ConfigurationTemplateForm, ConfirmationForm, InternetExchangeForm, PeeringSessionForm
+from .models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession
+from .tables import AutonomousSystemTable, ConfigurationTemplateTable, InternetExchangeTable, PeeringSessionTable
 
 
 def home(request):
     context = {
         'autonomous_systems_count': AutonomousSystem.objects.count(),
         'internet_exchanges_count': InternetExchange.objects.count(),
+        'configuration_templates_count': ConfigurationTemplate.objects.count(),
         'peering_sessions_count': PeeringSession.objects.count(),
     }
     return render(request, 'home.html', context)
@@ -97,6 +102,82 @@ def as_delete(request, asn):
     return render(request, 'peering/as_delete.html', context)
 
 
+def configuration_template_list(request):
+    configuration_templates = ConfigurationTemplateTable(
+        ConfigurationTemplate.objects.all())
+    RequestConfig(request).configure(configuration_templates)
+    context = {
+        'configuration_templates': configuration_templates
+    }
+
+    return render(request, 'peering/configuration_template_list.html', context)
+
+
+@login_required
+def configuration_template_add(request):
+    if request.method == 'POST':
+        form = ConfigurationTemplateForm(request.POST)
+        if form.is_valid():
+            configuration_template = form.save()
+            return redirect('peering:configuration_template_details', id=configuration_template.id)
+    else:
+        form = ConfigurationTemplateForm()
+
+    return render(request, 'peering/configuration_template_add.html', {'form': form})
+
+
+def configuration_template_details(request, id):
+    configuration_template = get_object_or_404(ConfigurationTemplate, id=id)
+    internet_exchanges = []
+
+    context = {
+        'configuration_template': configuration_template,
+        'internet_exchanges': internet_exchanges,
+    }
+
+    return render(request, 'peering/configuration_template_details.html', context)
+
+
+@login_required
+def configuration_template_edit(request, id):
+    configuration_template = get_object_or_404(ConfigurationTemplate, id=id)
+
+    if request.method == 'POST':
+        form = ConfigurationTemplateForm(
+            request.POST, instance=configuration_template)
+        if form.is_valid():
+            configuration_template = form.save()
+            return redirect('peering:configuration_template_details', id=id)
+    else:
+        form = ConfigurationTemplateForm(instance=configuration_template)
+
+    context = {
+        'form': form,
+        'configuration_template': configuration_template,
+    }
+
+    return render(request, 'peering/configuration_template_edit.html', context)
+
+
+def configuration_template_delete(request, id):
+    configuration_template = get_object_or_404(ConfigurationTemplate, id=id)
+
+    if request.method == 'POST':
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+            configuration_template.delete()
+            return redirect('peering:configuration_template_list')
+    else:
+        form = ConfirmationForm(initial=request.GET)
+
+    context = {
+        'form': form,
+        'configuration_template': configuration_template,
+    }
+
+    return render(request, 'peering/configuration_template_delete.html', context)
+
+
 def ix_list(request):
     internet_exchanges = InternetExchangeTable(
         InternetExchange.objects.order_by('name'))
@@ -172,6 +253,45 @@ def ix_delete(request, slug):
     }
 
     return render(request, 'peering/ix_delete.html', context)
+
+
+@login_required
+def ix_configuration(request, slug):
+    internet_exchange = get_object_or_404(InternetExchange, slug=slug)
+    peering_sessions = internet_exchange.peeringsession_set.all()
+
+    peering_sessions6 = []
+    peering_sessions4 = []
+
+    # Sort peering sessions based on IP protocol version
+    for session in peering_sessions:
+        session_dict = session.to_dict()
+        if session_dict['ip_version'] == 6:
+            peering_sessions6.append(session_dict)
+        if session_dict['ip_version'] == 4:
+            peering_sessions4.append(session_dict)
+
+    peering_groups = [
+        {'name': 'ipv6', 'sessions': peering_sessions6},
+        {'name': 'ipv4', 'sessions': peering_sessions4},
+    ]
+
+    values = {
+        'internet_exchange': internet_exchange,
+        'peering_groups': peering_groups,
+    }
+
+    # Load and render the template using Jinja2
+    configuration_template = Template(
+        internet_exchange.configuration_template.template)
+    configuration = configuration_template.render(values)
+
+    context = {
+        'internet_exchange': internet_exchange,
+        'internet_exchange_configuration': configuration,
+    }
+
+    return render(request, 'peering/ix_configuration.html', context)
 
 
 @login_required

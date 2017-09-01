@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import django_tables2 as tables
 
 from django_tables2.utils import A
-from .models import AutonomousSystem, InternetExchange, PeeringSession
+from .models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession
 
 
 class BaseTable(tables.Table):
@@ -44,6 +44,19 @@ class AutonomousSystemTable(BaseTable):
                   'ipv6_max_prefixes', 'ipv4_max_prefixes', 'details',)
 
 
+class ConfigurationTemplateTable(BaseTable):
+    """
+    Table for ConfigurationTemplate lists
+    """
+
+    details = tables.TemplateColumn(verbose_name=' ',
+                                    template_code='<a href="{% url \'peering:configuration_template_details\' id=record.id %}" class="btn btn-xs btn-info"><span class="fa fa-info-circle" aria-hidden="true"></span> See details</a>', orderable=False)
+
+    class Meta(BaseTable.Meta):
+        model = ConfigurationTemplate
+        fields = ('name', 'updated', 'details',)
+
+
 class InternetExchangeTable(BaseTable):
     """
     Table for InternetExchange lists
@@ -58,7 +71,8 @@ class InternetExchangeTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = InternetExchange
-        fields = ('name', 'as_nb', 'peering_nb', 'details',)
+        fields = ('name', 'as_nb', 'peering_nb',
+                  'configuration_template', 'details',)
 
 
 class PeeringSessionTable(BaseTable):

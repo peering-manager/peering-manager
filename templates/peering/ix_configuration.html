@@ -1,0 +1,24 @@
+{% extends '_base.html' %}
+{% block content %}
+      {% if request.user.is_authenticated %}
+      <div class="pull-right">
+        <a href="{% url 'peering:ix_details' slug=internet_exchange.slug %}" class="btn btn-info">
+          <span class="fa fa-arrow-left" aria-hidden="true"></span>
+          Back to IX Details
+        </a>
+      </div>
+      {% endif %}
+      <h1>{% block title %}Configuration for {{ internet_exchange }}{% endblock %}</h1>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>Configuration</strong>
+            </div>
+            <div class="panel-body">
+              <pre>{{ internet_exchange_configuration }}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}
