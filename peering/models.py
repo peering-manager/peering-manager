@@ -97,10 +97,10 @@ class PeeringSession(models.Model):
 
         return {
             'peer_as': str(self.autonomous_system.asn),
+            'peer_as_name': self.autonomous_system.name,
             'ip_version': ip_version,
             'ip_address': str(self.ip_address),
             'max_prefixes': max_prefixes,
-            'description': 'Peering: AS{} - {}'.format(self.autonomous_system.asn, self.autonomous_system.name),
         }
 
     def __str__(self):
