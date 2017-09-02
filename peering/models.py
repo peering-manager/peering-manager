@@ -96,10 +96,10 @@ class PeeringSession(models.Model):
             max_prefixes = self.autonomous_system.ipv4_max_prefixes
 
         return {
-            'peer_as': str(self.autonomous_system.asn),
+            'peer_as': self.autonomous_system.asn,
             'peer_as_name': self.autonomous_system.name,
             'ip_version': ip_version,
-            'ip_address': str(self.ip_address),
+            'ip_address': self.ip_address,
             'max_prefixes': max_prefixes,
         }
 
