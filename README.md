@@ -31,10 +31,8 @@ SQLite database (but it should work with MySQL/MariaDB and PostgreSQL).
 
   * Data importation using CSV
   * Data importation using PeeringDB API
-  * Device configurations generation
   * Device connections to push configuration
   * Generate IRR objects
-  * Users login and rights
   * BGP import/export policies
   * BGP sessions status
   * More info for AS and IX (eg. contact details)
