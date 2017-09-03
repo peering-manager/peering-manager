@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import ipaddress
 
 from django.db import models
+from django.utils import timezone
 from .fields import ASNField
 
 
@@ -44,6 +45,10 @@ class ConfigurationTemplate(models.Model):
 
     class Meta:
         ordering = ['name']
+
+    def save(self, *args, **kwargs):
+        updated = timezone.now()
+        super(ConfigurationTemplate, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name
