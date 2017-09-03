@@ -94,13 +94,18 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = InternetExchange
-        fields = ('name', 'slug', 'configuration_template', 'comment',)
+        fields = ('name', 'slug', 'ipv6_address', 'ipv4_address',
+                  'configuration_template', 'comment',)
         labels = {
+            'ipv6_address': 'IPv6 Address',
+            'ipv4_address': 'IPv4 Address',
             'comment': 'Comments',
         }
         help_texts = {
             'name': 'Full name of the Internet Exchange point',
             'slug': 'Router configuration and URL friendly shorthand',
+            'ipv6_address': 'IPv6 Address used to peer',
+            'ipv4_address': 'IPv4 Address used to peer',
             'configuration_template': 'Template for configuration generation',
         }
 

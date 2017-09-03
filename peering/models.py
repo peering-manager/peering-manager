@@ -57,6 +57,8 @@ class ConfigurationTemplate(models.Model):
 class InternetExchange(models.Model):
     name = models.CharField(max_length=128)
     slug = models.SlugField()
+    ipv6_address = models.GenericIPAddressField(blank=True, null=True)
+    ipv4_address = models.GenericIPAddressField(blank=True, null=True)
     comment = models.TextField(blank=True)
     configuration_template = models.ForeignKey(
         'ConfigurationTemplate', blank=True, null=True, on_delete=models.SET_NULL)

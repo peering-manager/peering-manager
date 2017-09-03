@@ -62,6 +62,8 @@ class InternetExchangeTable(BaseTable):
     Table for InternetExchange lists
     """
 
+    ipv6_address = tables.Column(verbose_name='Used IPv6 Address')
+    ipv4_address = tables.Column(verbose_name='Used IPv4 Address')
     as_nb = tables.Column(verbose_name='# Autonomous Systems',
                           accessor='get_autonomous_systems_count')
     peering_nb = tables.Column(
@@ -71,7 +73,7 @@ class InternetExchangeTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = InternetExchange
-        fields = ('name', 'as_nb', 'peering_nb',
+        fields = ('name', 'ipv6_address', 'ipv4_address', 'as_nb', 'peering_nb',
                   'configuration_template', 'details',)
 
 
