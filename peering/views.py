@@ -128,7 +128,8 @@ def configuration_template_add(request):
 
 def configuration_template_details(request, id):
     configuration_template = get_object_or_404(ConfigurationTemplate, id=id)
-    internet_exchanges = []
+    internet_exchanges = InternetExchange.objects.filter(
+        configuration_template=configuration_template)
 
     context = {
         'configuration_template': configuration_template,
