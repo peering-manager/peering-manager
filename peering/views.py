@@ -5,8 +5,6 @@ import ipaddress
 from jinja2 import Template
 
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from django_tables2 import RequestConfig
