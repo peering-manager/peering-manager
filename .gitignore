@@ -127,3 +127,6 @@ tags
 [Tt]cl
 pyvenv.cfg
 pip-selfcheck.json
+
+### Project specifics ###
+patches
