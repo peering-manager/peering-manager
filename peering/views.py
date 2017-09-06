@@ -98,15 +98,15 @@ class Home(View):
         return render(request, 'home.html', context)
 
 
-def as_list(request):
-    autonomous_systems = AutonomousSystemTable(
-        AutonomousSystem.objects.order_by('asn'))
-    RequestConfig(request).configure(autonomous_systems)
-    context = {
-        'autonomous_systems': autonomous_systems
-    }
-
-    return render(request, 'peering/as/list.html', context)
+class ASList(View):
+    def get(self, request):
+        autonomous_systems = AutonomousSystemTable(
+            AutonomousSystem.objects.order_by('asn'))
+        RequestConfig(request).configure(autonomous_systems)
+        context = {
+            'autonomous_systems': autonomous_systems
+        }
+        return render(request, 'peering/as/list.html', context)
 
 
 @login_required
@@ -127,16 +127,15 @@ class AutonomousSystemImport(ImportView):
     return_url = 'peering:as_list'
 
 
-def as_details(request, asn):
-    autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
-
-    context = {
-        'autonomous_system': autonomous_system,
-        'internet_exchanges': autonomous_system.get_internet_exchanges(),
-        'peering_sessions_count': autonomous_system.get_peering_sessions_count(),
-    }
-
-    return render(request, 'peering/as/details.html', context)
+class ASDetails(View):
+    def get(self, request, asn):
+        autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
+        context = {
+            'autonomous_system': autonomous_system,
+            'internet_exchanges': autonomous_system.get_internet_exchanges(),
+            'peering_sessions_count': autonomous_system.get_peering_sessions_count(),
+        }
+        return render(request, 'peering/as/details.html', context)
 
 
 @login_required
@@ -179,15 +178,15 @@ def as_delete(request, asn):
     return render(request, 'peering/as/delete.html', context)
 
 
-def configuration_template_list(request):
-    configuration_templates = ConfigurationTemplateTable(
-        ConfigurationTemplate.objects.all())
-    RequestConfig(request).configure(configuration_templates)
-    context = {
-        'configuration_templates': configuration_templates
-    }
-
-    return render(request, 'peering/config/list.html', context)
+class ConfigTemplateList(View):
+    def get(self, request):
+        configuration_templates = ConfigurationTemplateTable(
+            ConfigurationTemplate.objects.all())
+        RequestConfig(request).configure(configuration_templates)
+        context = {
+            'configuration_templates': configuration_templates
+        }
+        return render(request, 'peering/config/list.html', context)
 
 
 @login_required
@@ -203,17 +202,17 @@ def configuration_template_add(request):
     return render(request, 'peering/config/add.html', {'form': form})
 
 
-def configuration_template_details(request, id):
-    configuration_template = get_object_or_404(ConfigurationTemplate, id=id)
-    internet_exchanges = InternetExchange.objects.filter(
-        configuration_template=configuration_template)
-
-    context = {
-        'configuration_template': configuration_template,
-        'internet_exchanges': internet_exchanges,
-    }
-
-    return render(request, 'peering/config/details.html', context)
+class ConfigTemplateDetails(View):
+    def get(self, request, id):
+        configuration_template = get_object_or_404(
+            ConfigurationTemplate, id=id)
+        internet_exchanges = InternetExchange.objects.filter(
+            configuration_template=configuration_template)
+        context = {
+            'configuration_template': configuration_template,
+            'internet_exchanges': internet_exchanges,
+        }
+        return render(request, 'peering/config/details.html', context)
 
 
 @login_required
@@ -237,6 +236,7 @@ def configuration_template_edit(request, id):
     return render(request, 'peering/config/edit.html', context)
 
 
+@login_required
 def configuration_template_delete(request, id):
     configuration_template = get_object_or_404(ConfigurationTemplate, id=id)
 
@@ -256,13 +256,13 @@ def configuration_template_delete(request, id):
     return render(request, 'peering/config/delete.html', context)
 
 
-def ix_list(request):
-    internet_exchanges = InternetExchangeTable(
-        InternetExchange.objects.order_by('name'))
-    RequestConfig(request).configure(internet_exchanges)
-    context = {'internet_exchanges': internet_exchanges}
-
-    return render(request, 'peering/ix/list.html', context)
+class IXList(View):
+    def get(self, request):
+        internet_exchanges = InternetExchangeTable(
+            InternetExchange.objects.order_by('name'))
+        RequestConfig(request).configure(internet_exchanges)
+        context = {'internet_exchanges': internet_exchanges}
+        return render(request, 'peering/ix/list.html', context)
 
 
 @login_required
@@ -283,19 +283,19 @@ class InternetExchangeImport(ImportView):
     return_url = 'peering:ix_list'
 
 
-def ix_details(request, slug):
-    internet_exchange = get_object_or_404(InternetExchange, slug=slug)
-    peering_sessions = PeeringSessionTable(internet_exchange.peeringsession_set.order_by(
-        'autonomous_system.asn', 'ip_address'))
-    RequestConfig(request).configure(peering_sessions)
-    context = {
-        'internet_exchange': internet_exchange,
-        'peering_sessions': peering_sessions,
-        'autonomous_systems_count': internet_exchange.get_autonomous_systems_count(),
-        'peering_sessions_count': internet_exchange.get_peering_sessions_count(),
-    }
-
-    return render(request, 'peering/ix/details.html', context)
+class IXDetails(View):
+    def get(self, request, slug):
+        internet_exchange = get_object_or_404(InternetExchange, slug=slug)
+        peering_sessions = PeeringSessionTable(internet_exchange.peeringsession_set.order_by(
+            'autonomous_system.asn', 'ip_address'))
+        RequestConfig(request).configure(peering_sessions)
+        context = {
+            'internet_exchange': internet_exchange,
+            'peering_sessions': peering_sessions,
+            'autonomous_systems_count': internet_exchange.get_autonomous_systems_count(),
+            'peering_sessions_count': internet_exchange.get_peering_sessions_count(),
+        }
+        return render(request, 'peering/ix/details.html', context)
 
 
 @login_required
@@ -338,43 +338,43 @@ def ix_delete(request, slug):
     return render(request, 'peering/ix/delete.html', context)
 
 
-@login_required
-def ix_configuration(request, slug):
-    internet_exchange = get_object_or_404(InternetExchange, slug=slug)
-    peering_sessions = internet_exchange.peeringsession_set.all()
+class IXConfig(LoginRequiredMixin, View):
+    def get(self, request, slug):
+        internet_exchange = get_object_or_404(InternetExchange, slug=slug)
+        peering_sessions = internet_exchange.peeringsession_set.all()
 
-    peering_sessions6 = []
-    peering_sessions4 = []
+        peering_sessions6 = []
+        peering_sessions4 = []
 
-    # Sort peering sessions based on IP protocol version
-    for session in peering_sessions:
-        session_dict = session.to_dict()
-        if session_dict['ip_version'] == 6:
-            peering_sessions6.append(session_dict)
-        if session_dict['ip_version'] == 4:
-            peering_sessions4.append(session_dict)
+        # Sort peering sessions based on IP protocol version
+        for session in peering_sessions:
+            session_dict = session.to_dict()
+            if session_dict['ip_version'] == 6:
+                peering_sessions6.append(session_dict)
+            if session_dict['ip_version'] == 4:
+                peering_sessions4.append(session_dict)
 
-    peering_groups = [
-        {'name': 'ipv6', 'sessions': peering_sessions6},
-        {'name': 'ipv4', 'sessions': peering_sessions4},
-    ]
+        peering_groups = [
+            {'name': 'ipv6', 'sessions': peering_sessions6},
+            {'name': 'ipv4', 'sessions': peering_sessions4},
+        ]
 
-    values = {
-        'internet_exchange': internet_exchange,
-        'peering_groups': peering_groups,
-    }
+        values = {
+            'internet_exchange': internet_exchange,
+            'peering_groups': peering_groups,
+        }
 
-    # Load and render the template using Jinja2
-    configuration_template = Template(
-        internet_exchange.configuration_template.template)
-    configuration = configuration_template.render(values)
+        # Load and render the template using Jinja2
+        configuration_template = Template(
+            internet_exchange.configuration_template.template)
+        configuration = configuration_template.render(values)
 
-    context = {
-        'internet_exchange': internet_exchange,
-        'internet_exchange_configuration': configuration,
-    }
+        context = {
+            'internet_exchange': internet_exchange,
+            'internet_exchange_configuration': configuration,
+        }
 
-    return render(request, 'peering/ix/configuration.html', context)
+        return render(request, 'peering/ix/configuration.html', context)
 
 
 @login_required
@@ -398,10 +398,11 @@ def peering_session_add(request, slug):
     return render(request, 'peering/session/add.html', context)
 
 
-def peering_session_details(request, id):
-    peering_session = get_object_or_404(PeeringSession, id=id)
-    context = {'peering_session': peering_session}
-    return render(request, 'peering/session/details.html', context)
+class PeeringSessionDetails(View):
+    def get(self, request, id):
+        peering_session = get_object_or_404(PeeringSession, id=id)
+        context = {'peering_session': peering_session}
+        return render(request, 'peering/session/details.html', context)
 
 
 @login_required
