@@ -1,0 +1,49 @@
+{% extends '_base.html' %}
+{% load form_helpers %}
+{% block content %}
+      <form method="post" class="form-horizontal">
+        {% csrf_token %}
+        {% for field in form.hidden_fields %}
+        {{ field }}
+        {% endfor %}
+        <div class="row">
+          <div class="col-md-8">
+            <div class="row">
+              <h3>{% block title %}{{ obj_type|title }} Import{% endblock %}</h3>
+              {% if form.non_field_errors %}
+              <div class="panel panel-danger">
+                <div class="panel-heading"><strong>Errors</strong></div>
+                <div class="panel-body">
+                  {{ form.non_field_errors }}
+                </div>
+              </div>
+              {% endif %}
+              {% render_field form.csv %}
+            </div>
+            <div class="row">
+              <div class="text-right">
+                <button type="submit" class="btn btn-primary">Import</button>
+                <a class="btn btn-default" href="{% url return_url %}">Cancel</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            {% if fields %}
+            <h3 class="text-center">CSV Format</h3>
+            <table class="table">
+              <tr>
+                <th>Field</th>
+                <th>Description</th>
+              </tr>
+              {% for name, field in fields.items %}
+              <tr>
+                <td><code>{{ name }}</code></td>
+                <td>{{ field.help_text|default:field.label }}</td>
+              </tr>
+              {% endfor %}
+            </table>
+            {% endif %}
+          </div>
+        </div>
+      </form>
+{% endblock %}

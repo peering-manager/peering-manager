@@ -12,6 +12,7 @@ urlpatterns = [
     # Autonomous Systems
     url(r'^as/$', views.as_list, name='as_list'),
     url(r'^as/add/$', views.as_add, name='as_add'),
+    url(r'^as/import/$', views.AutonomousSystemImport.as_view(), name='as_import'),
     url(r'^as/(?P<asn>[0-9]+)/$', views.as_details, name='as_details'),
     url(r'^as/(?P<asn>[0-9]+)/edit/$', views.as_edit, name='as_edit'),
     url(r'^as/(?P<asn>[0-9]+)/delete/$', views.as_delete, name='as_delete'),
@@ -31,6 +32,7 @@ urlpatterns = [
     # Internet Exchanges
     url(r'^ix/$', views.ix_list, name='ix_list'),
     url(r'^ix/add/$', views.ix_add, name='ix_add'),
+    url(r'^ix/import/$', views.InternetExchangeImport.as_view(), name='ix_import'),
     url(r'^ix/(?P<slug>[\w-]+)/$', views.ix_details, name='ix_details'),
     url(r'^ix/(?P<slug>[\w-]+)/edit/$', views.ix_edit, name='ix_edit'),
     url(r'^ix/(?P<slug>[\w-]+)/delete/$', views.ix_delete, name='ix_delete'),

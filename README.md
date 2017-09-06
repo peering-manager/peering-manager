@@ -29,7 +29,6 @@ SQLite database (but it should work with MySQL/MariaDB and PostgreSQL).
 
 ## Features to come (aka TODO list)
 
-  * Data importation using CSV
   * Data importation using PeeringDB API
   * Device connections to push configuration
   * Generate IRR objects

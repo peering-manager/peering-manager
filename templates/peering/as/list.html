@@ -7,6 +7,10 @@
           <span class="fa fa-plus" aria-hidden="true"></span>
           Add an AS
         </a>
+        <a href="{% url 'peering:as_import' %}" class="btn btn-info">
+          <span class="fa fa-upload" aria-hidden="true"></span>
+          Import AS
+        </a>
       </div>
       {% endif %}
       <h1>{% block title %}Autonomous Systems{% endblock %}</h1>
