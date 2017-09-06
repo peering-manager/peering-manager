@@ -87,14 +87,15 @@ class ImportView(LoginRequiredMixin, View):
         })
 
 
-def home(request):
-    context = {
-        'autonomous_systems_count': AutonomousSystem.objects.count(),
-        'internet_exchanges_count': InternetExchange.objects.count(),
-        'configuration_templates_count': ConfigurationTemplate.objects.count(),
-        'peering_sessions_count': PeeringSession.objects.count(),
-    }
-    return render(request, 'home.html', context)
+class Home(View):
+    def get(self, request):
+        context = {
+            'autonomous_systems_count': AutonomousSystem.objects.count(),
+            'internet_exchanges_count': InternetExchange.objects.count(),
+            'configuration_templates_count': ConfigurationTemplate.objects.count(),
+            'peering_sessions_count': PeeringSession.objects.count(),
+        }
+        return render(request, 'home.html', context)
 
 
 def as_list(request):

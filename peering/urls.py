@@ -7,7 +7,7 @@ app_name = 'peering'
 
 urlpatterns = [
     # Home
-    url(r'^$', views.home, name='home'),
+    url(r'^$', views.Home.as_view(), name='home'),
 
     # Autonomous Systems
     url(r'^as/$', views.as_list, name='as_list'),
