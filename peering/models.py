@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import ipaddress
 
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from .fields import ASNField
 
@@ -34,6 +35,9 @@ class AutonomousSystem(models.Model):
     def get_internet_exchanges_count(self):
         return len(self.get_internet_exchanges())
 
+    def get_absolute_url(self):
+        return reverse('peering:as_details', kwargs={'asn': self.asn})
+
     def __str__(self):
         return 'AS{} - {}'.format(self.asn, self.name)
 
@@ -49,6 +53,9 @@ class ConfigurationTemplate(models.Model):
     def save(self, *args, **kwargs):
         updated = timezone.now()
         super(ConfigurationTemplate, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('peering:configuration_template_details', kwargs={'id': self.id})
 
     def __str__(self):
         return self.name
@@ -80,6 +87,9 @@ class InternetExchange(models.Model):
 
     def get_autonomous_systems_count(self):
         return len(self.get_autonomous_systems())
+
+    def get_absolute_url(self):
+        return reverse('peering:ix_details', kwargs={'slug': self.slug})
 
     def __str__(self):
         return self.name

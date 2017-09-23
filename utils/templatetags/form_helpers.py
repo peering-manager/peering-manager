@@ -8,10 +8,20 @@ register = template.Library()
 @register.inclusion_tag('utils/render_field.html')
 def render_field(field):
     """
-    Render a single form field from template
+    Render a single form field from template.
     """
     return {
         'field': field,
+    }
+
+
+@register.inclusion_tag('utils/render_form.html')
+def render_form(form):
+    """
+    Render a form by rendering all fields.
+    """
+    return {
+        'form': form,
     }
 
 

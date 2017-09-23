@@ -15,7 +15,7 @@ from .forms import AutonomousSystemForm, AutonomousSystemCSVForm, ConfigurationT
 from .models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession
 from .tables import AutonomousSystemTable, ConfigurationTemplateTable, InternetExchangeTable, PeeringSessionTable
 from utils.forms import ConfirmationForm
-from utils.views import ImportView
+from utils.views import AddOrEditView, ImportView
 
 
 class Home(View):
@@ -40,17 +40,11 @@ class ASList(View):
         return render(request, 'peering/as/list.html', context)
 
 
-@login_required
-def as_add(request):
-    if request.method == 'POST':
-        form = AutonomousSystemForm(request.POST)
-        if form.is_valid():
-            autonomous_system = form.save()
-            return redirect('peering:as_details', asn=autonomous_system.asn)
-    else:
-        form = AutonomousSystemForm()
-
-    return render(request, 'peering/as/add.html', {'form': form})
+class ASAdd(AddOrEditView):
+    model = AutonomousSystem
+    form = AutonomousSystemForm
+    return_url = 'peering:as_list'
+    template = 'peering/as/add_edit.html'
 
 
 class AutonomousSystemImport(ImportView):
@@ -69,24 +63,10 @@ class ASDetails(View):
         return render(request, 'peering/as/details.html', context)
 
 
-@login_required
-def as_edit(request, asn):
-    autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
-
-    if request.method == 'POST':
-        form = AutonomousSystemForm(request.POST, instance=autonomous_system)
-        if form.is_valid():
-            autonomous_system = form.save()
-            return redirect('peering:as_details', asn=asn)
-    else:
-        form = AutonomousSystemForm(instance=autonomous_system)
-
-    context = {
-        'form': form,
-        'autonomous_system': autonomous_system,
-    }
-
-    return render(request, 'peering/as/edit.html', context)
+class ASEdit(AddOrEditView):
+    model = AutonomousSystem
+    form = AutonomousSystemForm
+    template = 'peering/as/add_edit.html'
 
 
 @login_required
@@ -120,17 +100,10 @@ class ConfigTemplateList(View):
         return render(request, 'peering/config/list.html', context)
 
 
-@login_required
-def configuration_template_add(request):
-    if request.method == 'POST':
-        form = ConfigurationTemplateForm(request.POST)
-        if form.is_valid():
-            configuration_template = form.save()
-            return redirect('peering:configuration_template_details', id=configuration_template.id)
-    else:
-        form = ConfigurationTemplateForm()
-
-    return render(request, 'peering/config/add.html', {'form': form})
+class ConfigTemplateAdd(AddOrEditView):
+    model = ConfigurationTemplate
+    form = ConfigurationTemplateForm
+    return_url = 'peering:configuration_template_list'
 
 
 class ConfigTemplateDetails(View):
@@ -146,25 +119,9 @@ class ConfigTemplateDetails(View):
         return render(request, 'peering/config/details.html', context)
 
 
-@login_required
-def configuration_template_edit(request, id):
-    configuration_template = get_object_or_404(ConfigurationTemplate, id=id)
-
-    if request.method == 'POST':
-        form = ConfigurationTemplateForm(
-            request.POST, instance=configuration_template)
-        if form.is_valid():
-            configuration_template = form.save()
-            return redirect('peering:configuration_template_details', id=id)
-    else:
-        form = ConfigurationTemplateForm(instance=configuration_template)
-
-    context = {
-        'form': form,
-        'configuration_template': configuration_template,
-    }
-
-    return render(request, 'peering/config/edit.html', context)
+class ConfigTemplateEdit(AddOrEditView):
+    model = ConfigurationTemplate
+    form = ConfigurationTemplateForm
 
 
 @login_required
@@ -196,17 +153,11 @@ class IXList(View):
         return render(request, 'peering/ix/list.html', context)
 
 
-@login_required
-def ix_add(request):
-    if request.method == 'POST':
-        form = InternetExchangeForm(request.POST)
-        if form.is_valid():
-            internet_exchange = form.save()
-            return redirect('peering:ix_details', slug=internet_exchange.slug)
-    else:
-        form = InternetExchangeForm()
-
-    return render(request, 'peering/ix/add.html', {'form': form})
+class IXAdd(AddOrEditView):
+    model = InternetExchange
+    form = InternetExchangeForm
+    return_url = 'peering:ix_list'
+    template = 'peering/ix/add_edit.html'
 
 
 class InternetExchangeImport(ImportView):
@@ -229,24 +180,10 @@ class IXDetails(View):
         return render(request, 'peering/ix/details.html', context)
 
 
-@login_required
-def ix_edit(request, slug):
-    internet_exchange = get_object_or_404(InternetExchange, slug=slug)
-
-    if request.method == 'POST':
-        form = InternetExchangeForm(request.POST, instance=internet_exchange)
-        if form.is_valid():
-            internet_exchange = form.save()
-            return redirect('peering:ix_details', slug=slug)
-    else:
-        form = InternetExchangeForm(instance=internet_exchange)
-
-    context = {
-        'form': form,
-        'internet_exchange': internet_exchange,
-    }
-
-    return render(request, 'peering/ix/edit.html', context)
+class IXEdit(AddOrEditView):
+    model = InternetExchange
+    form = InternetExchangeForm
+    template = 'peering/ix/add_edit.html'
 
 
 @login_required

@@ -1,0 +1,20 @@
+{% extends 'utils/object_add_edit.html' %}
+{% load form_helpers %}
+{% block form %}
+            <div class="panel panel-default">
+              <div class="panel-heading"><strong>Internet Exchange</strong></div>
+              <div class="panel-body">
+                {% render_field form.name %}
+                {% render_field form.slug %}
+                {% render_field form.ipv6_address %}
+                {% render_field form.ipv4_address %}
+                {% render_field form.configuration_template %}
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading"><strong>Comments</strong></div>
+              <div class="panel-body">
+                {% render_field form.comment %}
+              </div>
+            </div>
+{% endblock %}

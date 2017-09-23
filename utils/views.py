@@ -4,10 +4,90 @@ from django.db import transaction
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import Form
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from .forms import BootstrapMixin, CSVDataField
+
+
+class AddOrEditView(LoginRequiredMixin, View):
+    model = None
+    form = None
+    return_url = None
+    template = 'utils/object_add_edit.html'
+
+    def get_object(self, kwargs):
+        if 'asn' in kwargs:
+            # Lookup object by ASN
+            return get_object_or_404(self.model, asn=kwargs['asn'])
+
+        if 'slug' in kwargs:
+            # Lookup object by slug
+            return get_object_or_404(self.model, slug=kwargs['slug'])
+
+        if 'id' in kwargs:
+            # Lookup object by ID
+            return get_object_or_404(self.model, id=kwargs['id'])
+
+        # New object
+        return self.model()
+
+    def get_return_url(self, obj):
+        if obj.pk:
+            # If the object has an absolute URL, use it
+            return obj.get_absolute_url()
+
+        if self.return_url:
+            # Otherwise use the default URL if given
+            return reverse(self.return_url)
+
+        # Or return to home
+        return reverse('peering:home')
+
+    def get(self, request, *args, **kwargs):
+        """
+        Method used to render the view when form is not submitted.
+        """
+        obj = self.get_object(kwargs)
+        form = self.form(instance=obj, initial=request.GET)
+
+        return render(request, self.template, {
+            'object': obj,
+            'object_type': self.model._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(obj),
+        })
+
+    def post(self, request, *args, **kwargs):
+        """
+        The form has been submitted, process it.
+        """
+        obj = self.get_object(kwargs)
+        form = self.form(request.POST, instance=obj)
+
+        if form.is_valid():
+            # Check if the object will be created or modified
+            created = not form.instance.pk
+
+            # Save the object
+            obj = form.save()
+
+            # Notify user with a message
+            message = 'Created ' if created else 'Modified '
+            message = '{} {}'.format(message, escape(obj))
+            messages.success(request, mark_safe(message))
+
+            return redirect(self.get_return_url(obj))
+
+        return render(request, self.template, {
+            'object': obj,
+            'object_type': self.model._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(obj),
+        })
 
 
 class ImportView(LoginRequiredMixin, View):
