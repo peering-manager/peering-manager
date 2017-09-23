@@ -10,7 +10,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
-from .forms import BootstrapMixin, CSVDataField
+from .forms import BootstrapMixin, ConfirmationForm, CSVDataField
 
 
 class AddOrEditView(LoginRequiredMixin, View):
@@ -103,7 +103,7 @@ class ImportView(LoginRequiredMixin, View):
 
         return ImportForm(*args, **kwargs)
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         """
         Method used to render the view when form is not submitted.
         """
@@ -114,7 +114,7 @@ class ImportView(LoginRequiredMixin, View):
             'return_url': self.return_url,
         })
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         """
         The form has been submitted, process it.
         """
@@ -151,4 +151,68 @@ class ImportView(LoginRequiredMixin, View):
             'fields': self.form_model().fields,
             'object_type': self.form_model._meta.model._meta.verbose_name,
             'return_url': self.return_url,
+        })
+
+
+class DeleteView(LoginRequiredMixin, View):
+    model = None
+    return_url = None
+    template = 'utils/object_delete.html'
+
+    def get_object(self, kwargs):
+        if 'asn' in kwargs:
+            # Lookup object by ASN
+            return get_object_or_404(self.model, asn=kwargs['asn'])
+
+        if 'slug' in kwargs:
+            # Lookup object by slug
+            return get_object_or_404(self.model, slug=kwargs['slug'])
+
+        if 'id' in kwargs:
+            # Lookup object by ID
+            return get_object_or_404(self.model, id=kwargs['id'])
+
+        return None
+
+    def get_return_url(self, obj):
+        if self.return_url:
+            # Use the default URL if given
+            return reverse(self.return_url)
+
+        # Or return to home
+        return reverse('peering:home')
+
+    def get(self, request, *args, **kwargs):
+        """
+        Method used to render the view when form is not submitted.
+        """
+        obj = self.get_object(kwargs)
+        form = ConfirmationForm(initial=request.GET)
+
+        return render(request, self.template, {
+            'object': obj,
+            'form': form,
+            'object_type': self.model._meta.verbose_name,
+            'return_url': self.get_return_url(obj),
+        })
+
+    def post(self, request, *args, **kwargs):
+        """
+        The form has been submitted, process it.
+        """
+        obj = self.get_object(kwargs)
+        form = ConfirmationForm(request.POST)
+
+        if form.is_valid():
+            obj.delete()
+            messages.success(request, 'Deleted {} {}'.format(
+                self.model._meta.verbose_name, obj))
+
+            return redirect(self.get_return_url(obj))
+
+        return render(request, self.template, {
+            'object': obj,
+            'form': form,
+            'object_type': self.model._meta.verbose_name,
+            'return_url': self.get_return_url(obj),
         })

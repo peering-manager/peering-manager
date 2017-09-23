@@ -15,7 +15,7 @@ from .forms import AutonomousSystemForm, AutonomousSystemCSVForm, ConfigurationT
 from .models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession
 from .tables import AutonomousSystemTable, ConfigurationTemplateTable, InternetExchangeTable, PeeringSessionTable
 from utils.forms import ConfirmationForm
-from utils.views import AddOrEditView, ImportView
+from utils.views import AddOrEditView, DeleteView, ImportView
 
 
 class Home(View):
@@ -69,24 +69,9 @@ class ASEdit(AddOrEditView):
     template = 'peering/as/add_edit.html'
 
 
-@login_required
-def as_delete(request, asn):
-    autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
-
-    if request.method == 'POST':
-        form = ConfirmationForm(request.POST)
-        if form.is_valid():
-            autonomous_system.delete()
-            return redirect('peering:as_list')
-    else:
-        form = ConfirmationForm(initial=request.GET)
-
-    context = {
-        'form': form,
-        'autonomous_system': autonomous_system,
-    }
-
-    return render(request, 'peering/as/delete.html', context)
+class ASDelete(DeleteView):
+    model = AutonomousSystem
+    return_url = 'peering:as_list'
 
 
 class ConfigTemplateList(View):
@@ -124,24 +109,9 @@ class ConfigTemplateEdit(AddOrEditView):
     form = ConfigurationTemplateForm
 
 
-@login_required
-def configuration_template_delete(request, id):
-    configuration_template = get_object_or_404(ConfigurationTemplate, id=id)
-
-    if request.method == 'POST':
-        form = ConfirmationForm(request.POST)
-        if form.is_valid():
-            configuration_template.delete()
-            return redirect('peering:configuration_template_list')
-    else:
-        form = ConfirmationForm(initial=request.GET)
-
-    context = {
-        'form': form,
-        'configuration_template': configuration_template,
-    }
-
-    return render(request, 'peering/config/delete.html', context)
+class ConfigTemplateDelete(DeleteView):
+    model = ConfigurationTemplate
+    return_url = 'peering:configuration_template_list'
 
 
 class IXList(View):
@@ -186,24 +156,9 @@ class IXEdit(AddOrEditView):
     template = 'peering/ix/add_edit.html'
 
 
-@login_required
-def ix_delete(request, slug):
-    internet_exchange = get_object_or_404(InternetExchange, slug=slug)
-
-    if request.method == 'POST':
-        form = ConfirmationForm(request.POST)
-        if form.is_valid():
-            internet_exchange.delete()
-            return redirect('peering:ix_list')
-    else:
-        form = ConfirmationForm(initial=request.GET)
-
-    context = {
-        'form': form,
-        'internet_exchange': internet_exchange,
-    }
-
-    return render(request, 'peering/ix/delete.html', context)
+class IXDelete(DeleteView):
+    model = InternetExchange
+    return_url = 'peering:ix_list'
 
 
 class IXConfig(LoginRequiredMixin, View):

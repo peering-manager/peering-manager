@@ -9,12 +9,12 @@
             {{ field }}
             {% endfor %}
             <div class="panel panel-danger">
-              <div class="panel-heading">{% block title %}Delete {{ autonomous_system }}?{% endblock %}</div>
+              <div class="panel-heading">{% block title %}Delete {{ object_type }}?{% endblock %}</div>
               <div class="panel-body">
-                <p>Are you sure that you want to delete <strong>{{ autonomous_system }}?</p>
+                <p>Are you sure that you want to delete <strong>{{ object }}?</p>
                 <div class="text-right">
                   <button type="submit" class="btn btn-danger">Confirm</button>
-                  <a class="btn btn-default" href="{% url 'peering:as_details' asn=autonomous_system.asn %}">Cancel</a>
+                  <a class="btn btn-default" href="{{ return_url }}">Cancel</a>
                 </div>
               </div>
             </div>

@@ -16,7 +16,8 @@ urlpatterns = [
     url(r'^as/(?P<asn>[0-9]+)/$',
         views.ASDetails.as_view(), name='as_details'),
     url(r'^as/(?P<asn>[0-9]+)/edit/$', views.ASEdit.as_view(), name='as_edit'),
-    url(r'^as/(?P<asn>[0-9]+)/delete/$', views.as_delete, name='as_delete'),
+    url(r'^as/(?P<asn>[0-9]+)/delete/$',
+        views.ASDelete.as_view(), name='as_delete'),
 
     # Configuration Templates
     url(r'^template/$', views.ConfigTemplateList.as_view(),
@@ -28,7 +29,7 @@ urlpatterns = [
     url(r'^template/(?P<id>[0-9]+)/edit/$',
         views.ConfigTemplateEdit.as_view(), name='configuration_template_edit'),
     url(r'^template/(?P<id>[0-9]+)/delete/$',
-        views.configuration_template_delete, name='configuration_template_delete'),
+        views.ConfigTemplateDelete.as_view(), name='configuration_template_delete'),
 
     # Internet Exchanges
     url(r'^ix/$', views.IXList.as_view(), name='ix_list'),
@@ -38,7 +39,8 @@ urlpatterns = [
         views.IXDetails.as_view(), name='ix_details'),
     url(r'^ix/(?P<slug>[\w-]+)/edit/$',
         views.IXEdit.as_view(), name='ix_edit'),
-    url(r'^ix/(?P<slug>[\w-]+)/delete/$', views.ix_delete, name='ix_delete'),
+    url(r'^ix/(?P<slug>[\w-]+)/delete/$',
+        views.IXDelete.as_view(), name='ix_delete'),
     url(r'^ix/(?P<slug>[\w-]+)/add_peering/$',
         views.peering_session_add, name='peering_session_add'),
     url(r'^ix/(?P<slug>[\w-]+)/config/$',
