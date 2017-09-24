@@ -8,25 +8,25 @@
             </div>
             <div class="list-group">
               <div class="list-group-item">
-                <span class="badge pull-right">{{ autonomous_systems_count }}</span>
+                <span class="badge pull-right">{{ statistics.as_count }}</span>
                 <h4 class="list-group-item-heading">
                   <a href="{% url 'peering:as_list' %}">Autonomous Systems</a>
                 </h4>
               </div>
               <div class="list-group-item">
-                <span class="badge pull-right">{{ internet_exchanges_count }}</span>
+                <span class="badge pull-right">{{ statistics.ix_count }}</span>
                 <h4 class="list-group-item-heading">
                   <a href="{% url 'peering:ix_list' %}">Internet Exchanges</a>
                 </h4>
               </div>
               <div class="list-group-item">
-                <span class="badge pull-right">{{ configuration_templates_count }}</span>
+                <span class="badge pull-right">{{ statistics.config_templates_count }}</span>
                 <h4 class="list-group-item-heading">
                   <a href="{% url 'peering:configuration_template_list' %}">Configuration Templates</a>
                 </h4>
               </div>
               <div class="list-group-item">
-                <span class="badge pull-right">{{ peering_sessions_count }}</span>
+                <span class="badge pull-right">{{ statistics.peering_sessions_count }}</span>
                 <h4 class="list-group-item-heading">
                   Peering Sessions
                 </h4>
@@ -40,6 +40,16 @@
               <strong>History</strong>
             </div>
             <div class="list-group">
+              {% for action in history %}
+              <div class="list-group-item">
+                {{ action.get_icon }} {{ action.message|safe }}<br />
+                <small class="text-muted">{{ action.user }} - {{ action.time|date:'SHORT_DATETIME_FORMAT' }}</small>
+              </div>
+              {% empty %}
+              <div class="list-group-item">
+                <span class"text-muted">No actions</span>
+              </div>
+              {% endfor %}
             </div>
           </div>
         </div>

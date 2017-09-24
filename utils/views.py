@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from django.db import transaction
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.contenttypes.models import ContentType
 from django.forms import Form
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -11,6 +12,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from .forms import BootstrapMixin, ConfirmationForm, CSVDataField
+from .models import UserAction
 
 
 class AddOrEditView(LoginRequiredMixin, View):
@@ -77,8 +79,15 @@ class AddOrEditView(LoginRequiredMixin, View):
 
             # Notify user with a message
             message = 'Created ' if created else 'Modified '
-            message = '{} {}'.format(message, escape(obj))
+            message = '{} {} {}'.format(
+                message, self.model._meta.verbose_name, escape(obj))
             messages.success(request, mark_safe(message))
+
+            # Log the action
+            if created:
+                UserAction.objects.log_create(request.user, obj, message)
+            else:
+                UserAction.objects.log_edit(request.user, obj, message)
 
             return redirect(self.get_return_url(obj))
 
@@ -145,8 +154,15 @@ class DeleteView(LoginRequiredMixin, View):
 
         if form.is_valid():
             obj.delete()
-            messages.success(request, 'Deleted {} {}'.format(
-                self.model._meta.verbose_name, obj))
+
+            message = 'Deleted {} {}'.format(
+                self.model._meta.verbose_name, escape(obj))
+
+            # Notify the user
+            messages.success(request, message)
+
+            # Log the action
+            UserAction.objects.log_delete(request.user, obj, message)
 
             return redirect(self.get_return_url(obj))
 
@@ -207,9 +223,15 @@ class ImportView(LoginRequiredMixin, View):
                             raise ValidationError('')
 
                 if new_objects:
-                    # Notify user of successful import and redirect
-                    messages.success(request, 'Imported {} {}'.format(
-                        len(new_objects), new_objects[0]._meta.verbose_name_plural))
+                    message = 'Imported {} {}'.format(
+                        len(new_objects), new_objects[0]._meta.verbose_name_plural)
+                    # Notify user of successful import
+                    messages.success(request, message)
+
+                    # Log the import action
+                    UserAction.objects.log_import(request.user, ContentType.objects.get_for_model(
+                        self.form_model._meta.model), message)
+
                     return redirect(self.return_url)
             except ValidationError:
                 pass

@@ -15,16 +15,21 @@ from .forms import AutonomousSystemForm, AutonomousSystemCSVForm, ConfigurationT
 from .models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession
 from .tables import AutonomousSystemTable, ConfigurationTemplateTable, InternetExchangeTable, PeeringSessionTable
 from utils.forms import ConfirmationForm
+from utils.models import UserAction
 from utils.views import AddOrEditView, DeleteView, ImportView
 
 
 class Home(View):
     def get(self, request):
-        context = {
-            'autonomous_systems_count': AutonomousSystem.objects.count(),
-            'internet_exchanges_count': InternetExchange.objects.count(),
-            'configuration_templates_count': ConfigurationTemplate.objects.count(),
+        statistics = {
+            'as_count': AutonomousSystem.objects.count(),
+            'ix_count': InternetExchange.objects.count(),
+            'config_templates_count': ConfigurationTemplate.objects.count(),
             'peering_sessions_count': PeeringSession.objects.count(),
+        }
+        context = {
+            'statistics': statistics,
+            'history': UserAction.objects.select_related('user')[:50],
         }
         return render(request, 'home.html', context)
 
