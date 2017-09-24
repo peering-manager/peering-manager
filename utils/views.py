@@ -37,6 +37,9 @@ class AddOrEditView(LoginRequiredMixin, View):
         # New object
         return self.model()
 
+    def alter_object(self, obj, request, args, kwargs):
+        return obj
+
     def get_return_url(self, obj):
         if obj.pk:
             # If the object has an absolute URL, use it
@@ -53,7 +56,7 @@ class AddOrEditView(LoginRequiredMixin, View):
         """
         Method used to render the view when form is not submitted.
         """
-        obj = self.get_object(kwargs)
+        obj = self.alter_object(self.get_object(kwargs), request, args, kwargs)
         form = self.form(instance=obj, initial=request.GET)
 
         return render(request, self.template, {

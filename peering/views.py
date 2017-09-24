@@ -4,7 +4,6 @@ import ipaddress
 
 from jinja2 import Template
 
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
@@ -14,7 +13,6 @@ from django_tables2 import RequestConfig
 from .forms import AutonomousSystemForm, AutonomousSystemCSVForm, ConfigurationTemplateForm, InternetExchangeForm, InternetExchangeCSVForm, PeeringSessionForm
 from .models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession
 from .tables import AutonomousSystemTable, ConfigurationTemplateTable, InternetExchangeTable, PeeringSessionTable
-from utils.forms import ConfirmationForm
 from utils.models import UserAction
 from utils.views import AddOrEditView, DeleteView, ImportView
 
@@ -205,25 +203,26 @@ class IXConfig(LoginRequiredMixin, View):
         return render(request, 'peering/ix/configuration.html', context)
 
 
-@login_required
-def peering_session_add(request, slug):
-    internet_exchange = get_object_or_404(InternetExchange, slug=slug)
+class PeeringSessionAdd(AddOrEditView):
+    model = PeeringSession
+    form = PeeringSessionForm
+    template = 'peering/session/add_edit.html'
 
-    if request.method == 'POST':
-        form = PeeringSessionForm(request.POST)
-        if form.is_valid():
-            peering_session = form.save()
-            return redirect('peering:ix_details', slug=slug)
-    else:
-        form = PeeringSessionForm(
-            initial={'internet_exchange': internet_exchange.id})
+    def get_object(self, kwargs):
+        if 'id' in kwargs:
+            return get_object_or_404(self.model, id=kwargs['id'])
 
-    context = {
-        'form': form,
-        'internet_exchange': internet_exchange,
-    }
+        return self.model()
 
-    return render(request, 'peering/session/add.html', context)
+    def alter_object(self, obj, request, args, kwargs):
+        if 'slug' in kwargs:
+            obj.internet_exchange = get_object_or_404(
+                InternetExchange, slug=kwargs['slug'])
+
+        return obj
+
+    def get_return_url(self, obj):
+        return obj.internet_exchange.get_absolute_url()
 
 
 class PeeringSessionDetails(View):
@@ -233,41 +232,12 @@ class PeeringSessionDetails(View):
         return render(request, 'peering/session/details.html', context)
 
 
-@login_required
-def peering_session_edit(request, id):
-    peering_session = get_object_or_404(PeeringSession, id=id)
-
-    if request.method == 'POST':
-        form = PeeringSessionForm(request.POST, instance=peering_session)
-        if form.is_valid():
-            peering_session = form.save()
-            return redirect('peering:peering_session_details', id=id)
-    else:
-        form = PeeringSessionForm(instance=peering_session)
-
-    context = {
-        'form': form,
-        'peering_session': peering_session,
-    }
-
-    return render(request, 'peering/session/edit.html', context)
+class PeeringSessionEdit(AddOrEditView):
+    model = PeeringSession
+    form = PeeringSessionForm
+    template = 'peering/session/add_edit.html'
 
 
-@login_required
-def peering_session_delete(request, id):
-    peering_session = get_object_or_404(PeeringSession, id=id)
-
-    if request.method == 'POST':
-        form = ConfirmationForm(request.POST)
-        if form.is_valid():
-            internet_exchange.delete()
-            return redirect('peering:ix_details', slug=peering_session.internet_exchange.slug)
-    else:
-        form = ConfirmationForm(initial=request.GET)
-
-    context = {
-        'form': form,
-        'peering_session': peering_session,
-    }
-
-    return render(request, 'peering/session/delete.html', context)
+class PeeringSessionDelete(DeleteView):
+    model = PeeringSession
+    # return redirect('peering:ix_details', slug=peering_session.internet_exchange.slug)

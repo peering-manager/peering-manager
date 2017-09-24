@@ -42,7 +42,7 @@ urlpatterns = [
     url(r'^ix/(?P<slug>[\w-]+)/delete/$',
         views.IXDelete.as_view(), name='ix_delete'),
     url(r'^ix/(?P<slug>[\w-]+)/add_peering/$',
-        views.peering_session_add, name='peering_session_add'),
+        views.PeeringSessionAdd.as_view(), name='peering_session_add'),
     url(r'^ix/(?P<slug>[\w-]+)/config/$',
         views.IXConfig.as_view(), name='ix_configuration'),
 
@@ -50,7 +50,7 @@ urlpatterns = [
     url(r'^peering/(?P<id>[0-9]+)/$', views.PeeringSessionDetails.as_view(),
         name='peering_session_details'),
     url(r'^peering/(?P<id>[0-9]+)/edit/$',
-        views.peering_session_edit, name='peering_session_edit'),
+        views.PeeringSessionEdit.as_view(), name='peering_session_edit'),
     url(r'^peering/(?P<id>[0-9]+)/delete/$',
-        views.peering_session_delete, name='peering_session_delete'),
+        views.PeeringSessionDelete.as_view(), name='peering_session_delete'),
 ]

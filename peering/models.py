@@ -120,5 +120,8 @@ class PeeringSession(models.Model):
             'max_prefixes': max_prefixes,
         }
 
+    def get_absolute_url(self):
+        return reverse('peering:peering_session_details', kwargs={'id': self.id})
+
     def __str__(self):
         return '{} - AS{} - IP {}'.format(self.internet_exchange.name, self.autonomous_system.asn, self.ip_address)
