@@ -155,10 +155,9 @@ class DeleteView(LoginRequiredMixin, View):
         if form.is_valid():
             obj.delete()
 
+            # Notify the user
             message = 'Deleted {} {}'.format(
                 self.model._meta.verbose_name, escape(obj))
-
-            # Notify the user
             messages.success(request, message)
 
             # Log the action
@@ -223,9 +222,9 @@ class ImportView(LoginRequiredMixin, View):
                             raise ValidationError('')
 
                 if new_objects:
+                    # Notify user of successful import
                     message = 'Imported {} {}'.format(
                         len(new_objects), new_objects[0]._meta.verbose_name_plural)
-                    # Notify user of successful import
                     messages.success(request, message)
 
                     # Log the import action
