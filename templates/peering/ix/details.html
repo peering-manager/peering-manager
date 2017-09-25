@@ -4,12 +4,6 @@
 {% block content %}
       {% if request.user.is_authenticated %}
       <div class="pull-right">
-        {% if internet_exchange.configuration_template %}
-        <a href="{% url 'peering:ix_configuration' slug=internet_exchange.slug %}" class="btn btn-info">
-          <span class="fa fa-terminal" aria-hidden="true"></span>
-          Get Configuration
-        </a>
-        {% endif %}
         <a href="{% url 'peering:peering_session_add' slug=internet_exchange.slug %}" class="btn btn-primary">
           <span class="fa fa-plus" aria-hidden="true"></span>
           Add a Peering Session
@@ -25,6 +19,22 @@
       </div>
       {% endif %}
       <h1>{% block title %}{{ internet_exchange }}{% endblock %}</h1>
+      {% if internet_exchange.configuration_template and request.user.is_authenticated %}
+      <ul class="nav nav-tabs">
+        <li role="presentation" class="active">
+          <a href="">
+            <span class="fa fa-info-circle" aria-hidden="true"></span>
+            Info
+          </a>
+        </li>
+        <li role="presentation">
+          <a href="{% url 'peering:ix_configuration' slug=internet_exchange.slug %}">
+            <span class="fa fa-terminal" aria-hidden="true"></span>
+            Configuration
+          </a>
+        </li>
+      </ul>
+      {% endif %}
       <div class="row">
         <div class="col-md-6">
           <div class="panel panel-default">
