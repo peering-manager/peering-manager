@@ -240,4 +240,6 @@ class PeeringSessionEdit(AddOrEditView):
 
 class PeeringSessionDelete(DeleteView):
     model = PeeringSession
-    # return redirect('peering:ix_details', slug=peering_session.internet_exchange.slug)
+
+    def get_return_url(self, obj):
+        return obj.internet_exchange.get_absolute_url()
