@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/respawner/peering-manager.svg?branch=master)](https://travis-ci.org/respawner/peering-manager)
+[![Requirements Status](https://requires.io/github/respawner/peering-manager/requirements.svg?branch=master)](https://requires.io/github/respawner/peering-manager/requirements/?branch=master)
+
 # Peering Manager
 
 When you start to peer a lot on different Internet exchange points, managing
