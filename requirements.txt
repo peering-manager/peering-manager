@@ -1,7 +1,7 @@
-Django==1.11.4
-django-tables2==1.10.0
+Django==1.11.5
+django-tables2==1.11.0
 Jinja2==2.9.6
-Markdown==2.6.8
+Markdown==2.6.9
 MarkupSafe==1.0
 pep8==1.7.0
 py-gfm==0.1.3
