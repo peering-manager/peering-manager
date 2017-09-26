@@ -27,7 +27,7 @@ class AutonomousSystem(models.Model):
         internet_exchanges = []
 
         for session in self.peeringsession_set.all():
-            if not session.internet_exchange in internet_exchanges:
+            if session.internet_exchange not in internet_exchanges:
                 internet_exchanges.append(session.internet_exchange)
 
         return internet_exchanges
@@ -80,7 +80,7 @@ class InternetExchange(models.Model):
         autonomous_systems = []
 
         for session in self.peeringsession_set.all():
-            if not session.autonomous_system in autonomous_systems:
+            if session.autonomous_system not in autonomous_systems:
                 autonomous_systems.append(session.autonomous_system)
 
         return autonomous_systems
