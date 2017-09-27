@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
