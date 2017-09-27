@@ -1,0 +1,10 @@
+site_name: Peering Manager
+
+pages:
+  - 'Introduction': 'index.md'
+  - 'Setup':
+    - 'Peering Manager': 'setup/peering-manager.md'
+    - 'Web Server': 'setup/web-server.md'
+
+markdown_extensions:
+  - admonition:
