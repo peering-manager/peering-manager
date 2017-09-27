@@ -37,3 +37,7 @@ table.attr-table td:nth-child(1) {
 ul.nav-tabs, ul.nav-pills {
   margin-bottom: 20px;
 }
+.panel .list-group {
+  max-height: 500px;
+  overflow: auto;
+}
