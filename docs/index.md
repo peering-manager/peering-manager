@@ -2,7 +2,7 @@
 
 Peering Manager is an open source web application designed to help manager and
 document peering networks and peering sessions. It is not a tool that aims to
-replace the great [Peering](https://peeringdb.com).
+replace the great [PeeringDB](https://peeringdb.com).
 
 # Application Stack
 
