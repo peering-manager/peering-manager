@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/respawner/peering-manager.svg?branch=master)](https://travis-ci.org/respawner/peering-manager)
 [![Requirements Status](https://requires.io/github/respawner/peering-manager/requirements.svg?branch=master)](https://requires.io/github/respawner/peering-manager/requirements/?branch=master)
+[![Documentation Status](https://readthedocs.org/projects/peering-manager/badge/?version=latest)](http://peering-manager.readthedocs.io/en/latest/?badge=latest)
 
 # Peering Manager
 

@@ -9,12 +9,12 @@ replace the great [PeeringDB](https://peeringdb.com).
 Peering Manager is built on the [Django](https://djangoproject.com/) Python
 framework. It runs as a WSGI service behind your choice of HTTP server.
 
-| Function     | Component            |
-|--------------|----------------------|
-| HTTP Service | Apache 2 or nginx    |
-| WSGI Service | gunicorn or uWSGI    |
-| Application  | Django/Python        |
-| Database     | SQLite (more to com) |
+| Function     | Component             |
+|--------------|-----------------------|
+| HTTP Service | Apache 2 or nginx     |
+| WSGI Service | gunicorn or uWSGI     |
+| Application  | Django/Python         |
+| Database     | SQLite (more to come) |
 
 # Getting Started
 
