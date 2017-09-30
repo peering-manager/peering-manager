@@ -37,7 +37,7 @@ class LoginView(View):
         return render(request, self.template, {'form': form})
 
 
-def LogoutView(View):
+class LogoutView(View):
     def get(self, request):
         auth_logout(request)
         messages.info(request, "You have logged out.")
