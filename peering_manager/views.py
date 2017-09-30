@@ -8,13 +8,22 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.http import is_safe_url
+from django.views.generic import View
 
 from .forms import LoginForm
 
 
-def login(request):
-    if request.method == 'POST':
+class LoginView(View):
+    template = 'auth/login.html'
+
+    def get(self, request):
+        form = LoginForm(request)
+
+        return render(request, self.template, {'form': form})
+
+    def post(self, request):
         form = LoginForm(request, data=request.POST)
+
         if form.is_valid():
             # Check where should the user be redirected
             next_redirect = request.POST.get('next', '')
@@ -24,16 +33,15 @@ def login(request):
             auth_login(request, form.get_user())
             messages.info(request, "Logged in as {}.".format(request.user))
             return HttpResponseRedirect(next_redirect)
-    else:
-        form = LoginForm()
 
-    return render(request, 'auth/login.html', {'form': form})
+        return render(request, self.template, {'form': form})
 
 
-def logout(request):
-    auth_logout(request)
-    messages.info(request, "You have logged out.")
-    return redirect('peering:home')
+def LogoutView(View):
+    def get(self, request):
+        auth_logout(request)
+        messages.info(request, "You have logged out.")
+        return redirect('peering:home')
 
 
 def handle_500(request):
