@@ -51,7 +51,7 @@ class AddOrEditView(LoginRequiredMixin, View):
             return reverse(self.return_url)
 
         # Or return to home
-        return reverse('peering:home')
+        return reverse('home')
 
     def get(self, request, *args, **kwargs):
         """
@@ -133,7 +133,7 @@ class DeleteView(LoginRequiredMixin, View):
             return reverse(self.return_url)
 
         # Or return to home
-        return reverse('peering:home')
+        return reverse('home')
 
     def get(self, request, *args, **kwargs):
         """

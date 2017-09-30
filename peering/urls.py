@@ -6,9 +6,6 @@ from . import views
 app_name = 'peering'
 
 urlpatterns = [
-    # Home
-    url(r'^$', views.Home.as_view(), name='home'),
-
     # Autonomous Systems
     url(r'^as/$', views.ASList.as_view(), name='as_list'),
     url(r'^as/add/$', views.ASAdd.as_view(), name='as_add'),

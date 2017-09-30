@@ -11,6 +11,8 @@ from django.utils.http import is_safe_url
 from django.views.generic import View
 
 from .forms import LoginForm
+from peering.models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession
+from utils.models import UserAction
 
 
 class LoginView(View):
@@ -28,7 +30,7 @@ class LoginView(View):
             # Check where should the user be redirected
             next_redirect = request.POST.get('next', '')
             if not is_safe_url(url=next_redirect, host=request.get_host()):
-                next_redirect = reverse('peering:home')
+                next_redirect = reverse('home')
 
             auth_login(request, form.get_user())
             messages.info(request, "Logged in as {}.".format(request.user))
@@ -41,7 +43,22 @@ class LogoutView(View):
     def get(self, request):
         auth_logout(request)
         messages.info(request, "You have logged out.")
-        return redirect('peering:home')
+        return redirect('home')
+
+
+class Home(View):
+    def get(self, request):
+        statistics = {
+            'as_count': AutonomousSystem.objects.count(),
+            'ix_count': InternetExchange.objects.count(),
+            'config_templates_count': ConfigurationTemplate.objects.count(),
+            'peering_sessions_count': PeeringSession.objects.count(),
+        }
+        context = {
+            'statistics': statistics,
+            'history': UserAction.objects.select_related('user')[:50],
+        }
+        return render(request, 'home.html', context)
 
 
 def handle_500(request):
