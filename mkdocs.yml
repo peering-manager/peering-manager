@@ -5,6 +5,7 @@ pages:
   - 'Setup':
     - 'Peering Manager': 'setup/peering-manager.md'
     - 'Web Server': 'setup/web-server.md'
+    - 'Upgrading': 'setup/upgrading.md'
   - 'Templating': 'config-template.md'
 
 markdown_extensions:
