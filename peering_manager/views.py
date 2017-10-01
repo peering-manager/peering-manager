@@ -3,14 +3,16 @@ from __future__ import unicode_literals
 import sys
 
 from django.contrib import messages
-from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.http import is_safe_url
 from django.views.generic import View
 
-from .forms import LoginForm
+from .forms import LoginForm, UserPasswordChangeForm
 from peering.models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession
 from utils.models import UserAction
 
@@ -59,6 +61,49 @@ class Home(View):
             'history': UserAction.objects.select_related('user')[:50],
         }
         return render(request, 'home.html', context)
+
+
+class ProfileView(View, LoginRequiredMixin):
+    def get(self, request):
+        return render(request, 'user/profile.html', {'active_tab': 'profile', })
+
+
+class ChangePasswordView(View, LoginRequiredMixin):
+    template = 'user/change_password.html'
+
+    def get(self, request):
+        form = UserPasswordChangeForm(user=request.user)
+        context = {
+            'form': form,
+            'active_tab': 'password',
+        }
+
+        return render(request, self.template, context)
+
+    def post(self, request):
+        form = UserPasswordChangeForm(user=request.user, data=request.POST)
+        context = {
+            'form': form,
+            'active_tab': 'password',
+        }
+
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            messages.success(
+                request, "Your password has been successfully changed.")
+            return redirect('user_profile')
+
+        return render(request, self.template, context)
+
+
+class RecentActivityView(View, LoginRequiredMixin):
+    def get(self, request):
+        context = {
+            'activity': request.user.actions.all()[:50],
+            'active_tab': 'activity',
+        }
+        return render(request, 'user/activity.html', context)
 
 
 def handle_500(request):

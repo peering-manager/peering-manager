@@ -32,6 +32,12 @@ __patterns = [
     url(r'^login/$', views.LoginView.as_view(), name='login'),
     url(r'^logout/$', views.LogoutView.as_view(), name='logout'),
 
+    # User profile, password, activity
+    url(r'^profile/$', views.ProfileView.as_view(), name='user_profile'),
+    url(r'^password/$', views.ChangePasswordView.as_view(),
+        name='user_change_password'),
+    url(r'^activity/$', views.RecentActivityView.as_view(), name='user_activity'),
+
     # Home
     url(r'^$', views.Home.as_view(), name='home'),
 

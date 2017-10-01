@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 
 from peering.forms import BootstrapMixin
 
@@ -15,3 +15,7 @@ class LoginForm(BootstrapMixin, AuthenticationForm):
 
         self.fields['username'].widget.attrs['placeholder'] = ''
         self.fields['password'].widget.attrs['placeholder'] = ''
+
+
+class UserPasswordChangeForm(BootstrapMixin, PasswordChangeForm):
+    pass

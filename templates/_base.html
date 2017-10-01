@@ -38,6 +38,7 @@
                 {{ request.user|truncatechars:"30" }} <span class="caret"></span>
               </a>
               <ul class="dropdown-menu">
+                <li><a href="{% url 'user_profile' %}"><i class="fa fa-user" aria-hidden="true"></i> Profile</a></li>
                 {% if request.user.is_staff %}
                 <li><a href="{% url 'admin:index' %}"><i class="fa fa-cogs" aria-hidden="true"></i> Admin</a></li>
                 {% endif %}
