@@ -130,3 +130,4 @@ pip-selfcheck.json
 ### Project specifics ###
 patches
 gunicorn_config.py
+static
