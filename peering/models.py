@@ -12,10 +12,10 @@ class AutonomousSystem(models.Model):
     asn = ASNField()
     name = models.CharField(max_length=128)
     comment = models.TextField(blank=True)
-    ipv6_as_set = models.CharField(max_length=128)
-    ipv4_as_set = models.CharField(max_length=128)
-    ipv6_max_prefixes = models.PositiveIntegerField()
-    ipv4_max_prefixes = models.PositiveIntegerField()
+    ipv6_as_set = models.CharField(max_length=128, blank=True, null=True)
+    ipv4_as_set = models.CharField(max_length=128, blank=True, null=True)
+    ipv6_max_prefixes = models.PositiveIntegerField(blank=True, null=True)
+    ipv4_max_prefixes = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:
         ordering = ['asn']
