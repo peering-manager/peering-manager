@@ -72,7 +72,23 @@ class CSVDataField(forms.CharField):
 
 class ConfirmationForm(BootstrapMixin, forms.Form):
     """
-    A generic confirmation form. The form is not valid unless the confirm field is checked.
+    A generic confirmation form. The form is not valid unless the confirm field
+    is checked.
     """
     confirm = forms.BooleanField(
         required=True, widget=forms.HiddenInput(), initial=True)
+
+
+class SlugField(forms.SlugField):
+    """
+    An improved SlugField that allows to be automatically generated based on a
+    field used as source.
+    """
+
+    def __init__(self, slug_source='name', *args, **kwargs):
+        label = kwargs.pop('label', 'Slug')
+        help_text = kwargs.pop(
+            'help_text', 'Friendly unique shorthand used for URL and config')
+        super(SlugField, self).__init__(label=label,
+                                        help_text=help_text, *args, **kwargs)
+        self.widget.attrs['slug-source'] = slug_source

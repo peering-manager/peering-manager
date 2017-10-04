@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django import forms
 
 from .models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession
-from utils.forms import BootstrapMixin
+from utils.forms import BootstrapMixin, SlugField
 
 
 class CommentField(forms.CharField):
@@ -88,6 +88,7 @@ class ConfigurationTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
+    slug = SlugField()
     comment = CommentField()
 
     class Meta:
@@ -101,7 +102,6 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
         }
         help_texts = {
             'name': 'Full name of the Internet Exchange point',
-            'slug': 'Router configuration and URL friendly shorthand',
             'ipv6_address': 'IPv6 Address used to peer',
             'ipv4_address': 'IPv4 Address used to peer',
             'configuration_template': 'Template for configuration generation',
@@ -109,6 +109,8 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
 
 
 class InternetExchangeCSVForm(forms.ModelForm):
+    slug = SlugField()
+
     class Meta:
         model = InternetExchange
         fields = ('name', 'slug', 'ipv6_address', 'ipv4_address',
@@ -120,7 +122,6 @@ class InternetExchangeCSVForm(forms.ModelForm):
         }
         help_texts = {
             'name': 'Full name of the Internet Exchange point',
-            'slug': 'Router configuration and URL friendly shorthand',
             'ipv6_address': 'IPv6 Address used to peer',
             'ipv4_address': 'IPv4 Address used to peer',
             'configuration_template': 'Template for configuration generation',
