@@ -7,12 +7,10 @@
           Add a Peering Session
         </a>
         <a href="{% url 'peering:ix_edit' slug=internet_exchange.slug %}" class="btn btn-warning">
-          <span class="fa fa-pencil" aria-hidden="true"></span>
-          Edit this IX
+          <span class="fa fa-pencil" aria-hidden="true"></span> Edit
         </a>
         <a href="{% url 'peering:ix_delete' slug=internet_exchange.slug %}" class="btn btn-danger">
-          <span class="fa fa-trash" aria-hidden="true"></span>
-          Delete this IX
+          <span class="fa fa-trash" aria-hidden="true"></span> Delete
         </a>
       </div>
       {% endif %}
