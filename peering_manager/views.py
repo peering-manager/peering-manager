@@ -111,6 +111,7 @@ def handle_500(request):
     Custom 500 error handler.
     """
     __type, error, traceback = sys.exc_info()
+    del traceback
     return render(request, '500.html', {'exception': str(__type), 'error': error}, status=500)
 
 

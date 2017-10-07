@@ -1,11 +1,9 @@
 from __future__ import unicode_literals
 
-import ipaddress
-
 from jinja2 import Template
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, render
 from django.views.generic import View
 
 from django_tables2 import RequestConfig
@@ -13,7 +11,6 @@ from django_tables2 import RequestConfig
 from .forms import AutonomousSystemForm, AutonomousSystemCSVForm, ConfigurationTemplateForm, InternetExchangeForm, InternetExchangeCSVForm, PeeringSessionForm
 from .models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession
 from .tables import AutonomousSystemTable, ConfigurationTemplateTable, InternetExchangeTable, PeeringSessionTable
-from utils.models import UserAction
 from utils.views import AddOrEditView, DeleteView, ImportView
 
 
