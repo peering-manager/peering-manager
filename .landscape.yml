@@ -1,0 +1,10 @@
+uses:
+  - django
+
+python-targets:
+  - 2
+  - 3
+
+pep8:
+  disable:
+    - E501
