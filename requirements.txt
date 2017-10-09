@@ -1,4 +1,4 @@
-Django==1.11.5
+Django==1.11.6
 django-tables2==1.11.0
 Jinja2==2.9.6
 Markdown==2.6.9
