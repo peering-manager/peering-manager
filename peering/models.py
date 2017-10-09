@@ -51,7 +51,7 @@ class ConfigurationTemplate(models.Model):
         ordering = ['name']
 
     def save(self, *args, **kwargs):
-        updated = timezone.now()
+        self.updated = timezone.now()
         super(ConfigurationTemplate, self).save(*args, **kwargs)
 
     def get_absolute_url(self):

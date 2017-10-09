@@ -8,3 +8,9 @@ python-targets:
 pep8:
   disable:
     - E501
+
+pylint:
+  disable:
+    - line-too-long
+    - bare-except
+    - not-callable

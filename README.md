@@ -23,6 +23,7 @@ The best way to start setting up this tool is to use **pip** within a
 
 [![Build Status](https://travis-ci.org/respawner/peering-manager.svg?branch=master)](https://travis-ci.org/respawner/peering-manager)
 [![Requirements Status](https://requires.io/github/respawner/peering-manager/requirements.svg?branch=master)](https://requires.io/github/respawner/peering-manager/requirements/?branch=master)
+[![Code Health](https://landscape.io/github/respawner/peering-manager/master/landscape.svg?style=flat)](https://landscape.io/github/respawner/peering-manager/master)
 [![Documentation Status](https://readthedocs.org/projects/peering-manager/badge/?version=latest)](http://peering-manager.readthedocs.io/en/latest/?badge=latest)
 
 ## Installation
