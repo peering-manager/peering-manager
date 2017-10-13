@@ -157,6 +157,11 @@ class IXConfig(LoginRequiredMixin, View):
         # Sort peering sessions based on IP protocol version
         for session in peering_sessions:
             session_dict = session.to_dict()
+
+            # Force max prefixes to be 0 if not set (easier for templating)
+            if not session_dict['max_prefixes']:
+                session_dict['max_prefixes'] = 0
+
             if session_dict['ip_version'] == 6:
                 peering_sessions6.append(session_dict)
             if session_dict['ip_version'] == 4:
