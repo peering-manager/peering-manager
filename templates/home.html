@@ -26,6 +26,12 @@
                 </h4>
               </div>
               <div class="list-group-item">
+                <span class="badge pull-right">{{ statistics.routers_count }}</span>
+                <h4 class="list-group-item-heading">
+                  <a href="{% url 'peering:router_list' %}">Routers</a>
+                </h4>
+              </div>
+              <div class="list-group-item">
                 <span class="badge pull-right">{{ statistics.peering_sessions_count }}</span>
                 <h4 class="list-group-item-heading">
                   Peering Sessions

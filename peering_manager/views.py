@@ -13,7 +13,7 @@ from django.utils.http import is_safe_url
 from django.views.generic import View
 
 from .forms import LoginForm, UserPasswordChangeForm
-from peering.models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession
+from peering.models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession, Router
 from utils.models import UserAction
 
 
@@ -54,6 +54,7 @@ class Home(View):
             'as_count': AutonomousSystem.objects.count(),
             'ix_count': InternetExchange.objects.count(),
             'config_templates_count': ConfigurationTemplate.objects.count(),
+            'routers_count': Router.objects.count(),
             'peering_sessions_count': PeeringSession.objects.count(),
         }
         context = {
