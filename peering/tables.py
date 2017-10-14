@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import django_tables2 as tables
 
-from .models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession
+from .models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession, Router
 
 
 class BaseTable(tables.Table):
@@ -61,8 +61,8 @@ class InternetExchangeTable(BaseTable):
     Table for InternetExchange lists
     """
 
-    ipv6_address = tables.Column(verbose_name='Used IPv6 Address')
-    ipv4_address = tables.Column(verbose_name='Used IPv4 Address')
+    ipv6_address = tables.Column(verbose_name='IPv6 Address')
+    ipv4_address = tables.Column(verbose_name='IPv4 Address')
     as_nb = tables.Column(verbose_name='# Autonomous Systems',
                           accessor='get_autonomous_systems_count')
     peering_nb = tables.Column(
@@ -73,7 +73,7 @@ class InternetExchangeTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = InternetExchange
         fields = ('name', 'ipv6_address', 'ipv4_address', 'as_nb', 'peering_nb',
-                  'configuration_template', 'details',)
+                  'configuration_template', 'router', 'details',)
 
 
 class PeeringSessionTable(BaseTable):
@@ -91,3 +91,15 @@ class PeeringSessionTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = PeeringSession
         fields = ('asn', 'as_name', 'ip_address', 'details',)
+
+
+class RouterTable(BaseTable):
+    """
+    Table for Router lists
+    """
+    details = tables.TemplateColumn(verbose_name=' ',
+                                    template_code='<div class="pull-right"><a href="{% url \'peering:router_details\' id=record.id %}" class="btn btn-xs btn-info"><span class="fa fa-info-circle" aria-hidden="true"></span> Details</a> <a href="{% url \'peering:router_edit\' id=record.id %}" class="btn btn-xs btn-warning"><span class="fa fa-pencil" aria-hidden="true"></span> Edit</a> <a href="{% url \'peering:router_delete\' id=record.id %}" class="btn btn-xs btn-danger"><span class="fa fa-trash" aria-hidden="true"></span> Delete</a></div>', orderable=False)
+
+    class Meta(BaseTable.Meta):
+        model = Router
+        fields = ('name', 'hostname', 'platform', 'details',)

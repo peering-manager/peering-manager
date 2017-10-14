@@ -1,0 +1,76 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block content %}
+      {% if request.user.is_authenticated %}
+      <div class="pull-right">
+        <a href="{% url 'peering:router_edit' id=router.id %}" class="btn btn-warning">
+          <span class="fa fa-pencil" aria-hidden="true"></span> Edit
+        </a>
+        <a href="{% url 'peering:router_delete' id=router.id %}" class="btn btn-danger">
+          <span class="fa fa-trash" aria-hidden="true"></span> Delete
+        </a>
+      </div>
+      {% endif %}
+      <h1>{% block title %}{{ router }}{% endblock %}</h1>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>Router Details</strong>
+              {% if router.platform %}
+              <a class="btn btn-xs btn-primary pull-right" href="{% url 'peering:router_ping' id=router.id %}">
+                <span class="fa fa-plug" aria-hidden="true"></span>
+                Ping
+              </a>
+              {% endif %}
+            </div>
+            <table class="table table-hover panel-body attr-table">
+              <tr>
+                <td>Name</td>
+                <td>{{ router.name }}</td>
+              </tr>
+              <tr>
+                <td>Hostname</td>
+                <td>{{ router.hostname }}</td>
+              </tr>
+              <tr>
+                <td>Platform</td>
+                {% if router.platform %}
+                <td>{{ router.get_platform_display }}</td>
+                {% else %}
+                <td>Other</td>
+                {% endif %}
+              </tr>
+            </table>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>Comments</strong>
+            </div>
+            <div class="panel-body">
+              {% if router.comment %}
+              {{ router.comment|markdown }}
+              {% else %}
+              <span class="text-muted">None</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>Internet Exchanges</strong>
+            </div>
+            <ul class="list-group">
+              {% if internet_exchanges|length > 0 %}
+              {% for ix in internet_exchanges %}
+              <li class="list-group-item">{{ ix }}<a class="btn btn-xs btn-info pull-right" href="{% url 'peering:ix_details' slug=ix.slug %}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></li>
+              {% endfor %}
+              {% else %}
+              <li class="list-group-item"><span class="text-muted">None</span></li>
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+      </div>
+{% endblock %}

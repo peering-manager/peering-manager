@@ -9,7 +9,7 @@ urlpatterns = [
     # Autonomous Systems
     url(r'^as/$', views.ASList.as_view(), name='as_list'),
     url(r'^as/add/$', views.ASAdd.as_view(), name='as_add'),
-    url(r'^as/import/$', views.AutonomousSystemImport.as_view(), name='as_import'),
+    url(r'^as/import/$', views.ASImport.as_view(), name='as_import'),
     url(r'^as/(?P<asn>[0-9]+)/$',
         views.ASDetails.as_view(), name='as_details'),
     url(r'^as/(?P<asn>[0-9]+)/edit/$', views.ASEdit.as_view(), name='as_edit'),
@@ -31,7 +31,7 @@ urlpatterns = [
     # Internet Exchanges
     url(r'^ix/$', views.IXList.as_view(), name='ix_list'),
     url(r'^ix/add/$', views.IXAdd.as_view(), name='ix_add'),
-    url(r'^ix/import/$', views.InternetExchangeImport.as_view(), name='ix_import'),
+    url(r'^ix/import/$', views.IXImport.as_view(), name='ix_import'),
     url(r'^ix/(?P<slug>[\w-]+)/$',
         views.IXDetails.as_view(), name='ix_details'),
     url(r'^ix/(?P<slug>[\w-]+)/edit/$',
@@ -42,6 +42,8 @@ urlpatterns = [
         views.PeeringSessionAdd.as_view(), name='peering_session_add'),
     url(r'^ix/(?P<slug>[\w-]+)/config/$',
         views.IXConfig.as_view(), name='ix_configuration'),
+    url(r'^ix/(?P<slug>[\w-]+)/changes/$',
+        views.IXRouterChanges.as_view(), name='ix_changes'),
 
     # Peering Sessions
     url(r'^peering/(?P<id>[0-9]+)/$', views.PeeringSessionDetails.as_view(),
@@ -50,4 +52,17 @@ urlpatterns = [
         views.PeeringSessionEdit.as_view(), name='peering_session_edit'),
     url(r'^peering/(?P<id>[0-9]+)/delete/$',
         views.PeeringSessionDelete.as_view(), name='peering_session_delete'),
+
+    # Routers
+    url(r'^router/$', views.RouterList.as_view(), name='router_list'),
+    url(r'^router/add/$', views.RouterAdd.as_view(), name='router_add'),
+    url(r'^router/import/$', views.RouterImport.as_view(), name='router_import'),
+    url(r'^router/(?P<id>[0-9]+)/$',
+        views.RouterDetails.as_view(), name='router_details'),
+    url(r'^router/(?P<id>[0-9]+)/edit/$',
+        views.RouterEdit.as_view(), name='router_edit'),
+    url(r'^router/(?P<id>[0-9]+)/delete/$',
+        views.RouterDelete.as_view(), name='router_delete'),
+    url(r'^router/(?P<id>[0-9]+)/ping/$',
+        views.RouterPing.as_view(), name='router_ping'),
 ]

@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django import forms
 
-from .models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession
+from .models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession, Router
 from utils.forms import BootstrapMixin, SlugField
 
 
@@ -94,7 +94,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InternetExchange
         fields = ('name', 'slug', 'ipv6_address', 'ipv4_address',
-                  'configuration_template', 'comment',)
+                  'configuration_template', 'router', 'comment',)
         labels = {
             'ipv6_address': 'IPv6 Address',
             'ipv4_address': 'IPv4 Address',
@@ -105,6 +105,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             'ipv6_address': 'IPv6 Address used to peer',
             'ipv4_address': 'IPv4 Address used to peer',
             'configuration_template': 'Template for configuration generation',
+            'router': 'Router connected to the Internet Exchange point',
         }
 
 
@@ -114,7 +115,7 @@ class InternetExchangeCSVForm(forms.ModelForm):
     class Meta:
         model = InternetExchange
         fields = ('name', 'slug', 'ipv6_address', 'ipv4_address',
-                  'configuration_template', 'comment',)
+                  'configuration_template', 'router', 'comment',)
         labels = {
             'ipv6_address': 'IPv6 Address',
             'ipv4_address': 'IPv4 Address',
@@ -125,6 +126,7 @@ class InternetExchangeCSVForm(forms.ModelForm):
             'ipv6_address': 'IPv6 Address used to peer',
             'ipv4_address': 'IPv4 Address used to peer',
             'configuration_template': 'Template for configuration generation',
+            'router': 'Router connected to the Internet Exchange point',
         }
 
 
@@ -143,4 +145,32 @@ class PeeringSessionForm(BootstrapMixin, forms.ModelForm):
         }
         help_texts = {
             'ip_address': 'IPv6 or IPv4 address',
+        }
+
+
+class RouterForm(BootstrapMixin, forms.ModelForm):
+    comment = CommentField()
+
+    class Meta:
+        model = Router
+
+        fields = ('name', 'hostname', 'platform', 'comment',)
+        labels = {
+            'comment': 'Comments',
+        }
+        help_texts = {
+            'hostname': 'Router hostname (must be resolvable) or IP address',
+        }
+
+
+class RouterCSVForm(BootstrapMixin, forms.ModelForm):
+    class Meta:
+        model = Router
+
+        fields = ('name', 'hostname', 'platform', 'comment',)
+        labels = {
+            'comment': 'Comments',
+        }
+        help_texts = {
+            'hostname': 'Router hostname (must be resolvable) or IP address',
         }

@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 import socket
 
+from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
 
 try:
@@ -29,6 +30,10 @@ BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
 DEBUG = getattr(configuration, 'DEBUG', False)
+NAPALM_USERNAME = getattr(configuration, 'NAPALM_USERNAME', '')
+NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
+NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
+NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 
 # PeeringDB URL for ASN details
@@ -124,6 +129,12 @@ USE_TZ = True
 
 # Authentication URL
 LOGIN_URL = '/{}login/'.format(BASE_PATH)
+
+
+# Messages
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger',
+}
 
 
 # Static files (CSS, JavaScript, Images)

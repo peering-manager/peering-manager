@@ -31,6 +31,14 @@
             Configuration
           </a>
         </li>
+        {% if internet_exchange.router and internet_exchange.router.platform %}
+        <li role="presentation">
+          <a href="{% url 'peering:ix_changes' slug=internet_exchange.slug %}">
+            <span class="fa fa-cogs" aria-hidden="true"></span>
+            Router Changes
+          </a>
+        </li>
+        {% endif %}
       </ul>
       {% endif %}
       <div class="row">
@@ -72,6 +80,12 @@
               <tr>
                 <td>Configuration Template</td>
                 <td>{{ internet_exchange.configuration_template }}</td>
+              </tr>
+              {% endif %}
+              {% if internet_exchange.router %}
+              <tr>
+                <td>Connected Router</td>
+                <td>{{ internet_exchange.router }}</td>
               </tr>
               {% endif %}
             </table>

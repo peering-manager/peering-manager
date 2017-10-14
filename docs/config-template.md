@@ -52,6 +52,7 @@ protocols {
             {%- for session in group.sessions %}
             neighbor {{ session.ip_address }} {
                 description "Peering: AS{{ session.peer_as }} - {{ session.peer_as_name }}";
+                {%- if session.max_prefixes > 0 %}
                 {%- if session.ip_version == 6 %}
                 family inet6 {
                 {%- else %}
@@ -63,6 +64,7 @@ protocols {
                         }
                     }
                 }
+                {%- endif %}
                 peer-as {{ session.peer_as }};
             }
             {%- endfor %}

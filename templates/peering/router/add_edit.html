@@ -2,14 +2,11 @@
 {% load form_helpers %}
 {% block form %}
             <div class="panel panel-default">
-              <div class="panel-heading"><strong>Internet Exchange</strong></div>
+              <div class="panel-heading"><strong>Router</strong></div>
               <div class="panel-body">
                 {% render_field form.name %}
-                {% render_field form.slug %}
-                {% render_field form.ipv6_address %}
-                {% render_field form.ipv4_address %}
-                {% render_field form.configuration_template %}
-                {% render_field form.router %}
+                {% render_field form.hostname %}
+                {% render_field form.platform %}
               </div>
             </div>
             <div class="panel panel-default">

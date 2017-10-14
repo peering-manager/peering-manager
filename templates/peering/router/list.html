@@ -1,0 +1,20 @@
+{% extends '_base.html' %}
+{% load render_table from django_tables2 %}
+{% block content %}
+      {% if request.user.is_authenticated %}
+      <div class="pull-right">
+        <a href="{% url 'peering:router_add' %}" class="btn btn-primary">
+          <span class="fa fa-plus" aria-hidden="true"></span>
+          Add a Router
+        </a>
+        <a href="{% url 'peering:router_import' %}" class="btn btn-info">
+          <span class="fa fa-upload" aria-hidden="true"></span>
+          Import Routers
+        </a>
+      </div>
+      {% endif %}
+      <h1>{% block title %}Routers{% endblock %}</h1>
+      <div class="row">
+        {% render_table routers %}
+      </div>
+{% endblock %}

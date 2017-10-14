@@ -69,6 +69,8 @@ class InternetExchange(models.Model):
     comment = models.TextField(blank=True)
     configuration_template = models.ForeignKey(
         'ConfigurationTemplate', blank=True, null=True, on_delete=models.SET_NULL)
+    router = models.ForeignKey(
+        'Router', blank=True, null=True, on_delete=models.SET_NULL)
 
     class Meta:
         ordering = ['name']
@@ -105,11 +107,14 @@ class PeeringSession(models.Model):
 
     def to_dict(self):
         ip_version = ipaddress.ip_address(str(self.ip_address)).version
+
+        # Enforce max prefixes to be set to 0 by default
         max_prefixes = 0
 
-        if ip_version == 6:
+        # Set max prefixes based on IP version
+        if ip_version == 6 and self.autonomous_system.ipv6_max_prefixes:
             max_prefixes = self.autonomous_system.ipv6_max_prefixes
-        if ip_version == 4:
+        if ip_version == 4 and self.autonomous_system.ipv4_max_prefixes:
             max_prefixes = self.autonomous_system.ipv4_max_prefixes
 
         return {
@@ -125,3 +130,33 @@ class PeeringSession(models.Model):
 
     def __str__(self):
         return '{} - AS{} - IP {}'.format(self.internet_exchange.name, self.autonomous_system.asn, self.ip_address)
+
+
+class Router(models.Model):
+    # Platform constants, based on NAPALM drivers
+    PLATFORM_JUNOS = 'junos'
+    PLATFORM_IOSXR = 'iosxr'
+    PLATFORM_NONE = None
+    PLATFORM_CHOICES = (
+        (PLATFORM_JUNOS, 'Juniper JUNOS'),
+        (PLATFORM_IOSXR, 'Cisco IOS-XR'),
+        (PLATFORM_NONE, 'Other'),
+    )
+
+    name = models.CharField(max_length=128)
+    hostname = models.CharField(max_length=256)
+    platform = models.CharField(max_length=50, choices=PLATFORM_CHOICES, blank=True,
+                                help_text='The router platform, used to interact with it')
+    comment = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def get_platform_name(self):
+        return self.PLATFORM_CHOICES[self.platform[1]]
+
+    def get_absolute_url(self):
+        return reverse('peering:router_details', kwargs={'id': self.id})
+
+    def __str__(self):
+        return self.name

@@ -30,6 +30,7 @@
             <li {% if request.path|contains:'/as/' %}class="active"{% endif %}><a href="{% url 'peering:as_list' %}">Autonomous Systems</a></li>
             <li {% if request.path|contains:'/ix/' %}class="active"{% endif %}><a href="{% url 'peering:ix_list' %}">Internet Exchanges</a></li>
             <li {% if request.path|contains:'/template/' %}class="active"{% endif %}><a href="{% url 'peering:configuration_template_list' %}">Configuration Templates</a></li>
+            <li {% if request.path|contains:'/router/' %}class="active"{% endif %}><a href="{% url 'peering:router_list' %}">Routers</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
             {% if request.user.is_authenticated %}
