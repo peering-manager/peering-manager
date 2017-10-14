@@ -29,8 +29,17 @@
           <ul class="nav navbar-nav">
             <li {% if request.path|contains:'/as/' %}class="active"{% endif %}><a href="{% url 'peering:as_list' %}">Autonomous Systems</a></li>
             <li {% if request.path|contains:'/ix/' %}class="active"{% endif %}><a href="{% url 'peering:ix_list' %}">Internet Exchanges</a></li>
-            <li {% if request.path|contains:'/template/' %}class="active"{% endif %}><a href="{% url 'peering:configuration_template_list' %}">Configuration Templates</a></li>
-            <li {% if request.path|contains:'/router/' %}class="active"{% endif %}><a href="{% url 'peering:router_list' %}">Routers</a></li>
+            <li class="dropdown{% if request.path|contains:'/router/,/template/' %} active{% endif %}">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Deployment <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li {% if request.path|contains:'/router/' %}class="active"{% endif %}>
+                  <a href="{% url 'peering:router_list' %}">Routers</a>
+                </li>
+                <li {% if request.path|contains:'/template/' %}class="active"{% endif %}>
+                  <a href="{% url 'peering:configuration_template_list' %}">Templates</a>
+                </li>
+              </ul>
+            </li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
             {% if request.user.is_authenticated %}

@@ -5,11 +5,11 @@
       <div class="pull-right">
         <a href="{% url 'peering:configuration_template_add' %}" class="btn btn-primary">
           <span class="fa fa-plus" aria-hidden="true"></span>
-          Add a Configuration Template
+          Add a Template
         </a>
       </div>
       {% endif %}
-      <h1>{% block title %}Configuration Templates{% endblock %}</h1>
+      <h1>{% block title %}Templates{% endblock %}</h1>
       <div class="row">
         {% render_table configuration_templates %}
       </div>
