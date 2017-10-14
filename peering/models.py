@@ -152,9 +152,6 @@ class Router(models.Model):
     class Meta:
         ordering = ['name']
 
-    def get_platform_name(self):
-        return self.PLATFORM_CHOICES[self.platform[1]]
-
     def get_absolute_url(self):
         return reverse('peering:router_details', kwargs={'id': self.id})
 
