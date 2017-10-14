@@ -32,12 +32,8 @@
             <li class="dropdown{% if request.path|contains:'/router/,/template/' %} active{% endif %}">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Deployment <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li {% if request.path|contains:'/router/' %}class="active"{% endif %}>
-                  <a href="{% url 'peering:router_list' %}">Routers</a>
-                </li>
-                <li {% if request.path|contains:'/template/' %}class="active"{% endif %}>
-                  <a href="{% url 'peering:configuration_template_list' %}">Templates</a>
-                </li>
+                <li><a href="{% url 'peering:router_list' %}">Routers</a></li>
+                <li><a href="{% url 'peering:configuration_template_list' %}">Templates</a></li>
               </ul>
             </li>
           </ul>
