@@ -218,12 +218,17 @@ class IXRouterChanges(LoginRequiredMixin, View):
             device.load_merge_candidate(config=config)
             changes = device.compare_config()
 
-            device.discard_config()
+            # Commit changes only if requested
+            if request.GET.get('commit'):
+                device.commit_config()
+                messages.success(request, 'Changes successfully commited.')
+            else:
+                device.discard_config()
 
             device.close()
-        except:
-            messages.error(request, 'Unable to connect to the router.')
-            changes = 'Unable to determine changes.'
+        except Exception:
+            messages.error(request, 'Unable to determine changes.')
+            changes = None
 
         context = {
             'internet_exchange': internet_exchange,
@@ -330,7 +335,7 @@ class RouterPing(View):
             device.close()
 
             messages.success(request, 'Successfully connected to the router.')
-        except:
+        except Exception:
             messages.error(request, 'Unable to connect to the router.')
 
         return redirect(router.get_absolute_url())

@@ -41,3 +41,6 @@ ul.nav-tabs, ul.nav-pills {
   max-height: 500px;
   overflow: auto;
 }
+.pre-scrollable {
+  max-height: 600px;
+}

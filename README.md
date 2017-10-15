@@ -37,7 +37,6 @@ SQLite database.
 ## Features to come (aka TODO list)
 
   * Data importation using PeeringDB API
-  * Device connections to push configuration
   * Generate IRR objects
   * BGP import/export policies
   * BGP sessions status

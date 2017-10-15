@@ -37,5 +37,10 @@
         </li>
         {% endif %}
       </ul>
-      <pre>{{ router_changes }}</pre>
+      {% if router_changes %}
+      <pre class="pre-scrollable">{{ router_changes }}</pre>
+      <div class="pull-right">
+        <a class="btn btn-primary" href="{% url 'peering:ix_changes' slug=internet_exchange.slug %}?commit=true" role="button"><span class="fa fa-play" aria-hidden="true"></span> Commit Changes</a>
+      </div>
+      {% endif %}
 {% endblock %}
