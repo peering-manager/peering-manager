@@ -5,7 +5,7 @@ import ipaddress
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from .fields import ASNField
+from .fields import ASNField, CommunityField
 
 
 class AutonomousSystem(models.Model):
@@ -42,6 +42,22 @@ class AutonomousSystem(models.Model):
         return 'AS{} - {}'.format(self.asn, self.name)
 
 
+class Community(models.Model):
+    name = models.CharField(max_length=128)
+    value = CommunityField(max_length=50)
+    comment = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name_plural = 'communities'
+        ordering = ['name']
+
+    def get_absolute_url(self):
+        return reverse('peering:community_details', kwargs={'id': self.id})
+
+    def __str__(self):
+        return self.name
+
+
 class ConfigurationTemplate(models.Model):
     name = models.CharField(max_length=128)
     template = models.TextField()
@@ -71,6 +87,7 @@ class InternetExchange(models.Model):
         'ConfigurationTemplate', blank=True, null=True, on_delete=models.SET_NULL)
     router = models.ForeignKey(
         'Router', blank=True, null=True, on_delete=models.SET_NULL)
+    communities = models.ManyToManyField('Community', blank=True)
 
     class Meta:
         ordering = ['name']

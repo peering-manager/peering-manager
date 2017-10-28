@@ -28,7 +28,13 @@
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li {% if request.path|contains:'/as/' %}class="active"{% endif %}><a href="{% url 'peering:as_list' %}">Autonomous Systems</a></li>
-            <li {% if request.path|contains:'/ix/' %}class="active"{% endif %}><a href="{% url 'peering:ix_list' %}">Internet Exchanges</a></li>
+            <li class="dropdown{% if request.path|contains:'/ix/,/community/' %} active{% endif %}">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Internet Exchanges <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="{% url 'peering:ix_list' %}">Internet Exchanges</a></li>
+                <li><a href="{% url 'peering:community_list' %}">Communities</a></li>
+              </ul>
+            </li>
             <li class="dropdown{% if request.path|contains:'/router/,/template/' %} active{% endif %}">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Deployment <span class="caret"></span></a>
               <ul class="dropdown-menu">

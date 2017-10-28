@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import django_tables2 as tables
 
-from .models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession, Router
+from .models import AutonomousSystem, Community, ConfigurationTemplate, InternetExchange, PeeringSession, Router
 
 
 class BaseTable(tables.Table):
@@ -43,6 +43,18 @@ class AutonomousSystemTable(BaseTable):
                   'ipv6_max_prefixes', 'ipv4_max_prefixes', 'details',)
 
 
+class CommunityTable(BaseTable):
+    """
+    Table for Community lists
+    """
+    details = tables.TemplateColumn(verbose_name=' ',
+                                    template_code='<div class="pull-right"><a href="{% url \'peering:community_details\' id=record.id %}" class="btn btn-xs btn-info"><span class="fa fa-info-circle" aria-hidden="true"></span> Details</a> <a href="{% url \'peering:community_edit\' id=record.id %}" class="btn btn-xs btn-warning"><span class="fa fa-pencil" aria-hidden="true"></span> Edit</a> <a href="{% url \'peering:community_delete\' id=record.id %}" class="btn btn-xs btn-danger"><span class="fa fa-trash" aria-hidden="true"></span> Delete</a></div>', orderable=False)
+
+    class Meta(BaseTable.Meta):
+        model = Community
+        fields = ('name', 'value', 'details',)
+
+
 class ConfigurationTemplateTable(BaseTable):
     """
     Table for ConfigurationTemplate lists
@@ -63,10 +75,10 @@ class InternetExchangeTable(BaseTable):
 
     ipv6_address = tables.Column(verbose_name='IPv6 Address')
     ipv4_address = tables.Column(verbose_name='IPv4 Address')
-    as_nb = tables.Column(verbose_name='# Autonomous Systems',
+    as_nb = tables.Column(verbose_name='Autonomous Systems',
                           accessor='get_autonomous_systems_count')
     peering_nb = tables.Column(
-        verbose_name='# Peering Sessions', accessor='get_peering_sessions_count')
+        verbose_name='Peering Sessions', accessor='get_peering_sessions_count')
     details = tables.TemplateColumn(verbose_name=' ',
                                     template_code='<div class="pull-right"><a href="{% url \'peering:ix_details\' slug=record.slug %}" class="btn btn-xs btn-info"><span class="fa fa-info-circle" aria-hidden="true"></span> Details</a></div>', orderable=False)
 

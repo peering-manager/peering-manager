@@ -28,6 +28,9 @@ footer p {
 textarea {
   font-family: Consolas, Lucida Console, monospace;
 }
+tfoot td {
+    font-weight: bold;
+}
 table.attr-table td:nth-child(1) {
   width: 25%;
 }
@@ -43,4 +46,11 @@ ul.nav-tabs, ul.nav-pills {
 }
 .pre-scrollable {
   max-height: 600px;
+}
+div.paginator {
+    margin-bottom: 20px;
+}
+nav ul.pagination {
+    margin-top: 0;
+    margin-bottom: 8px !important;
 }

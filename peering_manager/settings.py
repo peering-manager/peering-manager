@@ -34,6 +34,7 @@ NAPALM_USERNAME = getattr(configuration, 'NAPALM_USERNAME', '')
 NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
 NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
 NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
+PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 20)
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 
 # PeeringDB URL for ASN details

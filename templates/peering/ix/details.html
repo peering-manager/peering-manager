@@ -4,10 +4,6 @@
 {% block content %}
       {% if request.user.is_authenticated %}
       <div class="pull-right">
-        <a href="{% url 'peering:peering_session_add' slug=internet_exchange.slug %}" class="btn btn-primary">
-          <span class="fa fa-plus" aria-hidden="true"></span>
-          Add a Peering Session
-        </a>
         <a href="{% url 'peering:ix_edit' slug=internet_exchange.slug %}" class="btn btn-warning">
           <span class="fa fa-pencil" aria-hidden="true"></span> Edit
         </a>
@@ -92,6 +88,45 @@
           </div>
         </div>
         <div class="col-md-6">
+          {% render_table peering_sessions 'utils/table.html' %}
+          <div class="pull-left">
+            <a href="{% url 'peering:peering_session_add' slug=internet_exchange.slug %}" class="btn btn-xs btn-primary">
+              <span class="fa fa-plus" aria-hidden="true"></span>
+              Add a peering session
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>BGP Communities</strong>
+            </div>
+            {% if internet_exchange.communities.all.count > 0 %}
+            <ul class="list-group">
+            {% for community in internet_exchange.communities.all %}
+              <li class="list-group-item">
+                {{ community }} <code class="pull-right">{{ community.value }}</code>
+              </li>
+            {% endfor %}
+            </ul>
+            {% else %}
+            <div class="panel-body">
+              <span class="text-muted">None</span>
+            </div>
+            {% endif %}
+            <div class="panel-footer text-right">
+              <a href="{% url 'peering:ix_update_communities' slug=internet_exchange.slug %}" class="btn btn-xs btn-warning">
+                <span class="fa fa-pencil" aria-hidden="true"></span>
+                Edit communities
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
           <div class="panel panel-default">
             <div class="panel-heading">
               <strong>Comments</strong>
@@ -105,8 +140,5 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="row">
-        {% render_table peering_sessions %}
       </div>
 {% endblock %}

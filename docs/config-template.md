@@ -12,10 +12,11 @@ will take care of everything else.
 
 ## Configuration Template
 
-Configuration templates are generated using 2 main variables:
+Configuration templates are generated using 3 main variables:
 
   * internet_exchange
   * peering_groups
+  * communities
 
 The `internet_exchange` variable has several fields:
 
@@ -38,6 +39,10 @@ Each group have a name and sessions:
     * `ip_version` is the IP version (can be 6 or 4)
     * `ip_address` is the IP address of the remote AS
     * `max_prefixes` is the maximum prefix-limit
+
+The `communities` variable is an iteratable list, each item is a dictionary
+containing two elements: the `name` and the `value` of the community. If no
+communities are listed of the Internet exchange, this list will be empty.
 
 ## Example
 

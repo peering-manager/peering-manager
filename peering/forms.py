@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django import forms
 
-from .models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession, Router
+from .models import AutonomousSystem, Community, ConfigurationTemplate, InternetExchange, PeeringSession, Router
 from utils.forms import BootstrapMixin, SlugField
 
 
@@ -79,6 +79,34 @@ class AutonomousSystemCSVForm(forms.ModelForm):
         }
 
 
+class CommunityForm(BootstrapMixin, forms.ModelForm):
+    comment = CommentField()
+
+    class Meta:
+        model = Community
+
+        fields = ('name', 'value', 'comment',)
+        labels = {
+            'comment': 'Comments',
+        }
+        help_texts = {
+            'value': 'Community (RFC1997) or Large Community (RFC8092)',
+        }
+
+
+class CommunityCSVForm(BootstrapMixin, forms.ModelForm):
+    class Meta:
+        model = Community
+
+        fields = ('name', 'value', 'comment',)
+        labels = {
+            'comment': 'Comments',
+        }
+        help_texts = {
+            'value': 'Community (RFC1997) or Large Community (RFC8092)',
+        }
+
+
 class ConfigurationTemplateForm(BootstrapMixin, forms.ModelForm):
     template = TemplateField()
 
@@ -128,6 +156,32 @@ class InternetExchangeCSVForm(forms.ModelForm):
             'configuration_template': 'Template for configuration generation',
             'router': 'Router connected to the Internet Exchange point',
         }
+
+
+class InternetExchangeCommunityForm(BootstrapMixin, forms.ModelForm):
+    class Meta:
+        model = InternetExchange
+        fields = ('communities',)
+
+    def __init__(self, *args, **kwargs):
+        if kwargs.get('instance'):
+            # Get the IX object and remove it from kwargs in order to avoid
+            # propagating when calling super
+            instance = kwargs.pop('instance')
+            # Prepare initial communities
+            initial = kwargs.setdefault('initial', {})
+            # Add primary key for each community
+            initial['communities'] = [
+                c.pk for c in instance.communities.all()]
+
+        super(InternetExchangeCommunityForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        instance = forms.ModelForm.save(self)
+        instance.communities.clear()
+
+        for community in self.cleaned_data['communities']:
+            instance.communities.add(community)
 
 
 class PeeringSessionForm(BootstrapMixin, forms.ModelForm):

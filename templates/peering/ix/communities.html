@@ -1,0 +1,10 @@
+{% extends 'utils/object_add_edit.html' %}
+{% load form_helpers %}
+{% block form %}
+            <div class="panel panel-default">
+              <div class="panel-heading"><strong>Communities</strong></div>
+              <div class="panel-body">
+                {% render_field form.communities %}
+              </div>
+            </div>
+{% endblock %}

@@ -16,6 +16,18 @@ urlpatterns = [
     url(r'^as/(?P<asn>[0-9]+)/delete/$',
         views.ASDelete.as_view(), name='as_delete'),
 
+    # BGP Communities
+    url(r'^community/$', views.CommunityList.as_view(), name='community_list'),
+    url(r'^community/add/$', views.CommunityAdd.as_view(), name='community_add'),
+    url(r'^community/import/$', views.CommunityImport.as_view(),
+        name='community_import'),
+    url(r'^community/(?P<id>[0-9]+)/$',
+        views.CommunityDetails.as_view(), name='community_details'),
+    url(r'^community/(?P<id>[0-9]+)/edit/$',
+        views.CommunityEdit.as_view(), name='community_edit'),
+    url(r'^community/(?P<id>[0-9]+)/delete/$',
+        views.CommunityDelete.as_view(), name='community_delete'),
+
     # Configuration Templates
     url(r'^template/$', views.ConfigTemplateList.as_view(),
         name='configuration_template_list'),
@@ -40,6 +52,8 @@ urlpatterns = [
         views.IXDelete.as_view(), name='ix_delete'),
     url(r'^ix/(?P<slug>[\w-]+)/add_peering/$',
         views.PeeringSessionAdd.as_view(), name='peering_session_add'),
+    url(r'^ix/(?P<slug>[\w-]+)/update_communities/$',
+        views.IXUpdateCommunities.as_view(), name='ix_update_communities'),
     url(r'^ix/(?P<slug>[\w-]+)/config/$',
         views.IXConfig.as_view(), name='ix_configuration'),
     url(r'^ix/(?P<slug>[\w-]+)/changes/$',

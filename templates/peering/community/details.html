@@ -1,0 +1,48 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block content %}
+      {% if request.user.is_authenticated %}
+      <div class="pull-right">
+        <a href="{% url 'peering:community_edit' id=community.id %}" class="btn btn-warning">
+          <span class="fa fa-pencil" aria-hidden="true"></span> Edit
+        </a>
+        <a href="{% url 'peering:community_delete' id=community.id %}" class="btn btn-danger">
+          <span class="fa fa-trash" aria-hidden="true"></span> Delete
+        </a>
+      </div>
+      {% endif %}
+      <h1>{% block title %}{{ community }}{% endblock %}</h1>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>Community Details</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+              <tr>
+                <td>Name</td>
+                <td>{{ community.name }}</td>
+              </tr>
+              <tr>
+                <td>Value</td>
+                <td>{{ community.value }}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>Comments</strong>
+            </div>
+            <div class="panel-body">
+              {% if community.comment %}
+              {{ community.comment|markdown }}
+              {% else %}
+              <span class="text-muted">None</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}

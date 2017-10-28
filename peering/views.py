@@ -12,9 +12,10 @@ from django.views.generic import View
 
 from django_tables2 import RequestConfig
 
-from .forms import AutonomousSystemForm, AutonomousSystemCSVForm, ConfigurationTemplateForm, InternetExchangeForm, InternetExchangeCSVForm, PeeringSessionForm, RouterForm, RouterCSVForm
-from .models import AutonomousSystem, ConfigurationTemplate, InternetExchange, PeeringSession, Router
-from .tables import AutonomousSystemTable, ConfigurationTemplateTable, InternetExchangeTable, PeeringSessionTable, RouterTable
+from .forms import AutonomousSystemForm, AutonomousSystemCSVForm, CommunityForm, CommunityCSVForm, ConfigurationTemplateForm, InternetExchangeForm, InternetExchangeCommunityForm, InternetExchangeCSVForm, PeeringSessionForm, RouterForm, RouterCSVForm
+from .models import AutonomousSystem, Community, ConfigurationTemplate, InternetExchange, PeeringSession, Router
+from .tables import AutonomousSystemTable, CommunityTable, ConfigurationTemplateTable, InternetExchangeTable, PeeringSessionTable, RouterTable
+from utils.paginators import EnhancedPaginator
 from utils.views import AddOrEditView, DeleteView, ImportView
 
 
@@ -38,9 +39,18 @@ def get_ix_config(internet_exchange):
         {'name': 'ipv4', 'sessions': peering_sessions4},
     ]
 
+    # Generate list of communities
+    communities = []
+    for community in internet_exchange.communities.all():
+        communities.append({
+            'name': community.name,
+            'value': community.value,
+        })
+
     values = {
         'internet_exchange': internet_exchange,
         'peering_groups': peering_groups,
+        'communities': communities,
     }
 
     # Load and render the template using Jinja2
@@ -65,7 +75,11 @@ class ASList(View):
     def get(self, request):
         autonomous_systems = AutonomousSystemTable(
             AutonomousSystem.objects.order_by('asn'))
-        RequestConfig(request).configure(autonomous_systems)
+        paginate = {
+            'klass': EnhancedPaginator,
+            'per_page': settings.PAGINATE_COUNT
+        }
+        RequestConfig(request, paginate=paginate).configure(autonomous_systems)
         context = {
             'autonomous_systems': autonomous_systems
         }
@@ -106,11 +120,62 @@ class ASDelete(DeleteView):
     return_url = 'peering:as_list'
 
 
+class CommunityList(View):
+    def get(self, request):
+        communities = CommunityTable(Community.objects.all())
+        paginate = {
+            'klass': EnhancedPaginator,
+            'per_page': settings.PAGINATE_COUNT
+        }
+        RequestConfig(request, paginate=paginate).configure(communities)
+        context = {
+            'communities': communities,
+        }
+        return render(request, 'peering/community/list.html', context)
+
+
+class CommunityAdd(AddOrEditView):
+    model = Community
+    form = CommunityForm
+    return_url = 'peering:community_list'
+    template = 'peering/community/add_edit.html'
+
+
+class CommunityImport(ImportView):
+    form_model = CommunityCSVForm
+    return_url = 'peering:community_list'
+
+
+class CommunityDetails(View):
+    def get(self, request, id):
+        community = get_object_or_404(Community, id=id)
+        context = {
+            'community': community,
+        }
+        return render(request, 'peering/community/details.html', context)
+
+
+class CommunityEdit(AddOrEditView):
+    model = Community
+    form = CommunityForm
+    template = 'peering/community/add_edit.html'
+
+
+class CommunityDelete(DeleteView):
+    model = Community
+    return_url = 'peering:community_list'
+
+
 class ConfigTemplateList(View):
     def get(self, request):
         configuration_templates = ConfigurationTemplateTable(
             ConfigurationTemplate.objects.all())
-        RequestConfig(request).configure(configuration_templates)
+        paginate = {
+            'klass': EnhancedPaginator,
+            'per_page': settings.PAGINATE_COUNT
+        }
+        RequestConfig(request, paginate=paginate).configure(
+            configuration_templates)
         context = {
             'configuration_templates': configuration_templates
         }
@@ -150,7 +215,11 @@ class IXList(View):
     def get(self, request):
         internet_exchanges = InternetExchangeTable(
             InternetExchange.objects.order_by('name'))
-        RequestConfig(request).configure(internet_exchanges)
+        paginate = {
+            'klass': EnhancedPaginator,
+            'per_page': settings.PAGINATE_COUNT
+        }
+        RequestConfig(request, paginate=paginate).configure(internet_exchanges)
         context = {'internet_exchanges': internet_exchanges}
         return render(request, 'peering/ix/list.html', context)
 
@@ -172,7 +241,11 @@ class IXDetails(View):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
         peering_sessions = PeeringSessionTable(internet_exchange.peeringsession_set.order_by(
             'autonomous_system.asn', 'ip_address'))
-        RequestConfig(request).configure(peering_sessions)
+        paginate = {
+            'klass': EnhancedPaginator,
+            'per_page': settings.PAGINATE_COUNT
+        }
+        RequestConfig(request, paginate=paginate).configure(peering_sessions)
         context = {
             'internet_exchange': internet_exchange,
             'peering_sessions': peering_sessions,
@@ -191,6 +264,45 @@ class IXEdit(AddOrEditView):
 class IXDelete(DeleteView):
     model = InternetExchange
     return_url = 'peering:ix_list'
+
+
+class IXUpdateCommunities(AddOrEditView):
+    model = InternetExchange
+    form = InternetExchangeCommunityForm
+    template = 'peering/ix/communities.html'
+
+    def get(self, request, *args, **kwargs):
+        obj = self.alter_object(self.get_object(kwargs), request, args, kwargs)
+        form = self.form(instance=obj)
+
+        return render(request, self.template, {
+            'object': obj,
+            'object_type': self.model._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(obj),
+        })
+
+    def post(self, request, *args, **kwargs):
+        obj = self.get_object(kwargs)
+        form = self.form(request.POST, instance=obj)
+
+        if form.is_valid():
+            # Clear communities to avoid duplicates
+            obj.communities.clear()
+            # Add communities one by one
+            for community in request.POST.getlist('communities'):
+                obj.communities.add(community)
+            # Save the object and its linked communities
+            obj.save()
+
+            return redirect(self.get_return_url(obj))
+
+        return render(request, self.template, {
+            'object': obj,
+            'object_type': self.model._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(obj),
+        })
 
 
 class IXConfig(LoginRequiredMixin, View):
@@ -283,7 +395,11 @@ class PeeringSessionDelete(DeleteView):
 class RouterList(View):
     def get(self, request):
         routers = RouterTable(Router.objects.all())
-        RequestConfig(request).configure(routers)
+        paginate = {
+            'klass': EnhancedPaginator,
+            'per_page': settings.PAGINATE_COUNT
+        }
+        RequestConfig(request, paginate=paginate).configure(routers)
         context = {
             'routers': routers
         }

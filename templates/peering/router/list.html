@@ -15,6 +15,6 @@
       {% endif %}
       <h1>{% block title %}Routers{% endblock %}</h1>
       <div class="row">
-        {% render_table routers %}
+        {% render_table routers 'utils/table.html' %}
       </div>
 {% endblock %}

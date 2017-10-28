@@ -11,6 +11,6 @@
       {% endif %}
       <h1>{% block title %}Templates{% endblock %}</h1>
       <div class="row">
-        {% render_table configuration_templates %}
+        {% render_table configuration_templates 'utils/table.html' %}
       </div>
 {% endblock %}

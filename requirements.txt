@@ -1,9 +1,9 @@
 Django==1.11.6
-django-tables2==1.12.0
+django-tables2==1.13.0
 Jinja2==2.9.6
 napalm==1.2.0
 Markdown==2.6.9
 MarkupSafe==1.0
-pep8==1.7.0
+pep8==1.7.1
 py-gfm==0.1.3
 pytz==2017.2
