@@ -30,7 +30,7 @@ class EnhancedPage(Page):
 
         # Skip markers
         skip_pages = [x[1] for x in zip(
-            pages_list[:-1], page_list[1:]) if (x[1] - x[0] != 1)]
+            pages_list[:-1], pages_list[1:]) if (x[1] - x[0] != 1)]
         for i in skip_pages:
             pages_list.insert(pages_list.index(i), False)
 
