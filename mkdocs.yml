@@ -5,6 +5,7 @@ pages:
   - 'Setup':
     - 'Peering Manager': 'setup/peering-manager.md'
     - 'Web Server': 'setup/web-server.md'
+    - 'LDAP': 'setup/ldap.md'
     - 'Upgrading': 'setup/upgrading.md'
   - 'Templating': 'config-template.md'
 

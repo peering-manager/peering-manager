@@ -44,6 +44,29 @@ PEERINGDB = 'https://www.peeringdb.com/asn/'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+try:
+    from peering_manager.ldap_config import *
+    LDAP_CONFIGURED = True
+except ImportError:
+    LDAP_CONFIGURED = False
+
+# If LDAP is configured, load the config
+if LDAP_CONFIGURED:
+    try:
+        import ldap
+        import django_auth_ldap
+
+        # Prepend LDAPBackend to the default ModelBackend
+        AUTHENTICATION_BACKENDS = [
+            'django_auth_ldap.backend.LDAPBackend',
+            'django.contrib.auth.backends.ModelBackend',
+        ]
+    except ImportError:
+        raise ImproperlyConfigured(
+            'LDAP authentication has been configured, but django-auth-ldap is not installed. You can remove peering_manager/ldap_config.py to disable LDAP.'
+        )
+
+
 # Application definition
 
 INSTALLED_APPS = [
