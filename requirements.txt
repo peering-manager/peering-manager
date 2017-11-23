@@ -1,5 +1,5 @@
 Django==1.11.7
-django-tables2==1.14.2
+django-tables2==1.15.0
 Jinja2==2.10
 napalm==2.1.0
 Markdown==2.6.9
