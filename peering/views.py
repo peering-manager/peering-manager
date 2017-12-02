@@ -16,6 +16,7 @@ from .models import AutonomousSystem, Community, ConfigurationTemplate, Internet
 from .tables import AutonomousSystemTable, CommunityTable, ConfigurationTemplateTable, InternetExchangeTable, PeeringSessionTable, RouterTable
 from utils.paginators import EnhancedPaginator
 from utils.views import AddOrEditView, DeleteView, ImportView
+from . import peeringdb
 
 
 def get_ix_config(internet_exchange):
@@ -117,6 +118,25 @@ class ASEdit(AddOrEditView):
 class ASDelete(DeleteView):
     model = AutonomousSystem
     return_url = 'peering:as_list'
+
+
+class ASPeeringDBSync(View):
+    def get(self, request, asn):
+        autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
+        peeringdb_info = peeringdb.PeeringDB().get_asn(asn)
+
+        if not peeringdb_info:
+            messages.error(
+                request, 'Unable to synchronize AS details with PeeringDB.')
+        else:
+            autonomous_system.name = peeringdb_info.name
+            autonomous_system.ipv6_max_prefixes = peeringdb_info.info_prefixes6
+            autonomous_system.ipv4_max_prefixes = peeringdb_info.info_prefixes4
+            autonomous_system.save()
+            messages.success(
+                request, 'AS details have been synchronized with PeeringDB.')
+
+        return redirect(autonomous_system.get_absolute_url())
 
 
 class CommunityList(View):

@@ -37,8 +37,9 @@ NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
 PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 20)
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 
-# PeeringDB URL for ASN details
-PEERINGDB = 'https://www.peeringdb.com/asn/'
+# PeeringDB URLs
+PEERINGDB_API = 'https://peeringdb.com/api/'
+PEERINGDB = 'https://peeringdb.com/asn/'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

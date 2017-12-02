@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 
-from peering.forms import BootstrapMixin
+from utils.forms import BootstrapMixin
 
 
 class LoginForm(BootstrapMixin, AuthenticationForm):

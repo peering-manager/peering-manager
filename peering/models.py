@@ -16,9 +16,14 @@ class AutonomousSystem(models.Model):
     ipv4_as_set = models.CharField(max_length=128, blank=True, null=True)
     ipv6_max_prefixes = models.PositiveIntegerField(blank=True, null=True)
     ipv4_max_prefixes = models.PositiveIntegerField(blank=True, null=True)
+    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['asn']
+
+    def save(self, *args, **kwargs):
+        self.updated = timezone.now()
+        super(AutonomousSystem, self).save(*args, **kwargs)
 
     def get_peering_sessions_count(self):
         return self.peeringsession_set.count()

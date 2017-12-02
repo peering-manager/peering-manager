@@ -7,3 +7,4 @@ MarkupSafe==1.0
 pep8==1.7.1
 py-gfm==0.1.3
 pytz==2017.3
+requests==2.18.4
