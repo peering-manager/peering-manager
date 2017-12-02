@@ -5,7 +5,9 @@ import ipaddress
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+
 from .fields import ASNField, CommunityField
+from .peeringdb import PeeringDB
 
 
 class AutonomousSystem(models.Model):
@@ -42,6 +44,19 @@ class AutonomousSystem(models.Model):
 
     def get_absolute_url(self):
         return reverse('peering:as_details', kwargs={'asn': self.asn})
+
+    def sync_with_peeringdb(self):
+        peeringdb_info = PeeringDB().get_asn(self.asn)
+
+        if not peeringdb_info:
+            return False
+
+        self.name = peeringdb_info.name
+        self.ipv6_max_prefixes = peeringdb_info.info_prefixes6
+        self.ipv4_max_prefixes = peeringdb_info.info_prefixes4
+        self.save()
+
+        return True
 
     def __str__(self):
         return 'AS{} - {}'.format(self.asn, self.name)
