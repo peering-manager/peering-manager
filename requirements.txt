@@ -4,7 +4,6 @@ Jinja2==2.10
 napalm==2.2.0
 Markdown==2.6.9
 MarkupSafe==1.0
-pep8==1.7.1
 py-gfm==0.1.3
 pytz==2017.3
 requests==2.18.4

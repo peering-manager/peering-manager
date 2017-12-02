@@ -17,13 +17,14 @@ if [[ ! -z ${SYNTAX} ]]; then
   EXIT=1
 fi
 
-# Check for PEP8 compliance
+# Check for code style compliance
 # Ignore:
 #   - E501: line greater than 80 characters in length
-pep8 --ignore=E501 peering peering_manager utils
+#   - E722: do not use bare except
+pycodestyle --ignore=E501,E722 peering peering_manager utils
 RETURN_CODE=$?
 if [[ ${RETURN_CODE} != 0 ]]; then
-  echo -e "\n$(info) one or more PEP 8 errors detected, failing build."
+  echo -e "\n$(info) one or more code style errors detected, failing build."
   EXIT=${RETURN_CODE}
 fi
 
