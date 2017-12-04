@@ -46,7 +46,7 @@ class AutonomousSystem(models.Model):
         return reverse('peering:as_details', kwargs={'asn': self.asn})
 
     def sync_with_peeringdb(self):
-        peeringdb_info = PeeringDB().get_asn(self.asn)
+        peeringdb_info = PeeringDB().get_autonomous_system(self.asn)
 
         if not peeringdb_info:
             return False

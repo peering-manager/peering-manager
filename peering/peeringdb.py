@@ -24,6 +24,9 @@ class Object(object):
     def __init__(self, data):
         self.__dict__ = json.loads(json.dumps(data))
 
+    def __str__(self):
+        return str(self.__dict__)
+
 
 class PeeringDB(object):
     def lookup(self, namespace, search):
@@ -45,9 +48,33 @@ class PeeringDB(object):
 
         return response.json()
 
-    def get_asn(self, asn):
+    def get_autonomous_system(self, asn):
         search = {'asn': asn}
         result = self.lookup(NAMESPACES['network'], search)
+
+        if not result:
+            return None
+
+        return Object(result['data'][0])
+
+    def get_ix_networks_for_asn(self, asn):
+        search = {'asn': asn}
+        result = self.lookup(
+            NAMESPACES['network_internet_exchange_lan'], search)
+
+        if not result:
+            return None
+
+        ix_networks = []
+        for ix_network in result['data']:
+            ix_networks.append(Object(ix_network))
+
+        return ix_networks
+
+    def get_internet_exchange_by_id(self, ix_network_id):
+        search = {'id': ix_network_id}
+        result = self.lookup(
+            NAMESPACES['internet_exchange'], search)
 
         if not result:
             return None
