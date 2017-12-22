@@ -36,6 +36,11 @@ NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
 NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
 PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 20)
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
+MY_ASN = getattr(configuration, 'MY_ASN', -1)
+
+if MY_ASN == -1:
+    raise ImproperlyConfigured(
+        'The MY_ASN setting must be set to a valid AS number.')
 
 # PeeringDB URLs
 PEERINGDB_API = 'https://peeringdb.com/api/'

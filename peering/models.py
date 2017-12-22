@@ -98,8 +98,9 @@ class ConfigurationTemplate(models.Model):
 
 
 class InternetExchange(models.Model):
+    peeringdb_id = models.PositiveIntegerField(blank=True, null=True)
     name = models.CharField(max_length=128)
-    slug = models.SlugField()
+    slug = models.SlugField(unique=True)
     ipv6_address = models.GenericIPAddressField(blank=True, null=True)
     ipv4_address = models.GenericIPAddressField(blank=True, null=True)
     comment = models.TextField(blank=True)

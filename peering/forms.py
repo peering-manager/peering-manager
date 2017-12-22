@@ -137,6 +137,31 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
         }
 
 
+class InternetExchangePeeringDBForm(BootstrapMixin, forms.ModelForm):
+    slug = SlugField()
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('label_suffix', '')
+        super(InternetExchangePeeringDBForm, self).__init__(*args, **kwargs)
+        self.fields['peeringdb_id'].widget.attrs['readonly'] = True
+
+    class Meta:
+        model = InternetExchange
+        fields = ('peeringdb_id', 'name', 'slug',
+                  'ipv6_address', 'ipv4_address',)
+        labels = {
+            'peeringdb_id': 'PeeringDB ID',
+            'ipv6_address': 'IPv6 Address',
+            'ipv4_address': 'IPv4 Address',
+        }
+        help_texts = {
+            'peeringdb_id': 'ID used by PeeringDB to identify the IX',
+            'name': 'Full name of the Internet Exchange point',
+            'ipv6_address': 'IPv6 Address used to peer',
+            'ipv4_address': 'IPv4 Address used to peer',
+        }
+
+
 class InternetExchangeCSVForm(forms.ModelForm):
     slug = SlugField()
 

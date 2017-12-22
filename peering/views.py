@@ -7,15 +7,20 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.defaultfilters import slugify
 from django.views.generic import View
 
 from django_tables2 import RequestConfig
 
-from .forms import AutonomousSystemForm, AutonomousSystemCSVForm, CommunityForm, CommunityCSVForm, ConfigurationTemplateForm, InternetExchangeForm, InternetExchangeCommunityForm, InternetExchangeCSVForm, PeeringSessionForm, RouterForm, RouterCSVForm
-from .models import AutonomousSystem, Community, ConfigurationTemplate, InternetExchange, PeeringSession, Router
-from .tables import AutonomousSystemTable, CommunityTable, ConfigurationTemplateTable, InternetExchangeTable, PeeringSessionTable, RouterTable
+from .forms import (AutonomousSystemForm, AutonomousSystemCSVForm, CommunityForm, CommunityCSVForm, ConfigurationTemplateForm, InternetExchangeForm,
+                    InternetExchangePeeringDBForm, InternetExchangeCommunityForm, InternetExchangeCSVForm, PeeringSessionForm, RouterForm, RouterCSVForm)
+from .models import (AutonomousSystem, Community,
+                     ConfigurationTemplate, InternetExchange, PeeringSession, Router)
+from .peeringdb import PeeringDB
+from .tables import (AutonomousSystemTable, CommunityTable, ConfigurationTemplateTable,
+                     InternetExchangeTable, PeeringSessionTable, RouterTable)
 from utils.paginators import EnhancedPaginator
-from utils.views import AddOrEditView, DeleteView, ImportView
+from utils.views import AddOrEditView, DeleteView, ImportView, TableImportView
 
 
 def get_ix_config(internet_exchange):
@@ -248,6 +253,33 @@ class IXAdd(AddOrEditView):
 class IXImport(ImportView):
     form_model = InternetExchangeCSVForm
     return_url = 'peering:ix_list'
+
+
+class IXPeeringDBImport(TableImportView):
+    form_model = InternetExchangePeeringDBForm
+    return_url = 'peering:ix_list'
+
+    def get_objects(self):
+        objects = []
+        known_objects = []
+        api = PeeringDB()
+
+        for ix in InternetExchange.objects.all():
+            if ix.peeringdb_id:
+                known_objects.append(ix.peeringdb_id)
+
+        ix_networks = api.get_ix_networks_for_asn(settings.MY_ASN)
+        for ix_network in ix_networks:
+            if ix_network.id not in known_objects:
+                objects.append({
+                    'peeringdb_id': ix_network.id,
+                    'name': ix_network.name,
+                    'slug': slugify(ix_network.name),
+                    'ipv6_address': ix_network.ipaddr6,
+                    'ipv4_address': ix_network.ipaddr4,
+                })
+
+        return objects
 
 
 class IXDetails(View):

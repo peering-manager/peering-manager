@@ -46,6 +46,8 @@ urlpatterns = [
     url(r'^ix/$', views.IXList.as_view(), name='ix_list'),
     url(r'^ix/add/$', views.IXAdd.as_view(), name='ix_add'),
     url(r'^ix/import/$', views.IXImport.as_view(), name='ix_import'),
+    url(r'^ix/peeringdb_import/$', views.IXPeeringDBImport.as_view(),
+        name='ix_peeringdb_import'),
     url(r'^ix/(?P<slug>[\w-]+)/$',
         views.IXDetails.as_view(), name='ix_details'),
     url(r'^ix/(?P<slug>[\w-]+)/edit/$',

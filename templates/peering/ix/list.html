@@ -11,6 +11,10 @@
           <span class="fa fa-upload" aria-hidden="true"></span>
           Import IX
         </a>
+        <a href="{% url 'peering:ix_peeringdb_import' %}" class="btn btn-info">
+          <span class="fa fa-cloud-upload" aria-hidden="true"></span>
+          Import from PeeringDB
+        </a>
       </div>
       {% endif %}
       <h1>{% block title %}Internet Exchanges{% endblock %}</h1>
