@@ -28,6 +28,9 @@ if [[ ${RETURN_CODE} != 0 ]]; then
   EXIT=${RETURN_CODE}
 fi
 
+# Pass the tests suite
+python manage.py test
+
 END=$(date +%s)
 echo "$(info) exiting with code ${EXIT} after $((${END} - ${START})) seconds."
 
