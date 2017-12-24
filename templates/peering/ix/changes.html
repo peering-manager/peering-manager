@@ -22,12 +22,14 @@
             Info
           </a>
         </li>
+        {% if internet_exchange.configuration_template %}
         <li role="presentation">
           <a href="{% url 'peering:ix_configuration' slug=internet_exchange.slug %}">
             <span class="fa fa-terminal" aria-hidden="true"></span>
             Configuration
           </a>
         </li>
+        {% endif %}
         {% if internet_exchange.router and internet_exchange.router.platform %}
         <li role="presentation" class="active">
           <a href="{% url 'peering:ix_changes' slug=internet_exchange.slug %}">

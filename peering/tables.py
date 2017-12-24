@@ -105,6 +105,27 @@ class PeeringSessionTable(BaseTable):
         fields = ('asn', 'as_name', 'ip_address', 'details',)
 
 
+class PeerTable(BaseTable):
+    """
+    Table for peer lists
+    """
+
+    asn = tables.Column(verbose_name='ASN')
+    name = tables.Column(verbose_name='AS Name')
+    as_set = tables.Column(verbose_name='AS-SET', orderable=False)
+    ipv6_max_prefixes = tables.Column(
+        verbose_name='IPv6 Max Prefixes', orderable=False)
+    ipv4_max_prefixes = tables.Column(
+        verbose_name='IPv4 Max Prefixes', orderable=False)
+    ipv6_address = tables.Column(verbose_name='IPv6 Address', orderable=False)
+    ipv4_address = tables.Column(verbose_name='IPv6 Address', orderable=False)
+
+    class Meta(BaseTable.Meta):
+        model = AutonomousSystem
+        fields = ('asn', 'name', 'as_set', 'ipv6_max_prefixes',
+                  'ipv4_max_prefixes', 'ipv6_address', 'ipv4_address',)
+
+
 class RouterTable(BaseTable):
     """
     Table for Router lists

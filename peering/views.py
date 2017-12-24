@@ -18,7 +18,7 @@ from .models import (AutonomousSystem, Community,
                      ConfigurationTemplate, InternetExchange, PeeringSession, Router)
 from .peeringdb import PeeringDB
 from .tables import (AutonomousSystemTable, CommunityTable, ConfigurationTemplateTable,
-                     InternetExchangeTable, PeeringSessionTable, RouterTable)
+                     InternetExchangeTable, PeerTable, PeeringSessionTable, RouterTable)
 from utils.paginators import EnhancedPaginator
 from utils.views import AddOrEditView, DeleteView, ImportView, TableImportView
 
@@ -349,6 +349,30 @@ class IXUpdateCommunities(AddOrEditView):
             'form': form,
             'return_url': self.get_return_url(obj),
         })
+
+
+class IXPeers(LoginRequiredMixin, View):
+    def get(self, request, slug):
+        internet_exchange = get_object_or_404(InternetExchange, slug=slug)
+        available_peers = None
+
+        api = PeeringDB()
+        netixlan = api.get_ix_network(internet_exchange.peeringdb_id)
+        peers = api.get_peers_for_ix(netixlan.ix_id)
+
+        available_peers = PeerTable(peers)
+        paginate = {
+            'klass': EnhancedPaginator,
+            'per_page': settings.PAGINATE_COUNT
+        }
+        RequestConfig(request, paginate=paginate).configure(available_peers)
+
+        context = {
+            'internet_exchange': internet_exchange,
+            'available_peers': available_peers,
+        }
+
+        return render(request, 'peering/ix/peers.html', context)
 
 
 class IXConfig(LoginRequiredMixin, View):

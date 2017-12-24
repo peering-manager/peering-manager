@@ -13,6 +13,14 @@ class PeeringDBTestCase(TestCase):
         autonomous_system = api.get_autonomous_system(asn)
         self.assertEqual(autonomous_system.asn, asn)
 
+    def test_get_ix_network(self):
+        api = PeeringDB()
+        ix_network_id = 29146
+
+        known_ix_network_name = 'AMS-IX'
+        found_ix_network = api.get_ix_network(ix_network_id)
+        self.assertEqual(found_ix_network.name, known_ix_network_name)
+
     def test_get_ix_networks_for_asn(self):
         api = PeeringDB()
         asn = 29467
@@ -26,11 +34,3 @@ class PeeringDBTestCase(TestCase):
             found_ix_networks.append(ix_network.id)
 
         self.assertEqual(found_ix_networks, known_ix_networks)
-
-    def test_get_internet_exchange(self):
-        api = PeeringDB()
-        ix_id = 359
-
-        known_ix_name = 'France-IX Paris'
-        found_ix = api.get_internet_exchange_by_id(ix_id)
-        self.assertEqual(found_ix.name, known_ix_name)

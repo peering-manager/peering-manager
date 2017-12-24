@@ -57,6 +57,16 @@ class PeeringDB(object):
 
         return Object(result['data'][0])
 
+    def get_ix_network(self, ix_network_id):
+        search = {'id': ix_network_id}
+        result = self.lookup(
+            NAMESPACES['network_internet_exchange_lan'], search)
+
+        if not result:
+            return None
+
+        return Object(result['data'][0])
+
     def get_ix_networks_for_asn(self, asn):
         search = {'asn': asn}
         result = self.lookup(
@@ -71,12 +81,35 @@ class PeeringDB(object):
 
         return ix_networks
 
-    def get_internet_exchange_by_id(self, ix_network_id):
-        search = {'id': ix_network_id}
+    def get_peers_for_ix(self, ix_id):
+        search = {'ix_id': ix_id, 'depth': 0}
         result = self.lookup(
-            NAMESPACES['internet_exchange'], search)
+            NAMESPACES['network_internet_exchange_lan'], search)
 
         if not result:
             return None
 
-        return Object(result['data'][0])
+        peers = []
+        for data in result['data']:
+            peer = Object(data)
+
+            # Ignore our own ASN
+            if peer.asn == settings.MY_ASN:
+                continue
+
+            # Get more details about the current network
+            network = self.get_autonomous_system(peer.asn)
+
+            # Package all gathered details
+            peers.append({
+                'asn': peer.asn,
+                'name': network.name,
+                'as_set': network.irr_as_set,
+                'ipv6_max_prefixes': network.info_prefixes6,
+                'ipv4_max_prefixes': network.info_prefixes4,
+                'ipv6_address': peer.ipaddr6,
+                'ipv4_address': peer.ipaddr4,
+
+            })
+
+        return peers
