@@ -354,13 +354,7 @@ class IXUpdateCommunities(AddOrEditView):
 class IXPeers(LoginRequiredMixin, View):
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
-        available_peers = None
-
-        api = PeeringDB()
-        netixlan = api.get_ix_network(internet_exchange.peeringdb_id)
-        peers = api.get_peers_for_ix(netixlan.ix_id)
-
-        available_peers = PeerTable(peers)
+        available_peers = PeerTable(internet_exchange.get_available_peers())
         paginate = {
             'klass': EnhancedPaginator,
             'per_page': settings.PAGINATE_COUNT

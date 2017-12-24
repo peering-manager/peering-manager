@@ -131,6 +131,17 @@ class InternetExchange(models.Model):
     def get_absolute_url(self):
         return reverse('peering:ix_details', kwargs={'slug': self.slug})
 
+    def get_available_peers(self):
+        # Not linked to PeeringDB, cannot determine peers
+        if not self.peeringdb_id:
+            return []
+
+        # Get the LAN that we are attached to and retrieve the peers
+        api = PeeringDB()
+        lan = api.get_ix_network(self.peeringdb_id)
+
+        return api.get_peers_for_ix(lan.ix_id)
+
     def __str__(self):
         return self.name
 
