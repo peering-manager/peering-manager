@@ -18,6 +18,18 @@ def contains(value, arg):
     return any(s in value for s in arg.split(','))
 
 
+@register.filter()
+def notcontains(value, arg):
+    """
+    Test whether a value does not contain any of a given set of strings.
+    `arg` should be a comma-separated list of strings.
+    """
+    for s in arg.split(','):
+        if s in value:
+            return False
+    return True
+
+
 @register.filter(is_safe=True)
 def markdown(value):
     """

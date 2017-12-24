@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load helpers %}
 {% block content %}
 {% if request.user.is_authenticated %}
 <div class="pull-right">
@@ -13,14 +14,14 @@
 <h1>{% block title %}{{ internet_exchange }}{% endblock %}</h1>
 {% if internet_exchange.peeringdb_id or internet_exchange.configuration_template and request.user.is_authenticated %}
 <ul class="nav nav-tabs">
-  <li role="presentation" class="active">
-    <a href="">
+  <li role="presentation" {% if request.path|notcontains:'/peers/,/config/,/changes/' %}class="active"{% endif %}>
+    <a href="{% url 'peering:ix_details' slug=internet_exchange.slug %}">
       <span class="fa fa-info-circle" aria-hidden="true"></span>
       Info
     </a>
   </li>
   {% if internet_exchange.peeringdb_id %}
-  <li role="presentation">
+  <li role="presentation" {% if request.path|contains:'/peers/' %}class="active"{% endif %}>
     <a href="{% url 'peering:ix_peers' slug=internet_exchange.slug %}">
       <span class="fa fa-sitemap" aria-hidden="true"></span>
       Available Peers
@@ -28,7 +29,7 @@
   </li>
   {% endif %}
   {% if internet_exchange.configuration_template %}
-  <li role="presentation">
+  <li role="presentation" {% if request.path|contains:'/config/' %}class="active"{% endif %}>
     <a href="{% url 'peering:ix_configuration' slug=internet_exchange.slug %}">
       <span class="fa fa-terminal" aria-hidden="true"></span>
       Configuration
@@ -36,7 +37,7 @@
   </li>
   {% endif %}
   {% if internet_exchange.router and internet_exchange.router.platform %}
-  <li role="presentation">
+  <li role="presentation" {% if request.path|contains:'/changes/' %}class="active"{% endif %}>
     <a href="{% url 'peering:ix_changes' slug=internet_exchange.slug %}">
       <span class="fa fa-cogs" aria-hidden="true"></span>
       Router Changes
