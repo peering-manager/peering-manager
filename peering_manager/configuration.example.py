@@ -5,8 +5,8 @@
 # Example: ALLOWED_HOSTS = ['peering.example.com', 'peering.internal.local']
 ALLOWED_HOSTS = []
 
-# Must be unique to each setup.
-SECRET_KEY = ''
+# Must be unique to each setup (CHANGE IT!).
+SECRET_KEY = 'ef7npku*djrj_r4jt4cojo8^j@2($$@05e(eq_mn!ywx*jg0vy'
 
 # Base URL path if accessing Peering Manager within a directory.
 BASE_PATH = ''
