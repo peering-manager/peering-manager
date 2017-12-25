@@ -222,6 +222,7 @@ class Router(models.Model):
 
     def test_napalm_connection(self):
         device = self.get_napalm_device()
+        success = False
 
         if device:
             try:
@@ -229,9 +230,11 @@ class Router(models.Model):
                 device.open()
                 device.close()
 
-                return True
+                success = True
             except Exception:
-                return False
+                pass
+
+        return success
 
     def __str__(self):
         return self.name
