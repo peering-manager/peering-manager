@@ -33,4 +33,4 @@ class PeeringDBTestCase(TestCase):
         for ix_network in ix_networks:
             found_ix_networks.append(ix_network.id)
 
-        self.assertEqual(found_ix_networks, known_ix_networks)
+        self.assertEqual(sorted(found_ix_networks), sorted(known_ix_networks))
