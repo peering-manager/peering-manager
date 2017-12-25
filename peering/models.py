@@ -1,7 +1,9 @@
 from __future__ import unicode_literals
 
 import ipaddress
+import napalm
 
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -203,6 +205,33 @@ class Router(models.Model):
 
     def get_absolute_url(self):
         return reverse('peering:router_details', kwargs={'id': self.id})
+
+    def get_napalm_device(self):
+        try:
+            # Driver found, instanciate it
+            driver = napalm.get_network_driver(self.platform)
+            return driver(hostname=self.hostname,
+                          username=settings.NAPALM_USERNAME,
+                          password=settings.NAPALM_PASSWORD,
+                          timeout=settings.NAPALM_TIMEOUT,
+                          optional_args=settings.NAPALM_ARGS)
+        except napalm.base.exceptions.ModuleImportError:
+            # Unable to import proper driver from napalm
+            # Most probably due to a broken install
+            return None
+
+    def test_napalm_connection(self):
+        device = self.get_napalm_device()
+
+        if device:
+            try:
+                # Open and close the connection just for test
+                device.open()
+                device.close()
+
+                return True
+            except Exception:
+                return False
 
     def __str__(self):
         return self.name

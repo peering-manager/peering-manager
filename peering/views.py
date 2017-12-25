@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 from jinja2 import Template
-import napalm
 
 from django.conf import settings
 from django.contrib import messages
@@ -62,17 +61,6 @@ def get_ix_config(internet_exchange):
         internet_exchange.configuration_template.template)
 
     return configuration_template.render(values)
-
-
-def get_napalm_device(router):
-    driver = napalm.get_network_driver(router.platform)
-    device = driver(hostname=router.hostname,
-                    username=settings.NAPALM_USERNAME,
-                    password=settings.NAPALM_PASSWORD,
-                    timeout=settings.NAPALM_TIMEOUT,
-                    optional_args=settings.NAPALM_ARGS)
-
-    return device
 
 
 class ASList(View):
@@ -506,16 +494,11 @@ class RouterDelete(DeleteView):
 
 class RouterPing(View):
     def get(self, request, id):
-        try:
-            router = get_object_or_404(Router, id=id)
-            device = get_napalm_device(router)
+        router = get_object_or_404(Router, id=id)
 
-            device.open()
-            facts = device.get_facts()
-            device.close()
-
+        if router.test_napalm_connection():
             messages.success(request, 'Successfully connected to the router.')
-        except Exception:
+        else:
             messages.error(request, 'Unable to connect to the router.')
 
         return redirect(router.get_absolute_url())

@@ -119,11 +119,13 @@ class PeerTable(BaseTable):
         verbose_name='IPv4 Max Prefixes', orderable=False)
     ipv6_address = tables.Column(verbose_name='IPv6 Address', orderable=False)
     ipv4_address = tables.Column(verbose_name='IPv6 Address', orderable=False)
+    connect = tables.TemplateColumn(verbose_name='',
+                                    template_code='<div class="pull-right"><a href="" class="btn btn-xs btn-primary"><span class="fa fa-compress" aria-hidden="true"></span></a></div>', orderable=False)
 
     class Meta(BaseTable.Meta):
         model = AutonomousSystem
         fields = ('asn', 'name', 'as_set', 'ipv6_max_prefixes',
-                  'ipv4_max_prefixes', 'ipv6_address', 'ipv4_address',)
+                  'ipv4_max_prefixes', 'ipv6_address', 'ipv4_address', 'connect',)
 
 
 class RouterTable(BaseTable):
