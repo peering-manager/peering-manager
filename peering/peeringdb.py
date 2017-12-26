@@ -54,8 +54,7 @@ class PeeringDB(object):
             search['depth'] = 1
 
         # Make the request
-        self.logger.debug('Calling PeeringDB API: {url} | {params}'.format(
-            url=api_url, params=search))
+        self.logger.debug('Calling PeeringDB API: %s | %s', api_url, search)
         response = requests.get(api_url, params=search)
 
         return response.json() if response.status_code == 200 else None
