@@ -94,7 +94,7 @@ class PeeringDB(object):
         return ix_networks
 
     def get_peers_for_ix(self, ix_id):
-        search = {'ix_id': ix_id, 'limit': settings.PAGINATE_COUNT, 'skip': 10}
+        search = {'ix_id': ix_id}
         result = self.lookup(
             NAMESPACES['network_internet_exchange_lan'], search)
 
