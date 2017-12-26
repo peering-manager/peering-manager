@@ -43,12 +43,11 @@ class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = AutonomousSystem
-        fields = ('asn', 'name', 'ipv6_as_set', 'ipv4_as_set',
-                  'ipv6_max_prefixes', 'ipv4_max_prefixes', 'comment',)
+        fields = ('asn', 'name', 'irr_as_set', 'ipv6_max_prefixes',
+                  'ipv4_max_prefixes', 'comment',)
         labels = {
             'asn': 'ASN',
-            'ipv6_as_set': 'IPv6 AS-SET',
-            'ipv4_as_set': 'IPv4 AS-SET',
+            'irr_as_set': 'IRR AS-SET',
             'ipv6_max_prefixes': 'IPv6 Max Prefixes',
             'ipv4_max_prefixes': 'IPv4 Max Prefixes',
             'comment': 'Comments',
@@ -63,12 +62,11 @@ class AutonomousSystemCSVForm(forms.ModelForm):
     class Meta:
         model = AutonomousSystem
 
-        fields = ('asn', 'name', 'ipv6_as_set', 'ipv4_as_set',
-                  'ipv6_max_prefixes', 'ipv4_max_prefixes', 'comment',)
+        fields = ('asn', 'name', 'irr_as_set', 'ipv6_max_prefixes',
+                  'ipv4_max_prefixes', 'comment',)
         labels = {
             'asn': 'ASN',
-            'ipv6_as_set': 'IPv6 AS-SET',
-            'ipv4_as_set': 'IPv4 AS-SET',
+            'irr_as_set': 'IRR AS-SET',
             'ipv6_max_prefixes': 'IPv6 Max Prefixes',
             'ipv4_max_prefixes': 'IPv4 Max Prefixes',
             'comment': 'Comments',

@@ -149,6 +149,23 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# Django logging
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'peering.manager.peeringdb': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        }
+    }
+}
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 LANGUAGE_CODE = 'en-us'

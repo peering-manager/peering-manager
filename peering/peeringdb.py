@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import json
+import logging
 import requests
 
 from django.conf import settings
@@ -39,6 +40,7 @@ class PeeringDB(object):
     This will probably be modified or even deleted when we will start using the
     existing library.
     """
+    logger = logging.getLogger('peering.manager.peeringdb')
 
     def lookup(self, namespace, search):
         """
@@ -52,13 +54,11 @@ class PeeringDB(object):
             search['depth'] = 1
 
         # Make the request
+        self.logger.debug('Calling PeeringDB API: {url} | {params}'.format(
+            url=api_url, params=search))
         response = requests.get(api_url, params=search)
 
-        # If not OK just give us none
-        if response.status_code != 200:
-            return None
-
-        return response.json()
+        return response.json() if response.status_code == 200 else None
 
     def get_autonomous_system(self, asn):
         search = {'asn': asn}
@@ -94,7 +94,7 @@ class PeeringDB(object):
         return ix_networks
 
     def get_peers_for_ix(self, ix_id):
-        search = {'ix_id': ix_id, 'depth': 0}
+        search = {'ix_id': ix_id, 'limit': settings.PAGINATE_COUNT, 'skip': 10}
         result = self.lookup(
             NAMESPACES['network_internet_exchange_lan'], search)
 
@@ -116,7 +116,7 @@ class PeeringDB(object):
             peers.append({
                 'asn': peer.asn,
                 'name': network.name,
-                'as_set': network.irr_as_set,
+                'irr_as_set': network.irr_as_set,
                 'ipv6_max_prefixes': network.info_prefixes6,
                 'ipv4_max_prefixes': network.info_prefixes4,
                 'ipv6_address': peer.ipaddr6,

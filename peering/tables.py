@@ -30,8 +30,7 @@ class AutonomousSystemTable(BaseTable):
     """
 
     asn = tables.Column(verbose_name='ASN')
-    ipv6_as_set = tables.Column(verbose_name='IPv6 AS-SET', orderable=False)
-    ipv4_as_set = tables.Column(verbose_name='IPv4 AS-SET', orderable=False)
+    irr_as_set = tables.Column(verbose_name='IRR AS-SET', orderable=False)
     ipv6_max_prefixes = tables.Column(verbose_name='IPv6 Max Prefixes')
     ipv4_max_prefixes = tables.Column(verbose_name='IPv4 Max Prefixes')
     details = tables.TemplateColumn(verbose_name=' ',
@@ -39,8 +38,8 @@ class AutonomousSystemTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = AutonomousSystem
-        fields = ('asn', 'name', 'ipv6_as_set', 'ipv4_as_set',
-                  'ipv6_max_prefixes', 'ipv4_max_prefixes', 'details',)
+        fields = ('asn', 'name', 'irr_as_set', 'ipv6_max_prefixes',
+                  'ipv4_max_prefixes', 'details',)
 
 
 class CommunityTable(BaseTable):
@@ -118,7 +117,7 @@ class PeerTable(BaseTable):
     ipv4_max_prefixes = tables.Column(
         verbose_name='IPv4 Max Prefixes', orderable=False)
     ipv6_address = tables.Column(verbose_name='IPv6 Address', orderable=False)
-    ipv4_address = tables.Column(verbose_name='IPv6 Address', orderable=False)
+    ipv4_address = tables.Column(verbose_name='IPv4 Address', orderable=False)
 
     class Meta(BaseTable.Meta):
         model = AutonomousSystem
