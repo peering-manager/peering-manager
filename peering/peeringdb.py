@@ -21,6 +21,10 @@ NAMESPACES = {
 
 
 class Object(object):
+    """
+    This is a class used to load JSON data into class fields for easier use.
+    """
+
     def __init__(self, data):
         self.__dict__ = json.loads(json.dumps(data))
 
@@ -29,6 +33,13 @@ class Object(object):
 
 
 class PeeringDB(object):
+    """
+    Class used to interact with the PeeringDB API.
+
+    This will probably be modified or even deleted when we will start using the
+    existing library.
+    """
+
     def lookup(self, namespace, search):
         """
         Send a get request to the API given a namespace and some parameters.
@@ -43,6 +54,7 @@ class PeeringDB(object):
         # Make the request
         response = requests.get(api_url, params=search)
 
+        # If not OK just give us none
         if response.status_code != 200:
             return None
 

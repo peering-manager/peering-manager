@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from jinja2 import Template
 import ipaddress
 import napalm
 
@@ -29,6 +30,9 @@ class AutonomousSystem(models.Model):
         self.updated = timezone.now()
         super(AutonomousSystem, self).save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        return reverse('peering:as_details', kwargs={'asn': self.asn})
+
     def get_peering_sessions_count(self):
         return self.peeringsession_set.count()
 
@@ -43,9 +47,6 @@ class AutonomousSystem(models.Model):
 
     def get_internet_exchanges_count(self):
         return len(self.get_internet_exchanges())
-
-    def get_absolute_url(self):
-        return reverse('peering:as_details', kwargs={'asn': self.asn})
 
     def sync_with_peeringdb(self):
         peeringdb_info = PeeringDB().get_autonomous_system(self.asn)
@@ -115,6 +116,9 @@ class InternetExchange(models.Model):
     class Meta:
         ordering = ['name']
 
+    def get_absolute_url(self):
+        return reverse('peering:ix_details', kwargs={'slug': self.slug})
+
     def get_peering_sessions_count(self):
         return self.peeringsession_set.count()
 
@@ -130,8 +134,45 @@ class InternetExchange(models.Model):
     def get_autonomous_systems_count(self):
         return len(self.get_autonomous_systems())
 
-    def get_absolute_url(self):
-        return reverse('peering:ix_details', kwargs={'slug': self.slug})
+    def get_config(self):
+        peering_sessions = self.peeringsession_set.all()
+
+        peering_sessions6 = []
+        peering_sessions4 = []
+
+        # Sort peering sessions based on IP protocol version
+        for session in peering_sessions:
+            session_dict = session.to_dict()
+
+            if session_dict['ip_version'] == 6:
+                peering_sessions6.append(session_dict)
+            if session_dict['ip_version'] == 4:
+                peering_sessions4.append(session_dict)
+
+        peering_groups = [
+            {'name': 'ipv6', 'sessions': peering_sessions6},
+            {'name': 'ipv4', 'sessions': peering_sessions4},
+        ]
+
+        # Generate list of communities
+        communities = []
+        for community in self.communities.all():
+            communities.append({
+                'name': community.name,
+                'value': community.value,
+            })
+
+        values = {
+            'internet_exchange': self,
+            'peering_groups': peering_groups,
+            'communities': communities,
+        }
+
+        # Load and render the template using Jinja2
+        configuration_template = Template(
+            self.configuration_template.template)
+
+        return configuration_template.render(values)
 
     def get_available_peers(self):
         # Not linked to PeeringDB, cannot determine peers
@@ -235,6 +276,29 @@ class Router(models.Model):
                 pass
 
         return success
+
+    def set_configuration(self, config, commit=False):
+        try:
+            # Connect to the device
+            device = self.get_napalm_device()
+            device.open()
+
+            # Load the config and get the diff
+            device.load_merge_candidate(config=config)
+            changes = device.compare_config()
+
+            # Commit the config if needed
+            if commit:
+                device.commit_config()
+            else:
+                device.discard_config()
+
+            device.close()
+        except Exception:
+            changes = None
+
+        # Return the config diff
+        return changes
 
     def __str__(self):
         return self.name

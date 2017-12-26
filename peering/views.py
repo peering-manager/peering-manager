@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
 
-from jinja2 import Template
-
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -20,47 +18,6 @@ from .tables import (AutonomousSystemTable, CommunityTable, ConfigurationTemplat
                      InternetExchangeTable, PeerTable, PeeringSessionTable, RouterTable)
 from utils.paginators import EnhancedPaginator
 from utils.views import AddOrEditView, DeleteView, ImportView, TableImportView
-
-
-def get_ix_config(internet_exchange):
-    peering_sessions = internet_exchange.peeringsession_set.all()
-
-    peering_sessions6 = []
-    peering_sessions4 = []
-
-    # Sort peering sessions based on IP protocol version
-    for session in peering_sessions:
-        session_dict = session.to_dict()
-
-        if session_dict['ip_version'] == 6:
-            peering_sessions6.append(session_dict)
-        if session_dict['ip_version'] == 4:
-            peering_sessions4.append(session_dict)
-
-    peering_groups = [
-        {'name': 'ipv6', 'sessions': peering_sessions6},
-        {'name': 'ipv4', 'sessions': peering_sessions4},
-    ]
-
-    # Generate list of communities
-    communities = []
-    for community in internet_exchange.communities.all():
-        communities.append({
-            'name': community.name,
-            'value': community.value,
-        })
-
-    values = {
-        'internet_exchange': internet_exchange,
-        'peering_groups': peering_groups,
-        'communities': communities,
-    }
-
-    # Load and render the template using Jinja2
-    configuration_template = Template(
-        internet_exchange.configuration_template.template)
-
-    return configuration_template.render(values)
 
 
 class ASList(View):
@@ -363,7 +320,7 @@ class IXConfig(LoginRequiredMixin, View):
 
         context = {
             'internet_exchange': internet_exchange,
-            'internet_exchange_configuration': get_ix_config(internet_exchange),
+            'internet_exchange_configuration': internet_exchange.get_config(),
         }
 
         return render(request, 'peering/ix/configuration.html', context)
@@ -372,27 +329,15 @@ class IXConfig(LoginRequiredMixin, View):
 class IXRouterChanges(LoginRequiredMixin, View):
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
+        commit = 'commit' in request.GET
 
-        try:
-            config = get_ix_config(internet_exchange)
-            device = get_napalm_device(internet_exchange.router)
+        config = internet_exchange.get_config()
+        changes = internet_exchange.router.set_configuration(config, commit)
 
-            device.open()
-
-            device.load_merge_candidate(config=config)
-            changes = device.compare_config()
-
-            # Commit changes only if requested
-            if request.GET.get('commit'):
-                device.commit_config()
-                messages.success(request, 'Changes successfully commited.')
-            else:
-                device.discard_config()
-
-            device.close()
-        except Exception:
+        if changes:
+            messages.success(request, 'Changes successfully commited.')
+        else:
             messages.error(request, 'Unable to determine changes.')
-            changes = None
 
         context = {
             'internet_exchange': internet_exchange,
