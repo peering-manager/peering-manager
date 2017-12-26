@@ -118,7 +118,7 @@ class PeerTable(BaseTable):
     ipv4_max_prefixes = tables.Column(
         verbose_name='IPv4 Max Prefixes', orderable=False)
     ipv6_address = tables.Column(verbose_name='IPv6 Address', orderable=False)
-    ipv4_address = tables.Column(verbose_name='IPv6 Address', orderable=False)
+    ipv4_address = tables.Column(verbose_name='IPv4 Address', orderable=False)
 
     class Meta(BaseTable.Meta):
         model = AutonomousSystem
