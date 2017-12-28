@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from .api import PeeringDB
+from .models import Network
 
 
 class PeeringDBTestCase(TestCase):
@@ -18,7 +19,7 @@ class PeeringDBTestCase(TestCase):
         api.record_last_sync(time_of_sync, 0)
         self.assertEqual(api.get_last_sync_time(), 0)
 
-        # Test of sync record with no objects
+        # Test of sync record with one object
         time_of_sync = timezone.now()
         api.record_last_sync(time_of_sync, 1)
         self.assertEqual(api.get_last_sync_time(),
@@ -28,6 +29,19 @@ class PeeringDBTestCase(TestCase):
         api = PeeringDB()
         asn = 15169
 
+        # Using an API call (no cached data)
+        autonomous_system = api.get_autonomous_system(asn)
+        self.assertEqual(autonomous_system.asn, asn)
+
+        # Save the data inside the cache
+        details = {
+            'asn': autonomous_system.asn,
+            'name': autonomous_system.name,
+        }
+        network = Network(**details)
+        network.save()
+
+        # Using without API call (cached data)
         autonomous_system = api.get_autonomous_system(asn)
         self.assertEqual(autonomous_system.asn, asn)
 
