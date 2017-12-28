@@ -7,6 +7,7 @@ pages:
     - 'Web Server': 'setup/web-server.md'
     - 'LDAP': 'setup/ldap.md'
     - 'Upgrading': 'setup/upgrading.md'
+    - 'Scheduled Tasks': 'setup/scheduled-tasks.md'
   - 'Templating': 'config-template.md'
 
 markdown_extensions:

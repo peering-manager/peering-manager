@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_tables2',
     'peering',
+    'peeringdb',
     'utils',
 ]
 
@@ -152,14 +153,29 @@ AUTH_PASSWORD_VALIDATORS = [
 # Django logging
 LOGGING = {
     'version': 1,
+    'formatters': {
+        'simple': {
+            'format': '%(asctime)s | %(levelname)s | %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'simple',
         },
+        'file': {
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': 'logs/peering-manager.log',
+            'when': 'midnight',
+            'interval': 1,
+            'backupCount': 5,
+            'formatter': 'simple',
+        }
     },
     'loggers': {
         'peering.manager.peeringdb': {
-            'handlers': ['console'],
+            'handlers': ['file'],
             'level': 'DEBUG',
         }
     }

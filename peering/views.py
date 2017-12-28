@@ -13,9 +13,9 @@ from .forms import (AutonomousSystemForm, AutonomousSystemCSVForm, CommunityForm
                     InternetExchangePeeringDBForm, InternetExchangeCommunityForm, InternetExchangeCSVForm, PeeringSessionForm, RouterForm, RouterCSVForm)
 from .models import (AutonomousSystem, Community,
                      ConfigurationTemplate, InternetExchange, PeeringSession, Router)
-from .peeringdb import PeeringDB
 from .tables import (AutonomousSystemTable, CommunityTable, ConfigurationTemplateTable,
                      InternetExchangeTable, PeerTable, PeeringSessionTable, RouterTable)
+from peeringdb.api import PeeringDB
 from utils.paginators import EnhancedPaginator
 from utils.views import AddOrEditView, DeleteView, ImportView, TableImportView
 

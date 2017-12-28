@@ -3,5 +3,5 @@ from __future__ import unicode_literals
 from django.apps import AppConfig
 
 
-class PeeringConfig(AppConfig):
-    name = 'peering'
+class PeeringdbConfig(AppConfig):
+    name = 'peeringdb'

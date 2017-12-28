@@ -10,11 +10,11 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .fields import ASNField, CommunityField
-from .peeringdb import PeeringDB
+from peeringdb.api import PeeringDB
 
 
 class AutonomousSystem(models.Model):
-    asn = ASNField()
+    asn = ASNField(unique=True)
     name = models.CharField(max_length=128)
     comment = models.TextField(blank=True)
     irr_as_set = models.CharField(max_length=255, blank=True, null=True)

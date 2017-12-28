@@ -129,6 +129,7 @@ pyvenv.cfg
 pip-selfcheck.json
 
 ### Project specifics ###
-patches
+backup
 gunicorn_config.py
 static
+logs/*
