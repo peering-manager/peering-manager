@@ -10,7 +10,7 @@ START=$(date +%s)
 echo "$(info) starting build checks."
 
 # Check for syntax issues
-SYNTAX=$(find peering peering_manager utils -name "*.py" -type f -exec python -m py_compile {} \; 2>&1)
+SYNTAX=$(find peering peeringdb peering_manager utils -name "*.py" -type f -exec python -m py_compile {} \; 2>&1)
 if [[ ! -z ${SYNTAX} ]]; then
   echo -e "${SYNTAX}"
   echo -e "\n$(info) detected one or more syntax errors, failing build."
