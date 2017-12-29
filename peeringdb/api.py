@@ -74,6 +74,9 @@ class PeeringDB(object):
             last_sync = Synchronization(**values)
             last_sync.save()
 
+            self.logger.debug('synchronizated %s objects at %s',
+                              number_of_objects, last_sync.time)
+
     def get_last_sync_time(self):
         """
         Return the last time of synchronization based on the latest record.
@@ -118,6 +121,9 @@ class PeeringDB(object):
             if peeringdb_network.asn == settings.MY_ASN:
                 continue
 
+            # Has the network been deleted?
+            is_deleted = peeringdb_network.status == 'deleted'
+
             new_values = {
                 'asn': peeringdb_network.asn,
                 'name': peeringdb_network.name,
@@ -127,22 +133,32 @@ class PeeringDB(object):
             }
 
             try:
-                # Get the existing AS object
+                # Get the existing Network object
                 network = Network.objects.get(asn=peeringdb_network.asn)
-                # Update the fields
-                for key, value in new_values.items():
-                    setattr(network, key, value)
-                network.save()
-                self.logger.debug(
-                    'updated as%s from peeringdb', peeringdb_network.asn)
-            except Network.DoesNotExist:
-                # Create a new AS object
-                network = Network(**new_values)
-                network.save()
-                self.logger.debug(
-                    'created as%s from peeringdb', peeringdb_network.asn)
 
-            number_of_objects_synced += 1
+                # If the network has been deleted in the source, remove it from
+                # the local database too
+                if is_deleted:
+                    network.delete()
+                    self.logger.debug(
+                        'deleted as%s from peeringdb', peeringdb_network.asn)
+                else:
+                    # Update the fields
+                    for key, value in new_values.items():
+                        setattr(network, key, value)
+                    network.save()
+                    self.logger.debug(
+                        'updated as%s from peeringdb', peeringdb_network.asn)
+            except Network.DoesNotExist:
+                if not is_deleted:
+                    # Create a new Network object
+                    network = Network(**new_values)
+                    network.save()
+                    self.logger.debug(
+                        'created as%s from peeringdb', peeringdb_network.asn)
+
+            if not is_deleted:
+                number_of_objects_synced += 1
 
         # Save the last sync time
         self.record_last_sync(time_of_sync, number_of_objects_synced)
@@ -155,7 +171,7 @@ class PeeringDB(object):
         fetched online which will take more time.
         """
         try:
-            # Try go get from cached data
+            # Try to get from cached data
             network = Network.objects.get(asn=asn)
         except Network.DoesNotExist:
             # If no cached data found, query the API
