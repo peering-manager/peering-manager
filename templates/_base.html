@@ -52,10 +52,15 @@
               <ul class="dropdown-menu">
                 <li><a href="{% url 'user_profile' %}"><i class="fa fa-user" aria-hidden="true"></i> Profile</a></li>
                 {% if request.user.is_staff %}
-                <li><a href="{% url 'admin:index' %}"><i class="fa fa-cogs" aria-hidden="true"></i> Admin</a></li>
                 <li class="divider"></li>
-                <li><a href="{% url 'peeringdb:build_cache' %}"><i class="fa fa-database" aria-hidden="true"></i> Build Cache</a></li>
-                <li><a href="{% url 'peeringdb:clear_cache' %}"><i class="fa fa-eraser" aria-hidden="true"></i> Clear Cache</a></li>
+                <li><a href="{% url 'admin:index' %}"><i class="fa fa-cogs" aria-hidden="true"></i> Admin</a></li>
+                <li>
+                  <div class="buttons pull-right">
+                    <a class="btn btn-xs btn-primary" href="{% url 'peeringdb:build_cache' %}" title="Build"><i class="fa fa-cubes" aria-hidden="true"></i></a>
+                    <a class="btn btn-xs btn-danger" href="{% url 'peeringdb:clear_cache' %}" title="Clear"><i class="fa fa-eraser" aria-hidden="true"></i></a>
+                  </div>
+                  <a href="#"><i class="fa fa-database" aria-hidden="true"></i> Cache</a>
+                </li>
                 {% endif %}
                 <li class="divider"></li>
                 <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out" aria-hidden="true"></i> Log out</a></li>
