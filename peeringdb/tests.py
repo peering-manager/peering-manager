@@ -58,6 +58,7 @@ class PeeringDBTestCase(TestCase):
         details = {
             'id': ix_network.id,
             'asn': ix_network.asn,
+            'name': ix_network.name,
             'ix_id': ix_network.ix_id,
         }
         network_ixlan = NetworkIXLAN(**details)

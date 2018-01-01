@@ -21,6 +21,7 @@ class Network(models.Model):
 
 class NetworkIXLAN(models.Model):
     asn = ASNField()
+    name = models.CharField(max_length=255)
     ipaddr6 = models.GenericIPAddressField(
         protocol='IPv6', blank=True, null=True)
     ipaddr4 = models.GenericIPAddressField(
@@ -32,7 +33,7 @@ class NetworkIXLAN(models.Model):
         ordering = ['asn', 'ipaddr6', 'ipaddr4']
 
     def __str__(self):
-        return 'AS{} - IPv6: {} - IPv4: {}'.format(self.asn, self.ipaddr6, self.ipaddr4)
+        return 'AS{} at {} - IPv6: {} - IPv4: {}'.format(self.asn, self.name, self.ipaddr6, self.ipaddr4)
 
 
 class Synchronization(models.Model):

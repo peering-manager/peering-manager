@@ -154,14 +154,14 @@ class PeeringDB(object):
                         setattr(network, key, value)
                     network.save()
                     self.logger.debug(
-                        'updated as%s from peeringdb', peeringdb_network.asn)
+                        'updated as%s from peeringdb', network.asn)
             except Network.DoesNotExist:
                 if not is_deleted:
                     # Create a new Network object
                     network = Network(**new_values)
                     network.save()
                     self.logger.debug(
-                        'created as%s from peeringdb', peeringdb_network.asn)
+                        'created as%s from peeringdb', network.asn)
 
             if not is_deleted:
                 number_of_objects_synced += 1
@@ -203,6 +203,7 @@ class PeeringDB(object):
             new_values = {
                 'id': peeringdb_network_ixlan.id,
                 'asn': peeringdb_network_ixlan.asn,
+                'name': peeringdb_network_ixlan.name,
                 'ipaddr6': peeringdb_network_ixlan.ipaddr6,
                 'ipaddr4': peeringdb_network_ixlan.ipaddr4,
                 'is_rs_peer': peeringdb_network_ixlan.is_rs_peer,
@@ -217,9 +218,10 @@ class PeeringDB(object):
                 # If the network IX LAN has been deleted in the source, remove
                 # it from the local database too
                 if is_deleted:
+
                     network_ixlan.delete()
                     self.logger.debug(
-                        'deleted network ixlan #%s from peeringdb', network_ixlan.id)
+                        'deleted network ixlan #%s from peeringdb', peeringdb_network_ixlan.id)
                 else:
                     # Update the fields
                     for key, value in new_values.items():
