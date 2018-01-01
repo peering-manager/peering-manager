@@ -25,8 +25,11 @@ from . import views
 handler500 = views.handle_500
 
 __patterns = [
-    # Eveyrthing is handled in the peering app
+    # Include the peering app
     url(r'', include('peering.urls')),
+
+    # Include the peeringdb app
+    url(r'', include('peeringdb.urls')),
 
     # Users login/logout
     url(r'^login/$', views.LoginView.as_view(), name='login'),

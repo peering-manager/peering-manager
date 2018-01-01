@@ -28,7 +28,6 @@ class AutonomousSystemTable(BaseTable):
     """
     Table for AutonomousSystem lists
     """
-
     asn = tables.Column(verbose_name='ASN')
     irr_as_set = tables.Column(verbose_name='IRR AS-SET', orderable=False)
     ipv6_max_prefixes = tables.Column(verbose_name='IPv6 Max Prefixes')
@@ -58,7 +57,6 @@ class ConfigurationTemplateTable(BaseTable):
     """
     Table for ConfigurationTemplate lists
     """
-
     details = tables.TemplateColumn(verbose_name=' ',
                                     template_code='<div class="pull-right"><a href="{% url \'peering:configuration_template_details\' id=record.id %}" class="btn btn-xs btn-info"><span class="fa fa-info-circle" aria-hidden="true"></span> Details</a></div>', orderable=False)
 
@@ -71,7 +69,6 @@ class InternetExchangeTable(BaseTable):
     """
     Table for InternetExchange lists
     """
-
     ipv6_address = tables.Column(verbose_name='IPv6 Address')
     ipv4_address = tables.Column(verbose_name='IPv4 Address')
     as_nb = tables.Column(verbose_name='Autonomous Systems',
@@ -91,7 +88,6 @@ class PeeringSessionTable(BaseTable):
     """
     Table for PeeringSession lists
     """
-
     asn = tables.Column(verbose_name='ASN', accessor='autonomous_system.asn')
     as_name = tables.Column(verbose_name='AS Name',
                             accessor='autonomous_system.name')
@@ -108,7 +104,6 @@ class PeerTable(BaseTable):
     """
     Table for peer lists
     """
-
     asn = tables.Column(verbose_name='ASN')
     name = tables.Column(verbose_name='AS Name')
     as_set = tables.Column(verbose_name='AS-SET', orderable=False)

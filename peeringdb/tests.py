@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from .api import PeeringDB
-from .models import Network
+from .models import Network, NetworkIXLAN
 
 
 class PeeringDBTestCase(TestCase):
@@ -35,13 +35,14 @@ class PeeringDBTestCase(TestCase):
 
         # Save the data inside the cache
         details = {
+            'id': autonomous_system.id,
             'asn': autonomous_system.asn,
             'name': autonomous_system.name,
         }
         network = Network(**details)
         network.save()
 
-        # Using without API call (cached data)
+        # Using no API calls (cached data)
         autonomous_system = api.get_autonomous_system(asn)
         self.assertEqual(autonomous_system.asn, asn)
 
@@ -49,9 +50,22 @@ class PeeringDBTestCase(TestCase):
         api = PeeringDB()
         ix_network_id = 29146
 
-        known_ix_network_name = 'AMS-IX'
-        found_ix_network = api.get_ix_network(ix_network_id)
-        self.assertEqual(found_ix_network.name, known_ix_network_name)
+        # Using an API call (no cached data)
+        ix_network = api.get_ix_network(ix_network_id)
+        self.assertEqual(ix_network.id, ix_network_id)
+
+        # Save the data inside the cache
+        details = {
+            'id': ix_network.id,
+            'asn': ix_network.asn,
+            'ix_id': ix_network.ix_id,
+        }
+        network_ixlan = NetworkIXLAN(**details)
+        network_ixlan.save()
+
+        # Using no API calls (cached data)
+        ix_network = api.get_ix_network(ix_network_id)
+        self.assertEqual(ix_network.id, ix_network_id)
 
     def test_get_ix_networks_for_asn(self):
         api = PeeringDB()

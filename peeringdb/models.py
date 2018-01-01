@@ -19,6 +19,22 @@ class Network(models.Model):
         return 'AS{} - {}'.format(self.asn, self.name)
 
 
+class NetworkIXLAN(models.Model):
+    asn = ASNField()
+    ipaddr6 = models.GenericIPAddressField(
+        protocol='IPv6', blank=True, null=True)
+    ipaddr4 = models.GenericIPAddressField(
+        protocol='IPv4', blank=True, null=True)
+    is_rs_peer = models.BooleanField(default=False)
+    ix_id = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ['asn', 'ipaddr6', 'ipaddr4']
+
+    def __str__(self):
+        return 'AS{} - IPv6: {} - IPv4: {}'.format(self.asn, self.ipaddr6, self.ipaddr4)
+
+
 class Synchronization(models.Model):
     time = models.DateTimeField()
     number_of_objects = models.PositiveIntegerField()

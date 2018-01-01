@@ -15,4 +15,4 @@ class Command(BaseCommand):
         self.logger.info('Syncing networks with PeeringDB...')
 
         api = PeeringDB()
-        api.get_all_networks(api.get_last_sync_time())
+        api.update_local_database(api.get_last_sync_time())

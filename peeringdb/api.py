@@ -7,7 +7,7 @@ import requests
 from django.conf import settings
 from django.utils import timezone
 
-from .models import Network, Synchronization
+from .models import Network, NetworkIXLAN, Synchronization
 
 
 NAMESPACES = {
@@ -102,10 +102,15 @@ class PeeringDB(object):
 
         If a Network already exists locally it will be updated and no new entry
         will be created.
+
+        If a Network is marked as deleted in the PeeringDB, it will be locally
+        deleted.
+
+        This function returns the number of objects that have been successfully
+        synchronized to the local database.
         """
         # Set time of sync
         number_of_objects_synced = 0
-        time_of_sync = timezone.now()
 
         # Get all network changes since the last sync
         search = {'since': last_sync, 'depth': 0}
@@ -125,6 +130,7 @@ class PeeringDB(object):
             is_deleted = peeringdb_network.status == 'deleted'
 
             new_values = {
+                'id': peeringdb_network.id,
                 'asn': peeringdb_network.asn,
                 'name': peeringdb_network.name,
                 'irr_as_set': peeringdb_network.irr_as_set,
@@ -160,8 +166,93 @@ class PeeringDB(object):
             if not is_deleted:
                 number_of_objects_synced += 1
 
-        # Save the last sync time
-        self.record_last_sync(time_of_sync, number_of_objects_synced)
+        return number_of_objects_synced
+
+    def get_all_network_ixlans(self, last_sync):
+        """
+        Synchronizes all the NetworkIXLAN objects of the PeeringDB to the local
+        database. This function is meant to be run regularly to update the
+        local database with the latest changes.
+
+        If a NetworkIXLAN already exists locally it will be updated and no new
+        entry will be created.
+
+        If a NetworkIXLAN is marked as deleted in the PeeringDB, it will be
+        locally deleted.
+
+        This function returns the number of objects that have been successfully
+        synchronized to the local database.
+        """
+        # Set time of sync
+        number_of_objects_synced = 0
+
+        # Get all network IX LAN changes since the last sync
+        search = {'since': last_sync, 'depth': 0}
+        result = self.lookup(
+            NAMESPACES['network_internet_exchange_lan'], search)
+
+        if not result:
+            return None
+
+        for data in result['data']:
+            peeringdb_network_ixlan = Object(data)
+
+            # Has the network IX LAN been deleted?
+            is_deleted = peeringdb_network_ixlan.status == 'deleted'
+
+            new_values = {
+                'id': peeringdb_network_ixlan.id,
+                'asn': peeringdb_network_ixlan.asn,
+                'ipaddr6': peeringdb_network_ixlan.ipaddr6,
+                'ipaddr4': peeringdb_network_ixlan.ipaddr4,
+                'is_rs_peer': peeringdb_network_ixlan.is_rs_peer,
+                'ix_id': peeringdb_network_ixlan.ix_id,
+            }
+
+            try:
+                # Get the existing NetworkIXLAN object
+                network_ixlan = NetworkIXLAN.objects.get(
+                    id=peeringdb_network_ixlan.id)
+
+                # If the network IX LAN has been deleted in the source, remove
+                # it from the local database too
+                if is_deleted:
+                    network_ixlan.delete()
+                    self.logger.debug(
+                        'deleted network ixlan #%s from peeringdb', network_ixlan.id)
+                else:
+                    # Update the fields
+                    for key, value in new_values.items():
+                        setattr(network_ixlan, key, value)
+                    network_ixlan.save()
+                    self.logger.debug(
+                        'updated network ixlan #%s from peeringdb', network_ixlan.id)
+            except NetworkIXLAN.DoesNotExist:
+                if not is_deleted:
+                    # Create a new NetworkIXLAN object
+                    network_ixlan = NetworkIXLAN(**new_values)
+                    network_ixlan.save()
+                    self.logger.debug(
+                        'created network ixlan #%s from peeringdb', network_ixlan.id)
+
+            if not is_deleted:
+                number_of_objects_synced += 1
+
+        return number_of_objects_synced
+
+    def update_local_database(self, last_sync):
+        # Set time of sync
+        number_of_objects_synced = 0
+        time_of_sync = timezone.now()
+
+        # Try to sync objects
+        number_of_objects_synced += self.get_all_networks(last_sync)
+        number_of_objects_synced += self.get_all_network_ixlans(last_sync)
+
+        # If objects have actually been cached
+        if number_of_objects_synced > 0:
+            # Save the last sync time
+            self.record_last_sync(time_of_sync, number_of_objects_synced)
 
     def get_autonomous_system(self, asn):
         """
@@ -187,51 +278,76 @@ class PeeringDB(object):
 
     def get_ix_network(self, ix_network_id):
         """
-        Returns the IX network for a given ID.
+        Return an IX networks (and its details) given its ID. The result can
+        come from the local database (cache built with the peeringdb_sync
+        command). If the IX network is not found in the local database, it will
+        be fetched online which will take more time.
         """
-        search = {'id': ix_network_id}
-        result = self.lookup(
-            NAMESPACES['network_internet_exchange_lan'], search)
+        try:
+            # Try to get from cached data
+            network_ixlan = NetworkIXLAN.objects.get(id=ix_network_id)
+        except NetworkIXLAN.DoesNotExist:
+            # If no cached data found, query the API
+            search = {'id': ix_network_id}
+            result = self.lookup(
+                NAMESPACES['network_internet_exchange_lan'], search)
 
-        if not result:
-            return None
+            if not result:
+                return None
 
-        return Object(result['data'][0])
+            network_ixlan = Object(result['data'][0])
+
+        return network_ixlan
 
     def get_ix_networks_for_asn(self, asn):
         """
         Returns a list of all IX networks an AS is connected to.
         """
-        search = {'asn': asn}
-        result = self.lookup(
-            NAMESPACES['network_internet_exchange_lan'], search)
+        # Try to get from cached data
+        network_ixlans = NetworkIXLAN.objects.filter(asn=asn)
 
-        if not result:
-            return None
+        # If nothing found in cache, try to fetch data online
+        if not network_ixlans:
+            search = {'asn': asn}
+            result = self.lookup(
+                NAMESPACES['network_internet_exchange_lan'], search)
 
-        ix_networks = []
-        for ix_network in result['data']:
-            ix_networks.append(Object(ix_network))
+            if not result:
+                return None
 
-        return ix_networks
+            network_ixlans = []
+            for ix_network in result['data']:
+                network_ixlans.append(Object(ix_network))
+
+        return network_ixlans
 
     def get_peers_for_ix(self, ix_id):
         """
         Returns a dict with details for peers for the IX corresponding to the
-        given ID. This function can take some time to execute due to the amount
-        of peers on the IX.
+        given ID. This function try to leverage the use of local database
+        caching. If the cache is not built it can take some time to execute due
+        to the amount of peers on the IX which increases the number of API
+        calls to be made.
         """
-        search = {'ix_id': ix_id}
-        result = self.lookup(
-            NAMESPACES['network_internet_exchange_lan'], search)
+        # Try to get from cached data
+        network_ixlans = NetworkIXLAN.objects.filter(ix_id=ix_id)
 
-        if not result:
-            return None
+        # If nothing found in cache, try to fetch data online
+        if not network_ixlans:
+            search = {'ix_id': ix_id}
+            result = self.lookup(
+                NAMESPACES['network_internet_exchange_lan'], search)
 
+            if not result:
+                return None
+
+            network_ixlans = []
+            for data in result['data']:
+                network_ixlans.append(Object(data))
+
+        # List potential peers
         peers = []
-        for data in result['data']:
-            peer = Object(data)
-
+        for peer in network_ixlans:
             # Ignore our own ASN
             if peer.asn == settings.MY_ASN:
                 continue
