@@ -4,6 +4,7 @@ import json
 import logging
 import requests
 
+from django.db import transaction
 from django.conf import settings
 from django.utils import timezone
 
@@ -247,9 +248,12 @@ class PeeringDB(object):
         number_of_objects_synced = 0
         time_of_sync = timezone.now()
 
-        # Try to sync objects
-        number_of_objects_synced += self.get_all_networks(last_sync)
-        number_of_objects_synced += self.get_all_network_ixlans(last_sync)
+        # Make a single transaction, avoid too much database commits (poor
+        # speed) and fail the whole synchronization if something go wrong
+        with transaction.atomic():
+            # Try to sync objects
+            number_of_objects_synced += self.get_all_networks(last_sync)
+            number_of_objects_synced += self.get_all_network_ixlans(last_sync)
 
         # If objects have actually been cached
         if number_of_objects_synced > 0:

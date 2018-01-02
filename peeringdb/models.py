@@ -33,7 +33,7 @@ class NetworkIXLAN(models.Model):
         ordering = ['asn', 'ipaddr6', 'ipaddr4']
 
     def __str__(self):
-        return 'AS{} at {} - IPv6: {} - IPv4: {}'.format(self.asn, self.name, self.ipaddr6, self.ipaddr4)
+        return 'AS{} on {} - IPv6: {} - IPv4: {}'.format(self.asn, self.name, self.ipaddr6, self.ipaddr4)
 
 
 class Synchronization(models.Model):
