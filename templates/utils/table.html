@@ -1,5 +1,5 @@
 {% load helpers %}
-{% load render_table from django_tables2 %}
+{% load django_tables2 %}
 
 <div class="table-responsive">
   <table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
@@ -8,7 +8,7 @@
       <tr>
         {% for column in table.columns %}
         {% if column.orderable %}
-        <th {{ column.attrs.th.as_html }}><a href="{% querystring request page=column.order_by_alias.next %}">{{ column.header }}</a></th>
+        <th {{ column.attrs.th.as_html }}><a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a></th>
         {% else %}
         <th {{ column.attrs.th.as_html }}>{{ column.header }}</th>
         {% endif %}
@@ -46,17 +46,17 @@
   <nav>
     <ul class="pagination pagination-sm pull-right">
       {% if page.has_previous %}
-      <li><a href="{% querystring request page=page.previous_page_number %}"><i class="fa fa-angle-double-left"></i></a></li>
+      <li><a href="{% querystring table.prefixed_page_field=page.previous_page_number %}"><i class="fa fa-angle-double-left"></i></a></li>
       {% endif %}
       {% for p in page.smart_pages %}
       {% if p %}
-      <li{% ifequal page.number p %} class="active"{% endifequal %}><a href="{% querystring request page=p %}">{{ p }}</a></li>
+      <li{% ifequal page.number p %} class="active"{% endifequal %}><a href="{% querystring table.prefixed_page_field=p %}">{{ p }}</a></li>
       {% else %}
       <li class="disabled"><span>&hellip;</span></li>
       {% endif %}
       {% endfor %}
       {% if page.has_next %}
-      <li><a href="{% querystring request page=page.next_page_number %}"><i class="fa fa-angle-double-right"></i></a></li>
+      <li><a href="{% querystring table.prefixed_page_field=page.next_page_number %}"><i class="fa fa-angle-double-right"></i></a></li>
       {% endif %}
     </ul>
   </nav>
