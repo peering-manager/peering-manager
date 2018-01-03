@@ -2,8 +2,10 @@ uses:
   - django
 
 python-targets:
-  - 2
   - 3
+
+ignore-patterns:
+  - ^peering_manager/configuration.*$
 
 pep8:
   disable:

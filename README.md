@@ -16,7 +16,7 @@ This tool is written with the
 some dependencies to run. For a complete list of requirements, see
 `requirements.txt`.
 
-It is built against both Python 2.7 and 3.5. Python 3.5 is recommended.
+It is built against Python 3 versions. Tested versions are 3.4, 3.5 and 3.6.
 
 The best way to start setting up this tool is to use **pip** within a
 **virtualenv**.
@@ -36,7 +36,6 @@ SQLite database.
 
 ## Features to come (aka TODO list)
 
-  * Data importation using PeeringDB API
   * Generate IRR objects
   * BGP import/export policies
   * BGP sessions status
