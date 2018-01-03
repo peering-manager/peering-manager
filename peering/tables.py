@@ -100,24 +100,32 @@ class PeeringSessionTable(BaseTable):
         fields = ('asn', 'as_name', 'ip_address', 'details',)
 
 
-class PeerTable(BaseTable):
+class PeerTable(tables.Table):
     """
     Table for peer lists
     """
-    asn = tables.Column(verbose_name='ASN')
-    name = tables.Column(verbose_name='AS Name')
-    as_set = tables.Column(verbose_name='AS-SET', orderable=False)
-    ipv6_max_prefixes = tables.Column(
-        verbose_name='IPv6 Max Prefixes', orderable=False)
-    ipv4_max_prefixes = tables.Column(
-        verbose_name='IPv4 Max Prefixes', orderable=False)
-    ipv6_address = tables.Column(verbose_name='IPv6 Address', orderable=False)
-    ipv4_address = tables.Column(verbose_name='IPv4 Address', orderable=False)
+    empty_text = 'No peers found.'
+    asn = tables.Column(verbose_name='ASN', accessor='network.asn')
+    name = tables.Column(verbose_name='AS Name', accessor='network.name')
+    irr_as_set = tables.Column(verbose_name='IRR AS-SET',
+                               accessor='network.irr_as_set', orderable=False)
+    ipv6_max_prefixes = tables.Column(verbose_name='IPv6 Max Prefixes',
+                                      accessor='network.info_prefixes6',
+                                      orderable=False)
+    ipv4_max_prefixes = tables.Column(verbose_name='IPv4 Max Prefixes',
+                                      accessor='network.info_prefixes4',
+                                      orderable=False)
+    ipv6_address = tables.Column(verbose_name='IPv6 Address',
+                                 accessor='network_ixlan.ipaddr6',
+                                 orderable=False)
+    ipv4_address = tables.Column(verbose_name='IPv4 Address',
+                                 accessor='network_ixlan.ipaddr4',
+                                 orderable=False)
 
-    class Meta(BaseTable.Meta):
-        model = AutonomousSystem
-        fields = ('asn', 'name', 'as_set', 'ipv6_max_prefixes',
-                  'ipv4_max_prefixes', 'ipv6_address', 'ipv4_address',)
+    class Meta:
+        attrs = {
+            'class': 'table table-hover table-headings',
+        }
 
 
 class RouterTable(BaseTable):

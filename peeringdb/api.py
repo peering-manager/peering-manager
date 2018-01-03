@@ -249,7 +249,7 @@ class PeeringDB(object):
         time_of_sync = timezone.now()
 
         # Make a single transaction, avoid too much database commits (poor
-        # speed) and fail the whole synchronization if something go wrong
+        # speed) and fail the whole synchronization if something goes wrong
         with transaction.atomic():
             # Try to sync objects
             number_of_objects_synced += self.get_all_networks(last_sync)
@@ -353,24 +353,18 @@ class PeeringDB(object):
 
         # List potential peers
         peers = []
-        for peer in network_ixlans:
+        for network_ixlan in network_ixlans:
             # Ignore our own ASN
-            if peer.asn == settings.MY_ASN:
+            if network_ixlan.asn == settings.MY_ASN:
                 continue
 
             # Get more details about the current network
-            network = self.get_autonomous_system(peer.asn)
+            network = self.get_autonomous_system(network_ixlan.asn)
 
             # Package all gathered details
             peers.append({
-                'asn': peer.asn,
-                'name': network.name,
-                'irr_as_set': network.irr_as_set,
-                'ipv6_max_prefixes': network.info_prefixes6,
-                'ipv4_max_prefixes': network.info_prefixes4,
-                'ipv6_address': peer.ipaddr6,
-                'ipv4_address': peer.ipaddr4,
-
+                'network': network,
+                'network_ixlan': network_ixlan,
             })
 
         return peers

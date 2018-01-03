@@ -1,5 +1,4 @@
 {% extends 'peering/ix/_base.html' %}
-{% load helpers %}
 {% load render_table from django_tables2 %}
 {% block subcontent %}
       {% render_table available_peers 'utils/table.html' %}
