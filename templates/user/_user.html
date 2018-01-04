@@ -17,6 +17,9 @@
             <li{% ifequal active_tab "activity" %} class="active"{% endifequal %}>
               <a href="{% url 'user_activity' %}">Recent Activity</a>
             </li>
+            <li{% ifequal active_tab "synchronization" %} class="active"{% endifequal %}>
+              <a href="{% url 'synchronization' %}">Synchronization Logs</a>
+            </li>
           </ul>
         </div>
         <div class="col-md-8">

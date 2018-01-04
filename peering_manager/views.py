@@ -13,7 +13,9 @@ from django.utils.http import is_safe_url
 from django.views.generic import View
 
 from .forms import LoginForm, UserPasswordChangeForm
-from peering.models import AutonomousSystem, Community, ConfigurationTemplate, InternetExchange, PeeringSession, Router
+from peering.models import (AutonomousSystem, Community,
+                            ConfigurationTemplate, InternetExchange, PeeringSession, Router)
+from peeringdb.models import Synchronization
 from utils.models import UserAction
 
 
@@ -106,6 +108,15 @@ class RecentActivityView(View, LoginRequiredMixin):
             'active_tab': 'activity',
         }
         return render(request, 'user/activity.html', context)
+
+
+class SynchronizationLogsView(View, LoginRequiredMixin):
+    def get(self, request):
+        context = {
+            'synchronizations': Synchronization.objects.all()[:50],
+            'active_tab': 'synchronization',
+        }
+        return render(request, 'user/synchronization.html', context)
 
 
 def handle_500(request):
