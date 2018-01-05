@@ -60,6 +60,8 @@ urlpatterns = [
         views.IXUpdateCommunities.as_view(), name='ix_update_communities'),
     url(r'^ix/(?P<slug>[\w-]+)/peers/$',
         views.IXPeers.as_view(), name='ix_peers'),
+    url(r'^ix/(?P<slug>[\w-]+)/peer/add/(?P<network_id>[0-9]+)/(?P<network_ixlan_id>[0-9]+)/$',
+        views.IXAddPeer.as_view(), name='ix_add_peer'),
     url(r'^ix/(?P<slug>[\w-]+)/config/$',
         views.IXConfig.as_view(), name='ix_configuration'),
     url(r'^ix/(?P<slug>[\w-]+)/changes/$',

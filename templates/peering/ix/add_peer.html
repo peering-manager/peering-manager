@@ -1,0 +1,55 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block content %}
+      <div class="row">
+      	<div class="col-md-6 col-md-offset-3">
+          <form method="post">
+            {% csrf_token %}
+            {% for field in form.hidden_fields %}
+            {{ field }}
+            {% endfor %}
+            <div class="panel panel-default">
+              <div class="panel-heading">{% block title %}Add AS{{ network.asn }} as peer on {{ internet_exchange }}{% endblock %}</div>
+              <div class="panel-body">
+                {% if not known_autonomous_system %}
+                <p>The AS{{ network.asn }} defined by the following details will be recorded as a known AS.<p>
+                <table class="table table-hover panel-body attr-table">
+                  <tr>
+                    <td>Name</td>
+                    <td>{{ network.name }}</td>
+                  </tr>
+                  <tr>
+                    <td>IRR AS-SET</td>
+                    <td>{{ network.irr_as_set }}</td>
+                  </tr>
+                  <tr>
+                    <td>IPv6 Max Prefixes</td>
+                    <td>{{ network.info_prefixes6 }}</td>
+                  </tr>
+                  <tr>
+                    <td>IPv4 Max Prefixes</td>
+                    <td>{{ network.info_prefixes4 }}</td>
+                  </tr>
+                </table>
+                {% endif %}
+                {% if network_ixlan.ipaddr6 or network_ixlan.ipaddr4 %}
+                <p>{% if network_ixlan.ipaddr6 and network_ixlan.ipaddr4 %}New peering sessions{% else %}A new peering session{% endif %} will be recorded with:</p>
+                <ul>
+                  {% if network_ixlan.ipaddr6 %}
+                  <li>{{ network_ixlan.ipaddr6 }}</li>
+                  {% endif %}
+                  {% if network_ixlan.ipaddr4 %}
+                  <li>{{ network_ixlan.ipaddr4 }}</li>
+                  {% endif %}
+                </ul>
+                {% endif %}
+                <div class="text-right">
+                  <button type="submit" class="btn btn-primary">Add Peer</button>
+                  <a class="btn btn-default" href="{{ return_url }}">Cancel</a>
+                </div>
+              </div>
+            </div>
+          </form>
+      	</div>
+      </div>
+{% endblock %}

@@ -118,6 +118,9 @@ class InternetExchange(models.Model):
     def get_absolute_url(self):
         return reverse('peering:ix_details', kwargs={'slug': self.slug})
 
+    def get_peer_list_url(self):
+        return reverse('peering:ix_peers', kwargs={'slug': self.slug})
+
     def get_peering_sessions_count(self):
         return self.peeringsession_set.count()
 
@@ -174,15 +177,30 @@ class InternetExchange(models.Model):
         return configuration_template.render(values)
 
     def get_available_peers(self):
+        peers = []
+
         # Not linked to PeeringDB, cannot determine peers
         if not self.peeringdb_id:
-            return []
+            return peers
 
         # Get the LAN that we are attached to and retrieve the peers
         api = PeeringDB()
         lan = api.get_ix_network(self.peeringdb_id)
+        peeringdb_peers = api.get_peers_for_ix(lan.ix_id)
 
-        return api.get_peers_for_ix(lan.ix_id)
+        for peeringdb_peer in peeringdb_peers:
+            peering_yet = False
+
+            for session in self.peeringsession_set.all():
+                if session.ip_address == peeringdb_peer['network_ixlan'].ipaddr6 or session.ip_address == peeringdb_peer['network_ixlan'].ipaddr4:
+                    peering_yet = True
+
+            if not peering_yet:
+                # Add IX reference to each peer
+                peeringdb_peer['internet_exchange'] = self
+                peers.append(peeringdb_peer)
+
+        return peers
 
     def __str__(self):
         return self.name

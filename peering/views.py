@@ -3,8 +3,10 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import slugify
+from django.utils.html import escape
 from django.views.generic import View
 
 from django_tables2 import RequestConfig
@@ -16,6 +18,9 @@ from .models import (AutonomousSystem, Community,
 from .tables import (AutonomousSystemTable, CommunityTable, ConfigurationTemplateTable,
                      InternetExchangeTable, PeerTable, PeeringSessionTable, RouterTable)
 from peeringdb.api import PeeringDB
+from peeringdb.models import Network, NetworkIXLAN
+from utils.forms import ConfirmationForm
+from utils.models import UserAction
 from utils.paginators import EnhancedPaginator
 from utils.views import AddOrEditView, DeleteView, ImportView, TableImportView
 
@@ -312,6 +317,118 @@ class IXPeers(LoginRequiredMixin, View):
         }
 
         return render(request, 'peering/ix/peers.html', context)
+
+
+class IXAddPeer(LoginRequiredMixin, View):
+    def get(self, request, slug, network_id, network_ixlan_id):
+        # Get required objects or fail if some are missing
+        internet_exchange = get_object_or_404(InternetExchange, slug=slug)
+        network = get_object_or_404(Network, id=network_id)
+        network_ixlan = get_object_or_404(NetworkIXLAN, id=network_ixlan_id)
+
+        # Check if the AS we are going to peer with is already known
+        known_autonomous_system = True
+        try:
+            AutonomousSystem.objects.get(asn=network.asn)
+        except AutonomousSystem.DoesNotExist:
+            known_autonomous_system = False
+
+        # Init a form that the user must submit to confirm the peering
+        form = ConfirmationForm(initial=request.GET)
+
+        context = {
+            'internet_exchange': internet_exchange,
+            'known_autonomous_system': known_autonomous_system,
+            'network': network,
+            'network_ixlan': network_ixlan,
+            'form': form,
+            'return_url': internet_exchange.get_peer_list_url(),
+        }
+        return render(request, 'peering/ix/add_peer.html', context)
+
+    def post(self, request, slug, network_id, network_ixlan_id):
+        # Get required objects or fail if some are missing
+        internet_exchange = get_object_or_404(InternetExchange, slug=slug)
+        network = get_object_or_404(Network, id=network_id)
+        network_ixlan = get_object_or_404(NetworkIXLAN, id=network_ixlan_id)
+
+        # Init the form that the user must have submitted
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+            peer_added = False
+
+            with transaction.atomic():
+                # Create the new AS if needed
+                try:
+                    autonomous_system = AutonomousSystem.objects.get(
+                        asn=network.asn)
+                except AutonomousSystem.DoesNotExist:
+                    values = {
+                        'asn': network.asn,
+                        'name': network.name,
+                        'irr_as_set': network.irr_as_set,
+                        'ipv6_max_prefixes': network.info_prefixes6,
+                        'ipv4_max_prefixes': network.info_prefixes4,
+                    }
+                    autonomous_system = AutonomousSystem(**values)
+                    autonomous_system.save()
+                    peer_added = True
+                    # Log the action
+                    UserAction.objects.log_create(request.user, autonomous_system, 'Created {} {}'.format(
+                        AutonomousSystem._meta.verbose_name, escape(autonomous_system)))
+
+                # Record the IPv6 session if we can
+                if network_ixlan.ipaddr6:
+                    try:
+                        PeeringSession.objects.get(
+                            autonomous_system=autonomous_system, internet_exchange=internet_exchange, ip_address=network_ixlan.ipaddr6)
+                    except PeeringSession.DoesNotExist:
+                        values = {
+                            'autonomous_system': autonomous_system,
+                            'internet_exchange': internet_exchange,
+                            'ip_address': network_ixlan.ipaddr6,
+                        }
+                        session = PeeringSession(**values)
+                        session.save()
+                        peer_added = True
+                        # Log the action
+                        UserAction.objects.log_create(request.user, session, 'Created {} {}'.format(
+                            PeeringSession._meta.verbose_name, escape(session)))
+
+                # Record the IPv4 session if we can
+                if network_ixlan.ipaddr4:
+                    try:
+                        PeeringSession.objects.get(
+                            autonomous_system=autonomous_system, internet_exchange=internet_exchange, ip_address=network_ixlan.ipaddr4)
+                    except PeeringSession.DoesNotExist:
+                        values = {
+                            'autonomous_system': autonomous_system,
+                            'internet_exchange': internet_exchange,
+                            'ip_address': network_ixlan.ipaddr4,
+                        }
+                        session = PeeringSession(**values)
+                        session.save()
+                        peer_added = True
+                        # Log the action
+                        UserAction.objects.log_create(request.user, session, 'Created {} {}'.format(
+                            PeeringSession._meta.verbose_name, escape(session)))
+
+                # Notify the user
+                if peer_added:
+                    messages.success(request, '{} peer successfully added on {}.'.format(
+                        autonomous_system, internet_exchange))
+
+            return redirect(internet_exchange.get_absolute_url())
+
+        context = {
+            'internet_exchange': internet_exchange,
+            'known_autonomous_system': False,
+            'network': network,
+            'network_ixlan': network_ixlan,
+            'form': form,
+            'return_url': internet_exchange.get_peer_list_url(),
+        }
+        return render(request, 'peering/ix/add_peer.html', context)
 
 
 class IXConfig(LoginRequiredMixin, View):

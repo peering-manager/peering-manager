@@ -121,6 +121,8 @@ class PeerTable(tables.Table):
     ipv4_address = tables.Column(verbose_name='IPv4 Address',
                                  accessor='network_ixlan.ipaddr4',
                                  orderable=False)
+    add_peer = tables.TemplateColumn(verbose_name='',
+                                     template_code='<div class="pull-right"><a href="{% url \'peering:ix_add_peer\' slug=internet_exchange.slug network_id=record.network.id network_ixlan_id=record.network_ixlan.id %}" class="btn btn-xs btn-primary"><span class="fa fa-link" aria-hidden="true"></span> Peer</a></div>', orderable=False)
 
     class Meta:
         attrs = {
