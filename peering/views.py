@@ -235,16 +235,8 @@ class IXPeeringDBImport(TableImportView):
 class IXDetails(View):
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
-        peering_sessions = PeeringSessionTable(internet_exchange.peeringsession_set.order_by(
-            'autonomous_system.asn', 'ip_address'))
-        paginate = {
-            'klass': EnhancedPaginator,
-            'per_page': settings.PAGINATE_COUNT
-        }
-        RequestConfig(request, paginate=paginate).configure(peering_sessions)
         context = {
             'internet_exchange': internet_exchange,
-            'peering_sessions': peering_sessions,
             'autonomous_systems_count': internet_exchange.get_autonomous_systems_count(),
             'peering_sessions_count': internet_exchange.get_peering_sessions_count(),
         }
@@ -301,6 +293,24 @@ class IXUpdateCommunities(AddOrEditView):
         })
 
 
+class IXPeeringSessions(View):
+    def get(self, request, slug):
+        internet_exchange = get_object_or_404(InternetExchange, slug=slug)
+        peering_sessions = PeeringSessionTable(internet_exchange.peeringsession_set.order_by(
+            'autonomous_system.asn', 'ip_address'))
+        paginate = {
+            'klass': EnhancedPaginator,
+            'per_page': settings.PAGINATE_COUNT
+        }
+        RequestConfig(request, paginate=paginate).configure(peering_sessions)
+        context = {
+            'internet_exchange': internet_exchange,
+            'peering_sessions': peering_sessions,
+            'peering_sessions_count': internet_exchange.get_peering_sessions_count(),
+        }
+        return render(request, 'peering/ix/sessions.html', context)
+
+
 class IXPeers(LoginRequiredMixin, View):
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
@@ -314,6 +324,7 @@ class IXPeers(LoginRequiredMixin, View):
         context = {
             'internet_exchange': internet_exchange,
             'available_peers': available_peers,
+            'peering_sessions_count': internet_exchange.get_peering_sessions_count(),
         }
 
         return render(request, 'peering/ix/peers.html', context)
@@ -438,6 +449,7 @@ class IXConfig(LoginRequiredMixin, View):
         context = {
             'internet_exchange': internet_exchange,
             'internet_exchange_configuration': internet_exchange.get_config(),
+            'peering_sessions_count': internet_exchange.get_peering_sessions_count(),
         }
 
         return render(request, 'peering/ix/configuration.html', context)
@@ -459,6 +471,7 @@ class IXRouterChanges(LoginRequiredMixin, View):
         context = {
             'internet_exchange': internet_exchange,
             'router_changes': changes,
+            'peering_sessions_count': internet_exchange.get_peering_sessions_count(),
         }
 
         return render(request, 'peering/ix/changes.html', context)

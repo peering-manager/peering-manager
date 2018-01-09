@@ -1,0 +1,11 @@
+{% extends 'peering/ix/_base.html' %}
+{% load render_table from django_tables2 %}
+{% block subcontent %}
+      {% render_table peering_sessions 'utils/table.html' %}
+      <div class="pull-left">
+        <a href="{% url 'peering:peering_session_add' slug=internet_exchange.slug %}" class="btn btn-xs btn-primary">
+          <span class="fa fa-plus" aria-hidden="true"></span>
+          Add a peering session
+        </a>
+      </div>
+{% endblock %}

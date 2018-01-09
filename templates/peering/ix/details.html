@@ -53,17 +53,6 @@
           </div>
         </div>
         <div class="col-md-6">
-          {% render_table peering_sessions 'utils/table.html' %}
-          <div class="pull-left">
-            <a href="{% url 'peering:peering_session_add' slug=internet_exchange.slug %}" class="btn btn-xs btn-primary">
-              <span class="fa fa-plus" aria-hidden="true"></span>
-              Add a peering session
-            </a>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-6">
           <div class="panel panel-default">
             <div class="panel-heading">
               <strong>BGP Communities</strong>
@@ -89,8 +78,6 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="row">
         <div class="col-md-6">
           <div class="panel panel-default">
             <div class="panel-heading">

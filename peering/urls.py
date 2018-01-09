@@ -58,6 +58,8 @@ urlpatterns = [
         views.PeeringSessionAdd.as_view(), name='peering_session_add'),
     url(r'^ix/(?P<slug>[\w-]+)/update_communities/$',
         views.IXUpdateCommunities.as_view(), name='ix_update_communities'),
+    url(r'^ix/(?P<slug>[\w-]+)/sessions/$',
+        views.IXPeeringSessions.as_view(), name='ix_peering_sessions'),
     url(r'^ix/(?P<slug>[\w-]+)/peers/$',
         views.IXPeers.as_view(), name='ix_peers'),
     url(r'^ix/(?P<slug>[\w-]+)/peer/add/(?P<network_id>[0-9]+)/(?P<network_ixlan_id>[0-9]+)/$',
