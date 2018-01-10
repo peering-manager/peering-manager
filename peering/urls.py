@@ -87,6 +87,8 @@ urlpatterns = [
         views.RouterEdit.as_view(), name='router_edit'),
     url(r'^router/(?P<id>[0-9]+)/delete/$',
         views.RouterDelete.as_view(), name='router_delete'),
-    url(r'^router/(?P<id>[0-9]+)/ping/$',
-        views.RouterPing.as_view(), name='router_ping'),
+
+    # AJAX dedicated views
+    url(r'^async/router_ping/(?P<router_id>[0-9]+)$',
+        views.AsyncRouterPing.as_view(), name='async_router_ping'),
 ]

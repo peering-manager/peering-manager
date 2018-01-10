@@ -30,6 +30,11 @@ fi
 
 # Pass the tests suite
 python manage.py test
+RETURN_CODE=$?
+if [[ ${RETURN_CODE} != 0 ]]; then
+  echo -e "\n$(info) one or more test errors detected, failing build."
+  EXIT=${RETURN_CODE}
+fi
 
 END=$(date +%s)
 echo "$(info) exiting with code ${EXIT} after $((${END} - ${START})) seconds."

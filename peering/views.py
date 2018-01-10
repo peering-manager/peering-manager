@@ -11,6 +11,8 @@ from django.views.generic import View
 
 from django_tables2 import RequestConfig
 
+import json
+
 from .forms import (AutonomousSystemForm, AutonomousSystemCSVForm, CommunityForm, CommunityCSVForm, ConfigurationTemplateForm, InternetExchangeForm,
                     InternetExchangePeeringDBForm, InternetExchangeCommunityForm, InternetExchangeCSVForm, PeeringSessionForm, RouterForm, RouterCSVForm)
 from .models import (AutonomousSystem, Community,
@@ -567,13 +569,12 @@ class RouterDelete(DeleteView):
     return_url = 'peering:router_list'
 
 
-class RouterPing(View):
-    def get(self, request, id):
-        router = get_object_or_404(Router, id=id)
+class AsyncRouterPing(View):
+    def get(self, request, router_id):
+        from django.http import HttpResponse
 
-        if router.test_napalm_connection():
-            messages.success(request, 'Successfully connected to the router.')
-        else:
-            messages.error(request, 'Unable to connect to the router.')
+        router = get_object_or_404(Router, id=router_id)
+        success = json.dumps({'status': 'success'})
+        error = json.dumps({'status': 'error'})
 
-        return redirect(router.get_absolute_url())
+        return HttpResponse(success) if router.test_napalm_connection() else HttpResponse(error)

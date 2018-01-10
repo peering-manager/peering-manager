@@ -12,16 +12,24 @@
       </div>
       {% endif %}
       <h1>{% block title %}{{ router }}{% endblock %}</h1>
+      <div class="alert alert-success alert-dismissible" role="alert" id="message-can-ping">
+        <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        Successfully connected to the router.
+      </div>
+      <div class="alert alert-danger alert-dismissible" role="alert" id="message-cannot-ping">
+        <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        Unable to connect to the router.
+      </div>
       <div class="row">
         <div class="col-md-6">
           <div class="panel panel-default">
             <div class="panel-heading">
               <strong>Router Details</strong>
               {% if router.platform %}
-              <a class="btn btn-xs btn-primary pull-right" href="{% url 'peering:router_ping' id=router.id %}">
+              <button class="btn btn-xs btn-primary pull-right" id="router-ping">
                 <span class="fa fa-plug" aria-hidden="true"></span>
                 Ping
-              </a>
+              </button>
               {% endif %}
             </div>
             <table class="table table-hover panel-body attr-table">
@@ -73,4 +81,29 @@
           </div>
         </div>
       </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+      // Hide potential alerts
+      $('.alert').hide();
+      // Do not remove alert from DOM when they are closed, just hide
+      $('.alert').on('click', '.close', function(){
+        $(this).closest('.alert').slideUp();
+      });
+      // Bind  function to button click
+      $("#router-ping").click(function() {
+        $.ajax({
+          // Call for a ping
+          type: "get",
+          url: "{% url 'peering:async_router_ping' router_id=router.id %}",
+        }).done(function(response) {
+          data = JSON.parse(response)
+          if (data['status'] == 'success') {
+            $('#message-can-ping').slideDown();
+          } else {
+            $('#message-cannot-ping').slideDown();
+          }
+        });
+      });
+    </script>
 {% endblock %}
