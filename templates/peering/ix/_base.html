@@ -20,7 +20,7 @@
       Info
     </a>
   </li>
-  {% if peering_sessions_count > 0 %}
+  {% if internet_exchange.get_peering_sessions_count > 0 %}
   <li role="presentation" {% if request.path|contains:'/sessions/' %}class="active"{% endif %}>
     <a href="{% url 'peering:ix_peering_sessions' slug=internet_exchange.slug %}">
       <span class="fa fa-sitemap" aria-hidden="true"></span>

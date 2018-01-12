@@ -239,8 +239,6 @@ class IXDetails(View):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
         context = {
             'internet_exchange': internet_exchange,
-            'autonomous_systems_count': internet_exchange.get_autonomous_systems_count(),
-            'peering_sessions_count': internet_exchange.get_peering_sessions_count(),
         }
         return render(request, 'peering/ix/details.html', context)
 
@@ -308,7 +306,6 @@ class IXPeeringSessions(View):
         context = {
             'internet_exchange': internet_exchange,
             'peering_sessions': peering_sessions,
-            'peering_sessions_count': internet_exchange.get_peering_sessions_count(),
         }
         return render(request, 'peering/ix/sessions.html', context)
 
@@ -326,7 +323,6 @@ class IXPeers(LoginRequiredMixin, View):
         context = {
             'internet_exchange': internet_exchange,
             'available_peers': available_peers,
-            'peering_sessions_count': internet_exchange.get_peering_sessions_count(),
         }
 
         return render(request, 'peering/ix/peers.html', context)
@@ -451,7 +447,6 @@ class IXConfig(LoginRequiredMixin, View):
         context = {
             'internet_exchange': internet_exchange,
             'internet_exchange_configuration': internet_exchange.get_config(),
-            'peering_sessions_count': internet_exchange.get_peering_sessions_count(),
         }
 
         return render(request, 'peering/ix/configuration.html', context)
@@ -473,7 +468,6 @@ class IXRouterChanges(LoginRequiredMixin, View):
         context = {
             'internet_exchange': internet_exchange,
             'router_changes': changes,
-            'peering_sessions_count': internet_exchange.get_peering_sessions_count(),
         }
 
         return render(request, 'peering/ix/changes.html', context)

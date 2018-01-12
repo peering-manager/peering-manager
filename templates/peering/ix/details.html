@@ -31,11 +31,11 @@
               </tr>
               <tr>
                 <td>Members</td>
-                <td>{{ autonomous_systems_count }}</td>
+                <td>{{ internet_exchange.get_autonomous_systems_count }}</td>
               </tr>
               <tr>
                 <td>Peering Sessions</td>
-                <td>{{ peering_sessions_count }}</td>
+                <td>{{ internet_exchange.get_peering_sessions_count }}</td>
               </tr>
               {% if internet_exchange.configuration_template %}
               <tr>
