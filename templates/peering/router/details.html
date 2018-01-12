@@ -26,10 +26,16 @@
             <div class="panel-heading">
               <strong>Router Details</strong>
               {% if router.platform %}
-              <button class="btn btn-xs btn-primary pull-right" id="router-ping">
-                <span class="fa fa-plug" aria-hidden="true"></span>
-                Ping
-              </button>
+              <div class="pull-right">
+                <span class="btn btn-xs btn-warning" id="router-pinging">
+                  <i class="fa fa-refresh fa-spin fa-fw"></i>
+                  Working
+                </span>
+                <button class="btn btn-xs btn-primary" id="router-ping">
+                  <i class="fa fa-plug" aria-hidden="true"></i>
+                  Ping
+                </button>
+              </div>
               {% endif %}
             </div>
             <table class="table table-hover panel-body attr-table">
@@ -86,6 +92,7 @@
     <script>
       // Hide potential alerts
       $('.alert').hide();
+      $('#router-pinging').hide();
       // Do not remove alert from DOM when they are closed, just hide
       $('.alert').on('click', '.close', function(){
         $(this).closest('.alert').slideUp();
@@ -96,6 +103,14 @@
           // Call for a ping
           type: "get",
           url: "{% url 'peering:async_router_ping' router_id=router.id %}",
+          beforeSend: function() {
+            $('#router-ping').hide();
+            $('#router-pinging').show();
+          },
+          complete: function() {
+            $('#router-pinging').hide();
+            $('#router-ping').show();
+          }
         }).done(function(response) {
           data = JSON.parse(response)
           if (data['status'] == 'success') {
