@@ -1,4 +1,110 @@
 {% extends 'peering/ix/_base.html' %}
 {% block subcontent %}
-      <pre class="pre-scrollable">{{ internet_exchange_configuration }}</pre>
+      <div class="row">
+        <div class="col-md-2">
+          {% if internet_exchange.router and internet_exchange.router.platform %}
+          <button type="button" class="btn btn-primary btn-block" id="router-diff">
+            <i class="fa fa-cogs" aria-hidden="true"></i> Deploy
+          </button>
+          {% endif %}
+          <button type="button" class="btn btn-default btn-block" id="copy-config">
+            <i class="fa fa-clipboard" aria-hidden="true"></i> Copy
+          </button>
+        </div>
+        <pre class="col-md-10 pre-scrollable">{{ internet_exchange_configuration }}</pre>
+      </div>
+      {% if internet_exchange.router and internet_exchange.router.platform %}
+      <div class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Configuration Differences</h4>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="save-config">Commit changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+{% endblock %}
+{% block javascript %}
+    <script>
+      // When the modal is closed, reset the button back to its defaults
+      $('.modal').on('hidden.bs.modal', function(e) {
+        $('#save-config').removeClass('btn-warning').removeClass('btn-danger').removeClass('btn-success').addClass('btn-primary');
+        $('#save-config').removeAttr('disabled');
+        $('#save-config').html('Commit changes');
+        $('#save-config').show();
+      });
+
+      // Bind copy to clipboard function to the button
+      $('#copy-config').click(function() {
+        var $temp = $('<textarea>');
+        $('body').append($temp);
+        $temp.val($('.pre-scrollable').text()).select();
+        document.execCommand('copy');
+        $temp.remove();
+      });
+
+      // Bind check diff to button click
+      $('#router-diff').click(function() {
+        $.ajax({
+          type: "get",
+          url: "{% url 'peering:async_router_diff' slug=internet_exchange.slug %}",
+          beforeSend: function() {
+            $('#router-diff').attr('disabled', 'disabled');
+            $('#router-diff').removeClass('btn-primary').addClass('btn-warning');
+            $('#router-diff').html('<i class="fa fa-refresh fa-spin fa-fw"></i> Working');
+          },
+          complete: function() {
+            $('#router-diff').removeClass('btn-warning').addClass('btn-primary');
+            $('#router-diff').removeAttr('disabled');
+            $('#router-diff').html('<i class="fa fa-cogs" aria-hidden="true"></i> Deploy');
+          }
+        }).done(function(response) {
+          var data = JSON.parse(response);
+          if (data['changed']) {
+            $('.modal-body').html('<pre class="pre-scrollable">' + data['changes'] + '</pre>');
+            $('.modal').modal('show');
+          } else {
+            $('.modal-body').html('<p>No configuration differences found.</p><p>The router may be up-to-date or unreachable.</p>');
+            $('#save-config').hide();
+            $('.modal').modal('show');
+          }
+        });
+      });
+
+      // Bind save config to button click
+      $('#save-config').click(function() {
+        $.ajax({
+          type: "get",
+          url: "{% url 'peering:async_router_save' slug=internet_exchange.slug %}",
+          beforeSend: function() {
+            $('#save-config').attr('disabled', 'disabled');
+            $('#save-config').removeClass('btn-primary').addClass('btn-warning');
+            $('#save-config').html('<i class="fa fa-refresh fa-spin fa-fw"></i> Working');
+          }
+        }).done(function(response) {
+          var data = JSON.parse(response);
+
+          // Consider failure
+          var btn_class = 'btn-danger';
+          var btn_code = '<i class="fa fa-times" aria-hidden="true"></i> Configuration not saved';
+
+          // If successful change button code and color
+          if (data['success']) {
+            var btn_class = 'btn-success';
+            var btn_code = '<i class="fa fa-check" aria-hidden="true"></i> Configuration saved';
+          }
+
+          $('#save-config').removeClass('btn-warning').addClass(btn_class);
+          $('#save-config').html(btn_code);
+        });
+      });
+    </script>
 {% endblock %}

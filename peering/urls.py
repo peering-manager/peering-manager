@@ -66,8 +66,6 @@ urlpatterns = [
         views.IXAddPeer.as_view(), name='ix_add_peer'),
     url(r'^ix/(?P<slug>[\w-]+)/config/$',
         views.IXConfig.as_view(), name='ix_configuration'),
-    url(r'^ix/(?P<slug>[\w-]+)/changes/$',
-        views.IXRouterChanges.as_view(), name='ix_changes'),
 
     # Peering Sessions
     url(r'^peering/(?P<id>[0-9]+)/$', views.PeeringSessionDetails.as_view(),
@@ -91,4 +89,8 @@ urlpatterns = [
     # AJAX dedicated views
     url(r'^async/router_ping/(?P<router_id>[0-9]+)$',
         views.AsyncRouterPing.as_view(), name='async_router_ping'),
+    url(r'^async/router_diff/(?P<slug>[\w-]+)$',
+        views.AsyncRouterDiff.as_view(), name='async_router_diff'),
+    url(r'^async/router_save(?P<slug>[\w-]+)$',
+        views.AsyncRouterSave.as_view(), name='async_router_save'),
 ]

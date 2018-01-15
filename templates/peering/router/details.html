@@ -27,10 +27,6 @@
               <strong>Router Details</strong>
               {% if router.platform %}
               <div class="pull-right">
-                <span class="btn btn-xs btn-warning" id="router-pinging">
-                  <i class="fa fa-refresh fa-spin fa-fw"></i>
-                  Working
-                </span>
                 <button class="btn btn-xs btn-primary" id="router-ping">
                   <i class="fa fa-plug" aria-hidden="true"></i>
                   Ping
@@ -92,27 +88,28 @@
     <script>
       // Hide potential alerts
       $('.alert').hide();
-      $('#router-pinging').hide();
       // Do not remove alert from DOM when they are closed, just hide
       $('.alert').on('click', '.close', function(){
         $(this).closest('.alert').slideUp();
       });
-      // Bind  function to button click
+      // Bind function to button click
       $("#router-ping").click(function() {
         $.ajax({
           // Call for a ping
           type: "get",
           url: "{% url 'peering:async_router_ping' router_id=router.id %}",
           beforeSend: function() {
-            $('#router-ping').hide();
-            $('#router-pinging').show();
+            $('#router-ping').attr('disabled', 'disabled');
+            $('#router-ping').removeClass('btn-primary').addClass('btn-warning');
+            $('#router-ping').html('<i class="fa fa-refresh fa-spin fa-fw"></i> Working');
           },
           complete: function() {
-            $('#router-pinging').hide();
-            $('#router-ping').show();
+            $('#router-ping').removeClass('btn-warning').addClass('btn-primary');
+            $('#router-ping').removeAttr('disabled');
+            $('#router-ping').html('<i class="fa fa-plug" aria-hidden="true"></i> Ping');
           }
         }).done(function(response) {
-          data = JSON.parse(response)
+          var data = JSON.parse(response)
           if (data['status'] == 'success') {
             $('#message-can-ping').slideDown();
           } else {

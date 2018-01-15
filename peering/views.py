@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import slugify
 from django.utils.html import escape
@@ -452,27 +453,6 @@ class IXConfig(LoginRequiredMixin, View):
         return render(request, 'peering/ix/configuration.html', context)
 
 
-class IXRouterChanges(LoginRequiredMixin, View):
-    def get(self, request, slug):
-        internet_exchange = get_object_or_404(InternetExchange, slug=slug)
-        commit = 'commit' in request.GET
-
-        config = internet_exchange.get_config()
-        changes = internet_exchange.router.set_configuration(config, commit)
-
-        if changes:
-            messages.success(request, 'Changes successfully commited.')
-        else:
-            messages.error(request, 'Unable to determine changes.')
-
-        context = {
-            'internet_exchange': internet_exchange,
-            'router_changes': changes,
-        }
-
-        return render(request, 'peering/ix/changes.html', context)
-
-
 class PeeringSessionAdd(AddOrEditView):
     model = PeeringSession
     form = PeeringSessionForm
@@ -565,10 +545,31 @@ class RouterDelete(DeleteView):
 
 class AsyncRouterPing(View):
     def get(self, request, router_id):
-        from django.http import HttpResponse
-
         router = get_object_or_404(Router, id=router_id)
         success = json.dumps({'status': 'success'})
         error = json.dumps({'status': 'error'})
 
         return HttpResponse(success) if router.test_napalm_connection() else HttpResponse(error)
+
+
+class AsyncRouterDiff(View):
+    def get(self, request, slug):
+        internet_exchange = get_object_or_404(InternetExchange, slug=slug)
+        changes = internet_exchange.router.set_configuration(
+            internet_exchange.get_config(), False)
+
+        return HttpResponse(json.dumps({
+            'changed': True if changes else False,
+            'changes': changes,
+        }))
+
+
+class AsyncRouterSave(View):
+    def get(self, request, slug):
+        internet_exchange = get_object_or_404(InternetExchange, slug=slug)
+        changes = internet_exchange.router.set_configuration(
+            internet_exchange.get_config(), True)
+
+        return HttpResponse(json.dumps({
+            'success': True if changes else False,
+        }))
