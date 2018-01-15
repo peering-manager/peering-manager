@@ -109,7 +109,7 @@
             $('#router-ping').html('<i class="fa fa-plug" aria-hidden="true"></i> Ping');
           }
         }).done(function(response) {
-          var data = JSON.parse(response)
+          var data = JSON.parse(response);
           if (data['status'] == 'success') {
             $('#message-can-ping').slideDown();
           } else {

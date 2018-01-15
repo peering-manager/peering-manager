@@ -546,10 +546,10 @@ class RouterDelete(DeleteView):
 class AsyncRouterPing(View):
     def get(self, request, router_id):
         router = get_object_or_404(Router, id=router_id)
-        success = json.dumps({'status': 'success'})
-        error = json.dumps({'status': 'error'})
 
-        return HttpResponse(success) if router.test_napalm_connection() else HttpResponse(error)
+        return HttpResponse(json.dumps({
+            'status': 'success' if router.test_napalm_connection() else 'error',
+        }))
 
 
 class AsyncRouterDiff(View):
