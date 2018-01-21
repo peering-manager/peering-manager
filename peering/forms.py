@@ -2,8 +2,9 @@ from __future__ import unicode_literals
 
 from django import forms
 
-from .models import AutonomousSystem, Community, ConfigurationTemplate, InternetExchange, PeeringSession, Router
-from utils.forms import BootstrapMixin, SlugField
+from .models import (AutonomousSystem, Community,
+                     ConfigurationTemplate, InternetExchange, PeeringSession, Router)
+from utils.forms import BootstrapMixin, FilterChoiceField, SlugField
 
 
 class CommentField(forms.CharField):
@@ -77,6 +78,18 @@ class AutonomousSystemCSVForm(forms.ModelForm):
         }
 
 
+class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
+    model = AutonomousSystem
+    q = forms.CharField(required=False, label='Search')
+    asn = forms.IntegerField(required=False, label='ASN')
+    name = forms.CharField(required=False, label='AS Name')
+    irr_as_set = forms.CharField(required=False, label='IRR AS-SET')
+    ipv6_max_prefixes = forms.IntegerField(
+        required=False, label='IPv6 Max Prefixes')
+    ipv4_max_prefixes = forms.IntegerField(
+        required=False, label='IPv4 Max Prefixes')
+
+
 class CommunityForm(BootstrapMixin, forms.ModelForm):
     comment = CommentField()
 
@@ -105,12 +118,25 @@ class CommunityCSVForm(BootstrapMixin, forms.ModelForm):
         }
 
 
+class CommunityFilterForm(BootstrapMixin, forms.Form):
+    model = Community
+    q = forms.CharField(required=False, label='Search')
+    name = forms.CharField(required=False, label='Name')
+    value = forms.CharField(required=False, label='value')
+
+
 class ConfigurationTemplateForm(BootstrapMixin, forms.ModelForm):
     template = TemplateField()
 
     class Meta:
         model = ConfigurationTemplate
         fields = ('name', 'template',)
+
+
+class ConfigurationTemplateFilterForm(BootstrapMixin, forms.Form):
+    model = ConfigurationTemplate
+    q = forms.CharField(required=False, label='Search')
+    name = forms.CharField(required=False, label='Name')
 
 
 class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
@@ -207,6 +233,18 @@ class InternetExchangeCommunityForm(BootstrapMixin, forms.ModelForm):
             instance.communities.add(community)
 
 
+class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
+    model = InternetExchange
+    q = forms.CharField(required=False, label='Search')
+    name = forms.CharField(required=False, label='IX Name')
+    ipv6_address = forms.CharField(required=False, label='IPv6 Address')
+    ipv4_address = forms.CharField(required=False, label='IPv4 Address')
+    configuration_template = FilterChoiceField(
+        queryset=ConfigurationTemplate.objects.all(), to_field_name='pk', null_label='-- None --')
+    router = FilterChoiceField(
+        queryset=Router.objects.all(), to_field_name='pk', null_label='-- None --')
+
+
 class PeeringSessionForm(BootstrapMixin, forms.ModelForm):
     comment = CommentField()
 
@@ -223,6 +261,14 @@ class PeeringSessionForm(BootstrapMixin, forms.ModelForm):
         help_texts = {
             'ip_address': 'IPv6 or IPv4 address',
         }
+
+
+class PeeringSessionFilterForm(BootstrapMixin, forms.Form):
+    model = PeeringSession
+    q = forms.CharField(required=False, label='Search')
+    autonomous_system__asn = forms.IntegerField(required=False, label='ASN')
+    autonomous_system__name = forms.CharField(required=False, label='AS Name')
+    ip_address = forms.CharField(required=False, label='IP Address')
 
 
 class RouterForm(BootstrapMixin, forms.ModelForm):
@@ -251,3 +297,12 @@ class RouterCSVForm(BootstrapMixin, forms.ModelForm):
         help_texts = {
             'hostname': 'Router hostname (must be resolvable) or IP address',
         }
+
+
+class RouterFilterForm(BootstrapMixin, forms.Form):
+    model = Router
+    q = forms.CharField(required=False, label='Search')
+    name = forms.CharField(required=False, label='Router Name')
+    hostname = forms.CharField(required=False, label='Router Hostname')
+    platform = forms.MultipleChoiceField(
+        choices=Router.PLATFORM_CHOICES, required=False)

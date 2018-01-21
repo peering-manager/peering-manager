@@ -82,6 +82,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',
     'django_tables2',
     'peering',
     'peeringdb',
@@ -207,6 +208,10 @@ STATIC_URL = '/{}static/'.format(BASE_PATH)
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'project-static'),
 )
+
+# Django filters
+FILTERS_NULL_CHOICE_LABEL = 'None'
+FILTERS_NULL_CHOICE_VALUE = '0'
 
 try:
     HOSTNAME = socket.gethostname()

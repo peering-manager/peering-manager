@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.db import transaction
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -13,8 +14,11 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
+from django_tables2 import RequestConfig
+
 from .forms import BootstrapMixin, ConfirmationForm, CSVDataField
 from .models import UserAction
+from .paginators import EnhancedPaginator
 
 
 class AddOrEditView(LoginRequiredMixin, View):
@@ -246,6 +250,53 @@ class ImportView(LoginRequiredMixin, View):
             'object_type': self.form_model._meta.model._meta.verbose_name,
             'return_url': self.return_url,
         })
+
+
+class ModelListView(View):
+    queryset = None
+    filter = None
+    filter_form = None
+    table = None
+    template = None
+
+    def build_queryset(self, request, kwargs):
+        return self.queryset
+
+    def alter_queryset(self, request):
+        return self.queryset.all()
+
+    def extra_context(self, kwargs):
+        return {}
+
+    def get(self, request, *args, **kwargs):
+        # If no query set has been provided for some reasons
+        if not self.queryset:
+            self.queryset = self.build_queryset(request, kwargs)
+
+        # If there is a filter, apply it
+        if self.filter:
+            self.queryset = self.filter(request.GET, self.queryset).qs
+
+        # Alter the queryset if needed
+        self.queryset = self.alter_queryset(request)
+
+        # Build the table based on the queryset
+        table = self.table(self.queryset)
+        paginate = {
+            'klass': EnhancedPaginator,
+            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+        }
+        RequestConfig(request, paginate).configure(table)
+
+        # Set context and render
+        context = {
+            'table': table,
+            'filter': self.filter,
+            'filter_form': self.filter_form(request.GET, label_suffix='') if self.filter_form else None,
+        }
+        context.update(self.extra_context(kwargs))
+
+        return render(request, self.template, context)
 
 
 class TableImportView(LoginRequiredMixin, View):

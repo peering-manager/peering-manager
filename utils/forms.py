@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import csv
 
 from django import forms
+from django.conf import settings
 
 
 class BootstrapMixin(forms.BaseForm):
@@ -77,6 +78,41 @@ class ConfirmationForm(BootstrapMixin, forms.Form):
     """
     confirm = forms.BooleanField(
         required=True, widget=forms.HiddenInput(), initial=True)
+
+
+class FilterChoiceIterator(forms.models.ModelChoiceIterator):
+    def __iter__(self):
+        # Filter on "empty" choice using FILTERS_NULL_CHOICE_VALUE (instead of an empty string)
+        if self.field.null_label is not None:
+            yield (settings.FILTERS_NULL_CHOICE_VALUE, self.field.null_label)
+        queryset = self.queryset.all()
+        # Can't use iterator() when queryset uses prefetch_related()
+        if not queryset._prefetch_related_lookups:
+            queryset = queryset.iterator()
+        for obj in queryset:
+            yield self.choice(obj)
+
+
+class FilterChoiceFieldMixin(object):
+    iterator = FilterChoiceIterator
+
+    def __init__(self, null_label=None, *args, **kwargs):
+        self.null_label = null_label
+        if 'required' not in kwargs:
+            kwargs['required'] = False
+        if 'widget' not in kwargs:
+            kwargs['widget'] = forms.SelectMultiple(attrs={'size': 6})
+        super(FilterChoiceFieldMixin, self).__init__(*args, **kwargs)
+
+    def label_from_instance(self, obj):
+        label = super(FilterChoiceFieldMixin, self).label_from_instance(obj)
+        if hasattr(obj, 'filter_count'):
+            return '{} ({})'.format(label, obj.filter_count)
+        return label
+
+
+class FilterChoiceField(FilterChoiceFieldMixin, forms.ModelMultipleChoiceField):
+    pass
 
 
 class SlugField(forms.SlugField):

@@ -71,16 +71,13 @@ class InternetExchangeTable(BaseTable):
     """
     ipv6_address = tables.Column(verbose_name='IPv6 Address')
     ipv4_address = tables.Column(verbose_name='IPv4 Address')
-    as_nb = tables.Column(verbose_name='Autonomous Systems',
-                          accessor='get_autonomous_systems_count')
-    peering_nb = tables.Column(
-        verbose_name='Peering Sessions', accessor='get_peering_sessions_count')
+    configuration_template = tables.Column(verbose_name='Template')
     details = tables.TemplateColumn(verbose_name=' ',
                                     template_code='<div class="pull-right"><a href="{% url \'peering:ix_details\' slug=record.slug %}" class="btn btn-xs btn-info"><span class="fa fa-info-circle" aria-hidden="true"></span> Details</a></div>', orderable=False)
 
     class Meta(BaseTable.Meta):
         model = InternetExchange
-        fields = ('name', 'ipv6_address', 'ipv4_address', 'as_nb', 'peering_nb',
+        fields = ('name', 'ipv6_address', 'ipv4_address',
                   'configuration_template', 'router', 'details',)
 
 

@@ -19,6 +19,11 @@
       {% endif %}
       <h1>{% block title %}Internet Exchanges{% endblock %}</h1>
       <div class="row">
-        {% render_table internet_exchanges 'utils/table.html' %}
+        <div class="col-md-9">
+          {% include 'utils/table.html' %}
+        </div>
+        <div class="col-md-3">
+          {% include 'utils/search_form.html' %}
+        </div>
       </div>
 {% endblock %}
