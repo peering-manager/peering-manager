@@ -40,10 +40,12 @@ class NetworkIXLAN(models.Model):
 
 class Synchronization(models.Model):
     time = models.DateTimeField()
-    number_of_objects = models.PositiveIntegerField()
+    added = models.PositiveIntegerField()
+    updated = models.PositiveIntegerField()
+    deleted = models.PositiveIntegerField()
 
     class Meta:
         ordering = ['-time']
 
     def __str__(self):
-        return 'Synced {} objects at {}'.format(self.number_of_objects, self.time)
+        return 'Synced {} objects at {}'.format((self.added + self.deleted + self.updated), self.time)

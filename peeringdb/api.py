@@ -60,23 +60,28 @@ class PeeringDB(object):
 
         return response.json() if response.status_code == 200 else None
 
-    def record_last_sync(self, time, number_of_objects):
+    def record_last_sync(self, time, objects_changes):
         """
         Save the last synchronization details (number of objects and time) for
         later use (and logs).
         """
+        number_of_changes = objects_changes['added'] + \
+            objects_changes['updated'] + objects_changes['deleted']
+
         # Save the last sync time only if objects were retrieved
-        if number_of_objects > 0:
+        if number_of_changes > 0:
             values = {
                 'time': time,
-                'number_of_objects': number_of_objects,
+                'added': objects_changes['added'],
+                'updated': objects_changes['updated'],
+                'deleted': objects_changes['deleted'],
             }
 
             last_sync = Synchronization(**values)
             last_sync.save()
 
             self.logger.debug('synchronizated %s objects at %s',
-                              number_of_objects, last_sync.time)
+                              number_of_changes, last_sync.time)
 
     def get_last_sync_time(self):
         """
@@ -110,8 +115,9 @@ class PeeringDB(object):
         This function returns the number of objects that have been successfully
         synchronized to the local database.
         """
-        # Set time of sync
-        number_of_objects_synced = 0
+        objects_added = 0
+        objects_updated = 0
+        objects_deleted = 0
 
         # Get all network changes since the last sync
         search = {'since': last_sync, 'depth': 0}
@@ -147,6 +153,7 @@ class PeeringDB(object):
                 # the local database too
                 if is_deleted:
                     network.delete()
+                    objects_deleted += 1
                     self.logger.debug(
                         'deleted as%s from peeringdb', peeringdb_network.asn)
                 else:
@@ -154,6 +161,7 @@ class PeeringDB(object):
                     for key, value in new_values.items():
                         setattr(network, key, value)
                     network.save()
+                    objects_updated += 1
                     self.logger.debug(
                         'updated as%s from peeringdb', network.asn)
             except Network.DoesNotExist:
@@ -161,13 +169,11 @@ class PeeringDB(object):
                     # Create a new Network object
                     network = Network(**new_values)
                     network.save()
+                    objects_added += 1
                     self.logger.debug(
                         'created as%s from peeringdb', network.asn)
 
-            if not is_deleted:
-                number_of_objects_synced += 1
-
-        return number_of_objects_synced
+        return (objects_added, objects_updated, objects_deleted)
 
     def get_all_network_ixlans(self, last_sync):
         """
@@ -184,8 +190,9 @@ class PeeringDB(object):
         This function returns the number of objects that have been successfully
         synchronized to the local database.
         """
-        # Set time of sync
-        number_of_objects_synced = 0
+        objects_added = 0
+        objects_updated = 0
+        objects_deleted = 0
 
         # Get all network IX LAN changes since the last sync
         search = {'since': last_sync, 'depth': 0}
@@ -219,8 +226,8 @@ class PeeringDB(object):
                 # If the network IX LAN has been deleted in the source, remove
                 # it from the local database too
                 if is_deleted:
-
                     network_ixlan.delete()
+                    objects_deleted += 1
                     self.logger.debug(
                         'deleted network ixlan #%s from peeringdb', peeringdb_network_ixlan.id)
                 else:
@@ -228,6 +235,7 @@ class PeeringDB(object):
                     for key, value in new_values.items():
                         setattr(network_ixlan, key, value)
                     network_ixlan.save()
+                    objects_updated += 1
                     self.logger.debug(
                         'updated network ixlan #%s from peeringdb', network_ixlan.id)
             except NetworkIXLAN.DoesNotExist:
@@ -235,30 +243,31 @@ class PeeringDB(object):
                     # Create a new NetworkIXLAN object
                     network_ixlan = NetworkIXLAN(**new_values)
                     network_ixlan.save()
+                    objects_added += 1
                     self.logger.debug(
                         'created network ixlan #%s from peeringdb', network_ixlan.id)
 
-            if not is_deleted:
-                number_of_objects_synced += 1
-
-        return number_of_objects_synced
+        return (objects_added, objects_updated, objects_deleted)
 
     def update_local_database(self, last_sync):
         # Set time of sync
-        number_of_objects_synced = 0
         time_of_sync = timezone.now()
 
         # Make a single transaction, avoid too much database commits (poor
         # speed) and fail the whole synchronization if something goes wrong
         with transaction.atomic():
             # Try to sync objects
-            number_of_objects_synced += self.get_all_networks(last_sync)
-            number_of_objects_synced += self.get_all_network_ixlans(last_sync)
+            networks_changes = self.get_all_networks(last_sync)
+            network_ixlans_changes = self.get_all_network_ixlans(last_sync)
 
-        # If objects have actually been cached
-        if number_of_objects_synced > 0:
-            # Save the last sync time
-            self.record_last_sync(time_of_sync, number_of_objects_synced)
+        objects_changes = {
+            'added': networks_changes[0] + network_ixlans_changes[0],
+            'updated': networks_changes[1] + network_ixlans_changes[1],
+            'deleted': networks_changes[2] + network_ixlans_changes[2],
+        }
+
+        # Save the last sync time
+        self.record_last_sync(time_of_sync, objects_changes)
 
     def get_autonomous_system(self, asn):
         """

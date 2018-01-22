@@ -16,12 +16,14 @@ class PeeringDBTestCase(TestCase):
 
         # Test of sync record with no objects
         time_of_sync = timezone.now()
-        api.record_last_sync(time_of_sync, 0)
+        api.record_last_sync(
+            time_of_sync, {'added': 0, 'updated': 0, 'deleted': 0})
         self.assertEqual(api.get_last_sync_time(), 0)
 
         # Test of sync record with one object
         time_of_sync = timezone.now()
-        api.record_last_sync(time_of_sync, 1)
+        api.record_last_sync(
+            time_of_sync, {'added': 1, 'updated': 0, 'deleted': 0})
         self.assertEqual(api.get_last_sync_time(),
                          int(time_of_sync.timestamp()))
 

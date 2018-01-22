@@ -2,12 +2,19 @@
 {% block title %}Synchronization Logs{% endblock %}
 {% block user_content %}
           <table class="table table-hover">
-            <thead><tr><th>Time</th><th>Number of Objects Synchronized</th></tr></thead>
+            <thead><tr>
+              <th>Time</th>
+              <th>Objects Added</th>
+              <th>Objects Updated</th>
+              <th>Objects Deleted</th>
+            </tr></thead>
             <tbody>
               {% for synchronization in synchronizations %}
               <tr>
                 <td>{{ synchronization.time|date:'SHORT_DATETIME_FORMAT' }}</td>
-                <td>{{ synchronization.number_of_objects }}</td>
+                <td>{{ synchronization.added }}</td>
+                <td>{{ synchronization.updated }}</td>
+                <td>{{ synchronization.deleted }}</td>
               </tr>
               {% endfor %}
             </tbody>
