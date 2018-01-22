@@ -122,7 +122,7 @@ class CommunityFilterForm(BootstrapMixin, forms.Form):
     model = Community
     q = forms.CharField(required=False, label='Search')
     name = forms.CharField(required=False, label='Name')
-    value = forms.CharField(required=False, label='value')
+    value = forms.CharField(required=False, label='Value')
 
 
 class ConfigurationTemplateForm(BootstrapMixin, forms.ModelForm):
