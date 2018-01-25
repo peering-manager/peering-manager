@@ -15,4 +15,4 @@ BASE_PATH = ''
 TIME_ZONE = 'Europe/Paris'
 
 # Autonomous System number
-MY_ASN = 15169
+MY_ASN = 64512
