@@ -43,7 +43,7 @@ file.
 # cp peering_manager/configuration.example.py peering_manager/configuration.py
 ```
 
-For now, the configuration is pretty simple and should look like this.
+For now, the configuration is pretty simple and should look like this, once it has been edited.
 ```
 # allow any hosts
 ALLOWED_HOSTS = ['*']
@@ -56,6 +56,9 @@ BASE_PATH = ''
 
 # time zone to use for date.
 TIME_ZONE = 'Europe/Paris'
+
+# Autonomous System number
+MY_ASN = 64512
 ```
 
 ## Database Migrations
