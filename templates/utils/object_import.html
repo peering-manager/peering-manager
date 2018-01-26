@@ -1,5 +1,6 @@
 {% extends '_base.html' %}
 {% load form_helpers %}
+{% load helpers %}
 {% block content %}
       <form method="post" class="form-horizontal">
         {% csrf_token %}
@@ -33,12 +34,19 @@
             <table class="table">
               <tr>
                 <th>Field</th>
+                <th>Required</th>
                 <th>Description</th>
               </tr>
               {% for name, field in fields.items %}
               <tr>
                 <td><code>{{ name }}</code></td>
-                <td>{{ field.help_text|default:field.label }}</td>
+                <td>{% if field.required %}<i class="fa fa-check-square" aria-hidden="true"></i>{% endif %}</td>
+                <td>
+                  {{ field.help_text|default:field.label }}
+                  {% if field.choices %}
+                  <br /><small class="text-muted">Choices: {{ field|example_choices }}</small>
+                  {% endif %}
+                </td>
               </tr>
               {% endfor %}
             </table>

@@ -19,6 +19,33 @@ def contains(value, arg):
 
 
 @register.filter()
+def example_choices(field, number=3):
+    examples = []
+
+    for key, label in field.choices:
+        # We have reached the maximum number of examples
+        if len(examples) == number:
+            examples.append('etc.')
+            break
+
+        # No key, weird...
+        if not key:
+            continue
+
+        examples.append(label)
+
+    return ', '.join(examples) or None
+
+
+@register.filter(is_safe=True)
+def markdown(value):
+    """
+    Render text as GitHub-Flavored Markdown.
+    """
+    return mark_safe(md(value, extensions=['mdx_gfm']))
+
+
+@register.filter()
 def notcontains(value, arg):
     """
     Test whether a value does not contain any of a given set of strings.
@@ -28,14 +55,6 @@ def notcontains(value, arg):
         if s in value:
             return False
     return True
-
-
-@register.filter(is_safe=True)
-def markdown(value):
-    """
-    Render text as GitHub-Flavored Markdown.
-    """
-    return mark_safe(md(value, extensions=['mdx_gfm']))
 
 
 @register.simple_tag()

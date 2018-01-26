@@ -80,6 +80,31 @@ class ConfirmationForm(BootstrapMixin, forms.Form):
         required=True, widget=forms.HiddenInput(), initial=True)
 
 
+class CSVChoiceField(forms.ChoiceField):
+    """
+    This field helps to get a database usable value from a human-readable value as input.
+    """
+
+    def __init__(self, choices, *args, **kwargs):
+        super(CSVChoiceField, self).__init__(choices, *args, **kwargs)
+        self.choices = [(label, label) for value, label in choices]
+        self.choice_values = {label: value for value, label in choices}
+
+    def clean(self, value):
+        value = super(CSVChoiceField, self).clean(value)
+
+        if not value:
+            return None
+
+        if value not in self.choice_values:
+            raise forms.ValidationError('Invalid choice: {}'.format(value))
+
+        if not self.choice_values[value]:
+            return ''
+
+        return self.choice_values[value]
+
+
 class FilterChoiceIterator(forms.models.ModelChoiceIterator):
     def __iter__(self):
         # Filter on "empty" choice using FILTERS_NULL_CHOICE_VALUE (instead of an empty string)

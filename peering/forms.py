@@ -4,7 +4,8 @@ from django import forms
 
 from .models import (AutonomousSystem, Community,
                      ConfigurationTemplate, InternetExchange, PeeringSession, Router)
-from utils.forms import BootstrapMixin, FilterChoiceField, SlugField
+from utils.forms import (BootstrapMixin, CSVChoiceField,
+                         FilterChoiceField, SlugField)
 
 
 class CommentField(forms.CharField):
@@ -287,6 +288,9 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
 
 
 class RouterCSVForm(BootstrapMixin, forms.ModelForm):
+    platform = CSVChoiceField(choices=Router.PLATFORM_CHOICES, required=False,
+                              help_text='The router platform, used to interact with it')
+
     class Meta:
         model = Router
 
