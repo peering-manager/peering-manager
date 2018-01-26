@@ -255,7 +255,7 @@ class Router(models.Model):
     name = models.CharField(max_length=128)
     hostname = models.CharField(max_length=256)
     platform = models.CharField(max_length=50, choices=PLATFORM_CHOICES, blank=True,
-                                help_text='The router platform, used to interact with it')
+                                help_text='The router platform, used to interact with it (iosxr, junos or leave empty for other)')
     comment = models.TextField(blank=True)
 
     class Meta:
