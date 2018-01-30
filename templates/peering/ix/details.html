@@ -29,14 +29,6 @@
                 <td><span class="text-muted">None</span></td>
                 {% endif %}
               </tr>
-              <tr>
-                <td>Members</td>
-                <td>{{ internet_exchange.get_autonomous_systems_count }}</td>
-              </tr>
-              <tr>
-                <td>Peering Sessions</td>
-                <td>{{ internet_exchange.get_peering_sessions_count }}</td>
-              </tr>
               {% if internet_exchange.configuration_template %}
               <tr>
                 <td>Configuration Template</td>
