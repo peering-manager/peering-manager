@@ -272,6 +272,14 @@ class PeeringSessionFilterForm(BootstrapMixin, forms.Form):
     ip_address = forms.CharField(required=False, label='IP Address')
 
 
+class PeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
+    model = PeeringSession
+    q = forms.CharField(required=False, label='Search')
+    ip_address = forms.CharField(required=False, label='IP Address')
+    internet_exchange__slug = FilterChoiceField(queryset=InternetExchange.objects.all(),
+                                                to_field_name='slug', label='Internet Exchange')
+
+
 class RouterForm(BootstrapMixin, forms.ModelForm):
     comment = CommentField()
 

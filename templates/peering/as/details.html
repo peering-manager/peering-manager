@@ -1,21 +1,6 @@
-{% extends '_base.html' %}
+{% extends 'peering/as/_base.html' %}
 {% load helpers %}
-{% block content %}
-      {% if request.user.is_authenticated %}
-      <div class="pull-right">
-        <a href="{% url 'peering:as_peeringdb_sync' asn=autonomous_system.asn %}" class="btn btn-primary">
-          <span class="fa fa-refresh" aria-hidden="true"></span> Sync with PeeringDB
-        </a>
-        <a href="{% url 'peering:as_edit' asn=autonomous_system.asn %}" class="btn btn-warning">
-          <span class="fa fa-pencil" aria-hidden="true"></span> Edit
-        </a>
-        <a href="{% url 'peering:as_delete' asn=autonomous_system.asn %}" class="btn btn-danger">
-          <span class="fa fa-trash" aria-hidden="true"></span> Delete
-        </a>
-      </div>
-      {% endif %}
-      <h1>{% block title %}{{ autonomous_system }}{% endblock %}</h1>
-      <p><small class="text-muted">Last updated: {{ autonomous_system.updated }}</small></p>
+{% block subcontent %}
       <div class="row">
         <div class="col-md-6">
           <div class="panel panel-default">
@@ -49,6 +34,8 @@
               </tr>
             </table>
           </div>
+        </div>
+        <div class="col-md-6">
           <div class="panel panel-default">
             <div class="panel-heading">
               <strong>Comments</strong>
@@ -61,35 +48,6 @@
               {% endif %}
             </div>
           </div>
-        </div>
-        <div class="col-md-6">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <strong>Peering Details</strong>
-            </div>
-            <table class="table table-hover panel-body attr-table">
-              <tr>
-                <td>Peering Count</td>
-                <td>{{ peering_sessions_count }}</td>
-              </tr>
-              <tr>
-                <td>Internet Exchanges Count</td>
-                <td>{{ internet_exchanges|length }}</td>
-              </tr>
-            </table>
-          </div>
-          {% if internet_exchanges|length > 0 %}
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <strong>Internet Exchanges</strong>
-            </div>
-            <ul class="list-group">
-              {% for ix in internet_exchanges %}
-              <li class="list-group-item">{{ ix }}<a class="btn btn-xs btn-info pull-right" href="{% url 'peering:ix_details' slug=ix.slug %}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></li>
-              {% endfor %}
-            </ul>
-          </div>
-          {% endif %}
         </div>
       </div>
 {% endblock %}

@@ -97,6 +97,21 @@ class PeeringSessionTable(BaseTable):
         fields = ('asn', 'as_name', 'ip_address', 'details',)
 
 
+class PeeringSessionTableForAS(BaseTable):
+    """
+    Table for PeeringSession lists
+    """
+    ip_address = tables.Column(verbose_name='IP Address')
+    ix = tables.Column(verbose_name='Internet Exchange',
+                       accessor='internet_exchange.name')
+    details = tables.TemplateColumn(verbose_name=' ',
+                                    template_code='<div class="pull-right"><a href="{% url \'peering:peering_session_details\' id=record.id %}" class="btn btn-xs btn-info"><span class="fa fa-info-circle" aria-hidden="true"></span> Details</a> <a href="{% url \'peering:peering_session_edit\' id=record.id %}" class="btn btn-xs btn-warning"><span class="fa fa-pencil" aria-hidden="true"></span> Edit</a> <a href="{% url \'peering:peering_session_delete\' id=record.id %}" class="btn btn-xs btn-danger"><span class="fa fa-trash" aria-hidden="true"></span> Delete</a></div>', orderable=False)
+
+    class Meta(BaseTable.Meta):
+        model = PeeringSession
+        fields = ('ip_address', 'ix', 'details',)
+
+
 class PeerTable(tables.Table):
     """
     Table for peer lists

@@ -17,6 +17,8 @@ urlpatterns = [
         views.ASDelete.as_view(), name='as_delete'),
     url(r'^as/(?P<asn>[0-9]+)/sync/$',
         views.ASPeeringDBSync.as_view(), name='as_peeringdb_sync'),
+    url(r'^as/(?P<asn>[\w-]+)/sessions/$',
+        views.ASPeeringSessions.as_view(), name='as_peering_sessions'),
 
     # BGP Communities
     url(r'^community/$', views.CommunityList.as_view(), name='community_list'),

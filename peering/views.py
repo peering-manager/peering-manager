@@ -17,11 +17,11 @@ import json
 from .filters import (AutonomousSystemFilter, CommunityFilter, ConfigurationTemplateFilter,
                       InternetExchangeFilter, PeeringSessionFilter, RouterFilter)
 from .forms import (AutonomousSystemForm, AutonomousSystemCSVForm, AutonomousSystemFilterForm, CommunityForm, CommunityCSVForm, CommunityFilterForm, ConfigurationTemplateForm, ConfigurationTemplateFilterForm, InternetExchangeForm,
-                    InternetExchangePeeringDBForm, InternetExchangeCommunityForm, InternetExchangeCSVForm, InternetExchangeFilterForm, PeeringSessionForm, PeeringSessionFilterForm, RouterForm, RouterCSVForm, RouterFilterForm)
+                    InternetExchangePeeringDBForm, InternetExchangeCommunityForm, InternetExchangeCSVForm, InternetExchangeFilterForm, PeeringSessionForm, PeeringSessionFilterForm, PeeringSessionFilterFormForAS, RouterForm, RouterCSVForm, RouterFilterForm)
 from .models import (AutonomousSystem, Community,
                      ConfigurationTemplate, InternetExchange, PeeringSession, Router)
 from .tables import (AutonomousSystemTable, CommunityTable, ConfigurationTemplateTable,
-                     InternetExchangeTable, PeerTable, PeeringSessionTable, RouterTable)
+                     InternetExchangeTable, PeerTable, PeeringSessionTable, PeeringSessionTableForAS, RouterTable)
 from peeringdb.api import PeeringDB
 from peeringdb.models import Network, NetworkIXLAN
 from utils.forms import ConfirmationForm
@@ -55,8 +55,6 @@ class ASDetails(View):
         autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
         context = {
             'autonomous_system': autonomous_system,
-            'internet_exchanges': autonomous_system.get_internet_exchanges(),
-            'peering_sessions_count': autonomous_system.get_peering_sessions_count(),
         }
         return render(request, 'peering/as/details.html', context)
 
@@ -85,6 +83,38 @@ class ASPeeringDBSync(View):
                 request, 'AS details have been synchronized with PeeringDB.')
 
         return redirect(autonomous_system.get_absolute_url())
+
+
+class ASPeeringSessions(ModelListView):
+    filter = PeeringSessionFilter
+    filter_form = PeeringSessionFilterFormForAS
+    table = PeeringSessionTableForAS
+    template = 'peering/as/sessions.html'
+
+    def build_queryset(self, request, kwargs):
+        queryset = None
+        # The queryset needs to be composed of PeeringSession objects but they
+        # are linked to an AS. So first of all we need to retrieve the AS for
+        # which we want to get the peering sessions.
+        if 'asn' in kwargs:
+            autonomous_system = get_object_or_404(
+                AutonomousSystem, asn=kwargs['asn'])
+            queryset = autonomous_system.peeringsession_set.order_by(
+                'internet_exchange', 'ip_address')
+
+        return queryset
+
+    def extra_context(self, kwargs):
+        extra_context = {}
+
+        # Since we are in the context of an AS we need to keep the reference
+        # for it
+        if 'asn' in kwargs:
+            autonomous_system = get_object_or_404(
+                AutonomousSystem, asn=kwargs['asn'])
+            extra_context.update({'autonomous_system': autonomous_system})
+
+        return extra_context
 
 
 class CommunityList(ModelListView):

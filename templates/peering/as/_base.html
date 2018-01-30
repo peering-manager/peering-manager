@@ -1,0 +1,36 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block content %}
+      {% if request.user.is_authenticated %}
+      <div class="pull-right">
+        <a href="{% url 'peering:as_peeringdb_sync' asn=autonomous_system.asn %}" class="btn btn-primary">
+          <span class="fa fa-refresh" aria-hidden="true"></span> Sync with PeeringDB
+        </a>
+        <a href="{% url 'peering:as_edit' asn=autonomous_system.asn %}" class="btn btn-warning">
+          <span class="fa fa-pencil" aria-hidden="true"></span> Edit
+        </a>
+        <a href="{% url 'peering:as_delete' asn=autonomous_system.asn %}" class="btn btn-danger">
+          <span class="fa fa-trash" aria-hidden="true"></span> Delete
+        </a>
+      </div>
+      {% endif %}
+      <h1>{% block title %}{{ autonomous_system }}{% endblock %}</h1>
+      <p><small class="text-muted">Last updated: {{ autonomous_system.updated }}</small></p>
+      {% if autonomous_system.get_peering_sessions_count > 0 %}
+      <ul class="nav nav-tabs">
+        <li role="presentation" {% if request.path|notcontains:'/sessions/' %}class="active"{% endif %}>
+          <a href="{% url 'peering:as_details' asn=autonomous_system.asn %}">
+            <span class="fa fa-info-circle" aria-hidden="true"></span>
+            Info
+          </a>
+        </li>
+        <li role="presentation" {% if request.path|contains:'/sessions/' %}class="active"{% endif %}>
+          <a href="{% url 'peering:as_peering_sessions' asn=autonomous_system.asn %}">
+            <span class="fa fa-sitemap" aria-hidden="true"></span>
+            Peering Sessions
+          </a>
+        </li>
+      </ul>
+      {% endif %}
+      {% block subcontent %}{% endblock %}
+{% endblock %}

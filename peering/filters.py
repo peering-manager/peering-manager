@@ -126,13 +126,16 @@ class PeeringSessionFilter(django_filters.FilterSet):
     class Meta:
         model = PeeringSession
         fields = ['q', 'ip_address', 'autonomous_system__asn',
-                  'autonomous_system__name']
+                  'autonomous_system__name', 'internet_exchange__name',
+                  'internet_exchange__slug']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         qs_filter = (
             Q(autonomous_system__name__icontains=value) |
+            Q(internet_exchange__name__icontains=value) |
+            Q(internet_exchange__slug__icontains=value) |
             Q(ip_address__icontains=value) |
             Q(comment__icontains=value)
         )
