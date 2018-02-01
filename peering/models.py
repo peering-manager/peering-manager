@@ -187,18 +187,24 @@ class InternetExchange(models.Model):
         api = PeeringDB()
         lan = api.get_ix_network(self.peeringdb_id)
         peeringdb_peers = api.get_peers_for_ix(lan.ix_id)
+        known_peerings = []
 
+        # Grab all addresses we are connected to
+        for session in self.peeringsession_set.all():
+            known_peerings.append(ipaddress.ip_address(session.ip_address))
+
+        # Check if peers addresses are in the list of addresses we are already
+        # connected to.
         for peeringdb_peer in peeringdb_peers:
-            peering_yet = False
+            peeringdb_peer['has_ipv6'] = True if peeringdb_peer['network_ixlan'].ipaddr6 else None
+            peeringdb_peer['has_ipv4'] = True if peeringdb_peer['network_ixlan'].ipaddr4 else None
+            peeringdb_peer['peering6'] = peeringdb_peer['has_ipv6'] and ipaddress.ip_address(
+                peeringdb_peer['network_ixlan'].ipaddr6) in known_peerings
+            peeringdb_peer['peering4'] = peeringdb_peer['has_ipv4'] and ipaddress.ip_address(
+                peeringdb_peer['network_ixlan'].ipaddr4) in known_peerings
+            peeringdb_peer['internet_exchange'] = self
 
-            for session in self.peeringsession_set.all():
-                if session.ip_address == peeringdb_peer['network_ixlan'].ipaddr6 or session.ip_address == peeringdb_peer['network_ixlan'].ipaddr4:
-                    peering_yet = True
-
-            if not peering_yet:
-                # Add IX reference to each peer
-                peeringdb_peer['internet_exchange'] = self
-                peers.append(peeringdb_peer)
+            peers.append(peeringdb_peer)
 
         return peers
 

@@ -29,7 +29,7 @@ def example_choices(field, number=3):
             break
 
         # No key, weird...
-        if not key:
+        if not key or not label:
             continue
 
         examples.append(label)

@@ -116,6 +116,13 @@ class PeerTable(tables.Table):
     """
     Table for peer lists
     """
+    PEER_ACTION = """
+    <div class="pull-right">
+    {% if not record.peering6 and record.has_ipv6 or not record.peering4 and record.has_ipv4 %}
+    <a href="{% url 'peering:ix_add_peer' slug=internet_exchange.slug network_id=record.network.id network_ixlan_id=record.network_ixlan.id %}" class="btn btn-xs btn-primary"><span class="fa fa-link" aria-hidden="true"></span> Peer</a>
+    {% endif %}
+    </div>
+    """
     empty_text = 'No peers found.'
     asn = tables.Column(verbose_name='ASN', accessor='network.asn')
     name = tables.Column(verbose_name='AS Name', accessor='network.name')
@@ -133,12 +140,16 @@ class PeerTable(tables.Table):
     ipv4_address = tables.Column(verbose_name='IPv4 Address',
                                  accessor='network_ixlan.ipaddr4',
                                  orderable=False)
-    add_peer = tables.TemplateColumn(verbose_name='',
-                                     template_code='<div class="pull-right"><a href="{% url \'peering:ix_add_peer\' slug=internet_exchange.slug network_id=record.network.id network_ixlan_id=record.network_ixlan.id %}" class="btn btn-xs btn-primary"><span class="fa fa-link" aria-hidden="true"></span> Peer</a></div>', orderable=False)
+    peer_action = tables.TemplateColumn(verbose_name='',
+                                        template_code=PEER_ACTION,
+                                        orderable=False)
 
     class Meta:
         attrs = {
             'class': 'table table-hover table-headings',
+        }
+        row_attrs = {
+            'class': lambda record: 'success' if record['has_ipv6'] and record['peering6'] or record['has_ipv4'] and record['peering4'] else '',
         }
 
 
