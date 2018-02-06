@@ -6,6 +6,7 @@ import requests
 
 from django.db import transaction
 from django.conf import settings
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.utils import timezone
 
 from .models import Network, NetworkIXLAN, Synchronization
@@ -100,16 +101,16 @@ class PeeringDB(object):
 
         return int(last_sync_time)
 
-    def get_all_networks(self, last_sync):
+    def synchronize_objects(self, last_sync, namespace, model):
         """
-        Synchronizes all the Network objects of the PeeringDB to the local
-        database. This function is meant to be run regularly to update the
-        local database with the latest changes.
+        Synchronizes all the objects of a namespace of the PeeringDB to the
+        local database. This function is meant to be run regularly to update
+        the local database with the latest changes.
 
-        If a Network already exists locally it will be updated and no new entry
-        will be created.
+        If the object already exists locally it will be updated and no new
+        entry will be created.
 
-        If a Network is marked as deleted in the PeeringDB, it will be locally
+        If the object is marked as deleted in the PeeringDB, it will be locally
         deleted.
 
         This function returns the number of objects that have been successfully
@@ -121,149 +122,91 @@ class PeeringDB(object):
 
         # Get all network changes since the last sync
         search = {'since': last_sync, 'depth': 0}
-        result = self.lookup(NAMESPACES['network'], search)
+        result = self.lookup(namespace, search)
 
         if not result:
             return None
 
         for data in result['data']:
-            peeringdb_network = Object(data)
+            peeringdb_object = Object(data)
+            marked_as_deleted = peeringdb_object.status == 'deleted'
+            marked_as_new = False
 
-            # Ignore our own AS
-            if peeringdb_network.asn == settings.MY_ASN:
+            try:
+                # Get the local object by its ID
+                local_object = model.objects.get(pk=peeringdb_object.id)
+
+                # Object marked as deleted so remove it locally too
+                if marked_as_deleted:
+                    local_object.delete()
+                    objects_deleted += 1
+                    self.logger.debug('deleted %s #%s from local database',
+                                      model._meta.verbose_name.lower(), peeringdb_object.id)
+                    continue
+            except model.DoesNotExist:
+                # Local object does not exist so create it
+                local_object = model()
+                marked_as_new = True
+
+            # Set the value for each field
+            for model_field in model._meta.get_fields():
+                field_name = model_field.name
+                value = getattr(peeringdb_object, field_name)
+
+                try:
+                    field = local_object._meta.get_field(field_name)
+                except FieldDoesNotExist:
+                    field = None
+                    self.logger.error(
+                        'bug found? field: %s for model: %s', field_name, model._meta.verbose_name.lower())
+
+                if field:
+                    setattr(local_object, field_name, value)
+
+            try:
+                local_object.full_clean()
+            except ValidationError:
+                self.logger.error('bug found? error while validating id: %s for model: %s',
+                                  peeringdb_object.id, model._meta.verbose_name.lower())
                 continue
 
-            # Has the network been deleted?
-            is_deleted = peeringdb_network.status == 'deleted'
+            # Save the local object
+            local_object.save()
 
-            new_values = {
-                'id': peeringdb_network.id,
-                'asn': peeringdb_network.asn,
-                'name': peeringdb_network.name,
-                'irr_as_set': peeringdb_network.irr_as_set,
-                'info_prefixes6': peeringdb_network.info_prefixes6,
-                'info_prefixes4': peeringdb_network.info_prefixes4,
-            }
-
-            try:
-                # Get the existing Network object
-                network = Network.objects.get(asn=peeringdb_network.asn)
-
-                # If the network has been deleted in the source, remove it from
-                # the local database too
-                if is_deleted:
-                    network.delete()
-                    objects_deleted += 1
-                    self.logger.debug(
-                        'deleted as%s from peeringdb', peeringdb_network.asn)
-                else:
-                    # Update the fields
-                    for key, value in new_values.items():
-                        setattr(network, key, value)
-                    network.save()
-                    objects_updated += 1
-                    self.logger.debug(
-                        'updated as%s from peeringdb', network.asn)
-            except Network.DoesNotExist:
-                if not is_deleted:
-                    # Create a new Network object
-                    network = Network(**new_values)
-                    network.save()
-                    objects_added += 1
-                    self.logger.debug(
-                        'created as%s from peeringdb', network.asn)
-
-        return (objects_added, objects_updated, objects_deleted)
-
-    def get_all_network_ixlans(self, last_sync):
-        """
-        Synchronizes all the NetworkIXLAN objects of the PeeringDB to the local
-        database. This function is meant to be run regularly to update the
-        local database with the latest changes.
-
-        If a NetworkIXLAN already exists locally it will be updated and no new
-        entry will be created.
-
-        If a NetworkIXLAN is marked as deleted in the PeeringDB, it will be
-        locally deleted.
-
-        This function returns the number of objects that have been successfully
-        synchronized to the local database.
-        """
-        objects_added = 0
-        objects_updated = 0
-        objects_deleted = 0
-
-        # Get all network IX LAN changes since the last sync
-        search = {'since': last_sync, 'depth': 0}
-        result = self.lookup(
-            NAMESPACES['network_internet_exchange_lan'], search)
-
-        if not result:
-            return None
-
-        for data in result['data']:
-            peeringdb_network_ixlan = Object(data)
-
-            # Has the network IX LAN been deleted?
-            is_deleted = peeringdb_network_ixlan.status == 'deleted'
-
-            new_values = {
-                'id': peeringdb_network_ixlan.id,
-                'asn': peeringdb_network_ixlan.asn,
-                'name': peeringdb_network_ixlan.name,
-                'ipaddr6': peeringdb_network_ixlan.ipaddr6,
-                'ipaddr4': peeringdb_network_ixlan.ipaddr4,
-                'is_rs_peer': peeringdb_network_ixlan.is_rs_peer,
-                'ix_id': peeringdb_network_ixlan.ix_id,
-            }
-
-            try:
-                # Get the existing NetworkIXLAN object
-                network_ixlan = NetworkIXLAN.objects.get(
-                    id=peeringdb_network_ixlan.id)
-
-                # If the network IX LAN has been deleted in the source, remove
-                # it from the local database too
-                if is_deleted:
-                    network_ixlan.delete()
-                    objects_deleted += 1
-                    self.logger.debug(
-                        'deleted network ixlan #%s from peeringdb', peeringdb_network_ixlan.id)
-                else:
-                    # Update the fields
-                    for key, value in new_values.items():
-                        setattr(network_ixlan, key, value)
-                    network_ixlan.save()
-                    objects_updated += 1
-                    self.logger.debug(
-                        'updated network ixlan #%s from peeringdb', network_ixlan.id)
-            except NetworkIXLAN.DoesNotExist:
-                if not is_deleted:
-                    # Create a new NetworkIXLAN object
-                    network_ixlan = NetworkIXLAN(**new_values)
-                    network_ixlan.save()
-                    objects_added += 1
-                    self.logger.debug(
-                        'created network ixlan #%s from peeringdb', network_ixlan.id)
+            # Update counters
+            if marked_as_new:
+                objects_added += 1
+                self.logger.debug(
+                    'created %s #%s from peeringdb', model._meta.verbose_name.lower(), local_object.id)
+            else:
+                objects_updated += 1
+                self.logger.debug(
+                    'updated %s #%s from peeringdb', model._meta.verbose_name.lower(), local_object.id)
 
         return (objects_added, objects_updated, objects_deleted)
 
     def update_local_database(self, last_sync):
         # Set time of sync
         time_of_sync = timezone.now()
+        objects_to_sync = [
+            (NAMESPACES['network'], Network),
+            (NAMESPACES['network_internet_exchange_lan'], NetworkIXLAN),
+        ]
+        list_of_changes = []
 
         # Make a single transaction, avoid too much database commits (poor
         # speed) and fail the whole synchronization if something goes wrong
         with transaction.atomic():
             # Try to sync objects
-            networks_changes = self.get_all_networks(last_sync)
-            network_ixlans_changes = self.get_all_network_ixlans(last_sync)
+            for (namespace, object_type) in objects_to_sync:
+                changes = self.synchronize_objects(
+                    last_sync, namespace, object_type)
+                list_of_changes.append(changes)
 
         objects_changes = {
-            'added': networks_changes[0] + network_ixlans_changes[0],
-            'updated': networks_changes[1] + network_ixlans_changes[1],
-            'deleted': networks_changes[2] + network_ixlans_changes[2],
+            'added': sum(added for added, _, _ in list_of_changes),
+            'updated': sum(updated for _, updated, _ in list_of_changes),
+            'deleted': sum(deleted for _, _, deleted in list_of_changes),
         }
 
         # Save the last sync time
