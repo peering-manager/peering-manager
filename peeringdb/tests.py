@@ -84,3 +84,16 @@ class PeeringDBTestCase(TestCase):
             found_ix_networks.append(ix_network.id)
 
         self.assertEqual(sorted(found_ix_networks), sorted(known_ix_networks))
+
+    def test_get_prefixes_for_ix_network(self):
+        api = PeeringDB()
+        ix_network_id = 29146
+
+        known_prefixes = ['2001:7f8:1::/64', '80.249.208.0/21']
+        found_prefixes = []
+
+        ix_prefixes = api.get_prefixes_for_ix_network(ix_network_id)
+        for ix_prefix in ix_prefixes:
+            found_prefixes.append(ix_prefix['prefix'])
+
+        self.assertEqual(sorted(found_prefixes), sorted(known_prefixes))
