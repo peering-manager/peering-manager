@@ -62,6 +62,7 @@ class PeeringDBTestCase(TestCase):
             'asn': ix_network.asn,
             'name': ix_network.name,
             'ix_id': ix_network.ix_id,
+            'ixlan_id': ix_network.ixlan_id,
         }
         network_ixlan = NetworkIXLAN(**details)
         network_ixlan.save()
