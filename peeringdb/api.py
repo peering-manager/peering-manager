@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.utils import timezone
 
-from .models import Network, NetworkIXLAN, Synchronization
+from .models import Network, NetworkIXLAN, Prefix, Synchronization
 
 
 NAMESPACES = {
@@ -191,6 +191,7 @@ class PeeringDB(object):
         objects_to_sync = [
             (NAMESPACES['network'], Network),
             (NAMESPACES['network_internet_exchange_lan'], NetworkIXLAN),
+            (NAMESPACES['internet_exchange_prefix'], Prefix),
         ]
         list_of_changes = []
 
@@ -278,6 +279,42 @@ class PeeringDB(object):
                 network_ixlans.append(Object(ix_network))
 
         return network_ixlans
+
+    def get_prefixes_for_ix_network(self, ix_network_id):
+        """
+        Returns a list of all prefixes used by an IX network.
+        """
+        prefixes = []
+
+        # Get the NetworkIXLAN object using its ID
+        network_ixlan = self.get_ix_network(ix_network_id)
+
+        if network_ixlan:
+            # Try to get prefixes from cache
+            ix_prefixes = Prefix.objects.filter(
+                ixlan_id=network_ixlan.ixlan_id)
+
+            # If not cached data, try to fetch online
+            if not ix_prefixes:
+                search = {'ixlan_id': network_ixlan.ixlan_id}
+                result = self.lookup(
+                    NAMESPACES['internet_exchange_prefix'], search)
+
+                if not result:
+                    return prefixes
+
+                ix_prefixes = []
+                for ix_prefix in result['data']:
+                    ix_prefixes.append(Object(ix_prefix))
+
+            # Build a list with protocol and prefix couples
+            for ix_prefix in ix_prefixes:
+                prefixes.append({
+                    'protocol': ix_prefix.protocol,
+                    'prefix': ix_prefix.prefix,
+                })
+
+        return prefixes
 
     def get_peers_for_ix(self, ix_id):
         """

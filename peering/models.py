@@ -136,6 +136,9 @@ class InternetExchange(models.Model):
     def get_autonomous_systems_count(self):
         return len(self.get_autonomous_systems())
 
+    def get_prefixes(self):
+        return [] if not self.peeringdb_id else PeeringDB().get_prefixes_for_ix_network(self.peeringdb_id)
+
     def get_config(self):
         peering_sessions = self.peeringsession_set.all()
 

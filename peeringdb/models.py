@@ -28,6 +28,7 @@ class NetworkIXLAN(models.Model):
         protocol='IPv4', blank=True, null=True)
     is_rs_peer = models.BooleanField(default=False)
     ix_id = models.PositiveIntegerField()
+    ixlan_id = models.PositiveIntegerField()
 
     class Meta:
         ordering = ['asn', 'ipaddr6', 'ipaddr4']
@@ -36,6 +37,20 @@ class NetworkIXLAN(models.Model):
 
     def __str__(self):
         return 'AS{} on {} - IPv6: {} - IPv4: {}'.format(self.asn, self.name, self.ipaddr6, self.ipaddr4)
+
+
+class Prefix(models.Model):
+    protocol = models.CharField(max_length=8)
+    prefix = models.CharField(max_length=64)
+    ixlan_id = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ['prefix']
+        verbose_name = 'IX Prefix'
+        verbose_name_plural = 'IX Prefixes'
+
+    def __str__(self):
+        return '{} - {}'.format(self.protocol, self.prefix)
 
 
 class Synchronization(models.Model):
