@@ -36,18 +36,18 @@ class AutonomousSystem(models.Model):
     def create_from_peeringdb(asn):
         peeringdb_network = PeeringDB().get_autonomous_system(asn)
 
-        if not peering_network:
+        if not peeringdb_network:
             return None
 
         try:
-            return AutonomousSystem.objects.get(asn=peering_network.asn)
+            return AutonomousSystem.objects.get(asn=peeringdb_network.asn)
         except AutonomousSystem.DoesNotExist:
             values = {
-                'asn': peering_network.asn,
-                'name': peering_network.name,
-                'irr_as_set': peering_network.irr_as_set,
-                'ipv6_max_prefixes': peering_network.info_prefixes6,
-                'ipv4_max_prefixes': peering_network.info_prefixes4,
+                'asn': peeringdb_network.asn,
+                'name': peeringdb_network.name,
+                'irr_as_set': peeringdb_network.irr_as_set,
+                'ipv6_max_prefixes': peeringdb_network.info_prefixes6,
+                'ipv4_max_prefixes': peeringdb_network.info_prefixes4,
             }
             autonomous_system = AutonomousSystem(**values)
             autonomous_system.save()
