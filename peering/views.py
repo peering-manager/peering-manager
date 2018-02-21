@@ -27,7 +27,8 @@ from peeringdb.models import Network, NetworkIXLAN
 from utils.forms import ConfirmationForm
 from utils.models import UserAction
 from utils.paginators import EnhancedPaginator
-from utils.views import AddOrEditView, DeleteView, ImportView, ModelListView, TableImportView
+from utils.views import (AddOrEditView, ConfirmationView,
+                         DeleteView, ImportView, ModelListView, TableImportView)
 
 
 class ASList(ModelListView):
@@ -212,6 +213,49 @@ class IXAdd(AddOrEditView):
 class IXImport(ImportView):
     form_model = InternetExchangeCSVForm
     return_url = 'peering:ix_list'
+
+
+class IXImportFromRouter(ConfirmationView):
+    template = 'peering/ix/import_from_router.html'
+
+    def extra_context(self, kwargs):
+        if 'slug' in kwargs:
+            internet_exchange = get_object_or_404(
+                InternetExchange, slug=kwargs['slug'])
+            return {'internet_exchange': internet_exchange}
+        return {}
+
+    def process(self, request, kwargs):
+        internet_exchange = get_object_or_404(
+            InternetExchange, slug=kwargs['slug'])
+        result = internet_exchange.import_peering_sessions_from_router()
+
+        # Set the return URL
+        self.return_url = internet_exchange.get_peering_sessions_list_url()
+
+        if not result:
+            messages.error(
+                request, 'Cannot import peering sessions from the router.')
+        else:
+            if result[0] == 0 and result[1] == 0:
+                messages.warning(
+                    request, 'No peering sessions have been imported.')
+            else:
+                if result[0] > 0:
+                    message = 'Imported {} {}'.format(
+                        result[0], AutonomousSystem._meta.verbose_name_plural)
+                    messages.success(message)
+                    UserAction.objects.log_import(
+                        request.user, AutonomousSystem, message)
+
+                if result[1] > 0:
+                    message = 'Imported {} {}'.format(
+                        result[0], PeeringSession._meta.verbose_name_plural)
+                    messages.success(message)
+                    UserAction.objects.log_import(
+                        request.user, PeeringSession, message)
+
+        return redirect(self.return_url)
 
 
 class IXPeeringDBImport(TableImportView):

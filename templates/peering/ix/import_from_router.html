@@ -1,0 +1,29 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block content %}
+      <div class="row">
+      	<div class="col-md-6 col-md-offset-3">
+          <form method="post">
+            {% csrf_token %}
+            {% for field in form.hidden_fields %}
+            {{ field }}
+            {% endfor %}
+            <div class="panel panel-primary">
+              <div class="panel-heading">{% block title %}Import Peering Sessions from {{ internet_exchange.router }}{% endblock %}</div>
+              <div class="panel-body">
+                <p>Are you sure that you want to import all peering sessions found on the <strong>{{ internet_exchange.router }}</strong> which are within the following prefixes?</p>
+                <ul>
+                  {% for ix_prefix in internet_exchange.get_prefixes %}
+                  <li>{{ ix_prefix.prefix }}</li>
+                  {% endfor %}
+                </ul>
+                <div class="text-right">
+                  <button type="submit" class="btn btn-primary">Import</button>
+                  <a class="btn btn-default" href="{{ internet_exchange.get_peering_sessions_list_url }}">Cancel</a>
+                </div>
+              </div>
+            </div>
+          </form>
+      	</div>
+      </div>
+{% endblock %}

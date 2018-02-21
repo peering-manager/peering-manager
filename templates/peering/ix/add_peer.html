@@ -8,7 +8,7 @@
             {% for field in form.hidden_fields %}
             {{ field }}
             {% endfor %}
-            <div class="panel panel-default">
+            <div class="panel panel-primary">
               <div class="panel-heading">{% block title %}Add AS{{ network.asn }} as peer on {{ internet_exchange }}{% endblock %}</div>
               <div class="panel-body">
                 {% if not known_autonomous_system %}

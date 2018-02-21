@@ -5,7 +5,7 @@ import ipaddress
 import napalm
 
 from django.conf import settings
-from django.db import models
+from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
 
@@ -24,6 +24,35 @@ class AutonomousSystem(models.Model):
 
     class Meta:
         ordering = ['asn']
+
+    @staticmethod
+    def does_exist(asn):
+        try:
+            return AutonomousSystem.objects.get(asn=asn)
+        except AutonomousSystem.DoesNotExist:
+            return None
+
+    @staticmethod
+    def create_from_peeringdb(asn):
+        peeringdb_network = PeeringDB().get_autonomous_system(asn)
+
+        if not peering_network:
+            return None
+
+        try:
+            return AutonomousSystem.objects.get(asn=peering_network.asn)
+        except AutonomousSystem.DoesNotExist:
+            values = {
+                'asn': peering_network.asn,
+                'name': peering_network.name,
+                'irr_as_set': peering_network.irr_as_set,
+                'ipv6_max_prefixes': peering_network.info_prefixes6,
+                'ipv4_max_prefixes': peering_network.info_prefixes4,
+            }
+            autonomous_system = AutonomousSystem(**values)
+            autonomous_system.save()
+
+        return autonomous_system
 
     def save(self, *args, **kwargs):
         self.updated = timezone.now()
@@ -118,6 +147,9 @@ class InternetExchange(models.Model):
     def get_absolute_url(self):
         return reverse('peering:ix_details', kwargs={'slug': self.slug})
 
+    def get_peering_sessions_list_url(self):
+        return reverse('peering:ix_peering_sessions', kwargs={'slug': self.slug})
+
     def get_peer_list_url(self):
         return reverse('peering:ix_peers', kwargs={'slug': self.slug})
 
@@ -211,6 +243,46 @@ class InternetExchange(models.Model):
 
         return peers
 
+    def import_peering_sessions_from_router(self):
+        # No point of discover from router if none used or not on a supported
+        # platform or not linked to a PeeringDB record.
+        if not self.router or not self.router.platform or not self.peeringdb_id:
+            return None
+
+        number_of_peering_sessions = 0
+        number_of_autonomous_systems = 0
+        # Build a list based on prefixes based on PeeringDB records
+        prefixes = [ipaddress.ip_network(prefix['prefix'])
+                    for prefix in self.get_prefixes()]
+        # Gather all existing BGP sessions from the router connected to the IX
+        bgp_sessions = self.router.get_bgp_sessions()
+
+        with transaction.atomic():
+            # For each BGP session check if the address fits in on of the prefixes
+            for bgp_session in bgp_sessions:
+                for prefix in prefixes:
+                    # If the address fits, create a new PeeringSession object and a
+                    # new AutonomousSystem object if they does not exist already
+                    if bgp_session['ip_address'] in prefix:
+                        if not PeeringSession.does_exist(str(bgp_session['ip_address'])):
+                            autonomous_system = AutonomousSystem.does_exist(
+                                bgp_session['remote_asn'])
+                            if not autonomous_system:
+                                autonomous_system = AutonomousSystem.create_from_peeringdb(
+                                    bgp_session['remote_asn'])
+                                number_of_autonomous_systems += 1
+
+                            values = {
+                                'autonomous_system': autonomous_system,
+                                'internet_exchange': self,
+                                'ip_address': str(bgp_session['ip_address']),
+                            }
+                            peering_session = PeeringSession(**values)
+                            peering_session.save()
+                            number_of_peering_sessions += 1
+
+        return (number_of_autonomous_systems, number_of_peering_sessions)
+
     def __str__(self):
         return self.name
 
@@ -222,6 +294,14 @@ class PeeringSession(models.Model):
         'InternetExchange', on_delete=models.CASCADE)
     ip_address = models.GenericIPAddressField()
     comment = models.TextField(blank=True)
+
+    @staticmethod
+    def does_exist(ip_address):
+        try:
+            PeeringSession.objects.get(ip_address=ip_address)
+        except PeeringSession.DoesNotExist:
+            return False
+        return True
 
     def to_dict(self):
         ip_version = ipaddress.ip_address(str(self.ip_address)).version
@@ -325,6 +405,27 @@ class Router(models.Model):
 
         # Return the config diff
         return changes
+
+    def get_bgp_sessions(self):
+        bgp_sessions = []
+
+        try:
+            device = self.get_napalm_device()
+            device.open()
+
+            bgp_neighbors = device.get_bgp_neighbors()
+            for vrf in bgp_neighbors:
+                for ip, details in bgp_neighbors[vrf]['peers']:
+                    bgp_sessions.append({
+                        'ip_address': ipaddress.ip_address(ip),
+                        'remote_asn': details['remote_as'],
+                    })
+
+            device.close()
+        except Exception:
+            bgp_sessions = []
+
+        return bgp_sessions
 
     def __str__(self):
         return self.name

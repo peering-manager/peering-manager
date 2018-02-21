@@ -108,6 +108,38 @@ class AddOrEditView(LoginRequiredMixin, View):
         })
 
 
+class ConfirmationView(LoginRequiredMixin, View):
+    return_url = None
+    template = None
+
+    def extra_context(self, kwargs):
+        return {}
+
+    def process(self, request, kwargs):
+        pass
+
+    def get(self, request, *args, **kwargs):
+        form = ConfirmationForm(initial=request.GET)
+        context = {
+            'form': form,
+        }
+        context.update(self.extra_context(kwargs))
+
+        return render(request, self.template, context)
+
+    def post(self, request, *args, **kwargs):
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+            return self.process(request, kwargs)
+
+        context = {
+            'form': form,
+        }
+        context.update(self.extra_context(kwargs))
+
+        return render(request, self.template, context)
+
+
 class DeleteView(LoginRequiredMixin, View):
     model = None
     return_url = None
