@@ -419,10 +419,11 @@ class Router(models.Model):
             bgp_neighbors = device.get_bgp_neighbors()
             for vrf in bgp_neighbors:
                 for ip, details in bgp_neighbors[vrf]['peers'].items():
-                    bgp_sessions.append({
-                        'ip_address': ipaddress.ip_address(ip),
-                        'remote_asn': details['remote_as'],
-                    })
+                    if 'remote_as' in details:
+                        bgp_sessions.append({
+                            'ip_address': ipaddress.ip_address(ip),
+                            'remote_asn': details['remote_as'],
+                        })
 
             device.close()
         except Exception:
