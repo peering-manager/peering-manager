@@ -30,7 +30,7 @@ class UserActionManager(models.Manager):
 
     def log_bulk_action(self, user, obj_type, action, message):
         self.model.objects.create(content_type=ContentType.objects.get_for_model(
-            content_type), user=user, action=action, message=message)
+            obj_type), user=user, action=action, message=message)
 
     def log_create(self, user, obj, message):
         self.log_action(user, obj, USER_ACTION_CREATE, message)
