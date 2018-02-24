@@ -529,7 +529,7 @@ class PeeringSessionDelete(DeleteView):
     model = PeeringSession
 
     def get_return_url(self, obj):
-        return obj.internet_exchange.get_absolute_url()
+        return obj.internet_exchange.get_peering_sessions_list_url()
 
 
 class RouterList(ModelListView):
