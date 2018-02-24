@@ -269,8 +269,8 @@ class ImportView(LoginRequiredMixin, View):
                     messages.success(request, message)
 
                     # Log the import action
-                    UserAction.objects.log_import(request.user, ContentType.objects.get_for_model(
-                        self.form_model._meta.model), message)
+                    UserAction.objects.log_import(
+                        request.user, self.form_model._meta.model, message)
 
                     return redirect(self.return_url)
             except ValidationError:
@@ -388,8 +388,8 @@ class TableImportView(LoginRequiredMixin, View):
                 messages.success(request, message)
 
                 # Log the import action
-                UserAction.objects.log_import(request.user, ContentType.objects.get_for_model(
-                    self.form_model._meta.model), message)
+                UserAction.objects.log_import(
+                    request.user, self.form_model._meta.model, message)
 
             return redirect(self.get_return_url())
 

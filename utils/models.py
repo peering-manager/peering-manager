@@ -28,9 +28,9 @@ class UserActionManager(models.Manager):
         self.model.objects.create(content_type=ContentType.objects.get_for_model(
             obj), object_id=obj.id, user=user, action=action, message=message)
 
-    def log_bulk_action(self, user, content_type, action, message):
-        self.model.objects.create(
-            content_type=content_type, user=user, action=action, message=message)
+    def log_bulk_action(self, user, obj_type, action, message):
+        self.model.objects.create(content_type=ContentType.objects.get_for_model(
+            content_type), user=user, action=action, message=message)
 
     def log_create(self, user, obj, message):
         self.log_action(user, obj, USER_ACTION_CREATE, message)
@@ -41,8 +41,8 @@ class UserActionManager(models.Manager):
     def log_delete(self, user, obj, message):
         self.log_action(user, obj, USER_ACTION_DELETE, message)
 
-    def log_import(self, user, content_type, message):
-        self.log_bulk_action(user, content_type, USER_ACTION_IMPORT, message)
+    def log_import(self, user, obj_type, message):
+        self.log_bulk_action(user, obj_type, USER_ACTION_IMPORT, message)
 
 
 class UserAction(models.Model):

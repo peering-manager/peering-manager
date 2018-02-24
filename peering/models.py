@@ -272,14 +272,17 @@ class InternetExchange(models.Model):
                                     bgp_session['remote_asn'])
                                 number_of_autonomous_systems += 1
 
-                            values = {
-                                'autonomous_system': autonomous_system,
-                                'internet_exchange': self,
-                                'ip_address': str(bgp_session['ip_address']),
-                            }
-                            peering_session = PeeringSession(**values)
-                            peering_session.save()
-                            number_of_peering_sessions += 1
+                            # Only add a peering session if we were able to
+                            # find the AS on PeeringDB
+                            if autonomous_system:
+                                values = {
+                                    'autonomous_system': autonomous_system,
+                                    'internet_exchange': self,
+                                    'ip_address': str(bgp_session['ip_address']),
+                                }
+                                peering_session = PeeringSession(**values)
+                                peering_session.save()
+                                number_of_peering_sessions += 1
 
         return (number_of_autonomous_systems, number_of_peering_sessions)
 
@@ -415,7 +418,7 @@ class Router(models.Model):
 
             bgp_neighbors = device.get_bgp_neighbors()
             for vrf in bgp_neighbors:
-                for ip, details in bgp_neighbors[vrf]['peers']:
+                for ip, details in bgp_neighbors[vrf]['peers'].items():
                     bgp_sessions.append({
                         'ip_address': ipaddress.ip_address(ip),
                         'remote_asn': details['remote_as'],
