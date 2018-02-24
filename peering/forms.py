@@ -168,23 +168,39 @@ class InternetExchangePeeringDBForm(BootstrapMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label_suffix', '')
         super(InternetExchangePeeringDBForm, self).__init__(*args, **kwargs)
-        self.fields['peeringdb_id'].widget.attrs['readonly'] = True
+        self.fields['peeringdb_id'].widget = forms.HiddenInput()
 
     class Meta:
         model = InternetExchange
         fields = ('peeringdb_id', 'name', 'slug',
                   'ipv6_address', 'ipv4_address',)
         labels = {
-            'peeringdb_id': 'PeeringDB ID',
             'ipv6_address': 'IPv6 Address',
             'ipv4_address': 'IPv4 Address',
         }
         help_texts = {
-            'peeringdb_id': 'ID used by PeeringDB to identify the IX',
             'name': 'Full name of the Internet Exchange point',
             'ipv6_address': 'IPv6 Address used to peer',
             'ipv4_address': 'IPv4 Address used to peer',
         }
+
+
+class InternetExchangePeeringDBFormSet(forms.BaseFormSet):
+    def clean(self):
+        """
+        Check if slugs are uniques accross forms.
+        """
+        if any(self.errors):
+            # Don't bother validating the formset unless each form is valid on its own
+            return
+
+        slugs = []
+        for form in self.forms:
+            slug = form.cleaned_data['slug']
+            if slug in slugs:
+                raise forms.ValidationError(
+                    'Internet Exchanges must have distinct slugs.')
+            slugs.append(slug)
 
 
 class InternetExchangeCSVForm(forms.ModelForm):

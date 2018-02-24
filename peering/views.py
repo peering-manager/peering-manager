@@ -16,8 +16,8 @@ import json
 
 from .filters import (AutonomousSystemFilter, CommunityFilter, ConfigurationTemplateFilter,
                       InternetExchangeFilter, PeeringSessionFilter, RouterFilter)
-from .forms import (AutonomousSystemForm, AutonomousSystemCSVForm, AutonomousSystemFilterForm, CommunityForm, CommunityCSVForm, CommunityFilterForm, ConfigurationTemplateForm, ConfigurationTemplateFilterForm, InternetExchangeForm,
-                    InternetExchangePeeringDBForm, InternetExchangeCommunityForm, InternetExchangeCSVForm, InternetExchangeFilterForm, PeeringSessionForm, PeeringSessionFilterForm, PeeringSessionFilterFormForAS, RouterForm, RouterCSVForm, RouterFilterForm)
+from .forms import (AutonomousSystemForm, AutonomousSystemCSVForm, AutonomousSystemFilterForm, CommunityForm, CommunityCSVForm, CommunityFilterForm, ConfigurationTemplateForm, ConfigurationTemplateFilterForm, InternetExchangeForm, InternetExchangePeeringDBForm,
+                    InternetExchangePeeringDBFormSet, InternetExchangeCommunityForm, InternetExchangeCSVForm, InternetExchangeFilterForm, PeeringSessionForm, PeeringSessionFilterForm, PeeringSessionFilterFormForAS, RouterForm, RouterCSVForm, RouterFilterForm)
 from .models import (AutonomousSystem, Community,
                      ConfigurationTemplate, InternetExchange, PeeringSession, Router)
 from .tables import (AutonomousSystemTable, CommunityTable, ConfigurationTemplateTable,
@@ -262,6 +262,7 @@ class IXImportFromRouter(ConfirmationView):
 
 
 class IXPeeringDBImport(TableImportView):
+    custom_formset = InternetExchangePeeringDBFormSet
     form_model = InternetExchangePeeringDBForm
     return_url = 'peering:ix_list'
 

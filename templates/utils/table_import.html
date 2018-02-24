@@ -10,9 +10,12 @@
         <div class="row">
           <div class="col-md-10 col-md-offset-1">
             <h3>{% block title %}{{ obj_type|title }} Import{% endblock %}</h3>
-            <div class="alert alert-info" role="alert">
-              Please review the following data and adjust then to your convenience before importing them.
+            {% for error in formset.non_form_errors %}
+            <div class="alert alert-danger alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{ error }}
             </div>
+            {% endfor %}
             {% for form in formset %}
             {% if form.non_field_errors %}
             <div class="panel panel-danger">
@@ -24,7 +27,6 @@
             {% endif %}
             {% endfor %}
             <div class="panel panel-default">
-              {{ formset.non_form_errors.as_ul }}
               <table class="table">
                 {% for form in formset %}
                 {% if forloop.first %}

@@ -332,6 +332,7 @@ class ModelListView(View):
 
 
 class TableImportView(LoginRequiredMixin, View):
+    custom_formset = None
     form_model = None
     return_url = None
     template = 'utils/table_import.html'
@@ -355,7 +356,11 @@ class TableImportView(LoginRequiredMixin, View):
         formset = None
 
         if len(objects) > 0:
-            ObjectFormSet = formset_factory(self.form_model, extra=0)
+            if not self.custom_formset:
+                ObjectFormSet = formset_factory(self.form_model, extra=0)
+            else:
+                ObjectFormSet = formset_factory(
+                    self.form_model, formset=self.custom_formset, extra=0)
             formset = ObjectFormSet(initial=objects)
         else:
             messages.info(request, 'No data to import.')
@@ -371,7 +376,11 @@ class TableImportView(LoginRequiredMixin, View):
         """
         The form has been submitted, process it.
         """
-        ObjectFormSet = formset_factory(self.form_model, extra=0)
+        if not self.custom_formset:
+            ObjectFormSet = formset_factory(self.form_model, extra=0)
+        else:
+            ObjectFormSet = formset_factory(
+                self.form_model, formset=self.custom_formset, extra=0)
         formset = ObjectFormSet(request.POST)
         new_objects = []
 
@@ -393,7 +402,6 @@ class TableImportView(LoginRequiredMixin, View):
 
             return redirect(self.get_return_url())
 
-        formset = ObjectFormSet()
         return render(request, self.template, {
             'formset': formset,
             'obj_type': self.form_model._meta.model._meta.verbose_name,
