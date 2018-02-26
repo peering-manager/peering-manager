@@ -385,10 +385,11 @@ class TableImportView(LoginRequiredMixin, View):
         new_objects = []
 
         if formset.is_valid():
-            for form in formset:
-                if form.is_valid():
-                    instance = form.save()
-                    new_objects.append(instance)
+            with transaction.atomic():
+                for form in formset:
+                    if form.is_valid():
+                        instance = form.save()
+                        new_objects.append(instance)
 
             if new_objects:
                 # Notify user of successful import
