@@ -9,6 +9,7 @@ pages:
     - 'Upgrading': 'setup/upgrading.md'
     - 'Scheduled Tasks': 'setup/scheduled-tasks.md'
   - 'Templating': 'config-template.md'
+  - 'Integration': 'integration.md'
 
 markdown_extensions:
   - admonition:
