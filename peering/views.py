@@ -27,7 +27,7 @@ from peeringdb.models import Network, NetworkIXLAN
 from utils.forms import ConfirmationForm
 from utils.models import UserAction
 from utils.paginators import EnhancedPaginator
-from utils.views import (AddOrEditView, ConfirmationView,
+from utils.views import (AddOrEditView, BulkDeleteView, ConfirmationView,
                          DeleteView, ImportView, ModelListView, TableImportView)
 
 
@@ -69,6 +69,12 @@ class ASEdit(AddOrEditView):
 class ASDelete(DeleteView):
     model = AutonomousSystem
     return_url = 'peering:as_list'
+
+
+class ASBulkDelete(BulkDeleteView):
+    model = AutonomousSystem
+    filter = AutonomousSystemFilter
+    table = AutonomousSystemTable
 
 
 class ASPeeringDBSync(View):
@@ -139,8 +145,8 @@ class CommunityImport(ImportView):
 
 
 class CommunityDetails(View):
-    def get(self, request, id):
-        community = get_object_or_404(Community, id=id)
+    def get(self, request, pk):
+        community = get_object_or_404(Community, pk=pk)
         context = {
             'community': community,
         }
@@ -158,6 +164,12 @@ class CommunityDelete(DeleteView):
     return_url = 'peering:community_list'
 
 
+class CommunityBulkDelete(BulkDeleteView):
+    model = Community
+    filter = CommunityFilter
+    table = CommunityTable
+
+
 class ConfigTemplateList(ModelListView):
     queryset = ConfigurationTemplate.objects.all()
     filter = ConfigurationTemplateFilter
@@ -173,9 +185,9 @@ class ConfigTemplateAdd(AddOrEditView):
 
 
 class ConfigTemplateDetails(View):
-    def get(self, request, id):
+    def get(self, request, pk):
         configuration_template = get_object_or_404(
-            ConfigurationTemplate, id=id)
+            ConfigurationTemplate, pk=pk)
         internet_exchanges = InternetExchange.objects.filter(
             configuration_template=configuration_template)
         context = {
@@ -193,6 +205,12 @@ class ConfigTemplateEdit(AddOrEditView):
 class ConfigTemplateDelete(DeleteView):
     model = ConfigurationTemplate
     return_url = 'peering:configuration_template_list'
+
+
+class ConfigTemplateBulkDelete(BulkDeleteView):
+    model = ConfigurationTemplate
+    filter = ConfigurationTemplateFilter
+    table = ConfigurationTemplateTable
 
 
 class IXList(ModelListView):
@@ -253,7 +271,7 @@ class IXImportFromRouter(ConfirmationView):
 
                 if result[1] > 0:
                     message = 'Imported {} {}'.format(
-                        result[0], PeeringSession._meta.verbose_name_plural)
+                        result[1], PeeringSession._meta.verbose_name_plural)
                     messages.success(request, message)
                     UserAction.objects.log_import(
                         request.user, PeeringSession, message)
@@ -307,6 +325,12 @@ class IXEdit(AddOrEditView):
 class IXDelete(DeleteView):
     model = InternetExchange
     return_url = 'peering:ix_list'
+
+
+class IXBulkDelete(BulkDeleteView):
+    model = InternetExchange
+    filter = InternetExchangeFilter
+    table = InternetExchangeTable
 
 
 class IXUpdateCommunities(AddOrEditView):
@@ -375,7 +399,12 @@ class IXPeeringSessions(ModelListView):
         if 'slug' in kwargs:
             internet_exchange = get_object_or_404(
                 InternetExchange, slug=kwargs['slug'])
-            extra_context.update({'internet_exchange': internet_exchange})
+            extra_context.update({
+                'internet_exchange': internet_exchange,
+                # Quick (and dirty?) hack to keep track of the slug for future
+                # use (in the POST request)
+                'extra_context': {'internet_exchange_slug': kwargs['slug']},
+            })
 
         return extra_context
 
@@ -497,8 +526,8 @@ class PeeringSessionAdd(AddOrEditView):
     template = 'peering/session/add_edit.html'
 
     def get_object(self, kwargs):
-        if 'id' in kwargs:
-            return get_object_or_404(self.model, id=kwargs['id'])
+        if 'pk' in kwargs:
+            return get_object_or_404(self.model, pk=kwargs['pk'])
 
         return self.model()
 
@@ -514,8 +543,8 @@ class PeeringSessionAdd(AddOrEditView):
 
 
 class PeeringSessionDetails(View):
-    def get(self, request, id):
-        peering_session = get_object_or_404(PeeringSession, id=id)
+    def get(self, request, pk):
+        peering_session = get_object_or_404(PeeringSession, pk=pk)
         context = {'peering_session': peering_session}
         return render(request, 'peering/session/details.html', context)
 
@@ -531,6 +560,18 @@ class PeeringSessionDelete(DeleteView):
 
     def get_return_url(self, obj):
         return obj.internet_exchange.get_peering_sessions_list_url()
+
+
+class PeeringSessionBulkDelete(BulkDeleteView):
+    model = PeeringSession
+    filter = PeeringSessionFilter
+    table = PeeringSessionTable
+
+    def filter_by_extra_context(self, queryset, request, kwargs):
+        internet_exchange_slug = request.POST.get('internet_exchange_slug')
+        internet_exchange = get_object_or_404(
+            InternetExchange, slug=internet_exchange_slug)
+        return queryset.filter(internet_exchange=internet_exchange)
 
 
 class RouterList(ModelListView):
@@ -554,8 +595,8 @@ class RouterImport(ImportView):
 
 
 class RouterDetails(View):
-    def get(self, request, id):
-        router = get_object_or_404(Router, id=id)
+    def get(self, request, pk):
+        router = get_object_or_404(Router, pk=pk)
         internet_exchanges = InternetExchange.objects.filter(router=router)
         context = {
             'router': router,
@@ -573,6 +614,12 @@ class RouterEdit(AddOrEditView):
 class RouterDelete(DeleteView):
     model = Router
     return_url = 'peering:router_list'
+
+
+class RouterBulkDelete(BulkDeleteView):
+    model = Router
+    filter = RouterFilter
+    table = RouterTable
 
 
 class AsyncRouterPing(View):

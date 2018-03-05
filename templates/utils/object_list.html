@@ -1,0 +1,37 @@
+{% load helpers %}
+{% if request.user.is_authenticated %}
+  <form method="post" class="form form-horizontal">
+    {% csrf_token %}
+    <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
+    {% for key, value in extra_context.items %}
+    <input type="hidden" name="{{ key }}" value="{{ value }}" />
+    {% endfor %}
+    {% if table.paginator.num_pages > 1 %}
+    <div id="select_all_box" class="hidden panel panel-default">
+      <div class="panel-body">
+        <div class="checkbox-inline">
+          <label for="select_all">
+            <input type="checkbox" id="select_all" name="_all" />
+            Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> matching query
+          </label>
+        </div>
+        <div class="pull-right">
+          <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if bulk_querystring %}?{{ bulk_querystring }}{% elif request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm" disabled="disabled">
+            <i class="fa fa-trash" aria-hidden="true"></i> Delete All
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    {% include 'utils/table.html' %}
+    {% block extra_buttons %}{% endblock %}
+    {% if bulk_delete_url %}
+    <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-sm btn-danger">
+      <i class="fa fa-trash" aria-hidden="true"></i> Delete Selected
+    </button>
+    {% endif %}
+  </form>
+{% else %}
+  {% include 'utils/table.html' %}
+{% endif %}
+<div class="clearfix"></div>

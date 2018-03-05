@@ -2,6 +2,8 @@ from __future__ import unicode_literals
 
 import django_tables2 as tables
 
+from django.utils.safestring import mark_safe
+
 
 class BaseTable(tables.Table):
     """
@@ -20,3 +22,15 @@ class BaseTable(tables.Table):
         attrs = {
             'class': 'table table-hover table-headings',
         }
+
+
+class SelectColumn(tables.CheckBoxColumn):
+    def __init__(self, *args, **kwargs):
+        default = kwargs.pop('default', '')
+        visible = kwargs.pop('visible', False)
+        super(SelectColumn, self).__init__(
+            *args, default=default, visible=visible, **kwargs)
+
+    @property
+    def header(self):
+        return mark_safe('<input type="checkbox" class="toggle" title="Select all" />')

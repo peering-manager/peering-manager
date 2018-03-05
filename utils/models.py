@@ -11,11 +11,13 @@ USER_ACTION_CREATE = 1
 USER_ACTION_EDIT = 2
 USER_ACTION_DELETE = 3
 USER_ACTION_IMPORT = 4
+USER_ACTION_BULK_DELETE = 5
 USER_ACTION_CHOICES = (
     (USER_ACTION_CREATE, 'created'),
     (USER_ACTION_EDIT, 'modified'),
     (USER_ACTION_DELETE, 'deleted'),
     (USER_ACTION_IMPORT, 'imported'),
+    (USER_ACTION_BULK_DELETE, 'bulk deleted'),
 )
 
 
@@ -32,14 +34,17 @@ class UserActionManager(models.Manager):
         self.model.objects.create(content_type=ContentType.objects.get_for_model(
             obj_type), user=user, action=action, message=message)
 
+    def log_bulk_delete(self, user, obj_type, message):
+        self.log_bulk_action(user, obj_type, USER_ACTION_BULK_DELETE, message)
+
     def log_create(self, user, obj, message):
         self.log_action(user, obj, USER_ACTION_CREATE, message)
 
-    def log_edit(self, user, obj, message):
-        self.log_action(user, obj, USER_ACTION_EDIT, message)
-
     def log_delete(self, user, obj, message):
         self.log_action(user, obj, USER_ACTION_DELETE, message)
+
+    def log_edit(self, user, obj, message):
+        self.log_action(user, obj, USER_ACTION_EDIT, message)
 
     def log_import(self, user, obj_type, message):
         self.log_bulk_action(user, obj_type, USER_ACTION_IMPORT, message)
@@ -72,7 +77,7 @@ class UserAction(models.Model):
         if self.action == USER_ACTION_EDIT:
             return mark_safe('<i class="fa fa-pencil-square text-warning"></i>')
 
-        if self.action == USER_ACTION_DELETE:
+        if self.action in [USER_ACTION_DELETE, USER_ACTION_BULK_DELETE]:
             return mark_safe('<i class="fa fa-minus-square text-danger"></i>')
 
         return ''

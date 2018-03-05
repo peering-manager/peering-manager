@@ -2,15 +2,17 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models import ProtectedError
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.forms import Form
+from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput
 from django.forms.formsets import formset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
+from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
@@ -36,9 +38,9 @@ class AddOrEditView(LoginRequiredMixin, View):
             # Lookup object by slug
             return get_object_or_404(self.model, slug=kwargs['slug'])
 
-        if 'id' in kwargs:
-            # Lookup object by ID
-            return get_object_or_404(self.model, id=kwargs['id'])
+        if 'pk' in kwargs:
+            # Lookup object by PK
+            return get_object_or_404(self.model, pk=kwargs['pk'])
 
         # New object
         return self.model()
@@ -108,6 +110,84 @@ class AddOrEditView(LoginRequiredMixin, View):
         })
 
 
+class BulkDeleteView(LoginRequiredMixin, View):
+    model = None
+    queryset = None
+    filter = None
+    table = None
+    template = 'utils/object_bulk_delete.html'
+    return_url = 'home'
+
+    def get(self, request):
+        return redirect(self.return_url)
+
+    def get_form(self):
+        class BulkDeleteForm(ConfirmationForm):
+            pk = ModelMultipleChoiceField(
+                queryset=self.model.objects.all(), widget=MultipleHiddenInput)
+
+        return BulkDeleteForm
+
+    def filter_by_extra_context(self, queryset, request, kwargs):
+        """
+        This function provides a way to narrow a queryset based on the request
+        and optional arguments. It must return a queryset as well.
+        """
+        return queryset
+
+    def post(self, request, **kwargs):
+        # Determine URL to redirect users
+        posted_return_url = request.POST.get('return_url')
+        if posted_return_url and is_safe_url(url=posted_return_url, host=request.get_host()):
+            self.return_url = posted_return_url
+
+        # Build the list primary keys of the objects to delete
+        if request.POST.get('_all') and self.filter is not None:
+            pk_list = [obj.pk for obj in self.filter(request.GET, self.filter_by_extra_context(
+                self.model.objects.only('pk'), request, kwargs)).qs]
+        else:
+            pk_list = [int(pk) for pk in request.POST.getlist('pk')]
+
+        form_model = self.get_form()
+        if '_confirm' in request.POST:
+            form = form_model(request.POST)
+            if form.is_valid():
+                queryset = self.model.objects.filter(pk__in=pk_list)
+
+                try:
+                    deleted_count = queryset.delete(
+                    )[1][self.model._meta.label]
+                except ProtectedError as e:
+                    print(e)
+                    return redirect(self.return_url)
+
+                message = 'Deleted {} {}'.format(
+                    deleted_count, self.model._meta.verbose_name_plural)
+                messages.success(request, message)
+                UserAction.objects.log_bulk_delete(
+                    request.user, self.model, message)
+
+                return redirect(self.return_url)
+        else:
+            form = form_model(
+                initial={'pk': pk_list, 'return_url': self.return_url})
+
+        # Retrieve objects being deleted
+        queryset = self.queryset or self.model.objects.all()
+        table = self.table(queryset.filter(pk__in=pk_list), orderable=False)
+        if not table.rows:
+            messages.warning(request, "No {} were selected for deletion.".format(
+                self.model._meta.verbose_name_plural))
+            return redirect(self.return_url)
+
+        return render(request, self.template, {
+            'form': form,
+            'object_type_plural': self.model._meta.verbose_name_plural,
+            'table': table,
+            'return_url': self.return_url,
+        })
+
+
 class ConfirmationView(LoginRequiredMixin, View):
     return_url = None
     template = None
@@ -154,9 +234,9 @@ class DeleteView(LoginRequiredMixin, View):
             # Lookup object by slug
             return get_object_or_404(self.model, slug=kwargs['slug'])
 
-        if 'id' in kwargs:
-            # Lookup object by ID
-            return get_object_or_404(self.model, id=kwargs['id'])
+        if 'pk' in kwargs:
+            # Lookup object by PK
+            return get_object_or_404(self.model, pk=kwargs['pk'])
 
         return None
 
@@ -314,6 +394,12 @@ class ModelListView(View):
 
         # Build the table based on the queryset
         table = self.table(self.queryset)
+
+        # Show column if user is authenticated
+        if 'pk' in table.base_columns and request.user.is_authenticated:
+            table.columns.show('pk')
+
+        # Apply pagination
         paginate = {
             'klass': EnhancedPaginator,
             'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)

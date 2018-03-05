@@ -3,10 +3,10 @@
 {% block content %}
       {% if request.user.is_authenticated %}
       <div class="pull-right">
-        <a href="{% url 'peering:community_edit' id=community.id %}" class="btn btn-warning">
+        <a href="{% url 'peering:community_edit' pk=community.pk %}" class="btn btn-warning">
           <span class="fa fa-pencil" aria-hidden="true"></span> Edit
         </a>
-        <a href="{% url 'peering:community_delete' id=community.id %}" class="btn btn-danger">
+        <a href="{% url 'peering:community_delete' pk=community.pk %}" class="btn btn-danger">
           <span class="fa fa-trash" aria-hidden="true"></span> Delete
         </a>
       </div>
