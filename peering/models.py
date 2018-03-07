@@ -476,6 +476,7 @@ class Router(models.Model):
                 self.logger.debug(
                     'checking for configuration changes on %s', self.hostname)
                 changes = device.compare_config()
+                self.logger.debug('raw napalm output %s', changes)
 
                 # Commit the config if required
                 if commit:
@@ -523,6 +524,7 @@ class Router(models.Model):
             # Get all BGP neighbors on the router
             self.logger.debug('getting bgp neighbors on %s', self.hostname)
             bgp_neighbors = device.get_bgp_neighbors()
+            self.logger.debug('raw napalm output %s', bgp_neighbors)
             self.logger.debug('found %s vrfs with bgp neighbors on %s', len(
                 bgp_neighbors), self.hostname)
 

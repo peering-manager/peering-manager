@@ -172,15 +172,31 @@ LOGGING = {
             'interval': 1,
             'backupCount': 5,
             'formatter': 'simple',
-        }
+        },
+        'peeringdb_file': {
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': 'logs/peeringdb.log',
+            'when': 'midnight',
+            'interval': 1,
+            'backupCount': 5,
+            'formatter': 'simple',
+        },
+        'napalm_file': {
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': 'logs/napalm.log',
+            'when': 'midnight',
+            'interval': 1,
+            'backupCount': 5,
+            'formatter': 'simple',
+        },
     },
     'loggers': {
         'peering.manager.peeringdb': {
-            'handlers': ['file'],
+            'handlers': ['peeringdb_file'],
             'level': 'DEBUG',
         },
         'peering.manager.napalm': {
-            'handlers': ['file'],
+            'handlers': ['napalm_file'],
             'level': 'DEBUG',
         },
     }
