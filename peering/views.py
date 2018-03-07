@@ -634,8 +634,8 @@ class AsyncRouterPing(View):
 class AsyncRouterDiff(View):
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
-        changes = internet_exchange.router.set_configuration(
-            internet_exchange.get_config(), False)
+        changes = internet_exchange.router.set_napalm_configuration(
+            internet_exchange.get_config())
 
         return HttpResponse(json.dumps({
             'changed': True if changes else False,
@@ -646,7 +646,7 @@ class AsyncRouterDiff(View):
 class AsyncRouterSave(View):
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
-        changes = internet_exchange.router.set_configuration(
+        changes = internet_exchange.router.set_napalm_configuration(
             internet_exchange.get_config(), True)
 
         return HttpResponse(json.dumps({

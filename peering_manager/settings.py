@@ -178,7 +178,11 @@ LOGGING = {
         'peering.manager.peeringdb': {
             'handlers': ['file'],
             'level': 'DEBUG',
-        }
+        },
+        'peering.manager.napalm': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+        },
     }
 }
 

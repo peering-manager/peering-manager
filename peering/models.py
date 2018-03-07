@@ -1,8 +1,10 @@
 from __future__ import unicode_literals
 
-from jinja2 import Template
 import ipaddress
+import logging
 import napalm
+
+from jinja2 import Template
 
 from django.conf import settings
 from django.db import models, transaction
@@ -255,7 +257,7 @@ class InternetExchange(models.Model):
         prefixes = [ipaddress.ip_network(prefix['prefix'])
                     for prefix in self.get_prefixes()]
         # Gather all existing BGP sessions from the router connected to the IX
-        bgp_sessions = self.router.get_bgp_sessions()
+        bgp_sessions = self.router.get_napalm_bgp_neighbors()
 
         with transaction.atomic():
             # For each BGP session check if the address fits in on of the prefixes
@@ -350,6 +352,8 @@ class Router(models.Model):
                                 help_text='The router platform, used to interact with it')
     comment = models.TextField(blank=True)
 
+    logger = logging.getLogger('peering.manager.napalm')
+
     class Meta:
         ordering = ['name']
 
@@ -357,9 +361,11 @@ class Router(models.Model):
         return reverse('peering:router_details', kwargs={'id': self.id})
 
     def get_napalm_device(self):
+        self.logger.debug('looking for napalm driver "%s"', self.platform)
         try:
             # Driver found, instanciate it
             driver = napalm.get_network_driver(self.platform)
+            self.logger.debug('found napalm driver "%s"', self.platform)
             return driver(hostname=self.hostname,
                           username=settings.NAPALM_USERNAME,
                           password=settings.NAPALM_PASSWORD,
@@ -368,66 +374,188 @@ class Router(models.Model):
         except napalm.base.exceptions.ModuleImportError:
             # Unable to import proper driver from napalm
             # Most probably due to a broken install
+            self.logger.error(
+                'no napalm driver "%s" found (not installed or does not exist)', self.platform)
             return None
 
-    def test_napalm_connection(self):
-        device = self.get_napalm_device()
+    def open_napalm_device(self, device):
+        """
+        Opens a connection with a device using NAPALM.
+
+        This method returns True if the connection is properly opened or False
+        in any other cases. It handles exceptions that can occur during the
+        connection opening process by itself.
+
+        It is a wrapper method mostly used for logging purpose.
+        """
         success = False
 
-        if device:
-            try:
-                # Open and close the connection just for test
-                device.open()
-                device.close()
+        if not device:
+            return success
 
-                success = True
-            except Exception:
-                pass
-
-        return success
-
-    def set_configuration(self, config, commit=False):
         try:
-            # Connect to the device
-            device = self.get_napalm_device()
+            self.logger.debug('connecting to %s', self.hostname)
             device.open()
-
-            # Load the config and get the diff
-            device.load_merge_candidate(config=config)
-            changes = device.compare_config()
-
-            # Commit the config if needed
-            if commit:
-                device.commit_config()
-            else:
-                device.discard_config()
-
-            device.close()
+        except napalm.base.exceptions.ConnectionException as e:
+            self.logger.error(
+                'error while trying to connect to %s reason "%s"', self.hostname, e)
         except Exception:
-            changes = None
+            self.logger.error(
+                'error while trying to connect to %s', self.hostname)
+        else:
+            self.logger.debug('successfully connected to %s', self.hostname)
+            success = True
+        finally:
+            return success
 
-        # Return the config diff
+    def close_napalm_device(self, device):
+        """
+        Closes a connection with a device using NAPALM.
+
+        This method returns True if the connection is properly closed or False
+        if the device is not valid.
+
+        It is a wrapper method mostly used for logging purpose.
+        """
+        if not device:
+            return False
+
+        device.close()
+        self.logger.debug('closing connection with %s', self.hostname)
+
+        return True
+
+    def test_napalm_connection(self):
+        """
+        Opens and closes a connection with a device using NAPALM to see if it
+        is possible to interact with it.
+
+        This method returns True only if the connection opening and closing are
+        both successful.
+        """
+        device = self.get_napalm_device()
+
+        # Open and close the test_napalm_connection
+        self.logger.debug('testing connection with %s', self.hostname)
+        opened = self.open_napalm_device(device)
+        closed = self.close_napalm_device(device)
+
+        # Issue while opening or closing the connection
+        if not opened or not closed:
+            self.logger.error(
+                'cannot connect to % s, napalm functions won\'t work', self.hostname)
+
+        return (opened and closed)
+
+    def set_napalm_configuration(self, config, commit=False):
+        """
+        Tries to merge a given configuration on a device using NAPALM.
+
+        This methods returns the changes applied to the configuration if the
+        merge was successful. It will return None in any other cases.
+
+        The optional named argument 'commit' is a boolean which is used to
+        know if the changes must be commited or discarded. The default value is
+        False which means that the changes will be discarded.
+        """
+        changes = None
+
+        device = self.get_napalm_device()
+        opened = self.open_napalm_device(device)
+
+        if opened:
+            try:
+                # Load the config
+                self.logger.debug('merging configuration on %s', self.hostname)
+                device.load_merge_candidate(config=config)
+
+                # Get the config diff
+                self.logger.debug(
+                    'checking for configuration changes on %s', self.hostname)
+                changes = device.compare_config()
+
+                # Commit the config if required
+                if commit:
+                    self.logger.debug(
+                        'commiting configuration on %s', self.hostname)
+                    device.commit_config()
+
+                else:
+                    self.logger.debug(
+                        'discarding configuration on %s', self.hostname)
+                    device.discard_config()
+            except napalm.base.exceptions.MergeConfigException as e:
+                self.logger.debug(
+                    'unable to merge configuration on %s reason "%s"', self.hostname, e)
+            except Exception:
+                self.logger.debug(
+                    'unable to merge configuration on %s', self.hostname)
+            else:
+                self.logger.debug(
+                    'successfully merged configuration on %s', self.hostname)
+            finally:
+                closed = self.close_napalm_device(device)
+                if not closed:
+                    self.logger.debug(
+                        'error while closing connection with %s', self.hostname)
+
         return changes
 
-    def get_bgp_sessions(self):
+    def get_napalm_bgp_neighbors(self):
+        """
+        Returns a list of dictionaries listing all BGP neighbors found on the
+        router using NAPALM.
+
+        Each dictionary contains two keys 'ip_address' and 'remote_asn'.
+
+        If an error occurs or no BGP neighbors can be found, the returned list
+        will be empty.
+        """
         bgp_sessions = []
 
-        try:
-            device = self.get_napalm_device()
-            device.open()
+        device = self.get_napalm_device()
+        opened = self.open_napalm_device(device)
 
+        if opened:
+            # Get all BGP neighbors on the router
+            self.logger.debug('getting bgp neighbors on %s', self.hostname)
             bgp_neighbors = device.get_bgp_neighbors()
-            for vrf in bgp_neighbors:
-                for ip, details in bgp_neighbors[vrf]['peers'].items():
-                    if 'remote_as' in details:
-                        bgp_sessions.append({
-                            'ip_address': ipaddress.ip_address(ip),
-                            'remote_asn': details['remote_as'],
-                        })
+            self.logger.debug('found %s vrfs with bgp neighbors on %s', len(
+                bgp_neighbors), self.hostname)
 
-            device.close()
-        except Exception:
-            bgp_sessions = []
+            # For each VRF
+            for vrf in bgp_neighbors:
+                # Get peers inside it
+                peers = bgp_neighbors[vrf]['peers']
+                self.logger.debug('found %s bgp neighbors in %s vrf on %s', len(
+                    peers), vrf, self.hostname)
+
+                # For each peer handle its IP address and the needed details
+                for ip, details in peers.items():
+                    if not 'remote_as' in details:
+                        # See NAPALM issue #659
+                        # https://github.com/napalm-automation/napalm/issues/659
+                        self.logger.debug(
+                            'ignored bgp neighbor %s in %s vrf on %s', ip, vrf, self.hostname)
+                    else:
+                        try:
+                            # Save the BGP session (IP and remote ASN)
+                            bgp_sessions.append({
+                                'ip_address': ipaddress.ip_address(ip),
+                                'remote_asn': details['remote_as'],
+                            })
+                        except ValueError as e:
+                            # Error while parsing the IP address
+                            self.logger.error(
+                                'ignored bgp neighbor %s in %s vrf on %s reason "%s"', ip, vrf, self.hostname, e)
+                            # Force next iteration
+                            continue
+
+            # Close connection to the device
+            closed = self.close_napalm_device(device)
+            if not closed:
+                self.logger.debug(
+                    'error while closing connection with %s', self.hostname)
 
         return bgp_sessions
 
