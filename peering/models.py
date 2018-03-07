@@ -272,7 +272,10 @@ class InternetExchange(models.Model):
                             if not autonomous_system:
                                 autonomous_system = AutonomousSystem.create_from_peeringdb(
                                     bgp_session['remote_asn'])
-                                number_of_autonomous_systems += 1
+                                # Do not count the AS if it does not have a
+                                # PeeringDB record
+                                if autonomous_system:
+                                    number_of_autonomous_systems += 1
 
                             # Only add a peering session if we were able to
                             # find the AS on PeeringDB
