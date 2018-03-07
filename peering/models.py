@@ -532,7 +532,7 @@ class Router(models.Model):
 
                 # For each peer handle its IP address and the needed details
                 for ip, details in peers.items():
-                    if not 'remote_as' in details:
+                    if 'remote_as' not in details:
                         # See NAPALM issue #659
                         # https://github.com/napalm-automation/napalm/issues/659
                         self.logger.debug(
