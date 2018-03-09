@@ -105,7 +105,7 @@ class Community(models.Model):
         ordering = ['name']
 
     def get_absolute_url(self):
-        return reverse('peering:community_details', kwargs={'id': self.id})
+        return reverse('peering:community_details', kwargs={'pk': self.pk})
 
     def __str__(self):
         return self.name
@@ -124,7 +124,7 @@ class ConfigurationTemplate(models.Model):
         super(ConfigurationTemplate, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('peering:configuration_template_details', kwargs={'id': self.id})
+        return reverse('peering:configuration_template_details', kwargs={'pk': self.pk})
 
     def __str__(self):
         return self.name
@@ -332,7 +332,7 @@ class PeeringSession(models.Model):
         }
 
     def get_absolute_url(self):
-        return reverse('peering:peering_session_details', kwargs={'id': self.id})
+        return reverse('peering:peering_session_details', kwargs={'pk': self.pk})
 
     def __str__(self):
         return '{} - AS{} - IP {}'.format(self.internet_exchange.name, self.autonomous_system.asn, self.ip_address)
@@ -361,7 +361,7 @@ class Router(models.Model):
         ordering = ['name']
 
     def get_absolute_url(self):
-        return reverse('peering:router_details', kwargs={'id': self.id})
+        return reverse('peering:router_details', kwargs={'pk': self.pk})
 
     def get_napalm_device(self):
         self.logger.debug('looking for napalm driver "%s"', self.platform)
