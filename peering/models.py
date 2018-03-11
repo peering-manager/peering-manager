@@ -505,6 +505,45 @@ class Router(models.Model):
 
         return changes
 
+    def _napalm_bgp_neighbors_to_peer_list(self, napalm_dict):
+        bgp_peers = []
+
+        if not napalm_dict:
+            return bgp_peers
+
+        # For each VRF
+        for vrf in napalm_dict:
+            # Get peers inside it
+            peers = napalm_dict[vrf]['peers']
+            self.logger.debug('found %s bgp neighbors in %s vrf on %s', len(
+                peers), vrf, self.hostname)
+
+            # For each peer handle its IP address and the needed details
+            for ip, details in peers.items():
+                if 'remote_as' not in details:
+                    # See NAPALM issue #659
+                    # https://github.com/napalm-automation/napalm/issues/659
+                    self.logger.debug(
+                        'ignored bgp neighbor %s in %s vrf on %s', ip, vrf, self.hostname)
+                elif ip in [str(i['ip_address']) for i in bgp_peers]:
+                    self.logger.debug(
+                        'duplicate bgp neighbor %s on %s', ip, self.hostname)
+                else:
+                    try:
+                        # Save the BGP session (IP and remote ASN)
+                        bgp_peers.append({
+                            'ip_address': ipaddress.ip_address(ip),
+                            'remote_asn': details['remote_as'],
+                        })
+                    except ValueError as e:
+                        # Error while parsing the IP address
+                        self.logger.error(
+                            'ignored bgp neighbor %s in %s vrf on %s reason "%s"', ip, vrf, self.hostname, e)
+                        # Force next iteration
+                        continue
+
+        return bgp_peers
+
     def get_napalm_bgp_neighbors(self):
         """
         Returns a list of dictionaries listing all BGP neighbors found on the
@@ -528,33 +567,10 @@ class Router(models.Model):
             self.logger.debug('found %s vrfs with bgp neighbors on %s', len(
                 bgp_neighbors), self.hostname)
 
-            # For each VRF
-            for vrf in bgp_neighbors:
-                # Get peers inside it
-                peers = bgp_neighbors[vrf]['peers']
-                self.logger.debug('found %s bgp neighbors in %s vrf on %s', len(
-                    peers), vrf, self.hostname)
-
-                # For each peer handle its IP address and the needed details
-                for ip, details in peers.items():
-                    if 'remote_as' not in details:
-                        # See NAPALM issue #659
-                        # https://github.com/napalm-automation/napalm/issues/659
-                        self.logger.debug(
-                            'ignored bgp neighbor %s in %s vrf on %s', ip, vrf, self.hostname)
-                    else:
-                        try:
-                            # Save the BGP session (IP and remote ASN)
-                            bgp_sessions.append({
-                                'ip_address': ipaddress.ip_address(ip),
-                                'remote_asn': details['remote_as'],
-                            })
-                        except ValueError as e:
-                            # Error while parsing the IP address
-                            self.logger.error(
-                                'ignored bgp neighbor %s in %s vrf on %s reason "%s"', ip, vrf, self.hostname, e)
-                            # Force next iteration
-                            continue
+            bgp_sessions = self._napalm_bgp_neighbors_to_peer_list(
+                bgp_neighbors)
+            self.logger.debug('found %s bgp neighbors on %s',
+                              len(bgp_sessions), self.hostname)
 
             # Close connection to the device
             closed = self.close_napalm_device(device)
