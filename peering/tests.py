@@ -48,16 +48,16 @@ class RouterTestCase(TestCase):
         dict_1 = {}
         dict_2 = {'global': {'peers': {'192.168.0.1': {'remote_as': 64500}}}}
         dict_3 = {'global': {'peers': {'192.168.0.1': {'remote_as': 64500}}},
-                  'vrf':    {'peers': {'192.168.1.1': {'remote_as': 64501}}}}
+                  'vrf': {'peers': {'192.168.1.1': {'remote_as': 64501}}}}
         dict_4 = {'global': {'peers': {'192.168.0.1': {'remote_as': 64500}}},
-                  'vrf0':   {'peers': {'192.168.1.1': {'remote_as': 64501}}},
-                  'vrf1':   {'peers': {'192.168.2.1': {'remote_as': 64502}}}}
+                  'vrf0': {'peers': {'192.168.1.1': {'remote_as': 64501}}},
+                  'vrf1': {'peers': {'192.168.2.1': {'remote_as': 64502}}}}
         dict_5 = {'global': {'peers': {'192.168.0.1': {'remote_as': 64500}}},
-                  'vrf0':   {'peers': {'192.168.1.1': {'remote_as': 64501}}},
-                  'vrf1':   {'peers': {'192.168.2.1': {'remote_an': 64502}}}}
+                  'vrf0': {'peers': {'192.168.1.1': {'remote_as': 64501}}},
+                  'vrf1': {'peers': {'192.168.2.1': {'remote_an': 64502}}}}
         dict_6 = {'global': {'peers': {'192.168.0.1': {'remote_as': 64500}}},
-                  'vrf0':   {'peers': {'192.168.1.1': {'remote_as': 64501}}},
-                  'vrf1':   {'peers': {'192.168.1.1': {'remote_as': 64502}}}}
+                  'vrf0': {'peers': {'192.168.1.1': {'remote_as': 64501}}},
+                  'vrf1': {'peers': {'192.168.1.1': {'remote_as': 64502}}}}
 
         # Create a router
         router = Router.objects.create(name='test',
