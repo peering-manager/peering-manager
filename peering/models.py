@@ -322,7 +322,7 @@ class InternetExchange(models.Model):
                                     'session %s created', ip_address)
                     else:
                         self.logger.debug(
-                            'session %s not fitting inside prefix %s', ip_address, str(prefix))
+                            'session %s not fitting inside prefix %s', str(bgp_session['ip_address']), str(prefix))
 
         return (number_of_autonomous_systems, number_of_peering_sessions)
 
