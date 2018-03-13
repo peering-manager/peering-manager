@@ -279,34 +279,50 @@ class InternetExchange(models.Model):
                     # If the address fits, create a new PeeringSession object and a
                     # new AutonomousSystem object if they does not exist already
                     if bgp_session['ip_address'] in prefix:
-                        self.logger.debug('session %s fitting inside prefix %s', str(
-                            bgp_session['ip_address']), str(prefix))
+                        ip_address = str(bgp_session['ip_address'])
+                        self.logger.debug(
+                            'session %s fitting inside prefix %s', ip_address, str(prefix))
 
-                        if not PeeringSession.does_exist(str(bgp_session['ip_address'])):
+                        if not PeeringSession.does_exist(ip_address):
+                            remote_asn = bgp_session['remote_asn']
+                            self.logger.debug(
+                                'session %s does not exist, will be created', ip_address)
+
                             autonomous_system = AutonomousSystem.does_exist(
                                 bgp_session['remote_asn'])
                             if not autonomous_system:
+                                self.logger.debug(
+                                    'asn %s for session %s not created yet, importing from peeringdb', remote_asn, ip_address)
                                 autonomous_system = AutonomousSystem.create_from_peeringdb(
-                                    bgp_session['remote_asn'])
+                                    remote_asn)
                                 # Do not count the AS if it does not have a
                                 # PeeringDB record
                                 if autonomous_system:
+                                    self.logger.debug(
+                                        'asn %s for session %s created', remote_asn, ip_address)
                                     number_of_autonomous_systems += 1
+                                else:
+                                    self.logger.debug(
+                                        'could not create asn %s, session %s ignored', remote_asn, ip_address)
 
                             # Only add a peering session if we were able to
                             # find the AS on PeeringDB
                             if autonomous_system:
+                                self.logger.debug(
+                                    'creating session %s', ip_address)
                                 values = {
                                     'autonomous_system': autonomous_system,
                                     'internet_exchange': self,
-                                    'ip_address': str(bgp_session['ip_address']),
+                                    'ip_address': ip_address,
                                 }
                                 peering_session = PeeringSession(**values)
                                 peering_session.save()
                                 number_of_peering_sessions += 1
+                                self.logger.debug(
+                                    'session %s created', ip_address)
                     else:
-                        self.logger.debug('session %s not fitting inside prefix %s', str(
-                            bgp_session['ip_address']), str(prefix))
+                        self.logger.debug(
+                            'session %s not fitting inside prefix %s', ip_address, str(prefix))
 
         return (number_of_autonomous_systems, number_of_peering_sessions)
 
