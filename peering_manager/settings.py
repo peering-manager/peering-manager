@@ -191,6 +191,10 @@ LOGGING = {
         },
     },
     'loggers': {
+        'peering.manager.peering': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+        },
         'peering.manager.peeringdb': {
             'handlers': ['peeringdb_file'],
             'level': 'DEBUG',

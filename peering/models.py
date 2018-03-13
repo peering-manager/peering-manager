@@ -143,6 +143,8 @@ class InternetExchange(models.Model):
         'Router', blank=True, null=True, on_delete=models.SET_NULL)
     communities = models.ManyToManyField('Community', blank=True)
 
+    logger = logging.getLogger('peering.manager.peering')
+
     class Meta:
         ordering = ['name']
 
@@ -246,8 +248,8 @@ class InternetExchange(models.Model):
         return peers
 
     def import_peering_sessions_from_router(self):
-        # No point of discover from router if none used or not on a supported
-        # platform or not linked to a PeeringDB record.
+        # No point of discovering from router if platform is none or is not
+        # supported or if the IX is not linked to a PeeringDB record.
         if not self.router or not self.router.platform or not self.peeringdb_id:
             return None
 
@@ -256,6 +258,14 @@ class InternetExchange(models.Model):
         # Build a list based on prefixes based on PeeringDB records
         prefixes = [ipaddress.ip_network(prefix['prefix'])
                     for prefix in self.get_prefixes()]
+        # No prefixes found
+        if not prefixes:
+            self.logger.debug('no prefixes found for %s', self.name.lower())
+            return None
+        else:
+            self.logger.debug('found %s prefixes (%s) for %s', len(prefixes), ', '.join(
+                [str(prefix) for prefix in prefixes]), self.name.lower())
+
         # Gather all existing BGP sessions from the router connected to the IX
         bgp_sessions = self.router.get_napalm_bgp_neighbors()
 
@@ -263,9 +273,15 @@ class InternetExchange(models.Model):
             # For each BGP session check if the address fits in on of the prefixes
             for bgp_session in bgp_sessions:
                 for prefix in prefixes:
+                    self.logger.debug(
+                        'checking for sessions inside prefix %s', str(prefix))
+
                     # If the address fits, create a new PeeringSession object and a
                     # new AutonomousSystem object if they does not exist already
                     if bgp_session['ip_address'] in prefix:
+                        self.logger.debug('session %s fitting inside prefix %s', str(
+                            bgp_session['ip_address']), str(prefix))
+
                         if not PeeringSession.does_exist(str(bgp_session['ip_address'])):
                             autonomous_system = AutonomousSystem.does_exist(
                                 bgp_session['remote_asn'])
@@ -288,6 +304,9 @@ class InternetExchange(models.Model):
                                 peering_session = PeeringSession(**values)
                                 peering_session.save()
                                 number_of_peering_sessions += 1
+                    else:
+                        self.logger.debug('session %s not fitting inside prefix %s', str(
+                            bgp_session['ip_address']), str(prefix))
 
         return (number_of_autonomous_systems, number_of_peering_sessions)
 
