@@ -247,6 +247,79 @@ class InternetExchange(models.Model):
 
         return peers
 
+    def _import_peering_sessions(self, sessions=[], prefixes=[]):
+        # No sessions or no prefixes, can't work with that
+        if not sessions or not prefixes:
+            return None
+
+        # Values to be returned
+        number_of_peering_sessions = 0
+        number_of_autonomous_systems = 0
+
+        with transaction.atomic():
+            # For each session check if the address fits in one of the prefixes
+            for session in sessions:
+                for prefix in prefixes:
+                    self.logger.debug('checking if ip %s fits in prefix %s', str(
+                        session['ip_address']), str(prefix))
+
+                    # If the address fits, create a new PeeringSession object
+                    # and a new AutonomousSystem object if they does not exist
+                    # already
+                    if session['ip_address'] in prefix:
+                        ip_address = str(session['ip_address'])
+                        remote_asn = session['remote_asn']
+                        self.logger.debug(
+                            'ip %s fits in prefix %s', ip_address, str(prefix))
+
+                        if not PeeringSession.does_exist(ip_address):
+                            self.logger.debug(
+                                'session %s with as%s does not exist', ip_address, remote_asn)
+
+                            # Grab the AS, create it if it does not exist in
+                            # the database yet
+                            autonomous_system = AutonomousSystem.does_exist(
+                                remote_asn)
+                            if not autonomous_system:
+                                self.logger.debug(
+                                    'as%s not present importing from peeringdb', remote_asn)
+                                autonomous_system = AutonomousSystem.create_from_peeringdb(
+                                    remote_asn)
+
+                                # Do not count the AS if it does not have a
+                                # PeeringDB record
+                                if autonomous_system:
+                                    self.logger.debug(
+                                        'as%s created', remote_asn)
+                                    number_of_autonomous_systems += 1
+                                else:
+                                    self.logger.debug(
+                                        'could not create as%s, session %s ignored', remote_asn, ip_address)
+
+                            # Only add a peering session if we were able to
+                            # actually use the AS it is linked to
+                            if autonomous_system:
+                                self.logger.debug(
+                                    'creating session %s', ip_address)
+                                values = {
+                                    'autonomous_system': autonomous_system,
+                                    'internet_exchange': self,
+                                    'ip_address': ip_address,
+                                }
+                                peering_session = PeeringSession(**values)
+                                peering_session.save()
+                                number_of_peering_sessions += 1
+                                self.logger.debug(
+                                    'session %s created', ip_address)
+                        else:
+                            self.logger.debug(
+                                'session %s with as%s already exists', ip_address, remote_asn)
+                    else:
+                        self.logger.debug('ip %s do not fit in prefix %s', str(
+                            session['ip_address']), str(prefix))
+
+        return (number_of_autonomous_systems, number_of_peering_sessions)
+
     def import_peering_sessions_from_router(self):
         # No point of discovering from router if platform is none or is not
         # supported or if the IX is not linked to a PeeringDB record.
@@ -269,62 +342,7 @@ class InternetExchange(models.Model):
         # Gather all existing BGP sessions from the router connected to the IX
         bgp_sessions = self.router.get_napalm_bgp_neighbors()
 
-        with transaction.atomic():
-            # For each BGP session check if the address fits in on of the prefixes
-            for bgp_session in bgp_sessions:
-                for prefix in prefixes:
-                    self.logger.debug(
-                        'checking for sessions inside prefix %s', str(prefix))
-
-                    # If the address fits, create a new PeeringSession object and a
-                    # new AutonomousSystem object if they does not exist already
-                    if bgp_session['ip_address'] in prefix:
-                        ip_address = str(bgp_session['ip_address'])
-                        self.logger.debug(
-                            'session %s fitting inside prefix %s', ip_address, str(prefix))
-
-                        if not PeeringSession.does_exist(ip_address):
-                            remote_asn = bgp_session['remote_asn']
-                            self.logger.debug(
-                                'session %s does not exist, will be created', ip_address)
-
-                            autonomous_system = AutonomousSystem.does_exist(
-                                bgp_session['remote_asn'])
-                            if not autonomous_system:
-                                self.logger.debug(
-                                    'asn %s for session %s not created yet, importing from peeringdb', remote_asn, ip_address)
-                                autonomous_system = AutonomousSystem.create_from_peeringdb(
-                                    remote_asn)
-                                # Do not count the AS if it does not have a
-                                # PeeringDB record
-                                if autonomous_system:
-                                    self.logger.debug(
-                                        'asn %s for session %s created', remote_asn, ip_address)
-                                    number_of_autonomous_systems += 1
-                                else:
-                                    self.logger.debug(
-                                        'could not create asn %s, session %s ignored', remote_asn, ip_address)
-
-                            # Only add a peering session if we were able to
-                            # find the AS on PeeringDB
-                            if autonomous_system:
-                                self.logger.debug(
-                                    'creating session %s', ip_address)
-                                values = {
-                                    'autonomous_system': autonomous_system,
-                                    'internet_exchange': self,
-                                    'ip_address': ip_address,
-                                }
-                                peering_session = PeeringSession(**values)
-                                peering_session.save()
-                                number_of_peering_sessions += 1
-                                self.logger.debug(
-                                    'session %s created', ip_address)
-                    else:
-                        self.logger.debug(
-                            'session %s not fitting inside prefix %s', str(bgp_session['ip_address']), str(prefix))
-
-        return (number_of_autonomous_systems, number_of_peering_sessions)
+        return self._import_peering_sessions(bgp_sessions, prefixes)
 
     def __str__(self):
         return self.name
@@ -341,10 +359,9 @@ class PeeringSession(models.Model):
     @staticmethod
     def does_exist(ip_address):
         try:
-            PeeringSession.objects.get(ip_address=ip_address)
+            return PeeringSession.objects.get(ip_address=ip_address)
         except PeeringSession.DoesNotExist:
-            return False
-        return True
+            return None
 
     def to_dict(self):
         ip_version = ipaddress.ip_address(str(self.ip_address)).version

@@ -1,8 +1,10 @@
 from __future__ import unicode_literals
 
+import ipaddress
+
 from django.test import TestCase
 
-from .models import AutonomousSystem, Router
+from .models import AutonomousSystem, InternetExchange, Router
 
 
 class AutonomousSystemTestCase(TestCase):
@@ -42,44 +44,94 @@ class AutonomousSystemTestCase(TestCase):
         self.assertEqual(asn, AutonomousSystem.does_exist(asn).asn)
 
 
+class InternetExchangeTesCase(TestCase):
+    def test_import_peering_sessions(self):
+        # Expected results
+        expected = [
+            # First case
+            (1, 1),
+            # Second case
+            (0, 1),
+            # Third case
+            (0, 254),
+        ]
+
+        session_lists = [
+            # First case, one new session with one new AS
+            [
+                {
+                    'ip_address': ipaddress.ip_address('2001:db8::1'),
+                    'remote_asn': 29467,
+                }
+            ],
+            # Second case, one new session with one known AS
+            [
+                {
+                    'ip_address': ipaddress.ip_address('192.168.0.1'),
+                    'remote_asn': 29467,
+                }
+            ],
+            # Third case, several new sessions with one known AS
+            [
+                {
+                    'ip_address': ip_address,
+                    'remote_asn': 29467,
+                } for ip_address in list(ipaddress.ip_network('192.168.1.0/24').hosts())
+            ],
+        ]
+
+        prefix_lists = [
+            # First case
+            [ipaddress.ip_network('2001:db8::/64')],
+            # Second case
+            [ipaddress.ip_network('192.168.0.0/24')],
+            # Third case
+            [ipaddress.ip_network('192.168.1.0/24')],
+        ]
+
+        # Run test cases
+        for i in range(0, len(expected)):
+            ixp = InternetExchange.objects.create(name='Test {}'.format(i),
+                                                  slug='test_{}'.format(i))
+            self.assertEqual(expected[i],
+                             ixp._import_peering_sessions(session_lists[i],
+                                                          prefix_lists[i]))
+            self.assertEqual(expected[i][1], ixp.get_peering_sessions_count())
+
+
 class RouterTestCase(TestCase):
     def test_napalm_bgp_neighbors_to_peer_list(self):
-        dict_0 = None
-        dict_1 = {}
-        dict_2 = {'global': {'peers': {'192.168.0.1': {'remote_as': 64500}}}}
-        dict_3 = {'global': {'peers': {'192.168.0.1': {'remote_as': 64500}}},
-                  'vrf': {'peers': {'192.168.1.1': {'remote_as': 64501}}}}
-        dict_4 = {'global': {'peers': {'192.168.0.1': {'remote_as': 64500}}},
-                  'vrf0': {'peers': {'192.168.1.1': {'remote_as': 64501}}},
-                  'vrf1': {'peers': {'192.168.2.1': {'remote_as': 64502}}}}
-        dict_5 = {'global': {'peers': {'192.168.0.1': {'remote_as': 64500}}},
-                  'vrf0': {'peers': {'192.168.1.1': {'remote_as': 64501}}},
-                  'vrf1': {'peers': {'192.168.2.1': {'remote_an': 64502}}}}
-        dict_6 = {'global': {'peers': {'192.168.0.1': {'remote_as': 64500}}},
-                  'vrf0': {'peers': {'192.168.1.1': {'remote_as': 64501}}},
-                  'vrf1': {'peers': {'192.168.1.1': {'remote_as': 64502}}}}
+        # Expected results
+        expected = [0, 0, 1, 2, 3, 2, 2]
+
+        napalm_dicts_list = [
+            # If None or empty dict passed, returned value must be empty list
+            None,
+            {},
+            # List size must match peers number including VRFs
+            {'global': {'peers': {'192.168.0.1': {'remote_as': 64500}}}},
+            {'global': {'peers': {'192.168.0.1': {'remote_as': 64500}}},
+             'vrf': {'peers': {'192.168.1.1': {'remote_as': 64501}}}},
+            {'global': {'peers': {'192.168.0.1': {'remote_as': 64500}}},
+             'vrf0': {'peers': {'192.168.1.1': {'remote_as': 64501}}},
+             'vrf1': {'peers': {'192.168.2.1': {'remote_as': 64502}}}},
+            # If peer does not have remote_as field, it must be ignored
+            {'global': {'peers': {'192.168.0.1': {'remote_as': 64500}}},
+             'vrf0': {'peers': {'192.168.1.1': {'remote_as': 64501}}},
+             'vrf1': {'peers': {'192.168.2.1': {'not_valid': 64502}}}},
+            # If an IP address appears more than one time, only the first
+            # occurence  must be retained
+            {'global': {'peers': {'192.168.0.1': {'remote_as': 64500}}},
+             'vrf0': {'peers': {'192.168.1.1': {'remote_as': 64501}}},
+             'vrf1': {'peers': {'192.168.1.1': {'remote_as': 64502}}}},
+        ]
 
         # Create a router
         router = Router.objects.create(name='test',
                                        hostname='test.example.com',
                                        platform=Router.PLATFORM_JUNOS)
 
-        # If None or empty dict passed, returned value must be empty list
-        self.assertEqual(
-            0, len(router._napalm_bgp_neighbors_to_peer_list(dict_0)))
-        self.assertEqual(
-            0, len(router._napalm_bgp_neighbors_to_peer_list(dict_1)))
-        # List size must match peers number including VRFs
-        self.assertEqual(
-            1, len(router._napalm_bgp_neighbors_to_peer_list(dict_2)))
-        self.assertEqual(
-            2, len(router._napalm_bgp_neighbors_to_peer_list(dict_3)))
-        self.assertEqual(
-            3, len(router._napalm_bgp_neighbors_to_peer_list(dict_4)))
-        # If peer does not have remote_as field, it must be ignored
-        self.assertEqual(
-            2, len(router._napalm_bgp_neighbors_to_peer_list(dict_5)))
-        # If an IP address appears more than one time, only the first occurence
-        # must be retained
-        self.assertEqual(
-            2, len(router._napalm_bgp_neighbors_to_peer_list(dict_6)))
+        # Run test cases
+        for i in range(0, len(expected)):
+            self.assertEqual(expected[i], len(
+                router._napalm_bgp_neighbors_to_peer_list(napalm_dicts_list[i])))
