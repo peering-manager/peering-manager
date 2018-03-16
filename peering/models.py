@@ -260,6 +260,13 @@ class InternetExchange(models.Model):
             # For each session check if the address fits in one of the prefixes
             for session in sessions:
                 for prefix in prefixes:
+                    # No point of checking if a session fits inside a prefix if
+                    # they are not using the same IP version
+                    if session['ip_address'].version is not prefix.version:
+                        self.logger.debug('ip %s cannot fit in prefix %s (not same ip version) ignoring', str(
+                            session['ip_address']), str(prefix))
+                        continue
+
                     self.logger.debug('checking if ip %s fits in prefix %s', str(
                         session['ip_address']), str(prefix))
 

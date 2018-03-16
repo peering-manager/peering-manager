@@ -54,6 +54,8 @@ class InternetExchangeTesCase(TestCase):
             (0, 1),
             # Third case
             (0, 254),
+            # Fourth case
+            (0, 0),
         ]
 
         session_lists = [
@@ -78,6 +80,13 @@ class InternetExchangeTesCase(TestCase):
                     'remote_asn': 29467,
                 } for ip_address in list(ipaddress.ip_network('192.168.1.0/24').hosts())
             ],
+            # Fourth case, new IPv6 session but only IPv4 prefix
+            [
+                {
+                    'ip_address': ipaddress.ip_address('192.168.2.1'),
+                    'remote_asn': 29467,
+                }
+            ],
         ]
 
         prefix_lists = [
@@ -87,6 +96,8 @@ class InternetExchangeTesCase(TestCase):
             [ipaddress.ip_network('192.168.0.0/24')],
             # Third case
             [ipaddress.ip_network('192.168.1.0/24')],
+            # Fourth case
+            [ipaddress.ip_network('2001:db8::/64')],
         ]
 
         # Run test cases
