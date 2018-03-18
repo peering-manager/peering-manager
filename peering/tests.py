@@ -4,7 +4,7 @@ import ipaddress
 
 from django.test import TestCase
 
-from .models import AutonomousSystem, InternetExchange, Router
+from .models import AutonomousSystem, InternetExchange, PeeringSession, Router
 
 
 class AutonomousSystemTestCase(TestCase):
@@ -27,7 +27,7 @@ class AutonomousSystemTestCase(TestCase):
         asn = 29467
 
         # Must not exist at first
-        self.assertEqual(None, AutonomousSystem.does_exist(asn))
+        self.assertIsNone(AutonomousSystem.does_exist(asn))
 
         # Create the AS
         autonomous_system1 = AutonomousSystem.create_from_peeringdb(asn)
@@ -109,6 +109,83 @@ class InternetExchangeTesCase(TestCase):
                              ixp._import_peering_sessions(session_lists[i],
                                                           prefix_lists[i]))
             self.assertEqual(expected[i][1], ixp.get_peering_sessions_count())
+
+
+class PeeringSessionTestCase(TestCase):
+    def test_does_exist(self):
+        # Expected results
+        expected = [None]
+
+        # No session, must expect None
+        self.assertIsNone(PeeringSession.does_exist())
+
+        # Prepare objects and create a peering session
+        autonomous_system0 = AutonomousSystem.objects.create(asn=64500,
+                                                             name='Test')
+        internet_exchange0 = InternetExchange.objects.create(name='Test0',
+                                                             slug='test0')
+        peering_session0 = PeeringSession.objects.create(
+            autonomous_system=autonomous_system0,
+            internet_exchange=internet_exchange0,
+            ip_address='2001:db8::1')
+
+        # Make sure that the session has been created
+        self.assertIsNotNone(peering_session0)
+        # Make sure that the session is returned by calling does_exist()
+        # without arguments (only one session in the database)
+        self.assertIsNotNone(PeeringSession.does_exist())
+        # Make sure we can retrieve the session with its IP
+        self.assertEqual(peering_session0,
+                         PeeringSession.does_exist(ip_address='2001:db8::1'))
+        # Make sure we can retrieve the session with its IX
+        self.assertEqual(peering_session0,
+                         PeeringSession.does_exist(
+                             internet_exchange=internet_exchange0))
+        # Make sure we can retrieve the session with AS
+        self.assertEqual(peering_session0,
+                         PeeringSession.does_exist(
+                             autonomous_system=autonomous_system0))
+
+        # Create another peering session
+        peering_session1 = PeeringSession.objects.create(
+            autonomous_system=autonomous_system0,
+            internet_exchange=internet_exchange0,
+            ip_address='192.168.1.1')
+
+        # Make sure that the session has been created
+        self.assertIsNotNone(peering_session1)
+        # More than one session, must expect None
+        self.assertIsNone(PeeringSession.does_exist())
+        # Make sure we can retrieve the session with its IP
+        self.assertEqual(peering_session1,
+                         PeeringSession.does_exist(ip_address='192.168.1.1'))
+        # Make sure it returns None when using a field that the two sessions
+        # have in common
+        self.assertIsNone(PeeringSession.does_exist(
+            internet_exchange=internet_exchange0))
+
+        # Create a new IX
+        internet_exchange1 = InternetExchange.objects.create(name='Test1',
+                                                             slug='test1')
+
+        # Make sure it returns None when there is no session
+        self.assertIsNone(PeeringSession.does_exist(
+            internet_exchange=internet_exchange1))
+
+        # Create a new session with a already used IP in another OX
+        peering_session2 = PeeringSession.objects.create(
+            autonomous_system=autonomous_system0,
+            internet_exchange=internet_exchange1,
+            ip_address='2001:db8::1')
+
+        # Make sure that the session has been created
+        self.assertIsNotNone(peering_session2)
+        # Make sure we have None, because two sessions will be found
+        self.assertIsNone(PeeringSession.does_exist(ip_address='2001:db8::1'))
+        # But if we narrow the search with the IX we must have the proper
+        # session
+        self.assertEqual(peering_session2, PeeringSession.does_exist(
+            ip_address='2001:db8::1', internet_exchange=internet_exchange1))
 
 
 class RouterTestCase(TestCase):

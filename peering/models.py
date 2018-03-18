@@ -364,14 +364,11 @@ class PeeringSession(models.Model):
     ip_address = models.GenericIPAddressField()
     comment = models.TextField(blank=True)
 
-    logger = logging.getLogger('peering.manager.peering')
-
     @staticmethod
     def does_exist(internet_exchange=None, autonomous_system=None, ip_address=None):
         """
         Returns a PeeringSession object or None based on the positional
-        arguments. If several objects are found, None is returned but a log is
-        created.
+        arguments. If several objects are found, None is returned.
 
         TODO: the method must be reworked in order to have its proper return
         value if multiple objects are found.
@@ -390,7 +387,6 @@ class PeeringSession(models.Model):
         except PeeringSession.DoesNotExist:
             return None
         except PeeringSession.MultipleObjectsReturned:
-            self.logger.debug('multiple peering sessions found for %s', filter)
             return None
 
     def to_dict(self):
