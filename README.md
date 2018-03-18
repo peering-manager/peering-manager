@@ -34,11 +34,14 @@ instructions on installing Peering Manager.
 No database setup is provided for now. This code has only been tested with an
 SQLite database.
 
-## Features to come (aka TODO list)
+## Helping
 
-  * Generate IRR objects
-  * BGP import/export policies
-  * BGP sessions status
-  * More info for AS and IX (eg. contact details)
-  * API connector for external peering form (or propose an integrated peering
-    form)
+You can help this project in many ways. Of course you can ask for features,
+give some ideas for future development, open issues if you found any and
+contribute to the code with pull requests and patches.
+
+You can also support the development of this project by
+[donating some money](https://paypal.me/GuillaumeMazoyer). Developing such
+project can be time consuming and it is done on personal time. Giving few
+dollars/euros/pounds/etc... can be a way to say thanks and help to free some
+time to develop this project.
