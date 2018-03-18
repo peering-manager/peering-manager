@@ -279,7 +279,8 @@ class InternetExchange(models.Model):
                         self.logger.debug(
                             'ip %s fits in prefix %s', ip_address, str(prefix))
 
-                        if not PeeringSession.does_exist(ip_address):
+                        if not PeeringSession.does_exist(ip_address=ip_address,
+                                                         internet_exchange=self):
                             self.logger.debug(
                                 'session %s with as%s does not exist', ip_address, remote_asn)
 
@@ -363,11 +364,33 @@ class PeeringSession(models.Model):
     ip_address = models.GenericIPAddressField()
     comment = models.TextField(blank=True)
 
+    logger = logging.getLogger('peering.manager.peering')
+
     @staticmethod
-    def does_exist(ip_address):
+    def does_exist(internet_exchange=None, autonomous_system=None, ip_address=None):
+        """
+        Returns a PeeringSession object or None based on the positional
+        arguments. If several objects are found, None is returned but a log is
+        created.
+
+        TODO: the method must be reworked in order to have its proper return
+        value if multiple objects are found.
+        """
+        # Filter based on fields that are not None
+        filter = {}
+        if internet_exchange:
+            filter.update({'internet_exchange': internet_exchange})
+        if autonomous_system:
+            filter.update({'autonomous_system': autonomous_system})
+        if ip_address:
+            filter.update({'ip_address': ip_address})
+
         try:
-            return PeeringSession.objects.get(ip_address=ip_address)
+            return PeeringSession.objects.get(**filter)
         except PeeringSession.DoesNotExist:
+            return None
+        except PeeringSession.MultipleObjectsReturned:
+            self.logger.debug('multiple peering sessions found for %s', filter)
             return None
 
     def to_dict(self):

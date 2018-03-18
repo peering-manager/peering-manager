@@ -53,7 +53,7 @@ class InternetExchangeTesCase(TestCase):
             # Second case
             (0, 1),
             # Third case
-            (0, 254),
+            (0, 1),
             # Fourth case
             (0, 0),
         ]
@@ -73,14 +73,15 @@ class InternetExchangeTesCase(TestCase):
                     'remote_asn': 29467,
                 }
             ],
-            # Third case, several new sessions with one known AS
+            # Third case, new IPv4 session on another IX but with an IP that
+            # has already been used
             [
                 {
-                    'ip_address': ip_address,
+                    'ip_address': ipaddress.ip_address('192.168.0.1'),
                     'remote_asn': 29467,
-                } for ip_address in list(ipaddress.ip_network('192.168.1.0/24').hosts())
+                }
             ],
-            # Fourth case, new IPv6 session but only IPv4 prefix
+            # Fourth case, new IPv4 session with IPv6 prefix
             [
                 {
                     'ip_address': ipaddress.ip_address('192.168.2.1'),
@@ -95,7 +96,7 @@ class InternetExchangeTesCase(TestCase):
             # Second case
             [ipaddress.ip_network('192.168.0.0/24')],
             # Third case
-            [ipaddress.ip_network('192.168.1.0/24')],
+            [ipaddress.ip_network('192.168.0.0/24')],
             # Fourth case
             [ipaddress.ip_network('2001:db8::/64')],
         ]
