@@ -40,8 +40,6 @@ __patterns = [
     url(r'^password/$', views.ChangePasswordView.as_view(),
         name='user_change_password'),
     url(r'^activity/$', views.RecentActivityView.as_view(), name='user_activity'),
-    url(r'^synchronization/$', views.SynchronizationLogsView.as_view(),
-        name='synchronization'),
 
     # Home
     url(r'^$', views.Home.as_view(), name='home'),

@@ -41,7 +41,7 @@ ul.nav-tabs, ul.nav-pills {
   margin-bottom: 20px;
 }
 .panel .list-group {
-  max-height: 500px;
+  max-height: 325px;
   overflow: auto;
 }
 .pre-scrollable {

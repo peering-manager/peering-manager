@@ -63,6 +63,7 @@ class Home(View):
         context = {
             'statistics': statistics,
             'history': UserAction.objects.select_related('user')[:50],
+            'synchronizations': Synchronization.objects.all()[:50],
         }
         return render(request, 'home.html', context)
 
@@ -108,15 +109,6 @@ class RecentActivityView(View, LoginRequiredMixin):
             'active_tab': 'activity',
         }
         return render(request, 'user/activity.html', context)
-
-
-class SynchronizationLogsView(View, LoginRequiredMixin):
-    def get(self, request):
-        context = {
-            'synchronizations': Synchronization.objects.all()[:50],
-            'active_tab': 'synchronization',
-        }
-        return render(request, 'user/synchronization.html', context)
 
 
 def handle_500(request):

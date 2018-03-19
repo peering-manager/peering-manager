@@ -64,6 +64,25 @@
               {% endfor %}
             </div>
           </div>
+          {% if synchronizations %}
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>PeeringDB Synchronizations</strong>
+            </div>
+            <div class="list-group">
+              {% for synchronization in synchronizations %}
+              <div class="list-group-item">
+                <i class="fa fa-refresh" aria-hidden="true"></i> Added {{ synchronization.added }}, updated, {{ synchronization.updated }} and deleted {{ synchronization.deleted }} objects<br />
+                <small class="text-muted">{{ synchronization.time|date:'SHORT_DATETIME_FORMAT' }}</small>
+              </div>
+              {% empty %}
+              <div class="list-group-item">
+                <span class="text-muted">No actions</span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
         </div>
       </div>
 {% endblock %}
