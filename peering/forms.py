@@ -146,14 +146,17 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = InternetExchange
-        fields = ('name', 'slug', 'ipv6_address', 'ipv4_address',
-                  'configuration_template', 'router', 'comment',)
+        fields = ('peeringdb_id', 'name', 'slug', 'ipv6_address',
+                  'ipv4_address', 'configuration_template', 'router',
+                  'comment',)
         labels = {
+            'peeringdb_id': 'PeeringDB ID',
             'ipv6_address': 'IPv6 Address',
             'ipv4_address': 'IPv4 Address',
             'comment': 'Comments',
         }
         help_texts = {
+            'peeringdb_id': 'The PeeringDB ID for the IX connection (can be left empty)',
             'name': 'Full name of the Internet Exchange point',
             'ipv6_address': 'IPv6 Address used to peer',
             'ipv4_address': 'IPv4 Address used to peer',
