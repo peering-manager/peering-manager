@@ -470,7 +470,8 @@ class IXAddPeer(ConfirmationView):
 
             # Record the IPv6 session if we can
             if network_ixlan.ipaddr6:
-                session = PeeringSession.does_exist(network_ixlan.ipaddr6)
+                session = PeeringSession.does_exist(
+                    ip_address=network_ixlan.ipaddr6, internet_exchange=internet_exchange)
                 if not session:
                     values = {
                         'autonomous_system': autonomous_system,
@@ -486,7 +487,8 @@ class IXAddPeer(ConfirmationView):
 
             # Record the IPv4 session if we can
             if network_ixlan.ipaddr4:
-                session = PeeringSession.does_exist(network_ixlan.ipaddr4)
+                session = PeeringSession.does_exist(
+                    ip_address=network_ixlan.ipaddr4, internet_exchange=internet_exchange)
                 if not session:
                     values = {
                         'autonomous_system': autonomous_system,
