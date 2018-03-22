@@ -8,6 +8,7 @@ pages:
     - 'LDAP': 'setup/ldap.md'
     - 'Upgrading': 'setup/upgrading.md'
     - 'Scheduled Tasks': 'setup/scheduled-tasks.md'
+  - 'User Manual': 'man.md'
   - 'Templating': 'config-template.md'
   - 'Integration': 'integration.md'
 
