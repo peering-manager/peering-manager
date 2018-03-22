@@ -567,11 +567,13 @@ class Router(models.Model):
                         'discarding configuration on %s', self.hostname)
                     device.discard_config()
             except napalm.base.exceptions.MergeConfigException as e:
+                changes = None
                 self.logger.debug(
                     'unable to merge configuration on %s reason "%s"', self.hostname, e)
-            except Exception:
+            except Exception as e:
+                changes = None
                 self.logger.debug(
-                    'unable to merge configuration on %s', self.hostname)
+                    'unable to merge configuration on %s error "%s"', self.hostname, e)
             else:
                 self.logger.debug(
                     'successfully merged configuration on %s', self.hostname)
