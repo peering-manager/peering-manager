@@ -58,7 +58,8 @@ class CSVDataField(forms.CharField):
         # Parse CSV data
         for i, row in enumerate(reader, start=1):
             if row:
-                # Number of columns in the row does not match the number of headers
+                # Number of columns in the row does not match the number of
+                # headers
                 if len(row) != len(headers):
                     raise forms.ValidationError(
                         "Row {}: Expected {} columns but found {}".format(i, len(headers), len(row)))
@@ -82,11 +83,12 @@ class ConfirmationForm(BootstrapMixin, forms.Form):
 
 class CSVChoiceField(forms.ChoiceField):
     """
-    This field helps to get a database usable value from a human-readable value as input.
+    This field helps to get a database usable value from a human-readable value
+    as input.
     """
 
     def __init__(self, choices, *args, **kwargs):
-        super(CSVChoiceField, self).__init__(choices, *args, **kwargs)
+        super(CSVChoiceField, self).__init__(choices=choices, *args, **kwargs)
         self.choices = [(label, label) for value, label in choices]
         self.choice_values = {label: value for value, label in choices}
 
@@ -107,7 +109,8 @@ class CSVChoiceField(forms.ChoiceField):
 
 class FilterChoiceIterator(forms.models.ModelChoiceIterator):
     def __iter__(self):
-        # Filter on "empty" choice using FILTERS_NULL_CHOICE_VALUE (instead of an empty string)
+        # Filter on "empty" choice using FILTERS_NULL_CHOICE_VALUE (instead of
+        # an empty string)
         if self.field.null_label is not None:
             yield (settings.FILTERS_NULL_CHOICE_VALUE, self.field.null_label)
         queryset = self.queryset.all()
