@@ -72,7 +72,7 @@
             $('.modal-body').html('<pre class="pre-scrollable">' + data['changes'] + '</pre>');
             $('.modal').modal('show');
           } else {
-            $('.modal-body').html('<p>No configuration differences found.</p><p>The router may be up-to-date or unreachable.</p>');
+            $('.modal-body').html('<p>No configuration differences found.</p><p>The router may be up-to-date, unreachable or the configuration may also be locked by another user.</p><p>You can find more details in the <code>logs/napalm.log</code> logs file.</p>');
             $('#save-config').hide();
             $('.modal').modal('show');
           }
