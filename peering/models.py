@@ -420,10 +420,16 @@ class Router(models.Model):
     # Platform constants, based on NAPALM drivers
     PLATFORM_JUNOS = 'junos'
     PLATFORM_IOSXR = 'iosxr'
+    PLATFORM_IOS = 'ios'
+    PLATFORM_NXOS = 'nxos'
+    PLATFORM_EOS = 'eos'
     PLATFORM_NONE = None
     PLATFORM_CHOICES = (
         (PLATFORM_JUNOS, 'Juniper JUNOS'),
         (PLATFORM_IOSXR, 'Cisco IOS-XR'),
+        (PLATFORM_IOS, 'Cisco IOS'),
+        (PLATFORM_NXOS, 'Cisco NX-OS'),
+        (PLATFORM_EOS, 'Arista EOS'),
         (PLATFORM_NONE, 'Other'),
     )
 
