@@ -9,8 +9,9 @@
 
     <title>{% block title %}Home{% endblock %} - Peering Manager</title>
 
+    <script defer src="{% static 'font-awesome-5.0.8/js/fontawesome-all.js' %}"></script>
+
     <link rel="stylesheet" href="{% static 'bootstrap-3.3.7-dist/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'font-awesome-4.7.0/css/font-awesome.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v{{ settings.VERSION }}"
   </head>
   <body>
@@ -63,11 +64,11 @@
                 </li>
                 {% endif %}
                 <li class="divider"></li>
-                <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out" aria-hidden="true"></i> Log out</a></li>
+                <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out-alt" aria-hidden="true"></i> Log out</a></li>
               </ul>
             </li>
             {% else %}
-            <li><a href="{% url 'login' %}?next={{ request.path }}"><i class="fa fa-sign-in" aria-hidden="true"></i> Log in</a></li>
+            <li><a href="{% url 'login' %}?next={{ request.path }}"><i class="fa fa-sign-in-alt" aria-hidden="true"></i> Log in</a></li>
             {% endif %}
           </ul>
         </div>

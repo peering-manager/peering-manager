@@ -4,11 +4,11 @@
       {% if request.user.is_authenticated %}
       <div class="pull-right">
         <a href="{% url 'peering:router_add' %}" class="btn btn-primary">
-          <span class="fa fa-plus" aria-hidden="true"></span>
+          <i class="fas fa-plus" aria-hidden="true"></i>
           Add a Router
         </a>
         <a href="{% url 'peering:router_import' %}" class="btn btn-info">
-          <span class="fa fa-upload" aria-hidden="true"></span>
+          <i class="fas fa-upload" aria-hidden="true"></i>
           Import Routers
         </a>
       </div>

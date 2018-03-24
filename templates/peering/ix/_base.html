@@ -4,10 +4,10 @@
 {% if request.user.is_authenticated %}
 <div class="pull-right">
   <a href="{% url 'peering:ix_edit' slug=internet_exchange.slug %}" class="btn btn-warning">
-    <span class="fa fa-pencil" aria-hidden="true"></span> Edit
+    <i class="fas fa-edit" aria-hidden="true"></i> Edit
   </a>
   <a href="{% url 'peering:ix_delete' slug=internet_exchange.slug %}" class="btn btn-danger">
-    <span class="fa fa-trash" aria-hidden="true"></span> Delete
+    <i class="fas fa-trash" aria-hidden="true"></i> Delete
   </a>
 </div>
 {% endif %}
@@ -16,20 +16,20 @@
 <ul class="nav nav-tabs">
   <li role="presentation" {% if request.path|notcontains:'/sessions/,/peers/,/config/' %}class="active"{% endif %}>
     <a href="{% url 'peering:ix_details' slug=internet_exchange.slug %}">
-      <span class="fa fa-info-circle" aria-hidden="true"></span>
+      <i class="fas fa-info-circle" aria-hidden="true"></i>
       Info
     </a>
   </li>
   <li role="presentation" {% if request.path|contains:'/sessions/' %}class="active"{% endif %}>
     <a href="{% url 'peering:ix_peering_sessions' slug=internet_exchange.slug %}">
-      <span class="fa fa-sitemap" aria-hidden="true"></span>
+      <i class="fas fa-sitemap" aria-hidden="true"></i>
       Peering Sessions
     </a>
   </li>
   {% if internet_exchange.peeringdb_id %}
   <li role="presentation" {% if request.path|contains:'/peers/' %}class="active"{% endif %}>
     <a href="{% url 'peering:ix_peers' slug=internet_exchange.slug %}">
-      <span class="fa fa-link" aria-hidden="true"></span>
+      <i class="fas fa-link" aria-hidden="true"></i>
       Available Peers
     </a>
   </li>
@@ -37,7 +37,7 @@
   {% if internet_exchange.configuration_template %}
   <li role="presentation" {% if request.path|contains:'/config/' %}class="active"{% endif %}>
     <a href="{% url 'peering:ix_configuration' slug=internet_exchange.slug %}">
-      <span class="fa fa-terminal" aria-hidden="true"></span>
+      <i class="fas fa-terminal" aria-hidden="true"></i>
       Configuration
     </a>
   </li>

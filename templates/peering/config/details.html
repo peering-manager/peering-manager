@@ -4,10 +4,10 @@
       {% if request.user.is_authenticated %}
       <div class="pull-right">
         <a href="{% url 'peering:configuration_template_edit' pk=configuration_template.pk %}" class="btn btn-warning">
-          <span class="fa fa-pencil" aria-hidden="true"></span> Edit
+          <i class="fa fa-edit" aria-hidden="true"></i> Edit
         </a>
         <a href="{% url 'peering:configuration_template_delete' pk=configuration_template.pk %}" class="btn btn-danger">
-          <span class="fa fa-trash" aria-hidden="true"></span> Delete
+          <i class="fa fa-trash" aria-hidden="true"></i> Delete
         </a>
       </div>
       {% endif %}

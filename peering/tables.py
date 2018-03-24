@@ -17,7 +17,7 @@ class AutonomousSystemTable(BaseTable):
     ipv6_max_prefixes = tables.Column(verbose_name='IPv6 Max Prefixes')
     ipv4_max_prefixes = tables.Column(verbose_name='IPv4 Max Prefixes')
     details = tables.TemplateColumn(verbose_name='',
-                                    template_code='<div class="pull-right"><a href="{% url \'peering:as_details\' asn=record.asn %}" class="btn btn-xs btn-info"><span class="fa fa-info-circle" aria-hidden="true"></span> Details</a></div>', orderable=False)
+                                    template_code='<div class="pull-right"><a href="{% url \'peering:as_details\' asn=record.asn %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a></div>', orderable=False)
 
     class Meta(BaseTable.Meta):
         model = AutonomousSystem
@@ -31,7 +31,7 @@ class CommunityTable(BaseTable):
     """
     pk = SelectColumn()
     details = tables.TemplateColumn(verbose_name='',
-                                    template_code='<div class="pull-right"><a href="{% url \'peering:community_details\' pk=record.pk %}" class="btn btn-xs btn-info"><span class="fa fa-info-circle" aria-hidden="true"></span> Details</a> <a href="{% url \'peering:community_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><span class="fa fa-pencil" aria-hidden="true"></span> Edit</a></div>', orderable=False)
+                                    template_code='<div class="pull-right"><a href="{% url \'peering:community_details\' pk=record.pk %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a> <a href="{% url \'peering:community_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a></div>', orderable=False)
 
     class Meta(BaseTable.Meta):
         model = Community
@@ -44,7 +44,7 @@ class ConfigurationTemplateTable(BaseTable):
     """
     pk = SelectColumn()
     details = tables.TemplateColumn(verbose_name='',
-                                    template_code='<div class="pull-right"><a href="{% url \'peering:configuration_template_details\' pk=record.pk %}" class="btn btn-xs btn-info"><span class="fa fa-info-circle" aria-hidden="true"></span> Details</a></div>', orderable=False)
+                                    template_code='<div class="pull-right"><a href="{% url \'peering:configuration_template_details\' pk=record.pk %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a></div>', orderable=False)
 
     class Meta(BaseTable.Meta):
         model = ConfigurationTemplate
@@ -60,7 +60,7 @@ class InternetExchangeTable(BaseTable):
     ipv4_address = tables.Column(verbose_name='IPv4 Address')
     configuration_template = tables.Column(verbose_name='Template')
     details = tables.TemplateColumn(verbose_name='',
-                                    template_code='<div class="pull-right"><a href="{% url \'peering:ix_details\' slug=record.slug %}" class="btn btn-xs btn-info"><span class="fa fa-info-circle" aria-hidden="true"></span> Details</a></div>', orderable=False)
+                                    template_code='<div class="pull-right"><a href="{% url \'peering:ix_details\' slug=record.slug %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a></div>', orderable=False)
 
     class Meta(BaseTable.Meta):
         model = InternetExchange
@@ -78,7 +78,7 @@ class PeeringSessionTable(BaseTable):
                             accessor='autonomous_system.name')
     ip_address = tables.Column(verbose_name='IP Address')
     details = tables.TemplateColumn(verbose_name='',
-                                    template_code='<div class="pull-right"><a href="{% url \'peering:peering_session_details\' pk=record.pk %}" class="btn btn-xs btn-info"><span class="fa fa-info-circle" aria-hidden="true"></span> Details</a> <a href="{% url \'peering:peering_session_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><span class="fa fa-pencil" aria-hidden="true"></span> Edit</a></div>', orderable=False)
+                                    template_code='<div class="pull-right"><a href="{% url \'peering:peering_session_details\' pk=record.pk %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a> <a href="{% url \'peering:peering_session_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a></div>', orderable=False)
 
     class Meta(BaseTable.Meta):
         model = PeeringSession
@@ -94,7 +94,7 @@ class PeeringSessionTableForAS(BaseTable):
     ix = tables.Column(verbose_name='Internet Exchange',
                        accessor='internet_exchange.name')
     details = tables.TemplateColumn(verbose_name='',
-                                    template_code='<div class="pull-right"><a href="{% url \'peering:peering_session_details\' pk=record.pk %}" class="btn btn-xs btn-info"><span class="fa fa-info-circle" aria-hidden="true"></span> Details</a> <a href="{% url \'peering:peering_session_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><span class="fa fa-pencil" aria-hidden="true"></span> Edit</a></div>', orderable=False)
+                                    template_code='<div class="pull-right"><a href="{% url \'peering:peering_session_details\' pk=record.pk %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a> <a href="{% url \'peering:peering_session_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a></div>', orderable=False)
 
     class Meta(BaseTable.Meta):
         model = PeeringSession
@@ -108,7 +108,7 @@ class PeerTable(tables.Table):
     PEER_ACTION = """
     <div class="pull-right">
     {% if not record.peering6 and record.has_ipv6 or not record.peering4 and record.has_ipv4 %}
-    <a href="{% url 'peering:ix_add_peer' slug=internet_exchange.slug network_id=record.network.id network_ixlan_id=record.network_ixlan.id %}" class="btn btn-xs btn-primary"><span class="fa fa-link" aria-hidden="true"></span> Peer</a>
+    <a href="{% url 'peering:ix_add_peer' slug=internet_exchange.slug network_id=record.network.id network_ixlan_id=record.network_ixlan.id %}" class="btn btn-xs btn-primary"><i class="fas fa-link" aria-hidden="true"></i> Peer</a>
     {% endif %}
     </div>
     """
@@ -148,7 +148,7 @@ class RouterTable(BaseTable):
     """
     pk = SelectColumn()
     details = tables.TemplateColumn(verbose_name='',
-                                    template_code='<div class="pull-right"><a href="{% url \'peering:router_details\' pk=record.pk %}" class="btn btn-xs btn-info"><span class="fa fa-info-circle" aria-hidden="true"></span> Details</a> <a href="{% url \'peering:router_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><span class="fa fa-pencil" aria-hidden="true"></span> Edit</a></div>', orderable=False)
+                                    template_code='<div class="pull-right"><a href="{% url \'peering:router_details\' pk=record.pk %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a> <a href="{% url \'peering:router_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a></div>', orderable=False)
 
     class Meta(BaseTable.Meta):
         model = Router

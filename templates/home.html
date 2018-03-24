@@ -72,7 +72,7 @@
             <div class="list-group">
               {% for synchronization in synchronizations %}
               <div class="list-group-item">
-                <i class="fa fa-refresh" aria-hidden="true"></i> Added {{ synchronization.added }}, updated, {{ synchronization.updated }} and deleted {{ synchronization.deleted }} objects<br />
+                <i class="fa fa-sync" aria-hidden="true"></i> Added {{ synchronization.added }}, updated, {{ synchronization.updated }} and deleted {{ synchronization.deleted }} objects<br />
                 <small class="text-muted">{{ synchronization.time|date:'SHORT_DATETIME_FORMAT' }}</small>
               </div>
               {% empty %}

@@ -75,7 +75,7 @@ class UserAction(models.Model):
             return mark_safe('<i class="fa fa-plus-square text-success"></i>')
 
         if self.action == USER_ACTION_EDIT:
-            return mark_safe('<i class="fa fa-pencil-square text-warning"></i>')
+            return mark_safe('<i class="fa fa-pen-square text-warning"></i>')
 
         if self.action in [USER_ACTION_DELETE, USER_ACTION_BULK_DELETE]:
             return mark_safe('<i class="fa fa-minus-square text-danger"></i>')

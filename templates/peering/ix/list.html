@@ -4,15 +4,15 @@
       {% if request.user.is_authenticated %}
       <div class="pull-right">
         <a href="{% url 'peering:ix_add' %}" class="btn btn-primary">
-          <span class="fa fa-plus" aria-hidden="true"></span>
+          <i class="fas fa-plus" aria-hidden="true"></i>
           Add an IX
         </a>
         <a href="{% url 'peering:ix_import' %}" class="btn btn-info">
-          <span class="fa fa-upload" aria-hidden="true"></span>
+          <i class="fas fa-upload" aria-hidden="true"></i>
           Import IX
         </a>
         <a href="{% url 'peering:ix_peeringdb_import' %}" class="btn btn-info">
-          <span class="fa fa-cloud-upload" aria-hidden="true"></span>
+          <i class="fa fa-cloud-upload-alt aria-hidden="true"></i>
           Import from PeeringDB
         </a>
       </div>
