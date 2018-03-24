@@ -525,10 +525,11 @@ class Router(models.Model):
         # Open and close the test_napalm_connection
         self.logger.debug('testing connection with %s', self.hostname)
         opened = self.open_napalm_device(device)
+        alive = device.is_alive()
         closed = self.close_napalm_device(device)
 
         # Issue while opening or closing the connection
-        if not opened or not closed:
+        if not opened or not closed or not alive:
             self.logger.error(
                 'cannot connect to % s, napalm functions won\'t work', self.hostname)
 

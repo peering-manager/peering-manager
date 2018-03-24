@@ -63,7 +63,7 @@ class Home(View):
         context = {
             'statistics': statistics,
             'history': UserAction.objects.select_related('user')[:50],
-            'synchronizations': Synchronization.objects.all()[:50],
+            'synchronizations': Synchronization.objects.all()[:5],
         }
         return render(request, 'home.html', context)
 
