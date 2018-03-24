@@ -57,18 +57,18 @@
                 <li><a href="{% url 'admin:index' %}"><i class="fa fa-cogs" aria-hidden="true"></i> Admin</a></li>
                 <li>
                   <div class="buttons pull-right">
-                    <a class="btn btn-xs btn-primary" href="{% url 'peeringdb:build_cache' %}" title="Build"><i class="fa fa-cubes" aria-hidden="true"></i></a>
-                    <a class="btn btn-xs btn-danger" href="{% url 'peeringdb:clear_cache' %}" title="Clear"><i class="fa fa-eraser" aria-hidden="true"></i></a>
+                    <a class="btn btn-xs btn-primary" href="{% url 'peeringdb:build_cache' %}" title="Build"><i class="fas fa-cubes" aria-hidden="true"></i></a>
+                    <a class="btn btn-xs btn-danger" href="{% url 'peeringdb:clear_cache' %}" title="Clear"><i class="fas fa-eraser" aria-hidden="true"></i></a>
                   </div>
                   <a href="#"><i class="fa fa-database" aria-hidden="true"></i> Cache</a>
                 </li>
                 {% endif %}
                 <li class="divider"></li>
-                <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out-alt" aria-hidden="true"></i> Log out</a></li>
+                <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt" aria-hidden="true"></i> Log out</a></li>
               </ul>
             </li>
             {% else %}
-            <li><a href="{% url 'login' %}?next={{ request.path }}"><i class="fa fa-sign-in-alt" aria-hidden="true"></i> Log in</a></li>
+            <li><a href="{% url 'login' %}?next={{ request.path }}"><i class="fas fa-sign-in-alt" aria-hidden="true"></i> Log in</a></li>
             {% endif %}
           </ul>
         </div>

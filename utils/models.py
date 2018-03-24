@@ -72,13 +72,13 @@ class UserAction(models.Model):
         Return an HTML element based on the user action.
         """
         if self.action in [USER_ACTION_CREATE, USER_ACTION_IMPORT]:
-            return mark_safe('<i class="fa fa-plus-square text-success"></i>')
+            return mark_safe('<i class="fas fa-plus-square text-success"></i>')
 
         if self.action == USER_ACTION_EDIT:
-            return mark_safe('<i class="fa fa-pen-square text-warning"></i>')
+            return mark_safe('<i class="fas fa-pen-square text-warning"></i>')
 
         if self.action in [USER_ACTION_DELETE, USER_ACTION_BULK_DELETE]:
-            return mark_safe('<i class="fa fa-minus-square text-danger"></i>')
+            return mark_safe('<i class="fas fa-minus-square text-danger"></i>')
 
         return ''
 

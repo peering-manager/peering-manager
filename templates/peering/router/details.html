@@ -101,12 +101,12 @@
           beforeSend: function() {
             $('#router-ping').attr('disabled', 'disabled');
             $('#router-ping').removeClass('btn-primary').addClass('btn-warning');
-            $('#router-ping').html('<i class="fa fa-sync fa-spin fa-fw"></i> Working');
+            $('#router-ping').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
           },
           complete: function() {
             $('#router-ping').removeClass('btn-warning').addClass('btn-primary');
             $('#router-ping').removeAttr('disabled');
-            $('#router-ping').html('<i class="fa fa-plug" aria-hidden="true"></i> Ping');
+            $('#router-ping').html('<i class="fas fa-plug" aria-hidden="true"></i> Ping');
           }
         }).done(function(response) {
           var data = JSON.parse(response);
