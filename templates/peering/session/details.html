@@ -44,8 +44,8 @@
               <strong>Comments</strong>
             </div>
             <div class="panel-body">
-              {% if internet_exchange.comment %}
-              {{ internet_exchange.comment|markdown }}
+              {% if peering_session.comment %}
+              {{ peering_session.comment|markdown }}
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}
