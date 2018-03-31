@@ -22,6 +22,7 @@ class AutonomousSystem(models.Model):
     irr_as_set = models.CharField(max_length=255, blank=True, null=True)
     ipv6_max_prefixes = models.PositiveIntegerField(blank=True, null=True)
     ipv4_max_prefixes = models.PositiveIntegerField(blank=True, null=True)
+    keep_synced_with_peeringdb = models.BooleanField(default=True)
     updated = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -362,6 +363,7 @@ class PeeringSession(models.Model):
     internet_exchange = models.ForeignKey(
         'InternetExchange', on_delete=models.CASCADE)
     ip_address = models.GenericIPAddressField()
+    enabled = models.BooleanField(default=True)
     comment = models.TextField(blank=True)
 
     @staticmethod
@@ -390,7 +392,11 @@ class PeeringSession(models.Model):
             return None
 
     def to_dict(self):
-        ip_version = ipaddress.ip_address(str(self.ip_address)).version
+        """
+        Returns a dictionary based on fields of the peering session. The
+        dictionary can be used for multiple purposes.
+        """
+        ip_version = ipaddress.ip_address(self.ip_address).version
 
         # Enforce max prefixes to be set to 0 by default
         max_prefixes = 0
@@ -407,13 +413,17 @@ class PeeringSession(models.Model):
             'ip_version': ip_version,
             'ip_address': self.ip_address,
             'max_prefixes': max_prefixes,
+            'enabled': self.enabled,
         }
 
     def get_absolute_url(self):
-        return reverse('peering:peering_session_details', kwargs={'pk': self.pk})
+        return reverse('peering:peering_session_details',
+                       kwargs={'pk': self.pk})
 
     def __str__(self):
-        return '{} - AS{} - IP {}'.format(self.internet_exchange.name, self.autonomous_system.asn, self.ip_address)
+        return '{} - AS{} - IP {}'.format(self.internet_exchange.name,
+                                          self.autonomous_system.asn,
+                                          self.ip_address)
 
 
 class Router(models.Model):

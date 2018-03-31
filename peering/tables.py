@@ -2,8 +2,8 @@ from __future__ import unicode_literals
 
 import django_tables2 as tables
 
-from .models import (AutonomousSystem, Community,
-                     ConfigurationTemplate, InternetExchange, PeeringSession, Router)
+from .models import (AutonomousSystem, Community, ConfigurationTemplate,
+                     InternetExchange, PeeringSession, Router)
 from utils.tables import BaseTable, SelectColumn
 
 
@@ -68,6 +68,15 @@ class InternetExchangeTable(BaseTable):
                   'configuration_template', 'router', 'details',)
 
 
+PEERING_SESSION_STATE = """
+{% if record.enabled %}
+<span class="label label-success">Enabled</span>
+{% else %}
+<span class="label label-danger">Disabled</span>
+{% endif %}
+"""
+
+
 class PeeringSessionTable(BaseTable):
     """
     Table for PeeringSession lists
@@ -77,12 +86,14 @@ class PeeringSessionTable(BaseTable):
     as_name = tables.Column(verbose_name='AS Name',
                             accessor='autonomous_system.name')
     ip_address = tables.Column(verbose_name='IP Address')
+    enabled = tables.TemplateColumn(verbose_name='Is Enabled',
+                                    template_code=PEERING_SESSION_STATE)
     details = tables.TemplateColumn(verbose_name='',
                                     template_code='<div class="pull-right"><a href="{% url \'peering:peering_session_details\' pk=record.pk %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a> <a href="{% url \'peering:peering_session_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a></div>', orderable=False)
 
     class Meta(BaseTable.Meta):
         model = PeeringSession
-        fields = ('pk', 'asn', 'as_name', 'ip_address', 'details',)
+        fields = ('pk', 'asn', 'as_name', 'ip_address', 'enabled', 'details',)
 
 
 class PeeringSessionTableForAS(BaseTable):
@@ -93,12 +104,14 @@ class PeeringSessionTableForAS(BaseTable):
     ip_address = tables.Column(verbose_name='IP Address')
     ix = tables.Column(verbose_name='Internet Exchange',
                        accessor='internet_exchange.name')
+    enabled = tables.TemplateColumn(verbose_name='Is Enabled',
+                                    template_code=PEERING_SESSION_STATE)
     details = tables.TemplateColumn(verbose_name='',
                                     template_code='<div class="pull-right"><a href="{% url \'peering:peering_session_details\' pk=record.pk %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a> <a href="{% url \'peering:peering_session_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a></div>', orderable=False)
 
     class Meta(BaseTable.Meta):
         model = PeeringSession
-        fields = ('pk', 'ip_address', 'ix', 'details',)
+        fields = ('pk', 'ip_address', 'ix', 'enabled', 'details',)
 
 
 class PeerTable(tables.Table):

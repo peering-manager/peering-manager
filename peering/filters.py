@@ -122,10 +122,14 @@ class PeeringSessionFilter(django_filters.FilterSet):
         method='search',
         label='Search',
     )
+    enabled = django_filters.BooleanFilter(
+        method='is_enabled',
+        label='Is Enabled',
+    )
 
     class Meta:
         model = PeeringSession
-        fields = ['q', 'ip_address', 'autonomous_system__asn',
+        fields = ['q', 'ip_address', 'enabled', 'autonomous_system__asn',
                   'autonomous_system__name', 'internet_exchange__name',
                   'internet_exchange__slug']
 
@@ -144,6 +148,12 @@ class PeeringSessionFilter(django_filters.FilterSet):
         except ValueError:
             pass
         return queryset.filter(qs_filter)
+
+    def is_enabled(self, queryset, name, value):
+        if value:
+            return queryset.filter(Q(enabled=True))
+        else:
+            return queryset.exclude(Q(enabled=True))
 
 
 class RouterFilter(django_filters.FilterSet):

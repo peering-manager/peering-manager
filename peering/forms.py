@@ -3,14 +3,16 @@ from __future__ import unicode_literals
 from django import forms
 
 from .models import (AutonomousSystem, Community,
-                     ConfigurationTemplate, InternetExchange, PeeringSession, Router)
+                     ConfigurationTemplate, InternetExchange, PeeringSession,
+                     Router)
 from utils.forms import (BootstrapMixin, CSVChoiceField,
                          FilterChoiceField, SlugField)
 
 
 class CommentField(forms.CharField):
     """
-    A textarea with support for GitHub-Flavored Markdown. Exists mostly just to add a standard help_text.
+    A textarea with support for GitHub-Flavored Markdown. Exists mostly just to
+    add a standard help_text.
     """
     widget = forms.Textarea
     default_label = 'Comments'
@@ -21,12 +23,14 @@ class CommentField(forms.CharField):
         label = kwargs.pop('label', self.default_label)
         help_text = kwargs.pop('help_text', self.default_helptext)
         super(CommentField, self).__init__(required=required,
-                                           label=label, help_text=help_text, *args, **kwargs)
+                                           label=label, help_text=help_text,
+                                           *args, **kwargs)
 
 
 class TemplateField(forms.CharField):
     """
-    A textarea dedicated for template. Exists mostly just to add a standard help_text.
+    A textarea dedicated for template. Exists mostly just to add a standard
+    help_text.
     """
     widget = forms.Textarea
     default_label = 'Template'
@@ -37,7 +41,8 @@ class TemplateField(forms.CharField):
         label = kwargs.pop('label', self.default_label)
         help_text = kwargs.pop('help_text', self.default_helptext)
         super(TemplateField, self).__init__(required=required,
-                                            label=label, help_text=help_text, *args, **kwargs)
+                                            label=label, help_text=help_text,
+                                            *args, **kwargs)
 
 
 class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
@@ -194,7 +199,8 @@ class InternetExchangePeeringDBFormSet(forms.BaseFormSet):
         Check if slugs are uniques accross forms.
         """
         if any(self.errors):
-            # Don't bother validating the formset unless each form is valid on its own
+            # Don't bother validating the formset unless each form is valid on
+            # its own
             return
 
         slugs = []
@@ -260,26 +266,35 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
     ipv6_address = forms.CharField(required=False, label='IPv6 Address')
     ipv4_address = forms.CharField(required=False, label='IPv4 Address')
     configuration_template = FilterChoiceField(
-        queryset=ConfigurationTemplate.objects.all(), to_field_name='pk', null_label='-- None --')
+        queryset=ConfigurationTemplate.objects.all(), to_field_name='pk',
+        null_label='-- None --')
     router = FilterChoiceField(
-        queryset=Router.objects.all(), to_field_name='pk', null_label='-- None --')
+        queryset=Router.objects.all(), to_field_name='pk',
+        null_label='-- None --')
 
 
 class PeeringSessionForm(BootstrapMixin, forms.ModelForm):
     comment = CommentField()
+    enabled = forms.BooleanField(required=False, label='Is Enabled',
+                                 widget=forms.Select(choices=[
+                                     ('True', 'Yes'),
+                                     ('False', 'No'),
+                                 ]))
 
     class Meta:
         model = PeeringSession
         fields = ('autonomous_system', 'internet_exchange',
-                  'ip_address', 'comment',)
+                  'ip_address', 'enabled', 'comment',)
         labels = {
             'autonomous_system': 'ASN',
             'internet_exchange': 'IX',
             'ip_address': 'IP Address',
+            'enabled': 'Enabled',
             'comment': 'Comments',
         }
         help_texts = {
             'ip_address': 'IPv6 or IPv4 address',
+            'enabled': 'Should this session be considered as enabled?'
         }
 
 
@@ -289,14 +304,27 @@ class PeeringSessionFilterForm(BootstrapMixin, forms.Form):
     autonomous_system__asn = forms.IntegerField(required=False, label='ASN')
     autonomous_system__name = forms.CharField(required=False, label='AS Name')
     ip_address = forms.CharField(required=False, label='IP Address')
+    enabled = forms.BooleanField(required=False, label='Is Enabled',
+                                 widget=forms.Select(choices=[
+                                     ('', '---------'),
+                                     ('True', 'Yes'),
+                                     ('False', 'No'),
+                                 ]))
 
 
 class PeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
     model = PeeringSession
     q = forms.CharField(required=False, label='Search')
     ip_address = forms.CharField(required=False, label='IP Address')
-    internet_exchange__slug = FilterChoiceField(queryset=InternetExchange.objects.all(),
-                                                to_field_name='slug', label='Internet Exchange')
+    enabled = forms.BooleanField(required=False, label='Is Enabled',
+                                 widget=forms.Select(choices=[
+                                     ('', '---------'),
+                                     ('True', 'Yes'),
+                                     ('False', 'No'),
+                                 ]))
+    internet_exchange__slug = FilterChoiceField(
+        queryset=InternetExchange.objects.all(), to_field_name='slug',
+        label='Internet Exchange')
 
 
 class RouterForm(BootstrapMixin, forms.ModelForm):

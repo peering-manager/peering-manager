@@ -70,7 +70,7 @@ class Home(View):
 
 class ProfileView(View, LoginRequiredMixin):
     def get(self, request):
-        return render(request, 'user/profile.html', {'active_tab': 'profile', })
+        return render(request, 'user/profile.html', {'active_tab': 'profile'})
 
 
 class ChangePasswordView(View, LoginRequiredMixin):

@@ -14,9 +14,9 @@ will take care of everything else.
 
 Configuration templates are generated using 3 main variables:
 
-  * internet_exchange
-  * peering_groups
-  * communities
+  * `internet_exchange`
+  * `peering_groups`
+  * `communities`
 
 The `internet_exchange` variable has several fields:
 
@@ -39,6 +39,8 @@ Each group have a name and sessions:
     * `ip_version` is the IP version (can be 6 or 4)
     * `ip_address` is the IP address of the remote AS
     * `max_prefixes` is the maximum prefix-limit
+    * `enabled` is a boolean value saying if the session is enabled (true) or
+      not (false)
 
 The `communities` variable is an iteratable list, each item is a dictionary
 containing two elements: the `name` and the `value` of the community. If no
