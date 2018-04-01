@@ -17,6 +17,9 @@
           <div class="panel panel-default">
             <div class="panel-heading">
               <strong>Peering Session Details</strong>
+              <span class="pull-right" data-toggle="tooltip" data-placement="top" title="Peering session is {% if peering_session.enabled %}enabled{% else %}disabled{% endif %}.">
+                <i class="fas fa-circle {% if peering_session.enabled %}text-success{% else %}text-danger{% endif %}"></i>
+              </span>
             </div>
             <table class="table table-hover panel-body attr-table">
               <tr>
@@ -53,4 +56,11 @@
           </div>
         </div>
       </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+    $(function() {
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+    </script>
 {% endblock %}
