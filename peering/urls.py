@@ -86,6 +86,10 @@ urlpatterns = [
         views.PeeringSessionDelete.as_view(), name='peering_session_delete'),
     url(r'^peering/delete/$', views.PeeringSessionBulkDelete.as_view(),
         name='peering_session_bulk_delete'),
+    url(r'^peering/(?P<pk>[0-9]+)/disable/$',
+        views.PeeringSessionDisable.as_view(), name='peering_session_disable'),
+    url(r'^peering/(?P<pk>[0-9]+)/enable/$',
+        views.PeeringSessionEnable.as_view(), name='peering_session_enable'),
 
     # Routers
     url(r'^router/$', views.RouterList.as_view(), name='router_list'),

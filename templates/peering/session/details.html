@@ -3,6 +3,15 @@
 {% block content %}
       {% if request.user.is_authenticated %}
       <div class="pull-right">
+        {% if peering_session.enabled %}
+        <a href="{% url 'peering:peering_session_disable' pk=peering_session.pk %}" class="btn btn-danger">
+          <i class="fas fa-toggle-off" aria-hidden="true"></i> Disable
+        </a>
+        {% else %}
+        <a href="{% url 'peering:peering_session_enable' pk=peering_session.pk %}" class="btn btn-success">
+          <i class="fas fa-toggle-on" aria-hidden="true"></i> Enable
+        </a>
+        {% endif %}
         <a href="{% url 'peering:peering_session_edit' pk=peering_session.pk %}" class="btn btn-warning">
           <i class="fas fa-edit" aria-hidden="true"></i> Edit
         </a>
@@ -18,7 +27,7 @@
             <div class="panel-heading">
               <strong>Peering Session Details</strong>
               <span class="pull-right" data-toggle="tooltip" data-placement="top" title="Peering session is {% if peering_session.enabled %}enabled{% else %}disabled{% endif %}.">
-                <i class="fas fa-circle {% if peering_session.enabled %}text-success{% else %}text-danger{% endif %}"></i>
+                <i class="fas fa-toggle-{% if peering_session.enabled %}on text-success{% else %}off text-danger{% endif %}"></i>
               </span>
             </div>
             <table class="table table-hover panel-body attr-table">

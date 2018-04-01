@@ -576,6 +576,22 @@ class PeeringSessionBulkDelete(BulkDeleteView):
         return queryset.filter(internet_exchange=internet_exchange)
 
 
+class PeeringSessionDisable(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        peering_session = get_object_or_404(PeeringSession, pk=pk)
+        peering_session.enabled = False
+        peering_session.save()
+        return redirect(peering_session.get_absolute_url())
+
+
+class PeeringSessionEnable(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        peering_session = get_object_or_404(PeeringSession, pk=pk)
+        peering_session.enabled = True
+        peering_session.save()
+        return redirect(peering_session.get_absolute_url())
+
+
 class RouterList(ModelListView):
     queryset = Router.objects.all()
     filter = RouterFilter
