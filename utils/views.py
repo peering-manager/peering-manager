@@ -100,6 +100,10 @@ class AddOrEditView(LoginRequiredMixin, View):
             else:
                 UserAction.objects.log_edit(request.user, obj, message)
 
+            # Redirect the user to the current page to create another object
+            if '_addanother' in request.POST:
+                return redirect(request.get_full_path())
+
             return redirect(self.get_return_url(obj))
 
         return render(request, self.template, {
