@@ -23,7 +23,8 @@ urlpatterns = [
 
     # BGP Communities
     url(r'^community/$', views.CommunityList.as_view(), name='community_list'),
-    url(r'^community/add/$', views.CommunityAdd.as_view(), name='community_add'),
+    url(r'^community/add/$', views.CommunityAdd.as_view(),
+        name='community_add'),
     url(r'^community/import/$', views.CommunityImport.as_view(),
         name='community_import'),
     url(r'^community/(?P<pk>[0-9]+)/$',
@@ -43,9 +44,11 @@ urlpatterns = [
     url(r'^template/(?P<pk>[0-9]+)/$', views.ConfigTemplateDetails.as_view(),
         name='configuration_template_details'),
     url(r'^template/(?P<pk>[0-9]+)/edit/$',
-        views.ConfigTemplateEdit.as_view(), name='configuration_template_edit'),
+        views.ConfigTemplateEdit.as_view(),
+        name='configuration_template_edit'),
     url(r'^template/(?P<pk>[0-9]+)/delete/$',
-        views.ConfigTemplateDelete.as_view(), name='configuration_template_delete'),
+        views.ConfigTemplateDelete.as_view(),
+        name='configuration_template_delete'),
     url(r'^template/delete/$', views.ConfigTemplateBulkDelete.as_view(),
         name='configuration_template_bulk_delete'),
 
@@ -94,7 +97,8 @@ urlpatterns = [
     # Routers
     url(r'^router/$', views.RouterList.as_view(), name='router_list'),
     url(r'^router/add/$', views.RouterAdd.as_view(), name='router_add'),
-    url(r'^router/import/$', views.RouterImport.as_view(), name='router_import'),
+    url(r'^router/import/$', views.RouterImport.as_view(),
+        name='router_import'),
     url(r'^router/(?P<pk>[0-9]+)/$',
         views.RouterDetails.as_view(), name='router_details'),
     url(r'^router/(?P<pk>[0-9]+)/edit/$',

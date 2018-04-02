@@ -24,7 +24,6 @@ from .tables import (AutonomousSystemTable, CommunityTable, ConfigurationTemplat
                      InternetExchangeTable, PeerTable, PeeringSessionTable, PeeringSessionTableForAS, RouterTable)
 from peeringdb.api import PeeringDB
 from peeringdb.models import Network, NetworkIXLAN
-from utils.forms import ConfirmationForm
 from utils.models import UserAction
 from utils.paginators import EnhancedPaginator
 from utils.views import (AddOrEditView, BulkDeleteView, ConfirmationView,
@@ -275,6 +274,11 @@ class IXImportFromRouter(ConfirmationView):
                     messages.success(request, message)
                     UserAction.objects.log_import(
                         request.user, PeeringSession, message)
+
+                if result[2]:
+                    message = 'Peering sessions for the following ASNs have been ignored due to missing PeeringDB entries: {}.'.format(
+                        ', '.join(result[2]))
+                    messages.warning(request, message)
 
         return redirect(self.return_url)
 
@@ -645,7 +649,7 @@ class AsyncRouterPing(View):
         router = get_object_or_404(Router, id=router_id)
 
         return HttpResponse(json.dumps({
-            'status': 'success' if router.test_napalm_connection() else 'error',
+            'status': 'success' if router.test_napalm_connection() else 'error'
         }))
 
 

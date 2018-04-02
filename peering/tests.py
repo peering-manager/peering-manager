@@ -49,13 +49,13 @@ class InternetExchangeTesCase(TestCase):
         # Expected results
         expected = [
             # First case
-            (1, 1),
+            (1, 1, []),
             # Second case
-            (0, 1),
+            (0, 1, []),
             # Third case
-            (0, 1),
+            (0, 1, []),
             # Fourth case
-            (0, 0),
+            (0, 0, []),
         ]
 
         session_lists = [
@@ -113,9 +113,6 @@ class InternetExchangeTesCase(TestCase):
 
 class PeeringSessionTestCase(TestCase):
     def test_does_exist(self):
-        # Expected results
-        expected = [None]
-
         # No session, must expect None
         self.assertIsNone(PeeringSession.does_exist())
 
@@ -222,5 +219,6 @@ class RouterTestCase(TestCase):
 
         # Run test cases
         for i in range(0, len(expected)):
-            self.assertEqual(expected[i], len(
-                router._napalm_bgp_neighbors_to_peer_list(napalm_dicts_list[i])))
+            self.assertEqual(expected[i],
+                             len(router._napalm_bgp_neighbors_to_peer_list(
+                                 napalm_dicts_list[i])))

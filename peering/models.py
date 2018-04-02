@@ -125,7 +125,8 @@ class ConfigurationTemplate(models.Model):
         super(ConfigurationTemplate, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('peering:configuration_template_details', kwargs={'pk': self.pk})
+        return reverse('peering:configuration_template_details',
+                       kwargs={'pk': self.pk})
 
     def __str__(self):
         return self.name
@@ -139,7 +140,8 @@ class InternetExchange(models.Model):
     ipv4_address = models.GenericIPAddressField(blank=True, null=True)
     comment = models.TextField(blank=True)
     configuration_template = models.ForeignKey(
-        'ConfigurationTemplate', blank=True, null=True, on_delete=models.SET_NULL)
+        'ConfigurationTemplate', blank=True, null=True,
+        on_delete=models.SET_NULL)
     router = models.ForeignKey(
         'Router', blank=True, null=True, on_delete=models.SET_NULL)
     communities = models.ManyToManyField('Community', blank=True)
@@ -153,7 +155,8 @@ class InternetExchange(models.Model):
         return reverse('peering:ix_details', kwargs={'slug': self.slug})
 
     def get_peering_sessions_list_url(self):
-        return reverse('peering:ix_peering_sessions', kwargs={'slug': self.slug})
+        return reverse('peering:ix_peering_sessions',
+                       kwargs={'slug': self.slug})
 
     def get_peer_list_url(self):
         return reverse('peering:ix_peers', kwargs={'slug': self.slug})
@@ -256,6 +259,7 @@ class InternetExchange(models.Model):
         # Values to be returned
         number_of_peering_sessions = 0
         number_of_autonomous_systems = 0
+        ignored_autonomous_systems = []
 
         with transaction.atomic():
             # For each session check if the address fits in one of the prefixes
@@ -264,12 +268,13 @@ class InternetExchange(models.Model):
                     # No point of checking if a session fits inside a prefix if
                     # they are not using the same IP version
                     if session['ip_address'].version is not prefix.version:
-                        self.logger.debug('ip %s cannot fit in prefix %s (not same ip version) ignoring', str(
-                            session['ip_address']), str(prefix))
+                        self.logger.debug('ip %s cannot fit in prefix %s (not same ip version) ignoring',
+                                          str(session['ip_address']),
+                                          str(prefix))
                         continue
 
-                    self.logger.debug('checking if ip %s fits in prefix %s', str(
-                        session['ip_address']), str(prefix))
+                    self.logger.debug('checking if ip %s fits in prefix %s',
+                                      str(session['ip_address']), str(prefix))
 
                     # If the address fits, create a new PeeringSession object
                     # and a new AutonomousSystem object if they does not exist
@@ -283,7 +288,8 @@ class InternetExchange(models.Model):
                         if not PeeringSession.does_exist(ip_address=ip_address,
                                                          internet_exchange=self):
                             self.logger.debug(
-                                'session %s with as%s does not exist', ip_address, remote_asn)
+                                'session %s with as%s does not exist',
+                                ip_address, remote_asn)
 
                             # Grab the AS, create it if it does not exist in
                             # the database yet
@@ -302,6 +308,9 @@ class InternetExchange(models.Model):
                                         'as%s created', remote_asn)
                                     number_of_autonomous_systems += 1
                                 else:
+                                    if remote_asn not in ignored_autonomous_systems:
+                                        ignored_autonomous_systems.append(
+                                            remote_asn)
                                     self.logger.debug(
                                         'could not create as%s, session %s ignored', remote_asn, ip_address)
 
@@ -327,7 +336,8 @@ class InternetExchange(models.Model):
                         self.logger.debug('ip %s do not fit in prefix %s', str(
                             session['ip_address']), str(prefix))
 
-        return (number_of_autonomous_systems, number_of_peering_sessions)
+        return (number_of_autonomous_systems, number_of_peering_sessions,
+                ignored_autonomous_systems)
 
     def import_peering_sessions_from_router(self):
         # No point of discovering from router if platform is none or is not
@@ -335,8 +345,6 @@ class InternetExchange(models.Model):
         if not self.router or not self.router.platform or not self.peeringdb_id:
             return None
 
-        number_of_peering_sessions = 0
-        number_of_autonomous_systems = 0
         # Build a list based on prefixes based on PeeringDB records
         prefixes = [ipaddress.ip_network(prefix['prefix'])
                     for prefix in self.get_prefixes()]
@@ -495,7 +503,8 @@ class Router(models.Model):
             device.open()
         except napalm.base.exceptions.ConnectionException as e:
             self.logger.error(
-                'error while trying to connect to %s reason "%s"', self.hostname, e)
+                'error while trying to connect to %s reason "%s"',
+                self.hostname, e)
         except Exception:
             self.logger.error(
                 'error while trying to connect to %s', self.hostname)
@@ -541,7 +550,8 @@ class Router(models.Model):
         # Issue while opening or closing the connection
         if not opened or not closed or not alive:
             self.logger.error(
-                'cannot connect to % s, napalm functions won\'t work', self.hostname)
+                'cannot connect to % s, napalm functions won\'t work',
+                self.hostname)
 
         return (opened and closed)
 
@@ -586,11 +596,13 @@ class Router(models.Model):
             except napalm.base.exceptions.MergeConfigException as e:
                 changes = None
                 self.logger.debug(
-                    'unable to merge configuration on %s reason "%s"', self.hostname, e)
+                    'unable to merge configuration on %s reason "%s"',
+                    self.hostname, e)
             except Exception as e:
                 changes = None
                 self.logger.debug(
-                    'unable to merge configuration on %s error "%s"', self.hostname, e)
+                    'unable to merge configuration on %s error "%s"',
+                    self.hostname, e)
             else:
                 self.logger.debug(
                     'successfully merged configuration on %s', self.hostname)
@@ -598,7 +610,8 @@ class Router(models.Model):
                 closed = self.close_napalm_device(device)
                 if not closed:
                     self.logger.debug(
-                        'error while closing connection with %s', self.hostname)
+                        'error while closing connection with %s',
+                        self.hostname)
 
         return changes
 
@@ -621,7 +634,8 @@ class Router(models.Model):
                     # See NAPALM issue #659
                     # https://github.com/napalm-automation/napalm/issues/659
                     self.logger.debug(
-                        'ignored bgp neighbor %s in %s vrf on %s', ip, vrf, self.hostname)
+                        'ignored bgp neighbor %s in %s vrf on %s', ip, vrf,
+                        self.hostname)
                 elif ip in [str(i['ip_address']) for i in bgp_peers]:
                     self.logger.debug(
                         'duplicate bgp neighbor %s on %s', ip, self.hostname)
