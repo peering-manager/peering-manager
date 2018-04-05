@@ -1,6 +1,6 @@
-Django==2.0.3
+Django==2.0.4
 django-filter==1.1.0
-django-tables2==1.21.1
+django-tables2==1.21.2
 Jinja2==2.10
 napalm==2.3.0
 Markdown==2.6.11
