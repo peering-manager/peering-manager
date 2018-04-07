@@ -4,7 +4,7 @@ import django_tables2 as tables
 
 from .models import (AutonomousSystem, Community, ConfigurationTemplate,
                      InternetExchange, PeeringSession, Router)
-from utils.tables import BaseTable, SelectColumn
+from utils.tables import ActionsColumn, BaseTable, SelectColumn
 
 
 class AutonomousSystemTable(BaseTable):
@@ -13,16 +13,17 @@ class AutonomousSystemTable(BaseTable):
     """
     pk = SelectColumn()
     asn = tables.Column(verbose_name='ASN')
+    name = tables.LinkColumn()
     irr_as_set = tables.Column(verbose_name='IRR AS-SET', orderable=False)
     ipv6_max_prefixes = tables.Column(verbose_name='IPv6 Max Prefixes')
     ipv4_max_prefixes = tables.Column(verbose_name='IPv4 Max Prefixes')
-    details = tables.TemplateColumn(verbose_name='',
-                                    template_code='<div class="pull-right"><a href="{% url \'peering:as_details\' asn=record.asn %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a></div>', orderable=False)
+    actions = ActionsColumn(
+        template_code='<a href="{% url \'peering:as_edit\' asn=record.asn %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a>')
 
     class Meta(BaseTable.Meta):
         model = AutonomousSystem
         fields = ('pk', 'asn', 'name', 'irr_as_set', 'ipv6_max_prefixes',
-                  'ipv4_max_prefixes', 'details',)
+                  'ipv4_max_prefixes', 'actions',)
 
 
 class CommunityTable(BaseTable):
@@ -30,12 +31,13 @@ class CommunityTable(BaseTable):
     Table for Community lists
     """
     pk = SelectColumn()
-    details = tables.TemplateColumn(verbose_name='',
-                                    template_code='<div class="pull-right"><a href="{% url \'peering:community_details\' pk=record.pk %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a> <a href="{% url \'peering:community_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a></div>', orderable=False)
+    name = tables.LinkColumn()
+    actions = ActionsColumn(
+        template_code='<a href="{% url \'peering:community_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a>')
 
     class Meta(BaseTable.Meta):
         model = Community
-        fields = ('pk', 'name', 'value', 'details',)
+        fields = ('pk', 'name', 'value', 'actions',)
 
 
 class ConfigurationTemplateTable(BaseTable):
@@ -43,12 +45,13 @@ class ConfigurationTemplateTable(BaseTable):
     Table for ConfigurationTemplate lists
     """
     pk = SelectColumn()
-    details = tables.TemplateColumn(verbose_name='',
-                                    template_code='<div class="pull-right"><a href="{% url \'peering:configuration_template_details\' pk=record.pk %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a></div>', orderable=False)
+    name = tables.LinkColumn()
+    actions = ActionsColumn(
+        template_code='<a href="{% url \'peering:configuration_template_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a>')
 
     class Meta(BaseTable.Meta):
         model = ConfigurationTemplate
-        fields = ('pk', 'name', 'updated', 'details',)
+        fields = ('pk', 'name', 'updated', 'actions',)
 
 
 class InternetExchangeTable(BaseTable):
@@ -56,16 +59,17 @@ class InternetExchangeTable(BaseTable):
     Table for InternetExchange lists
     """
     pk = SelectColumn()
+    name = tables.LinkColumn()
     ipv6_address = tables.Column(verbose_name='IPv6 Address')
     ipv4_address = tables.Column(verbose_name='IPv4 Address')
     configuration_template = tables.Column(verbose_name='Template')
-    details = tables.TemplateColumn(verbose_name='',
-                                    template_code='<div class="pull-right"><a href="{% url \'peering:ix_details\' slug=record.slug %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a></div>', orderable=False)
+    actions = ActionsColumn(
+        template_code='<a href="{% url \'peering:ix_edit\' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a>')
 
     class Meta(BaseTable.Meta):
         model = InternetExchange
         fields = ('pk', 'name', 'ipv6_address', 'ipv4_address',
-                  'configuration_template', 'router', 'details',)
+                  'configuration_template', 'router', 'actions',)
 
 
 PEERING_SESSION_STATE = """
@@ -160,9 +164,10 @@ class RouterTable(BaseTable):
     Table for Router lists
     """
     pk = SelectColumn()
-    details = tables.TemplateColumn(verbose_name='',
-                                    template_code='<div class="pull-right"><a href="{% url \'peering:router_details\' pk=record.pk %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a> <a href="{% url \'peering:router_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a></div>', orderable=False)
+    name = tables.LinkColumn()
+    actions = ActionsColumn(
+        template_code='<a href="{% url \'peering:router_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a>')
 
     class Meta(BaseTable.Meta):
         model = Router
-        fields = ('pk', 'name', 'hostname', 'platform', 'details',)
+        fields = ('pk', 'name', 'hostname', 'platform', 'actions',)

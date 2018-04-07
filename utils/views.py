@@ -5,7 +5,6 @@ from django.db import transaction
 from django.db.models import ProtectedError
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput
 from django.forms.formsets import formset_factory
@@ -399,9 +398,12 @@ class ModelListView(View):
         # Build the table based on the queryset
         table = self.table(self.queryset)
 
-        # Show column if user is authenticated
-        if 'pk' in table.base_columns and request.user.is_authenticated:
-            table.columns.show('pk')
+        # Show columns if user is authenticated
+        if request.user.is_authenticated:
+            if 'pk' in table.base_columns:
+                table.columns.show('pk')
+            if 'actions' in table.base_columns:
+                table.columns.show('actions')
 
         # Apply pagination
         paginate = {

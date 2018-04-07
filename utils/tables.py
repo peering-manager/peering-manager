@@ -34,3 +34,15 @@ class SelectColumn(tables.CheckBoxColumn):
     @property
     def header(self):
         return mark_safe('<input type="checkbox" class="toggle" title="Select all" />')
+
+
+class ActionsColumn(tables.TemplateColumn):
+    def __init__(self, *args, **kwargs):
+        default = kwargs.pop('default', '')
+        visible = kwargs.pop('visible', False)
+        orderable = kwargs.pop('orderable', False)
+        verbose_name = kwargs.pop('verbose_name', '')
+        super(ActionsColumn, self).__init__(*args, default=default,
+                                            orderable=orderable,
+                                            verbose_name=verbose_name,
+                                            visible=visible, **kwargs)

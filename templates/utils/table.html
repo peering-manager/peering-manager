@@ -46,7 +46,7 @@
   <nav>
     <ul class="pagination pagination-sm pull-right">
       {% if page.has_previous %}
-      <li><a href="{% querystring table.prefixed_page_field=page.previous_page_number %}"><i class="fa fa-angle-double-left"></i></a></li>
+      <li><a href="{% querystring table.prefixed_page_field=page.previous_page_number %}"><i class="fas fa-angle-double-left"></i></a></li>
       {% endif %}
       {% for p in page.smart_pages %}
       {% if p %}
@@ -56,7 +56,7 @@
       {% endif %}
       {% endfor %}
       {% if page.has_next %}
-      <li><a href="{% querystring table.prefixed_page_field=page.next_page_number %}"><i class="fa fa-angle-double-right"></i></a></li>
+      <li><a href="{% querystring table.prefixed_page_field=page.next_page_number %}"><i class="fas fa-angle-double-right"></i></a></li>
       {% endif %}
     </ul>
   </nav>
