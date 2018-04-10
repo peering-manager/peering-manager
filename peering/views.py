@@ -14,23 +14,32 @@ from django_tables2 import RequestConfig
 
 import json
 
-from .filters import (AutonomousSystemFilter, CommunityFilter,
-                      ConfigurationTemplateFilter, InternetExchangeFilter,
-                      PeeringSessionFilter, RouterFilter)
-from .forms import (AutonomousSystemForm, AutonomousSystemCSVForm, AutonomousSystemFilterForm, CommunityForm, CommunityCSVForm, CommunityFilterForm, ConfigurationTemplateForm, ConfigurationTemplateFilterForm, InternetExchangeForm, InternetExchangePeeringDBForm,
-                    InternetExchangePeeringDBFormSet, InternetExchangeCommunityForm, InternetExchangeCSVForm, InternetExchangeFilterForm, PeeringSessionForm, PeeringSessionFilterForm, PeeringSessionFilterFormForAS, RouterForm, RouterCSVForm, RouterFilterForm)
-from .models import (AutonomousSystem, Community, ConfigurationTemplate,
-                     InternetExchange, PeeringSession, Router)
-from .tables import (AutonomousSystemTable, CommunityTable,
-                     ConfigurationTemplateTable, InternetExchangeTable,
-                     PeerTable, PeeringSessionTable, PeeringSessionTableForAS,
-                     RouterTable)
+from .filters import (
+    AutonomousSystemFilter, CommunityFilter, ConfigurationTemplateFilter,
+    InternetExchangeFilter, PeeringSessionFilter, RouterFilter)
+from .forms import (
+    AutonomousSystemForm, AutonomousSystemCSVForm, AutonomousSystemFilterForm,
+    CommunityForm, CommunityCSVForm, CommunityFilterForm,
+    ConfigurationTemplateForm, ConfigurationTemplateFilterForm,
+    InternetExchangeForm, InternetExchangePeeringDBForm,
+    InternetExchangePeeringDBFormSet, InternetExchangeCommunityForm,
+    InternetExchangeCSVForm, InternetExchangeFilterForm, PeeringSessionForm,
+    PeeringSessionFilterForm, PeeringSessionFilterFormForAS, RouterForm,
+    RouterCSVForm, RouterFilterForm)
+from .models import (
+    AutonomousSystem, Community, ConfigurationTemplate, InternetExchange,
+    PeeringSession, Router)
+from .tables import (
+    AutonomousSystemTable, CommunityTable, ConfigurationTemplateTable,
+    InternetExchangeTable, PeerTable, PeeringSessionTable,
+    PeeringSessionTableForAS, RouterTable)
 from peeringdb.api import PeeringDB
 from peeringdb.models import Network, NetworkIXLAN
 from utils.models import UserAction
 from utils.paginators import EnhancedPaginator
-from utils.views import (AddOrEditView, BulkDeleteView, ConfirmationView,
-                         DeleteView, ImportView, ModelListView, TableImportView)
+from utils.views import (
+    AddOrEditView, BulkDeleteView, ConfirmationView, DeleteView, ImportView,
+    ModelListView, TableImportView)
 
 
 class ASList(ModelListView):
