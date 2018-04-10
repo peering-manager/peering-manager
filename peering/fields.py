@@ -17,5 +17,5 @@ class CommunityField(models.CharField):
     default_validators = [
         # BGP community and BGP large community
         RegexValidator(
-            '^(\d{1,5}:\d{1,5})|(\d{1,10}:\d{1,10}:\d{1,10}:\d{1,10})$'),
+            r'^(\d{1,5}:\d{1,5})|(\d{1,10}:\d{1,10}:\d{1,10}:\d{1,10})$'),
     ]

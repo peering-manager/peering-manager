@@ -23,8 +23,8 @@ class EnhancedPage(Page):
 
         # Show first page, last page, next/previous two pages, and current page
         n = self.number
-        pages_wanted = [1, n - 2, n - 1, n, n +
-                        1, n + 2, self.paginator.num_pages]
+        pages_wanted = [1, n - 2, n - 1, n, n + 1, n + 2,
+                        self.paginator.num_pages]
         pages_list = sorted(
             set(self.paginator.page_range).intersection(pages_wanted))
 
