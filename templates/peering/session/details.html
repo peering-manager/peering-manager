@@ -1,6 +1,9 @@
 {% extends '_base.html' %}
 {% load helpers %}
 {% block content %}
+      <a href="{% url 'peering:ix_peering_sessions' slug=peering_session.internet_exchange.slug %}" class="btn btn-default">
+        <i class="fas fa-arrow-left"></i> Back to IX
+      </a>
       {% if request.user.is_authenticated %}
       <div class="pull-right">
         {% if peering_session.enabled %}
