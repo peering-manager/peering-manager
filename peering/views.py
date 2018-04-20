@@ -532,7 +532,7 @@ class IXConfig(LoginRequiredMixin, View):
 
         context = {
             'internet_exchange': internet_exchange,
-            'internet_exchange_configuration': internet_exchange.get_config(),
+            'internet_exchange_configuration': internet_exchange.generate_configuration(),
         }
 
         return render(request, 'peering/ix/configuration.html', context)
@@ -669,7 +669,7 @@ class AsyncRouterDiff(View):
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
         changes = internet_exchange.router.set_napalm_configuration(
-            internet_exchange.get_config())
+            internet_exchange.generate_configuration())
 
         return HttpResponse(json.dumps({
             'changed': True if changes else False,
@@ -681,7 +681,7 @@ class AsyncRouterSave(View):
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
         changes = internet_exchange.router.set_napalm_configuration(
-            internet_exchange.get_config(), True)
+            internet_exchange.generate_configuration(), True)
 
         return HttpResponse(json.dumps({
             'success': True if changes else False,

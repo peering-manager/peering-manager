@@ -177,26 +177,52 @@ class InternetExchange(models.Model):
         return len(self.get_autonomous_systems())
 
     def get_prefixes(self):
-        return [] if not self.peeringdb_id else PeeringDB().get_prefixes_for_ix_network(self.peeringdb_id)
+        return PeeringDB().get_prefixes_for_ix_network(self.peeringdb_id) if self.peeringdb_id else []
 
-    def get_config(self):
-        peering_sessions = self.peeringsession_set.all()
-
-        peering_sessions6 = []
-        peering_sessions4 = []
+    def _generate_configuration_variables(self):
+        peers6 = {}
+        peers4 = {}
 
         # Sort peering sessions based on IP protocol version
-        for session in peering_sessions:
-            session_dict = session.to_dict()
+        for session in self.peeringsession_set.all():
+            ip_address = ipaddress.ip_address(session.ip_address)
+            ipv6_max_prefixes = session.autonomous_system.ipv6_max_prefixes
+            ipv4_max_prefixes = session.autonomous_system.ipv4_max_prefixes
 
-            if session_dict['ip_version'] == 6:
-                peering_sessions6.append(session_dict)
-            if session_dict['ip_version'] == 4:
-                peering_sessions4.append(session_dict)
+            if ip_address.version == 6:
+                if session.autonomous_system.asn in peers6:
+                    peers6[session.autonomous_system.asn]['sessions'].append({
+                        'ip_address': str(ip_address),
+                        'enabled': session.enabled,
+                    })
+                else:
+                    peers6[session.autonomous_system.asn] = {
+                        'as_name': session.autonomous_system.name,
+                        'max_prefixes': ipv6_max_prefixes if ipv6_max_prefixes else 0,
+                        'sessions': [{
+                            'ip_address': str(ip_address),
+                            'enabled': session.enabled,
+                        }],
+                    }
+            if ip_address.version == 4:
+                if session.autonomous_system.asn in peers4:
+                    peers4[session.autonomous_system.asn]['sessions'].append({
+                        'ip_address': str(ip_address),
+                        'enabled': session.enabled,
+                    })
+                else:
+                    peers4[session.autonomous_system.asn] = {
+                        'as_name': session.autonomous_system.name,
+                        'max_prefixes': ipv4_max_prefixes if ipv4_max_prefixes else 0,
+                        'sessions': [{
+                            'ip_address': str(ip_address),
+                            'enabled': session.enabled,
+                        }],
+                    }
 
         peering_groups = [
-            {'name': 'ipv6', 'sessions': peering_sessions6},
-            {'name': 'ipv4', 'sessions': peering_sessions4},
+            {'ip_version': 6, 'peers': peers6},
+            {'ip_version': 4, 'peers': peers4},
         ]
 
         # Generate list of communities
@@ -213,11 +239,12 @@ class InternetExchange(models.Model):
             'communities': communities,
         }
 
-        # Load and render the template using Jinja2
-        configuration_template = Template(
-            self.configuration_template.template)
+        return values
 
-        return configuration_template.render(values)
+    def generate_configuration(self):
+        # Load and render the template using Jinja2
+        configuration_template = Template(self.configuration_template.template)
+        return configuration_template.render(self._generate_configuration_variables())
 
     def get_available_peers(self):
         peers = []
@@ -398,31 +425,6 @@ class PeeringSession(models.Model):
             return None
         except PeeringSession.MultipleObjectsReturned:
             return None
-
-    def to_dict(self):
-        """
-        Returns a dictionary based on fields of the peering session. The
-        dictionary can be used for multiple purposes.
-        """
-        ip_version = ipaddress.ip_address(self.ip_address).version
-
-        # Enforce max prefixes to be set to 0 by default
-        max_prefixes = 0
-
-        # Set max prefixes based on IP version
-        if ip_version == 6 and self.autonomous_system.ipv6_max_prefixes:
-            max_prefixes = self.autonomous_system.ipv6_max_prefixes
-        if ip_version == 4 and self.autonomous_system.ipv4_max_prefixes:
-            max_prefixes = self.autonomous_system.ipv4_max_prefixes
-
-        return {
-            'peer_as': self.autonomous_system.asn,
-            'peer_as_name': self.autonomous_system.name,
-            'ip_version': ip_version,
-            'ip_address': self.ip_address,
-            'max_prefixes': max_prefixes,
-            'enabled': self.enabled,
-        }
 
     def get_absolute_url(self):
         return reverse('peering:peering_session_details',

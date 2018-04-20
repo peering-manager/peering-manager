@@ -30,17 +30,18 @@ and the other for IPv4. It is possible to iterate over this variable.
 
 Each group have a name and sessions:
 
-  * `name` is a string equals to **ipv6** or **ipv4**
-  * `sessions` is a list of peering sessions, it is possible to iterate over
-    this list. Each object of this list corresponds to one peering session,
-    with the following properties:
-    * `peer_as` is the remote ASN
-    * `peer_as_name` is the name of the remote AS
-    * `ip_version` is the IP version (can be 6 or 4)
-    * `ip_address` is the IP address of the remote AS
-    * `max_prefixes` is the maximum prefix-limit
-    * `enabled` is a boolean value saying if the session is enabled (true) or
-      not (false)
+  * `ip_version` is a integer equals to `6` or `4`
+  * `peers` is a dictionary containing inner dictionaries. It is possible to
+    iterate over the main dictionary using the `items()` function in the Jinja2
+    template like `{%- for asn, details in group.peers.items() %}`. Each inner
+    is then identified with an AS number and contains several variables
+    describing the peer (AS) and its sessions:
+    * `as_name` is the name of the remote AS
+    * `max_prefixes` is the maximum prefix-limit for the current IP version
+    * `sessions` is a list of dictionaries, each dictionary has two values
+      identified by the following keys: `ip_address` and `enabled`. The value
+      for `ip_address` is a string representing the IP address while the value
+      for `enabled` tells if the session is enabled (true) or not (false)
 
 The `communities` variable is an iteratable list, each item is a dictionary
 containing two elements: the `name` and the `value` of the community. If no
@@ -53,27 +54,39 @@ This template is an example that can be used for Juniper devices.
 protocols {
     bgp {
         {%- for group in peering_groups %}
-        group {{ group.name }}-{{ internet_exchange.slug }} {
+        replace: group ipv{{ group.ip_version }}-{{ internet_exchange.slug }} {
             type external;
             multipath;
-            {%- for session in group.sessions %}
-            neighbor {{ session.ip_address }} {
-                description "Peering: AS{{ session.peer_as }} - {{ session.peer_as_name }}";
-                {%- if session.max_prefixes > 0 %}
-                {%- if session.ip_version == 6 %}
+            advertise-inactive;
+            import import-all;
+            family {% if group.ip_version == 6 %}inet6{% else %}inet{% endif %} {
+                unicast;
+            }
+            export export-all;
+            {%- for asn, details in group.peers.items() %}
+            {%- for session in details.sessions %}
+            {% if not session.enabled %}de{% endif %}activate: neighbor {{ session.ip_address }} {
+                description "Peering: AS{{ asn }} - {{ details.as_name }}";
+                {%- if details.max_prefixes > 0 %}
+                {%- if group.ip_version == 6 %}
                 family inet6 {
                 {%- else %}
                 family inet {
                 {%- endif %}
                     unicast {
                         prefix-limit {
-                            maximum {{ session.max_prefixes }};
+                            {%- if group.ip_version == 6 %}
+                            maximum {{ details.max_prefixes }};
+                            {%- else %}
+                            maximum {{ details.max_prefixes }};
+                            {%- endif %}
                         }
                     }
                 }
                 {%- endif %}
-                peer-as {{ session.peer_as }};
+                peer-as {{ asn }};
             }
+            {%- endfor %}
             {%- endfor %}
         }
         {%- endfor %}

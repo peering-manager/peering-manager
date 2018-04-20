@@ -4,7 +4,8 @@ import ipaddress
 
 from django.test import TestCase
 
-from .models import AutonomousSystem, InternetExchange, PeeringSession, Router
+from .models import (AutonomousSystem, ConfigurationTemplate,
+                     InternetExchange, PeeringSession, Router)
 
 
 class AutonomousSystemTestCase(TestCase):
@@ -44,7 +45,7 @@ class AutonomousSystemTestCase(TestCase):
         self.assertEqual(asn, AutonomousSystem.does_exist(asn).asn)
 
 
-class InternetExchangeTesCase(TestCase):
+class InternetExchangeTestCase(TestCase):
     def test_import_peering_sessions(self):
         # Expected results
         expected = [
@@ -109,6 +110,65 @@ class InternetExchangeTesCase(TestCase):
                              ixp._import_peering_sessions(session_lists[i],
                                                           prefix_lists[i]))
             self.assertEqual(expected[i][1], ixp.get_peering_sessions_count())
+
+    def test_generate_configuration(self):
+        expected = [
+            {
+                'ip_version': 6,
+                'peers': {
+                    1: {
+                        'as_name': 'Test 1',
+                        'max_prefixes': 0,
+                        'sessions': [
+                         {'ip_address': '2001:db8::1', 'enabled': True}
+                        ]
+                    },
+                    2: {
+                        'as_name': 'Test 2',
+                        'max_prefixes': 0,
+                        'sessions': [
+                            {'ip_address': '2001:db8::2', 'enabled': True}
+                        ]
+                    },
+                    3: {
+                        'as_name': 'Test 3',
+                        'max_prefixes': 0,
+                        'sessions': [
+                            {'ip_address': '2001:db8::3', 'enabled': True}
+                        ]
+                    },
+                    4: {
+                        'as_name': 'Test 4',
+                        'max_prefixes': 0,
+                        'sessions': [
+                            {'ip_address': '2001:db8::4', 'enabled': True}
+                        ]
+                    },
+                    5: {
+                        'as_name': 'Test 5',
+                        'max_prefixes': 0,
+                        'sessions': [
+                            {'ip_address': '2001:db8::5', 'enabled': True}
+                        ]
+                    },
+                }
+            },
+            {'ip_version': 4, 'peers': {}},
+        ]
+
+        internet_exchange = InternetExchange.objects.create(name='Test',
+                                                            slug='test')
+        for i in range(1, 6):
+            PeeringSession.objects.create(
+                autonomous_system=AutonomousSystem.objects.create(
+                    asn=i,
+                    name='Test {}'.format(i)
+                ),
+                internet_exchange=internet_exchange,
+                ip_address='2001:db8::{}'.format(i)
+            )
+        values = internet_exchange._generate_configuration_variables()
+        self.assertEqual(values['peering_groups'], expected)
 
 
 class PeeringSessionTestCase(TestCase):
