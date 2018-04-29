@@ -16,8 +16,8 @@ class AutonomousSystemFilter(django_filters.FilterSet):
 
     class Meta:
         model = AutonomousSystem
-        fields = ['q', 'asn', 'name', 'irr_as_set',
-                  'ipv6_max_prefixes', 'ipv4_max_prefixes']
+        fields = ['asn', 'name', 'irr_as_set', 'ipv6_max_prefixes',
+                  'ipv4_max_prefixes']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -50,7 +50,7 @@ class CommunityFilter(django_filters.FilterSet):
 
     class Meta:
         model = Community
-        fields = ['q', 'name', 'value']
+        fields = ['name', 'value']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -71,7 +71,7 @@ class ConfigurationTemplateFilter(django_filters.FilterSet):
 
     class Meta:
         model = Community
-        fields = ['q', 'name']
+        fields = ['name']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -102,7 +102,7 @@ class InternetExchangeFilter(django_filters.FilterSet):
 
     class Meta:
         model = InternetExchange
-        fields = ['q', 'name', 'ipv6_address', 'ipv4_address']
+        fields = ['name', 'ipv6_address', 'ipv4_address']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -132,9 +132,9 @@ class PeeringSessionFilter(django_filters.FilterSet):
 
     class Meta:
         model = PeeringSession
-        fields = ['q', 'ip_address', 'enabled', 'ip_version',
-                  'autonomous_system__asn', 'autonomous_system__name',
-                  'internet_exchange__name', 'internet_exchange__slug']
+        fields = ['ip_address', 'enabled', 'autonomous_system__asn',
+                  'autonomous_system__name', 'internet_exchange__name',
+                  'internet_exchange__slug']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -183,7 +183,7 @@ class RouterFilter(django_filters.FilterSet):
 
     class Meta:
         model = Router
-        fields = ['q', 'name', 'hostname']
+        fields = ['name', 'hostname', 'platform']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -191,6 +191,7 @@ class RouterFilter(django_filters.FilterSet):
         qs_filter = (
             Q(name__icontains=value) |
             Q(hostname__icontains=value) |
+            Q(platform__icontains=value) |
             Q(comment__icontains=value)
         )
         return queryset.filter(qs_filter)
