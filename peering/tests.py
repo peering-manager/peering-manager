@@ -4,8 +4,7 @@ import ipaddress
 
 from django.test import TestCase
 
-from .models import (AutonomousSystem, ConfigurationTemplate,
-                     InternetExchange, PeeringSession, Router)
+from .models import AutonomousSystem, InternetExchange, PeeringSession, Router
 
 
 class AutonomousSystemTestCase(TestCase):

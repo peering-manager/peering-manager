@@ -62,7 +62,7 @@ class CSVDataField(forms.CharField):
                 # headers
                 if len(row) != len(headers):
                     raise forms.ValidationError(
-                        "Row {}: Expected {} columns but found {}".format(i, len(headers), len(row)))
+                        'Row {}: Expected {} columns but found {}'.format(i, len(headers), len(row)))
 
                 # Dissect the row and create a dictionary with it
                 row = [col.strip() for col in row]

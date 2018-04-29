@@ -342,7 +342,7 @@ class ImportView(LoginRequiredMixin, View):
                             # Handle issues for each row
                             for field, err in object_form.errors.items():
                                 form.add_error(
-                                    'csv', "Row {} {}: {}".format(row, field, err[0]))
+                                    'csv', 'Row {} {}: {}'.format(row, field, err[0]))
                             raise ValidationError('')
 
                 if new_objects:

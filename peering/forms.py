@@ -294,7 +294,7 @@ class PeeringSessionForm(BootstrapMixin, forms.ModelForm):
         }
         help_texts = {
             'ip_address': 'IPv6 or IPv4 address',
-            'enabled': 'Should this session be considered as enabled?'
+            'enabled': 'Should this session be enabled?'
         }
 
 
@@ -304,7 +304,12 @@ class PeeringSessionFilterForm(BootstrapMixin, forms.Form):
     autonomous_system__asn = forms.IntegerField(required=False, label='ASN')
     autonomous_system__name = forms.CharField(required=False, label='AS Name')
     ip_address = forms.CharField(required=False, label='IP Address')
-    enabled = forms.BooleanField(required=False, label='Is Enabled',
+    ip_version = forms.IntegerField(required=False, label='IP Version',
+                                    widget=forms.Select(choices=[
+                                        (0, '---------'),
+                                        (6, 'IPv6'), (4, 'IPv4'),
+                                    ]))
+    enabled = forms.BooleanField(required=False, label='Enabled',
                                  widget=forms.Select(choices=[
                                      ('', '---------'),
                                      ('True', 'Yes'),
@@ -316,7 +321,12 @@ class PeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
     model = PeeringSession
     q = forms.CharField(required=False, label='Search')
     ip_address = forms.CharField(required=False, label='IP Address')
-    enabled = forms.BooleanField(required=False, label='Is Enabled',
+    ip_version = forms.IntegerField(required=False, label='IP Version',
+                                    widget=forms.Select(choices=[
+                                        (0, '---------'),
+                                        (6, 'IPv6'), (4, 'IPv4'),
+                                    ]))
+    enabled = forms.BooleanField(required=False, label='Enabled',
                                  widget=forms.Select(choices=[
                                      ('', '---------'),
                                      ('True', 'Yes'),

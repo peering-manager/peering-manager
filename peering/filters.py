@@ -121,16 +121,20 @@ class PeeringSessionFilter(django_filters.FilterSet):
         method='search',
         label='Search',
     )
+    ip_version = django_filters.NumberFilter(
+        method='ip_version_search',
+        label='IP Version',
+    )
     enabled = django_filters.BooleanFilter(
         method='is_enabled',
-        label='Is Enabled',
+        label='Enabled',
     )
 
     class Meta:
         model = PeeringSession
-        fields = ['q', 'ip_address', 'enabled', 'autonomous_system__asn',
-                  'autonomous_system__name', 'internet_exchange__name',
-                  'internet_exchange__slug']
+        fields = ['q', 'ip_address', 'enabled', 'ip_version',
+                  'autonomous_system__asn', 'autonomous_system__name',
+                  'internet_exchange__name', 'internet_exchange__slug']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -153,6 +157,18 @@ class PeeringSessionFilter(django_filters.FilterSet):
             return queryset.filter(Q(enabled=True))
         else:
             return queryset.exclude(Q(enabled=True))
+
+    def ip_version_search(self, queryset, name, value):
+        # TODO: Fix this shit
+        # Ugly, ugly and ugly, I am ashamed of myself for thinking of it
+        # Works in this case but IPv6/IPv4 can have different types of
+        # representation
+        if value == 6:
+            return queryset.filter(Q(ip_address__icontains=':'))
+        if value == 4:
+            return queryset.exclude(Q(ip_address__icontains=':'))
+
+        return queryset
 
 
 class RouterFilter(django_filters.FilterSet):
