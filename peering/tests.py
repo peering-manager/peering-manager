@@ -4,6 +4,7 @@ import ipaddress
 
 from django.test import TestCase
 
+from .constants import PLATFORM_JUNOS
 from .models import AutonomousSystem, InternetExchange, PeeringSession, Router
 
 
@@ -274,7 +275,7 @@ class RouterTestCase(TestCase):
         # Create a router
         router = Router.objects.create(name='test',
                                        hostname='test.example.com',
-                                       platform=Router.PLATFORM_JUNOS)
+                                       platform=PLATFORM_JUNOS)
 
         # Run test cases
         for i in range(0, len(expected)):
