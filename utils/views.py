@@ -179,8 +179,9 @@ class BulkDeleteView(LoginRequiredMixin, View):
         queryset = self.queryset or self.model.objects.all()
         table = self.table(queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:
-            messages.warning(request, "No {} were selected for deletion.".format(
-                self.model._meta.verbose_name_plural))
+            messages.warning(request,
+                             'No {} were selected for deletion.'.format(
+                                 self.model._meta.verbose_name_plural))
             return redirect(self.return_url)
 
         return render(request, self.template, {
@@ -342,7 +343,8 @@ class ImportView(LoginRequiredMixin, View):
                             # Handle issues for each row
                             for field, err in object_form.errors.items():
                                 form.add_error(
-                                    'csv', 'Row {} {}: {}'.format(row, field, err[0]))
+                                    'csv', 'Row {} {}: {}'.format(row, field,
+                                                                  err[0]))
                             raise ValidationError('')
 
                 if new_objects:
@@ -383,6 +385,14 @@ class ModelListView(View):
     def extra_context(self, kwargs):
         return {}
 
+    def setup_table_columns(self, request, table, kwargs):
+        # Show columns if user is authenticated
+        if request.user.is_authenticated:
+            if 'pk' in table.base_columns:
+                table.columns.show('pk')
+            if 'actions' in table.base_columns:
+                table.columns.show('actions')
+
     def get(self, request, *args, **kwargs):
         # If no query set has been provided for some reasons
         if not self.queryset:
@@ -397,13 +407,7 @@ class ModelListView(View):
 
         # Build the table based on the queryset
         table = self.table(self.queryset)
-
-        # Show columns if user is authenticated
-        if request.user.is_authenticated:
-            if 'pk' in table.base_columns:
-                table.columns.show('pk')
-            if 'actions' in table.base_columns:
-                table.columns.show('actions')
+        self.setup_table_columns(request, table, kwargs)
 
         # Apply pagination
         paginate = {

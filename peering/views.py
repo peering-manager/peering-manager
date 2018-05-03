@@ -424,6 +424,18 @@ class IXPeeringSessions(ModelListView):
 
         return extra_context
 
+    def setup_table_columns(self, request, table, kwargs):
+        if 'slug' in kwargs:
+            internet_exchange = get_object_or_404(
+                InternetExchange, slug=kwargs['slug'])
+
+            if internet_exchange.router and internet_exchange.router.can_napalm_get_bgp_neighbors_detail():
+                if 'session_state' in table.base_columns:
+                    table.columns.show('session_state')
+
+        super(IXPeeringSessions, self).setup_table_columns(
+            request, table, kwargs)
+
 
 class IXPeers(LoginRequiredMixin, View):
     def get(self, request, slug):
@@ -504,7 +516,8 @@ class IXAddPeer(ConfirmationView):
             # Record the IPv4 session if we can
             if network_ixlan.ipaddr4:
                 session = PeeringSession.does_exist(
-                    ip_address=network_ixlan.ipaddr4, internet_exchange=internet_exchange)
+                    ip_address=network_ixlan.ipaddr4,
+                    internet_exchange=internet_exchange)
                 if not session:
                     values = {
                         'autonomous_system': autonomous_system,
@@ -520,8 +533,9 @@ class IXAddPeer(ConfirmationView):
 
         # Notify the user
         if peer_added:
-            messages.success(request, '{} peer successfully added on {}.'.format(
-                autonomous_system, internet_exchange))
+            messages.success(request,
+                             '{} peer successfully added on {}.'.format(
+                                 autonomous_system, internet_exchange))
 
         return redirect(internet_exchange.get_peering_sessions_list_url())
 
@@ -536,6 +550,22 @@ class IXConfig(LoginRequiredMixin, View):
         }
 
         return render(request, 'peering/ix/configuration.html', context)
+
+
+class IXUpdateSessionStates(LoginRequiredMixin, View):
+    def get(self, request, slug):
+        internet_exchange = get_object_or_404(InternetExchange, slug=slug)
+        success = internet_exchange.update_peering_session_states()
+
+        # Message the user based on the result
+        if success:
+            messages.success(
+                request, 'Peering session states successfully updated.')
+        else:
+            messages.error(
+                request, 'Error when trying to update peering session states.')
+
+        return redirect(internet_exchange.get_peering_sessions_list_url())
 
 
 class PeeringSessionAdd(AddOrEditView):
@@ -557,7 +587,7 @@ class PeeringSessionAdd(AddOrEditView):
         return obj
 
     def get_return_url(self, obj):
-        return obj.internet_exchange.get_absolute_url()
+        return obj.internet_exchange.get_peering_sessions_list_url()
 
 
 class PeeringSessionDetails(View):

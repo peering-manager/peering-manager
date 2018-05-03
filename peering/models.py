@@ -10,7 +10,13 @@ from django.conf import settings
 from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 
+from .constants import (BGP_STATE_IDLE, BGP_STATE_CONNECT, BGP_STATE_ACTIVE,
+                        BGP_STATE_OPENSENT, BGP_STATE_OPENCONFIRM,
+                        BGP_STATE_ESTABLISHED, BGP_STATE_CHOICES,
+                        PLATFORM_JUNOS, PLATFORM_IOSXR, PLATFORM_EOS,
+                        PLATFORM_CHOICES)
 from .fields import ASNField, CommunityField
 from peeringdb.api import PeeringDB
 
@@ -139,11 +145,12 @@ class InternetExchange(models.Model):
     ipv6_address = models.GenericIPAddressField(blank=True, null=True)
     ipv4_address = models.GenericIPAddressField(blank=True, null=True)
     comment = models.TextField(blank=True)
-    configuration_template = models.ForeignKey(
-        'ConfigurationTemplate', blank=True, null=True,
-        on_delete=models.SET_NULL)
+    configuration_template = models.ForeignKey('ConfigurationTemplate',
+                                               blank=True, null=True,
+                                               on_delete=models.SET_NULL)
     router = models.ForeignKey(
         'Router', blank=True, null=True, on_delete=models.SET_NULL)
+    check_bgp_session_states = models.BooleanField(blank=True, default=False)
     communities = models.ManyToManyField('Community', blank=True)
 
     logger = logging.getLogger('peering.manager.peering')
@@ -177,7 +184,7 @@ class InternetExchange(models.Model):
         return len(self.get_autonomous_systems())
 
     def get_prefixes(self):
-        return PeeringDB().get_prefixes_for_ix_network(self.peeringdb_id) if self.peeringdb_id else []
+        return PeeringDB().get_prefixes_for_ix_network(self.peeringdb_id) or []
 
     def _generate_configuration_variables(self):
         peers6 = {}
@@ -198,7 +205,7 @@ class InternetExchange(models.Model):
                 else:
                     peers6[session.autonomous_system.asn] = {
                         'as_name': session.autonomous_system.name,
-                        'max_prefixes': ipv6_max_prefixes if ipv6_max_prefixes else 0,
+                        'max_prefixes': ipv6_max_prefixes or 0,
                         'sessions': [{
                             'ip_address': str(ip_address),
                             'enabled': session.enabled,
@@ -213,7 +220,7 @@ class InternetExchange(models.Model):
                 else:
                     peers4[session.autonomous_system.asn] = {
                         'as_name': session.autonomous_system.name,
-                        'max_prefixes': ipv4_max_prefixes if ipv4_max_prefixes else 0,
+                        'max_prefixes': ipv4_max_prefixes or 0,
                         'sessions': [{
                             'ip_address': str(ip_address),
                             'enabled': session.enabled,
@@ -358,7 +365,8 @@ class InternetExchange(models.Model):
                                     'session %s created', ip_address)
                         else:
                             self.logger.debug(
-                                'session %s with as%s already exists', ip_address, remote_asn)
+                                'session %s with as%s already exists',
+                                ip_address, remote_asn)
                     else:
                         self.logger.debug('ip %s do not fit in prefix %s', str(
                             session['ip_address']), str(prefix))
@@ -367,10 +375,20 @@ class InternetExchange(models.Model):
                 ignored_autonomous_systems)
 
     def import_peering_sessions_from_router(self):
+        log = 'ignoring peering session on {}, reason: "{}"'
+        if not self.router:
+            log = log.format(self.name.lower(), 'no router attached')
+        elif not self.router.platform:
+            log = log.format(self.name.lower(),
+                             'router with unsupported platform')
+        else:
+            log = None
+
         # No point of discovering from router if platform is none or is not
-        # supported or if the IX is not linked to a PeeringDB record.
-        if not self.router or not self.router.platform or not self.peeringdb_id:
-            return None
+        # supported.
+        if log:
+            self.logger.debug(log)
+            return False
 
         # Build a list based on prefixes based on PeeringDB records
         prefixes = [ipaddress.ip_network(prefix['prefix'])
@@ -380,13 +398,66 @@ class InternetExchange(models.Model):
             self.logger.debug('no prefixes found for %s', self.name.lower())
             return None
         else:
-            self.logger.debug('found %s prefixes (%s) for %s', len(prefixes), ', '.join(
-                [str(prefix) for prefix in prefixes]), self.name.lower())
+            self.logger.debug('found %s prefixes (%s) for %s',
+                              len(prefixes),
+                              ', '.join([str(prefix) for prefix in prefixes]),
+                              self.name.lower())
 
         # Gather all existing BGP sessions from the router connected to the IX
         bgp_sessions = self.router.get_napalm_bgp_neighbors()
 
         return self._import_peering_sessions(bgp_sessions, prefixes)
+
+    def update_peering_session_states(self):
+        # Check if we are able to get BGP details
+        log = 'ignoring session states on {}, reason: "{}"'
+        if not self.router:
+            log = log.format(self.name.lower(), 'no router attached')
+        elif not self.router.can_napalm_get_bgp_neighbors_detail():
+            log = log.format(self.name.lower(),
+                             'router with unsupported platform {}'.format(
+                                 self.router.platform))
+        elif not self.check_bgp_session_states:
+            log = log.format(self.name.lower(), 'check disabled')
+        else:
+            log = None
+
+        # If we cannot check for BGP details, don't do anything
+        if log:
+            self.logger.debug(log)
+            return False
+
+        # Get all BGP sessions detail
+        bgp_neighbors_detail = self.router.get_napalm_bgp_neighbors_detail()
+        with transaction.atomic():
+            for vrf, as_details in bgp_neighbors_detail.items():
+                for asn, sessions in as_details.items():
+                    # Check BGP sessions found
+                    for session in sessions:
+                        ip_address = session['remote_address']
+                        self.logger.debug(
+                            'looking for session %s in %s', ip_address,
+                            self.name.lower())
+
+                        # Check if the BGP session is on this IX
+                        peering_session = PeeringSession.does_exist(
+                            internet_exchange=self, ip_address=ip_address)
+                        if peering_session:
+                            # Get the BGP state for the session
+                            state = session['connection_state'].lower()
+                            self.logger.debug(
+                                'found session %s in %s with state %s',
+                                ip_address, self.name.lower(), state)
+
+                            # Update the BGP state of the session
+                            peering_session.bgp_state = state
+                            peering_session.save()
+                        else:
+                            self.logger.debug(
+                                'session %s in %s not found', ip_address,
+                                self.name.lower())
+
+        return True
 
     def __str__(self):
         return self.name
@@ -399,10 +470,13 @@ class PeeringSession(models.Model):
         'InternetExchange', on_delete=models.CASCADE)
     ip_address = models.GenericIPAddressField()
     enabled = models.BooleanField(default=True)
+    bgp_state = models.CharField(max_length=50, choices=BGP_STATE_CHOICES,
+                                 blank=True, null=True)
     comment = models.TextField(blank=True)
 
     @staticmethod
-    def does_exist(internet_exchange=None, autonomous_system=None, ip_address=None):
+    def does_exist(internet_exchange=None, autonomous_system=None,
+                   ip_address=None):
         """
         Returns a PeeringSession object or None based on the positional
         arguments. If several objects are found, None is returned.
@@ -430,6 +504,24 @@ class PeeringSession(models.Model):
         return reverse('peering:peering_session_details',
                        kwargs={'pk': self.pk})
 
+    def get_bgp_state_html(self):
+        """
+        Return an HTML element based on the BGP state.
+        """
+        if self.bgp_state == BGP_STATE_IDLE:
+            label = 'danger'
+        elif self.bgp_state in [BGP_STATE_CONNECT, BGP_STATE_ACTIVE]:
+            label = 'warning'
+        elif self.bgp_state in [BGP_STATE_OPENSENT, BGP_STATE_OPENCONFIRM]:
+            label = 'info'
+        elif self.bgp_state == BGP_STATE_ESTABLISHED:
+            label = 'success'
+        else:
+            label = 'default'
+
+        return mark_safe('<span class="label label-{}">{}</span>'.format(
+            label, self.get_bgp_state_display() or 'Unknown'))
+
     def __str__(self):
         return '{} - AS{} - IP {}'.format(self.internet_exchange.name,
                                           self.autonomous_system.asn,
@@ -437,26 +529,10 @@ class PeeringSession(models.Model):
 
 
 class Router(models.Model):
-    # Platform constants, based on NAPALM drivers
-    PLATFORM_JUNOS = 'junos'
-    PLATFORM_IOSXR = 'iosxr'
-    PLATFORM_IOS = 'ios'
-    PLATFORM_NXOS = 'nxos'
-    PLATFORM_EOS = 'eos'
-    PLATFORM_NONE = None
-    PLATFORM_CHOICES = (
-        (PLATFORM_JUNOS, 'Juniper JUNOS'),
-        (PLATFORM_IOSXR, 'Cisco IOS-XR'),
-        (PLATFORM_IOS, 'Cisco IOS'),
-        (PLATFORM_NXOS, 'Cisco NX-OS'),
-        (PLATFORM_EOS, 'Arista EOS'),
-        (PLATFORM_NONE, 'Other'),
-    )
-
     name = models.CharField(max_length=128)
     hostname = models.CharField(max_length=256)
-    platform = models.CharField(max_length=50, choices=PLATFORM_CHOICES, blank=True,
-                                help_text='The router platform, used to interact with it')
+    platform = models.CharField(max_length=50, choices=PLATFORM_CHOICES,
+                                blank=True, help_text='The router platform, used to interact with it')
     comment = models.TextField(blank=True)
 
     logger = logging.getLogger('peering.manager.napalm')
@@ -466,6 +542,11 @@ class Router(models.Model):
 
     def get_absolute_url(self):
         return reverse('peering:router_details', kwargs={'pk': self.pk})
+
+    def can_napalm_get_bgp_neighbors_detail(self):
+        return False if not self.platform else self.platform in [
+            PLATFORM_EOS, PLATFORM_IOSXR, PLATFORM_JUNOS
+        ]
 
     def get_napalm_device(self):
         self.logger.debug('looking for napalm driver "%s"', self.platform)
@@ -692,6 +773,36 @@ class Router(models.Model):
                     'error while closing connection with %s', self.hostname)
 
         return bgp_sessions
+
+    def get_napalm_bgp_neighbors_detail(self):
+        """
+        Returns a list of dictionaries listing all BGP neighbors found on the
+        router using NAPALM and there respective detail.
+
+        If an error occurs or no BGP neighbors can be found, the returned list
+        will be empty.
+        """
+        bgp_neighbors_detail = []
+
+        device = self.get_napalm_device()
+        opened = self.open_napalm_device(device)
+
+        if opened:
+            # Get all BGP neighbors on the router
+            self.logger.debug(
+                'getting bgp neighbors detail on %s', self.hostname)
+            bgp_neighbors_detail = device.get_bgp_neighbors_detail()
+            self.logger.debug('raw napalm output %s', bgp_neighbors_detail)
+            self.logger.debug('found %s vrfs with bgp neighbors on %s', len(
+                bgp_neighbors_detail), self.hostname)
+
+            # Close connection to the device
+            closed = self.close_napalm_device(device)
+            if not closed:
+                self.logger.debug(
+                    'error while closing connection with %s', self.hostname)
+
+        return bgp_neighbors_detail
 
     def __str__(self):
         return self.name

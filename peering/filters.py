@@ -4,6 +4,7 @@ from django.db.models import Q
 
 import django_filters
 
+from .constants import PLATFORM_CHOICES
 from .models import (AutonomousSystem, Community, ConfigurationTemplate,
                      InternetExchange, PeeringSession, Router)
 
@@ -177,7 +178,7 @@ class RouterFilter(django_filters.FilterSet):
         label='Search',
     )
     platform = django_filters.MultipleChoiceFilter(
-        choices=Router.PLATFORM_CHOICES,
+        choices=PLATFORM_CHOICES,
         null_value=None
     )
 

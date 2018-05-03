@@ -11,5 +11,11 @@
   Import from Router
 </a>
 {% endif %}
+{% if internet_exchange.router and internet_exchange.router.can_napalm_get_bgp_neighbors_detail %}
+<a href="{% url 'peering:ix_update_session_states' slug=internet_exchange.slug %}" class="btn btn-sm btn-success">
+  <i class="fas fa-sync" aria-hidden="true"></i>
+  Update Session States
+</a>
+{% endif %}
 {% endblock %}
 {% endif %}

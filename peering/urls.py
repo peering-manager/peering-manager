@@ -79,6 +79,9 @@ urlpatterns = [
         views.IXAddPeer.as_view(), name='ix_add_peer'),
     url(r'^ix/(?P<slug>[\w-]+)/config/$',
         views.IXConfig.as_view(), name='ix_configuration'),
+    url(r'^ix/(?P<slug>[\w-]+)/update_session_states/$',
+        views.IXUpdateSessionStates.as_view(),
+        name='ix_update_session_states'),
 
     # Peering Sessions
     url(r'^peering/(?P<pk>[0-9]+)/$', views.PeeringSessionDetails.as_view(),

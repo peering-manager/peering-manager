@@ -43,3 +43,17 @@ PeeringDB entry for each AS if it has one. A command is available to do that.
 This command can also be schedule using a cron task. It is recommended to also
 use the caching local database feature to speed up the processing time of this
 feature.
+
+## Update Peering Session States
+
+If a router is connected to an Internet exchange and if this router is using
+a supported platform (that is able to give BGP peer details), it is possible
+to invoke the following command. It will update the state of each peering
+session.
+
+```
+# python manage.py update_peering_session_states
+```
+
+This command can also be schedule using a cron task to ensure that the BGP
+state of each peering session will be always up-to-date.

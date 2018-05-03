@@ -2,11 +2,11 @@ from __future__ import unicode_literals
 
 from django import forms
 
-from .models import (AutonomousSystem, Community,
-                     ConfigurationTemplate, InternetExchange, PeeringSession,
-                     Router)
-from utils.forms import (BootstrapMixin, CSVChoiceField,
-                         FilterChoiceField, SlugField)
+from .constants import PLATFORM_CHOICES
+from .models import (AutonomousSystem, Community, ConfigurationTemplate,
+                     InternetExchange, PeeringSession, Router)
+from utils.forms import (BootstrapMixin, CSVChoiceField, FilterChoiceField,
+                         SlugField)
 
 
 class CommentField(forms.CharField):
@@ -147,13 +147,17 @@ class ConfigurationTemplateFilterForm(BootstrapMixin, forms.Form):
 
 class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
+    check_bgp_session_states = forms.ChoiceField(
+        label='Check For Peering Session States',
+        help_text='If enabled, with a usable router, the state of peering sessions will be updated.',
+        choices=((True, 'Yes'), (False, 'No'),), widget=forms.Select())
     comment = CommentField()
 
     class Meta:
         model = InternetExchange
         fields = ('peeringdb_id', 'name', 'slug', 'ipv6_address',
                   'ipv4_address', 'configuration_template', 'router',
-                  'comment',)
+                  'check_bgp_session_states', 'comment',)
         labels = {
             'peeringdb_id': 'PeeringDB ID',
             'ipv6_address': 'IPv6 Address',
@@ -218,18 +222,15 @@ class InternetExchangeCSVForm(forms.ModelForm):
     class Meta:
         model = InternetExchange
         fields = ('name', 'slug', 'ipv6_address', 'ipv4_address',
-                  'configuration_template', 'router', 'comment',)
-        labels = {
-            'ipv6_address': 'IPv6 Address',
-            'ipv4_address': 'IPv4 Address',
-            'comment': 'Comments',
-        }
+                  'configuration_template', 'router',
+                  'check_bgp_session_states', 'comment',)
         help_texts = {
             'name': 'Full name of the Internet Exchange point',
             'ipv6_address': 'IPv6 Address used to peer',
             'ipv4_address': 'IPv4 Address used to peer',
             'configuration_template': 'Template for configuration generation',
             'router': 'Router connected to the Internet Exchange point',
+            'check_bgp_session_states': 'If enabled, with a usable router, the state of peering sessions will be updated.',
         }
 
 
@@ -353,7 +354,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
 
 
 class RouterCSVForm(BootstrapMixin, forms.ModelForm):
-    platform = CSVChoiceField(choices=Router.PLATFORM_CHOICES, required=False,
+    platform = CSVChoiceField(choices=PLATFORM_CHOICES, required=False,
                               help_text='The router platform, used to interact with it')
 
     class Meta:
@@ -373,5 +374,5 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
     q = forms.CharField(required=False, label='Search')
     name = forms.CharField(required=False, label='Router Name')
     hostname = forms.CharField(required=False, label='Router Hostname')
-    platform = forms.MultipleChoiceField(
-        choices=Router.PLATFORM_CHOICES, required=False)
+    platform = forms.MultipleChoiceField(choices=PLATFORM_CHOICES,
+                                         required=False)
