@@ -30,7 +30,7 @@ if [[ ${RETURN_CODE} != 0 ]]; then
 fi
 
 # Pass the tests suite
-python manage.py test
+coverage run --source=peering,peeringdb,peering_manager,utils manage.py test
 RETURN_CODE=$?
 if [[ ${RETURN_CODE} != 0 ]]; then
   echo -e "\n$(info) one or more test errors detected, failing build."
