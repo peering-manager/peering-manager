@@ -429,7 +429,7 @@ class IXPeeringSessions(ModelListView):
             internet_exchange = get_object_or_404(
                 InternetExchange, slug=kwargs['slug'])
 
-            if internet_exchange.router and internet_exchange.router.can_napalm_get_bgp_neighbors_detail():
+            if internet_exchange.check_bgp_session_states and internet_exchange.router and internet_exchange.router.can_napalm_get_bgp_neighbors_detail():
                 if 'session_state' in table.base_columns:
                     table.columns.show('session_state')
 
