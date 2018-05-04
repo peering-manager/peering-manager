@@ -105,7 +105,7 @@ class PeeringSessionTable(BaseTable):
     ip_address = tables.Column(verbose_name='IP Address')
     enabled = tables.TemplateColumn(verbose_name='Status',
                                     template_code=PEERING_SESSION_STATUS)
-    session_state = PeeringSessionStateColumn()
+    session_state = PeeringSessionStateColumn(accessor='bgp_state')
     actions = ActionsColumn(
         template_code='<div class="pull-right"><a href="{% url \'peering:peering_session_details\' pk=record.pk %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a> <a href="{% url \'peering:peering_session_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a></div>')
 
@@ -125,7 +125,7 @@ class PeeringSessionTableForAS(BaseTable):
                        accessor='internet_exchange.name')
     enabled = tables.TemplateColumn(verbose_name='Status',
                                     template_code=PEERING_SESSION_STATUS)
-    session_state = PeeringSessionStateColumn()
+    session_state = PeeringSessionStateColumn(accessor='bgp_state')
     actions = ActionsColumn(
         template_code='<div class="pull-right"><a href="{% url \'peering:peering_session_details\' pk=record.pk %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a> <a href="{% url \'peering:peering_session_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a></div>')
 
