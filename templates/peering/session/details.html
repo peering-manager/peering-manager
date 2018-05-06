@@ -29,9 +29,10 @@
           <div class="panel panel-default">
             <div class="panel-heading">
               <strong>Peering Session Details</strong>
-              <span class="pull-right" data-toggle="tooltip" data-placement="top" title="Peering session is {% if peering_session.enabled %}enabled{% else %}disabled{% endif %}.">
-                <i class="fas fa-toggle-{% if peering_session.enabled %}on text-success{% else %}off text-danger{% endif %}"></i>
-              </span>
+              <div class="pull-right">
+                {{ peering_session.get_enabled_html }}
+                {% if peering_session.bgp_state and peering_session.internet_exchange.check_bgp_session_states %}{{ peering_session.get_bgp_state_html }}{% endif %}
+              </div>
             </div>
             <table class="table table-hover panel-body attr-table">
               <tr>

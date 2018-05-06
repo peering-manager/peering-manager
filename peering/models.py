@@ -151,6 +151,7 @@ class InternetExchange(models.Model):
     router = models.ForeignKey(
         'Router', blank=True, null=True, on_delete=models.SET_NULL)
     check_bgp_session_states = models.BooleanField(blank=True, default=False)
+    bgp_session_states_update = models.DateTimeField(blank=True, null=True)
     communities = models.ManyToManyField('Community', blank=True)
 
     logger = logging.getLogger('peering.manager.peering')
@@ -445,17 +446,25 @@ class InternetExchange(models.Model):
                         if peering_session:
                             # Get the BGP state for the session
                             state = session['connection_state'].lower()
+                            received = session['received_prefix_count']
+                            advertised = session['advertised_prefix_count']
                             self.logger.debug(
                                 'found session %s in %s with state %s',
                                 ip_address, self.name.lower(), state)
 
                             # Update the BGP state of the session
                             peering_session.bgp_state = state
+                            peering_session.received_prefix_count = received
+                            peering_session.advertised_prefix_count = advertised
                             peering_session.save()
                         else:
                             self.logger.debug(
                                 'session %s in %s not found', ip_address,
                                 self.name.lower())
+
+            # Save last session states update
+            self.bgp_session_states_update = timezone.now()
+            self.save()
 
         return True
 
@@ -472,6 +481,9 @@ class PeeringSession(models.Model):
     enabled = models.BooleanField(default=True)
     bgp_state = models.CharField(max_length=50, choices=BGP_STATE_CHOICES,
                                  blank=True, null=True)
+    received_prefix_count = models.PositiveIntegerField(blank=True, null=True)
+    advertised_prefix_count = models.PositiveIntegerField(blank=True,
+                                                          null=True)
     comment = models.TextField(blank=True)
 
     @staticmethod
@@ -504,6 +516,20 @@ class PeeringSession(models.Model):
         return reverse('peering:peering_session_details',
                        kwargs={'pk': self.pk})
 
+    def get_enabled_html(self):
+        """
+        Return an HTML element based on the status (enabled or disabled).
+        """
+        label = 'success'
+        text = 'Enabled'
+
+        if not self.enabled:
+            label = 'danger'
+            text = 'Disabled'
+
+        return mark_safe('<span class="label label-{}">{}</span>'.format(
+            label, text))
+
     def get_bgp_state_html(self):
         """
         Return an HTML element based on the BGP state.
@@ -519,8 +545,20 @@ class PeeringSession(models.Model):
         else:
             label = 'default'
 
-        return mark_safe('<span class="label label-{}">{}</span>'.format(
-            label, self.get_bgp_state_display() or 'Unknown'))
+        text = '<span class="label label-{}">{}</span>'.format(
+            label, self.get_bgp_state_display() or 'Unknown')
+
+        # Only if the session is established, display some details
+        if self.bgp_state == BGP_STATE_ESTABLISHED:
+            text = '{} {}'.format(
+                text,
+                '<span class="label label-primary">Routes: '
+                '<i class="fas fa-arrow-circle-down"></i> {} '
+                '<i class="fas fa-arrow-circle-up"></i> {}'
+                '</span>'.format(self.received_prefix_count,
+                                 self.advertised_prefix_count))
+
+        return mark_safe(text)
 
     def __str__(self):
         return '{} - AS{} - IP {}'.format(self.internet_exchange.name,

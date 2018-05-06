@@ -12,6 +12,9 @@
 </div>
 {% endif %}
 <h1>{% block title %}{{ internet_exchange }}{% endblock %}</h1>
+{% if internet_exchange.bgp_session_states_update %}
+<p><small class="text-muted">Last peering session states updated: {{ internet_exchange.bgp_session_states_update }}</small></p>
+{% endif %}
 {% if request.user.is_authenticated %}
 <ul class="nav nav-tabs">
   <li role="presentation" {% if request.path|notcontains:'/sessions/,/peers/,/config/' %}class="active"{% endif %}>

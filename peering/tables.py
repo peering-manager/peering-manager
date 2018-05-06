@@ -85,13 +85,7 @@ class InternetExchangeTable(BaseTable):
                   'configuration_template', 'router', 'actions',)
 
 
-PEERING_SESSION_STATUS = """
-{% if record.enabled %}
-<span class="label label-success">Enabled</span>
-{% else %}
-<span class="label label-danger">Disabled</span>
-{% endif %}
-"""
+PEERING_SESSION_STATUS = '{{ record.get_enabled_html }}'
 
 
 class PeeringSessionTable(BaseTable):
