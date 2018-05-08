@@ -141,13 +141,15 @@ class BulkDeleteView(LoginRequiredMixin, View):
     def post(self, request, **kwargs):
         # Determine URL to redirect users
         posted_return_url = request.POST.get('return_url')
-        if posted_return_url and is_safe_url(url=posted_return_url, host=request.get_host()):
+        if posted_return_url and is_safe_url(url=posted_return_url,
+                                             host=request.get_host()):
             self.return_url = posted_return_url
 
         # Build the list primary keys of the objects to delete
         if request.POST.get('_all') and self.filter is not None:
-            pk_list = [obj.pk for obj in self.filter(request.GET, self.filter_by_extra_context(
-                self.model.objects.only('pk'), request, kwargs)).qs]
+            pk_list = [obj.pk for obj in self.filter(
+                request.GET, self.filter_by_extra_context(
+                    self.model.objects.only('pk'), request, kwargs)).qs]
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 

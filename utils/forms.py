@@ -139,7 +139,8 @@ class FilterChoiceFieldMixin(object):
         return label
 
 
-class FilterChoiceField(FilterChoiceFieldMixin, forms.ModelMultipleChoiceField):
+class FilterChoiceField(FilterChoiceFieldMixin,
+                        forms.ModelMultipleChoiceField):
     pass
 
 

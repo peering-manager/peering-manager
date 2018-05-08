@@ -6,6 +6,10 @@ body {
   padding-top: 70px;
   margin-bottom: 60px;
 }
+.container {
+  width: auto;
+  max-width: 1400px;
+}
 .wrapper {
   min-height: 100%;
   height: auto !important;
