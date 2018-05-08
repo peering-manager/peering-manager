@@ -228,7 +228,7 @@ class PeeringDB(object):
             search = {'asn': asn}
             result = self.lookup(NAMESPACES['network'], search)
 
-            if not result:
+            if not result or not result['data']:
                 return None
 
             network = Object(result['data'][0])
@@ -251,7 +251,7 @@ class PeeringDB(object):
             result = self.lookup(
                 NAMESPACES['network_internet_exchange_lan'], search)
 
-            if not result:
+            if not result or not result['data']:
                 return None
 
             network_ixlan = Object(result['data'][0])
@@ -271,7 +271,7 @@ class PeeringDB(object):
             result = self.lookup(
                 NAMESPACES['network_internet_exchange_lan'], search)
 
-            if not result:
+            if not result or not result['data']:
                 return None
 
             network_ixlans = []
@@ -300,7 +300,7 @@ class PeeringDB(object):
                 result = self.lookup(
                     NAMESPACES['internet_exchange_prefix'], search)
 
-                if not result:
+                if not result or not result['data']:
                     return prefixes
 
                 ix_prefixes = []
@@ -333,7 +333,7 @@ class PeeringDB(object):
             result = self.lookup(
                 NAMESPACES['network_internet_exchange_lan'], search)
 
-            if not result:
+            if not result or not result['data']:
                 return None
 
             network_ixlans = []
