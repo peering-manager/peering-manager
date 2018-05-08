@@ -118,4 +118,4 @@ class PeeringDBTestCase(TestCase):
         self.assertIsNone(api.get_peers_for_ix(0))
 
         # Must have some peers
-        self.assertEqual(len(api.get_peers_for_ix(ix_id)), 8)
+        self.assertEqual(len(api.get_peers_for_ix(ix_id)), 9)
