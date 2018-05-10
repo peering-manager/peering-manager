@@ -96,6 +96,28 @@ class PeeringSessionTable(BaseTable):
     asn = tables.Column(verbose_name='ASN', accessor='autonomous_system.asn')
     as_name = tables.Column(verbose_name='AS Name',
                             accessor='autonomous_system.name')
+    ix_name = tables.Column(verbose_name='IX Name',
+                            accessor='internet_exchange.name')
+    ip_address = tables.Column(verbose_name='IP Address')
+    enabled = tables.TemplateColumn(verbose_name='Status',
+                                    template_code=PEERING_SESSION_STATUS)
+    actions = ActionsColumn(
+        template_code='<div class="pull-right"><a href="{% url \'peering:peering_session_details\' pk=record.pk %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a> <a href="{% url \'peering:peering_session_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a></div>')
+
+    class Meta(BaseTable.Meta):
+        model = PeeringSession
+        fields = ('pk', 'asn', 'as_name', 'ix_name', 'ip_address', 'enabled',
+                  'actions',)
+
+
+class PeeringSessionTableForIX(BaseTable):
+    """
+    Table for PeeringSession lists
+    """
+    pk = SelectColumn()
+    asn = tables.Column(verbose_name='ASN', accessor='autonomous_system.asn')
+    as_name = tables.Column(verbose_name='AS Name',
+                            accessor='autonomous_system.name')
     ip_address = tables.Column(verbose_name='IP Address')
     enabled = tables.TemplateColumn(verbose_name='Status',
                                     template_code=PEERING_SESSION_STATUS)

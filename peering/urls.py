@@ -84,6 +84,8 @@ urlpatterns = [
         name='ix_update_session_states'),
 
     # Peering Sessions
+    url(r'^peering/$', views.PeeringSessionList.as_view(),
+        name='peering_session_list'),
     url(r'^peering/(?P<pk>[0-9]+)/$', views.PeeringSessionDetails.as_view(),
         name='peering_session_details'),
     url(r'^peering/(?P<pk>[0-9]+)/edit/$',

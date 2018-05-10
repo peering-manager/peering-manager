@@ -24,15 +24,15 @@ from .forms import (
     InternetExchangeForm, InternetExchangePeeringDBForm,
     InternetExchangePeeringDBFormSet, InternetExchangeCommunityForm,
     InternetExchangeCSVForm, InternetExchangeFilterForm, PeeringSessionForm,
-    PeeringSessionFilterForm, PeeringSessionFilterFormForAS, RouterForm,
-    RouterCSVForm, RouterFilterForm)
+    PeeringSessionFilterForm, PeeringSessionFilterFormForIX,
+    PeeringSessionFilterFormForAS, RouterForm, RouterCSVForm, RouterFilterForm)
 from .models import (
     AutonomousSystem, Community, ConfigurationTemplate, InternetExchange,
     PeeringSession, Router)
 from .tables import (
     AutonomousSystemTable, CommunityTable, ConfigurationTemplateTable,
     InternetExchangeTable, PeerTable, PeeringSessionTable,
-    PeeringSessionTableForAS, RouterTable)
+    PeeringSessionTableForIX, PeeringSessionTableForAS, RouterTable)
 from peeringdb.api import PeeringDB
 from peeringdb.models import Network, NetworkIXLAN
 from utils.models import UserAction
@@ -390,8 +390,8 @@ class IXUpdateCommunities(AddOrEditView):
 
 class IXPeeringSessions(ModelListView):
     filter = PeeringSessionFilter
-    filter_form = PeeringSessionFilterForm
-    table = PeeringSessionTable
+    filter_form = PeeringSessionFilterFormForIX
+    table = PeeringSessionTableForIX
     template = 'peering/ix/sessions.html'
 
     def build_queryset(self, request, kwargs):
@@ -568,6 +568,14 @@ class IXUpdateSessionStates(LoginRequiredMixin, View):
         return redirect(internet_exchange.get_peering_sessions_list_url())
 
 
+class PeeringSessionList(ModelListView):
+    queryset = PeeringSession.objects.order_by('autonomous_system')
+    table = PeeringSessionTable
+    filter = PeeringSessionFilter
+    filter_form = PeeringSessionFilterForm
+    template = 'peering/ix/sessions.html'
+
+
 class PeeringSessionAdd(AddOrEditView):
     model = PeeringSession
     form = PeeringSessionForm
@@ -613,7 +621,7 @@ class PeeringSessionDelete(DeleteView):
 class PeeringSessionBulkDelete(BulkDeleteView):
     model = PeeringSession
     filter = PeeringSessionFilter
-    table = PeeringSessionTable
+    table = PeeringSessionTableForIX
 
     def filter_by_extra_context(self, queryset, request, kwargs):
         internet_exchange_slug = request.POST.get('internet_exchange_slug')

@@ -4,7 +4,7 @@
         <div class="col-md-6">
           <div class="panel panel-default">
             <div class="panel-heading">
-              <strong>Global Statistics</strong>
+              <strong>Peering Data</strong>
             </div>
             <div class="list-group">
               <div class="list-group-item">
@@ -12,36 +12,49 @@
                 <h4 class="list-group-item-heading">
                   <a href="{% url 'peering:as_list' %}">Autonomous Systems</a>
                 </h4>
+                <p class="list-group-item-textn text-muted">Autonomous systems peering with the local AS<p>
               </div>
               <div class="list-group-item">
                 <span class="badge pull-right">{{ statistics.ix_count }}</span>
                 <h4 class="list-group-item-heading">
                   <a href="{% url 'peering:ix_list' %}">Internet Exchanges</a>
                 </h4>
+                <p class="list-group-item-textn text-muted">Internet exchanges that local AS is connected to<p>
               </div>
+              <div class="list-group-item">
+                <span class="badge pull-right">{{ statistics.peering_sessions_count }}</span>
+                <h4 class="list-group-item-heading">
+                  <a href="{% url 'peering:peering_session_list' %}">Peering Sessions</a>
+                </h4>
+                <p class="list-group-item-textn text-muted">Peering sessions with other autonomous systems<p>
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong>Deployment</strong>
+            </div>
+            <div class="list-group">
               <div class="list-group-item">
                 <span class="badge pull-right">{{ statistics.communities_count }}</span>
                 <h4 class="list-group-item-heading">
                   <a href="{% url 'peering:community_list' %}">Communities</a>
                 </h4>
+                <p class="list-group-item-textn text-muted">Communities used to tag routes from or to Internet exchanges<p>
               </div>
               <div class="list-group-item">
                 <span class="badge pull-right">{{ statistics.config_templates_count }}</span>
                 <h4 class="list-group-item-heading">
-                  <a href="{% url 'peering:configuration_template_list' %}">Configuration Templates</a>
+                  <a href="{% url 'peering:configuration_template_list' %}">Templates</a>
                 </h4>
+                <p class="list-group-item-textn text-muted">Templates used to generate configuration for network devices<p>
               </div>
               <div class="list-group-item">
                 <span class="badge pull-right">{{ statistics.routers_count }}</span>
                 <h4 class="list-group-item-heading">
                   <a href="{% url 'peering:router_list' %}">Routers</a>
                 </h4>
-              </div>
-              <div class="list-group-item">
-                <span class="badge pull-right">{{ statistics.peering_sessions_count }}</span>
-                <h4 class="list-group-item-heading">
-                  Peering Sessions
-                </h4>
+                <p class="list-group-item-textn text-muted">Network devices connected to Internet exchanges, generated configuration can be applied to these devices if they are running on a supported platform<p>
               </div>
             </div>
           </div>
@@ -49,7 +62,7 @@
         <div class="col-md-6">
           <div class="panel panel-default">
             <div class="panel-heading">
-              <strong>History</strong>
+              <strong>Recent History</strong>
             </div>
             <div class="list-group">
               {% for action in history %}
