@@ -8,18 +8,18 @@
             </div>
             <div class="list-group">
               <div class="list-group-item">
-                <span class="badge pull-right">{{ statistics.as_count }}</span>
-                <h4 class="list-group-item-heading">
-                  <a href="{% url 'peering:as_list' %}">Autonomous Systems</a>
-                </h4>
-                <p class="list-group-item-textn text-muted">Autonomous systems peering with the local AS<p>
-              </div>
-              <div class="list-group-item">
                 <span class="badge pull-right">{{ statistics.ix_count }}</span>
                 <h4 class="list-group-item-heading">
                   <a href="{% url 'peering:ix_list' %}">Internet Exchanges</a>
                 </h4>
                 <p class="list-group-item-textn text-muted">Internet exchanges that local AS is connected to<p>
+              </div>
+              <div class="list-group-item">
+                <span class="badge pull-right">{{ statistics.as_count }}</span>
+                <h4 class="list-group-item-heading">
+                  <a href="{% url 'peering:as_list' %}">Autonomous Systems</a>
+                </h4>
+                <p class="list-group-item-textn text-muted">Autonomous systems peering with the local AS<p>
               </div>
               <div class="list-group-item">
                 <span class="badge pull-right">{{ statistics.peering_sessions_count }}</span>

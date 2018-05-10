@@ -1,17 +1,5 @@
 {% extends '_base.html' %}
 {% block content %}
-      {% if request.user.is_authenticated %}
-      <div class="pull-right">
-        <a href="{% url 'peering:as_add' %}" class="btn btn-primary">
-          <i class="fas fa-plus" aria-hidden="true"></i>
-          Add an AS
-        </a>
-        <a href="{% url 'peering:as_import' %}" class="btn btn-info">
-          <i class="fas fa-upload" aria-hidden="true"></i>
-          Import AS
-        </a>
-      </div>
-      {% endif %}
       <h1>{% block title %}Peering Sessions{% endblock %}</h1>
       <div class="row">
         <div class="col-md-9">
