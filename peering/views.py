@@ -624,10 +624,14 @@ class PeeringSessionBulkDelete(BulkDeleteView):
     table = PeeringSessionTableForIX
 
     def filter_by_extra_context(self, queryset, request, kwargs):
-        internet_exchange_slug = request.POST.get('internet_exchange_slug')
-        internet_exchange = get_object_or_404(
-            InternetExchange, slug=internet_exchange_slug)
-        return queryset.filter(internet_exchange=internet_exchange)
+        # If we are on an Internet exchange context, filter the session with
+        # the given IX
+        if 'internet_exchange_slug' in request.POST:
+            internet_exchange_slug = request.POST.get('internet_exchange_slug')
+            internet_exchange = get_object_or_404(
+                InternetExchange, slug=internet_exchange_slug)
+            return queryset.filter(internet_exchange=internet_exchange)
+        return queryset
 
 
 class PeeringSessionDisable(LoginRequiredMixin, View):
