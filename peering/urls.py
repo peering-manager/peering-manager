@@ -10,6 +10,8 @@ urlpatterns = [
     url(r'^as/$', views.ASList.as_view(), name='as_list'),
     url(r'^as/add/$', views.ASAdd.as_view(), name='as_add'),
     url(r'^as/import/$', views.ASImport.as_view(), name='as_import'),
+    url(r'^as/import_from_peeringdb/$', views.ASImportFromPeeringDB.as_view(),
+        name='as_import_from_peeringdb'),
     url(r'^as/(?P<asn>[0-9]+)/$',
         views.ASDetails.as_view(), name='as_details'),
     url(r'^as/(?P<asn>[0-9]+)/edit/$', views.ASEdit.as_view(), name='as_edit'),

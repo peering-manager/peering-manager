@@ -300,6 +300,56 @@ class DeleteView(LoginRequiredMixin, View):
         })
 
 
+class GenericFormView(View):
+    form = None
+    return_url = None
+    template = None
+
+    def get_return_url(self):
+        if self.return_url:
+            # Use the default URL if given
+            return reverse(self.return_url)
+
+        # Or return to home
+        return reverse('home')
+
+    def process_form(self, request, form_data):
+        """
+        This function is used to do something with the form that has been
+        submitted when it is valid. This function must return a rendered view
+        if everything went well or None in other cases.
+        """
+        pass
+
+    def extra_context(self, kwargs):
+        return {}
+
+    def get(self, request, *args, **kwargs):
+        """
+        Method used to render the view when form is not submitted.
+        """
+        context = {
+            'form': self.form(),
+            'return_url': self.get_return_url(),
+        }
+        context.update(self.extra_context(kwargs))
+        return render(request, self.template, context)
+
+    def post(self, request, *args, **kwargs):
+        """
+        The form has been submitted, process it.
+        """
+        form = self.form(request.POST)
+        if form.is_valid():
+            rendered = self.process_form(request, form)
+            if rendered:
+                return rendered
+        else:
+            form = self.form()
+
+        return redirect(self.get_return_url())
+
+
 class ImportView(LoginRequiredMixin, View):
     form_model = None
     return_url = None

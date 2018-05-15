@@ -11,6 +11,10 @@
           <i class="fas fa-upload" aria-hidden="true"></i>
           Import AS
         </a>
+        <a href="{% url 'peering:as_import_from_peeringdb' %}" class="btn btn-info">
+          <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
+          Import AS From PeeringDB
+        </a>
       </div>
       {% endif %}
       <h1>{% block title %}Autonomous Systems{% endblock %}</h1>

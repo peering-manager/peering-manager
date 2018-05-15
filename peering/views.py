@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.defaultfilters import slugify
 from django.utils.html import escape
 from django.views.generic import View
@@ -19,13 +19,14 @@ from .filters import (
     InternetExchangeFilter, PeeringSessionFilter, RouterFilter)
 from .forms import (
     AutonomousSystemForm, AutonomousSystemCSVForm, AutonomousSystemFilterForm,
-    CommunityForm, CommunityCSVForm, CommunityFilterForm,
-    ConfigurationTemplateForm, ConfigurationTemplateFilterForm,
-    InternetExchangeForm, InternetExchangePeeringDBForm,
-    InternetExchangePeeringDBFormSet, InternetExchangeCommunityForm,
-    InternetExchangeCSVForm, InternetExchangeFilterForm, PeeringSessionForm,
-    PeeringSessionFilterForm, PeeringSessionFilterFormForIX,
-    PeeringSessionFilterFormForAS, RouterForm, RouterCSVForm, RouterFilterForm)
+    AutonomousSystemImportFromPeeringDBForm, CommunityForm, CommunityCSVForm,
+    CommunityFilterForm, ConfigurationTemplateForm,
+    ConfigurationTemplateFilterForm, InternetExchangeForm,
+    InternetExchangePeeringDBForm, InternetExchangePeeringDBFormSet,
+    InternetExchangeCommunityForm, InternetExchangeCSVForm,
+    InternetExchangeFilterForm, PeeringSessionForm, PeeringSessionFilterForm,
+    PeeringSessionFilterFormForIX, PeeringSessionFilterFormForAS, RouterForm,
+    RouterCSVForm, RouterFilterForm)
 from .models import (
     AutonomousSystem, Community, ConfigurationTemplate, InternetExchange,
     PeeringSession, Router)
@@ -38,8 +39,8 @@ from peeringdb.models import Network, NetworkIXLAN
 from utils.models import UserAction
 from utils.paginators import EnhancedPaginator
 from utils.views import (
-    AddOrEditView, BulkDeleteView, ConfirmationView, DeleteView, ImportView,
-    ModelListView, TableImportView)
+    AddOrEditView, BulkDeleteView, ConfirmationView, DeleteView,
+    GenericFormView, ImportView, ModelListView, TableImportView)
 
 
 class ASList(ModelListView):
@@ -60,6 +61,39 @@ class ASAdd(AddOrEditView):
 class ASImport(ImportView):
     form_model = AutonomousSystemCSVForm
     return_url = 'peering:as_list'
+
+
+class ASImportFromPeeringDB(LoginRequiredMixin, GenericFormView):
+    form = AutonomousSystemImportFromPeeringDBForm
+    template = 'peering/as/import_from_peeringdb.html'
+    return_url = 'peering:as_list'
+
+    def process_form(self, request, form):
+        # Get form data
+        asn = form.cleaned_data['asn']
+        comment = form.cleaned_data['comment']
+
+        # Try to import the AS using its PeeringDB record
+        autonomous_system = AutonomousSystem.create_from_peeringdb(asn)
+        # AS is valid and created
+        if autonomous_system:
+            if comment:
+                # Add the user comment if it was submitted
+                AutonomousSystem.objects.filter(
+                    asn=autonomous_system.asn).update(comment=comment)
+
+            messages.success(request, 'AS{} has been successfully '
+                             'imported from PeeringDB.'.format(asn))
+            return redirect(autonomous_system.get_absolute_url())
+
+        # Not a valid AS, reject the user
+        messages.error(request, 'AS{} is not valid or does not have a '
+                       'valid PeeringDB record.'.format(asn))
+        context = {
+            'form': form,
+            'return_url': reverse(self.return_url),
+        }
+        return render(request, self.template, context)
 
 
 class ASDetails(View):
