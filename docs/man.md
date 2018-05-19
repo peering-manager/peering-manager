@@ -48,7 +48,19 @@ network to an IX. It is composed of the following fields:
 
 ### Community
 
-TODO
+A **Community** is an object representing a BGP community. It can be a standard
+BGP community (RFC1997) or a BGP large community (RFC8092). It is composed of
+the following fields:
+
+  * a **name**, it can be a string composed of any characters.
+  * a **value**, it is the actual value of the community that will be sent as
+    BGP attribute.
+  * a **type**, it can be *Egress* or *Ingress* depending of when the community
+    has to be applied (upon routes receiving or upon routes advertising).
+  * **comments**, it is an optional field that can be used to take some notes
+    about the object. It supports the
+    [GitHub Markdown](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
+    syntax.
 
 ### Router
 

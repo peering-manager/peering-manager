@@ -65,7 +65,7 @@ protocols {
             export export-all;
             {%- for asn, details in group.peers.items() %}
             {%- for session in details.sessions %}
-            {% if not session.enabled %}de{% endif %}activate: neighbor {{ session.ip_address }} {
+            {% if not session.enabled %}deactivate: {% endif %}neighbor {{ session.ip_address }} {
                 description "Peering: AS{{ asn }} - {{ details.as_name }}";
                 {%- if details.max_prefixes > 0 %}
                 {%- if group.ip_version == 6 %}
