@@ -4,8 +4,10 @@ import ipaddress
 
 from django.test import TestCase
 
-from .constants import PLATFORM_JUNOS
-from .models import AutonomousSystem, InternetExchange, PeeringSession, Router
+from .constants import (COMMUNITY_TYPE_INGRESS, COMMUNITY_TYPE_EGRESS,
+                        PLATFORM_JUNOS)
+from .models import (AutonomousSystem, Community, InternetExchange,
+                     PeeringSession, Router)
 
 
 class AutonomousSystemTestCase(TestCase):
@@ -70,6 +72,40 @@ class AutonomousSystemTestCase(TestCase):
         self.assertEqual(expected, str(autonomous_system))
 
 
+class CommunityTestCase(TestCase):
+    def test_community_create(self):
+        community_list = [
+            {
+                'name': 'Test',
+                'value': '64500:1',
+                'type': None,
+                'str': 'Test (Ingress)',
+            },
+            {
+                'name': 'Test',
+                'value': '64500:1',
+                'type': COMMUNITY_TYPE_EGRESS,
+                'str': 'Test (Egress)',
+            },
+        ]
+
+        for details in community_list:
+            if details['type']:
+                community = Community.objects.create(name=details['name'],
+                                                     value=details['value'],
+                                                     type=details['type'])
+            else:
+                community = Community.objects.create(name=details['name'],
+                                                     value=details['value'])
+
+            self.assertIsNotNone(community)
+            self.assertEqual(details['name'], community.name)
+            self.assertEqual(details['value'], community.value)
+            self.assertEqual(details['type'] or COMMUNITY_TYPE_INGRESS,
+                             community.type)
+            self.assertEqual(details['str'], str(community))
+
+
 class InternetExchangeTestCase(TestCase):
     def test_import_peering_sessions(self):
         # Expected results
@@ -128,13 +164,13 @@ class InternetExchangeTestCase(TestCase):
         ]
 
         # Run test cases
-        for i in range(0, len(expected)):
+        for i in range(len(expected)):
             ixp = InternetExchange.objects.create(name='Test {}'.format(i),
                                                   slug='test_{}'.format(i))
             self.assertEqual(expected[i],
                              ixp._import_peering_sessions(session_lists[i],
                                                           prefix_lists[i]))
-            self.assertEqual(expected[i][1], ixp.get_peering_sessions_count())
+            self.assertEqual(expected[i][1], len(ixp.get_peering_sessions()))
 
     def test_generate_configuration(self):
         expected = [
@@ -303,7 +339,7 @@ class RouterTestCase(TestCase):
                                        platform=PLATFORM_JUNOS)
 
         # Run test cases
-        for i in range(0, len(expected)):
+        for i in range(len(expected)):
             self.assertEqual(expected[i],
                              len(router._napalm_bgp_neighbors_to_peer_list(
                                  napalm_dicts_list[i])))

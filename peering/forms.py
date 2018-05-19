@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django import forms
 
-from .constants import PLATFORM_CHOICES
+from .constants import COMMUNITY_TYPE_CHOICES, PLATFORM_CHOICES
 from .models import (AutonomousSystem, Community, ConfigurationTemplate,
                      InternetExchange, PeeringSession, Router)
 from utils.forms import (BootstrapMixin, CSVChoiceField, FilterChoiceField,
@@ -109,20 +109,24 @@ class CommunityForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Community
 
-        fields = ('name', 'value', 'comment',)
+        fields = ('name', 'value', 'type', 'comment',)
         labels = {
             'comment': 'Comments',
         }
         help_texts = {
             'value': 'Community (RFC1997) or Large Community (RFC8092)',
+            'type': 'Ingress to tag received routes or Egress to tag advertised routes'
         }
 
 
 class CommunityCSVForm(BootstrapMixin, forms.ModelForm):
+    type = CSVChoiceField(choices=COMMUNITY_TYPE_CHOICES, required=False,
+                          help_text='Ingress to tag received routes or Egress to tag advertised routes')
+
     class Meta:
         model = Community
 
-        fields = ('name', 'value', 'comment',)
+        fields = ('name', 'value', 'type', 'comment',)
         labels = {
             'comment': 'Comments',
         }
@@ -136,6 +140,8 @@ class CommunityFilterForm(BootstrapMixin, forms.Form):
     q = forms.CharField(required=False, label='Search')
     name = forms.CharField(required=False, label='Name')
     value = forms.CharField(required=False, label='Value')
+    type = forms.MultipleChoiceField(choices=COMMUNITY_TYPE_CHOICES,
+                                     required=False)
 
 
 class ConfigurationTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -143,7 +149,10 @@ class ConfigurationTemplateForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = ConfigurationTemplate
-        fields = ('name', 'template',)
+        fields = ('name', 'template', 'comment',)
+        labels = {
+            'comment': 'Comments',
+        }
 
 
 class ConfigurationTemplateFilterForm(BootstrapMixin, forms.Form):

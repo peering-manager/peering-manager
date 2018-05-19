@@ -31,3 +31,11 @@ PLATFORM_CHOICES = (
     (PLATFORM_EOS, 'Arista EOS'),
     (PLATFORM_NONE, 'Other'),
 )
+
+# Community type constants
+COMMUNITY_TYPE_EGRESS = 'egress'
+COMMUNITY_TYPE_INGRESS = 'ingress'
+COMMUNITY_TYPE_CHOICES = (
+    (COMMUNITY_TYPE_EGRESS, 'Egress'),
+    (COMMUNITY_TYPE_INGRESS, 'Ingress'),
+)

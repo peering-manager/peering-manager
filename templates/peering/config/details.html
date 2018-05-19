@@ -27,23 +27,25 @@
                 <td>Last update</td>
                 <td>{{ configuration_template.updated }}</td>
               </tr>
+              <tr>
+                <td>Utilization</td>
+                <td>{% if internet_exchanges|length == 0 %}Used by only one Internet exchange{% else %}Used by {{ internet_exchanges|length }} Internet exchanges{% endif %}</td>
+              </tr>
             </table>
           </div>
         </div>
         <div class="col-md-6">
           <div class="panel panel-default">
             <div class="panel-heading">
-              <strong>Internet Exchanges</strong>
+              <strong>Comments</strong>
             </div>
-            <ul class="list-group">
-              {% if internet_exchanges|length > 0 %}
-              {% for ix in internet_exchanges %}
-              <li class="list-group-item">{{ ix }}<a class="btn btn-xs btn-info pull-right" href="{% url 'peering:ix_details' slug=ix.slug %}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></li>
-              {% endfor %}
+            <div class="panel-body">
+              {% if autonomous_system.comment %}
+              {{ autonomous_system.comment|markdown }}
               {% else %}
-              <li class="list-group-item"><span class="text-muted">None</span></li>
+              <span class="text-muted">None</span>
               {% endif %}
-            </ul>
+            </div>
           </div>
         </div>
       </div>

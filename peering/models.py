@@ -12,11 +12,12 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from .constants import (BGP_STATE_IDLE, BGP_STATE_CONNECT, BGP_STATE_ACTIVE,
-                        BGP_STATE_OPENSENT, BGP_STATE_OPENCONFIRM,
-                        BGP_STATE_ESTABLISHED, BGP_STATE_CHOICES,
-                        PLATFORM_JUNOS, PLATFORM_IOSXR, PLATFORM_EOS,
-                        PLATFORM_CHOICES)
+from .constants import (BGP_STATE_CHOICES, BGP_STATE_IDLE, BGP_STATE_CONNECT,
+                        BGP_STATE_ACTIVE, BGP_STATE_OPENSENT,
+                        BGP_STATE_OPENCONFIRM, BGP_STATE_ESTABLISHED,
+                        COMMUNITY_TYPE_CHOICES, COMMUNITY_TYPE_EGRESS,
+                        COMMUNITY_TYPE_INGRESS, PLATFORM_CHOICES,
+                        PLATFORM_JUNOS, PLATFORM_IOSXR, PLATFORM_EOS)
 from .fields import ASNField, CommunityField
 from peeringdb.api import PeeringDB
 
@@ -70,8 +71,8 @@ class AutonomousSystem(models.Model):
     def get_absolute_url(self):
         return reverse('peering:as_details', kwargs={'asn': self.asn})
 
-    def get_peering_sessions_count(self):
-        return self.peeringsession_set.count()
+    def get_peering_sessions(self):
+        return [session for session in self.peeringsession_set.all()]
 
     def get_internet_exchanges(self):
         internet_exchanges = []
@@ -81,9 +82,6 @@ class AutonomousSystem(models.Model):
                 internet_exchanges.append(session.internet_exchange)
 
         return internet_exchanges
-
-    def get_internet_exchanges_count(self):
-        return len(self.get_internet_exchanges())
 
     def sync_with_peeringdb(self):
         peeringdb_info = PeeringDB().get_autonomous_system(self.asn)
@@ -105,6 +103,8 @@ class AutonomousSystem(models.Model):
 class Community(models.Model):
     name = models.CharField(max_length=128)
     value = CommunityField(max_length=50)
+    type = models.CharField(max_length=50, choices=COMMUNITY_TYPE_CHOICES,
+                            default=COMMUNITY_TYPE_INGRESS)
     comment = models.TextField(blank=True)
 
     class Meta:
@@ -115,12 +115,13 @@ class Community(models.Model):
         return reverse('peering:community_details', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.name
+        return '{} ({})'.format(self.name, self.get_type_display())
 
 
 class ConfigurationTemplate(models.Model):
     name = models.CharField(max_length=128)
     template = models.TextField()
+    comment = models.TextField(blank=True)
     updated = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -169,8 +170,8 @@ class InternetExchange(models.Model):
     def get_peer_list_url(self):
         return reverse('peering:ix_peers', kwargs={'slug': self.slug})
 
-    def get_peering_sessions_count(self):
-        return self.peeringsession_set.count()
+    def get_peering_sessions(self):
+        return [session for session in self.peeringsession_set.all()]
 
     def get_autonomous_systems(self):
         autonomous_systems = []
@@ -180,9 +181,6 @@ class InternetExchange(models.Model):
                 autonomous_systems.append(session.autonomous_system)
 
         return autonomous_systems
-
-    def get_autonomous_systems_count(self):
-        return len(self.get_autonomous_systems())
 
     def get_prefixes(self):
         return PeeringDB().get_prefixes_for_ix_network(self.peeringdb_id) or []
@@ -252,7 +250,8 @@ class InternetExchange(models.Model):
     def generate_configuration(self):
         # Load and render the template using Jinja2
         configuration_template = Template(self.configuration_template.template)
-        return configuration_template.render(self._generate_configuration_variables())
+        return configuration_template.render(
+            self._generate_configuration_variables())
 
     def get_available_peers(self):
         peers = []
