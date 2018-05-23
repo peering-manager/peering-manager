@@ -1,26 +1,24 @@
 {% load form_helpers %}
 
-<div class="form-group{% if field.errors %} has-error{% endif %}">
+<div class="form-group form-row{% if field.errors %} invalid{% endif %}">
   {% if field|widget_type == 'textarea' %}
-  <div class="col-md-12">
-    {{ field }}
-    {% if field.help_text %}
-    <span class="help-block">{{ field.help_text|safe }}</span>
-    {% endif %}
-    {% if field.errors %}
-    <ul>
-      {% for error in field.errors %}
-      <li class="text-danger">{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-  </div>
+  {{ field }}
+  {% if field.help_text %}
+  <span class="form-text">{{ field.help_text|safe }}</span>
+  {% endif %}
+  {% if field.errors %}
+  <ul>
+    {% for error in field.errors %}
+    <li class="text-danger">{{ error }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
   {% else %}
-  <label class="col-md-3 control-label{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}">{{ field.label }}</label>
-  <div class="col-md-9">
+  <label class="col-3 {% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
+  <div class="col-9">
     {{ field }}
     {% if field.help_text %}
-    <span class="help-block">{{ field.help_text|safe }}</span>
+    <span class="form-text">{{ field.help_text|safe }}</span>
     {% endif %}
     {% if field.errors %}
     <ul>

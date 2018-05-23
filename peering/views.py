@@ -343,7 +343,7 @@ class IXPeeringDBImport(TableImportView):
             if ix.peeringdb_id:
                 known_objects.append(ix.peeringdb_id)
 
-        ix_networks = api.get_ix_networks_for_asn(settings.MY_ASN)
+        ix_networks = api.get_ix_networks_for_asn(settings.MY_ASN) or []
         for ix_network in ix_networks:
             if ix_network.id not in known_objects:
                 objects.append({
@@ -607,7 +607,7 @@ class PeeringSessionList(ModelListView):
     table = PeeringSessionTable
     filter = PeeringSessionFilter
     filter_form = PeeringSessionFilterForm
-    template = 'peering/ix/sessions.html'
+    template = 'peering/session/list.html'
 
 
 class PeeringSessionAdd(AddOrEditView):

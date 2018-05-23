@@ -28,7 +28,7 @@ $(document).ready(function() {
 
     // Show the "select all" box if present
     if ($(this).is(':checked')) {
-      $('#select_all_box').removeClass('hidden');
+      $('#select_all_box').removeClass('d-none');
     } else {
       $('#select_all').prop('checked', false);
     }

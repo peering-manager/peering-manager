@@ -2,7 +2,7 @@
 {% load helpers %}
 {% block content %}
       {% if request.user.is_authenticated %}
-      <div class="pull-right">
+      <div class="float-right">
         <a href="{% url 'peering:community_edit' pk=community.pk %}" class="btn btn-warning">
           <i class="fas fa-edit" aria-hidden="true"></i> Edit
         </a>
@@ -14,11 +14,11 @@
       <h1>{% block title %}{{ community }}{% endblock %}</h1>
       <div class="row">
         <div class="col-md-6">
-          <div class="panel panel-default">
-            <div class="panel-heading">
+          <div class="card">
+            <div class="card-header">
               <strong>Community Details</strong>
             </div>
-            <table class="table table-hover panel-body attr-table">
+            <table class="table table-hover card-body attr-table">
               <tr>
                 <td>Name</td>
                 <td>{{ community.name }}</td>
@@ -35,11 +35,11 @@
           </div>
         </div>
         <div class="col-md-6">
-          <div class="panel panel-default">
-            <div class="panel-heading">
+          <div class="card">
+            <div class="card-header">
               <strong>Comments</strong>
             </div>
-            <div class="panel-body">
+            <div class="card-body">
               {% if community.comment %}
               {{ community.comment|markdown }}
               {% else %}

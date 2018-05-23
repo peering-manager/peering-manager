@@ -1,41 +1,41 @@
 {% extends '_base.html' %}
 {% load form_helpers %}
 {% block content %}
-<form method="post" class="form-horizontal">
+<form method="post">
   {% csrf_token %}
   {% for field in form.hidden_fields %}
   {{ field }}
   {% endfor %}
-  <div class="row">
-    <div class="col-md-8 col-md-offset-2">
+  <div class="row justify-content-center">
+    <div class="col-8">
       <h3>{% block title %}{% if object.pk %}Editing {{ object }}{% else %}Add a new {{ object_type }}{% endif %}{% endblock %}</h3>
       {% if form.non_field_errors %}
-      <div class="panel panel-danger">
-        <div class="panel-heading"><strong>Errors</strong></div>
-        <div class="panel-body">
+      <div class="card bg-danger text-white my-2">
+        <div class="card-header"><strong>Errors</strong></div>
+        <div class="card-body">
           {{ form.non_field_errors }}
         </div>
       </div>
       {% endif %}
       {% block form %}
-      <div class="panel panel-default">
-        <div class="panel-heading"><strong>{{ object_type|title }}</strong></div>
-        <div class="panel-body">
+      <div class="card my-2">
+        <div class="card-header"><strong>{{ object_type|title }}</strong></div>
+        <div class="card-body">
           {% render_form form %}
         </div>
       </div>
       {% endblock %}
     </div>
   </div>
-  <div class="row">
-    <div class="col-md-8 col-md-offset-2 text-right">
+  <div class="row justify-content-center">
+    <div class="col-8 text-right">
       {% if object.pk %}
       <button type="submit" class="btn btn-primary">Update</button>
       {% else %}
       <button type="submit" name="_create" class="btn btn-primary">Create</button>
       <button type="submit" name="_addanother" class="btn btn-primary">Create and Add Another</button>
       {% endif %}
-      <a class="btn btn-default" href="{{ return_url }}">Cancel</a>
+      <a class="btn btn-secondary" href="{{ return_url }}">Cancel</a>
     </div>
   </div>
 </form>

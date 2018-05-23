@@ -1,23 +1,17 @@
 {% extends '_base.html' %}
 {% block content %}
       <div class="row">
-        <div class="col-md-10 col-md-offset-1">
+        <div class="col-10 justify-content-center">
           <h1>{% block title %}{% endblock %}</h1>
         </div>
       </div>
       <div class="row">
-        <div class="col-md-2 col-md-offset-1">
-          <ul class="nav nav-pills nav-stacked">
-            <li{% ifequal active_tab "profile" %} class="active"{% endifequal %}>
-              <a href="{% url 'user_profile' %}">Profile</a>
-            </li>
-            <li{% ifequal active_tab "password" %} class="active"{% endifequal %}>
-              <a href="{% url 'user_change_password' %}">Change Password</a>
-            </li>
-            <li{% ifequal active_tab "activity" %} class="active"{% endifequal %}>
-              <a href="{% url 'user_activity' %}">Recent Activity</a>
-            </li>
-          </ul>
+        <div class="col-md-2">
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            <a class="nav-link {% ifequal active_tab "profile" %} active{% endifequal %}" role="tab" href="{% url 'user_profile' %}">Profile</a>
+            <a class="nav-link {% ifequal active_tab "password" %} active{% endifequal %}" role="tab" href="{% url 'user_change_password' %}">Change Password</a>
+            <a class="nav-link {% ifequal active_tab "activity" %} active{% endifequal %}" role="tab" href="{% url 'user_activity' %}">Recent Activity</a>
+          </div>
         </div>
         <div class="col-md-8">
           {% block user_content %}{% endblock %}

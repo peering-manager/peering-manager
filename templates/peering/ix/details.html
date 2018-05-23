@@ -4,11 +4,11 @@
 {% block subcontent %}
       <div class="row">
         <div class="col-md-6">
-          <div class="panel panel-default">
-            <div class="panel-heading">
+          <div class="card mb-2">
+            <div class="card-header">
               <strong>IX Details</strong>
             </div>
-            <table class="table table-hover panel-body attr-table">
+            <table class="table table-hover card-body attr-table">
               <tr>
                 <td>Name</td>
                 <td>{{ internet_exchange.name }}</td>
@@ -50,16 +50,16 @@
             </table>
           </div>
           {% if internet_exchange.peeringdb_id %}
-          <div class="panel panel-default">
-            <div class="panel-heading">
+          <div class="card mb-2">
+            <div class="card-header">
               <strong>IX Prefixes</strong>
             </div>
-            <ul class="list-group">
+            <ul class="list-group list-group-flush">
               {% for prefix in internet_exchange.get_prefixes %}
-              <li class="list-group-item">{{ prefix.prefix }} <span class="label label-primary pull-right">{{ prefix.protocol }}</span></li>
+              <li class="list-group-item">{{ prefix.prefix }} <span class="badge badge-pill badge-primary float-right">{{ prefix.protocol }}</span></li>
               {% endfor %}
             </ul>
-            <div class="panel-footer">
+            <div class="card-footer">
               <small>&#42; These are the prefixes used to connect to the IX.
               {% if internet_exchange.router and internet_exchange.router.platform %}<br />&#42;&#42; They can be used to discover peering sessions already setup on the router.{% endif %}</small>
             </div>
@@ -67,25 +67,25 @@
           {% endif %}
         </div>
         <div class="col-md-6">
-          <div class="panel panel-default">
-            <div class="panel-heading">
+          <div class="card">
+            <div class="card-header">
               <strong>BGP Communities</strong>
             </div>
             {% if internet_exchange.communities.all.count > 0 %}
-            <ul class="list-group">
+            <ul class="list-group list-group-flush">
             {% for community in internet_exchange.communities.all %}
               <li class="list-group-item">
-                {{ community }} <code class="pull-right">{{ community.value }}</code>
+                {{ community }} <code class="float-right">{{ community.value }}</code>
               </li>
             {% endfor %}
             </ul>
             {% else %}
-            <div class="panel-body">
+            <div class="card-body">
               <span class="text-muted">None</span>
             </div>
             {% endif %}
-            <div class="panel-footer text-right">
-              <a href="{% url 'peering:ix_update_communities' slug=internet_exchange.slug %}" class="btn btn-xs btn-warning">
+            <div class="card-footer text-right">
+              <a href="{% url 'peering:ix_update_communities' slug=internet_exchange.slug %}" class="btn btn-sm btn-warning">
                 <i class="fas fa-edit" aria-hidden="true"></i>
                 Edit communities
               </a>
@@ -93,11 +93,11 @@
           </div>
         </div>
         <div class="col-md-6">
-          <div class="panel panel-default">
-            <div class="panel-heading">
+          <div class="card">
+            <div class="card-header">
               <strong>Comments</strong>
             </div>
-            <div class="panel-body">
+            <div class="card-body">
               {% if internet_exchange.comment %}
               {{ internet_exchange.comment|markdown }}
               {% else %}

@@ -31,7 +31,7 @@ class AutonomousSystemTable(BaseTable):
     ipv6_max_prefixes = tables.Column(verbose_name='IPv6 Max Prefixes')
     ipv4_max_prefixes = tables.Column(verbose_name='IPv4 Max Prefixes')
     actions = ActionsColumn(
-        template_code='<a href="{% url \'peering:as_edit\' asn=record.asn %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a>')
+        template_code='<a href="{% url \'peering:as_edit\' asn=record.asn %}" class="btn btn-sm btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a>')
 
     class Meta(BaseTable.Meta):
         model = AutonomousSystem
@@ -46,7 +46,7 @@ class CommunityTable(BaseTable):
     pk = SelectColumn()
     name = tables.LinkColumn()
     actions = ActionsColumn(
-        template_code='<a href="{% url \'peering:community_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a>')
+        template_code='<a href="{% url \'peering:community_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a>')
 
     class Meta(BaseTable.Meta):
         model = Community
@@ -60,7 +60,7 @@ class ConfigurationTemplateTable(BaseTable):
     pk = SelectColumn()
     name = tables.LinkColumn()
     actions = ActionsColumn(
-        template_code='<a href="{% url \'peering:configuration_template_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a>')
+        template_code='<a href="{% url \'peering:configuration_template_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a>')
 
     class Meta(BaseTable.Meta):
         model = ConfigurationTemplate
@@ -77,7 +77,7 @@ class InternetExchangeTable(BaseTable):
     ipv4_address = tables.Column(verbose_name='IPv4 Address')
     configuration_template = tables.Column(verbose_name='Template')
     actions = ActionsColumn(
-        template_code='<a href="{% url \'peering:ix_edit\' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a>')
+        template_code='<a href="{% url \'peering:ix_edit\' slug=record.slug %}" class="btn btn-sm btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a>')
 
     class Meta(BaseTable.Meta):
         model = InternetExchange
@@ -102,7 +102,7 @@ class PeeringSessionTable(BaseTable):
     enabled = tables.TemplateColumn(verbose_name='Status',
                                     template_code=PEERING_SESSION_STATUS)
     actions = ActionsColumn(
-        template_code='<div class="pull-right"><a href="{% url \'peering:peering_session_details\' pk=record.pk %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a> <a href="{% url \'peering:peering_session_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a></div>')
+        template_code='<div class="float-right"><a href="{% url \'peering:peering_session_details\' pk=record.pk %}" class="btn btn-sm btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a> <a href="{% url \'peering:peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a></div>')
 
     class Meta(BaseTable.Meta):
         model = PeeringSession
@@ -123,7 +123,7 @@ class PeeringSessionTableForIX(BaseTable):
                                     template_code=PEERING_SESSION_STATUS)
     session_state = PeeringSessionStateColumn(accessor='bgp_state')
     actions = ActionsColumn(
-        template_code='<div class="pull-right"><a href="{% url \'peering:peering_session_details\' pk=record.pk %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a> <a href="{% url \'peering:peering_session_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a></div>')
+        template_code='<div class="float-right"><a href="{% url \'peering:peering_session_details\' pk=record.pk %}" class="btn btn-sm btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a> <a href="{% url \'peering:peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a></div>')
 
     class Meta(BaseTable.Meta):
         model = PeeringSession
@@ -143,7 +143,7 @@ class PeeringSessionTableForAS(BaseTable):
                                     template_code=PEERING_SESSION_STATUS)
     session_state = PeeringSessionStateColumn(accessor='bgp_state')
     actions = ActionsColumn(
-        template_code='<div class="pull-right"><a href="{% url \'peering:peering_session_details\' pk=record.pk %}" class="btn btn-xs btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a> <a href="{% url \'peering:peering_session_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a></div>')
+        template_code='<div class="float-right"><a href="{% url \'peering:peering_session_details\' pk=record.pk %}" class="btn btn-sm btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i> Details</a> <a href="{% url \'peering:peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a></div>')
 
     class Meta(BaseTable.Meta):
         model = PeeringSession
@@ -156,9 +156,9 @@ class PeerTable(tables.Table):
     Table for peer lists
     """
     PEER_ACTION = """
-    <div class="pull-right">
+    <div class="float-right">
     {% if not record.peering6 and record.has_ipv6 or not record.peering4 and record.has_ipv4 %}
-    <a href="{% url 'peering:ix_add_peer' slug=internet_exchange.slug network_id=record.network.id network_ixlan_id=record.network_ixlan.id %}" class="btn btn-xs btn-primary"><i class="fas fa-link" aria-hidden="true"></i> Peer</a>
+    <a href="{% url 'peering:ix_add_peer' slug=internet_exchange.slug network_id=record.network.id network_ixlan_id=record.network_ixlan.id %}" class="btn btn-sm btn-primary"><i class="fas fa-link" aria-hidden="true"></i> Peer</a>
     {% endif %}
     </div>
     """
@@ -199,7 +199,7 @@ class RouterTable(BaseTable):
     pk = SelectColumn()
     name = tables.LinkColumn()
     actions = ActionsColumn(
-        template_code='<a href="{% url \'peering:router_edit\' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a>')
+        template_code='<a href="{% url \'peering:router_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a>')
 
     class Meta(BaseTable.Meta):
         model = Router

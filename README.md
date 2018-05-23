@@ -9,6 +9,9 @@ and documented. This is the goal of this project.
 The idea is to document every Internet exchange points that you are connected
 to and every autonomous systems that you are peering with.
 
+Questions? Comments? Join us in the #peering-manager Slack channel on
+[NetworkToCode](https://networktocode.slack.com/).
+
 ## Requirements
 
 This tool is written with the

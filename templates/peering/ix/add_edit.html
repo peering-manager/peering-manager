@@ -1,37 +1,37 @@
 {% extends 'utils/object_add_edit.html' %}
 {% load form_helpers %}
 {% block form %}
-            <div class="panel panel-default">
-              <div class="panel-heading"><strong>Internet Exchange</strong></div>
-              <div class="panel-body">
+            <div class="card my-2">
+              <div class="card-header"><strong>Internet Exchange</strong></div>
+              <div class="card-body">
                 {% render_field form.name %}
                 {% render_field form.slug %}
                 {% render_field form.ipv6_address %}
                 {% render_field form.ipv4_address %}
               </div>
             </div>
-            <div class="panel panel-default">
-              <div class="panel-heading"><strong>Deployment</strong></div>
-              <div class="panel-body">
+            <div class="card my-2">
+              <div class="card-header"><strong>Deployment</strong></div>
+              <div class="card-body">
                 {% render_field form.configuration_template %}
                 {% render_field form.router %}
                 {% render_field form.check_bgp_session_states %}
               </div>
             </div>
-            <div class="panel panel-default">
-              <div class="panel-heading">
+            <div class="card my-2">
+              <div class="card-header">
                 <strong>PeeringDB</strong>
-                <a href="http://peering-manager.readthedocs.io/en/latest/man/" target="_blank" class="pull-right btn btn-xs btn-info">
+                <a href="http://peering-manager.readthedocs.io/en/latest/man/" target="_blank" class="float-right btn btn-sm btn-info">
                   <i class="fas fa-question-circle"></i> Getting the PeeringDB ID
                 </a>
               </div>
-              <div class="panel-body">
+              <div class="card-body">
                 {% render_field form.peeringdb_id %}
               </div>
             </div>
-            <div class="panel panel-default">
-              <div class="panel-heading"><strong>Comments</strong></div>
-              <div class="panel-body">
+            <div class="card my-2">
+              <div class="card-header"><strong>Comments</strong></div>
+              <div class="card-body">
                 {% render_field form.comment %}
               </div>
             </div>

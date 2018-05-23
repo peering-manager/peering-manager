@@ -20,7 +20,7 @@ class BaseTable(tables.Table):
 
     class Meta:
         attrs = {
-            'class': 'table table-hover table-headings',
+            'class': 'table table-sm table-hover table-headings',
         }
 
 

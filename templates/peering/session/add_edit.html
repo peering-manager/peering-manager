@@ -1,18 +1,18 @@
 {% extends 'utils/object_add_edit.html' %}
 {% load form_helpers %}
 {% block form %}
-            <div class="panel panel-default">
-              <div class="panel-heading"><strong>Peering Session</strong></div>
-              <div class="panel-body">
+            <div class="card my-2">
+              <div class="card-header"><strong>Peering Session</strong></div>
+              <div class="card-body">
                 {% render_field form.autonomous_system %}
                 {% render_field form.internet_exchange %}
                 {% render_field form.ip_address %}
                 {% render_field form.enabled %}
               </div>
             </div>
-            <div class="panel panel-default">
-              <div class="panel-heading"><strong>Comments</strong></div>
-              <div class="panel-body">
+            <div class="card my-2">
+              <div class="card-header"><strong>Comments</strong></div>
+              <div class="card-body">
                 {% render_field form.comment %}
               </div>
             </div>

@@ -9,8 +9,8 @@
             {{ field }}
             {% endfor %}
             <div class="panel panel-primary">
-              <div class="panel-heading">{% block title %}Import Peering Sessions from {{ internet_exchange.router }}{% endblock %}</div>
-              <div class="panel-body">
+              <div class="card-header">{% block title %}Import Peering Sessions from {{ internet_exchange.router }}{% endblock %}</div>
+              <div class="card-body">
                 <p>Are you sure that you want to import all peering sessions found on the <strong>{{ internet_exchange.router }}</strong> which are within the following prefixes?</p>
                 <ul>
                   {% for ix_prefix in internet_exchange.get_prefixes %}
@@ -19,7 +19,7 @@
                 </ul>
                 <div class="text-right">
                   <button type="submit" class="btn btn-primary">Import</button>
-                  <a class="btn btn-default" href="{{ internet_exchange.get_peering_sessions_list_url }}">Cancel</a>
+                  <a class="btn btn-secondary" href="{{ internet_exchange.get_peering_sessions_list_url }}">Cancel</a>
                 </div>
               </div>
             </div>

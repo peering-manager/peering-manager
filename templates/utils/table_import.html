@@ -1,7 +1,7 @@
 {% extends '_base.html' %}
 {% load form_helpers %}
 {% block content %}
-      <form method="post" class="form-horizontal">
+      <form method="post">
         {% csrf_token %}
         {% for field in form.hidden_fields %}
         {{ field }}
@@ -19,14 +19,14 @@
             {% for form in formset %}
             {% if form.non_field_errors %}
             <div class="panel panel-danger">
-              <div class="panel-heading"><strong>Errors</strong></div>
-              <div class="panel-body">
+              <div class="card-header"><strong>Errors</strong></div>
+              <div class="card-body">
                 {{ form.non_field_errors }}
               </div>
             </div>
             {% endif %}
             {% endfor %}
-            <div class="panel panel-default">
+            <div class="card">
               <table class="table">
                 {% for form in formset %}
                 {% if forloop.first %}
@@ -59,7 +59,7 @@
         <div class="row">
           <div class="col-md-10 col-md-offset-1 text-right">
             <button type="submit" class="btn btn-primary">Import</button>
-            <a class="btn btn-default" href="{{ return_url }}">Cancel</a>
+            <a class="btn btn-secondary" href="{{ return_url }}">Cancel</a>
           </div>
         </div>
       </form>

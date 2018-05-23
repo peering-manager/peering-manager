@@ -2,7 +2,7 @@
 {% load helpers %}
 {% block content %}
       {% if request.user.is_authenticated %}
-      <div class="pull-right">
+      <div class="float-right">
         <a href="{% url 'peering:router_edit' pk=router.pk %}" class="btn btn-warning">
           <i class="fas fa-edit" aria-hidden="true"></i> Edit
         </a>
@@ -22,19 +22,19 @@
       </div>
       <div class="row">
         <div class="col-md-6">
-          <div class="panel panel-default">
-            <div class="panel-heading">
+          <div class="card mb-2">
+            <div class="card-header">
               <strong>Router Details</strong>
               {% if router.platform %}
-              <div class="pull-right">
-                <button class="btn btn-xs btn-primary" id="router-ping" title="Check if the router is usable.">
+              <div class="float-right">
+                <button class="btn btn-sm btn-primary" id="router-ping" title="Check if the router is usable.">
                   <i class="fa fa-plug" aria-hidden="true"></i>
                   Ping
                 </button>
               </div>
               {% endif %}
             </div>
-            <table class="table table-hover panel-body attr-table">
+            <table class="table table-hover card-body attr-table">
               <tr>
                 <td>Name</td>
                 <td>{{ router.name }}</td>
@@ -53,11 +53,11 @@
               </tr>
             </table>
           </div>
-          <div class="panel panel-default">
-            <div class="panel-heading">
+          <div class="card">
+            <div class="card-header">
               <strong>Comments</strong>
             </div>
-            <div class="panel-body">
+            <div class="card-body">
               {% if router.comment %}
               {{ router.comment|markdown }}
               {% else %}
@@ -67,14 +67,14 @@
           </div>
         </div>
         <div class="col-md-6">
-          <div class="panel panel-default">
-            <div class="panel-heading">
+          <div class="card">
+            <div class="card-header">
               <strong>Internet Exchanges</strong>
             </div>
-            <ul class="list-group">
+            <ul class="list-group list-group-flush">
               {% if internet_exchanges|length > 0 %}
               {% for ix in internet_exchanges %}
-              <li class="list-group-item">{{ ix }}<a class="btn btn-xs btn-info pull-right" href="{% url 'peering:ix_details' slug=ix.slug %}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></li>
+              <li class="list-group-item"><a href="{% url 'peering:ix_details' slug=ix.slug %}">{{ ix }}</a></li>
               {% endfor %}
               {% else %}
               <li class="list-group-item"><span class="text-muted">None</span></li>

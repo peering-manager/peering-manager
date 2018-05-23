@@ -2,7 +2,7 @@
 {% load render_table from django_tables2 %}
 {% block content %}
       {% if request.user.is_authenticated %}
-      <div class="pull-right">
+      <div class="float-right">
         <a href="{% url 'peering:as_add' %}" class="btn btn-primary">
           <i class="fas fa-plus" aria-hidden="true"></i>
           Add an AS

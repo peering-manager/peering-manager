@@ -1,27 +1,27 @@
 {% load form_helpers %}
 
-<div class="panel panel-default">
-  <div class="panel-heading">
+<div class="card">
+  <div class="card-header">
     <i class="fas fa-search" aria-hidden="true"></i>
     <strong>Search</strong>
   </div>
-  <div class="panel-body">
-    <form action="." method="get" class="form">
+  <div class="card-body">
+    <form action="." method="get">
       {% for field in filter_form %}
-      <div class="form-group">
+      <div class="form-group form-row">
         {% if field.name == "q" %}
         <div class="input-group">
           <input type="text" name="q" class="form-control" placeholder="Search" {% if request.GET.q %}value="{{ request.GET.q }}" {% endif %}/>
-          <span class="input-group-btn">
+          <div class="input-group-append">
             <button type="submit" class="btn btn-primary">
               <i class="fas fa-search" aria-hidden="true"></i>
             </button>
-          </span>
+          </div>
         </div>
         {% elif field|widget_type == 'checkboxinput' %}
-        <label for="{{ field.id_for_label }}">{{ field }} {{ field.label }}</label>
+        <label for="{{ field.id_for_label }}">{{ field }} <strong>{{ field.label }}</strong></label>
         {% else %}
-        {{ field.label_tag }}
+        <strong>{{ field.label_tag }}</strong>
         {{ field }}
         {% endif %}
       </div>
@@ -30,7 +30,7 @@
         <button type="submit" class="btn btn-primary">
           <i class="fas fa-search" aria-hidden="true"></i> Apply
         </button>
-        <a href="." class="btn btn-default">
+        <a href="." class="btn btn-secondary">
           <i class="fas fa-times" aria-hidden="true"></i> Clear
         </a>
       </div>

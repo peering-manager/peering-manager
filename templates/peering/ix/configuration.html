@@ -7,24 +7,24 @@
             <i class="fa fa-cogs" aria-hidden="true"></i> Deploy
           </button>
           {% endif %}
-          <button type="button" class="btn btn-default btn-block" id="copy-config">
+          <button type="button" class="btn btn-secondary btn-block" id="copy-config">
             <i class="fa fa-clipboard" aria-hidden="true"></i> Copy
           </button>
         </div>
-        <pre class="col-md-10 pre-scrollable">{{ internet_exchange_configuration }}</pre>
+        <pre class="col-md-10 pre-scrollable"><code>{{ internet_exchange_configuration }}</code></pre>
       </div>
       {% if internet_exchange.router and internet_exchange.router.platform %}
       <div class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
           <div class="modal-content">
             <div class="modal-header">
+              <h5 class="modal-title">Configuration Differences</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title">Configuration Differences</h4>
             </div>
             <div class="modal-body">
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
               <button type="button" class="btn btn-primary" id="save-config">Commit changes</button>
             </div>
           </div>

@@ -2,7 +2,9 @@
 {% block title %}Recent Activity{% endblock %}
 {% block user_content %}
           <table class="table table-hover">
-            <thead><tr><th>Time</th><th>Action</th></tr></thead>
+            <thead>
+              <tr><th scope="col">Time</th><th scope="col">Action</th></tr>
+            </thead>
             <tbody>
               {% for action in activity %}
               <tr>

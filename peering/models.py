@@ -114,6 +114,11 @@ class Community(models.Model):
     def get_absolute_url(self):
         return reverse('peering:community_details', kwargs={'pk': self.pk})
 
+    def get_type_html(self):
+        return '<span class="badge badge-pill badge-primary">{}</span>'.format(
+            self.get_type_display()
+        )
+
     def __str__(self):
         return '{} ({})'.format(self.name, self.get_type_display())
 
@@ -519,39 +524,39 @@ class PeeringSession(models.Model):
         """
         Return an HTML element based on the status (enabled or disabled).
         """
-        label = 'success'
+        badge = 'success'
         text = 'Enabled'
 
         if not self.enabled:
-            label = 'danger'
+            badge = 'danger'
             text = 'Disabled'
 
-        return mark_safe('<span class="label label-{}">{}</span>'.format(
-            label, text))
+        return mark_safe('<span class="badge badge-{}">{}</span>'.format(badge,
+                                                                         text))
 
     def get_bgp_state_html(self):
         """
         Return an HTML element based on the BGP state.
         """
         if self.bgp_state == BGP_STATE_IDLE:
-            label = 'danger'
+            badge = 'danger'
         elif self.bgp_state in [BGP_STATE_CONNECT, BGP_STATE_ACTIVE]:
-            label = 'warning'
+            badge = 'warning'
         elif self.bgp_state in [BGP_STATE_OPENSENT, BGP_STATE_OPENCONFIRM]:
-            label = 'info'
+            badge = 'info'
         elif self.bgp_state == BGP_STATE_ESTABLISHED:
-            label = 'success'
+            badge = 'success'
         else:
-            label = 'default'
+            badge = 'default'
 
-        text = '<span class="label label-{}">{}</span>'.format(
-            label, self.get_bgp_state_display() or 'Unknown')
+        text = '<span class="badge badge-{}">{}</span>'.format(
+            badge, self.get_bgp_state_display() or 'Unknown')
 
         # Only if the session is established, display some details
         if self.bgp_state == BGP_STATE_ESTABLISHED:
             text = '{} {}'.format(
                 text,
-                '<span class="label label-primary">Routes: '
+                '<span class="badge badge-primary">Routes: '
                 '<i class="fas fa-arrow-circle-down"></i> {} '
                 '<i class="fas fa-arrow-circle-up"></i> {}'
                 '</span>'.format(self.received_prefix_count,

@@ -9,12 +9,12 @@
             {{ field }}
             {% endfor %}
             <div class="panel panel-danger">
-              <div class="panel-heading">{% block title %}Delete {{ peering_session }}?{% endblock %}</div>
-              <div class="panel-body">
+              <div class="card-header">{% block title %}Delete {{ peering_session }}?{% endblock %}</div>
+              <div class="card-body">
                 <p>Are you sure that you want to delete <strong>{{ peering_session }}?</p>
                 <div class="text-right">
                   <button type="submit" class="btn btn-danger">Confirm</button>
-                  <a class="btn btn-default" href="{% url 'peering:ix_details' slug=peering_session.internet_exchange.slug %}">Cancel</a>
+                  <a class="btn btn-secondary" href="{% url 'peering:ix_details' slug=peering_session.internet_exchange.slug %}">Cancel</a>
                 </div>
               </div>
             </div>

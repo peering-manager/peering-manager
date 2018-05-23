@@ -11,62 +11,56 @@
 
     <script defer src="{% static 'fontawesome-5.0.13/js/fontawesome-all.js' %}"></script>
 
-    <link rel="stylesheet" href="{% static 'bootstrap-3.3.7-dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-4.1.1-dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v{{ settings.VERSION }}"
   </head>
   <body>
-    <nav class="navbar navbar-default navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="{% url 'home' %}">Peering Manager</a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li {% if request.path|contains:'/ix/' %}class="active"{% endif %}><a href="{% url 'peering:ix_list' %}">Internet Exchanges</a></li>
-            <li {% if request.path|contains:'/as/' %}class="active"{% endif %}><a href="{% url 'peering:as_list' %}">Autonomous Systems</a></li>
-            <li class="dropdown{% if request.path|contains:'/community/,/router/,/template/' %} active{% endif %}">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Deployment <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <li><a href="{% url 'peering:community_list' %}">Communities</a></li>
-                <li><a href="{% url 'peering:router_list' %}">Routers</a></li>
-                <li><a href="{% url 'peering:configuration_template_list' %}">Templates</a></li>
-              </ul>
-            </li>
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
-            {% if request.user.is_authenticated %}
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="{{ request.user }}" role="button" aria-haspopup="true" aria-expanded="false">
-                {{ request.user|truncatechars:"30" }} <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                <li><a href="{% url 'user_profile' %}"><i class="fa fa-user" aria-hidden="true"></i> Profile</a></li>
-                {% if request.user.is_staff %}
-                <li class="divider"></li>
-                <li><a href="{% url 'admin:index' %}"><i class="fa fa-cogs" aria-hidden="true"></i> Admin</a></li>
-                <li>
-                  <div class="buttons pull-right">
-                    <a class="btn btn-xs btn-primary" href="{% url 'peeringdb:build_cache' %}" title="Build"><i class="fas fa-cubes" aria-hidden="true"></i></a>
-                    <a class="btn btn-xs btn-danger" href="{% url 'peeringdb:clear_cache' %}" title="Clear"><i class="fas fa-eraser" aria-hidden="true"></i></a>
-                  </div>
-                  <a href="#"><i class="fa fa-database" aria-hidden="true"></i> Cache</a>
-                </li>
-                {% endif %}
-                <li class="divider"></li>
-                <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt" aria-hidden="true"></i> Log out</a></li>
-              </ul>
-            </li>
-            {% else %}
-            <li><a href="{% url 'login' %}?next={{ request.path }}"><i class="fas fa-sign-in-alt" aria-hidden="true"></i> Log in</a></li>
-            {% endif %}
-          </ul>
-        </div>
+    <nav class="navbar fixed-top navbar-expand-md navbar-light bg-light">
+      <div class="container-fluid">
+      <a class="navbar-brand" href="{% url 'home' %}">Peering Manager</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item{% if request.path|contains:'/ix/' %} active{% endif %}"><a class="nav-link" href="{% url 'peering:ix_list' %}">Internet Exchanges</a></li>
+          <li {% if request.path|contains:'/as/' %}class="active"{% endif %}><a class="nav-link" href="{% url 'peering:as_list' %}">Autonomous Systems</a></li>
+          <li class="nav-item dropdown{% if request.path|contains:'/community/,/router/,/template/' %} active{% endif %}">
+            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Deployment</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{% url 'peering:community_list' %}">Communities</a></li>
+              <li><a class="dropdown-item" href="{% url 'peering:router_list' %}">Routers</a></li>
+              <li><a class="dropdown-item" href="{% url 'peering:configuration_template_list' %}">Templates</a></li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          {% if request.user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" title="{{ request.user }}" role="button" aria-haspopup="true" aria-expanded="false">
+              {{ request.user|truncatechars:"30" }}
+            </a>
+            <div class="dropdown-menu dropdown-menu-right">
+              <a class="dropdown-item" href="{% url 'user_profile' %}"><i class="fa fa-user"></i> Profile</a>
+              {% if request.user.is_staff %}
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fa fa-cogs"></i> Admin</a>
+              <div class="dropdown-item"><i class="fas fa-database"></i> Cache
+                <div class="float-right">
+                  <a class="btn btn-sm btn-primary" href="{% url 'peeringdb:build_cache' %}" title="Build"><i class="fas fa-cubes"></i></a>
+                  <a class="btn btn-sm btn-danger" href="{% url 'peeringdb:clear_cache' %}" title="Clear"><i class="fas fa-eraser"></i></a>
+                </div>
+              </div>
+              {% endif %}
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Log out</a>
+            </div>
+          </li>
+          {% else %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'login' %}?next={{ request.path }}"><i class="fas fa-sign-in-alt"></i> Log in</a></li>
+          {% endif %}
+        </ul>
+      </div>
       </div>
     </nav>
     <div class="container wrapper">
@@ -83,25 +77,19 @@
     <footer class="footer">
       <div class="container">
         <div class="row">
-          <div class="col-xs-4">
-            <p class="text-muted">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
-          </div>
-          <div class="col-xs-4 text-center">
-            <p class="text-muted">{% now 'Y-m-d H:i:s T' %}</p>
-          </div>
-          <div class="col-xs-4 text-right">
-            <p class="text-muted">
-              <i class="fas fa-fw fa-book text-primary"></i> <a href="http://peering-manager.readthedocs.io/">Docs</a> &middot;
-              <i class="fab fa-fw fa-github text-primary"></i> <a href="https://github.com/respawner/peering-manager">GitHub</a> &middot;
-              <i class="fas fa-fw fa-bug text-primary"></i> <a href="https://github.com/respawner/peering-manager/issues">Issues</a>
-            </p>
-          </div>
+          <p class="col text-muted text-left">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
+          <p class="col text-muted text-center">{% now 'Y-m-d H:i:s T' %}</p>
+          <p class="col ext-muted text-right">
+            <i class="fas fa-fw fa-book text-primary"></i> <a href="http://peering-manager.readthedocs.io/">Docs</a> &middot;
+            <i class="fab fa-fw fa-github text-primary"></i> <a href="https://github.com/respawner/peering-manager">GitHub</a> &middot;
+            <i class="fas fa-fw fa-bug text-primary"></i> <a href="https://github.com/respawner/peering-manager/issues">Issues</a>
+          </p>
         </div>
       </div>
     </footer>
 
     <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
-    <script src="{% static 'bootstrap-3.3.7-dist/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'bootstrap-4.1.1-dist/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/forms.js' %}?v{{ settings.VERSION }}"></script>
     {% block javascript %}{% endblock %}
   </body>
