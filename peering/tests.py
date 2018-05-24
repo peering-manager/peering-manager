@@ -73,19 +73,19 @@ class AutonomousSystemTestCase(TestCase):
 
 
 class CommunityTestCase(TestCase):
-    def test_community_create(self):
+    def test_create(self):
         community_list = [
             {
                 'name': 'Test',
                 'value': '64500:1',
                 'type': None,
-                'str': 'Test (Ingress)',
+                'str': 'Test',
             },
             {
                 'name': 'Test',
                 'value': '64500:1',
                 'type': COMMUNITY_TYPE_EGRESS,
-                'str': 'Test (Egress)',
+                'str': 'Test',
             },
         ]
 
@@ -104,6 +104,28 @@ class CommunityTestCase(TestCase):
             self.assertEqual(details['type'] or COMMUNITY_TYPE_INGRESS,
                              community.type)
             self.assertEqual(details['str'], str(community))
+
+    def test_get_type_html(self):
+        expected = [
+            '<span class="badge badge-info">'
+            '<i class="fas fa-arrow-circle-up"></i> egress</span>',
+            '<span class="badge badge-info">'
+            '<i class="fas fa-arrow-circle-down"></i> ingress</span>',
+            '<span class="badge badge-secondary">'
+            '<i class="fas fa-ban"></i> unknown</span>',
+        ]
+        community_types = [
+            COMMUNITY_TYPE_EGRESS,
+            COMMUNITY_TYPE_INGRESS,
+            'unknown',
+        ]
+
+        for i in range(len(community_types)):
+            self.assertEqual(expected[i],
+                             Community.objects.create(
+                                 name='test{}'.format(i),
+                                 value='64500:{}'.format(i),
+                                 type=community_types[i]).get_type_html())
 
 
 class InternetExchangeTestCase(TestCase):

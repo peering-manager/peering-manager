@@ -75,7 +75,7 @@
             <ul class="list-group list-group-flush">
             {% for community in internet_exchange.communities.all %}
               <li class="list-group-item">
-                {{ community }} <code class="float-right">{{ community.value }}</code>
+                {{ community }} <span class="float-right">{{ community.get_type_html }}&nbsp;<code>{{ community.value }}</code></span>
               </li>
             {% endfor %}
             </ul>

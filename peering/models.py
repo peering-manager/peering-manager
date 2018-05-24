@@ -115,12 +115,23 @@ class Community(models.Model):
         return reverse('peering:community_details', kwargs={'pk': self.pk})
 
     def get_type_html(self):
-        return '<span class="badge badge-pill badge-primary">{}</span>'.format(
-            self.get_type_display()
-        )
+        if self.type == COMMUNITY_TYPE_EGRESS:
+            badge_type = 'badge-info'
+            text = '<i class="fas fa-arrow-circle-up"></i> {}'.format(
+                self.get_type_display().lower())
+        elif self.type == COMMUNITY_TYPE_INGRESS:
+            badge_type = 'badge-info'
+            text = '<i class="fas fa-arrow-circle-down"></i> {}'.format(
+                self.get_type_display().lower())
+        else:
+            badge_type = 'badge-secondary'
+            text = '<i class="fas fa-ban"></i> unknown'
+
+        return mark_safe('<span class="badge {}">{}</span>'.format(
+            badge_type, text))
 
     def __str__(self):
-        return '{} ({})'.format(self.name, self.get_type_display())
+        return self.name
 
 
 class ConfigurationTemplate(models.Model):
