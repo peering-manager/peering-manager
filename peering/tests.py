@@ -203,35 +203,54 @@ class InternetExchangeTestCase(TestCase):
                         'as_name': 'Test 1',
                         'max_prefixes': 0,
                         'sessions': [
-                         {'ip_address': '2001:db8::1', 'enabled': True}
+                         {
+                             'ip_address': '2001:db8::1',
+                             'password': False,
+                             'enabled': True, }
                         ]
                     },
                     2: {
                         'as_name': 'Test 2',
                         'max_prefixes': 0,
                         'sessions': [
-                            {'ip_address': '2001:db8::2', 'enabled': True}
+                            {
+                                'ip_address': '2001:db8::2',
+                                'password': False,
+                                'enabled': True,
+                            }
                         ]
                     },
                     3: {
                         'as_name': 'Test 3',
                         'max_prefixes': 0,
                         'sessions': [
-                            {'ip_address': '2001:db8::3', 'enabled': True}
+                            {
+                                'ip_address': '2001:db8::3',
+                                'password': False,
+                                'enabled': True,
+                            }
                         ]
                     },
                     4: {
                         'as_name': 'Test 4',
                         'max_prefixes': 0,
                         'sessions': [
-                            {'ip_address': '2001:db8::4', 'enabled': True}
+                            {
+                                'ip_address': '2001:db8::4',
+                                'password': False,
+                                'enabled': True,
+                            }
                         ]
                     },
                     5: {
                         'as_name': 'Test 5',
                         'max_prefixes': 0,
                         'sessions': [
-                            {'ip_address': '2001:db8::5', 'enabled': True}
+                            {
+                                'ip_address': '2001:db8::5',
+                                'password': False,
+                                'enabled': True,
+                            }
                         ]
                     },
                 }
