@@ -6,7 +6,7 @@ from .constants import COMMUNITY_TYPE_CHOICES, PLATFORM_CHOICES
 from .models import (AutonomousSystem, Community, ConfigurationTemplate,
                      InternetExchange, PeeringSession, Router)
 from utils.forms import (BootstrapMixin, CSVChoiceField, FilterChoiceField,
-                         SlugField)
+                         PasswordField, SlugField)
 
 
 class CommentField(forms.CharField):
@@ -292,6 +292,7 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
 
 class PeeringSessionForm(BootstrapMixin, forms.ModelForm):
     comment = CommentField()
+    password = PasswordField(render_value=True)
     enabled = forms.BooleanField(required=False, label='Is Enabled',
                                  widget=forms.Select(choices=[
                                      ('True', 'Yes'),
@@ -301,7 +302,7 @@ class PeeringSessionForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PeeringSession
         fields = ('autonomous_system', 'internet_exchange',
-                  'ip_address', 'enabled', 'comment',)
+                  'ip_address', 'password', 'enabled', 'comment',)
         labels = {
             'autonomous_system': 'ASN',
             'internet_exchange': 'IX',

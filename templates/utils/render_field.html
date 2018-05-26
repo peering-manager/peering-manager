@@ -4,7 +4,7 @@
   {% if field|widget_type == 'textarea' %}
   {{ field }}
   {% if field.help_text %}
-  <span class="form-text">{{ field.help_text|safe }}</span>
+  <small class="form-text text-muted">{{ field.help_text|safe }}</small>
   {% endif %}
   {% if field.errors %}
   <ul>
@@ -16,9 +16,18 @@
   {% else %}
   <label class="col-3 {% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
   <div class="col-9">
+    {% if field|widget_type == 'passwordinput' %}
+    <div class="input-group">
+      {{ field }}
+      <div class="input-group-append">
+        <button type="button" class="btn btn-secondary" id="{{ field.id_for_label }}_reveal"><i class="fas fa-eye"></i> Show</button>
+      </div>
+    </div>
+    {% else %}
     {{ field }}
+    {% endif %}
     {% if field.help_text %}
-    <span class="form-text">{{ field.help_text|safe }}</span>
+    <small class="form-text text-muted">{{ field.help_text|safe }}</small>
     {% endif %}
     {% if field.errors %}
     <ul>

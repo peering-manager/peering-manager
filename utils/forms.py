@@ -144,6 +144,28 @@ class FilterChoiceField(FilterChoiceFieldMixin,
     pass
 
 
+class PasswordField(forms.CharField):
+    """
+    A field used to enter password. The field will hide the password unless the
+    reveal button is clicked.
+    """
+
+    def __init__(self, password_source='password', render_value=False, *args,
+                 **kwargs):
+        widget = kwargs.pop('widget',
+                            forms.PasswordInput(render_value=render_value))
+        label = kwargs.pop('label', 'Password')
+        help_text = kwargs.pop('help_text',
+                               'It can be a clear text password or an '
+                               'encrypted one. It really depends on how you '
+                               'want to use it. Be aware that it is stored '
+                               'without encryption in the database.')
+        super(PasswordField, self).__init__(widget=widget, label=label,
+                                            help_text=help_text, *args,
+                                            **kwargs)
+        self.widget.attrs['password-source'] = password_source
+
+
 class SlugField(forms.SlugField):
     """
     An improved SlugField that allows to be automatically generated based on a

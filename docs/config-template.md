@@ -84,6 +84,9 @@ protocols {
                     }
                 }
                 {%- endif %}
+                {%- if session.password %}
+                authentication-key "{{ session.password }}";
+                {%- endif %}
                 peer-as {{ asn }};
             }
             {%- endfor %}

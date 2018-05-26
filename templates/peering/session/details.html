@@ -51,6 +51,19 @@
                 <td>IP Address</td>
                 <td>{{ peering_session.ip_address }}</td>
               </tr>
+              {% if request.user.is_authenticated and peering_session.password %}
+              <tr>
+                <td>Password</td>
+                <td>
+                  <div class="input-group">
+                    <input type="password" class="form-control" id="id_password" value="{{ peering_session.password }}" disabled>
+                    <div class="input-group-append">
+                      <button type="button" class="btn btn-secondary" id="id_password_reveal"><i class="fas fa-eye"></i> Show</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {% endif %}
             </table>
           </div>
         </div>

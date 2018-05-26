@@ -212,35 +212,32 @@ class InternetExchange(models.Model):
             ipv4_max_prefixes = session.autonomous_system.ipv4_max_prefixes
 
             if ip_address.version == 6:
-                if session.autonomous_system.asn in peers6:
-                    peers6[session.autonomous_system.asn]['sessions'].append({
-                        'ip_address': str(ip_address),
-                        'enabled': session.enabled,
-                    })
-                else:
+                if session.autonomous_system.asn not in peers6:
                     peers6[session.autonomous_system.asn] = {
                         'as_name': session.autonomous_system.name,
                         'max_prefixes': ipv6_max_prefixes or 0,
-                        'sessions': [{
-                            'ip_address': str(ip_address),
-                            'enabled': session.enabled,
-                        }],
+                        'sessions': [],
                     }
+
+                peers6[session.autonomous_system.asn]['sessions'].append({
+                    'ip_address': str(ip_address),
+                    'password': session.password or False,
+                    'enabled': session.enabled,
+                })
+
             if ip_address.version == 4:
-                if session.autonomous_system.asn in peers4:
-                    peers4[session.autonomous_system.asn]['sessions'].append({
-                        'ip_address': str(ip_address),
-                        'enabled': session.enabled,
-                    })
-                else:
+                if session.autonomous_system.asn not in peers4:
                     peers4[session.autonomous_system.asn] = {
                         'as_name': session.autonomous_system.name,
                         'max_prefixes': ipv4_max_prefixes or 0,
-                        'sessions': [{
-                            'ip_address': str(ip_address),
-                            'enabled': session.enabled,
-                        }],
+                        'sessions': [],
                     }
+
+                peers4[session.autonomous_system.asn]['sessions'].append({
+                    'ip_address': str(ip_address),
+                    'password': session.password or False,
+                    'enabled': session.enabled,
+                })
 
         peering_groups = [
             {'ip_version': 6, 'peers': peers6},
@@ -493,6 +490,7 @@ class PeeringSession(models.Model):
     internet_exchange = models.ForeignKey(
         'InternetExchange', on_delete=models.CASCADE)
     ip_address = models.GenericIPAddressField()
+    password = models.CharField(max_length=255, blank=True, null=True)
     enabled = models.BooleanField(default=True)
     bgp_state = models.CharField(max_length=50, choices=BGP_STATE_CHOICES,
                                  blank=True, null=True)

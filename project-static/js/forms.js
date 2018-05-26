@@ -19,8 +19,20 @@ $(document).ready(function() {
       if (slugField && !slugField.attr('_changed')) {
         slugField.val(generateSlug($(this).val()));
       }
-    })
+    });
   }
+
+  // Show/Hide password in a password input field
+  $('#id_password_reveal').click(function() {
+    input_type = $('#id_password').attr('type');
+    if (input_type == 'password') {
+      $('#id_password').attr('type', 'text');
+      $(this).html('<i class="fas fa-eye-slash"></i> Hide');
+    } else {
+      $('#id_password').attr('type', 'password');
+      $(this).html('<i class="fas fa-eye"></i> Show');
+    }
+  });
 
   // "Select" checkbox for objects lists (PK column)
   $('input:checkbox.toggle').click(function() {
@@ -35,7 +47,7 @@ $(document).ready(function() {
   });
 
   // Uncheck the "Select" if an item is unchecked
-  $('input:checkbox[name=pk]').click(function(event) {
+  $('input:checkbox[name=pk]').click(function() {
     if (!$(this).is(':checked')) {
       $('input:checkbox.toggle, #select_all').prop('checked', false);
     }
