@@ -79,3 +79,7 @@ class PeeringManagerViewsTests(TestCase):
         self.assertTrue(response.context['user'].is_active)
         response = self.client.get(reverse('user_activity'))
         self.assertEqual(response.status_code, 200)
+
+    def test_error500_view(self):
+        with self.assertRaises(Exception):
+            self.client.get('/error500/')
