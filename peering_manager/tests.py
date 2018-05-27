@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 
-class PeeringManagerViewsTests(TestCase):
+class PeeringManagerViewsTestCases(TestCase):
     def setUp(self):
         self.credentials = {
             'username': 'dummy',

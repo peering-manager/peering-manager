@@ -1,14 +1,14 @@
 {% extends '_base.html' %}
 {% load helpers %}
 {% block content %}
-      <div class="row">
-      	<div class="col-md-6 col-md-offset-3">
+      <div class="row justify-content-center">
+      	<div class="col-6">
           <form method="post">
             {% csrf_token %}
             {% for field in form.hidden_fields %}
             {{ field }}
             {% endfor %}
-            <div class="panel panel-danger">
+            <div class="card my-2">
               <div class="card-header">{% block title %}Delete {{ peering_session }}?{% endblock %}</div>
               <div class="card-body">
                 <p>Are you sure that you want to delete <strong>{{ peering_session }}?</p>

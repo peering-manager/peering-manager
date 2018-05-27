@@ -6,18 +6,18 @@
   {% for field in form.hidden_fields %}
   {{ field }}
   {% endfor %}
-  <div class="row">
-    <div class="col-md-8 col-md-offset-2">
+  <div class="row justify-content-center">
+    <div class="col-8">
       <h3>Import Autonomous System From PeeringDB</h3>
       {% if form.non_field_errors %}
-      <div class="panel panel-danger">
+      <div class="card bg-danger">
         <div class="card-header"><strong>Errors</strong></div>
         <div class="card-body">
           {{ form.non_field_errors }}
         </div>
       </div>
       {% endif %}
-      <div class="card">
+      <div class="card my-2">
         <div class="card-header"><strong>Autonomous System</strong></div>
         <div class="card-body">
           {% render_field form.asn %}
@@ -27,7 +27,7 @@
         All AS details will be filled with data provided via the API.
       </div>
     </div>
-    <div class="card">
+    <div class="card my-2">
       <div class="card-header"><strong>Comments</strong></div>
         <div class="card-body">
           {% render_field form.comment %}
@@ -35,8 +35,8 @@
       </div>
     </div>
   </div>
-  <div class="row">
-    <div class="col-md-8 col-md-offset-2 text-right">
+  <div class="row justify-content-center">
+    <div class="col-8 text-right">
       <button type="submit" class="btn btn-primary">Import</button>
       <a class="btn btn-secondary" href="{{ return_url }}">Cancel</a>
     </div>

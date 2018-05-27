@@ -71,6 +71,9 @@ class AutonomousSystem(models.Model):
     def get_absolute_url(self):
         return reverse('peering:as_details', kwargs={'asn': self.asn})
 
+    def get_peering_sessions_list_url(self):
+        return reverse('peering:as_peering_sessions', kwargs={'asn': self.asn})
+
     def get_peering_sessions(self):
         return [session for session in self.peeringsession_set.all()]
 

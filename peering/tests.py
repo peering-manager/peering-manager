@@ -2,7 +2,10 @@ from __future__ import unicode_literals
 
 import ipaddress
 
+from django.contrib.auth.models import User
 from django.test import TestCase
+from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 
 from .constants import (COMMUNITY_TYPE_INGRESS, COMMUNITY_TYPE_EGRESS,
                         PLATFORM_JUNOS)
@@ -70,6 +73,159 @@ class AutonomousSystemTestCase(TestCase):
         autonomous_system = AutonomousSystem.objects.create(asn=asn, name=name)
 
         self.assertEqual(expected, str(autonomous_system))
+
+
+class AutonomousSystemViewsTestCases(TestCase):
+    def setUp(self):
+        self.credentials = {
+            'username': 'dummy',
+            'password': 'dummy',
+        }
+        User.objects.create_user(**self.credentials)
+
+        self.asn = 29467
+        self.as_name = 'LuxNetwork S.A.'
+        self.autonomous_system = AutonomousSystem.objects.create(
+            asn=self.asn, name=self.as_name)
+
+    def authenticate_user(self):
+        # Login
+        response = self.client.post(reverse('login'), self.credentials,
+                                    follow=True)
+        # Should be logged in
+        self.assertTrue(response.context['user'].is_active)
+
+    def test_as_list_view(self):
+        response = self.client.get(reverse('peering:as_list'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_as_add_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        response = self.client.get(reverse('peering:as_add'))
+        self.assertEqual(response.status_code, 302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        response = self.client.get(reverse('peering:as_add'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Create')
+
+    def test_as_import_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        response = self.client.get(reverse('peering:as_import'))
+        self.assertEqual(response.status_code, 302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        response = self.client.get(reverse('peering:as_import'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Import')
+
+    def test_as_import_from_peeringdb_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        response = self.client.get(reverse('peering:as_import_from_peeringdb'))
+        self.assertEqual(response.status_code, 302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        response = self.client.get(reverse('peering:as_import_from_peeringdb'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'PeeringDB')
+
+    def test_as_details_view(self):
+        # No ASN given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.client.get(reverse('peering:as_details'))
+
+        # Using a wrong AS number, status should be 404 not found
+        response = self.client.get(reverse('peering:as_details',
+                                           kwargs={'asn': 64500}))
+        self.assertEqual(response.status_code, 404)
+
+        # Using an existing AS, status should be 200 and the name of the AS
+        # should be somewhere in the HTML code
+        response = self.client.get(self.autonomous_system.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'LuxNetwork')
+
+    def test_as_edit_view(self):
+        # No ASN given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.client.get(reverse('peering:as_edit'))
+
+        # Not logged in, no right to access the view, should be redirected
+        response = self.client.get(reverse('peering:as_edit',
+                                           kwargs={'asn': self.asn}))
+        self.assertEqual(response.status_code, 302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        response = self.client.get(reverse('peering:as_edit',
+                                           kwargs={'asn': self.asn}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Update')
+
+        # Still authenticated, wrong AS should be 404 not found
+        response = self.client.get(reverse('peering:as_edit',
+                                           kwargs={'asn': 64500}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_as_delete_view(self):
+        # No ASN given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.client.get(reverse('peering:as_delete'))
+
+        # Not logged in, no right to access the view, should be redirected
+        response = self.client.get(reverse('peering:as_delete',
+                                           kwargs={'asn': self.asn}))
+        self.assertEqual(response.status_code, 302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        response = self.client.get(reverse('peering:as_delete',
+                                           kwargs={'asn': self.asn}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Confirm')
+
+        # Still authenticated, wrong AS should be 404 not found
+        response = self.client.get(reverse('peering:as_delete',
+                                           kwargs={'asn': 64500}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_as_bulk_delete_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        response = self.client.get(reverse('peering:as_bulk_delete'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_as_peeringdb_sync_view(self):
+        # No ASN given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.client.get(reverse('peering:as_peeringdb_sync'))
+
+        # Using a wrong AS number, status should be 404 not found
+        response = self.client.get(reverse('peering:as_peeringdb_sync',
+                                           kwargs={'asn': 64500}))
+        self.assertEqual(response.status_code, 404)
+
+        # Using an existing AS, status should be 302
+        response = self.client.get(reverse('peering:as_peeringdb_sync',
+                                           kwargs={'asn': self.asn}))
+        self.assertEqual(response.status_code, 302)
+
+    def test_as_peering_sessions_view(self):
+        # No ASN given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.client.get(reverse('peering:as_peering_sessions'))
+
+        # Using a wrong AS number, status should be 404 not found
+        response = self.client.get(reverse('peering:as_peering_sessions',
+                                           kwargs={'asn': 64500}))
+        self.assertEqual(response.status_code, 404)
+
+        # Using an existing AS, status should be 200
+        response = self.client.get(
+            self.autonomous_system.get_peering_sessions_list_url())
+        self.assertEqual(response.status_code, 200)
 
 
 class CommunityTestCase(TestCase):

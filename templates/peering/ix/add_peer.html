@@ -1,14 +1,14 @@
 {% extends '_base.html' %}
 {% load helpers %}
 {% block content %}
-      <div class="row">
-      	<div class="col-md-6 col-md-offset-3">
+      <div class="row justify-content-center">
+      	<div class="col-6">
           <form method="post">
             {% csrf_token %}
             {% for field in form.hidden_fields %}
             {{ field }}
             {% endfor %}
-            <div class="panel panel-primary">
+            <div class="card my-2">
               <div class="card-header">{% block title %}Add AS{{ network.asn }} as peer on {{ internet_exchange }}{% endblock %}</div>
               <div class="card-body">
                 {% if not known_autonomous_system %}
