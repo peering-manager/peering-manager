@@ -48,3 +48,7 @@ You can also support the development of this project by
 project can be time consuming and it is done on personal time. Giving few
 dollars/euros/pounds/etc... can be a way to say thanks and help to free some
 time to develop this project.
+
+### Spreading The Word
+
+[RIPE76 Peering Manager - Easing Peering Sessions Management](https://ripe76.ripe.net/archives/video/13/) by Guillaume Mazoyer
