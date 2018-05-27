@@ -3,7 +3,8 @@ from __future__ import unicode_literals
 import sys
 
 from django.contrib import messages
-from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
+from django.contrib.auth import (login as auth_login, logout as auth_logout,
+                                 update_session_auth_hash)
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.http import HttpResponseRedirect
@@ -14,7 +15,8 @@ from django.views.generic import View
 
 from .forms import LoginForm, UserPasswordChangeForm
 from peering.models import (AutonomousSystem, Community,
-                            ConfigurationTemplate, InternetExchange, PeeringSession, Router)
+                            ConfigurationTemplate, InternetExchange,
+                            PeeringSession, Router)
 from peeringdb.models import Synchronization
 from utils.models import UserAction
 
@@ -37,7 +39,7 @@ class LoginView(View):
                 next_redirect = reverse('home')
 
             auth_login(request, form.get_user())
-            messages.info(request, "Logged in as {}.".format(request.user))
+            messages.info(request, 'Logged in as {}.'.format(request.user))
             return HttpResponseRedirect(next_redirect)
 
         return render(request, self.template, {'form': form})
@@ -45,8 +47,10 @@ class LoginView(View):
 
 class LogoutView(View):
     def get(self, request):
-        auth_logout(request)
-        messages.info(request, "You have logged out.")
+        if is_user_logged_in(request):
+            auth_logout(request)
+            messages.info(request, "You have logged out.")
+
         return redirect('home')
 
 
@@ -70,6 +74,9 @@ class Home(View):
 
 class ProfileView(View, LoginRequiredMixin):
     def get(self, request):
+        if not is_user_logged_in(request):
+            return redirect('home')
+
         return render(request, 'user/profile.html', {'active_tab': 'profile'})
 
 
@@ -77,6 +84,9 @@ class ChangePasswordView(View, LoginRequiredMixin):
     template = 'user/change_password.html'
 
     def get(self, request):
+        if not is_user_logged_in(request):
+            return redirect('home')
+
         form = UserPasswordChangeForm(user=request.user)
         context = {
             'form': form,
@@ -86,6 +96,9 @@ class ChangePasswordView(View, LoginRequiredMixin):
         return render(request, self.template, context)
 
     def post(self, request):
+        if not is_user_logged_in(request):
+            return redirect('home')
+
         form = UserPasswordChangeForm(user=request.user, data=request.POST)
         context = {
             'form': form,
@@ -96,7 +109,7 @@ class ChangePasswordView(View, LoginRequiredMixin):
             form.save()
             update_session_auth_hash(request, form.user)
             messages.success(
-                request, "Your password has been successfully changed.")
+                request, 'Your password has been successfully changed.')
             return redirect('user_profile')
 
         return render(request, self.template, context)
@@ -104,11 +117,26 @@ class ChangePasswordView(View, LoginRequiredMixin):
 
 class RecentActivityView(View, LoginRequiredMixin):
     def get(self, request):
+        if not is_user_logged_in(request):
+            return redirect('home')
+
         context = {
             'activity': request.user.actions.all()[:50],
             'active_tab': 'activity',
         }
         return render(request, 'user/activity.html', context)
+
+
+def is_user_logged_in(request):
+    """
+    Returns True if the user is logged in. Returns False otherwise.
+    """
+    # If user not logged inform him about it
+    if not request.user.is_authenticated:
+        messages.error(request, 'You are not logged in.')
+        return False
+
+    return True
 
 
 def handle_500(request):
