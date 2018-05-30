@@ -632,3 +632,104 @@ class RouterTestCase(TestCase):
             self.assertEqual(expected[i],
                              len(router._napalm_bgp_neighbors_to_peer_list(
                                  napalm_dicts_list[i])))
+
+
+class RouterViewsTestCase(ViewTestCase):
+    def setUp(self):
+        super(RouterViewsTestCase, self).setUp()
+
+        self.name = 'test.router'
+        self.hostname = 'test.router.example.org'
+        self.router = Router.objects.create(name=self.name,
+                                            hostname=self.hostname)
+
+    def test_router_list_view(self):
+        response = self.client.get(reverse('peering:router_list'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_router_add_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        response = self.client.get(reverse('peering:router_add'))
+        self.assertEqual(response.status_code, 302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        response = self.client.get(reverse('peering:router_add'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Create')
+
+    def test_router_import_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        response = self.client.get(reverse('peering:router_import'))
+        self.assertEqual(response.status_code, 302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        response = self.client.get(reverse('peering:router_import'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Import')
+
+    def test_router_details_view(self):
+        # No PK given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.client.get(reverse('peering:router_details'))
+
+        # Using a wrong PK, status should be 404 not found
+        response = self.client.get(reverse('peering:router_details',
+                                           kwargs={'pk': 2}))
+        self.assertEqual(response.status_code, 404)
+
+        # Using an existing PK, status should be 200 and the name of the AS
+        # should be somewhere in the HTML code
+        response = self.client.get(self.router.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.name)
+
+    def test_router_edit_view(self):
+        # No PK given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.client.get(reverse('peering:router_edit'))
+
+        # Not logged in, no right to access the view, should be redirected
+        response = self.client.get(reverse('peering:router_edit',
+                                           kwargs={'pk': 1}))
+        self.assertEqual(response.status_code, 302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        response = self.client.get(reverse('peering:router_edit',
+                                           kwargs={'pk': 1}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Update')
+
+        # Still authenticated, wrong PK should be 404 not found
+        response = self.client.get(reverse('peering:router_edit',
+                                           kwargs={'pk': 2}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_router_delete_view(self):
+        # No PK given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.client.get(reverse('peering:router_delete'))
+
+        # Not logged in, no right to access the view, should be redirected
+        response = self.client.get(reverse('peering:router_delete',
+                                           kwargs={'pk': 1}))
+        self.assertEqual(response.status_code, 302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        response = self.client.get(reverse('peering:router_delete',
+                                           kwargs={'pk': 1}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Confirm')
+
+        # Still authenticated, wrong AS should be 404 not found
+        response = self.client.get(reverse('peering:router_delete',
+                                           kwargs={'pk': 2}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_router_bulk_delete_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        response = self.client.get(reverse('peering:router_bulk_delete'))
+        self.assertEqual(response.status_code, 302)
