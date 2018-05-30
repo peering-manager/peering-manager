@@ -1,18 +1,11 @@
 from __future__ import unicode_literals
 
-from django.contrib.auth.models import User
-from django.test import TestCase
 from django.urls import reverse
 
+from utils.tests import ViewTestCase
 
-class PeeringManagerViewsTestCases(TestCase):
-    def setUp(self):
-        self.credentials = {
-            'username': 'dummy',
-            'password': 'dummy',
-        }
-        User.objects.create_user(**self.credentials)
 
+class PeeringManagerViewsTestCase(ViewTestCase):
     def test_homepage_view(self):
         response = self.client.get(reverse('home'))
         self.assertEqual(response.status_code, 200)

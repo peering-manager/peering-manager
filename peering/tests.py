@@ -12,6 +12,8 @@ from .constants import (COMMUNITY_TYPE_INGRESS, COMMUNITY_TYPE_EGRESS,
 from .models import (AutonomousSystem, Community, InternetExchange,
                      PeeringSession, Router)
 
+from utils.tests import ViewTestCase
+
 
 class AutonomousSystemTestCase(TestCase):
     def test_does_exist(self):
@@ -75,25 +77,14 @@ class AutonomousSystemTestCase(TestCase):
         self.assertEqual(expected, str(autonomous_system))
 
 
-class AutonomousSystemViewsTestCases(TestCase):
+class AutonomousSystemViewsTestCase(ViewTestCase):
     def setUp(self):
-        self.credentials = {
-            'username': 'dummy',
-            'password': 'dummy',
-        }
-        User.objects.create_user(**self.credentials)
+        super(AutonomousSystemViewsTestCase, self).setUp()
 
         self.asn = 29467
         self.as_name = 'LuxNetwork S.A.'
         self.autonomous_system = AutonomousSystem.objects.create(
             asn=self.asn, name=self.as_name)
-
-    def authenticate_user(self):
-        # Login
-        response = self.client.post(reverse('login'), self.credentials,
-                                    follow=True)
-        # Should be logged in
-        self.assertTrue(response.context['user'].is_active)
 
     def test_as_list_view(self):
         response = self.client.get(reverse('peering:as_list'))
@@ -282,6 +273,107 @@ class CommunityTestCase(TestCase):
                                  name='test{}'.format(i),
                                  value='64500:{}'.format(i),
                                  type=community_types[i]).get_type_html())
+
+
+class CommunityViewsTestCase(ViewTestCase):
+    def setUp(self):
+        super(CommunityViewsTestCase, self).setUp()
+
+        self.name = 'peering-all-exchanges'
+        self.value = '64500:1'
+        self.community = Community.objects.create(name=self.name,
+                                                  value=self.value)
+
+    def test_community_list_view(self):
+        response = self.client.get(reverse('peering:community_list'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_community_add_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        response = self.client.get(reverse('peering:community_add'))
+        self.assertEqual(response.status_code, 302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        response = self.client.get(reverse('peering:community_add'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Create')
+
+    def test_community_import_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        response = self.client.get(reverse('peering:community_import'))
+        self.assertEqual(response.status_code, 302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        response = self.client.get(reverse('peering:community_import'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Import')
+
+    def test_community_details_view(self):
+        # No community PK given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.client.get(reverse('peering:community_details'))
+
+        # Using a wrong PK, status should be 404 not found
+        response = self.client.get(reverse('peering:community_details',
+                                           kwargs={'pk': 666}))
+        self.assertEqual(response.status_code, 404)
+
+        # Using an existing PK, status should be 200 and the name of the
+        # community should be somewhere in the HTML code
+        response = self.client.get(self.community.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.name)
+
+    def test_community_edit_view(self):
+        # No PK given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.client.get(reverse('peering:community_edit'))
+
+        # Not logged in, no right to access the view, should be redirected
+        response = self.client.get(reverse('peering:community_edit',
+                                           kwargs={'pk': 1}))
+        self.assertEqual(response.status_code, 302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        response = self.client.get(reverse('peering:community_edit',
+                                           kwargs={'pk': 1}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Update')
+
+        # Still authenticated, wrong PK should be 404 not found
+        response = self.client.get(reverse('peering:community_edit',
+                                           kwargs={'pk': 2}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_community_delete_view(self):
+        # No PK given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.client.get(reverse('peering:community_delete'))
+
+        # Not logged in, no right to access the view, should be redirected
+        response = self.client.get(reverse('peering:community_delete',
+                                           kwargs={'pk': 1}))
+        self.assertEqual(response.status_code, 302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        response = self.client.get(reverse('peering:community_delete',
+                                           kwargs={'pk': 1}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Confirm')
+
+        # Still authenticated, wrong PK should be 404 not found
+        response = self.client.get(reverse('peering:community_delete',
+                                           kwargs={'pk': 2}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_community_bulk_delete_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        response = self.client.get(reverse('peering:as_bulk_delete'))
+        self.assertEqual(response.status_code, 302)
 
 
 class InternetExchangeTestCase(TestCase):
