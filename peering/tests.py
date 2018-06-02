@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 import ipaddress
 
-from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
@@ -101,6 +100,24 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Create')
 
+        # Try to create an object with valid data
+        as_to_create = {
+            'asn': 64500,
+            'name': 'as-created',
+        }
+        response = self.client.post(reverse('peering:as_add'), as_to_create)
+        self.assertEqual(response.status_code, 302)
+        self.does_object_exist(AutonomousSystem, as_to_create)
+
+        # Try to create an object with invalid data
+        as_not_to_create = {
+            'asn': 64501,
+        }
+        response = self.client.post(reverse('peering:as_add'),
+                                    as_not_to_create)
+        self.assertEqual(response.status_code, 200)
+        self.does_object_not_exist(AutonomousSystem, as_not_to_create)
+
     def test_as_import_view(self):
         # Not logged in, no right to access the view, should be redirected
         response = self.client.get(reverse('peering:as_import'))
@@ -112,6 +129,25 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Import')
 
+        # Try to import an object with valid data
+        as_to_import = {
+            'csv': '''asn,name,irr_as_set,ipv6_max_prefixes,ipv4_max_prefixes,comment
+                      64500,as-created,,,,''',
+        }
+        response = self.client.post(reverse('peering:as_import'), as_to_import)
+        self.assertEqual(response.status_code, 302)
+        self.does_object_exist(AutonomousSystem, {'asn': 64500})
+
+        # Try to create an object with invalid data
+        as_not_to_import = {
+            'csv': '''asn,name,irr_as_set,ipv6_max_prefixes,ipv4_max_prefixes,comment
+                      64501,as-not-created,,,,''',
+        }
+        response = self.client.post(reverse('peering:as_import'),
+                                    as_not_to_import)
+        self.assertEqual(response.status_code, 302)
+        self.does_object_exist(AutonomousSystem, {'asn': 64501})
+
     def test_as_import_from_peeringdb_view(self):
         # Not logged in, no right to access the view, should be redirected
         response = self.client.get(reverse('peering:as_import_from_peeringdb'))
@@ -122,6 +158,18 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
         response = self.client.get(reverse('peering:as_import_from_peeringdb'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'PeeringDB')
+
+        # Using a wrong AS number
+        response = self.client.post(
+            reverse('peering:as_import_from_peeringdb'), {'asn': 64500})
+        self.assertEqual(response.status_code, 200)
+        self.does_object_not_exist(AutonomousSystem, {'asn': 64500})
+
+        # Using an existing AS, status should be 302
+        response = self.client.get(reverse('peering:as_import_from_peeringdb'),
+                                   {'asn': self.asn})
+        self.assertEqual(response.status_code, 200)
+        self.does_object_exist(AutonomousSystem, {'asn': self.asn})
 
     def test_as_details_view(self):
         # No ASN given, view should not work
@@ -299,6 +347,26 @@ class CommunityViewsTestCase(ViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Create')
 
+        # Try to create an object with valid data
+        community_to_create = {
+            'name': 'community-created',
+            'value': '64500:1',
+            'type': COMMUNITY_TYPE_INGRESS,
+        }
+        response = self.client.post(reverse('peering:community_add'),
+                                    community_to_create)
+        self.assertEqual(response.status_code, 302)
+        self.does_object_exist(Community, community_to_create)
+
+        # Try to create an object with invalid data
+        community_not_to_create = {
+            'name': 'community-not-created',
+        }
+        response = self.client.post(reverse('peering:community_add'),
+                                    community_not_to_create)
+        self.assertEqual(response.status_code, 200)
+        self.does_object_not_exist(Community, community_not_to_create)
+
     def test_community_import_view(self):
         # Not logged in, no right to access the view, should be redirected
         response = self.client.get(reverse('peering:community_import'))
@@ -309,6 +377,26 @@ class CommunityViewsTestCase(ViewTestCase):
         response = self.client.get(reverse('peering:community_import'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Import')
+
+        # Try to import an object with valid data
+        community_to_import = {
+            'csv': '''name,value,type,comment
+                      community-created,64500:1,Ingress,''',
+        }
+        response = self.client.post(reverse('peering:community_import'),
+                                    community_to_import)
+        self.assertEqual(response.status_code, 302)
+        self.does_object_exist(Community, {'pk': 1})
+
+        # Try to create an object with invalid data
+        community_not_to_import = {
+            'csv': '''name,value,type,comment
+                      community-not-created,64501:1,Ingress,''',
+        }
+        response = self.client.post(reverse('peering:community_import'),
+                                    community_not_to_import)
+        self.assertEqual(response.status_code, 302)
+        self.does_object_exist(Community, {'pk': 2})
 
     def test_community_details_view(self):
         # No community PK given, view should not work
@@ -657,6 +745,25 @@ class RouterViewsTestCase(ViewTestCase):
         response = self.client.get(reverse('peering:router_add'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Create')
+
+        # Try to create an object with valid data
+        router_to_create = {
+            'name': 'router.created',
+            'hostname': 'router.created.example.com',
+        }
+        response = self.client.post(reverse('peering:router_add'),
+                                    router_to_create)
+        self.assertEqual(response.status_code, 302)
+        self.does_object_exist(Router, router_to_create)
+
+        # Try to create an object with invalid data
+        router_not_to_create = {
+            'name': 'router.notcreated',
+        }
+        response = self.client.post(reverse('peering:router_add'),
+                                    router_not_to_create)
+        self.assertEqual(response.status_code, 200)
+        self.does_object_not_exist(Router, router_not_to_create)
 
     def test_router_import_view(self):
         # Not logged in, no right to access the view, should be redirected

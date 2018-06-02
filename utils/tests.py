@@ -23,3 +23,18 @@ class ViewTestCase(TestCase):
                                     follow=True)
         # Should be logged in
         self.assertTrue(response.context['user'].is_active)
+
+    def _check_if_object_exists(self, model, kwargs):
+        exists = True
+        try:
+            model.objects.get(**kwargs)
+        except model.DoesNotExist:
+            exists = False
+
+        return exists
+
+    def does_object_exist(self, model, kwargs):
+        self.assertTrue(self._check_if_object_exists(model, kwargs))
+
+    def does_object_not_exist(self, model, kwargs):
+        self.assertFalse(self._check_if_object_exists(model, kwargs))
