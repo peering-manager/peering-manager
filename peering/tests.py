@@ -80,191 +80,161 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
     def setUp(self):
         super(AutonomousSystemViewsTestCase, self).setUp()
 
+        self.model = AutonomousSystem
         self.asn = 29467
         self.as_name = 'LuxNetwork S.A.'
         self.autonomous_system = AutonomousSystem.objects.create(
             asn=self.asn, name=self.as_name)
 
     def test_as_list_view(self):
-        response = self.client.get(reverse('peering:as_list'))
-        self.assertEqual(response.status_code, 200)
+        self.get_request('peering:as_list')
 
     def test_as_add_view(self):
         # Not logged in, no right to access the view, should be redirected
-        response = self.client.get(reverse('peering:as_add'))
-        self.assertEqual(response.status_code, 302)
+        self.get_request('peering:as_add', expected_status_code=302)
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
-        response = self.client.get(reverse('peering:as_add'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Create')
+        self.get_request('peering:as_add', contains='Create')
 
         # Try to create an object with valid data
         as_to_create = {
             'asn': 64500,
             'name': 'as-created',
         }
-        response = self.client.post(reverse('peering:as_add'), as_to_create)
-        self.assertEqual(response.status_code, 302)
-        self.does_object_exist(AutonomousSystem, as_to_create)
+        self.post_request('peering:as_add', data=as_to_create)
+        self.does_object_exist(as_to_create)
 
         # Try to create an object with invalid data
         as_not_to_create = {
             'asn': 64501,
         }
-        response = self.client.post(reverse('peering:as_add'),
-                                    as_not_to_create)
-        self.assertEqual(response.status_code, 200)
-        self.does_object_not_exist(AutonomousSystem, as_not_to_create)
+        self.post_request('peering:as_add', data=as_not_to_create)
+        self.does_object_not_exist(as_not_to_create)
 
     def test_as_import_view(self):
         # Not logged in, no right to access the view, should be redirected
-        response = self.client.get(reverse('peering:as_import'))
-        self.assertEqual(response.status_code, 302)
+        self.get_request('peering:as_import', expected_status_code=302)
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
-        response = self.client.get(reverse('peering:as_import'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Import')
+        self.get_request('peering:as_import', contains='Import')
 
         # Try to import an object with valid data
         as_to_import = {
             'csv': '''asn,name,irr_as_set,ipv6_max_prefixes,ipv4_max_prefixes,comment
                       64500,as-created,,,,''',
         }
-        response = self.client.post(reverse('peering:as_import'), as_to_import)
-        self.assertEqual(response.status_code, 302)
-        self.does_object_exist(AutonomousSystem, {'asn': 64500})
+        self.post_request('peering:as_import', data=as_to_import)
+        self.does_object_exist({'asn': 64500})
 
         # Try to create an object with invalid data
         as_not_to_import = {
             'csv': '''asn,name,irr_as_set,ipv6_max_prefixes,ipv4_max_prefixes,comment
                       64501,as-not-created,,,,''',
         }
-        response = self.client.post(reverse('peering:as_import'),
-                                    as_not_to_import)
-        self.assertEqual(response.status_code, 302)
-        self.does_object_exist(AutonomousSystem, {'asn': 64501})
+        self.post_request('peering:as_import', data=as_not_to_import)
+        self.does_object_exist({'asn': 64501})
 
     def test_as_import_from_peeringdb_view(self):
         # Not logged in, no right to access the view, should be redirected
-        response = self.client.get(reverse('peering:as_import_from_peeringdb'))
-        self.assertEqual(response.status_code, 302)
+        self.get_request('peering:as_import_from_peeringdb',
+                         expected_status_code=302)
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
-        response = self.client.get(reverse('peering:as_import_from_peeringdb'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'PeeringDB')
+        self.get_request('peering:as_import_from_peeringdb',
+                         contains='PeeringDB')
 
         # Using a wrong AS number
-        response = self.client.post(
-            reverse('peering:as_import_from_peeringdb'), {'asn': 64500})
-        self.assertEqual(response.status_code, 200)
-        self.does_object_not_exist(AutonomousSystem, {'asn': 64500})
+        self.post_request('peering:as_import_from_peeringdb',
+                          data={'asn': 64500})
+        self.does_object_not_exist({'asn': 64500})
 
-        # Using an existing AS, status should be 302
-        response = self.client.get(reverse('peering:as_import_from_peeringdb'),
-                                   {'asn': self.asn})
-        self.assertEqual(response.status_code, 200)
-        self.does_object_exist(AutonomousSystem, {'asn': self.asn})
+        # Using an existing AS, status should be OK
+        self.post_request('peering:as_import_from_peeringdb',
+                          data={'asn': self.asn})
+        self.does_object_exist({'asn': self.asn})
 
     def test_as_details_view(self):
         # No ASN given, view should not work
         with self.assertRaises(NoReverseMatch):
-            self.client.get(reverse('peering:as_details'))
+            self.get_request('peering:as_details')
 
         # Using a wrong AS number, status should be 404 not found
-        response = self.client.get(reverse('peering:as_details',
-                                           kwargs={'asn': 64500}))
-        self.assertEqual(response.status_code, 404)
+        self.get_request('peering:as_details', params={'asn': 64500},
+                         expected_status_code=404)
 
         # Using an existing AS, status should be 200 and the name of the AS
         # should be somewhere in the HTML code
-        response = self.client.get(self.autonomous_system.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'LuxNetwork')
+        self.get_request('peering:as_details', params={'asn': self.asn},
+                         contains='LuxNetwork')
 
     def test_as_edit_view(self):
         # No ASN given, view should not work
         with self.assertRaises(NoReverseMatch):
-            self.client.get(reverse('peering:as_edit'))
+            self.get_request('peering:as_edit')
 
         # Not logged in, no right to access the view, should be redirected
-        response = self.client.get(reverse('peering:as_edit',
-                                           kwargs={'asn': self.asn}))
-        self.assertEqual(response.status_code, 302)
+        self.get_request('peering:as_edit', params={'asn': self.asn},
+                         expected_status_code=302)
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
-        response = self.client.get(reverse('peering:as_edit',
-                                           kwargs={'asn': self.asn}))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Update')
+        self.get_request('peering:as_edit', params={'asn': self.asn},
+                         contains='Update')
 
         # Still authenticated, wrong AS should be 404 not found
-        response = self.client.get(reverse('peering:as_edit',
-                                           kwargs={'asn': 64500}))
-        self.assertEqual(response.status_code, 404)
+        self.get_request('peering:as_edit', params={'asn': 64500},
+                         expected_status_code=404)
 
     def test_as_delete_view(self):
         # No ASN given, view should not work
         with self.assertRaises(NoReverseMatch):
-            self.client.get(reverse('peering:as_delete'))
+            self.get_request('peering:as_delete')
 
         # Not logged in, no right to access the view, should be redirected
-        response = self.client.get(reverse('peering:as_delete',
-                                           kwargs={'asn': self.asn}))
-        self.assertEqual(response.status_code, 302)
+        self.get_request('peering:as_delete', params={'asn': self.asn},
+                         expected_status_code=302)
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
-        response = self.client.get(reverse('peering:as_delete',
-                                           kwargs={'asn': self.asn}))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Confirm')
+        self.get_request('peering:as_delete', params={'asn': self.asn},
+                         contains='Confirm')
 
         # Still authenticated, wrong AS should be 404 not found
-        response = self.client.get(reverse('peering:as_delete',
-                                           kwargs={'asn': 64500}))
-        self.assertEqual(response.status_code, 404)
+        self.get_request('peering:as_delete', params={'asn': 64500},
+                         expected_status_code=404)
 
     def test_as_bulk_delete_view(self):
         # Not logged in, no right to access the view, should be redirected
-        response = self.client.get(reverse('peering:as_bulk_delete'))
-        self.assertEqual(response.status_code, 302)
+        self.get_request('peering:as_bulk_delete', expected_status_code=302)
 
     def test_as_peeringdb_sync_view(self):
         # No ASN given, view should not work
         with self.assertRaises(NoReverseMatch):
-            self.client.get(reverse('peering:as_peeringdb_sync'))
+            self.get_request('peering:as_peeringdb_sync')
 
         # Using a wrong AS number, status should be 404 not found
-        response = self.client.get(reverse('peering:as_peeringdb_sync',
-                                           kwargs={'asn': 64500}))
-        self.assertEqual(response.status_code, 404)
+        self.get_request('peering:as_peeringdb_sync', params={'asn': 64500},
+                         expected_status_code=404)
 
-        # Using an existing AS, status should be 302
-        response = self.client.get(reverse('peering:as_peeringdb_sync',
-                                           kwargs={'asn': self.asn}))
-        self.assertEqual(response.status_code, 302)
+        # Using an existing AS, status should be OK
+        self.get_request('peering:as_peeringdb_sync', params={'asn': self.asn},
+                         expected_status_code=302)
 
     def test_as_peering_sessions_view(self):
         # No ASN given, view should not work
         with self.assertRaises(NoReverseMatch):
-            self.client.get(reverse('peering:as_peering_sessions'))
+            self.get_request('peering:as_peering_sessions')
 
         # Using a wrong AS number, status should be 404 not found
-        response = self.client.get(reverse('peering:as_peering_sessions',
-                                           kwargs={'asn': 64500}))
-        self.assertEqual(response.status_code, 404)
+        self.get_request('peering:as_peering_sessions', params={'asn': 64500},
+                         expected_status_code=404)
 
-        # Using an existing AS, status should be 200
-        response = self.client.get(
-            self.autonomous_system.get_peering_sessions_list_url())
-        self.assertEqual(response.status_code, 200)
+        # Using an existing AS, status should be OK
+        self.get_request('peering:as_peering_sessions',
+                         params={'asn': self.asn})
 
 
 class CommunityTestCase(TestCase):
@@ -327,25 +297,22 @@ class CommunityViewsTestCase(ViewTestCase):
     def setUp(self):
         super(CommunityViewsTestCase, self).setUp()
 
+        self.model = Community
         self.name = 'peering-all-exchanges'
         self.value = '64500:1'
         self.community = Community.objects.create(name=self.name,
                                                   value=self.value)
 
     def test_community_list_view(self):
-        response = self.client.get(reverse('peering:community_list'))
-        self.assertEqual(response.status_code, 200)
+        self.get_request('peering:community_list')
 
     def test_community_add_view(self):
         # Not logged in, no right to access the view, should be redirected
-        response = self.client.get(reverse('peering:community_add'))
-        self.assertEqual(response.status_code, 302)
+        self.get_request('peering:community_add', expected_status_code=302)
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
-        response = self.client.get(reverse('peering:community_add'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Create')
+        self.get_request('peering:community_add', contains='Create')
 
         # Try to create an object with valid data
         community_to_create = {
@@ -353,115 +320,95 @@ class CommunityViewsTestCase(ViewTestCase):
             'value': '64500:1',
             'type': COMMUNITY_TYPE_INGRESS,
         }
-        response = self.client.post(reverse('peering:community_add'),
-                                    community_to_create)
-        self.assertEqual(response.status_code, 302)
-        self.does_object_exist(Community, community_to_create)
+        self.post_request('peering:community_add', data=community_to_create)
+        self.does_object_exist(community_to_create)
 
         # Try to create an object with invalid data
         community_not_to_create = {
             'name': 'community-not-created',
         }
-        response = self.client.post(reverse('peering:community_add'),
-                                    community_not_to_create)
-        self.assertEqual(response.status_code, 200)
-        self.does_object_not_exist(Community, community_not_to_create)
+        self.post_request('peering:community_add',
+                          data=community_not_to_create)
+        self.does_object_not_exist(community_not_to_create)
 
     def test_community_import_view(self):
         # Not logged in, no right to access the view, should be redirected
-        response = self.client.get(reverse('peering:community_import'))
-        self.assertEqual(response.status_code, 302)
+        self.get_request('peering:community_import', expected_status_code=302)
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
-        response = self.client.get(reverse('peering:community_import'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Import')
+        self.get_request('peering:community_import', contains='Import')
 
         # Try to import an object with valid data
         community_to_import = {
             'csv': '''name,value,type,comment
                       community-created,64500:1,Ingress,''',
         }
-        response = self.client.post(reverse('peering:community_import'),
-                                    community_to_import)
-        self.assertEqual(response.status_code, 302)
-        self.does_object_exist(Community, {'pk': 1})
+        self.post_request('peering:community_import', data=community_to_import)
+        self.does_object_exist({'pk': 1})
 
         # Try to create an object with invalid data
         community_not_to_import = {
             'csv': '''name,value,type,comment
                       community-not-created,64501:1,Ingress,''',
         }
-        response = self.client.post(reverse('peering:community_import'),
-                                    community_not_to_import)
-        self.assertEqual(response.status_code, 302)
-        self.does_object_exist(Community, {'pk': 2})
+        self.post_request('peering:community_import',
+                          data=community_not_to_import)
+        self.does_object_exist({'pk': 2})
 
     def test_community_details_view(self):
         # No community PK given, view should not work
         with self.assertRaises(NoReverseMatch):
-            self.client.get(reverse('peering:community_details'))
+            self.get_request('peering:community_details')
 
         # Using a wrong PK, status should be 404 not found
-        response = self.client.get(reverse('peering:community_details',
-                                           kwargs={'pk': 666}))
-        self.assertEqual(response.status_code, 404)
+        self.get_request('peering:community_details', params={'pk': 666},
+                         expected_status_code=404)
 
         # Using an existing PK, status should be 200 and the name of the
         # community should be somewhere in the HTML code
-        response = self.client.get(self.community.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, self.name)
+        self.get_request('peering:community_details', params={'pk': 1},
+                         contains=self.name)
 
     def test_community_edit_view(self):
         # No PK given, view should not work
         with self.assertRaises(NoReverseMatch):
-            self.client.get(reverse('peering:community_edit'))
+            self.get_request('peering:community_edit')
 
         # Not logged in, no right to access the view, should be redirected
-        response = self.client.get(reverse('peering:community_edit',
-                                           kwargs={'pk': 1}))
-        self.assertEqual(response.status_code, 302)
+        self.get_request('peering:community_edit', params={'pk': 1},
+                         expected_status_code=302)
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
-        response = self.client.get(reverse('peering:community_edit',
-                                           kwargs={'pk': 1}))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Update')
+        self.get_request('peering:community_edit', params={'pk': 1},
+                         contains='Update')
 
         # Still authenticated, wrong PK should be 404 not found
-        response = self.client.get(reverse('peering:community_edit',
-                                           kwargs={'pk': 2}))
-        self.assertEqual(response.status_code, 404)
+        self.get_request('peering:community_edit', params={'pk': 2},
+                         expected_status_code=404)
 
     def test_community_delete_view(self):
         # No PK given, view should not work
         with self.assertRaises(NoReverseMatch):
-            self.client.get(reverse('peering:community_delete'))
+            self.get_request('peering:community_delete')
 
         # Not logged in, no right to access the view, should be redirected
-        response = self.client.get(reverse('peering:community_delete',
-                                           kwargs={'pk': 1}))
-        self.assertEqual(response.status_code, 302)
+        self.get_request('peering:community_delete', params={'pk': 1},
+                         expected_status_code=302)
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
-        response = self.client.get(reverse('peering:community_delete',
-                                           kwargs={'pk': 1}))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Confirm')
+        self.get_request('peering:community_delete', params={'pk': 1},
+                         contains='Confirm')
 
         # Still authenticated, wrong PK should be 404 not found
-        response = self.client.get(reverse('peering:community_delete',
-                                           kwargs={'pk': 2}))
-        self.assertEqual(response.status_code, 404)
+        self.get_request('peering:community_delete', params={'pk': 2},
+                         expected_status_code=404)
 
     def test_community_bulk_delete_view(self):
         # Not logged in, no right to access the view, should be redirected
-        response = self.client.get(reverse('peering:as_bulk_delete'))
-        self.assertEqual(response.status_code, 302)
+        self.get_request('peering:as_bulk_delete', expected_status_code=302)
 
 
 class InternetExchangeTestCase(TestCase):
@@ -726,55 +673,61 @@ class RouterViewsTestCase(ViewTestCase):
     def setUp(self):
         super(RouterViewsTestCase, self).setUp()
 
+        self.model = Router
         self.name = 'test.router'
         self.hostname = 'test.router.example.org'
         self.router = Router.objects.create(name=self.name,
                                             hostname=self.hostname)
 
     def test_router_list_view(self):
-        response = self.client.get(reverse('peering:router_list'))
-        self.assertEqual(response.status_code, 200)
+        self.get_request('peering:router_list')
 
     def test_router_add_view(self):
         # Not logged in, no right to access the view, should be redirected
-        response = self.client.get(reverse('peering:router_add'))
-        self.assertEqual(response.status_code, 302)
+        self.get_request('peering:router_add', expected_status_code=302)
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
-        response = self.client.get(reverse('peering:router_add'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Create')
+        self.get_request('peering:router_add', contains='Create')
 
         # Try to create an object with valid data
         router_to_create = {
             'name': 'router.created',
             'hostname': 'router.created.example.com',
         }
-        response = self.client.post(reverse('peering:router_add'),
-                                    router_to_create)
-        self.assertEqual(response.status_code, 302)
-        self.does_object_exist(Router, router_to_create)
+        self.post_request('peering:router_add', data=router_to_create)
+        self.does_object_exist(router_to_create)
 
         # Try to create an object with invalid data
         router_not_to_create = {
             'name': 'router.notcreated',
         }
-        response = self.client.post(reverse('peering:router_add'),
-                                    router_not_to_create)
-        self.assertEqual(response.status_code, 200)
-        self.does_object_not_exist(Router, router_not_to_create)
+        self.post_request('peering:router_add', data=router_not_to_create)
+        self.does_object_not_exist(router_not_to_create)
 
     def test_router_import_view(self):
         # Not logged in, no right to access the view, should be redirected
-        response = self.client.get(reverse('peering:router_import'))
-        self.assertEqual(response.status_code, 302)
+        self.get_request('peering:router_import', expected_status_code=302)
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
-        response = self.client.get(reverse('peering:router_import'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Import')
+        self.get_request('peering:router_import', contains='Import')
+
+        # Try to import an object with valid data
+        router_to_import = {
+            'csv': '''name,hostname,platform,comment
+                      router-created,rt-created.example.com,Other,''',
+        }
+        self.post_request('peering:router_import', data=router_to_import)
+        self.does_object_exist({'pk': 1})
+
+        # Try to create an object with invalid data
+        router_not_to_import = {
+            'csv': '''name,hostname,platform,comment
+                      router-not-created,rt-not-created.example.com,Other,''',
+        }
+        self.post_request('peering:router_import', data=router_not_to_import)
+        self.does_object_exist({'pk': 2})
 
     def test_router_details_view(self):
         # No PK given, view should not work
@@ -788,55 +741,46 @@ class RouterViewsTestCase(ViewTestCase):
 
         # Using an existing PK, status should be 200 and the name of the AS
         # should be somewhere in the HTML code
-        response = self.client.get(self.router.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, self.name)
+        self.get_request('peering:router_details', params={'pk': 1},
+                         contains=self.name)
 
     def test_router_edit_view(self):
         # No PK given, view should not work
         with self.assertRaises(NoReverseMatch):
-            self.client.get(reverse('peering:router_edit'))
+            self.get_request('peering:router_edit')
 
         # Not logged in, no right to access the view, should be redirected
-        response = self.client.get(reverse('peering:router_edit',
-                                           kwargs={'pk': 1}))
-        self.assertEqual(response.status_code, 302)
+        self.get_request('peering:router_edit', params={'pk': 1},
+                         expected_status_code=302)
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
-        response = self.client.get(reverse('peering:router_edit',
-                                           kwargs={'pk': 1}))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Update')
+        self.get_request('peering:router_edit', params={'pk': 1},
+                         contains='Update')
 
         # Still authenticated, wrong PK should be 404 not found
-        response = self.client.get(reverse('peering:router_edit',
-                                           kwargs={'pk': 2}))
-        self.assertEqual(response.status_code, 404)
+        self.get_request('peering:router_edit', params={'pk': 2},
+                         expected_status_code=404)
 
     def test_router_delete_view(self):
         # No PK given, view should not work
         with self.assertRaises(NoReverseMatch):
-            self.client.get(reverse('peering:router_delete'))
+            self.get_request('peering:router_delete')
 
         # Not logged in, no right to access the view, should be redirected
-        response = self.client.get(reverse('peering:router_delete',
-                                           kwargs={'pk': 1}))
-        self.assertEqual(response.status_code, 302)
+        self.get_request('peering:router_delete', params={'pk': 1},
+                         expected_status_code=302)
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
-        response = self.client.get(reverse('peering:router_delete',
-                                           kwargs={'pk': 1}))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Confirm')
+        self.get_request('peering:router_delete', params={'pk': 1},
+                         contains='Confirm')
 
         # Still authenticated, wrong AS should be 404 not found
-        response = self.client.get(reverse('peering:router_delete',
-                                           kwargs={'pk': 2}))
-        self.assertEqual(response.status_code, 404)
+        self.get_request('peering:router_delete', params={'pk': 2},
+                         expected_status_code=404)
 
     def test_router_bulk_delete_view(self):
         # Not logged in, no right to access the view, should be redirected
-        response = self.client.get(reverse('peering:router_bulk_delete'))
-        self.assertEqual(response.status_code, 302)
+        self.get_request('peering:router_bulk_delete',
+                         expected_status_code=302)

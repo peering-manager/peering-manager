@@ -11,6 +11,7 @@ class ViewTestCase(TestCase):
     """
 
     def setUp(self):
+        self.model = None
         self.credentials = {
             'username': 'dummy',
             'password': 'dummy',
@@ -24,17 +25,37 @@ class ViewTestCase(TestCase):
         # Should be logged in
         self.assertTrue(response.context['user'].is_active)
 
-    def _check_if_object_exists(self, model, kwargs):
-        exists = True
+    def _check_if_object_exists(self, kwargs):
+        exists = True if self.model else False
+
         try:
-            model.objects.get(**kwargs)
-        except model.DoesNotExist:
+            self.model.objects.get(**kwargs)
+        except self.model.DoesNotExist:
             exists = False
 
         return exists
 
-    def does_object_exist(self, model, kwargs):
-        self.assertTrue(self._check_if_object_exists(model, kwargs))
+    def does_object_exist(self, kwargs):
+        self.assertTrue(self._check_if_object_exists(kwargs))
 
-    def does_object_not_exist(self, model, kwargs):
-        self.assertFalse(self._check_if_object_exists(model, kwargs))
+    def does_object_not_exist(self, kwargs):
+        self.assertFalse(self._check_if_object_exists(kwargs))
+
+    def get_request(self, path, params={}, expected_status_code=200,
+                    contains=None):
+        # Perform the GET request
+        response = self.client.get(reverse(path, kwargs=params))
+
+        # Ensure that the status code is the expected one
+        self.assertEqual(expected_status_code, response.status_code)
+
+        # Ensure that we have the expected string in the view
+        if contains:
+            self.assertContains(response, contains)
+
+    def post_request(self, path, data={}, expected_status_code=200):
+        # Perform the POST request
+        response = self.client.post(reverse(path), data=data, follow=True)
+
+        # Ensure that the status code is the expected one
+        self.assertEqual(expected_status_code, response.status_code)

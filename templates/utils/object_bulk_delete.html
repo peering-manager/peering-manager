@@ -7,7 +7,7 @@
   <div class="row justify-content-md-center">
     <div class="col-md-8">
       <div class="card border border-danger">
-        <div class="card-header"><strong>Confirm Bulk Deletion</strong></div>
+        <div class="card-header bg-danger text-white"><strong>Confirm Bulk Deletion</strong></div>
         <div class="card-body">
           <p class="card-text"><strong>Warning:</strong> The following operation will delete {{ table.rows|length }} {{ object_type_plural }}. Please carefully review the {{ object_type_plural }} to be deleted and confirm below.</p>
           {% block message_extra %}{% endblock %}
