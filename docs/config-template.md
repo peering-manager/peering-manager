@@ -39,9 +39,13 @@ Each group have a name and sessions:
     * `as_name` is the name of the remote AS
     * `max_prefixes` is the maximum prefix-limit for the current IP version
     * `sessions` is a list of dictionaries, each dictionary has two values
-      identified by the following keys: `ip_address` and `enabled`. The value
-      for `ip_address` is a string representing the IP address while the value
-      for `enabled` tells if the session is enabled (true) or not (false)
+      identified by the following keys: `ip_address`, `enabled` and `password`.
+      The value for the `ip_address` key is a string representing the IP
+      address. The value for the `password` is the password that you specified
+      as a string. Please not that there is no processing of any kind for the
+      password. If you stored it as clear text, it will be returned back to the
+      template as clear text too. The value for the for `enabled` key tells if
+      the session is enabled (true) or not (false)
 
 The `communities` variable is an iteratable list, each item is a dictionary
 containing two elements: the `name` and the `value` of the community. If no
