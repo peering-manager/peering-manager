@@ -44,6 +44,19 @@ This command can also be schedule using a cron task. It is recommended to also
 use the caching local database feature to speed up the processing time of this
 feature.
 
+## Automatic Configuration Deployment
+
+If Peering Manager is used to generate configuration stanzas and push them to
+routers, this task can be automated using the given command.
+
+```
+# python manage.py deploy_configurations
+```
+
+This will generate the configuration for each IX and push it to the attached
+router if there is one. If no configuration template or no router are attached
+to a given IX, this one will be ignored during the execution of the task.
+
 ## Update Peering Session States
 
 If a router is connected to an Internet exchange and if this router is using
