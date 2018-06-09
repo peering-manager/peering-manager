@@ -16,7 +16,9 @@ class Command(BaseCommand):
         self.logger.info('Deploying configurations...')
 
         for ix in InternetExchange.objects.all():
-            if ix.configuration_template and ix.router:
+            # Only deploy config if there are at least a configuration
+            # template, a router and a platform for the router
+            if ix.configuration_template and ix.router and ix.router.platform:
                 self.logger.info(
                     'Deploying configuration on {}'.format(ix.name))
                 ix.router.set_napalm_configuration(ix.generate_configuration(),
