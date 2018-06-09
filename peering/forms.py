@@ -164,7 +164,7 @@ class ConfigurationTemplateFilterForm(BootstrapMixin, forms.Form):
 class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
     check_bgp_session_states = forms.ChoiceField(
-        label='Check For Peering Session States',
+        required=False, label='Check For Peering Session States',
         help_text='If enabled, with a usable router, the state of peering sessions will be updated.',
         choices=((True, 'Yes'), (False, 'No'),), widget=forms.Select())
     comment = CommentField()
@@ -292,7 +292,7 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
 
 class PeeringSessionForm(BootstrapMixin, forms.ModelForm):
     comment = CommentField()
-    password = PasswordField(render_value=True)
+    password = PasswordField(required=False, render_value=True)
     enabled = forms.BooleanField(required=False, label='Is Enabled',
                                  widget=forms.Select(choices=[
                                      ('True', 'Yes'),

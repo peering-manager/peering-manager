@@ -131,10 +131,10 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
         # Try to create an object with invalid data
         as_not_to_import = {
             'csv': '''asn,name,irr_as_set,ipv6_max_prefixes,ipv4_max_prefixes,comment
-                      64501,as-not-created,,,,''',
+                      64501,,,,,''',
         }
         self.post_request('peering:as_import', data=as_not_to_import)
-        self.does_object_exist({'asn': 64501})
+        self.does_object_not_exist({'asn': 64501})
 
     def test_as_import_from_peeringdb_view(self):
         # Not logged in, no right to access the view, should be redirected
@@ -345,16 +345,16 @@ class CommunityViewsTestCase(ViewTestCase):
                       community-created,64500:1,Ingress,''',
         }
         self.post_request('peering:community_import', data=community_to_import)
-        self.does_object_exist({'pk': 1})
+        self.does_object_exist({'pk': 2})
 
         # Try to create an object with invalid data
         community_not_to_import = {
             'csv': '''name,value,type,comment
-                      community-not-created,64501:1,Ingress,''',
+                      community-not-created,,Ingress,''',
         }
         self.post_request('peering:community_import',
                           data=community_not_to_import)
-        self.does_object_exist({'pk': 2})
+        self.does_object_not_exist({'pk': 3})
 
     def test_community_details_view(self):
         # No community PK given, view should not work
@@ -556,6 +556,171 @@ class InternetExchangeTestCase(TestCase):
         self.assertEqual(values['peering_groups'], expected)
 
 
+class InternetExchangeViewsTestCase(ViewTestCase):
+    def setUp(self):
+        super(InternetExchangeViewsTestCase, self).setUp()
+
+        self.model = InternetExchange
+        self.name = 'Test IX'
+        self.slug = 'test-ix'
+        self.ix = InternetExchange.objects.create(name=self.name,
+                                                  slug=self.slug)
+        self.asn = AutonomousSystem.objects.create(asn=64500, name='Test')
+        self.session = PeeringSession.objects.create(
+            internet_exchange=self.ix, autonomous_system=self.asn,
+            ip_address='2001:db8::1')
+        self.community = Community.objects.create(name='Test', value='64500:1')
+
+    def test_ix_list_view(self):
+        self.get_request('peering:ix_list')
+
+    def test_ix_add_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:ix_add', expected_status_code=302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request('peering:ix_add', contains='Create')
+
+        # Try to create an object with valid data
+        ix_to_create = {
+            'name': 'ix-created',
+            'slug': 'ix-created',
+        }
+        self.post_request('peering:ix_add', data=ix_to_create)
+        self.does_object_exist(ix_to_create)
+
+        # Try to create an object with invalid data
+        ix_not_to_create = {
+            'name': 'ix-notcreated',
+        }
+        self.post_request('peering:ix_add', data=ix_not_to_create)
+        self.does_object_not_exist(ix_not_to_create)
+
+    def test_ix_import_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:ix_import', expected_status_code=302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request('peering:ix_import', contains='Import')
+
+        # Try to import an object with valid data
+        ix_to_import = {
+            'csv': '''name,slug,ipv6_address,ipv4_address,configuration_template,router,check_bgp_session_states,comment
+                      ix-created,ix-created,,,,,,''',
+        }
+        self.post_request('peering:ix_import', data=ix_to_import)
+        self.does_object_exist({'slug': 'ix-created'})
+
+        # Try to create an object with invalid data
+        ix_to_import = {
+            'csv': '''name,slug,ipv6_address,ipv4_address,configuration_template,router,check_bgp_session_states,comment
+                      ix-not-created,,,,,,,''',
+        }
+        self.post_request('peering:ix_import', data=ix_to_import)
+        self.does_object_not_exist({'slug': 'ix-not-reated'})
+
+    def test_ix_peeringdb_import_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:ix_peeringdb_import',
+                         expected_status_code=302)
+
+    def test_ix_bulk_delete_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:ix_bulk_delete', expected_status_code=302)
+
+    def test_ix_details_view(self):
+        # No slug given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.get_request('peering:ix_details')
+
+        # Using a wrong slug, status should be 404 not found
+        self.get_request('peering:ix_details', params={'slug': 'not-found'},
+                         expected_status_code=404)
+
+        # Using an existing slug, status should be 200 and the name of the IX
+        # should be somewhere in the HTML code
+        self.get_request('peering:ix_details', params={'slug': self.slug},
+                         contains=self.name)
+
+    def test_ix_edit_view(self):
+        # No slug given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.get_request('peering:ix_edit')
+
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:ix_edit', params={'slug': self.slug},
+                         expected_status_code=302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request('peering:ix_edit', params={'slug': self.slug},
+                         contains='Update')
+
+        # Still authenticated, wrong slug should be 404 not found
+        self.get_request('peering:ix_edit', params={'slug': 'not-found'},
+                         expected_status_code=404)
+
+    def test_ix_delete_view(self):
+        # No slug given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.get_request('peering:ix_delete')
+
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:ix_delete', params={'slug': self.slug},
+                         expected_status_code=302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request('peering:ix_delete', params={'slug': self.slug},
+                         contains='Confirm')
+
+        # Still authenticated, wrong slug should be 404 not found
+        self.get_request('peering:ix_delete', params={'slug': 'not-found'},
+                         expected_status_code=404)
+
+    def test_ix_update_communities_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:ix_update_communities',
+                         params={'slug': self.slug}, expected_status_code=302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request('peering:ix_update_communities',
+                         params={'slug': self.slug})
+
+        # IX not found
+        self.get_request('peering:ix_update_communities',
+                         params={'slug': 'not-found'},
+                         expected_status_code=404)
+
+        # Check if adding a community works
+        self.assertFalse(self.ix.communities.all())
+        self.post_request('peering:ix_update_communities',
+                          params={'slug': self.slug},
+                          data={'communities': self.community.pk})
+        self.assertTrue(self.ix.communities.all())
+
+    def test_ix_peering_sessions_view(self):
+        # Not logged in, 200 OK but not contains Add Peering Session button
+        self.get_request('peering:ix_peering_sessions',
+                         params={'slug': self.slug},
+                         notcontains='Add a Peering Session')
+
+        # Authenticate and retry, 200 OK and should contains Add Peering
+        # Session button
+        self.authenticate_user()
+        self.get_request('peering:ix_peering_sessions',
+                         params={'slug': self.slug},
+                         contains='Add a Peering Session')
+
+        # IX not found
+        self.get_request('peering:ix_peering_sessions',
+                         params={'slug': 'not-found'},
+                         expected_status_code=404)
+
+
 class PeeringSessionTestCase(TestCase):
     def test_does_exist(self):
         # No session, must expect None
@@ -719,27 +884,26 @@ class RouterViewsTestCase(ViewTestCase):
                       router-created,rt-created.example.com,Other,''',
         }
         self.post_request('peering:router_import', data=router_to_import)
-        self.does_object_exist({'pk': 1})
+        self.does_object_exist({'pk': 2})
 
         # Try to create an object with invalid data
         router_not_to_import = {
             'csv': '''name,hostname,platform,comment
-                      router-not-created,rt-not-created.example.com,Other,''',
+                      router-not-created,,Other,''',
         }
         self.post_request('peering:router_import', data=router_not_to_import)
-        self.does_object_exist({'pk': 2})
+        self.does_object_not_exist({'pk': 3})
 
     def test_router_details_view(self):
         # No PK given, view should not work
         with self.assertRaises(NoReverseMatch):
-            self.client.get(reverse('peering:router_details'))
+            self.get_request('peering:router_details')
 
         # Using a wrong PK, status should be 404 not found
-        response = self.client.get(reverse('peering:router_details',
-                                           kwargs={'pk': 2}))
-        self.assertEqual(response.status_code, 404)
+        self.get_request('peering:router_details', params={'pk': 2},
+                         expected_status_code=404)
 
-        # Using an existing PK, status should be 200 and the name of the AS
+        # Using an existing PK, status should be 200 and the name of the router
         # should be somewhere in the HTML code
         self.get_request('peering:router_details', params={'pk': 1},
                          contains=self.name)
@@ -776,7 +940,7 @@ class RouterViewsTestCase(ViewTestCase):
         self.get_request('peering:router_delete', params={'pk': 1},
                          contains='Confirm')
 
-        # Still authenticated, wrong AS should be 404 not found
+        # Still authenticated, wrong router should be 404 not found
         self.get_request('peering:router_delete', params={'pk': 2},
                          expected_status_code=404)
 

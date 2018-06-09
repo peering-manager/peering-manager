@@ -170,7 +170,7 @@ class InternetExchange(models.Model):
                                                on_delete=models.SET_NULL)
     router = models.ForeignKey(
         'Router', blank=True, null=True, on_delete=models.SET_NULL)
-    check_bgp_session_states = models.BooleanField(blank=True, default=False)
+    check_bgp_session_states = models.BooleanField(default=False)
     bgp_session_states_update = models.DateTimeField(blank=True, null=True)
     communities = models.ManyToManyField('Community', blank=True)
 

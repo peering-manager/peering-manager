@@ -26,7 +26,7 @@ class ViewTestCase(TestCase):
         self.assertTrue(response.context['user'].is_active)
 
     def _check_if_object_exists(self, kwargs):
-        exists = True if self.model else False
+        exists = True
 
         try:
             self.model.objects.get(**kwargs)
@@ -42,7 +42,7 @@ class ViewTestCase(TestCase):
         self.assertFalse(self._check_if_object_exists(kwargs))
 
     def get_request(self, path, params={}, expected_status_code=200,
-                    contains=None):
+                    contains=None, notcontains=None):
         # Perform the GET request
         response = self.client.get(reverse(path, kwargs=params))
 
@@ -53,9 +53,14 @@ class ViewTestCase(TestCase):
         if contains:
             self.assertContains(response, contains)
 
-    def post_request(self, path, data={}, expected_status_code=200):
+        # Ensure that we do not have the expected string in the view
+        if notcontains:
+            self.assertNotContains(response, notcontains)
+
+    def post_request(self, path, params={}, data={}, expected_status_code=200):
         # Perform the POST request
-        response = self.client.post(reverse(path), data=data, follow=True)
+        response = self.client.post(reverse(path, kwargs=params), data=data,
+                                    follow=True)
 
         # Ensure that the status code is the expected one
         self.assertEqual(expected_status_code, response.status_code)
