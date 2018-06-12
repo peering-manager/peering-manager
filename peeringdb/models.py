@@ -22,10 +22,10 @@ class Network(models.Model):
 class NetworkIXLAN(models.Model):
     asn = ASNField()
     name = models.CharField(max_length=255)
-    ipaddr6 = models.GenericIPAddressField(
-        protocol='IPv6', blank=True, null=True)
-    ipaddr4 = models.GenericIPAddressField(
-        protocol='IPv4', blank=True, null=True)
+    ipaddr6 = models.GenericIPAddressField(protocol='IPv6', blank=True,
+                                           null=True)
+    ipaddr4 = models.GenericIPAddressField(protocol='IPv4', blank=True,
+                                           null=True)
     is_rs_peer = models.BooleanField(default=False)
     ix_id = models.PositiveIntegerField()
     ixlan_id = models.PositiveIntegerField()
@@ -36,7 +36,9 @@ class NetworkIXLAN(models.Model):
         verbose_name_plural = 'Network IX LANs'
 
     def __str__(self):
-        return 'AS{} on {} - IPv6: {} - IPv4: {}'.format(self.asn, self.name, self.ipaddr6, self.ipaddr4)
+        return 'AS{} on {} - IPv6: {} - IPv4: {}'.format(self.asn, self.name,
+                                                         self.ipaddr6,
+                                                         self.ipaddr4)
 
 
 class Prefix(models.Model):
@@ -63,4 +65,5 @@ class Synchronization(models.Model):
         ordering = ['-time']
 
     def __str__(self):
-        return 'Synced {} objects at {}'.format((self.added + self.deleted + self.updated), self.time)
+        return 'Synced {} objects at {}'.format((self.added + self.deleted +
+                                                 self.updated), self.time)

@@ -94,6 +94,24 @@ class PeeringDBTestCase(TestCase):
 
         self.assertEqual(sorted(found_ix_networks), sorted(known_ix_networks))
 
+    def test_get_common_ix_networks_for_asns(self):
+        api = PeeringDB()
+        asn1 = 29467
+        asn2 = 50903
+
+        # Empty list should be returned
+        self.assertFalse(api.get_common_ix_networks_for_asns(asn1, 64500))
+
+        # Known common IX networks
+        known_ix_networks = [69, 359, 255]
+        found_ix_networks = []
+        # Found common IX networks
+        for n1, n2 in api.get_common_ix_networks_for_asns(asn1, asn2):
+            self.assertEqual(n1.ixlan_id, n2.ixlan_id)
+            found_ix_networks.append(n1.ixlan_id)
+
+        self.assertEqual(sorted(known_ix_networks), sorted(found_ix_networks))
+
     def test_get_prefixes_for_ix_network(self):
         api = PeeringDB()
         ix_network_id = 29146

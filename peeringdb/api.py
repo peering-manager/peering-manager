@@ -141,7 +141,8 @@ class PeeringDB(object):
                     local_object.delete()
                     objects_deleted += 1
                     self.logger.debug('deleted %s #%s from local database',
-                                      model._meta.verbose_name.lower(), peeringdb_object.id)
+                                      model._meta.verbose_name.lower(),
+                                      peeringdb_object.id)
                     continue
             except model.DoesNotExist:
                 # Local object does not exist so create it
@@ -157,8 +158,9 @@ class PeeringDB(object):
                     field = local_object._meta.get_field(field_name)
                 except FieldDoesNotExist:
                     field = None
-                    self.logger.error(
-                        'bug found? field: %s for model: %s', field_name, model._meta.verbose_name.lower())
+                    self.logger.error('bug found? field: %s for model: %s',
+                                      field_name,
+                                      model._meta.verbose_name.lower())
 
                 if field:
                     setattr(local_object, field_name, value)
@@ -166,8 +168,9 @@ class PeeringDB(object):
             try:
                 local_object.full_clean()
             except ValidationError:
-                self.logger.error('bug found? error while validating id: %s for model: %s',
-                                  peeringdb_object.id, model._meta.verbose_name.lower())
+                self.logger.error(
+                    'bug found? error while validating id: %s for model: %s',
+                    peeringdb_object.id, model._meta.verbose_name.lower())
                 continue
 
             # Save the local object
@@ -176,12 +179,14 @@ class PeeringDB(object):
             # Update counters
             if marked_as_new:
                 objects_added += 1
-                self.logger.debug(
-                    'created %s #%s from peeringdb', model._meta.verbose_name.lower(), local_object.id)
+                self.logger.debug('created %s #%s from peeringdb',
+                                  model._meta.verbose_name.lower(),
+                                  local_object.id)
             else:
                 objects_updated += 1
-                self.logger.debug(
-                    'updated %s #%s from peeringdb', model._meta.verbose_name.lower(), local_object.id)
+                self.logger.debug('updated %s #%s from peeringdb',
+                                  model._meta.verbose_name.lower(),
+                                  local_object.id)
 
         return (objects_added, objects_updated, objects_deleted)
 
@@ -279,6 +284,33 @@ class PeeringDB(object):
                 network_ixlans.append(Object(ix_network))
 
         return network_ixlans
+
+    def get_common_ix_networks_for_asns(self, asn1, asn2):
+        """
+        Returns a list of all common IX networks on which both ASNs are
+        connected to. The list contains tuples of NetworkIXLAN objects. The
+        first element of each tuple is the IX LAN network of asn1, the second
+        element is the IX LAN network of asn2 matching the one of asn1.
+        """
+        common_network_ixlans = []
+
+        # Grab IX LANs for both ASNs
+        asn1_network_ixlans = self.get_ix_networks_for_asn(asn1)
+        asn2_network_ixlans = self.get_ix_networks_for_asn(asn2)
+
+        # If IX for one of the AS cannot be found, return the empty list
+        if not asn1_network_ixlans or not asn2_network_ixlans:
+            return common_network_ixlans
+
+        # Find IX LAN networks matching
+        for asn1_network_ixlan in asn1_network_ixlans:
+            for asn2_network_ixlan in asn2_network_ixlans:
+                if asn1_network_ixlan.ixlan_id == asn2_network_ixlan.ixlan_id:
+                    # Keep track of the two IX LAN networks
+                    common_network_ixlans.append(
+                        (asn1_network_ixlan, asn2_network_ixlan))
+
+        return common_network_ixlans
 
     def get_prefixes_for_ix_network(self, ix_network_id):
         """
