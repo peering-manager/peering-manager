@@ -239,5 +239,5 @@ FILTERS_NULL_CHOICE_VALUE = '0'
 
 try:
     HOSTNAME = socket.gethostname()
-except:
+except Exception:
     HOSTNAME = 'localhost'

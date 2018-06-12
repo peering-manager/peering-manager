@@ -304,7 +304,7 @@ class PeeringSessionForm(BootstrapMixin, forms.ModelForm):
         fields = ('autonomous_system', 'internet_exchange',
                   'ip_address', 'password', 'enabled', 'comment',)
         labels = {
-            'autonomous_system': 'ASN',
+            'autonomous_system': 'AS',
             'internet_exchange': 'IX',
             'ip_address': 'IP Address',
             'enabled': 'Enabled',
