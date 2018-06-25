@@ -20,6 +20,7 @@ from .constants import (BGP_STATE_CHOICES, BGP_STATE_IDLE, BGP_STATE_CONNECT,
                         PLATFORM_JUNOS, PLATFORM_IOSXR, PLATFORM_EOS)
 from .fields import ASNField, CommunityField
 from peeringdb.api import PeeringDB
+from peeringdb.models import NetworkIXLAN, PeerRecord
 
 
 class AutonomousSystem(models.Model):
@@ -83,6 +84,43 @@ class AutonomousSystem(models.Model):
         for session in self.peeringsession_set.all():
             if session.internet_exchange not in internet_exchanges:
                 internet_exchanges.append(session.internet_exchange)
+
+        return internet_exchanges
+
+    def get_common_internet_exchanges(self):
+        internet_exchanges = {}
+
+        # Get common IX networks between us and this AS
+        common = PeeringDB().get_common_ix_networks_for_asns(settings.MY_ASN,
+                                                             self.asn)
+        for us, peer in common:
+            ix = None
+            if us.ixlan_id not in internet_exchanges:
+                try:
+                    ix = InternetExchange.objects.get(peeringdb_id=us.id)
+                except InternetExchange.DoesNotExist:
+                    # If we don't know this IX locally but we do in PeeringDB
+                    # Ignore it
+                    continue
+
+                internet_exchanges[us.ixlan_id] = {
+                    'internet_exchange': ix,
+                    'missing_peering_sessions': []
+                }
+
+            # Keep record of missing peering sessions
+            if (peer.ipaddr6
+                and not PeeringSession.does_exist(
+                    internet_exchange=ix, autonomous_system=self,
+                    ip_address=peer.ipaddr6)):
+                internet_exchanges[us.ixlan_id]['missing_peering_sessions'].append(
+                    peer.ipaddr6)
+            if (peer.ipaddr4
+                and not PeeringSession.does_exist(
+                    internet_exchange=ix, autonomous_system=self,
+                    ip_address=peer.ipaddr4)):
+                internet_exchanges[us.ixlan_id]['missing_peering_sessions'].append(
+                    peer.ipaddr4)
 
         return internet_exchanges
 
@@ -270,36 +308,18 @@ class InternetExchange(models.Model):
             self._generate_configuration_variables())
 
     def get_available_peers(self):
-        peers = []
-
         # Not linked to PeeringDB, cannot determine peers
         if not self.peeringdb_id:
-            return peers
+            return None
 
-        # Get the LAN that we are attached to and retrieve the peers
+        # Get the IX LAN we are belonging to
         api = PeeringDB()
-        lan = api.get_ix_network(self.peeringdb_id)
-        peeringdb_peers = api.get_peers_for_ix(lan.ix_id)
-        known_peerings = []
+        network_ixlan = api.get_ix_network(self.peeringdb_id)
 
-        # Grab all addresses we are connected to
-        for session in self.peeringsession_set.all():
-            known_peerings.append(ipaddress.ip_address(session.ip_address))
-
-        # Check if peers addresses are in the list of addresses we are already
-        # connected to.
-        for peeringdb_peer in peeringdb_peers:
-            peeringdb_peer['has_ipv6'] = True if peeringdb_peer['network_ixlan'].ipaddr6 else None
-            peeringdb_peer['has_ipv4'] = True if peeringdb_peer['network_ixlan'].ipaddr4 else None
-            peeringdb_peer['peering6'] = peeringdb_peer['has_ipv6'] and ipaddress.ip_address(
-                peeringdb_peer['network_ixlan'].ipaddr6) in known_peerings
-            peeringdb_peer['peering4'] = peeringdb_peer['has_ipv4'] and ipaddress.ip_address(
-                peeringdb_peer['network_ixlan'].ipaddr4) in known_peerings
-            peeringdb_peer['internet_exchange'] = self
-
-            peers.append(peeringdb_peer)
-
-        return peers
+        # Find all peers belonging to the same IX and order them by ASN
+        return PeerRecord.objects.all().filter(
+            network_ixlan__ix_id=network_ixlan.ixlan_id).order_by(
+                'network__asn')
 
     def _import_peering_sessions(self, sessions=[], prefixes=[]):
         # No sessions or no prefixes, can't work with that
@@ -528,6 +548,56 @@ class PeeringSession(models.Model):
         except PeeringSession.MultipleObjectsReturned:
             return None
 
+    @staticmethod
+    def get_from_peeringdb_peer_record(peer_record, ip_version):
+        internet_exchange = None
+        peer_ixlan = None
+
+        # If no peer record, no ASN or no IP address have been given, we
+        # cannot do anything
+        if (not peer_record or not peer_record.network.asn):
+            return (None, False)
+
+        # Find the Internet exchange given a NetworkIXLAN ID
+        for ix in InternetExchange.objects.exclude(peeringdb_id__isnull=True):
+            # Get the IXLAN corresponding to our network
+            ixlan = NetworkIXLAN.objects.get(id=ix.peeringdb_id)
+            # Get a potentially matching IXLAN
+            peer_ixlan = NetworkIXLAN.objects.filter(
+                id=peer_record.network_ixlan.id, ix_id=ixlan.ix_id)
+
+            # IXLAN found lets get out
+            if peer_ixlan:
+                internet_exchange = ix
+                break
+
+        # Unable to find the Internet exchange, no point of going further
+        if not internet_exchange:
+            return (None, False)
+
+        # Get the AS, create it if necessary
+        autonomous_system = AutonomousSystem.create_from_peeringdb(
+            peer_record.network.asn)
+        # Assume we are always using IPv6 unless told otherwise
+        ip_address = (peer_record.network_ixlan.ipaddr4 if ip_version == 4 else
+                      peer_record.network_ixlan.ipaddr6)
+
+        # Try to get the session, in case it already exists
+        session = PeeringSession.does_exist(
+            autonomous_system=autonomous_system,
+            internet_exchange=internet_exchange, ip_address=ip_address)
+
+        # Session exists, nothing to do
+        if session:
+            return (session, False)
+
+        # Create the session but do not save it
+        session = PeeringSession(autonomous_system=autonomous_system,
+                                 internet_exchange=internet_exchange,
+                                 ip_address=ip_address)
+
+        return (session, True)
+
     def get_absolute_url(self):
         return reverse('peering:peering_session_details',
                        kwargs={'pk': self.pk})
@@ -559,7 +629,7 @@ class PeeringSession(models.Model):
         elif self.bgp_state == BGP_STATE_ESTABLISHED:
             badge = 'success'
         else:
-            badge = 'default'
+            badge = 'secondary'
 
         text = '<span class="badge badge-{}">{}</span>'.format(
             badge, self.get_bgp_state_display() or 'Unknown')

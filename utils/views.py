@@ -113,6 +113,98 @@ class AddOrEditView(LoginRequiredMixin, View):
         })
 
 
+class BulkAddFromDependencyView(LoginRequiredMixin, View):
+    model = None
+    dependency_model = None
+    custom_formset = None
+    form_model = None
+    return_url = None
+    template = 'utils/table_import.html'
+
+    def get_dependency_objects(self, pk_list):
+        # Returns the list of objects to be used as dependencies
+        if not self.dependency_model:
+            return []
+        return list(self.dependency_model.objects.filter(pk__in=pk_list))
+
+    def process_dependency_object(self, dependency):
+        return None
+
+    def sort_objects(self, object_list):
+        return []
+
+    def get_return_url(self):
+        if self.return_url:
+            # Use the default URL if given
+            return self.return_url
+
+        # Or return to home
+        return reverse('home')
+
+    def get(self, request):
+        # Don't allow direct GET requests
+        return redirect(self.get_return_url())
+
+    def post(self, request):
+        """
+        The form has been submitted, process it.
+        """
+        # Determine URL to redirect users
+        posted_return_url = request.POST.get('return_url')
+        if posted_return_url and is_safe_url(url=posted_return_url,
+                                             host=request.get_host()):
+            self.return_url = posted_return_url
+
+        # Prepare the form
+        if not self.custom_formset:
+            ObjectFormSet = formset_factory(self.form_model, extra=0)
+        else:
+            ObjectFormSet = formset_factory(
+                self.form_model, formset=self.custom_formset, extra=0)
+
+        # Get dependencies
+        dependencies = self.get_dependency_objects(request.POST.getlist('pk'))
+        if not dependencies:
+            # We don't have dependencies to handle, proceed as if we were in
+            # the next step of the form (object addition)
+            formset = ObjectFormSet(data=request.POST)
+        else:
+            # Proceed dependencies and fill in the form
+            dependencies_processing_result = []
+            for dependency in dependencies:
+                dependencies_processing_result.append(
+                    self.process_dependency_object(dependency))
+
+            formset = ObjectFormSet(initial=self.sort_objects(
+                dependencies_processing_result))
+
+        new_objects = []
+        if formset.is_valid():
+            with transaction.atomic():
+                for form in formset:
+                    if form.is_valid():
+                        instance = form.save()
+                        new_objects.append(instance)
+
+            if new_objects:
+                # Notify user of successful import
+                message = 'Imported {} {}'.format(
+                    len(new_objects), new_objects[0]._meta.verbose_name_plural)
+                messages.success(request, message)
+
+                # Log the import action
+                UserAction.objects.log_import(
+                    request.user, self.form_model._meta.model, message)
+
+            return redirect(self.get_return_url())
+
+        return render(request, self.template, {
+            'formset': formset,
+            'obj_type': self.form_model._meta.model._meta.verbose_name,
+            'return_url': self.get_return_url(),
+        })
+
+
 class BulkDeleteView(LoginRequiredMixin, View):
     model = None
     queryset = None

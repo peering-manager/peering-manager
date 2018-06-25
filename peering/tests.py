@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 import ipaddress
 
 from django.test import TestCase
-from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 
 from .constants import (COMMUNITY_TYPE_INGRESS, COMMUNITY_TYPE_EGRESS,

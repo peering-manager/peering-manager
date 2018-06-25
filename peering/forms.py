@@ -5,6 +5,7 @@ from django import forms
 from .constants import COMMUNITY_TYPE_CHOICES, PLATFORM_CHOICES
 from .models import (AutonomousSystem, Community, ConfigurationTemplate,
                      InternetExchange, PeeringSession, Router)
+from peeringdb.models import PeerRecord
 from utils.forms import (BootstrapMixin, CSVChoiceField, FilterChoiceField,
                          PasswordField, SlugField)
 
@@ -290,10 +291,22 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
         null_label='-- None --')
 
 
+class PeerRecordFilterForm(BootstrapMixin, forms.Form):
+    model = PeerRecord
+    q = forms.CharField(required=False, label='Search')
+    network__asn = forms.IntegerField(required=False, label='ASN')
+    network__name = forms.CharField(required=False, label='AS Name')
+    network__irr_as_set = forms.CharField(required=False, label='IRR AS-SET')
+    network__info_prefixes6 = forms.IntegerField(required=False,
+                                                 label='IPv6 Max Prefixes')
+    network__info_prefixes4 = forms.IntegerField(required=False,
+                                                 label='IPv4 Max Prefixes')
+
+
 class PeeringSessionForm(BootstrapMixin, forms.ModelForm):
     comment = CommentField()
     password = PasswordField(required=False, render_value=True)
-    enabled = forms.BooleanField(required=False, label='Is Enabled',
+    enabled = forms.BooleanField(required=False, label='Enabled',
                                  widget=forms.Select(choices=[
                                      ('True', 'Yes'),
                                      ('False', 'No'),

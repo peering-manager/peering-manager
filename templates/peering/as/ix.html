@@ -1,0 +1,30 @@
+{% extends 'peering/as/_base.html' %}
+{% load helpers %}
+{% block subcontent %}
+      <div class="table-responsive">
+        <table class="table table-sm table-hover table-headings">
+          <thead>
+            <tr>
+              <th scope="col">Internet Exchange</th>
+              <th scope="col">Missing Peering Sessions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ixlan_id, details in common_internet_exchanges.items %}
+            {% if details.internet_exchange %}
+            <tr>
+              <td>
+                <a href="{{ ix.internet_exchange.get_absolute_url }}">{{ details.internet_exchange }}</a>
+              </td>
+              <td>
+                {% for missing_peering_session in details.missing_peering_sessions %}
+                <span class="badge badge-danger">{{ missing_peering_session }}</span>
+                {% endfor %}
+              </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+{% endblock %}

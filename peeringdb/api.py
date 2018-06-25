@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.utils import timezone
 
-from .models import Network, NetworkIXLAN, Prefix, Synchronization
+from .models import Network, NetworkIXLAN, PeerRecord, Prefix, Synchronization
 
 
 NAMESPACES = {
@@ -152,6 +152,11 @@ class PeeringDB(object):
             # Set the value for each field
             for model_field in model._meta.get_fields():
                 field_name = model_field.name
+
+                # Do not try to follow foreign keys
+                if model_field.get_internal_type() == 'ForeignKey':
+                    continue
+
                 value = getattr(peeringdb_object, field_name)
 
                 try:
@@ -191,6 +196,10 @@ class PeeringDB(object):
         return (objects_added, objects_updated, objects_deleted)
 
     def update_local_database(self, last_sync):
+        """
+        Update the local database by synchronizing all PeeringDB API's
+        namespaces that we are actually caring about.
+        """
         # Set time of sync
         time_of_sync = timezone.now()
         objects_to_sync = [
@@ -217,6 +226,43 @@ class PeeringDB(object):
 
         # Save the last sync time
         self.record_last_sync(time_of_sync, objects_changes)
+
+    def force_peer_records_discovery(self):
+        """
+        Force the peer records cache to be [re]built. This function can be used
+        if this cache appears to be out of sync or inconsistent.
+        """
+        with transaction.atomic():
+            # First of all, delete all existing peer records
+            PeerRecord.objects.all().delete()
+
+            # Build the cache
+            for network_ixlan in NetworkIXLAN.objects.all():
+                # Ignore if we have no IPv6 and no IPv4 to peer with
+                if not network_ixlan.ipaddr6 and not network_ixlan.ipaddr4:
+                    self.logger.debug('network ixlan with as%s and ixlan id %s'
+                                      ' ignored, no ipv6 and no ipv4',
+                                      network_ixlan.asn,
+                                      network_ixlan.ixlan_id)
+                    continue
+
+                network = None
+                try:
+                    network = Network.objects.get(asn=network_ixlan.asn)
+                except Network.DoesNotExist:
+                    self.logger.debug('unable to find network as%s',
+                                      network_ixlan.asn)
+
+                if network:
+                    PeerRecord.objects.create(network=network,
+                                              network_ixlan=network_ixlan)
+                    self.logger.debug('peer record with network as%s and ixlan'
+                                      'id %s created', network_ixlan.asn,
+                                      network_ixlan.ixlan_id)
+                else:
+                    self.logger.debug('network ixlan with as%s and ixlan id %s'
+                                      ' ignored', network_ixlan.asn,
+                                      network_ixlan.ixlan_id)
 
     def get_autonomous_system(self, asn):
         """

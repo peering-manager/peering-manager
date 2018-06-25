@@ -7,6 +7,7 @@ import django_filters
 from .constants import PLATFORM_CHOICES
 from .models import (AutonomousSystem, Community, ConfigurationTemplate,
                      InternetExchange, PeeringSession, Router)
+from peeringdb.models import PeerRecord
 
 
 class AutonomousSystemFilter(django_filters.FilterSet):
@@ -115,6 +116,36 @@ class InternetExchangeFilter(django_filters.FilterSet):
             Q(ipv4_address__icontains=value) |
             Q(comment__icontains=value)
         )
+        return queryset.filter(qs_filter)
+
+
+class PeerRecordFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+
+    class Meta:
+        model = PeerRecord
+        fields = ['network__asn', 'network__name', 'network__irr_as_set',
+                  'network__info_prefixes6', 'network__info_prefixes4',
+                  'network_ixlan__ipaddr6', 'network_ixlan__ipaddr4']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(network__name__icontains=value) |
+            Q(network__irr_as_set__icontains=value) |
+            Q(network_ixlan__ipaddr6=value) |
+            Q(network_ixlan__ipaddr4=value)
+        )
+        try:
+            qs_filter |= Q(network__asn=int(value.strip()))
+            qs_filter |= Q(network__info_prefixes6=int(value.strip()))
+            qs_filter |= Q(network__info_prefixes4=int(value.strip()))
+        except ValueError:
+            pass
         return queryset.filter(qs_filter)
 
 

@@ -3,20 +3,17 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.defaultfilters import slugify
-from django.utils.html import escape
 from django.views.generic import View
-
-from django_tables2 import RequestConfig
 
 import json
 
 from .filters import (
     AutonomousSystemFilter, CommunityFilter, ConfigurationTemplateFilter,
-    InternetExchangeFilter, PeeringSessionFilter, RouterFilter)
+    InternetExchangeFilter, PeerRecordFilter, PeeringSessionFilter,
+    RouterFilter)
 from .forms import (
     AutonomousSystemForm, AutonomousSystemCSVForm, AutonomousSystemFilterForm,
     AutonomousSystemImportFromPeeringDBForm, CommunityForm, CommunityCSVForm,
@@ -24,23 +21,22 @@ from .forms import (
     ConfigurationTemplateFilterForm, InternetExchangeForm,
     InternetExchangePeeringDBForm, InternetExchangePeeringDBFormSet,
     InternetExchangeCommunityForm, InternetExchangeCSVForm,
-    InternetExchangeFilterForm, PeeringSessionForm, PeeringSessionFilterForm,
-    PeeringSessionFilterFormForIX, PeeringSessionFilterFormForAS, RouterForm,
-    RouterCSVForm, RouterFilterForm)
+    InternetExchangeFilterForm, PeerRecordFilterForm, PeeringSessionForm,
+    PeeringSessionFilterForm, PeeringSessionFilterFormForIX,
+    PeeringSessionFilterFormForAS, RouterForm, RouterCSVForm, RouterFilterForm)
 from .models import (
     AutonomousSystem, Community, ConfigurationTemplate, InternetExchange,
     PeeringSession, Router)
 from .tables import (
     AutonomousSystemTable, CommunityTable, ConfigurationTemplateTable,
-    InternetExchangeTable, PeerTable, PeeringSessionTable,
+    InternetExchangeTable, PeerRecordTable, PeeringSessionTable,
     PeeringSessionTableForIX, PeeringSessionTableForAS, RouterTable)
 from peeringdb.api import PeeringDB
-from peeringdb.models import Network, NetworkIXLAN
+from peeringdb.models import PeerRecord
 from utils.models import UserAction
-from utils.paginators import EnhancedPaginator
 from utils.views import (
-    AddOrEditView, BulkDeleteView, ConfirmationView, DeleteView,
-    GenericFormView, ImportView, ModelListView, TableImportView)
+    AddOrEditView, BulkAddFromDependencyView, BulkDeleteView, ConfirmationView,
+    DeleteView, GenericFormView, ImportView, ModelListView, TableImportView)
 
 
 class ASList(ModelListView):
@@ -447,13 +443,9 @@ class IXPeeringSessions(ModelListView):
         # Since we are in the context of an IX we need to keep the reference
         # for it
         if 'slug' in kwargs:
-            internet_exchange = get_object_or_404(
-                InternetExchange, slug=kwargs['slug'])
             extra_context.update({
-                'internet_exchange': internet_exchange,
-                # Quick (and dirty?) hack to keep track of the slug for future
-                # use (in the POST request)
-                'extra_context': {'internet_exchange_slug': kwargs['slug']},
+                'internet_exchange': get_object_or_404(InternetExchange,
+                                                       slug=kwargs['slug']),
             })
 
         return extra_context
@@ -471,107 +463,36 @@ class IXPeeringSessions(ModelListView):
             request, table, kwargs)
 
 
-class IXPeers(LoginRequiredMixin, View):
-    def get(self, request, slug):
-        internet_exchange = get_object_or_404(InternetExchange, slug=slug)
-        available_peers = PeerTable(internet_exchange.get_available_peers())
-        paginate = {
-            'klass': EnhancedPaginator,
-            'per_page': settings.PAGINATE_COUNT
-        }
-        RequestConfig(request, paginate=paginate).configure(available_peers)
+class IXPeers(ModelListView):
+    filter = PeerRecordFilter
+    filter_form = PeerRecordFilterForm
+    table = PeerRecordTable
+    template = 'peering/ix/peers.html'
 
-        context = {
-            'internet_exchange': internet_exchange,
-            'available_peers': available_peers,
-        }
+    def build_queryset(self, request, kwargs):
+        queryset = None
+        # The queryset needs to be composed of PeerRecord objects but they
+        # are linked to an IX. So first of all we need to retrieve the IX on
+        # which we want to get the peering sessions.
+        if 'slug' in kwargs:
+            internet_exchange = get_object_or_404(InternetExchange,
+                                                  slug=kwargs['slug'])
+            queryset = internet_exchange.get_available_peers()
 
-        return render(request, 'peering/ix/peers.html', context)
-
-
-class IXAddPeer(ConfirmationView):
-    template = 'peering/ix/add_peer.html'
+        return queryset
 
     def extra_context(self, kwargs):
-        context = {}
+        extra_context = {}
 
-        internet_exchange = get_object_or_404(
-            InternetExchange, slug=kwargs['slug'])
-        context.update({'internet_exchange': internet_exchange})
+        # Since we are in the context of an IX we need to keep the reference
+        # for it
+        if 'slug' in kwargs:
+            extra_context.update({
+                'internet_exchange': get_object_or_404(InternetExchange,
+                                                       slug=kwargs['slug']),
+            })
 
-        network = get_object_or_404(Network, id=kwargs['network_id'])
-        context.update({
-            'network': network,
-            'known_autonomous_system': AutonomousSystem.does_exist(network.asn) is not None,
-        })
-
-        network_ixlan = get_object_or_404(
-            NetworkIXLAN, id=kwargs['network_ixlan_id'])
-        context.update({'network_ixlan': network_ixlan})
-
-        return context
-
-    def process(self, request, kwargs):
-        # Get required objects or fail if some are missing
-        internet_exchange = get_object_or_404(
-            InternetExchange, slug=kwargs['slug'])
-        network = get_object_or_404(Network, id=kwargs['network_id'])
-        network_ixlan = get_object_or_404(
-            NetworkIXLAN, id=kwargs['network_ixlan_id'])
-        peer_added = False
-
-        with transaction.atomic():
-            # Get the AS or create a new one if needed
-            autonomous_system = AutonomousSystem.does_exist(network.asn)
-            if not autonomous_system:
-                autonomous_system = AutonomousSystem.create_from_peeringdb(
-                    network.asn)
-                # Log the action
-                UserAction.objects.log_create(request.user, autonomous_system, 'Created {} {}'.format(
-                    AutonomousSystem._meta.verbose_name, escape(autonomous_system)))
-
-            # Record the IPv6 session if we can
-            if network_ixlan.ipaddr6:
-                session = PeeringSession.does_exist(
-                    ip_address=network_ixlan.ipaddr6, internet_exchange=internet_exchange)
-                if not session:
-                    values = {
-                        'autonomous_system': autonomous_system,
-                        'internet_exchange': internet_exchange,
-                        'ip_address': network_ixlan.ipaddr6,
-                    }
-                    session = PeeringSession(**values)
-                    session.save()
-                    peer_added = True
-                    # Log the action
-                    UserAction.objects.log_create(request.user, session, 'Created {} {}'.format(
-                        PeeringSession._meta.verbose_name, escape(session)))
-
-            # Record the IPv4 session if we can
-            if network_ixlan.ipaddr4:
-                session = PeeringSession.does_exist(
-                    ip_address=network_ixlan.ipaddr4,
-                    internet_exchange=internet_exchange)
-                if not session:
-                    values = {
-                        'autonomous_system': autonomous_system,
-                        'internet_exchange': internet_exchange,
-                        'ip_address': network_ixlan.ipaddr4,
-                    }
-                    session = PeeringSession(**values)
-                    session.save()
-                    peer_added = True
-                    # Log the action
-                    UserAction.objects.log_create(request.user, session, 'Created {} {}'.format(
-                        PeeringSession._meta.verbose_name, escape(session)))
-
-        # Notify the user
-        if peer_added:
-            messages.success(request,
-                             '{} peer successfully added on {}.'.format(
-                                 autonomous_system, internet_exchange))
-
-        return redirect(internet_exchange.get_peering_sessions_list_url())
+        return extra_context
 
 
 class IXConfig(LoginRequiredMixin, View):
@@ -650,6 +571,39 @@ class PeeringSessionDelete(DeleteView):
 
     def get_return_url(self, obj):
         return obj.internet_exchange.get_peering_sessions_list_url()
+
+
+class PeeringSessionAddFromPeeringDB(BulkAddFromDependencyView):
+    model = PeeringSession
+    dependency_model = PeerRecord
+    form_model = PeeringSessionForm
+    template = 'peering/session/add_from_peeringdb.html'
+
+    def process_dependency_object(self, dependency):
+        session6, created6 = PeeringSession.get_from_peeringdb_peer_record(
+            dependency, 6)
+        session4, created4 = PeeringSession.get_from_peeringdb_peer_record(
+            dependency, 4)
+        return_value = []
+
+        if session6:
+            return_value.append(session6)
+        if session4:
+            return_value.append(session4)
+
+        return return_value
+
+    def sort_objects(self, object_list):
+        objects = []
+        for object_couple in object_list:
+            for object in object_couple:
+                if object:
+                    objects.append({
+                        'autonomous_system': object.autonomous_system,
+                        'internet_exchange': object.internet_exchange,
+                        'ip_address': object.ip_address,
+                    })
+        return objects
 
 
 class PeeringSessionBulkDelete(BulkDeleteView):
