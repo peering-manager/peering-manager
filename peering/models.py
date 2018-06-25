@@ -109,14 +109,12 @@ class AutonomousSystem(models.Model):
                 }
 
             # Keep record of missing peering sessions
-            if (peer.ipaddr6
-                and not PeeringSession.does_exist(
+            if (peer.ipaddr6 and not PeeringSession.does_exist(
                     internet_exchange=ix, autonomous_system=self,
                     ip_address=peer.ipaddr6)):
                 internet_exchanges[us.ixlan_id]['missing_peering_sessions'].append(
                     peer.ipaddr6)
-            if (peer.ipaddr4
-                and not PeeringSession.does_exist(
+            if (peer.ipaddr4 and not PeeringSession.does_exist(
                     internet_exchange=ix, autonomous_system=self,
                     ip_address=peer.ipaddr4)):
                 internet_exchanges[us.ixlan_id]['missing_peering_sessions'].append(
