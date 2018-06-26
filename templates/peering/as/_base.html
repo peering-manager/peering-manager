@@ -19,15 +19,9 @@
       {% if autonomous_system.get_peering_sessions|length > 0 %}
       <ul class="nav nav-tabs">
         <li class="nav-item">
-          <a class="nav-link{% if request.path|notcontains:'/ix/,/sessions/' %} active{% endif %}" href="{% url 'peering:as_details' asn=autonomous_system.asn %}">
+          <a class="nav-link{% if request.path|notcontains:'/sessions/' %} active{% endif %}" href="{% url 'peering:as_details' asn=autonomous_system.asn %}">
             <i class="fas fa-info-circle" aria-hidden="true"></i>
             Info
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link{% if request.path|contains:'/ix/' %} active{% endif %}" href="{% url 'peering:as_internet_exchanges' asn=autonomous_system.asn %}">
-            <i class="fas fa-random" aria-hidden="true"></i>
-            Internet Exchanges
           </a>
         </li>
         <li class="nav-item">
