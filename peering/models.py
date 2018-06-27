@@ -316,8 +316,8 @@ class InternetExchange(models.Model):
 
         # Find all peers belonging to the same IX and order them by ASN
         return PeerRecord.objects.all().filter(
-            network_ixlan__ix_id=network_ixlan.ixlan_id).order_by(
-                'network__asn')
+            network_ixlan__ix_id=network_ixlan.ixlan_id).exclude(
+                network__asn=settings.MY_ASN).order_by('network__asn')
 
     def _import_peering_sessions(self, sessions=[], prefixes=[]):
         # No sessions or no prefixes, can't work with that
