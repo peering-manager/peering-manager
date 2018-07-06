@@ -8,6 +8,7 @@ from jinja2 import Template
 
 from django.conf import settings
 from django.db import models, transaction
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -314,10 +315,28 @@ class InternetExchange(models.Model):
         api = PeeringDB()
         network_ixlan = api.get_ix_network(self.peeringdb_id)
 
+        # Get all peering sessions currently existing
+        existing_sessions = self.get_peering_sessions()
+        ipv4_sessions = []
+        ipv6_sessions = []
+        for session in existing_sessions:
+            ip = ipaddress.ip_address(session.ip_address)
+            if ip.version == 6:
+                ipv6_sessions.append(str(ip))
+            elif ip.version == 4:
+                ipv4_sessions.append(str(ip))
+            else:
+                self.logger.debug('peering session with strange ip: %s', ip)
+
         # Find all peers belonging to the same IX and order them by ASN
+        # Exclude our own ASN and already existing sessions
         return PeerRecord.objects.all().filter(
-            network_ixlan__ix_id=network_ixlan.ixlan_id).exclude(
-                network__asn=settings.MY_ASN).order_by('network__asn')
+            Q(network_ixlan__ix_id=network_ixlan.ixlan_id) &
+            ~Q(network__asn=settings.MY_ASN) & (
+                ~Q(network_ixlan__ipaddr6__in=ipv6_sessions) |
+                ~Q(network_ixlan__ipaddr4__in=ipv4_sessions)
+            )
+        ).order_by('network__asn')
 
     def _import_peering_sessions(self, sessions=[], prefixes=[]):
         # No sessions or no prefixes, can't work with that
