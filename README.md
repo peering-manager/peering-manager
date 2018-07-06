@@ -19,7 +19,8 @@ This tool is written with the
 some dependencies to run. For a complete list of requirements, see
 `requirements.txt`.
 
-It is built against Python 3 versions. Tested versions are 3.4, 3.5 and 3.6.
+It is built against Python 3 versions. Tested versions are 3.4, 3.5, 3.6 and
+3.7.
 
 The best way to start setting up this tool is to use **pip** within a
 **virtualenv**.
