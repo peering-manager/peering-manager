@@ -22,9 +22,10 @@ from .constants import (BGP_STATE_CHOICES, BGP_STATE_IDLE, BGP_STATE_CONNECT,
 from .fields import ASNField, CommunityField
 from peeringdb.api import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
+from utils.models import UpdatedModel
 
 
-class AutonomousSystem(models.Model):
+class AutonomousSystem(UpdatedModel):
     asn = ASNField(unique=True)
     name = models.CharField(max_length=128)
     comment = models.TextField(blank=True)
@@ -32,7 +33,6 @@ class AutonomousSystem(models.Model):
     ipv6_max_prefixes = models.PositiveIntegerField(blank=True, null=True)
     ipv4_max_prefixes = models.PositiveIntegerField(blank=True, null=True)
     keep_synced_with_peeringdb = models.BooleanField(default=True)
-    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['asn']
@@ -65,10 +65,6 @@ class AutonomousSystem(models.Model):
             autonomous_system.save()
 
         return autonomous_system
-
-    def save(self, *args, **kwargs):
-        self.updated = timezone.now()
-        super(AutonomousSystem, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('peering:as_details', kwargs={'asn': self.asn})
@@ -174,18 +170,13 @@ class Community(models.Model):
         return self.name
 
 
-class ConfigurationTemplate(models.Model):
+class ConfigurationTemplate(UpdatedModel):
     name = models.CharField(max_length=128)
     template = models.TextField()
     comment = models.TextField(blank=True)
-    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['name']
-
-    def save(self, *args, **kwargs):
-        self.updated = timezone.now()
-        super(ConfigurationTemplate, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('peering:configuration_template_details',

@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 
@@ -19,6 +20,23 @@ USER_ACTION_CHOICES = (
     (USER_ACTION_IMPORT, 'imported'),
     (USER_ACTION_BULK_DELETE, 'bulk deleted'),
 )
+
+
+class UpdatedModel(models.Model):
+    """
+    Abstract class providing a field tracking the last update of a model.
+    """
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        """
+        Update the updated field to the current time before saving the object.
+        """
+        self.updated = timezone.now()
+        super(UpdatedModel, self).save(*args, **kwargs)
 
 
 class UserActionManager(models.Manager):
