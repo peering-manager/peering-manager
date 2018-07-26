@@ -31,13 +31,6 @@ class UpdatedModel(models.Model):
     class Meta:
         abstract = True
 
-    def save(self, *args, **kwargs):
-        """
-        Update the updated field to the current time before saving the object.
-        """
-        self.updated = timezone.now()
-        super(UpdatedModel, self).save(*args, **kwargs)
-
 
 class UserActionManager(models.Manager):
     """
