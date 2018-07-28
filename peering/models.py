@@ -586,6 +586,23 @@ class PeeringSession(models.Model):
         # Get the AS, create it if necessary
         autonomous_system = AutonomousSystem.create_from_peeringdb(
             peer_record.network.asn)
+
+        if ip_version == 6:
+            try:
+                ipaddress.IPv6Address(peer_record.network_ixlan.ipaddr6)
+            except ipaddress.AddressValueError:
+                # IPv6 parsing failed, ignore the session
+                return (None, False)
+        elif ip_version == 4:
+            try:
+                ipaddress.IPv4Address(peer_record.network_ixlan.ipaddr4)
+            except ipaddress.AddressValueError:
+                # IPv4 parsing failed, ignore the session
+                return (None, False)
+        else:
+            # Not a valid IP protocol version
+            return (None, False)
+
         # Assume we are always using IPv6 unless told otherwise
         ip_address = (peer_record.network_ixlan.ipaddr4 if ip_version == 4 else
                       peer_record.network_ixlan.ipaddr6)
