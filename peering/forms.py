@@ -47,12 +47,31 @@ class TemplateField(forms.CharField):
 
 
 class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
+    irr_as_set_peeringdb_sync = forms.BooleanField(
+        required=False, label='IRR AS-SET', widget=forms.Select(choices=[
+            ('True', 'Yes'),
+            ('False', 'No'),
+        ]))
+    ipv6_max_prefixes_peeringdb_sync = forms.BooleanField(
+        required=False, label='IPv6 Max Prefixes',
+        widget=forms.Select(choices=[
+            ('True', 'Yes'),
+            ('False', 'No'),
+        ]))
+    ipv4_max_prefixes_peeringdb_sync = forms.BooleanField(
+        required=False, label='IPv4 Max Prefixes',
+        widget=forms.Select(choices=[
+            ('True', 'Yes'),
+            ('False', 'No'),
+        ]))
     comment = CommentField()
 
     class Meta:
         model = AutonomousSystem
-        fields = ('asn', 'name', 'irr_as_set', 'ipv6_max_prefixes',
-                  'ipv4_max_prefixes', 'comment',)
+        fields = ('asn', 'name', 'irr_as_set', 'irr_as_set_peeringdb_sync',
+                  'ipv6_max_prefixes', 'ipv6_max_prefixes_peeringdb_sync',
+                  'ipv4_max_prefixes', 'ipv4_max_prefixes_peeringdb_sync',
+                  'comment',)
         labels = {
             'asn': 'ASN',
             'irr_as_set': 'IRR AS-SET',

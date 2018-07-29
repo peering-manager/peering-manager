@@ -7,8 +7,7 @@
             <div class="card-header">
               <strong>AS Details</strong>
               <a class="btn btn-sm btn-primary float-right" href="{{ settings.PEERINGDB }}{{ autonomous_system.asn }}" target="_blank">
-                <i class="fas fa-external-link-alt" aria-hidden="true"></i>
-                PeeringDB
+                <i class="fas fa-external-link-alt"></i> PeeringDB
               </a>
             </div>
             <table class="table table-hover card-body attr-table">
@@ -20,15 +19,15 @@
                 <td>Name</td>
                 <td>{{ autonomous_system.name }}</td>
               </tr>
-              <tr>
+              <tr{% if autonomous_system.irr_as_set_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="Synchronized with PeeringDB"{% endif %}>
                 <td>IRR AS-SET</td>
                 <td>{{ autonomous_system.irr_as_set }}</td>
               </tr>
-              <tr>
+              <tr{% if autonomous_system.ipv6_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="Synchronized with PeeringDB"{% endif %}>
                 <td>IPv6 Max Prefixes</td>
                 <td>{{ autonomous_system.ipv6_max_prefixes }}</td>
               </tr>
-              <tr>
+              <tr{% if autonomous_system.ipv4_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="Synchronized with PeeringDB"{% endif %}>
                 <td>IPv4 Max Prefixes</td>
                 <td>{{ autonomous_system.ipv4_max_prefixes }}</td>
               </tr>
@@ -50,4 +49,11 @@
           </div>
         </div>
       </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+    </script>
 {% endblock %}

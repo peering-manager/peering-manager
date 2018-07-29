@@ -30,9 +30,11 @@ class AutonomousSystem(UpdatedModel):
     name = models.CharField(max_length=128)
     comment = models.TextField(blank=True)
     irr_as_set = models.CharField(max_length=255, blank=True, null=True)
+    irr_as_set_peeringdb_sync = models.BooleanField(default=True)
     ipv6_max_prefixes = models.PositiveIntegerField(blank=True, null=True)
+    ipv6_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
     ipv4_max_prefixes = models.PositiveIntegerField(blank=True, null=True)
-    keep_synced_with_peeringdb = models.BooleanField(default=True)
+    ipv4_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
 
     class Meta:
         ordering = ['asn']
@@ -120,14 +122,27 @@ class AutonomousSystem(UpdatedModel):
         return internet_exchanges
 
     def sync_with_peeringdb(self):
+        """
+        Synchronize AS properties with those found in PeeringDB.
+        """
         peeringdb_info = PeeringDB().get_autonomous_system(self.asn)
 
+        # No record found, nothing to sync
         if not peeringdb_info:
             return False
 
+        # Always synchronize the name
         self.name = peeringdb_info.name
-        self.ipv6_max_prefixes = peeringdb_info.info_prefixes6
-        self.ipv4_max_prefixes = peeringdb_info.info_prefixes4
+
+        # Sync other properties if we are told to do so
+        if self.irr_as_set_peeringdb_sync:
+            self.irr_as_set = peeringdb_info.irr_as_set
+        if self.ipv6_max_prefixes_peeringdb_sync:
+            self.ipv6_max_prefixes = peeringdb_info.info_prefixes6
+        if self.ipv4_max_prefixes_peeringdb_sync:
+            self.ipv4_max_prefixes = peeringdb_info.info_prefixes4
+
+        # Save the new AS
         self.save()
 
         return True
