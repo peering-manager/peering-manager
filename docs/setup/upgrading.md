@@ -19,14 +19,6 @@ are still correct after running the script.
 # ./scripts/upgrade.sh
 ```
 
-!!! warning
-    The upgrade script will prefer **python3** and **pip3** if both executables
-    are available. It can also be forced using the `-3` argument. To force it
-    to use **python** and **pip**, use the `-2` argument as below.
-```
-# ./scripts/upgrade.sh -2
-```
-
 What does this script do?
 
   * installs or upgrades any new required Python dependencies
