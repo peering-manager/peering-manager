@@ -151,6 +151,81 @@ class AutonomousSystem(UpdatedModel):
         return 'AS{} - {}'.format(self.asn, self.name)
 
 
+class BGPSession(models.Model):
+    """
+    Abstract class used to define common caracteristics of BGP sessions.
+
+    A BGP session is always defined with the following fields:
+      * an AS, or autonomous system, it can also be called a peer
+      * an IP address used to establish the session
+      * a enabled or disabled status telling if the session should be
+        administratively up or not
+      * a BGP state giving the current operational state of session (it will
+        remain to unkown if the is disabled)
+      * a received prefix count (it will stay none if polling is disabled)
+      * a advertised prefix count (it will stay none if polling is disabled)
+      * comments that consist of plain text that can use the markdown format
+    """
+    autonomous_system = models.ForeignKey(
+        'AutonomousSystem', on_delete=models.CASCADE)
+    ip_address = models.GenericIPAddressField()
+    password = models.CharField(max_length=255, blank=True, null=True)
+    enabled = models.BooleanField(default=True)
+    bgp_state = models.CharField(max_length=50, choices=BGP_STATE_CHOICES,
+                                 blank=True, null=True)
+    received_prefix_count = models.PositiveIntegerField(blank=True, null=True)
+    advertised_prefix_count = models.PositiveIntegerField(blank=True,
+                                                          null=True)
+    comment = models.TextField(blank=True)
+
+    class Meta:
+        abstract = True
+
+    def get_enabled_html(self):
+        """
+        Return an HTML element based on the status (enabled or disabled).
+        """
+        badge = 'success'
+        text = 'Enabled'
+
+        if not self.enabled:
+            badge = 'danger'
+            text = 'Disabled'
+
+        return mark_safe('<span class="badge badge-{}">{}</span>'.format(badge,
+                                                                         text))
+
+    def get_bgp_state_html(self):
+        """
+        Return an HTML element based on the BGP state.
+        """
+        if self.bgp_state == BGP_STATE_IDLE:
+            badge = 'danger'
+        elif self.bgp_state in [BGP_STATE_CONNECT, BGP_STATE_ACTIVE]:
+            badge = 'warning'
+        elif self.bgp_state in [BGP_STATE_OPENSENT, BGP_STATE_OPENCONFIRM]:
+            badge = 'info'
+        elif self.bgp_state == BGP_STATE_ESTABLISHED:
+            badge = 'success'
+        else:
+            badge = 'secondary'
+
+        text = '<span class="badge badge-{}">{}</span>'.format(
+            badge, self.get_bgp_state_display() or 'Unknown')
+
+        # Only if the session is established, display some details
+        if self.bgp_state == BGP_STATE_ESTABLISHED:
+            text = '{} {}'.format(
+                text,
+                '<span class="badge badge-primary">Routes: '
+                '<i class="fas fa-arrow-circle-down"></i> {} '
+                '<i class="fas fa-arrow-circle-up"></i> {}'
+                '</span>'.format(self.received_prefix_count,
+                                 self.advertised_prefix_count))
+
+        return mark_safe(text)
+
+
 class Community(models.Model):
     name = models.CharField(max_length=128)
     value = CommunityField(max_length=50)
@@ -530,20 +605,9 @@ class InternetExchange(models.Model):
         return self.name
 
 
-class PeeringSession(models.Model):
-    autonomous_system = models.ForeignKey(
-        'AutonomousSystem', on_delete=models.CASCADE)
+class PeeringSession(BGPSession):
     internet_exchange = models.ForeignKey(
         'InternetExchange', on_delete=models.CASCADE)
-    ip_address = models.GenericIPAddressField()
-    password = models.CharField(max_length=255, blank=True, null=True)
-    enabled = models.BooleanField(default=True)
-    bgp_state = models.CharField(max_length=50, choices=BGP_STATE_CHOICES,
-                                 blank=True, null=True)
-    received_prefix_count = models.PositiveIntegerField(blank=True, null=True)
-    advertised_prefix_count = models.PositiveIntegerField(blank=True,
-                                                          null=True)
-    comment = models.TextField(blank=True)
 
     @staticmethod
     def does_exist(internet_exchange=None, autonomous_system=None,
@@ -641,50 +705,6 @@ class PeeringSession(models.Model):
     def get_absolute_url(self):
         return reverse('peering:peering_session_details',
                        kwargs={'pk': self.pk})
-
-    def get_enabled_html(self):
-        """
-        Return an HTML element based on the status (enabled or disabled).
-        """
-        badge = 'success'
-        text = 'Enabled'
-
-        if not self.enabled:
-            badge = 'danger'
-            text = 'Disabled'
-
-        return mark_safe('<span class="badge badge-{}">{}</span>'.format(badge,
-                                                                         text))
-
-    def get_bgp_state_html(self):
-        """
-        Return an HTML element based on the BGP state.
-        """
-        if self.bgp_state == BGP_STATE_IDLE:
-            badge = 'danger'
-        elif self.bgp_state in [BGP_STATE_CONNECT, BGP_STATE_ACTIVE]:
-            badge = 'warning'
-        elif self.bgp_state in [BGP_STATE_OPENSENT, BGP_STATE_OPENCONFIRM]:
-            badge = 'info'
-        elif self.bgp_state == BGP_STATE_ESTABLISHED:
-            badge = 'success'
-        else:
-            badge = 'secondary'
-
-        text = '<span class="badge badge-{}">{}</span>'.format(
-            badge, self.get_bgp_state_display() or 'Unknown')
-
-        # Only if the session is established, display some details
-        if self.bgp_state == BGP_STATE_ESTABLISHED:
-            text = '{} {}'.format(
-                text,
-                '<span class="badge badge-primary">Routes: '
-                '<i class="fas fa-arrow-circle-down"></i> {} '
-                '<i class="fas fa-arrow-circle-up"></i> {}'
-                '</span>'.format(self.received_prefix_count,
-                                 self.advertised_prefix_count))
-
-        return mark_safe(text)
 
     def __str__(self):
         return '{} - AS{} - IP {}'.format(self.internet_exchange.name,
