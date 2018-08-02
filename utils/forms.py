@@ -179,3 +179,16 @@ class SlugField(forms.SlugField):
         super(SlugField, self).__init__(label=label,
                                         help_text=help_text, *args, **kwargs)
         self.widget.attrs['slug-source'] = slug_source
+
+
+class YesNoField(forms.BooleanField):
+    """
+    A BooleanField rendered as a list to select 'Yes' for True and 'No' for
+    False.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(YesNoField, self).__init__(widget=forms.Select(choices=[
+            ('True', 'Yes'),
+            ('False', 'No'),
+        ]), *args, **kwargs)
