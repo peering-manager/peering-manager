@@ -91,13 +91,13 @@ class InternetExchangeFilter(django_filters.FilterSet):
         label='Search',
     )
     configuration_template = django_filters.ModelMultipleChoiceFilter(
-        name='configuration_template__id',
+        field_name='configuration_template__id',
         queryset=ConfigurationTemplate.objects.all(),
         to_field_name='id',
         label='Template',
     )
     router = django_filters.ModelMultipleChoiceFilter(
-        name='router__id',
+        field_name='router__id',
         queryset=Router.objects.all(),
         to_field_name='id',
         label='Router',
