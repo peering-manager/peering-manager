@@ -18,7 +18,7 @@ framework. It runs as a WSGI service behind your choice of HTTP server.
 
 # Getting Started
 
-See the [setup guide](installation/peering-manager.md) for help getting Peering
+See the [setup guide](setup/peering-manager.md) for help getting Peering
 Manager up and running.
 
 # Helping
