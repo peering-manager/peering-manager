@@ -7,7 +7,7 @@ from .models import (AutonomousSystem, Community, ConfigurationTemplate,
                      InternetExchange, PeeringSession, Router)
 from peeringdb.models import PeerRecord
 from utils.forms import (BootstrapMixin, CSVChoiceField, FilterChoiceField,
-                         PasswordField, SlugField)
+                         PasswordField, SlugField, YesNoField)
 
 
 class CommentField(forms.CharField):
@@ -47,23 +47,11 @@ class TemplateField(forms.CharField):
 
 
 class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
-    irr_as_set_peeringdb_sync = forms.BooleanField(
-        required=False, label='IRR AS-SET', widget=forms.Select(choices=[
-            ('True', 'Yes'),
-            ('False', 'No'),
-        ]))
-    ipv6_max_prefixes_peeringdb_sync = forms.BooleanField(
-        required=False, label='IPv6 Max Prefixes',
-        widget=forms.Select(choices=[
-            ('True', 'Yes'),
-            ('False', 'No'),
-        ]))
-    ipv4_max_prefixes_peeringdb_sync = forms.BooleanField(
-        required=False, label='IPv4 Max Prefixes',
-        widget=forms.Select(choices=[
-            ('True', 'Yes'),
-            ('False', 'No'),
-        ]))
+    irr_as_set_peeringdb_sync = YesNoField(required=False, label='IRR AS-SET')
+    ipv6_max_prefixes_peeringdb_sync = YesNoField(required=False,
+                                                  label='IPv6 Max Prefixes')
+    ipv4_max_prefixes_peeringdb_sync = YesNoField(required=False,
+                                                  label='IPv4 Max Prefixes')
     comment = CommentField()
 
     class Meta:
@@ -325,11 +313,7 @@ class PeerRecordFilterForm(BootstrapMixin, forms.Form):
 class PeeringSessionForm(BootstrapMixin, forms.ModelForm):
     comment = CommentField()
     password = PasswordField(required=False, render_value=True)
-    enabled = forms.BooleanField(required=False, label='Enabled',
-                                 widget=forms.Select(choices=[
-                                     ('True', 'Yes'),
-                                     ('False', 'No'),
-                                 ]))
+    enabled = YesNoField(required=False, label='Enabled')
 
     class Meta:
         model = PeeringSession
@@ -360,12 +344,7 @@ class PeeringSessionFilterForm(BootstrapMixin, forms.Form):
                                         (0, '---------'),
                                         (6, 'IPv6'), (4, 'IPv4'),
                                     ]))
-    enabled = forms.BooleanField(required=False, label='Enabled',
-                                 widget=forms.Select(choices=[
-                                     ('', '---------'),
-                                     ('True', 'Yes'),
-                                     ('False', 'No'),
-                                 ]))
+    enabled = YesNoField(required=False, label='Enabled')
 
 
 class PeeringSessionFilterFormForIX(BootstrapMixin, forms.Form):
@@ -379,12 +358,7 @@ class PeeringSessionFilterFormForIX(BootstrapMixin, forms.Form):
                                         (0, '---------'),
                                         (6, 'IPv6'), (4, 'IPv4'),
                                     ]))
-    enabled = forms.BooleanField(required=False, label='Enabled',
-                                 widget=forms.Select(choices=[
-                                     ('', '---------'),
-                                     ('True', 'Yes'),
-                                     ('False', 'No'),
-                                 ]))
+    enabled = YesNoField(required=False, label='Enabled')
 
 
 class PeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
@@ -396,12 +370,7 @@ class PeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
                                         (0, '---------'),
                                         (6, 'IPv6'), (4, 'IPv4'),
                                     ]))
-    enabled = forms.BooleanField(required=False, label='Enabled',
-                                 widget=forms.Select(choices=[
-                                     ('', '---------'),
-                                     ('True', 'Yes'),
-                                     ('False', 'No'),
-                                 ]))
+    enabled = YesNoField(required=False, label='Enabled')
     internet_exchange__slug = FilterChoiceField(
         queryset=InternetExchange.objects.all(), to_field_name='slug',
         label='Internet Exchange')
