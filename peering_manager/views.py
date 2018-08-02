@@ -35,7 +35,8 @@ class LoginView(View):
         if form.is_valid():
             # Check where should the user be redirected
             next_redirect = request.POST.get('next', '')
-            if not is_safe_url(url=next_redirect, host=request.get_host()):
+            if not is_safe_url(url=next_redirect,
+                               allowed_hosts=[request.get_host()]):
                 next_redirect = reverse('home')
 
             auth_login(request, form.get_user())
