@@ -2,7 +2,8 @@
 
 ## Operating System Setup
 
-First we need a proper text editor, Git to get the code and Python to run it.
+First we need a proper text editor, Git and Python.
+We will use Git to get the code, and Python to run it.
 Peering Manager is mostly tested with Python version 3 so we will setup the
 machine with this version.
 
@@ -10,8 +11,8 @@ machine with this version.
 # apt install python3 python3-dev python3-pip git vim
 ```
 
-Then we have to created a directory where the code will be stored and clone the
-Git repository in it.
+Then we have to create a directory where the code will be stored and clone the
+Git repository into it.
 ```
 # mkdir /opt/peering-manager
 # cd /opt/peering-manager
@@ -36,7 +37,7 @@ Successfully installed Django-1.11.5 Jinja2-2.9.6 Markdown-2.6.9 MarkupSafe-1.0 
 
 ## Configuration
 
-Requirements being installed we can now setup Peering Manager.
+After completing requirements installation we can now setup Peering Manager.
 A configuration file is needed and can be copied from the included example
 file.
 ```
