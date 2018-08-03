@@ -152,7 +152,7 @@ class BulkAddFromDependencyView(LoginRequiredMixin, View):
         # Determine URL to redirect users
         posted_return_url = request.POST.get('return_url')
         if posted_return_url and is_safe_url(url=posted_return_url,
-                                             host=request.get_host()):
+                                             allowed_hosts=[request.get_host()]):
             self.return_url = posted_return_url
 
         # Prepare the form
