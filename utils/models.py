@@ -22,10 +22,11 @@ USER_ACTION_CHOICES = (
 )
 
 
-class UpdatedModel(models.Model):
+class CreatedUpdatedModel(models.Model):
     """
     Abstract class providing a field tracking the last update of a model.
     """
+    created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     class Meta:

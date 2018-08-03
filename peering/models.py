@@ -22,10 +22,10 @@ from .constants import (BGP_STATE_CHOICES, BGP_STATE_IDLE, BGP_STATE_CONNECT,
 from .fields import ASNField, CommunityField
 from peeringdb.api import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
-from utils.models import UpdatedModel
+from utils.models import CreatedUpdatedModel
 
 
-class AutonomousSystem(UpdatedModel):
+class AutonomousSystem(CreatedUpdatedModel):
     asn = ASNField(unique=True)
     name = models.CharField(max_length=128)
     comment = models.TextField(blank=True)
@@ -151,7 +151,7 @@ class AutonomousSystem(UpdatedModel):
         return 'AS{} - {}'.format(self.asn, self.name)
 
 
-class BGPSession(models.Model):
+class BGPSession(CreatedUpdatedModel):
     """
     Abstract class used to define common caracteristics of BGP sessions.
 
@@ -226,7 +226,7 @@ class BGPSession(models.Model):
         return mark_safe(text)
 
 
-class Community(models.Model):
+class Community(CreatedUpdatedModel):
     name = models.CharField(max_length=128)
     value = CommunityField(max_length=50)
     type = models.CharField(max_length=50, choices=COMMUNITY_TYPE_CHOICES,
@@ -260,7 +260,7 @@ class Community(models.Model):
         return self.name
 
 
-class ConfigurationTemplate(UpdatedModel):
+class ConfigurationTemplate(CreatedUpdatedModel):
     name = models.CharField(max_length=128)
     template = models.TextField()
     comment = models.TextField(blank=True)
@@ -276,7 +276,7 @@ class ConfigurationTemplate(UpdatedModel):
         return self.name
 
 
-class InternetExchange(models.Model):
+class InternetExchange(CreatedUpdatedModel):
     peeringdb_id = models.PositiveIntegerField(blank=True, null=True)
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True)
@@ -712,7 +712,7 @@ class PeeringSession(BGPSession):
                                           self.ip_address)
 
 
-class Router(models.Model):
+class Router(CreatedUpdatedModel):
     name = models.CharField(max_length=128)
     hostname = models.CharField(max_length=256)
     platform = models.CharField(max_length=50, choices=PLATFORM_CHOICES,
