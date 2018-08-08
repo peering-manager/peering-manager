@@ -16,5 +16,4 @@ class Command(BaseCommand):
 
         autonomous_systems = AutonomousSystem.objects.all()
         for autonomous_system in autonomous_systems:
-            if autonomous_system.keep_synced_with_peeringdb:
-                autonomous_system.sync_with_peeringdb()
+            autonomous_system.sync_with_peeringdb()
