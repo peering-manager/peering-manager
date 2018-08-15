@@ -96,6 +96,54 @@ class AutonomousSystem(CreatedUpdatedModel):
         return InternetExchange.objects.all().filter(
             peeringdb_id__in=[us.id for us, _ in common])
 
+    def get_missing_peering_sessions(self, internet_exchange):
+        """
+        Returns a tuple of IP address lists. The first element of the tuple
+        is the IPv6 address list. The second element of the tuple is the IPv4
+        address list. Each IP address of the lists is the address of a missing
+        peering session with the current AS.
+        """
+        if not internet_exchange:
+            return None
+
+        # Get common IX networks between us and this AS
+        common = PeeringDB().get_common_ix_networks_for_asns(settings.MY_ASN,
+                                                             self.asn)
+
+        # Divide sessions based on the IP versions
+        ipv6_sessions = []
+        ipv4_sessions = []
+
+        # For each common networks take a look at it
+        for us, peer in common:
+            # We only care about networks matching the IX we want
+            if us.id == internet_exchange.peeringdb_id:
+                # Check on the IPv6 address
+                if peer.ipaddr6:
+                    try:
+                        ip_address = ipaddress.IPv6Address(peer.ipaddr6)
+                        if not PeeringSession.does_exist(
+                                internet_exchange=internet_exchange,
+                                autonomous_system=self,
+                                ip_address=str(ip_address)):
+                            ipv6_sessions.append(ip_address)
+                    except ipaddress.AddressValueError:
+                        continue
+
+                # Check on the IPv4 address
+                if peer.ipaddr4:
+                    try:
+                        ip_address = ipaddress.IPv4Address(peer.ipaddr4)
+                        if not PeeringSession.does_exist(
+                                internet_exchange=internet_exchange,
+                                autonomous_system=self,
+                                ip_address=str(ip_address)):
+                            ipv4_sessions.append(ip_address)
+                    except ipaddress.AddressValueError:
+                        continue
+
+        return (ipv6_sessions, ipv4_sessions)
+
     def sync_with_peeringdb(self):
         """
         Synchronize AS properties with those found in PeeringDB.

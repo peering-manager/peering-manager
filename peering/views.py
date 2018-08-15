@@ -95,9 +95,17 @@ class ASImportFromPeeringDB(LoginRequiredMixin, GenericFormView):
 class ASDetails(View):
     def get(self, request, asn):
         autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
+        common_ix_and_sessions = []
+
+        for ix in autonomous_system.get_common_internet_exchanges():
+            common_ix_and_sessions.append({
+                'internet_exchange': ix,
+                'sessions': autonomous_system.get_missing_peering_sessions(ix),
+            })
+
         context = {
             'autonomous_system': autonomous_system,
-            'common_internet_exchanges': autonomous_system.get_common_internet_exchanges(),
+            'common_ix_and_sessions': common_ix_and_sessions,
         }
         return render(request, 'peering/as/details.html', context)
 
