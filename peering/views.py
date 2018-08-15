@@ -97,6 +97,7 @@ class ASDetails(View):
         autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
         context = {
             'autonomous_system': autonomous_system,
+            'common_internet_exchanges': autonomous_system.get_common_internet_exchanges(),
         }
         return render(request, 'peering/as/details.html', context)
 

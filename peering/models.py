@@ -75,7 +75,7 @@ class AutonomousSystem(CreatedUpdatedModel):
         return reverse('peering:as_peering_sessions', kwargs={'asn': self.asn})
 
     def get_peering_sessions(self):
-        return [session for session in self.peeringsession_set.all()]
+        return self.peeringsession_set.all()
 
     def get_internet_exchanges(self):
         internet_exchanges = []
@@ -87,39 +87,14 @@ class AutonomousSystem(CreatedUpdatedModel):
         return internet_exchanges
 
     def get_common_internet_exchanges(self):
-        internet_exchanges = {}
-
+        """
+        Return all IX we have in common with the AS.
+        """
         # Get common IX networks between us and this AS
         common = PeeringDB().get_common_ix_networks_for_asns(settings.MY_ASN,
                                                              self.asn)
-        for us, peer in common:
-            ix = None
-            if us.ixlan_id not in internet_exchanges:
-                try:
-                    ix = InternetExchange.objects.get(peeringdb_id=us.id)
-                except InternetExchange.DoesNotExist:
-                    # If we don't know this IX locally but we do in PeeringDB
-                    # Ignore it
-                    continue
-
-                internet_exchanges[us.ixlan_id] = {
-                    'internet_exchange': ix,
-                    'missing_peering_sessions': []
-                }
-
-            # Keep record of missing peering sessions
-            if (peer.ipaddr6 and not PeeringSession.does_exist(
-                    internet_exchange=ix, autonomous_system=self,
-                    ip_address=peer.ipaddr6)):
-                internet_exchanges[us.ixlan_id]['missing_peering_sessions'].append(
-                    peer.ipaddr6)
-            if (peer.ipaddr4 and not PeeringSession.does_exist(
-                    internet_exchange=ix, autonomous_system=self,
-                    ip_address=peer.ipaddr4)):
-                internet_exchanges[us.ixlan_id]['missing_peering_sessions'].append(
-                    peer.ipaddr4)
-
-        return internet_exchanges
+        return InternetExchange.objects.all().filter(
+            peeringdb_id__in=[us.id for us, _ in common])
 
     def sync_with_peeringdb(self):
         """
@@ -308,7 +283,7 @@ class InternetExchange(CreatedUpdatedModel):
         return reverse('peering:ix_peers', kwargs={'slug': self.slug})
 
     def get_peering_sessions(self):
-        return [session for session in self.peeringsession_set.all()]
+        return self.peeringsession_set.all()
 
     def get_autonomous_systems(self):
         autonomous_systems = []

@@ -3,7 +3,7 @@
 {% block subcontent %}
       <div class="row">
         <div class="col-md-6">
-          <div class="card">
+          <div class="card mb-2">
             <div class="card-header">
               <strong>AS Details</strong>
               <a class="btn btn-sm btn-primary float-right" href="{{ settings.PEERINGDB }}{{ autonomous_system.asn }}" target="_blank">
@@ -33,6 +33,16 @@
               </tr>
             </table>
           </div>
+          {% if common_internet_exchanges %}
+          <div class="card">
+            <div class="card-header"><strong>Common Internet Exchanges</strong></div>
+            <ul class="list-group list-group-flush">
+              {% for internet_exchange in common_internet_exchanges %}
+              <li class="list-group-item"><a href="{{ internet_exchange.get_absolute_url }}">{{ internet_exchange }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
         </div>
         <div class="col-md-6">
           <div class="card">
