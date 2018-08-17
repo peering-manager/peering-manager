@@ -44,6 +44,9 @@ __patterns = [
     # Home
     url(r'^$', views.Home.as_view(), name='home'),
 
+    # setup
+    url(r'^setup$', views.Setup.as_view(), name='setup'),
+
     # Admin
     url(r'^admin/', admin.site.urls),
 
