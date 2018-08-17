@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import sys
+import configparser
 
 from django.contrib import messages
 from django.contrib.auth import (login as auth_login, logout as auth_logout,
@@ -13,12 +14,14 @@ from django.urls import reverse
 from django.utils.http import is_safe_url
 from django.views.generic import View
 
-from .forms import LoginForm, UserPasswordChangeForm
+from .forms import LoginForm, UserPasswordChangeForm, SetupForm
 from peering.models import (AutonomousSystem, Community,
                             ConfigurationTemplate, InternetExchange,
                             PeeringSession, Router)
 from peeringdb.models import Synchronization
 from utils.models import UserAction
+
+from django.conf import settings
 
 
 class LoginView(View):
@@ -56,6 +59,8 @@ class LogoutView(View):
 
 class Home(View):
     def get(self, request):
+        if settings.NO_CONFIG_FILE is True:
+            return redirect('setup')
         statistics = {
             'as_count': AutonomousSystem.objects.count(),
             'ix_count': InternetExchange.objects.count(),
@@ -70,6 +75,45 @@ class Home(View):
             'synchronizations': Synchronization.objects.all()[:5],
         }
         return render(request, 'home.html', context)
+
+
+class Setup(View):
+    def get(self, request):
+        form = SetupForm()
+        context = {
+            'form': form
+        }
+        return render(request, 'setup.html', context)
+
+    def post(self, request):
+        form = SetupForm(data=request.POST)
+        if form.is_valid():
+            config = configparser.ConfigParser()
+            config['SETUP'] = {
+                'MY_ASN': form.data['asn'],
+                'SECRET_KEY': form.data['secret_key'],
+                'LOGIN_REQUIRED': form.data['login_required']
+            }
+            if form.data['napalm_username']:
+                config['SETUP']['NAPALM_USERNAME'] = form.data['napalm_username']
+            if form.data['napalm_password']:
+                config['SETUP']['NAPALM_PASSWORD'] = form.data['napalm_password']
+            if form.data['napalm_timeout']:
+                config['SETUP']['NAPALM_TIMEOUT'] = form.data['napalm_timeout']
+            with open('peering_manager/configuration.py', 'w') as configfile:
+                config.write(configfile)
+
+            settings.MY_ASN = form.data['asn']
+            settings.SECRET_KEY = form.data['secret_key']
+            settings.ALLOWED_HOSTS = form.data['allowed_hosts']
+            settings.LOGIN_REQUIRED = form.data['login_required']
+            if form.data['napalm_username']:
+                settings.NAPALM_USERNAME = form.data['napalm_username']
+            if form.data['napalm_password']:
+                settings.NAPALM_PASSWORD = form.data['napalm_password']
+            if form.data['napalm_timeout']:
+                settings.NAPALM_TIMEOUT = form.data['napalm_timeout']
+            return redirect('home')
 
 
 class ProfileView(View, LoginRequiredMixin):
@@ -153,3 +197,4 @@ def trigger_500(request):
     Method to fake trigger a server error for test reporting.
     """
     raise Exception('Manually triggered error.')
+

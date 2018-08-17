@@ -2,36 +2,47 @@ from __future__ import unicode_literals
 
 import os
 import socket
+import random
 
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
 
 try:
     from peering_manager import configuration
+
+    SECRET_KEY = getattr(configuration, 'SECRET_KEY', '')
+    ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS', [])
+    BASE_PATH = getattr(configuration, 'BASE_PATH', '')
+    if BASE_PATH:
+        BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
+    DEBUG = getattr(configuration, 'DEBUG', False)
+    LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
+    NAPALM_USERNAME = getattr(configuration, 'NAPALM_USERNAME', '')
+    NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
+    NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
+    NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
+    PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 20)
+    TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
+    MY_ASN = getattr(configuration, 'MY_ASN', -1)
+    NO_CONFIG_FILE = False
+
+    if MY_ASN == -1:
+        raise ImproperlyConfigured(
+            'The MY_ASN setting must be set to a valid AS number.')
+
 except ImportError:
-    raise ImproperlyConfigured(
-        'Configuration file is not present. Please define peering_manager/configuration.py per the documentation.')
+    LOGIN_REQUIRED = False
+    BASE_PATH = ''
+    if BASE_PATH:
+        BASE_PATH = BASE_PATH.strip('/') + '/'  #
+    SECRET_KEY = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)])
+    ALLOWED_HOSTS = ['*']
+    TIME_ZONE = 'UTC'
+    NO_CONFIG_FILE = True
 
 VERSION = '0.99-dev'
 
-SECRET_KEY = getattr(configuration, 'SECRET_KEY', '')
-ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS', [])
-BASE_PATH = getattr(configuration, 'BASE_PATH', '')
-if BASE_PATH:
-    BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
-DEBUG = getattr(configuration, 'DEBUG', False)
-LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
-NAPALM_USERNAME = getattr(configuration, 'NAPALM_USERNAME', '')
-NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
-NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
-NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
-PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 20)
-TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
-MY_ASN = getattr(configuration, 'MY_ASN', -1)
 
-if MY_ASN == -1:
-    raise ImproperlyConfigured(
-        'The MY_ASN setting must be set to a valid AS number.')
 
 # PeeringDB URLs
 PEERINGDB_API = 'https://peeringdb.com/api/'
