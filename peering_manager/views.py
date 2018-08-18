@@ -88,6 +88,9 @@ class Setup(View):
 
     def post(self, request):
         form = SetupForm(data=request.POST)
+        context = {
+            'form': form
+        }
         if form.is_valid():
             config = ConfigObj(unrepr=True)
             config['MY_ASN'] = int(form.data['asn'])
@@ -114,6 +117,7 @@ class Setup(View):
             if form.data['napalm_timeout']:
                 settings.NAPALM_TIMEOUT = form.data['napalm_timeout']
             return redirect('home')
+        return render(request, 'setup.html', context)
 
 
 class ProfileView(View, LoginRequiredMixin):
