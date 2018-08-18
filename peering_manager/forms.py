@@ -31,6 +31,16 @@ class SetupForm(forms.Form):
     asn = forms.IntegerField(min_value=1, max_value=4294967295, required=True, label='ASN')
     napalm_username = forms.CharField(label='Napalm username')
     napalm_password = forms.CharField(label='Napalm password', widget=forms.PasswordInput)
+    confirm_napalm_password = forms.CharField(label='Confirm Napalm password', widget=forms.PasswordInput)
     napalm_timeout = forms.IntegerField(min_value=1, label='Napalm timeout', initial=60)
     login_required = forms.BooleanField(initial=True, label='Login required')
+
+    def clean(self):
+        cleaned_data = super(SetupForm, self).clean()
+        password = cleaned_data.get('napalm_password')
+        confirm_password = cleaned_data.get('confirm_napalm_password')
+
+        if password != confirm_password:
+            self.add_error('confirm_napalm_password', "Password does not match")
+        return cleaned_data
 
