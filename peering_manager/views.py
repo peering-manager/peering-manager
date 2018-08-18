@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 import sys
-import configparser
+from configobj import ConfigObj
 
 from django.contrib import messages
 from django.contrib.auth import (login as auth_login, logout as auth_logout,
@@ -89,24 +89,23 @@ class Setup(View):
     def post(self, request):
         form = SetupForm(data=request.POST)
         if form.is_valid():
-            config = configparser.ConfigParser()
-            config['SETUP'] = {
-                'MY_ASN': form.data['asn'],
-                'SECRET_KEY': form.data['secret_key'],
-                'LOGIN_REQUIRED': form.data['login_required']
-            }
+            config = ConfigObj(unrepr=True)
+            config['MY_ASN'] = int(form.data['asn'])
+            if form.data['login_required'] == 'on':
+                config['LOGIN_REQUIRED'] = True
+            else:
+                config['LOGIN_REQUIRED'] = False
             if form.data['napalm_username']:
-                config['SETUP']['NAPALM_USERNAME'] = form.data['napalm_username']
+                config['NAPALM_USERNAME'] = form.data['napalm_username']
             if form.data['napalm_password']:
-                config['SETUP']['NAPALM_PASSWORD'] = form.data['napalm_password']
+                config['NAPALM_PASSWORD'] = form.data['napalm_password']
             if form.data['napalm_timeout']:
-                config['SETUP']['NAPALM_TIMEOUT'] = form.data['napalm_timeout']
-            with open('peering_manager/configuration.py', 'w') as configfile:
-                config.write(configfile)
+                config['NAPALM_TIMEOUT'] = int(form.data['napalm_timeout'])
+
+            config.filename = 'peering_manager/configuration.py'
+            config.write()
 
             settings.MY_ASN = form.data['asn']
-            settings.SECRET_KEY = form.data['secret_key']
-            settings.ALLOWED_HOSTS = form.data['allowed_hosts']
             settings.LOGIN_REQUIRED = form.data['login_required']
             if form.data['napalm_username']:
                 settings.NAPALM_USERNAME = form.data['napalm_username']
