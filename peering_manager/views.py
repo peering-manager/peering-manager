@@ -61,7 +61,7 @@ class LogoutView(View):
 
 class Home(View):
     def get(self, request):
-        if settings.NO_CONFIG_FILE is True:
+        if settings.NO_CONFIG_FILE:
             return redirect('setup')
         statistics = {
             'as_count': AutonomousSystem.objects.count(),
