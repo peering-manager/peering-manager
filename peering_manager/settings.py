@@ -54,7 +54,6 @@ except ImportError:
 VERSION = '0.99-dev'
 
 
-
 # PeeringDB URLs
 PEERINGDB_API = 'https://peeringdb.com/api/'
 PEERINGDB = 'https://peeringdb.com/asn/'
