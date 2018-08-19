@@ -13,6 +13,10 @@ import random
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
 
+
+def generate_secret_key():
+    return ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)])
+
 try:
     from peering_manager import configuration
 
@@ -41,7 +45,7 @@ except ImportError:
     BASE_PATH = ''
     if BASE_PATH:
         BASE_PATH = BASE_PATH.strip('/') + '/'  #
-    SECRET_KEY = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)])
+    SECRET_KEY = generate_secret_key()
     ALLOWED_HOSTS = ['*']
     TIME_ZONE = 'UTC'
     NO_CONFIG_FILE = True
