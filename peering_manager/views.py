@@ -6,6 +6,7 @@ from configobj import ConfigObj
 from django.contrib import messages
 from django.contrib.auth import (login as auth_login, logout as auth_logout,
                                  update_session_auth_hash)
+from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.http import HttpResponseRedirect
@@ -78,7 +79,7 @@ class Home(View):
         return render(request, 'home.html', context)
 
 
-class Setup(View):
+class SetupAdminUser(View):
     def get(self, request):
         form = SetupForm()
         context = {
@@ -86,13 +87,30 @@ class Setup(View):
         }
         return render(request, 'setup.html', context)
 
+
+class Setup(View):
+    def get(self, request):
+        form = SetupForm()
+
+        context = {
+            'form': form,
+
+        }
+        return render(request, 'setup.html', context)
+
     def post(self, request):
         form = SetupForm(data=request.POST)
         context = {
-            'form': form
+            'form': form,
         }
+
         if form.is_valid():
+            User.objects.create_superuser(username=form.data['admin_username'],
+                                          password=form.data['admin_password'],
+                                          email=form.data['admin_email'])
+
             config = ConfigObj(unrepr=True)
+
             config['MY_ASN'] = int(form.data['asn'])
             if form.data['login_required'] == 'on':
                 config['LOGIN_REQUIRED'] = True
@@ -105,11 +123,14 @@ class Setup(View):
             if form.data['napalm_timeout']:
                 config['NAPALM_TIMEOUT'] = int(form.data['napalm_timeout'])
 
+            config['SECRET_KEY'] = settings.SECRET_KEY
+            config['ALLOWED_HOSTS'] = settings.ALLOWED_HOSTS
             config.filename = 'peering_manager/configuration.py'
             config.write()
 
             settings.MY_ASN = form.data['asn']
             settings.LOGIN_REQUIRED = form.data['login_required']
+            settings.NO_CONFIG_FILE = False
             if form.data['napalm_username']:
                 settings.NAPALM_USERNAME = form.data['napalm_username']
             if form.data['napalm_password']:
