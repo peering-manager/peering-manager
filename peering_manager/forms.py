@@ -33,7 +33,8 @@ class SetupForm(forms.Form):
     admin_email = forms.EmailField(label='Email', widget=forms.EmailInput, required=True)
     login_required = forms.BooleanField(initial=True, label='Login required')
 
-    asn = forms.IntegerField(min_value=1, max_value=4294967295, required=True, label='ASN')
+    asn = forms.IntegerField(min_value=1, max_value=4294967295, required=True, label='ASN',
+                             help_text='The company BGP ASN')
     napalm_username = forms.CharField(label='Napalm username')
     napalm_password = forms.CharField(label='Napalm password', widget=forms.PasswordInput)
     napalm_confirm_password = forms.CharField(label='Napalm confirm password', widget=forms.PasswordInput)

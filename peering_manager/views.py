@@ -222,4 +222,3 @@ def trigger_500(request):
     Method to fake trigger a server error for test reporting.
     """
     raise Exception('Manually triggered error.')
-
