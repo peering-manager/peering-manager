@@ -4,7 +4,6 @@ from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django import forms
 
 from utils.forms import BootstrapMixin
-from django.conf import settings
 
 
 class LoginForm(BootstrapMixin, AuthenticationForm):
