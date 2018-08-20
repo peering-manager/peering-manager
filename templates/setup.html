@@ -1,0 +1,33 @@
+{% extends '_base.html' %}
+{% load form_helpers %}
+
+{% block content %}
+    <div class="form-row justify-content-center" style="margin-top: 150px;">
+        <div class="col-4">
+          {% if admin_user_form.non_field_errors or setup_form.non_field_errors  %}
+          <div class="card bg-danger text-white">
+            <div class="card-header"><strong>Errors</strong></div>
+              <div class="card-body">
+                {{ form.non_field_errors }}
+              </div>
+          </div>
+          {% endif %}
+        <form action="{% url 'setup' %}" method="post">
+            <div class="card">
+              <div class="card-header">
+                <strong>Peering-Manager Setup</strong>
+              </div>
+              <div class="card-body">
+            {% csrf_token %}
+                    <div class="align-content-md-center">
+                        <table>
+                            {{ form }}
+                        </table>
+                    </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
