@@ -122,12 +122,10 @@ class Setup(View):
                 config['NAPALM_PASSWORD'] = form.data['napalm_password']
             if form.data['napalm_timeout']:
                 config['NAPALM_TIMEOUT'] = int(form.data['napalm_timeout'])
-
             config['SECRET_KEY'] = settings.SECRET_KEY
             config['ALLOWED_HOSTS'] = settings.ALLOWED_HOSTS
             config.filename = 'peering_manager/configuration.py'
             config.write()
-
             settings.MY_ASN = form.data['asn']
             settings.LOGIN_REQUIRED = form.data['login_required']
             settings.NO_CONFIG_FILE = False
