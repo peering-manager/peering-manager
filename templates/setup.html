@@ -20,8 +20,18 @@
               <div class="card-body">
             {% csrf_token %}
                     <div class="align-content-md-center">
+                        <strong>Admin user setup:</strong>
                         <table>
-                            {{ form }}
+                            {% render_field form.admin_username %}
+                            {% render_field form.admin_password %}
+                            {% render_field form.admin_confirm_password %}
+                            {% render_field form.admin_email %}
+                            {% render_field form.login_required %}
+                            {% render_field form.asn %}
+                            {% render_field form.napalm_username %}
+                            {% render_field form.napalm_password %}
+                            {% render_field form.napalm_confirm_password %}
+                            {% render_field form.napalm_timeout %}
                         </table>
                     </div>
                         <button type="submit" class="btn btn-primary">Submit</button>

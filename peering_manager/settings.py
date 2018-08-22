@@ -49,6 +49,7 @@ except ImportError:
     SECRET_KEY = generate_secret_key()
     ALLOWED_HOSTS = ['*']
     TIME_ZONE = 'UTC'
+    PAGINATE_COUNT = 20
     NO_CONFIG_FILE = True
 
 VERSION = '0.99-dev'
