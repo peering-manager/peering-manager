@@ -4,40 +4,74 @@
 {% block content %}
     <div class="form-row justify-content-center" style="margin-top: 150px;">
         <div class="col-4">
-          {% if admin_user_form.non_field_errors or setup_form.non_field_errors  %}
-          <div class="card bg-danger text-white">
-            <div class="card-header"><strong>Errors</strong></div>
-              <div class="card-body">
-                {{ form.non_field_errors }}
-              </div>
-          </div>
-          {% endif %}
-        <form action="{% url 'setup' %}" method="post">
-            <div class="card">
-              <div class="card-header">
-                <strong>Peering-Manager Setup</strong>
-              </div>
-              <div class="card-body">
-            {% csrf_token %}
-                    <div class="align-content-md-center">
-                        <strong>Admin user setup</strong>
-                        <table>
-                            {% render_field form.admin_username %}
-                            {% render_field form.admin_password %}
-                            {% render_field form.admin_confirm_password %}
-                            {% render_field form.admin_email %}
-                            {% render_field form.login_required %}
-                            {% render_field form.asn %}
-                            {% render_field form.napalm_username %}
-                            {% render_field form.napalm_password %}
-                            {% render_field form.napalm_confirm_password %}
-                            {% render_field form.napalm_timeout %}
-                        </table>
-                    </div>
-                        <button type="submit" class="btn btn-primary">Submit</button>
+            {% if admin_user_form.non_field_errors or setup_form.non_field_errors %}
+                <div class="card bg-danger text-white">
+                    <div class="card-header"><strong>Errors</strong></div>
+                    <div class="card-body">
+                        {{ form.non_field_errors }}
                     </div>
                 </div>
-            </form>
+            {% endif %}
+            <div><h2>Peering-Manager setup</h2>
+                <form action="{% url 'setup' %}" method="post">
+                    <div class="card">
+                        <div class="card-header">
+                            <strong>Admin user setup</strong>
+                        </div>
+                        <div class="card-body">
+                            {% csrf_token %}
+                            <div class="align-content-md-center">
+                                <table>
+                                    {% render_field form.admin_username %}
+                                    {% render_field form.admin_password %}
+                                    {% render_field form.admin_confirm_password %}
+                                    {% render_field form.admin_email %}
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <strong>Security setup</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="align-content-md-center">
+                                <table>
+                                    {% render_field form.login_required %}
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <strong>BGP setup</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="align-content-md-center">
+                                <table>
+                                    {% render_field form.asn %}
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <strong>Napalm setup</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="align-content-md-center">
+                                <table>
+                                    {% render_field form.napalm_username %}
+                                    {% render_field form.napalm_password %}
+                                    {% render_field form.napalm_confirm_password %}
+                                    {% render_field form.napalm_timeout %}
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
         </div>
     </div>
 {% endblock %}
