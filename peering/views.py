@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.defaultfilters import slugify
@@ -47,19 +47,22 @@ class ASList(ModelListView):
     template = 'peering/as/list.html'
 
 
-class ASAdd(AddOrEditView):
+class ASAdd(PermissionRequiredMixin, AddOrEditView):
+    permission_required = 'peering.add_autonomoussystem'
     model = AutonomousSystem
     form = AutonomousSystemForm
     return_url = 'peering:as_list'
     template = 'peering/as/add_edit.html'
 
 
-class ASImport(ImportView):
+class ASImport(PermissionRequiredMixin, ImportView):
+    permission_required = 'peering.add_autonomoussystem'
     form_model = AutonomousSystemCSVForm
     return_url = 'peering:as_list'
 
 
-class ASImportFromPeeringDB(LoginRequiredMixin, GenericFormView):
+class ASImportFromPeeringDB(PermissionRequiredMixin, GenericFormView):
+    permission_required = 'peering.add_autonomoussystem'
     form = AutonomousSystemImportFromPeeringDBForm
     template = 'peering/as/import_from_peeringdb.html'
     return_url = 'peering:as_list'
@@ -110,24 +113,29 @@ class ASDetails(View):
         return render(request, 'peering/as/details.html', context)
 
 
-class ASEdit(AddOrEditView):
+class ASEdit(PermissionRequiredMixin, AddOrEditView):
+    permission_required = 'peering.change_autonomoussystem'
     model = AutonomousSystem
     form = AutonomousSystemForm
     template = 'peering/as/add_edit.html'
 
 
-class ASDelete(DeleteView):
+class ASDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = 'peering.delete_autonomoussystem'
     model = AutonomousSystem
     return_url = 'peering:as_list'
 
 
-class ASBulkDelete(BulkDeleteView):
+class ASBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'peering.delete_autonomoussystem'
     model = AutonomousSystem
     filter = AutonomousSystemFilter
     table = AutonomousSystemTable
 
 
-class ASPeeringDBSync(View):
+class ASPeeringDBSync(PermissionRequiredMixin, View):
+    permission_required = 'peering.change_autonomoussystem'
+
     def get(self, request, asn):
         autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
         synced = autonomous_system.sync_with_peeringdb()
@@ -182,14 +190,16 @@ class CommunityList(ModelListView):
     template = 'peering/community/list.html'
 
 
-class CommunityAdd(AddOrEditView):
+class CommunityAdd(PermissionRequiredMixin, AddOrEditView):
+    permission_required = 'peering.add_community'
     model = Community
     form = CommunityForm
     return_url = 'peering:community_list'
     template = 'peering/community/add_edit.html'
 
 
-class CommunityImport(ImportView):
+class CommunityImport(PermissionRequiredMixin, ImportView):
+    permission_required = 'peering.add_community'
     form_model = CommunityCSVForm
     return_url = 'peering:community_list'
 
@@ -203,18 +213,21 @@ class CommunityDetails(View):
         return render(request, 'peering/community/details.html', context)
 
 
-class CommunityEdit(AddOrEditView):
+class CommunityEdit(PermissionRequiredMixin, AddOrEditView):
+    permission_required = 'peering.change_community'
     model = Community
     form = CommunityForm
     template = 'peering/community/add_edit.html'
 
 
-class CommunityDelete(DeleteView):
+class CommunityDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = 'peering.delete_community'
     model = Community
     return_url = 'peering:community_list'
 
 
-class CommunityBulkDelete(BulkDeleteView):
+class CommunityBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'peering.delete_community'
     model = Community
     filter = CommunityFilter
     table = CommunityTable
@@ -228,7 +241,8 @@ class ConfigTemplateList(ModelListView):
     template = 'peering/config/list.html'
 
 
-class ConfigTemplateAdd(AddOrEditView):
+class ConfigTemplateAdd(PermissionRequiredMixin, AddOrEditView):
+    permission_required = 'peering.add_configurationtemplate'
     model = ConfigurationTemplate
     form = ConfigurationTemplateForm
     return_url = 'peering:configuration_template_list'
@@ -247,17 +261,20 @@ class ConfigTemplateDetails(View):
         return render(request, 'peering/config/details.html', context)
 
 
-class ConfigTemplateEdit(AddOrEditView):
+class ConfigTemplateEdit(PermissionRequiredMixin, AddOrEditView):
+    permission_required = 'peering.change_configurationtemplate'
     model = ConfigurationTemplate
     form = ConfigurationTemplateForm
 
 
-class ConfigTemplateDelete(DeleteView):
+class ConfigTemplateDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = 'peering.delete_configurationtemplate'
     model = ConfigurationTemplate
     return_url = 'peering:configuration_template_list'
 
 
-class ConfigTemplateBulkDelete(BulkDeleteView):
+class ConfigTemplateBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'peering.delete_configurationtemplate'
     model = ConfigurationTemplate
     filter = ConfigurationTemplateFilter
     table = ConfigurationTemplateTable
@@ -271,19 +288,22 @@ class IXList(ModelListView):
     template = 'peering/ix/list.html'
 
 
-class IXAdd(AddOrEditView):
+class IXAdd(PermissionRequiredMixin, AddOrEditView):
+    permission_required = 'peering.add_internetexchange'
     model = InternetExchange
     form = InternetExchangeForm
     return_url = 'peering:ix_list'
     template = 'peering/ix/add_edit.html'
 
 
-class IXImport(ImportView):
+class IXImport(PermissionRequiredMixin, ImportView):
+    permission_required = 'peering.add_internetexchange'
     form_model = InternetExchangeCSVForm
     return_url = 'peering:ix_list'
 
 
-class IXImportFromRouter(ConfirmationView):
+class IXImportFromRouter(PermissionRequiredMixin, ConfirmationView):
+    permission_required = 'peering.add_peeringsession'
     template = 'peering/ix/import_from_router.html'
 
     def extra_context(self, kwargs):
@@ -334,7 +354,8 @@ class IXImportFromRouter(ConfirmationView):
         return redirect(self.return_url)
 
 
-class IXPeeringDBImport(TableImportView):
+class IXPeeringDBImport(PermissionRequiredMixin, TableImportView):
+    permission_required = 'peering.add_internetexchange'
     custom_formset = InternetExchangePeeringDBFormSet
     form_model = InternetExchangePeeringDBForm
     return_url = 'peering:ix_list'
@@ -371,24 +392,28 @@ class IXDetails(View):
         return render(request, 'peering/ix/details.html', context)
 
 
-class IXEdit(AddOrEditView):
+class IXEdit(PermissionRequiredMixin, AddOrEditView):
+    permission_required = 'peering.change_internetexchange'
     model = InternetExchange
     form = InternetExchangeForm
     template = 'peering/ix/add_edit.html'
 
 
-class IXDelete(DeleteView):
+class IXDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = 'peering.delete_internetexchange'
     model = InternetExchange
     return_url = 'peering:ix_list'
 
 
-class IXBulkDelete(BulkDeleteView):
+class IXBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'peering.delete_internetexchange'
     model = InternetExchange
     filter = InternetExchangeFilter
     table = InternetExchangeTable
 
 
-class IXUpdateCommunities(AddOrEditView):
+class IXUpdateCommunities(PermissionRequiredMixin, AddOrEditView):
+    permission_required = 'peering.change_internetexchange'
     model = InternetExchange
     form = InternetExchangeCommunityForm
     template = 'peering/ix/communities.html'
@@ -504,7 +529,7 @@ class IXPeers(ModelListView):
         return extra_context
 
 
-class IXConfig(LoginRequiredMixin, View):
+class IXConfig(PermissionRequiredMixin, View):
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
 
@@ -516,7 +541,9 @@ class IXConfig(LoginRequiredMixin, View):
         return render(request, 'peering/ix/configuration.html', context)
 
 
-class IXUpdateSessionStates(LoginRequiredMixin, View):
+class IXUpdateSessionStates(PermissionRequiredMixin, View):
+    permission_required = 'peering.change_peeringsession'
+
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
         success = internet_exchange.update_peering_session_states()
@@ -540,7 +567,8 @@ class PeeringSessionList(ModelListView):
     template = 'peering/session/list.html'
 
 
-class PeeringSessionAdd(AddOrEditView):
+class PeeringSessionAdd(PermissionRequiredMixin, AddOrEditView):
+    permission_required = 'peering.add_peeringsession'
     model = PeeringSession
     form = PeeringSessionForm
     template = 'peering/session/add_edit.html'
@@ -569,20 +597,24 @@ class PeeringSessionDetails(View):
         return render(request, 'peering/session/details.html', context)
 
 
-class PeeringSessionEdit(AddOrEditView):
+class PeeringSessionEdit(PermissionRequiredMixin, AddOrEditView):
+    permission_required = 'peering.change_peeringsession'
     model = PeeringSession
     form = PeeringSessionForm
     template = 'peering/session/add_edit.html'
 
 
-class PeeringSessionDelete(DeleteView):
+class PeeringSessionDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = 'peering.delete_peeringsession'
     model = PeeringSession
 
     def get_return_url(self, obj):
         return obj.internet_exchange.get_peering_sessions_list_url()
 
 
-class PeeringSessionAddFromPeeringDB(BulkAddFromDependencyView):
+class PeeringSessionAddFromPeeringDB(PermissionRequiredMixin,
+                                     BulkAddFromDependencyView):
+    permission_required = 'peering.add_peeringsession'
     model = PeeringSession
     dependency_model = PeerRecord
     form_model = PeeringSessionForm
@@ -615,7 +647,8 @@ class PeeringSessionAddFromPeeringDB(BulkAddFromDependencyView):
         return objects
 
 
-class PeeringSessionBulkDelete(BulkDeleteView):
+class PeeringSessionBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'peering.delete_peeringsession'
     model = PeeringSession
     filter = PeeringSessionFilter
     table = PeeringSessionTableForIX
@@ -631,7 +664,9 @@ class PeeringSessionBulkDelete(BulkDeleteView):
         return queryset
 
 
-class PeeringSessionDisable(LoginRequiredMixin, View):
+class PeeringSessionDisable(PermissionRequiredMixin, View):
+    permission_required = 'peering.change_peeringsession'
+
     def get(self, request, pk):
         peering_session = get_object_or_404(PeeringSession, pk=pk)
         peering_session.enabled = False
@@ -639,7 +674,9 @@ class PeeringSessionDisable(LoginRequiredMixin, View):
         return redirect(peering_session.get_absolute_url())
 
 
-class PeeringSessionEnable(LoginRequiredMixin, View):
+class PeeringSessionEnable(PermissionRequiredMixin, View):
+    permission_required = 'peering.change_peeringsession'
+
     def get(self, request, pk):
         peering_session = get_object_or_404(PeeringSession, pk=pk)
         peering_session.enabled = True
@@ -655,14 +692,16 @@ class RouterList(ModelListView):
     template = 'peering/router/list.html'
 
 
-class RouterAdd(AddOrEditView):
+class RouterAdd(PermissionRequiredMixin, AddOrEditView):
+    permission_required = 'peering.add_router'
     model = Router
     form = RouterForm
     return_url = 'peering:router_list'
     template = 'peering/router/add_edit.html'
 
 
-class RouterImport(ImportView):
+class RouterImport(PermissionRequiredMixin, ImportView):
+    permission_required = 'peering.add_router'
     form_model = RouterCSVForm
     return_url = 'peering:router_list'
 
@@ -678,18 +717,21 @@ class RouterDetails(View):
         return render(request, 'peering/router/details.html', context)
 
 
-class RouterEdit(AddOrEditView):
+class RouterEdit(PermissionRequiredMixin, AddOrEditView):
+    permission_required = 'peering.change_router'
     model = Router
     form = RouterForm
     template = 'peering/router/add_edit.html'
 
 
-class RouterDelete(DeleteView):
+class RouterDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = 'peering.delete_router'
     model = Router
     return_url = 'peering:router_list'
 
 
-class RouterBulkDelete(BulkDeleteView):
+class RouterBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'peering.delete_router'
     model = Router
     filter = RouterFilter
     table = RouterTable

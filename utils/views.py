@@ -4,7 +4,6 @@ from django.conf import settings
 from django.db import transaction
 from django.db.models import ProtectedError
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput
 from django.forms.formsets import formset_factory
@@ -22,7 +21,7 @@ from .models import UserAction
 from .paginators import EnhancedPaginator
 
 
-class AddOrEditView(LoginRequiredMixin, View):
+class AddOrEditView(View):
     model = None
     form = None
     return_url = None
@@ -113,7 +112,7 @@ class AddOrEditView(LoginRequiredMixin, View):
         })
 
 
-class BulkAddFromDependencyView(LoginRequiredMixin, View):
+class BulkAddFromDependencyView(View):
     model = None
     dependency_model = None
     custom_formset = None
@@ -205,7 +204,7 @@ class BulkAddFromDependencyView(LoginRequiredMixin, View):
         })
 
 
-class BulkDeleteView(LoginRequiredMixin, View):
+class BulkDeleteView(View):
     model = None
     queryset = None
     filter = None
@@ -286,7 +285,7 @@ class BulkDeleteView(LoginRequiredMixin, View):
         })
 
 
-class ConfirmationView(LoginRequiredMixin, View):
+class ConfirmationView(View):
     return_url = None
     template = None
 
@@ -318,7 +317,7 @@ class ConfirmationView(LoginRequiredMixin, View):
         return render(request, self.template, context)
 
 
-class DeleteView(LoginRequiredMixin, View):
+class DeleteView(View):
     model = None
     return_url = None
     template = 'utils/object_delete.html'
@@ -442,7 +441,7 @@ class GenericFormView(View):
         return redirect(self.get_return_url())
 
 
-class ImportView(LoginRequiredMixin, View):
+class ImportView(View):
     form_model = None
     return_url = None
     template = 'utils/object_import.html'
@@ -571,7 +570,7 @@ class ModelListView(View):
         return render(request, self.template, context)
 
 
-class TableImportView(LoginRequiredMixin, View):
+class TableImportView(View):
     custom_formset = None
     form_model = None
     return_url = None
