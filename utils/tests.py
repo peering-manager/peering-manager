@@ -16,7 +16,9 @@ class ViewTestCase(TestCase):
             'username': 'dummy',
             'password': 'dummy',
         }
-        User.objects.create_user(**self.credentials)
+        self.user = User.objects.create_user(**self.credentials)
+        self.user.is_superuser = True
+        self.user.save()
 
     def authenticate_user(self):
         # Login
