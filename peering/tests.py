@@ -214,6 +214,12 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
         with self.assertRaises(NoReverseMatch):
             self.get_request('peering:as_peeringdb_sync')
 
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:as_peeringdb_sync', params={'asn': 64500},
+                         expected_status_code=302)
+
+        # Authenticate and retry
+        self.authenticate_user()
         # Using a wrong AS number, status should be 404 not found
         self.get_request('peering:as_peeringdb_sync', params={'asn': 64500},
                          expected_status_code=404)
