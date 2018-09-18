@@ -35,7 +35,7 @@ class TemplateField(forms.CharField):
     """
     widget = forms.Textarea
     default_label = 'Template'
-    default_helptext = '<i class="fa fa-info-circle"></i> <a href="https://github.com/respawner/peering-manager/wiki/configuration_template" target="_blank">Jinja2 template</a> syntax is supported'
+    default_helptext = '<i class="fa fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/config-template/#configuration-template" target="_blank">Jinja2 template</a> syntax is supported'
 
     def __init__(self, *args, **kwargs):
         required = kwargs.pop('required', False)
