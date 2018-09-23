@@ -18,7 +18,8 @@ from .constants import (BGP_STATE_CHOICES, BGP_STATE_IDLE, BGP_STATE_CONNECT,
                         BGP_STATE_OPENCONFIRM, BGP_STATE_ESTABLISHED,
                         COMMUNITY_TYPE_CHOICES, COMMUNITY_TYPE_EGRESS,
                         COMMUNITY_TYPE_INGRESS, PLATFORM_CHOICES,
-                        PLATFORM_JUNOS, PLATFORM_IOSXR, PLATFORM_EOS)
+                        PLATFORM_EOS, PLATFORM_IOS, PLATFORM_IOSXR,
+                        PLATFORM_JUNOS)
 from .fields import ASNField, CommunityField
 from peeringdb.api import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
@@ -752,7 +753,7 @@ class Router(CreatedUpdatedModel):
 
     def can_napalm_get_bgp_neighbors_detail(self):
         return False if not self.platform else self.platform in [
-            PLATFORM_EOS, PLATFORM_IOSXR, PLATFORM_JUNOS
+            PLATFORM_EOS, PLATFORM_IOS, PLATFORM_IOSXR, PLATFORM_JUNOS
         ]
 
     def get_napalm_device(self):
