@@ -530,6 +530,8 @@ class IXPeers(ModelListView):
 
 
 class IXConfig(PermissionRequiredMixin, View):
+    permission_required = 'peering.change_internetexchange'
+    
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
 
