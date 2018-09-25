@@ -529,7 +529,7 @@ class IXPeers(ModelListView):
         return extra_context
 
 
-class IXConfig(PermissionRequiredMixin, View):
+class IXConfig(View):
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
 
