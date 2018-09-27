@@ -45,13 +45,7 @@
               {% if request.user.is_staff %}
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fa fa-cogs"></i> Admin</a>
-              <div class="dropdown-item"><i class="fas fa-database"></i> Cache
-                <div class="float-right">
-                  <a class="btn btn-sm btn-primary" href="{% url 'peeringdb:build_cache' %}" title="Build"><i class="fas fa-boxes"></i></a>
-                  <a class="btn btn-sm btn-danger" href="{% url 'peeringdb:clear_cache' %}" title="Clear"><i class="fas fa-broom"></i></a>
-                  <a class="btn btn-sm btn-secondary" href="{% url 'peeringdb:index_peer_records' %}" title="Index Peer Records"><i class="fas fa-list-ol"></i></a>
-                </div>
-              </div>
+              <a class="dropdown-item" href="{% url 'peeringdb:cache_management' %}"><i class="fas fa-database"></i> Cache Management</a>
               {% endif %}
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Log out</a>
