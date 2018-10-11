@@ -84,6 +84,17 @@ class PeeringDB(object):
             self.logger.debug('synchronizated %s objects at %s',
                               number_of_changes, last_sync.time)
 
+    def get_last_synchronization(self):
+        """
+        Return the last synchronization.
+        """
+        try:
+            return Synchronization.objects.latest('time')
+        except Synchronization.DoesNotExist:
+            pass
+
+        return None
+
     def get_last_sync_time(self):
         """
         Return the last time of synchronization based on the latest record.
@@ -91,13 +102,10 @@ class PeeringDB(object):
         """
         # Assume first sync
         last_sync_time = 0
-        try:
-            # If a sync has already been performed, get the last of it given
-            # its time
-            last_sync = Synchronization.objects.latest('time')
+        last_sync = self.get_last_synchronization()
+
+        if last_sync:
             last_sync_time = last_sync.time.timestamp()
-        except Synchronization.DoesNotExist:
-            pass
 
         return int(last_sync_time)
 

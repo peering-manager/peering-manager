@@ -18,14 +18,15 @@ from .constants import (BGP_STATE_CHOICES, BGP_STATE_IDLE, BGP_STATE_CONNECT,
                         BGP_STATE_OPENCONFIRM, BGP_STATE_ESTABLISHED,
                         COMMUNITY_TYPE_CHOICES, COMMUNITY_TYPE_EGRESS,
                         COMMUNITY_TYPE_INGRESS, PLATFORM_CHOICES,
-                        PLATFORM_JUNOS, PLATFORM_IOSXR, PLATFORM_EOS)
+                        PLATFORM_EOS, PLATFORM_IOS, PLATFORM_IOSXR,
+                        PLATFORM_JUNOS)
 from .fields import ASNField, CommunityField
 from peeringdb.api import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
-from utils.models import UpdatedModel
+from utils.models import CreatedUpdatedModel
 
 
-class AutonomousSystem(UpdatedModel):
+class AutonomousSystem(CreatedUpdatedModel):
     asn = ASNField(unique=True)
     name = models.CharField(max_length=128)
     comment = models.TextField(blank=True)
@@ -75,7 +76,7 @@ class AutonomousSystem(UpdatedModel):
         return reverse('peering:as_peering_sessions', kwargs={'asn': self.asn})
 
     def get_peering_sessions(self):
-        return [session for session in self.peeringsession_set.all()]
+        return self.peeringsession_set.all()
 
     def get_internet_exchanges(self):
         internet_exchanges = []
@@ -87,39 +88,62 @@ class AutonomousSystem(UpdatedModel):
         return internet_exchanges
 
     def get_common_internet_exchanges(self):
-        internet_exchanges = {}
+        """
+        Return all IX we have in common with the AS.
+        """
+        # Get common IX networks between us and this AS
+        common = PeeringDB().get_common_ix_networks_for_asns(settings.MY_ASN,
+                                                             self.asn)
+        return InternetExchange.objects.all().filter(
+            peeringdb_id__in=[us.id for us, _ in common])
+
+    def get_missing_peering_sessions(self, internet_exchange):
+        """
+        Returns a tuple of IP address lists. The first element of the tuple
+        is the IPv6 address list. The second element of the tuple is the IPv4
+        address list. Each IP address of the lists is the address of a missing
+        peering session with the current AS.
+        """
+        if not internet_exchange:
+            return None
 
         # Get common IX networks between us and this AS
         common = PeeringDB().get_common_ix_networks_for_asns(settings.MY_ASN,
                                                              self.asn)
+
+        # Divide sessions based on the IP versions
+        ipv6_sessions = []
+        ipv4_sessions = []
+
+        # For each common networks take a look at it
         for us, peer in common:
-            ix = None
-            if us.ixlan_id not in internet_exchanges:
-                try:
-                    ix = InternetExchange.objects.get(peeringdb_id=us.id)
-                except InternetExchange.DoesNotExist:
-                    # If we don't know this IX locally but we do in PeeringDB
-                    # Ignore it
-                    continue
+            # We only care about networks matching the IX we want
+            if us.id == internet_exchange.peeringdb_id:
+                # Check on the IPv6 address
+                if peer.ipaddr6:
+                    try:
+                        ip_address = ipaddress.IPv6Address(peer.ipaddr6)
+                        if not PeeringSession.does_exist(
+                                internet_exchange=internet_exchange,
+                                autonomous_system=self,
+                                ip_address=str(ip_address)):
+                            ipv6_sessions.append(ip_address)
+                    except ipaddress.AddressValueError:
+                        continue
 
-                internet_exchanges[us.ixlan_id] = {
-                    'internet_exchange': ix,
-                    'missing_peering_sessions': []
-                }
+                # Check on the IPv4 address
+                if peer.ipaddr4:
+                    try:
+                        ip_address = ipaddress.IPv4Address(peer.ipaddr4)
+                        if not PeeringSession.does_exist(
+                                internet_exchange=internet_exchange,
+                                autonomous_system=self,
+                                ip_address=str(ip_address)):
+                            ipv4_sessions.append(ip_address)
+                    except ipaddress.AddressValueError:
+                        continue
 
-            # Keep record of missing peering sessions
-            if (peer.ipaddr6 and not PeeringSession.does_exist(
-                    internet_exchange=ix, autonomous_system=self,
-                    ip_address=peer.ipaddr6)):
-                internet_exchanges[us.ixlan_id]['missing_peering_sessions'].append(
-                    peer.ipaddr6)
-            if (peer.ipaddr4 and not PeeringSession.does_exist(
-                    internet_exchange=ix, autonomous_system=self,
-                    ip_address=peer.ipaddr4)):
-                internet_exchanges[us.ixlan_id]['missing_peering_sessions'].append(
-                    peer.ipaddr4)
-
-        return internet_exchanges
+        return (ipv6_sessions, ipv4_sessions)
 
     def sync_with_peeringdb(self):
         """
@@ -151,7 +175,7 @@ class AutonomousSystem(UpdatedModel):
         return 'AS{} - {}'.format(self.asn, self.name)
 
 
-class BGPSession(models.Model):
+class BGPSession(CreatedUpdatedModel):
     """
     Abstract class used to define common caracteristics of BGP sessions.
 
@@ -226,7 +250,7 @@ class BGPSession(models.Model):
         return mark_safe(text)
 
 
-class Community(models.Model):
+class Community(CreatedUpdatedModel):
     name = models.CharField(max_length=128)
     value = CommunityField(max_length=50)
     type = models.CharField(max_length=50, choices=COMMUNITY_TYPE_CHOICES,
@@ -260,7 +284,7 @@ class Community(models.Model):
         return self.name
 
 
-class ConfigurationTemplate(UpdatedModel):
+class ConfigurationTemplate(CreatedUpdatedModel):
     name = models.CharField(max_length=128)
     template = models.TextField()
     comment = models.TextField(blank=True)
@@ -276,7 +300,7 @@ class ConfigurationTemplate(UpdatedModel):
         return self.name
 
 
-class InternetExchange(models.Model):
+class InternetExchange(CreatedUpdatedModel):
     peeringdb_id = models.PositiveIntegerField(blank=True, null=True)
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True)
@@ -308,7 +332,7 @@ class InternetExchange(models.Model):
         return reverse('peering:ix_peers', kwargs={'slug': self.slug})
 
     def get_peering_sessions(self):
-        return [session for session in self.peeringsession_set.all()]
+        return self.peeringsession_set.all()
 
     def get_autonomous_systems(self):
         autonomous_systems = []
@@ -712,7 +736,7 @@ class PeeringSession(BGPSession):
                                           self.ip_address)
 
 
-class Router(models.Model):
+class Router(CreatedUpdatedModel):
     name = models.CharField(max_length=128)
     hostname = models.CharField(max_length=256)
     platform = models.CharField(max_length=50, choices=PLATFORM_CHOICES,
@@ -729,7 +753,7 @@ class Router(models.Model):
 
     def can_napalm_get_bgp_neighbors_detail(self):
         return False if not self.platform else self.platform in [
-            PLATFORM_EOS, PLATFORM_IOSXR, PLATFORM_JUNOS
+            PLATFORM_EOS, PLATFORM_IOS, PLATFORM_IOSXR, PLATFORM_JUNOS
         ]
 
     def get_napalm_device(self):

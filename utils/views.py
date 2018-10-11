@@ -1,18 +1,24 @@
 from __future__ import unicode_literals
 
+import sys
+
 from django.conf import settings
 from django.db import transaction
 from django.db.models import ProtectedError
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput
 from django.forms.formsets import formset_factory
+from django.http import HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template import loader
+from django.template.exceptions import TemplateDoesNotExist
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
+from django.views.decorators.csrf import requires_csrf_token
+from django.views.defaults import ERROR_500_TEMPLATE_NAME
 from django.views.generic import View
 
 from django_tables2 import RequestConfig
@@ -22,7 +28,7 @@ from .models import UserAction
 from .paginators import EnhancedPaginator
 
 
-class AddOrEditView(LoginRequiredMixin, View):
+class AddOrEditView(View):
     model = None
     form = None
     return_url = None
@@ -113,7 +119,7 @@ class AddOrEditView(LoginRequiredMixin, View):
         })
 
 
-class BulkAddFromDependencyView(LoginRequiredMixin, View):
+class BulkAddFromDependencyView(View):
     model = None
     dependency_model = None
     custom_formset = None
@@ -205,7 +211,7 @@ class BulkAddFromDependencyView(LoginRequiredMixin, View):
         })
 
 
-class BulkDeleteView(LoginRequiredMixin, View):
+class BulkDeleteView(View):
     model = None
     queryset = None
     filter = None
@@ -286,7 +292,7 @@ class BulkDeleteView(LoginRequiredMixin, View):
         })
 
 
-class ConfirmationView(LoginRequiredMixin, View):
+class ConfirmationView(View):
     return_url = None
     template = None
 
@@ -318,7 +324,7 @@ class ConfirmationView(LoginRequiredMixin, View):
         return render(request, self.template, context)
 
 
-class DeleteView(LoginRequiredMixin, View):
+class DeleteView(View):
     model = None
     return_url = None
     template = 'utils/object_delete.html'
@@ -442,7 +448,7 @@ class GenericFormView(View):
         return redirect(self.get_return_url())
 
 
-class ImportView(LoginRequiredMixin, View):
+class ImportView(View):
     form_model = None
     return_url = None
     template = 'utils/object_import.html'
@@ -571,7 +577,7 @@ class ModelListView(View):
         return render(request, self.template, context)
 
 
-class TableImportView(LoginRequiredMixin, View):
+class TableImportView(View):
     custom_formset = None
     form_model = None
     return_url = None
@@ -648,3 +654,21 @@ class TableImportView(LoginRequiredMixin, View):
             'obj_type': self.form_model._meta.model._meta.verbose_name,
             'return_url': self.get_return_url(),
         })
+
+
+@requires_csrf_token
+def ServerError(request, template_name=ERROR_500_TEMPLATE_NAME):
+    """
+    Custom 500 handler to provide details when rendering 500.html.
+    """
+    try:
+        template = loader.get_template(template_name)
+    except TemplateDoesNotExist:
+        return HttpResponseServerError('<h1>Server Error (500)</h1>',
+                                       content_type='text/html')
+    type_, error, _ = sys.exc_info()
+
+    return HttpResponseServerError(template.render({
+        'exception': str(type_),
+        'error': error,
+    }))

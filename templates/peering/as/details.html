@@ -3,7 +3,7 @@
 {% block subcontent %}
       <div class="row">
         <div class="col-md-6">
-          <div class="card">
+          <div class="card mb-2">
             <div class="card-header">
               <strong>AS Details</strong>
               <a class="btn btn-sm btn-primary float-right" href="{{ settings.PEERINGDB }}{{ autonomous_system.asn }}" target="_blank">
@@ -33,6 +33,21 @@
               </tr>
             </table>
           </div>
+          {% if common_ix_and_sessions %}
+          <div class="card">
+            <div class="card-header"><strong>Common Internet Exchanges</strong></div>
+            <ul class="list-group list-group-flush">
+              {% for internet_exchange_details in common_ix_and_sessions %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="{{ internet_exchange.get_absolute_url }}">{{ internet_exchange_details.internet_exchange }}</a>
+                {% if not internet_exchange_details.sessions.0|length_is:"0" or not internet_exchange_details.sessions.1|length_is:"0" %}
+                <a href="{% url 'peering:ix_peers' slug=internet_exchange_details.internet_exchange.slug %}?q=&network__asn={{ autonomous_system.asn }}" class="badge badge-info">Missing Sessions Found</a>
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
         </div>
         <div class="col-md-6">
           <div class="card">

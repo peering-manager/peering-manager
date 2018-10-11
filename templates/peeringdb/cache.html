@@ -1,0 +1,33 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block content %}
+      <h1>Local Cache Management</h1>
+      {% if last_sync_time is not 0 %}
+      <p><small class="text-muted">Last updated: {{ last_sync_time }}</small></p>
+      {% endif %}
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <strong>PeeringDB Cache</strong>
+            </div>
+            <div class="card-body">
+              <p>{{ peeringdb_network_count }} networks and {{ peeringdb_networkixlan_count }} network IX LANs cached from PeeringDB.</p>
+              <a class="btn btn-primary" href="{% url 'peeringdb:build_cache' %}"><i class="fas fa-sync"></i> Update Cache</a>
+              <a class="btn btn-danger" href="{% url 'peeringdb:clear_cache' %}"><i class="fas fa-broom"></i> Clear Cache</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <strong>Peer Records</strong>
+            </div>
+            <div class="card-body">
+              <p>{{ peer_record_count }} peer records have been indexed.</p>
+              <a class="btn btn-primary" href="{% url 'peeringdb:index_peer_records' %}"><i class="fas fa-list-ol"></i> Index Peer Records</a>
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}

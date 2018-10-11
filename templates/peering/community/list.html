@@ -1,15 +1,13 @@
 {% extends '_base.html' %}
 {% load render_table from django_tables2 %}
 {% block content %}
-      {% if request.user.is_authenticated %}
+      {% if perms.peering.add_community %}
       <div class="float-right">
         <a href="{% url 'peering:community_add' %}" class="btn btn-primary">
-          <i class="fas fa-plus" aria-hidden="true"></i>
-          Add a Community
+          <i class="fas fa-plus"></i> Add a Community
         </a>
         <a href="{% url 'peering:community_import' %}" class="btn btn-info">
-          <i class="fas fa-upload" aria-hidden="true"></i>
-          Import Communities
+          <i class="fas fa-upload"></i> Import Communities
         </a>
       </div>
       {% endif %}

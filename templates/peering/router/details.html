@@ -1,16 +1,18 @@
 {% extends '_base.html' %}
 {% load helpers %}
 {% block content %}
-      {% if request.user.is_authenticated %}
       <div class="float-right">
+        {% if perms.peering.change_router %}
         <a href="{% url 'peering:router_edit' pk=router.pk %}" class="btn btn-warning">
-          <i class="fas fa-edit" aria-hidden="true"></i> Edit
+          <i class="fas fa-edit"></i> Edit
         </a>
+        {% endif %}
+        {% if perms.peering.delete_router %}
         <a href="{% url 'peering:router_delete' pk=router.pk %}" class="btn btn-danger">
-          <i class="fas fa-trash" aria-hidden="true"></i> Delete
+          <i class="fas fa-trash"></i> Delete
         </a>
+        {% endif %}
       </div>
-      {% endif %}
       <h1>{% block title %}{{ router }}{% endblock %}</h1>
       <div class="alert alert-success alert-dismissible" role="alert" id="message-can-ping">
         <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
