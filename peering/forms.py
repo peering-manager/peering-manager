@@ -1,10 +1,13 @@
 from __future__ import unicode_literals
 
 from django import forms
+from django.conf import settings
 
-from .constants import COMMUNITY_TYPE_CHOICES, PLATFORM_CHOICES
+from .constants import (BGP_RELATIONSHIP_CHOICES, COMMUNITY_TYPE_CHOICES,
+                        PLATFORM_CHOICES)
 from .models import (AutonomousSystem, Community, ConfigurationTemplate,
-                     InternetExchange, PeeringSession, Router)
+                     DirectPeeringSession, InternetExchange,
+                     InternetExchangePeeringSession, Router)
 from peeringdb.models import PeerRecord
 from utils.forms import (BootstrapMixin, CSVChoiceField, FilterChoiceField,
                          PasswordField, SlugField, YesNoField)
@@ -17,7 +20,7 @@ class CommentField(forms.CharField):
     """
     widget = forms.Textarea
     default_label = 'Comments'
-    default_helptext = '<i class="fa fa-info-circle"></i> <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">GitHub-Flavored Markdown</a> syntax is supported'
+    default_helptext = '<i class="fab fa-markdown"></i> <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">GitHub-Flavored Markdown</a> syntax is supported'
 
     def __init__(self, *args, **kwargs):
         required = kwargs.pop('required', False)
@@ -35,7 +38,7 @@ class TemplateField(forms.CharField):
     """
     widget = forms.Textarea
     default_label = 'Template'
-    default_helptext = '<i class="fa fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/config-template/#configuration-template" target="_blank">Jinja2 template</a> syntax is supported'
+    default_helptext = '<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/config-template/#configuration-template" target="_blank">Jinja2 template</a> syntax is supported'
 
     def __init__(self, *args, **kwargs):
         required = kwargs.pop('required', False)
@@ -167,6 +170,43 @@ class ConfigurationTemplateFilterForm(BootstrapMixin, forms.Form):
     model = ConfigurationTemplate
     q = forms.CharField(required=False, label='Search')
     name = forms.CharField(required=False, label='Name')
+
+
+class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
+    comment = CommentField()
+    password = PasswordField(required=False, render_value=True)
+    enabled = YesNoField(required=False, label='Enabled')
+
+    class Meta:
+        model = DirectPeeringSession
+        fields = ('local_asn', 'autonomous_system', 'relationship',
+                  'ip_address', 'password', 'enabled', 'comment',)
+        labels = {
+            'local_asn': 'Local ASN',
+            'autonomous_system': 'AS',
+            'ip_address': 'IP Address',
+            'comment': 'Comments',
+        }
+        help_texts = {
+            'local_asn': 'ASN to be used locally, defaults to {}'.format(settings.MY_ASN),
+            'ip_address': 'IPv6 or IPv4 address',
+            'enabled': 'Should this session be enabled?'
+        }
+
+
+class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
+    model = DirectPeeringSession
+    q = forms.CharField(required=False, label='Search')
+    local_asn = forms.IntegerField(required=False, label='Local ASN')
+    ip_address = forms.CharField(required=False, label='IP Address')
+    ip_version = forms.IntegerField(required=False, label='IP Version',
+                                    widget=forms.Select(choices=[
+                                        (0, '---------'),
+                                        (6, 'IPv6'), (4, 'IPv4'),
+                                    ]))
+    enabled = YesNoField(required=False, label='Enabled')
+    relationship = forms.MultipleChoiceField(choices=BGP_RELATIONSHIP_CHOICES,
+                                             required=False)
 
 
 class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
@@ -310,13 +350,13 @@ class PeerRecordFilterForm(BootstrapMixin, forms.Form):
                                                  label='IPv4 Max Prefixes')
 
 
-class PeeringSessionForm(BootstrapMixin, forms.ModelForm):
+class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
     comment = CommentField()
     password = PasswordField(required=False, render_value=True)
     enabled = YesNoField(required=False, label='Enabled')
 
     class Meta:
-        model = PeeringSession
+        model = InternetExchangePeeringSession
         fields = ('autonomous_system', 'internet_exchange',
                   'ip_address', 'password', 'enabled', 'comment',)
         labels = {
@@ -332,8 +372,8 @@ class PeeringSessionForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PeeringSessionFilterForm(BootstrapMixin, forms.Form):
-    model = PeeringSession
+class InternetExchangePeeringSessionFilterForm(BootstrapMixin, forms.Form):
+    model = InternetExchangePeeringSession
     q = forms.CharField(required=False, label='Search')
     autonomous_system__asn = forms.IntegerField(required=False, label='ASN')
     autonomous_system__name = forms.CharField(required=False, label='AS Name')
@@ -347,8 +387,8 @@ class PeeringSessionFilterForm(BootstrapMixin, forms.Form):
     enabled = YesNoField(required=False, label='Enabled')
 
 
-class PeeringSessionFilterFormForIX(BootstrapMixin, forms.Form):
-    model = PeeringSession
+class InternetExchangePeeringSessionFilterFormForIX(BootstrapMixin, forms.Form):
+    model = InternetExchangePeeringSession
     q = forms.CharField(required=False, label='Search')
     autonomous_system__asn = forms.IntegerField(required=False, label='ASN')
     autonomous_system__name = forms.CharField(required=False, label='AS Name')
@@ -361,8 +401,8 @@ class PeeringSessionFilterFormForIX(BootstrapMixin, forms.Form):
     enabled = YesNoField(required=False, label='Enabled')
 
 
-class PeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
-    model = PeeringSession
+class InternetExchangePeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
+    model = InternetExchangePeeringSession
     q = forms.CharField(required=False, label='Search')
     ip_address = forms.CharField(required=False, label='IP Address')
     ip_version = forms.IntegerField(required=False, label='IP Version',

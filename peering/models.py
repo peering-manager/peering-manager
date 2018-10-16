@@ -13,13 +13,15 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from .constants import (BGP_STATE_CHOICES, BGP_STATE_IDLE, BGP_STATE_CONNECT,
-                        BGP_STATE_ACTIVE, BGP_STATE_OPENSENT,
-                        BGP_STATE_OPENCONFIRM, BGP_STATE_ESTABLISHED,
-                        COMMUNITY_TYPE_CHOICES, COMMUNITY_TYPE_EGRESS,
-                        COMMUNITY_TYPE_INGRESS, PLATFORM_CHOICES,
-                        PLATFORM_EOS, PLATFORM_IOS, PLATFORM_IOSXR,
-                        PLATFORM_JUNOS)
+from .constants import (BGP_RELATIONSHIP_CHOICES, BGP_RELATIONSHIP_CUSTOMER,
+                        BGP_RELATIONSHIP_PRIVATE_PEERING,
+                        BGP_RELATIONSHIP_TRANSIT_PROVIDER, BGP_STATE_CHOICES,
+                        BGP_STATE_IDLE, BGP_STATE_CONNECT, BGP_STATE_ACTIVE,
+                        BGP_STATE_OPENSENT, BGP_STATE_OPENCONFIRM,
+                        BGP_STATE_ESTABLISHED, COMMUNITY_TYPE_CHOICES,
+                        COMMUNITY_TYPE_EGRESS, COMMUNITY_TYPE_INGRESS,
+                        PLATFORM_CHOICES, PLATFORM_EOS, PLATFORM_IOS,
+                        PLATFORM_IOSXR, PLATFORM_JUNOS)
 from .fields import ASNField, CommunityField
 from peeringdb.api import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
@@ -70,18 +72,21 @@ class AutonomousSystem(CreatedUpdatedModel):
         return autonomous_system
 
     def get_absolute_url(self):
-        return reverse('peering:as_details', kwargs={'asn': self.asn})
+        return reverse('peering:autonomous_system_details', kwargs={'asn': self.asn})
 
-    def get_peering_sessions_list_url(self):
-        return reverse('peering:as_peering_sessions', kwargs={'asn': self.asn})
+    def get_internet_exchange_peering_sessions_list_url(self):
+        return reverse('peering:autonomous_system_internet_exchange_peering_sessions', kwargs={'asn': self.asn})
+
+    def get_direct_peering_sessions_list_url(self):
+        return reverse('peering:autonomous_system_direct_peering_sessions', kwargs={'asn': self.asn})
 
     def get_peering_sessions(self):
-        return self.peeringsession_set.all()
+        return self.internetexchangepeeringsession_set.all()
 
     def get_internet_exchanges(self):
         internet_exchanges = []
 
-        for session in self.peeringsession_set.all():
+        for session in self.internetexchangepeeringsession_set.all():
             if session.internet_exchange not in internet_exchanges:
                 internet_exchanges.append(session.internet_exchange)
 
@@ -123,7 +128,7 @@ class AutonomousSystem(CreatedUpdatedModel):
                 if peer.ipaddr6:
                     try:
                         ip_address = ipaddress.IPv6Address(peer.ipaddr6)
-                        if not PeeringSession.does_exist(
+                        if not InternetExchangePeeringSession.does_exist(
                                 internet_exchange=internet_exchange,
                                 autonomous_system=self,
                                 ip_address=str(ip_address)):
@@ -135,7 +140,7 @@ class AutonomousSystem(CreatedUpdatedModel):
                 if peer.ipaddr4:
                     try:
                         ip_address = ipaddress.IPv4Address(peer.ipaddr4)
-                        if not PeeringSession.does_exist(
+                        if not InternetExchangePeeringSession.does_exist(
                                 internet_exchange=internet_exchange,
                                 autonomous_system=self,
                                 ip_address=str(ip_address)):
@@ -300,6 +305,35 @@ class ConfigurationTemplate(CreatedUpdatedModel):
         return self.name
 
 
+class DirectPeeringSession(BGPSession):
+    local_asn = ASNField(default=0)
+    relationship = models.CharField(
+        max_length=50, choices=BGP_RELATIONSHIP_CHOICES,
+        help_text='Relationship with the remote peer.')
+
+    def get_absolute_url(self):
+        return reverse('peering:direct_peering_session_details',
+                       kwargs={'pk': self.pk})
+
+    def get_relationship_html(self):
+        if self.relationship == BGP_RELATIONSHIP_CUSTOMER:
+            badge_type = 'badge-danger'
+        elif self.relationship == BGP_RELATIONSHIP_PRIVATE_PEERING:
+            badge_type = 'badge-success'
+        elif self.relationship == BGP_RELATIONSHIP_TRANSIT_PROVIDER:
+            badge_type = 'badge-primary'
+        else:
+            badge_type = 'badge-secondary'
+
+        return mark_safe('<span class="badge {}">{}</span>'.format(
+            badge_type, self.get_relationship_display()))
+
+    def __str__(self):
+        return '{} - AS{} - IP {}'.format(self.get_relationship_display(),
+                                          self.autonomous_system.asn,
+                                          self.ip_address)
+
+
 class InternetExchange(CreatedUpdatedModel):
     peeringdb_id = models.PositiveIntegerField(blank=True, null=True)
     name = models.CharField(max_length=128)
@@ -322,22 +356,22 @@ class InternetExchange(CreatedUpdatedModel):
         ordering = ['name']
 
     def get_absolute_url(self):
-        return reverse('peering:ix_details', kwargs={'slug': self.slug})
+        return reverse('peering:internet_exchange_details', kwargs={'slug': self.slug})
 
     def get_peering_sessions_list_url(self):
-        return reverse('peering:ix_peering_sessions',
+        return reverse('peering:internet_exchange_peering_sessions',
                        kwargs={'slug': self.slug})
 
     def get_peer_list_url(self):
-        return reverse('peering:ix_peers', kwargs={'slug': self.slug})
+        return reverse('peering:internet_exchange_peers', kwargs={'slug': self.slug})
 
     def get_peering_sessions(self):
-        return self.peeringsession_set.all()
+        return self.internetexchangepeeringsession_set.all()
 
     def get_autonomous_systems(self):
         autonomous_systems = []
 
-        for session in self.peeringsession_set.all():
+        for session in self.internetexchangepeeringsession_set.all():
             if session.autonomous_system not in autonomous_systems:
                 autonomous_systems.append(session.autonomous_system)
 
@@ -351,7 +385,7 @@ class InternetExchange(CreatedUpdatedModel):
         peers4 = {}
 
         # Sort peering sessions based on IP protocol version
-        for session in self.peeringsession_set.all():
+        for session in self.internetexchangepeeringsession_set.all():
             ip_address = ipaddress.ip_address(session.ip_address)
             ipv6_max_prefixes = session.autonomous_system.ipv6_max_prefixes
             ipv4_max_prefixes = session.autonomous_system.ipv4_max_prefixes
@@ -468,7 +502,7 @@ class InternetExchange(CreatedUpdatedModel):
                     self.logger.debug('checking if ip %s fits in prefix %s',
                                       str(session['ip_address']), str(prefix))
 
-                    # If the address fits, create a new PeeringSession object
+                    # If the address fits, create a new InternetExchangePeeringSession object
                     # and a new AutonomousSystem object if they does not exist
                     # already
                     if session['ip_address'] in prefix:
@@ -477,8 +511,8 @@ class InternetExchange(CreatedUpdatedModel):
                         self.logger.debug(
                             'ip %s fits in prefix %s', ip_address, str(prefix))
 
-                        if not PeeringSession.does_exist(ip_address=ip_address,
-                                                         internet_exchange=self):
+                        if not InternetExchangePeeringSession.does_exist(ip_address=ip_address,
+                                                                         internet_exchange=self):
                             self.logger.debug(
                                 'session %s with as%s does not exist',
                                 ip_address, remote_asn)
@@ -516,7 +550,8 @@ class InternetExchange(CreatedUpdatedModel):
                                     'internet_exchange': self,
                                     'ip_address': ip_address,
                                 }
-                                peering_session = PeeringSession(**values)
+                                peering_session = InternetExchangePeeringSession(
+                                    **values)
                                 peering_session.save()
                                 number_of_peering_sessions += 1
                                 self.logger.debug(
@@ -598,7 +633,7 @@ class InternetExchange(CreatedUpdatedModel):
                             self.name.lower())
 
                         # Check if the BGP session is on this IX
-                        peering_session = PeeringSession.does_exist(
+                        peering_session = InternetExchangePeeringSession.does_exist(
                             internet_exchange=self, ip_address=ip_address)
                         if peering_session:
                             # Get the BGP state for the session
@@ -629,7 +664,7 @@ class InternetExchange(CreatedUpdatedModel):
         return self.name
 
 
-class PeeringSession(BGPSession):
+class InternetExchangePeeringSession(BGPSession):
     internet_exchange = models.ForeignKey(
         'InternetExchange', on_delete=models.CASCADE)
 
@@ -637,7 +672,7 @@ class PeeringSession(BGPSession):
     def does_exist(internet_exchange=None, autonomous_system=None,
                    ip_address=None):
         """
-        Returns a PeeringSession object or None based on the positional
+        Returns a InternetExchangePeeringSession object or None based on the positional
         arguments. If several objects are found, None is returned.
 
         TODO: the method must be reworked in order to have its proper return
@@ -653,10 +688,10 @@ class PeeringSession(BGPSession):
             filter.update({'ip_address': ip_address})
 
         try:
-            return PeeringSession.objects.get(**filter)
-        except PeeringSession.DoesNotExist:
+            return InternetExchangePeeringSession.objects.get(**filter)
+        except InternetExchangePeeringSession.DoesNotExist:
             return None
-        except PeeringSession.MultipleObjectsReturned:
+        except InternetExchangePeeringSession.MultipleObjectsReturned:
             return None
 
     @staticmethod
@@ -711,7 +746,7 @@ class PeeringSession(BGPSession):
                       peer_record.network_ixlan.ipaddr6)
 
         # Try to get the session, in case it already exists
-        session = PeeringSession.does_exist(
+        session = InternetExchangePeeringSession.does_exist(
             autonomous_system=autonomous_system,
             internet_exchange=internet_exchange, ip_address=ip_address)
 
@@ -720,14 +755,14 @@ class PeeringSession(BGPSession):
             return (session, False)
 
         # Create the session but do not save it
-        session = PeeringSession(autonomous_system=autonomous_system,
-                                 internet_exchange=internet_exchange,
-                                 ip_address=ip_address)
+        session = InternetExchangePeeringSession(
+            autonomous_system=autonomous_system,
+            internet_exchange=internet_exchange, ip_address=ip_address)
 
         return (session, True)
 
     def get_absolute_url(self):
-        return reverse('peering:peering_session_details',
+        return reverse('peering:internet_exchange_peering_session_details',
                        kwargs={'pk': self.pk})
 
     def __str__(self):

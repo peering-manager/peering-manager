@@ -1,0 +1,91 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block content %}
+      <a href="{% url 'peering:autonomous_system_direct_peering_sessions' asn=peering_session.autonomous_system.asn %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to AS
+      </a>
+      <div class="float-right">
+        {% if perms.peering.change_directpeeringsession %}
+        {% if peering_session.enabled %}
+        <a href="{% url 'peering:direct_peering_session_disable' pk=peering_session.pk %}" class="btn btn-danger">
+          <i class="fas fa-toggle-off"></i> Disable
+        </a>
+        {% else %}
+        <a href="{% url 'peering:direct_peering_session_enable' pk=peering_session.pk %}" class="btn btn-success">
+          <i class="fas fa-toggle-on"></i> Enable
+        </a>
+        {% endif %}
+        <a href="{% url 'peering:direct_peering_session_edit' pk=peering_session.pk %}" class="btn btn-warning">
+          <i class="fas fa-edit"></i> Edit
+        </a>
+        {% endif %}
+        {% if perms.peering.delete_directpeeringsession %}
+        <a href="{% url 'peering:direct_peering_session_delete' pk=peering_session.pk %}" class="btn btn-danger">
+          <i class="fas fa-trash"></i> Delete
+        </a>
+        {% endif %}
+      </div>
+      <h1>{% block title %}{{ peering_session }}{% endblock %}</h1>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <strong>Peering Session Details</strong>
+              <div class="float-right">
+                {{ peering_session.get_enabled_html }}
+                {% if peering_session.bgp_state and peering_session.internet_exchange.check_bgp_session_states %}{{ peering_session.get_bgp_state_html }}{% endif %}
+              </div>
+            </div>
+            <table class="table table-hover card-body attr-table">
+              <tr>
+                <td>Relationship</td>
+                <td>{{ peering_session.get_relationship_display }}</td>
+              </tr>
+              <tr>
+                <td>Local ASN</td>
+                <td>{{ peering_session.local_asn }}</td>
+              </tr>
+              <tr>
+                <td>AS Name</td>
+                <td>{{ peering_session.autonomous_system.name }}</td>
+              </tr>
+              <tr>
+                <td>ASN</td>
+                <td>{{ peering_session.autonomous_system.asn }}</td>
+              </tr>
+              <tr>
+                <td>IP Address</td>
+                <td>{{ peering_session.ip_address }}</td>
+              </tr>
+              {% if request.user.is_authenticated and peering_session.password %}
+              <tr>
+                <td>Password</td>
+                <td>
+                  <div class="input-group">
+                    <input type="password" class="form-control" id="id_password" value="{{ peering_session.password }}" disabled>
+                    <div class="input-group-append">
+                      <button type="button" class="btn btn-secondary" id="id_password_reveal"><i class="fas fa-eye"></i> Show</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {% endif %}
+            </table>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <strong>Comments</strong>
+            </div>
+            <div class="card-body">
+              {% if peering_session.comment %}
+              {{ peering_session.comment|markdown }}
+              {% else %}
+              <span class="text-muted">None</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}

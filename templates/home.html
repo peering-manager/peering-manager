@@ -8,23 +8,23 @@
             </div>
             <div class="list-group">
               <div class="list-group-item">
-                <span class="badge badge-pill badge-secondary float-right">{{ statistics.ix_count }}</span>
+                <span class="badge badge-pill badge-secondary float-right">{{ statistics.autonomous_systems_count }}</span>
                 <h4 class="list-group-item-heading">
-                  <a href="{% url 'peering:ix_list' %}">Internet Exchanges</a>
-                </h4>
-                <p class="list-group-item-textn text-muted">Internet exchanges that local AS is connected to<p>
-              </div>
-              <div class="list-group-item">
-                <span class="badge badge-pill badge-secondary float-right">{{ statistics.as_count }}</span>
-                <h4 class="list-group-item-heading">
-                  <a href="{% url 'peering:as_list' %}">Autonomous Systems</a>
+                  <a href="{% url 'peering:autonomous_system_list' %}">Autonomous Systems</a>
                 </h4>
                 <p class="list-group-item-textn text-muted">Autonomous systems peering with the local AS<p>
               </div>
               <div class="list-group-item">
+                <span class="badge badge-pill badge-secondary float-right">{{ statistics.internet_exchanges_count }}</span>
+                <h4 class="list-group-item-heading">
+                  <a href="{% url 'peering:internet_exchange_list' %}">Internet Exchanges</a>
+                </h4>
+                <p class="list-group-item-textn text-muted">Internet exchanges that local AS is connected to<p>
+              </div>
+              <div class="list-group-item">
                 <span class="badge badge-pill badge-secondary float-right">{{ statistics.peering_sessions_count }}</span>
                 <h4 class="list-group-item-heading">
-                  <a href="{% url 'peering:peering_session_list' %}">Peering Sessions</a>
+                  <a href="{% url 'peering:internet_exchange_peering_session_list' %}">Peering Sessions</a>
                 </h4>
                 <p class="list-group-item-textn text-muted">Peering sessions with other autonomous systems<p>
               </div>
@@ -43,7 +43,7 @@
                 <p class="list-group-item-textn text-muted">Communities used to tag routes from or to Internet exchanges<p>
               </div>
               <div class="list-group-item">
-                <span class="badge badge-pill badge-secondary float-right">{{ statistics.config_templates_count }}</span>
+                <span class="badge badge-pill badge-secondary float-right">{{ statistics.templates_count }}</span>
                 <h4 class="list-group-item-heading">
                   <a href="{% url 'peering:configuration_template_list' %}">Templates</a>
                 </h4>

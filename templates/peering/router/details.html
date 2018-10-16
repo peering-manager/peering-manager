@@ -76,7 +76,7 @@
             <ul class="list-group list-group-flush">
               {% if internet_exchanges|length > 0 %}
               {% for ix in internet_exchanges %}
-              <li class="list-group-item"><a href="{% url 'peering:ix_details' slug=ix.slug %}">{{ ix }}</a></li>
+              <li class="list-group-item"><a href="{% url 'peering:internet_exchange_details' slug=ix.slug %}">{{ ix }}</a></li>
               {% endfor %}
               {% else %}
               <li class="list-group-item"><span class="text-muted">None</span></li>

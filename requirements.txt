@@ -2,8 +2,7 @@ Django==2.1.2
 django-filter==2.0.0
 django-tables2==1.21.2
 Jinja2==2.10
-napalm==2.3.2
-Markdown==2.6.11
+napalm==2.3.3
 MarkupSafe==1.0
 py-gfm==0.1.4
 pytz==2018.5

@@ -4,9 +4,10 @@ from django.db.models import Q
 
 import django_filters
 
-from .constants import PLATFORM_CHOICES
+from .constants import BGP_RELATIONSHIP_CHOICES, PLATFORM_CHOICES
 from .models import (AutonomousSystem, Community, ConfigurationTemplate,
-                     InternetExchange, PeeringSession, Router)
+                     DirectPeeringSession, InternetExchange,
+                     InternetExchangePeeringSession, Router)
 from peeringdb.models import PeerRecord
 
 
@@ -85,6 +86,61 @@ class ConfigurationTemplateFilter(django_filters.FilterSet):
         return queryset.filter(qs_filter)
 
 
+class DirectPeeringSessionFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    ip_version = django_filters.NumberFilter(
+        method='ip_version_search',
+        label='IP Version',
+    )
+    enabled = django_filters.BooleanFilter(
+        method='is_enabled',
+        label='Enabled',
+    )
+    relationship = django_filters.MultipleChoiceFilter(
+        choices=BGP_RELATIONSHIP_CHOICES,
+        null_value=None
+    )
+
+    class Meta:
+        model = DirectPeeringSession
+        fields = ['local_asn', 'ip_address', 'enabled', 'relationship']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(ip_address__icontains=value) |
+            Q(relationship__icontains=value) |
+            Q(comment__icontains=value)
+        )
+        try:
+            qs_filter |= Q(local_asn=int(value.strip()))
+        except ValueError:
+            pass
+        return queryset.filter(qs_filter)
+
+    def is_enabled(self, queryset, name, value):
+        if value:
+            return queryset.filter(Q(enabled=True))
+        else:
+            return queryset.exclude(Q(enabled=True))
+
+    def ip_version_search(self, queryset, name, value):
+        # TODO: Fix this shit
+        # Ugly, ugly and ugly, I am ashamed of myself for thinking of it
+        # Works in this case but IPv6/IPv4 can have different types of
+        # representation
+        if value == 6:
+            return queryset.filter(Q(ip_address__icontains=':'))
+        if value == 4:
+            return queryset.exclude(Q(ip_address__icontains=':'))
+
+        return queryset
+
+
 class InternetExchangeFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -119,37 +175,7 @@ class InternetExchangeFilter(django_filters.FilterSet):
         return queryset.filter(qs_filter)
 
 
-class PeerRecordFilter(django_filters.FilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
-
-    class Meta:
-        model = PeerRecord
-        fields = ['network__asn', 'network__name', 'network__irr_as_set',
-                  'network__info_prefixes6', 'network__info_prefixes4',
-                  'network_ixlan__ipaddr6', 'network_ixlan__ipaddr4']
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        qs_filter = (
-            Q(network__name__icontains=value) |
-            Q(network__irr_as_set__icontains=value) |
-            Q(network_ixlan__ipaddr6=value) |
-            Q(network_ixlan__ipaddr4=value)
-        )
-        try:
-            qs_filter |= Q(network__asn=int(value.strip()))
-            qs_filter |= Q(network__info_prefixes6=int(value.strip()))
-            qs_filter |= Q(network__info_prefixes4=int(value.strip()))
-        except ValueError:
-            pass
-        return queryset.filter(qs_filter)
-
-
-class PeeringSessionFilter(django_filters.FilterSet):
+class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -164,7 +190,7 @@ class PeeringSessionFilter(django_filters.FilterSet):
     )
 
     class Meta:
-        model = PeeringSession
+        model = InternetExchangePeeringSession
         fields = ['ip_address', 'enabled', 'autonomous_system__asn',
                   'autonomous_system__name', 'internet_exchange__name',
                   'internet_exchange__slug']
@@ -202,6 +228,36 @@ class PeeringSessionFilter(django_filters.FilterSet):
             return queryset.exclude(Q(ip_address__icontains=':'))
 
         return queryset
+
+
+class PeerRecordFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+
+    class Meta:
+        model = PeerRecord
+        fields = ['network__asn', 'network__name', 'network__irr_as_set',
+                  'network__info_prefixes6', 'network__info_prefixes4',
+                  'network_ixlan__ipaddr6', 'network_ixlan__ipaddr4']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(network__name__icontains=value) |
+            Q(network__irr_as_set__icontains=value) |
+            Q(network_ixlan__ipaddr6=value) |
+            Q(network_ixlan__ipaddr4=value)
+        )
+        try:
+            qs_filter |= Q(network__asn=int(value.strip()))
+            qs_filter |= Q(network__info_prefixes6=int(value.strip()))
+            qs_filter |= Q(network__info_prefixes4=int(value.strip()))
+        except ValueError:
+            pass
+        return queryset.filter(qs_filter)
 
 
 class RouterFilter(django_filters.FilterSet):

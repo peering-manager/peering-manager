@@ -9,7 +9,7 @@
 
     <title>{% block title %}Home{% endblock %} - Peering Manager</title>
 
-    <script defer src="{% static 'fontawesome-5.3.1/js/all.js' %}"></script>
+    <script defer src="{% static 'fontawesome-5.4.1/js/all.js' %}"></script>
 
     <link rel="stylesheet" href="{% static 'bootstrap-4.1.3-dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v{{ settings.VERSION }}"
@@ -23,9 +23,9 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item{% if request.path|contains:'/ix/' %} active{% endif %}"><a class="nav-link" href="{% url 'peering:ix_list' %}">Internet Exchanges</a></li>
-          <li {% if request.path|contains:'/as/' %}class="active"{% endif %}><a class="nav-link" href="{% url 'peering:as_list' %}">Autonomous Systems</a></li>
-          <li class="nav-item dropdown{% if request.path|contains:'/community/,/router/,/template/' %} active{% endif %}">
+          <li {% if request.path|contains:'/autonomous-systems/' %}class="active"{% endif %}><a class="nav-link" href="{% url 'peering:autonomous_system_list' %}">Autonomous Systems</a></li>
+          <li class="nav-item{% if request.path|contains:'/internet-exchanges/' %} active{% endif %}"><a class="nav-link" href="{% url 'peering:internet_exchange_list' %}">Internet Exchanges</a></li>
+          <li class="nav-item dropdown{% if request.path|contains:'/communities/,/routers/,/templates/' %} active{% endif %}">
             <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Deployment</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="{% url 'peering:community_list' %}">Communities</a></li>

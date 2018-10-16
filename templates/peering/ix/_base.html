@@ -3,12 +3,12 @@
 {% block content %}
       <div class="float-right">
         {% if perms.peering.change_internetexchange %}
-        <a href="{% url 'peering:ix_edit' slug=internet_exchange.slug %}" class="btn btn-warning">
+        <a href="{% url 'peering:internet_exchange_edit' slug=internet_exchange.slug %}" class="btn btn-warning">
           <i class="fas fa-edit"></i> Edit
         </a>
         {% endif %}
         {% if perms.peering.delete_internetexchange %}
-        <a href="{% url 'peering:ix_delete' slug=internet_exchange.slug %}" class="btn btn-danger">
+        <a href="{% url 'peering:internet_exchange_delete' slug=internet_exchange.slug %}" class="btn btn-danger">
           <i class="fas fa-trash"></i> Delete
         </a>
         {% endif %}
@@ -20,20 +20,20 @@
       {% if request.user.is_authenticated %}
       <ul class="nav nav-tabs">
         <li class="nav-item">
-          <a class="nav-link{% if request.path|notcontains:'/sessions/,/peers/,/config/' %} active{% endif %}" href="{% url 'peering:ix_details' slug=internet_exchange.slug %}">
+          <a class="nav-link{% if request.path|notcontains:'/sessions/,/peers/,/config/' %} active{% endif %}" href="{% url 'peering:internet_exchange_details' slug=internet_exchange.slug %}">
             <i class="fas fa-info-circle" aria-hidden="true"></i>
             Info
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link{% if request.path|contains:'/sessions/' %} active{% endif %}" href="{% url 'peering:ix_peering_sessions' slug=internet_exchange.slug %}">
+          <a class="nav-link{% if request.path|contains:'/sessions/' %} active{% endif %}" href="{% url 'peering:internet_exchange_peering_sessions' slug=internet_exchange.slug %}">
             <i class="fas fa-sitemap" aria-hidden="true"></i>
             Peering Sessions
           </a>
         </li>
         {% if internet_exchange.peeringdb_id %}
         <li class="nav-item">
-          <a class="nav-link{% if request.path|contains:'/peers/' %} active{% endif %}" href="{% url 'peering:ix_peers' slug=internet_exchange.slug %}">
+          <a class="nav-link{% if request.path|contains:'/peers/' %} active{% endif %}" href="{% url 'peering:internet_exchange_peers' slug=internet_exchange.slug %}">
             <i class="fas fa-link" aria-hidden="true"></i>
             Available Peers
           </a>
@@ -41,7 +41,7 @@
         {% endif %}
         {% if internet_exchange.configuration_template %}
         <li class="nav-item">
-          <a class="nav-link{% if request.path|contains:'/config/' %} active{% endif %}" href="{% url 'peering:ix_configuration' slug=internet_exchange.slug %}">
+          <a class="nav-link{% if request.path|contains:'/config/' %} active{% endif %}" href="{% url 'peering:internet_exchange_configuration' slug=internet_exchange.slug %}">
             <i class="fas fa-terminal" aria-hidden="true"></i>
             Configuration
           </a>

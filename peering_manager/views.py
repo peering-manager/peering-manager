@@ -15,8 +15,9 @@ from django.views.generic import View
 
 from .forms import LoginForm, UserPasswordChangeForm
 from peering.models import (AutonomousSystem, Community,
-                            ConfigurationTemplate, InternetExchange,
-                            PeeringSession, Router)
+                            ConfigurationTemplate, DirectPeeringSession,
+                            InternetExchange, InternetExchangePeeringSession,
+                            Router)
 from peeringdb.models import Synchronization
 from utils.models import UserAction
 
@@ -58,12 +59,12 @@ class LogoutView(View):
 class Home(View):
     def get(self, request):
         statistics = {
-            'as_count': AutonomousSystem.objects.count(),
-            'ix_count': InternetExchange.objects.count(),
+            'autonomous_systems_count': AutonomousSystem.objects.count(),
+            'internet_exchanges_count': InternetExchange.objects.count(),
             'communities_count': Community.objects.count(),
-            'config_templates_count': ConfigurationTemplate.objects.count(),
+            'templates_count': ConfigurationTemplate.objects.count(),
             'routers_count': Router.objects.count(),
-            'peering_sessions_count': PeeringSession.objects.count(),
+            'peering_sessions_count': DirectPeeringSession.objects.count() + InternetExchangePeeringSession.objects.count(),
         }
         context = {
             'statistics': statistics,

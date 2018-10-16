@@ -16,6 +16,14 @@ BGP_STATE_CHOICES = (
     (BGP_STATE_ESTABLISHED, 'Established'),
 )
 
+# Community type constants
+COMMUNITY_TYPE_EGRESS = 'egress'
+COMMUNITY_TYPE_INGRESS = 'ingress'
+COMMUNITY_TYPE_CHOICES = (
+    (COMMUNITY_TYPE_EGRESS, 'Egress'),
+    (COMMUNITY_TYPE_INGRESS, 'Ingress'),
+)
+
 # Platform constants, based on NAPALM drivers
 PLATFORM_JUNOS = 'junos'
 PLATFORM_IOSXR = 'iosxr'
@@ -32,10 +40,12 @@ PLATFORM_CHOICES = (
     (PLATFORM_NONE, 'Other'),
 )
 
-# Community type constants
-COMMUNITY_TYPE_EGRESS = 'egress'
-COMMUNITY_TYPE_INGRESS = 'ingress'
-COMMUNITY_TYPE_CHOICES = (
-    (COMMUNITY_TYPE_EGRESS, 'Egress'),
-    (COMMUNITY_TYPE_INGRESS, 'Ingress'),
+# BGP relationship between us and a peer
+BGP_RELATIONSHIP_PRIVATE_PEERING = 'private-peering'
+BGP_RELATIONSHIP_TRANSIT_PROVIDER = 'transit-provider'
+BGP_RELATIONSHIP_CUSTOMER = 'customer'
+BGP_RELATIONSHIP_CHOICES = (
+    (BGP_RELATIONSHIP_PRIVATE_PEERING, 'Private Peering'),
+    (BGP_RELATIONSHIP_TRANSIT_PROVIDER, 'Transit Provider'),
+    (BGP_RELATIONSHIP_CUSTOMER, 'Customer'),
 )

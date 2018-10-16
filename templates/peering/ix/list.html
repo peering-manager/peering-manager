@@ -3,13 +3,13 @@
 {% block content %}
       {% if perms.peering.add_internetexchange %}
       <div class="float-right">
-        <a href="{% url 'peering:ix_add' %}" class="btn btn-primary">
+        <a href="{% url 'peering:internet_exchange_add' %}" class="btn btn-primary">
           <i class="fas fa-plus"></i> Add an IX
         </a>
-        <a href="{% url 'peering:ix_import' %}" class="btn btn-info">
+        <a href="{% url 'peering:internet_exchange_import' %}" class="btn btn-info">
           <i class="fas fa-upload"></i> Import IX
         </a>
-        <a href="{% url 'peering:ix_peeringdb_import' %}" class="btn btn-info">
+        <a href="{% url 'peering:internet_exchange_peeringdb_import' %}" class="btn btn-info">
           <i class="fas fa-cloud-upload-alt"></i> Import from PeeringDB
         </a>
       </div>
@@ -17,7 +17,7 @@
       <h1>{% block title %}Internet Exchanges{% endblock %}</h1>
       <div class="row">
         <div class="col-md-9">
-          {% include 'utils/object_list.html' with bulk_delete_url='peering:ix_bulk_delete' %}
+          {% include 'utils/object_list.html' with bulk_delete_url='peering:internet_exchange_bulk_delete' %}
         </div>
         <div class="col-md-3">
           {% include 'utils/search_form.html' %}

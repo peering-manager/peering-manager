@@ -1,0 +1,21 @@
+{% extends 'utils/object_add_edit.html' %}
+{% load form_helpers %}
+{% block form %}
+            <div class="card my-2">
+              <div class="card-header"><strong>Direct Peering Session</strong></div>
+              <div class="card-body">
+                {% render_field form.local_asn %}
+                {% render_field form.autonomous_system %}
+                {% render_field form.relationship %}
+                {% render_field form.ip_address %}
+                {% render_field form.password %}
+                {% render_field form.enabled %}
+              </div>
+            </div>
+            <div class="card my-2">
+              <div class="card-header"><strong>Comments</strong></div>
+              <div class="card-body">
+                {% render_field form.comment %}
+              </div>
+            </div>
+{% endblock %}
