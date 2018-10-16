@@ -90,7 +90,8 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
 
     def test_as_add_view(self):
         # Not logged in, no right to access the view, should be redirected
-        self.get_request('peering:autonomous_system_add', expected_status_code=302)
+        self.get_request('peering:autonomous_system_add',
+                         expected_status_code=302)
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
@@ -108,12 +109,14 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
         as_not_to_create = {
             'asn': 64501,
         }
-        self.post_request('peering:autonomous_system_add', data=as_not_to_create)
+        self.post_request('peering:autonomous_system_add',
+                          data=as_not_to_create)
         self.does_object_not_exist(as_not_to_create)
 
     def test_as_import_view(self):
         # Not logged in, no right to access the view, should be redirected
-        self.get_request('peering:autonomous_system_import', expected_status_code=302)
+        self.get_request('peering:autonomous_system_import',
+                         expected_status_code=302)
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
@@ -124,7 +127,8 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
             'csv': '''asn,name,irr_as_set,ipv6_max_prefixes,ipv4_max_prefixes,comment
                       64500,as-created,,,,''',
         }
-        self.post_request('peering:autonomous_system_import', data=as_to_import)
+        self.post_request('peering:autonomous_system_import',
+                          data=as_to_import)
         self.does_object_exist({'asn': 64500})
 
         # Try to create an object with invalid data
@@ -132,7 +136,8 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
             'csv': '''asn,name,irr_as_set,ipv6_max_prefixes,ipv4_max_prefixes,comment
                       64501,,,,,''',
         }
-        self.post_request('peering:autonomous_system_import', data=as_not_to_import)
+        self.post_request('peering:autonomous_system_import',
+                          data=as_not_to_import)
         self.does_object_not_exist({'asn': 64501})
 
     def test_as_import_from_peeringdb_view(self):
@@ -207,7 +212,8 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
 
     def test_as_bulk_delete_view(self):
         # Not logged in, no right to access the view, should be redirected
-        self.get_request('peering:autonomous_system_bulk_delete', expected_status_code=302)
+        self.get_request('peering:autonomous_system_bulk_delete',
+                         expected_status_code=302)
 
     def test_as_peeringdb_sync_view(self):
         # No ASN given, view should not work
@@ -228,17 +234,18 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
         self.get_request('peering:autonomous_system_peeringdb_sync', params={'asn': self.asn},
                          expected_status_code=302)
 
-    def test_as_peering_sessions_view(self):
+    def test_as_internet_exchange_peering_sessions_view(self):
         # No ASN given, view should not work
         with self.assertRaises(NoReverseMatch):
-            self.get_request('peering:autonomous_system_peering_sessions')
+            self.get_request(
+                'peering:autonomous_system_internet_exchange_peering_sessions')
 
         # Using a wrong AS number, status should be 404 not found
-        self.get_request('peering:autonomous_system_peering_sessions', params={'asn': 64500},
-                         expected_status_code=404)
+        self.get_request('peering:autonomous_system_internet_exchange_peering_sessions',
+                         params={'asn': 64500}, expected_status_code=404)
 
         # Using an existing AS, status should be OK
-        self.get_request('peering:autonomous_system_peering_sessions',
+        self.get_request('peering:autonomous_system_internet_exchange_peering_sessions',
                          params={'asn': self.asn})
 
 
@@ -413,7 +420,8 @@ class CommunityViewsTestCase(ViewTestCase):
 
     def test_community_bulk_delete_view(self):
         # Not logged in, no right to access the view, should be redirected
-        self.get_request('peering:autonomous_system_bulk_delete', expected_status_code=302)
+        self.get_request('peering:autonomous_system_bulk_delete',
+                         expected_status_code=302)
 
 
 class InternetExchangeTestCase(TestCase):
@@ -581,7 +589,8 @@ class InternetExchangeViewsTestCase(ViewTestCase):
 
     def test_ix_add_view(self):
         # Not logged in, no right to access the view, should be redirected
-        self.get_request('peering:internet_exchange_add', expected_status_code=302)
+        self.get_request('peering:internet_exchange_add',
+                         expected_status_code=302)
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
@@ -599,12 +608,14 @@ class InternetExchangeViewsTestCase(ViewTestCase):
         ix_not_to_create = {
             'name': 'ix-notcreated',
         }
-        self.post_request('peering:internet_exchange_add', data=ix_not_to_create)
+        self.post_request('peering:internet_exchange_add',
+                          data=ix_not_to_create)
         self.does_object_not_exist(ix_not_to_create)
 
     def test_ix_import_view(self):
         # Not logged in, no right to access the view, should be redirected
-        self.get_request('peering:internet_exchange_import', expected_status_code=302)
+        self.get_request('peering:internet_exchange_import',
+                         expected_status_code=302)
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
@@ -615,7 +626,8 @@ class InternetExchangeViewsTestCase(ViewTestCase):
             'csv': '''name,slug,ipv6_address,ipv4_address,configuration_template,router,check_bgp_session_states,comment
                       ix-created,ix-created,,,,,,''',
         }
-        self.post_request('peering:internet_exchange_import', data=ix_to_import)
+        self.post_request('peering:internet_exchange_import',
+                          data=ix_to_import)
         self.does_object_exist({'slug': 'ix-created'})
 
         # Try to create an object with invalid data
@@ -623,7 +635,8 @@ class InternetExchangeViewsTestCase(ViewTestCase):
             'csv': '''name,slug,ipv6_address,ipv4_address,configuration_template,router,check_bgp_session_states,comment
                       ix-not-created,,,,,,,''',
         }
-        self.post_request('peering:internet_exchange_import', data=ix_to_import)
+        self.post_request('peering:internet_exchange_import',
+                          data=ix_to_import)
         self.does_object_not_exist({'slug': 'ix-not-reated'})
 
     def test_ix_peeringdb_import_view(self):
@@ -633,7 +646,8 @@ class InternetExchangeViewsTestCase(ViewTestCase):
 
     def test_ix_bulk_delete_view(self):
         # Not logged in, no right to access the view, should be redirected
-        self.get_request('peering:internet_exchange_bulk_delete', expected_status_code=302)
+        self.get_request('peering:internet_exchange_bulk_delete',
+                         expected_status_code=302)
 
     def test_ix_details_view(self):
         # No slug given, view should not work
