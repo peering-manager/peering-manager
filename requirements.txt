@@ -5,5 +5,5 @@ Jinja2==2.10
 napalm==2.3.3
 MarkupSafe==1.0
 py-gfm==0.1.4
-pytz==2018.5
-requests==2.19.1
+pytz==2018.7
+requests==2.20.0
