@@ -14,3 +14,5 @@ pages:
 
 markdown_extensions:
   - admonition:
+
+theme: readthedocs

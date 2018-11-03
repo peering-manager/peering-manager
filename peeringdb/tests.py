@@ -103,8 +103,8 @@ class PeeringDBTestCase(TestCase):
         # Must not exist
         self.assertIsNone(api.get_ix_networks_for_asn(64500))
 
-        known_ix_networks = [29146, 15321, 24292, 14658,
-                             15210, 16774, 14657, 23162, 14659, 17707, 27863]
+        known_ix_networks = [29146, 15321, 24292, 15210, 16774, 14657, 23162,
+                             14659, 17707, 27863]
         found_ix_networks = []
 
         ix_networks = api.get_ix_networks_for_asn(asn)
@@ -122,7 +122,7 @@ class PeeringDBTestCase(TestCase):
         self.assertFalse(api.get_common_ix_networks_for_asns(asn1, 64500))
 
         # Known common IX networks
-        known_ix_networks = [69, 359, 255]
+        known_ix_networks = [359, 255]
         found_ix_networks = []
         # Found common IX networks
         for n1, n2 in api.get_common_ix_networks_for_asns(asn1, asn2):

@@ -141,7 +141,7 @@ class InternetExchangePeeringSessionTableForIX(BaseTable):
     """
     pk = SelectColumn()
     asn = tables.Column(verbose_name='ASN', accessor='autonomous_system.asn')
-    as_name = tables.RelatedLinkColumn(
+    autonomous_system = tables.RelatedLinkColumn(
         verbose_name='AS Name', accessor='autonomous_system',
         text=lambda record: record.autonomous_system.name)
     ip_address = tables.Column(verbose_name='IP Address')
@@ -153,7 +153,7 @@ class InternetExchangePeeringSessionTableForIX(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = InternetExchangePeeringSession
-        fields = ('pk', 'asn', 'as_name', 'ip_address', 'enabled',
+        fields = ('pk', 'asn', 'autonomous_system', 'ip_address', 'enabled',
                   'session_state', 'actions',)
 
 
@@ -163,8 +163,8 @@ class InternetExchangePeeringSessionTableForAS(BaseTable):
     """
     pk = SelectColumn()
     ip_address = tables.Column(verbose_name='IP Address')
-    ix = tables.RelatedLinkColumn(verbose_name='Internet Exchange',
-                                  accessor='internet_exchange')
+    internet_exchange = tables.RelatedLinkColumn(
+        verbose_name='Internet Exchange', accessor='internet_exchange')
     enabled = tables.TemplateColumn(verbose_name='Status',
                                     template_code=BGPSESSION_STATUS)
     session_state = BGPSessionStateColumn(accessor='bgp_state')
@@ -173,8 +173,8 @@ class InternetExchangePeeringSessionTableForAS(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = InternetExchangePeeringSession
-        fields = ('pk', 'ip_address', 'ix', 'enabled', 'session_state',
-                  'actions',)
+        fields = ('pk', 'ip_address', 'internet_exchange', 'enabled',
+                  'session_state', 'actions',)
 
 
 class PeerRecordTable(BaseTable):
