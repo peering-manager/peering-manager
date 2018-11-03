@@ -53,7 +53,7 @@
               </tr>
               <tr>
                 <td>State Change</td>
-                <td>{{ peering_session.last_state_change_date }}</td>
+                <td>{{ peering_session.last_state_change }}</td>
               </tr>
               {% if request.user.is_authenticated and peering_session.password %}
               <tr>
