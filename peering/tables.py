@@ -56,7 +56,7 @@ class CommunityTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Community
-        fields = ('pk', 'name', 'value', 'type', 'actions',)
+        fields = ('pk', 'name', 'value', 'type', 'actions', )
 
 
 class ConfigurationTemplateTable(BaseTable):
