@@ -56,7 +56,7 @@ class CommunityTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Community
-        fields = ('pk', 'name', 'value', 'type', 'actions', )
+        fields = ('pk', 'name', 'value', 'type', 'actions',)
 
 
 class ConfigurationTemplateTable(BaseTable):
@@ -90,7 +90,7 @@ class DirectPeeringSessionTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = DirectPeeringSession
         fields = ('pk', 'local_asn', 'ip_address', 'relationship', 'enabled',
-                  'session_state', 'last_state_established', )
+                  'session_state', 'last_state_established',)
 
 
 class InternetExchangeTable(BaseTable):
