@@ -84,7 +84,7 @@ class DirectPeeringSessionTable(BaseTable):
                                          template_code=BGP_RELATIONSHIP)
     enabled = tables.TemplateColumn(verbose_name='Status',
                                     template_code=BGPSESSION_STATUS)
-    session_state = BGPSessionStateColumn(accessor='bgp_state')    
+    session_state = BGPSessionStateColumn(accessor='bgp_state')
 
     class Meta(BaseTable.Meta):
         model = DirectPeeringSession
