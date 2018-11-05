@@ -646,7 +646,7 @@ class InternetExchange(CreatedUpdatedModel):
                                 ip_address, self.name.lower(), state)
 
                             # Update the BGP state of the session
-                            if (peering_session.bgp_state == "Established"):
+                            if (peering_session.bgp_state == "established"):
                                 peering_session.last_state_established = timezone.localdate()
 
                             peering_session.bgp_state = state

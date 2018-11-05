@@ -90,7 +90,7 @@ class DirectPeeringSessionTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = DirectPeeringSession
         fields = ('pk', 'local_asn', 'ip_address', 'relationship', 'enabled',
-                  'session_state', 'last_state_established',)
+                  'session_state',)
 
 
 class InternetExchangeTable(BaseTable):
@@ -156,7 +156,7 @@ class InternetExchangePeeringSessionTableForIX(BaseTable):
     class Meta(BaseTable.Meta):
         model = InternetExchangePeeringSession
         fields = ('pk', 'asn', 'autonomous_system', 'ip_address', 'enabled',
-                  'session_state', 'last_state_established', 'actions',)
+                  'session_state', 'actions',)
 
 
 class InternetExchangePeeringSessionTableForAS(BaseTable):
@@ -177,7 +177,7 @@ class InternetExchangePeeringSessionTableForAS(BaseTable):
     class Meta(BaseTable.Meta):
         model = InternetExchangePeeringSession
         fields = ('pk', 'ip_address', 'internet_exchange', 'enabled',
-                  'session_state', 'last_state_established', 'actions',)
+                  'session_state', 'actions',)
 
 
 class PeerRecordTable(BaseTable):
