@@ -205,7 +205,7 @@ class BGPSession(CreatedUpdatedModel):
     received_prefix_count = models.PositiveIntegerField(blank=True, null=True)
     advertised_prefix_count = models.PositiveIntegerField(blank=True,
                                                           null=True)
-    last_state_change = models.DateField(blank=True, null=True)
+    last_state_established = models.DateField(blank=True, null=True)
     comment = models.TextField(blank=True)
 
     class Meta:
@@ -646,8 +646,8 @@ class InternetExchange(CreatedUpdatedModel):
                                 ip_address, self.name.lower(), state)
 
                             # Update the BGP state of the session
-                            if (peering_session.bgp_state != state):
-                                peering_session.last_state_change = timezone.localdate()
+                            if (peering_session.bgp_state == "Established"):
+                                peering_session.last_state_established = timezone.localdate()
 
                             peering_session.bgp_state = state
                             peering_session.received_prefix_count = received
