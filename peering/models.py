@@ -205,7 +205,7 @@ class BGPSession(CreatedUpdatedModel):
     received_prefix_count = models.PositiveIntegerField(blank=True, null=True)
     advertised_prefix_count = models.PositiveIntegerField(blank=True,
                                                           null=True)
-    last_state_established = models.DateField(blank=True, null=True)
+    last_established_state = models.DateField(blank=True, null=True)
     comment = models.TextField(blank=True)
 
     class Meta:
