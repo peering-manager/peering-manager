@@ -13,11 +13,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='directpeeringsession',
             name='last_established_state',
-            field=models.DateField(blank=True, null=True),
+            field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='internetexchangepeeringsession',
             name='last_established_state',
-            field=models.DateField(blank=True, null=True),
+            field=models.DateTimeField(blank=True, null=True),
         ),
     ]
