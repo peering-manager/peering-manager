@@ -12,12 +12,12 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='directpeeringsession',
-            name='last_state_established',
+            name='last_established_state',
             field=models.DateField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='internetexchangepeeringsession',
-            name='last_state_established',
+            name='last_established_state',
             field=models.DateField(blank=True, null=True),
         ),
     ]
