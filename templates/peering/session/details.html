@@ -51,6 +51,10 @@
                 <td>IP Address</td>
                 <td>{{ peering_session.ip_address }}</td>
               </tr>
+              <tr>
+                <td>Last Established</td>
+                <td>{{ peering_session.last_established_state }}</td>
+              </tr>
               {% if request.user.is_authenticated and peering_session.password %}
               <tr>
                 <td>Password</td>
