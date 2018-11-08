@@ -53,6 +53,16 @@
                 <td>Other</td>
                 {% endif %}
               </tr>
+              {% if settings.NETBOX_API %}
+              <tr>
+                <td>Source</td>
+                {% if router.is_netbox_device %}
+                <td>NetBox</td>
+                {% else %}
+                <td>Local</td>
+                {% endif %}
+              </tr>
+              {% endif %}
             </table>
           </div>
           <div class="card">

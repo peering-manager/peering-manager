@@ -950,6 +950,7 @@ class RouterViewsTestCase(ViewTestCase):
 
         # Try to create an object with valid data
         router_to_create = {
+            'netbox_device_id': 0,
             'name': 'router.created',
             'hostname': 'router.created.example.com',
         }

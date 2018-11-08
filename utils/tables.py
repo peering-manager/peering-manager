@@ -38,11 +38,13 @@ class SelectColumn(tables.CheckBoxColumn):
 
 class ActionsColumn(tables.TemplateColumn):
     def __init__(self, *args, **kwargs):
+        attrs = kwargs.pop('attrs', {'td': {'class': 'text-right'}})
         default = kwargs.pop('default', '')
         visible = kwargs.pop('visible', False)
         orderable = kwargs.pop('orderable', False)
         verbose_name = kwargs.pop('verbose_name', '')
-        super(ActionsColumn, self).__init__(*args, default=default,
+        super(ActionsColumn, self).__init__(*args, attrs=attrs,
+                                            default=default,
                                             orderable=orderable,
                                             verbose_name=verbose_name,
                                             visible=visible, **kwargs)

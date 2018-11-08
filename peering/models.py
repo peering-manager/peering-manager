@@ -777,6 +777,7 @@ class Router(CreatedUpdatedModel):
     platform = models.CharField(max_length=50, choices=PLATFORM_CHOICES,
                                 blank=True, help_text='The router platform, used to interact with it')
     comment = models.TextField(blank=True)
+    netbox_device_id = models.PositiveIntegerField(default=0, blank=True)
 
     logger = logging.getLogger('peering.manager.napalm')
 
@@ -785,6 +786,9 @@ class Router(CreatedUpdatedModel):
 
     def get_absolute_url(self):
         return reverse('peering:router_details', kwargs={'pk': self.pk})
+
+    def is_netbox_device(self):
+        return self.netbox_device_id is not 0
 
     def can_napalm_get_bgp_neighbors_detail(self):
         return False if not self.platform else self.platform in [

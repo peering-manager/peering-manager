@@ -8,6 +8,7 @@ from .constants import (BGP_RELATIONSHIP_CHOICES, COMMUNITY_TYPE_CHOICES,
 from .models import (AutonomousSystem, Community, ConfigurationTemplate,
                      DirectPeeringSession, InternetExchange,
                      InternetExchangePeeringSession, Router)
+from netbox.api import NetBox
 from peeringdb.models import PeerRecord
 from utils.forms import (BootstrapMixin, CSVChoiceField, FilterChoiceField,
                          PasswordField, SlugField, YesNoField)
@@ -417,12 +418,26 @@ class InternetExchangePeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
 
 
 class RouterForm(BootstrapMixin, forms.ModelForm):
+    netbox_device_id = forms.IntegerField(label='NetBox Device', initial=0)
     comment = CommentField()
+
+    def __init__(self, *args, **kwargs):
+        super(RouterForm, self).__init__(*args, **kwargs)
+
+        if settings.NETBOX_API:
+            self.fields['netbox_device_id'] = forms.ChoiceField(
+                label='NetBox Device',
+                choices=[(0, '--------')] + [(device['id'], device['display_name']) for device in NetBox().get_devices()])
+            self.fields['netbox_device_id'].widget.attrs['class'] = ' '.join(
+                [self.fields['netbox_device_id'].widget.attrs.get('class', ''), 'form-control']).strip()
+        else:
+            self.fields['netbox_device_id'].widget = forms.HiddenInput()
 
     class Meta:
         model = Router
 
-        fields = ('name', 'hostname', 'platform', 'comment',)
+        fields = ('netbox_device_id', 'name', 'hostname', 'platform',
+                  'comment',)
         labels = {
             'comment': 'Comments',
         }

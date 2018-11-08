@@ -39,6 +39,12 @@ if MY_ASN == -1:
     raise ImproperlyConfigured(
         'The MY_ASN setting must be set to a valid AS number.')
 
+# NetBox API configuration
+NETBOX_API = getattr(configuration, 'NETBOX_API', '')
+NETBOX_API_TOKEN = getattr(configuration, 'NETBOX_API_TOKEN', '')
+NETBOX_DEVICE_ROLES = getattr(configuration, 'NETBOX_DEVICE_ROLES',
+                              ['router', 'firewall', 'switch'])
+
 # PeeringDB URLs
 PEERINGDB_API = 'https://peeringdb.com/api/'
 PEERINGDB = 'https://peeringdb.com/asn/'
@@ -183,6 +189,14 @@ LOGGING = {
             'backupCount': 5,
             'formatter': 'simple',
         },
+        'netbox_file': {
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': 'logs/netbox.log',
+            'when': 'midnight',
+            'interval': 1,
+            'backupCount': 5,
+            'formatter': 'simple',
+        },
     },
     'loggers': {
         'peering.manager.peering': {
@@ -195,6 +209,10 @@ LOGGING = {
         },
         'peering.manager.napalm': {
             'handlers': ['napalm_file'],
+            'level': 'DEBUG',
+        },
+        'peering.manager.netbox': {
+            'handlers': ['netbox_file'],
             'level': 'DEBUG',
         },
     }
