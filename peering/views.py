@@ -736,9 +736,9 @@ class InternetExchangePeeringSessionAddFromPeeringDB(PermissionRequiredMixin,
             dependency, 4)
         return_value = []
 
-        if session6:
+        if session6 and created6:
             return_value.append(session6)
-        if session4:
+        if session4 and created4:
             return_value.append(session4)
 
         return return_value
