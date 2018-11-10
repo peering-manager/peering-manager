@@ -1,0 +1,47 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% load form_helpers %}
+
+{% block content %}
+<h1>{% block title %}Editing {{ table.rows|length }} {{ object_type_plural }}{% endblock %}</h1>
+<form action="" method="post" class="form form-horizontal">
+  {% csrf_token %}
+  {% if request.POST.return_url %}
+  <input type="hidden" name="return_url" value="{{ request.POST.return_url }}" />
+  {% endif %}
+  {% for field in form.hidden_fields %}
+  {{ field }}
+  {% endfor %}
+  <div class="row justify-content-center">
+    <div class="col-8">
+      <div class="panel panel-default">
+        {% include 'utils/table.html' %}
+      </div>
+    </div>
+    <div class="col-4">
+      {% if form.non_field_errors %}
+      <div class="card bg-danger text-white my-2">
+        <div class="card-header"><strong>Errors</strong></div>
+        <div class="card-body">
+          {{ form.non_field_errors }}
+        </div>
+      </div>
+      {% endif %}
+      <div class="card">
+        <div class="card-header"><strong>{% block form_title %}Attributes{% endblock %}</strong></div>
+        <div class="card-body">
+          {% for field in form.visible_fields %}
+          {% render_field field %}
+          {% endfor %}
+        </div>
+      </div>
+      <div class="form-group text-right">
+        <div class="col-12 mt-2">
+          <button type="submit" name="_apply" class="btn btn-primary">Apply</button>
+          <a href="{{ return_url }}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}

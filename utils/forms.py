@@ -6,6 +6,17 @@ from django import forms
 from django.conf import settings
 
 
+class BulkEditForm(forms.Form):
+    """
+    Base form for editing several objects at the same time.
+    """
+
+    def __init__(self, model, parent_object=None, *args, **kwargs):
+        super(BulkEditForm, self).__init__(*args, **kwargs)
+        self.model = model
+        self.parent_object = parent_object
+
+
 class BootstrapMixin(forms.BaseForm):
     def __init__(self, *args, **kwargs):
         super(BootstrapMixin, self).__init__(*args, **kwargs)
@@ -189,6 +200,7 @@ class YesNoField(forms.BooleanField):
 
     def __init__(self, *args, **kwargs):
         super(YesNoField, self).__init__(widget=forms.Select(choices=[
+            (None, '---------'),
             ('True', 'Yes'),
             ('False', 'No'),
         ]), *args, **kwargs)

@@ -292,6 +292,91 @@ class BulkDeleteView(View):
         })
 
 
+class BulkEditView(View):
+    queryset = None
+    parent_model = None
+    filter = None
+    table = None
+    form = None
+    template = 'utils/object_bulk_edit.html'
+    return_url = None
+
+    def get_return_url(self, request):
+        if self.return_url:
+            # Use the default URL if given
+            return self.return_url
+
+        if request.POST.get('return_url'):
+            return request.POST.get('return_url')
+
+        # Or return to home
+        return reverse('home')
+
+    def get(self, request):
+        return redirect(self.get_return_url(request))
+
+    def post(self, request, **kwargs):
+        model = self.queryset.model
+
+        # If we are working with a parent object, lets use it
+        parent_object = get_object_or_404(
+            self.parent_model, **kwargs) if self.parent_model else None
+
+        # Check if the user asked for all objects to be edited
+        if request.POST.get('_all') and self.filter:
+            pk_list = [obj.pk for obj
+                       in self.filter(request.GET, model.objects.only('pk')).qs]
+        else:
+            pk_list = [int(pk) for pk in request.POST.getlist('pk')]
+
+        if '_apply' in request.POST:
+            form = self.form(model, parent_object, request.POST)
+            if form.is_valid():
+                fields = [field for field in form.fields if field != 'pk']
+
+                try:
+                    with transaction.atomic():
+                        updated_count = 0
+                        for obj in model.objects.filter(pk__in=pk_list):
+                            for name in fields:
+                                if form.cleaned_data[name] not in (None, ''):
+                                    setattr(obj, name, form.cleaned_data[name])
+                            obj.full_clean()
+                            obj.save()
+                            updated_count += 1
+
+                    if updated_count:
+                        message = 'Updated {} {}'.format(
+                            updated_count, model._meta.verbose_name_plural)
+                        messages.success(self.request, message)
+                        UserAction.objects.log_bulk_edit(request.user, model,
+                                                         message)
+
+                    return redirect(self.get_return_url(request))
+                except ValidationError as e:
+                    messages.error(self.request,
+                                   '{} failed validation: {}'.format(obj, e))
+        else:
+            initial_data = request.POST.copy()
+            initial_data['pk'] = pk_list
+            form = self.form(model, parent_object, initial=initial_data)
+
+        # Retrieve objects being edited
+        table = self.table(self.queryset.filter(pk__in=pk_list),
+                           orderable=False)
+        if not table.rows:
+            messages.warning(request, 'No {} were selected.'.format(
+                model._meta.verbose_name_plural))
+            return redirect(self.get_return_url(request))
+
+        return render(request, self.template, {
+            'form': form,
+            'table': table,
+            'object_type_plural': model._meta.verbose_name_plural,
+            'return_url': self.get_return_url(request),
+        })
+
+
 class ConfirmationView(View):
     return_url = None
     template = None

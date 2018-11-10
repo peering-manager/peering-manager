@@ -10,8 +10,9 @@ from .models import (AutonomousSystem, Community, ConfigurationTemplate,
                      InternetExchangePeeringSession, Router)
 from netbox.api import NetBox
 from peeringdb.models import PeerRecord
-from utils.forms import (BootstrapMixin, CSVChoiceField, FilterChoiceField,
-                         PasswordField, SlugField, YesNoField)
+from utils.forms import (BulkEditForm, BootstrapMixin, CSVChoiceField,
+                         FilterChoiceField, PasswordField, SlugField,
+                         YesNoField)
 
 
 class CommentField(forms.CharField):
@@ -195,6 +196,15 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         }
 
 
+class DirectPeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=DirectPeeringSession.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    enabled = YesNoField(required=False, label='Enable')
+    comment = CommentField()
+
+
 class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
     model = DirectPeeringSession
     q = forms.CharField(required=False, label='Search')
@@ -349,6 +359,15 @@ class PeerRecordFilterForm(BootstrapMixin, forms.Form):
                                                  label='IPv6 Max Prefixes')
     network__info_prefixes4 = forms.IntegerField(required=False,
                                                  label='IPv4 Max Prefixes')
+
+
+class InternetExchangePeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=InternetExchangePeeringSession.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    enabled = YesNoField(required=False, label='Enable')
+    comment = CommentField()
 
 
 class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):

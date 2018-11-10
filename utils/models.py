@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 
@@ -13,12 +12,14 @@ USER_ACTION_EDIT = 2
 USER_ACTION_DELETE = 3
 USER_ACTION_IMPORT = 4
 USER_ACTION_BULK_DELETE = 5
+USER_ACTION_BULK_EDIT = 6
 USER_ACTION_CHOICES = (
     (USER_ACTION_CREATE, 'created'),
     (USER_ACTION_EDIT, 'modified'),
     (USER_ACTION_DELETE, 'deleted'),
     (USER_ACTION_IMPORT, 'imported'),
     (USER_ACTION_BULK_DELETE, 'bulk deleted'),
+    (USER_ACTION_BULK_EDIT, 'bulk modified'),
 )
 
 
@@ -39,15 +40,20 @@ class UserActionManager(models.Manager):
     """
 
     def log_action(self, user, obj, action, message):
-        self.model.objects.create(content_type=ContentType.objects.get_for_model(
-            obj), object_id=obj.id, user=user, action=action, message=message)
+        self.model.objects.create(
+            content_type=ContentType.objects.get_for_model(obj),
+            object_id=obj.id, user=user, action=action, message=message)
 
     def log_bulk_action(self, user, obj_type, action, message):
-        self.model.objects.create(content_type=ContentType.objects.get_for_model(
-            obj_type), user=user, action=action, message=message)
+        self.model.objects.create(
+            content_type=ContentType.objects.get_for_model(obj_type),
+            user=user, action=action, message=message)
 
     def log_bulk_delete(self, user, obj_type, message):
         self.log_bulk_action(user, obj_type, USER_ACTION_BULK_DELETE, message)
+
+    def log_bulk_edit(self, user, obj_type, message):
+        self.log_bulk_action(user, obj_type, USER_ACTION_BULK_EDIT, message)
 
     def log_create(self, user, obj, message):
         self.log_action(user, obj, USER_ACTION_CREATE, message)
@@ -86,7 +92,7 @@ class UserAction(models.Model):
         if self.action in [USER_ACTION_CREATE, USER_ACTION_IMPORT]:
             return mark_safe('<i class="fas fa-plus-square text-success"></i>')
 
-        if self.action == USER_ACTION_EDIT:
+        if self.action in [USER_ACTION_EDIT, USER_ACTION_BULK_EDIT]:
             return mark_safe('<i class="fas fa-pen-square text-warning"></i>')
 
         if self.action in [USER_ACTION_DELETE, USER_ACTION_BULK_DELETE]:
@@ -98,4 +104,5 @@ class UserAction(models.Model):
         if self.message:
             return '{} {}'.format(self.user, self.message)
 
-        return '{} {} {}'.format(self.user, self.get_action_display(), self.content_type)
+        return '{} {} {}'.format(self.user, self.get_action_display(),
+                                 self.content_type)

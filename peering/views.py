@@ -18,19 +18,21 @@ from .forms import (
     AutonomousSystemForm, AutonomousSystemCSVForm, AutonomousSystemFilterForm,
     AutonomousSystemImportFromPeeringDBForm, CommunityForm, CommunityCSVForm,
     CommunityFilterForm, ConfigurationTemplateForm,
-    ConfigurationTemplateFilterForm, DirectPeeringSessionForm,
-    DirectPeeringSessionFilterForm, InternetExchangeForm,
-    InternetExchangePeeringDBForm, InternetExchangePeeringDBFormSet,
-    InternetExchangeCommunityForm, InternetExchangeCSVForm,
-    InternetExchangeFilterForm, PeerRecordFilterForm,
+    ConfigurationTemplateFilterForm, DirectPeeringSessionBulkEditForm,
+    DirectPeeringSessionForm, DirectPeeringSessionFilterForm,
+    InternetExchangeForm, InternetExchangePeeringDBForm,
+    InternetExchangePeeringDBFormSet, InternetExchangeCommunityForm,
+    InternetExchangeCSVForm, InternetExchangeFilterForm, PeerRecordFilterForm,
+    InternetExchangePeeringSessionBulkEditForm,
     InternetExchangePeeringSessionForm,
     InternetExchangePeeringSessionFilterForm,
     InternetExchangePeeringSessionFilterFormForIX,
     InternetExchangePeeringSessionFilterFormForAS, RouterForm, RouterCSVForm,
     RouterFilterForm)
 from .models import (
-    AutonomousSystem, Community, ConfigurationTemplate, DirectPeeringSession,
-    InternetExchange, InternetExchangePeeringSession, Router)
+    AutonomousSystem, BGPSession, Community, ConfigurationTemplate,
+    DirectPeeringSession, InternetExchange, InternetExchangePeeringSession,
+    Router)
 from .tables import (
     AutonomousSystemTable, CommunityTable, ConfigurationTemplateTable,
     DirectPeeringSessionTable, InternetExchangeTable, PeerRecordTable,
@@ -41,8 +43,9 @@ from peeringdb.api import PeeringDB
 from peeringdb.models import PeerRecord
 from utils.models import UserAction
 from utils.views import (
-    AddOrEditView, BulkAddFromDependencyView, BulkDeleteView, ConfirmationView,
-    DeleteView, GenericFormView, ImportView, ModelListView, TableImportView)
+    AddOrEditView, BulkAddFromDependencyView, BulkEditView, BulkDeleteView,
+    ConfirmationView, DeleteView, GenericFormView, ImportView, ModelListView,
+    TableImportView)
 
 
 class ASList(ModelListView):
@@ -343,6 +346,15 @@ class DirectPeeringSessionBulkDelete(PermissionRequiredMixin, BulkDeleteView):
     model = DirectPeeringSession
     filter = DirectPeeringSessionFilter
     table = DirectPeeringSessionTable
+
+
+class DirectPeeringSessionBulkEdit(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'peering.change_directpeeringsession'
+    queryset = DirectPeeringSession.objects.select_related('autonomous_system')
+    parent_object = BGPSession
+    filter = DirectPeeringSessionFilter
+    table = DirectPeeringSessionTable
+    form = DirectPeeringSessionBulkEditForm
 
 
 class DirectPeeringSessionDelete(PermissionRequiredMixin, DeleteView):
@@ -696,6 +708,17 @@ class InternetExchangePeeringSessionAdd(PermissionRequiredMixin, AddOrEditView):
 
     def get_return_url(self, obj):
         return obj.internet_exchange.get_peering_sessions_list_url()
+
+
+class InternetExchangePeeringSessionBulkEdit(PermissionRequiredMixin,
+                                             BulkEditView):
+    permission_required = 'peering.change_internetexchangepeeringsession'
+    queryset = InternetExchangePeeringSession.objects.select_related(
+        'autonomous_system')
+    parent_object = BGPSession
+    filter = InternetExchangePeeringSessionFilter
+    table = InternetExchangePeeringSessionTable
+    form = InternetExchangePeeringSessionBulkEditForm
 
 
 class InternetExchangePeeringSessionDetails(View):
