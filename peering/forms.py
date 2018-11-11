@@ -179,6 +179,10 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     password = PasswordField(required=False, render_value=True)
     enabled = YesNoField(required=False, label='Enabled')
 
+    def __init__(self, *args, **kwargs):
+        super(DirectPeeringSessionForm, self).__init__(*args, **kwargs)
+        self.fields['autonomous_system'].widget.attrs['data-live-search'] = 'true'
+
     class Meta:
         model = DirectPeeringSession
         fields = ('local_asn', 'autonomous_system', 'relationship',
@@ -374,6 +378,11 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
     comment = CommentField()
     password = PasswordField(required=False, render_value=True)
     enabled = YesNoField(required=False, label='Enabled')
+
+    def __init__(self, *args, **kwargs):
+        super(InternetExchangePeeringSessionForm, self).__init__(*args,
+                                                                 **kwargs)
+        self.fields['autonomous_system'].widget.attrs['data-live-search'] = 'true'
 
     class Meta:
         model = InternetExchangePeeringSession

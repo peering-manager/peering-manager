@@ -1,4 +1,7 @@
 $(document).ready(function() {
+  // Use bootstrap select for more stylish selects
+  $('select').selectpicker();
+
   function generateSlug(value) {
     value = value.replace(/[^\-\.\w\s]/g, '');        // Remove unneeded chars
     value = value.replace(/^[\s\.]+|[\s\.]+$/g, '');  // Trim leading/trailing spaces
