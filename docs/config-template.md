@@ -24,6 +24,8 @@ The `internet_exchange` variable has several fields:
   * `slug` is the name of the IX in a configuration friendly format
   * `ipv6_address` is the IPv6 address used to peer
   * `ipv4_address` is the IPv4 address used to peer
+  * `export_routing_policy` is the routing policy used for exporting routes
+  * `import_routing_policy` is the routing policy used for importing routes
 
 The `peering_groups` variable is a list of 2 elements, one for IPv6 sessions
 and the other for IPv4. It is possible to iterate over this variable.
@@ -39,13 +41,17 @@ Each group have a name and sessions:
     * `as_name` is the name of the remote AS
     * `max_prefixes` is the maximum prefix-limit for the current IP version
     * `sessions` is a list of dictionaries, each dictionary has two values
-      identified by the following keys: `ip_address`, `enabled` and `password`.
+      identified by the following keys: `ip_address`, `enabled`, `password`
+      `export_routing_policy` and `import_routing_policy`.
       The value for the `ip_address` key is a string representing the IP
       address. The value for the `password` is the password that you specified
       as a string. Please not that there is no processing of any kind for the
       password. If you stored it as clear text, it will be returned back to the
       template as clear text too. The value for the for `enabled` key tells if
-      the session is enabled (true) or not (false)
+      the session is enabled (true) or not (false). The values for the
+      `export_routing_policy` and `import_routing_policy` are the routing
+      policy objects associated with the session, the `slug` fields of these
+      objects are probably the only relevant fields to be used in the template
 
 The `communities` variable is an iteratable list, each item is a dictionary
 containing two elements: the `name` and the `value` of the community. If no
@@ -62,11 +68,19 @@ protocols {
             type external;
             multipath;
             advertise-inactive;
+            {%- if internet_exchange.import_routing_policy %}
+            import {{ internet_exchange.import_routing_policy.slug }};
+            {%- else %}
             import import-all;
+            {%- endif %}
             family {% if group.ip_version == 6 %}inet6{% else %}inet{% endif %} {
                 unicast;
             }
+            {%- if internet_exchange.export_routing_policy %}
+            export {{ internet_exchange.export_routing_policy.slug }};
+            {%- else %}
             export export-all;
+            {%- endif %}
             {%- for asn, details in group.peers.items() %}
             {%- for session in details.sessions %}
             {% if not session.enabled %}deactivate: {% endif %}neighbor {{ session.ip_address }} {
@@ -87,6 +101,12 @@ protocols {
                         }
                     }
                 }
+                {%- endif %}
+                {%- if session.import_routing_policy %}
+                import {{ session.import_routing_policy.slug }};
+                {%- endif %}
+                {%- if session.export_routing_policy %}
+                export {{ session.export_routing_policy.slug }};
                 {%- endif %}
                 {%- if session.password %}
                 authentication-key "{{ session.password }}";

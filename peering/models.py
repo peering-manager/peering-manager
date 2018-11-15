@@ -21,7 +21,9 @@ from .constants import (BGP_RELATIONSHIP_CHOICES, BGP_RELATIONSHIP_CUSTOMER,
                         BGP_STATE_ESTABLISHED, COMMUNITY_TYPE_CHOICES,
                         COMMUNITY_TYPE_EGRESS, COMMUNITY_TYPE_INGRESS,
                         PLATFORM_CHOICES, PLATFORM_EOS, PLATFORM_IOS,
-                        PLATFORM_IOSXR, PLATFORM_JUNOS)
+                        PLATFORM_IOSXR, PLATFORM_JUNOS,
+                        ROUTING_POLICY_TYPE_CHOICES,
+                        ROUTING_POLICY_TYPE_EXPORT, ROUTING_POLICY_TYPE_IMPORT)
 from .fields import ASNField, CommunityField
 from peeringdb.api import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
@@ -200,6 +202,14 @@ class BGPSession(CreatedUpdatedModel):
     ip_address = models.GenericIPAddressField()
     password = models.CharField(max_length=255, blank=True, null=True)
     enabled = models.BooleanField(default=True)
+    import_routing_policy = models.ForeignKey('RoutingPolicy', blank=True,
+                                              null=True,
+                                              on_delete=models.SET_NULL,
+                                              related_name='%(class)s_import_routing_policy')
+    export_routing_policy = models.ForeignKey('RoutingPolicy', blank=True,
+                                              null=True,
+                                              on_delete=models.SET_NULL,
+                                              related_name='%(class)s_export_routing_policy')
     bgp_state = models.CharField(max_length=50, choices=BGP_STATE_CHOICES,
                                  blank=True, null=True)
     received_prefix_count = models.PositiveIntegerField(blank=True, null=True)
@@ -274,14 +284,14 @@ class Community(CreatedUpdatedModel):
         if self.type == COMMUNITY_TYPE_EGRESS:
             badge_type = 'badge-info'
             text = '<i class="fas fa-arrow-circle-up"></i> {}'.format(
-                self.get_type_display().lower())
+                self.get_type_display())
         elif self.type == COMMUNITY_TYPE_INGRESS:
             badge_type = 'badge-info'
             text = '<i class="fas fa-arrow-circle-down"></i> {}'.format(
-                self.get_type_display().lower())
+                self.get_type_display())
         else:
             badge_type = 'badge-secondary'
-            text = '<i class="fas fa-ban"></i> unknown'
+            text = '<i class="fas fa-ban"></i> Unknown'
 
         return mark_safe('<span class="badge {}">{}</span>'.format(
             badge_type, text))
@@ -345,8 +355,16 @@ class InternetExchange(CreatedUpdatedModel):
     configuration_template = models.ForeignKey('ConfigurationTemplate',
                                                blank=True, null=True,
                                                on_delete=models.SET_NULL)
-    router = models.ForeignKey(
-        'Router', blank=True, null=True, on_delete=models.SET_NULL)
+    import_routing_policy = models.ForeignKey('RoutingPolicy', blank=True,
+                                              null=True,
+                                              on_delete=models.SET_NULL,
+                                              related_name='%(class)s_import_routing_policy')
+    export_routing_policy = models.ForeignKey('RoutingPolicy', blank=True,
+                                              null=True,
+                                              on_delete=models.SET_NULL,
+                                              related_name='%(class)s_export_routing_policy')
+    router = models.ForeignKey('Router', blank=True, null=True,
+                               on_delete=models.SET_NULL)
     check_bgp_session_states = models.BooleanField(default=False)
     bgp_session_states_update = models.DateTimeField(blank=True, null=True)
     communities = models.ManyToManyField('Community', blank=True)
@@ -357,14 +375,16 @@ class InternetExchange(CreatedUpdatedModel):
         ordering = ['name']
 
     def get_absolute_url(self):
-        return reverse('peering:internet_exchange_details', kwargs={'slug': self.slug})
+        return reverse('peering:internet_exchange_details',
+                       kwargs={'slug': self.slug})
 
     def get_peering_sessions_list_url(self):
         return reverse('peering:internet_exchange_peering_sessions',
                        kwargs={'slug': self.slug})
 
     def get_peer_list_url(self):
-        return reverse('peering:internet_exchange_peers', kwargs={'slug': self.slug})
+        return reverse('peering:internet_exchange_peers',
+                       kwargs={'slug': self.slug})
 
     def get_peering_sessions(self):
         return self.internetexchangepeeringsession_set.all()
@@ -403,6 +423,8 @@ class InternetExchange(CreatedUpdatedModel):
                     'ip_address': str(ip_address),
                     'password': session.password or False,
                     'enabled': session.enabled,
+                    'export_routing_policy': session.export_routing_policy.slug if session.export_routing_policy else None,
+                    'import_routing_policy': session.import_routing_policy.slug if session.import_routing_policy else None,
                 })
 
             if ip_address.version == 4:
@@ -417,6 +439,8 @@ class InternetExchange(CreatedUpdatedModel):
                     'ip_address': str(ip_address),
                     'password': session.password or False,
                     'enabled': session.enabled,
+                    'export_routing_policy': session.export_routing_policy.slug if session.export_routing_policy else None,
+                    'import_routing_policy': session.import_routing_policy.slug if session.import_routing_policy else None,
                 })
 
         peering_groups = [
@@ -1054,6 +1078,41 @@ class Router(CreatedUpdatedModel):
                     'error while closing connection with %s', self.hostname)
 
         return bgp_neighbors_detail
+
+    def __str__(self):
+        return self.name
+
+
+class RoutingPolicy(CreatedUpdatedModel):
+    name = models.CharField(max_length=128)
+    slug = models.SlugField(unique=True)
+    type = models.CharField(max_length=50, choices=ROUTING_POLICY_TYPE_CHOICES,
+                            default=ROUTING_POLICY_TYPE_IMPORT)
+    comment = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name_plural = 'routing policies'
+        ordering = ['name']
+
+    def get_absolute_url(self):
+        return reverse('peering:routing_policy_details',
+                       kwargs={'pk': self.pk})
+
+    def get_type_html(self):
+        if self.type == ROUTING_POLICY_TYPE_EXPORT:
+            badge_type = 'badge-info'
+            text = '<i class="fas fa-arrow-circle-up"></i> {}'.format(
+                self.get_type_display())
+        elif self.type == ROUTING_POLICY_TYPE_IMPORT:
+            badge_type = 'badge-info'
+            text = '<i class="fas fa-arrow-circle-down"></i> {}'.format(
+                self.get_type_display())
+        else:
+            badge_type = 'badge-secondary'
+            text = '<i class="fas fa-ban"></i> Unknown'
+
+        return mark_safe('<span class="badge {}">{}</span>'.format(
+            badge_type, text))
 
     def __str__(self):
         return self.name

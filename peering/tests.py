@@ -6,9 +6,10 @@ from django.test import TestCase
 from django.urls.exceptions import NoReverseMatch
 
 from .constants import (COMMUNITY_TYPE_INGRESS, COMMUNITY_TYPE_EGRESS,
-                        PLATFORM_JUNOS)
+                        PLATFORM_JUNOS, ROUTING_POLICY_TYPE_IMPORT,
+                        ROUTING_POLICY_TYPE_EXPORT)
 from .models import (AutonomousSystem, Community, InternetExchange,
-                     InternetExchangePeeringSession, Router)
+                     InternetExchangePeeringSession, Router, RoutingPolicy)
 
 from utils.tests import ViewTestCase
 
@@ -285,11 +286,11 @@ class CommunityTestCase(TestCase):
     def test_get_type_html(self):
         expected = [
             '<span class="badge badge-info">'
-            '<i class="fas fa-arrow-circle-up"></i> egress</span>',
+            '<i class="fas fa-arrow-circle-up"></i> Egress</span>',
             '<span class="badge badge-info">'
-            '<i class="fas fa-arrow-circle-down"></i> ingress</span>',
+            '<i class="fas fa-arrow-circle-down"></i> Ingress</span>',
             '<span class="badge badge-secondary">'
-            '<i class="fas fa-ban"></i> unknown</span>',
+            '<i class="fas fa-ban"></i> Unknown</span>',
         ]
         community_types = [
             COMMUNITY_TYPE_EGRESS,
@@ -420,7 +421,7 @@ class CommunityViewsTestCase(ViewTestCase):
 
     def test_community_bulk_delete_view(self):
         # Not logged in, no right to access the view, should be redirected
-        self.get_request('peering:autonomous_system_bulk_delete',
+        self.get_request('peering:community_bulk_delete',
                          expected_status_code=302)
 
 
@@ -499,10 +500,13 @@ class InternetExchangeTestCase(TestCase):
                         'as_name': 'Test 1',
                         'max_prefixes': 0,
                         'sessions': [
-                         {
-                             'ip_address': '2001:db8::1',
-                             'password': False,
-                             'enabled': True, }
+                            {
+                                'ip_address': '2001:db8::1',
+                                'password': False,
+                                'enabled': True,
+                                'export_routing_policy': None,
+                                'import_routing_policy': None,
+                            }
                         ]
                     },
                     2: {
@@ -513,6 +517,8 @@ class InternetExchangeTestCase(TestCase):
                                 'ip_address': '2001:db8::2',
                                 'password': False,
                                 'enabled': True,
+                                'export_routing_policy': None,
+                                'import_routing_policy': None,
                             }
                         ]
                     },
@@ -524,6 +530,8 @@ class InternetExchangeTestCase(TestCase):
                                 'ip_address': '2001:db8::3',
                                 'password': False,
                                 'enabled': True,
+                                'export_routing_policy': None,
+                                'import_routing_policy': None,
                             }
                         ]
                     },
@@ -535,6 +543,8 @@ class InternetExchangeTestCase(TestCase):
                                 'ip_address': '2001:db8::4',
                                 'password': False,
                                 'enabled': True,
+                                'export_routing_policy': None,
+                                'import_routing_policy': None,
                             }
                         ]
                     },
@@ -546,6 +556,8 @@ class InternetExchangeTestCase(TestCase):
                                 'ip_address': '2001:db8::5',
                                 'password': False,
                                 'enabled': True,
+                                'export_routing_policy': None,
+                                'import_routing_policy': None,
                             }
                         ]
                     },
@@ -1041,4 +1053,185 @@ class RouterViewsTestCase(ViewTestCase):
     def test_router_bulk_delete_view(self):
         # Not logged in, no right to access the view, should be redirected
         self.get_request('peering:router_bulk_delete',
+                         expected_status_code=302)
+
+
+class RoutingPolicyTestCase(TestCase):
+    def test_create(self):
+        routing_policy_list = [
+            {
+                'name': 'Test1',
+                'slug': 'test1',
+                'type': None,
+            },
+            {
+                'name': 'Test2',
+                'slug': 'test2',
+                'type': ROUTING_POLICY_TYPE_EXPORT,
+            },
+        ]
+
+        for details in routing_policy_list:
+            if details['type']:
+                routing_policy = RoutingPolicy.objects.create(
+                    name=details['name'], slug=details['slug'],
+                    type=details['type'])
+            else:
+                routing_policy = RoutingPolicy.objects.create(
+                    name=details['name'], slug=details['slug'])
+
+            self.assertIsNotNone(routing_policy)
+            self.assertEqual(details['name'], routing_policy.name)
+            self.assertEqual(details['slug'], routing_policy.slug)
+            self.assertEqual(details['type'] or ROUTING_POLICY_TYPE_IMPORT,
+                             routing_policy.type)
+
+    def test_get_type_html(self):
+        expected = [
+            '<span class="badge badge-info">'
+            '<i class="fas fa-arrow-circle-up"></i> Export</span>',
+            '<span class="badge badge-info">'
+            '<i class="fas fa-arrow-circle-down"></i> Import</span>',
+            '<span class="badge badge-secondary">'
+            '<i class="fas fa-ban"></i> Unknown</span>',
+        ]
+        routing_policy_types = [
+            ROUTING_POLICY_TYPE_EXPORT,
+            ROUTING_POLICY_TYPE_IMPORT,
+            'unknown',
+        ]
+
+        for i in range(len(routing_policy_types)):
+            self.assertEqual(expected[i],
+                             RoutingPolicy.objects.create(
+                                 name='test{}'.format(i),
+                                 slug='test{}'.format(i),
+                                 type=routing_policy_types[i]).get_type_html())
+
+
+class RoutingPolicyViewsTestCase(ViewTestCase):
+    def setUp(self):
+        super(RoutingPolicyViewsTestCase, self).setUp()
+
+        self.model = RoutingPolicy
+        self.name = 'Export Policy'
+        self.slug = 'export-policy'
+        self.routing_policy = RoutingPolicy.objects.create(
+            name=self.name, slug=self.slug, type=ROUTING_POLICY_TYPE_EXPORT)
+
+    def test_routing_policy_list_view(self):
+        self.get_request('peering:routing_policy_list')
+
+    def test_routing_policy_add_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:routing_policy_add',
+                         expected_status_code=302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request('peering:routing_policy_add', contains='Create')
+
+        # Try to create an object with valid data
+        routing_policy_to_create = {
+            'name': 'Import Policy',
+            'slug': 'import-policy',
+            'type': ROUTING_POLICY_TYPE_IMPORT,
+        }
+        self.post_request('peering:routing_policy_add',
+                          data=routing_policy_to_create)
+        self.does_object_exist(routing_policy_to_create)
+
+        # Try to create an object with invalid data
+        routing_policy_not_to_create = {
+            'name': 'routing-policy-not-created',
+        }
+        self.post_request('peering:routing_policy_add',
+                          data=routing_policy_not_to_create)
+        self.does_object_not_exist(routing_policy_not_to_create)
+
+    def test_routing_policy_import_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:routing_policy_import',
+                         expected_status_code=302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request('peering:routing_policy_import', contains='Import')
+
+        # Try to import an object with valid data
+        routing_policy_to_import = {
+            'csv': '''name,slug,type,comment
+                      routing-policy-created,routing-policy-created,Import,''',
+        }
+        self.post_request('peering:routing_policy_import',
+                          data=routing_policy_to_import)
+        self.does_object_exist({'pk': 2})
+
+        # Try to create an object with invalid data
+        routing_policy_not_to_import = {
+            'csv': '''name,value,type,comment
+                      routing-policy-not-created,,Import,''',
+        }
+        self.post_request('peering:routing_policy_import',
+                          data=routing_policy_not_to_import)
+        self.does_object_not_exist({'pk': 3})
+
+    def test_routing_policy_details_view(self):
+        # No routing policy PK given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.get_request('peering:routing_policy_details')
+
+        # Using a wrong PK, status should be 404 not found
+        self.get_request('peering:routing_policy_details', params={'pk': 666},
+                         expected_status_code=404)
+
+        # Using an existing PK, status should be 200 and the name of the
+        # routing policy should be somewhere in the HTML code
+        self.get_request('peering:routing_policy_details', params={'pk': 1},
+                         contains=self.name)
+
+    def test_routing_policy_edit_view(self):
+        # No PK given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.get_request('peering:routing_policy_edit')
+
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:routing_policy_edit', params={'pk': 1},
+                         expected_status_code=302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request('peering:routing_policy_edit', params={'pk': 1},
+                         contains='Update')
+
+        # Still authenticated, wrong PK should be 404 not found
+        self.get_request('peering:routing_policy_edit', params={'pk': 2},
+                         expected_status_code=404)
+
+    def test_routing_policy_delete_view(self):
+        # No PK given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.get_request('peering:routing_policy_delete')
+
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:routing_policy_delete', params={'pk': 1},
+                         expected_status_code=302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request('peering:routing_policy_delete', params={'pk': 1},
+                         contains='Confirm')
+
+        # Still authenticated, wrong PK should be 404 not found
+        self.get_request('peering:routing_policy_delete', params={'pk': 2},
+                         expected_status_code=404)
+
+    def test_routing_policy_bulk_delete_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:routing_policy_bulk_delete',
+                         expected_status_code=302)
+
+    def test_routing_policy_bulk_edit_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:routing_policy_bulk_edit',
                          expected_status_code=302)

@@ -1,0 +1,50 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block content %}
+      <div class="float-right">
+        {% if perms.peering.change_routingpolicy %}
+        <a href="{% url 'peering:routing_policy_edit' pk=routing_policy.pk %}" class="btn btn-warning">
+          <i class="fas fa-edit"></i> Edit
+        </a>
+        {% endif %}
+        {% if perms.peering.delete_routingpolicy %}
+        <a href="{% url 'peering:routing_policy_delete' pk=routing_policy.pk %}" class="btn btn-danger">
+          <i class="fas fa-trash"></i> Delete
+        </a>
+        {% endif %}
+      </div>
+      <h1>{% block title %}{{ routing_policy }}{% endblock %}</h1>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <strong>Routing Policy Details</strong>
+            </div>
+            <table class="table table-hover card-body attr-table">
+              <tr>
+                <td>Name</td>
+                <td>{{ routing_policy.name }}</td>
+              </tr>
+              <tr>
+                <td>Type</td>
+                <td>{{ routing_policy.get_type_display }}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <strong>Comments</strong>
+            </div>
+            <div class="card-body">
+              {% if routing_policy.comment %}
+              {{ routing_policy.comment|markdown }}
+              {% else %}
+              <span class="text-muted">None</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}

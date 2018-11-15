@@ -17,7 +17,7 @@ from .forms import LoginForm, UserPasswordChangeForm
 from peering.models import (AutonomousSystem, Community,
                             ConfigurationTemplate, DirectPeeringSession,
                             InternetExchange, InternetExchangePeeringSession,
-                            Router)
+                            Router, RoutingPolicy)
 from peeringdb.models import Synchronization
 from utils.models import UserAction
 
@@ -51,7 +51,7 @@ class LogoutView(View):
     def get(self, request):
         if is_user_logged_in(request):
             auth_logout(request)
-            messages.info(request, "You have logged out.")
+            messages.info(request, 'You have logged out.')
 
         return redirect('home')
 
@@ -65,6 +65,7 @@ class Home(View):
             'templates_count': ConfigurationTemplate.objects.count(),
             'routers_count': Router.objects.count(),
             'peering_sessions_count': DirectPeeringSession.objects.count() + InternetExchangePeeringSession.objects.count(),
+            'routing_policies_count': RoutingPolicy.objects.count(),
         }
         context = {
             'statistics': statistics,
@@ -145,9 +146,10 @@ def handle_500(request):
     """
     Custom 500 error handler.
     """
-    __type, error, traceback = sys.exc_info()
+    type, error, traceback = sys.exc_info()
     del traceback
-    return render(request, '500.html', {'exception': str(__type), 'error': error}, status=500)
+    return render(request, '500.html',
+                  {'exception': str(type), 'error': error}, status=500)
 
 
 def trigger_500(request):

@@ -173,6 +173,24 @@ urlpatterns = [
     url(r'^routers/delete/$', views.RouterBulkDelete.as_view(),
         name='router_bulk_delete'),
 
+    # Routing Policies
+    url(r'^routing-policies/$', views.RoutingPolicyList.as_view(),
+        name='routing_policy_list'),
+    url(r'^routing-policies/add/$', views.RoutingPolicyAdd.as_view(),
+        name='routing_policy_add'),
+    url(r'^routing-policies/import/$', views.RoutingPolicyImport.as_view(),
+        name='routing_policy_import'),
+    url(r'^routing-policies/(?P<pk>[0-9]+)/$',
+        views.RoutingPolicyDetails.as_view(), name='routing_policy_details'),
+    url(r'^routing-policies/(?P<pk>[0-9]+)/edit/$',
+        views.RoutingPolicyEdit.as_view(), name='routing_policy_edit'),
+    url(r'^routing-policies/(?P<pk>[0-9]+)/delete/$',
+        views.RoutingPolicyDelete.as_view(), name='routing_policy_delete'),
+    url(r'^routing-policies/delete/$', views.RoutingPolicyBulkDelete.as_view(),
+        name='routing_policy_bulk_delete'),
+    url(r'^routing-policies/edit/$', views.RoutingPolicyBulkEdit.as_view(),
+        name='routing_policy_bulk_edit'),
+
     # AJAX dedicated views
     url(r'^async/router_ping/(?P<router_id>[0-9]+)$',
         views.AsyncRouterPing.as_view(), name='async_router_ping'),

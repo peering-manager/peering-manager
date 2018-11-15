@@ -4,10 +4,11 @@ from django import forms
 from django.conf import settings
 
 from .constants import (BGP_RELATIONSHIP_CHOICES, COMMUNITY_TYPE_CHOICES,
-                        PLATFORM_CHOICES)
+                        PLATFORM_CHOICES, ROUTING_POLICY_TYPE_CHOICES,
+                        ROUTING_POLICY_TYPE_EXPORT, ROUTING_POLICY_TYPE_IMPORT)
 from .models import (AutonomousSystem, Community, ConfigurationTemplate,
                      DirectPeeringSession, InternetExchange,
-                     InternetExchangePeeringSession, Router)
+                     InternetExchangePeeringSession, Router, RoutingPolicy)
 from netbox.api import NetBox
 from peeringdb.models import PeerRecord
 from utils.forms import (BulkEditForm, BootstrapMixin, CSVChoiceField,
@@ -175,9 +176,17 @@ class ConfigurationTemplateFilterForm(BootstrapMixin, forms.Form):
 
 
 class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
-    comment = CommentField()
+    import_routing_policy = forms.ModelChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT)
+    )
+    export_routing_policy = forms.ModelChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT)
+    )
     password = PasswordField(required=False, render_value=True)
     enabled = YesNoField(required=False, label='Enabled')
+    comment = CommentField()
 
     def __init__(self, *args, **kwargs):
         super(DirectPeeringSessionForm, self).__init__(*args, **kwargs)
@@ -186,7 +195,8 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = DirectPeeringSession
         fields = ('local_asn', 'autonomous_system', 'relationship',
-                  'ip_address', 'password', 'enabled', 'comment',)
+                  'ip_address', 'password', 'enabled', 'import_routing_policy',
+                  'export_routing_policy', 'comment',)
         labels = {
             'local_asn': 'Local ASN',
             'autonomous_system': 'AS',
@@ -206,6 +216,14 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
         widget=forms.MultipleHiddenInput
     )
     enabled = YesNoField(required=False, label='Enable')
+    import_routing_policy = forms.ModelChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT)
+    )
+    export_routing_policy = forms.ModelChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT)
+    )
     comment = CommentField()
 
 
@@ -226,6 +244,14 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
 
 class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
+    import_routing_policy = forms.ModelChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT)
+    )
+    export_routing_policy = forms.ModelChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT)
+    )
     check_bgp_session_states = forms.ChoiceField(
         required=False, label='Check For Peering Session States',
         help_text='If enabled, with a usable router, the state of peering sessions will be updated.',
@@ -235,7 +261,8 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InternetExchange
         fields = ('peeringdb_id', 'name', 'slug', 'ipv6_address',
-                  'ipv4_address', 'configuration_template', 'router',
+                  'ipv4_address', 'import_routing_policy',
+                  'export_routing_policy', 'configuration_template', 'router',
                   'check_bgp_session_states', 'comment',)
         labels = {
             'peeringdb_id': 'PeeringDB ID',
@@ -301,6 +328,7 @@ class InternetExchangeCSVForm(forms.ModelForm):
     class Meta:
         model = InternetExchange
         fields = ('name', 'slug', 'ipv6_address', 'ipv4_address',
+                  'import_routing_policy', 'export_routing_policy',
                   'configuration_template', 'router',
                   'check_bgp_session_states', 'comment',)
         help_texts = {
@@ -345,6 +373,12 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
     name = forms.CharField(required=False, label='IX Name')
     ipv6_address = forms.CharField(required=False, label='IPv6 Address')
     ipv4_address = forms.CharField(required=False, label='IPv4 Address')
+    import_routing_policy = FilterChoiceField(
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
+        to_field_name='pk', null_label='-- None --')
+    export_routing_policy = FilterChoiceField(
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
+        to_field_name='pk', null_label='-- None --')
     configuration_template = FilterChoiceField(
         queryset=ConfigurationTemplate.objects.all(), to_field_name='pk',
         null_label='-- None --')
@@ -371,13 +405,29 @@ class InternetExchangePeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
         widget=forms.MultipleHiddenInput
     )
     enabled = YesNoField(required=False, label='Enable')
+    import_routing_policy = forms.ModelChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT)
+    )
+    export_routing_policy = forms.ModelChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT)
+    )
     comment = CommentField()
 
 
 class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
-    comment = CommentField()
     password = PasswordField(required=False, render_value=True)
     enabled = YesNoField(required=False, label='Enabled')
+    import_routing_policy = forms.ModelChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT)
+    )
+    export_routing_policy = forms.ModelChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT)
+    )
+    comment = CommentField()
 
     def __init__(self, *args, **kwargs):
         super(InternetExchangePeeringSessionForm, self).__init__(*args,
@@ -387,6 +437,7 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InternetExchangePeeringSession
         fields = ('autonomous_system', 'internet_exchange',
+                  'import_routing_policy', 'export_routing_policy',
                   'ip_address', 'password', 'enabled', 'comment',)
         labels = {
             'autonomous_system': 'AS',
@@ -497,3 +548,45 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
     hostname = forms.CharField(required=False, label='Router Hostname')
     platform = forms.MultipleChoiceField(choices=PLATFORM_CHOICES,
                                          required=False)
+
+
+class RoutingPolicyForm(BootstrapMixin, forms.ModelForm):
+    slug = SlugField()
+    comment = CommentField()
+
+    class Meta:
+        model = RoutingPolicy
+
+        fields = ('name', 'slug', 'type', 'comment',)
+        labels = {
+            'comment': 'Comments',
+        }
+
+
+class RoutingPolicyBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=RoutingPolicy.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    type = forms.ChoiceField(choices=ROUTING_POLICY_TYPE_CHOICES)
+    comment = CommentField()
+
+
+class RoutingPolicyCSVForm(BootstrapMixin, forms.ModelForm):
+    type = CSVChoiceField(choices=ROUTING_POLICY_TYPE_CHOICES, required=False)
+
+    class Meta:
+        model = RoutingPolicy
+
+        fields = ('name', 'slug', 'type', 'comment',)
+        labels = {
+            'comment': 'Comments',
+        }
+
+
+class RoutingPolicyFilterForm(BootstrapMixin, forms.Form):
+    model = RoutingPolicy
+    q = forms.CharField(required=False, label='Search')
+    name = forms.CharField(required=False, label='Routing Policy Name')
+    type = forms.MultipleChoiceField(choices=ROUTING_POLICY_TYPE_CHOICES,
+                                     required=False)

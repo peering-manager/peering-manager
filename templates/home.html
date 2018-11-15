@@ -4,6 +4,50 @@
         <div class="col">
           <div class="card mb-2">
             <div class="card-header">
+              <strong>Policy Options</strong>
+            </div>
+            <div class="list-group">
+              <div class="list-group-item">
+                <span class="badge badge-pill badge-secondary float-right">{{ statistics.routing_policies_count }}</span>
+                <h4 class="list-group-item-heading">
+                  <a href="{% url 'peering:routing_policy_list' %}">Routing Policies</a>
+                </h4>
+                <p class="list-group-item-textn text-muted">Routing policies used for routes filtering<p>
+              </div>
+              <div class="list-group-item">
+                <span class="badge badge-pill badge-secondary float-right">{{ statistics.communities_count }}</span>
+                <h4 class="list-group-item-heading">
+                  <a href="{% url 'peering:community_list' %}">Communities</a>
+                </h4>
+                <p class="list-group-item-textn text-muted">Communities used to tag routes from or to Internet exchanges<p>
+              </div>
+            </div>
+          </div>
+          <div class="card mt-2">
+            <div class="card-header">
+              <strong>Deployment</strong>
+            </div>
+            <div class="list-group">
+              <div class="list-group-item">
+                <span class="badge badge-pill badge-secondary float-right">{{ statistics.templates_count }}</span>
+                <h4 class="list-group-item-heading">
+                  <a href="{% url 'peering:configuration_template_list' %}">Templates</a>
+                </h4>
+                <p class="list-group-item-textn text-muted">Templates used to generate configuration for network devices<p>
+              </div>
+              <div class="list-group-item">
+                <span class="badge badge-pill badge-secondary float-right">{{ statistics.routers_count }}</span>
+                <h4 class="list-group-item-heading">
+                  <a href="{% url 'peering:router_list' %}">Routers</a>
+                </h4>
+                <p class="list-group-item-textn text-muted">Network devices connected to Internet exchanges, generated configuration can be applied to these devices if they are running on a supported platform<p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card mb-2">
+            <div class="card-header">
               <strong>Peering Data</strong>
             </div>
             <div class="list-group">
@@ -27,34 +71,6 @@
                   <a href="{% url 'peering:internet_exchange_peering_session_list' %}">Peering Sessions</a>
                 </h4>
                 <p class="list-group-item-textn text-muted">Peering sessions with other autonomous systems<p>
-              </div>
-            </div>
-          </div>
-          <div class="card mt-2">
-            <div class="card-header">
-              <strong>Deployment</strong>
-            </div>
-            <div class="list-group">
-              <div class="list-group-item">
-                <span class="badge badge-pill badge-secondary float-right">{{ statistics.communities_count }}</span>
-                <h4 class="list-group-item-heading">
-                  <a href="{% url 'peering:community_list' %}">Communities</a>
-                </h4>
-                <p class="list-group-item-textn text-muted">Communities used to tag routes from or to Internet exchanges<p>
-              </div>
-              <div class="list-group-item">
-                <span class="badge badge-pill badge-secondary float-right">{{ statistics.templates_count }}</span>
-                <h4 class="list-group-item-heading">
-                  <a href="{% url 'peering:configuration_template_list' %}">Templates</a>
-                </h4>
-                <p class="list-group-item-textn text-muted">Templates used to generate configuration for network devices<p>
-              </div>
-              <div class="list-group-item">
-                <span class="badge badge-pill badge-secondary float-right">{{ statistics.routers_count }}</span>
-                <h4 class="list-group-item-heading">
-                  <a href="{% url 'peering:router_list' %}">Routers</a>
-                </h4>
-                <p class="list-group-item-textn text-muted">Network devices connected to Internet exchanges, generated configuration can be applied to these devices if they are running on a supported platform<p>
               </div>
             </div>
           </div>

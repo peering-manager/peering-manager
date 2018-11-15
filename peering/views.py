@@ -13,7 +13,7 @@ import json
 from .filters import (
     AutonomousSystemFilter, CommunityFilter, ConfigurationTemplateFilter,
     DirectPeeringSessionFilter, InternetExchangeFilter, PeerRecordFilter,
-    InternetExchangePeeringSessionFilter, RouterFilter)
+    InternetExchangePeeringSessionFilter, RouterFilter, RoutingPolicyFilter)
 from .forms import (
     AutonomousSystemForm, AutonomousSystemCSVForm, AutonomousSystemFilterForm,
     AutonomousSystemImportFromPeeringDBForm, CommunityForm, CommunityCSVForm,
@@ -28,17 +28,18 @@ from .forms import (
     InternetExchangePeeringSessionFilterForm,
     InternetExchangePeeringSessionFilterFormForIX,
     InternetExchangePeeringSessionFilterFormForAS, RouterForm, RouterCSVForm,
-    RouterFilterForm)
+    RouterFilterForm, RoutingPolicyCSVForm, RoutingPolicyForm,
+    RoutingPolicyBulkEditForm, RoutingPolicyFilterForm)
 from .models import (
     AutonomousSystem, BGPSession, Community, ConfigurationTemplate,
     DirectPeeringSession, InternetExchange, InternetExchangePeeringSession,
-    Router)
+    Router, RoutingPolicy)
 from .tables import (
     AutonomousSystemTable, CommunityTable, ConfigurationTemplateTable,
     DirectPeeringSessionTable, InternetExchangeTable, PeerRecordTable,
     InternetExchangePeeringSessionTable,
     InternetExchangePeeringSessionTableForIX,
-    InternetExchangePeeringSessionTableForAS, RouterTable)
+    InternetExchangePeeringSessionTableForAS, RouterTable, RoutingPolicyTable)
 from peeringdb.api import PeeringDB
 from peeringdb.models import PeerRecord
 from utils.models import UserAction
@@ -869,6 +870,65 @@ class RouterBulkDelete(PermissionRequiredMixin, BulkDeleteView):
     model = Router
     filter = RouterFilter
     table = RouterTable
+
+
+class RoutingPolicyList(ModelListView):
+    queryset = RoutingPolicy.objects.all()
+    filter = RoutingPolicyFilter
+    filter_form = RoutingPolicyFilterForm
+    table = RoutingPolicyTable
+    template = 'peering/routing-policy/list.html'
+
+
+class RoutingPolicyAdd(PermissionRequiredMixin, AddOrEditView):
+    permission_required = 'peering.add_routingpolicy'
+    model = RoutingPolicy
+    form = RoutingPolicyForm
+    return_url = 'peering:routing_policy_list'
+    template = 'peering/routing-policy/add_edit.html'
+
+
+class RoutingPolicyImport(PermissionRequiredMixin, ImportView):
+    permission_required = 'peering.add_routingpolicy'
+    form_model = RoutingPolicyCSVForm
+    return_url = 'peering:routing_policy_list'
+
+
+class RoutingPolicyDetails(View):
+    def get(self, request, pk):
+        routing_policy = get_object_or_404(RoutingPolicy, pk=pk)
+        context = {
+            'routing_policy': routing_policy,
+        }
+        return render(request, 'peering/routing-policy/details.html', context)
+
+
+class RoutingPolicyEdit(PermissionRequiredMixin, AddOrEditView):
+    permission_required = 'peering.change_routingpolicy'
+    model = RoutingPolicy
+    form = RoutingPolicyForm
+    template = 'peering/routing-policy/add_edit.html'
+
+
+class RoutingPolicyDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = 'peering.delete_routingpolicy'
+    model = RoutingPolicy
+    return_url = 'peering:routing_policy_list'
+
+
+class RoutingPolicyBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'peering.delete_routingpolicy'
+    model = RoutingPolicy
+    filter = RoutingPolicyFilter
+    table = RoutingPolicyTable
+
+
+class RoutingPolicyBulkEdit(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'peering.change_routingpolicy'
+    queryset = RoutingPolicy.objects.all()
+    filter = RoutingPolicyFilter
+    table = RoutingPolicyTable
+    form = RoutingPolicyBulkEditForm
 
 
 class AsyncRouterPing(View):

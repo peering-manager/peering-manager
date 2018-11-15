@@ -28,7 +28,7 @@
       <h1>{% block title %}{{ peering_session }}{% endblock %}</h1>
       <div class="row">
         <div class="col-md-6">
-          <div class="card">
+          <div class="card mb-2">
             <div class="card-header">
               <strong>Peering Session Details</strong>
               <div class="float-right">
@@ -60,7 +60,7 @@
               <tr>
                 <td>Last Established</td>
                 <td>{{ peering_session.last_established_state }}</td>
-              </tr>              
+              </tr>
               {% if request.user.is_authenticated and peering_session.password %}
               <tr>
                 <td>Password</td>
@@ -76,8 +76,6 @@
               {% endif %}
             </table>
           </div>
-        </div>
-        <div class="col-md-6">
           <div class="card">
             <div class="card-header">
               <strong>Comments</strong>
@@ -89,6 +87,31 @@
               <span class="text-muted">None</span>
               {% endif %}
             </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <strong>Routing Policies</strong>
+            </div>
+            {% if not peering_session.export_routing_policy and not peering_session.import_routing_policy %}
+            <div class="card-body">
+              <span class="text-muted">None</span>
+            </div>
+            {% else %}
+            <ul class="list-group list-group-flush">
+              {% if peering_session.export_routing_policy %}
+              <li class="list-group-item">
+                {{ peering_session.export_routing_policy }} <span class="float-right">{{ peering_session.export_routing_policy.get_type_html }}&nbsp;<code>{{ peering_session.export_routing_policy.slug }}</code></span>
+              </li>
+              {% endif %}
+              {% if peering_session.import_routing_policy %}
+              <li class="list-group-item">
+                {{ peering_session.import_routing_policy }} <span class="float-right">{{ peering_session.import_routing_policy.get_type_html }}&nbsp;<code>{{ peering_session.import_routing_policy.slug }}</code></span>
+              </li>
+              {% endif %}
+            </ul>
+            {% endif %}
           </div>
         </div>
       </div>

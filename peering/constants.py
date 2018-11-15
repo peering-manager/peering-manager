@@ -1,5 +1,15 @@
 from __future__ import unicode_literals
 
+# BGP relationship between us and a peer
+BGP_RELATIONSHIP_PRIVATE_PEERING = 'private-peering'
+BGP_RELATIONSHIP_TRANSIT_PROVIDER = 'transit-provider'
+BGP_RELATIONSHIP_CUSTOMER = 'customer'
+BGP_RELATIONSHIP_CHOICES = (
+    (BGP_RELATIONSHIP_PRIVATE_PEERING, 'Private Peering'),
+    (BGP_RELATIONSHIP_TRANSIT_PROVIDER, 'Transit Provider'),
+    (BGP_RELATIONSHIP_CUSTOMER, 'Customer'),
+)
+
 # BGP session state constants
 BGP_STATE_IDLE = 'idle'
 BGP_STATE_CONNECT = 'connect'
@@ -40,12 +50,10 @@ PLATFORM_CHOICES = (
     (PLATFORM_NONE, 'Other'),
 )
 
-# BGP relationship between us and a peer
-BGP_RELATIONSHIP_PRIVATE_PEERING = 'private-peering'
-BGP_RELATIONSHIP_TRANSIT_PROVIDER = 'transit-provider'
-BGP_RELATIONSHIP_CUSTOMER = 'customer'
-BGP_RELATIONSHIP_CHOICES = (
-    (BGP_RELATIONSHIP_PRIVATE_PEERING, 'Private Peering'),
-    (BGP_RELATIONSHIP_TRANSIT_PROVIDER, 'Transit Provider'),
-    (BGP_RELATIONSHIP_CUSTOMER, 'Customer'),
+# Routing policies constants
+ROUTING_POLICY_TYPE_IMPORT = 'import-policy'
+ROUTING_POLICY_TYPE_EXPORT = 'export-policy'
+ROUTING_POLICY_TYPE_CHOICES = (
+    (ROUTING_POLICY_TYPE_IMPORT, 'Import'),
+    (ROUTING_POLICY_TYPE_EXPORT, 'Export'),
 )

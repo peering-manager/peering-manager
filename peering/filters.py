@@ -7,7 +7,7 @@ import django_filters
 from .constants import BGP_RELATIONSHIP_CHOICES, PLATFORM_CHOICES
 from .models import (AutonomousSystem, Community, ConfigurationTemplate,
                      DirectPeeringSession, InternetExchange,
-                     InternetExchangePeeringSession, Router)
+                     InternetExchangePeeringSession, Router, RoutingPolicy)
 from peeringdb.models import PeerRecord
 
 
@@ -281,6 +281,27 @@ class RouterFilter(django_filters.FilterSet):
             Q(name__icontains=value) |
             Q(hostname__icontains=value) |
             Q(platform__icontains=value) |
+            Q(comment__icontains=value)
+        )
+        return queryset.filter(qs_filter)
+
+
+class RoutingPolicyFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+
+    class Meta:
+        model = RoutingPolicy
+        fields = ['name', 'type']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(name__icontains=value) |
+            Q(type__icontains=value) |
             Q(comment__icontains=value)
         )
         return queryset.filter(qs_filter)

@@ -26,10 +26,16 @@
         <ul class="navbar-nav mr-auto">
           <li {% if request.path|contains:'/autonomous-systems/' %}class="active"{% endif %}><a class="nav-link" href="{% url 'peering:autonomous_system_list' %}">Autonomous Systems</a></li>
           <li class="nav-item{% if request.path|contains:'/internet-exchanges/' %} active{% endif %}"><a class="nav-link" href="{% url 'peering:internet_exchange_list' %}">Internet Exchanges</a></li>
-          <li class="nav-item dropdown{% if request.path|contains:'/communities/,/routers/,/templates/' %} active{% endif %}">
-            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Deployment</a>
+          <li class="nav-item dropdown{% if request.path|contains:'/communities/,/rounting-policies/' %} active{% endif %}">
+            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Policy Options</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="{% url 'peering:community_list' %}">Communities</a></li>
+              <li><a class="dropdown-item" href="{% url 'peering:routing_policy_list' %}">Routing Policies</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown{% if request.path|contains:'/routers/,/templates/' %} active{% endif %}">
+            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Deployment</a>
+            <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="{% url 'peering:router_list' %}">Routers</a></li>
               <li><a class="dropdown-item" href="{% url 'peering:configuration_template_list' %}">Templates</a></li>
             </ul>

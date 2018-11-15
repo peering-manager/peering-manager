@@ -4,13 +4,15 @@ import django_tables2 as tables
 
 from .models import (AutonomousSystem, Community, ConfigurationTemplate,
                      DirectPeeringSession, InternetExchange,
-                     InternetExchangePeeringSession, Router)
+                     InternetExchangePeeringSession, Router, RoutingPolicy)
 from peeringdb.models import PeerRecord
 from utils.tables import ActionsColumn, BaseTable, SelectColumn
 
 
 BGPSESSION_STATUS = '{{ record.get_enabled_html }}'
 BGP_RELATIONSHIP = '{{ record.get_relationship_html }}'
+COMMUNITY_TYPE = '{{ record.get_type_html }}'
+ROUTING_POLICY_TYPE = '{{ record.get_type_html }}'
 
 
 class BGPSessionStateColumn(tables.TemplateColumn):
@@ -51,6 +53,7 @@ class CommunityTable(BaseTable):
     """
     pk = SelectColumn()
     name = tables.LinkColumn()
+    type = tables.TemplateColumn(template_code=COMMUNITY_TYPE)
     actions = ActionsColumn(
         template_code='<a href="{% url \'peering:community_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit" aria-hidden="true"></i> Edit</a>')
 
@@ -214,3 +217,18 @@ class RouterTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Router
         fields = ('pk', 'name', 'hostname', 'platform', 'actions',)
+
+
+class RoutingPolicyTable(BaseTable):
+    """
+    Table for RoutingPolicy lists
+    """
+    pk = SelectColumn()
+    name = tables.LinkColumn()
+    type = tables.TemplateColumn(template_code=ROUTING_POLICY_TYPE)
+    actions = ActionsColumn(
+        template_code='<a href="{% url \'peering:routing_policy_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a>')
+
+    class Meta(BaseTable.Meta):
+        model = RoutingPolicy
+        fields = ('pk', 'name', 'type', 'actions',)
