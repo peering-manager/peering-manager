@@ -182,7 +182,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     )
     export_routing_policy = forms.ModelChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT)
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT)
     )
     password = PasswordField(required=False, render_value=True)
     enabled = YesNoField(required=False, label='Enabled')
