@@ -88,23 +88,30 @@
             <div class="card-header">
               <strong>Routing Policies</strong>
             </div>
-            {% if not peering_session.export_routing_policy and not peering_session.import_routing_policy %}
+            {% if peering_session.export_routing_policies.all.count > 0 or peering_session.import_routing_policies.all.count > 0 %}
+            <ul class="list-group list-group-flush">
+            {% for routing_policy in peering_session.export_routing_policies.all %}
+              <li class="list-group-item">
+                {{ routing_policy }} <span class="float-right"><code>{{ routing_policy.slug }}</code>&nbsp;{{ routing_policy.get_type_html }}</span>
+              </li>
+            {% endfor %}
+            {% for routing_policy in peering_session.import_routing_policies.all %}
+              <li class="list-group-item">
+                {{ routing_policy }} <span class="float-right"><code>{{ routing_policy.slug }}</code>&nbsp;{{ routing_policy.get_type_html }}</span>
+              </li>
+            {% endfor %}
+            </ul>
+            {% else %}
             <div class="card-body">
               <span class="text-muted">None</span>
             </div>
-            {% else %}
-            <ul class="list-group list-group-flush">
-              {% if peering_session.export_routing_policy %}
-              <li class="list-group-item">
-                {{ peering_session.export_routing_policy }} <span class="float-right">{{ peering_session.export_routing_policy.get_type_html }}&nbsp;<code>{{ peering_session.export_routing_policy.slug }}</code></span>
-              </li>
-              {% endif %}
-              {% if peering_session.import_routing_policy %}
-              <li class="list-group-item">
-                {{ peering_session.import_routing_policy }} <span class="float-right">{{ peering_session.import_routing_policy.get_type_html }}&nbsp;<code>{{ peering_session.import_routing_policy.slug }}</code></span>
-              </li>
-              {% endif %}
-            </ul>
+            {% endif %}
+            {% if perms.peering.change_internetexchangepeeringsession %}
+            <div class="card-footer text-right">
+              <a href="{% url 'peering:internet_exchange_peering_session_update_routing_policies' pk=peering_session.pk %}" class="btn btn-sm btn-warning">
+                <i class="fas fa-edit"></i> Edit routing policies
+              </a>
+            </div>
             {% endif %}
           </div>
         </div>

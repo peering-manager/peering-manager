@@ -8,8 +8,9 @@ from django.urls.exceptions import NoReverseMatch
 from .constants import (COMMUNITY_TYPE_INGRESS, COMMUNITY_TYPE_EGRESS,
                         PLATFORM_JUNOS, ROUTING_POLICY_TYPE_IMPORT,
                         ROUTING_POLICY_TYPE_EXPORT)
-from .models import (AutonomousSystem, Community, InternetExchange,
-                     InternetExchangePeeringSession, Router, RoutingPolicy)
+from .models import (AutonomousSystem, Community, DirectPeeringSession,
+                     InternetExchange, InternetExchangePeeringSession, Router,
+                     RoutingPolicy)
 
 from utils.tests import ViewTestCase
 
@@ -425,6 +426,74 @@ class CommunityViewsTestCase(ViewTestCase):
                          expected_status_code=302)
 
 
+class DirectPeeringSessionViewsTestCase(ViewTestCase):
+    def setUp(self):
+        super(DirectPeeringSessionViewsTestCase, self).setUp()
+
+        self.model = DirectPeeringSession
+        self.ip_address = '2001:db8::64:501'
+        self.as64500 = AutonomousSystem.objects.create(asn=64500, name='Test')
+        self.peering_session = DirectPeeringSession.objects.create(
+            autonomous_system=self.as64500, ip_address=self.ip_address)
+
+    def test_direct_peering_session_details_view(self):
+        # No PK given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.get_request(
+                'peering:direct_peering_session_details')
+
+        # Using a wrong PK, status should be 404 not found
+        self.get_request('peering:direct_peering_session_details',
+                         params={'pk': 2}, expected_status_code=404)
+
+        # Using an existing PK, status should be 200 and the name of the IP
+        # should be somewhere in the HTML code
+        self.get_request('peering:direct_peering_session_details',
+                         params={'pk': 1}, contains=self.ip_address)
+
+    def test_direct_peering_session_edit_view(self):
+        # No PK given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.get_request('peering:direct_peering_session_edit')
+
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:direct_peering_session_edit',
+                         params={'pk': 1}, expected_status_code=302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request('peering:direct_peering_session_edit',
+                         params={'pk': 1}, contains='Update')
+
+        # Still authenticated, wrong PK should be 404 not found
+        self.get_request('peering:direct_peering_session_edit',
+                         params={'pk': 2}, expected_status_code=404)
+
+    def test_direct_peering_session_delete_view(self):
+        # No PK given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.get_request(
+                'peering:direct_peering_session_delete')
+
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:direct_peering_session_delete',
+                         params={'pk': 1}, expected_status_code=302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request('peering:direct_peering_session_delete',
+                         params={'pk': 1}, contains='Confirm')
+
+        # Still authenticated, wrong router should be 404 not found
+        self.get_request('peering:direct_peering_session_delete',
+                         params={'pk': 2}, expected_status_code=404)
+
+    def test_direct_peering_session_bulk_delete_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:direct_peering_session_bulk_delete',
+                         expected_status_code=302)
+
+
 class InternetExchangeTestCase(TestCase):
     def test_import_peering_sessions(self):
         # Expected results
@@ -504,8 +573,8 @@ class InternetExchangeTestCase(TestCase):
                                 'ip_address': '2001:db8::1',
                                 'password': False,
                                 'enabled': True,
-                                'export_routing_policy': None,
-                                'import_routing_policy': None,
+                                'export_routing_policies': [],
+                                'import_routing_policies': [],
                             }
                         ]
                     },
@@ -517,8 +586,8 @@ class InternetExchangeTestCase(TestCase):
                                 'ip_address': '2001:db8::2',
                                 'password': False,
                                 'enabled': True,
-                                'export_routing_policy': None,
-                                'import_routing_policy': None,
+                                'export_routing_policies': [],
+                                'import_routing_policies': [],
                             }
                         ]
                     },
@@ -530,8 +599,8 @@ class InternetExchangeTestCase(TestCase):
                                 'ip_address': '2001:db8::3',
                                 'password': False,
                                 'enabled': True,
-                                'export_routing_policy': None,
-                                'import_routing_policy': None,
+                                'export_routing_policies': [],
+                                'import_routing_policies': [],
                             }
                         ]
                     },
@@ -543,8 +612,8 @@ class InternetExchangeTestCase(TestCase):
                                 'ip_address': '2001:db8::4',
                                 'password': False,
                                 'enabled': True,
-                                'export_routing_policy': None,
-                                'import_routing_policy': None,
+                                'export_routing_policies': [],
+                                'import_routing_policies': [],
                             }
                         ]
                     },
@@ -556,8 +625,8 @@ class InternetExchangeTestCase(TestCase):
                                 'ip_address': '2001:db8::5',
                                 'password': False,
                                 'enabled': True,
-                                'export_routing_policy': None,
-                                'import_routing_policy': None,
+                                'export_routing_policies': [],
+                                'import_routing_policies': [],
                             }
                         ]
                     },
@@ -595,6 +664,8 @@ class InternetExchangeViewsTestCase(ViewTestCase):
             internet_exchange=self.ix, autonomous_system=self.asn,
             ip_address='2001:db8::1')
         self.community = Community.objects.create(name='Test', value='64500:1')
+        self.routing_policy = RoutingPolicy.objects.create(
+            name='Test', slug='test', type=ROUTING_POLICY_TYPE_EXPORT)
 
     def test_ix_list_view(self):
         self.get_request('peering:internet_exchange_list')
@@ -750,6 +821,30 @@ class InternetExchangeViewsTestCase(ViewTestCase):
         self.get_request('peering:internet_exchange_peering_sessions',
                          params={'slug': 'not-found'},
                          expected_status_code=404)
+
+    def test_ix_update_routing_policies_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request('peering:internet_exchange_update_routing_policies',
+                         params={'slug': self.slug}, expected_status_code=302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request('peering:internet_exchange_update_routing_policies',
+                         params={'slug': self.slug})
+
+        # IX not found
+        self.get_request('peering:internet_exchange_update_routing_policies',
+                         params={'slug': 'not-found'},
+                         expected_status_code=404)
+
+        # Check if adding a routing policy works
+        self.assertFalse(self.ix.export_routing_policies.all())
+        self.post_request('peering:internet_exchange_update_routing_policies',
+                          params={'slug': self.slug},
+                          data={
+                              'export_routing_policies': self.routing_policy.pk
+                          })
+        self.assertTrue(self.ix.export_routing_policies.all())
 
 
 class InternetExchangePeeringSessionTestCase(TestCase):

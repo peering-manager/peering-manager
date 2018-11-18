@@ -202,14 +202,12 @@ class BGPSession(CreatedUpdatedModel):
     ip_address = models.GenericIPAddressField()
     password = models.CharField(max_length=255, blank=True, null=True)
     enabled = models.BooleanField(default=True)
-    import_routing_policy = models.ForeignKey('RoutingPolicy', blank=True,
-                                              null=True,
-                                              on_delete=models.SET_NULL,
-                                              related_name='%(class)s_import_routing_policy')
-    export_routing_policy = models.ForeignKey('RoutingPolicy', blank=True,
-                                              null=True,
-                                              on_delete=models.SET_NULL,
-                                              related_name='%(class)s_export_routing_policy')
+    import_routing_policies = models.ManyToManyField(
+        'RoutingPolicy', blank=True,
+        related_name='%(class)s_import_routing_policies')
+    export_routing_policies = models.ManyToManyField(
+        'RoutingPolicy', blank=True,
+        related_name='%(class)s_export_routing_policies')
     bgp_state = models.CharField(max_length=50, choices=BGP_STATE_CHOICES,
                                  blank=True, null=True)
     received_prefix_count = models.PositiveIntegerField(blank=True, null=True)
@@ -355,14 +353,12 @@ class InternetExchange(CreatedUpdatedModel):
     configuration_template = models.ForeignKey('ConfigurationTemplate',
                                                blank=True, null=True,
                                                on_delete=models.SET_NULL)
-    import_routing_policy = models.ForeignKey('RoutingPolicy', blank=True,
-                                              null=True,
-                                              on_delete=models.SET_NULL,
-                                              related_name='%(class)s_import_routing_policy')
-    export_routing_policy = models.ForeignKey('RoutingPolicy', blank=True,
-                                              null=True,
-                                              on_delete=models.SET_NULL,
-                                              related_name='%(class)s_export_routing_policy')
+    import_routing_policies = models.ManyToManyField(
+        'RoutingPolicy', blank=True,
+        related_name='%(class)s_import_routing_policies')
+    export_routing_policies = models.ManyToManyField(
+        'RoutingPolicy', blank=True,
+        related_name='%(class)s_export_routing_policies')
     router = models.ForeignKey('Router', blank=True, null=True,
                                on_delete=models.SET_NULL)
     check_bgp_session_states = models.BooleanField(default=False)
@@ -423,8 +419,10 @@ class InternetExchange(CreatedUpdatedModel):
                     'ip_address': str(ip_address),
                     'password': session.password or False,
                     'enabled': session.enabled,
-                    'export_routing_policy': session.export_routing_policy.slug if session.export_routing_policy else None,
-                    'import_routing_policy': session.import_routing_policy.slug if session.import_routing_policy else None,
+                    'export_routing_policies': [{'name': rp.name, 'slug': rp.slug}
+                                                for rp in session.export_routing_policies.all()],
+                    'import_routing_policies': [{'name': rp.name, 'slug': rp.slug}
+                                                for rp in session.import_routing_policies.all()],
                 })
 
             if ip_address.version == 4:
@@ -439,8 +437,10 @@ class InternetExchange(CreatedUpdatedModel):
                     'ip_address': str(ip_address),
                     'password': session.password or False,
                     'enabled': session.enabled,
-                    'export_routing_policy': session.export_routing_policy.slug if session.export_routing_policy else None,
-                    'import_routing_policy': session.import_routing_policy.slug if session.import_routing_policy else None,
+                    'export_routing_policies': [{'name': rp.name, 'slug': rp.slug}
+                                                for rp in session.export_routing_policies.all()],
+                    'import_routing_policies': [{'name': rp.name, 'slug': rp.slug}
+                                                for rp in session.import_routing_policies.all()],
                 })
 
         peering_groups = [
@@ -456,10 +456,18 @@ class InternetExchange(CreatedUpdatedModel):
                 'value': community.value,
             })
 
+        # Generate list of routing policies
+        export_routing_policies = [{'name': rp.name, 'slug': rp.slug}
+                                   for rp in self.export_routing_policies.all()]
+        import_routing_policies = [{'name': rp.name, 'slug': rp.slug}
+                                   for rp in self.import_routing_policies.all()]
+
         values = {
             'internet_exchange': self,
             'peering_groups': peering_groups,
             'communities': communities,
+            'export_routing_policies': export_routing_policies,
+            'import_routing_policies': import_routing_policies
         }
 
         return values

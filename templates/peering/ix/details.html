@@ -75,7 +75,7 @@
             <ul class="list-group list-group-flush">
             {% for community in internet_exchange.communities.all %}
               <li class="list-group-item">
-                {{ community }} <span class="float-right">{{ community.get_type_html }}&nbsp;<code>{{ community.value }}</code></span>
+                {{ community }} <span class="float-right"><code>{{ community.value }}&nbsp;{{ community.get_type_html }}</code></span>
               </li>
             {% endfor %}
             </ul>
@@ -87,8 +87,7 @@
             {% if perms.peering.change_internetexchange %}
             <div class="card-footer text-right">
               <a href="{% url 'peering:internet_exchange_update_communities' slug=internet_exchange.slug %}" class="btn btn-sm btn-warning">
-                <i class="fas fa-edit" aria-hidden="true"></i>
-                Edit communities
+                <i class="fas fa-edit"></i> Edit communities
               </a>
             </div>
             {% endif %}
@@ -97,23 +96,30 @@
             <div class="card-header">
               <strong>Routing Policies</strong>
             </div>
-            {% if not internet_exchange.export_routing_policy and not internet_exchange.import_routing_policy %}
+            {% if internet_exchange.export_routing_policies.all.count > 0 or internet_exchange.import_routing_policies.all.count > 0 %}
+            <ul class="list-group list-group-flush">
+            {% for routing_policy in internet_exchange.export_routing_policies.all %}
+              <li class="list-group-item">
+                {{ routing_policy }} <span class="float-right"><code>{{ routing_policy.slug }}</code>&nbsp;{{ routing_policy.get_type_html }}</span>
+              </li>
+            {% endfor %}
+            {% for routing_policy in internet_exchange.import_routing_policies.all %}
+              <li class="list-group-item">
+                {{ routing_policy }} <span class="float-right"><code>{{ routing_policy.slug }}</code>&nbsp;{{ routing_policy.get_type_html }}</span>
+              </li>
+            {% endfor %}
+            </ul>
+            {% else %}
             <div class="card-body">
               <span class="text-muted">None</span>
             </div>
-            {% else %}
-            <ul class="list-group list-group-flush">
-              {% if internet_exchange.export_routing_policy %}
-              <li class="list-group-item">
-                {{ internet_exchange.export_routing_policy }} <span class="float-right">{{ internet_exchange.export_routing_policy.get_type_html }}&nbsp;<code>{{ internet_exchange.export_routing_policy.slug }}</code></span>
-              </li>
-              {% endif %}
-              {% if internet_exchange.import_routing_policy %}
-              <li class="list-group-item">
-                {{ internet_exchange.import_routing_policy }} <span class="float-right">{{ internet_exchange.import_routing_policy.get_type_html }}&nbsp;<code>{{ internet_exchange.import_routing_policy.slug }}</code></span>
-              </li>
-              {% endif %}
-            </ul>
+            {% endif %}
+            {% if perms.peering.change_internetexchange %}
+            <div class="card-footer text-right">
+              <a href="{% url 'peering:internet_exchange_update_routing_policies' slug=internet_exchange.slug %}" class="btn btn-sm btn-warning">
+                <i class="fas fa-edit"></i> Edit routing policies
+              </a>
+            </div>
             {% endif %}
           </div>
         </div>

@@ -24,8 +24,10 @@ The `internet_exchange` variable has several fields:
   * `slug` is the name of the IX in a configuration friendly format
   * `ipv6_address` is the IPv6 address used to peer
   * `ipv4_address` is the IPv4 address used to peer
-  * `export_routing_policy` is the routing policy used for exporting routes
-  * `import_routing_policy` is the routing policy used for importing routes
+  * `export_routing_policies` is the routing policy list used for exporting
+    routes, each element of the list has a `name` and `slug` attribute
+  * `import_routing_policies` is the routing policy list used for importing
+    routes, each element of the list has a `name` and `slug` attribute
 
 The `peering_groups` variable is a list of 2 elements, one for IPv6 sessions
 and the other for IPv4. It is possible to iterate over this variable.
@@ -49,7 +51,7 @@ Each group have a name and sessions:
       password. If you stored it as clear text, it will be returned back to the
       template as clear text too. The value for the for `enabled` key tells if
       the session is enabled (true) or not (false). The values for the
-      `export_routing_policy` and `import_routing_policy` are the routing
+      `export_routing_policies` and `import_routing_policies` are the routing
       policy objects associated with the session, the `slug` fields of these
       objects are probably the only relevant fields to be used in the template
 
@@ -68,16 +70,16 @@ protocols {
             type external;
             multipath;
             advertise-inactive;
-            {%- if internet_exchange.import_routing_policy %}
-            import {{ internet_exchange.import_routing_policy.slug }};
+            {%- if import_routing_policies|length > 0 %}
+            import [ {{ import_routing_policies | map(attribute='slug') | join(' ') }} ];
             {%- else %}
             import import-all;
             {%- endif %}
             family {% if group.ip_version == 6 %}inet6{% else %}inet{% endif %} {
                 unicast;
             }
-            {%- if internet_exchange.export_routing_policy %}
-            export {{ internet_exchange.export_routing_policy.slug }};
+            {%- if export_routing_policies|length > 0 %}
+            export [ {{ export_routing_policies | map(attribute='slug') | join(' ') }} ];
             {%- else %}
             export export-all;
             {%- endif %}
@@ -102,11 +104,11 @@ protocols {
                     }
                 }
                 {%- endif %}
-                {%- if session.import_routing_policy %}
-                import {{ session.import_routing_policy.slug }};
+                {%- if session.import_routing_policies|length > 0 %}
+                import [ {{ session.import_routing_policies | map(attribute='slug') | join(' ') }} ];
                 {%- endif %}
-                {%- if session.export_routing_policy %}
-                export {{ session.export_routing_policy.slug }};
+                {%- if session.export_routing_policies|length > 0 %}
+                export [ {{ session.export_routing_policies | map(attribute='slug') | join(' ') }} ];
                 {%- endif %}
                 {%- if session.password %}
                 authentication-key "{{ session.password }}";

@@ -176,11 +176,11 @@ class ConfigurationTemplateFilterForm(BootstrapMixin, forms.Form):
 
 
 class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
-    import_routing_policy = forms.ModelChoiceField(
+    import_routing_policies = forms.ModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT)
     )
-    export_routing_policy = forms.ModelChoiceField(
+    export_routing_policies = forms.ModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT)
     )
@@ -195,8 +195,9 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = DirectPeeringSession
         fields = ('local_asn', 'autonomous_system', 'relationship',
-                  'ip_address', 'password', 'enabled', 'import_routing_policy',
-                  'export_routing_policy', 'comment',)
+                  'ip_address', 'password', 'enabled',
+                  'import_routing_policies', 'export_routing_policies',
+                  'comment',)
         labels = {
             'local_asn': 'Local ASN',
             'autonomous_system': 'AS',
@@ -216,11 +217,11 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
         widget=forms.MultipleHiddenInput
     )
     enabled = YesNoField(required=False, label='Enable')
-    import_routing_policy = forms.ModelChoiceField(
+    import_routing_policies = forms.ModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT)
     )
-    export_routing_policy = forms.ModelChoiceField(
+    export_routing_policies = forms.ModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT)
     )
@@ -242,13 +243,54 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
                                              required=False)
 
 
-class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
-    slug = SlugField()
-    import_routing_policy = forms.ModelChoiceField(
+class DirectPeeringSessionRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
+    import_routing_policies = forms.ModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT)
     )
-    export_routing_policy = forms.ModelChoiceField(
+    export_routing_policies = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT)
+    )
+
+    class Meta:
+        model = InternetExchange
+        fields = ('export_routing_policies', 'import_routing_policies',)
+
+    def __init__(self, *args, **kwargs):
+        if kwargs.get('instance'):
+            # Get the session object and remove it from kwargs in order to
+            # avoid propagating when calling super
+            instance = kwargs.pop('instance')
+            # Prepare initial communities
+            initial = kwargs.setdefault('initial', {})
+            # Add primary key for each routing policy
+            initial['export_routing_policies'] = [
+                p.pk for p in instance.export_routing_policies.all()]
+            initial['import_routing_policies'] = [
+                p.pk for p in instance.import_routing_policies.all()]
+
+        super(DirectPeeringSessionRoutingPolicyForm, self).__init__(*args,
+                                                                    **kwargs)
+
+    def save(self):
+        instance = forms.ModelForm.save(self)
+        instance.export_routing_policies.clear()
+        instance.import_routing_policies.clear()
+
+        for routing_policy in self.cleaned_data['export_routing_policies']:
+            instance.export_routing_policies.add(routing_policy)
+        for routing_policy in self.cleaned_data['import_routing_policies']:
+            instance.import_routing_policies.add(routing_policy)
+
+
+class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
+    slug = SlugField()
+    import_routing_policies = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT)
+    )
+    export_routing_policies = forms.ModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT)
     )
@@ -261,9 +303,9 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InternetExchange
         fields = ('peeringdb_id', 'name', 'slug', 'ipv6_address',
-                  'ipv4_address', 'import_routing_policy',
-                  'export_routing_policy', 'configuration_template', 'router',
-                  'check_bgp_session_states', 'comment',)
+                  'ipv4_address', 'import_routing_policies',
+                  'export_routing_policies', 'configuration_template',
+                  'router', 'check_bgp_session_states', 'comment',)
         labels = {
             'peeringdb_id': 'PeeringDB ID',
             'ipv6_address': 'IPv6 Address',
@@ -328,7 +370,7 @@ class InternetExchangeCSVForm(forms.ModelForm):
     class Meta:
         model = InternetExchange
         fields = ('name', 'slug', 'ipv6_address', 'ipv4_address',
-                  'import_routing_policy', 'export_routing_policy',
+                  'import_routing_policies', 'export_routing_policies',
                   'configuration_template', 'router',
                   'check_bgp_session_states', 'comment',)
         help_texts = {
@@ -367,18 +409,59 @@ class InternetExchangeCommunityForm(BootstrapMixin, forms.ModelForm):
             instance.communities.add(community)
 
 
+class InternetExchangeRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
+    import_routing_policies = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT)
+    )
+    export_routing_policies = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT)
+    )
+
+    class Meta:
+        model = InternetExchange
+        fields = ('export_routing_policies', 'import_routing_policies',)
+
+    def __init__(self, *args, **kwargs):
+        if kwargs.get('instance'):
+            # Get the IX object and remove it from kwargs in order to avoid
+            # propagating when calling super
+            instance = kwargs.pop('instance')
+            # Prepare initial communities
+            initial = kwargs.setdefault('initial', {})
+            # Add primary key for each routing policy
+            initial['export_routing_policies'] = [
+                p.pk for p in instance.export_routing_policies.all()]
+            initial['import_routing_policies'] = [
+                p.pk for p in instance.import_routing_policies.all()]
+
+        super(InternetExchangeRoutingPolicyForm, self).__init__(*args,
+                                                                **kwargs)
+
+    def save(self):
+        instance = forms.ModelForm.save(self)
+        instance.export_routing_policies.clear()
+        instance.import_routing_policies.clear()
+
+        for routing_policy in self.cleaned_data['export_routing_policies']:
+            instance.export_routing_policies.add(routing_policy)
+        for routing_policy in self.cleaned_data['import_routing_policies']:
+            instance.import_routing_policies.add(routing_policy)
+
+
 class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
     model = InternetExchange
     q = forms.CharField(required=False, label='Search')
     name = forms.CharField(required=False, label='IX Name')
     ipv6_address = forms.CharField(required=False, label='IPv6 Address')
     ipv4_address = forms.CharField(required=False, label='IPv4 Address')
-    import_routing_policy = FilterChoiceField(
+    import_routing_policies = FilterChoiceField(
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
-        to_field_name='pk', null_label='-- None --')
-    export_routing_policy = FilterChoiceField(
+        to_field_name='pk')
+    export_routing_policies = FilterChoiceField(
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
-        to_field_name='pk', null_label='-- None --')
+        to_field_name='pk')
     configuration_template = FilterChoiceField(
         queryset=ConfigurationTemplate.objects.all(), to_field_name='pk',
         null_label='-- None --')
@@ -405,11 +488,11 @@ class InternetExchangePeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
         widget=forms.MultipleHiddenInput
     )
     enabled = YesNoField(required=False, label='Enable')
-    import_routing_policy = forms.ModelChoiceField(
+    import_routing_policies = forms.ModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT)
     )
-    export_routing_policy = forms.ModelChoiceField(
+    export_routing_policies = forms.ModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT)
     )
@@ -419,11 +502,11 @@ class InternetExchangePeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
 class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
     password = PasswordField(required=False, render_value=True)
     enabled = YesNoField(required=False, label='Enabled')
-    import_routing_policy = forms.ModelChoiceField(
+    import_routing_policies = forms.ModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT)
     )
-    export_routing_policy = forms.ModelChoiceField(
+    export_routing_policies = forms.ModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT)
     )
@@ -437,7 +520,7 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InternetExchangePeeringSession
         fields = ('autonomous_system', 'internet_exchange',
-                  'import_routing_policy', 'export_routing_policy',
+                  'import_routing_policies', 'export_routing_policies',
                   'ip_address', 'password', 'enabled', 'comment',)
         labels = {
             'autonomous_system': 'AS',
@@ -494,6 +577,48 @@ class InternetExchangePeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
     internet_exchange__slug = FilterChoiceField(
         queryset=InternetExchange.objects.all(), to_field_name='slug',
         label='Internet Exchange')
+
+
+class InternetExchangePeeringSessionRoutingPolicyForm(BootstrapMixin,
+                                                      forms.ModelForm):
+    import_routing_policies = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT)
+    )
+    export_routing_policies = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT)
+    )
+
+    class Meta:
+        model = InternetExchange
+        fields = ('export_routing_policies', 'import_routing_policies',)
+
+    def __init__(self, *args, **kwargs):
+        if kwargs.get('instance'):
+            # Get the session object and remove it from kwargs in order to
+            # avoid propagating when calling super
+            instance = kwargs.pop('instance')
+            # Prepare initial communities
+            initial = kwargs.setdefault('initial', {})
+            # Add primary key for each routing policy
+            initial['export_routing_policies'] = [
+                p.pk for p in instance.export_routing_policies.all()]
+            initial['import_routing_policies'] = [
+                p.pk for p in instance.import_routing_policies.all()]
+
+        super(InternetExchangePeeringSessionRoutingPolicyForm, self).__init__(
+            *args, **kwargs)
+
+    def save(self):
+        instance = forms.ModelForm.save(self)
+        instance.export_routing_policies.clear()
+        instance.import_routing_policies.clear()
+
+        for routing_policy in self.cleaned_data['export_routing_policies']:
+            instance.export_routing_policies.add(routing_policy)
+        for routing_policy in self.cleaned_data['import_routing_policies']:
+            instance.import_routing_policies.add(routing_policy)
 
 
 class RouterForm(BootstrapMixin, forms.ModelForm):
