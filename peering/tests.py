@@ -495,6 +495,22 @@ class DirectPeeringSessionViewsTestCase(ViewTestCase):
 
 
 class InternetExchangeTestCase(TestCase):
+    def test_is_peeringdb_valid(self):
+        ix = InternetExchange.objects.create(name='Test', slug='test')
+
+        # Not linked with PeeringDB but considered as valid
+        self.assertTrue(ix.is_peeringdb_valid())
+
+        # Set invalid ID, must result in false
+        ix.peeringdb_id = 14658
+        ix.save()
+        self.assertFalse(ix.is_peeringdb_valid())
+
+        # Set valid ID, must result in true
+        ix.peeringdb_id = 29146
+        ix.save()
+        self.assertTrue(ix.is_peeringdb_valid())
+
     def test_import_peering_sessions(self):
         # Expected results
         expected = [
