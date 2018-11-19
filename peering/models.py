@@ -394,6 +394,20 @@ class InternetExchange(CreatedUpdatedModel):
 
         return autonomous_systems
 
+    def is_peeringdb_valid(self):
+        """
+        Tells if the PeeringDB ID for this IX is still valid. This function
+        will return true if the PeeringDB record for this IX is valid or if
+        this IX does not have a Peering DB ID set. In any other cases, the
+        return value will be false.
+        """
+        if self.peeringdb_id:
+            peeringdb_record = PeeringDB().get_ix_network(self.peeringdb_id)
+            if not peeringdb_record:
+                return False
+
+        return True
+
     def get_prefixes(self):
         return PeeringDB().get_prefixes_for_ix_network(self.peeringdb_id) or []
 
@@ -742,8 +756,14 @@ class InternetExchangePeeringSession(BGPSession):
 
         # Find the Internet exchange given a NetworkIXLAN ID
         for ix in InternetExchange.objects.exclude(peeringdb_id__isnull=True):
+            print('looking for network ixlan with id {}'.format(ix.peeringdb_id))
+
             # Get the IXLAN corresponding to our network
-            ixlan = NetworkIXLAN.objects.get(id=ix.peeringdb_id)
+            try:
+                ixlan = NetworkIXLAN.objects.get(id=ix.peeringdb_id)
+            except NetworkIXLAN.DoesNotExist as e:
+                print('{} for NetworkIXLAN with ID {}'.format(e, ix.peeringdb_id))
+                raise(e)
             # Get a potentially matching IXLAN
             peer_ixlan = NetworkIXLAN.objects.filter(
                 id=peer_record.network_ixlan.id, ix_id=ixlan.ix_id)

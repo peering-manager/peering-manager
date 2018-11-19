@@ -41,6 +41,7 @@ network to an IX. It is composed of the following fields:
     https://peeringdb.com/api/netixlan?ipaddr4=${YOUR_IPV4_ADDRESS}
     https://peeringdb.com/api/netixlan?ipaddr6=${YOUR_IPV6_ADDRESS}
     ```
+
   * **comments**, it is an optional field that can be used to take some notes
     about the object. It supports the
     [GitHub Markdown](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
