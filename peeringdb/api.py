@@ -296,8 +296,8 @@ class PeeringDB(object):
 
     def get_ix_network(self, ix_network_id):
         """
-        Return an IX networks (and its details) given its ID. The result can
-        come from the local database (cache built with the peeringdb_sync
+        Return an IX network (and its details) given an IP address. The result
+        can come from the local database (cache built with the peeringdb_sync
         command). If the IX network is not found in the local database, it will
         be fetched online which will take more time.
         """
@@ -307,8 +307,40 @@ class PeeringDB(object):
         except NetworkIXLAN.DoesNotExist:
             # If no cached data found, query the API
             search = {'id': ix_network_id}
-            result = self.lookup(
-                NAMESPACES['network_internet_exchange_lan'], search)
+            result = self.lookup(NAMESPACES['network_internet_exchange_lan'],
+                                 search)
+
+            if not result or not result['data']:
+                return None
+
+            network_ixlan = Object(result['data'][0])
+
+        return network_ixlan
+
+    def get_ix_network_by_ip_address(self, ipv6_address=None,
+                                     ipv4_address=None):
+        """
+        Return an IX network (and its details) given its ID. The result can
+        come from the local database (cache built with the peeringdb_sync
+        command). If the IX network is not found in the local database, it will
+        be fetched online which will take more time.
+        """
+        if not ipv6_address and not ipv4_address:
+            return None
+
+        search = {}
+        if ipv6_address:
+            search.update({'ipaddr6': ipv6_address})
+        if ipv4_address:
+            search.update({'ipaddr4': ipv4_address})
+
+        try:
+            # Try to get from cached data
+            network_ixlan = NetworkIXLAN.objects.get(**search)
+        except NetworkIXLAN.DoesNotExist:
+            # If no cached data found, query the API
+            result = self.lookup(NAMESPACES['network_internet_exchange_lan'],
+                                 search)
 
             if not result or not result['data']:
                 return None

@@ -511,6 +511,44 @@ class InternetExchangeTestCase(TestCase):
         ix.save()
         self.assertTrue(ix.is_peeringdb_valid())
 
+    def test_get_peeringdb_id(self):
+        # Expected results
+        expected = [0, 0, 0, 0, 29146, 29146, 29146]
+
+        # Test data
+        data = [
+            {
+                # No IP addresses
+            },
+            {
+                'ipv6_address': '2001:db8::1',
+            },
+            {
+                'ipv4_address': '192.168.168.1',
+            },
+            {
+                'ipv6_address': '2001:db8::1',
+                'ipv4_address': '192.168.168.1',
+            },
+            {
+                'ipv6_address': '2001:7f8:1::a502:9467:1',
+            },
+            {
+                'ipv4_address': '80.249.212.207',
+            },
+            {
+                'ipv6_address': '2001:7f8:1::a502:9467:1',
+                'ipv4_address': '80.249.212.207',
+            },
+        ]
+
+        # Run test cases
+        for i in range(len(expected)):
+            ixp = InternetExchange.objects.create(name='Test {}'.format(i),
+                                                  slug='test_{}'.format(i),
+                                                  **data[i])
+            self.assertEqual(expected[i], ixp.get_peeringdb_id())
+
     def test_import_peering_sessions(self):
         # Expected results
         expected = [

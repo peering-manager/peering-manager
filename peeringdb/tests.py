@@ -96,6 +96,50 @@ class PeeringDBTestCase(TestCase):
         ix_network = api.get_ix_network(ix_network_id)
         self.assertEqual(ix_network.id, ix_network_id)
 
+    def test_get_ix_network_by_ip_address(self):
+        api = PeeringDB()
+        ipv6_address = '2001:7f8:1::a502:9467:1'
+        ipv4_address = '80.249.212.207'
+        ix_network_id = 29146
+
+        # No IP given we cannot guess what the user wants
+        self.assertIsNone(api.get_ix_network_by_ip_address())
+
+        # Using an API call (no cached data)
+        ix_network = api.get_ix_network_by_ip_address(
+            ipv6_address=ipv6_address)
+        self.assertEqual(ix_network.id, ix_network_id)
+        ix_network = api.get_ix_network_by_ip_address(
+            ipv4_address=ipv4_address)
+        self.assertEqual(ix_network.id, ix_network_id)
+        ix_network = api.get_ix_network_by_ip_address(
+            ipv6_address=ipv6_address, ipv4_address=ipv4_address)
+        self.assertEqual(ix_network.id, ix_network_id)
+
+        # Save the data inside the cache
+        details = {
+            'id': ix_network.id,
+            'asn': ix_network.asn,
+            'name': ix_network.name,
+            'ipaddr6': ipv6_address,
+            'ipaddr4': ipv4_address,
+            'ix_id': ix_network.ix_id,
+            'ixlan_id': ix_network.ixlan_id,
+        }
+        network_ixlan = NetworkIXLAN(**details)
+        network_ixlan.save()
+
+        # Using no API calls (cached data)
+        ix_network = api.get_ix_network_by_ip_address(
+            ipv6_address=ipv6_address)
+        self.assertEqual(ix_network.id, ix_network_id)
+        ix_network = api.get_ix_network_by_ip_address(
+            ipv4_address=ipv4_address)
+        self.assertEqual(ix_network.id, ix_network_id)
+        ix_network = api.get_ix_network_by_ip_address(
+            ipv6_address=ipv6_address, ipv4_address=ipv4_address)
+        self.assertEqual(ix_network.id, ix_network_id)
+
     def test_get_ix_networks_for_asn(self):
         api = PeeringDB()
         asn = 29467

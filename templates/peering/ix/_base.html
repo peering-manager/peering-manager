@@ -1,6 +1,12 @@
 {% extends '_base.html' %}
 {% load helpers %}
 {% block content %}
+      {% if not internet_exchange.is_peeringdb_valid %}
+      <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-triangle"></i> This Internet Exchange is linked to <a href="https://peeringdb.com/" class="alert-link">PeeringDB</a> but it seems that its record has been deleted. You can <a href="https://peeringdb.com/api/netixlan?id={{ internet_exchange.peeringdb_id }}" class="alert-link">check it</a> or <a href="https://peeringdb.com/api/netixlan?{% if internet_exchange.ipv6_address %}ipaddr6={{ internet_exchange.ipv6_address }}{% else %}ipaddr4={{ internet_exchange.ipv4_address }}{% endif %}" class="alert-link">look for the new ID</a>.<br/>
+        <small>* This message will not disappear until you fixed the issue.</small>
+      </div>
+      {% endif %}
       <div class="float-right">
         {% if perms.peering.change_internetexchange %}
         <a href="{% url 'peering:internet_exchange_edit' slug=internet_exchange.slug %}" class="btn btn-warning">
@@ -14,12 +20,6 @@
         {% endif %}
       </div>
       <h1>{% block title %}{{ internet_exchange }}{% endblock %}</h1>
-      {% if not internet_exchange.is_peeringdb_valid %}
-      <div class="alert alert-danger" role="alert">
-        <i class="fas fa-exclamation-triangle"></i> This Internet Exchange is linked to <a href="https://peeringdb.com/" class="alert-link">PeeringDB</a> but it seems that its record has been deleted. You can <a href="https://peeringdb.com/api/netixlan?id={{ internet_exchange.peeringdb_id }}" class="alert-link">check it</a> or <a href="https://peeringdb.com/api/netixlan?{% if internet_exchange.ipv6_address %}ipaddr6={{ internet_exchange.ipv6_address }}{% else %}ipaddr4={{ internet_exchange.ipv4_address }}{% endif %}" class="alert-link">look for the new ID</a>.<br/>
-        <small>* This message will not disappear until you fixed the issue.</small>
-      </div>
-      {% endif %}
       {% if internet_exchange.bgp_session_states_update %}
       <p><small class="text-muted">Last peering session states updated: {{ internet_exchange.bgp_session_states_update }}</small></p>
       {% endif %}

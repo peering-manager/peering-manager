@@ -553,6 +553,17 @@ class IXPeeringDBImport(PermissionRequiredMixin, TableImportView):
 class IXDetails(View):
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
+
+        # Check if the PeeringDB ID is valid
+        if not internet_exchange.is_peeringdb_valid():
+            # If not, try to fix it automatically
+            peeringdb_id = internet_exchange.get_peeringdb_id()
+            if peeringdb_id != 0:
+                internet_exchange.peeringdb_id = peeringdb_id
+                internet_exchange.save()
+                messages.info(request,
+                              'The PeeringDB record reference for this IX was invalid, it has been fixed.')
+
         context = {
             'internet_exchange': internet_exchange,
         }

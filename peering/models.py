@@ -408,6 +408,17 @@ class InternetExchange(CreatedUpdatedModel):
 
         return True
 
+    def get_peeringdb_id(self):
+        """
+        Retrieves the PeeringDB ID for this IX based on the IP addresses that
+        have been recorded. The ID of the PeeringDB record will be returned on
+        success. In any other cases 0 will be returned.
+        """
+        network_ixlan = PeeringDB().get_ix_network_by_ip_address(
+            ipv6_address=self.ipv6_address, ipv4_address=self.ipv4_address)
+
+        return network_ixlan.id if network_ixlan else 0
+
     def get_prefixes(self):
         return PeeringDB().get_prefixes_for_ix_network(self.peeringdb_id) or []
 
@@ -718,6 +729,8 @@ class InternetExchangePeeringSession(BGPSession):
     internet_exchange = models.ForeignKey(
         'InternetExchange', on_delete=models.CASCADE)
 
+    logger = logging.getLogger('peering.manager.peeringdb')
+
     @staticmethod
     def does_exist(internet_exchange=None, autonomous_system=None,
                    ip_address=None):
@@ -756,14 +769,15 @@ class InternetExchangePeeringSession(BGPSession):
 
         # Find the Internet exchange given a NetworkIXLAN ID
         for ix in InternetExchange.objects.exclude(peeringdb_id__isnull=True):
-            print('looking for network ixlan with id {}'.format(ix.peeringdb_id))
-
             # Get the IXLAN corresponding to our network
             try:
                 ixlan = NetworkIXLAN.objects.get(id=ix.peeringdb_id)
-            except NetworkIXLAN.DoesNotExist as e:
-                print('{} for NetworkIXLAN with ID {}'.format(e, ix.peeringdb_id))
-                raise(e)
+            except NetworkIXLAN.DoesNotExist:
+                InternetExchangePeeringSession.logger.debug(
+                    'NetworkIXLAN with ID {} not found, ignoring IX {}'.format(
+                        ix.peeringdb_id, ix.name))
+                continue
+
             # Get a potentially matching IXLAN
             peer_ixlan = NetworkIXLAN.objects.filter(
                 id=peer_record.network_ixlan.id, ix_id=ixlan.ix_id)
