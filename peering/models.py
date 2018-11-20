@@ -976,6 +976,7 @@ class Router(CreatedUpdatedModel):
                 # Load the config
                 self.logger.debug('merging configuration on %s', self.hostname)
                 device.load_merge_candidate(config=config)
+                self.logger.debug('merged configuration %s', config)
 
                 # Get the config diff
                 self.logger.debug(
