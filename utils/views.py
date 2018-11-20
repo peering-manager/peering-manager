@@ -340,7 +340,12 @@ class BulkEditView(View):
                         for obj in model.objects.filter(pk__in=pk_list):
                             for name in fields:
                                 if form.cleaned_data[name] not in (None, ''):
-                                    setattr(obj, name, form.cleaned_data[name])
+                                    if model._meta.get_field(name).get_internal_type() == 'ManyToManyField':
+                                        getattr(obj, name).set(
+                                            form.cleaned_data[name])
+                                    else:
+                                        setattr(obj, name,
+                                                form.cleaned_data[name])
                             obj.full_clean()
                             obj.save()
                             updated_count += 1
