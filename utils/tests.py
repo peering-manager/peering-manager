@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
+from .forms import add_blank_choice
+
 
 class ViewTestCase(TestCase):
     """
@@ -66,3 +68,15 @@ class ViewTestCase(TestCase):
 
         # Ensure that the status code is the expected one
         self.assertEqual(expected_status_code, response.status_code)
+
+    def test_add_blank_choice(self):
+        CHOICES = (
+            (1, 'One'),
+            (2, 'Two'),
+        )
+        CHOICES_WITH_BLANK = (
+            (None, '---------'),
+            (1, 'One'),
+            (2, 'Two'),
+        )
+        self.assertEqual(CHOICES_WITH_BLANK, add_blank_choice(CHOICES))
