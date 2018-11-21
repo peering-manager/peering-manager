@@ -976,13 +976,13 @@ class Router(CreatedUpdatedModel):
                 # Load the config
                 self.logger.debug('merging configuration on %s', self.hostname)
                 device.load_merge_candidate(config=config)
-                self.logger.debug('merged configuration %s', config)
+                self.logger.debug('merged configuration\n%s', config)
 
                 # Get the config diff
                 self.logger.debug(
                     'checking for configuration changes on %s', self.hostname)
                 changes = device.compare_config()
-                self.logger.debug('raw napalm output %s', changes)
+                self.logger.debug('raw napalm output\n%s', changes)
 
                 # Commit the config if required
                 if commit:
