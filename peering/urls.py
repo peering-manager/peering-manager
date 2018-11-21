@@ -183,6 +183,8 @@ urlpatterns = [
         name='router_delete'),
     url(r'^routers/delete/$', views.RouterBulkDelete.as_view(),
         name='router_bulk_delete'),
+    url(r'^routers/edit/$', views.RouterBulkEdit.as_view(),
+        name='router_bulk_edit'),
 
     # Routing Policies
     url(r'^routing-policies/$', views.RoutingPolicyList.as_view(),

@@ -30,8 +30,8 @@ from .forms import (
     InternetExchangePeeringSessionFilterFormForIX,
     InternetExchangePeeringSessionFilterFormForAS,
     InternetExchangePeeringSessionRoutingPolicyForm, RouterForm, RouterCSVForm,
-    RouterFilterForm, RoutingPolicyCSVForm, RoutingPolicyForm,
-    RoutingPolicyBulkEditForm, RoutingPolicyFilterForm)
+    RouterFilterForm, RouterBulkEditForm, RoutingPolicyCSVForm,
+    RoutingPolicyForm, RoutingPolicyBulkEditForm, RoutingPolicyFilterForm)
 from .models import (
     AutonomousSystem, BGPSession, Community, ConfigurationTemplate,
     DirectPeeringSession, InternetExchange, InternetExchangePeeringSession,
@@ -1017,6 +1017,14 @@ class RouterDelete(PermissionRequiredMixin, DeleteView):
     permission_required = 'peering.delete_router'
     model = Router
     return_url = 'peering:router_list'
+
+
+class RouterBulkEdit(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'peering.change_router'
+    queryset = Router.objects.all()
+    filter = RouterFilter
+    table = RouterTable
+    form = RouterBulkEditForm
 
 
 class RouterBulkDelete(PermissionRequiredMixin, BulkDeleteView):

@@ -138,7 +138,7 @@ class CommunityBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=Community.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    type = forms.ChoiceField(choices=COMMUNITY_TYPE_CHOICES)
+    type = forms.ChoiceField(choices=COMMUNITY_TYPE_CHOICES, required=False)
     comment = CommentField()
 
 
@@ -659,6 +659,15 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
         }
 
 
+class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Router.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    platform = forms.ChoiceField(choices=PLATFORM_CHOICES, required=False)
+    comment = CommentField()
+
+
 class RouterCSVForm(BootstrapMixin, forms.ModelForm):
     platform = CSVChoiceField(choices=PLATFORM_CHOICES, required=False,
                               help_text='The router platform, used to interact with it')
@@ -702,7 +711,8 @@ class RoutingPolicyBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=RoutingPolicy.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    type = forms.ChoiceField(choices=ROUTING_POLICY_TYPE_CHOICES)
+    type = forms.ChoiceField(choices=ROUTING_POLICY_TYPE_CHOICES,
+                             required=False)
     comment = CommentField()
 
 
