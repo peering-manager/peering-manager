@@ -49,6 +49,8 @@ urlpatterns = [
         views.CommunityDelete.as_view(), name='community_delete'),
     url(r'^communities/delete/$', views.CommunityBulkDelete.as_view(),
         name='community_bulk_delete'),
+    url(r'^communities/edit/$', views.CommunityBulkEdit.as_view(),
+        name='community_bulk_edit'),
 
     # Configuration Templates
     url(r'^templates/$', views.ConfigTemplateList.as_view(),

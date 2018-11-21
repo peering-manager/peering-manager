@@ -17,7 +17,7 @@ from .filters import (
 from .forms import (
     AutonomousSystemForm, AutonomousSystemCSVForm, AutonomousSystemFilterForm,
     AutonomousSystemImportFromPeeringDBForm, CommunityForm, CommunityCSVForm,
-    CommunityFilterForm, ConfigurationTemplateForm,
+    CommunityFilterForm, CommunityBulkEditForm, ConfigurationTemplateForm,
     ConfigurationTemplateFilterForm, DirectPeeringSessionBulkEditForm,
     DirectPeeringSessionForm, DirectPeeringSessionFilterForm,
     DirectPeeringSessionRoutingPolicyForm, InternetExchangeForm,
@@ -271,6 +271,14 @@ class CommunityBulkDelete(PermissionRequiredMixin, BulkDeleteView):
     model = Community
     filter = CommunityFilter
     table = CommunityTable
+
+
+class CommunityBulkEdit(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'peering.change_community'
+    queryset = Community.objects.all()
+    filter = CommunityFilter
+    table = CommunityTable
+    form = CommunityBulkEditForm
 
 
 class ConfigTemplateList(ModelListView):

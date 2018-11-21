@@ -133,6 +133,15 @@ class CommunityForm(BootstrapMixin, forms.ModelForm):
         }
 
 
+class CommunityBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Community.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    type = forms.ChoiceField(choices=COMMUNITY_TYPE_CHOICES)
+    comment = CommentField()
+
+
 class CommunityCSVForm(BootstrapMixin, forms.ModelForm):
     type = CSVChoiceField(choices=COMMUNITY_TYPE_CHOICES, required=False,
                           help_text='Ingress to tag received routes or Egress to tag advertised routes')
