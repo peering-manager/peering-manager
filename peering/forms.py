@@ -13,7 +13,7 @@ from netbox.api import NetBox
 from peeringdb.models import PeerRecord
 from utils.forms import (BulkEditForm, BootstrapMixin, CSVChoiceField,
                          FilterChoiceField, PasswordField, SlugField,
-                         YesNoField)
+                         YesNoField, add_blank_choice)
 
 
 class CommentField(forms.CharField):
@@ -138,7 +138,8 @@ class CommunityBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=Community.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    type = forms.ChoiceField(choices=COMMUNITY_TYPE_CHOICES, required=False)
+    type = forms.ChoiceField(choices=add_blank_choice(COMMUNITY_TYPE_CHOICES),
+                             required=False)
     comment = CommentField()
 
 
@@ -686,7 +687,8 @@ class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=Router.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    platform = forms.ChoiceField(choices=PLATFORM_CHOICES, required=False)
+    platform = forms.ChoiceField(choices=add_blank_choice(PLATFORM_CHOICES),
+                                 required=False)
     comment = CommentField()
 
 
@@ -733,8 +735,8 @@ class RoutingPolicyBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=RoutingPolicy.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    type = forms.ChoiceField(choices=ROUTING_POLICY_TYPE_CHOICES,
-                             required=False)
+    type = forms.ChoiceField(
+        choices=add_blank_choice(ROUTING_POLICY_TYPE_CHOICES), required=False)
     comment = CommentField()
 
 

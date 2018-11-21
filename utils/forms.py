@@ -6,6 +6,13 @@ from django import forms
 from django.conf import settings
 
 
+def add_blank_choice(choices):
+    """
+    Add a blank choice to the beginning of a choices list.
+    """
+    return ((None, '---------'),) + tuple(choices)
+
+
 class BulkEditForm(forms.Form):
     """
     Base form for editing several objects at the same time.
