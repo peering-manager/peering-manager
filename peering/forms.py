@@ -331,6 +331,28 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
         }
 
 
+class InternetExchangeBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=InternetExchange.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    import_routing_policies = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT)
+    )
+    export_routing_policies = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT)
+    )
+    configuration_template = forms.ModelChoiceField(
+        required=False,
+        queryset=ConfigurationTemplate.objects.all()
+    )
+    router = forms.ModelChoiceField(required=False,
+                                    queryset=Router.objects.all())
+    comment = CommentField()
+
+
 class InternetExchangePeeringDBForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
 

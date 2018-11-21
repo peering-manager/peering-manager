@@ -21,9 +21,10 @@ from .forms import (
     ConfigurationTemplateFilterForm, DirectPeeringSessionBulkEditForm,
     DirectPeeringSessionForm, DirectPeeringSessionFilterForm,
     DirectPeeringSessionRoutingPolicyForm, InternetExchangeForm,
-    InternetExchangePeeringDBForm, InternetExchangePeeringDBFormSet,
-    InternetExchangeCommunityForm, InternetExchangeRoutingPolicyForm,
-    InternetExchangeCSVForm, InternetExchangeFilterForm, PeerRecordFilterForm,
+    InternetExchangeBulkEditForm, InternetExchangePeeringDBForm,
+    InternetExchangePeeringDBFormSet, InternetExchangeCommunityForm,
+    InternetExchangeRoutingPolicyForm, InternetExchangeCSVForm,
+    InternetExchangeFilterForm, PeerRecordFilterForm,
     InternetExchangePeeringSessionBulkEditForm,
     InternetExchangePeeringSessionForm,
     InternetExchangePeeringSessionFilterForm,
@@ -596,6 +597,14 @@ class IXBulkDelete(PermissionRequiredMixin, BulkDeleteView):
     model = InternetExchange
     filter = InternetExchangeFilter
     table = InternetExchangeTable
+
+
+class InternetExchangeBulkEdit(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'peering.change_internetexchange'
+    queryset = InternetExchange.objects.all()
+    filter = InternetExchangeFilter
+    table = InternetExchangeTable
+    form = InternetExchangeBulkEditForm
 
 
 class IXUpdateCommunities(PermissionRequiredMixin, AddOrEditView):

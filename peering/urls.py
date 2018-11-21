@@ -109,6 +109,8 @@ urlpatterns = [
         name='internet_exchange_peeringdb_import'),
     url(r'^internet-exchanges/delete/$', views.IXBulkDelete.as_view(),
         name='internet_exchange_bulk_delete'),
+    url(r'^internet-exchanges/edit/$', views.InternetExchangeBulkEdit.as_view(),
+        name='internet_exchange_bulk_edit'),
     url(r'^internet-exchanges/(?P<slug>[\w-]+)/$', views.IXDetails.as_view(),
         name='internet_exchange_details'),
     url(r'^internet-exchanges/(?P<slug>[\w-]+)/edit/$', views.IXEdit.as_view(),
