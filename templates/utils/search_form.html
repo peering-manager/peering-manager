@@ -2,7 +2,7 @@
 
 <div class="card">
   <div class="card-header">
-    <i class="fas fa-search" aria-hidden="true"></i>
+    <i class="fas fa-search"></i>
     <strong>Search</strong>
   </div>
   <div class="card-body">
@@ -14,7 +14,7 @@
           <input type="text" name="q" class="form-control" placeholder="Search" {% if request.GET.q %}value="{{ request.GET.q }}" {% endif %}/>
           <div class="input-group-append">
             <button type="submit" class="btn btn-primary">
-              <i class="fas fa-search" aria-hidden="true"></i>
+              <i class="fas fa-search"></i>
             </button>
           </div>
         </div>
@@ -28,10 +28,10 @@
       {% endfor %}
       <div class="text-right">
         <button type="submit" class="btn btn-primary">
-          <i class="fas fa-search" aria-hidden="true"></i> Apply
+          <i class="fas fa-search"></i> Apply
         </button>
         <a href="." class="btn btn-secondary">
-          <i class="fas fa-times" aria-hidden="true"></i> Clear
+          <i class="fas fa-times"></i> Clear
         </a>
       </div>
     </form>

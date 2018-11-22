@@ -4,11 +4,11 @@
         <div class="col-md-2">
           {% if internet_exchange.router and internet_exchange.router.platform %}
           <button type="button" class="btn btn-primary btn-block" id="router-diff">
-            <i class="fa fa-cogs" aria-hidden="true"></i> Deploy
+            <i class="fa fa-cogs"></i> Deploy
           </button>
           {% endif %}
           <button type="button" class="btn btn-secondary btn-block" id="copy-config">
-            <i class="fa fa-clipboard" aria-hidden="true"></i> Copy
+            <i class="fa fa-clipboard"></i> Copy
           </button>
         </div>
         <pre class="col-md-10 pre-scrollable"><code>{{ internet_exchange_configuration }}</code></pre>
@@ -19,7 +19,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title">Configuration Differences</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
             </div>
             <div class="modal-body">
             </div>
@@ -64,7 +64,7 @@
           complete: function() {
             $('#router-diff').removeClass('btn-warning').addClass('btn-primary');
             $('#router-diff').removeAttr('disabled');
-            $('#router-diff').html('<i class="fas fa-cogs" aria-hidden="true"></i> Deploy');
+            $('#router-diff').html('<i class="fas fa-cogs"></i> Deploy');
           }
         }).done(function(response) {
           var data = JSON.parse(response);
@@ -94,12 +94,12 @@
 
           // Consider failure
           var btn_class = 'btn-danger';
-          var btn_code = '<i class="fas fa-times" aria-hidden="true"></i> Configuration not saved';
+          var btn_code = '<i class="fas fa-times"></i> Configuration not saved';
 
           // If successful change button code and color
           if (data['success']) {
             var btn_class = 'btn-success';
-            var btn_code = '<i class="fas fa-check" aria-hidden="true"></i> Configuration saved';
+            var btn_code = '<i class="fas fa-check"></i> Configuration saved';
           }
 
           $('#save-config').removeClass('btn-warning').addClass(btn_class);

@@ -12,7 +12,7 @@
         {% endif %}
         {% if perms.peering.delete_autonomoussystem %}
         <a href="{% url 'peering:autonomous_system_delete' asn=autonomous_system.asn %}" class="btn btn-danger">
-          <i class="fas fa-trash" aria-hidden="true"></i> Delete
+          <i class="fas fa-trash"></i> Delete
         </a>
         {% endif %}
       </div>

@@ -8,18 +8,18 @@
       <div class="float-right">
         {% if peering_session.enabled %}
         <a href="{% url 'peering:internet_exchange_peering_session_disable' pk=peering_session.pk %}" class="btn btn-danger">
-          <i class="fas fa-toggle-off" aria-hidden="true"></i> Disable
+          <i class="fas fa-toggle-off"></i> Disable
         </a>
         {% else %}
         <a href="{% url 'peering:internet_exchange_peering_session_enable' pk=peering_session.pk %}" class="btn btn-success">
-          <i class="fas fa-toggle-on" aria-hidden="true"></i> Enable
+          <i class="fas fa-toggle-on"></i> Enable
         </a>
         {% endif %}
         <a href="{% url 'peering:internet_exchange_peering_session_edit' pk=peering_session.pk %}" class="btn btn-warning">
-          <i class="fas fa-edit" aria-hidden="true"></i> Edit
+          <i class="fas fa-edit"></i> Edit
         </a>
         <a href="{% url 'peering:internet_exchange_peering_session_delete' pk=peering_session.pk %}" class="btn btn-danger">
-          <i class="fas fa-trash" aria-hidden="true"></i> Delete
+          <i class="fas fa-trash"></i> Delete
         </a>
       </div>
       {% endif %}

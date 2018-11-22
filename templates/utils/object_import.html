@@ -40,7 +40,7 @@
               {% for name, field in fields.items %}
               <tr>
                 <td><code>{{ name }}</code></td>
-                <td>{% if field.required %}<i class="fa fa-check-square" aria-hidden="true"></i>{% endif %}</td>
+                <td>{% if field.required %}<i class="fa fa-check-square"></i>{% endif %}</td>
                 <td>
                   {{ field.help_text|default:field.label }}
                   {% if field.choices %}

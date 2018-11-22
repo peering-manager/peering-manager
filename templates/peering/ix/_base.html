@@ -27,20 +27,20 @@
       <ul class="nav nav-tabs">
         <li class="nav-item">
           <a class="nav-link{% if request.path|notcontains:'/peering-sessions/,/peers/,/config/' %} active{% endif %}" href="{% url 'peering:internet_exchange_details' slug=internet_exchange.slug %}">
-            <i class="fas fa-info-circle" aria-hidden="true"></i>
+            <i class="fas fa-info-circle"></i>
             Info
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link{% if request.path|contains:'/peering-sessions/' %} active{% endif %}" href="{% url 'peering:internet_exchange_peering_sessions' slug=internet_exchange.slug %}">
-            <i class="fas fa-sitemap" aria-hidden="true"></i>
+            <i class="fas fa-sitemap"></i>
             Peering Sessions
           </a>
         </li>
         {% if internet_exchange.peeringdb_id %}
         <li class="nav-item">
           <a class="nav-link{% if request.path|contains:'/peers/' %} active{% endif %}" href="{% url 'peering:internet_exchange_peers' slug=internet_exchange.slug %}">
-            <i class="fas fa-link" aria-hidden="true"></i>
+            <i class="fas fa-link"></i>
             Available Peers
           </a>
         </li>
@@ -48,7 +48,7 @@
         {% if internet_exchange.configuration_template %}
         <li class="nav-item">
           <a class="nav-link{% if request.path|contains:'/config/' %} active{% endif %}" href="{% url 'peering:internet_exchange_configuration' slug=internet_exchange.slug %}">
-            <i class="fas fa-terminal" aria-hidden="true"></i>
+            <i class="fas fa-terminal"></i>
             Configuration
           </a>
         </li>
