@@ -3,6 +3,11 @@
 <div class="form-group form-row{% if field.errors %} invalid{% endif %}">
   {% if field|widget_type == 'textarea' %}
   {{ field }}
+  {% if bulk_nullable %}
+  <label class="checkbox-inline">
+    <input type="checkbox" name="_nullify" value="{{ field.name }}" /> Set null
+  </label>
+  {% endif %}
   {% if field.help_text %}
   <small class="form-text text-muted">{{ field.help_text|safe }}</small>
   {% endif %}
@@ -25,6 +30,11 @@
     </div>
     {% else %}
     {{ field }}
+    {% if bulk_nullable %}
+    <label class="checkbox-inline">
+      <input type="checkbox" name="_nullify" value="{{ field.name }}" /> Set null
+    </label>
+    {% endif %}
     {% endif %}
     {% if field.help_text %}
     <small class="form-text text-muted">{{ field.help_text|safe }}</small>

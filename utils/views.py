@@ -7,7 +7,7 @@ from django.db import transaction
 from django.db.models import ProtectedError
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput
+from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput
 from django.forms.formsets import formset_factory
 from django.http import HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
@@ -333,14 +333,18 @@ class BulkEditView(View):
             form = self.form(model, parent_object, request.POST)
             if form.is_valid():
                 fields = [field for field in form.fields if field != 'pk']
+                nullified_fields = request.POST.getlist('_nullify')
 
                 try:
                     with transaction.atomic():
                         updated_count = 0
                         for obj in model.objects.filter(pk__in=pk_list):
                             for name in fields:
-                                if form.cleaned_data[name] not in (None, ''):
-                                    if model._meta.get_field(name).get_internal_type() == 'ManyToManyField':
+                                if name in form.nullable_fields and name in nullified_fields:
+                                    setattr(obj, name, '' if isinstance(
+                                        form.fields[name], CharField) else None)
+                                elif form.cleaned_data[name] not in (None, ''):
+                                    if isinstance(form.fields[name], ModelMultipleChoiceField):
                                         getattr(obj, name).set(
                                             form.cleaned_data[name])
                                     else:

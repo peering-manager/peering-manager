@@ -64,4 +64,9 @@ $(document).ready(function() {
       $('#select_all_box').find('button').prop('disabled', 'disabled');
     }
   });
+
+  // Disable field when clicking on the "Set null" checkbox
+  $('input:checkbox[name=_nullify]').click(function() {
+      $('#id_' + this.value).toggle('disabled');
+  });
 });

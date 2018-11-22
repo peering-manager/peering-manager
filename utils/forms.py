@@ -22,6 +22,10 @@ class BulkEditForm(forms.Form):
         super(BulkEditForm, self).__init__(*args, **kwargs)
         self.model = model
         self.parent_object = parent_object
+        self.nullable_fields = []
+
+        if hasattr(self.Meta, 'nullable_fields'):
+            self.nullable_fields = self.Meta.nullable_fields
 
 
 class BootstrapMixin(forms.BaseForm):
