@@ -87,7 +87,7 @@ class AutonomousSystemTestCase(TestCase):
 
 class AutonomousSystemViewsTestCase(ViewTestCase):
     def setUp(self):
-        super(AutonomousSystemViewsTestCase, self).setUp()
+        super().setUp()
 
         self.model = AutonomousSystem
         self.asn = 29467
@@ -346,7 +346,7 @@ class CommunityTestCase(TestCase):
 
 class CommunityViewsTestCase(ViewTestCase):
     def setUp(self):
-        super(CommunityViewsTestCase, self).setUp()
+        super().setUp()
 
         self.model = Community
         self.name = "peering-all-exchanges"
@@ -465,7 +465,7 @@ class CommunityViewsTestCase(ViewTestCase):
 
 class DirectPeeringSessionViewsTestCase(ViewTestCase):
     def setUp(self):
-        super(DirectPeeringSessionViewsTestCase, self).setUp()
+        super().setUp()
 
         self.model = DirectPeeringSession
         self.ip_address = "2001:db8::64:501"
@@ -734,7 +734,7 @@ class InternetExchangeTestCase(TestCase):
 
 class InternetExchangeViewsTestCase(ViewTestCase):
     def setUp(self):
-        super(InternetExchangeViewsTestCase, self).setUp()
+        super().setUp()
 
         self.model = InternetExchange
         self.name = "Test IX"
@@ -1066,7 +1066,7 @@ class InternetExchangePeeringSessionTestCase(TestCase):
 
 class InternetExchangePeeringSessionViewsTestCase(ViewTestCase):
     def setUp(self):
-        super(InternetExchangePeeringSessionViewsTestCase, self).setUp()
+        super().setUp()
 
         self.model = InternetExchangePeeringSession
         self.ip_address = "2001:db8::64:501"
@@ -1213,7 +1213,7 @@ class RouterTestCase(TestCase):
 
 class RouterViewsTestCase(ViewTestCase):
     def setUp(self):
-        super(RouterViewsTestCase, self).setUp()
+        super().setUp()
 
         self.model = Router
         self.name = "test.router"
@@ -1378,7 +1378,7 @@ class RoutingPolicyTestCase(TestCase):
 
 class RoutingPolicyViewsTestCase(ViewTestCase):
     def setUp(self):
-        super(RoutingPolicyViewsTestCase, self).setUp()
+        super().setUp()
 
         self.model = RoutingPolicy
         self.name = "Export Policy"

@@ -11,7 +11,7 @@ class BaseTable(tables.Table):
     """
 
     def __init__(self, *args, **kwargs):
-        super(BaseTable, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Set default empty_text if none was provided
         if self.empty_text is None:
@@ -27,9 +27,7 @@ class SelectColumn(tables.CheckBoxColumn):
     def __init__(self, *args, **kwargs):
         default = kwargs.pop("default", "")
         visible = kwargs.pop("visible", False)
-        super(SelectColumn, self).__init__(
-            *args, default=default, visible=visible, **kwargs
-        )
+        super().__init__(*args, default=default, visible=visible, **kwargs)
 
     @property
     def header(self):
@@ -43,7 +41,7 @@ class ActionsColumn(tables.TemplateColumn):
         visible = kwargs.pop("visible", False)
         orderable = kwargs.pop("orderable", False)
         verbose_name = kwargs.pop("verbose_name", "")
-        super(ActionsColumn, self).__init__(
+        super().__init__(
             *args,
             attrs=attrs,
             default=default,

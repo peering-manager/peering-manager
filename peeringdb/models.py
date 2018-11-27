@@ -38,7 +38,7 @@ class NetworkIXLAN(models.Model):
         verbose_name_plural = "Network IX LANs"
 
     def save(self, *args, **kwargs):
-        super(NetworkIXLAN, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         # Ignore if we do not have any IP addresses
         if not self.ipaddr6 and not self.ipaddr4:

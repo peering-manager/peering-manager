@@ -30,7 +30,7 @@ class BGPSessionStateColumn(tables.TemplateColumn):
         visible = kwargs.pop("visible", False)
         verbose_name = kwargs.pop("verbose_name", "State")
         template_code = kwargs.pop("template_code", self.template)
-        super(BGPSessionStateColumn, self).__init__(
+        super().__init__(
             *args,
             default=default,
             verbose_name=verbose_name,

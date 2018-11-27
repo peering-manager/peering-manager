@@ -816,7 +816,7 @@ class IXPeeringSessions(ModelListView):
                 if "session_state" in table.base_columns:
                     table.columns.show("session_state")
 
-        super(IXPeeringSessions, self).setup_table_columns(request, table, kwargs)
+        super().setup_table_columns(request, table, kwargs)
 
 
 class IXPeers(ModelListView):

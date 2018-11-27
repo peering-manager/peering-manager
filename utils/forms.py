@@ -19,7 +19,7 @@ class BulkEditForm(forms.Form):
     """
 
     def __init__(self, model, parent_object=None, *args, **kwargs):
-        super(BulkEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.model = model
         self.parent_object = parent_object
         self.nullable_fields = []
@@ -30,7 +30,7 @@ class BulkEditForm(forms.Form):
 
 class BootstrapMixin(forms.BaseForm):
     def __init__(self, *args, **kwargs):
-        super(BootstrapMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         for field_name, field in self.fields.items():
             css = field.widget.attrs.get("class", "")
@@ -53,7 +53,7 @@ class CSVDataField(forms.CharField):
     def __init__(self, fields, *args, **kwargs):
         self.fields = fields
 
-        super(CSVDataField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if not self.label:
             self.label = "CSV Data"
@@ -116,12 +116,12 @@ class CSVChoiceField(forms.ChoiceField):
     """
 
     def __init__(self, choices, *args, **kwargs):
-        super(CSVChoiceField, self).__init__(choices=choices, *args, **kwargs)
+        super().__init__(choices=choices, *args, **kwargs)
         self.choices = [(label, label) for value, label in choices]
         self.choice_values = {label: value for value, label in choices}
 
     def clean(self, value):
-        value = super(CSVChoiceField, self).clean(value)
+        value = super().clean(value)
 
         if not value:
             return None
@@ -158,10 +158,10 @@ class FilterChoiceFieldMixin(object):
             kwargs["required"] = False
         if "widget" not in kwargs:
             kwargs["widget"] = forms.SelectMultiple(attrs={"size": 6})
-        super(FilterChoiceFieldMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def label_from_instance(self, obj):
-        label = super(FilterChoiceFieldMixin, self).label_from_instance(obj)
+        label = super().label_from_instance(obj)
         if hasattr(obj, "filter_count"):
             return "{} ({})".format(label, obj.filter_count)
         return label
@@ -187,7 +187,7 @@ class PasswordField(forms.CharField):
             "want to use it. Be aware that it is stored "
             "without encryption in the database.",
         )
-        super(PasswordField, self).__init__(
+        super().__init__(
             widget=widget, label=label, help_text=help_text, *args, **kwargs
         )
         self.widget.attrs["password-source"] = password_source
@@ -204,9 +204,7 @@ class SlugField(forms.SlugField):
         help_text = kwargs.pop(
             "help_text", "Friendly unique shorthand used for URL and config"
         )
-        super(SlugField, self).__init__(
-            label=label, help_text=help_text, *args, **kwargs
-        )
+        super().__init__(label=label, help_text=help_text, *args, **kwargs)
         self.widget.attrs["slug-source"] = slug_source
 
 
@@ -217,7 +215,7 @@ class YesNoField(forms.BooleanField):
     """
 
     def __init__(self, *args, **kwargs):
-        super(YesNoField, self).__init__(
+        super().__init__(
             widget=forms.Select(
                 choices=[(None, "---------"), ("True", "Yes"), ("False", "No")]
             ),

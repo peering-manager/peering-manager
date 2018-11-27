@@ -49,7 +49,7 @@ class CommentField(forms.CharField):
         required = kwargs.pop("required", False)
         label = kwargs.pop("label", self.default_label)
         help_text = kwargs.pop("help_text", self.default_helptext)
-        super(CommentField, self).__init__(
+        super().__init__(
             required=required, label=label, help_text=help_text, *args, **kwargs
         )
 
@@ -68,7 +68,7 @@ class TemplateField(forms.CharField):
         required = kwargs.pop("required", False)
         label = kwargs.pop("label", self.default_label)
         help_text = kwargs.pop("help_text", self.default_helptext)
-        super(TemplateField, self).__init__(
+        super().__init__(
             required=required, label=label, help_text=help_text, *args, **kwargs
         )
 
@@ -228,7 +228,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     comment = CommentField()
 
     def __init__(self, *args, **kwargs):
-        super(DirectPeeringSessionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["autonomous_system"].widget.attrs["data-live-search"] = "true"
 
     class Meta:
@@ -320,7 +320,7 @@ class DirectPeeringSessionRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
                 p.pk for p in instance.import_routing_policies.all()
             ]
 
-        super(DirectPeeringSessionRoutingPolicyForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def save(self):
         instance = forms.ModelForm.save(self)
@@ -407,7 +407,7 @@ class InternetExchangePeeringDBForm(BootstrapMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("label_suffix", "")
-        super(InternetExchangePeeringDBForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["peeringdb_id"].widget = forms.HiddenInput()
 
     class Meta:
@@ -483,7 +483,7 @@ class InternetExchangeCommunityForm(BootstrapMixin, forms.ModelForm):
             # Add primary key for each community
             initial["communities"] = [c.pk for c in instance.communities.all()]
 
-        super(InternetExchangeCommunityForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def save(self):
         instance = forms.ModelForm.save(self)
@@ -522,7 +522,7 @@ class InternetExchangeRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
                 p.pk for p in instance.import_routing_policies.all()
             ]
 
-        super(InternetExchangeRoutingPolicyForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def save(self):
         instance = forms.ModelForm.save(self)
@@ -604,7 +604,7 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
     comment = CommentField()
 
     def __init__(self, *args, **kwargs):
-        super(InternetExchangePeeringSessionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["autonomous_system"].widget.attrs["data-live-search"] = "true"
 
     class Meta:
@@ -707,9 +707,7 @@ class InternetExchangePeeringSessionRoutingPolicyForm(BootstrapMixin, forms.Mode
                 p.pk for p in instance.import_routing_policies.all()
             ]
 
-        super(InternetExchangePeeringSessionRoutingPolicyForm, self).__init__(
-            *args, **kwargs
-        )
+        super().__init__(*args, **kwargs)
 
     def save(self):
         instance = forms.ModelForm.save(self)
@@ -727,7 +725,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
     comment = CommentField()
 
     def __init__(self, *args, **kwargs):
-        super(RouterForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if settings.NETBOX_API:
             self.fields["netbox_device_id"] = forms.ChoiceField(
