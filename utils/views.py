@@ -7,7 +7,7 @@ from django.db import transaction
 from django.db.models import ProtectedError
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput
+from django.forms import CharField, Form, MultipleHiddenInput
 from django.forms.formsets import formset_factory
 from django.http import HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
@@ -23,7 +23,7 @@ from django.views.generic import View
 
 from django_tables2 import RequestConfig
 
-from .forms import BootstrapMixin, ConfirmationForm, CSVDataField
+from .forms import BootstrapMixin, ConfirmationForm, CSVDataField, FilterChoiceField
 from .models import UserAction
 from .paginators import EnhancedPaginator
 
@@ -243,7 +243,7 @@ class BulkDeleteView(View):
 
     def get_form(self):
         class BulkDeleteForm(ConfirmationForm):
-            pk = ModelMultipleChoiceField(
+            pk = FilterChoiceField(
                 queryset=self.model.objects.all(), widget=MultipleHiddenInput
             )
 
@@ -388,9 +388,7 @@ class BulkEditView(View):
                                         else None,
                                     )
                                 elif form.cleaned_data[name] not in (None, ""):
-                                    if isinstance(
-                                        form.fields[name], ModelMultipleChoiceField
-                                    ):
+                                    if isinstance(form.fields[name], FilterChoiceField):
                                         getattr(obj, name).set(form.cleaned_data[name])
                                     else:
                                         setattr(obj, name, form.cleaned_data[name])

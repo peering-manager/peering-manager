@@ -167,7 +167,7 @@ class CommunityForm(BootstrapMixin, forms.ModelForm):
 
 
 class CommunityBulkEditForm(BootstrapMixin, BulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
+    pk = FilterChoiceField(
         queryset=Community.objects.all(), widget=forms.MultipleHiddenInput
     )
     type = forms.ChoiceField(
@@ -215,11 +215,11 @@ class ConfigurationTemplateFilterForm(BootstrapMixin, forms.Form):
 
 
 class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
-    import_routing_policies = forms.ModelMultipleChoiceField(
+    import_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
     )
-    export_routing_policies = forms.ModelMultipleChoiceField(
+    export_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
     )
@@ -260,15 +260,15 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
 
 
 class DirectPeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
+    pk = FilterChoiceField(
         queryset=DirectPeeringSession.objects.all(), widget=forms.MultipleHiddenInput
     )
     enabled = YesNoField(required=False, label="Enable")
-    import_routing_policies = forms.ModelMultipleChoiceField(
+    import_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
     )
-    export_routing_policies = forms.ModelMultipleChoiceField(
+    export_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
     )
@@ -292,11 +292,11 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
 
 
 class DirectPeeringSessionRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
-    import_routing_policies = forms.ModelMultipleChoiceField(
+    import_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
     )
-    export_routing_policies = forms.ModelMultipleChoiceField(
+    export_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
     )
@@ -335,11 +335,11 @@ class DirectPeeringSessionRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
 
 class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
-    import_routing_policies = forms.ModelMultipleChoiceField(
+    import_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
     )
-    export_routing_policies = forms.ModelMultipleChoiceField(
+    export_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
     )
@@ -384,14 +384,14 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
 
 
 class InternetExchangeBulkEditForm(BootstrapMixin, BulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
+    pk = FilterChoiceField(
         queryset=InternetExchange.objects.all(), widget=forms.MultipleHiddenInput
     )
-    import_routing_policies = forms.ModelMultipleChoiceField(
+    import_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
     )
-    export_routing_policies = forms.ModelMultipleChoiceField(
+    export_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
     )
@@ -494,11 +494,11 @@ class InternetExchangeCommunityForm(BootstrapMixin, forms.ModelForm):
 
 
 class InternetExchangeRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
-    import_routing_policies = forms.ModelMultipleChoiceField(
+    import_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
     )
-    export_routing_policies = forms.ModelMultipleChoiceField(
+    export_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
     )
@@ -574,16 +574,16 @@ class PeerRecordFilterForm(BootstrapMixin, forms.Form):
 
 
 class InternetExchangePeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
+    pk = FilterChoiceField(
         queryset=InternetExchangePeeringSession.objects.all(),
         widget=forms.MultipleHiddenInput,
     )
     enabled = YesNoField(required=False, label="Enable")
-    import_routing_policies = forms.ModelMultipleChoiceField(
+    import_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
     )
-    export_routing_policies = forms.ModelMultipleChoiceField(
+    export_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
     )
@@ -593,11 +593,11 @@ class InternetExchangePeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
 class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
     password = PasswordField(required=False, render_value=True)
     enabled = YesNoField(required=False, label="Enabled")
-    import_routing_policies = forms.ModelMultipleChoiceField(
+    import_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
     )
-    export_routing_policies = forms.ModelMultipleChoiceField(
+    export_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
     )
@@ -679,11 +679,11 @@ class InternetExchangePeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
 
 
 class InternetExchangePeeringSessionRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
-    import_routing_policies = forms.ModelMultipleChoiceField(
+    import_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
     )
-    export_routing_policies = forms.ModelMultipleChoiceField(
+    export_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
     )
@@ -754,7 +754,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
 
 
 class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
+    pk = FilterChoiceField(
         queryset=Router.objects.all(), widget=forms.MultipleHiddenInput
     )
     platform = forms.ChoiceField(
@@ -798,7 +798,7 @@ class RoutingPolicyForm(BootstrapMixin, forms.ModelForm):
 
 
 class RoutingPolicyBulkEditForm(BootstrapMixin, BulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
+    pk = FilterChoiceField(
         queryset=RoutingPolicy.objects.all(), widget=forms.MultipleHiddenInput
     )
     type = forms.ChoiceField(
