@@ -1,7 +1,7 @@
 # Peering Manager
 
 When you start to peer a lot on different Internet exchange points, managing
-all you sessions can be time consuming.
+all your sessions can be time consuming.
 
 In order to make peering management less difficult, it needs to be organized
 and documented. This is the goal of this project.
@@ -28,6 +28,7 @@ The best way to start setting up this tool is to use **pip** within a
 [![Requirements Status](https://requires.io/github/respawner/peering-manager/requirements.svg?branch=master)](https://requires.io/github/respawner/peering-manager/requirements/?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/respawner/peering-manager/badge.svg)](https://coveralls.io/github/respawner/peering-manager)
 [![Documentation Status](https://readthedocs.org/projects/peering-manager/badge/?version=latest)](http://peering-manager.readthedocs.io/en/latest/?badge=latest)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 ## Installation
 
