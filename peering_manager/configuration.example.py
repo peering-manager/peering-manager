@@ -3,16 +3,16 @@
 # hostnames. The first FQDN in the list will be treated as the preferred name.
 #
 # Example: ALLOWED_HOSTS = ['peering.example.com', 'peering.internal.local']
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 # Must be unique to each setup (CHANGE IT!).
-SECRET_KEY = 'ef7npku*djrj_r4jt4cojo8^j@2($$@05e(eq_mn!ywx*jg0vy'
+SECRET_KEY = "ef7npku*djrj_r4jt4cojo8^j@2($$@05e(eq_mn!ywx*jg0vy"
 
 # Base URL path if accessing Peering Manager within a directory.
-BASE_PATH = ''
+BASE_PATH = ""
 
 # Time zone to use for date.
-TIME_ZONE = 'Europe/Paris'
+TIME_ZONE = "Europe/Paris"
 
 # Autonomous System number
 MY_ASN = 64512

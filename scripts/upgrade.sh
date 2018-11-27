@@ -19,6 +19,6 @@ echo "Applying database migrations (${COMMAND})..."
 eval ${COMMAND}
 
 # Collect static files
-COMMAND="${PYTHON} manage.py collectstatic --no-input"
+COMMAND="${PYTHON} manage.py collectstatic --no-input --clean"
 echo "Collecting static files (${COMMAND})..."
 eval ${COMMAND}

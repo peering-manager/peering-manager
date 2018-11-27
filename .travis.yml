@@ -10,7 +10,7 @@ matrix:
       dist: "xenial"
       sudo: true
 install:
-  - pip install tox tox-travis coveralls
+  - pip install tox tox-travis
 script:
   - tox
 after_success:
