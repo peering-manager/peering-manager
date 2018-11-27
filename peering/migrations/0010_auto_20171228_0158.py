@@ -8,14 +8,12 @@ import peering.fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peering', '0009_auto_20171226_1550'),
-    ]
+    dependencies = [("peering", "0009_auto_20171226_1550")]
 
     operations = [
         migrations.AlterField(
-            model_name='autonomoussystem',
-            name='asn',
+            model_name="autonomoussystem",
+            name="asn",
             field=peering.fields.ASNField(unique=True),
-        ),
+        )
     ]

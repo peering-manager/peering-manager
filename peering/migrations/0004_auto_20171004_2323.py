@@ -7,29 +7,27 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peering', '0003_auto_20170903_1235'),
-    ]
+    dependencies = [("peering", "0003_auto_20170903_1235")]
 
     operations = [
         migrations.AlterField(
-            model_name='autonomoussystem',
-            name='ipv4_as_set',
+            model_name="autonomoussystem",
+            name="ipv4_as_set",
             field=models.CharField(blank=True, max_length=128, null=True),
         ),
         migrations.AlterField(
-            model_name='autonomoussystem',
-            name='ipv4_max_prefixes',
+            model_name="autonomoussystem",
+            name="ipv4_max_prefixes",
             field=models.PositiveIntegerField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='autonomoussystem',
-            name='ipv6_as_set',
+            model_name="autonomoussystem",
+            name="ipv6_as_set",
             field=models.CharField(blank=True, max_length=128, null=True),
         ),
         migrations.AlterField(
-            model_name='autonomoussystem',
-            name='ipv6_max_prefixes',
+            model_name="autonomoussystem",
+            name="ipv6_max_prefixes",
             field=models.PositiveIntegerField(blank=True, null=True),
         ),
     ]

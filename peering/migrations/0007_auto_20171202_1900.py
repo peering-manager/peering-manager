@@ -7,19 +7,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peering', '0006_auto_20171017_1917'),
-    ]
+    dependencies = [("peering", "0006_auto_20171017_1917")]
 
     operations = [
         migrations.AddField(
-            model_name='autonomoussystem',
-            name='updated',
+            model_name="autonomoussystem",
+            name="updated",
             field=models.DateTimeField(auto_now=True),
         ),
         migrations.AlterField(
-            model_name='internetexchange',
-            name='communities',
-            field=models.ManyToManyField(blank=True, to='peering.Community'),
+            model_name="internetexchange",
+            name="communities",
+            field=models.ManyToManyField(blank=True, to="peering.Community"),
         ),
     ]

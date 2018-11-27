@@ -13,16 +13,16 @@ from .models import Network, NetworkIXLAN, PeerRecord, Prefix, Synchronization
 
 
 NAMESPACES = {
-    'facility': 'fac',
-    'internet_exchange': 'ix',
-    'internet_exchange_facility': 'ixfac',
-    'internet_exchange_lan': 'ixlan',
-    'internet_exchange_prefix': 'ixpfx',
-    'network': 'net',
-    'network_facility': 'netfac',
-    'network_internet_exchange_lan': 'netixlan',
-    'organization': 'org',
-    'network_contact': 'poc',
+    "facility": "fac",
+    "internet_exchange": "ix",
+    "internet_exchange_facility": "ixfac",
+    "internet_exchange_lan": "ixlan",
+    "internet_exchange_prefix": "ixpfx",
+    "network": "net",
+    "network_facility": "netfac",
+    "network_internet_exchange_lan": "netixlan",
+    "organization": "org",
+    "network_contact": "poc",
 }
 
 
@@ -42,21 +42,22 @@ class PeeringDB(object):
     """
     Class used to interact with the PeeringDB API.
     """
-    logger = logging.getLogger('peering.manager.peeringdb')
+
+    logger = logging.getLogger("peering.manager.peeringdb")
 
     def lookup(self, namespace, search):
         """
         Sends a get request to the API given a namespace and some parameters.
         """
         # Enforce trailing slash and add namespace
-        api_url = settings.PEERINGDB_API.strip('/') + '/' + namespace
+        api_url = settings.PEERINGDB_API.strip("/") + "/" + namespace
 
         # Check if the depth param is provided, add it if not
-        if 'depth' not in search:
-            search['depth'] = 1
+        if "depth" not in search:
+            search["depth"] = 1
 
         # Make the request
-        self.logger.debug('calling api: %s | %s', api_url, search)
+        self.logger.debug("calling api: %s | %s", api_url, search)
         response = requests.get(api_url, params=search)
 
         return response.json() if response.status_code == 200 else None
@@ -66,30 +67,34 @@ class PeeringDB(object):
         Save the last synchronization details (number of objects and time) for
         later use (and logs).
         """
-        number_of_changes = objects_changes['added'] + \
-            objects_changes['updated'] + objects_changes['deleted']
+        number_of_changes = (
+            objects_changes["added"]
+            + objects_changes["updated"]
+            + objects_changes["deleted"]
+        )
 
         # Save the last sync time only if objects were retrieved
         if number_of_changes > 0:
             values = {
-                'time': time,
-                'added': objects_changes['added'],
-                'updated': objects_changes['updated'],
-                'deleted': objects_changes['deleted'],
+                "time": time,
+                "added": objects_changes["added"],
+                "updated": objects_changes["updated"],
+                "deleted": objects_changes["deleted"],
             }
 
             last_sync = Synchronization(**values)
             last_sync.save()
 
-            self.logger.debug('synchronizated %s objects at %s',
-                              number_of_changes, last_sync.time)
+            self.logger.debug(
+                "synchronizated %s objects at %s", number_of_changes, last_sync.time
+            )
 
     def get_last_synchronization(self):
         """
         Return the last synchronization.
         """
         try:
-            return Synchronization.objects.latest('time')
+            return Synchronization.objects.latest("time")
         except Synchronization.DoesNotExist:
             pass
 
@@ -129,15 +134,15 @@ class PeeringDB(object):
         objects_deleted = 0
 
         # Get all network changes since the last sync
-        search = {'since': last_sync, 'depth': 0}
+        search = {"since": last_sync, "depth": 0}
         result = self.lookup(namespace, search)
 
         if not result:
             return None
 
-        for data in result['data']:
+        for data in result["data"]:
             peeringdb_object = Object(data)
-            marked_as_deleted = peeringdb_object.status == 'deleted'
+            marked_as_deleted = peeringdb_object.status == "deleted"
             marked_as_new = False
 
             try:
@@ -148,9 +153,11 @@ class PeeringDB(object):
                 if marked_as_deleted:
                     local_object.delete()
                     objects_deleted += 1
-                    self.logger.debug('deleted %s #%s from local database',
-                                      model._meta.verbose_name.lower(),
-                                      peeringdb_object.id)
+                    self.logger.debug(
+                        "deleted %s #%s from local database",
+                        model._meta.verbose_name.lower(),
+                        peeringdb_object.id,
+                    )
                     continue
             except model.DoesNotExist:
                 # Local object does not exist so create it
@@ -162,7 +169,7 @@ class PeeringDB(object):
                 field_name = model_field.name
 
                 # Do not try to follow foreign keys
-                if model_field.get_internal_type() == 'ForeignKey':
+                if model_field.get_internal_type() == "ForeignKey":
                     continue
 
                 value = getattr(peeringdb_object, field_name)
@@ -171,9 +178,11 @@ class PeeringDB(object):
                     field = local_object._meta.get_field(field_name)
                 except FieldDoesNotExist:
                     field = None
-                    self.logger.error('bug found? field: %s for model: %s',
-                                      field_name,
-                                      model._meta.verbose_name.lower())
+                    self.logger.error(
+                        "bug found? field: %s for model: %s",
+                        field_name,
+                        model._meta.verbose_name.lower(),
+                    )
 
                 if field:
                     setattr(local_object, field_name, value)
@@ -182,8 +191,10 @@ class PeeringDB(object):
                 local_object.full_clean()
             except ValidationError:
                 self.logger.error(
-                    'bug found? error while validating id: %s for model: %s',
-                    peeringdb_object.id, model._meta.verbose_name.lower())
+                    "bug found? error while validating id: %s for model: %s",
+                    peeringdb_object.id,
+                    model._meta.verbose_name.lower(),
+                )
                 continue
 
             # Save the local object
@@ -192,14 +203,18 @@ class PeeringDB(object):
             # Update counters
             if marked_as_new:
                 objects_added += 1
-                self.logger.debug('created %s #%s from peeringdb',
-                                  model._meta.verbose_name.lower(),
-                                  local_object.id)
+                self.logger.debug(
+                    "created %s #%s from peeringdb",
+                    model._meta.verbose_name.lower(),
+                    local_object.id,
+                )
             else:
                 objects_updated += 1
-                self.logger.debug('updated %s #%s from peeringdb',
-                                  model._meta.verbose_name.lower(),
-                                  local_object.id)
+                self.logger.debug(
+                    "updated %s #%s from peeringdb",
+                    model._meta.verbose_name.lower(),
+                    local_object.id,
+                )
 
         return (objects_added, objects_updated, objects_deleted)
 
@@ -211,9 +226,9 @@ class PeeringDB(object):
         # Set time of sync
         time_of_sync = timezone.now()
         objects_to_sync = [
-            (NAMESPACES['network'], Network),
-            (NAMESPACES['network_internet_exchange_lan'], NetworkIXLAN),
-            (NAMESPACES['internet_exchange_prefix'], Prefix),
+            (NAMESPACES["network"], Network),
+            (NAMESPACES["network_internet_exchange_lan"], NetworkIXLAN),
+            (NAMESPACES["internet_exchange_prefix"], Prefix),
         ]
         list_of_changes = []
 
@@ -222,14 +237,13 @@ class PeeringDB(object):
         with transaction.atomic():
             # Try to sync objects
             for (namespace, object_type) in objects_to_sync:
-                changes = self.synchronize_objects(
-                    last_sync, namespace, object_type)
+                changes = self.synchronize_objects(last_sync, namespace, object_type)
                 list_of_changes.append(changes)
 
         objects_changes = {
-            'added': sum(added for added, _, _ in list_of_changes),
-            'updated': sum(updated for _, updated, _ in list_of_changes),
-            'deleted': sum(deleted for _, _, deleted in list_of_changes),
+            "added": sum(added for added, _, _ in list_of_changes),
+            "updated": sum(updated for _, updated, _ in list_of_changes),
+            "deleted": sum(deleted for _, _, deleted in list_of_changes),
         }
 
         # Save the last sync time
@@ -248,29 +262,35 @@ class PeeringDB(object):
             for network_ixlan in NetworkIXLAN.objects.all():
                 # Ignore if we have no IPv6 and no IPv4 to peer with
                 if not network_ixlan.ipaddr6 and not network_ixlan.ipaddr4:
-                    self.logger.debug('network ixlan with as%s and ixlan id %s'
-                                      ' ignored, no ipv6 and no ipv4',
-                                      network_ixlan.asn,
-                                      network_ixlan.ixlan_id)
+                    self.logger.debug(
+                        "network ixlan with as%s and ixlan id %s"
+                        " ignored, no ipv6 and no ipv4",
+                        network_ixlan.asn,
+                        network_ixlan.ixlan_id,
+                    )
                     continue
 
                 network = None
                 try:
                     network = Network.objects.get(asn=network_ixlan.asn)
                 except Network.DoesNotExist:
-                    self.logger.debug('unable to find network as%s',
-                                      network_ixlan.asn)
+                    self.logger.debug("unable to find network as%s", network_ixlan.asn)
 
                 if network:
-                    PeerRecord.objects.create(network=network,
-                                              network_ixlan=network_ixlan)
-                    self.logger.debug('peer record with network as%s and ixlan'
-                                      'id %s created', network_ixlan.asn,
-                                      network_ixlan.ixlan_id)
+                    PeerRecord.objects.create(
+                        network=network, network_ixlan=network_ixlan
+                    )
+                    self.logger.debug(
+                        "peer record with network as%s and ixlan" "id %s created",
+                        network_ixlan.asn,
+                        network_ixlan.ixlan_id,
+                    )
                 else:
-                    self.logger.debug('network ixlan with as%s and ixlan id %s'
-                                      ' ignored', network_ixlan.asn,
-                                      network_ixlan.ixlan_id)
+                    self.logger.debug(
+                        "network ixlan with as%s and ixlan id %s" " ignored",
+                        network_ixlan.asn,
+                        network_ixlan.ixlan_id,
+                    )
 
     def get_autonomous_system(self, asn):
         """
@@ -284,13 +304,13 @@ class PeeringDB(object):
             network = Network.objects.get(asn=asn)
         except Network.DoesNotExist:
             # If no cached data found, query the API
-            search = {'asn': asn}
-            result = self.lookup(NAMESPACES['network'], search)
+            search = {"asn": asn}
+            result = self.lookup(NAMESPACES["network"], search)
 
-            if not result or not result['data']:
+            if not result or not result["data"]:
                 return None
 
-            network = Object(result['data'][0])
+            network = Object(result["data"][0])
 
         return network
 
@@ -306,19 +326,17 @@ class PeeringDB(object):
             network_ixlan = NetworkIXLAN.objects.get(id=ix_network_id)
         except NetworkIXLAN.DoesNotExist:
             # If no cached data found, query the API
-            search = {'id': ix_network_id}
-            result = self.lookup(NAMESPACES['network_internet_exchange_lan'],
-                                 search)
+            search = {"id": ix_network_id}
+            result = self.lookup(NAMESPACES["network_internet_exchange_lan"], search)
 
-            if not result or not result['data']:
+            if not result or not result["data"]:
                 return None
 
-            network_ixlan = Object(result['data'][0])
+            network_ixlan = Object(result["data"][0])
 
         return network_ixlan
 
-    def get_ix_network_by_ip_address(self, ipv6_address=None,
-                                     ipv4_address=None):
+    def get_ix_network_by_ip_address(self, ipv6_address=None, ipv4_address=None):
         """
         Return an IX network (and its details) given its ID. The result can
         come from the local database (cache built with the peeringdb_sync
@@ -330,22 +348,21 @@ class PeeringDB(object):
 
         search = {}
         if ipv6_address:
-            search.update({'ipaddr6': ipv6_address})
+            search.update({"ipaddr6": ipv6_address})
         if ipv4_address:
-            search.update({'ipaddr4': ipv4_address})
+            search.update({"ipaddr4": ipv4_address})
 
         try:
             # Try to get from cached data
             network_ixlan = NetworkIXLAN.objects.get(**search)
         except NetworkIXLAN.DoesNotExist:
             # If no cached data found, query the API
-            result = self.lookup(NAMESPACES['network_internet_exchange_lan'],
-                                 search)
+            result = self.lookup(NAMESPACES["network_internet_exchange_lan"], search)
 
-            if not result or not result['data']:
+            if not result or not result["data"]:
                 return None
 
-            network_ixlan = Object(result['data'][0])
+            network_ixlan = Object(result["data"][0])
 
         return network_ixlan
 
@@ -358,15 +375,14 @@ class PeeringDB(object):
 
         # If nothing found in cache, try to fetch data online
         if not network_ixlans:
-            search = {'asn': asn}
-            result = self.lookup(
-                NAMESPACES['network_internet_exchange_lan'], search)
+            search = {"asn": asn}
+            result = self.lookup(NAMESPACES["network_internet_exchange_lan"], search)
 
-            if not result or not result['data']:
+            if not result or not result["data"]:
                 return None
 
             network_ixlans = []
-            for ix_network in result['data']:
+            for ix_network in result["data"]:
                 network_ixlans.append(Object(ix_network))
 
         return network_ixlans
@@ -394,7 +410,8 @@ class PeeringDB(object):
                 if asn1_network_ixlan.ixlan_id == asn2_network_ixlan.ixlan_id:
                     # Keep track of the two IX LAN networks
                     common_network_ixlans.append(
-                        (asn1_network_ixlan, asn2_network_ixlan))
+                        (asn1_network_ixlan, asn2_network_ixlan)
+                    )
 
         return common_network_ixlans
 
@@ -409,28 +426,25 @@ class PeeringDB(object):
 
         if network_ixlan:
             # Try to get prefixes from cache
-            ix_prefixes = Prefix.objects.filter(
-                ixlan_id=network_ixlan.ixlan_id)
+            ix_prefixes = Prefix.objects.filter(ixlan_id=network_ixlan.ixlan_id)
 
             # If not cached data, try to fetch online
             if not ix_prefixes:
-                search = {'ixlan_id': network_ixlan.ixlan_id}
-                result = self.lookup(
-                    NAMESPACES['internet_exchange_prefix'], search)
+                search = {"ixlan_id": network_ixlan.ixlan_id}
+                result = self.lookup(NAMESPACES["internet_exchange_prefix"], search)
 
-                if not result or not result['data']:
+                if not result or not result["data"]:
                     return prefixes
 
                 ix_prefixes = []
-                for ix_prefix in result['data']:
+                for ix_prefix in result["data"]:
                     ix_prefixes.append(Object(ix_prefix))
 
             # Build a list with protocol and prefix couples
             for ix_prefix in ix_prefixes:
-                prefixes.append({
-                    'protocol': ix_prefix.protocol,
-                    'prefix': ix_prefix.prefix,
-                })
+                prefixes.append(
+                    {"protocol": ix_prefix.protocol, "prefix": ix_prefix.prefix}
+                )
 
         return prefixes
 
@@ -447,15 +461,14 @@ class PeeringDB(object):
 
         # If nothing found in cache, try to fetch data online
         if not network_ixlans:
-            search = {'ix_id': ix_id}
-            result = self.lookup(
-                NAMESPACES['network_internet_exchange_lan'], search)
+            search = {"ix_id": ix_id}
+            result = self.lookup(NAMESPACES["network_internet_exchange_lan"], search)
 
-            if not result or not result['data']:
+            if not result or not result["data"]:
                 return None
 
             network_ixlans = []
-            for data in result['data']:
+            for data in result["data"]:
                 network_ixlans.append(Object(data))
 
         # List potential peers
@@ -469,9 +482,6 @@ class PeeringDB(object):
             network = self.get_autonomous_system(network_ixlan.asn)
 
             # Package all gathered details
-            peers.append({
-                'network': network,
-                'network_ixlan': network_ixlan,
-            })
+            peers.append({"network": network, "network_ixlan": network_ixlan})
 
         return peers

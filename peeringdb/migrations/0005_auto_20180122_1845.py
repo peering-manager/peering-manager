@@ -7,25 +7,23 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peeringdb', '0004_auto_20180121_2207'),
-    ]
+    dependencies = [("peeringdb", "0004_auto_20180121_2207")]
 
     operations = [
         migrations.RenameField(
-            model_name='synchronization',
-            old_name='number_of_objects',
-            new_name='updated',
+            model_name="synchronization",
+            old_name="number_of_objects",
+            new_name="updated",
         ),
         migrations.AddField(
-            model_name='synchronization',
-            name='added',
+            model_name="synchronization",
+            name="added",
             field=models.PositiveIntegerField(default=0),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='synchronization',
-            name='deleted',
+            model_name="synchronization",
+            name="deleted",
             field=models.PositiveIntegerField(default=0),
             preserve_default=False,
         ),

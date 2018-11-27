@@ -14,12 +14,12 @@ USER_ACTION_IMPORT = 4
 USER_ACTION_BULK_DELETE = 5
 USER_ACTION_BULK_EDIT = 6
 USER_ACTION_CHOICES = (
-    (USER_ACTION_CREATE, 'created'),
-    (USER_ACTION_EDIT, 'modified'),
-    (USER_ACTION_DELETE, 'deleted'),
-    (USER_ACTION_IMPORT, 'imported'),
-    (USER_ACTION_BULK_DELETE, 'bulk deleted'),
-    (USER_ACTION_BULK_EDIT, 'bulk modified'),
+    (USER_ACTION_CREATE, "created"),
+    (USER_ACTION_EDIT, "modified"),
+    (USER_ACTION_DELETE, "deleted"),
+    (USER_ACTION_IMPORT, "imported"),
+    (USER_ACTION_BULK_DELETE, "bulk deleted"),
+    (USER_ACTION_BULK_EDIT, "bulk modified"),
 )
 
 
@@ -27,6 +27,7 @@ class CreatedUpdatedModel(models.Model):
     """
     Abstract class providing a field tracking the last update of a model.
     """
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -42,12 +43,19 @@ class UserActionManager(models.Manager):
     def log_action(self, user, obj, action, message):
         self.model.objects.create(
             content_type=ContentType.objects.get_for_model(obj),
-            object_id=obj.id, user=user, action=action, message=message)
+            object_id=obj.id,
+            user=user,
+            action=action,
+            message=message,
+        )
 
     def log_bulk_action(self, user, obj_type, action, message):
         self.model.objects.create(
             content_type=ContentType.objects.get_for_model(obj_type),
-            user=user, action=action, message=message)
+            user=user,
+            action=action,
+            message=message,
+        )
 
     def log_bulk_delete(self, user, obj_type, message):
         self.log_bulk_action(user, obj_type, USER_ACTION_BULK_DELETE, message)
@@ -72,9 +80,9 @@ class UserAction(models.Model):
     """
     A record of a user action (add/edit/delete/import).
     """
+
     time = models.DateTimeField(auto_now_add=True, editable=False)
-    user = models.ForeignKey(
-        User, related_name='actions', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name="actions", on_delete=models.CASCADE)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     action = models.PositiveSmallIntegerField(choices=USER_ACTION_CHOICES)
@@ -83,7 +91,7 @@ class UserAction(models.Model):
     objects = UserActionManager()
 
     class Meta:
-        ordering = ['-time']
+        ordering = ["-time"]
 
     def get_icon(self):
         """
@@ -98,11 +106,12 @@ class UserAction(models.Model):
         if self.action in [USER_ACTION_DELETE, USER_ACTION_BULK_DELETE]:
             return mark_safe('<i class="fas fa-minus-square text-danger"></i>')
 
-        return ''
+        return ""
 
     def __str__(self):
         if self.message:
-            return '{} {}'.format(self.user, self.message)
+            return "{} {}".format(self.user, self.message)
 
-        return '{} {} {}'.format(self.user, self.get_action_display(),
-                                 self.content_type)
+        return "{} {} {}".format(
+            self.user, self.get_action_display(), self.content_type
+        )

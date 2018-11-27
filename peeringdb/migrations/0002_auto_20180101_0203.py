@@ -8,31 +8,41 @@ import peering.fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peeringdb', '0001_initial'),
-    ]
+    dependencies = [("peeringdb", "0001_initial")]
 
     operations = [
         migrations.CreateModel(
-            name='NetworkIXLAN',
+            name="NetworkIXLAN",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('asn', peering.fields.ASNField()),
-                ('ipaddr6', models.GenericIPAddressField(blank=True, null=True, protocol='IPv6')),
-                ('ipaddr4', models.GenericIPAddressField(blank=True, null=True, protocol='IPv4')),
-                ('is_rs_peer', models.BooleanField(default=False)),
-                ('ix_id', models.PositiveIntegerField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("asn", peering.fields.ASNField()),
+                (
+                    "ipaddr6",
+                    models.GenericIPAddressField(
+                        blank=True, null=True, protocol="IPv6"
+                    ),
+                ),
+                (
+                    "ipaddr4",
+                    models.GenericIPAddressField(
+                        blank=True, null=True, protocol="IPv4"
+                    ),
+                ),
+                ("is_rs_peer", models.BooleanField(default=False)),
+                ("ix_id", models.PositiveIntegerField()),
             ],
-            options={
-                'ordering': ['asn', 'ipaddr6', 'ipaddr4'],
-            },
+            options={"ordering": ["asn", "ipaddr6", "ipaddr4"]},
         ),
+        migrations.AlterModelOptions(name="network", options={"ordering": ["asn"]}),
         migrations.AlterModelOptions(
-            name='network',
-            options={'ordering': ['asn']},
-        ),
-        migrations.AlterModelOptions(
-            name='synchronization',
-            options={'ordering': ['-time']},
+            name="synchronization", options={"ordering": ["-time"]}
         ),
     ]

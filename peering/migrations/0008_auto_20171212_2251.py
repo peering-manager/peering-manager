@@ -7,19 +7,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peering', '0007_auto_20171202_1900'),
-    ]
+    dependencies = [("peering", "0007_auto_20171202_1900")]
 
     operations = [
         migrations.AddField(
-            model_name='internetexchange',
-            name='peeringdb_id',
+            model_name="internetexchange",
+            name="peeringdb_id",
             field=models.PositiveIntegerField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='internetexchange',
-            name='slug',
+            model_name="internetexchange",
+            name="slug",
             field=models.SlugField(unique=True),
         ),
     ]

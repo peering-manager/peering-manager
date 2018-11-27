@@ -15,21 +15,21 @@ class BaseTable(tables.Table):
 
         # Set default empty_text if none was provided
         if self.empty_text is None:
-            self.empty_text = 'No {} found.'.format(
-                self._meta.model._meta.verbose_name_plural)
+            self.empty_text = "No {} found.".format(
+                self._meta.model._meta.verbose_name_plural
+            )
 
     class Meta:
-        attrs = {
-            'class': 'table table-sm table-hover table-headings',
-        }
+        attrs = {"class": "table table-sm table-hover table-headings"}
 
 
 class SelectColumn(tables.CheckBoxColumn):
     def __init__(self, *args, **kwargs):
-        default = kwargs.pop('default', '')
-        visible = kwargs.pop('visible', False)
+        default = kwargs.pop("default", "")
+        visible = kwargs.pop("visible", False)
         super(SelectColumn, self).__init__(
-            *args, default=default, visible=visible, **kwargs)
+            *args, default=default, visible=visible, **kwargs
+        )
 
     @property
     def header(self):
@@ -38,13 +38,17 @@ class SelectColumn(tables.CheckBoxColumn):
 
 class ActionsColumn(tables.TemplateColumn):
     def __init__(self, *args, **kwargs):
-        attrs = kwargs.pop('attrs', {'td': {'class': 'text-right'}})
-        default = kwargs.pop('default', '')
-        visible = kwargs.pop('visible', False)
-        orderable = kwargs.pop('orderable', False)
-        verbose_name = kwargs.pop('verbose_name', '')
-        super(ActionsColumn, self).__init__(*args, attrs=attrs,
-                                            default=default,
-                                            orderable=orderable,
-                                            verbose_name=verbose_name,
-                                            visible=visible, **kwargs)
+        attrs = kwargs.pop("attrs", {"td": {"class": "text-right"}})
+        default = kwargs.pop("default", "")
+        visible = kwargs.pop("visible", False)
+        orderable = kwargs.pop("orderable", False)
+        verbose_name = kwargs.pop("verbose_name", "")
+        super(ActionsColumn, self).__init__(
+            *args,
+            attrs=attrs,
+            default=default,
+            orderable=orderable,
+            verbose_name=verbose_name,
+            visible=visible,
+            **kwargs
+        )

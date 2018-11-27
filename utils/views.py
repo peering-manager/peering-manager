@@ -32,20 +32,20 @@ class AddOrEditView(View):
     model = None
     form = None
     return_url = None
-    template = 'utils/object_add_edit.html'
+    template = "utils/object_add_edit.html"
 
     def get_object(self, kwargs):
-        if 'asn' in kwargs:
+        if "asn" in kwargs:
             # Lookup object by ASN
-            return get_object_or_404(self.model, asn=kwargs['asn'])
+            return get_object_or_404(self.model, asn=kwargs["asn"])
 
-        if 'slug' in kwargs:
+        if "slug" in kwargs:
             # Lookup object by slug
-            return get_object_or_404(self.model, slug=kwargs['slug'])
+            return get_object_or_404(self.model, slug=kwargs["slug"])
 
-        if 'pk' in kwargs:
+        if "pk" in kwargs:
             # Lookup object by PK
-            return get_object_or_404(self.model, pk=kwargs['pk'])
+            return get_object_or_404(self.model, pk=kwargs["pk"])
 
         # New object
         return self.model()
@@ -63,7 +63,7 @@ class AddOrEditView(View):
             return reverse(self.return_url)
 
         # Or return to home
-        return reverse('home')
+        return reverse("home")
 
     def get(self, request, *args, **kwargs):
         """
@@ -72,12 +72,16 @@ class AddOrEditView(View):
         obj = self.alter_object(self.get_object(kwargs), request, args, kwargs)
         form = self.form(instance=obj, initial=request.GET)
 
-        return render(request, self.template, {
-            'object': obj,
-            'object_type': self.model._meta.verbose_name,
-            'form': form,
-            'return_url': self.get_return_url(obj),
-        })
+        return render(
+            request,
+            self.template,
+            {
+                "object": obj,
+                "object_type": self.model._meta.verbose_name,
+                "form": form,
+                "return_url": self.get_return_url(obj),
+            },
+        )
 
     def post(self, request, *args, **kwargs):
         """
@@ -94,9 +98,10 @@ class AddOrEditView(View):
             obj = form.save()
 
             # Notify user with a message
-            message = 'Created ' if created else 'Modified '
-            message = '{} {} {}'.format(
-                message, self.model._meta.verbose_name, escape(obj))
+            message = "Created " if created else "Modified "
+            message = "{} {} {}".format(
+                message, self.model._meta.verbose_name, escape(obj)
+            )
             messages.success(request, mark_safe(message))
 
             # Log the action
@@ -106,17 +111,21 @@ class AddOrEditView(View):
                 UserAction.objects.log_edit(request.user, obj, message)
 
             # Redirect the user to the current page to create another object
-            if '_addanother' in request.POST:
+            if "_addanother" in request.POST:
                 return redirect(request.get_full_path())
 
             return redirect(self.get_return_url(obj))
 
-        return render(request, self.template, {
-            'object': obj,
-            'object_type': self.model._meta.verbose_name,
-            'form': form,
-            'return_url': self.get_return_url(obj),
-        })
+        return render(
+            request,
+            self.template,
+            {
+                "object": obj,
+                "object_type": self.model._meta.verbose_name,
+                "form": form,
+                "return_url": self.get_return_url(obj),
+            },
+        )
 
 
 class BulkAddFromDependencyView(View):
@@ -125,7 +134,7 @@ class BulkAddFromDependencyView(View):
     custom_formset = None
     form_model = None
     return_url = None
-    template = 'utils/table_import.html'
+    template = "utils/table_import.html"
 
     def get_dependency_objects(self, pk_list):
         # Returns the list of objects to be used as dependencies
@@ -145,7 +154,7 @@ class BulkAddFromDependencyView(View):
             return self.return_url
 
         # Or return to home
-        return reverse('home')
+        return reverse("home")
 
     def get(self, request):
         # Don't allow direct GET requests
@@ -156,9 +165,10 @@ class BulkAddFromDependencyView(View):
         The form has been submitted, process it.
         """
         # Determine URL to redirect users
-        posted_return_url = request.POST.get('return_url')
-        if posted_return_url and is_safe_url(url=posted_return_url,
-                                             allowed_hosts=[request.get_host()]):
+        posted_return_url = request.POST.get("return_url")
+        if posted_return_url and is_safe_url(
+            url=posted_return_url, allowed_hosts=[request.get_host()]
+        ):
             self.return_url = posted_return_url
 
         # Prepare the form
@@ -166,10 +176,11 @@ class BulkAddFromDependencyView(View):
             ObjectFormSet = formset_factory(self.form_model, extra=0)
         else:
             ObjectFormSet = formset_factory(
-                self.form_model, formset=self.custom_formset, extra=0)
+                self.form_model, formset=self.custom_formset, extra=0
+            )
 
         # Get dependencies
-        dependencies = self.get_dependency_objects(request.POST.getlist('pk'))
+        dependencies = self.get_dependency_objects(request.POST.getlist("pk"))
         if not dependencies:
             # We don't have dependencies to handle, proceed as if we were in
             # the next step of the form (object addition)
@@ -179,10 +190,12 @@ class BulkAddFromDependencyView(View):
             dependencies_processing_result = []
             for dependency in dependencies:
                 dependencies_processing_result.append(
-                    self.process_dependency_object(dependency))
+                    self.process_dependency_object(dependency)
+                )
 
-            formset = ObjectFormSet(initial=self.sort_objects(
-                dependencies_processing_result))
+            formset = ObjectFormSet(
+                initial=self.sort_objects(dependencies_processing_result)
+            )
 
         new_objects = []
         if formset.is_valid():
@@ -194,21 +207,27 @@ class BulkAddFromDependencyView(View):
 
             if new_objects:
                 # Notify user of successful import
-                message = 'Imported {} {}'.format(
-                    len(new_objects), new_objects[0]._meta.verbose_name_plural)
+                message = "Imported {} {}".format(
+                    len(new_objects), new_objects[0]._meta.verbose_name_plural
+                )
                 messages.success(request, message)
 
                 # Log the import action
                 UserAction.objects.log_import(
-                    request.user, self.form_model._meta.model, message)
+                    request.user, self.form_model._meta.model, message
+                )
 
             return redirect(self.get_return_url())
 
-        return render(request, self.template, {
-            'formset': formset,
-            'obj_type': self.form_model._meta.model._meta.verbose_name,
-            'return_url': self.get_return_url(),
-        })
+        return render(
+            request,
+            self.template,
+            {
+                "formset": formset,
+                "obj_type": self.form_model._meta.model._meta.verbose_name,
+                "return_url": self.get_return_url(),
+            },
+        )
 
 
 class BulkDeleteView(View):
@@ -216,8 +235,8 @@ class BulkDeleteView(View):
     queryset = None
     filter = None
     table = None
-    template = 'utils/object_bulk_delete.html'
-    return_url = 'home'
+    template = "utils/object_bulk_delete.html"
+    return_url = "home"
 
     def get(self, request):
         return redirect(self.return_url)
@@ -225,7 +244,8 @@ class BulkDeleteView(View):
     def get_form(self):
         class BulkDeleteForm(ConfirmationForm):
             pk = ModelMultipleChoiceField(
-                queryset=self.model.objects.all(), widget=MultipleHiddenInput)
+                queryset=self.model.objects.all(), widget=MultipleHiddenInput
+            )
 
         return BulkDeleteForm
 
@@ -238,58 +258,70 @@ class BulkDeleteView(View):
 
     def post(self, request, **kwargs):
         # Determine URL to redirect users
-        posted_return_url = request.POST.get('return_url')
-        if posted_return_url and is_safe_url(url=posted_return_url,
-                                             allowed_hosts=[request.get_host()]):
+        posted_return_url = request.POST.get("return_url")
+        if posted_return_url and is_safe_url(
+            url=posted_return_url, allowed_hosts=[request.get_host()]
+        ):
             self.return_url = posted_return_url
 
         # Build the list primary keys of the objects to delete
-        if request.POST.get('_all') and self.filter is not None:
-            pk_list = [obj.pk for obj in self.filter(
-                request.GET, self.filter_by_extra_context(
-                    self.model.objects.only('pk'), request, kwargs)).qs]
+        if request.POST.get("_all") and self.filter is not None:
+            pk_list = [
+                obj.pk
+                for obj in self.filter(
+                    request.GET,
+                    self.filter_by_extra_context(
+                        self.model.objects.only("pk"), request, kwargs
+                    ),
+                ).qs
+            ]
         else:
-            pk_list = [int(pk) for pk in request.POST.getlist('pk')]
+            pk_list = [int(pk) for pk in request.POST.getlist("pk")]
 
         form_model = self.get_form()
-        if '_confirm' in request.POST:
+        if "_confirm" in request.POST:
             form = form_model(request.POST)
             if form.is_valid():
                 queryset = self.model.objects.filter(pk__in=pk_list)
 
                 try:
-                    deleted_count = queryset.delete(
-                    )[1][self.model._meta.label]
+                    deleted_count = queryset.delete()[1][self.model._meta.label]
                 except ProtectedError as e:
                     print(e)
                     return redirect(self.return_url)
 
-                message = 'Deleted {} {}'.format(
-                    deleted_count, self.model._meta.verbose_name_plural)
+                message = "Deleted {} {}".format(
+                    deleted_count, self.model._meta.verbose_name_plural
+                )
                 messages.success(request, message)
-                UserAction.objects.log_bulk_delete(
-                    request.user, self.model, message)
+                UserAction.objects.log_bulk_delete(request.user, self.model, message)
 
                 return redirect(self.return_url)
         else:
-            form = form_model(
-                initial={'pk': pk_list, 'return_url': self.return_url})
+            form = form_model(initial={"pk": pk_list, "return_url": self.return_url})
 
         # Retrieve objects being deleted
         queryset = self.queryset or self.model.objects.all()
         table = self.table(queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:
-            messages.warning(request,
-                             'No {} were selected for deletion.'.format(
-                                 self.model._meta.verbose_name_plural))
+            messages.warning(
+                request,
+                "No {} were selected for deletion.".format(
+                    self.model._meta.verbose_name_plural
+                ),
+            )
             return redirect(self.return_url)
 
-        return render(request, self.template, {
-            'form': form,
-            'object_type_plural': self.model._meta.verbose_name_plural,
-            'table': table,
-            'return_url': self.return_url,
-        })
+        return render(
+            request,
+            self.template,
+            {
+                "form": form,
+                "object_type_plural": self.model._meta.verbose_name_plural,
+                "table": table,
+                "return_url": self.return_url,
+            },
+        )
 
 
 class BulkEditView(View):
@@ -298,7 +330,7 @@ class BulkEditView(View):
     filter = None
     table = None
     form = None
-    template = 'utils/object_bulk_edit.html'
+    template = "utils/object_bulk_edit.html"
     return_url = None
 
     def get_return_url(self, request):
@@ -306,11 +338,11 @@ class BulkEditView(View):
             # Use the default URL if given
             return self.return_url
 
-        if request.POST.get('return_url'):
-            return request.POST.get('return_url')
+        if request.POST.get("return_url"):
+            return request.POST.get("return_url")
 
         # Or return to home
-        return reverse('home')
+        return reverse("home")
 
     def get(self, request):
         return redirect(self.get_return_url(request))
@@ -319,71 +351,88 @@ class BulkEditView(View):
         model = self.queryset.model
 
         # If we are working with a parent object, lets use it
-        parent_object = get_object_or_404(
-            self.parent_model, **kwargs) if self.parent_model else None
+        parent_object = (
+            get_object_or_404(self.parent_model, **kwargs)
+            if self.parent_model
+            else None
+        )
 
         # Check if the user asked for all objects to be edited
-        if request.POST.get('_all') and self.filter:
-            pk_list = [obj.pk for obj
-                       in self.filter(request.GET, model.objects.only('pk')).qs]
+        if request.POST.get("_all") and self.filter:
+            pk_list = [
+                obj.pk for obj in self.filter(request.GET, model.objects.only("pk")).qs
+            ]
         else:
-            pk_list = [int(pk) for pk in request.POST.getlist('pk')]
+            pk_list = [int(pk) for pk in request.POST.getlist("pk")]
 
-        if '_apply' in request.POST:
+        if "_apply" in request.POST:
             form = self.form(model, parent_object, request.POST)
             if form.is_valid():
-                fields = [field for field in form.fields if field != 'pk']
-                nullified_fields = request.POST.getlist('_nullify')
+                fields = [field for field in form.fields if field != "pk"]
+                nullified_fields = request.POST.getlist("_nullify")
 
                 try:
                     with transaction.atomic():
                         updated_count = 0
                         for obj in model.objects.filter(pk__in=pk_list):
                             for name in fields:
-                                if name in form.nullable_fields and name in nullified_fields:
-                                    setattr(obj, name, '' if isinstance(
-                                        form.fields[name], CharField) else None)
-                                elif form.cleaned_data[name] not in (None, ''):
-                                    if isinstance(form.fields[name], ModelMultipleChoiceField):
-                                        getattr(obj, name).set(
-                                            form.cleaned_data[name])
+                                if (
+                                    name in form.nullable_fields
+                                    and name in nullified_fields
+                                ):
+                                    setattr(
+                                        obj,
+                                        name,
+                                        ""
+                                        if isinstance(form.fields[name], CharField)
+                                        else None,
+                                    )
+                                elif form.cleaned_data[name] not in (None, ""):
+                                    if isinstance(
+                                        form.fields[name], ModelMultipleChoiceField
+                                    ):
+                                        getattr(obj, name).set(form.cleaned_data[name])
                                     else:
-                                        setattr(obj, name,
-                                                form.cleaned_data[name])
+                                        setattr(obj, name, form.cleaned_data[name])
                             obj.full_clean()
                             obj.save()
                             updated_count += 1
 
                     if updated_count:
-                        message = 'Updated {} {}'.format(
-                            updated_count, model._meta.verbose_name_plural)
+                        message = "Updated {} {}".format(
+                            updated_count, model._meta.verbose_name_plural
+                        )
                         messages.success(self.request, message)
-                        UserAction.objects.log_bulk_edit(request.user, model,
-                                                         message)
+                        UserAction.objects.log_bulk_edit(request.user, model, message)
 
                     return redirect(self.get_return_url(request))
                 except ValidationError as e:
-                    messages.error(self.request,
-                                   '{} failed validation: {}'.format(obj, e))
+                    messages.error(
+                        self.request, "{} failed validation: {}".format(obj, e)
+                    )
         else:
             initial_data = request.POST.copy()
-            initial_data['pk'] = pk_list
+            initial_data["pk"] = pk_list
             form = self.form(model, parent_object, initial=initial_data)
 
         # Retrieve objects being edited
-        table = self.table(self.queryset.filter(pk__in=pk_list),
-                           orderable=False)
+        table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:
-            messages.warning(request, 'No {} were selected.'.format(
-                model._meta.verbose_name_plural))
+            messages.warning(
+                request, "No {} were selected.".format(model._meta.verbose_name_plural)
+            )
             return redirect(self.get_return_url(request))
 
-        return render(request, self.template, {
-            'form': form,
-            'table': table,
-            'object_type_plural': model._meta.verbose_name_plural,
-            'return_url': self.get_return_url(request),
-        })
+        return render(
+            request,
+            self.template,
+            {
+                "form": form,
+                "table": table,
+                "object_type_plural": model._meta.verbose_name_plural,
+                "return_url": self.get_return_url(request),
+            },
+        )
 
 
 class ConfirmationView(View):
@@ -398,9 +447,7 @@ class ConfirmationView(View):
 
     def get(self, request, *args, **kwargs):
         form = ConfirmationForm(initial=request.GET)
-        context = {
-            'form': form,
-        }
+        context = {"form": form}
         context.update(self.extra_context(kwargs))
 
         return render(request, self.template, context)
@@ -410,9 +457,7 @@ class ConfirmationView(View):
         if form.is_valid():
             return self.process(request, kwargs)
 
-        context = {
-            'form': form,
-        }
+        context = {"form": form}
         context.update(self.extra_context(kwargs))
 
         return render(request, self.template, context)
@@ -421,20 +466,20 @@ class ConfirmationView(View):
 class DeleteView(View):
     model = None
     return_url = None
-    template = 'utils/object_delete.html'
+    template = "utils/object_delete.html"
 
     def get_object(self, kwargs):
-        if 'asn' in kwargs:
+        if "asn" in kwargs:
             # Lookup object by ASN
-            return get_object_or_404(self.model, asn=kwargs['asn'])
+            return get_object_or_404(self.model, asn=kwargs["asn"])
 
-        if 'slug' in kwargs:
+        if "slug" in kwargs:
             # Lookup object by slug
-            return get_object_or_404(self.model, slug=kwargs['slug'])
+            return get_object_or_404(self.model, slug=kwargs["slug"])
 
-        if 'pk' in kwargs:
+        if "pk" in kwargs:
             # Lookup object by PK
-            return get_object_or_404(self.model, pk=kwargs['pk'])
+            return get_object_or_404(self.model, pk=kwargs["pk"])
 
         return None
 
@@ -448,7 +493,7 @@ class DeleteView(View):
             return reverse(self.return_url)
 
         # Or return to home
-        return reverse('home')
+        return reverse("home")
 
     def get(self, request, *args, **kwargs):
         """
@@ -457,12 +502,16 @@ class DeleteView(View):
         obj = self.get_object(kwargs)
         form = ConfirmationForm(initial=request.GET)
 
-        return render(request, self.template, {
-            'object': obj,
-            'form': form,
-            'object_type': self.model._meta.verbose_name,
-            'return_url': self.get_return_url(obj),
-        })
+        return render(
+            request,
+            self.template,
+            {
+                "object": obj,
+                "form": form,
+                "object_type": self.model._meta.verbose_name,
+                "return_url": self.get_return_url(obj),
+            },
+        )
 
     def post(self, request, *args, **kwargs):
         """
@@ -475,8 +524,7 @@ class DeleteView(View):
             obj.delete()
 
             # Notify the user
-            message = 'Deleted {} {}'.format(
-                self.model._meta.verbose_name, escape(obj))
+            message = "Deleted {} {}".format(self.model._meta.verbose_name, escape(obj))
             messages.success(request, message)
 
             # Log the action
@@ -484,12 +532,16 @@ class DeleteView(View):
 
             return redirect(self.get_return_url(obj))
 
-        return render(request, self.template, {
-            'object': obj,
-            'form': form,
-            'object_type': self.model._meta.verbose_name,
-            'return_url': self.get_return_url(obj),
-        })
+        return render(
+            request,
+            self.template,
+            {
+                "object": obj,
+                "form": form,
+                "object_type": self.model._meta.verbose_name,
+                "return_url": self.get_return_url(obj),
+            },
+        )
 
 
 class GenericFormView(View):
@@ -503,7 +555,7 @@ class GenericFormView(View):
             return reverse(self.return_url)
 
         # Or return to home
-        return reverse('home')
+        return reverse("home")
 
     def process_form(self, request, form_data):
         """
@@ -520,10 +572,7 @@ class GenericFormView(View):
         """
         Method used to render the view when form is not submitted.
         """
-        context = {
-            'form': self.form(),
-            'return_url': self.get_return_url(),
-        }
+        context = {"form": self.form(), "return_url": self.get_return_url()}
         context.update(self.extra_context(kwargs))
         return render(request, self.template, context)
 
@@ -545,7 +594,7 @@ class GenericFormView(View):
 class ImportView(View):
     form_model = None
     return_url = None
-    template = 'utils/object_import.html'
+    template = "utils/object_import.html"
 
     def import_form(self, *args, **kwargs):
         fields = self.form_model().fields.keys()
@@ -559,12 +608,16 @@ class ImportView(View):
         """
         Method used to render the view when form is not submitted.
         """
-        return render(request, self.template, {
-            'form': self.import_form(),
-            'fields': self.form_model().fields,
-            'obj_type': self.form_model._meta.model._meta.verbose_name,
-            'return_url': self.return_url,
-        })
+        return render(
+            request,
+            self.template,
+            {
+                "form": self.import_form(),
+                "fields": self.form_model().fields,
+                "obj_type": self.form_model._meta.model._meta.verbose_name,
+                "return_url": self.return_url,
+            },
+        )
 
     def post(self, request, *args, **kwargs):
         """
@@ -576,7 +629,7 @@ class ImportView(View):
         if form.is_valid():
             try:
                 with transaction.atomic():
-                    for row, data in enumerate(form.cleaned_data['csv'], start=1):
+                    for row, data in enumerate(form.cleaned_data["csv"], start=1):
                         # Use a proper form for the given object/model
                         object_form = self.form_model(data)
                         if object_form.is_valid():
@@ -587,30 +640,36 @@ class ImportView(View):
                             # Handle issues for each row
                             for field, err in object_form.errors.items():
                                 form.add_error(
-                                    'csv', 'Row {} {}: {}'.format(row, field,
-                                                                  err[0]))
-                            raise ValidationError('')
+                                    "csv", "Row {} {}: {}".format(row, field, err[0])
+                                )
+                            raise ValidationError("")
 
                 if new_objects:
                     # Notify user of successful import
-                    message = 'Imported {} {}'.format(
-                        len(new_objects), new_objects[0]._meta.verbose_name_plural)
+                    message = "Imported {} {}".format(
+                        len(new_objects), new_objects[0]._meta.verbose_name_plural
+                    )
                     messages.success(request, message)
 
                     # Log the import action
                     UserAction.objects.log_import(
-                        request.user, self.form_model._meta.model, message)
+                        request.user, self.form_model._meta.model, message
+                    )
 
                     return redirect(self.return_url)
             except ValidationError:
                 pass
 
-        return render(request, self.template, {
-            'form': form,
-            'fields': self.form_model().fields,
-            'object_type': self.form_model._meta.model._meta.verbose_name,
-            'return_url': self.return_url,
-        })
+        return render(
+            request,
+            self.template,
+            {
+                "form": form,
+                "fields": self.form_model().fields,
+                "object_type": self.form_model._meta.model._meta.verbose_name,
+                "return_url": self.return_url,
+            },
+        )
 
 
 class ModelListView(View):
@@ -632,10 +691,10 @@ class ModelListView(View):
     def setup_table_columns(self, request, table, kwargs):
         # Show columns if user is authenticated
         if request.user.is_authenticated:
-            if 'pk' in table.base_columns:
-                table.columns.show('pk')
-            if 'actions' in table.base_columns:
-                table.columns.show('actions')
+            if "pk" in table.base_columns:
+                table.columns.show("pk")
+            if "actions" in table.base_columns:
+                table.columns.show("actions")
 
     def get(self, request, *args, **kwargs):
         # If no query set has been provided for some reasons
@@ -655,16 +714,18 @@ class ModelListView(View):
 
         # Apply pagination
         paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+            "paginator_class": EnhancedPaginator,
+            "per_page": request.GET.get("per_page", settings.PAGINATE_COUNT),
         }
         RequestConfig(request, paginate).configure(table)
 
         # Set context and render
         context = {
-            'table': table,
-            'filter': self.filter,
-            'filter_form': self.filter_form(request.GET, label_suffix='') if self.filter_form else None,
+            "table": table,
+            "filter": self.filter,
+            "filter_form": self.filter_form(request.GET, label_suffix="")
+            if self.filter_form
+            else None,
         }
         context.update(self.extra_context(kwargs))
 
@@ -675,7 +736,7 @@ class TableImportView(View):
     custom_formset = None
     form_model = None
     return_url = None
-    template = 'utils/table_import.html'
+    template = "utils/table_import.html"
 
     def get_objects(self):
         return []
@@ -686,7 +747,7 @@ class TableImportView(View):
             return reverse(self.return_url)
 
         # Or return to home
-        return reverse('home')
+        return reverse("home")
 
     def get(self, request):
         """
@@ -700,17 +761,22 @@ class TableImportView(View):
                 ObjectFormSet = formset_factory(self.form_model, extra=0)
             else:
                 ObjectFormSet = formset_factory(
-                    self.form_model, formset=self.custom_formset, extra=0)
+                    self.form_model, formset=self.custom_formset, extra=0
+                )
             formset = ObjectFormSet(initial=objects)
         else:
-            messages.info(request, 'No data to import.')
+            messages.info(request, "No data to import.")
             return redirect(self.get_return_url())
 
-        return render(request, self.template, {
-            'formset': formset,
-            'obj_type': self.form_model._meta.model._meta.verbose_name,
-            'return_url': self.get_return_url(),
-        })
+        return render(
+            request,
+            self.template,
+            {
+                "formset": formset,
+                "obj_type": self.form_model._meta.model._meta.verbose_name,
+                "return_url": self.get_return_url(),
+            },
+        )
 
     def post(self, request):
         """
@@ -720,7 +786,8 @@ class TableImportView(View):
             ObjectFormSet = formset_factory(self.form_model, extra=0)
         else:
             ObjectFormSet = formset_factory(
-                self.form_model, formset=self.custom_formset, extra=0)
+                self.form_model, formset=self.custom_formset, extra=0
+            )
         formset = ObjectFormSet(request.POST)
         new_objects = []
 
@@ -733,21 +800,27 @@ class TableImportView(View):
 
             if new_objects:
                 # Notify user of successful import
-                message = 'Imported {} {}'.format(
-                    len(new_objects), new_objects[0]._meta.verbose_name_plural)
+                message = "Imported {} {}".format(
+                    len(new_objects), new_objects[0]._meta.verbose_name_plural
+                )
                 messages.success(request, message)
 
                 # Log the import action
                 UserAction.objects.log_import(
-                    request.user, self.form_model._meta.model, message)
+                    request.user, self.form_model._meta.model, message
+                )
 
             return redirect(self.get_return_url())
 
-        return render(request, self.template, {
-            'formset': formset,
-            'obj_type': self.form_model._meta.model._meta.verbose_name,
-            'return_url': self.get_return_url(),
-        })
+        return render(
+            request,
+            self.template,
+            {
+                "formset": formset,
+                "obj_type": self.form_model._meta.model._meta.verbose_name,
+                "return_url": self.get_return_url(),
+            },
+        )
 
 
 @requires_csrf_token
@@ -758,11 +831,11 @@ def ServerError(request, template_name=ERROR_500_TEMPLATE_NAME):
     try:
         template = loader.get_template(template_name)
     except TemplateDoesNotExist:
-        return HttpResponseServerError('<h1>Server Error (500)</h1>',
-                                       content_type='text/html')
+        return HttpResponseServerError(
+            "<h1>Server Error (500)</h1>", content_type="text/html"
+        )
     type_, error, _ = sys.exc_info()
 
-    return HttpResponseServerError(template.render({
-        'exception': str(type_),
-        'error': error,
-    }))
+    return HttpResponseServerError(
+        template.render({"exception": str(type_), "error": error})
+    )

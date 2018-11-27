@@ -7,15 +7,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peeringdb', '0002_auto_20180101_0203'),
-    ]
+    dependencies = [("peeringdb", "0002_auto_20180101_0203")]
 
     operations = [
         migrations.AddField(
-            model_name='networkixlan',
-            name='name',
-            field=models.CharField(default='Unknown', max_length=255),
+            model_name="networkixlan",
+            name="name",
+            field=models.CharField(default="Unknown", max_length=255),
             preserve_default=False,
-        ),
+        )
     ]

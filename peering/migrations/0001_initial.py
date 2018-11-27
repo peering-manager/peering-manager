@@ -11,46 +11,77 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='AutonomousSystem',
+            name="AutonomousSystem",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('asn', peering.fields.ASNField()),
-                ('name', models.CharField(max_length=128)),
-                ('comment', models.TextField()),
-                ('ipv6_as_set', models.CharField(max_length=128)),
-                ('ipv4_as_set', models.CharField(max_length=128)),
-                ('ipv6_max_prefixes', models.PositiveIntegerField()),
-                ('ipv4_max_prefixes', models.PositiveIntegerField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("asn", peering.fields.ASNField()),
+                ("name", models.CharField(max_length=128)),
+                ("comment", models.TextField()),
+                ("ipv6_as_set", models.CharField(max_length=128)),
+                ("ipv4_as_set", models.CharField(max_length=128)),
+                ("ipv6_max_prefixes", models.PositiveIntegerField()),
+                ("ipv4_max_prefixes", models.PositiveIntegerField()),
             ],
-            options={
-                'ordering': ['asn'],
-            },
+            options={"ordering": ["asn"]},
         ),
         migrations.CreateModel(
-            name='InternetExchange',
+            name="InternetExchange",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128)),
-                ('slug', models.SlugField()),
-                ('comment', models.TextField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=128)),
+                ("slug", models.SlugField()),
+                ("comment", models.TextField()),
             ],
-            options={
-                'ordering': ['name'],
-            },
+            options={"ordering": ["name"]},
         ),
         migrations.CreateModel(
-            name='PeeringSession',
+            name="PeeringSession",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('ip_address', models.GenericIPAddressField()),
-                ('comment', models.TextField()),
-                ('autonomous_system', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='peering.AutonomousSystem')),
-                ('internet_exchange', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='peering.InternetExchange')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("ip_address", models.GenericIPAddressField()),
+                ("comment", models.TextField()),
+                (
+                    "autonomous_system",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="peering.AutonomousSystem",
+                    ),
+                ),
+                (
+                    "internet_exchange",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="peering.InternetExchange",
+                    ),
+                ),
             ],
         ),
     ]

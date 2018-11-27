@@ -5,29 +5,27 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peering', '0012_auto_20180502_1733'),
-    ]
+    dependencies = [("peering", "0012_auto_20180502_1733")]
 
     operations = [
         migrations.AddField(
-            model_name='internetexchange',
-            name='bgp_session_states_update',
+            model_name="internetexchange",
+            name="bgp_session_states_update",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='peeringsession',
-            name='advertised_prefix_count',
+            model_name="peeringsession",
+            name="advertised_prefix_count",
             field=models.PositiveIntegerField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='peeringsession',
-            name='received_prefix_count',
+            model_name="peeringsession",
+            name="received_prefix_count",
             field=models.PositiveIntegerField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='internetexchange',
-            name='check_bgp_session_states',
+            model_name="internetexchange",
+            name="check_bgp_session_states",
             field=models.BooleanField(default=False),
         ),
     ]

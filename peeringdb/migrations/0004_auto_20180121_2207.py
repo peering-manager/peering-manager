@@ -7,13 +7,15 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peeringdb', '0003_networkixlan_name'),
-    ]
+    dependencies = [("peeringdb", "0003_networkixlan_name")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='networkixlan',
-            options={'ordering': ['asn', 'ipaddr6', 'ipaddr4'], 'verbose_name': 'Network IX LAN', 'verbose_name_plural': 'Network IX LANs'},
-        ),
+            name="networkixlan",
+            options={
+                "ordering": ["asn", "ipaddr6", "ipaddr4"],
+                "verbose_name": "Network IX LAN",
+                "verbose_name_plural": "Network IX LANs",
+            },
+        )
     ]

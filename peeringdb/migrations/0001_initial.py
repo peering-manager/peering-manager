@@ -10,27 +10,42 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Network',
+            name="Network",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('asn', peering.fields.ASNField(unique=True)),
-                ('name', models.CharField(max_length=255)),
-                ('irr_as_set', models.CharField(blank=True, max_length=255, null=True)),
-                ('info_prefixes6', models.PositiveIntegerField(blank=True, null=True)),
-                ('info_prefixes4', models.PositiveIntegerField(blank=True, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("asn", peering.fields.ASNField(unique=True)),
+                ("name", models.CharField(max_length=255)),
+                ("irr_as_set", models.CharField(blank=True, max_length=255, null=True)),
+                ("info_prefixes6", models.PositiveIntegerField(blank=True, null=True)),
+                ("info_prefixes4", models.PositiveIntegerField(blank=True, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Synchronization',
+            name="Synchronization",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('time', models.DateTimeField()),
-                ('number_of_objects', models.PositiveIntegerField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("time", models.DateTimeField()),
+                ("number_of_objects", models.PositiveIntegerField()),
             ],
         ),
     ]

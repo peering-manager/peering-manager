@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peering', '0014_auto_20180519_2128'),
-    ]
+    dependencies = [("peering", "0014_auto_20180519_2128")]
 
     operations = [
         migrations.AddField(
-            model_name='peeringsession',
-            name='password',
+            model_name="peeringsession",
+            name="password",
             field=models.CharField(blank=True, max_length=255, null=True),
-        ),
+        )
     ]

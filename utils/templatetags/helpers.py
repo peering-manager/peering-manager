@@ -15,7 +15,7 @@ def contains(value, arg):
     Test whether a value contains any of a given set of strings.
     `arg` should be a comma-separated list of strings.
     """
-    return any(s in value for s in arg.split(','))
+    return any(s in value for s in arg.split(","))
 
 
 @register.filter()
@@ -25,7 +25,7 @@ def example_choices(field, number=3):
     for key, label in field.choices:
         # We have reached the maximum number of examples
         if len(examples) == number:
-            examples.append('etc.')
+            examples.append("etc.")
             break
 
         # No key, weird...
@@ -34,7 +34,7 @@ def example_choices(field, number=3):
 
         examples.append(label)
 
-    return ', '.join(examples) or None
+    return ", ".join(examples) or None
 
 
 @register.filter(is_safe=True)
@@ -42,7 +42,7 @@ def markdown(value):
     """
     Render text as GitHub-Flavored Markdown.
     """
-    return mark_safe(md(value, extensions=['mdx_gfm']))
+    return mark_safe(md(value, extensions=["mdx_gfm"]))
 
 
 @register.filter()
@@ -51,7 +51,7 @@ def notcontains(value, arg):
     Test whether a value does not contain any of a given set of strings.
     `arg` should be a comma-separated list of strings.
     """
-    for s in arg.split(','):
+    for s in arg.split(","):
         if s in value:
             return False
     return True
@@ -71,6 +71,6 @@ def querystring(request, **kwargs):
 
     querystring = querydict.urlencode()
     if querystring:
-        return '?' + querystring
+        return "?" + querystring
 
-    return ''
+    return ""

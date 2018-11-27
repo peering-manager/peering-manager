@@ -6,17 +6,35 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peeringdb', '0006_auto_20180213_0031'),
-    ]
+    dependencies = [("peeringdb", "0006_auto_20180213_0031")]
 
     operations = [
         migrations.CreateModel(
-            name='PeerRecord',
+            name="PeerRecord",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('network', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='peeringdb.Network')),
-                ('network_ixlan', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='peeringdb.NetworkIXLAN')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "network",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="peeringdb.Network",
+                    ),
+                ),
+                (
+                    "network_ixlan",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="peeringdb.NetworkIXLAN",
+                    ),
+                ),
             ],
-        ),
+        )
     ]

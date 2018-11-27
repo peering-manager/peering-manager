@@ -7,28 +7,34 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peeringdb', '0005_auto_20180122_1845'),
-    ]
+    dependencies = [("peeringdb", "0005_auto_20180122_1845")]
 
     operations = [
         migrations.CreateModel(
-            name='Prefix',
+            name="Prefix",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('protocol', models.CharField(max_length=8)),
-                ('prefix', models.CharField(max_length=64)),
-                ('ixlan_id', models.PositiveIntegerField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("protocol", models.CharField(max_length=8)),
+                ("prefix", models.CharField(max_length=64)),
+                ("ixlan_id", models.PositiveIntegerField()),
             ],
             options={
-                'verbose_name': 'IX Prefix',
-                'verbose_name_plural': 'IX Prefixes',
-                'ordering': ['prefix'],
+                "verbose_name": "IX Prefix",
+                "verbose_name_plural": "IX Prefixes",
+                "ordering": ["prefix"],
             },
         ),
         migrations.AddField(
-            model_name='networkixlan',
-            name='ixlan_id',
+            model_name="networkixlan",
+            name="ixlan_id",
             field=models.PositiveIntegerField(default=0),
             preserve_default=False,
         ),

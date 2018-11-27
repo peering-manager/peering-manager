@@ -32,9 +32,9 @@ class ExceptionCatchingMiddleware(object):
 
         template = None
         if isinstance(exception, ProgrammingError):
-            template = 'errors/programming_error.html'
+            template = "errors/programming_error.html"
         elif isinstance(exception, ImportError):
-            template = 'errors/import_error.html'
+            template = "errors/import_error.html"
 
         if template:
             return ServerError(request, template_name=template)
@@ -53,6 +53,7 @@ class RequireLoginMiddleware(object):
         if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
             if request.path_info != settings.LOGIN_URL:
                 return HttpResponseRedirect(
-                    '{}?next={}'.format(settings.LOGIN_URL, request.path_info))
+                    "{}?next={}".format(settings.LOGIN_URL, request.path_info)
+                )
 
         return self.get_response(request)

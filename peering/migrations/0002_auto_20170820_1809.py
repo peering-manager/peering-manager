@@ -8,41 +8,49 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peering', '0001_initial'),
-    ]
+    dependencies = [("peering", "0001_initial")]
 
     operations = [
         migrations.CreateModel(
-            name='ConfigurationTemplate',
+            name="ConfigurationTemplate",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128)),
-                ('template', models.TextField()),
-                ('updated', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=128)),
+                ("template", models.TextField()),
+                ("updated", models.DateTimeField(auto_now=True)),
             ],
-            options={
-                'ordering': ['name'],
-            },
+            options={"ordering": ["name"]},
         ),
         migrations.AlterField(
-            model_name='autonomoussystem',
-            name='comment',
+            model_name="autonomoussystem",
+            name="comment",
             field=models.TextField(blank=True),
         ),
         migrations.AlterField(
-            model_name='internetexchange',
-            name='comment',
+            model_name="internetexchange",
+            name="comment",
             field=models.TextField(blank=True),
         ),
         migrations.AlterField(
-            model_name='peeringsession',
-            name='comment',
+            model_name="peeringsession",
+            name="comment",
             field=models.TextField(blank=True),
         ),
         migrations.AddField(
-            model_name='internetexchange',
-            name='configuration_template',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='peering.ConfigurationTemplate'),
+            model_name="internetexchange",
+            name="configuration_template",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="peering.ConfigurationTemplate",
+            ),
         ),
     ]

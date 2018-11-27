@@ -5,19 +5,21 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peering', '0013_auto_20180505_1545'),
-    ]
+    dependencies = [("peering", "0013_auto_20180505_1545")]
 
     operations = [
         migrations.AddField(
-            model_name='community',
-            name='type',
-            field=models.CharField(choices=[('egress', 'Egress'), ('ingress', 'Ingress')], default='ingress', max_length=50),
+            model_name="community",
+            name="type",
+            field=models.CharField(
+                choices=[("egress", "Egress"), ("ingress", "Ingress")],
+                default="ingress",
+                max_length=50,
+            ),
         ),
         migrations.AddField(
-            model_name='configurationtemplate',
-            name='comment',
+            model_name="configurationtemplate",
+            name="comment",
             field=models.TextField(blank=True),
         ),
     ]

@@ -26,32 +26,25 @@ handler500 = views.handle_500
 
 __patterns = [
     # Include the peering app
-    url(r'', include('peering.urls')),
-
+    url(r"", include("peering.urls")),
     # Include the peeringdb app
-    url(r'', include('peeringdb.urls')),
-
+    url(r"", include("peeringdb.urls")),
     # Users login/logout
-    url(r'^login/$', views.LoginView.as_view(), name='login'),
-    url(r'^logout/$', views.LogoutView.as_view(), name='logout'),
-
+    url(r"^login/$", views.LoginView.as_view(), name="login"),
+    url(r"^logout/$", views.LogoutView.as_view(), name="logout"),
     # User profile, password, activity
-    url(r'^profile/$', views.ProfileView.as_view(), name='user_profile'),
-    url(r'^password/$', views.ChangePasswordView.as_view(),
-        name='user_change_password'),
-    url(r'^activity/$', views.RecentActivityView.as_view(), name='user_activity'),
-
+    url(r"^profile/$", views.ProfileView.as_view(), name="user_profile"),
+    url(
+        r"^password/$", views.ChangePasswordView.as_view(), name="user_change_password"
+    ),
+    url(r"^activity/$", views.RecentActivityView.as_view(), name="user_activity"),
     # Home
-    url(r'^$', views.Home.as_view(), name='home'),
-
+    url(r"^$", views.Home.as_view(), name="home"),
     # Admin
-    url(r'^admin/', admin.site.urls),
-
+    url(r"^admin/", admin.site.urls),
     # Error triggering
-    url(r'^error500/$', views.trigger_500),
+    url(r"^error500/$", views.trigger_500),
 ]
 
 # Prepend BASE_PATH
-urlpatterns = [
-    url(r'^{}'.format(settings.BASE_PATH), include(__patterns))
-]
+urlpatterns = [url(r"^{}".format(settings.BASE_PATH), include(__patterns))]

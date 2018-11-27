@@ -5,14 +5,21 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('utils', '0002_auto_20180329_2146'),
-    ]
+    dependencies = [("utils", "0002_auto_20180329_2146")]
 
     operations = [
         migrations.AlterField(
-            model_name='useraction',
-            name='action',
-            field=models.PositiveSmallIntegerField(choices=[(1, 'created'), (2, 'modified'), (3, 'deleted'), (4, 'imported'), (5, 'bulk deleted'), (6, 'bulk modified')]),
-        ),
+            model_name="useraction",
+            name="action",
+            field=models.PositiveSmallIntegerField(
+                choices=[
+                    (1, "created"),
+                    (2, "modified"),
+                    (3, "deleted"),
+                    (4, "imported"),
+                    (5, "bulk deleted"),
+                    (6, "bulk modified"),
+                ]
+            ),
+        )
     ]

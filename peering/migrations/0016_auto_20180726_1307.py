@@ -5,28 +5,25 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peering', '0015_peeringsession_password'),
-    ]
+    dependencies = [("peering", "0015_peeringsession_password")]
 
     operations = [
         migrations.RemoveField(
-            model_name='autonomoussystem',
-            name='keep_synced_with_peeringdb',
+            model_name="autonomoussystem", name="keep_synced_with_peeringdb"
         ),
         migrations.AddField(
-            model_name='autonomoussystem',
-            name='ipv4_max_prefixes_peeringdb_sync',
+            model_name="autonomoussystem",
+            name="ipv4_max_prefixes_peeringdb_sync",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='autonomoussystem',
-            name='ipv6_max_prefixes_peeringdb_sync',
+            model_name="autonomoussystem",
+            name="ipv6_max_prefixes_peeringdb_sync",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='autonomoussystem',
-            name='irr_as_set_peeringdb_sync',
+            model_name="autonomoussystem",
+            name="irr_as_set_peeringdb_sync",
             field=models.BooleanField(default=True),
         ),
     ]

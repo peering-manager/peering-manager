@@ -8,24 +8,27 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peering', '0002_auto_20170820_1809'),
-    ]
+    dependencies = [("peering", "0002_auto_20170820_1809")]
 
     operations = [
         migrations.AddField(
-            model_name='internetexchange',
-            name='ipv4_address',
+            model_name="internetexchange",
+            name="ipv4_address",
             field=models.GenericIPAddressField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='internetexchange',
-            name='ipv6_address',
+            model_name="internetexchange",
+            name="ipv6_address",
             field=models.GenericIPAddressField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='internetexchange',
-            name='configuration_template',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='peering.ConfigurationTemplate'),
+            model_name="internetexchange",
+            name="configuration_template",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="peering.ConfigurationTemplate",
+            ),
         ),
     ]

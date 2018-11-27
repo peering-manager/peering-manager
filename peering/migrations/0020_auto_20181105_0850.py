@@ -5,19 +5,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peering', '0019_router_netbox_device_id'),
-    ]
+    dependencies = [("peering", "0019_router_netbox_device_id")]
 
     operations = [
         migrations.AddField(
-            model_name='directpeeringsession',
-            name='last_established_state',
+            model_name="directpeeringsession",
+            name="last_established_state",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='internetexchangepeeringsession',
-            name='last_established_state',
+            model_name="internetexchangepeeringsession",
+            name="last_established_state",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]

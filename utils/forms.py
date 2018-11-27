@@ -10,7 +10,7 @@ def add_blank_choice(choices):
     """
     Add a blank choice to the beginning of a choices list.
     """
-    return ((None, '---------'),) + tuple(choices)
+    return ((None, "---------"),) + tuple(choices)
 
 
 class BulkEditForm(forms.Form):
@@ -24,7 +24,7 @@ class BulkEditForm(forms.Form):
         self.parent_object = parent_object
         self.nullable_fields = []
 
-        if hasattr(self.Meta, 'nullable_fields'):
+        if hasattr(self.Meta, "nullable_fields"):
             self.nullable_fields = self.Meta.nullable_fields
 
 
@@ -33,14 +33,13 @@ class BootstrapMixin(forms.BaseForm):
         super(BootstrapMixin, self).__init__(*args, **kwargs)
 
         for field_name, field in self.fields.items():
-            css = field.widget.attrs.get('class', '')
-            field.widget.attrs['class'] = ' '.join(
-                [css, 'form-control']).strip()
+            css = field.widget.attrs.get("class", "")
+            field.widget.attrs["class"] = " ".join([css, "form-control"]).strip()
 
             if field.required:
-                field.widget.attrs['required'] = 'required'
-            if 'placeholder' not in field.widget.attrs:
-                field.widget.attrs['placeholder'] = field.label
+                field.widget.attrs["required"] = "required"
+            if "placeholder" not in field.widget.attrs:
+                field.widget.attrs["placeholder"] = field.label
 
 
 class CSVDataField(forms.CharField):
@@ -48,6 +47,7 @@ class CSVDataField(forms.CharField):
     A textarea dedicated for CSV data. It will return dictionaries with a
     header/value mapping. Each dictionary represents one line/record.
     """
+
     widget = forms.Textarea
 
     def __init__(self, fields, *args, **kwargs):
@@ -56,16 +56,16 @@ class CSVDataField(forms.CharField):
         super(CSVDataField, self).__init__(*args, **kwargs)
 
         if not self.label:
-            self.label = 'CSV Data'
+            self.label = "CSV Data"
         if not self.initial:
-            self.initial = ','.join(fields) + '\n'
+            self.initial = ",".join(fields) + "\n"
         if not self.help_text:
-            self.help_text = 'Enter the list of column headers followed by one record per line using commas to separate values.<br>Multi-line data and values containing commas have to be wrapped in double quotes.'
+            self.help_text = "Enter the list of column headers followed by one record per line using commas to separate values.<br>Multi-line data and values containing commas have to be wrapped in double quotes."
 
     def to_python(self, value):
         # Python 2 compatibility
         if not isinstance(value, str):
-            value = value.encode('utf-8')
+            value = value.encode("utf-8")
 
         records = []
         reader = csv.reader(value.splitlines())
@@ -75,7 +75,8 @@ class CSVDataField(forms.CharField):
         for header in headers:
             if header not in self.fields:
                 raise forms.ValidationError(
-                    'Unexpected column header "{}" found.'.format(header))
+                    'Unexpected column header "{}" found.'.format(header)
+                )
 
         # Parse CSV data
         for i, row in enumerate(reader, start=1):
@@ -84,7 +85,10 @@ class CSVDataField(forms.CharField):
                 # headers
                 if len(row) != len(headers):
                     raise forms.ValidationError(
-                        'Row {}: Expected {} columns but found {}'.format(i, len(headers), len(row)))
+                        "Row {}: Expected {} columns but found {}".format(
+                            i, len(headers), len(row)
+                        )
+                    )
 
                 # Dissect the row and create a dictionary with it
                 row = [col.strip() for col in row]
@@ -99,8 +103,10 @@ class ConfirmationForm(BootstrapMixin, forms.Form):
     A generic confirmation form. The form is not valid unless the confirm field
     is checked.
     """
+
     confirm = forms.BooleanField(
-        required=True, widget=forms.HiddenInput(), initial=True)
+        required=True, widget=forms.HiddenInput(), initial=True
+    )
 
 
 class CSVChoiceField(forms.ChoiceField):
@@ -121,10 +127,10 @@ class CSVChoiceField(forms.ChoiceField):
             return None
 
         if value not in self.choice_values:
-            raise forms.ValidationError('Invalid choice: {}'.format(value))
+            raise forms.ValidationError("Invalid choice: {}".format(value))
 
         if not self.choice_values[value]:
-            return ''
+            return ""
 
         return self.choice_values[value]
 
@@ -148,21 +154,20 @@ class FilterChoiceFieldMixin(object):
 
     def __init__(self, null_label=None, *args, **kwargs):
         self.null_label = null_label
-        if 'required' not in kwargs:
-            kwargs['required'] = False
-        if 'widget' not in kwargs:
-            kwargs['widget'] = forms.SelectMultiple(attrs={'size': 6})
+        if "required" not in kwargs:
+            kwargs["required"] = False
+        if "widget" not in kwargs:
+            kwargs["widget"] = forms.SelectMultiple(attrs={"size": 6})
         super(FilterChoiceFieldMixin, self).__init__(*args, **kwargs)
 
     def label_from_instance(self, obj):
         label = super(FilterChoiceFieldMixin, self).label_from_instance(obj)
-        if hasattr(obj, 'filter_count'):
-            return '{} ({})'.format(label, obj.filter_count)
+        if hasattr(obj, "filter_count"):
+            return "{} ({})".format(label, obj.filter_count)
         return label
 
 
-class FilterChoiceField(FilterChoiceFieldMixin,
-                        forms.ModelMultipleChoiceField):
+class FilterChoiceField(FilterChoiceFieldMixin, forms.ModelMultipleChoiceField):
     pass
 
 
@@ -172,20 +177,20 @@ class PasswordField(forms.CharField):
     reveal button is clicked.
     """
 
-    def __init__(self, password_source='password', render_value=False, *args,
-                 **kwargs):
-        widget = kwargs.pop('widget',
-                            forms.PasswordInput(render_value=render_value))
-        label = kwargs.pop('label', 'Password')
-        help_text = kwargs.pop('help_text',
-                               'It can be a clear text password or an '
-                               'encrypted one. It really depends on how you '
-                               'want to use it. Be aware that it is stored '
-                               'without encryption in the database.')
-        super(PasswordField, self).__init__(widget=widget, label=label,
-                                            help_text=help_text, *args,
-                                            **kwargs)
-        self.widget.attrs['password-source'] = password_source
+    def __init__(self, password_source="password", render_value=False, *args, **kwargs):
+        widget = kwargs.pop("widget", forms.PasswordInput(render_value=render_value))
+        label = kwargs.pop("label", "Password")
+        help_text = kwargs.pop(
+            "help_text",
+            "It can be a clear text password or an "
+            "encrypted one. It really depends on how you "
+            "want to use it. Be aware that it is stored "
+            "without encryption in the database.",
+        )
+        super(PasswordField, self).__init__(
+            widget=widget, label=label, help_text=help_text, *args, **kwargs
+        )
+        self.widget.attrs["password-source"] = password_source
 
 
 class SlugField(forms.SlugField):
@@ -194,13 +199,15 @@ class SlugField(forms.SlugField):
     field used as source.
     """
 
-    def __init__(self, slug_source='name', *args, **kwargs):
-        label = kwargs.pop('label', 'Slug')
+    def __init__(self, slug_source="name", *args, **kwargs):
+        label = kwargs.pop("label", "Slug")
         help_text = kwargs.pop(
-            'help_text', 'Friendly unique shorthand used for URL and config')
-        super(SlugField, self).__init__(label=label,
-                                        help_text=help_text, *args, **kwargs)
-        self.widget.attrs['slug-source'] = slug_source
+            "help_text", "Friendly unique shorthand used for URL and config"
+        )
+        super(SlugField, self).__init__(
+            label=label, help_text=help_text, *args, **kwargs
+        )
+        self.widget.attrs["slug-source"] = slug_source
 
 
 class YesNoField(forms.BooleanField):
@@ -210,8 +217,10 @@ class YesNoField(forms.BooleanField):
     """
 
     def __init__(self, *args, **kwargs):
-        super(YesNoField, self).__init__(widget=forms.Select(choices=[
-            (None, '---------'),
-            ('True', 'Yes'),
-            ('False', 'No'),
-        ]), *args, **kwargs)
+        super(YesNoField, self).__init__(
+            widget=forms.Select(
+                choices=[(None, "---------"), ("True", "Yes"), ("False", "No")]
+            ),
+            *args,
+            **kwargs
+        )

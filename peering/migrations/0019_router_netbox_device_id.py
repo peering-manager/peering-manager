@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peering', '0018_auto_20181014_1612'),
-    ]
+    dependencies = [("peering", "0018_auto_20181014_1612")]
 
     operations = [
         migrations.AddField(
-            model_name='router',
-            name='netbox_device_id',
+            model_name="router",
+            name="netbox_device_id",
             field=models.PositiveIntegerField(blank=True, default=0),
-        ),
+        )
     ]

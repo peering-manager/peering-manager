@@ -13,23 +13,52 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('contenttypes', '0002_remove_content_type_name'),
+        ("contenttypes", "0002_remove_content_type_name"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='UserAction',
+            name="UserAction",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('time', models.DateTimeField(auto_now_add=True)),
-                ('object_id', models.PositiveIntegerField(blank=True, null=True)),
-                ('action', models.PositiveSmallIntegerField(choices=[(1, 'created'), (2, 'modified'), (3, 'deleted'), (4, 'imported')])),
-                ('message', models.TextField(blank=True)),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='actions', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("time", models.DateTimeField(auto_now_add=True)),
+                ("object_id", models.PositiveIntegerField(blank=True, null=True)),
+                (
+                    "action",
+                    models.PositiveSmallIntegerField(
+                        choices=[
+                            (1, "created"),
+                            (2, "modified"),
+                            (3, "deleted"),
+                            (4, "imported"),
+                        ]
+                    ),
+                ),
+                ("message", models.TextField(blank=True)),
+                (
+                    "content_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.ContentType",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="actions",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
-            options={
-                'ordering': ['-time'],
-            },
-        ),
+            options={"ordering": ["-time"]},
+        )
     ]
