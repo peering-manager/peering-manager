@@ -514,7 +514,7 @@ class DirectPeeringSessionUpdateRoutingPolicies(PermissionRequiredMixin, AddOrEd
         )
 
 
-class IXList(ModelListView):
+class InternetExchangeList(ModelListView):
     queryset = InternetExchange.objects.order_by("name")
     table = InternetExchangeTable
     filter = InternetExchangeFilter
@@ -522,7 +522,7 @@ class IXList(ModelListView):
     template = "peering/ix/list.html"
 
 
-class IXAdd(PermissionRequiredMixin, AddOrEditView):
+class InternetExchangeAdd(PermissionRequiredMixin, AddOrEditView):
     permission_required = "peering.add_internetexchange"
     model = InternetExchange
     form = InternetExchangeForm
@@ -530,13 +530,13 @@ class IXAdd(PermissionRequiredMixin, AddOrEditView):
     template = "peering/ix/add_edit.html"
 
 
-class IXImport(PermissionRequiredMixin, ImportView):
+class InternetExchangeImport(PermissionRequiredMixin, ImportView):
     permission_required = "peering.add_internetexchange"
     form_model = InternetExchangeCSVForm
     return_url = "peering:internet_exchange_list"
 
 
-class IXImportFromRouter(PermissionRequiredMixin, ConfirmationView):
+class InternetExchangeImportFromRouter(PermissionRequiredMixin, ConfirmationView):
     permission_required = "peering.add_internetexchangepeeringsession"
     template = "peering/ix/import_from_router.html"
 
@@ -590,7 +590,7 @@ class IXImportFromRouter(PermissionRequiredMixin, ConfirmationView):
         return redirect(self.return_url)
 
 
-class IXPeeringDBImport(PermissionRequiredMixin, TableImportView):
+class InternetExchangePeeringDBImport(PermissionRequiredMixin, TableImportView):
     permission_required = "peering.add_internetexchange"
     custom_formset = InternetExchangePeeringDBFormSet
     form_model = InternetExchangePeeringDBForm
@@ -621,7 +621,7 @@ class IXPeeringDBImport(PermissionRequiredMixin, TableImportView):
         return objects
 
 
-class IXDetails(View):
+class InternetExchangeDetails(View):
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
 
@@ -641,20 +641,20 @@ class IXDetails(View):
         return render(request, "peering/ix/details.html", context)
 
 
-class IXEdit(PermissionRequiredMixin, AddOrEditView):
+class InternetExchangeEdit(PermissionRequiredMixin, AddOrEditView):
     permission_required = "peering.change_internetexchange"
     model = InternetExchange
     form = InternetExchangeForm
     template = "peering/ix/add_edit.html"
 
 
-class IXDelete(PermissionRequiredMixin, DeleteView):
+class InternetExchangeDelete(PermissionRequiredMixin, DeleteView):
     permission_required = "peering.delete_internetexchange"
     model = InternetExchange
     return_url = "peering:internet_exchange_list"
 
 
-class IXBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+class InternetExchangeBulkDelete(PermissionRequiredMixin, BulkDeleteView):
     permission_required = "peering.delete_internetexchange"
     model = InternetExchange
     filter = InternetExchangeFilter
@@ -669,7 +669,7 @@ class InternetExchangeBulkEdit(PermissionRequiredMixin, BulkEditView):
     form = InternetExchangeBulkEditForm
 
 
-class IXUpdateCommunities(PermissionRequiredMixin, AddOrEditView):
+class InternetExchangeUpdateCommunities(PermissionRequiredMixin, AddOrEditView):
     permission_required = "peering.change_internetexchange"
     model = InternetExchange
     form = InternetExchangeCommunityForm
@@ -717,7 +717,7 @@ class IXUpdateCommunities(PermissionRequiredMixin, AddOrEditView):
         )
 
 
-class IXUpdateRoutingPolicies(PermissionRequiredMixin, AddOrEditView):
+class InternetExchangeUpdateRoutingPolicies(PermissionRequiredMixin, AddOrEditView):
     permission_required = "peering.change_internetexchange"
     model = InternetExchange
     form = InternetExchangeRoutingPolicyForm
@@ -769,7 +769,7 @@ class IXUpdateRoutingPolicies(PermissionRequiredMixin, AddOrEditView):
         )
 
 
-class IXPeeringSessions(ModelListView):
+class InternetExchangePeeringSessions(ModelListView):
     filter = InternetExchangePeeringSessionFilter
     filter_form = InternetExchangePeeringSessionFilterFormForIX
     table = InternetExchangePeeringSessionTableForIX
@@ -819,7 +819,7 @@ class IXPeeringSessions(ModelListView):
         super().setup_table_columns(request, table, kwargs)
 
 
-class IXPeers(ModelListView):
+class InternetExchangePeers(ModelListView):
     filter = PeerRecordFilter
     filter_form = PeerRecordFilterForm
     table = PeerRecordTable
@@ -853,7 +853,7 @@ class IXPeers(ModelListView):
         return extra_context
 
 
-class IXConfig(View):
+class InternetExchangeConfig(View):
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
 
@@ -865,7 +865,7 @@ class IXConfig(View):
         return render(request, "peering/ix/configuration.html", context)
 
 
-class IXUpdateSessionStates(PermissionRequiredMixin, View):
+class InternetExchangeUpdateSessionStates(PermissionRequiredMixin, View):
     permission_required = "peering.change_internetexchangepeeringsession"
 
     def get(self, request, slug):

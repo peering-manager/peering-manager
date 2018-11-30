@@ -172,26 +172,28 @@ urlpatterns = [
     ),
     # Internet Exchanges
     url(
-        r"^internet-exchanges/$", views.IXList.as_view(), name="internet_exchange_list"
+        r"^internet-exchanges/$",
+        views.InternetExchangeList.as_view(),
+        name="internet_exchange_list",
     ),
     url(
         r"^internet-exchanges/add/$",
-        views.IXAdd.as_view(),
+        views.InternetExchangeAdd.as_view(),
         name="internet_exchange_add",
     ),
     url(
         r"^internet-exchanges/import/$",
-        views.IXImport.as_view(),
+        views.InternetExchangeImport.as_view(),
         name="internet_exchange_import",
     ),
     url(
         r"^internet-exchanges/peeringdb-import/$",
-        views.IXPeeringDBImport.as_view(),
+        views.InternetExchangePeeringDBImport.as_view(),
         name="internet_exchange_peeringdb_import",
     ),
     url(
         r"^internet-exchanges/delete/$",
-        views.IXBulkDelete.as_view(),
+        views.InternetExchangeBulkDelete.as_view(),
         name="internet_exchange_bulk_delete",
     ),
     url(
@@ -201,17 +203,17 @@ urlpatterns = [
     ),
     url(
         r"^internet-exchanges/(?P<slug>[\w-]+)/$",
-        views.IXDetails.as_view(),
+        views.InternetExchangeDetails.as_view(),
         name="internet_exchange_details",
     ),
     url(
         r"^internet-exchanges/(?P<slug>[\w-]+)/edit/$",
-        views.IXEdit.as_view(),
+        views.InternetExchangeEdit.as_view(),
         name="internet_exchange_edit",
     ),
     url(
         r"^internet-exchanges/(?P<slug>[\w-]+)/delete/$",
-        views.IXDelete.as_view(),
+        views.InternetExchangeDelete.as_view(),
         name="internet_exchange_delete",
     ),
     url(
@@ -221,37 +223,37 @@ urlpatterns = [
     ),
     url(
         r"^internet-exchanges/(?P<slug>[\w-]+)/update-communities/$",
-        views.IXUpdateCommunities.as_view(),
+        views.InternetExchangeUpdateCommunities.as_view(),
         name="internet_exchange_update_communities",
     ),
     url(
         r"^internet-exchanges/(?P<slug>[\w-]+)/update-routing-policies/$",
-        views.IXUpdateRoutingPolicies.as_view(),
+        views.InternetExchangeUpdateRoutingPolicies.as_view(),
         name="internet_exchange_update_routing_policies",
     ),
     url(
         r"^internet-exchanges/(?P<slug>[\w-]+)/peering-sessions/$",
-        views.IXPeeringSessions.as_view(),
+        views.InternetExchangePeeringSessions.as_view(),
         name="internet_exchange_peering_sessions",
     ),
     url(
         r"^internet-exchanges/(?P<slug>[\w-]+)/import-from-router$",
-        views.IXImportFromRouter.as_view(),
+        views.InternetExchangeImportFromRouter.as_view(),
         name="internet_exchange_import_from_router",
     ),
     url(
         r"^internet-exchanges/(?P<slug>[\w-]+)/peers/$",
-        views.IXPeers.as_view(),
+        views.InternetExchangePeers.as_view(),
         name="internet_exchange_peers",
     ),
     url(
         r"^internet-exchanges/(?P<slug>[\w-]+)/config/$",
-        views.IXConfig.as_view(),
+        views.InternetExchangeConfig.as_view(),
         name="internet_exchange_configuration",
     ),
     url(
         r"^internet-exchanges/(?P<slug>[\w-]+)/update-session-states/$",
-        views.IXUpdateSessionStates.as_view(),
+        views.InternetExchangeUpdateSessionStates.as_view(),
         name="internet_exchange_update_session_states",
     ),
     # Internet Exchange Peering Sessions
