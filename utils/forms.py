@@ -63,10 +63,6 @@ class CSVDataField(forms.CharField):
             self.help_text = "Enter the list of column headers followed by one record per line using commas to separate values.<br>Multi-line data and values containing commas have to be wrapped in double quotes."
 
     def to_python(self, value):
-        # Python 2 compatibility
-        if not isinstance(value, str):
-            value = value.encode("utf-8")
-
         records = []
         reader = csv.reader(value.splitlines())
 
