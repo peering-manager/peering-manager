@@ -137,10 +137,6 @@ class CSVChoiceField(forms.ChoiceField):
 
 class FilterChoiceIterator(forms.models.ModelChoiceIterator):
     def __iter__(self):
-        # Filter on "empty" choice using FILTERS_NULL_CHOICE_VALUE (instead of
-        # an empty string)
-        if self.field.null_label is not None:
-            yield (settings.FILTERS_NULL_CHOICE_VALUE, self.field.null_label)
         queryset = self.queryset.all()
         # Can't use iterator() when queryset uses prefetch_related()
         if not queryset._prefetch_related_lookups:
