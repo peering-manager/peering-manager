@@ -1,3 +1,9 @@
+sudo: required
+services:
+  - postgresql
+addons:
+  postgresql: "9.6"
+
 language: python
 python:
   - "3.5"
@@ -11,6 +17,9 @@ matrix:
       sudo: true
 install:
   - pip install tox tox-travis coveralls
+before_script:
+  - psql --version
+  - psql -U postgres -c "SELECT version();"
 script:
   - tox
 after_success:

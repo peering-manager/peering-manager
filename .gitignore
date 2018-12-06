@@ -134,3 +134,4 @@ gunicorn_config.py
 static
 logs/*
 !logs/.gitkeep
+scripts/postgresql

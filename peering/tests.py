@@ -389,10 +389,10 @@ class CommunityViewsTestCase(ViewTestCase):
         # Try to import an object with valid data
         community_to_import = {
             "csv": """name,value,type,comment
-                      community-created,64500:1,Ingress,"""
+                      community-created,64500:2,Ingress,"""
         }
         self.post_request("peering:community_import", data=community_to_import)
-        self.does_object_exist({"pk": 2})
+        self.does_object_exist({"value": "64500:2"})
 
         # Try to create an object with invalid data
         community_not_to_import = {
@@ -400,7 +400,7 @@ class CommunityViewsTestCase(ViewTestCase):
                       community-not-created,,Ingress,"""
         }
         self.post_request("peering:community_import", data=community_not_to_import)
-        self.does_object_not_exist({"pk": 3})
+        self.does_object_not_exist({"name": "community-not-created"})
 
     def test_community_details_view(self):
         # No community PK given, view should not work
@@ -415,7 +415,9 @@ class CommunityViewsTestCase(ViewTestCase):
         # Using an existing PK, status should be 200 and the name of the
         # community should be somewhere in the HTML code
         self.get_request(
-            "peering:community_details", params={"pk": 1}, contains=self.name
+            "peering:community_details",
+            params={"pk": self.community.pk},
+            contains=self.name,
         )
 
     def test_community_edit_view(self):
@@ -425,12 +427,18 @@ class CommunityViewsTestCase(ViewTestCase):
 
         # Not logged in, no right to access the view, should be redirected
         self.get_request(
-            "peering:community_edit", params={"pk": 1}, expected_status_code=302
+            "peering:community_edit",
+            params={"pk": self.community.pk},
+            expected_status_code=302,
         )
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
-        self.get_request("peering:community_edit", params={"pk": 1}, contains="Update")
+        self.get_request(
+            "peering:community_edit",
+            params={"pk": self.community.pk},
+            contains="Update",
+        )
 
         # Still authenticated, wrong PK should be 404 not found
         self.get_request(
@@ -444,13 +452,17 @@ class CommunityViewsTestCase(ViewTestCase):
 
         # Not logged in, no right to access the view, should be redirected
         self.get_request(
-            "peering:community_delete", params={"pk": 1}, expected_status_code=302
+            "peering:community_delete",
+            params={"pk": self.community.pk},
+            expected_status_code=302,
         )
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
         self.get_request(
-            "peering:community_delete", params={"pk": 1}, contains="Confirm"
+            "peering:community_delete",
+            params={"pk": self.community.pk},
+            contains="Confirm",
         )
 
         # Still authenticated, wrong PK should be 404 not found
@@ -490,7 +502,7 @@ class DirectPeeringSessionViewsTestCase(ViewTestCase):
         # should be somewhere in the HTML code
         self.get_request(
             "peering:direct_peering_session_details",
-            params={"pk": 1},
+            params={"pk": self.peering_session.pk},
             contains=self.ip_address,
         )
 
@@ -502,14 +514,16 @@ class DirectPeeringSessionViewsTestCase(ViewTestCase):
         # Not logged in, no right to access the view, should be redirected
         self.get_request(
             "peering:direct_peering_session_edit",
-            params={"pk": 1},
+            params={"pk": self.peering_session.pk},
             expected_status_code=302,
         )
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
         self.get_request(
-            "peering:direct_peering_session_edit", params={"pk": 1}, contains="Update"
+            "peering:direct_peering_session_edit",
+            params={"pk": self.peering_session.pk},
+            contains="Update",
         )
 
         # Still authenticated, wrong PK should be 404 not found
@@ -527,7 +541,7 @@ class DirectPeeringSessionViewsTestCase(ViewTestCase):
         # Not logged in, no right to access the view, should be redirected
         self.get_request(
             "peering:direct_peering_session_delete",
-            params={"pk": 1},
+            params={"pk": self.peering_session.pk},
             expected_status_code=302,
         )
 
@@ -535,7 +549,7 @@ class DirectPeeringSessionViewsTestCase(ViewTestCase):
         self.authenticate_user()
         self.get_request(
             "peering:direct_peering_session_delete",
-            params={"pk": 1},
+            params={"pk": self.peering_session.pk},
             contains="Confirm",
         )
 
@@ -1097,7 +1111,7 @@ class InternetExchangePeeringSessionViewsTestCase(ViewTestCase):
         # should be somewhere in the HTML code
         self.get_request(
             "peering:internet_exchange_peering_session_details",
-            params={"pk": 1},
+            params={"pk": self.peering_session.pk},
             contains=self.ip_address,
         )
 
@@ -1109,7 +1123,7 @@ class InternetExchangePeeringSessionViewsTestCase(ViewTestCase):
         # Not logged in, no right to access the view, should be redirected
         self.get_request(
             "peering:internet_exchange_peering_session_edit",
-            params={"pk": 1},
+            params={"pk": self.peering_session.pk},
             expected_status_code=302,
         )
 
@@ -1117,7 +1131,7 @@ class InternetExchangePeeringSessionViewsTestCase(ViewTestCase):
         self.authenticate_user()
         self.get_request(
             "peering:internet_exchange_peering_session_edit",
-            params={"pk": 1},
+            params={"pk": self.peering_session.pk},
             contains="Update",
         )
 
@@ -1136,7 +1150,7 @@ class InternetExchangePeeringSessionViewsTestCase(ViewTestCase):
         # Not logged in, no right to access the view, should be redirected
         self.get_request(
             "peering:internet_exchange_peering_session_delete",
-            params={"pk": 1},
+            params={"pk": self.peering_session.pk},
             expected_status_code=302,
         )
 
@@ -1144,7 +1158,7 @@ class InternetExchangePeeringSessionViewsTestCase(ViewTestCase):
         self.authenticate_user()
         self.get_request(
             "peering:internet_exchange_peering_session_delete",
-            params={"pk": 1},
+            params={"pk": self.peering_session.pk},
             contains="Confirm",
         )
 
@@ -1259,7 +1273,7 @@ class RouterViewsTestCase(ViewTestCase):
                       router-created,rt-created.example.com,Other,"""
         }
         self.post_request("peering:router_import", data=router_to_import)
-        self.does_object_exist({"pk": 2})
+        self.does_object_exist({"hostname": "rt-created.example.com"})
 
         # Try to create an object with invalid data
         router_not_to_import = {
@@ -1267,7 +1281,7 @@ class RouterViewsTestCase(ViewTestCase):
                       router-not-created,,Other,"""
         }
         self.post_request("peering:router_import", data=router_not_to_import)
-        self.does_object_not_exist({"pk": 3})
+        self.does_object_not_exist({"name": "router-not-created"})
 
     def test_router_details_view(self):
         # No PK given, view should not work
@@ -1281,7 +1295,9 @@ class RouterViewsTestCase(ViewTestCase):
 
         # Using an existing PK, status should be 200 and the name of the router
         # should be somewhere in the HTML code
-        self.get_request("peering:router_details", params={"pk": 1}, contains=self.name)
+        self.get_request(
+            "peering:router_details", params={"pk": self.router.pk}, contains=self.name
+        )
 
     def test_router_edit_view(self):
         # No PK given, view should not work
@@ -1290,12 +1306,16 @@ class RouterViewsTestCase(ViewTestCase):
 
         # Not logged in, no right to access the view, should be redirected
         self.get_request(
-            "peering:router_edit", params={"pk": 1}, expected_status_code=302
+            "peering:router_edit",
+            params={"pk": self.router.pk},
+            expected_status_code=302,
         )
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
-        self.get_request("peering:router_edit", params={"pk": 1}, contains="Update")
+        self.get_request(
+            "peering:router_edit", params={"pk": self.router.pk}, contains="Update"
+        )
 
         # Still authenticated, wrong PK should be 404 not found
         self.get_request(
@@ -1309,12 +1329,16 @@ class RouterViewsTestCase(ViewTestCase):
 
         # Not logged in, no right to access the view, should be redirected
         self.get_request(
-            "peering:router_delete", params={"pk": 1}, expected_status_code=302
+            "peering:router_delete",
+            params={"pk": self.router.pk},
+            expected_status_code=302,
         )
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
-        self.get_request("peering:router_delete", params={"pk": 1}, contains="Confirm")
+        self.get_request(
+            "peering:router_delete", params={"pk": self.router.pk}, contains="Confirm"
+        )
 
         # Still authenticated, wrong router should be 404 not found
         self.get_request(
@@ -1430,7 +1454,7 @@ class RoutingPolicyViewsTestCase(ViewTestCase):
         self.post_request(
             "peering:routing_policy_import", data=routing_policy_to_import
         )
-        self.does_object_exist({"pk": 2})
+        self.does_object_exist({"slug": "routing-policy-created"})
 
         # Try to create an object with invalid data
         routing_policy_not_to_import = {
@@ -1440,7 +1464,7 @@ class RoutingPolicyViewsTestCase(ViewTestCase):
         self.post_request(
             "peering:routing_policy_import", data=routing_policy_not_to_import
         )
-        self.does_object_not_exist({"pk": 3})
+        self.does_object_not_exist({"name": "routing-policy-not-created"})
 
     def test_routing_policy_details_view(self):
         # No routing policy PK given, view should not work
@@ -1457,7 +1481,9 @@ class RoutingPolicyViewsTestCase(ViewTestCase):
         # Using an existing PK, status should be 200 and the name of the
         # routing policy should be somewhere in the HTML code
         self.get_request(
-            "peering:routing_policy_details", params={"pk": 1}, contains=self.name
+            "peering:routing_policy_details",
+            params={"pk": self.routing_policy.pk},
+            contains=self.name,
         )
 
     def test_routing_policy_edit_view(self):
@@ -1467,13 +1493,17 @@ class RoutingPolicyViewsTestCase(ViewTestCase):
 
         # Not logged in, no right to access the view, should be redirected
         self.get_request(
-            "peering:routing_policy_edit", params={"pk": 1}, expected_status_code=302
+            "peering:routing_policy_edit",
+            params={"pk": self.routing_policy.pk},
+            expected_status_code=302,
         )
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
         self.get_request(
-            "peering:routing_policy_edit", params={"pk": 1}, contains="Update"
+            "peering:routing_policy_edit",
+            params={"pk": self.routing_policy.pk},
+            contains="Update",
         )
 
         # Still authenticated, wrong PK should be 404 not found
@@ -1488,13 +1518,17 @@ class RoutingPolicyViewsTestCase(ViewTestCase):
 
         # Not logged in, no right to access the view, should be redirected
         self.get_request(
-            "peering:routing_policy_delete", params={"pk": 1}, expected_status_code=302
+            "peering:routing_policy_delete",
+            params={"pk": self.routing_policy.pk},
+            expected_status_code=302,
         )
 
         # Authenticate and retry, should be OK
         self.authenticate_user()
         self.get_request(
-            "peering:routing_policy_delete", params={"pk": 1}, contains="Confirm"
+            "peering:routing_policy_delete",
+            params={"pk": self.routing_policy.pk},
+            contains="Confirm",
         )
 
         # Still authenticated, wrong PK should be 404 not found

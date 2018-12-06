@@ -4,6 +4,7 @@ pages:
   - 'Introduction': 'index.md'
   - 'Setup':
     - 'Peering Manager': 'setup/peering-manager.md'
+    - 'PostgreSQL': 'setup/postgresql.md'
     - 'Web Server': 'setup/web-server.md'
     - 'LDAP': 'setup/ldap.md'
     - 'Upgrading': 'setup/upgrading.md'
