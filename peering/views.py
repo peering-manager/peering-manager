@@ -583,7 +583,7 @@ class InternetExchangeImportFromRouter(PermissionRequiredMixin, ConfirmationView
 
                 if result[2]:
                     message = "Peering sessions for the following ASNs have been ignored due to missing PeeringDB entries: {}.".format(
-                        ", ".join(result[2])
+                        ", ".join(str(asn) for asn in result[2])
                     )
                     messages.warning(request, message)
 
