@@ -21,8 +21,15 @@ except ImportError:
 
 VERSION = "0.99-dev"
 
-SECRET_KEY = getattr(configuration, "SECRET_KEY", "")
-ALLOWED_HOSTS = getattr(configuration, "ALLOWED_HOSTS", [])
+DATABASE = SECRET_KEY = ALLOWED_HOSTS = MY_ASN = None
+for setting in ["DATABASE", "SECRET_KEY", "ALLOWED_HOSTS", "MY_ASN"]:
+    try:
+        globals()[setting] = getattr(configuration, setting)
+    except AttributeError:
+        raise ImproperlyConfigured(
+            "Mandatory setting {} is not in the configuration.py file.".format(setting)
+        )
+
 BASE_PATH = getattr(configuration, "BASE_PATH", "")
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip("/") + "/"  # Enforce trailing slash only
@@ -34,10 +41,7 @@ NAPALM_TIMEOUT = getattr(configuration, "NAPALM_TIMEOUT", 30)
 NAPALM_ARGS = getattr(configuration, "NAPALM_ARGS", {})
 PAGINATE_COUNT = getattr(configuration, "PAGINATE_COUNT", 20)
 TIME_ZONE = getattr(configuration, "TIME_ZONE", "UTC")
-MY_ASN = getattr(configuration, "MY_ASN", -1)
 
-if MY_ASN == -1:
-    raise ImproperlyConfigured("The MY_ASN setting must be set to a valid AS number.")
 
 # NetBox API configuration
 NETBOX_API = getattr(configuration, "NETBOX_API", "")
@@ -78,8 +82,9 @@ if LDAP_CONFIGURED:
         )
 
 
-# PostgreSQL database
+# Force PostgreSQL to be used as database backend
 configuration.DATABASE.update({"ENGINE": "django.db.backends.postgresql"})
+# Actually set the database's settings
 DATABASES = {"default": configuration.DATABASE}
 
 
@@ -130,15 +135,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "peering_manager.wsgi.application"
-
-
-# Database
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-    }
-}
 
 
 # Password validation
