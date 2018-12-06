@@ -389,10 +389,10 @@ class CommunityViewsTestCase(ViewTestCase):
         # Try to import an object with valid data
         community_to_import = {
             "csv": """name,value,type,comment
-                      community-created,64500:1,Ingress,"""
+                      community-created,64500:2,Ingress,"""
         }
         self.post_request("peering:community_import", data=community_to_import)
-        self.does_object_exist({"value": "64500:1"})
+        self.does_object_exist({"value": "64500:2"})
 
         # Try to create an object with invalid data
         community_not_to_import = {
