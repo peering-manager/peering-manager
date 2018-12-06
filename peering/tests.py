@@ -392,7 +392,7 @@ class CommunityViewsTestCase(ViewTestCase):
                       community-created,64500:1,Ingress,"""
         }
         self.post_request("peering:community_import", data=community_to_import)
-        self.does_object_exist({"pk": 2})
+        self.does_object_exist({"value": "64500:1"})
 
         # Try to create an object with invalid data
         community_not_to_import = {
@@ -400,7 +400,7 @@ class CommunityViewsTestCase(ViewTestCase):
                       community-not-created,,Ingress,"""
         }
         self.post_request("peering:community_import", data=community_not_to_import)
-        self.does_object_not_exist({"pk": 3})
+        self.does_object_not_exist({"name": "community-not-created"})
 
     def test_community_details_view(self):
         # No community PK given, view should not work
@@ -1273,7 +1273,7 @@ class RouterViewsTestCase(ViewTestCase):
                       router-created,rt-created.example.com,Other,"""
         }
         self.post_request("peering:router_import", data=router_to_import)
-        self.does_object_exist({"pk": 2})
+        self.does_object_exist({"hostname": "rt-created.example.com"})
 
         # Try to create an object with invalid data
         router_not_to_import = {
@@ -1281,7 +1281,7 @@ class RouterViewsTestCase(ViewTestCase):
                       router-not-created,,Other,"""
         }
         self.post_request("peering:router_import", data=router_not_to_import)
-        self.does_object_not_exist({"pk": 3})
+        self.does_object_not_exist({"name": "router-not-created"})
 
     def test_router_details_view(self):
         # No PK given, view should not work
@@ -1454,7 +1454,7 @@ class RoutingPolicyViewsTestCase(ViewTestCase):
         self.post_request(
             "peering:routing_policy_import", data=routing_policy_to_import
         )
-        self.does_object_exist({"pk": 2})
+        self.does_object_exist({"slug": "routing-policy-created"})
 
         # Try to create an object with invalid data
         routing_policy_not_to_import = {
@@ -1464,7 +1464,7 @@ class RoutingPolicyViewsTestCase(ViewTestCase):
         self.post_request(
             "peering:routing_policy_import", data=routing_policy_not_to_import
         )
-        self.does_object_not_exist({"pk": 3})
+        self.does_object_not_exist({"name": "routing-policy-not-created"})
 
     def test_routing_policy_details_view(self):
         # No routing policy PK given, view should not work
