@@ -16,3 +16,12 @@ TIME_ZONE = "Europe/Paris"
 
 # Autonomous System number
 MY_ASN = 64512
+
+# PostgreSQL database configuration
+DATABASE = {
+    "NAME": "peering_manager",  # Database name
+    "USER": "",  # PostgreSQL username
+    "PASSWORD": "",  # PostgreSQL password
+    "HOST": "localhost",  # Database server
+    "PORT": "",  # Database port (leave blank for default)
+}

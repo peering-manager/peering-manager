@@ -78,6 +78,11 @@ if LDAP_CONFIGURED:
         )
 
 
+# PostgreSQL database
+configuration.DATABASE.update({"ENGINE": "django.db.backends.postgresql"})
+DATABASES = {"default": configuration.DATABASE}
+
+
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
