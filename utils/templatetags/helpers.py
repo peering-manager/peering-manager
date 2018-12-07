@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from markdown import markdown as md
 
 from django import template

@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.db import models
 

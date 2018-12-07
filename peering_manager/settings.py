@@ -4,7 +4,6 @@
 # This file is part of the Peering Manager code and it will be overwritten with
 # every code releases.
 
-from __future__ import unicode_literals
 
 import os
 import socket

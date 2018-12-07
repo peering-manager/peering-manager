@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 # BGP relationship between us and a peer
 BGP_RELATIONSHIP_PRIVATE_PEERING = "private-peering"
 BGP_RELATIONSHIP_TRANSIT_PROVIDER = "transit-provider"
