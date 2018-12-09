@@ -54,18 +54,6 @@ class PeeringManagerViewsTestCase(ViewTestCase):
         response = self.client.get(reverse("user_change_password"))
         self.assertEqual(response.status_code, 200)
 
-    def test_user_activity_view(self):
-        response = self.client.get(reverse("user_activity"))
-        # Without been logged -> redirection
-        self.assertEqual(response.status_code, 302)
-
-        # Login
-        response = self.client.post(reverse("login"), self.credentials, follow=True)
-        # Should be logged in, so page should work
-        self.assertTrue(response.context["user"].is_active)
-        response = self.client.get(reverse("user_activity"))
-        self.assertEqual(response.status_code, 200)
-
     def test_error500_view(self):
         with self.assertRaises(Exception):
             self.client.get("/error500/")
