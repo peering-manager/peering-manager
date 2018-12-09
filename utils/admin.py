@@ -1,5 +1,5 @@
 from django.contrib import admin
 
-from .models import UserAction
+from .models import ObjectChange
 
-admin.site.register(UserAction)
+admin.site.register(ObjectChange)

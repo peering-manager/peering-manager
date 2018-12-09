@@ -73,17 +73,28 @@
         </div>
         <div class="card">
           <div class="card-header">
-            <strong>Recent History</strong>
+            <strong>Changelog</strong>
+            <a class="float-right" href="{% url 'utils:object_change_list' %}" title="View full changelog"><i class="fas fa-bars"></i></a>
           </div>
           <div class="list-group">
-            {% for action in history %}
+            {% for change in changelog %}
             <div class="list-group-item">
-              {{ action.get_icon }} {{ action.message|safe }}<br />
-              <small class="text-muted">{{ action.user }} - {{ action.time|date:'SHORT_DATETIME_FORMAT' }}</small>
+              {{ change.get_html_icon }}
+              {{ change.changed_object_type.name | title }}
+              {% if change.changed_object.get_absolute_url %}
+                <a href="{{ change.changed_object.get_absolute_url }}">{{ change.changed_object }}</a>
+              {% else %}
+                {{ change.changed_object | default:change.object_repr }}
+              {% endif %}
+              <br />
+              <small>
+                <span class="text-muted">{{ change.user | default:change.user_name }} -</span>
+                <a href="{{ change.get_absolute_url }}" class="text-muted">{{ change.time | date:'SHORT_DATETIME_FORMAT' }}</a>
+              </small>
             </div>
             {% empty %}
             <div class="list-group-item">
-              <span class="text-muted">No actions</span>
+              <span class="text-muted">No changes found</span>
             </div>
             {% endfor %}
           </div>

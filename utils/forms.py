@@ -2,6 +2,10 @@ import csv
 
 from django import forms
 from django.conf import settings
+from django.contrib.auth.models import User
+
+from .constants import *
+from .models import ObjectChange
 
 
 def add_blank_choice(choices):
@@ -159,6 +163,27 @@ class FilterChoiceFieldMixin(object):
 
 class FilterChoiceField(FilterChoiceFieldMixin, forms.ModelMultipleChoiceField):
     pass
+
+
+class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
+    model = ObjectChange
+    q = forms.CharField(required=False, label="Search")
+    time_after = forms.DateTimeField(
+        label="After",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
+    )
+    time_before = forms.DateTimeField(
+        label="Before",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
+    )
+    action = forms.ChoiceField(
+        choices=add_blank_choice(OBJECT_CHANGE_ACTION_CHOICES), required=False
+    )
+    user = forms.ModelChoiceField(
+        queryset=User.objects.order_by("username"), required=False
+    )
 
 
 class PasswordField(forms.CharField):

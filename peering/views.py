@@ -84,7 +84,6 @@ from .tables import (
 )
 from peeringdb.api import PeeringDB
 from peeringdb.models import PeerRecord
-from utils.models import UserAction
 from utils.views import (
     AddOrEditView,
     BulkAddFromDependencyView,
@@ -565,9 +564,6 @@ class InternetExchangeImportFromRouter(PermissionRequiredMixin, ConfirmationView
                         result[0], AutonomousSystem._meta.verbose_name_plural
                     )
                     messages.success(request, message)
-                    UserAction.objects.log_import(
-                        request.user, AutonomousSystem, message
-                    )
 
                 if result[1] > 0:
                     message = "Imported {} {}".format(
@@ -575,9 +571,6 @@ class InternetExchangeImportFromRouter(PermissionRequiredMixin, ConfirmationView
                         InternetExchangePeeringSession._meta.verbose_name_plural,
                     )
                     messages.success(request, message)
-                    UserAction.objects.log_import(
-                        request.user, InternetExchangePeeringSession, message
-                    )
 
                 if result[2]:
                     message = "Peering sessions for the following ASNs have been ignored due to missing PeeringDB entries: {}.".format(

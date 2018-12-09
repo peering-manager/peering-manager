@@ -38,10 +38,10 @@ from .constants import (
 from .fields import ASNField, CommunityField
 from peeringdb.api import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
-from utils.models import CreatedUpdatedModel
+from utils.models import ChangeLoggedModel
 
 
-class AutonomousSystem(CreatedUpdatedModel):
+class AutonomousSystem(ChangeLoggedModel):
     asn = ASNField(unique=True)
     name = models.CharField(max_length=128)
     comment = models.TextField(blank=True)
@@ -200,7 +200,7 @@ class AutonomousSystem(CreatedUpdatedModel):
         return "AS{} - {}".format(self.asn, self.name)
 
 
-class BGPSession(CreatedUpdatedModel):
+class BGPSession(ChangeLoggedModel):
     """
     Abstract class used to define common caracteristics of BGP sessions.
 
@@ -284,7 +284,7 @@ class BGPSession(CreatedUpdatedModel):
         return mark_safe(text)
 
 
-class Community(CreatedUpdatedModel):
+class Community(ChangeLoggedModel):
     name = models.CharField(max_length=128)
     value = CommunityField(max_length=50)
     type = models.CharField(
@@ -320,7 +320,7 @@ class Community(CreatedUpdatedModel):
         return self.name
 
 
-class ConfigurationTemplate(CreatedUpdatedModel):
+class ConfigurationTemplate(ChangeLoggedModel):
     name = models.CharField(max_length=128)
     template = models.TextField()
     comment = models.TextField(blank=True)
@@ -368,7 +368,7 @@ class DirectPeeringSession(BGPSession):
         )
 
 
-class InternetExchange(CreatedUpdatedModel):
+class InternetExchange(ChangeLoggedModel):
     peeringdb_id = models.PositiveIntegerField(blank=True, null=True)
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True)
@@ -924,7 +924,7 @@ class InternetExchangePeeringSession(BGPSession):
         )
 
 
-class Router(CreatedUpdatedModel):
+class Router(ChangeLoggedModel):
     name = models.CharField(max_length=128)
     hostname = models.CharField(max_length=256)
     platform = models.CharField(
@@ -1238,7 +1238,7 @@ class Router(CreatedUpdatedModel):
         return self.name
 
 
-class RoutingPolicy(CreatedUpdatedModel):
+class RoutingPolicy(ChangeLoggedModel):
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True)
     type = models.CharField(

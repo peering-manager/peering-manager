@@ -33,6 +33,7 @@ BASE_PATH = getattr(configuration, "BASE_PATH", "")
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip("/") + "/"  # Enforce trailing slash only
 DEBUG = getattr(configuration, "DEBUG", False)
+CHANGELOG_RETENTION = getattr(configuration, "CHANGELOG_RETENTION", 90)
 LOGIN_REQUIRED = getattr(configuration, "LOGIN_REQUIRED", False)
 NAPALM_USERNAME = getattr(configuration, "NAPALM_USERNAME", "")
 NAPALM_PASSWORD = getattr(configuration, "NAPALM_PASSWORD", "")
@@ -111,6 +112,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "utils.middleware.ExceptionCatchingMiddleware",
+    "utils.middleware.ObjectChangeMiddleware",
     "utils.middleware.RequireLoginMiddleware",
 ]
 

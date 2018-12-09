@@ -1,0 +1,52 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block content %}
+      <h1>{% block title %}{{ object_change }}{% endblock %}</h1>
+      <div class="row">
+        <div class="col-md-5">
+          <div class="card">
+            <div class="card-header"><strong>Change</strong></div>
+            <table class="table table-hover card-body attr-table">
+              <tr>
+                <td>Time</td>
+                <td>{{ object_change.time }}</td>
+              </tr>
+              <tr>
+                <td>User</td>
+                <td>{{ object_change.user | default:object_change.user_name }}</td>
+              </tr>
+              <tr>
+                <td>Action</td>
+                <td>{{ object_change.get_action_display }}</td>
+              </tr>
+              <tr>
+                <td>Object Type</td>
+                <td>{{ object_change.changed_object_type }}</td>
+              </tr>
+              <tr>
+                <td>Object</td>
+                <td>
+                  {% if object_change.changed_object.get_absolute_url %}
+                  <a href="{{ object_change.changed_object.get_absolute_url }}">{{ object_change.changed_object }}</a>
+                  {% else %}
+                  {{ object_change.object_repr }}
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td>Request ID</td>
+                <td><code>{{ object_change.request_id }}</code></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="col-md-7">
+          <div class="card">
+            <div class="card-header"><strong>Object Data</strong></div>
+            <div class="card-body">
+                <pre class="pre-scrollable"><code>{{ object_change.object_data | render_json }}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}

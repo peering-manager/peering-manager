@@ -26,7 +26,7 @@ from peering.models import (
     RoutingPolicy,
 )
 from peeringdb.models import Synchronization
-from utils.models import UserAction
+from utils.models import ObjectChange
 
 
 class LoginView(View):
@@ -76,7 +76,9 @@ class Home(View):
         }
         context = {
             "statistics": statistics,
-            "history": UserAction.objects.select_related("user")[:50],
+            "changelog": ObjectChange.objects.select_related(
+                "user", "changed_object_type"
+            )[:50],
             "synchronizations": Synchronization.objects.all()[:5],
         }
         return render(request, "home.html", context)
@@ -116,18 +118,6 @@ class ChangePasswordView(View, LoginRequiredMixin):
             return redirect("user_profile")
 
         return render(request, self.template, context)
-
-
-class RecentActivityView(View, LoginRequiredMixin):
-    def get(self, request):
-        if not is_user_logged_in(request):
-            return redirect("home")
-
-        context = {
-            "activity": request.user.actions.all()[:50],
-            "active_tab": "activity",
-        }
-        return render(request, "user/activity.html", context)
 
 
 def is_user_logged_in(request):

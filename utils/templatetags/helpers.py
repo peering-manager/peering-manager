@@ -1,3 +1,4 @@
+from json import dumps as json_dumps
 from markdown import markdown as md
 
 from django import template
@@ -72,3 +73,21 @@ def querystring(request, **kwargs):
         return "?" + querystring
 
     return ""
+
+
+@register.filter()
+def render_json(value):
+    """
+    Render a dictionary as formatted JSON.
+    """
+    return json_dumps(value, indent=4, sort_keys=True)
+
+
+@register.filter()
+def title_with_uppers(value):
+    """
+    Render a title without touching to letter already being uppercased.
+    """
+    if not isinstance(value, str):
+        value = str(value)
+    return " ".join([word[0].upper() + word[1:] for word in value.split()])

@@ -21,9 +21,17 @@ from django.views.generic import View
 
 from django_tables2 import RequestConfig
 
-from .forms import BootstrapMixin, ConfirmationForm, CSVDataField, FilterChoiceField
-from .models import UserAction
+from .filters import ObjectChangeFilter
+from .forms import (
+    BootstrapMixin,
+    ConfirmationForm,
+    CSVDataField,
+    FilterChoiceField,
+    ObjectChangeFilterForm,
+)
+from .models import ObjectChange
 from .paginators import EnhancedPaginator
+from .tables import ObjectChangeTable
 
 
 class AddOrEditView(View):
@@ -101,12 +109,6 @@ class AddOrEditView(View):
                 message, self.model._meta.verbose_name, escape(obj)
             )
             messages.success(request, mark_safe(message))
-
-            # Log the action
-            if created:
-                UserAction.objects.log_create(request.user, obj, message)
-            else:
-                UserAction.objects.log_edit(request.user, obj, message)
 
             # Redirect the user to the current page to create another object
             if "_addanother" in request.POST:
@@ -210,11 +212,6 @@ class BulkAddFromDependencyView(View):
                 )
                 messages.success(request, message)
 
-                # Log the import action
-                UserAction.objects.log_import(
-                    request.user, self.form_model._meta.model, message
-                )
-
             return redirect(self.get_return_url())
 
         return render(
@@ -292,7 +289,6 @@ class BulkDeleteView(View):
                     deleted_count, self.model._meta.verbose_name_plural
                 )
                 messages.success(request, message)
-                UserAction.objects.log_bulk_delete(request.user, self.model, message)
 
                 return redirect(self.return_url)
         else:
@@ -399,7 +395,6 @@ class BulkEditView(View):
                             updated_count, model._meta.verbose_name_plural
                         )
                         messages.success(self.request, message)
-                        UserAction.objects.log_bulk_edit(request.user, model, message)
 
                     return redirect(self.get_return_url(request))
                 except ValidationError as e:
@@ -523,9 +518,6 @@ class DeleteView(View):
             message = "Deleted {} {}".format(self.model._meta.verbose_name, escape(obj))
             messages.success(request, message)
 
-            # Log the action
-            UserAction.objects.log_delete(request.user, obj, message)
-
             return redirect(self.get_return_url(obj))
 
         return render(
@@ -646,11 +638,6 @@ class ImportView(View):
                         len(new_objects), new_objects[0]._meta.verbose_name_plural
                     )
                     messages.success(request, message)
-
-                    # Log the import action
-                    UserAction.objects.log_import(
-                        request.user, self.form_model._meta.model, message
-                    )
 
                     return redirect(self.return_url)
             except ValidationError:
@@ -801,11 +788,6 @@ class TableImportView(View):
                 )
                 messages.success(request, message)
 
-                # Log the import action
-                UserAction.objects.log_import(
-                    request.user, self.form_model._meta.model, message
-                )
-
             return redirect(self.get_return_url())
 
         return render(
@@ -815,6 +797,36 @@ class TableImportView(View):
                 "formset": formset,
                 "obj_type": self.form_model._meta.model._meta.verbose_name,
                 "return_url": self.get_return_url(),
+            },
+        )
+
+
+class ObjectChangeList(ModelListView):
+    queryset = ObjectChange.objects.select_related("user", "changed_object_type")
+    filter = ObjectChangeFilter
+    filter_form = ObjectChangeFilterForm
+    table = ObjectChangeTable
+    template = "utils/object_change/list.html"
+
+
+class ObjectChangeView(View):
+    def get(self, request, pk):
+        object_change = get_object_or_404(ObjectChange, pk=pk)
+
+        related_changes = ObjectChange.objects.filter(
+            request_id=object_change.request_id
+        ).exclude(pk=object_change.pk)
+        related_changes_table = ObjectChangeTable(
+            data=related_changes[:50], orderable=False
+        )
+
+        return render(
+            request,
+            "utils/object_change/details.html",
+            {
+                "object_change": object_change,
+                "related_changes_table": related_changes_table,
+                "related_changes_count": related_changes.count(),
             },
         )
 

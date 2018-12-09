@@ -1,0 +1,13 @@
+{% extends '_base.html' %}
+{% load render_table from django_tables2 %}
+{% block content %}
+      <h1>{% block title %}Changelog{% endblock %}</h1>
+      <div class="row">
+        <div class="col-md-9">
+          {% include 'utils/object_list.html' %}
+        </div>
+        <div class="col-md-3">
+          {% include 'utils/search_form.html' %}
+        </div>
+      </div>
+{% endblock %}

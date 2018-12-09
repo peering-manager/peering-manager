@@ -1,115 +1,110 @@
+import json
+
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import JSONField
+from django.core.serializers import serialize
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 
-
-# User Actions Constants
-USER_ACTION_CREATE = 1
-USER_ACTION_EDIT = 2
-USER_ACTION_DELETE = 3
-USER_ACTION_IMPORT = 4
-USER_ACTION_BULK_DELETE = 5
-USER_ACTION_BULK_EDIT = 6
-USER_ACTION_CHOICES = (
-    (USER_ACTION_CREATE, "created"),
-    (USER_ACTION_EDIT, "modified"),
-    (USER_ACTION_DELETE, "deleted"),
-    (USER_ACTION_IMPORT, "imported"),
-    (USER_ACTION_BULK_DELETE, "bulk deleted"),
-    (USER_ACTION_BULK_EDIT, "bulk modified"),
-)
+from .constants import *
+from .templatetags.helpers import title_with_uppers
 
 
-class CreatedUpdatedModel(models.Model):
+class ChangeLoggedModel(models.Model):
     """
-    Abstract class providing a field tracking the last update of a model.
+    Abstract class providing fields and functions to log changes made to a model.
     """
 
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    updated = models.DateTimeField(auto_now=True, blank=True, null=True)
 
     class Meta:
         abstract = True
 
+    def serialize(self):
+        """
+        Return a JSON representation of an object using Django's built-in serializer.
+        """
+        return json.loads(serialize("json", [self]))[0]["fields"]
 
-class UserActionManager(models.Manager):
-    """
-    Manager for UserAction model.
-    """
-
-    def log_action(self, user, obj, action, message):
-        self.model.objects.create(
-            content_type=ContentType.objects.get_for_model(obj),
-            object_id=obj.id,
+    def log_change(self, user, request_id, action):
+        """
+        Create a new ObjectChange representing a change made to this object.
+        """
+        ObjectChange(
             user=user,
+            request_id=request_id,
+            changed_object=self,
             action=action,
-            message=message,
-        )
-
-    def log_bulk_action(self, user, obj_type, action, message):
-        self.model.objects.create(
-            content_type=ContentType.objects.get_for_model(obj_type),
-            user=user,
-            action=action,
-            message=message,
-        )
-
-    def log_bulk_delete(self, user, obj_type, message):
-        self.log_bulk_action(user, obj_type, USER_ACTION_BULK_DELETE, message)
-
-    def log_bulk_edit(self, user, obj_type, message):
-        self.log_bulk_action(user, obj_type, USER_ACTION_BULK_EDIT, message)
-
-    def log_create(self, user, obj, message):
-        self.log_action(user, obj, USER_ACTION_CREATE, message)
-
-    def log_delete(self, user, obj, message):
-        self.log_action(user, obj, USER_ACTION_DELETE, message)
-
-    def log_edit(self, user, obj, message):
-        self.log_action(user, obj, USER_ACTION_EDIT, message)
-
-    def log_import(self, user, obj_type, message):
-        self.log_bulk_action(user, obj_type, USER_ACTION_IMPORT, message)
+            object_data=self.serialize(),
+        ).save()
 
 
-class UserAction(models.Model):
+class ObjectChange(models.Model):
     """
-    A record of a user action (add/edit/delete/import).
+    Record a change done to an object and the user who did it.
     """
 
     time = models.DateTimeField(auto_now_add=True, editable=False)
-    user = models.ForeignKey(User, related_name="actions", on_delete=models.CASCADE)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField(blank=True, null=True)
-    action = models.PositiveSmallIntegerField(choices=USER_ACTION_CHOICES)
-    message = models.TextField(blank=True)
-
-    objects = UserActionManager()
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.SET_NULL,
+        related_name="changes",
+        blank=True,
+        null=True,
+    )
+    user_name = models.CharField(max_length=150, editable=False)
+    request_id = models.UUIDField(editable=False)
+    action = models.PositiveSmallIntegerField(choices=OBJECT_CHANGE_ACTION_CHOICES)
+    changed_object_type = models.ForeignKey(
+        to=ContentType, on_delete=models.PROTECT, related_name="+"
+    )
+    changed_object_id = models.PositiveIntegerField()
+    changed_object = GenericForeignKey(
+        ct_field="changed_object_type", fk_field="changed_object_id"
+    )
+    related_object_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.PROTECT,
+        related_name="+",
+        blank=True,
+        null=True,
+    )
+    related_object_id = models.PositiveIntegerField(blank=True, null=True)
+    related_object = GenericForeignKey(
+        ct_field="related_object_type", fk_field="related_object_id"
+    )
+    object_repr = models.CharField(max_length=256, editable=False)
+    object_data = JSONField(editable=False)
 
     class Meta:
         ordering = ["-time"]
 
-    def get_icon(self):
-        """
-        Return an HTML element based on the user action.
-        """
-        if self.action in [USER_ACTION_CREATE, USER_ACTION_IMPORT]:
+    def save(self, *args, **kwargs):
+        self.user_name = self.user.username
+        self.object_repr = str(self.changed_object)
+
+        return super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse("utils:object_change_details", kwargs={"pk": self.pk})
+
+    def get_html_icon(self):
+        if self.action == OBJECT_CHANGE_ACTION_CREATE:
             return mark_safe('<i class="fas fa-plus-square text-success"></i>')
-
-        if self.action in [USER_ACTION_EDIT, USER_ACTION_BULK_EDIT]:
+        if self.action == OBJECT_CHANGE_ACTION_UPDATE:
             return mark_safe('<i class="fas fa-pen-square text-warning"></i>')
-
-        if self.action in [USER_ACTION_DELETE, USER_ACTION_BULK_DELETE]:
+        if self.action == OBJECT_CHANGE_ACTION_DELETE:
             return mark_safe('<i class="fas fa-minus-square text-danger"></i>')
-
-        return ""
+        return mark_safe('<i class="fas fa-question-circle text-secondary"></i>')
 
     def __str__(self):
-        if self.message:
-            return "{} {}".format(self.user, self.message)
-
-        return "{} {} {}".format(
-            self.user, self.get_action_display(), self.content_type
+        return "{} {} {} by {}".format(
+            title_with_uppers(self.changed_object_type),
+            self.object_repr,
+            self.get_action_display().lower(),
+            self.user_name,
         )
