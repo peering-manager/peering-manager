@@ -8,7 +8,7 @@ urlpatterns = [
     url(r"^changelog/$", views.ObjectChangeList.as_view(), name="object_change_list"),
     url(
         r"^changelog/(?P<pk>\d+)/$",
-        views.ObjectChangeView.as_view(),
+        views.ObjectChangeDetails.as_view(),
         name="object_change_details",
     ),
 ]

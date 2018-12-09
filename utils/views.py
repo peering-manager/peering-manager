@@ -809,7 +809,7 @@ class ObjectChangeList(ModelListView):
     template = "utils/object_change/list.html"
 
 
-class ObjectChangeView(View):
+class ObjectChangeDetails(View):
     def get(self, request, pk):
         object_change = get_object_or_404(ObjectChange, pk=pk)
 
