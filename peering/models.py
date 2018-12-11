@@ -117,7 +117,7 @@ class AutonomousSystem(ChangeLoggedModel):
         """
         # Get common IX networks between us and this AS
         common = PeeringDB().get_common_ix_networks_for_asns(settings.MY_ASN, self.asn)
-        return InternetExchange.objects.all().filter(
+        return InternetExchange.objects.filter(
             peeringdb_id__in=[us.id for us, _ in common]
         )
 
@@ -565,18 +565,14 @@ class InternetExchange(ChangeLoggedModel):
 
         # Find all peers belonging to the same IX and order them by ASN
         # Exclude our own ASN and already existing sessions
-        return (
-            PeerRecord.objects.all()
-            .filter(
-                Q(network_ixlan__ix_id=network_ixlan.ixlan_id)
-                & ~Q(network__asn=settings.MY_ASN)
-                & (
-                    ~Q(network_ixlan__ipaddr6__in=ipv6_sessions)
-                    | ~Q(network_ixlan__ipaddr4__in=ipv4_sessions)
-                )
+        return PeerRecord.objects.filter(
+            Q(network_ixlan__ixlan_id=network_ixlan.ixlan_id)
+            & ~Q(network__asn=settings.MY_ASN)
+            & (
+                ~Q(network_ixlan__ipaddr6__in=ipv6_sessions)
+                | ~Q(network_ixlan__ipaddr4__in=ipv4_sessions)
             )
-            .order_by("network__asn")
-        )
+        ).order_by("network__asn")
 
     def _import_peering_sessions(self, sessions=[], prefixes=[]):
         # No sessions or no prefixes, can't work with that
