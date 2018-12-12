@@ -126,7 +126,7 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
         # Try to import an object with valid data
         as_to_import = {
             "csv": """asn,name,irr_as_set,ipv6_max_prefixes,ipv4_max_prefixes,comment
-                      64500,as-created,,,,"""
+                      64500,as-created,,0,0,"""
         }
         self.post_request("peering:autonomous_system_import", data=as_to_import)
         self.does_object_exist({"asn": 64500})
