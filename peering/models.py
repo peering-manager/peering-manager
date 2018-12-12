@@ -769,13 +769,13 @@ class InternetExchange(ChangeLoggedModel):
                                 state,
                             )
 
-                            # Update the BGP state of the session
-                            if peering_session.bgp_state == BGP_STATE_ESTABLISHED:
-                                peering_session.last_established_state = timezone.now()
-
+                            # Update fields
                             peering_session.bgp_state = state
                             peering_session.received_prefix_count = received
                             peering_session.advertised_prefix_count = advertised
+                            # Update the BGP state of the session
+                            if peering_session.bgp_state == BGP_STATE_ESTABLISHED:
+                                peering_session.last_established_state = timezone.now()
                             peering_session.save()
                         else:
                             self.logger.debug(

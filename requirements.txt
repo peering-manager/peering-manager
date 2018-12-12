@@ -7,4 +7,4 @@ MarkupSafe==1.1.0
 psycopg2-binary==2.7.6.1
 py-gfm==0.1.4
 pytz==2018.7
-requests==2.20.1
+requests==2.21.0
