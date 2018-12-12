@@ -47,9 +47,9 @@ class AutonomousSystem(ChangeLoggedModel):
     comment = models.TextField(blank=True)
     irr_as_set = models.CharField(max_length=255, blank=True, null=True)
     irr_as_set_peeringdb_sync = models.BooleanField(default=True)
-    ipv6_max_prefixes = models.PositiveIntegerField(blank=True, null=True)
+    ipv6_max_prefixes = models.PositiveIntegerField(blank=True, default=0)
     ipv6_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
-    ipv4_max_prefixes = models.PositiveIntegerField(blank=True, null=True)
+    ipv4_max_prefixes = models.PositiveIntegerField(blank=True, default=0)
     ipv4_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
 
     class Meta:
@@ -229,8 +229,8 @@ class BGPSession(ChangeLoggedModel):
     bgp_state = models.CharField(
         max_length=50, choices=BGP_STATE_CHOICES, blank=True, null=True
     )
-    received_prefix_count = models.PositiveIntegerField(blank=True, null=True)
-    advertised_prefix_count = models.PositiveIntegerField(blank=True, null=True)
+    received_prefix_count = models.PositiveIntegerField(blank=True, default=0)
+    advertised_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     last_established_state = models.DateTimeField(blank=True, null=True)
     comment = models.TextField(blank=True)
 
@@ -369,7 +369,7 @@ class DirectPeeringSession(BGPSession):
 
 
 class InternetExchange(ChangeLoggedModel):
-    peeringdb_id = models.PositiveIntegerField(blank=True, null=True)
+    peeringdb_id = models.PositiveIntegerField(blank=True, default=0)
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True)
     ipv6_address = models.GenericIPAddressField(blank=True, null=True)
@@ -930,7 +930,7 @@ class Router(ChangeLoggedModel):
         help_text="The router platform, used to interact with it",
     )
     comment = models.TextField(blank=True)
-    netbox_device_id = models.PositiveIntegerField(default=0, blank=True)
+    netbox_device_id = models.PositiveIntegerField(blank=True, default=0)
 
     logger = logging.getLogger("peering.manager.napalm")
 

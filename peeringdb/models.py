@@ -9,8 +9,8 @@ class Network(models.Model):
     asn = ASNField(unique=True)
     name = models.CharField(max_length=255)
     irr_as_set = models.CharField(max_length=255, blank=True, null=True)
-    info_prefixes6 = models.PositiveIntegerField(blank=True, null=True)
-    info_prefixes4 = models.PositiveIntegerField(blank=True, null=True)
+    info_prefixes6 = models.PositiveIntegerField(blank=True, default=0)
+    info_prefixes4 = models.PositiveIntegerField(blank=True, default=0)
 
     class Meta:
         ordering = ["asn"]
