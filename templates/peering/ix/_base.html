@@ -7,6 +7,12 @@
         <small>* This message will not disappear until you fixed the issue.</small>
       </div>
       {% endif %}
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'peering:internet_exchange_list' %}">Internet Exchanges</a></li>
+          <li class="breadcrumb-item active" aria-current="page">{{ internet_exchange }}</li>
+        </ol>
+      </nav>
       <div class="float-right">
         {% if perms.peering.change_internetexchange %}
         <a href="{% url 'peering:internet_exchange_edit' slug=internet_exchange.slug %}" class="btn btn-warning">
