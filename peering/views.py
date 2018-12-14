@@ -879,14 +879,14 @@ class InternetExchangePeeringSessionList(ModelListView):
     table = InternetExchangePeeringSessionTable
     filter = InternetExchangePeeringSessionFilter
     filter_form = InternetExchangePeeringSessionFilterForm
-    template = "peering/session/list.html"
+    template = "peering/session/internet_exchange/list.html"
 
 
 class InternetExchangePeeringSessionAdd(PermissionRequiredMixin, AddOrEditView):
     permission_required = "peering.add_internetexchangepeeringsession"
     model = InternetExchangePeeringSession
     form = InternetExchangePeeringSessionForm
-    template = "peering/session/add_edit.html"
+    template = "peering/session/internet_exchange/add_edit.html"
 
     def get_object(self, kwargs):
         if "pk" in kwargs:
@@ -921,14 +921,16 @@ class InternetExchangePeeringSessionDetails(View):
     def get(self, request, pk):
         peering_session = get_object_or_404(InternetExchangePeeringSession, pk=pk)
         context = {"peering_session": peering_session}
-        return render(request, "peering/session/details.html", context)
+        return render(
+            request, "peering/session/internet_exchange/details.html", context
+        )
 
 
 class InternetExchangePeeringSessionEdit(PermissionRequiredMixin, AddOrEditView):
     permission_required = "peering.change_internetexchangepeeringsession"
     model = InternetExchangePeeringSession
     form = InternetExchangePeeringSessionForm
-    template = "peering/session/add_edit.html"
+    template = "peering/session/internet_exchange/add_edit.html"
 
 
 class InternetExchangePeeringSessionDelete(PermissionRequiredMixin, DeleteView):
@@ -946,7 +948,7 @@ class InternetExchangePeeringSessionAddFromPeeringDB(
     model = InternetExchangePeeringSession
     dependency_model = PeerRecord
     form_model = InternetExchangePeeringSessionForm
-    template = "peering/session/add_from_peeringdb.html"
+    template = "peering/session/internet_exchange/add_from_peeringdb.html"
 
     def process_dependency_object(self, dependency):
         session6, created6 = InternetExchangePeeringSession.get_from_peeringdb_peer_record(
