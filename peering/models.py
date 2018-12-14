@@ -1059,7 +1059,7 @@ class Router(ChangeLoggedModel):
         know if the changes must be commited or discarded. The default value is
         False which means that the changes will be discarded.
         """
-        changes = None
+        error = changes = None
 
         device = self.get_napalm_device()
         opened = self.open_napalm_device(device)
@@ -1087,15 +1087,17 @@ class Router(ChangeLoggedModel):
                     self.logger.debug("discarding configuration on %s", self.hostname)
                     device.discard_config()
             except napalm.base.exceptions.MergeConfigException as e:
-                changes = None
-                self.logger.debug(
-                    'unable to merge configuration on %s reason "%s"', self.hostname, e
+                error = 'unable to merge configuration on {} reason "{}"'.format(
+                    self.hostname, e
                 )
+                changes = None
+                self.logger.debug(error)
             except Exception as e:
-                changes = None
-                self.logger.debug(
-                    'unable to merge configuration on %s error "%s"', self.hostname, e
+                error = 'unable to merge configuration on {} reason "{}"'.format(
+                    self.hostname, e
                 )
+                changes = None
+                self.logger.debug(error)
             else:
                 self.logger.debug(
                     "successfully merged configuration on %s", self.hostname
@@ -1106,8 +1108,10 @@ class Router(ChangeLoggedModel):
                     self.logger.debug(
                         "error while closing connection with %s", self.hostname
                     )
+        else:
+            error = "Unable to connect to {}".format(self.hostname)
 
-        return changes
+        return error, changes
 
     def _napalm_bgp_neighbors_to_peer_list(self, napalm_dict):
         bgp_peers = []

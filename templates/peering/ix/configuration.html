@@ -68,13 +68,19 @@
           }
         }).done(function(response) {
           var data = JSON.parse(response);
-          if (data['changed']) {
-            $('.modal-body').html('<pre class="pre-scrollable">' + data['changes'] + '</pre>');
-            $('.modal').modal('show');
-          } else {
-            $('.modal-body').html('<p>No configuration differences found.</p><p>The router may be up-to-date, unreachable or the configuration may also be locked by another user.</p><p>You can find more details in the <code>logs/napalm.log</code> logs file.</p>');
+          if (data['error']) {
+            $('.modal-body').html('<p>An error occured while trying to check for changes.</p><p>The router may be unreachable, the configuration may be locked by another user or the configuration may be invalid.</p><p>You can find more details in the <code>logs/napalm.log</code> logs file or below.</p><pre class="pre-scrollable">' + data['error'] + '</pre>');
             $('#save-config').hide();
             $('.modal').modal('show');
+          } else {
+            if (data['changed']) {
+              $('.modal-body').html('<pre class="pre-scrollable">' + data['changes'] + '</pre>');
+              $('.modal').modal('show');
+            } else {
+              $('.modal-body').html('<p>No configuration differences found.</p>');
+              $('#save-config').hide();
+              $('.modal').modal('show');
+            }
           }
         });
       });
