@@ -70,8 +70,8 @@ class Home(View):
             "communities_count": Community.objects.count(),
             "templates_count": ConfigurationTemplate.objects.count(),
             "routers_count": Router.objects.count(),
-            "peering_sessions_count": DirectPeeringSession.objects.count()
-            + InternetExchangePeeringSession.objects.count(),
+            "direct_peering_sessions_count": DirectPeeringSession.objects.count(),
+            "internet_exchange_peering_sessions_count": InternetExchangePeeringSession.objects.count(),
             "routing_policies_count": RoutingPolicy.objects.count(),
         }
         context = {

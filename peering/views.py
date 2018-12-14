@@ -459,6 +459,14 @@ class DirectPeeringSessionEnable(PermissionRequiredMixin, View):
         return redirect(peering_session.get_absolute_url())
 
 
+class DirectPeeringSessionList(ModelListView):
+    queryset = DirectPeeringSession.objects.order_by("autonomous_system")
+    table = DirectPeeringSessionTable
+    filter = DirectPeeringSessionFilter
+    filter_form = DirectPeeringSessionFilterForm
+    template = "peering/session/direct/list.html"
+
+
 class DirectPeeringSessionUpdateRoutingPolicies(PermissionRequiredMixin, AddOrEditView):
     permission_required = "peering.change_directpeeringsession"
     model = DirectPeeringSession

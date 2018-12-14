@@ -63,11 +63,11 @@
               <p class="list-group-item-textn text-muted">Internet exchanges that local AS is connected to<p>
             </div>
             <div class="list-group-item">
-              <span class="badge badge-pill badge-secondary float-right">{{ statistics.peering_sessions_count }}</span>
-              <h4 class="list-group-item-heading">
-                <a href="{% url 'peering:internet_exchange_peering_session_list' %}">Peering Sessions</a>
-              </h4>
-              <p class="list-group-item-textn text-muted">Peering sessions with other autonomous systems<p>
+              <h4 class="list-group-item-heading">Peering Sessions</h4>
+              <span class="badge badge-pill badge-secondary float-right">{{ statistics.direct_peering_sessions_count }}</span>
+              <p style="padding-left: 20px;"><a href="{% url 'peering:direct_peering_session_list' %}">Direct</a></p>
+              <span class="badge badge-pill badge-secondary float-right">{{ statistics.internet_exchange_peering_sessions_count }}</span>
+              <p style="padding-left: 20px;"><a href="{% url 'peering:internet_exchange_peering_session_list' %}">Internet Exchange</a></p>
             </div>
           </div>
         </div>

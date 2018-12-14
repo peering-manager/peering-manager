@@ -124,6 +124,11 @@ urlpatterns = [
     ),
     # Direct Peering Sessions
     url(
+        r"^direct-peering-sessions/$",
+        views.DirectPeeringSessionList.as_view(),
+        name="direct_peering_session_list",
+    ),
+    url(
         r"^direct-peering-sessions/(?P<pk>[0-9]+)/$",
         views.DirectPeeringSessionDetails.as_view(),
         name="direct_peering_session_details",
