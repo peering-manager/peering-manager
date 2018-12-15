@@ -172,12 +172,12 @@ class InternetExchangePeeringSessionTable(BaseTable):
     internet_exchange = tables.RelatedLinkColumn(
         verbose_name="IX Name", accessor="internet_exchange"
     )
-    ip_address = tables.Column(verbose_name="IP Address")
+    ip_address = tables.LinkColumn(verbose_name="IP Address")
     enabled = tables.TemplateColumn(
         verbose_name="Status", template_code=BGPSESSION_STATUS
     )
     actions = ActionsColumn(
-        template_code='<div class="float-right"><a href="{% url \'peering:internet_exchange_peering_session_details\' pk=record.pk %}" class="btn btn-sm btn-info"><i class="fas fa-info-circle"></i> Details</a> <a href="{% url \'peering:internet_exchange_peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a></div>'
+        template_code='<div class="float-right"><a href="{% url \'peering:internet_exchange_peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a></div>'
     )
 
     class Meta(BaseTable.Meta):
@@ -205,13 +205,13 @@ class InternetExchangePeeringSessionTableForIX(BaseTable):
         accessor="autonomous_system",
         text=lambda record: record.autonomous_system.name,
     )
-    ip_address = tables.Column(verbose_name="IP Address")
+    ip_address = tables.LinkColumn(verbose_name="IP Address")
     enabled = tables.TemplateColumn(
         verbose_name="Status", template_code=BGPSESSION_STATUS
     )
     session_state = BGPSessionStateColumn(accessor="bgp_state")
     actions = ActionsColumn(
-        template_code='<div class="float-right"><a href="{% url \'peering:internet_exchange_peering_session_details\' pk=record.pk %}" class="btn btn-sm btn-info"><i class="fas fa-info-circle"></i> Details</a> <a href="{% url \'peering:internet_exchange_peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a></div>'
+        template_code='<div class="float-right"><a href="{% url \'peering:internet_exchange_peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a></div>'
     )
 
     class Meta(BaseTable.Meta):
@@ -233,24 +233,24 @@ class InternetExchangePeeringSessionTableForAS(BaseTable):
     """
 
     pk = SelectColumn()
-    ip_address = tables.Column(verbose_name="IP Address")
     internet_exchange = tables.RelatedLinkColumn(
         verbose_name="Internet Exchange", accessor="internet_exchange"
     )
+    ip_address = tables.LinkColumn(verbose_name="IP Address")
     enabled = tables.TemplateColumn(
         verbose_name="Status", template_code=BGPSESSION_STATUS
     )
     session_state = BGPSessionStateColumn(accessor="bgp_state")
     actions = ActionsColumn(
-        template_code='<div class="float-right"><a href="{% url \'peering:internet_exchange_peering_session_details\' pk=record.pk %}" class="btn btn-sm btn-info"><i class="fas fa-info-circle"></i> Details</a> <a href="{% url \'peering:internet_exchange_peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a></div>'
+        template_code='<div class="float-right"><a href="{% url \'peering:internet_exchange_peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a></div>'
     )
 
     class Meta(BaseTable.Meta):
         model = InternetExchangePeeringSession
         fields = (
             "pk",
-            "ip_address",
             "internet_exchange",
+            "ip_address",
             "enabled",
             "session_state",
             "actions",
