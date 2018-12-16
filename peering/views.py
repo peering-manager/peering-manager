@@ -1199,12 +1199,7 @@ class RoutingPolicyBulkEdit(PermissionRequiredMixin, BulkEditView):
 class AsyncRouterPing(View):
     def get(self, request, router_id):
         router = get_object_or_404(Router, id=router_id)
-
-        return HttpResponse(
-            json.dumps(
-                {"status": "success" if router.test_napalm_connection() else "error"}
-            )
-        )
+        return HttpResponse(json.dumps({"success": router.test_napalm_connection()}))
 
 
 class AsyncRouterDiff(View):

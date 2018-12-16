@@ -1032,21 +1032,24 @@ class Router(ChangeLoggedModel):
         This method returns True only if the connection opening and closing are
         both successful.
         """
+        opened = alive = closed = False
         device = self.get_napalm_device()
 
         # Open and close the test_napalm_connection
         self.logger.debug("testing connection with %s", self.hostname)
         opened = self.open_napalm_device(device)
-        alive = device.is_alive()
-        closed = self.close_napalm_device(device)
+        if opened:
+            alive = device.is_alive()
+            if alive:
+                closed = self.close_napalm_device(device)
 
         # Issue while opening or closing the connection
         if not opened or not closed or not alive:
             self.logger.error(
-                "cannot connect to % s, napalm functions won't work", self.hostname
+                "cannot connect to %s, napalm functions won't work", self.hostname
             )
 
-        return opened and closed
+        return opened and closed and alive
 
     def set_napalm_configuration(self, config, commit=False):
         """
@@ -1130,8 +1133,6 @@ class Router(ChangeLoggedModel):
             # For each peer handle its IP address and the needed details
             for ip, details in peers.items():
                 if "remote_as" not in details:
-                    # See NAPALM issue #659
-                    # https://github.com/napalm-automation/napalm/issues/659
                     self.logger.debug(
                         "ignored bgp neighbor %s in %s vrf on %s",
                         ip,
