@@ -4,9 +4,10 @@
   {% if field|widget_type == 'textarea' %}
   {{ field }}
   {% if bulk_nullable %}
-  <label class="checkbox-inline">
-    <input type="checkbox" name="_nullify" value="{{ field.name }}" /> Set null
-  </label>
+  <div class="form-check form-check-inline">
+    <input class="form-check-input" type="checkbox" id="set_null_checkbox" name="_nullify" value="{{ field.name }}">
+    <label class="form-check-label" for="set_null_checkbox">Set null</label>
+  </div>
   {% endif %}
   {% if field.help_text %}
   <small class="form-text text-muted">{{ field.help_text|safe }}</small>
@@ -31,9 +32,10 @@
     {% else %}
     {{ field }}
     {% if bulk_nullable %}
-    <label class="checkbox-inline">
-      <input type="checkbox" name="_nullify" value="{{ field.name }}" /> Set null
-    </label>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="checkbox" id="set_null_checkbox" name="_nullify" value="{{ field.name }}">
+      <label class="form-check-label" for="set_null_checkbox">Set null</label>
+    </div>
     {% endif %}
     {% endif %}
     {% if field.help_text %}

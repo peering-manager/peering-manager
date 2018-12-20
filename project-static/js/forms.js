@@ -27,8 +27,8 @@ $(document).ready(function() {
 
   // Show/Hide password in a password input field
   $('#id_password_reveal').click(function() {
-    input_type = $('#id_password').attr('type');
-    if (input_type == 'password') {
+    inputType = $('#id_password').attr('type');
+    if (inputType == 'password') {
       $('#id_password').attr('type', 'text');
       $(this).html('<i class="fas fa-eye-slash"></i> Hide');
     } else {
@@ -67,6 +67,10 @@ $(document).ready(function() {
 
   // Disable field when clicking on the "Set null" checkbox
   $('input:checkbox[name=_nullify]').click(function() {
-      $('#id_' + this.value).toggle('disabled');
+      var elementToHide = $('#id_' + this.value);
+      if (elementToHide.is('select')) {
+        elementToHide = elementToHide.parent();
+      }
+      elementToHide.toggle('disabled');
   });
 });

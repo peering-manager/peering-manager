@@ -58,6 +58,7 @@ class BaseTable(tables.Table):
     """
 
     def __init__(self, *args, **kwargs):
+        hidden_columns = kwargs.pop("hidden_columns", [])
         super().__init__(*args, **kwargs)
 
         # Set default empty_text if none was provided
@@ -65,6 +66,11 @@ class BaseTable(tables.Table):
             self.empty_text = "No {} found.".format(
                 self._meta.model._meta.verbose_name_plural
             )
+
+        # Hide columns that should not show up
+        for column_to_hide in hidden_columns:
+            if column_to_hide in self.base_columns:
+                self.columns.hide(column_to_hide)
 
     class Meta:
         attrs = {"class": "table table-sm table-hover table-headings"}

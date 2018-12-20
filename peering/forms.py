@@ -28,6 +28,7 @@ from utils.forms import (
     FilterChoiceField,
     PasswordField,
     SlugField,
+    SmallText,
     YesNoField,
     add_blank_choice,
 )
@@ -171,7 +172,10 @@ class CommunityBulkEditForm(BootstrapMixin, BulkEditForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(COMMUNITY_TYPE_CHOICES), required=False
     )
-    comment = CommentField()
+    comment = CommentField(widget=SmallText)
+
+    class Meta:
+        nullable_fields = ["comment"]
 
 
 class CommunityCSVForm(BootstrapMixin, forms.ModelForm):
@@ -397,7 +401,10 @@ class InternetExchangeBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False, queryset=ConfigurationTemplate.objects.all()
     )
     router = forms.ModelChoiceField(required=False, queryset=Router.objects.all())
-    comment = CommentField()
+    comment = CommentField(widget=SmallText)
+
+    class Meta:
+        nullable_fields = ["configuration_template", "router", "comment"]
 
 
 class InternetExchangePeeringDBForm(BootstrapMixin, forms.ModelForm):
@@ -585,7 +592,10 @@ class InternetExchangePeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
     )
-    comment = CommentField()
+    comment = CommentField(widget=SmallText)
+
+    class Meta:
+        nullable_fields = ["comment"]
 
 
 class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
@@ -758,7 +768,10 @@ class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
     platform = forms.ChoiceField(
         choices=add_blank_choice(PLATFORM_CHOICES), required=False
     )
-    comment = CommentField()
+    comment = CommentField(widget=SmallText)
+
+    class Meta:
+        nullable_fields = ["comment"]
 
 
 class RouterCSVForm(BootstrapMixin, forms.ModelForm):
@@ -802,7 +815,10 @@ class RoutingPolicyBulkEditForm(BootstrapMixin, BulkEditForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ROUTING_POLICY_TYPE_CHOICES), required=False
     )
-    comment = CommentField()
+    comment = CommentField(widget=SmallText)
+
+    class Meta:
+        nullable_fields = ["comment"]
 
 
 class RoutingPolicyCSVForm(BootstrapMixin, forms.ModelForm):
