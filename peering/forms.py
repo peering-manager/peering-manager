@@ -28,47 +28,40 @@ from utils.forms import (
     FilterChoiceField,
     PasswordField,
     SlugField,
-    SmallText,
+    SmallTextarea,
+    TextareaField,
     YesNoField,
     add_blank_choice,
 )
 
 
-class CommentField(forms.CharField):
+class CommentField(TextareaField):
     """
-    A textarea with support for GitHub-Flavored Markdown. Exists mostly just to
-    add a standard help_text.
+    A textarea with support for GitHub-Flavored Markdown. Note that it does not
+    actually do anything special. It just here to add a help text.
     """
-
-    widget = forms.Textarea
-    default_label = "Comments"
-    default_helptext = '<i class="fab fa-markdown"></i> <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">GitHub-Flavored Markdown</a> syntax is supported'
 
     def __init__(self, *args, **kwargs):
-        required = kwargs.pop("required", False)
-        label = kwargs.pop("label", self.default_label)
-        help_text = kwargs.pop("help_text", self.default_helptext)
         super().__init__(
-            required=required, label=label, help_text=help_text, *args, **kwargs
+            label="Comments",
+            help_text='<i class="fab fa-markdown"></i> <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">GitHub-Flavored Markdown</a> syntax is supported',
+            *args,
+            **kwargs
         )
 
 
 class TemplateField(forms.CharField):
     """
-    A textarea dedicated for template. Exists mostly just to add a standard
-    help_text.
+    A textarea dedicated for template. Note that it does not actually do anything
+    special. It just here to add a help text.
     """
 
-    widget = forms.Textarea
-    default_label = "Template"
-    default_helptext = '<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/config-template/#configuration-template" target="_blank">Jinja2 template</a> syntax is supported'
-
     def __init__(self, *args, **kwargs):
-        required = kwargs.pop("required", False)
-        label = kwargs.pop("label", self.default_label)
-        help_text = kwargs.pop("help_text", self.default_helptext)
         super().__init__(
-            required=required, label=label, help_text=help_text, *args, **kwargs
+            label="Template",
+            help_text='<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/config-template/#configuration-template" target="_blank">Jinja2 template</a> syntax is supported',
+            *args,
+            **kwargs
         )
 
 
@@ -172,7 +165,7 @@ class CommunityBulkEditForm(BootstrapMixin, BulkEditForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(COMMUNITY_TYPE_CHOICES), required=False
     )
-    comment = CommentField(widget=SmallText)
+    comment = CommentField(widget=SmallTextarea)
 
     class Meta:
         nullable_fields = ["comment"]
@@ -401,7 +394,7 @@ class InternetExchangeBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False, queryset=ConfigurationTemplate.objects.all()
     )
     router = forms.ModelChoiceField(required=False, queryset=Router.objects.all())
-    comment = CommentField(widget=SmallText)
+    comment = CommentField(widget=SmallTextarea)
 
     class Meta:
         nullable_fields = ["configuration_template", "router", "comment"]
@@ -592,7 +585,7 @@ class InternetExchangePeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
     )
-    comment = CommentField(widget=SmallText)
+    comment = CommentField(widget=SmallTextarea)
 
     class Meta:
         nullable_fields = ["comment"]
@@ -768,7 +761,7 @@ class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
     platform = forms.ChoiceField(
         choices=add_blank_choice(PLATFORM_CHOICES), required=False
     )
-    comment = CommentField(widget=SmallText)
+    comment = CommentField(widget=SmallTextarea)
 
     class Meta:
         nullable_fields = ["comment"]
@@ -815,7 +808,7 @@ class RoutingPolicyBulkEditForm(BootstrapMixin, BulkEditForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ROUTING_POLICY_TYPE_CHOICES), required=False
     )
-    comment = CommentField(widget=SmallText)
+    comment = CommentField(widget=SmallTextarea)
 
     class Meta:
         nullable_fields = ["comment"]

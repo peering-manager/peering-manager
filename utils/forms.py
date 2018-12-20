@@ -223,12 +223,25 @@ class SlugField(forms.SlugField):
         self.widget.attrs["slug-source"] = slug_source
 
 
-class SmallText(forms.Textarea):
+class SmallTextarea(forms.Textarea):
     """
     Just to be used as small text area.
     """
 
     pass
+
+
+class TextareaField(forms.CharField):
+    """
+    A textarea with support for GitHub-Flavored Markdown. Exists mostly just to
+    add a standard help_text.
+    """
+
+    widget = forms.Textarea
+
+    def __init__(self, *args, **kwargs):
+        required = kwargs.pop("required", False)
+        super().__init__(required=required, *args, **kwargs)
 
 
 class YesNoField(forms.BooleanField):
