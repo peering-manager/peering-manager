@@ -50,7 +50,7 @@ class CommentField(TextareaField):
         )
 
 
-class TemplateField(forms.CharField):
+class TemplateField(TextareaField):
     """
     A textarea dedicated for template. Note that it does not actually do anything
     special. It just here to add a help text.
