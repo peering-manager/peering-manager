@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+  db:
+    image: postgres:9.6-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: peering_manager
+    ports:
+      - 5432
+
+  peeringmanager:
+    build: .
+    command: python /peering-manager/manage.py test
+    depends_on:
+      - db
+
+
+volumes:
+  postgres_data:
