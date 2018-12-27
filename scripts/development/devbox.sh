@@ -5,6 +5,6 @@
 [[ -x "$(which docker-compose)" ]] || (echo "docker-compose is required" && exit 2)
 
 # bring the dev stack up (postgresql and adminer)
-$(which docker-compose) -f dev-stack.yml up
+$(which docker-compose) -f dev-stack.yml up ${@}
 
 exit 0
