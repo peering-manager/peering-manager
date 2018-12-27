@@ -35,9 +35,6 @@ The best way to start setting up this tool is to use **pip** within a
 Please see the [documentation](https://peering-manager.readthedocs.io/) for
 instructions on installing Peering Manager.
 
-No database setup is provided for now. This code has only been tested with an
-SQLite database.
-
 ## Helping
 
 You can help this project in many ways. Of course you can ask for features,
