@@ -11,30 +11,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from .constants import (
-    BGP_RELATIONSHIP_CHOICES,
-    BGP_RELATIONSHIP_CUSTOMER,
-    BGP_RELATIONSHIP_PRIVATE_PEERING,
-    BGP_RELATIONSHIP_TRANSIT_PROVIDER,
-    BGP_STATE_CHOICES,
-    BGP_STATE_IDLE,
-    BGP_STATE_CONNECT,
-    BGP_STATE_ACTIVE,
-    BGP_STATE_OPENSENT,
-    BGP_STATE_OPENCONFIRM,
-    BGP_STATE_ESTABLISHED,
-    COMMUNITY_TYPE_CHOICES,
-    COMMUNITY_TYPE_EGRESS,
-    COMMUNITY_TYPE_INGRESS,
-    PLATFORM_CHOICES,
-    PLATFORM_EOS,
-    PLATFORM_IOS,
-    PLATFORM_IOSXR,
-    PLATFORM_JUNOS,
-    ROUTING_POLICY_TYPE_CHOICES,
-    ROUTING_POLICY_TYPE_EXPORT,
-    ROUTING_POLICY_TYPE_IMPORT,
-)
+from .constants import *
 from .fields import ASNField, CommunityField
 from peeringdb.api import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
@@ -133,42 +110,62 @@ class AutonomousSystem(ChangeLoggedModel):
 
         # Get common IX networks between us and this AS
         common = PeeringDB().get_common_ix_networks_for_asns(settings.MY_ASN, self.asn)
-
-        # Divide sessions based on the IP versions
-        ipv6_sessions = []
-        ipv4_sessions = []
+        missing_peering_sessions = []
 
         # For each common networks take a look at it
         for us, peer in common:
             # We only care about networks matching the IX we want
             if us.id == internet_exchange.peeringdb_id:
-                # Check on the IPv6 address
+                peering_sessions = []
+
                 if peer.ipaddr6:
                     try:
-                        ip_address = ipaddress.IPv6Address(peer.ipaddr6)
-                        if not InternetExchangePeeringSession.does_exist(
-                            internet_exchange=internet_exchange,
-                            autonomous_system=self,
-                            ip_address=str(ip_address),
-                        ):
-                            ipv6_sessions.append(ip_address)
+                        peering_sessions.append(
+                            str(ipaddress.IPv6Address(peer.ipaddr6))
+                        )
                     except ipaddress.AddressValueError:
                         continue
-
-                # Check on the IPv4 address
                 if peer.ipaddr4:
                     try:
-                        ip_address = ipaddress.IPv4Address(peer.ipaddr4)
-                        if not InternetExchangePeeringSession.does_exist(
-                            internet_exchange=internet_exchange,
-                            autonomous_system=self,
-                            ip_address=str(ip_address),
-                        ):
-                            ipv4_sessions.append(ip_address)
+                        peering_sessions.append(
+                            str(ipaddress.IPv4Address(peer.ipaddr4))
+                        )
                     except ipaddress.AddressValueError:
                         continue
 
-        return (ipv6_sessions, ipv4_sessions)
+                # Get all known sessions for this AS on the given IX
+                known_sessions = InternetExchangePeeringSession.objects.filter(
+                    internet_exchange=internet_exchange,
+                    autonomous_system=self,
+                    ip_address__in=peering_sessions,
+                )
+                # Check if peer IP addresses are known sessions
+                for peering_session in peering_sessions:
+                    # Consider the IP as not known at first
+                    known = False
+                    for known_session in known_sessions:
+                        if peering_session == known_session.ip_address:
+                            # If the IP is found, stop looking for the info and mark
+                            # it as known
+                            known = True
+                            break
+                    # If the IP address is used in any peering sessions append it,
+                    # keep an eye on it
+                    if not known:
+                        missing_peering_sessions.append(peering_session)
+
+        return missing_peering_sessions
+
+    def has_missing_peering_sessions(self, internet_exchange=None):
+        if internet_exchange:
+            return len(self.get_missing_peering_sessions(internet_exchange)) > 0
+        else:
+            # Get missing peering sessions and count them
+            for internet_exchange in self.get_common_internet_exchanges():
+                # Return true as soon as we found a missing sessions
+                if len(self.get_missing_peering_sessions(internet_exchange)) > 0:
+                    return True
+        return False
 
     def sync_with_peeringdb(self):
         """

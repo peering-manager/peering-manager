@@ -161,12 +161,13 @@ class ASDetails(View):
     def get(self, request, asn):
         autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
         common_ix_and_sessions = []
-
         for ix in autonomous_system.get_common_internet_exchanges():
             common_ix_and_sessions.append(
                 {
                     "internet_exchange": ix,
-                    "sessions": autonomous_system.get_missing_peering_sessions(ix),
+                    "has_missing_peering_sessions": autonomous_system.has_missing_peering_sessions(
+                        ix
+                    ),
                 }
             )
 
