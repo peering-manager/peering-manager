@@ -30,20 +30,6 @@ The first cache synchronization can take a lot of time due to the amount of
 data to be stored. Later runs will be faster because only the differences with
 the previous synchronization will be retrieved.
 
-## Update Autonomous Systems Based on PeeringDB
-
-Details for one or several autonomous systems will probably be changed over
-time. To keep them up-to-date, they can be automatically updated using the
-PeeringDB entry for each AS if it has one. A command is available to do that.
-
-```
-# python manage.py peeringdb_sync_as
-```
-
-This command can also be schedule using a cron task. It is recommended to also
-use the caching local database feature to speed up the processing time of this
-feature.
-
 ## Automatic Configuration Deployment
 
 If Peering Manager is used to generate configuration stanzas and push them to
