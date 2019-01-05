@@ -30,7 +30,7 @@ class AutonomousSystem(ChangeLoggedModel):
     ipv4_max_prefixes = models.PositiveIntegerField(blank=True, default=0)
     ipv4_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
     potential_internet_exchange_peering_sessions = ArrayField(
-        models.GenericIPAddressField(), blank=True
+        models.GenericIPAddressField(), blank=True, default=list
     )
 
     class Meta:
