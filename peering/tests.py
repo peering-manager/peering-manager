@@ -61,18 +61,18 @@ class AutonomousSystemTestCase(TestCase):
         # Must exist now also
         self.assertEqual(asn, AutonomousSystem.does_exist(asn).asn)
 
-    def test_sync_with_peeringdb(self):
+    def test_synchronize_with_peeringdb(self):
         # Create legal AS to sync with PeeringDB
         asn = 29467
         autonomous_system = AutonomousSystem.create_from_peeringdb(asn)
         self.assertEqual(asn, autonomous_system.asn)
-        self.assertTrue(autonomous_system.sync_with_peeringdb())
+        self.assertTrue(autonomous_system.synchronize_with_peeringdb())
 
         # Create illegal AS to fail sync with PeeringDB
         asn = 64500
         autonomous_system = AutonomousSystem.objects.create(asn=asn, name="Test")
         self.assertEqual(asn, autonomous_system.asn)
-        self.assertFalse(autonomous_system.sync_with_peeringdb())
+        self.assertFalse(autonomous_system.synchronize_with_peeringdb())
 
     def test__str__(self):
         asn = 64500

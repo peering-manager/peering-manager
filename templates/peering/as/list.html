@@ -24,3 +24,10 @@
         </div>
       </div>
 {% endblock %}
+{% block javascript %}
+    <script>
+    $(function() {
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+    </script>
+{% endblock %}

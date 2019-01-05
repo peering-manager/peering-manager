@@ -440,9 +440,7 @@ class PeeringDB(object):
 
             # Build a list with protocol and prefix couples
             for ix_prefix in ix_prefixes:
-                prefixes.append(
-                    {"protocol": ix_prefix.protocol, "prefix": ix_prefix.prefix}
-                )
+                prefixes.append(ix_prefix.prefix)
 
         return prefixes
 

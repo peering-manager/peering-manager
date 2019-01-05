@@ -14,6 +14,13 @@ from peeringdb.models import PeerRecord
 from utils.tables import ActionsColumn, BaseTable, SelectColumn
 
 
+AUTONOMOUS_SYSTEM_HAS_POTENTIAL_IX_PEERING_SESSIONS = """
+{% if record.has_potential_ix_peering_sessions %}
+<span class="text-right" data-toggle="tooltip" data-placement="left" title="Potential Peering Sessions">
+  <i class="fas fa-exclamation-circle text-warning"></i>
+</span>
+{% endif %}
+"""
 BGPSESSION_STATUS = "{{ record.get_enabled_html }}"
 BGP_RELATIONSHIP = "{{ record.get_relationship_html }}"
 COMMUNITY_TYPE = "{{ record.get_type_html }}"
@@ -49,6 +56,11 @@ class AutonomousSystemTable(BaseTable):
     irr_as_set = tables.Column(verbose_name="IRR AS-SET", orderable=False)
     ipv6_max_prefixes = tables.Column(verbose_name="IPv6 Max Prefixes")
     ipv4_max_prefixes = tables.Column(verbose_name="IPv4 Max Prefixes")
+    has_potential_ix_peering_sessions = tables.TemplateColumn(
+        verbose_name="",
+        orderable=False,
+        template_code=AUTONOMOUS_SYSTEM_HAS_POTENTIAL_IX_PEERING_SESSIONS,
+    )
     actions = ActionsColumn(
         template_code='<a href="{% url \'peering:autonomous_system_edit\' asn=record.asn %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a>'
     )

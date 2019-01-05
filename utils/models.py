@@ -26,13 +26,13 @@ class ChangeLoggedModel(models.Model):
 
     def serialize(self):
         """
-        Return a JSON representation of an object using Django's built-in serializer.
+        Returns a JSON representation of an object using Django's built-in serializer.
         """
         return json.loads(serialize("json", [self]))[0]["fields"]
 
     def log_change(self, user, request_id, action):
         """
-        Create a new ObjectChange representing a change made to this object.
+        Creates a new ObjectChange representing a change made to this object.
         """
         ObjectChange(
             user=user,
@@ -45,7 +45,7 @@ class ChangeLoggedModel(models.Model):
 
 class ObjectChange(models.Model):
     """
-    Record a change done to an object and the user who did it.
+    Records a change done to an object and the user who did it.
     """
 
     time = models.DateTimeField(auto_now_add=True, editable=False)

@@ -40,8 +40,8 @@
               {% for internet_exchange_details in common_ix_and_sessions %}
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <a href="{{ internet_exchange_details.internet_exchange.get_absolute_url }}">{{ internet_exchange_details.internet_exchange }}</a>
-                {% if internet_exchange_details.has_missing_peering_sessions %}
-                <a href="{% url 'peering:internet_exchange_peers' slug=internet_exchange_details.internet_exchange.slug %}?q=&network__asn={{ autonomous_system.asn }}" class="text-warning" data-toggle="tooltip" data-placement="left" title="Missing Peering Sessions"><i class="fas fa-exclamation-circle"></i></a>
+                {% if internet_exchange_details.has_potential_ix_peering_sessions %}
+                <a href="{% url 'peering:internet_exchange_peers' slug=internet_exchange_details.internet_exchange.slug %}?q=&network__asn={{ autonomous_system.asn }}" class="text-warning" data-toggle="tooltip" data-placement="left" title="Potential Peering Sessions"><i class="fas fa-exclamation-circle"></i></a>
                 {% endif %}
               </li>
               {% endfor %}
@@ -67,7 +67,7 @@
 {% endblock %}
 {% block javascript %}
     <script>
-    $(function () {
+    $(function() {
       $('[data-toggle="tooltip"]').tooltip();
     });
     </script>

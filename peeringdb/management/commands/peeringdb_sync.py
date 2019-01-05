@@ -20,4 +20,4 @@ class Command(BaseCommand):
 
         autonomous_systems = AutonomousSystem.objects.all()
         for autonomous_system in autonomous_systems:
-            autonomous_system.sync_with_peeringdb()
+            autonomous_system.synchronize_with_peeringdb()

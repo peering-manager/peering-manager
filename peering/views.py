@@ -165,7 +165,7 @@ class ASDetails(View):
             common_ix_and_sessions.append(
                 {
                     "internet_exchange": ix,
-                    "has_missing_peering_sessions": autonomous_system.has_missing_peering_sessions(
+                    "has_potential_ix_peering_sessions": autonomous_system.has_potential_ix_peering_sessions(
                         ix
                     ),
                 }
@@ -203,7 +203,7 @@ class ASPeeringDBSync(PermissionRequiredMixin, View):
 
     def get(self, request, asn):
         autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
-        synced = autonomous_system.sync_with_peeringdb()
+        synced = autonomous_system.synchronize_with_peeringdb()
 
         if not synced:
             messages.error(request, "Unable to synchronize AS details with PeeringDB.")

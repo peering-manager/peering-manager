@@ -7,6 +7,7 @@ from jinja2 import Template
 from django.conf import settings
 from django.db import models, transaction
 from django.db.models import Q
+from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -28,6 +29,9 @@ class AutonomousSystem(ChangeLoggedModel):
     ipv6_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
     ipv4_max_prefixes = models.PositiveIntegerField(blank=True, default=0)
     ipv4_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
+    potential_internet_exchange_peering_sessions = ArrayField(
+        models.GenericIPAddressField(), blank=True
+    )
 
     class Meta:
         ordering = ["asn"]
@@ -98,76 +102,73 @@ class AutonomousSystem(ChangeLoggedModel):
             peeringdb_id__in=[us.id for us, _ in common]
         )
 
-    def get_missing_peering_sessions(self, internet_exchange):
+    def find_potential_ix_peering_sessions(self):
         """
-        Returns a tuple of IP address lists. The first element of the tuple
-        is the IPv6 address list. The second element of the tuple is the IPv4
-        address list. Each IP address of the lists is the address of a missing
-        peering session with the current AS.
+        Saves an IP address list. Each IP address of the list is the address of a
+        potential peering session with the current AS on an Internet Exchange.
         """
-        if not internet_exchange:
-            return None
-
         # Get common IX networks between us and this AS
         common = PeeringDB().get_common_ix_networks_for_asns(settings.MY_ASN, self.asn)
-        missing_peering_sessions = []
 
         # For each common networks take a look at it
         for us, peer in common:
-            # We only care about networks matching the IX we want
-            if us.id == internet_exchange.peeringdb_id:
-                peering_sessions = []
+            peering_sessions = []
 
-                if peer.ipaddr6:
-                    try:
-                        peering_sessions.append(
-                            str(ipaddress.IPv6Address(peer.ipaddr6))
-                        )
-                    except ipaddress.AddressValueError:
-                        continue
-                if peer.ipaddr4:
-                    try:
-                        peering_sessions.append(
-                            str(ipaddress.IPv4Address(peer.ipaddr4))
-                        )
-                    except ipaddress.AddressValueError:
-                        continue
+            if peer.ipaddr6:
+                try:
+                    peering_sessions.append(str(ipaddress.IPv6Address(peer.ipaddr6)))
+                except ipaddress.AddressValueError:
+                    continue
+            if peer.ipaddr4:
+                try:
+                    peering_sessions.append(str(ipaddress.IPv4Address(peer.ipaddr4)))
+                except ipaddress.AddressValueError:
+                    continue
 
-                # Get all known sessions for this AS on the given IX
-                known_sessions = InternetExchangePeeringSession.objects.filter(
-                    internet_exchange=internet_exchange,
-                    autonomous_system=self,
-                    ip_address__in=peering_sessions,
-                )
-                # Check if peer IP addresses are known sessions
-                for peering_session in peering_sessions:
-                    # Consider the IP as not known at first
-                    known = False
-                    for known_session in known_sessions:
-                        if peering_session == known_session.ip_address:
-                            # If the IP is found, stop looking for the info and mark
-                            # it as known
-                            known = True
-                            break
-                    # If the IP address is used in any peering sessions append it,
-                    # keep an eye on it
-                    if not known:
-                        missing_peering_sessions.append(peering_session)
+            # Get all known sessions for this AS on the given IX
+            known_sessions = InternetExchangePeeringSession.objects.filter(
+                autonomous_system=self, ip_address__in=peering_sessions
+            )
+            # Check if peer IP addresses are known sessions
+            for peering_session in peering_sessions:
+                # Consider the IP as not known at first
+                known = False
+                for known_session in known_sessions:
+                    if peering_session == known_session.ip_address:
+                        # If the IP is found, stop looking for the info and mark
+                        # it as known
+                        known = True
+                        break
+                # If the IP address is used in any peering sessions append it,
+                # keep an eye on it
+                if not known:
+                    self.potential_internet_exchange_peering_sessions.append(
+                        peering_session
+                    )
 
-        return missing_peering_sessions
+        self.save()
 
-    def has_missing_peering_sessions(self, internet_exchange=None):
-        if internet_exchange:
-            return len(self.get_missing_peering_sessions(internet_exchange)) > 0
-        else:
-            # Get missing peering sessions and count them
-            for internet_exchange in self.get_common_internet_exchanges():
-                # Return true as soon as we found a missing sessions
-                if len(self.get_missing_peering_sessions(internet_exchange)) > 0:
+    def has_potential_ix_peering_sessions(self, internet_exchange=None):
+        """
+        Returns True if there are potential `InternetExchangePeeringSession` for this
+        `AutonomousSystem`. If the `internet_exchange` parameter is given, it will
+        only check for potential sessions in the given `InternetExchange`.
+        """
+        if not self.potential_internet_exchange_peering_sessions:
+            return False
+        if not internet_exchange:
+            return len(self.potential_internet_exchange_peering_sessions) > 0
+
+        for session in self.potential_internet_exchange_peering_sessions:
+            for prefix in internet_exchange.get_prefixes():
+                network = ipaddress.ip_network(prefix)
+                session = ipaddress.ip_address(session)
+                if session in network:
                     return True
+
         return False
 
-    def sync_with_peeringdb(self):
+    def synchronize_with_peeringdb(self):
         """
         Synchronize AS properties with those found in PeeringDB.
         """
@@ -443,7 +444,10 @@ class InternetExchange(ChangeLoggedModel):
         return network_ixlan.id if network_ixlan else 0
 
     def get_prefixes(self):
-        return PeeringDB().get_prefixes_for_ix_network(self.peeringdb_id) or []
+        """
+        Returns a list of prefixes found in PeeringDB for this IX.
+        """
+        return PeeringDB().get_prefixes_for_ix_network(self.peeringdb_id)
 
     def _generate_configuration_variables(self):
         peers6 = {}
@@ -909,6 +913,25 @@ class InternetExchangePeeringSession(BGPSession):
         )
 
         return (session, True)
+
+    def save(self, *args, **kwargs):
+        # Remove the IP address of this session from potential sessions for the AS
+        # if it is in the list
+        ip_address = ipaddress.ip_address(self.ip_address)
+        for i in range(
+            len(self.autonomous_system.potential_internet_exchange_peering_sessions)
+        ):
+            potential = ipaddress.ip_address(
+                self.autonomous_system.potential_internet_exchange_peering_sessions[i]
+            )
+            if ip_address == potential:
+                del self.autonomous_system.potential_internet_exchange_peering_sessions[
+                    i
+                ]
+                self.autonomous_system.save()
+                break
+
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse(
