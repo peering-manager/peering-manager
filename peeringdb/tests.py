@@ -190,7 +190,7 @@ class PeeringDBTestCase(TestCase):
 
         ix_prefixes = api.get_prefixes_for_ix_network(ix_network_id)
         for ix_prefix in ix_prefixes:
-            found_prefixes.append(ix_prefix["prefix"])
+            found_prefixes.append(ix_prefix)
 
         self.assertEqual(sorted(found_prefixes), sorted(known_prefixes))
 
