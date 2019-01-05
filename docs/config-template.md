@@ -42,22 +42,25 @@ Each group have a name and sessions:
     describing the peer (AS) and its sessions:
     * `as_name` is the name of the remote AS
     * `max_prefixes` is the maximum prefix-limit for the current IP version
-    * `sessions` is a list of dictionaries, each dictionary has two values
-      identified by the following keys: `ip_address`, `enabled`, `password`
-      `export_routing_policy` and `import_routing_policy`.
+    * `sessions` is a list of dictionaries, each dictionary has values
+      identified by the following keys: `ip_address`, `is_route_server`
+      `enabled`, `password`, `export_routing_policies` and
+      `import_routing_policies`.
       The value for the `ip_address` key is a string representing the IP
-      address. The value for the `password` is the password that you specified
-      as a string. Please not that there is no processing of any kind for the
-      password. If you stored it as clear text, it will be returned back to the
-      template as clear text too. The value for the for `enabled` key tells if
-      the session is enabled (true) or not (false). The values for the
+      address. The value for the for `is_route_server` key tells if
+      the session is setup with a route server (true) or not (false). The value
+      for the `password` is the password that you specified as a string. Please
+      not that there is no processing of any kind for the password. If you
+      stored it as clear text, it will be returned back to the template as
+      clear text too. The value for the for `enabled` key tells if the session
+      is enabled (true) or not (false). The values for the
       `export_routing_policies` and `import_routing_policies` are the routing
       policy objects associated with the session, the `slug` fields of these
       objects are probably the only relevant fields to be used in the template
 
-The `communities` variable is an iteratable list, each item is a dictionary
+The `communities` variable is an iterable list, each item is a dictionary
 containing two elements: the `name` and the `value` of the community. If no
-communities are listed of the Internet exchange, this list will be empty.
+communities are listed for the Internet exchange, this list will be empty.
 
 ## Example
 

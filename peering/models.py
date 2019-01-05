@@ -806,6 +806,7 @@ class InternetExchange(ChangeLoggedModel):
 
 class InternetExchangePeeringSession(BGPSession):
     internet_exchange = models.ForeignKey("InternetExchange", on_delete=models.CASCADE)
+    is_router_server = models.BooleanField(blank=True, default=False)
 
     logger = logging.getLogger("peering.manager.peeringdb")
 

@@ -5,6 +5,7 @@
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{% url 'peering:internet_exchange_list' %}">Internet Exchanges</a></li>
           <li class="breadcrumb-item"><a href="{% url 'peering:internet_exchange_details' slug=peering_session.internet_exchange.slug %}">{{ peering_session.internet_exchange }}</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'peering:internet_exchange_peering_sessions' slug=peering_session.internet_exchange.slug %}">Peering Sessions</a></li>
           <li class="breadcrumb-item active" aria-current="page">{{ peering_session }}</li>
         </ol>
       </nav>
@@ -34,6 +35,7 @@
             <div class="card-header">
               <strong>Peering Session Details</strong>
               <div class="float-right">
+                {% if peering_session.is_router_server %}<span class="badge badge-primary">Route Server</span>{% endif %}
                 {{ peering_session.get_enabled_html }}
                 {% if peering_session.bgp_state and peering_session.internet_exchange.check_bgp_session_states %}{{ peering_session.get_bgp_state_html }}{% endif %}
               </div>
