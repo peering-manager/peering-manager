@@ -25,7 +25,7 @@ BGPSESSION_STATUS = "{{ record.get_enabled_html }}"
 BGP_RELATIONSHIP = "{{ record.get_relationship_html }}"
 COMMUNITY_TYPE = "{{ record.get_type_html }}"
 INTERNET_EXCHANGE_PEERING_SESSION_IS_ROUTE_SERVER = """
-{% if record.is_router_server %}
+{% if record.is_route_server %}
 <i class="fas fa-check-square text-success"></i>
 {% else %}
 <i class="fas fa-times text-danger"></i>
@@ -192,7 +192,7 @@ class InternetExchangePeeringSessionTable(BaseTable):
         verbose_name="IX Name", accessor="internet_exchange"
     )
     ip_address = tables.LinkColumn(verbose_name="IP Address")
-    is_router_server = tables.TemplateColumn(
+    is_route_server = tables.TemplateColumn(
         verbose_name="Route Server",
         template_code=INTERNET_EXCHANGE_PEERING_SESSION_IS_ROUTE_SERVER,
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
@@ -212,7 +212,7 @@ class InternetExchangePeeringSessionTable(BaseTable):
             "autonomous_system",
             "internet_exchange",
             "ip_address",
-            "is_router_server",
+            "is_route_server",
             "enabled",
             "actions",
         )
@@ -231,7 +231,7 @@ class InternetExchangePeeringSessionTableForIX(BaseTable):
         text=lambda record: record.autonomous_system.name,
     )
     ip_address = tables.LinkColumn(verbose_name="IP Address")
-    is_router_server = tables.TemplateColumn(
+    is_route_server = tables.TemplateColumn(
         verbose_name="Route Server",
         template_code=INTERNET_EXCHANGE_PEERING_SESSION_IS_ROUTE_SERVER,
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
@@ -251,7 +251,7 @@ class InternetExchangePeeringSessionTableForIX(BaseTable):
             "asn",
             "autonomous_system",
             "ip_address",
-            "is_router_server",
+            "is_route_server",
             "enabled",
             "session_state",
             "actions",
@@ -268,7 +268,7 @@ class InternetExchangePeeringSessionTableForAS(BaseTable):
         verbose_name="Internet Exchange", accessor="internet_exchange"
     )
     ip_address = tables.LinkColumn(verbose_name="IP Address")
-    is_router_server = tables.TemplateColumn(
+    is_route_server = tables.TemplateColumn(
         verbose_name="Route Server",
         template_code=INTERNET_EXCHANGE_PEERING_SESSION_IS_ROUTE_SERVER,
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
@@ -287,7 +287,7 @@ class InternetExchangePeeringSessionTableForAS(BaseTable):
             "pk",
             "internet_exchange",
             "ip_address",
-            "is_router_server",
+            "is_route_server",
             "enabled",
             "session_state",
             "actions",

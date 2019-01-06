@@ -576,7 +576,7 @@ class InternetExchangePeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=InternetExchangePeeringSession.objects.all(),
         widget=forms.MultipleHiddenInput,
     )
-    is_router_server = YesNoField(required=False, label="Route Server")
+    is_route_server = YesNoField(required=False, label="Route Server")
     enabled = YesNoField(required=False, label="Enable")
     import_routing_policies = FilterChoiceField(
         required=False,
@@ -594,7 +594,7 @@ class InternetExchangePeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
 
 class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
     password = PasswordField(required=False, render_value=True)
-    is_router_server = YesNoField(
+    is_route_server = YesNoField(
         required=False,
         label="Route Server",
         help_text="Define if this session is with a route server",
@@ -621,7 +621,7 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "internet_exchange",
             "ip_address",
             "password",
-            "is_router_server",
+            "is_route_server",
             "enabled",
             "import_routing_policies",
             "export_routing_policies",
@@ -647,7 +647,7 @@ class InternetExchangePeeringSessionFilterForm(BootstrapMixin, forms.Form):
         label="IP Version",
         widget=forms.Select(choices=[(0, "---------"), (6, "IPv6"), (4, "IPv4")]),
     )
-    is_router_server = YesNoField(required=False, label="Route Server")
+    is_route_server = YesNoField(required=False, label="Route Server")
     enabled = YesNoField(required=False, label="Enabled")
 
 
@@ -662,7 +662,7 @@ class InternetExchangePeeringSessionFilterFormForIX(BootstrapMixin, forms.Form):
         label="IP Version",
         widget=forms.Select(choices=[(0, "---------"), (6, "IPv6"), (4, "IPv4")]),
     )
-    is_router_server = YesNoField(required=False, label="Route Server")
+    is_route_server = YesNoField(required=False, label="Route Server")
     enabled = YesNoField(required=False, label="Enabled")
 
 
@@ -675,7 +675,7 @@ class InternetExchangePeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
         label="IP Version",
         widget=forms.Select(choices=[(0, "---------"), (6, "IPv6"), (4, "IPv4")]),
     )
-    is_router_server = YesNoField(required=False, label="Route Server")
+    is_route_server = YesNoField(required=False, label="Route Server")
     enabled = YesNoField(required=False, label="Enabled")
     internet_exchange__slug = FilterChoiceField(
         queryset=InternetExchange.objects.all(),

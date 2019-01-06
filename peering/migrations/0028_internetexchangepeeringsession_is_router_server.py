@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="internetexchangepeeringsession",
-            name="is_router_server",
+            name="is_route_server",
             field=models.BooleanField(blank=True, default=False),
         )
     ]
