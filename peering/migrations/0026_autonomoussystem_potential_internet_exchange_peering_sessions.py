@@ -13,7 +13,10 @@ class Migration(migrations.Migration):
             model_name="autonomoussystem",
             name="potential_internet_exchange_peering_sessions",
             field=django.contrib.postgres.fields.ArrayField(
-                base_field=models.GenericIPAddressField(), blank=True, size=None
+                base_field=models.GenericIPAddressField(),
+                blank=True,
+                default=list,
+                size=None,
             ),
         )
     ]
