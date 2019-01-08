@@ -14,7 +14,7 @@
                 <p>Are you sure that you want to import all peering sessions found on the <strong>{{ internet_exchange.router }}</strong> which are within the following prefixes?</p>
                 <ul>
                   {% for ix_prefix in internet_exchange.get_prefixes %}
-                  <li>{{ ix_prefix.prefix }}</li>
+                  <li>{{ ix_prefix }}</li>
                   {% endfor %}
                 </ul>
                 <div class="text-right">

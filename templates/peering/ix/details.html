@@ -56,7 +56,7 @@
             </div>
             <ul class="list-group list-group-flush">
               {% for prefix in internet_exchange.get_prefixes %}
-              <li class="list-group-item">{{ prefix.prefix }} <span class="badge badge-pill badge-primary float-right">{{ prefix.protocol }}</span></li>
+              <li class="list-group-item">{{ prefix }}</li>
               {% endfor %}
             </ul>
             <div class="card-footer">
