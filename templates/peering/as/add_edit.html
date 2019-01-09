@@ -29,3 +29,23 @@
               </div>
             </div>
 {% endblock %}
+{% block javascript %}
+    <script>
+      // Wait for user to focust out of the ASN field
+      $("#id_asn").focusout(function() {
+        var asn = $(this).val();
+        $.ajax({
+          // Call for a ping
+          type: "get",
+          dataType: "json",
+          url: "{{ settings.PEERINGDB_API }}net?asn=" + asn,
+        }).done(function(response) {
+          var jsonData = response["data"][0];
+          $("#id_name").val(jsonData["name"]);
+          $("#id_irr_as_set").val(jsonData["irr_as_set"]);
+          $("#id_ipv6_max_prefixes").val(jsonData["info_prefixes6"]);
+          $("#id_ipv4_max_prefixes").val(jsonData["info_prefixes4"]);
+        });
+      });
+    </script>
+{% endblock %}

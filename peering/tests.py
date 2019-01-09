@@ -139,30 +139,6 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
         self.post_request("peering:autonomous_system_import", data=as_not_to_import)
         self.does_object_not_exist({"asn": 64501})
 
-    def test_as_import_from_peeringdb_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:autonomous_system_import_from_peeringdb", expected_status_code=302
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:autonomous_system_import_from_peeringdb", contains="PeeringDB"
-        )
-
-        # Using a wrong AS number
-        self.post_request(
-            "peering:autonomous_system_import_from_peeringdb", data={"asn": 64500}
-        )
-        self.does_object_not_exist({"asn": 64500})
-
-        # Using an existing AS, status should be OK
-        self.post_request(
-            "peering:autonomous_system_import_from_peeringdb", data={"asn": self.asn}
-        )
-        self.does_object_exist({"asn": self.asn})
-
     def test_as_details_view(self):
         # No ASN given, view should not work
         with self.assertRaises(NoReverseMatch):

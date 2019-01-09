@@ -19,11 +19,6 @@ urlpatterns = [
         name="autonomous_system_import",
     ),
     url(
-        r"^autonomous-systems/import_from_peeringdb/$",
-        views.ASImportFromPeeringDB.as_view(),
-        name="autonomous_system_import_from_peeringdb",
-    ),
-    url(
         r"^autonomous-systems/(?P<asn>[0-9]+)/$",
         views.ASDetails.as_view(),
         name="autonomous_system_details",
