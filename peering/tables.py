@@ -70,7 +70,7 @@ class AutonomousSystemTable(BaseTable):
         template_code=AUTONOMOUS_SYSTEM_HAS_POTENTIAL_IX_PEERING_SESSIONS,
     )
     actions = ActionsColumn(
-        template_code='<a href="{% url \'peering:autonomous_system_edit\' asn=record.asn %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a>'
+        template_code='<a href="{% url \'peering:autonomous_system_edit\' asn=record.asn %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>'
     )
 
     class Meta(BaseTable.Meta):
@@ -95,7 +95,7 @@ class CommunityTable(BaseTable):
     name = tables.LinkColumn()
     type = tables.TemplateColumn(template_code=COMMUNITY_TYPE)
     actions = ActionsColumn(
-        template_code='<a href="{% url \'peering:community_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a>'
+        template_code='<a href="{% url \'peering:community_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>'
     )
 
     class Meta(BaseTable.Meta):
@@ -111,7 +111,7 @@ class ConfigurationTemplateTable(BaseTable):
     pk = SelectColumn()
     name = tables.LinkColumn()
     actions = ActionsColumn(
-        template_code='<a href="{% url \'peering:configuration_template_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a>'
+        template_code='<a href="{% url \'peering:configuration_template_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>'
     )
 
     class Meta(BaseTable.Meta):
@@ -161,7 +161,7 @@ class InternetExchangeTable(BaseTable):
     )
     router = tables.RelatedLinkColumn(verbose_name="Router", accessor="router")
     actions = ActionsColumn(
-        template_code='<a href="{% url \'peering:internet_exchange_edit\' slug=record.slug %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a>'
+        template_code='<a href="{% url \'peering:internet_exchange_edit\' slug=record.slug %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>'
     )
 
     class Meta(BaseTable.Meta):
@@ -202,7 +202,7 @@ class InternetExchangePeeringSessionTable(BaseTable):
         verbose_name="Status", template_code=BGPSESSION_STATUS
     )
     actions = ActionsColumn(
-        template_code='{% load helpers %}<div class="float-right">{% if record.comment %}<button type="button" class="btn btn-sm btn-info popover-hover" data-toggle="popover" data-html="true" title="Comments" data-content="{{ record.comment | markdown }}"><i class="fas fa-comment"></i></button> {% endif %}<a href="{% url \'peering:internet_exchange_peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a></div>'
+        template_code='{% load helpers %}{% if record.comment %}<button type="button" class="btn btn-sm btn-info popover-hover" data-toggle="popover" data-html="true" title="Comments" data-content="{{ record.comment | markdown }}"><i class="fas fa-comment"></i></button> {% endif %}<a href="{% url \'peering:internet_exchange_peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>'
     )
 
     class Meta(BaseTable.Meta):
@@ -242,7 +242,7 @@ class InternetExchangePeeringSessionTableForIX(BaseTable):
     )
     session_state = BGPSessionStateColumn(accessor="bgp_state")
     actions = ActionsColumn(
-        template_code='{% load helpers %}<div class="float-right">{% if record.comment %}<button type="button" class="btn btn-sm btn-info popover-hover" data-toggle="popover" data-html="true" title="Comments" data-content="{{ record.comment | markdown }}"><i class="fas fa-comment"></i></button> {% endif %}<a href="{% url \'peering:internet_exchange_peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a></div>'
+        template_code='{% load helpers %}{% if record.comment %}<button type="button" class="btn btn-sm btn-info popover-hover" data-toggle="popover" data-html="true" title="Comments" data-content="{{ record.comment | markdown }}"><i class="fas fa-comment"></i></button> {% endif %}<a href="{% url \'peering:internet_exchange_peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>'
     )
 
     class Meta(BaseTable.Meta):
@@ -279,7 +279,7 @@ class InternetExchangePeeringSessionTableForAS(BaseTable):
     )
     session_state = BGPSessionStateColumn(accessor="bgp_state")
     actions = ActionsColumn(
-        template_code='{% load helpers %}<div class="float-right">{% if record.comment %}<button type="button" class="btn btn-sm btn-info popover-hover" data-toggle="popover" data-html="true" title="Comments" data-content="{{ record.comment | markdown }}"><i class="fas fa-comment"></i></button> {% endif %}<a href="{% url \'peering:internet_exchange_peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a></div>'
+        template_code='{% load helpers %}{% if record.comment %}<button type="button" class="btn btn-sm btn-info popover-hover" data-toggle="popover" data-html="true" title="Comments" data-content="{{ record.comment | markdown }}"><i class="fas fa-comment"></i></button> {% endif %}<a href="{% url \'peering:internet_exchange_peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>'
     )
 
     class Meta(BaseTable.Meta):
@@ -342,7 +342,7 @@ class RouterTable(BaseTable):
     pk = SelectColumn()
     name = tables.LinkColumn()
     actions = ActionsColumn(
-        template_code='<a href="{% url \'peering:router_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a>'
+        template_code='<a href="{% url \'peering:router_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>'
     )
 
     class Meta(BaseTable.Meta):
@@ -359,7 +359,7 @@ class RoutingPolicyTable(BaseTable):
     name = tables.LinkColumn()
     type = tables.TemplateColumn(template_code=ROUTING_POLICY_TYPE)
     actions = ActionsColumn(
-        template_code='<a href="{% url \'peering:routing_policy_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a>'
+        template_code='<a href="{% url \'peering:routing_policy_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>'
     )
 
     class Meta(BaseTable.Meta):
