@@ -2,7 +2,10 @@
 {% load form_helpers %}
 {% block form %}
             <div class="card my-2">
-              <div class="card-header"><strong>Autonomous System</strong></div>
+              <div class="card-header">
+                <strong>Autonomous System</strong>
+                <span class="float-right d-none" id="querying_indicator_id"><i class="fas fa-spin fa-sync"></i></span>
+              </div>
               <div class="card-body">
                 {% render_field form.asn %}
                 {% render_field form.name %}
@@ -39,12 +42,16 @@
           type: "get",
           dataType: "json",
           url: "{{ settings.PEERINGDB_API }}net?asn=" + asn,
+          beforeSend: function(xhr) {
+            $("#querying_indicator_id").removeClass("d-none");
+          },
         }).done(function(response) {
           var jsonData = response["data"][0];
           $("#id_name").val(jsonData["name"]);
           $("#id_irr_as_set").val(jsonData["irr_as_set"]);
           $("#id_ipv6_max_prefixes").val(jsonData["info_prefixes6"]);
           $("#id_ipv4_max_prefixes").val(jsonData["info_prefixes4"]);
+          $("#querying_indicator_id").addClass("d-none");
         });
       });
     </script>
