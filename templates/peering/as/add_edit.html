@@ -51,6 +51,7 @@
           $("#id_irr_as_set").val(jsonData["irr_as_set"]);
           $("#id_ipv6_max_prefixes").val(jsonData["info_prefixes6"]);
           $("#id_ipv4_max_prefixes").val(jsonData["info_prefixes4"]);
+        }).always(function() {
           $("#querying_indicator_id").addClass("d-none");
         });
       });
