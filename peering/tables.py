@@ -25,6 +25,26 @@ AUTONOMOUS_SYSTEM_HAS_POTENTIAL_IX_PEERING_SESSIONS = """
 BGPSESSION_STATUS = "{{ record.get_enabled_html }}"
 BGP_RELATIONSHIP = "{{ record.get_relationship_html }}"
 COMMUNITY_TYPE = "{{ record.get_type_html }}"
+DIRECT_PEERING_SESSION_ACTIONS = """
+{% load helpers %}
+{% if record.comment %}
+<button type="button" class="btn btn-sm btn-info popover-hover" data-toggle="popover" data-html="true" title="Peering Session Comments" data-content="{{ record.comment | markdown }}"><i class="fas fa-comment"></i></button>
+{% endif %}
+{% if record.autonomous_system.comment %}
+<button type="button" class="btn btn-sm btn-info popover-hover" data-toggle="popover" data-html="true" title="Autonomous System Comments" data-content="{{ record.autonomous_system.comment | markdown }}"><i class="fas fa-comments"></i></button>
+{% endif %}
+<a href="{% url 'peering:direct_peering_session_edit' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+"""
+INTERNET_EXCHANGE_PEERING_SESSION_ACTIONS = """
+{% load helpers %}
+{% if record.comment %}
+<button type="button" class="btn btn-sm btn-info popover-hover" data-toggle="popover" data-html="true" title="Peering Session Comments" data-content="{{ record.comment | markdown }}"><i class="fas fa-comment"></i></button>
+{% endif %}
+{% if record.autonomous_system.comment %}
+<button type="button" class="btn btn-sm btn-info popover-hover" data-toggle="popover" data-html="true" title="Autonomous System Comments" data-content="{{ record.autonomous_system.comment | markdown }}"><i class="fas fa-comments"></i></button>
+{% endif %}
+<a href="{% url 'peering:internet_exchange_peering_session_edit' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+"""
 INTERNET_EXCHANGE_PEERING_SESSION_IS_ROUTE_SERVER = """
 {% if record.is_route_server %}
 <i class="fas fa-check-square text-success"></i>
@@ -134,6 +154,7 @@ class DirectPeeringSessionTable(BaseTable):
         verbose_name="Status", template_code=BGPSESSION_STATUS
     )
     session_state = BGPSessionStateColumn(accessor="bgp_state")
+    actions = ActionsColumn(template_code=DIRECT_PEERING_SESSION_ACTIONS)
 
     class Meta(BaseTable.Meta):
         model = DirectPeeringSession
@@ -144,6 +165,7 @@ class DirectPeeringSessionTable(BaseTable):
             "relationship",
             "enabled",
             "session_state",
+            "actions",
         )
 
 
@@ -201,9 +223,7 @@ class InternetExchangePeeringSessionTable(BaseTable):
     enabled = tables.TemplateColumn(
         verbose_name="Status", template_code=BGPSESSION_STATUS
     )
-    actions = ActionsColumn(
-        template_code='{% load helpers %}{% if record.comment %}<button type="button" class="btn btn-sm btn-info popover-hover" data-toggle="popover" data-html="true" title="Comments" data-content="{{ record.comment | markdown }}"><i class="fas fa-comment"></i></button> {% endif %}<a href="{% url \'peering:internet_exchange_peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>'
-    )
+    actions = ActionsColumn(template_code=INTERNET_EXCHANGE_PEERING_SESSION_ACTIONS)
 
     class Meta(BaseTable.Meta):
         model = InternetExchangePeeringSession
@@ -241,9 +261,7 @@ class InternetExchangePeeringSessionTableForIX(BaseTable):
         verbose_name="Status", template_code=BGPSESSION_STATUS
     )
     session_state = BGPSessionStateColumn(accessor="bgp_state")
-    actions = ActionsColumn(
-        template_code='{% load helpers %}{% if record.comment %}<button type="button" class="btn btn-sm btn-info popover-hover" data-toggle="popover" data-html="true" title="Comments" data-content="{{ record.comment | markdown }}"><i class="fas fa-comment"></i></button> {% endif %}<a href="{% url \'peering:internet_exchange_peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>'
-    )
+    actions = ActionsColumn(template_code=INTERNET_EXCHANGE_PEERING_SESSION_ACTIONS)
 
     class Meta(BaseTable.Meta):
         model = InternetExchangePeeringSession
@@ -278,9 +296,7 @@ class InternetExchangePeeringSessionTableForAS(BaseTable):
         verbose_name="Status", template_code=BGPSESSION_STATUS
     )
     session_state = BGPSessionStateColumn(accessor="bgp_state")
-    actions = ActionsColumn(
-        template_code='{% load helpers %}{% if record.comment %}<button type="button" class="btn btn-sm btn-info popover-hover" data-toggle="popover" data-html="true" title="Comments" data-content="{{ record.comment | markdown }}"><i class="fas fa-comment"></i></button> {% endif %}<a href="{% url \'peering:internet_exchange_peering_session_edit\' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>'
-    )
+    actions = ActionsColumn(template_code=INTERNET_EXCHANGE_PEERING_SESSION_ACTIONS)
 
     class Meta(BaseTable.Meta):
         model = InternetExchangePeeringSession
