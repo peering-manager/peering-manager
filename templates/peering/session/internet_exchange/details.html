@@ -43,11 +43,21 @@
             <table class="table table-hover card-body attr-table">
               <tr>
                 <td>Internet Exchange</td>
-                <td>{{ peering_session.internet_exchange }}</td>
+                <td>
+                  {{ peering_session.internet_exchange }}
+                  {% if peering_session.internet_exchange.comment %}
+                  <span class="float-right badge badge-info popover-hover" data-toggle="popover" data-html="true" title="Internet Exchange Comments" data-content="{{ peering_session.internet_exchange.comment | markdown }}"><i class="fas fa-comment"></i></span>
+                  {% endif %}
+                </td>
               </tr>
               <tr>
                 <td>AS Name</td>
-                <td>{{ peering_session.autonomous_system.name }}</td>
+                <td>
+                  {{ peering_session.autonomous_system.name }}
+                  {% if peering_session.autonomous_system.comment %}
+                  <span class="float-right badge badge-info popover-hover" data-toggle="popover" data-html="true" title="Autonomous System Comments" data-content="{{ peering_session.autonomous_system.comment | markdown }}"><i class="fas fa-comment"></i></span>
+                  {% endif %}
+                </td>
               </tr>
               <tr>
                 <td>ASN</td>
