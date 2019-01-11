@@ -43,6 +43,9 @@ INTERNET_EXCHANGE_PEERING_SESSION_ACTIONS = """
 {% if record.autonomous_system.comment %}
 <button type="button" class="btn btn-sm btn-info popover-hover" data-toggle="popover" data-html="true" title="Autonomous System Comments" data-content="{{ record.autonomous_system.comment | markdown }}"><i class="fas fa-comments"></i></button>
 {% endif %}
+{% if record.internet_exchange.comment %}
+<button type="button" class="btn btn-sm btn-info popover-hover" data-toggle="popover" data-html="true" title="Internet Exchange Comments" data-content="{{ record.internet_exchange.comment | markdown }}"><i class="fas fa-comment-dots"></i></button>
+{% endif %}
 <a href="{% url 'peering:internet_exchange_peering_session_edit' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
 """
 INTERNET_EXCHANGE_PEERING_SESSION_IS_ROUTE_SERVER = """
