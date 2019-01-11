@@ -1,9 +1,13 @@
 {% extends '_base.html' %}
 {% load helpers %}
 {% block content %}
-      <a href="{% url 'peering:autonomous_system_direct_peering_sessions' asn=peering_session.autonomous_system.asn %}" class="btn btn-secondary">
-        <i class="fas fa-arrow-left"></i> Back to AS
-      </a>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'peering:autonomous_system_details' asn=peering_session.autonomous_system.asn %}">{{ peering_session.autonomous_system }}</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'peering:autonomous_system_direct_peering_sessions' asn=peering_session.autonomous_system.asn %}">Direct Peering Sessions</a></li>
+          <li class="breadcrumb-item active" aria-current="page">{{ peering_session }}</li>
+        </ol>
+      </nav>
       <div class="float-right">
         {% if perms.peering.change_directpeeringsession %}
         {% if peering_session.enabled %}
@@ -47,7 +51,12 @@
               </tr>
               <tr>
                 <td>AS Name</td>
-                <td>{{ peering_session.autonomous_system.name }}</td>
+                <td>
+                  {{ peering_session.autonomous_system.name }}
+                  {% if peering_session.autonomous_system.comment %}
+                  <span class="float-right badge badge-info popover-hover" data-toggle="popover" data-html="true" title="Autonomous System Comments" data-content="{{ peering_session.autonomous_system.comment | markdown }}"><i class="fas fa-comment"></i></span>
+                  {% endif %}
+                </td>
               </tr>
               <tr>
                 <td>ASN</td>
