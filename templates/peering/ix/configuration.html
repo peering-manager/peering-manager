@@ -2,7 +2,7 @@
 {% block subcontent %}
       <div class="row">
         <div class="col-md-2">
-          {% if internet_exchange.router and internet_exchange.router.platform %}
+          {% if perms.peering.deploy_configuration_internetexchange and internet_exchange.router and internet_exchange.router.platform %}
           <button type="button" class="btn btn-primary btn-block" id="router-diff">
             <i class="fa fa-cogs"></i> Deploy
           </button>
@@ -13,7 +13,7 @@
         </div>
         <pre class="col-md-10 pre-scrollable"><code>{{ internet_exchange_configuration }}</code></pre>
       </div>
-      {% if internet_exchange.router and internet_exchange.router.platform %}
+      {% if perms.peering.deploy_configuration_internetexchange and internet_exchange.router and internet_exchange.router.platform %}
       <div class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
           <div class="modal-content">
@@ -32,6 +32,7 @@
       </div>
       {% endif %}
 {% endblock %}
+{% if perms.peering.deploy_configuration_internetexchange and internet_exchange.router and internet_exchange.router.platform %}
 {% block javascript %}
     <script>
       // When the modal is closed, reset the button back to its defaults
@@ -61,11 +62,6 @@
             $('#router-diff').removeClass('btn-primary').addClass('btn-warning');
             $('#router-diff').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
           },
-          complete: function() {
-            $('#router-diff').removeClass('btn-warning').addClass('btn-primary');
-            $('#router-diff').removeAttr('disabled');
-            $('#router-diff').html('<i class="fas fa-cogs"></i> Deploy');
-          }
         }).done(function(response) {
           var data = JSON.parse(response);
           if (data['error']) {
@@ -82,6 +78,10 @@
               $('.modal').modal('show');
             }
           }
+        }).always(function() {
+          $('#router-diff').removeClass('btn-warning').addClass('btn-primary');
+          $('#router-diff').removeAttr('disabled');
+          $('#router-diff').html('<i class="fas fa-cogs"></i> Deploy');
         });
       });
 
@@ -114,3 +114,4 @@
       });
     </script>
 {% endblock %}
+{% endif %}

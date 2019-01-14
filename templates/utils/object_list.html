@@ -1,5 +1,5 @@
 {% load helpers %}
-{% if request.user.is_authenticated %}
+{% if permissions.add or permissions.change or permissions.delete %}
   <form method="post">
     {% csrf_token %}
     <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
@@ -14,26 +14,33 @@
           <label class="form-check-label" for="select_all">Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> matching query</label>
         </div>
         <div class="float-right">
+          {% if bulk_edit_url and permissions.edit %}
+          <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if bulk_querystring %}?{{ bulk_querystring }}{% elif request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm" disabled="disabled">
+            <i class="fa fa-pencil"></i> Edit All
+          </button>
+          {% endif %}
+          {% if bulk_delete_url and permissions.delete %}
           <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if bulk_querystring %}?{{ bulk_querystring }}{% elif request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm" disabled="disabled">
             <i class="fa fa-trash"></i> Delete All
           </button>
+          {% endif %}
         </div>
       </div>
     </div>
     {% endif %}
-    {% include 'utils/table.html' %}
+    {% include 'utils/responsive_table.html' %}
     {% block extra_buttons %}{% endblock %}
-    {% if bulk_add_url %}
+    {% if bulk_add_url and permissions.add %}
     <button type="submit" name="_add" formaction="{% url bulk_add_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-sm btn-primary">
       <i class="fa fa-plus"></i> Add Selected
     </button>
     {% endif %}
-    {% if bulk_edit_url %}
+    {% if bulk_edit_url and permissions.change %}
     <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if bulk_querystring %}?{{ bulk_querystring }}{% elif request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-sm btn-warning">
       <i class="fa fa-edit"></i> Edit Selected
     </button>
     {% endif %}
-    {% if bulk_delete_url %}
+    {% if bulk_delete_url and permissions.delete %}
     <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-sm btn-danger">
       <i class="fa fa-trash"></i> Delete Selected
     </button>
@@ -41,5 +48,5 @@
     <div class="clearfix"></div>
   </form>
 {% else %}
-  {% include 'utils/table.html' %}
+  {% include 'utils/responsive_table.html' %}
 {% endif %}

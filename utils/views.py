@@ -282,7 +282,6 @@ class BulkDeleteView(View):
                 try:
                     deleted_count = queryset.delete()[1][self.model._meta.label]
                 except ProtectedError as e:
-                    print(e)
                     return redirect(self.return_url)
 
                 message = "Deleted {} {}".format(
@@ -624,13 +623,11 @@ class ModelListView(View):
     def extra_context(self, kwargs):
         return {}
 
-    def setup_table_columns(self, request, table, kwargs):
-        # Show columns if user is authenticated
-        if request.user.is_authenticated:
-            if "pk" in table.base_columns:
-                table.columns.show("pk")
-            if "actions" in table.base_columns:
-                table.columns.show("actions")
+    def setup_table_columns(self, request, permissions, table, kwargs):
+        if "pk" in table.base_columns and (
+            permissions["add"] or permissions["change"] or permissions["delete"]
+        ):
+            table.columns.show("pk")
 
     def get(self, request, *args, **kwargs):
         # If no query set has been provided for some reasons
@@ -644,9 +641,18 @@ class ModelListView(View):
         # Alter the queryset if needed
         self.queryset = self.alter_queryset(request)
 
+        # Compile user model permissions for access from within the template
+        permission_name = "{}.{{}}_{}".format(
+            self.queryset.model._meta.app_label, self.queryset.model._meta.model_name
+        )
+        permissions = {
+            p: request.user.has_perm(permission_name.format(p))
+            for p in ["add", "change", "delete"]
+        }
+
         # Build the table based on the queryset
         table = self.table(self.queryset)
-        self.setup_table_columns(request, table, kwargs)
+        self.setup_table_columns(request, permissions, table, kwargs)
 
         # Apply pagination
         paginate = {
@@ -662,6 +668,7 @@ class ModelListView(View):
             "filter_form": self.filter_form(request.GET, label_suffix="")
             if self.filter_form
             else None,
+            "permissions": permissions,
         }
         context.update(self.extra_context(kwargs))
 

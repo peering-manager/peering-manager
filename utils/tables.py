@@ -38,7 +38,6 @@ class ActionsColumn(tables.TemplateColumn):
     def __init__(self, *args, **kwargs):
         attrs = kwargs.pop("attrs", {"td": {"class": "text-right"}})
         default = kwargs.pop("default", "")
-        visible = kwargs.pop("visible", False)
         orderable = kwargs.pop("orderable", False)
         verbose_name = kwargs.pop("verbose_name", "")
         super().__init__(
@@ -47,7 +46,6 @@ class ActionsColumn(tables.TemplateColumn):
             default=default,
             orderable=orderable,
             verbose_name=verbose_name,
-            visible=visible,
             **kwargs
         )
 

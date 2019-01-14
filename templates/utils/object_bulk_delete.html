@@ -12,7 +12,7 @@
           <p class="card-text"><strong>Warning:</strong> The following operation will delete {{ table.rows|length }} {{ object_type_plural }}. Please carefully review the {{ object_type_plural }} to be deleted and confirm below.</p>
           {% block message_extra %}{% endblock %}
         </div>
-        {% include 'utils/table.html' %}
+        {% include 'utils/responsive_table.html' %}
         <div class="card-body">
           <form method="post" class="form">
             {% csrf_token %}

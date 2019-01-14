@@ -393,6 +393,10 @@ class InternetExchange(ChangeLoggedModel):
 
     class Meta:
         ordering = ["name"]
+        permissions = [
+            ("view_configuration", "Can view Internet Exchange's configuration"),
+            ("deploy_configuration", "Can deploy Internet Exchange's configuration"),
+        ]
 
     def get_absolute_url(self):
         return reverse("peering:internet_exchange_details", kwargs={"slug": self.slug})

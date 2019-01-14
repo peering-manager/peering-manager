@@ -766,7 +766,7 @@ class InternetExchangePeeringSessions(ModelListView):
 
         return extra_context
 
-    def setup_table_columns(self, request, table, kwargs):
+    def setup_table_columns(self, request, permissions, table, kwargs):
         if "slug" in kwargs:
             internet_exchange = get_object_or_404(InternetExchange, slug=kwargs["slug"])
 
@@ -778,7 +778,7 @@ class InternetExchangePeeringSessions(ModelListView):
                 if "session_state" in table.base_columns:
                     table.columns.show("session_state")
 
-        super().setup_table_columns(request, table, kwargs)
+        super().setup_table_columns(request, permissions, table, kwargs)
 
 
 class InternetExchangePeers(ModelListView):
@@ -815,7 +815,9 @@ class InternetExchangePeers(ModelListView):
         return extra_context
 
 
-class InternetExchangeConfig(View):
+class InternetExchangeConfig(PermissionRequiredMixin, View):
+    permission_required = "peering.view_configuration_internetexchange"
+
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
 
@@ -1165,7 +1167,9 @@ class AsyncRouterPing(View):
         return HttpResponse(json.dumps({"success": router.test_napalm_connection()}))
 
 
-class AsyncRouterDiff(View):
+class AsyncRouterDiff(PermissionRequiredMixin, View):
+    permission_required = "peering.deploy_configuration_internetexchange"
+
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
         error, changes = internet_exchange.router.set_napalm_configuration(
@@ -1177,7 +1181,9 @@ class AsyncRouterDiff(View):
         )
 
 
-class AsyncRouterSave(View):
+class AsyncRouterSave(PermissionRequiredMixin, View):
+    permission_required = "peering.deploy_configuration_internetexchange"
+
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
         error, _ = internet_exchange.router.set_napalm_configuration(
