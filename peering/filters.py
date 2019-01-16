@@ -88,10 +88,16 @@ class DirectPeeringSessionFilter(django_filters.FilterSet):
     relationship = django_filters.MultipleChoiceFilter(
         choices=BGP_RELATIONSHIP_CHOICES, null_value=None
     )
+    router = django_filters.ModelMultipleChoiceFilter(
+        field_name="router__id",
+        queryset=Router.objects.all(),
+        to_field_name="id",
+        label="Router",
+    )
 
     class Meta:
         model = DirectPeeringSession
-        fields = ["local_asn", "ip_address", "enabled", "relationship"]
+        fields = ["local_asn", "ip_address"]
 
     def search(self, queryset, name, value):
         if not value.strip():

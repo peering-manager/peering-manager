@@ -185,6 +185,7 @@ class DirectPeeringSessionTable(BaseTable):
         verbose_name="Status", template_code=BGPSESSION_STATUS
     )
     session_state = BGPSessionStateColumn(accessor="bgp_state")
+    router = tables.RelatedLinkColumn(verbose_name="Router", accessor="router")
     actions = ActionsColumn(template_code=DIRECT_PEERING_SESSION_ACTIONS)
 
     class Meta(BaseTable.Meta):
@@ -196,6 +197,7 @@ class DirectPeeringSessionTable(BaseTable):
             "relationship",
             "enabled",
             "session_state",
+            "router",
             "actions",
         )
 

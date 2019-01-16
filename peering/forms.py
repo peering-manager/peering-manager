@@ -235,6 +235,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "ip_address",
             "password",
             "enabled",
+            "router",
             "import_routing_policies",
             "export_routing_policies",
             "comment",
@@ -251,6 +252,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
             ),
             "ip_address": "IPv6 or IPv4 address",
             "enabled": "Should this session be enabled?",
+            "router": "Router on which this session is configured",
         }
 
 
@@ -267,7 +269,11 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
     )
+    router = forms.ModelChoiceField(required=False, queryset=Router.objects.all())
     comment = CommentField()
+
+    class Meta:
+        nullable_fields = ["router", "comment"]
 
 
 class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
@@ -283,6 +289,9 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
     enabled = YesNoField(required=False, label="Enabled")
     relationship = forms.MultipleChoiceField(
         choices=BGP_RELATIONSHIP_CHOICES, required=False
+    )
+    router = FilterChoiceField(
+        queryset=Router.objects.all(), to_field_name="pk", null_label="-- None --"
     )
 
 

@@ -340,6 +340,9 @@ class DirectPeeringSession(BGPSession):
         choices=BGP_RELATIONSHIP_CHOICES,
         help_text="Relationship with the remote peer.",
     )
+    router = models.ForeignKey(
+        "Router", blank=True, null=True, on_delete=models.SET_NULL
+    )
 
     def get_absolute_url(self):
         return reverse("peering:direct_peering_session_details", kwargs={"pk": self.pk})
