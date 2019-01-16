@@ -235,19 +235,6 @@ class BGPSession(ChangeLoggedModel):
     class Meta:
         abstract = True
 
-    def get_enabled_html(self):
-        """
-        Return an HTML element based on the status (enabled or disabled).
-        """
-        badge = "success"
-        text = "Enabled"
-
-        if not self.enabled:
-            badge = "danger"
-            text = "Disabled"
-
-        return mark_safe('<span class="badge badge-{}">{}</span>'.format(badge, text))
-
     def get_bgp_state_html(self):
         """
         Return an HTML element based on the BGP state.

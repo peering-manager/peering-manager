@@ -613,6 +613,7 @@ class ModelListView(View):
     filter_form = None
     table = None
     template = None
+    hidden_columns = []
 
     def build_queryset(self, request, kwargs):
         return self.queryset
@@ -628,6 +629,11 @@ class ModelListView(View):
             permissions["add"] or permissions["change"] or permissions["delete"]
         ):
             table.columns.show("pk")
+
+        # Hide columns on-demand
+        for column in self.hidden_columns:
+            if column in table.base_columns:
+                table.columns.hide(column)
 
     def get(self, request, *args, **kwargs):
         # If no query set has been provided for some reasons

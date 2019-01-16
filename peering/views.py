@@ -77,8 +77,6 @@ from .tables import (
     InternetExchangeTable,
     PeerRecordTable,
     InternetExchangePeeringSessionTable,
-    InternetExchangePeeringSessionTableForIX,
-    InternetExchangePeeringSessionTableForAS,
     RouterTable,
     RoutingPolicyTable,
 )
@@ -207,8 +205,9 @@ class AutonomousSystemDirectPeeringSessions(ModelListView):
 class AutonomousSystemInternetExchangesPeeringSessions(ModelListView):
     filter = InternetExchangePeeringSessionFilter
     filter_form = InternetExchangePeeringSessionFilterFormForAS
-    table = InternetExchangePeeringSessionTableForAS
+    table = InternetExchangePeeringSessionTable
     template = "peering/as/internet_exchange_peering_sessions.html"
+    hidden_columns = ["asn", "autonomous_system"]
 
     def build_queryset(self, request, kwargs):
         queryset = None
@@ -734,8 +733,9 @@ class InternetExchangeUpdateRoutingPolicies(PermissionRequiredMixin, AddOrEditVi
 class InternetExchangePeeringSessions(ModelListView):
     filter = InternetExchangePeeringSessionFilter
     filter_form = InternetExchangePeeringSessionFilterFormForIX
-    table = InternetExchangePeeringSessionTableForIX
+    table = InternetExchangePeeringSessionTable
     template = "peering/ix/sessions.html"
+    hidden_columns = ["internet_exchange"]
 
     def build_queryset(self, request, kwargs):
         queryset = None
@@ -958,7 +958,7 @@ class InternetExchangePeeringSessionBulkDelete(PermissionRequiredMixin, BulkDele
     permission_required = "peering.delete_internetexchangepeeringsession"
     model = InternetExchangePeeringSession
     filter = InternetExchangePeeringSessionFilter
-    table = InternetExchangePeeringSessionTableForIX
+    table = InternetExchangePeeringSessionTable
 
     def filter_by_extra_context(self, queryset, request, kwargs):
         # If we are on an Internet exchange context, filter the session with

@@ -27,7 +27,13 @@ AUTONOMOUS_SYSTEM_HAS_POTENTIAL_IX_PEERING_SESSIONS = """
 </span>
 {% endif %}
 """
-BGPSESSION_STATUS = "{{ record.get_enabled_html }}"
+BGPSESSION_STATUS = """
+{% if record.enabled %}
+<i class="fas fa-check-square text-success"></i>
+{% else %}
+<i class="fas fa-times text-danger"></i>
+{% endif %}
+"""
 BGP_RELATIONSHIP = "{{ record.get_relationship_html }}"
 COMMUNITY_ACTIONS = """
 {% if perms.peering.change_community %}
@@ -252,44 +258,9 @@ class InternetExchangePeeringSessionTable(BaseTable):
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     enabled = tables.TemplateColumn(
-        verbose_name="Status", template_code=BGPSESSION_STATUS
-    )
-    actions = ActionsColumn(template_code=INTERNET_EXCHANGE_PEERING_SESSION_ACTIONS)
-
-    class Meta(BaseTable.Meta):
-        model = InternetExchangePeeringSession
-        fields = (
-            "pk",
-            "asn",
-            "autonomous_system",
-            "internet_exchange",
-            "ip_address",
-            "is_route_server",
-            "enabled",
-            "actions",
-        )
-
-
-class InternetExchangePeeringSessionTableForIX(BaseTable):
-    """
-    Table for InternetExchangePeeringSession lists
-    """
-
-    pk = SelectColumn()
-    asn = tables.Column(verbose_name="ASN", accessor="autonomous_system.asn")
-    autonomous_system = tables.RelatedLinkColumn(
-        verbose_name="AS Name",
-        accessor="autonomous_system",
-        text=lambda record: record.autonomous_system.name,
-    )
-    ip_address = tables.LinkColumn(verbose_name="IP Address")
-    is_route_server = tables.TemplateColumn(
-        verbose_name="Route Server",
-        template_code=INTERNET_EXCHANGE_PEERING_SESSION_IS_ROUTE_SERVER,
+        verbose_name="Enabled",
+        template_code=BGPSESSION_STATUS,
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
-    )
-    enabled = tables.TemplateColumn(
-        verbose_name="Status", template_code=BGPSESSION_STATUS
     )
     session_state = BGPSessionStateColumn(accessor="bgp_state")
     actions = ActionsColumn(template_code=INTERNET_EXCHANGE_PEERING_SESSION_ACTIONS)
@@ -300,39 +271,6 @@ class InternetExchangePeeringSessionTableForIX(BaseTable):
             "pk",
             "asn",
             "autonomous_system",
-            "ip_address",
-            "is_route_server",
-            "enabled",
-            "session_state",
-            "actions",
-        )
-
-
-class InternetExchangePeeringSessionTableForAS(BaseTable):
-    """
-    Table for InternetExchangePeeringSession lists
-    """
-
-    pk = SelectColumn()
-    internet_exchange = tables.RelatedLinkColumn(
-        verbose_name="Internet Exchange", accessor="internet_exchange"
-    )
-    ip_address = tables.LinkColumn(verbose_name="IP Address")
-    is_route_server = tables.TemplateColumn(
-        verbose_name="Route Server",
-        template_code=INTERNET_EXCHANGE_PEERING_SESSION_IS_ROUTE_SERVER,
-        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
-    )
-    enabled = tables.TemplateColumn(
-        verbose_name="Status", template_code=BGPSESSION_STATUS
-    )
-    session_state = BGPSessionStateColumn(accessor="bgp_state")
-    actions = ActionsColumn(template_code=INTERNET_EXCHANGE_PEERING_SESSION_ACTIONS)
-
-    class Meta(BaseTable.Meta):
-        model = InternetExchangePeeringSession
-        fields = (
-            "pk",
             "internet_exchange",
             "ip_address",
             "is_route_server",
