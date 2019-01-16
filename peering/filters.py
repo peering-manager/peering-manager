@@ -174,7 +174,6 @@ class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
         model = InternetExchangePeeringSession
         fields = [
             "ip_address",
-            "enabled",
             "autonomous_system__asn",
             "autonomous_system__name",
             "internet_exchange__name",
@@ -257,7 +256,7 @@ class RouterFilter(django_filters.FilterSet):
 
     class Meta:
         model = Router
-        fields = ["name", "hostname", "platform"]
+        fields = ["name", "hostname"]
 
     def search(self, queryset, name, value):
         if not value.strip():
