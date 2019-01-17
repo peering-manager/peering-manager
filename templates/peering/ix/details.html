@@ -86,7 +86,7 @@
             {% endif %}
             {% if perms.peering.change_internetexchange %}
             <div class="card-footer text-right">
-              <a href="{% url 'peering:internet_exchange_update_communities' slug=internet_exchange.slug %}" class="btn btn-sm btn-warning">
+              <a href="{% url 'peering:internet_exchange_update_communities' slug=internet_exchange.slug %}" class="btn btn-xs btn-warning">
                 <i class="fas fa-edit"></i> Edit communities
               </a>
             </div>
@@ -116,7 +116,7 @@
             {% endif %}
             {% if perms.peering.change_internetexchange %}
             <div class="card-footer text-right">
-              <a href="{% url 'peering:internet_exchange_update_routing_policies' slug=internet_exchange.slug %}" class="btn btn-sm btn-warning">
+              <a href="{% url 'peering:internet_exchange_update_routing_policies' slug=internet_exchange.slug %}" class="btn btn-xs btn-warning">
                 <i class="fas fa-edit"></i> Edit routing policies
               </a>
             </div>
