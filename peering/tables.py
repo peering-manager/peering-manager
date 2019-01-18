@@ -11,6 +11,7 @@ from .models import (
     RoutingPolicy,
 )
 from peeringdb.models import PeerRecord
+from peering_manager import settings
 from utils.tables import ActionsColumn, BaseTable, SelectColumn
 from utils.templatetags.helpers import markdown
 
@@ -99,13 +100,13 @@ ROUTING_POLICY_TYPE = "{{ record.get_type_html }}"
 
 
 class BGPSessionStateColumn(tables.TemplateColumn):
-    template = "{{ record.get_bgp_state_html }}"
-
     def __init__(self, *args, **kwargs):
         default = kwargs.pop("default", "")
-        visible = kwargs.pop("visible", False)
+        visible = kwargs.pop(
+            "visible", settings.NAPALM_USERNAME and settings.NAPALM_PASSWORD
+        )
         verbose_name = kwargs.pop("verbose_name", "State")
-        template_code = kwargs.pop("template_code", self.template)
+        template_code = kwargs.pop("template_code", "{{ record.get_bgp_state_html }}")
         super().__init__(
             *args,
             default=default,
