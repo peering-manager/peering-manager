@@ -1,6 +1,11 @@
 $(document).ready(function() {
   // Use bootstrap select for more stylish selects
-  $('select').selectpicker();
+  $('select').not('#id_per_page').selectpicker();
+
+  // Pagination
+  $('select#id_per_page').change(function() {
+    this.form.submit();
+  });
 
   function generateSlug(value) {
     value = value.replace(/[^\-\.\w\s]/g, '');        // Remove unneeded chars

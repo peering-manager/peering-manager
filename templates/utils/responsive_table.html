@@ -1,38 +1,5 @@
-{% load helpers %}
 {% load django_tables2 %}
 
 <div class="table-responsive">
   {% render_table table 'utils/includes/table.html' %}
 </div>
-{% with paginator=table.paginator page=table.page %}
-<div class="paginator float-right">
-  {% if paginator.num_pages > 1 %}
-  <div class="d-flex flex-row-reverse">
-  <nav>
-    <ul class="pagination pagination-sm">
-      {% if page.has_previous %}
-      <li class="page-item"><a class="page-link" href="{% querystring table.prefixed_page_field=page.previous_page_number %}"><i class="fas fa-angle-double-left"></i></a></li>
-      {% endif %}
-      {% for p in page.smart_pages %}
-      {% if p %}
-      <li class="page-item{% ifequal page.number p %} active{% endifequal %}"><a class="page-link" href="{% querystring table.prefixed_page_field=p %}">{{ p }}</a></li>
-      {% else %}
-      <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
-      {% endif %}
-      {% endfor %}
-      {% if page.has_next %}
-      <li class="page-item"><a class="page-link" href="{% querystring table.prefixed_page_field=page.next_page_number %}"><i class="fas fa-angle-double-right"></i></a></li>
-      {% endif %}
-    </ul>
-  </nav>
-  </div>
-  {% endif %}
-  {% if page %}
-  <div class="d-flex flex-row-reverse">
-    <div class="text-muted">
-      Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.paginator.count }}
-    </div>
-  </div>
-  {% endif %}
-</div>
-{% endwith %}

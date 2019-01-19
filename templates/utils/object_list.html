@@ -29,24 +29,27 @@
     </div>
     {% endif %}
     {% include 'utils/responsive_table.html' %}
-    {% block extra_buttons %}{% endblock %}
-    {% if bulk_add_url and permissions.add %}
-    <button type="submit" name="_add" formaction="{% url bulk_add_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-sm btn-primary">
-      <i class="fa fa-plus"></i> Add Selected
-    </button>
-    {% endif %}
-    {% if bulk_edit_url and permissions.change %}
-    <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if bulk_querystring %}?{{ bulk_querystring }}{% elif request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-sm btn-warning">
-      <i class="fa fa-edit"></i> Edit Selected
-    </button>
-    {% endif %}
-    {% if bulk_delete_url and permissions.delete %}
-    <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-sm btn-danger">
-      <i class="fa fa-trash"></i> Delete Selected
-    </button>
-    {% endif %}
-    <div class="clearfix"></div>
+    <div class="float-left">
+      {% block extra_buttons %}{% endblock %}
+      {% if bulk_add_url and permissions.add %}
+      <button type="submit" name="_add" formaction="{% url bulk_add_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-sm btn-primary">
+        <i class="fa fa-plus"></i> Add Selected
+      </button>
+      {% endif %}
+      {% if bulk_edit_url and permissions.change %}
+      <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if bulk_querystring %}?{{ bulk_querystring }}{% elif request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-sm btn-warning">
+        <i class="fa fa-edit"></i> Edit Selected
+      </button>
+      {% endif %}
+      {% if bulk_delete_url and permissions.delete %}
+      <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-sm btn-danger">
+        <i class="fa fa-trash"></i> Delete Selected
+      </button>
+      {% endif %}
+    </div>
   </form>
 {% else %}
   {% include 'utils/responsive_table.html' %}
 {% endif %}
+{% include 'utils/includes/pagination.html' with paginator=table.paginator page=table.page %}
+<div class="clearfix"></div>

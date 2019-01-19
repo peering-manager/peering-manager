@@ -1,0 +1,46 @@
+{% load helpers %}
+
+{% with paginator=table.paginator page=table.page %}
+<div class="paginator float-right text-right">
+  {% if paginator.num_pages > 1 %}
+  <div class="d-flex flex-row-reverse">
+    <nav>
+      <ul class="pagination pagination-sm">
+        {% if page.has_previous %}
+        <li class="page-item"><a class="page-link" href="{% querystring request page=page.previous_page_number %}"><i class="fas fa-angle-double-left"></i></a></li>
+        {% endif %}
+        {% for p in page.smart_pages %}
+        {% if p %}
+        <li class="page-item{% ifequal page.number p %} active{% endifequal %}"><a class="page-link" href="{% querystring request page=p %}">{{ p }}</a></li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+        {% endif %}
+        {% endfor %}
+        {% if page.has_next %}
+        <li class="page-item"><a class="page-link" href="{% querystring request page=page.next_page_number %}"><i class="fas fa-angle-double-right"></i></a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+  <form method="get">
+    {% for k, v in request.GET.items %}
+    {% if k != 'per_page' %}
+    <input type="hidden" name="{{ k }}" value="{{ v }}" />
+    {% endif %}
+    {% endfor %}
+    <select class="custom-select custom-select-sm" name="per_page" id="id_per_page">
+      {% for n in settings.PER_PAGE_SELECTION %}
+      <option value="{{ n }}"{% if page.paginator.per_page == n %} selected="selected"{% endif %}>{{ n }}</option>
+      {% endfor %}
+    </select> per page
+  </form>
+  {% endif %}
+  {% if page %}
+  <div class="d-flex flex-row-reverse">
+    <div class="text-muted">
+      Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.paginator.count }}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endwith %}

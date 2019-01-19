@@ -42,6 +42,12 @@ NAPALM_ARGS = getattr(configuration, "NAPALM_ARGS", {})
 PAGINATE_COUNT = getattr(configuration, "PAGINATE_COUNT", 20)
 TIME_ZONE = getattr(configuration, "TIME_ZONE", "UTC")
 
+# Pagination
+PER_PAGE_SELECTION = [25, 50, 100, 250, 500, 1000]
+if PAGINATE_COUNT not in PER_PAGE_SELECTION:
+    PER_PAGE_SELECTION.append(PAGINATE_COUNT)
+    PER_PAGE_SELECTION = sorted(PER_PAGE_SELECTION)
+
 
 # NetBox API configuration
 NETBOX_API = getattr(configuration, "NETBOX_API", "")

@@ -62,17 +62,15 @@ def querystring(request, **kwargs):
     Append or update the page number in a querystring.
     """
     querydict = request.GET.copy()
-    for key, value in kwargs.items():
-        if value is not None:
-            querydict[key] = value
-        elif key in querydict:
-            querydict.pop(key)
 
-    querystring = querydict.urlencode()
-    if querystring:
-        return "?" + querystring
+    for k, v in kwargs.items():
+        if v is not None:
+            querydict[k] = v
+        elif k in querydict:
+            querydict.pop(k)
 
-    return ""
+    querystring = querydict.urlencode(safe="/")
+    return "?" + querystring if querystring else ""
 
 
 @register.filter()
