@@ -8,7 +8,7 @@
         </a>
       </div>
       {% endif %}
-      <h1>{% block title %}Autonomous Systems{% endblock %}</h1>
+      <h2>{% block title %}Autonomous Systems{% endblock %}</h2>
       <div class="row">
         <div class="col-md-9">
           {% include 'utils/object_list.html' with bulk_delete_url='peering:autonomous_system_bulk_delete' %}

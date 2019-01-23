@@ -13,42 +13,25 @@
 
     <link rel="stylesheet" href="{% static 'bootstrap-4.3.1-dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'bootstrap-select-1.13.2/css/bootstrap-select.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v{{ settings.VERSION }}"
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v{{ settings.VERSION }}">
   </head>
   <body>
-    <nav class="navbar fixed-top navbar-expand-md navbar-light bg-light">
-      <div class="container-fluid">
-      <a class="navbar-brand" href="{% url 'home' %}">Peering Manager</a>
+    <nav class="navbar fixed-top navbar-expand-md navbar-dark bg-dark shadow p-0 flex-md-nowrap">
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="{% url 'home' %}">Peering Manager</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav mr-auto">
-          <li {% if request.path|contains:'/autonomous-systems/' %}class="active"{% endif %}><a class="nav-link" href="{% url 'peering:autonomous_system_list' %}">Autonomous Systems</a></li>
-          <li class="nav-item{% if request.path|contains:'/internet-exchanges/' %} active{% endif %}"><a class="nav-link" href="{% url 'peering:internet_exchange_list' %}">Internet Exchanges</a></li>
-          <li class="nav-item dropdown{% if request.path|contains:'/communities/,/rounting-policies/' %} active{% endif %}">
-            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Policy Options</a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="{% url 'peering:community_list' %}">Communities</a></li>
-              <li><a class="dropdown-item" href="{% url 'peering:routing_policy_list' %}">Routing Policies</a></li>
-            </ul>
-          </li>
-          <li class="nav-item dropdown{% if request.path|contains:'/routers/,/templates/' %} active{% endif %}">
-            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Deployment</a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="{% url 'peering:router_list' %}">Routers</a></li>
-              <li><a class="dropdown-item" href="{% url 'peering:configuration_template_list' %}">Templates</a></li>
-            </ul>
-          </li>
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
+        <ul class="navbar-nav ml-auto px-3">
           {% if request.user.is_authenticated %}
           <li class="nav-item dropdown">
             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" title="{{ request.user }}" role="button" aria-haspopup="true" aria-expanded="false">
-              {{ request.user|truncatechars:"30" }}
+              <i class="fas fa-user"></i>
             </a>
             <div class="dropdown-menu dropdown-menu-right">
-              <a class="dropdown-item" href="{% url 'users:profile' %}"><i class="fa fa-user"></i> Profile</a>
+              <span class="dropdown-item-text text-muted">Logged in as {{ request.user|truncatechars:"30" }}</span>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="{% url 'users:profile' %}"><i class="far fa-id-card"></i> Profile</a>
               {% if request.user.is_staff %}
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fa fa-cogs"></i> Admin</a>
@@ -63,33 +46,72 @@
           {% endif %}
         </ul>
       </div>
-      </div>
     </nav>
-    <div class="container wrapper">
-      {% for message in messages %}
-      <div class="alert alert-{{ message.tags }} alert-dismissable" role="alert">
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span>&times;</span>
-        </button>
-        {{ message }}
-      </div>
-      {% endfor %}
-      {% block content %}{% endblock %}
-    </div>
-    <footer class="footer">
-      <div class="container">
-        <div class="row">
-          <p class="col text-muted text-left">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
-          <p class="col text-muted text-center">{% now 'Y-m-d H:i:s T' %}</p>
-          <p class="col ext-muted text-right">
-            <i class="fas fa-fw fa-cloud text-primary"></i> <a href="{% url 'api-root' %}">API</a> &middot;
-            <i class="fas fa-fw fa-book text-primary"></i> <a href="http://peering-manager.readthedocs.io/">Docs</a> &middot;
-            <i class="fab fa-fw fa-github text-primary"></i> <a href="https://github.com/respawner/peering-manager">GitHub</a> &middot;
-            <i class="fas fa-fw fa-bug text-primary"></i> <a href="https://github.com/respawner/peering-manager/issues">Issues</a>
-          </p>
+    <div class="container-fluid">
+      <nav class="col-md-2 d-none d-md-block bg-dark sidebar">
+        <div class="sidebar-sticky">
+          <ul class="nav flex-column list-group">
+            <a href="{% url 'peering:autonomous_system_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/autonomous-systems/' %} active{% endif %}">
+              <div class="d-flex w-100 justify-content-start align-items-center">Autonomous Systems</div>
+            </a>
+            <a href="{% url 'peering:internet_exchange_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/internet-exchanges/' %} active{% endif %}">
+              <div class="d-flex w-100 justify-content-start align-items-center">Internet Exchanges</div>
+            </a>
+            <a href="#policy_options_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/communities/,/routing-policies/' %} active{% endif %}">
+              <div class="d-flex w-100 justify-content-start align-items-center">
+                <span class="menu-collapsed">Policy Options</span>
+                <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
+              </div>
+            </a>
+            <div id="policy_options_menu_id" class="collapse sidebar-submenu">
+              <a href="{% url 'peering:community_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/communities/' %} active{% endif %}">
+                <span class="menu-collapsed">Communities</span>
+              </a>
+              <a href="{% url 'peering:routing_policy_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/routing-policies/' %} active{% endif %}">
+                <span class="menu-collapsed">Routing Policies</span>
+              </a>
+            </div>
+            <a href="#deployment_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/routers/,/templates/' %} active{% endif %}">
+              <div class="d-flex w-100 justify-content-start align-items-center">
+                <span class="menu-collapsed">Deployment</span>
+                <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
+              </div>
+            </a>
+            <div id="deployment_menu_id" class="collapse sidebar-submenu">
+              <a href="{% url 'peering:router_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/routers/' %} active{% endif %}">
+                <span class="menu-collapsed">Routers</span>
+              </a>
+              <a href="{% url 'peering:configuration_template_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/templates/' %} active{% endif %}">
+                <span class="menu-collapsed">Templates</span>
+              </a>
+            </div>
+          </ul>
+          <div class="col footer">
+            <p>{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
+            <p>{% now 'Y-m-d H:i:s T' %}</p>
+            <p>
+              <i class="fas fa-fw fa-cloud"></i> <a href="{% url 'api-root' %}">API</a> &middot;
+              <i class="fas fa-fw fa-book"></i> <a href="http://peering-manager.readthedocs.io/">Docs</a> &middot;
+              <i class="fab fa-fw fa-github"></i> <a href="https://github.com/respawner/peering-manager">GitHub</a> &middot;
+              <i class="fas fa-fw fa-bug"></i> <a href="https://github.com/respawner/peering-manager/issues">Issues</a>
+            </p>
         </div>
-      </div>
-    </footer>
+        </div>
+      </nav>
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+        <div class="justify-content-between flex-wrap flex-md-nowrap align-items-center">
+          {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissable" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span>&times;</span>
+            </button>
+            {{ message }}
+          </div>
+          {% endfor %}
+          {% block content %}{% endblock %}
+        </div>
+      </main>
+    </div>
 
     <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
     <script src="{% static 'bootstrap-4.3.1-dist/js/bootstrap.bundle.min.js' %}"></script>

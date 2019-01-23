@@ -11,7 +11,7 @@
         </a>
       </div>
       {% endif %}
-      <h1>{% block title %}Internet Exchanges{% endblock %}</h1>
+      <h2>{% block title %}Internet Exchanges{% endblock %}</h2>
       <div class="row">
         <div class="col-md-9">
           {% include 'utils/object_list.html' with bulk_edit_url='peering:internet_exchange_bulk_edit' bulk_delete_url='peering:internet_exchange_bulk_delete' %}

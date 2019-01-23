@@ -25,7 +25,7 @@
         </a>
         {% endif %}
       </div>
-      <h1>{% block title %}{{ internet_exchange }}{% endblock %}</h1>
+      <h2>{% block title %}{{ internet_exchange }}{% endblock %}</h2>
       {% if internet_exchange.bgp_session_states_update %}
       <p><small class="text-muted">Last peering session states updated: {{ internet_exchange.bgp_session_states_update }}</small></p>
       {% endif %}

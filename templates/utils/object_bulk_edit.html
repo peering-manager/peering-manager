@@ -3,7 +3,7 @@
 {% load form_helpers %}
 
 {% block content %}
-<h1>{% block title %}Editing {{ table.rows|length }} {{ object_type_plural }}{% endblock %}</h1>
+<h2>{% block title %}Editing {{ table.rows|length }} {{ object_type_plural }}{% endblock %}</h2>
 <form action="" method="post" class="form form-horizontal">
   {% csrf_token %}
   {% if request.POST.return_url %}

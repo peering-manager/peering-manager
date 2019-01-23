@@ -1,7 +1,7 @@
 {% extends '_base.html' %}
 {% load helpers %}
 {% block content %}
-      <h1>Local Cache Management</h1>
+      <h2>Local Cache Management</h2>
       {% if last_sync_time is not 0 %}
       <p><small class="text-muted">Last updated: {{ last_sync_time }}</small></p>
       {% endif %}
