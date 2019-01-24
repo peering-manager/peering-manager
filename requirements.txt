@@ -1,10 +1,10 @@
 Django==2.1.5
-django-filter==2.0.0
-django-tables2==2.0.3
+django-filter==2.1.0
+django-tables2==2.0.4
 Jinja2==2.10
 napalm==2.3.3
 MarkupSafe==1.1.0
-psycopg2-binary==2.7.6.1
+psycopg2-binary==2.7.7
 py-gfm==0.1.4
 pytz==2018.9
 requests==2.21.0
