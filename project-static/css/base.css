@@ -15,6 +15,16 @@ body {
   background-color: rgba(0, 0, 0, .25);
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
 }
+nav > ol.breadcrumb {
+  padding-top: 0rem;
+  padding-bottom: 0rem;
+  margin-bottom: 0rem;
+  font-size: 1rem;
+  background-color: #343a40;
+}
+nav > ol.breadcrumb > li.breadcrumb-item > a {
+  color: white;
+}
 .sidebar {
   position: fixed;
   top: 0;
