@@ -17,9 +17,9 @@ Including another URLconf
 
 from django.conf import settings
 from django.conf.urls import include, url
-from django.contrib import admin
 
 from . import views
+from .admin import admin_site
 
 
 handler500 = views.handle_500
@@ -42,7 +42,7 @@ __patterns = [
     # Home
     url(r"^$", views.Home.as_view(), name="home"),
     # Admin
-    url(r"^admin/", admin.site.urls),
+    url(r"^admin/", admin_site.urls),
     # Error triggering
     url(r"^error500/$", views.trigger_500),
 ]
