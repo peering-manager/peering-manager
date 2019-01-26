@@ -694,9 +694,7 @@ class InternetExchange(ChangeLoggedModel):
             return False
 
         # Build a list based on prefixes based on PeeringDB records
-        prefixes = [
-            ipaddress.ip_network(prefix["prefix"]) for prefix in self.get_prefixes()
-        ]
+        prefixes = [ipaddress.ip_network(p) for p in self.get_prefixes()]
         # No prefixes found
         if not prefixes:
             self.logger.debug("no prefixes found for %s", self.name.lower())
