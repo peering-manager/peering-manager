@@ -1,14 +1,16 @@
 {% extends '_base.html' %}
 {% load render_table from django_tables2 %}
+{% block actions %}
+{% if perms.peering.add_configurationtemplate %}
+<a href="{% url 'peering:configuration_template_add' %}" class="btn btn-primary">
+  <i class="fas fa-plus"></i> Add
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">Templates</li>
+{% endblock %}
 {% block content %}
-      {% if perms.peering.add_configurationtemplate %}
-      <div class="float-right">
-        <a href="{% url 'peering:configuration_template_add' %}" class="btn btn-primary">
-          <i class="fas fa-plus"></i> Add a Template
-        </a>
-      </div>
-      {% endif %}
-      <h2>{% block title %}Templates{% endblock %}</h2>
       <div class="row">
         <div class="col-md-9">
           {% include 'utils/object_list.html' with bulk_delete_url='peering:configuration_template_bulk_delete' %}

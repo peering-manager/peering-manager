@@ -1,14 +1,14 @@
 {% extends '_base.html' %}
 {% load render_table from django_tables2 %}
+{% block actions %}
+{% if perms.peering.add_autonomoussystem %}
+<a href="{% url 'peering:autonomous_system_add' %}" class="btn btn-primary">
+  <i class="fas fa-plus"></i> Add
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">Autonomous Systems</li>{% endblock %}
 {% block content %}
-      {% if perms.peering.add_autonomoussystem %}
-      <div class="float-right">
-        <a href="{% url 'peering:autonomous_system_add' %}" class="btn btn-primary">
-          <i class="fas fa-plus"></i> Add an AS
-        </a>
-      </div>
-      {% endif %}
-      <h2>{% block title %}Autonomous Systems{% endblock %}</h2>
       <div class="row">
         <div class="col-md-9">
           {% include 'utils/object_list.html' with bulk_delete_url='peering:autonomous_system_bulk_delete' %}

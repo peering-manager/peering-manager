@@ -1,19 +1,22 @@
 {% extends '_base.html' %}
 {% load helpers %}
+{% block actions %}
+{% if perms.peering.change_configurationtemplate %}
+<a href="{% url 'peering:configuration_template_edit' pk=configuration_template.pk %}" class="btn btn-warning">
+  <i class="fas fa-edit"></i> Edit
+</a>
+{% endif %}
+{% if perms.peering.delete_configurationtemplate %}
+<a href="{% url 'peering:configuration_template_delete' pk=configuration_template.pk %}" class="btn btn-danger">
+  <i class="fas fa-trash"></i> Delete
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'peering:configuration_template_list' %}">Configuration Templates</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{ configuration_template }}</li>
+{% endblock %}
 {% block content %}
-      <div class="float-right">
-        {% if perms.peering.change_configurationtemplate %}
-        <a href="{% url 'peering:configuration_template_edit' pk=configuration_template.pk %}" class="btn btn-warning">
-          <i class="fas fa-edit"></i> Edit
-        </a>
-        {% endif %}
-        {% if perms.peering.delete_configurationtemplate %}
-        <a href="{% url 'peering:configuration_template_delete' pk=configuration_template.pk %}" class="btn btn-danger">
-          <i class="fas fa-trash"></i> Delete
-        </a>
-        {% endif %}
-      </div>
-      <h2>{% block title %}{{ configuration_template }}{% endblock %}</h2>
       <div class="row">
         <div class="col-md-6">
           <div class="card mb-2">

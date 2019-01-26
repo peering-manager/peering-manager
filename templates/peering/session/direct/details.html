@@ -1,33 +1,32 @@
 {% extends '_base.html' %}
 {% load helpers %}
+{% block actions %}
+{% if perms.peering.change_directpeeringsession %}
+{% if peering_session.enabled %}
+<a href="{% url 'peering:direct_peering_session_disable' pk=peering_session.pk %}" class="btn btn-danger">
+  <i class="fas fa-toggle-off"></i> Disable
+</a>
+{% else %}
+<a href="{% url 'peering:direct_peering_session_enable' pk=peering_session.pk %}" class="btn btn-success">
+  <i class="fas fa-toggle-on"></i> Enable
+</a>
+{% endif %}
+<a href="{% url 'peering:direct_peering_session_edit' pk=peering_session.pk %}" class="btn btn-warning">
+  <i class="fas fa-edit"></i> Edit
+</a>
+{% endif %}
+{% if perms.peering.delete_directpeeringsession %}
+<a href="{% url 'peering:direct_peering_session_delete' pk=peering_session.pk %}" class="btn btn-danger">
+  <i class="fas fa-trash"></i> Delete
+</a>
+{% endif %}
+{% endblock %}
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'peering:autonomous_system_details' asn=peering_session.autonomous_system.asn %}">{{ peering_session.autonomous_system }}</a></li>
 <li class="breadcrumb-item"><a href="{% url 'peering:autonomous_system_direct_peering_sessions' asn=peering_session.autonomous_system.asn %}">Direct Peering Sessions</a></li>
 <li class="breadcrumb-item active" aria-current="page">{{ peering_session }}</li>
 {% endblock %}
 {% block content %}
-      <div class="float-right">
-        {% if perms.peering.change_directpeeringsession %}
-        {% if peering_session.enabled %}
-        <a href="{% url 'peering:direct_peering_session_disable' pk=peering_session.pk %}" class="btn btn-danger">
-          <i class="fas fa-toggle-off"></i> Disable
-        </a>
-        {% else %}
-        <a href="{% url 'peering:direct_peering_session_enable' pk=peering_session.pk %}" class="btn btn-success">
-          <i class="fas fa-toggle-on"></i> Enable
-        </a>
-        {% endif %}
-        <a href="{% url 'peering:direct_peering_session_edit' pk=peering_session.pk %}" class="btn btn-warning">
-          <i class="fas fa-edit"></i> Edit
-        </a>
-        {% endif %}
-        {% if perms.peering.delete_directpeeringsession %}
-        <a href="{% url 'peering:direct_peering_session_delete' pk=peering_session.pk %}" class="btn btn-danger">
-          <i class="fas fa-trash"></i> Delete
-        </a>
-        {% endif %}
-      </div>
-      <h2>{% block title %}{{ peering_session }}{% endblock %}</h2>
       <div class="row">
         <div class="col-md-6">
           <div class="card mb-2">

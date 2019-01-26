@@ -22,6 +22,7 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div>{% block actions %}{% endblock %}</div>
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb">{% block breadcrumb %}{% endblock %}</ol>
         </nav>

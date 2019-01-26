@@ -1,14 +1,16 @@
 {% extends '_base.html' %}
 {% load render_table from django_tables2 %}
+{% block actions %}
+{% if perms.peering.add_router %}
+<a href="{% url 'peering:router_add' %}" class="btn btn-primary">
+  <i class="fas fa-plus"></i> Add
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">Routers</li>
+{% endblock %}
 {% block content %}
-      {% if perms.peering.add_router %}
-      <div class="float-right">
-        <a href="{% url 'peering:router_add' %}" class="btn btn-primary">
-          <i class="fas fa-plus"></i> Add a Router
-        </a>
-      </div>
-      {% endif %}
-      <h2>{% block title %}Routers{% endblock %}</h2>
       <div class="row">
         <div class="col-md-9">
           {% include 'utils/object_list.html' with bulk_edit_url='peering:router_bulk_edit' bulk_delete_url='peering:router_bulk_delete' %}

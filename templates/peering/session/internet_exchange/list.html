@@ -1,6 +1,8 @@
 {% extends '_base.html' %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">Internet Exchange Peering Sessions</li>
+{% endblock %}
 {% block content %}
-      <h2>{% block title %}Internet Exchange Peering Sessions{% endblock %}</h2>
       <div class="row">
         <div class="col-md-9">
           {% include 'utils/object_list.html' with bulk_delete_url='peering:internet_exchange_peering_session_bulk_delete' %}

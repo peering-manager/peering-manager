@@ -1,5 +1,17 @@
 {% extends '_base.html' %}
 {% load helpers %}
+{% block actions %}
+{% if perms.peering.change_internetexchange %}
+<a href="{% url 'peering:internet_exchange_edit' slug=internet_exchange.slug %}" class="btn btn-warning">
+  <i class="fas fa-edit"></i> Edit
+</a>
+{% endif %}
+{% if perms.peering.delete_internetexchange %}
+<a href="{% url 'peering:internet_exchange_delete' slug=internet_exchange.slug %}" class="btn btn-danger">
+  <i class="fas fa-trash"></i> Delete
+</a>
+{% endif %}
+{% endblock %}
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'peering:internet_exchange_list' %}">Internet Exchanges</a></li>
 <li class="breadcrumb-item active" aria-current="page">{{ internet_exchange }}</li>
@@ -11,19 +23,6 @@
         <small>* This message will not disappear until you fixed the issue.</small>
       </div>
       {% endif %}
-      <div class="float-right">
-        {% if perms.peering.change_internetexchange %}
-        <a href="{% url 'peering:internet_exchange_edit' slug=internet_exchange.slug %}" class="btn btn-warning">
-          <i class="fas fa-edit"></i> Edit
-        </a>
-        {% endif %}
-        {% if perms.peering.delete_internetexchange %}
-        <a href="{% url 'peering:internet_exchange_delete' slug=internet_exchange.slug %}" class="btn btn-danger">
-          <i class="fas fa-trash"></i> Delete
-        </a>
-        {% endif %}
-      </div>
-      <h2>{% block title %}{{ internet_exchange }}{% endblock %}</h2>
       {% if internet_exchange.bgp_session_states_update %}
       <p><small class="text-muted">Last peering session states updated: {{ internet_exchange.bgp_session_states_update }}</small></p>
       {% endif %}
