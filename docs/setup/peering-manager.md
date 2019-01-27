@@ -31,8 +31,7 @@ After that requirements must be installed. We will use **pip** to do that.
 ```
 # pip3 install -r requirements.txt
 ...
-Installing collected packages: pytz, Django, django-tables2, MarkupSafe, Jinja2, Markdown, pep8, py-gfm
-Successfully installed Django-1.11.5 Jinja2-2.9.6 Markdown-2.6.9 MarkupSafe-1.0 django-tables2-1.11.0 pep8-1.7.0 py-gfm-0.1.3 pytz-2017.2
+Installing collected packages: ...
 ```
 
 ## Configuration
@@ -82,11 +81,7 @@ Running migrations:
   Applying auth.0006_require_contenttypes_0002... OK
   Applying auth.0007_alter_validators_add_error_messages... OK
   Applying auth.0008_alter_user_username_max_length... OK
-  Applying peering.0001_initial... OK
-  Applying peering.0002_auto_20170820_1809... OK
-  Applying peering.0003_auto_20170903_1235... OK
-  Applying sessions.0001_initial... OK
-  Applying utils.0001_initial... OK
+  ...
 ```
 
 ## Create a Super User

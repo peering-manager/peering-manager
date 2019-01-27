@@ -6,6 +6,7 @@ pages:
     - 'Peering Manager': 'setup/peering-manager.md'
     - 'PostgreSQL': 'setup/postgresql.md'
     - 'Web Server': 'setup/web-server.md'
+    - 'Logging': 'setup/logging.md'
     - 'LDAP': 'setup/ldap.md'
     - 'Upgrading': 'setup/upgrading.md'
     - 'Scheduled Tasks': 'setup/scheduled-tasks.md'

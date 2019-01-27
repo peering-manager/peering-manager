@@ -33,6 +33,7 @@ BASE_PATH = getattr(configuration, "BASE_PATH", "")
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip("/") + "/"  # Enforce trailing slash only
 DEBUG = getattr(configuration, "DEBUG", False)
+LOGGING = getattr(configuration, "LOGGING", {})
 CHANGELOG_RETENTION = getattr(configuration, "CHANGELOG_RETENTION", 90)
 LOGIN_REQUIRED = getattr(configuration, "LOGIN_REQUIRED", False)
 NAPALM_USERNAME = getattr(configuration, "NAPALM_USERNAME", "")
@@ -154,59 +155,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
-
-
-# Django logging
-LOGGING = {
-    "version": 1,
-    "formatters": {
-        "simple": {
-            "format": "%(asctime)s | %(levelname)s | %(message)s",
-            "datefmt": "%Y-%m-%d %H:%M:%S",
-        }
-    },
-    "handlers": {
-        "console": {"class": "logging.StreamHandler", "formatter": "simple"},
-        "file": {
-            "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "logs/peering-manager.log",
-            "when": "midnight",
-            "interval": 1,
-            "backupCount": 5,
-            "formatter": "simple",
-        },
-        "peeringdb_file": {
-            "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "logs/peeringdb.log",
-            "when": "midnight",
-            "interval": 1,
-            "backupCount": 5,
-            "formatter": "simple",
-        },
-        "napalm_file": {
-            "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "logs/napalm.log",
-            "when": "midnight",
-            "interval": 1,
-            "backupCount": 5,
-            "formatter": "simple",
-        },
-        "netbox_file": {
-            "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "logs/netbox.log",
-            "when": "midnight",
-            "interval": 1,
-            "backupCount": 5,
-            "formatter": "simple",
-        },
-    },
-    "loggers": {
-        "peering.manager.peering": {"handlers": ["file"], "level": "DEBUG"},
-        "peering.manager.peeringdb": {"handlers": ["peeringdb_file"], "level": "DEBUG"},
-        "peering.manager.napalm": {"handlers": ["napalm_file"], "level": "DEBUG"},
-        "peering.manager.netbox": {"handlers": ["netbox_file"], "level": "DEBUG"},
-    },
-}
 
 
 # Internationalization
