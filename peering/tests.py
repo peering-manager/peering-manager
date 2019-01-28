@@ -645,6 +645,7 @@ class InternetExchangeTestCase(TestCase):
                                 "ip_address": "2001:db8::1",
                                 "password": False,
                                 "enabled": True,
+                                "is_route_server": False,
                                 "export_routing_policies": [],
                                 "import_routing_policies": [],
                             }
@@ -658,6 +659,7 @@ class InternetExchangeTestCase(TestCase):
                                 "ip_address": "2001:db8::2",
                                 "password": False,
                                 "enabled": True,
+                                "is_route_server": False,
                                 "export_routing_policies": [],
                                 "import_routing_policies": [],
                             }
@@ -671,6 +673,7 @@ class InternetExchangeTestCase(TestCase):
                                 "ip_address": "2001:db8::3",
                                 "password": False,
                                 "enabled": True,
+                                "is_route_server": False,
                                 "export_routing_policies": [],
                                 "import_routing_policies": [],
                             }
@@ -684,6 +687,7 @@ class InternetExchangeTestCase(TestCase):
                                 "ip_address": "2001:db8::4",
                                 "password": False,
                                 "enabled": True,
+                                "is_route_server": False,
                                 "export_routing_policies": [],
                                 "import_routing_policies": [],
                             }
@@ -697,6 +701,7 @@ class InternetExchangeTestCase(TestCase):
                                 "ip_address": "2001:db8::5",
                                 "password": False,
                                 "enabled": True,
+                                "is_route_server": False,
                                 "export_routing_policies": [],
                                 "import_routing_policies": [],
                             }
