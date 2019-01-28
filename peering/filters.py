@@ -1,3 +1,5 @@
+import ipaddress
+
 from django.db.models import Q
 
 import django_filters
@@ -102,12 +104,9 @@ class DirectPeeringSessionFilter(django_filters.FilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        qs_filter = (
-            Q(ip_address__icontains=value)
-            | Q(relationship__icontains=value)
-            | Q(comment__icontains=value)
-        )
+        qs_filter = Q(relationship__icontains=value) | Q(comment__icontains=value)
         try:
+            qs_filter |= Q(ip_address__icontains=str(ipaddress.ip_address(value)))
             qs_filter |= Q(local_asn=int(value.strip()))
         except ValueError:
             pass
@@ -154,12 +153,12 @@ class InternetExchangeFilter(django_filters.FilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        qs_filter = (
-            Q(name__icontains=value)
-            | Q(ipv6_address__icontains=value)
-            | Q(ipv4_address__icontains=value)
-            | Q(comment__icontains=value)
-        )
+        qs_filter = Q(name__icontains=value) | Q(comment__icontains=value)
+        try:
+            qs_filter |= Q(ipv6_address__icontains=str(ipaddress.ip_address(value)))
+            qs_filter |= Q(ipv4_address__icontains=str(ipaddress.ip_address(value)))
+        except ValueError:
+            pass
         return queryset.filter(qs_filter)
 
 
@@ -187,11 +186,11 @@ class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
             Q(autonomous_system__name__icontains=value)
             | Q(internet_exchange__name__icontains=value)
             | Q(internet_exchange__slug__icontains=value)
-            | Q(ip_address__icontains=value)
             | Q(comment__icontains=value)
         )
         try:
             qs_filter |= Q(autonomous_system__asn=int(value.strip()))
+            qs_filter |= Q(ip_address__icontains=str(ipaddress.ip_address(value)))
         except ValueError:
             pass
         return queryset.filter(qs_filter)
@@ -233,16 +232,15 @@ class PeerRecordFilter(django_filters.FilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        qs_filter = (
-            Q(network__name__icontains=value)
-            | Q(network__irr_as_set__icontains=value)
-            | Q(network_ixlan__ipaddr6=value)
-            | Q(network_ixlan__ipaddr4=value)
+        qs_filter = Q(network__name__icontains=value) | Q(
+            network__irr_as_set__icontains=value
         )
         try:
             qs_filter |= Q(network__asn=int(value.strip()))
             qs_filter |= Q(network__info_prefixes6=int(value.strip()))
             qs_filter |= Q(network__info_prefixes4=int(value.strip()))
+            qs_filter |= Q(network_ixlan__ipaddr6=str(ipaddress.ip_address(value)))
+            qs_filter |= Q(network_ixlan__ipaddr4=str(ipaddress.ip_address(value)))
         except ValueError:
             pass
         return queryset.filter(qs_filter)
