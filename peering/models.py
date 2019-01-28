@@ -466,6 +466,7 @@ class InternetExchange(ChangeLoggedModel):
                         "ip_address": str(ip_address),
                         "password": session.password or False,
                         "enabled": session.enabled,
+                        "is_route_server": session.is_route_server,
                         "export_routing_policies": [
                             {"name": rp.name, "slug": rp.slug}
                             for rp in session.export_routing_policies.all()
@@ -490,6 +491,7 @@ class InternetExchange(ChangeLoggedModel):
                         "ip_address": str(ip_address),
                         "password": session.password or False,
                         "enabled": session.enabled,
+                        "is_route_server": session.is_route_server,
                         "export_routing_policies": [
                             {"name": rp.name, "slug": rp.slug}
                             for rp in session.export_routing_policies.all()
