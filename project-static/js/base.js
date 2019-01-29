@@ -15,5 +15,5 @@ $(document).ready(function() {
   $('.collapse').on('hidden.bs.collapse', toggleIcon);
   $('.collapse').on('shown.bs.collapse', toggleIcon);
 
-  $('.list-group-item.active').click();
+  $('.nav > .list-group-item.active').click();
 });
