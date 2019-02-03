@@ -29,7 +29,8 @@ The best way to start setting up this tool is to use **pip** within a
 [![Coverage Status](https://coveralls.io/repos/github/respawner/peering-manager/badge.svg)](https://coveralls.io/github/respawner/peering-manager)
 [![Documentation Status](https://readthedocs.org/projects/peering-manager/badge/?version=latest)](http://peering-manager.readthedocs.io/en/latest/?badge=latest)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
-[![Liberapay](https://img.shields.io/badge/liberapay-donate-yellow.svg?style=flat-square)](https://liberapay.com/gmazoyer/donate)
+[![Paypal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://paypal.me/GuillaumeMazoyer)
+[![Liberapay](https://img.shields.io/badge/liberapay-donate-yellow.sve)](https://liberapay.com/gmazoyer/donate)
 
 
 ## Installation
@@ -43,11 +44,8 @@ You can help this project in many ways. Of course you can ask for features,
 give some ideas for future development, open issues if you found any and
 contribute to the code with pull requests and patches.
 
-You can also support the development of this project by
-[donating some money](https://paypal.me/GuillaumeMazoyer). Developing such
-project can be time consuming and it is done on personal time. Giving few
-dollars/euros/pounds/etc... can be a way to say thanks and help to free some
-time to develop this project.
+You can also support the development of this project by donating some coins,
+take a look at the badges above.
 
 ### Spreading The Word
 
