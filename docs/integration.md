@@ -39,14 +39,14 @@ given list are supported NAPALM platforms except __Other__).
 
 So in your configuration file you must at least have these lines.
 
-```python
+```no-highlight
 # NAPALM
 NAPALM_USERNAME = 'peeringmanageruser'
 NAPALM_PASSWORD = 'letsfindabetterpassword'
 ```
 
 There are two more optional configuration lines which are:
-```python
+```no-highlight
 NAPALM_TIMEOUT = 30 # Timeout which defaults to 30 seconds
 NAPALM_ARGS    = {} # Python dictionary of supported NAPALM arguments
                     # https://napalm.readthedocs.io/en/latest/support/index.html#list-of-supported-optional-arguments

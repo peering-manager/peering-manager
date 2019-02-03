@@ -14,7 +14,7 @@ framework. It runs as a WSGI service behind your choice of HTTP server.
 | HTTP Service | Apache 2 or nginx     |
 | WSGI Service | gunicorn or uWSGI     |
 | Application  | Django/Python         |
-| Database     | SQLite (more to come) |
+| Database     | PostgreSQL            |
 
 # Getting Started
 
