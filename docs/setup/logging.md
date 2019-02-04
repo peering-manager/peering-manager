@@ -1,5 +1,5 @@
 Peering Manager provides some loggers to make sure logs can be processed by any
-means a user may want to use. By default no logging is configured, an working
+means a user may want to use. By default no logging is configured, a working
 example is provided below.
 
 # Available Loggers
@@ -14,7 +14,7 @@ loggers are provided:
 
 To adjust the logging configuration to your needs, you probably want to read
 [Django's documentation](https://docs.djangoproject.com/en/2.1/topics/logging/)
-about it.
+about it.  Apply any required `LOGGING` modifications to `peering_manager/configuration.py`.
 
 # Example
 
@@ -22,7 +22,7 @@ This example will format logs using the `simple` formatter defined below and
 will separate logs in files depending of the loggers. Each file will contain a
 day of logs, 5 days will be kept.
 
-```
+```no-highlight
 LOGGING = {
     "version": 1,
     "formatters": {

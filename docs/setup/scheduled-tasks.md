@@ -9,22 +9,15 @@ of this data in its local database.
 
 ## Caching in the Local Database
 
-Assuming that Peering Manager is installed at `/opt/peering-manager`. The
+Assuming that Peering Manager is installed at `/opt/peering-manager` the
 following command will retrieve data from PeeringDB and store it locally.
 
-```
-# python manage.py peeringdb_sync
+```no-highlight
+# python3 manage.py peeringdb_sync
 ```
 
 This command does not need to be run very often. For example, running it every
-5 minutes is overkill, running it once a day should be enough. To avoid
-executing this command by hand (which could be annoying) it can be run in a
-cron task by putting a script in your cron.daily directory or with a task like
-(synchronization at 2:30AM every day):
-
-```
-30 2 * * * user cd /opt/peering-manager && python manage.py peeringdb_sync
-```
+5 minutes is overkill, running it once a day should be enough.
 
 The first cache synchronization can take a lot of time due to the amount of
 data to be stored. Later runs will be faster because only the differences with
@@ -35,13 +28,17 @@ the previous synchronization will be retrieved.
 If Peering Manager is used to generate configuration stanzas and push them to
 routers, this task can be automated using the given command.
 
-```
-# python manage.py deploy_configurations
+```no-highlight
+# python3 manage.py deploy_configurations
 ```
 
 This will generate the configuration for each IX and push it to the attached
-router if there is one. If no configuration template or no router are attached
-to a given IX, this one will be ignored during the execution of the task.
+router if there is one.  If there are no new peering sessions to be deployed, 
+this command is also useful to deploy any new configuration information, such
+as maximum prefix changes peers may have made against existing peering sessions.
+
+If no configuration template or no router is attached to a given IX, this one
+will be ignored during the execution of the task.
 
 ## Update Peering Session States
 
@@ -50,9 +47,28 @@ a supported platform (that is able to give BGP peer details), it is possible
 to invoke the following command. It will update the state of each peering
 session.
 
-```
-# python manage.py update_peering_session_states
+```no-highlight
+# python3 manage.py update_peering_session_states
 ```
 
-This command can also be schedule using a cron task to ensure that the BGP
-state of each peering session will be always up-to-date.
+## Check for available IX Peering Sessions
+
+For each Internet exchange configured, Peering Manager will identify a list of
+peering sessions that are available based on the peering sessions that are already
+configured.
+
+```no-highlight
+# python3 manage.py check_for_ix_peering_sessions
+```
+
+## CRON
+
+To avoid executing these commands by hand (which could be annoying) they can be run in a
+cron task.
+
+```no-highlight
+30 2 * * * user cd /opt/peering-manager && python3 manage.py peeringdb_sync
+55 * * * * user cd /opt/peering-manager && python3 manage.py deploy_configurations
+0 * * * *  user cd /opt/peering-manager && python3 manage.py update_peering_session_states
+0 0 * * *  user cd /opt/peering-manager && python3 manage.py check_for_ix_peering_sessions
+```

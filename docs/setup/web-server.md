@@ -7,7 +7,7 @@ use whatever combination of tool that you want.
 # Apache 2
 
 Install the Apache 2 package and enable mod proxy.
-```
+```no-highlight
 # apt install apache2
 # a2enmod proxy
 # a2enmod proxy_http
@@ -18,7 +18,7 @@ gunicorn server. We will create and edit the following file
 `/etc/apache2/sites-available/peering-manager.conf`.
 
 The content of the file can be something like this.
-```
+```no-highlight
 <VirtualHost *:80>
   ProxyPreserveHost On
   ServerName peering.example.com
@@ -40,19 +40,19 @@ The content of the file can be something like this.
 ```
 
 Remove the default virtual host and enable the new one.
-```
+```no-highlight
 # a2dissite 000-default.conf
 # a2ensite peering-manager.conf
 ```
 
 Restart Apache 2 to eanble our new configuration and mods.
-```
+```no-highlight
 # systemctl restart apache2
 ```
 
 To avoid any issues with read/write permission, set the Apache 2 user as owner
 of the Peering Manager directory.
-```
+```no-highlight
 # chown -R www-data:www-data /opt/peering-manager
 ```
 
@@ -60,14 +60,14 @@ of the Peering Manager directory.
 ## gunicorn
 
 Install **gunicorn** using **pip**.
-```
+```no-highlight
 # pip3 install gunicorn
 ```
 Save the following configuration in the root of the Peering Manager
 installation path as `gunicorn_config.py`. Be sure to verify the location of
 the **gunicorn** executable on your server (e.g. which gunicorn) and to update
 the pythonpath variable if needed.
-```
+```no-highlight
 command = '/usr/local/bin/gunicorn'
 pythonpath = '/opt/peering-manager'
 bind = '127.0.0.1:8001'
@@ -77,7 +77,7 @@ user = 'www-data'
 
 We can test if the configuration is correct by running (note the _ instead of -
 in the WSGI name):
-```
+```no-highlight
 # gunicorn -c /opt/peering-manager/gunicorn_config.py peering_manager.wsgi
 [2017-09-27 22:49:02 +0200] [7214] [INFO] Starting gunicorn 19.7.1
 [2017-09-27 22:49:02 +0200] [7214] [INFO] Listening at: http://127.0.0.1:8001 (7214)
@@ -91,13 +91,13 @@ in the WSGI name):
 ## supervisord
 
 Install **supervisord**.
-```
+```no-highlight
 # apt install supervisor
 ```
 
 Create a configuration file `/etc/supervisor/conf.d/peering-manager.conf` and
 set its content.
-```
+```no-highlight
 [program:peering-manager]
 command = gunicorn -c /opt/peering-manager/gunicorn_config.py peering_manager.wsgi
 directory = /opt/peering-manager/
@@ -105,7 +105,7 @@ user = www-data
 ```
 
 Restart **supervisord** to load the configuration.
-```
+```no-highlight
 # systemctl restart supervisor
 ```
 
