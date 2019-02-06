@@ -4,6 +4,7 @@
       <div class="row">
         <div class="col-md-9">
           {% include 'utils/responsive_table.html' %}
+          {% include 'utils/includes/pagination.html' with paginator=table.paginator page=table.page %}
         </div>
         <div class="col-md-3">
           {% include 'utils/search_form.html' %}
