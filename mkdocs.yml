@@ -14,7 +14,4 @@ pages:
   - 'Templating': 'config-template.md'
   - 'Integration': 'integration.md'
 
-markdown_extensions:
-  - admonition:
-
 theme: readthedocs
