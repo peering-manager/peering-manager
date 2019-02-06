@@ -14,7 +14,8 @@ loggers are provided:
 
 To adjust the logging configuration to your needs, you probably want to read
 [Django's documentation](https://docs.djangoproject.com/en/2.1/topics/logging/)
-about it.  Apply any required `LOGGING` modifications to `peering_manager/configuration.py`.
+about it. Apply any required `LOGGING` modifications to
+`peering_manager/configuration.py`.
 
 # Example
 

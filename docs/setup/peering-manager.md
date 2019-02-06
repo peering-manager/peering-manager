@@ -17,7 +17,8 @@ Select a base directory for the peering-manager installation.  ie: `/opt`
 # cd /opt
 ```
 
-Clone the Git repository from the base directory.  This will create the `peering-manager` application directory and extract the repository into it.
+Clone the Git repository from the base directory.  This will create the
+`peering-manager` application directory and extract the repository into it.
 
 ```no-highlight
 # git clone https://github.com/respawner/peering-manager.git .
@@ -71,7 +72,7 @@ After that requirements must be installed. We will use **pip** to do that.
 Installing collected packages: ...
 ```
 
-## Peering Manager initial configuration
+## Peering Manager Initial Configuration
 
 After completing requirements installation we can now setup Peering Manager.
 A configuration file is needed and can be copied from the included example

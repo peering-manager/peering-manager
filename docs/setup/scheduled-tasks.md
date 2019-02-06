@@ -33,7 +33,7 @@ routers, this task can be automated using the given command.
 ```
 
 This will generate the configuration for each IX and push it to the attached
-router if there is one.  If there are no new peering sessions to be deployed, 
+router if there is one.  If there are no new peering sessions to be deployed,
 this command is also useful to deploy any new configuration information, such
 as maximum prefix changes peers may have made against existing peering sessions.
 
@@ -54,8 +54,8 @@ session.
 ## Check for available IX Peering Sessions
 
 For each Internet exchange configured, Peering Manager will identify a list of
-peering sessions that are available based on the peering sessions that are already
-configured.
+peering sessions that are available based on the peering sessions that are
+already configured.
 
 ```no-highlight
 # python3 manage.py check_for_ix_peering_sessions
@@ -63,12 +63,12 @@ configured.
 
 ## CRON
 
-To avoid executing these commands by hand (which could be annoying) they can be run in a
-cron task.
+To avoid executing these commands by hand (which could be annoying) they can be
+run in a cron task.
 
 ```no-highlight
 30 2 * * * user cd /opt/peering-manager && python3 manage.py peeringdb_sync
 55 * * * * user cd /opt/peering-manager && python3 manage.py deploy_configurations
-0 * * * *  user cd /opt/peering-manager && python3 manage.py update_peering_session_states
-0 0 * * *  user cd /opt/peering-manager && python3 manage.py check_for_ix_peering_sessions
+0  * * * * user cd /opt/peering-manager && python3 manage.py update_peering_session_states
+0  0 * * * user cd /opt/peering-manager && python3 manage.py check_for_ix_peering_sessions
 ```
