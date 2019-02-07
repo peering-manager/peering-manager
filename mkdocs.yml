@@ -1,6 +1,6 @@
 site_name: Peering Manager
 
-pages:
+nav:
   - 'Introduction': 'index.md'
   - 'Setup':
     - 'PostgreSQL': 'setup/postgresql.md'
