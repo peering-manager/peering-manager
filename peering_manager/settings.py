@@ -155,8 +155,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_filters",
     "django_tables2",
+    "rest_framework",
     "peering",
     "peeringdb",
+    "users",
     "utils",
 ]
 

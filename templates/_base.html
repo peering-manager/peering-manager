@@ -48,7 +48,7 @@
               {{ request.user|truncatechars:"30" }}
             </a>
             <div class="dropdown-menu dropdown-menu-right">
-              <a class="dropdown-item" href="{% url 'user_profile' %}"><i class="fa fa-user"></i> Profile</a>
+              <a class="dropdown-item" href="{% url 'users:profile' %}"><i class="fa fa-user"></i> Profile</a>
               {% if request.user.is_staff %}
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fa fa-cogs"></i> Admin</a>
