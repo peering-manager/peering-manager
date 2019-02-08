@@ -100,6 +100,19 @@ if PAGINATE_COUNT not in PER_PAGE_SELECTION:
     PER_PAGE_SELECTION = sorted(PER_PAGE_SELECTION)
 
 
+# Use major.minor as API version
+REST_FRAMEWORK_VERSION = VERSION[0:3]
+REST_FRAMEWORK = {
+    "DEFAULT_VERSION": REST_FRAMEWORK_VERSION,
+    "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.AcceptHeaderVersioning",
+    "DEFAULT_AUTHENTICATION_CLASSES": ["peering_manager.api.TokenAuthentication"],
+    "DEFAULT_PERMISSION_CLASSES": ["peering_manager.api.TokenPermissions"],
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": PAGINATE_COUNT,
+}
+
+
 # NetBox API configuration
 NETBOX_API = getattr(configuration, "NETBOX_API", "")
 NETBOX_API_TOKEN = getattr(configuration, "NETBOX_API_TOKEN", "")
