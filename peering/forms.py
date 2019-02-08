@@ -23,6 +23,7 @@ from netbox.api import NetBox
 from peeringdb.models import PeerRecord
 from utils.forms import (
     BulkEditForm,
+    CustomNullBooleanSelect,
     BootstrapMixin,
     CSVChoiceField,
     FilterChoiceField,
@@ -260,7 +261,9 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = FilterChoiceField(
         queryset=DirectPeeringSession.objects.all(), widget=forms.MultipleHiddenInput
     )
-    enabled = YesNoField(required=False, label="Enable")
+    enabled = forms.NullBooleanField(
+        required=False, widget=CustomNullBooleanSelect, label="Enable"
+    )
     import_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
@@ -585,8 +588,12 @@ class InternetExchangePeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=InternetExchangePeeringSession.objects.all(),
         widget=forms.MultipleHiddenInput,
     )
-    is_route_server = YesNoField(required=False, label="Route Server")
-    enabled = YesNoField(required=False, label="Enable")
+    is_route_server = forms.NullBooleanField(
+        required=False, widget=CustomNullBooleanSelect, label="Route Server"
+    )
+    enabled = forms.NullBooleanField(
+        required=False, widget=CustomNullBooleanSelect, label="Enable"
+    )
     import_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),

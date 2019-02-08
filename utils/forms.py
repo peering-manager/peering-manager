@@ -15,6 +15,17 @@ def add_blank_choice(choices):
     return ((None, "---------"),) + tuple(choices)
 
 
+class CustomNullBooleanSelect(forms.NullBooleanSelect):
+    """
+    Do not enforce True/False when not selecting an option.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.choices = (("1", "---------"), ("2", "Yes"), ("3", "No"))
+
+
 class BulkEditForm(forms.Form):
     """
     Base form for editing several objects at the same time.
