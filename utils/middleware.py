@@ -8,6 +8,7 @@ from django.db import ProgrammingError
 from django.db.models.signals import post_delete, post_save
 from django.conf import settings
 from django.http import Http404, HttpResponseRedirect
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import curry
 
@@ -130,7 +131,10 @@ class RequireLoginMiddleware(object):
 
     def __call__(self, request):
         if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
-            if request.path_info != settings.LOGIN_URL:
+            if (
+                not request.path_info.startswith(reverse("api-root"))
+                and request.path_info != settings.LOGIN_URL
+            ):
                 return HttpResponseRedirect(
                     "{}?next={}".format(settings.LOGIN_URL, request.path_info)
                 )

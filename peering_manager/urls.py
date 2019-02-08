@@ -26,6 +26,8 @@ __patterns = [
     url(r"^admin/", admin_site.urls),
     # Error triggering
     url(r"^error500/$", views.trigger_500),
+    # API
+    url(r"^api/$", views.APIRootView.as_view(), name="api-root"),
 ]
 
 # Prepend BASE_PATH
