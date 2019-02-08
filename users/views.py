@@ -6,15 +6,16 @@ from django.contrib.auth import (
     logout as auth_logout,
     update_session_auth_hash,
 )
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.http import is_safe_url
 from django.views.generic import View
 
-from .forms import LoginForm, UserPasswordChangeForm
+from .forms import LoginForm, TokenForm, UserPasswordChangeForm
+from .models import Token
 
 
 def is_user_logged_in(request):
@@ -96,3 +97,113 @@ class ChangePasswordView(View, LoginRequiredMixin):
             return redirect("users:profile")
 
         return render(request, self.template, context)
+
+
+class TokenList(LoginRequiredMixin, View):
+    def get(self, request):
+        tokens = Token.objects.filter(user=request.user)
+        return render(
+            request,
+            "users/api_tokens.html",
+            {"tokens": tokens, "active_tab": "api_tokens"},
+        )
+
+
+class TokenAddEdit(LoginRequiredMixin, View):
+    def get(self, request, pk=None):
+        if pk is not None:
+            if not request.user.has_perm("users.change_token"):
+                return HttpResponseForbidden()
+            token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
+        else:
+            if not request.user.has_perm("users.add_token"):
+                return HttpResponseForbidden()
+            token = Token(user=request.user)
+
+        form = TokenForm(instance=token)
+
+        return render(
+            request,
+            "utils/object_add_edit.html",
+            {
+                "object": token,
+                "object_type": token._meta.verbose_name,
+                "form": form,
+                "return_url": reverse("users:token_list"),
+            },
+        )
+
+    def post(self, request, pk=None):
+        if pk is not None:
+            token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
+            form = TokenForm(request.POST, instance=token)
+        else:
+            token = Token()
+            form = TokenForm(request.POST)
+
+        if form.is_valid():
+            token = form.save(commit=False)
+            token.user = request.user
+            token.save()
+
+            msg = (
+                "Modified token {}".format(token)
+                if pk
+                else "Created token {}".format(token)
+            )
+            messages.success(request, msg)
+
+            if "_addanother" in request.POST:
+                return redirect(request.path)
+            else:
+                return redirect("users:token_list")
+
+        return render(
+            request,
+            "utils/object_add_edit.html",
+            {
+                "object": token,
+                "object_type": token._meta.verbose_name,
+                "form": form,
+                "return_url": reverse("users:token_list"),
+            },
+        )
+
+
+class TokenDelete(PermissionRequiredMixin, View):
+    permission_required = "users.delete_token"
+
+    def get(self, request, pk):
+        token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
+        initial_data = {"return_url": reverse("users:token_list")}
+        form = ConfirmationForm(initial=initial_data)
+
+        return render(
+            request,
+            "utils/object_delete.html",
+            {
+                "object": token,
+                "object_type": token._meta.verbose_name,
+                "form": form,
+                "return_url": reverse("users:token_list"),
+            },
+        )
+
+    def post(self, request, pk):
+        token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+            token.delete()
+            messages.success(request, "Token deleted")
+            return redirect("users:token_list")
+
+        return render(
+            request,
+            "utils/object_delete.html",
+            {
+                "object": token,
+                "object_type": token._meta.verbose_name,
+                "form": form,
+                "return_url": reverse("users:token_list"),
+            },
+        )

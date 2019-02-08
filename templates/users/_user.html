@@ -10,6 +10,7 @@
           <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
             <a class="nav-link {% ifequal active_tab "profile" %} active{% endifequal %}" role="tab" href="{% url 'users:profile' %}">Profile</a>
             <a class="nav-link {% ifequal active_tab "password" %} active{% endifequal %}" role="tab" href="{% url 'users:change_password' %}">Change Password</a>
+            <a class="nav-link {% ifequal active_tab "api_tokens" %} active{% endifequal %}" role="tab" href="{% url 'users:token_list' %}">API Tokens</a>
           </div>
         </div>
         <div class="col-md-8">

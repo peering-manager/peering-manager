@@ -45,9 +45,17 @@ class BootstrapMixin(forms.BaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        custom_widgets = [forms.CheckboxInput, forms.RadioSelect]
+
         for field_name, field in self.fields.items():
-            css = field.widget.attrs.get("class", "")
-            field.widget.attrs["class"] = " ".join([css, "form-control"]).strip()
+            if field.widget.__class__ in custom_widgets:
+                css = field.widget.attrs.get("class", "")
+                field.widget.attrs["class"] = " ".join(
+                    [css, "custom-control-input"]
+                ).strip()
+            else:
+                css = field.widget.attrs.get("class", "")
+                field.widget.attrs["class"] = " ".join([css, "form-control"]).strip()
 
             if field.required:
                 field.widget.attrs["required"] = "required"
