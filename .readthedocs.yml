@@ -2,3 +2,6 @@ version: 2
 
 python:
   version: 3.5
+
+mkdocs:
+  configuration: mkdocs.yml
