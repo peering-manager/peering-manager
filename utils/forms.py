@@ -22,7 +22,6 @@ class CustomNullBooleanSelect(forms.NullBooleanSelect):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.choices = (("1", "---------"), ("2", "Yes"), ("3", "No"))
 
 

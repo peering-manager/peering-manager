@@ -23,9 +23,9 @@ from netbox.api import NetBox
 from peeringdb.models import PeerRecord
 from utils.forms import (
     BulkEditForm,
-    CustomNullBooleanSelect,
     BootstrapMixin,
     CSVChoiceField,
+    CustomNullBooleanSelect,
     FilterChoiceField,
     PasswordField,
     SlugField,
