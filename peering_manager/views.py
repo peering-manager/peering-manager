@@ -1,9 +1,11 @@
+from collections import OrderedDict
 import sys
 
 from django.shortcuts import render
 from django.views.generic import View
 
 from rest_framework.response import Response
+from rest_framework.reverse import reverse as rest_reverse
 from rest_framework.views import APIView
 
 from peering.models import (
@@ -46,7 +48,18 @@ class APIRootView(APIView):
         return "API Root"
 
     def get(self, request, format=None):
-        return Response()
+        return Response(
+            OrderedDict(
+                (
+                    (
+                        "peering",
+                        rest_reverse(
+                            "peering-api:api-root", request=request, format=format
+                        ),
+                    ),
+                )
+            )
+        )
 
 
 class Home(View):

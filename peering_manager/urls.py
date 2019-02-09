@@ -28,6 +28,7 @@ __patterns = [
     url(r"^error500/$", views.trigger_500),
     # API
     url(r"^api/$", views.APIRootView.as_view(), name="api-root"),
+    url(r"^api/peering/", include("peering.api.urls")),
 ]
 
 # Prepend BASE_PATH
