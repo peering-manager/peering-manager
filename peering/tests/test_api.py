@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from peering.constants import *
-from peering.models import AutonomousSystem, Community, InternetExchange
+from peering.models import AutonomousSystem, Community, InternetExchange, Router
 from utils.testing import APITestCase
 
 
@@ -209,3 +209,83 @@ class InternetExchangeTest(APITestCase):
 
         self.assertStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(InternetExchange.objects.count(), 0)
+
+
+class RouterTest(APITestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.router = Router.objects.create(
+            name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
+        )
+
+    def test_get_router(self):
+        url = reverse("peering-api:router-detail", kwargs={"pk": self.router.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data["hostname"], self.router.hostname)
+
+    def test_list_routers(self):
+        url = reverse("peering-api:router-list")
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data["count"], 1)
+
+    def test_create_router(self):
+        data = {
+            "name": "Other",
+            "hostname": "other.example.com",
+            "platform": PLATFORM_JUNOS,
+        }
+
+        url = reverse("peering-api:router-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Router.objects.count(), 2)
+        router = Router.objects.get(pk=response.data["id"])
+        self.assertEqual(router.hostname, data["hostname"])
+
+    def test_create_router_bulk(self):
+        data = [
+            {
+                "name": "Test1",
+                "hostname": "test1.example.com",
+                "platform": PLATFORM_JUNOS,
+            },
+            {
+                "name": "Test2",
+                "hostname": "test2.example.com",
+                "platform": PLATFORM_JUNOS,
+            },
+        ]
+
+        url = reverse("peering-api:router-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Router.objects.count(), 3)
+        self.assertEqual(response.data[0]["hostname"], data[0]["hostname"])
+        self.assertEqual(response.data[1]["hostname"], data[1]["hostname"])
+
+    def test_update_router(self):
+        data = {
+            "name": "Test",
+            "hostname": "test.example.com",
+            "platform": PLATFORM_IOSXR,
+        }
+
+        url = reverse("peering-api:router-detail", kwargs={"pk": self.router.pk})
+        response = self.client.put(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(Router.objects.count(), 1)
+        router = Router.objects.get(pk=response.data["id"])
+        self.assertEqual(router.hostname, data["hostname"])
+
+    def test_delete_router(self):
+        url = reverse("peering-api:router-detail", kwargs={"pk": self.router.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Router.objects.count(), 0)
