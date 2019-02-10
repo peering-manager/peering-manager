@@ -80,11 +80,11 @@ class DirectPeeringSessionSerializer(serializers.ModelSerializer):
 
 
 class InternetExchangeSerializer(serializers.ModelSerializer):
-    configuration_template = ConfigurationTemplateSerializer()
-    communities = CommunitySerializer(many=True)
-    import_routing_policies = RoutingPolicySerializer(many=True)
-    export_routing_policies = RoutingPolicySerializer(many=True)
-    router = RouterSerializer()
+    configuration_template = ConfigurationTemplateSerializer(required=False)
+    communities = CommunitySerializer(many=True, required=False)
+    import_routing_policies = RoutingPolicySerializer(many=True, required=False)
+    export_routing_policies = RoutingPolicySerializer(many=True, required=False)
+    router = RouterSerializer(required=False)
 
     class Meta:
         model = InternetExchange
