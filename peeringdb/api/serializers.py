@@ -6,4 +6,4 @@ from peeringdb.models import Synchronization
 class SynchronizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Synchronization
-        fields = ["time", "added", "updated", "deleted"]
+        fields = ["id", "time", "added", "updated", "deleted"]

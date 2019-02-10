@@ -1,11 +1,11 @@
 from django.test import TestCase
 from django.utils import timezone
 
-from .http import PeeringDB
-from .models import Network, NetworkIXLAN
+from peeringdb.http import PeeringDB
+from peeringdb.models import Network, NetworkIXLAN
 
 
-class PeeringDBTestCase(TestCase):
+class PeeringDBHTTPTestCase(TestCase):
     def test_get_last_synchronization(self):
         api = PeeringDB()
 
