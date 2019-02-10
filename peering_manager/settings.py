@@ -105,7 +105,10 @@ REST_FRAMEWORK_VERSION = VERSION[0:3]
 REST_FRAMEWORK = {
     "DEFAULT_VERSION": REST_FRAMEWORK_VERSION,
     "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.AcceptHeaderVersioning",
-    "DEFAULT_AUTHENTICATION_CLASSES": ["peering_manager.api.TokenAuthentication"],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+        "peering_manager.api.TokenAuthentication",
+    ],
     "DEFAULT_PERMISSION_CLASSES": ["peering_manager.api.TokenPermissions"],
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
