@@ -14,7 +14,7 @@ from django.utils.safestring import mark_safe
 
 from .constants import *
 from .fields import ASNField, CommunityField
-from peeringdb.api import PeeringDB
+from peeringdb.http import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
 from utils.models import ChangeLoggedModel
 

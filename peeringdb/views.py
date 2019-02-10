@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render, reverse
 from django.views.generic import View
 
-from .api import PeeringDB
+from .http import PeeringDB
 from .models import Network, NetworkIXLAN, PeerRecord, Synchronization
 
 

@@ -80,7 +80,7 @@ from .tables import (
     RouterTable,
     RoutingPolicyTable,
 )
-from peeringdb.api import PeeringDB
+from peeringdb.http import PeeringDB
 from peeringdb.models import PeerRecord
 from utils.views import (
     AddOrEditView,
