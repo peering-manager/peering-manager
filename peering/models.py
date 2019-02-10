@@ -331,6 +331,9 @@ class DirectPeeringSession(BGPSession):
         "Router", blank=True, null=True, on_delete=models.SET_NULL
     )
 
+    class Meta:
+        ordering = ["autonomous_system", "ip_address"]
+
     def get_absolute_url(self):
         return reverse("peering:direct_peering_session_details", kwargs={"pk": self.pk})
 
@@ -803,6 +806,9 @@ class InternetExchangePeeringSession(BGPSession):
     is_route_server = models.BooleanField(blank=True, default=False)
 
     logger = logging.getLogger("peering.manager.peeringdb")
+
+    class Meta:
+        ordering = ["autonomous_system", "ip_address"]
 
     @staticmethod
     def does_exist(internet_exchange=None, autonomous_system=None, ip_address=None):
