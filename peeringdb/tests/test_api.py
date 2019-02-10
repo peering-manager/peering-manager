@@ -1,8 +1,6 @@
 from django.urls import reverse
 from django.utils import timezone
 
-from rest_framework import status
-
 from peeringdb.models import Synchronization
 from utils.testing import APITestCase
 
@@ -16,13 +14,13 @@ class SynchronizationTest(APITestCase):
                 time=timezone.now(), added=i, updated=i, deleted=i
             )
 
-    def test_get_synchornization(self):
+    def test_get_synchronization(self):
         url = reverse("peeringdb-api:synchronization-detail", kwargs={"pk": 1})
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data["added"], 0)
 
-    def test_list_synchornizations(self):
+    def test_list_synchronizations(self):
         url = reverse("peeringdb-api:synchronization-list")
         response = self.client.get(url, **self.header)
 
