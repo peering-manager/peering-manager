@@ -2,7 +2,8 @@ from django.urls import reverse
 
 from rest_framework import status
 
-from peering.models import AutonomousSystem, InternetExchange
+from peering.constants import *
+from peering.models import AutonomousSystem, Community, InternetExchange
 from utils.testing import APITestCase
 
 
@@ -23,13 +24,13 @@ class AutonomousSystemTest(APITestCase):
 
         self.assertEqual(response.data["asn"], self.autonomous_system.asn)
 
-    def test_list_gameservers(self):
+    def test_list_autonomous_systems(self):
         url = reverse("peering-api:autonomoussystem-list")
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data["count"], 1)
 
-    def test_create_gameserver(self):
+    def test_create_autonomous_system(self):
         data = {"asn": 29467, "name": "LuxNetwork S.A."}
 
         url = reverse("peering-api:autonomoussystem-list")
@@ -76,6 +77,70 @@ class AutonomousSystemTest(APITestCase):
         self.assertEqual(AutonomousSystem.objects.count(), 0)
 
 
+class CommunityTest(APITestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.community = Community.objects.create(
+            name="Test", value="64500:1", type=COMMUNITY_TYPE_EGRESS
+        )
+
+    def test_get_community(self):
+        url = reverse("peering-api:community-detail", kwargs={"pk": self.community.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data["value"], self.community.value)
+
+    def test_list_communities(self):
+        url = reverse("peering-api:community-list")
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data["count"], 1)
+
+    def test_create_community(self):
+        data = {"name": "Other", "value": "64500:2", "type": COMMUNITY_TYPE_EGRESS}
+
+        url = reverse("peering-api:community-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Community.objects.count(), 2)
+        community = Community.objects.get(pk=response.data["id"])
+        self.assertEqual(community.value, data["value"])
+
+    def test_create_community_bulk(self):
+        data = [
+            {"name": "Test1", "value": "64500:11", "type": COMMUNITY_TYPE_EGRESS},
+            {"name": "Test2", "value": "64500:12", "type": COMMUNITY_TYPE_EGRESS},
+        ]
+
+        url = reverse("peering-api:community-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Community.objects.count(), 3)
+        self.assertEqual(response.data[0]["value"], data[0]["value"])
+        self.assertEqual(response.data[1]["value"], data[1]["value"])
+
+    def test_update_community(self):
+        data = {"name": "Other", "value": "64500:2", "type": COMMUNITY_TYPE_INGRESS}
+
+        url = reverse("peering-api:community-detail", kwargs={"pk": self.community.pk})
+        response = self.client.put(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(Community.objects.count(), 1)
+        community = Community.objects.get(pk=response.data["id"])
+        self.assertEqual(community.value, data["value"])
+
+    def test_delete_community(self):
+        url = reverse("peering-api:community-detail", kwargs={"pk": self.community.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Community.objects.count(), 0)
+
+
 class InternetExchangeTest(APITestCase):
     def setUp(self):
         super().setUp()
@@ -93,13 +158,13 @@ class InternetExchangeTest(APITestCase):
 
         self.assertEqual(response.data["slug"], self.internet_exchange.slug)
 
-    def test_list_gameservers(self):
+    def test_list_internet_exchanges(self):
         url = reverse("peering-api:internetexchange-list")
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data["count"], 1)
 
-    def test_create_gameserver(self):
+    def test_create_internet_exchange(self):
         data = {"name": "Other", "slug": "other"}
 
         url = reverse("peering-api:internetexchange-list")
