@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.utils import timezone
 
-from .api import PeeringDB
+from .http import PeeringDB
 from .models import Network, NetworkIXLAN
 
 
