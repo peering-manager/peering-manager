@@ -30,7 +30,17 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from utils.api import ModelViewSet
+from utils.api import ModelViewSet, StaticChoicesViewSet
+
+
+class PeeringFieldChoicesViewSet(StaticChoicesViewSet):
+    fields = [
+        (DirectPeeringSession, ["relationship", "bgp_state"]),
+        (Community, ["type"]),
+        (InternetExchangePeeringSession, ["bgp_state"]),
+        (Router, ["platform"]),
+        (RoutingPolicy, ["type"]),
+    ]
 
 
 class AutonomousSystemViewSet(ModelViewSet):
