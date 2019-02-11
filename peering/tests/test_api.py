@@ -7,6 +7,7 @@ from peering.models import (
     AutonomousSystem,
     Community,
     InternetExchange,
+    InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
 )
@@ -215,6 +216,114 @@ class InternetExchangeTest(APITestCase):
 
         self.assertStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(InternetExchange.objects.count(), 0)
+
+
+class InternetExchangePeeringSessionTest(APITestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.autonomous_system = AutonomousSystem.objects.create(
+            asn=201281, name="Guillaume Mazoyer"
+        )
+        self.internet_exchange = InternetExchange.objects.create(
+            name="Test", slug="test"
+        )
+        self.internet_exchange_peering_session = InternetExchangePeeringSession.objects.create(
+            autonomous_system=self.autonomous_system,
+            internet_exchange=self.internet_exchange,
+            ip_address="2001:db8::1",
+        )
+
+    def test_get_internet_exchange_peering_session(self):
+        url = reverse(
+            "peering-api:internetexchangepeeringsession-detail",
+            kwargs={"pk": self.internet_exchange_peering_session.pk},
+        )
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(
+            response.data["ip_address"],
+            self.internet_exchange_peering_session.ip_address,
+        )
+
+    def test_list_internet_exchange_peering_sessions(self):
+        url = reverse("peering-api:internetexchangepeeringsession-list")
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data["count"], 1)
+
+    def test_create_internet_exchange_peering_session(self):
+        data = {
+            "autonomous_system": self.autonomous_system.pk,
+            "internet_exchange": self.internet_exchange.pk,
+            "ip_address": "192.168.0.1",
+        }
+
+        url = reverse("peering-api:internetexchangepeeringsession-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(InternetExchangePeeringSession.objects.count(), 2)
+        internet_exchange_peering_session = InternetExchangePeeringSession.objects.get(
+            pk=response.data["id"]
+        )
+        self.assertEqual(
+            internet_exchange_peering_session.ip_address, data["ip_address"]
+        )
+
+    def test_create_internet_exchange_peering_session_bulk(self):
+        data = [
+            {
+                "autonomous_system": self.autonomous_system.pk,
+                "internet_exchange": self.internet_exchange.pk,
+                "ip_address": "10.0.0.1",
+            },
+            {
+                "autonomous_system": self.autonomous_system.pk,
+                "internet_exchange": self.internet_exchange.pk,
+                "ip_address": "10.0.0.2",
+            },
+        ]
+
+        url = reverse("peering-api:internetexchangepeeringsession-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(InternetExchangePeeringSession.objects.count(), 3)
+        self.assertEqual(response.data[0]["ip_address"], data[0]["ip_address"])
+        self.assertEqual(response.data[1]["ip_address"], data[1]["ip_address"])
+
+    def test_update_internet_exchange_peering_session(self):
+        data = {
+            "autonomous_system": self.autonomous_system.pk,
+            "internet_exchange": self.internet_exchange.pk,
+            "ip_address": "2001:db8::2",
+        }
+
+        url = reverse(
+            "peering-api:internetexchangepeeringsession-detail",
+            kwargs={"pk": self.internet_exchange_peering_session.pk},
+        )
+        response = self.client.put(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(InternetExchangePeeringSession.objects.count(), 1)
+        internet_exchange_peering_session = InternetExchangePeeringSession.objects.get(
+            pk=response.data["id"]
+        )
+        self.assertEqual(
+            internet_exchange_peering_session.ip_address, data["ip_address"]
+        )
+
+    def test_delete_internet_exchange_peering_session(self):
+        url = reverse(
+            "peering-api:internetexchangepeeringsession-detail",
+            kwargs={"pk": self.internet_exchange_peering_session.pk},
+        )
+        response = self.client.delete(url, **self.header)
+
+        self.assertStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(InternetExchangePeeringSession.objects.count(), 0)
 
 
 class RouterTest(APITestCase):
