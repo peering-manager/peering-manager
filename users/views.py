@@ -16,6 +16,7 @@ from django.views.generic import View
 
 from .forms import LoginForm, TokenForm, UserPasswordChangeForm
 from .models import Token
+from utils.forms import ConfirmationForm
 
 
 def is_user_logged_in(request):
