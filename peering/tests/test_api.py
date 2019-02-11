@@ -6,6 +6,7 @@ from peering.constants import *
 from peering.models import (
     AutonomousSystem,
     Community,
+    ConfigurationTemplate,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -147,6 +148,85 @@ class CommunityTest(APITestCase):
 
         self.assertStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Community.objects.count(), 0)
+
+
+class ConfigurationTemplateTest(APITestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.configuration_template = ConfigurationTemplate.objects.create(
+            name="Test", template="test_template"
+        )
+
+    def test_get_configuration_template(self):
+        url = reverse(
+            "peering-api:configurationtemplate-detail",
+            kwargs={"pk": self.configuration_template.pk},
+        )
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(
+            response.data["template"], self.configuration_template.template
+        )
+
+    def test_list_configuration_templates(self):
+        url = reverse("peering-api:configurationtemplate-list")
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data["count"], 1)
+
+    def test_create_configuration_template(self):
+        data = {"name": "Other", "template": "other_template"}
+
+        url = reverse("peering-api:configurationtemplate-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(ConfigurationTemplate.objects.count(), 2)
+        configuration_template = ConfigurationTemplate.objects.get(
+            pk=response.data["id"]
+        )
+        self.assertEqual(configuration_template.template, data["template"])
+
+    def test_create_configuration_template_bulk(self):
+        data = [
+            {"name": "Test1", "template": "test1_template"},
+            {"name": "Test2", "template": "test2_template"},
+        ]
+
+        url = reverse("peering-api:configurationtemplate-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(ConfigurationTemplate.objects.count(), 3)
+        self.assertEqual(response.data[0]["template"], data[0]["template"])
+        self.assertEqual(response.data[1]["template"], data[1]["template"])
+
+    def test_update_configuration_template(self):
+        data = {"name": "Test", "template": "updated_template"}
+
+        url = reverse(
+            "peering-api:configurationtemplate-detail",
+            kwargs={"pk": self.configuration_template.pk},
+        )
+        response = self.client.put(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(ConfigurationTemplate.objects.count(), 1)
+        configuration_template = ConfigurationTemplate.objects.get(
+            pk=response.data["id"]
+        )
+        self.assertEqual(configuration_template.template, data["template"])
+
+    def test_delete_configuration_template(self):
+        url = reverse(
+            "peering-api:configurationtemplate-detail",
+            kwargs={"pk": self.configuration_template.pk},
+        )
+        response = self.client.delete(url, **self.header)
+
+        self.assertStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(ConfigurationTemplate.objects.count(), 0)
 
 
 class DirectPeeringSessionTest(APITestCase):
