@@ -55,14 +55,15 @@ class RoutingPolicySerializer(serializers.ModelSerializer):
 
 
 class DirectPeeringSessionSerializer(serializers.ModelSerializer):
-    autonomous_system = AutonomousSystemSerializer()
-    import_routing_policies = RoutingPolicySerializer(many=True)
-    export_routing_policies = RoutingPolicySerializer(many=True)
-    router = RouterSerializer()
+    autonomous_system = AutonomousSystemNestedSerializer()
+    import_routing_policies = RoutingPolicySerializer(many=True, required=False)
+    export_routing_policies = RoutingPolicySerializer(many=True, required=False)
+    router = RouterSerializer(required=False)
 
     class Meta:
         model = DirectPeeringSession
         fields = [
+            "id",
             "autonomous_system",
             "local_asn",
             "relationship",

@@ -6,6 +6,7 @@ from peering.constants import *
 from peering.models import (
     AutonomousSystem,
     Community,
+    DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
@@ -146,6 +147,106 @@ class CommunityTest(APITestCase):
 
         self.assertStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Community.objects.count(), 0)
+
+
+class DirectPeeringSessionTest(APITestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.autonomous_system = AutonomousSystem.objects.create(
+            asn=201281, name="Guillaume Mazoyer"
+        )
+        self.direct_peering_session = DirectPeeringSession.objects.create(
+            autonomous_system=self.autonomous_system,
+            relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
+            ip_address="2001:db8::1",
+        )
+
+    def test_get_direct_peering_session(self):
+        url = reverse(
+            "peering-api:directpeeringsession-detail",
+            kwargs={"pk": self.direct_peering_session.pk},
+        )
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(
+            response.data["ip_address"], self.direct_peering_session.ip_address
+        )
+
+    def test_list_direct_peering_sessions(self):
+        url = reverse("peering-api:directpeeringsession-list")
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data["count"], 1)
+
+    def test_create_direct_peering_session(self):
+        data = {
+            "autonomous_system": self.autonomous_system.pk,
+            "relationship": BGP_RELATIONSHIP_PRIVATE_PEERING,
+            "ip_address": "192.168.0.1",
+        }
+
+        url = reverse("peering-api:directpeeringsession-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(DirectPeeringSession.objects.count(), 2)
+        direct_peering_session = DirectPeeringSession.objects.get(
+            pk=response.data["id"]
+        )
+        self.assertEqual(direct_peering_session.ip_address, data["ip_address"])
+
+    def test_create_direct_peering_session_bulk(self):
+        data = [
+            {
+                "autonomous_system": self.autonomous_system.pk,
+                "relationship": BGP_RELATIONSHIP_PRIVATE_PEERING,
+                "ip_address": "10.0.0.1",
+            },
+            {
+                "autonomous_system": self.autonomous_system.pk,
+                "relationship": BGP_RELATIONSHIP_PRIVATE_PEERING,
+                "ip_address": "10.0.0.2",
+            },
+        ]
+
+        url = reverse("peering-api:directpeeringsession-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(DirectPeeringSession.objects.count(), 3)
+        self.assertEqual(response.data[0]["ip_address"], data[0]["ip_address"])
+        self.assertEqual(response.data[1]["ip_address"], data[1]["ip_address"])
+
+    def test_update_direct_peering_session(self):
+        data = {
+            "autonomous_system": self.autonomous_system.pk,
+            "relationship": BGP_RELATIONSHIP_PRIVATE_PEERING,
+            "ip_address": "2001:db8::2",
+        }
+
+        url = reverse(
+            "peering-api:directpeeringsession-detail",
+            kwargs={"pk": self.direct_peering_session.pk},
+        )
+        response = self.client.put(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(DirectPeeringSession.objects.count(), 1)
+        direct_peering_session = DirectPeeringSession.objects.get(
+            pk=response.data["id"]
+        )
+        self.assertEqual(direct_peering_session.ip_address, data["ip_address"])
+
+    def test_delete_direct_peering_session(self):
+        url = reverse(
+            "peering-api:directpeeringsession-detail",
+            kwargs={"pk": self.direct_peering_session.pk},
+        )
+        response = self.client.delete(url, **self.header)
+
+        self.assertStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(DirectPeeringSession.objects.count(), 0)
 
 
 class InternetExchangeTest(APITestCase):
