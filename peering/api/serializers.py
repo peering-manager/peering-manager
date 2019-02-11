@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from .nested_serializers import *
 from peering.models import (
     AutonomousSystem,
     Community,
@@ -107,14 +108,15 @@ class InternetExchangeSerializer(serializers.ModelSerializer):
 
 
 class InternetExchangePeeringSessionSerializer(serializers.ModelSerializer):
-    autonomous_system = AutonomousSystemSerializer()
-    internet_exchange = InternetExchangeSerializer()
-    import_routing_policies = RoutingPolicySerializer(many=True)
-    export_routing_policies = RoutingPolicySerializer(many=True)
+    autonomous_system = AutonomousSystemNestedSerializer()
+    internet_exchange = InternetExchangeNestedSerializer()
+    import_routing_policies = RoutingPolicySerializer(many=True, required=False)
+    export_routing_policies = RoutingPolicySerializer(many=True, required=False)
 
     class Meta:
         model = InternetExchangePeeringSession
         fields = [
+            "id",
             "autonomous_system",
             "internet_exchange",
             "ip_address",

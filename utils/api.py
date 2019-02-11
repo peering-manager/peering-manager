@@ -4,6 +4,7 @@ from django.http import Http404
 
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.serializers import ModelSerializer, ValidationError
 from rest_framework.viewsets import ModelViewSet as __ModelViewSet, ViewSet
 
 
@@ -56,3 +57,23 @@ class StaticChoicesViewSet(ViewSet):
 
     def get_view_name(self):
         return "Static Choices"
+
+
+class WritableNestedSerializer(ModelSerializer):
+    """
+    Accept only ID on write while still giving a nested representation on read.
+    """
+
+    def run_validators(self, value):
+        return
+
+    def to_internal_value(self, data):
+        if data is None:
+            return None
+
+        try:
+            return self.Meta.model.objects.get(pk=int(data))
+        except (TypeError, ValueError):
+            raise ValidationError("Primary key must be an integer")
+        except ObjectDoesNotExist:
+            raise ValidationError("Invalid ID")
