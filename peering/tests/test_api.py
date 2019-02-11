@@ -3,7 +3,13 @@ from django.urls import reverse
 from rest_framework import status
 
 from peering.constants import *
-from peering.models import AutonomousSystem, Community, InternetExchange, Router
+from peering.models import (
+    AutonomousSystem,
+    Community,
+    InternetExchange,
+    Router,
+    RoutingPolicy,
+)
 from utils.testing import APITestCase
 
 
@@ -289,3 +295,73 @@ class RouterTest(APITestCase):
 
         self.assertStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Router.objects.count(), 0)
+
+
+class RoutingPolicyTest(APITestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.routing_policy = RoutingPolicy.objects.create(
+            name="Test", slug="test", type=ROUTING_POLICY_TYPE_EXPORT
+        )
+
+    def test_get_routing_policy(self):
+        url = reverse(
+            "peering-api:routingpolicy-detail", kwargs={"pk": self.routing_policy.pk}
+        )
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data["slug"], self.routing_policy.slug)
+
+    def test_list_routing_policies(self):
+        url = reverse("peering-api:routingpolicy-list")
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data["count"], 1)
+
+    def test_create_routing_policy(self):
+        data = {"name": "Other", "slug": "other", "type": ROUTING_POLICY_TYPE_EXPORT}
+
+        url = reverse("peering-api:routingpolicy-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(RoutingPolicy.objects.count(), 2)
+        routing_policy = RoutingPolicy.objects.get(pk=response.data["id"])
+        self.assertEqual(routing_policy.slug, data["slug"])
+
+    def test_create_routing_policy_bulk(self):
+        data = [
+            {"name": "Test1", "slug": "test1", "type": ROUTING_POLICY_TYPE_EXPORT},
+            {"name": "Test2", "slug": "test2", "type": ROUTING_POLICY_TYPE_EXPORT},
+        ]
+
+        url = reverse("peering-api:routingpolicy-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(RoutingPolicy.objects.count(), 3)
+        self.assertEqual(response.data[0]["slug"], data[0]["slug"])
+        self.assertEqual(response.data[1]["slug"], data[1]["slug"])
+
+    def test_update_router(self):
+        data = {"name": "Test", "slug": "test", "type": ROUTING_POLICY_TYPE_IMPORT}
+
+        url = reverse(
+            "peering-api:routingpolicy-detail", kwargs={"pk": self.routing_policy.pk}
+        )
+        response = self.client.put(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(RoutingPolicy.objects.count(), 1)
+        routing_policy = RoutingPolicy.objects.get(pk=response.data["id"])
+        self.assertEqual(routing_policy.type, data["type"])
+
+    def test_delete_routing_policy(self):
+        url = reverse(
+            "peering-api:routingpolicy-detail", kwargs={"pk": self.routing_policy.pk}
+        )
+        response = self.client.delete(url, **self.header)
+
+        self.assertStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(RoutingPolicy.objects.count(), 0)
