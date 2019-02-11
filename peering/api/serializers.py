@@ -56,9 +56,9 @@ class RoutingPolicySerializer(serializers.ModelSerializer):
 
 class DirectPeeringSessionSerializer(serializers.ModelSerializer):
     autonomous_system = AutonomousSystemNestedSerializer()
-    import_routing_policies = RoutingPolicySerializer(many=True, required=False)
-    export_routing_policies = RoutingPolicySerializer(many=True, required=False)
-    router = RouterSerializer(required=False)
+    import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
+    export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
+    router = RouterNestedSerializer(required=False)
 
     class Meta:
         model = DirectPeeringSession
@@ -82,11 +82,11 @@ class DirectPeeringSessionSerializer(serializers.ModelSerializer):
 
 
 class InternetExchangeSerializer(serializers.ModelSerializer):
-    configuration_template = ConfigurationTemplateSerializer(required=False)
-    communities = CommunitySerializer(many=True, required=False)
-    import_routing_policies = RoutingPolicySerializer(many=True, required=False)
-    export_routing_policies = RoutingPolicySerializer(many=True, required=False)
-    router = RouterSerializer(required=False)
+    configuration_template = ConfigurationTemplateNestedSerializer(required=False)
+    communities = CommunityNestedSerializer(many=True, required=False)
+    import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
+    export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
+    router = RouterNestedSerializer(required=False)
 
     class Meta:
         model = InternetExchange
@@ -111,8 +111,8 @@ class InternetExchangeSerializer(serializers.ModelSerializer):
 class InternetExchangePeeringSessionSerializer(serializers.ModelSerializer):
     autonomous_system = AutonomousSystemNestedSerializer()
     internet_exchange = InternetExchangeNestedSerializer()
-    import_routing_policies = RoutingPolicySerializer(many=True, required=False)
-    export_routing_policies = RoutingPolicySerializer(many=True, required=False)
+    import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
+    export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
 
     class Meta:
         model = InternetExchangePeeringSession
