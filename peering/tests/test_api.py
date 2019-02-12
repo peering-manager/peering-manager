@@ -85,6 +85,15 @@ class AutonomousSystemTest(APITestCase):
         self.assertStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(AutonomousSystem.objects.count(), 0)
 
+    def test_synchronize_with_peeringdb(self):
+        url = reverse(
+            "peering-api:autonomoussystem-synchronize-with-peeringdb",
+            kwargs={"pk": self.autonomous_system.pk},
+        )
+        response = self.client.post(url, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_200_OK)
+
 
 class CommunityTest(APITestCase):
     def setUp(self):

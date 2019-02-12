@@ -1,3 +1,5 @@
+from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .serializers import (
@@ -47,6 +49,18 @@ class AutonomousSystemViewSet(ModelViewSet):
     queryset = AutonomousSystem.objects.all()
     serializer_class = AutonomousSystemSerializer
     filterset_class = AutonomousSystemFilter
+
+    @action(detail=True, methods=["post"], url_path="synchronize-with-peeringdb")
+    def synchronize_with_peeringdb(self, request, pk=None):
+        success = self.get_object().synchronize_with_peeringdb()
+        return (
+            Response({"status": "synchronized"})
+            if success
+            else Response(
+                {"error": "peeringdb record not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        )
 
 
 class CommunityViewSet(ModelViewSet):
