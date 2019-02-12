@@ -127,14 +127,6 @@ class AutonomousSystemCSVForm(forms.ModelForm):
         }
 
 
-class AutonomousSystemImportFromPeeringDBForm(BootstrapMixin, forms.Form):
-    model = AutonomousSystem
-    asn = forms.IntegerField(
-        label="ASN", help_text="BGP autonomous system number (32-bit capable)"
-    )
-    comment = CommentField()
-
-
 class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
     model = AutonomousSystem
     q = forms.CharField(required=False, label="Search")

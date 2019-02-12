@@ -23,7 +23,6 @@ from .forms import (
     AutonomousSystemForm,
     AutonomousSystemCSVForm,
     AutonomousSystemFilterForm,
-    AutonomousSystemImportFromPeeringDBForm,
     CommunityForm,
     CommunityCSVForm,
     CommunityFilterForm,

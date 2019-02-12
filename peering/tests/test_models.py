@@ -19,7 +19,7 @@ from peering.models import (
 )
 
 
-class AutonomousSystemTestCase(TestCase):
+class AutonomousSystemTest(TestCase):
     def test_does_exist(self):
         asn = 29467
 
@@ -79,7 +79,7 @@ class AutonomousSystemTestCase(TestCase):
         self.assertEqual(expected, str(autonomous_system))
 
 
-class CommunityTestCase(TestCase):
+class CommunityTest(TestCase):
     def test_create(self):
         community_list = [
             {"name": "Test", "value": "64500:1", "type": None, "str": "Test"},
@@ -129,7 +129,7 @@ class CommunityTestCase(TestCase):
             )
 
 
-class InternetExchangeTestCase(TestCase):
+class InternetExchangeTest(TestCase):
     def test_is_peeringdb_valid(self):
         ix = InternetExchange.objects.create(name="Test", slug="test")
 
@@ -313,7 +313,7 @@ class InternetExchangeTestCase(TestCase):
         self.assertEqual(values["peering_groups"], expected)
 
 
-class InternetExchangePeeringSessionTestCase(TestCase):
+class InternetExchangePeeringSessionTest(TestCase):
     def test_does_exist(self):
         # No session, must expect None
         self.assertIsNone(InternetExchangePeeringSession.does_exist())
@@ -409,7 +409,7 @@ class InternetExchangePeeringSessionTestCase(TestCase):
         )
 
 
-class RouterTestCase(TestCase):
+class RouterTest(TestCase):
     def test_napalm_bgp_neighbors_to_peer_list(self):
         # Expected results
         expected = [0, 0, 1, 2, 3, 2, 2]
@@ -457,7 +457,7 @@ class RouterTestCase(TestCase):
             )
 
 
-class RoutingPolicyTestCase(TestCase):
+class RoutingPolicyTest(TestCase):
     def test_create(self):
         routing_policy_list = [
             {"name": "Test1", "slug": "test1", "type": None},
