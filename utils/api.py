@@ -2,10 +2,17 @@ from collections import OrderedDict
 
 from django.http import Http404
 
+from rest_framework.exceptions import APIException
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer, ValidationError
 from rest_framework.viewsets import ModelViewSet as __ModelViewSet, ViewSet
+
+
+class ServiceUnavailable(APIException):
+    status_code = 503
+    default_detail = "Service temporarily unavailable, try again later."
+    default_code = "service_unavailable"
 
 
 class ModelViewSet(__ModelViewSet):

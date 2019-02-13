@@ -91,7 +91,22 @@ class AutonomousSystemTest(APITestCase):
             kwargs={"pk": self.autonomous_system.pk},
         )
         response = self.client.post(url, format="json", **self.header)
+        self.assertStatus(response, status.HTTP_200_OK)
 
+    def test_common_internet_exchanges(self):
+        url = reverse(
+            "peering-api:autonomoussystem-common-internet-exchanges",
+            kwargs={"pk": self.autonomous_system.pk},
+        )
+        response = self.client.get(url, format="json", **self.header)
+        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+
+    def test_find_potential_ix_peering_sessions(self):
+        url = reverse(
+            "peering-api:autonomoussystem-find-potential-ix-peering-sessions",
+            kwargs={"pk": self.autonomous_system.pk},
+        )
+        response = self.client.patch(url, format="json", **self.header)
         self.assertStatus(response, status.HTTP_200_OK)
 
 

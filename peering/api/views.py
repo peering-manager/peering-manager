@@ -32,7 +32,7 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from utils.api import ModelViewSet, StaticChoicesViewSet
+from utils.api import ModelViewSet, ServiceUnavailable, StaticChoicesViewSet
 
 
 class PeeringFieldChoicesViewSet(StaticChoicesViewSet):
@@ -61,6 +61,19 @@ class AutonomousSystemViewSet(ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
         )
+
+    @action(detail=True, methods=["get"], url_path="common-internet-exchanges")
+    def common_internet_exchanges(self, request, pk=None):
+        raise ServiceUnavailable()
+
+    @action(
+        detail=True,
+        methods=["post", "put", "patch"],
+        url_path="find-potential-ix-peering-sessions",
+    )
+    def find_potential_ix_peering_sessions(self, request, pk=None):
+        self.get_object().find_potential_ix_peering_sessions()
+        return Response({"status": "done"})
 
 
 class CommunityViewSet(ModelViewSet):
