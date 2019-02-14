@@ -537,6 +537,10 @@ class InternetExchange(ChangeLoggedModel):
         return values
 
     def generate_configuration(self):
+        # No template, give an empty string
+        if not self.configuration_template:
+            return ""
+
         # Load and render the template using Jinja2
         configuration_template = Template(self.configuration_template.template)
         return configuration_template.render(self._generate_configuration_variables())

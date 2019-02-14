@@ -99,6 +99,14 @@ class InternetExchangeViewSet(ModelViewSet):
     serializer_class = InternetExchangeSerializer
     filterset_class = InternetExchangeFilter
 
+    @action(detail=True, methods=["get"], url_path="configuration")
+    def configuration(self, request, pk=None):
+        return Response({"configuration": self.get_object().generate_configuration()})
+
+    @action(detail=True, methods=["get"], url_path="prefixes")
+    def prefixes(self, request, pk=None):
+        return Response({"prefixes": self.get_object().get_prefixes()})
+
 
 class InternetExchangePeeringSessionViewSet(ModelViewSet):
     queryset = InternetExchangePeeringSession.objects.all()

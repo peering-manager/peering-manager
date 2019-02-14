@@ -422,6 +422,26 @@ class InternetExchangeTest(APITestCase):
         self.assertStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(InternetExchange.objects.count(), 0)
 
+    def test_configuration(self):
+        url = reverse(
+            "peering-api:internetexchange-configuration",
+            kwargs={"pk": self.internet_exchange.pk},
+        )
+        response = self.client.get(url, **self.header)
+
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data["configuration"], "")
+
+    def test_prefixes(self):
+        url = reverse(
+            "peering-api:internetexchange-prefixes",
+            kwargs={"pk": self.internet_exchange.pk},
+        )
+        response = self.client.get(url, **self.header)
+
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data["prefixes"], [])
+
 
 class InternetExchangePeeringSessionTest(APITestCase):
     def setUp(self):
