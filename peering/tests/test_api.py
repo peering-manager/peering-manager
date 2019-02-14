@@ -610,6 +610,13 @@ class RouterTest(APITestCase):
         self.assertStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Router.objects.count(), 0)
 
+    def test_test_napalm_connection(self):
+        url = reverse(
+            "peering-api:router-test-napalm-connection", kwargs={"pk": self.router.pk}
+        )
+        response = self.client.get(url, **self.header)
+        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+
 
 class RoutingPolicyTest(APITestCase):
     def setUp(self):

@@ -111,6 +111,13 @@ class RouterViewSet(ModelViewSet):
     serializer_class = RouterSerializer
     filterset_class = RouterFilter
 
+    @action(detail=True, methods=["get"], url_path="test-napalm-connection")
+    def test_napalm_connection(self, request, pk=None):
+        success = self.get_object().test_napalm_connection()
+        if not success:
+            raise ServiceUnavailable("Cannot connect to router using NAPALM.")
+        return Response({"status": "success"})
+
 
 class RoutingPolicyViewSet(ModelViewSet):
     queryset = RoutingPolicy.objects.all()
