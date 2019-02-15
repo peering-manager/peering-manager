@@ -32,6 +32,7 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
+from peeringdb.api.serializers import PeerRecordSerializer
 from utils.api import ModelViewSet, ServiceUnavailable, StaticChoicesViewSet
 
 
@@ -98,6 +99,16 @@ class InternetExchangeViewSet(ModelViewSet):
     queryset = InternetExchange.objects.all()
     serializer_class = InternetExchangeSerializer
     filterset_class = InternetExchangeFilter
+
+    @action(detail=True, methods=["get"], url_path="available-peers")
+    def available_peers(self, request, pk=None):
+        available_peers = self.get_object().get_available_peers()
+        if not available_peers:
+            raise ServiceUnavailable("No peers found.")
+
+        return Response(
+            {"available-peers": PeerRecordSerializer(available_peers, many=True).data}
+        )
 
     @action(detail=True, methods=["get"], url_path="configuration")
     def configuration(self, request, pk=None):

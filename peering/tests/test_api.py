@@ -422,6 +422,14 @@ class InternetExchangeTest(APITestCase):
         self.assertStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(InternetExchange.objects.count(), 0)
 
+    def test_available_peers(self):
+        url = reverse(
+            "peering-api:internetexchange-available-peers",
+            kwargs={"pk": self.internet_exchange.pk},
+        )
+        response = self.client.get(url, **self.header)
+        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+
     def test_configuration(self):
         url = reverse(
             "peering-api:internetexchange-configuration",
