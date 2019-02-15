@@ -118,6 +118,17 @@ class InternetExchangeViewSet(ModelViewSet):
     def prefixes(self, request, pk=None):
         return Response({"prefixes": self.get_object().get_prefixes()})
 
+    @action(
+        detail=True,
+        methods=["post", "put", "patch"],
+        url_path="update-peering-sessions",
+    )
+    def update_peering_sessions(self, request, pk=None):
+        success = self.get_object().update_peering_session_states()
+        if not success:
+            raise ServiceUnavailable("Cannot update peering session states.")
+        return Response({"status": "success"})
+
 
 class InternetExchangePeeringSessionViewSet(ModelViewSet):
     queryset = InternetExchangePeeringSession.objects.all()

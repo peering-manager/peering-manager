@@ -744,7 +744,7 @@ class InternetExchange(ChangeLoggedModel):
         # Get all BGP sessions detail
         bgp_neighbors_detail = self.router.get_napalm_bgp_neighbors_detail()
 
-        # AN error occured, probably
+        # An error occured, probably
         if not bgp_neighbors_detail:
             return False
 
