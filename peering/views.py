@@ -1186,7 +1186,7 @@ class AsyncRouterSave(PermissionRequiredMixin, View):
     def get(self, request, slug):
         internet_exchange = get_object_or_404(InternetExchange, slug=slug)
         error, _ = internet_exchange.router.set_napalm_configuration(
-            internet_exchange.generate_configuration(), True
+            internet_exchange.generate_configuration(), commit=True
         )
 
         return HttpResponse(json.dumps({"success": not error, "error": error}))

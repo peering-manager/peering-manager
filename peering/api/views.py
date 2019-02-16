@@ -114,9 +114,32 @@ class InternetExchangeViewSet(ModelViewSet):
     def configuration(self, request, pk=None):
         return Response({"configuration": self.get_object().generate_configuration()})
 
+    @action(detail=True, methods=["post"], url_path="import-peering-sessions")
+    def import_peering_sessions(self, request, pk=None):
+        success = self.get_object().import_peering_sessions_from_router()
+        if not success:
+            raise ServiceUnavailable("Cannot import peering sessions from router.")
+        return Response({"status": "success"})
+
     @action(detail=True, methods=["get"], url_path="prefixes")
     def prefixes(self, request, pk=None):
         return Response({"prefixes": self.get_object().get_prefixes()})
+
+    @action(
+        detail=True,
+        methods=["get", "post", "put", "patch"],
+        url_path="configure-router",
+    )
+    def configure_router(self, request, pk=None):
+        internet_exchange = self.get_object()
+        if not internet_exchange.router:
+            raise ServiceUnavailable("No router available.")
+
+        # Commit changes only if not using a GET request
+        error, changes = internet_exchange.router.set_napalm_configuration(
+            internet_exchange.generate_configuration(), commit=(request.method != "GET")
+        )
+        return Response({"changed": not error, "changes": changes, "error": error})
 
     @action(
         detail=True,

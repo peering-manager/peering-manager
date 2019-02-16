@@ -440,6 +440,14 @@ class InternetExchangeTest(APITestCase):
         self.assertStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data["configuration"], "")
 
+    def test_import_peering_sessions(self):
+        url = reverse(
+            "peering-api:internetexchange-import-peering-sessions",
+            kwargs={"pk": self.internet_exchange.pk},
+        )
+        response = self.client.post(url, **self.header)
+        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+
     def test_prefixes(self):
         url = reverse(
             "peering-api:internetexchange-prefixes",
@@ -449,6 +457,16 @@ class InternetExchangeTest(APITestCase):
 
         self.assertStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data["prefixes"], [])
+
+    def test_configure_router(self):
+        url = reverse(
+            "peering-api:internetexchange-configure-router",
+            kwargs={"pk": self.internet_exchange.pk},
+        )
+        response = self.client.get(url, **self.header)
+        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+        response = self.client.post(url, **self.header)
+        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
 
     def test_update_peering_sessions(self):
         url = reverse(
