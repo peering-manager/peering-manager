@@ -30,7 +30,7 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
         )
 
     def test_as_list_view(self):
-        self.get_request("peering:autonomous_system_list")
+        self.get_request("peering:autonomous_system_list", data={"q": 29467})
 
     def test_as_add_view(self):
         # Not logged in, no right to access the view, should be redirected
@@ -182,6 +182,25 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
             expected_status_code=302,
         )
 
+    def test_as_direct_peering_sessions_view(self):
+        # No ASN given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.get_request("peering:autonomous_system_direct_peering_sessions")
+
+        # Using a wrong AS number, status should be 404 not found
+        self.get_request(
+            "peering:autonomous_system_direct_peering_sessions",
+            params={"asn": 64500},
+            expected_status_code=404,
+        )
+
+        # Using an existing AS, status should be OK
+        self.get_request(
+            "peering:autonomous_system_direct_peering_sessions",
+            params={"asn": self.asn},
+            data={"q": "test"},
+        )
+
     def test_as_internet_exchange_peering_sessions_view(self):
         # No ASN given, view should not work
         with self.assertRaises(NoReverseMatch):
@@ -200,6 +219,7 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
         self.get_request(
             "peering:autonomous_system_internet_exchange_peering_sessions",
             params={"asn": self.asn},
+            data={"q": "test"},
         )
 
 
@@ -213,7 +233,7 @@ class CommunityViewsTestCase(ViewTestCase):
         self.community = Community.objects.create(name=self.name, value=self.value)
 
     def test_community_list_view(self):
-        self.get_request("peering:community_list")
+        self.get_request("peering:community_list", data={"q": "peering"})
 
     def test_community_add_view(self):
         # Not logged in, no right to access the view, should be redirected
@@ -345,6 +365,9 @@ class DirectPeeringSessionViewsTestCase(ViewTestCase):
             autonomous_system=self.as64500, ip_address=self.ip_address
         )
 
+    def test_direct_peering_session_list_view(self):
+        self.get_request("peering:direct_peering_session_list", data={"q": "test"})
+
     def test_direct_peering_session_details_view(self):
         # No PK given, view should not work
         with self.assertRaises(NoReverseMatch):
@@ -446,7 +469,7 @@ class InternetExchangeViewsTestCase(ViewTestCase):
         )
 
     def test_ix_list_view(self):
-        self.get_request("peering:internet_exchange_list")
+        self.get_request("peering:internet_exchange_list", data={"q": "test"})
 
     def test_ix_add_view(self):
         # Not logged in, no right to access the view, should be redirected
@@ -677,7 +700,9 @@ class InternetExchangePeeringSessionViewsTestCase(ViewTestCase):
         )
 
     def test_internet_exchange_peering_session_list_view(self):
-        self.get_request("peering:internet_exchange_peering_session_list")
+        self.get_request(
+            "peering:internet_exchange_peering_session_list", data={"q": "test"}
+        )
 
     def test_internet_exchange_peering_session_details_view(self):
         # No PK given, view should not work
@@ -771,7 +796,7 @@ class RouterViewsTestCase(ViewTestCase):
         self.router = Router.objects.create(name=self.name, hostname=self.hostname)
 
     def test_router_list_view(self):
-        self.get_request("peering:router_list")
+        self.get_request("peering:router_list", data={"q": "test"})
 
     def test_router_add_view(self):
         # Not logged in, no right to access the view, should be redirected
@@ -898,7 +923,7 @@ class RoutingPolicyViewsTestCase(ViewTestCase):
         )
 
     def test_routing_policy_list_view(self):
-        self.get_request("peering:routing_policy_list")
+        self.get_request("peering:routing_policy_list", data={"q": "export"})
 
     def test_routing_policy_add_view(self):
         # Not logged in, no right to access the view, should be redirected
