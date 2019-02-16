@@ -1160,20 +1160,6 @@ class RoutingPolicyBulkEdit(PermissionRequiredMixin, BulkEditView):
     form = RoutingPolicyBulkEditForm
 
 
-class AsyncRouterDiff(PermissionRequiredMixin, View):
-    permission_required = "peering.deploy_configuration_internetexchange"
-
-    def get(self, request, slug):
-        internet_exchange = get_object_or_404(InternetExchange, slug=slug)
-        error, changes = internet_exchange.router.set_napalm_configuration(
-            internet_exchange.generate_configuration()
-        )
-
-        return HttpResponse(
-            json.dumps({"changed": not error, "changes": changes, "error": error})
-        )
-
-
 class AsyncRouterSave(PermissionRequiredMixin, View):
     permission_required = "peering.deploy_configuration_internetexchange"
 

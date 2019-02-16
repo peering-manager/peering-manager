@@ -373,11 +373,6 @@ urlpatterns = [
     ),
     # AJAX dedicated views
     url(
-        r"^async/router_diff/(?P<slug>[\w-]+)$",
-        views.AsyncRouterDiff.as_view(),
-        name="async_router_diff",
-    ),
-    url(
         r"^async/router_save(?P<slug>[\w-]+)$",
         views.AsyncRouterSave.as_view(),
         name="async_router_save",
