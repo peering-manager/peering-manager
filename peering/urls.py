@@ -373,11 +373,6 @@ urlpatterns = [
     ),
     # AJAX dedicated views
     url(
-        r"^async/router_ping/(?P<router_id>[0-9]+)$",
-        views.AsyncRouterPing.as_view(),
-        name="async_router_ping",
-    ),
-    url(
         r"^async/router_diff/(?P<slug>[\w-]+)$",
         views.AsyncRouterDiff.as_view(),
         name="async_router_diff",

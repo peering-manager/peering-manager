@@ -1160,12 +1160,6 @@ class RoutingPolicyBulkEdit(PermissionRequiredMixin, BulkEditView):
     form = RoutingPolicyBulkEditForm
 
 
-class AsyncRouterPing(View):
-    def get(self, request, router_id):
-        router = get_object_or_404(Router, id=router_id)
-        return HttpResponse(json.dumps({"success": router.test_napalm_connection()}))
-
-
 class AsyncRouterDiff(PermissionRequiredMixin, View):
     permission_required = "peering.deploy_configuration_internetexchange"
 

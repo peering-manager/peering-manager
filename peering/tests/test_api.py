@@ -719,7 +719,7 @@ class RoutingPolicyTest(APITestCase):
         self.assertEqual(response.data[0]["slug"], data[0]["slug"])
         self.assertEqual(response.data[1]["slug"], data[1]["slug"])
 
-    def test_update_router(self):
+    def test_update_routing_policy(self):
         data = {"name": "Test", "slug": "test", "type": ROUTING_POLICY_TYPE_IMPORT}
 
         url = reverse(

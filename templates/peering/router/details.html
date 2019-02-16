@@ -108,7 +108,7 @@
         $.ajax({
           // Call for a ping
           type: "get",
-          url: "{% url 'peering:async_router_ping' router_id=router.id %}",
+          url: "{% url 'peering-api:router-test-napalm-connection' pk=router.pk %}",
           beforeSend: function() {
             $('#router-ping').attr('disabled', 'disabled');
             $('#router-ping').removeClass('btn-primary').addClass('btn-warning');
@@ -119,13 +119,10 @@
             $('#router-ping').removeAttr('disabled');
             $('#router-ping').html('<i class="fas fa-plug"></i> Ping');
           }
-        }).done(function(response) {
-          var data = JSON.parse(response);
-          if (data['success']) {
-            $('#message-can-ping').slideDown();
-          } else {
-            $('#message-cannot-ping').slideDown();
-          }
+        }).done(function() {
+          $('#message-can-ping').slideDown();
+        }).fail(function() {
+          $('#message-cannot-ping').slideDown();
         });
       });
     </script>
