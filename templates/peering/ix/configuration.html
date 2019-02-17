@@ -55,7 +55,7 @@
       // Bind check diff to button click
       $('#router-diff').click(function() {
         $.ajax({
-          type: "get",
+          method: 'get',
           url: "{% url 'peering-api:internetexchange-configure-router' pk=internet_exchange.pk %}",
           beforeSend: function() {
             $('#router-diff').attr('disabled', 'disabled');
@@ -87,22 +87,23 @@
       // Bind save config to button click
       $('#save-config').click(function() {
         $.ajax({
-          type: "get",
-          url: "{% url 'peering:async_router_save' slug=internet_exchange.slug %}",
+          method: 'post',
+          url: "{% url 'peering-api:internetexchange-configure-router' pk=internet_exchange.pk %}",
+          data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
           beforeSend: function() {
             $('#save-config').attr('disabled', 'disabled');
             $('#save-config').removeClass('btn-primary').addClass('btn-warning');
             $('#save-config').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
           }
         }).done(function(response) {
-          var data = JSON.parse(response);
-
           // Consider failure
           var btn_class = 'btn-danger';
           var btn_code = '<i class="fas fa-times"></i> Configuration not saved';
 
+          alert(response['error']);
+
           // If successful change button code and color
-          if (data['success']) {
+          if (response['success']) {
             var btn_class = 'btn-success';
             var btn_code = '<i class="fas fa-check"></i> Configuration saved';
           }

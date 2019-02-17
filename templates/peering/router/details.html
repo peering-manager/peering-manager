@@ -107,7 +107,7 @@
       $("#router-ping").click(function() {
         $.ajax({
           // Call for a ping
-          type: "get",
+          method: "get",
           url: "{% url 'peering-api:router-test-napalm-connection' pk=router.pk %}",
           beforeSend: function() {
             $('#router-ping').attr('disabled', 'disabled');

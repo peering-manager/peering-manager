@@ -245,7 +245,7 @@ urlpatterns = [
         name="internet_exchange_peers",
     ),
     url(
-        r"^internet-exchanges/(?P<slug>[\w-]+)/config/$",
+        r"^internet-exchanges/(?P<slug>[\w-]+)/configuration/$",
         views.InternetExchangeConfig.as_view(),
         name="internet_exchange_configuration",
     ),
@@ -370,11 +370,5 @@ urlpatterns = [
         r"^routing-policies/edit/$",
         views.RoutingPolicyBulkEdit.as_view(),
         name="routing_policy_bulk_edit",
-    ),
-    # AJAX dedicated views
-    url(
-        r"^async/router_save(?P<slug>[\w-]+)$",
-        views.AsyncRouterSave.as_view(),
-        name="async_router_save",
     ),
 ]
