@@ -1,5 +1,8 @@
+from django.http import HttpResponseForbidden
+
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 
 from .serializers import (
@@ -112,6 +115,9 @@ class InternetExchangeViewSet(ModelViewSet):
 
     @action(detail=True, methods=["get"], url_path="configuration")
     def configuration(self, request, pk=None):
+        # Check user permission first
+        if not request.user.has_perm("peering.view_configuration_internetexchange"):
+            return HttpResponseForbidden()
         return Response({"configuration": self.get_object().generate_configuration()})
 
     @action(detail=True, methods=["post"], url_path="import-peering-sessions")
@@ -135,9 +141,14 @@ class InternetExchangeViewSet(ModelViewSet):
         if not internet_exchange.router:
             raise ServiceUnavailable("No router available.")
 
+        # Check user permission first
+        if not request.user.has_perm("peering.deploy_configuration_internetexchange"):
+            return HttpResponseForbidden()
+
         # Commit changes only if not using a GET request
         error, changes = internet_exchange.router.set_napalm_configuration(
-            internet_exchange.generate_configuration(), commit=(request.method != "GET")
+            internet_exchange.generate_configuration(),
+            commit=(request.method not in SAFE_METHODS),
         )
         return Response({"changed": not error, "changes": changes, "error": error})
 
