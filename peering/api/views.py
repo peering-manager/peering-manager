@@ -54,7 +54,11 @@ class AutonomousSystemViewSet(ModelViewSet):
     serializer_class = AutonomousSystemSerializer
     filterset_class = AutonomousSystemFilter
 
-    @action(detail=True, methods=["post"], url_path="synchronize-with-peeringdb")
+    @action(
+        detail=True,
+        methods=["post", "put", "patch"],
+        url_path="synchronize-with-peeringdb",
+    )
     def synchronize_with_peeringdb(self, request, pk=None):
         success = self.get_object().synchronize_with_peeringdb()
         return (

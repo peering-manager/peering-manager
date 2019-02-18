@@ -39,11 +39,6 @@ urlpatterns = [
         name="autonomous_system_bulk_delete",
     ),
     url(
-        r"^autonomous-systems/(?P<asn>[0-9]+)/sync/$",
-        views.ASPeeringDBSync.as_view(),
-        name="autonomous_system_peeringdb_sync",
-    ),
-    url(
         r"^autonomous-systems/(?P<asn>[\w-]+)/direct-peering-sessions/$",
         views.AutonomousSystemDirectPeeringSessions.as_view(),
         name="autonomous_system_direct_peering_sessions",

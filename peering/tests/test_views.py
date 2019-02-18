@@ -154,34 +154,6 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
             "peering:autonomous_system_bulk_delete", expected_status_code=302
         )
 
-    def test_as_peeringdb_sync_view(self):
-        # No ASN given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:autonomous_system_peeringdb_sync")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:autonomous_system_peeringdb_sync",
-            params={"asn": 64500},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry
-        self.authenticate_user()
-        # Using a wrong AS number, status should be 404 not found
-        self.get_request(
-            "peering:autonomous_system_peeringdb_sync",
-            params={"asn": 64500},
-            expected_status_code=404,
-        )
-
-        # Using an existing AS, status should be OK
-        self.get_request(
-            "peering:autonomous_system_peeringdb_sync",
-            params={"asn": self.asn},
-            expected_status_code=302,
-        )
-
     def test_as_direct_peering_sessions_view(self):
         # No ASN given, view should not work
         with self.assertRaises(NoReverseMatch):

@@ -21,15 +21,15 @@
               </tr>
               <tr{% if autonomous_system.irr_as_set_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="Synchronized with PeeringDB"{% endif %}>
                 <td>IRR AS-SET</td>
-                <td>{{ autonomous_system.irr_as_set }}</td>
+                <td id="id_irr_as_set">{{ autonomous_system.irr_as_set }}</td>
               </tr>
               <tr{% if autonomous_system.ipv6_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="Synchronized with PeeringDB"{% endif %}>
                 <td>IPv6 Max Prefixes</td>
-                <td>{{ autonomous_system.ipv6_max_prefixes }}</td>
+                <td id="id_ipv6_max_prefixes">{{ autonomous_system.ipv6_max_prefixes }}</td>
               </tr>
               <tr{% if autonomous_system.ipv4_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="Synchronized with PeeringDB"{% endif %}>
                 <td>IPv4 Max Prefixes</td>
-                <td>{{ autonomous_system.ipv4_max_prefixes }}</td>
+                <td id="id_ipv4_max_prefixes">{{ autonomous_system.ipv4_max_prefixes }}</td>
               </tr>
             </table>
           </div>
@@ -64,11 +64,4 @@
           </div>
         </div>
       </div>
-{% endblock %}
-{% block javascript %}
-    <script>
-    $(function() {
-      $('[data-toggle="tooltip"]').tooltip();
-    });
-    </script>
 {% endblock %}

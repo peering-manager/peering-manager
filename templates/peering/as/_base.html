@@ -3,9 +3,9 @@
 {% block content %}
       <div class="float-right">
         {% if perms.peering.change_autonomoussystem %}
-        <a href="{% url 'peering:autonomous_system_peeringdb_sync' asn=autonomous_system.asn %}" class="btn btn-primary">
+        <button class="btn btn-primary" id="synchronize-with-peeringdb">
           <i class="fas fa-sync"></i> Sync with PeeringDB
-        </a>
+        </button>
         <a href="{% url 'peering:autonomous_system_edit' asn=autonomous_system.asn %}" class="btn btn-warning">
           <i class="fas fa-edit"></i> Edit
         </a>
@@ -18,7 +18,6 @@
       </div>
       <h1>{% block title %}{{ autonomous_system }}{% endblock %}</h1>
       <p><small class="text-muted">Last updated: {{ autonomous_system.updated }}</small></p>
-
       <ul class="nav nav-tabs">
         <li class="nav-item">
           <a class="nav-link{% if request.path|notcontains:'/direct-peering-sessions/,/ix-peering-sessions/' %} active{% endif %}" href="{% url 'peering:autonomous_system_details' asn=autonomous_system.asn %}">
@@ -39,4 +38,60 @@
         {% endif %}
       </ul>
       {% block subcontent %}{% endblock %}
+{% endblock %}
+{% block javascript %}
+    <script>
+      // Init tooltip if there are any
+      $(function() {
+        $('[data-toggle="tooltip"]').tooltip();
+      });
+
+      // Bind function to button click
+      var sync = $('#synchronize-with-peeringdb');
+      sync.click(function() {
+        $.ajax({
+          method: "post",
+          data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+          url: "{% url 'peering-api:autonomoussystem-synchronize-with-peeringdb' pk=autonomous_system.pk %}",
+          beforeSend: function() {
+            sync.attr('disabled', 'disabled');
+            sync.removeClass('btn-primary').addClass('btn-warning');
+            sync.html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+          },
+          complete: function() {
+            sync.removeClass('btn-warning').addClass('btn-primary');
+            sync.removeAttr('disabled');
+            sync.html('<i class="fas fa-sync"></i> Sync with PeeringDB');
+          }
+        }).done(function() {
+          $.ajax({
+            method: "get",
+            url: "{% url 'peering-api:autonomoussystem-detail' pk=autonomous_system.pk %}",
+          }).done(function(response) {
+            var changedFields = [];
+            if (response['irr_as_set_peeringdb_sync']) {
+              $('#id_irr_as_set').text(response['irr_as_set']);
+              changedFields.push($('#id_irr_as_set'));
+            }
+            if (response['ipv6_max_prefixes_peeringdb_sync']) {
+              $('#id_ipv6_max_prefixes').text(response['ipv6_max_prefixes']);
+              changedFields.push($('#id_ipv6_max_prefixes'));
+            }
+            if (response['ipv4_max_prefixes_peeringdb_sync']) {
+              $('#id_ipv4_max_prefixes').text(response['ipv4_max_prefixes']);
+              changedFields.push($('#id_ipv4_max_prefixes'));
+            }
+
+            changedFields.forEach(function(value) {
+              value.parent().toggleClass('alert-success');
+            });
+            setTimeout(function() {
+              changedFields.forEach(function(value) {
+                value.parent().toggleClass('alert-success');
+              });
+            }, 2000);
+          });
+        });
+      });
+    </script>
 {% endblock %}

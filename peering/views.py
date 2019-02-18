@@ -157,23 +157,6 @@ class ASBulkDelete(PermissionRequiredMixin, BulkDeleteView):
     table = AutonomousSystemTable
 
 
-class ASPeeringDBSync(PermissionRequiredMixin, View):
-    permission_required = "peering.change_autonomoussystem"
-
-    def get(self, request, asn):
-        autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
-        synced = autonomous_system.synchronize_with_peeringdb()
-
-        if not synced:
-            messages.error(request, "Unable to synchronize AS details with PeeringDB.")
-        else:
-            messages.success(
-                request, "AS details have been synchronized with PeeringDB."
-            )
-
-        return redirect(autonomous_system.get_absolute_url())
-
-
 class AutonomousSystemDirectPeeringSessions(ModelListView):
     filter = DirectPeeringSessionFilter
     filter_form = DirectPeeringSessionFilterForm
