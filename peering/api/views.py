@@ -11,6 +11,7 @@ from .serializers import (
     ConfigurationTemplateSerializer,
     DirectPeeringSessionSerializer,
     InternetExchangeSerializer,
+    InternetExchangeNestedSerializer,
     InternetExchangePeeringSessionSerializer,
     RouterSerializer,
     RoutingPolicySerializer,
@@ -72,7 +73,15 @@ class AutonomousSystemViewSet(ModelViewSet):
 
     @action(detail=True, methods=["get"], url_path="common-internet-exchanges")
     def common_internet_exchanges(self, request, pk=None):
-        raise ServiceUnavailable()
+        return Response(
+            {
+                "common-internet-exchanges": InternetExchangeNestedSerializer(
+                    self.get_object().get_common_internet_exchanges(),
+                    many=True,
+                    context={"request": request},
+                ).data
+            }
+        )
 
     @action(
         detail=True,

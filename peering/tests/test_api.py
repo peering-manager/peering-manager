@@ -99,7 +99,7 @@ class AutonomousSystemTest(APITestCase):
             kwargs={"pk": self.autonomous_system.pk},
         )
         response = self.client.get(url, format="json", **self.header)
-        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response.data["common-internet-exchanges"], [])
 
     def test_find_potential_ix_peering_sessions(self):
         url = reverse(
@@ -121,13 +121,11 @@ class CommunityTest(APITestCase):
     def test_get_community(self):
         url = reverse("peering-api:community-detail", kwargs={"pk": self.community.pk})
         response = self.client.get(url, **self.header)
-
         self.assertEqual(response.data["value"], self.community.value)
 
     def test_list_communities(self):
         url = reverse("peering-api:community-list")
         response = self.client.get(url, **self.header)
-
         self.assertEqual(response.data["count"], 1)
 
     def test_create_community(self):
@@ -188,7 +186,6 @@ class ConfigurationTemplateTest(APITestCase):
             kwargs={"pk": self.configuration_template.pk},
         )
         response = self.client.get(url, **self.header)
-
         self.assertEqual(
             response.data["template"], self.configuration_template.template
         )
@@ -196,7 +193,6 @@ class ConfigurationTemplateTest(APITestCase):
     def test_list_configuration_templates(self):
         url = reverse("peering-api:configurationtemplate-list")
         response = self.client.get(url, **self.header)
-
         self.assertEqual(response.data["count"], 1)
 
     def test_create_configuration_template(self):
@@ -272,7 +268,6 @@ class DirectPeeringSessionTest(APITestCase):
             kwargs={"pk": self.direct_peering_session.pk},
         )
         response = self.client.get(url, **self.header)
-
         self.assertEqual(
             response.data["ip_address"], self.direct_peering_session.ip_address
         )
@@ -280,7 +275,6 @@ class DirectPeeringSessionTest(APITestCase):
     def test_list_direct_peering_sessions(self):
         url = reverse("peering-api:directpeeringsession-list")
         response = self.client.get(url, **self.header)
-
         self.assertEqual(response.data["count"], 1)
 
     def test_create_direct_peering_session(self):
@@ -367,13 +361,11 @@ class InternetExchangeTest(APITestCase):
             kwargs={"pk": self.internet_exchange.pk},
         )
         response = self.client.get(url, **self.header)
-
         self.assertEqual(response.data["slug"], self.internet_exchange.slug)
 
     def test_list_internet_exchanges(self):
         url = reverse("peering-api:internetexchange-list")
         response = self.client.get(url, **self.header)
-
         self.assertEqual(response.data["count"], 1)
 
     def test_create_internet_exchange(self):
@@ -508,7 +500,6 @@ class InternetExchangePeeringSessionTest(APITestCase):
     def test_list_internet_exchange_peering_sessions(self):
         url = reverse("peering-api:internetexchangepeeringsession-list")
         response = self.client.get(url, **self.header)
-
         self.assertEqual(response.data["count"], 1)
 
     def test_create_internet_exchange_peering_session(self):
@@ -596,13 +587,11 @@ class RouterTest(APITestCase):
     def test_get_router(self):
         url = reverse("peering-api:router-detail", kwargs={"pk": self.router.pk})
         response = self.client.get(url, **self.header)
-
         self.assertEqual(response.data["hostname"], self.router.hostname)
 
     def test_list_routers(self):
         url = reverse("peering-api:router-list")
         response = self.client.get(url, **self.header)
-
         self.assertEqual(response.data["count"], 1)
 
     def test_create_router(self):
@@ -685,13 +674,11 @@ class RoutingPolicyTest(APITestCase):
             "peering-api:routingpolicy-detail", kwargs={"pk": self.routing_policy.pk}
         )
         response = self.client.get(url, **self.header)
-
         self.assertEqual(response.data["slug"], self.routing_policy.slug)
 
     def test_list_routing_policies(self):
         url = reverse("peering-api:routingpolicy-list")
         response = self.client.get(url, **self.header)
-
         self.assertEqual(response.data["count"], 1)
 
     def test_create_routing_policy(self):
