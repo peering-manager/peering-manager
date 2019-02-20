@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.urls.exceptions import NoReverseMatch
 
 from peering.constants import (
@@ -18,7 +19,7 @@ from peering.models import (
 from utils.tests import ViewTestCase
 
 
-class AutonomousSystemViewsTestCase(ViewTestCase):
+class AutonomousSystemTestCase(ViewTestCase):
     def setUp(self):
         super().setUp()
 
@@ -30,6 +31,11 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
         )
 
     def test_as_list_view(self):
+        with transaction.atomic():
+            for i in range(50):
+                AutonomousSystem.objects.create(
+                    asn=(64500 + i), name="Test {}".format(i)
+                )
         self.get_request("peering:autonomous_system_list", data={"q": 29467})
 
     def test_as_add_view(self):
@@ -195,7 +201,7 @@ class AutonomousSystemViewsTestCase(ViewTestCase):
         )
 
 
-class CommunityViewsTestCase(ViewTestCase):
+class CommunityTestCase(ViewTestCase):
     def setUp(self):
         super().setUp()
 
@@ -326,7 +332,7 @@ class CommunityViewsTestCase(ViewTestCase):
         self.get_request("peering:community_bulk_delete", expected_status_code=302)
 
 
-class DirectPeeringSessionViewsTestCase(ViewTestCase):
+class DirectPeeringSessionTestCase(ViewTestCase):
     def setUp(self):
         super().setUp()
 
@@ -421,7 +427,7 @@ class DirectPeeringSessionViewsTestCase(ViewTestCase):
         )
 
 
-class InternetExchangeViewsTestCase(ViewTestCase):
+class InternetExchangeTestCase(ViewTestCase):
     def setUp(self):
         super().setUp()
 
@@ -657,7 +663,7 @@ class InternetExchangeViewsTestCase(ViewTestCase):
         self.assertTrue(self.ix.export_routing_policies.all())
 
 
-class InternetExchangePeeringSessionViewsTestCase(ViewTestCase):
+class InternetExchangePeeringSessionTestCase(ViewTestCase):
     def setUp(self):
         super().setUp()
 
@@ -758,7 +764,7 @@ class InternetExchangePeeringSessionViewsTestCase(ViewTestCase):
         )
 
 
-class RouterViewsTestCase(ViewTestCase):
+class RouterTestCase(ViewTestCase):
     def setUp(self):
         super().setUp()
 
@@ -768,6 +774,11 @@ class RouterViewsTestCase(ViewTestCase):
         self.router = Router.objects.create(name=self.name, hostname=self.hostname)
 
     def test_router_list_view(self):
+        with transaction.atomic():
+            for i in range(500):
+                Router.objects.create(
+                    name="Test {}".format(i), hostname="test{}.example.com".format(i)
+                )
         self.get_request("peering:router_list", data={"q": "test"})
 
     def test_router_add_view(self):
@@ -883,7 +894,7 @@ class RouterViewsTestCase(ViewTestCase):
         self.get_request("peering:router_bulk_delete", expected_status_code=302)
 
 
-class RoutingPolicyViewsTestCase(ViewTestCase):
+class RoutingPolicyTestCase(ViewTestCase):
     def setUp(self):
         super().setUp()
 
