@@ -4,15 +4,13 @@ from django.shortcuts import redirect, render, reverse
 from django.views.generic import View
 
 from .http import PeeringDB
-from .models import Network, NetworkIXLAN, PeerRecord, Synchronization
+from .models import Network, NetworkIXLAN, PeerRecord
 
 
 class CacheManagementView(View):
     def get(self, request):
-        if not request.user.is_staff:
-            messages.error(
-                request, "You do not have the rights to index " "peer records."
-            )
+        if not request.user.is_staff and not request.user.is_superuser:
+            messages.error(request, "You do not have the rights to index peer records.")
             return redirect(reverse("home"))
 
         last_synchronization = PeeringDB().get_last_synchronization()
@@ -29,13 +27,13 @@ class CacheManagementView(View):
 
 class BuildCacheView(LoginRequiredMixin, View):
     def get(self, request):
-        if request.user.is_staff:
+        if request.user.is_staff and not request.user.is_superuser:
             api = PeeringDB()
             api.update_local_database(api.get_last_sync_time())
             messages.success(request, "Successfully built the local cache.")
         else:
             messages.error(
-                request, "You do not have the rights to build the " "local cache."
+                request, "You do not have the rights to build the local cache."
             )
 
         return redirect(reverse("peeringdb:cache_management"))
@@ -43,15 +41,12 @@ class BuildCacheView(LoginRequiredMixin, View):
 
 class ClearCacheView(LoginRequiredMixin, View):
     def get(self, request):
-        if request.user.is_staff:
-            Network.objects.all().delete()
-            NetworkIXLAN.objects.all().delete()
-            PeerRecord.objects.all().delete()
-            Synchronization.objects.all().delete()
+        if request.user.is_staff and not request.user.is_superuser:
+            PeeringDB().clear_local_database()
             messages.success(request, "Successfully cleared the local cache.")
         else:
             messages.error(
-                request, "You do not have the rights to clear the " "local cache."
+                request, "You do not have the rights to clear the local cache."
             )
 
         return redirect(reverse("peeringdb:cache_management"))
@@ -59,12 +54,10 @@ class ClearCacheView(LoginRequiredMixin, View):
 
 class IndexPeerRecords(LoginRequiredMixin, View):
     def get(self, request):
-        if request.user.is_staff:
+        if request.user.is_staff and not request.user.is_superuser:
             PeeringDB().force_peer_records_discovery()
             messages.success(request, "Successfully indexed peer records.")
         else:
-            messages.error(
-                request, "You do not have the rights to index " "peer records."
-            )
+            messages.error(request, "You do not have the rights to index peer records.")
 
         return redirect(reverse("peeringdb:cache_management"))

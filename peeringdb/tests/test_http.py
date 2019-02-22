@@ -41,6 +41,12 @@ class PeeringDBHTTPTestCase(TestCase):
         api.record_last_sync(time_of_sync, {"added": 1, "updated": 0, "deleted": 0})
         self.assertEqual(api.get_last_sync_time(), int(time_of_sync.timestamp()))
 
+    def test_clear_local_database(self):
+        try:
+            PeeringDB().clear_local_database()
+        except Exception:
+            self.fail("Unexpected exception raised.")
+
     def test_get_autonomous_system(self):
         api = PeeringDB()
         asn = 15169
