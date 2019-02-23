@@ -110,14 +110,10 @@
           method: "get",
           url: "{% url 'peering-api:router-test-napalm-connection' pk=router.pk %}",
           beforeSend: function() {
-            $('#router-ping').attr('disabled', 'disabled');
-            $('#router-ping').removeClass('btn-primary').addClass('btn-warning');
-            $('#router-ping').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+            $('#router-ping').attr('disabled', 'disabled').removeClass('btn-primary').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
           },
           complete: function() {
-            $('#router-ping').removeClass('btn-warning').addClass('btn-primary');
-            $('#router-ping').removeAttr('disabled');
-            $('#router-ping').html('<i class="fas fa-plug"></i> Ping');
+            $('#router-ping').removeClass('btn-warning').addClass('btn-primary').removeAttr('disabled').html('<i class="fas fa-plug"></i> Ping');
           }
         }).done(function() {
           $('#message-can-ping').slideDown();

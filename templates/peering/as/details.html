@@ -80,21 +80,16 @@
       });
 
       // Bind function to button click
-      var sync = $('#synchronize-with-peeringdb');
-      sync.click(function() {
+      $('#synchronize-with-peeringdb').click(function() {
         $.ajax({
           method: "post",
           data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
           url: "{% url 'peering-api:autonomoussystem-synchronize-with-peeringdb' pk=autonomous_system.pk %}",
           beforeSend: function() {
-            sync.attr('disabled', 'disabled');
-            sync.removeClass('btn-primary').addClass('btn-warning');
-            sync.html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+            $('#synchronize-with-peeringdb').attr('disabled', 'disabled').removeClass('btn-primary').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
           },
           complete: function() {
-            sync.removeClass('btn-warning').addClass('btn-primary');
-            sync.removeAttr('disabled');
-            sync.html('<i class="fas fa-sync"></i> Sync with PeeringDB');
+            $('#synchronize-with-peeringdb').removeClass('btn-warning').addClass('btn-primary').removeAttr('disabled').html('<i class="fas fa-sync"></i> Sync with PeeringDB');
           }
         }).done(function() {
           $.ajax({

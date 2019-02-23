@@ -37,10 +37,7 @@
     <script>
       // When the modal is closed, reset the button back to its defaults
       $('.modal').on('hidden.bs.modal', function(e) {
-        $('#save-config').removeClass('btn-warning').removeClass('btn-danger').removeClass('btn-success').addClass('btn-primary');
-        $('#save-config').removeAttr('disabled');
-        $('#save-config').html('Commit changes');
-        $('#save-config').show();
+        $('#save-config').removeClass('btn-warning').removeClass('btn-danger').removeClass('btn-success').addClass('btn-primary').removeAttr('disabled').html('Commit changes').show();
       });
 
       // Bind copy to clipboard function to the button
@@ -58,9 +55,7 @@
           method: 'get',
           url: "{% url 'peering-api:internetexchange-configure-router' pk=internet_exchange.pk %}",
           beforeSend: function() {
-            $('#router-diff').attr('disabled', 'disabled');
-            $('#router-diff').removeClass('btn-primary').addClass('btn-warning');
-            $('#router-diff').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+            $('#router-diff').attr('disabled', 'disabled').removeClass('btn-primary').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
           },
         }).done(function(response) {
           if (response['error']) {
@@ -78,9 +73,7 @@
             }
           }
         }).always(function() {
-          $('#router-diff').removeClass('btn-warning').addClass('btn-primary');
-          $('#router-diff').removeAttr('disabled');
-          $('#router-diff').html('<i class="fas fa-cogs"></i> Deploy');
+          $('#router-diff').removeClass('btn-warning').addClass('btn-primary').removeAttr('disabled').html('<i class="fas fa-cogs"></i> Deploy');
         });
       });
 
@@ -91,9 +84,7 @@
           url: "{% url 'peering-api:internetexchange-configure-router' pk=internet_exchange.pk %}",
           data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
           beforeSend: function() {
-            $('#save-config').attr('disabled', 'disabled');
-            $('#save-config').removeClass('btn-primary').addClass('btn-warning');
-            $('#save-config').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+            $('#save-config').attr('disabled', 'disabled').removeClass('btn-primary').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
           }
         }).done(function(response) {
           // Consider failure
@@ -108,8 +99,7 @@
             var btn_code = '<i class="fas fa-check"></i> Configuration saved';
           }
 
-          $('#save-config').removeClass('btn-warning').addClass(btn_class);
-          $('#save-config').html(btn_code);
+          $('#save-config').removeClass('btn-warning').addClass(btn_class).html(btn_code);
         });
       });
     </script>
