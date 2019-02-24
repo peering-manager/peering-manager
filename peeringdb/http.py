@@ -263,6 +263,8 @@ class PeeringDB(object):
         Force the peer records cache to be [re]built. This function can be used
         if this cache appears to be out of sync or inconsistent.
         """
+        indexed = 0
+
         with transaction.atomic():
             # First of all, delete all existing peer records
             PeerRecord.objects.all().delete()
@@ -294,12 +296,15 @@ class PeeringDB(object):
                         network_ixlan.asn,
                         network_ixlan.ixlan_id,
                     )
+                    indexed += 1
                 else:
                     self.logger.debug(
                         "network ixlan with as%s and ixlan id %s" " ignored",
                         network_ixlan.asn,
                         network_ixlan.ixlan_id,
                     )
+
+            return indexed
 
     def get_autonomous_system(self, asn):
         """

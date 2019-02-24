@@ -7,12 +7,22 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 from .serializers import SynchronizationSerializer
 from peeringdb.filters import SynchronizationFilter
 from peeringdb.http import PeeringDB
-from peeringdb.models import Synchronization
+from peeringdb.models import Network, NetworkIXLAN, PeerRecord, Synchronization
 
 
 class CacheViewSet(ViewSet):
     # Required for DRF
     queryset = Synchronization.objects.none()
+
+    @action(detail=False, methods=["get"], url_path="statistics")
+    def statistics(self, request):
+        return Response(
+            {
+                "network-count": Network.objects.count(),
+                "network-ixlan-count": NetworkIXLAN.objects.count(),
+                "peer-record-count": PeerRecord.objects.count(),
+            }
+        )
 
     @action(detail=False, methods=["post", "put", "patch"], url_path="update-local")
     def update_local(self, request):
@@ -27,7 +37,7 @@ class CacheViewSet(ViewSet):
             {"synchronization": SynchronizationSerializer(synchronization).data}
         )
 
-    @action(detail=False, methods=["delete"], url_path="clear-local")
+    @action(detail=False, methods=["post"], url_path="clear-local")
     def clear_local(self, request):
         # Not member from staff, don't allow cache management
         if not request.user.is_staff and not request.user.is_superuser:
@@ -44,8 +54,9 @@ class CacheViewSet(ViewSet):
         if not request.user.is_staff and not request.user.is_superuser:
             return HttpResponseForbidden()
 
-        PeeringDB().force_peer_records_discovery()
-        return Response({"status": "success"})
+        return Response(
+            {"peer-record-count": PeeringDB().force_peer_records_discovery()}
+        )
 
 
 class SynchronizationViewSet(ReadOnlyModelViewSet):

@@ -6,6 +6,13 @@ from utils.testing import APITestCase
 
 
 class CacheTest(APITestCase):
+    def test_statistics(self):
+        url = reverse("peeringdb-api:cache-statistics")
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data["network-count"], 0)
+        self.assertEqual(response.data["network-ixlan-count"], 0)
+        self.assertEqual(response.data["peer-record-count"], 0)
+
     # Increase testing time by a considerable amount of time
     # def test_update_local(self):
     #     url = reverse("peeringdb-api:cache-update-local")
@@ -14,13 +21,13 @@ class CacheTest(APITestCase):
 
     def test_clear_local(self):
         url = reverse("peeringdb-api:cache-clear-local")
-        response = self.client.delete(url, **self.header)
+        response = self.client.post(url, **self.header)
         self.assertEqual(response.data["status"], "success")
 
     def test_index_peer_records(self):
         url = reverse("peeringdb-api:cache-index-peer-records")
         response = self.client.post(url, **self.header)
-        self.assertEqual(response.data["status"], "success")
+        self.assertEqual(response.data["peer-record-count"], 0)
 
 
 class SynchronizationTest(APITestCase):
