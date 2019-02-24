@@ -9,7 +9,9 @@ class APITestCase(__APITestCase):
         """
         Create a superuser and token for API calls.
         """
-        self.user = User.objects.create(username="testuser", is_superuser=True)
+        self.user = User.objects.create(
+            username="testuser", is_staff=True, is_superuser=True
+        )
         self.token = Token.objects.create(user=self.user)
         self.header = {"HTTP_AUTHORIZATION": "Token {}".format(self.token.key)}
 

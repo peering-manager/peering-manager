@@ -13,7 +13,9 @@ class ViewTestCase(TestCase):
     def setUp(self):
         self.model = None
         self.credentials = {"username": "dummy", "password": "dummy"}
-        self.user = User.objects.create_user(**self.credentials, is_superuser=True)
+        self.user = User.objects.create_user(
+            **self.credentials, is_staff=True, is_superuser=True
+        )
 
     def authenticate_user(self):
         # Login

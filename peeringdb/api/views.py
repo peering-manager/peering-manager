@@ -1,6 +1,5 @@
-from django.http import HttpResponseForbidden
-
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 
@@ -11,8 +10,10 @@ from peeringdb.models import Network, NetworkIXLAN, PeerRecord, Synchronization
 
 
 class CacheViewSet(ViewSet):
-    # Required for DRF
-    queryset = Synchronization.objects.none()
+    permission_classes = [IsAdminUser]
+
+    def get_view_name(self):
+        return "Cache Management"
 
     @action(detail=False, methods=["get"], url_path="statistics")
     def statistics(self, request):
@@ -26,10 +27,6 @@ class CacheViewSet(ViewSet):
 
     @action(detail=False, methods=["post", "put", "patch"], url_path="update-local")
     def update_local(self, request):
-        # Not member from staff, don't allow cache management
-        if not request.user.is_staff and not request.user.is_superuser:
-            return HttpResponseForbidden()
-
         api = PeeringDB()
         synchronization = api.update_local_database(api.get_last_sync_time())
 
@@ -39,10 +36,6 @@ class CacheViewSet(ViewSet):
 
     @action(detail=False, methods=["post"], url_path="clear-local")
     def clear_local(self, request):
-        # Not member from staff, don't allow cache management
-        if not request.user.is_staff and not request.user.is_superuser:
-            return HttpResponseForbidden()
-
         PeeringDB().clear_local_database()
         return Response({"status": "success"})
 
@@ -50,10 +43,6 @@ class CacheViewSet(ViewSet):
         detail=False, methods=["post", "put", "patch"], url_path="index-peer-records"
     )
     def index_peer_records(self, request):
-        # Not member from staff, don't allow cache management
-        if not request.user.is_staff and not request.user.is_superuser:
-            return HttpResponseForbidden()
-
         return Response(
             {"peer-record-count": PeeringDB().force_peer_records_discovery()}
         )

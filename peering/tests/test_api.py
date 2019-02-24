@@ -16,6 +16,20 @@ from peering.models import (
 from utils.testing import APITestCase
 
 
+class StaticChoiceTest(APITestCase):
+    def test_get_static_choice(self):
+        url = reverse(
+            "peering-api:field-choice-detail", kwargs={"pk": "router:platform"}
+        )
+        response = self.client.get(url, **self.header)
+        self.assertEqual(len(response.data), 6)
+
+    def test_list_static_choices(self):
+        url = reverse("peering-api:field-choice-list")
+        response = self.client.get(url, **self.header)
+        self.assertEqual(len(response.data), 6)
+
+
 class AutonomousSystemTest(APITestCase):
     def setUp(self):
         super().setUp()
