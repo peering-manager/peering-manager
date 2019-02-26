@@ -97,13 +97,11 @@
 {% endblock %}
 {% block javascript %}
     <script>
-      // Hide potential alerts
       $('.alert').hide();
-      // Do not remove alert from DOM when they are closed, just hide
-      $('.alert').on('click', '.close', function(){
+      $('.alert').on('click', '.close', function() {
         $(this).closest('.alert').slideUp();
       });
-      // Bind function to button click
+
       $("#router-ping").click(function() {
         $.ajax({
           // Call for a ping

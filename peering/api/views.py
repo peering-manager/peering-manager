@@ -135,10 +135,16 @@ class InternetExchangeViewSet(ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="import-peering-sessions")
     def import_peering_sessions(self, request, pk=None):
-        success = self.get_object().import_peering_sessions_from_router()
-        if not success:
+        result = self.get_object().import_peering_sessions_from_router()
+        if not result:
             raise ServiceUnavailable("Cannot import peering sessions from router.")
-        return Response({"status": "success"})
+        return Response(
+            {
+                "autonomous-system-count": result[0],
+                "peering-session-count": result[1],
+                "ignored-autonomous-systems": result[2],
+            }
+        )
 
     @action(detail=True, methods=["get"], url_path="prefixes")
     def prefixes(self, request, pk=None):

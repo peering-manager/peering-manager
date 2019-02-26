@@ -230,11 +230,6 @@ urlpatterns = [
         name="internet_exchange_peering_sessions",
     ),
     url(
-        r"^internet-exchanges/(?P<slug>[\w-]+)/import-from-router$",
-        views.InternetExchangeImportFromRouter.as_view(),
-        name="internet_exchange_import_from_router",
-    ),
-    url(
         r"^internet-exchanges/(?P<slug>[\w-]+)/peers/$",
         views.InternetExchangePeers.as_view(),
         name="internet_exchange_peers",

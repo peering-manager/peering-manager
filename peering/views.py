@@ -485,54 +485,6 @@ class InternetExchangeImport(PermissionRequiredMixin, ImportView):
     return_url = "peering:internet_exchange_list"
 
 
-class InternetExchangeImportFromRouter(PermissionRequiredMixin, ConfirmationView):
-    permission_required = "peering.add_internetexchangepeeringsession"
-    template = "peering/ix/import_from_router.html"
-
-    def extra_context(self, kwargs):
-        context = {}
-
-        if "slug" in kwargs:
-            internet_exchange = get_object_or_404(InternetExchange, slug=kwargs["slug"])
-            context.update({"internet_exchange": internet_exchange})
-
-        return context
-
-    def process(self, request, kwargs):
-        internet_exchange = get_object_or_404(InternetExchange, slug=kwargs["slug"])
-        result = internet_exchange.import_peering_sessions_from_router()
-
-        # Set the return URL
-        self.return_url = internet_exchange.get_peering_sessions_list_url()
-
-        if not result:
-            messages.error(request, "Cannot import peering sessions from the router.")
-        else:
-            if result[0] == 0 and result[1] == 0:
-                messages.warning(request, "No peering sessions have been imported.")
-            else:
-                if result[0] > 0:
-                    message = "Imported {} {}".format(
-                        result[0], AutonomousSystem._meta.verbose_name_plural
-                    )
-                    messages.success(request, message)
-
-                if result[1] > 0:
-                    message = "Imported {} {}".format(
-                        result[1],
-                        InternetExchangePeeringSession._meta.verbose_name_plural,
-                    )
-                    messages.success(request, message)
-
-                if result[2]:
-                    message = "Peering sessions for the following ASNs have been ignored due to missing PeeringDB entries: {}.".format(
-                        ", ".join(str(asn) for asn in result[2])
-                    )
-                    messages.warning(request, message)
-
-        return redirect(self.return_url)
-
-
 class InternetExchangePeeringDBImport(PermissionRequiredMixin, TableImportView):
     permission_required = "peering.add_internetexchange"
     custom_formset = InternetExchangePeeringDBFormSet
