@@ -23,7 +23,6 @@ from .forms import (
     AutonomousSystemForm,
     AutonomousSystemCSVForm,
     AutonomousSystemFilterForm,
-    AutonomousSystemImportFromPeeringDBForm,
     CommunityForm,
     CommunityCSVForm,
     CommunityFilterForm,
@@ -80,7 +79,7 @@ from .tables import (
     RouterTable,
     RoutingPolicyTable,
 )
-from peeringdb.api import PeeringDB
+from peeringdb.http import PeeringDB
 from peeringdb.models import PeerRecord
 from utils.views import (
     AddOrEditView,
@@ -156,23 +155,6 @@ class ASBulkDelete(PermissionRequiredMixin, BulkDeleteView):
     model = AutonomousSystem
     filter = AutonomousSystemFilter
     table = AutonomousSystemTable
-
-
-class ASPeeringDBSync(PermissionRequiredMixin, View):
-    permission_required = "peering.change_autonomoussystem"
-
-    def get(self, request, asn):
-        autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
-        synced = autonomous_system.synchronize_with_peeringdb()
-
-        if not synced:
-            messages.error(request, "Unable to synchronize AS details with PeeringDB.")
-        else:
-            messages.success(
-                request, "AS details have been synchronized with PeeringDB."
-            )
-
-        return redirect(autonomous_system.get_absolute_url())
 
 
 class AutonomousSystemDirectPeeringSessions(ModelListView):
@@ -501,54 +483,6 @@ class InternetExchangeImport(PermissionRequiredMixin, ImportView):
     permission_required = "peering.add_internetexchange"
     form_model = InternetExchangeCSVForm
     return_url = "peering:internet_exchange_list"
-
-
-class InternetExchangeImportFromRouter(PermissionRequiredMixin, ConfirmationView):
-    permission_required = "peering.add_internetexchangepeeringsession"
-    template = "peering/ix/import_from_router.html"
-
-    def extra_context(self, kwargs):
-        context = {}
-
-        if "slug" in kwargs:
-            internet_exchange = get_object_or_404(InternetExchange, slug=kwargs["slug"])
-            context.update({"internet_exchange": internet_exchange})
-
-        return context
-
-    def process(self, request, kwargs):
-        internet_exchange = get_object_or_404(InternetExchange, slug=kwargs["slug"])
-        result = internet_exchange.import_peering_sessions_from_router()
-
-        # Set the return URL
-        self.return_url = internet_exchange.get_peering_sessions_list_url()
-
-        if not result:
-            messages.error(request, "Cannot import peering sessions from the router.")
-        else:
-            if result[0] == 0 and result[1] == 0:
-                messages.warning(request, "No peering sessions have been imported.")
-            else:
-                if result[0] > 0:
-                    message = "Imported {} {}".format(
-                        result[0], AutonomousSystem._meta.verbose_name_plural
-                    )
-                    messages.success(request, message)
-
-                if result[1] > 0:
-                    message = "Imported {} {}".format(
-                        result[1],
-                        InternetExchangePeeringSession._meta.verbose_name_plural,
-                    )
-                    messages.success(request, message)
-
-                if result[2]:
-                    message = "Peering sessions for the following ASNs have been ignored due to missing PeeringDB entries: {}.".format(
-                        ", ".join(str(asn) for asn in result[2])
-                    )
-                    messages.warning(request, message)
-
-        return redirect(self.return_url)
 
 
 class InternetExchangePeeringDBImport(PermissionRequiredMixin, TableImportView):
@@ -1159,35 +1093,3 @@ class RoutingPolicyBulkEdit(PermissionRequiredMixin, BulkEditView):
     filter = RoutingPolicyFilter
     table = RoutingPolicyTable
     form = RoutingPolicyBulkEditForm
-
-
-class AsyncRouterPing(View):
-    def get(self, request, router_id):
-        router = get_object_or_404(Router, id=router_id)
-        return HttpResponse(json.dumps({"success": router.test_napalm_connection()}))
-
-
-class AsyncRouterDiff(PermissionRequiredMixin, View):
-    permission_required = "peering.deploy_configuration_internetexchange"
-
-    def get(self, request, slug):
-        internet_exchange = get_object_or_404(InternetExchange, slug=slug)
-        error, changes = internet_exchange.router.set_napalm_configuration(
-            internet_exchange.generate_configuration()
-        )
-
-        return HttpResponse(
-            json.dumps({"changed": not error, "changes": changes, "error": error})
-        )
-
-
-class AsyncRouterSave(PermissionRequiredMixin, View):
-    permission_required = "peering.deploy_configuration_internetexchange"
-
-    def get(self, request, slug):
-        internet_exchange = get_object_or_404(InternetExchange, slug=slug)
-        error, _ = internet_exchange.router.set_napalm_configuration(
-            internet_exchange.generate_configuration(), True
-        )
-
-        return HttpResponse(json.dumps({"success": not error, "error": error}))

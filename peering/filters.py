@@ -71,7 +71,7 @@ class ConfigurationTemplateFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
 
     class Meta:
-        model = Community
+        model = ConfigurationTemplate
         fields = ["name"]
 
     def search(self, queryset, name, value):

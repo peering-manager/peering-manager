@@ -1,7 +1,29 @@
 {% load form_helpers %}
 
 <div class="form-group form-row{% if field.errors %} invalid{% endif %}">
-  {% if field|widget_type == 'textarea' %}
+  {% if field|widget_type == 'checkboxinput' %}
+  <div class="col-9 offset-3">
+    <div class="custom-control custom-checkbox {% if field.errors %}invalid{% endif %}">
+      {{ field }}
+      <label class="custom-control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+    </div>
+    {% if field.help_text %}
+    <small class="form-text text-muted">{{ field.help_text|safe }}</small>
+    {% endif %}
+    {% if bulk_nullable %}
+    <label class="checkbox-inline">
+      <input type="checkbox" name="_nullify" value="{{ field.name }}"> Set null
+    </label>
+    {% endif %}
+    {% if field.errors %}
+    <ul>
+      {% for error in field.errors %}
+      <li class="text-danger">{{ error }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% elif field|widget_type == 'textarea' %}
   {{ field }}
   {% if bulk_nullable %}
   <div class="form-check form-check-inline">

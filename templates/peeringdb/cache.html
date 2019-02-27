@@ -5,6 +5,10 @@
       {% if last_sync_time is not 0 %}
       <p><small class="text-muted">Last updated: {{ last_sync_time }}</small></p>
       {% endif %}
+      <div class="alert alert-dismissible" role="alert" id="id_cache_operation">
+        <button type="button" class="close" aria-label="Close"><span>&times;</span></button>
+        <span id="id_cache_operation_text"></span>
+      </div>
       <div class="row">
         <div class="col-md-6">
           <div class="card">
@@ -12,9 +16,9 @@
               <strong>PeeringDB Cache</strong>
             </div>
             <div class="card-body">
-              <p>{{ peeringdb_network_count }} networks and {{ peeringdb_networkixlan_count }} network IX LANs cached from PeeringDB.</p>
-              <a class="btn btn-primary" href="{% url 'peeringdb:build_cache' %}"><i class="fas fa-sync"></i> Update Cache</a>
-              <a class="btn btn-danger" href="{% url 'peeringdb:clear_cache' %}"><i class="fas fa-broom"></i> Clear Cache</a>
+              <p><span class="font-weight-bolder" id="id_peeringdb_network_count">{{ peeringdb_network_count }}</span> networks and <span class="font-weight-bolder" id="id_peeringdb_networkixlan_count">{{ peeringdb_networkixlan_count }}</span> network IX LANs cached from PeeringDB.</p>
+              <button type="button" class="btn btn-primary" id="id_update_cache"><i class="fas fa-sync"></i> Update Cache</button>
+              <button type="button" class="btn btn-danger" id="id_clear_cache"><i class="fas fa-broom"></i> Clear Cache</button>
             </div>
           </div>
         </div>
@@ -24,10 +28,82 @@
               <strong>Peer Records</strong>
             </div>
             <div class="card-body">
-              <p>{{ peer_record_count }} peer records have been indexed.</p>
-              <a class="btn btn-primary" href="{% url 'peeringdb:index_peer_records' %}"><i class="fas fa-list-ol"></i> Index Peer Records</a>
+              <p><span class="font-weight-bolder" id="id_peer_record_count">{{ peer_record_count }}</span> peer records have been indexed.</p>
+              <button type="button" class="btn btn-primary" id="id_index_peer_records"><i class="fas fa-list-ol"></i> Index Peer Records</button>
             </div>
           </div>
         </div>
       </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+      $('.alert').hide();
+      $('.alert').on('click', '.close', function() {
+        $(this).closest('.alert').slideUp();
+      });
+
+      function showSuccessAlert(text) {
+        $('#id_cache_operation').addClass('alert-success');
+        $('#id_cache_operation_text').text(text);
+        $('#id_cache_operation').slideDown();
+      }
+
+      $('#id_update_cache').click(function() {
+        $.ajax({
+          method: "post",
+          data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+          url: "{% url 'peeringdb-api:cache-update-local' %}",
+          beforeSend: function() {
+            $('#id_update_cache').attr('disabled', 'disabled').removeClass('btn-danger').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+          },
+          complete: function() {
+            $('#id_update_cache').removeClass('btn-warning').addClass('btn-primary').removeAttr('disabled').html('<i class="fas fa-sync"></i> Update Cache');
+          },
+        }).done(function(response) {
+          $.ajax({
+            method: "get",
+            url: "{% url 'peeringdb-api:cache-statistics' %}",
+          }).done(function(response) {
+            $('#id_peeringdb_network_count').text(response['network-count']);
+            $('#id_peeringdb_networkixlan_count').text(response['network-ixlan-count']);
+            $('#id_peer_record_count').text(response['peer-record-count']);
+          });
+          showSuccessAlert('Cache successfully updated.');
+        });
+      });
+      $('#id_clear_cache').click(function() {
+        $.ajax({
+          method: "post",
+          data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+          url: "{% url 'peeringdb-api:cache-clear-local' %}",
+          beforeSend: function() {
+            $('#id_clear_cache').attr('disabled', 'disabled').removeClass('btn-danger').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+          },
+          complete: function() {
+            $('#id_clear_cache').removeClass('btn-warning').addClass('btn-danger').removeAttr('disabled').html('<i class="fas fa-broom"></i> Clear Cache');
+          },
+        }).done(function(response) {
+          $('#id_peeringdb_network_count').text('0');
+          $('#id_peeringdb_networkixlan_count').text('0');
+          $('#id_peer_record_count').text('0');
+          showSuccessAlert('Cache successfully cleared.');
+        });
+      });
+      $('#id_index_peer_records').click(function() {
+        $.ajax({
+          method: "post",
+          data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+          url: "{% url 'peeringdb-api:cache-index-peer-records' %}",
+          beforeSend: function() {
+            $('#id_index_peer_records').attr('disabled', 'disabled').removeClass('btn-primary').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+          },
+          complete: function() {
+            $('#id_index_peer_records').removeClass('btn-warning').addClass('btn-primary').removeAttr('disabled').html('<i class="fas fa-list-ol"></i> Index Peer Records');
+          },
+        }).done(function(response) {
+          $('#id_peer_record_count').text(response['peer-record-count']);
+          showSuccessAlert('Peer records successfully indexed.');
+        });
+      });
+    </script>
 {% endblock %}

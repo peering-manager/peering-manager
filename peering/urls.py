@@ -39,11 +39,6 @@ urlpatterns = [
         name="autonomous_system_bulk_delete",
     ),
     url(
-        r"^autonomous-systems/(?P<asn>[0-9]+)/sync/$",
-        views.ASPeeringDBSync.as_view(),
-        name="autonomous_system_peeringdb_sync",
-    ),
-    url(
         r"^autonomous-systems/(?P<asn>[\w-]+)/direct-peering-sessions/$",
         views.AutonomousSystemDirectPeeringSessions.as_view(),
         name="autonomous_system_direct_peering_sessions",
@@ -235,17 +230,12 @@ urlpatterns = [
         name="internet_exchange_peering_sessions",
     ),
     url(
-        r"^internet-exchanges/(?P<slug>[\w-]+)/import-from-router$",
-        views.InternetExchangeImportFromRouter.as_view(),
-        name="internet_exchange_import_from_router",
-    ),
-    url(
         r"^internet-exchanges/(?P<slug>[\w-]+)/peers/$",
         views.InternetExchangePeers.as_view(),
         name="internet_exchange_peers",
     ),
     url(
-        r"^internet-exchanges/(?P<slug>[\w-]+)/config/$",
+        r"^internet-exchanges/(?P<slug>[\w-]+)/configuration/$",
         views.InternetExchangeConfig.as_view(),
         name="internet_exchange_configuration",
     ),
@@ -370,21 +360,5 @@ urlpatterns = [
         r"^routing-policies/edit/$",
         views.RoutingPolicyBulkEdit.as_view(),
         name="routing_policy_bulk_edit",
-    ),
-    # AJAX dedicated views
-    url(
-        r"^async/router_ping/(?P<router_id>[0-9]+)$",
-        views.AsyncRouterPing.as_view(),
-        name="async_router_ping",
-    ),
-    url(
-        r"^async/router_diff/(?P<slug>[\w-]+)$",
-        views.AsyncRouterDiff.as_view(),
-        name="async_router_diff",
-    ),
-    url(
-        r"^async/router_save(?P<slug>[\w-]+)$",
-        views.AsyncRouterSave.as_view(),
-        name="async_router_save",
     ),
 ]

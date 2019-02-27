@@ -48,7 +48,7 @@
               {{ request.user|truncatechars:"30" }}
             </a>
             <div class="dropdown-menu dropdown-menu-right">
-              <a class="dropdown-item" href="{% url 'user_profile' %}"><i class="fa fa-user"></i> Profile</a>
+              <a class="dropdown-item" href="{% url 'users:profile' %}"><i class="fa fa-user"></i> Profile</a>
               {% if request.user.is_staff %}
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fa fa-cogs"></i> Admin</a>
@@ -82,6 +82,7 @@
           <p class="col text-muted text-left">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
           <p class="col text-muted text-center">{% now 'Y-m-d H:i:s T' %}</p>
           <p class="col ext-muted text-right">
+            <i class="fas fa-fw fa-cloud text-primary"></i> <a href="{% url 'api-root' %}">API</a> &middot;
             <i class="fas fa-fw fa-book text-primary"></i> <a href="http://peering-manager.readthedocs.io/">Docs</a> &middot;
             <i class="fab fa-fw fa-github text-primary"></i> <a href="https://github.com/respawner/peering-manager">GitHub</a> &middot;
             <i class="fas fa-fw fa-bug text-primary"></i> <a href="https://github.com/respawner/peering-manager/issues">Issues</a>

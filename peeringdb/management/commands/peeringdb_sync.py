@@ -3,7 +3,7 @@ import logging
 from django.core.management.base import BaseCommand
 
 from peering.models import AutonomousSystem
-from peeringdb.api import PeeringDB
+from peeringdb.http import PeeringDB
 
 
 class Command(BaseCommand):

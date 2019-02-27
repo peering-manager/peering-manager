@@ -23,9 +23,9 @@ from netbox.api import NetBox
 from peeringdb.models import PeerRecord
 from utils.forms import (
     BulkEditForm,
-    CustomNullBooleanSelect,
     BootstrapMixin,
     CSVChoiceField,
+    CustomNullBooleanSelect,
     FilterChoiceField,
     PasswordField,
     SlugField,
@@ -125,14 +125,6 @@ class AutonomousSystemCSVForm(forms.ModelForm):
             "asn": "BGP autonomous system number (32-bit capable)",
             "name": "Full name of the AS",
         }
-
-
-class AutonomousSystemImportFromPeeringDBForm(BootstrapMixin, forms.Form):
-    model = AutonomousSystem
-    asn = forms.IntegerField(
-        label="ASN", help_text="BGP autonomous system number (32-bit capable)"
-    )
-    comment = CommentField()
 
 
 class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):

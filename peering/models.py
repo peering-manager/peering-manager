@@ -14,7 +14,7 @@ from django.utils.safestring import mark_safe
 
 from .constants import *
 from .fields import ASNField, CommunityField
-from peeringdb.api import PeeringDB
+from peeringdb.http import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
 from utils.models import ChangeLoggedModel
 
@@ -331,6 +331,9 @@ class DirectPeeringSession(BGPSession):
         "Router", blank=True, null=True, on_delete=models.SET_NULL
     )
 
+    class Meta:
+        ordering = ["autonomous_system", "ip_address"]
+
     def get_absolute_url(self):
         return reverse("peering:direct_peering_session_details", kwargs={"pk": self.pk})
 
@@ -534,6 +537,10 @@ class InternetExchange(ChangeLoggedModel):
         return values
 
     def generate_configuration(self):
+        # No template, give an empty string
+        if not self.configuration_template:
+            return ""
+
         # Load and render the template using Jinja2
         configuration_template = Template(self.configuration_template.template)
         return configuration_template.render(self._generate_configuration_variables())
@@ -737,7 +744,7 @@ class InternetExchange(ChangeLoggedModel):
         # Get all BGP sessions detail
         bgp_neighbors_detail = self.router.get_napalm_bgp_neighbors_detail()
 
-        # AN error occured, probably
+        # An error occured, probably
         if not bgp_neighbors_detail:
             return False
 
@@ -803,6 +810,9 @@ class InternetExchangePeeringSession(BGPSession):
     is_route_server = models.BooleanField(blank=True, default=False)
 
     logger = logging.getLogger("peering.manager.peeringdb")
+
+    class Meta:
+        ordering = ["autonomous_system", "ip_address"]
 
     @staticmethod
     def does_exist(internet_exchange=None, autonomous_system=None, ip_address=None):
