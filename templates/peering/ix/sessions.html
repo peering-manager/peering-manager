@@ -71,7 +71,7 @@
               return (className.match(/(^|\s)alert-\S+/g) || []).join(' ');
             }
           ).addClass('alert-danger');
-          $('#id_import_operation_text').text(response['detail']);
+          $('#id_import_operation_text').text(response.responseJSON['detail']);
           $("#id_import_operation").slideDown();
           $('#id_import_from_router').removeClass('btn-warning').addClass('btn-primary').removeAttr('disabled').html('Import');
         });
