@@ -260,19 +260,3 @@ class TextareaField(forms.CharField):
     def __init__(self, *args, **kwargs):
         required = kwargs.pop("required", False)
         super().__init__(required=required, *args, **kwargs)
-
-
-class YesNoField(forms.BooleanField):
-    """
-    A BooleanField rendered as a list to select 'Yes' for True and 'No' for
-    False.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            widget=forms.Select(
-                choices=[(None, "---------"), ("True", "Yes"), ("False", "No")]
-            ),
-            *args,
-            **kwargs
-        )
