@@ -86,7 +86,6 @@ class DirectPeeringSessionFilter(django_filters.FilterSet):
     ip_version = django_filters.NumberFilter(
         method="ip_version_search", label="IP Version"
     )
-    enabled = django_filters.BooleanFilter(method="is_enabled", label="Enabled")
     relationship = django_filters.MultipleChoiceFilter(
         choices=BGP_RELATIONSHIP_CHOICES, null_value=None
     )
@@ -99,7 +98,7 @@ class DirectPeeringSessionFilter(django_filters.FilterSet):
 
     class Meta:
         model = DirectPeeringSession
-        fields = ["local_asn", "ip_address"]
+        fields = ["local_asn", "ip_address", "enabled"]
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -111,12 +110,6 @@ class DirectPeeringSessionFilter(django_filters.FilterSet):
         except ValueError:
             pass
         return queryset.filter(qs_filter)
-
-    def is_enabled(self, queryset, name, value):
-        if value:
-            return queryset.filter(Q(enabled=True))
-        else:
-            return queryset.exclude(Q(enabled=True))
 
     def ip_version_search(self, queryset, name, value):
         # TODO: Fix this shit
@@ -167,12 +160,13 @@ class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
     ip_version = django_filters.NumberFilter(
         method="ip_version_search", label="IP Version"
     )
-    enabled = django_filters.BooleanFilter(method="is_enabled", label="Enabled")
 
     class Meta:
         model = InternetExchangePeeringSession
         fields = [
             "ip_address",
+            "enabled",
+            "is_route_server",
             "autonomous_system__asn",
             "autonomous_system__name",
             "internet_exchange__name",
@@ -194,12 +188,6 @@ class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
         except ValueError:
             pass
         return queryset.filter(qs_filter)
-
-    def is_enabled(self, queryset, name, value):
-        if value:
-            return queryset.filter(Q(enabled=True))
-        else:
-            return queryset.exclude(Q(enabled=True))
 
     def ip_version_search(self, queryset, name, value):
         # TODO: Fix this shit
