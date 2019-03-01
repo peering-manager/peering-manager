@@ -15,7 +15,7 @@ class PeeringRootView(routers.APIRootView):
 router = routers.DefaultRouter()
 router.APIRootView = PeeringRootView
 
-router.register(r"_choices", views.PeeringFieldChoicesViewSet, basename="field-choice")
+router.register(r"_choices", views.PeeringFieldChoicesViewSet, base_name="field-choice")
 
 router.register(r"autonomous-systems", views.AutonomousSystemViewSet)
 router.register(r"communities", views.CommunityViewSet)
