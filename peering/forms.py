@@ -338,13 +338,6 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
         required=False,
         queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
     )
-    check_bgp_session_states = forms.ChoiceField(
-        required=False,
-        label="Check For Peering Session States",
-        help_text="If enabled, with a usable router, the state of peering sessions will be updated.",
-        choices=((True, "Yes"), (False, "No")),
-        widget=forms.Select(),
-    )
     comment = CommentField()
 
     class Meta:
@@ -366,6 +359,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "peeringdb_id": "PeeringDB ID",
             "ipv6_address": "IPv6 Address",
             "ipv4_address": "IPv4 Address",
+            "check_bgp_session_states": "Check Peering Session States",
             "comment": "Comments",
         }
         help_texts = {
@@ -375,6 +369,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "ipv4_address": "IPv4 Address used to peer",
             "configuration_template": "Template for configuration generation",
             "router": "Router connected to the Internet Exchange point",
+            "check_bgp_session_states": "If enabled, with a usable router, the state of peering sessions will be updated.",
         }
 
 
