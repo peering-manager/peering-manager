@@ -3,7 +3,7 @@
 <div class="form-group form-row{% if field.errors %} invalid{% endif %}">
   {% if field|widget_type == 'checkboxinput' %}
   <div class="col-9 offset-3">
-    <div class="custom-control custom-checkbox {% if field.errors %}invalid{% endif %}">
+    <div class="custom-control custom-checkbox{% if field.errors %} invalid{% endif %}">
       {{ field }}
       <label class="custom-control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
     </div>
@@ -26,9 +26,9 @@
   {% elif field|widget_type == 'textarea' %}
   {{ field }}
   {% if bulk_nullable %}
-  <div class="form-check form-check-inline">
-    <input class="form-check-input" type="checkbox" id="set_null_checkbox" name="_nullify" value="{{ field.name }}">
-    <label class="form-check-label" for="set_null_checkbox">Set null</label>
+  <div class="custom-control custom-checkbox">
+    <input type="checkbox" class="custom-control-input" id="set_null_checkbox" name="_nullify" value="{{ field.name }}">
+    <label class="custom-control-label" for="set_null_checkbox">Set null</label>
   </div>
   {% endif %}
   {% if field.help_text %}
@@ -42,7 +42,7 @@
   </ul>
   {% endif %}
   {% else %}
-  <label class="col-3 {% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
+  <label class="col-3{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
   <div class="col-9">
     {% if field|widget_type == 'passwordinput' %}
     <div class="input-group">
@@ -54,9 +54,9 @@
     {% else %}
     {{ field }}
     {% if bulk_nullable %}
-    <div class="form-check form-check-inline">
-      <input class="form-check-input" type="checkbox" id="set_null_checkbox" name="_nullify" value="{{ field.name }}">
-      <label class="form-check-label" for="set_null_checkbox">Set null</label>
+    <div class="custom-control custom-checkbox">
+      <input type="checkbox" class="custom-control-input" id="set_null_checkbox" name="_nullify" value="{{ field.name }}">
+      <label class="custom-control-label" for="set_null_checkbox">Set null</label>
     </div>
     {% endif %}
     {% endif %}

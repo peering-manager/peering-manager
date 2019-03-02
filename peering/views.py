@@ -673,8 +673,8 @@ class InternetExchangePeeringSessions(ModelListView):
 
     def build_queryset(self, request, kwargs):
         queryset = None
-        # The queryset needs to be composed of InternetExchangePeeringSession objects but they
-        # are linked to an IX. So first of all we need to retrieve the IX on
+        # The queryset needs to be composed of InternetExchangePeeringSession objects
+        # but they are linked to an IX. So first of all we need to retrieve the IX on
         # which we want to get the peering sessions.
         if "slug" in kwargs:
             internet_exchange = get_object_or_404(InternetExchange, slug=kwargs["slug"])
@@ -687,8 +687,7 @@ class InternetExchangePeeringSessions(ModelListView):
     def extra_context(self, kwargs):
         extra_context = {}
 
-        # Since we are in the context of an IX we need to keep the reference
-        # for it
+        # Since we are in the context of an IX we need to keep the reference for it
         if "slug" in kwargs:
             extra_context.update(
                 {
@@ -723,9 +722,9 @@ class InternetExchangePeers(ModelListView):
 
     def build_queryset(self, request, kwargs):
         queryset = None
-        # The queryset needs to be composed of PeerRecord objects but they
-        # are linked to an IX. So first of all we need to retrieve the IX on
-        # which we want to get the peering sessions.
+        # The queryset needs to be composed of PeerRecord objects but they are linked
+        # to an IX. So first of all we need to retrieve the IX on which we want to get
+        # the peering sessions.
         if "slug" in kwargs:
             internet_exchange = get_object_or_404(InternetExchange, slug=kwargs["slug"])
             queryset = internet_exchange.get_available_peers()
@@ -735,8 +734,7 @@ class InternetExchangePeers(ModelListView):
     def extra_context(self, kwargs):
         extra_context = {}
 
-        # Since we are in the context of an IX we need to keep the reference
-        # for it
+        # Since we are in the context of an IX we need to keep the reference for it
         if "slug" in kwargs:
             extra_context.update(
                 {
