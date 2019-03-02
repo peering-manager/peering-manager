@@ -763,24 +763,6 @@ class InternetExchangeConfig(PermissionRequiredMixin, View):
         return render(request, "peering/ix/configuration.html", context)
 
 
-class InternetExchangeUpdateSessionStates(PermissionRequiredMixin, View):
-    permission_required = "peering.change_internetexchangepeeringsession"
-
-    def get(self, request, slug):
-        internet_exchange = get_object_or_404(InternetExchange, slug=slug)
-        success = internet_exchange.update_peering_session_states()
-
-        # Message the user based on the result
-        if success:
-            messages.success(request, "Peering session states successfully updated.")
-        else:
-            messages.error(
-                request, "Error when trying to update peering session states."
-            )
-
-        return redirect(internet_exchange.get_peering_sessions_list_url())
-
-
 class InternetExchangePeeringSessionList(ModelListView):
     queryset = InternetExchangePeeringSession.objects.order_by("autonomous_system")
     table = InternetExchangePeeringSessionTable

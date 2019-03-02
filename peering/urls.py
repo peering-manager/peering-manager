@@ -239,11 +239,6 @@ urlpatterns = [
         views.InternetExchangeConfig.as_view(),
         name="internet_exchange_configuration",
     ),
-    url(
-        r"^internet-exchanges/(?P<slug>[\w-]+)/update-session-states/$",
-        views.InternetExchangeUpdateSessionStates.as_view(),
-        name="internet_exchange_update_session_states",
-    ),
     # Internet Exchange Peering Sessions
     url(
         r"^internet-exchange-peering-sessions/$",

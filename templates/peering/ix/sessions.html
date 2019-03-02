@@ -36,12 +36,13 @@
       </div>
 {% endblock %}
 {% block javascript %}
-    {% if perms.peering.add_internetexchangepeeringsession and internet_exchange.router and internet_exchange.router.platform %}
     <script>
       $('.alert').hide();
       $('.alert').on('click', '.close', function() {
         $(this).closest('.alert').slideUp();
       });
+
+      {% if perms.peering.add_internetexchangepeeringsession and internet_exchange.router and internet_exchange.router.platform %}
       $('#id_import_from_router').click(function() {
         $.ajax({
           method: "post",
@@ -76,6 +77,21 @@
           $('#id_import_from_router').removeClass('btn-warning').addClass('btn-primary').removeAttr('disabled').html('Import');
         });
       });
+      {% endif %}
+      {% if internet_exchange.check_bgp_session_states and internet_exchange.router and internet_exchange.router.can_napalm_get_bgp_neighbors_detail %}
+      $('#id_update_session_states').click(function() {
+        $.ajax({
+          method: "post",
+          data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+          dataType: "json",
+          url: "{% url 'peering-api:internetexchange-update-peering-sessions' pk=internet_exchange.pk %}",
+          beforeSend: function() {
+            $('#id_update_session_states').attr('disabled', 'disabled').removeClass('btn-success').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+          },
+        }).done(function(response) {
+          location.reload();
+        });
+      });
+      {% endif %}
     </script>
-    {% endif %}
 {% endblock %}
