@@ -183,7 +183,7 @@ router bgp 12345
 This template is an example that can be used for Arista EOS devices.
 
 ```no-highlight
-router bgp 8757
+router bgp 12345
    {%- for group in peering_groups %}
    neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ group.ip_version }} peer-group
    neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ group.ip_version }} next-hop-self
