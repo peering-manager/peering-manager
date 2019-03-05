@@ -178,3 +178,64 @@ router bgp 12345
  !
 !
 ```
+
+### Arista EOS
+This template is an example that can be used for Arista EOS devices.
+
+```no-highlight
+router bgp 8757
+   {%- for group in peering_groups %}
+   neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ group.ip_version }} peer-group
+   neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ group.ip_version }} next-hop-self
+   {% if group.ip_version == 6 -%}
+   neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ group.ip_version }} maximum-routes 10
+   {%- else -%}
+   neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ group.ip_version }} maximum-routes 100
+   {%- endif -%}    
+      {%- if group.ip_version == 6 %}
+   address-family ipv6
+      {%- endif %}
+      {%- if import_routing_policies|length > 0 %}
+      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ group.ip_version }} route-map {{ import_routing_policies | map(attribute='slug') | join(' ') }} in
+      {%- else %}
+      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ group.ip_version }} route-map block-all in
+      {%- endif %}
+      {%- if export_routing_policies|length > 0 %}  
+      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ group.ip_version }} route-map {{ export_routing_policies | map(attribute='slug') | join(' ') }} out
+      {%- else %}
+      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ group.ip_version }} route-map block-all out
+      {%- endif %}
+      {%- if group.ip_version == 6 %}
+      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ group.ip_version }} activate
+      {%- endif %}
+   !
+   {%- for asn, details in group.peers.items() %}
+   {%- for session in details.sessions %}
+    neighbor {{ session.ip_address }} peer-group peer-ixp-{{ internet_exchange.slug }}-v{{ group.ip_version }}
+    neighbor {{ session.ip_address }} remote-as {{ asn }}
+    neighbor {{ session.ip_address }} description "{{ details.as_name }}"
+    neighbor {{ session.ip_address }} maximum-routes {{ details.max_prefixes }}
+    {%- if session.is_route_server == true %}
+    no neighbor {{ session.ip_address }} enforce-first-as
+    {%- endif %}
+    {%- if session.password %}
+    neighbor {{ session.ip_address }} password 0 {{ session.password }}
+    {%- endif %}
+    {%- if not session.enabled %}
+    neighbor {{ session.ip_address }} shutdown
+    {%- endif %}
+    {%- if session.import_routing_policies|length > 0 %}
+    {%- if group.ip_version == 6 %}
+    address-family ipv6
+    {%- endif %}
+       neighbor {{ session.ip_address }} route-map {{ session.import_routing_policies | map(attribute='slug') | join(' ') }} in
+    {%- endif %}
+    {%- if session.export_routing_policies|length > 0 %}
+       neighbor {{ session.ip_address }} route-map {{ session.export_routing_policies | map(attribute='slug') | join(' ') }} out
+    {%- endif %}
+    !
+  {%- endfor %}
+  {%- endfor %}
+  {%- endfor %}
+exit
+```
