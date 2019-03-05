@@ -194,6 +194,18 @@ class RouterViewSet(ModelViewSet):
     serializer_class = RouterSerializer
     filterset_class = RouterFilter
 
+    @action(detail=True, methods=["post"], url_path="decrypt")
+    def decrypt(self, request, pk=None):
+        return Response(
+            {"decrypted": self.get_object().decrypt_string(request.data["string"])}
+        )
+
+    @action(detail=True, methods=["post"], url_path="encrypt")
+    def encrypt(self, request, pk=None):
+        return Response(
+            {"encrypted": self.get_object().encrypt_string(request.data["string"])}
+        )
+
     @action(detail=True, methods=["get"], url_path="test-napalm-connection")
     def test_napalm_connection(self, request, pk=None):
         success = self.get_object().test_napalm_connection()

@@ -6,6 +6,7 @@ from peering.constants import (
     COMMUNITY_TYPE_INGRESS,
     COMMUNITY_TYPE_EGRESS,
     PLATFORM_JUNOS,
+    PLATFORM_NONE,
     ROUTING_POLICY_TYPE_IMPORT,
     ROUTING_POLICY_TYPE_EXPORT,
 )
@@ -410,6 +411,29 @@ class InternetExchangePeeringSessionTest(TestCase):
 
 
 class RouterTest(TestCase):
+    def test_decrypt_encrypt_string(self):
+        string = "myreallysecurepassword"
+
+        # Generic router (crypto not implemented)
+        router = Router.objects.create(
+            name="test", hostname="test.example.com", platform=PLATFORM_NONE
+        )
+        self.assertEqual(string, router.decrypt_string(router.encrypt_string(string)))
+
+        # JUNOS based router
+        router = Router.objects.create(
+            name="test", hostname="test.example.com", platform=PLATFORM_JUNOS
+        )
+        self.assertEqual(string, router.decrypt_string(router.encrypt_string(string)))
+
+        # Should detect that it is already encrypted
+        self.assertEqual(
+            string,
+            router.decrypt_string(router.encrypt_string(router.encrypt_string(string))),
+        )
+        # Should detect that it is not encrypted
+        self.assertEqual(string, router.decrypt_string(router.decrypt_string(string)))
+
     def test_napalm_bgp_neighbors_to_peer_list(self):
         # Expected results
         expected = [0, 0, 1, 2, 3, 2, 2]

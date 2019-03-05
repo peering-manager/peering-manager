@@ -16,6 +16,7 @@ from .constants import *
 from .fields import ASNField, CommunityField
 from peeringdb.http import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
+from utils.crypto.junos import encrypt as junos_encrypt, decrypt as junos_decrypt
 from utils.models import ChangeLoggedModel
 
 
@@ -963,6 +964,11 @@ class Router(ChangeLoggedModel):
         blank=True,
         help_text="The router platform, used to interact with it",
     )
+    encrypt_passwords = models.BooleanField(
+        blank=True,
+        default=True,
+        help_text="Try to encrypt passwords in router's configuration",
+    )
     comment = models.TextField(blank=True)
     netbox_device_id = models.PositiveIntegerField(blank=True, default=0)
 
@@ -976,6 +982,30 @@ class Router(ChangeLoggedModel):
 
     def is_netbox_device(self):
         return self.netbox_device_id is not 0
+
+    def decrypt_string(self, string):
+        """
+        Returns a decrypted version of a given string based on the router platform.
+
+        If no crypto module can be found for the router platform, the returned string
+        will be the same as the one passed as argument to this function.
+        """
+        if self.platform == PLATFORM_JUNOS:
+            return junos_decrypt(string)
+
+        return string
+
+    def encrypt_string(self, string):
+        """
+        Returns a encrypted version of a given string based on the router platform.
+
+        If no crypto module can be found for the router platform, the returned string
+        will be the same as the one passed as argument to this function.
+        """
+        if self.platform == PLATFORM_JUNOS:
+            return junos_encrypt(string)
+
+        return string
 
     def can_napalm_get_bgp_neighbors_detail(self):
         return (

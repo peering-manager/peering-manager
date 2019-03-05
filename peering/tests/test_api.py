@@ -667,6 +667,18 @@ class RouterTest(APITestCase):
         self.assertStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Router.objects.count(), 0)
 
+    def test_decrypt(self):
+        data = {"string": "$9$Hqfzp0IRcl.P1hrlXxqmfz6AuORyrv"}
+        url = reverse("peering-api:router-decrypt", kwargs={"pk": self.router.pk})
+        response = self.client.post(url, data, format="json", **self.header)
+        self.assertStatus(response, status.HTTP_200_OK)
+
+    def test_encrypt(self):
+        data = {"string": "mypassword"}
+        url = reverse("peering-api:router-encrypt", kwargs={"pk": self.router.pk})
+        response = self.client.post(url, data, format="json", **self.header)
+        self.assertStatus(response, status.HTTP_200_OK)
+
     def test_test_napalm_connection(self):
         url = reverse(
             "peering-api:router-test-napalm-connection", kwargs={"pk": self.router.pk}

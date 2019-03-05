@@ -213,6 +213,21 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["autonomous_system"].widget.attrs["data-live-search"] = "true"
 
+    def clean(self):
+        # Do the regular cleanup
+        cleaned_data = super().clean()
+
+        # This should be cleaned up, ready to be used
+        password = cleaned_data["password"]
+        router = cleaned_data["router"]
+
+        # Process to password check/encryption if we have what we need
+        if router and password:
+            # Encrypt the password only if it is not already
+            cleaned_data["password"] = router.encrypt_string(password)
+
+        return cleaned_data
+
     class Meta:
         model = DirectPeeringSession
         fields = (
@@ -607,6 +622,21 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["autonomous_system"].widget.attrs["data-live-search"] = "true"
 
+    def clean(self):
+        # Do the regular cleanup
+        cleaned_data = super().clean()
+
+        # This should be cleaned up, ready to be used
+        password = cleaned_data["password"]
+        internet_exchange = cleaned_data["internet_exchange"]
+
+        # Process to password check/encryption if we have what we need
+        if internet_exchange.router and password:
+            # Encrypt the password only if it is not already
+            cleaned_data["password"] = internet_exchange.router.encrypt_string(password)
+
+        return cleaned_data
+
     class Meta:
         model = InternetExchangePeeringSession
         fields = (
@@ -763,7 +793,14 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Router
 
-        fields = ("netbox_device_id", "name", "hostname", "platform", "comment")
+        fields = (
+            "netbox_device_id",
+            "name",
+            "hostname",
+            "platform",
+            "encrypt_passwords",
+            "comment",
+        )
         labels = {"comment": "Comments"}
         help_texts = {"hostname": "Router hostname (must be resolvable) or IP address"}
 
@@ -774,6 +811,9 @@ class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
     )
     platform = forms.ChoiceField(
         choices=add_blank_choice(PLATFORM_CHOICES), required=False
+    )
+    encrypt_passwords = forms.NullBooleanField(
+        required=False, widget=CustomNullBooleanSelect, label="Encrypt Passwords"
     )
     comment = CommentField(widget=SmallTextarea)
 
@@ -791,7 +831,7 @@ class RouterCSVForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Router
 
-        fields = ("name", "hostname", "platform", "comment")
+        fields = ("name", "hostname", "platform", "encrypt_passwords", "comment")
         labels = {"comment": "Comments"}
         help_texts = {"hostname": "Router hostname (must be resolvable) or IP address"}
 
@@ -802,6 +842,9 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
     name = forms.CharField(required=False, label="Router Name")
     hostname = forms.CharField(required=False, label="Router Hostname")
     platform = forms.MultipleChoiceField(choices=PLATFORM_CHOICES, required=False)
+    encrypt_passwords = forms.NullBooleanField(
+        required=False, widget=CustomNullBooleanSelect, label="Encrypt Passwords"
+    )
 
 
 class RoutingPolicyForm(BootstrapMixin, forms.ModelForm):

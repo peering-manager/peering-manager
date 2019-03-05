@@ -91,6 +91,13 @@ ROUTER_ACTIONS = """
 <a href="{% url 'peering:router_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
 {% endif %}
 """
+ROUTER_ENCRYPT_PASSWORD = """
+{% if record.encrypt_passwords %}
+<i class="fas fa-check-square text-success"></i>
+{% else %}
+<i class="fas fa-times text-danger"></i>
+{% endif %}
+"""
 ROUTING_POLICY_ACTIONS = """
 {% if perms.peering.change_routingpolicy %}
 <a href="{% url 'peering:routing_policy_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
@@ -327,11 +334,16 @@ class RouterTable(BaseTable):
 
     pk = SelectColumn()
     name = tables.LinkColumn()
+    encrypt_passwords = tables.TemplateColumn(
+        verbose_name="Encrypt Password",
+        template_code=ROUTER_ENCRYPT_PASSWORD,
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
+    )
     actions = ActionsColumn(template_code=ROUTER_ACTIONS)
 
     class Meta(BaseTable.Meta):
         model = Router
-        fields = ("pk", "name", "hostname", "platform", "actions")
+        fields = ("pk", "name", "hostname", "platform", "encrypt_passwords", "actions")
 
 
 class RoutingPolicyTable(BaseTable):
