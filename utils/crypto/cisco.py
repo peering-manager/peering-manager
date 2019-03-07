@@ -114,10 +114,3 @@ def encrypt(value):
             salt = 0
 
     return "{}{}".format(MAGIC, encrypted.upper())
-
-
-if __name__ == "__main__":
-    string = "mypassword"
-    encrypted = encrypt(string)
-    decrypted = decrypt(encrypted)
-    print(string, encrypted, decrypted)
