@@ -91,12 +91,10 @@
           var btn_class = 'btn-danger';
           var btn_code = '<i class="fas fa-times"></i> Configuration not saved';
 
-          alert(response['error']);
-
           // If successful change button code and color
-          if (response['success']) {
-            var btn_class = 'btn-success';
-            var btn_code = '<i class="fas fa-check"></i> Configuration saved';
+          if (!response['error']) {
+            btn_class = 'btn-success';
+            btn_code = '<i class="fas fa-check"></i> Configuration saved';
           }
 
           $('#save-config').removeClass('btn-warning').addClass(btn_class).html(btn_code);
