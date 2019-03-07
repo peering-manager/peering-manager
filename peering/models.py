@@ -16,6 +16,7 @@ from .constants import *
 from .fields import ASNField, CommunityField
 from peeringdb.http import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
+from utils.crypto.cisco import encrypt as cisco_encrypt, decrypt as cisco_decrypt
 from utils.crypto.junos import encrypt as junos_encrypt, decrypt as junos_decrypt
 from utils.models import ChangeLoggedModel
 
@@ -992,6 +993,8 @@ class Router(ChangeLoggedModel):
         """
         if self.platform == PLATFORM_JUNOS:
             return junos_decrypt(string)
+        if self.platform in [PLATFORM_IOS, PLATFORM_IOSXR, PLATFORM_NXOS]:
+            return cisco_decrypt(string)
 
         return string
 
@@ -1004,6 +1007,8 @@ class Router(ChangeLoggedModel):
         """
         if self.platform == PLATFORM_JUNOS:
             return junos_encrypt(string)
+        if self.platform in [PLATFORM_IOS, PLATFORM_IOSXR, PLATFORM_NXOS]:
+            return cisco_encrypt(string)
 
         return string
 

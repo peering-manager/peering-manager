@@ -5,6 +5,7 @@ from django.test import TestCase
 from peering.constants import (
     COMMUNITY_TYPE_INGRESS,
     COMMUNITY_TYPE_EGRESS,
+    PLATFORM_IOSXR,
     PLATFORM_JUNOS,
     PLATFORM_NONE,
     ROUTING_POLICY_TYPE_IMPORT,
@@ -420,19 +421,25 @@ class RouterTest(TestCase):
         )
         self.assertEqual(string, router.decrypt_string(router.encrypt_string(string)))
 
-        # JUNOS based router
-        router = Router.objects.create(
-            name="test", hostname="test.example.com", platform=PLATFORM_JUNOS
-        )
-        self.assertEqual(string, router.decrypt_string(router.encrypt_string(string)))
+        for platform in [PLATFORM_JUNOS, PLATFORM_IOSXR]:
+            router = Router.objects.create(
+                name="test", hostname="test.example.com", platform=PLATFORM_JUNOS
+            )
+            self.assertEqual(
+                string, router.decrypt_string(router.encrypt_string(string))
+            )
 
-        # Should detect that it is already encrypted
-        self.assertEqual(
-            string,
-            router.decrypt_string(router.encrypt_string(router.encrypt_string(string))),
-        )
-        # Should detect that it is not encrypted
-        self.assertEqual(string, router.decrypt_string(router.decrypt_string(string)))
+            # Should detect that it is already encrypted
+            self.assertEqual(
+                string,
+                router.decrypt_string(
+                    router.encrypt_string(router.encrypt_string(string))
+                ),
+            )
+            # Should detect that it is not encrypted
+            self.assertEqual(
+                string, router.decrypt_string(router.decrypt_string(string))
+            )
 
     def test_napalm_bgp_neighbors_to_peer_list(self):
         # Expected results
