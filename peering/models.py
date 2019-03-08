@@ -993,7 +993,7 @@ class Router(ChangeLoggedModel):
         """
         if self.platform == PLATFORM_JUNOS:
             return junos_decrypt(string)
-        if self.platform in [PLATFORM_IOS, PLATFORM_IOSXR, PLATFORM_NXOS]:
+        if self.platform in [PLATFORM_EOS, PLATFORM_IOS, PLATFORM_IOSXR, PLATFORM_NXOS]:
             return cisco_decrypt(string)
 
         return string
