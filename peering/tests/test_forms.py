@@ -107,7 +107,12 @@ class RouterTest(TestCase):
 class RoutingPolicyTest(TestCase):
     def test_routing_policy_form(self):
         test = RoutingPolicyForm(
-            data={"name": "Test", "slug": "test", "type": ROUTING_POLICY_TYPE_IMPORT}
+            data={
+                "name": "Test",
+                "slug": "test",
+                "type": ROUTING_POLICY_TYPE_IMPORT,
+                "weight": 0,
+            }
         )
         self.assertTrue(test.is_valid())
         self.assertTrue(test.save())

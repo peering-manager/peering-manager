@@ -692,7 +692,7 @@ class RoutingPolicyTest(APITestCase):
         super().setUp()
 
         self.routing_policy = RoutingPolicy.objects.create(
-            name="Test", slug="test", type=ROUTING_POLICY_TYPE_EXPORT
+            name="Test", slug="test", type=ROUTING_POLICY_TYPE_EXPORT, weight=0
         )
 
     def test_get_routing_policy(self):
@@ -720,8 +720,18 @@ class RoutingPolicyTest(APITestCase):
 
     def test_create_routing_policy_bulk(self):
         data = [
-            {"name": "Test1", "slug": "test1", "type": ROUTING_POLICY_TYPE_EXPORT},
-            {"name": "Test2", "slug": "test2", "type": ROUTING_POLICY_TYPE_EXPORT},
+            {
+                "name": "Test1",
+                "slug": "test1",
+                "type": ROUTING_POLICY_TYPE_EXPORT,
+                "weight": 0,
+            },
+            {
+                "name": "Test2",
+                "slug": "test2",
+                "type": ROUTING_POLICY_TYPE_EXPORT,
+                "weight": 0,
+            },
         ]
 
         url = reverse("peering-api:routingpolicy-list")

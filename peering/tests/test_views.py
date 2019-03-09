@@ -443,7 +443,7 @@ class InternetExchangeTestCase(ViewTestCase):
         )
         self.community = Community.objects.create(name="Test", value="64500:1")
         self.routing_policy = RoutingPolicy.objects.create(
-            name="Test", slug="test", type=ROUTING_POLICY_TYPE_EXPORT
+            name="Test", slug="test", type=ROUTING_POLICY_TYPE_EXPORT, weight=0
         )
 
     def test_ix_list_view(self):
@@ -902,7 +902,7 @@ class RoutingPolicyTestCase(ViewTestCase):
         self.name = "Export Policy"
         self.slug = "export-policy"
         self.routing_policy = RoutingPolicy.objects.create(
-            name=self.name, slug=self.slug, type=ROUTING_POLICY_TYPE_EXPORT
+            name=self.name, slug=self.slug, type=ROUTING_POLICY_TYPE_EXPORT, weight=0
         )
 
     def test_routing_policy_list_view(self):
@@ -921,6 +921,7 @@ class RoutingPolicyTestCase(ViewTestCase):
             "name": "Import Policy",
             "slug": "import-policy",
             "type": ROUTING_POLICY_TYPE_IMPORT,
+            "weight": 0,
         }
         self.post_request("peering:routing_policy_add", data=routing_policy_to_create)
         self.does_object_exist(routing_policy_to_create)
@@ -942,8 +943,8 @@ class RoutingPolicyTestCase(ViewTestCase):
 
         # Try to import an object with valid data
         routing_policy_to_import = {
-            "csv": """name,slug,type,comment
-                      routing-policy-created,routing-policy-created,Import,"""
+            "csv": """name,slug,type,weight,comment
+                      routing-policy-created,routing-policy-created,Import,0,"""
         }
         self.post_request(
             "peering:routing_policy_import", data=routing_policy_to_import
@@ -952,8 +953,8 @@ class RoutingPolicyTestCase(ViewTestCase):
 
         # Try to create an object with invalid data
         routing_policy_not_to_import = {
-            "csv": """name,value,type,comment
-                      routing-policy-not-created,,Import,"""
+            "csv": """name,value,type,weight,comment
+                      routing-policy-not-created,,Import,,"""
         }
         self.post_request(
             "peering:routing_policy_import", data=routing_policy_not_to_import

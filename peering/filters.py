@@ -261,7 +261,7 @@ class RoutingPolicyFilter(django_filters.FilterSet):
 
     class Meta:
         model = RoutingPolicy
-        fields = ["name", "type"]
+        fields = ["name", "type", "weight"]
 
     def search(self, queryset, name, value):
         if not value.strip():

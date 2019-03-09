@@ -854,7 +854,7 @@ class RoutingPolicyForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = RoutingPolicy
 
-        fields = ("name", "slug", "type", "comment")
+        fields = ("name", "slug", "type", "weight", "comment")
         labels = {"comment": "Comments"}
 
 
@@ -865,6 +865,7 @@ class RoutingPolicyBulkEditForm(BootstrapMixin, BulkEditForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ROUTING_POLICY_TYPE_CHOICES), required=False
     )
+    weight = forms.IntegerField(required=False, min_value=0, max_value=32767)
     comment = CommentField(widget=SmallTextarea)
 
     class Meta:
@@ -877,7 +878,7 @@ class RoutingPolicyCSVForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = RoutingPolicy
 
-        fields = ("name", "slug", "type", "comment")
+        fields = ("name", "slug", "type", "weight", "comment")
         labels = {"comment": "Comments"}
 
 
@@ -888,3 +889,4 @@ class RoutingPolicyFilterForm(BootstrapMixin, forms.Form):
     type = forms.MultipleChoiceField(
         choices=ROUTING_POLICY_TYPE_CHOICES, required=False
     )
+    weight = forms.IntegerField(required=False, min_value=0, max_value=32767)

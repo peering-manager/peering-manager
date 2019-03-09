@@ -55,8 +55,9 @@ Each group have a name and sessions:
       clear text too. The value for the for `enabled` key tells if the session
       is enabled (true) or not (false). The values for the
       `export_routing_policies` and `import_routing_policies` are the routing
-      policy objects associated with the session, the `slug` fields of these
-      objects are probably the only relevant fields to be used in the template
+      policy objects associated with the session, the `slug` and `weight`
+      fields of these objects are probably the only relevant fields to be used
+      in the template
 
 The `communities` variable is an iterable list, each item is a dictionary
 containing two elements: the `name` and the `value` of the community. If no

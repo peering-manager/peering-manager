@@ -1316,11 +1316,14 @@ class RoutingPolicy(ChangeLoggedModel):
         choices=ROUTING_POLICY_TYPE_CHOICES,
         default=ROUTING_POLICY_TYPE_IMPORT,
     )
+    weight = models.PositiveSmallIntegerField(
+        default=0, help_text="The higher the number, the higher the priority"
+    )
     comment = models.TextField(blank=True)
 
     class Meta:
         verbose_name_plural = "routing policies"
-        ordering = ["name"]
+        ordering = ["-weight", "name"]
 
     def get_absolute_url(self):
         return reverse("peering:routing_policy_details", kwargs={"pk": self.pk})

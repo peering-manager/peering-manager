@@ -491,8 +491,13 @@ class RouterTest(TestCase):
 class RoutingPolicyTest(TestCase):
     def test_create(self):
         routing_policy_list = [
-            {"name": "Test1", "slug": "test1", "type": None},
-            {"name": "Test2", "slug": "test2", "type": ROUTING_POLICY_TYPE_EXPORT},
+            {"name": "Test1", "slug": "test1", "type": None, "weight": 0},
+            {
+                "name": "Test2",
+                "slug": "test2",
+                "type": ROUTING_POLICY_TYPE_EXPORT,
+                "weight": 0,
+            },
         ]
 
         for details in routing_policy_list:

@@ -51,7 +51,7 @@ class RouterSerializer(serializers.ModelSerializer):
 class RoutingPolicySerializer(serializers.ModelSerializer):
     class Meta:
         model = RoutingPolicy
-        fields = ["id", "name", "slug", "type", "comment"]
+        fields = ["id", "name", "slug", "type", "weight", "comment"]
 
 
 class DirectPeeringSessionSerializer(serializers.ModelSerializer):
