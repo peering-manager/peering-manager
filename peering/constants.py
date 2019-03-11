@@ -49,9 +49,11 @@ PLATFORM_CHOICES = (
 )
 
 # Routing policies constants
-ROUTING_POLICY_TYPE_IMPORT = "import-policy"
 ROUTING_POLICY_TYPE_EXPORT = "export-policy"
+ROUTING_POLICY_TYPE_IMPORT = "import-policy"
+ROUTING_POLICY_TYPE_IMPORT_EXPORT = "import-export-policy"
 ROUTING_POLICY_TYPE_CHOICES = (
-    (ROUTING_POLICY_TYPE_IMPORT, "Import"),
     (ROUTING_POLICY_TYPE_EXPORT, "Export"),
+    (ROUTING_POLICY_TYPE_IMPORT, "Import"),
+    (ROUTING_POLICY_TYPE_IMPORT_EXPORT, "Import and Export"),
 )

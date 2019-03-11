@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 from django.conf import settings
 
 from .constants import (
@@ -8,6 +9,7 @@ from .constants import (
     ROUTING_POLICY_TYPE_CHOICES,
     ROUTING_POLICY_TYPE_EXPORT,
     ROUTING_POLICY_TYPE_IMPORT,
+    ROUTING_POLICY_TYPE_IMPORT_EXPORT,
 )
 from .models import (
     AutonomousSystem,
@@ -200,11 +202,17 @@ class ConfigurationTemplateFilterForm(BootstrapMixin, forms.Form):
 class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_IMPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_EXPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
     password = PasswordField(required=False, render_value=True)
     comment = CommentField()
@@ -267,11 +275,17 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
     )
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_IMPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_EXPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
     router = forms.ModelChoiceField(required=False, queryset=Router.objects.all())
     comment = CommentField()
@@ -304,11 +318,17 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
 class DirectPeeringSessionRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_IMPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_EXPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
 
     class Meta:
@@ -347,11 +367,17 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_IMPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_EXPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
     comment = CommentField()
 
@@ -394,11 +420,17 @@ class InternetExchangeBulkEditForm(BootstrapMixin, BulkEditForm):
     )
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_IMPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_EXPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
     configuration_template = forms.ModelChoiceField(
         required=False, queryset=ConfigurationTemplate.objects.all()
@@ -504,11 +536,17 @@ class InternetExchangeCommunityForm(BootstrapMixin, forms.ModelForm):
 class InternetExchangeRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_IMPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_EXPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
 
     class Meta:
@@ -550,11 +588,17 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
     ipv6_address = forms.CharField(required=False, label="IPv6 Address")
     ipv4_address = forms.CharField(required=False, label="IPv4 Address")
     import_routing_policies = FilterChoiceField(
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_IMPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
         to_field_name="pk",
     )
     export_routing_policies = FilterChoiceField(
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_EXPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
         to_field_name="pk",
     )
     configuration_template = FilterChoiceField(
@@ -594,11 +638,17 @@ class InternetExchangePeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
     )
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_IMPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_EXPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
     comment = CommentField(widget=SmallTextarea)
 
@@ -610,11 +660,17 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
     password = PasswordField(required=False, render_value=True)
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_IMPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_EXPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
     comment = CommentField()
 
@@ -726,11 +782,17 @@ class InternetExchangePeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
 class InternetExchangePeeringSessionRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_IMPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_IMPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(type=ROUTING_POLICY_TYPE_EXPORT),
+        queryset=RoutingPolicy.objects.filter(
+            Q(type=ROUTING_POLICY_TYPE_EXPORT)
+            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        ),
     )
 
     class Meta:

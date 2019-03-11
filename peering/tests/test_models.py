@@ -8,8 +8,9 @@ from peering.constants import (
     PLATFORM_IOSXR,
     PLATFORM_JUNOS,
     PLATFORM_NONE,
-    ROUTING_POLICY_TYPE_IMPORT,
     ROUTING_POLICY_TYPE_EXPORT,
+    ROUTING_POLICY_TYPE_IMPORT,
+    ROUTING_POLICY_TYPE_IMPORT_EXPORT,
 )
 from peering.models import (
     AutonomousSystem,
@@ -467,16 +468,15 @@ class RoutingPolicyTest(TestCase):
 
     def test_get_type_html(self):
         expected = [
-            '<span class="badge badge-info">'
-            '<i class="fas fa-arrow-circle-up"></i> Export</span>',
-            '<span class="badge badge-info">'
-            '<i class="fas fa-arrow-circle-down"></i> Import</span>',
-            '<span class="badge badge-secondary">'
-            '<i class="fas fa-ban"></i> Unknown</span>',
+            '<span class="badge badge-info"><i class="fas fa-arrow-up"></i> Export</span>',
+            '<span class="badge badge-info"><i class="fas fa-arrow-down"></i> Import</span>',
+            '<span class="badge badge-info"><i class="fas fa-arrows-alt-v"></i> Import and Export</span>',
+            '<span class="badge badge-secondary"><i class="fas fa-ban"></i> Unknown</span>',
         ]
         routing_policy_types = [
             ROUTING_POLICY_TYPE_EXPORT,
             ROUTING_POLICY_TYPE_IMPORT,
+            ROUTING_POLICY_TYPE_IMPORT_EXPORT,
             "unknown",
         ]
 

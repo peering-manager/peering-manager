@@ -1282,12 +1282,15 @@ class RoutingPolicy(ChangeLoggedModel, TemplateModel):
     def get_type_html(self):
         if self.type == ROUTING_POLICY_TYPE_EXPORT:
             badge_type = "badge-info"
-            text = '<i class="fas fa-arrow-circle-up"></i> {}'.format(
-                self.get_type_display()
-            )
+            text = '<i class="fas fa-arrow-up"></i> {}'.format(self.get_type_display())
         elif self.type == ROUTING_POLICY_TYPE_IMPORT:
             badge_type = "badge-info"
-            text = '<i class="fas fa-arrow-circle-down"></i> {}'.format(
+            text = '<i class="fas fa-arrow-down"></i> {}'.format(
+                self.get_type_display()
+            )
+        elif self.type == ROUTING_POLICY_TYPE_IMPORT_EXPORT:
+            badge_type = "badge-info"
+            text = '<i class="fas fa-arrows-alt-v"></i> {}'.format(
                 self.get_type_display()
             )
         else:
