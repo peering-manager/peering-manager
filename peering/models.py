@@ -5,9 +5,9 @@ import napalm
 from jinja2 import Template
 
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
 from django.db.models import Q
-from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -18,10 +18,10 @@ from peeringdb.http import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
 from utils.crypto.cisco import encrypt as cisco_encrypt, decrypt as cisco_decrypt
 from utils.crypto.junos import encrypt as junos_encrypt, decrypt as junos_decrypt
-from utils.models import ChangeLoggedModel
+from utils.models import ChangeLoggedModel, TemplateModel
 
 
-class AutonomousSystem(ChangeLoggedModel):
+class AutonomousSystem(ChangeLoggedModel, TemplateModel):
     asn = ASNField(unique=True)
     name = models.CharField(max_length=128)
     comment = models.TextField(blank=True)
@@ -237,6 +237,10 @@ class BGPSession(ChangeLoggedModel):
     class Meta:
         abstract = True
 
+    @property
+    def ip_address_version(self):
+        return ipaddress.ip_address(self.ip_address).version
+
     def get_bgp_state_html(self):
         """
         Return an HTML element based on the BGP state.
@@ -271,7 +275,7 @@ class BGPSession(ChangeLoggedModel):
         return mark_safe(text)
 
 
-class Community(ChangeLoggedModel):
+class Community(ChangeLoggedModel, TemplateModel):
     name = models.CharField(max_length=128)
     value = CommunityField(max_length=50)
     type = models.CharField(
@@ -361,7 +365,7 @@ class DirectPeeringSession(BGPSession):
         )
 
 
-class InternetExchange(ChangeLoggedModel):
+class InternetExchange(ChangeLoggedModel, TemplateModel):
     peeringdb_id = models.PositiveIntegerField(blank=True, default=0)
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True)
@@ -454,86 +458,33 @@ class InternetExchange(ChangeLoggedModel):
 
         # Sort peering sessions based on IP protocol version
         for session in self.internetexchangepeeringsession_set.all():
-            ip_address = ipaddress.ip_address(session.ip_address)
-            ipv6_max_prefixes = session.autonomous_system.ipv6_max_prefixes
-            ipv4_max_prefixes = session.autonomous_system.ipv4_max_prefixes
-
-            if ip_address.version == 6:
+            if session.ip_address_version == 6:
                 if session.autonomous_system.asn not in peers6:
-                    peers6[session.autonomous_system.asn] = {
-                        "as_name": session.autonomous_system.name,
-                        "max_prefixes": ipv6_max_prefixes or 0,
-                        "sessions": [],
-                    }
-
+                    peers6[
+                        session.autonomous_system.asn
+                    ] = session.autonomous_system.to_dict()
+                    peers6[session.autonomous_system.asn].update({"sessions": []})
                 peers6[session.autonomous_system.asn]["sessions"].append(
-                    {
-                        "ip_address": str(ip_address),
-                        "password": session.password or False,
-                        "enabled": session.enabled,
-                        "is_route_server": session.is_route_server,
-                        "export_routing_policies": [
-                            {"name": rp.name, "slug": rp.slug}
-                            for rp in session.export_routing_policies.all()
-                        ],
-                        "import_routing_policies": [
-                            {"name": rp.name, "slug": rp.slug}
-                            for rp in session.import_routing_policies.all()
-                        ],
-                    }
+                    session.to_dict()
                 )
 
-            if ip_address.version == 4:
+            if session.ip_address_version == 4:
                 if session.autonomous_system.asn not in peers4:
-                    peers4[session.autonomous_system.asn] = {
-                        "as_name": session.autonomous_system.name,
-                        "max_prefixes": ipv4_max_prefixes or 0,
-                        "sessions": [],
-                    }
-
+                    peers4[
+                        session.autonomous_system.asn
+                    ] = session.autonomous_system.to_dict()
+                    peers4[session.autonomous_system.asn].update({"sessions": []})
                 peers4[session.autonomous_system.asn]["sessions"].append(
-                    {
-                        "ip_address": str(ip_address),
-                        "password": session.password or False,
-                        "enabled": session.enabled,
-                        "is_route_server": session.is_route_server,
-                        "export_routing_policies": [
-                            {"name": rp.name, "slug": rp.slug}
-                            for rp in session.export_routing_policies.all()
-                        ],
-                        "import_routing_policies": [
-                            {"name": rp.name, "slug": rp.slug}
-                            for rp in session.import_routing_policies.all()
-                        ],
-                    }
+                    session.to_dict()
                 )
-
-        peering_groups = [
-            {"ip_version": 6, "peers": peers6},
-            {"ip_version": 4, "peers": peers4},
-        ]
-
-        # Generate list of communities
-        communities = []
-        for community in self.communities.all():
-            communities.append({"name": community.name, "value": community.value})
-
-        # Generate list of routing policies
-        export_routing_policies = [
-            {"name": rp.name, "slug": rp.slug}
-            for rp in self.export_routing_policies.all()
-        ]
-        import_routing_policies = [
-            {"name": rp.name, "slug": rp.slug}
-            for rp in self.import_routing_policies.all()
-        ]
 
         values = {
-            "internet_exchange": self,
-            "peering_groups": peering_groups,
-            "communities": communities,
-            "export_routing_policies": export_routing_policies,
-            "import_routing_policies": import_routing_policies,
+            "my_asn": settings.MY_ASN,
+            "internet_exchange": self.to_dict(),
+            "peering_groups": [
+                {"ip_version": 6, "peers": peers6},
+                {"ip_version": 4, "peers": peers4},
+            ],
         }
 
         return values
@@ -544,8 +495,8 @@ class InternetExchange(ChangeLoggedModel):
             return ""
 
         # Load and render the template using Jinja2
-        configuration_template = Template(self.configuration_template.template)
-        return configuration_template.render(self._generate_configuration_variables())
+        template = Template(self.configuration_template.template)
+        return template.render(self._generate_configuration_variables())
 
     def get_available_peers(self):
         # Not linked to PeeringDB, cannot determine peers
@@ -807,7 +758,7 @@ class InternetExchange(ChangeLoggedModel):
         return self.name
 
 
-class InternetExchangePeeringSession(BGPSession):
+class InternetExchangePeeringSession(BGPSession, TemplateModel):
     internet_exchange = models.ForeignKey("InternetExchange", on_delete=models.CASCADE)
     is_route_server = models.BooleanField(blank=True, default=False)
 
@@ -1308,7 +1259,7 @@ class Router(ChangeLoggedModel):
         return self.name
 
 
-class RoutingPolicy(ChangeLoggedModel):
+class RoutingPolicy(ChangeLoggedModel, TemplateModel):
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True)
     type = models.CharField(

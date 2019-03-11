@@ -223,85 +223,7 @@ class InternetExchangeTest(TestCase):
             self.assertEqual(expected[i][1], len(ixp.get_peering_sessions()))
 
     def test_generate_configuration(self):
-        expected = [
-            {
-                "ip_version": 6,
-                "peers": {
-                    1: {
-                        "as_name": "Test 1",
-                        "max_prefixes": 0,
-                        "sessions": [
-                            {
-                                "ip_address": "2001:db8::1",
-                                "password": False,
-                                "enabled": True,
-                                "is_route_server": False,
-                                "export_routing_policies": [],
-                                "import_routing_policies": [],
-                            }
-                        ],
-                    },
-                    2: {
-                        "as_name": "Test 2",
-                        "max_prefixes": 0,
-                        "sessions": [
-                            {
-                                "ip_address": "2001:db8::2",
-                                "password": False,
-                                "enabled": True,
-                                "is_route_server": False,
-                                "export_routing_policies": [],
-                                "import_routing_policies": [],
-                            }
-                        ],
-                    },
-                    3: {
-                        "as_name": "Test 3",
-                        "max_prefixes": 0,
-                        "sessions": [
-                            {
-                                "ip_address": "2001:db8::3",
-                                "password": False,
-                                "enabled": True,
-                                "is_route_server": False,
-                                "export_routing_policies": [],
-                                "import_routing_policies": [],
-                            }
-                        ],
-                    },
-                    4: {
-                        "as_name": "Test 4",
-                        "max_prefixes": 0,
-                        "sessions": [
-                            {
-                                "ip_address": "2001:db8::4",
-                                "password": False,
-                                "enabled": True,
-                                "is_route_server": False,
-                                "export_routing_policies": [],
-                                "import_routing_policies": [],
-                            }
-                        ],
-                    },
-                    5: {
-                        "as_name": "Test 5",
-                        "max_prefixes": 0,
-                        "sessions": [
-                            {
-                                "ip_address": "2001:db8::5",
-                                "password": False,
-                                "enabled": True,
-                                "is_route_server": False,
-                                "export_routing_policies": [],
-                                "import_routing_policies": [],
-                            }
-                        ],
-                    },
-                },
-            },
-            {"ip_version": 4, "peers": {}},
-        ]
-
+        # Test setup
         internet_exchange = InternetExchange.objects.create(name="Test", slug="test")
         for i in range(1, 6):
             InternetExchangePeeringSession.objects.create(
@@ -311,8 +233,34 @@ class InternetExchangeTest(TestCase):
                 internet_exchange=internet_exchange,
                 ip_address="2001:db8::{}".format(i),
             )
-        values = internet_exchange._generate_configuration_variables()
-        self.assertEqual(values["peering_groups"], expected)
+
+        # Generate expected result
+        expected = [
+            {
+                "ip_version": 6,
+                "peers": {
+                    1: AutonomousSystem.objects.get(asn=1).to_dict(),
+                    2: AutonomousSystem.objects.get(asn=2).to_dict(),
+                    3: AutonomousSystem.objects.get(asn=3).to_dict(),
+                    4: AutonomousSystem.objects.get(asn=4).to_dict(),
+                    5: AutonomousSystem.objects.get(asn=5).to_dict(),
+                },
+            },
+            {"ip_version": 4, "peers": {}},
+        ]
+        for i in range(1, 6):
+            expected[0]["peers"][i].update(
+                {
+                    "sessions": [
+                        InternetExchangePeeringSession.objects.get(
+                            ip_address="2001:db8::{}".format(i)
+                        ).to_dict()
+                    ]
+                }
+            )
+
+        result = internet_exchange._generate_configuration_variables()
+        self.assertEqual(result["peering_groups"], expected)
 
 
 class InternetExchangePeeringSessionTest(TestCase):
