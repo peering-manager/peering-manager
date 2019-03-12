@@ -147,7 +147,7 @@ router bgp 12345
    neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ group.ip_version }} maximum-routes 10
    {%- else -%}
    neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ group.ip_version }} maximum-routes 100
-   {%- endif -%}    
+   {%- endif -%}
       {%- if group.ip_version == 6 %}
    address-family ipv6
       {%- endif %}
@@ -156,7 +156,7 @@ router bgp 12345
       {%- else %}
       neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ group.ip_version }} route-map block-all in
       {%- endif %}
-      {%- if internet_exchange.export_routing_policies %}  
+      {%- if internet_exchange.export_routing_policies %}
       neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ group.ip_version }} route-map {{ internet_exchange.export_routing_policies | map(attribute='slug') | join(' ') }} out
       {%- else %}
       neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ group.ip_version }} route-map block-all out
@@ -171,6 +171,7 @@ router bgp 12345
     neighbor {{ session.ip_address }} remote-as {{ asn }}
     neighbor {{ session.ip_address }} description "{{ details.name }}"
     neighbor {{ session.ip_address }} maximum-routes {% if group.ip_version == 6 %}{{ details.ipv6_max_prefixes }}{% else %}{{ details.ipv4_max_prefixes }}
+    {%- endif %}
     {%- if session.is_route_server %}
     no neighbor {{ session.ip_address }} enforce-first-as
     {%- endif %}
