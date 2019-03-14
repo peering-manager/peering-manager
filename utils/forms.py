@@ -1,5 +1,3 @@
-import csv
-
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -62,58 +60,6 @@ class BootstrapMixin(forms.BaseForm):
                 field.widget.attrs["placeholder"] = field.label
 
 
-class CSVDataField(forms.CharField):
-    """
-    A textarea dedicated for CSV data. It will return dictionaries with a
-    header/value mapping. Each dictionary represents one line/record.
-    """
-
-    widget = forms.Textarea
-
-    def __init__(self, fields, *args, **kwargs):
-        self.fields = fields
-
-        super().__init__(*args, **kwargs)
-
-        if not self.label:
-            self.label = "CSV Data"
-        if not self.initial:
-            self.initial = ",".join(fields) + "\n"
-        if not self.help_text:
-            self.help_text = "Enter the list of column headers followed by one record per line using commas to separate values.<br>Multi-line data and values containing commas have to be wrapped in double quotes."
-
-    def to_python(self, value):
-        records = []
-        reader = csv.reader(value.splitlines())
-
-        # First line must be the headers
-        headers = next(reader)
-        for header in headers:
-            if header not in self.fields:
-                raise forms.ValidationError(
-                    'Unexpected column header "{}" found.'.format(header)
-                )
-
-        # Parse CSV data
-        for i, row in enumerate(reader, start=1):
-            if row:
-                # Number of columns in the row does not match the number of
-                # headers
-                if len(row) != len(headers):
-                    raise forms.ValidationError(
-                        "Row {}: Expected {} columns but found {}".format(
-                            i, len(headers), len(row)
-                        )
-                    )
-
-                # Dissect the row and create a dictionary with it
-                row = [col.strip() for col in row]
-                record = dict(zip(headers, row))
-                records.append(record)
-
-        return records
-
-
 class ConfirmationForm(BootstrapMixin, forms.Form):
     """
     A generic confirmation form. The form is not valid unless the confirm field
@@ -123,32 +69,6 @@ class ConfirmationForm(BootstrapMixin, forms.Form):
     confirm = forms.BooleanField(
         required=True, widget=forms.HiddenInput(), initial=True
     )
-
-
-class CSVChoiceField(forms.ChoiceField):
-    """
-    This field helps to get a database usable value from a human-readable value
-    as input.
-    """
-
-    def __init__(self, choices, *args, **kwargs):
-        super().__init__(choices=choices, *args, **kwargs)
-        self.choices = [(label, label) for value, label in choices]
-        self.choice_values = {label: value for value, label in choices}
-
-    def clean(self, value):
-        value = super().clean(value)
-
-        if not value:
-            return None
-
-        if value not in self.choice_values:
-            raise forms.ValidationError("Invalid choice: {}".format(value))
-
-        if not self.choice_values[value]:
-            return ""
-
-        return self.choice_values[value]
 
 
 class FilterChoiceIterator(forms.models.ModelChoiceIterator):

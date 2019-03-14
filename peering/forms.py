@@ -26,7 +26,6 @@ from peeringdb.models import PeerRecord
 from utils.forms import (
     BulkEditForm,
     BootstrapMixin,
-    CSVChoiceField,
     CustomNullBooleanSelect,
     FilterChoiceField,
     PasswordField,
@@ -99,31 +98,6 @@ class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class AutonomousSystemCSVForm(forms.ModelForm):
-    class Meta:
-        model = AutonomousSystem
-
-        fields = (
-            "asn",
-            "name",
-            "irr_as_set",
-            "ipv6_max_prefixes",
-            "ipv4_max_prefixes",
-            "comment",
-        )
-        labels = {
-            "asn": "ASN",
-            "irr_as_set": "IRR AS-SET",
-            "ipv6_max_prefixes": "IPv6 Max Prefixes",
-            "ipv4_max_prefixes": "IPv4 Max Prefixes",
-            "comment": "Comments",
-        }
-        help_texts = {
-            "asn": "BGP autonomous system number (32-bit capable)",
-            "name": "Full name of the AS",
-        }
-
-
 class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
     model = AutonomousSystem
     q = forms.CharField(required=False, label="Search")
@@ -159,21 +133,6 @@ class CommunityBulkEditForm(BootstrapMixin, BulkEditForm):
 
     class Meta:
         nullable_fields = ["comment"]
-
-
-class CommunityCSVForm(BootstrapMixin, forms.ModelForm):
-    type = CSVChoiceField(
-        choices=COMMUNITY_TYPE_CHOICES,
-        required=False,
-        help_text="Ingress to tag received routes or Egress to tag advertised routes",
-    )
-
-    class Meta:
-        model = Community
-
-        fields = ("name", "value", "type", "comment")
-        labels = {"comment": "Comments"}
-        help_texts = {"value": "Community (RFC1997) or Large Community (RFC8092)"}
 
 
 class CommunityFilterForm(BootstrapMixin, forms.Form):
@@ -479,33 +438,6 @@ class InternetExchangePeeringDBFormSet(forms.BaseFormSet):
                     "Internet Exchanges must have distinct slugs."
                 )
             slugs.append(slug)
-
-
-class InternetExchangeCSVForm(forms.ModelForm):
-    slug = SlugField()
-
-    class Meta:
-        model = InternetExchange
-        fields = (
-            "name",
-            "slug",
-            "ipv6_address",
-            "ipv4_address",
-            "import_routing_policies",
-            "export_routing_policies",
-            "configuration_template",
-            "router",
-            "check_bgp_session_states",
-            "comment",
-        )
-        help_texts = {
-            "name": "Full name of the Internet Exchange point",
-            "ipv6_address": "IPv6 Address used to peer",
-            "ipv4_address": "IPv4 Address used to peer",
-            "configuration_template": "Template for configuration generation",
-            "router": "Router connected to the Internet Exchange point",
-            "check_bgp_session_states": "If enabled, with a usable router, the state of peering sessions will be updated.",
-        }
 
 
 class InternetExchangeCommunityForm(BootstrapMixin, forms.ModelForm):
@@ -883,21 +815,6 @@ class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
         nullable_fields = ["comment"]
 
 
-class RouterCSVForm(BootstrapMixin, forms.ModelForm):
-    platform = CSVChoiceField(
-        choices=PLATFORM_CHOICES,
-        required=False,
-        help_text="The router platform, used to interact with it",
-    )
-
-    class Meta:
-        model = Router
-
-        fields = ("name", "hostname", "platform", "encrypt_passwords", "comment")
-        labels = {"comment": "Comments"}
-        help_texts = {"hostname": "Router hostname (must be resolvable) or IP address"}
-
-
 class RouterFilterForm(BootstrapMixin, forms.Form):
     model = Router
     q = forms.CharField(required=False, label="Search")
@@ -932,16 +849,6 @@ class RoutingPolicyBulkEditForm(BootstrapMixin, BulkEditForm):
 
     class Meta:
         nullable_fields = ["comment"]
-
-
-class RoutingPolicyCSVForm(BootstrapMixin, forms.ModelForm):
-    type = CSVChoiceField(choices=ROUTING_POLICY_TYPE_CHOICES, required=False)
-
-    class Meta:
-        model = RoutingPolicy
-
-        fields = ("name", "slug", "type", "weight", "comment")
-        labels = {"comment": "Comments"}
 
 
 class RoutingPolicyFilterForm(BootstrapMixin, forms.Form):

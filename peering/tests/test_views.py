@@ -56,30 +56,6 @@ class AutonomousSystemTestCase(ViewTestCase):
         self.post_request("peering:autonomous_system_add", data=as_not_to_create)
         self.does_object_not_exist(as_not_to_create)
 
-    def test_as_import_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:autonomous_system_import", expected_status_code=302)
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request("peering:autonomous_system_import", contains="Import")
-
-        # Try to import an object with valid data
-        as_to_import = {
-            "csv": """asn,name,irr_as_set,ipv6_max_prefixes,ipv4_max_prefixes,comment
-                      64500,as-created,,0,0,"""
-        }
-        self.post_request("peering:autonomous_system_import", data=as_to_import)
-        self.does_object_exist({"asn": 64500})
-
-        # Try to create an object with invalid data
-        as_not_to_import = {
-            "csv": """asn,name,irr_as_set,ipv6_max_prefixes,ipv4_max_prefixes,comment
-                      64501,,,,,"""
-        }
-        self.post_request("peering:autonomous_system_import", data=as_not_to_import)
-        self.does_object_not_exist({"asn": 64501})
-
     def test_as_details_view(self):
         # No ASN given, view should not work
         with self.assertRaises(NoReverseMatch):
@@ -234,30 +210,6 @@ class CommunityTestCase(ViewTestCase):
         community_not_to_create = {"name": "community-not-created"}
         self.post_request("peering:community_add", data=community_not_to_create)
         self.does_object_not_exist(community_not_to_create)
-
-    def test_community_import_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:community_import", expected_status_code=302)
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request("peering:community_import", contains="Import")
-
-        # Try to import an object with valid data
-        community_to_import = {
-            "csv": """name,value,type,comment
-                      community-created,64500:2,Ingress,"""
-        }
-        self.post_request("peering:community_import", data=community_to_import)
-        self.does_object_exist({"value": "64500:2"})
-
-        # Try to create an object with invalid data
-        community_not_to_import = {
-            "csv": """name,value,type,comment
-                      community-not-created,,Ingress,"""
-        }
-        self.post_request("peering:community_import", data=community_not_to_import)
-        self.does_object_not_exist({"name": "community-not-created"})
 
     def test_community_details_view(self):
         # No community PK given, view should not work
@@ -466,36 +418,6 @@ class InternetExchangeTestCase(ViewTestCase):
         ix_not_to_create = {"name": "ix-notcreated"}
         self.post_request("peering:internet_exchange_add", data=ix_not_to_create)
         self.does_object_not_exist(ix_not_to_create)
-
-    def test_ix_import_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:internet_exchange_import", expected_status_code=302)
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request("peering:internet_exchange_import", contains="Import")
-
-        # Try to import an object with valid data
-        ix_to_import = {
-            "csv": """name,slug,ipv6_address,ipv4_address,configuration_template,router,check_bgp_session_states,comment
-                      ix-created,ix-created,,,,,,"""
-        }
-        self.post_request("peering:internet_exchange_import", data=ix_to_import)
-        self.does_object_exist({"slug": "ix-created"})
-
-        # Try to create an object with invalid data
-        ix_to_import = {
-            "csv": """name,slug,ipv6_address,ipv4_address,configuration_template,router,check_bgp_session_states,comment
-                      ix-not-created,,,,,,,"""
-        }
-        self.post_request("peering:internet_exchange_import", data=ix_to_import)
-        self.does_object_not_exist({"slug": "ix-not-reated"})
-
-    def test_ix_peeringdb_import_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:internet_exchange_peeringdb_import", expected_status_code=302
-        )
 
     def test_ix_bulk_delete_view(self):
         # Not logged in, no right to access the view, should be redirected
@@ -803,30 +725,6 @@ class RouterTestCase(ViewTestCase):
         self.post_request("peering:router_add", data=router_not_to_create)
         self.does_object_not_exist(router_not_to_create)
 
-    def test_router_import_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:router_import", expected_status_code=302)
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request("peering:router_import", contains="Import")
-
-        # Try to import an object with valid data
-        router_to_import = {
-            "csv": """name,hostname,platform,comment
-                      router-created,rt-created.example.com,Other,"""
-        }
-        self.post_request("peering:router_import", data=router_to_import)
-        self.does_object_exist({"hostname": "rt-created.example.com"})
-
-        # Try to create an object with invalid data
-        router_not_to_import = {
-            "csv": """name,hostname,platform,comment
-                      router-not-created,,Other,"""
-        }
-        self.post_request("peering:router_import", data=router_not_to_import)
-        self.does_object_not_exist({"name": "router-not-created"})
-
     def test_router_details_view(self):
         # No PK given, view should not work
         with self.assertRaises(NoReverseMatch):
@@ -932,34 +830,6 @@ class RoutingPolicyTestCase(ViewTestCase):
             "peering:routing_policy_add", data=routing_policy_not_to_create
         )
         self.does_object_not_exist(routing_policy_not_to_create)
-
-    def test_routing_policy_import_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:routing_policy_import", expected_status_code=302)
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request("peering:routing_policy_import", contains="Import")
-
-        # Try to import an object with valid data
-        routing_policy_to_import = {
-            "csv": """name,slug,type,weight,comment
-                      routing-policy-created,routing-policy-created,Import,0,"""
-        }
-        self.post_request(
-            "peering:routing_policy_import", data=routing_policy_to_import
-        )
-        self.does_object_exist({"slug": "routing-policy-created"})
-
-        # Try to create an object with invalid data
-        routing_policy_not_to_import = {
-            "csv": """name,value,type,weight,comment
-                      routing-policy-not-created,,Import,,"""
-        }
-        self.post_request(
-            "peering:routing_policy_import", data=routing_policy_not_to_import
-        )
-        self.does_object_not_exist({"name": "routing-policy-not-created"})
 
     def test_routing_policy_details_view(self):
         # No routing policy PK given, view should not work

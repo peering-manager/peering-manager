@@ -21,10 +21,8 @@ from .filters import (
 )
 from .forms import (
     AutonomousSystemForm,
-    AutonomousSystemCSVForm,
     AutonomousSystemFilterForm,
     CommunityForm,
-    CommunityCSVForm,
     CommunityFilterForm,
     CommunityBulkEditForm,
     ConfigurationTemplateForm,
@@ -39,7 +37,6 @@ from .forms import (
     InternetExchangePeeringDBFormSet,
     InternetExchangeCommunityForm,
     InternetExchangeRoutingPolicyForm,
-    InternetExchangeCSVForm,
     InternetExchangeFilterForm,
     PeerRecordFilterForm,
     InternetExchangePeeringSessionBulkEditForm,
@@ -49,10 +46,8 @@ from .forms import (
     InternetExchangePeeringSessionFilterFormForAS,
     InternetExchangePeeringSessionRoutingPolicyForm,
     RouterForm,
-    RouterCSVForm,
     RouterFilterForm,
     RouterBulkEditForm,
-    RoutingPolicyCSVForm,
     RoutingPolicyForm,
     RoutingPolicyBulkEditForm,
     RoutingPolicyFilterForm,
@@ -88,7 +83,6 @@ from utils.views import (
     BulkDeleteView,
     ConfirmationView,
     DeleteView,
-    ImportView,
     ModelListView,
     TableImportView,
 )
@@ -108,12 +102,6 @@ class ASAdd(PermissionRequiredMixin, AddOrEditView):
     form = AutonomousSystemForm
     return_url = "peering:autonomous_system_list"
     template = "peering/as/add_edit.html"
-
-
-class ASImport(PermissionRequiredMixin, ImportView):
-    permission_required = "peering.add_autonomoussystem"
-    form_model = AutonomousSystemCSVForm
-    return_url = "peering:autonomous_system_list"
 
 
 class ASDetails(View):
@@ -230,12 +218,6 @@ class CommunityAdd(PermissionRequiredMixin, AddOrEditView):
     form = CommunityForm
     return_url = "peering:community_list"
     template = "peering/community/add_edit.html"
-
-
-class CommunityImport(PermissionRequiredMixin, ImportView):
-    permission_required = "peering.add_community"
-    form_model = CommunityCSVForm
-    return_url = "peering:community_list"
 
 
 class CommunityDetails(View):
@@ -477,12 +459,6 @@ class InternetExchangeAdd(PermissionRequiredMixin, AddOrEditView):
     form = InternetExchangeForm
     return_url = "peering:internet_exchange_list"
     template = "peering/ix/add_edit.html"
-
-
-class InternetExchangeImport(PermissionRequiredMixin, ImportView):
-    permission_required = "peering.add_internetexchange"
-    form_model = InternetExchangeCSVForm
-    return_url = "peering:internet_exchange_list"
 
 
 class InternetExchangePeeringDBImport(PermissionRequiredMixin, TableImportView):
@@ -976,12 +952,6 @@ class RouterAdd(PermissionRequiredMixin, AddOrEditView):
     template = "peering/router/add_edit.html"
 
 
-class RouterImport(PermissionRequiredMixin, ImportView):
-    permission_required = "peering.add_router"
-    form_model = RouterCSVForm
-    return_url = "peering:router_list"
-
-
 class RouterDetails(View):
     def get(self, request, pk):
         router = get_object_or_404(Router, pk=pk)
@@ -1032,12 +1002,6 @@ class RoutingPolicyAdd(PermissionRequiredMixin, AddOrEditView):
     form = RoutingPolicyForm
     return_url = "peering:routing_policy_list"
     template = "peering/routing-policy/add_edit.html"
-
-
-class RoutingPolicyImport(PermissionRequiredMixin, ImportView):
-    permission_required = "peering.add_routingpolicy"
-    form_model = RoutingPolicyCSVForm
-    return_url = "peering:routing_policy_list"
 
 
 class RoutingPolicyDetails(View):

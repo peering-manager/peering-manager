@@ -14,11 +14,6 @@ urlpatterns = [
         name="autonomous_system_add",
     ),
     url(
-        r"^autonomous-systems/import/$",
-        views.ASImport.as_view(),
-        name="autonomous_system_import",
-    ),
-    url(
         r"^autonomous-systems/(?P<asn>[0-9]+)/$",
         views.ASDetails.as_view(),
         name="autonomous_system_details",
@@ -51,11 +46,6 @@ urlpatterns = [
     # BGP Communities
     url(r"^communities/$", views.CommunityList.as_view(), name="community_list"),
     url(r"^communities/add/$", views.CommunityAdd.as_view(), name="community_add"),
-    url(
-        r"^communities/import/$",
-        views.CommunityImport.as_view(),
-        name="community_import",
-    ),
     url(
         r"^communities/(?P<pk>[0-9]+)/$",
         views.CommunityDetails.as_view(),
@@ -175,11 +165,6 @@ urlpatterns = [
         name="internet_exchange_add",
     ),
     url(
-        r"^internet-exchanges/import/$",
-        views.InternetExchangeImport.as_view(),
-        name="internet_exchange_import",
-    ),
-    url(
         r"^internet-exchanges/peeringdb-import/$",
         views.InternetExchangePeeringDBImport.as_view(),
         name="internet_exchange_peeringdb_import",
@@ -293,7 +278,6 @@ urlpatterns = [
     # Routers
     url(r"^routers/$", views.RouterList.as_view(), name="router_list"),
     url(r"^routers/add/$", views.RouterAdd.as_view(), name="router_add"),
-    url(r"^routers/import/$", views.RouterImport.as_view(), name="router_import"),
     url(
         r"^routers/(?P<pk>[0-9]+)/$",
         views.RouterDetails.as_view(),
@@ -325,11 +309,6 @@ urlpatterns = [
         r"^routing-policies/add/$",
         views.RoutingPolicyAdd.as_view(),
         name="routing_policy_add",
-    ),
-    url(
-        r"^routing-policies/import/$",
-        views.RoutingPolicyImport.as_view(),
-        name="routing_policy_import",
     ),
     url(
         r"^routing-policies/(?P<pk>[0-9]+)/$",
