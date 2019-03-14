@@ -1,7 +1,7 @@
 {% extends '_base.html' %}
 {% load helpers %}
+{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{{ object_change }}</li>{% endblock %}
 {% block content %}
-      <h2>{% block title %}{{ object_change }}{% endblock %}</h2>
       <div class="row">
         <div class="col-md-5">
           <div class="card">
