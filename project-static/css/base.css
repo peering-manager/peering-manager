@@ -46,6 +46,9 @@ nav > ol.breadcrumb > li.breadcrumb-item > a {
   font-weight: 500;
   color: #f8f9fa;
 }
+.sidebar a:hover.list-group-item {
+  text-decoration: none;
+}
 .sidebar .list-group-item.active {
   background-color: #1d2124!important;
   border-color: #1d2124!important;
