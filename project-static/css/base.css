@@ -22,6 +22,9 @@ nav > ol.breadcrumb {
   font-size: 1rem;
   background-color: #343a40;
 }
+.breadcrumb-item.active {
+  color: white;
+}
 nav > ol.breadcrumb > li.breadcrumb-item > a {
   color: white;
 }

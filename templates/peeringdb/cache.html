@@ -1,7 +1,7 @@
 {% extends '_base.html' %}
 {% load helpers %}
+{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">Local Cache Management</li>{% endblock %}
 {% block content %}
-      <h2>Local Cache Management</h2>
       {% if last_sync_time is not 0 %}
       <p><small class="text-muted">Last updated: {{ last_sync_time }}</small></p>
       {% endif %}
