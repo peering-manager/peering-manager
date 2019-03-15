@@ -55,6 +55,7 @@ protocols {
                             maximum {{ details.ipv6_max_prefixes }};
                         }
                     }
+                }
                 {%- endif %}
                 {%- if group.ip_version == 4 and details.ipv4_max_prefixes > 0 %}
                 family inet {
