@@ -372,7 +372,7 @@ class RouterTest(TestCase):
 
         for platform in [PLATFORM_JUNOS, PLATFORM_IOSXR]:
             router = Router.objects.create(
-                name="test", hostname="test.example.com", platform=PLATFORM_JUNOS
+                name="test", hostname="test.example.com", platform=platform
             )
             self.assertEqual(
                 string, router.decrypt_string(router.encrypt_string(string))
