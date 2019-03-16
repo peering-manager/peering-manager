@@ -137,13 +137,27 @@ class AutonomousSystem(ChangeLoggedModel, TemplateModel):
                 known = False
                 for known_session in known_sessions:
                     if peering_session == known_session.ip_address:
-                        # If the IP is found, stop looking for the info and mark
-                        # it as known
+                        # If the IP is found, stop looking for the info and mark it
+                        # as known
                         known = True
+                        # Remove the IP from the potential peering sessions if it is
+                        # still in
+                        if (
+                            peering_session
+                            in self.potential_internet_exchange_peering_sessions
+                        ):
+                            self.potential_internet_exchange_peering_sessions.remove(
+                                peering_session
+                            )
                         break
-                # If the IP address is used in any peering sessions append it,
-                # keep an eye on it
-                if not known:
+
+                if (
+                    not known
+                    and peering_session
+                    not in self.potential_internet_exchange_peering_sessions
+                ):
+                    # If the IP address is not used in any peering sessions append it,
+                    # keep an eye on it
                     self.potential_internet_exchange_peering_sessions.append(
                         peering_session
                     )
@@ -163,9 +177,7 @@ class AutonomousSystem(ChangeLoggedModel, TemplateModel):
 
         for session in self.potential_internet_exchange_peering_sessions:
             for prefix in internet_exchange.get_prefixes():
-                network = ipaddress.ip_network(prefix)
-                session = ipaddress.ip_address(session)
-                if session in network:
+                if ipaddress.ip_address(session) in ipaddress.ip_network(prefix):
                     return True
 
         return False
@@ -880,19 +892,14 @@ class InternetExchangePeeringSession(BGPSession, TemplateModel):
     def save(self, *args, **kwargs):
         # Remove the IP address of this session from potential sessions for the AS
         # if it is in the list
-        ip_address = ipaddress.ip_address(self.ip_address)
-        for i in range(
-            len(self.autonomous_system.potential_internet_exchange_peering_sessions)
+        if (
+            self.ip_address
+            in self.autonomous_system.potential_internet_exchange_peering_sessions
         ):
-            potential = ipaddress.ip_address(
-                self.autonomous_system.potential_internet_exchange_peering_sessions[i]
+            self.autonomous_system.potential_internet_exchange_peering_sessions.remove(
+                self.ip_address
             )
-            if ip_address == potential:
-                del self.autonomous_system.potential_internet_exchange_peering_sessions[
-                    i
-                ]
-                self.autonomous_system.save()
-                break
+            self.autonomous_system.save()
 
         super().save(*args, **kwargs)
 
