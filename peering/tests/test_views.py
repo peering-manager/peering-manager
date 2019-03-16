@@ -27,7 +27,7 @@ class AutonomousSystemTestCase(ViewTestCase):
         self.asn = 29467
         self.as_name = "LuxNetwork S.A."
         self.autonomous_system = AutonomousSystem.objects.create(
-            asn=self.asn, name=self.as_name
+            asn=self.asn, name=self.as_name, comment="This is a comment"
         )
 
     def test_as_list_view(self):
