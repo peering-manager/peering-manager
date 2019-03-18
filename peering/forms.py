@@ -372,13 +372,6 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             query_filters={"type": "export-policy"},
         ),
     )
-    configuration_template = forms.ModelChoiceField(
-        queryset=ConfigurationTemplate.objects.all(),
-        widget=APISelect(api_url="/api/peering/templates/"),
-    )
-    router = forms.ModelChoiceField(
-        queryset=Router.objects.all(), widget=APISelect(api_url="/api/peering/routers/")
-    )
     comment = CommentField()
 
     class Meta:
@@ -411,6 +404,10 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "configuration_template": "Template for configuration generation",
             "router": "Router connected to the Internet Exchange point",
             "check_bgp_session_states": "If enabled, with a usable router, the state of peering sessions will be updated.",
+        }
+        widgets = {
+            "configuration_template": APISelect(api_url="/api/peering/templates/"),
+            "router": APISelect(api_url="/api/peering/routers/"),
         }
 
 
