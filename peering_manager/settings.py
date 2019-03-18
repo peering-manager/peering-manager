@@ -169,6 +169,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "debug_toolbar",
     "django_filters",
     "django_tables2",
     "rest_framework",
@@ -179,6 +180,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -244,6 +246,9 @@ MESSAGE_TAGS = {messages.ERROR: "danger"}
 STATIC_ROOT = BASE_DIR + "/static/"
 STATIC_URL = "/{}static/".format(BASE_PATH)
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "project-static"),)
+
+# Django debug toolbar
+INTERNAL_IPS = ["127.0.0.1", "::1"]
 
 try:
     HOSTNAME = socket.gethostname()

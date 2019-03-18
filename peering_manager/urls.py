@@ -32,5 +32,11 @@ __patterns = [
     url(r"^api/peeringdb/", include("peeringdb.api.urls")),
 ]
 
+# Add debug_toolbar in debug mode
+if settings.DEBUG:
+    import debug_toolbar
+
+    __patterns += [url(r"^__debug__/", include(debug_toolbar.urls))]
+
 # Prepend BASE_PATH
 urlpatterns = [url(r"^{}".format(settings.BASE_PATH), include(__patterns))]
