@@ -2,7 +2,6 @@ $(document).ready(function() {
   // Trigger popover on hover
   $('.popover-hover').popover({trigger: 'hover'});
 
-
   // Toggle icon when a submenu is clicked
   function toggleIcon(e) {
     icon = $(e.target).prev().find('.submenu-icon');

@@ -25,13 +25,18 @@ from .models import (
 from netbox.api import NetBox
 from peeringdb.models import PeerRecord
 from utils.forms import (
+    APISelect,
+    APISelectMultiple,
     BulkEditForm,
     BootstrapMixin,
     CustomNullBooleanSelect,
     FilterChoiceField,
+    IPAddressVersionSelect,
     PasswordField,
     SlugField,
     SmallTextarea,
+    StaticSelect,
+    StaticSelectMultiple,
     TextareaField,
     add_blank_choice,
 )
@@ -131,7 +136,9 @@ class CommunityBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=Community.objects.all(), widget=forms.MultipleHiddenInput
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(COMMUNITY_TYPE_CHOICES), required=False
+        required=False,
+        choices=add_blank_choice(COMMUNITY_TYPE_CHOICES),
+        widget=StaticSelect,
     )
     comment = CommentField(widget=SmallTextarea)
 
@@ -144,7 +151,9 @@ class CommunityFilterForm(BootstrapMixin, forms.Form):
     q = forms.CharField(required=False, label="Search")
     name = forms.CharField(required=False, label="Name")
     value = forms.CharField(required=False, label="Value")
-    type = forms.MultipleChoiceField(choices=COMMUNITY_TYPE_CHOICES, required=False)
+    type = forms.MultipleChoiceField(
+        required=False, choices=COMMUNITY_TYPE_CHOICES, widget=StaticSelectMultiple
+    )
 
 
 class ConfigurationTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -163,26 +172,36 @@ class ConfigurationTemplateFilterForm(BootstrapMixin, forms.Form):
 
 
 class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
+    autonomous_system = forms.ModelChoiceField(
+        queryset=AutonomousSystem.objects.all(),
+        widget=APISelect(api_url="/api/peering/autonomous-systems/"),
+    )
+    relationship = forms.ChoiceField(
+        choices=BGP_RELATIONSHIP_CHOICES, widget=StaticSelect
+    )
+    router = forms.ModelChoiceField(
+        required=False,
+        queryset=Router.objects.all(),
+        widget=APISelect(api_url="/api/peering/routers/"),
+    )
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_IMPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "import-policy"},
         ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_EXPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "export-policy"},
         ),
     )
     password = PasswordField(required=False, render_value=True)
     comment = CommentField()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["autonomous_system"].widget.attrs["data-live-search"] = "true"
 
     def clean(self):
         # Do the regular cleanup
@@ -235,23 +254,29 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=DirectPeeringSession.objects.all(), widget=forms.MultipleHiddenInput
     )
     enabled = forms.NullBooleanField(
-        required=False, widget=CustomNullBooleanSelect, label="Enable"
+        required=False, label="Enable", widget=CustomNullBooleanSelect
     )
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_IMPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "import-policy"},
         ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_EXPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "export-policy"},
         ),
     )
-    router = forms.ModelChoiceField(required=False, queryset=Router.objects.all())
+    router = forms.ModelChoiceField(
+        required=False,
+        queryset=Router.objects.all(),
+        widget=APISelect(api_url="/api/peering/routers/"),
+    )
     comment = CommentField()
 
     class Meta:
@@ -262,31 +287,38 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
     model = DirectPeeringSession
     q = forms.CharField(required=False, label="Search")
     local_asn = forms.IntegerField(required=False, label="Local ASN")
-    address_family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES)
+    address_family = forms.ChoiceField(
+        required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
+    )
     enabled = forms.NullBooleanField(
-        required=False, widget=CustomNullBooleanSelect, label="Enabled"
+        required=False, label="Enabled", widget=CustomNullBooleanSelect
     )
     relationship = forms.MultipleChoiceField(
-        choices=BGP_RELATIONSHIP_CHOICES, required=False
+        required=False, choices=BGP_RELATIONSHIP_CHOICES, widget=StaticSelectMultiple
     )
     router = FilterChoiceField(
-        queryset=Router.objects.all(), to_field_name="pk", null_label="-- None --"
+        queryset=Router.objects.all(),
+        to_field_name="pk",
+        null_label=True,
+        widget=APISelectMultiple(api_url="/api/peering/routers/", null_option=True),
     )
 
 
 class DirectPeeringSessionRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_IMPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "import-policy"},
         ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_EXPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "export-policy"},
         ),
     )
 
@@ -326,17 +358,26 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_IMPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "import-policy"},
         ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_EXPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "export-policy"},
         ),
+    )
+    configuration_template = forms.ModelChoiceField(
+        queryset=ConfigurationTemplate.objects.all(),
+        widget=APISelect(api_url="/api/peering/templates/"),
+    )
+    router = forms.ModelChoiceField(
+        queryset=Router.objects.all(), widget=APISelect(api_url="/api/peering/routers/")
     )
     comment = CommentField()
 
@@ -379,22 +420,30 @@ class InternetExchangeBulkEditForm(BootstrapMixin, BulkEditForm):
     )
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_IMPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "import-policy"},
         ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_EXPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "export-policy"},
         ),
     )
     configuration_template = forms.ModelChoiceField(
-        required=False, queryset=ConfigurationTemplate.objects.all()
+        required=False,
+        queryset=ConfigurationTemplate.objects.all(),
+        widget=APISelect(api_url="/api/peering/templates/"),
     )
-    router = forms.ModelChoiceField(required=False, queryset=Router.objects.all())
+    router = forms.ModelChoiceField(
+        required=False,
+        queryset=Router.objects.all(),
+        widget=APISelect(api_url="/api/peering/routers/"),
+    )
     comment = CommentField(widget=SmallTextarea)
 
     class Meta:
@@ -468,16 +517,18 @@ class InternetExchangeCommunityForm(BootstrapMixin, forms.ModelForm):
 class InternetExchangeRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_IMPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "import-policy"},
         ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_EXPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "export-policy"},
         ),
     )
 
@@ -518,26 +569,36 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
     q = forms.CharField(required=False, label="Search")
     name = forms.CharField(required=False, label="IX Name")
     import_routing_policies = FilterChoiceField(
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_IMPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
-        ),
+        queryset=RoutingPolicy.objects.all(),
         to_field_name="pk",
+        null_label=True,
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "import-policy"},
+            null_option=True,
+        ),
     )
     export_routing_policies = FilterChoiceField(
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_EXPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
-        ),
+        queryset=RoutingPolicy.objects.all(),
         to_field_name="pk",
+        null_label=True,
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "export-policy"},
+            null_option=True,
+        ),
     )
     configuration_template = FilterChoiceField(
         queryset=ConfigurationTemplate.objects.all(),
         to_field_name="pk",
-        null_label="-- None --",
+        null_label=True,
+        widget=APISelectMultiple(api_url="/api/peering/templates/", null_option=True),
     )
     router = FilterChoiceField(
-        queryset=Router.objects.all(), to_field_name="pk", null_label="-- None --"
+        queryset=Router.objects.all(),
+        to_field_name="pk",
+        null_label=True,
+        widget=APISelectMultiple(api_url="/api/peering/routers/", null_option=True),
     )
 
 
@@ -561,23 +622,25 @@ class InternetExchangePeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
         widget=forms.MultipleHiddenInput,
     )
     is_route_server = forms.NullBooleanField(
-        required=False, widget=CustomNullBooleanSelect, label="Route Server"
+        required=False, label="Route Server", widget=CustomNullBooleanSelect
     )
     enabled = forms.NullBooleanField(
-        required=False, widget=CustomNullBooleanSelect, label="Enable"
+        required=False, label="Enable", widget=CustomNullBooleanSelect
     )
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_IMPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "import-policy"},
         ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_EXPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "export-policy"},
         ),
     )
     comment = CommentField(widget=SmallTextarea)
@@ -590,16 +653,18 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
     password = PasswordField(required=False, render_value=True)
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_IMPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "import-policy"},
         ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_EXPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "export-policy"},
         ),
     )
     comment = CommentField()
@@ -647,6 +712,10 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "ip_address": "IPv6 or IPv4 address",
             "is_route_server": "Define if this session is with a route server",
         }
+        widgets = {
+            "autonomous_system": APISelect(api_url="/api/peering/autonomous-systems/"),
+            "internet_exchange": APISelect(api_url="/api/peering/internet-exchanges/"),
+        }
 
 
 class InternetExchangePeeringSessionFilterForm(BootstrapMixin, forms.Form):
@@ -655,12 +724,14 @@ class InternetExchangePeeringSessionFilterForm(BootstrapMixin, forms.Form):
     autonomous_system__asn = forms.IntegerField(required=False, label="ASN")
     autonomous_system__name = forms.CharField(required=False, label="AS Name")
     internet_exchange__name = forms.CharField(required=False, label="IX Name")
-    address_family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES)
+    address_family = forms.ChoiceField(
+        required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
+    )
     is_route_server = forms.NullBooleanField(
-        required=False, widget=CustomNullBooleanSelect, label="Route Server"
+        required=False, label="Route Server", widget=CustomNullBooleanSelect
     )
     enabled = forms.NullBooleanField(
-        required=False, widget=CustomNullBooleanSelect, label="Enabled"
+        required=False, label="Enabled", widget=CustomNullBooleanSelect
     )
 
 
@@ -669,24 +740,28 @@ class InternetExchangePeeringSessionFilterFormForIX(BootstrapMixin, forms.Form):
     q = forms.CharField(required=False, label="Search")
     autonomous_system__asn = forms.IntegerField(required=False, label="ASN")
     autonomous_system__name = forms.CharField(required=False, label="AS Name")
-    address_family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES)
+    address_family = forms.ChoiceField(
+        required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
+    )
     is_route_server = forms.NullBooleanField(
-        required=False, widget=CustomNullBooleanSelect, label="Route Server"
+        required=False, label="Route Server", widget=CustomNullBooleanSelect
     )
     enabled = forms.NullBooleanField(
-        required=False, widget=CustomNullBooleanSelect, label="Enabled"
+        required=False, label="Enabled", widget=CustomNullBooleanSelect
     )
 
 
 class InternetExchangePeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
     model = InternetExchangePeeringSession
     q = forms.CharField(required=False, label="Search")
-    address_family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES)
+    address_family = forms.ChoiceField(
+        required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
+    )
     is_route_server = forms.NullBooleanField(
-        required=False, widget=CustomNullBooleanSelect, label="Route Server"
+        required=False, label="Route Server", widget=CustomNullBooleanSelect
     )
     enabled = forms.NullBooleanField(
-        required=False, widget=CustomNullBooleanSelect, label="Enabled"
+        required=False, label="Enabled", widget=CustomNullBooleanSelect
     )
     internet_exchange__slug = FilterChoiceField(
         queryset=InternetExchange.objects.all(),
@@ -698,16 +773,18 @@ class InternetExchangePeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
 class InternetExchangePeeringSessionRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
     import_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_IMPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "import-policy"},
         ),
     )
     export_routing_policies = FilterChoiceField(
         required=False,
-        queryset=RoutingPolicy.objects.filter(
-            Q(type=ROUTING_POLICY_TYPE_EXPORT)
-            | Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "export-policy"},
         ),
     )
 
@@ -791,7 +868,7 @@ class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
         choices=add_blank_choice(PLATFORM_CHOICES), required=False
     )
     encrypt_passwords = forms.NullBooleanField(
-        required=False, widget=CustomNullBooleanSelect, label="Encrypt Passwords"
+        required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
     )
     comment = CommentField(widget=SmallTextarea)
 
@@ -806,12 +883,13 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
     hostname = forms.CharField(required=False, label="Router Hostname")
     platform = forms.MultipleChoiceField(choices=PLATFORM_CHOICES, required=False)
     encrypt_passwords = forms.NullBooleanField(
-        required=False, widget=CustomNullBooleanSelect, label="Encrypt Passwords"
+        required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
     )
 
 
 class RoutingPolicyForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
+    type = forms.ChoiceField(choices=ROUTING_POLICY_TYPE_CHOICES, widget=StaticSelect)
     comment = CommentField()
 
     class Meta:
@@ -826,7 +904,9 @@ class RoutingPolicyBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=RoutingPolicy.objects.all(), widget=forms.MultipleHiddenInput
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(ROUTING_POLICY_TYPE_CHOICES), required=False
+        required=False,
+        choices=add_blank_choice(ROUTING_POLICY_TYPE_CHOICES),
+        widget=StaticSelect,
     )
     weight = forms.IntegerField(required=False, min_value=0, max_value=32767)
     address_family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES)
@@ -840,8 +920,10 @@ class RoutingPolicyFilterForm(BootstrapMixin, forms.Form):
     model = RoutingPolicy
     q = forms.CharField(required=False, label="Search")
     name = forms.CharField(required=False, label="Routing Policy Name")
-    type = forms.MultipleChoiceField(
-        choices=ROUTING_POLICY_TYPE_CHOICES, required=False
+    type = forms.ChoiceField(
+        required=False,
+        choices=add_blank_choice(ROUTING_POLICY_TYPE_CHOICES),
+        widget=StaticSelect,
     )
     weight = forms.IntegerField(required=False, min_value=0, max_value=32767)
     address_family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES)
