@@ -1,5 +1,6 @@
 $(document).ready(function() {
   // Select2
+  $.fn.select2.defaults.set('theme', 'bootstrap4');
   $('.custom-select2-static').select2({
     placeholder: '---------',
     closeOnSelect: $(this).data('multiple') !== 1,
