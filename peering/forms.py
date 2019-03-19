@@ -917,10 +917,10 @@ class RoutingPolicyFilterForm(BootstrapMixin, forms.Form):
     model = RoutingPolicy
     q = forms.CharField(required=False, label="Search")
     name = forms.CharField(required=False, label="Routing Policy Name")
-    type = forms.ChoiceField(
+    type = forms.MultipleChoiceField(
         required=False,
         choices=add_blank_choice(ROUTING_POLICY_TYPE_CHOICES),
-        widget=StaticSelect,
+        widget=StaticSelectMultiple,
     )
     weight = forms.IntegerField(required=False, min_value=0, max_value=32767)
     address_family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES)

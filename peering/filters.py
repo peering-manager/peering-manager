@@ -4,7 +4,11 @@ from django.db.models import Q
 
 import django_filters
 
-from .constants import BGP_RELATIONSHIP_CHOICES, PLATFORM_CHOICES
+from .constants import (
+    BGP_RELATIONSHIP_CHOICES,
+    PLATFORM_CHOICES,
+    ROUTING_POLICY_TYPE_CHOICES,
+)
 from .models import (
     AutonomousSystem,
     Community,
@@ -245,10 +249,13 @@ class RouterFilter(django_filters.FilterSet):
 
 class RoutingPolicyFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
+    type = django_filters.MultipleChoiceFilter(
+        choices=ROUTING_POLICY_TYPE_CHOICES, null_value=None
+    )
 
     class Meta:
         model = RoutingPolicy
-        fields = ["name", "type", "weight"]
+        fields = ["name", "weight"]
 
     def search(self, queryset, name, value):
         if not value.strip():
