@@ -109,6 +109,8 @@ class AutonomousSystem(ChangeLoggedModel, TemplateModel):
         Saves an IP address list. Each IP address of the list is the address of a
         potential peering session with the current AS on an Internet Exchange.
         """
+        # Potential IX peering sessions
+        potential_ix_peering_sessions = []
         # Get common IX networks between us and this AS
         common = PeeringDB().get_common_ix_networks_for_asns(settings.MY_ASN, self.asn)
 
@@ -133,36 +135,29 @@ class AutonomousSystem(ChangeLoggedModel, TemplateModel):
             )
             # Check if peer IP addresses are known sessions
             for peering_session in peering_sessions:
-                # Consider the IP as not known at first
-                known = False
+                # Consider the session as not existing at first
+                exists = False
                 for known_session in known_sessions:
                     if peering_session == known_session.ip_address:
                         # If the IP is found, stop looking for the info and mark it
-                        # as known
-                        known = True
-                        # Remove the IP from the potential peering sessions if it is
-                        # still in
-                        if (
-                            peering_session
-                            in self.potential_internet_exchange_peering_sessions
-                        ):
-                            self.potential_internet_exchange_peering_sessions.remove(
-                                peering_session
-                            )
+                        # as the peering session as existing
+                        exists = True
                         break
 
-                if (
-                    not known
-                    and peering_session
-                    not in self.potential_internet_exchange_peering_sessions
-                ):
+                if not exists:
                     # If the IP address is not used in any peering sessions append it,
                     # keep an eye on it
-                    self.potential_internet_exchange_peering_sessions.append(
-                        peering_session
-                    )
+                    potential_ix_peering_sessions.append(peering_session)
 
-        self.save()
+        # Only save the new potential IX peering session list if it has changed
+        if (
+            potential_ix_peering_sessions
+            != self.potential_internet_exchange_peering_sessions
+        ):
+            self.potential_internet_exchange_peering_sessions = (
+                potential_ix_peering_sessions
+            )
+            self.save()
 
     def has_potential_ix_peering_sessions(self, internet_exchange=None):
         """
