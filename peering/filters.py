@@ -8,6 +8,7 @@ from .constants import (
     BGP_RELATIONSHIP_CHOICES,
     PLATFORM_CHOICES,
     ROUTING_POLICY_TYPE_CHOICES,
+    ROUTING_POLICY_TYPE_IMPORT_EXPORT,
 )
 from .models import (
     AutonomousSystem,
@@ -250,7 +251,7 @@ class RouterFilter(django_filters.FilterSet):
 class RoutingPolicyFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     type = django_filters.MultipleChoiceFilter(
-        choices=ROUTING_POLICY_TYPE_CHOICES, null_value=None
+        method="type_search", choices=ROUTING_POLICY_TYPE_CHOICES, null_value=None
     )
 
     class Meta:
@@ -265,4 +266,13 @@ class RoutingPolicyFilter(django_filters.FilterSet):
             | Q(type__icontains=value)
             | Q(comment__icontains=value)
         )
+        return queryset.filter(qs_filter)
+
+    def type_search(self, queryset, name, value):
+        """
+        Return routing policies based on
+        """
+        qs_filter = Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        for v in value:
+            qs_filter |= Q(type=v)
         return queryset.filter(qs_filter)

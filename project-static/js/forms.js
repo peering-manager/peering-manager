@@ -1,10 +1,7 @@
 $(document).ready(function() {
   // Select2
   $.fn.select2.defaults.set('theme', 'bootstrap4');
-  $('.custom-select2-static').select2({
-    placeholder: '---------',
-    closeOnSelect: $(this).data('multiple') !== 1,
-  });
+  $('.custom-select2-static').select2({placeholder: '---------'});
   $('.custom-select2-api').select2({
     placeholder: '---------',
     ajax: {
