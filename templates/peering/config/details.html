@@ -14,7 +14,7 @@
 {% endblock %}
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'peering:configuration_template_list' %}">Configuration Templates</a></li>
-<li class="breadcrumb-item active" aria-current="page">{{ configuration_template }}</li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ configuration_template }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
       <div class="row">

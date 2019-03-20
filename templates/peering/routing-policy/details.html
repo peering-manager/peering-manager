@@ -14,7 +14,7 @@
 {% endblock %}
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'peering:routing_policy_list' %}">Routing Policies</a></li>
-<li class="breadcrumb-item active" aria-current="page">{{ routing_policy }}</li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ routing_policy }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
       <div class="row">

@@ -24,7 +24,7 @@
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'peering:autonomous_system_details' asn=peering_session.autonomous_system.asn %}">{{ peering_session.autonomous_system }}</a></li>
 <li class="breadcrumb-item"><a href="{% url 'peering:autonomous_system_direct_peering_sessions' asn=peering_session.autonomous_system.asn %}">Direct Peering Sessions</a></li>
-<li class="breadcrumb-item active" aria-current="page">{{ peering_session }}</li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ peering_session }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
       <div class="row">

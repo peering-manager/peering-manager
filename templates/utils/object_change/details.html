@@ -1,6 +1,6 @@
 {% extends '_base.html' %}
 {% load helpers %}
-{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{{ object_change }}</li>{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ object_change }}{% endblock %}</li>{% endblock %}
 {% block content %}
       <div class="row">
         <div class="col-md-5">

@@ -14,7 +14,7 @@
 {% endblock %}
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'peering:community_list' %}">Communities</a></li>
-<li class="breadcrumb-item active" aria-current="page">{{ community }}</li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ community }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
       <div class="row">

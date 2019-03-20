@@ -25,7 +25,7 @@
 <li class="breadcrumb-item"><a href="{% url 'peering:internet_exchange_list' %}">Internet Exchanges</a></li>
 <li class="breadcrumb-item"><a href="{% url 'peering:internet_exchange_details' slug=peering_session.internet_exchange.slug %}">{{ peering_session.internet_exchange }}</a></li>
 <li class="breadcrumb-item"><a href="{% url 'peering:internet_exchange_peering_sessions' slug=peering_session.internet_exchange.slug %}">Peering Sessions</a></li>
-<li class="breadcrumb-item active" aria-current="page">{{ peering_session }}</li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ peering_session }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
       <div class="row">

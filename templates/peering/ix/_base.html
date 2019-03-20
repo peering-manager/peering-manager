@@ -14,7 +14,7 @@
 {% endblock %}
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'peering:internet_exchange_list' %}">Internet Exchanges</a></li>
-<li class="breadcrumb-item active" aria-current="page">{{ internet_exchange }}</li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ internet_exchange }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
       {% if not internet_exchange.is_peeringdb_valid %}

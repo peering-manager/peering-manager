@@ -14,7 +14,7 @@
 {% endblock %}
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'peering:router_list' %}">Routers</a></li>
-<li class="breadcrumb-item active" aria-current="page">{{ router }}</li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ router }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
       <div class="alert alert-success alert-dismissible" role="alert" id="message-can-ping">
