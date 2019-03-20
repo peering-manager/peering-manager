@@ -8,7 +8,7 @@
   {% endfor %}
   <div class="row justify-content-center">
     <div class="col-8">
-      <h3>{% block title %}{% if object.pk %}Editing {{ object }}{% else %}Add a new {{ object_type }}{% endif %}{% endblock %}</h3>
+      <h3>{% block title %}{% if object.pk %}Editing {{ object }}{% else %}Add a new {{ object_type|title }}{% endif %}{% endblock %}</h3>
       {% if form.non_field_errors %}
       <div class="card bg-danger text-white my-2">
         <div class="card-header"><strong>Errors</strong></div>
