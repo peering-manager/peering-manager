@@ -16,7 +16,7 @@ matrix:
       dist: "xenial"
       sudo: true
 before_install:
-  - cd /tmp && git clone https://github.com/snar/bgpq3.git
+  - git clone https://github.com/snar/bgpq3.git
   - cd bgpq3 && ./configure && make && sudo make install
 install:
   - pip install tox tox-travis coveralls
