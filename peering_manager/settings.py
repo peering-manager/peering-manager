@@ -92,6 +92,13 @@ NAPALM_TIMEOUT = getattr(configuration, "NAPALM_TIMEOUT", 30)
 NAPALM_ARGS = getattr(configuration, "NAPALM_ARGS", {})
 PAGINATE_COUNT = getattr(configuration, "PAGINATE_COUNT", 20)
 TIME_ZONE = getattr(configuration, "TIME_ZONE", "UTC")
+BGPQ3_PATH = getattr(configuration, "BGPQ3_PATH", "bgpq3")
+BGPQ3_HOST = getattr(configuration, "BGPQ3_HOST", "rr.ntt.net")
+BGPQ3_SOURCES = getattr(
+    configuration,
+    "BGPQ3_SOURCES",
+    "RIPE,APNIC,AFRINIC,ARIN,NTTCOM,ALTDB,BBOI,BELL,JPIRR,LEVEL3,RADB,RGNET,SAVVIS,TC",
+)
 
 # Pagination
 PER_PAGE_SELECTION = [25, 50, 100, 250, 500, 1000]
