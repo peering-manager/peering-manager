@@ -3,6 +3,9 @@ services:
   - postgresql
 addons:
   postgresql: "9.6"
+  apt:
+    packages:
+      - bgpq3
 
 language: python
 python:
@@ -15,8 +18,6 @@ matrix:
     - python: "3.7"
       dist: "xenial"
       sudo: true
-before_install:
-  - apt-get install bgpq3
 install:
   - pip install tox tox-travis coveralls
 before_script:
