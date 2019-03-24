@@ -52,7 +52,7 @@ def parse_irr_as_set(irr_as_set):
     if not irr_as_set or not irr_as_set.strip():
         return as_sets
 
-    unparsed = re.split("[/,&\s]", irr_as_set)
+    unparsed = re.split(r"[/,&\s]", irr_as_set)
     for value in unparsed:
         value = value.strip()
 
