@@ -62,9 +62,9 @@ def parse_irr_as_set(irr_as_set):
         is_valid = True
         for regexp in [
             # Remove registry prefix if any
-            "^(?:{}):[:\s]".format(settings.BGPQ3_SOURCES.replace(",", "|")),
+            r"^(?:{}):[:\s]".format(settings.BGPQ3_SOURCES.replace(",", "|")),
             # Removing "ipv4:" and "ipv6:"
-            "^(?:ipv4|ipv6):",
+            r"^(?:ipv4|ipv6):",
         ]:
             pattern = re.compile(regexp, flags=re.IGNORECASE)
             value, number_of_subs_made = pattern.subn("", value)
