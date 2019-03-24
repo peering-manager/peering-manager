@@ -71,6 +71,10 @@ class AutonomousSystemViewSet(ModelViewSet):
             )
         )
 
+    @action(detail=True, methods=["get"], url_path="get-irr-as-set-prefixes")
+    def get_irr_as_set_prefixes(self, request, pk=None):
+        return Response({"prefixes": self.get_object().get_irr_as_set_prefixes()})
+
     @action(detail=True, methods=["get"], url_path="common-internet-exchanges")
     def common_internet_exchanges(self, request, pk=None):
         return Response(

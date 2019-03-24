@@ -35,7 +35,7 @@ class AutonomousSystemTest(APITestCase):
         super().setUp()
 
         self.autonomous_system = AutonomousSystem.objects.create(
-            asn=201281, name="Guillaume Mazoyer"
+            asn=201281, name="Guillaume Mazoyer", irr_as_set="AS-MAZOYER-EU"
         )
 
     def test_get_autonomous_system(self):
@@ -106,6 +106,16 @@ class AutonomousSystemTest(APITestCase):
         )
         response = self.client.post(url, format="json", **self.header)
         self.assertStatus(response, status.HTTP_200_OK)
+
+    def test_get_irr_as_set_prefixes(self):
+        url = reverse(
+            "peering-api:autonomoussystem-get-irr-as-set-prefixes",
+            kwargs={"pk": self.autonomous_system.pk},
+        )
+        response = self.client.get(url, format="json", **self.header)
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["prefixes"]["ipv6"]), 1)
+        self.assertEqual(len(response.data["prefixes"]["ipv4"]), 0)
 
     def test_common_internet_exchanges(self):
         url = reverse(

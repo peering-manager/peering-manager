@@ -14,6 +14,7 @@ from django.utils.safestring import mark_safe
 
 from netfields import InetAddressField, NetManager
 
+from . import call_irr_as_set_resolver, parse_irr_as_set
 from .constants import *
 from .fields import ASNField, CommunityField, TTLField
 from peeringdb.http import PeeringDB
@@ -208,6 +209,21 @@ class AutonomousSystem(ChangeLoggedModel, TemplateModel):
         self.save()
 
         return True
+
+    def get_irr_as_set_prefixes(self):
+        """
+        Return a prefix list for this AS' IRR AS-SET. If none is provided the list
+        will be empty.
+        """
+        as_sets = parse_irr_as_set(self.irr_as_set)
+        prefixes = {"ipv6": [], "ipv4": []}
+
+        # For each AS-SET try getting IPv6 and IPv4 prefixes
+        for as_set in as_sets:
+            prefixes["ipv6"].extend(call_irr_as_set_resolver(as_set, ip_version=6))
+            prefixes["ipv4"].extend(call_irr_as_set_resolver(as_set, ip_version=4))
+
+        return prefixes
 
     def __str__(self):
         return "AS{} - {}".format(self.asn, self.name)
