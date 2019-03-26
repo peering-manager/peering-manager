@@ -22,6 +22,7 @@ def call_irr_as_set_resolver(irr_as_set, ip_version=6):
         "-S",
         settings.BGPQ3_SOURCES,
         "-{}".format(ip_version),
+        "-A",
         "-j",
         "-l",
         "prefix_list",
