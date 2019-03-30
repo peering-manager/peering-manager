@@ -1,3 +1,5 @@
+from ipaddress import ip_network, _BaseNetwork
+
 from django import forms
 from django.db.models import Q
 from django.conf import settings
@@ -65,6 +67,31 @@ class TemplateField(TextareaField):
             *args,
             **kwargs
         )
+
+
+class IPNetworkFormField(forms.Field):
+    widget = forms.TextInput
+    default_error_messages = {"invalid": "Enter a valid IP network (CIDR format)."}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def to_python(self, value):
+        if not value:
+            return None
+
+        if isinstance(value, _BaseNetwork):
+            return value
+
+        if isinstance(value, text_type):
+            value = value.strip()
+
+        try:
+            network = ip_network(value)
+        except ValueError:
+            raise ValidationError(self.error_messages["invalid"])
+
+        return network
 
 
 class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
