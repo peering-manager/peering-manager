@@ -37,7 +37,7 @@ def call_irr_as_set_resolver(irr_as_set, ip_version=6):
             error_log += ", stderr: {}".format(err)
         raise ValueError(error_log)
 
-    prefixes.extend([p["prefix"] for p in json.loads(out.decode())["prefix_list"]])
+    prefixes.extend([p for p in json.loads(out.decode())["prefix_list"]])
 
     return prefixes
 
@@ -73,7 +73,7 @@ def parse_irr_as_set(irr_as_set):
             if number_of_subs_made > 0:
                 value = value.strip()
             # And reject a potential useless value
-            if not value:
+            if not value or not value.startswith("AS-"):
                 is_valid = False
 
         # If AS-SET looks OK keep it to find prefix-list
