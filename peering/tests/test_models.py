@@ -15,6 +15,7 @@ from peering.constants import (
 from peering.models import (
     AutonomousSystem,
     Community,
+    ConfigurationTemplate,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
@@ -130,6 +131,17 @@ class CommunityTest(TestCase):
                     type=community_types[i],
                 ).get_type_html(),
             )
+
+
+class ConfigurationTemplateTest(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.configuration_template = ConfigurationTemplate(
+            name="Test", template="{{ test }}"
+        )
+
+    def test_render(self):
+        self.assertEqual(self.configuration_template.render({"test": "test"}), "test")
 
 
 class InternetExchangeTest(TestCase):
