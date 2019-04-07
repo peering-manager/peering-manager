@@ -3,10 +3,10 @@ django-debug-toolbar==1.11
 djangorestframework==3.9.2
 django-filter==2.1.0
 django-tables2==2.0.6
-Jinja2==2.10
+Jinja2==2.10.1
 napalm==2.4.0
 MarkupSafe==1.1.1
-psycopg2-binary==2.8
+psycopg2-binary==2.8.1
 py-gfm==0.1.4
 pytz==2018.9
 requests==2.21.0
