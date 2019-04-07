@@ -260,7 +260,7 @@ class InternetExchangeTest(TestCase):
                 }
             )
 
-        result = internet_exchange._generate_configuration_variables()
+        result = internet_exchange._get_configuration_variables()
         self.assertEqual(result["peering_groups"], expected)
 
 

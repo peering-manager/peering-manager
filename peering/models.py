@@ -329,6 +329,12 @@ class ConfigurationTemplate(ChangeLoggedModel):
     def get_absolute_url(self):
         return reverse("peering:configuration_template_details", kwargs={"pk": self.pk})
 
+    def render(self, variables):
+        """
+        Render the template using Jinja2.
+        """
+        return Template(self.template).render(variables)
+
     def __str__(self):
         return self.name
 
@@ -459,7 +465,7 @@ class InternetExchange(ChangeLoggedModel, TemplateModel):
         """
         return PeeringDB().get_prefixes_for_ix_network(self.peeringdb_id)
 
-    def _generate_configuration_variables(self):
+    def _get_configuration_variables(self):
         peers6 = {}
         peers4 = {}
 
@@ -485,7 +491,7 @@ class InternetExchange(ChangeLoggedModel, TemplateModel):
                     session.to_dict()
                 )
 
-        values = {
+        return {
             "my_asn": settings.MY_ASN,
             "internet_exchange": self.to_dict(),
             "peering_groups": [
@@ -494,16 +500,10 @@ class InternetExchange(ChangeLoggedModel, TemplateModel):
             ],
         }
 
-        return values
-
     def generate_configuration(self):
-        # No template, give an empty string
         if not self.configuration_template:
             return ""
-
-        # Load and render the template using Jinja2
-        template = Template(self.configuration_template.template)
-        return template.render(self._generate_configuration_variables())
+        return self.configuration_template.render(self._get_configuration_variables())
 
     def get_available_peers(self):
         # Not linked to PeeringDB, cannot determine peers
