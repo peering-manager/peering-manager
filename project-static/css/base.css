@@ -1,17 +1,14 @@
 html {
   position: relative;
   min-height: 100%;
+  font-size: 14px;
 }
 body {
   padding-top: 64px;
 }
-.navbar-nav, .sidebar {
-  font-size: .875rem;
-}
 .navbar-brand {
   padding-top: .75rem;
   padding-bottom: .75rem;
-  font-size: 1rem;
   background-color: rgba(0, 0, 0, .25);
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
 }
@@ -19,7 +16,6 @@ nav > ol.breadcrumb {
   padding-top: 0rem;
   padding-bottom: 0rem;
   margin-bottom: 0rem;
-  font-size: 1rem;
   background-color: #343a40;
 }
 .breadcrumb-item.active {
