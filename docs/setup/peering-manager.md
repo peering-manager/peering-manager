@@ -8,7 +8,7 @@ Peering Manager is mostly tested with Python version 3 so we will setup the
 machine with this version.
 
 ```no-highlight
-# apt install python3 python3-dev python3-pip git vim
+# apt install python3 python3-dev python3-setuputils python3-pip git vim
 ```
 
 Select a base directory for the peering-manager installation.  ie: `/opt`
