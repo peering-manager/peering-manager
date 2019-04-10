@@ -8,5 +8,5 @@ napalm==2.4.0
 MarkupSafe==1.1.1
 psycopg2-binary==2.8.1
 py-gfm==0.1.4
-pytz==2018.9
+pytz==2019.1
 requests==2.21.0
