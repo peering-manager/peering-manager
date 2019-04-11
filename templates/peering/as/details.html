@@ -40,6 +40,23 @@
               </tr>
             </table>
           </div>
+          <div class="card mb-2">
+            <div class="card-header"><strong>Contact Info</strong></div>
+            <table class="table table-hover card-body attr-table">
+              <tr>
+                <td>Contact Name</td>
+                <td>{{ autonomous_system.contact_name }}</td>
+              </tr>
+              <tr>
+                <td>Contact Phone</td>
+                <td>{{ autonomous_system.contact_phone }}</td>
+              </tr>
+              <tr>
+                <td>Contact E-Mail</td>
+                <td>{{ autonomous_system.contact_email }}</td>
+              </tr>
+            </table>
+          </div>
           {% if common_ix_and_sessions %}
           <div class="card">
             <div class="card-header"><strong>Common Internet Exchanges</strong></div>

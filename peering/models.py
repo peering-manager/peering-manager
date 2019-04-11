@@ -24,6 +24,9 @@ from utils.models import ChangeLoggedModel, TemplateModel
 class AutonomousSystem(ChangeLoggedModel, TemplateModel):
     asn = ASNField(unique=True)
     name = models.CharField(max_length=128)
+    contact_name = models.CharField(max_length=50, blank=True)
+    contact_phone = models.CharField(max_length=20, blank=True)
+    contact_email = models.EmailField(blank=True, verbose_name="Contact E-mail")
     comment = models.TextField(blank=True)
     irr_as_set = models.CharField(max_length=255, blank=True, null=True)
     irr_as_set_peeringdb_sync = models.BooleanField(default=True)

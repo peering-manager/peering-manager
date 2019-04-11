@@ -74,6 +74,9 @@ class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
         fields = (
             "asn",
             "name",
+            "contact_name",
+            "contact_phone",
+            "contact_email",
             "irr_as_set",
             "irr_as_set_peeringdb_sync",
             "ipv6_max_prefixes",
