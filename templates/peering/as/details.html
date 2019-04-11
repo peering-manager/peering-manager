@@ -49,11 +49,23 @@
               </tr>
               <tr>
                 <td>Contact Phone</td>
-                <td>{{ autonomous_system.contact_phone }}</td>
+                <td>
+                  {% if autonomous_system.contact_phone %}
+                  <a href="tel:{{ autonomous_system.contact_phone }}">{{ autonomous_system.contact_phone }}</a>
+                  {% else %}
+                  <span class="text-muted">&mdash;</span>
+                  {% endif %}
+                </td>
               </tr>
               <tr>
                 <td>Contact E-Mail</td>
-                <td>{{ autonomous_system.contact_email }}</td>
+                <td>
+                  {% if autonomous_system.contact_email %}
+                  <a href="mailto:{{ autonomous_system.contact_email }}">{{ autonomous_system.contact_email }}</a>
+                  {% else %}
+                  <span class="text-muted">&mdash;</span>
+                  {% endif %}
+                </td>
               </tr>
             </table>
           </div>
