@@ -150,6 +150,7 @@ class AutonomousSystemDirectPeeringSessions(ModelListView):
     filter_form = DirectPeeringSessionFilterForm
     table = DirectPeeringSessionTable
     template = "peering/as/direct_peering_sessions.html"
+    hidden_columns = ["autonomous_system"]
 
     def build_queryset(self, request, kwargs):
         queryset = None
