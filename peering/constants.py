@@ -32,6 +32,9 @@ COMMUNITY_TYPE_CHOICES = (
     (COMMUNITY_TYPE_INGRESS, "Ingress"),
 )
 
+# IP address families
+IP_FAMILY_CHOICES = ((0, "All"), (4, "IPv4"), (6, "IPv6"))
+
 # Platform constants, based on NAPALM drivers
 PLATFORM_JUNOS = "junos"
 PLATFORM_IOSXR = "iosxr"

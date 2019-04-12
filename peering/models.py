@@ -1281,6 +1281,9 @@ class RoutingPolicy(ChangeLoggedModel, TemplateModel):
     weight = models.PositiveSmallIntegerField(
         default=0, help_text="The higher the number, the higher the priority"
     )
+    address_family = models.PositiveSmallIntegerField(
+        default=0, choices=IP_FAMILY_CHOICES
+    )
     comment = models.TextField(blank=True)
 
     class Meta:

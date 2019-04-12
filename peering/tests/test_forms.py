@@ -112,6 +112,7 @@ class RoutingPolicyTest(TestCase):
                 "slug": "test",
                 "type": ROUTING_POLICY_TYPE_IMPORT,
                 "weight": 0,
+                "address_family": 0,
             }
         )
         self.assertTrue(test.is_valid())

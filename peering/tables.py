@@ -360,4 +360,4 @@ class RoutingPolicyTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RoutingPolicy
-        fields = ("pk", "name", "type", "weight", "actions")
+        fields = ("pk", "name", "type", "weight", "address_family", "actions")

@@ -820,6 +820,7 @@ class RoutingPolicyTestCase(ViewTestCase):
             "slug": "import-policy",
             "type": ROUTING_POLICY_TYPE_IMPORT,
             "weight": 0,
+            "address_family": 0,
         }
         self.post_request("peering:routing_policy_add", data=routing_policy_to_create)
         self.does_object_exist(routing_policy_to_create)
