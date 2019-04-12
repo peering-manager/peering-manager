@@ -13,3 +13,8 @@ class CommunityField(models.CharField):
         # BGP community and BGP large community
         RegexValidator(r"^(\d{1,5}:\d{1,5})|(\d{1,10}:\d{1,10}:\d{1,10}:\d{1,10})$")
     ]
+
+
+class TTLField(models.PositiveSmallIntegerField):
+    description = "TTL field allowing value from 0 to 255"
+    default_validators = [MinValueValidator(1), MaxValueValidator(255)]

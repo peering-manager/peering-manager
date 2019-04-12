@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from .constants import *
-from .fields import ASNField, CommunityField
+from .fields import ASNField, CommunityField, TTLField
 from peeringdb.http import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
 from utils.crypto.cisco import encrypt as cisco_encrypt, decrypt as cisco_decrypt
@@ -229,7 +229,7 @@ class BGPSession(ChangeLoggedModel):
     autonomous_system = models.ForeignKey("AutonomousSystem", on_delete=models.CASCADE)
     ip_address = models.GenericIPAddressField()
     password = models.CharField(max_length=255, blank=True, null=True)
-    multihop_ttl = models.PositiveSmallIntegerField(
+    multihop_ttl = TTLField(
         blank=True,
         default=1,
         verbose_name="Multihop TTL",
