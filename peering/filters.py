@@ -98,7 +98,7 @@ class DirectPeeringSessionFilter(django_filters.FilterSet):
 
     class Meta:
         model = DirectPeeringSession
-        fields = ["local_asn", "ip_address", "enabled"]
+        fields = ["local_asn", "ip_address", "multihop_ttl", "enabled"]
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -165,6 +165,7 @@ class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
         model = InternetExchangePeeringSession
         fields = [
             "ip_address",
+            "multihop_ttl",
             "enabled",
             "is_route_server",
             "autonomous_system__asn",

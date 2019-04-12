@@ -229,6 +229,12 @@ class BGPSession(ChangeLoggedModel):
     autonomous_system = models.ForeignKey("AutonomousSystem", on_delete=models.CASCADE)
     ip_address = models.GenericIPAddressField()
     password = models.CharField(max_length=255, blank=True, null=True)
+    multihop_ttl = models.PositiveSmallIntegerField(
+        blank=True,
+        default=1,
+        verbose_name="Multihop TTL",
+        help_text="Used a value greater than 1 for BGP multihop sessions",
+    )
     enabled = models.BooleanField(default=True)
     import_routing_policies = models.ManyToManyField(
         "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
