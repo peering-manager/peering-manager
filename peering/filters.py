@@ -83,9 +83,7 @@ class ConfigurationTemplateFilter(django_filters.FilterSet):
 
 class DirectPeeringSessionFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
-    ip_version = django_filters.NumberFilter(
-        method="ip_version_search", label="IP Version"
-    )
+    address_family = django_filters.NumberFilter(method="address_family_search")
     relationship = django_filters.MultipleChoiceFilter(
         choices=BGP_RELATIONSHIP_CHOICES, null_value=None
     )
@@ -111,7 +109,7 @@ class DirectPeeringSessionFilter(django_filters.FilterSet):
             pass
         return queryset.filter(qs_filter)
 
-    def ip_version_search(self, queryset, name, value):
+    def address_family_search(self, queryset, name, value):
         # TODO: Fix this shit
         # Ugly, ugly and ugly, I am ashamed of myself for thinking of it
         # Works in this case but IPv6/IPv4 can have different types of
@@ -157,9 +155,7 @@ class InternetExchangeFilter(django_filters.FilterSet):
 
 class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
-    ip_version = django_filters.NumberFilter(
-        method="ip_version_search", label="IP Version"
-    )
+    address_family = django_filters.NumberFilter(method="address_family_search")
 
     class Meta:
         model = InternetExchangePeeringSession
@@ -190,7 +186,7 @@ class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
             pass
         return queryset.filter(qs_filter)
 
-    def ip_version_search(self, queryset, name, value):
+    def address_family_search(self, queryset, name, value):
         # TODO: Fix this shit
         # Ugly, ugly and ugly, I am ashamed of myself for thinking of it
         # Works in this case but IPv6/IPv4 can have different types of
