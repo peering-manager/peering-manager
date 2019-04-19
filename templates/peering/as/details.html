@@ -45,7 +45,13 @@
             <table class="table table-hover card-body attr-table">
               <tr>
                 <td>Contact Name</td>
-                <td>{{ autonomous_system.contact_name }}</td>
+                <td>
+                  {% if autonomous_system.contact_name %}
+                  {{ autonomous_system.contact_name }}
+                  {% else %}
+                  <span class="text-muted">&mdash;</span>
+                  {% endif %}
+                </td>
               </tr>
               <tr>
                 <td>Contact Phone</td>
