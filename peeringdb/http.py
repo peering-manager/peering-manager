@@ -1,3 +1,4 @@
+import ipaddress
 import json
 import logging
 import requests
@@ -454,9 +455,9 @@ class PeeringDB(object):
                 for ix_prefix in result["data"]:
                     ix_prefixes.append(Object(ix_prefix))
 
-            # Build a list with protocol and prefix couples
+            # Build a list of prefixes
             for ix_prefix in ix_prefixes:
-                prefixes.append(ix_prefix.prefix)
+                prefixes.append(ipaddress.ip_network(ix_prefix.prefix))
 
         return prefixes
 

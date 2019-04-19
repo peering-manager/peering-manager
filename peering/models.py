@@ -12,6 +12,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
+from netfields import InetAddressField, NetManager
+
 from .constants import *
 from .fields import ASNField, CommunityField, TTLField
 from peeringdb.http import PeeringDB
@@ -19,6 +21,7 @@ from peeringdb.models import NetworkIXLAN, PeerRecord
 from utils.crypto.cisco import encrypt as cisco_encrypt, decrypt as cisco_decrypt
 from utils.crypto.junos import encrypt as junos_encrypt, decrypt as junos_decrypt
 from utils.models import ChangeLoggedModel, TemplateModel
+from utils.validators import AddressFamilyValidator
 
 
 class AutonomousSystem(ChangeLoggedModel, TemplateModel):
@@ -35,7 +38,7 @@ class AutonomousSystem(ChangeLoggedModel, TemplateModel):
     ipv4_max_prefixes = models.PositiveIntegerField(blank=True, default=0)
     ipv4_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
     potential_internet_exchange_peering_sessions = ArrayField(
-        models.GenericIPAddressField(), blank=True, default=list
+        InetAddressField(store_prefix_length=False), blank=True, default=list
     )
 
     class Meta:
@@ -227,7 +230,7 @@ class BGPSession(ChangeLoggedModel):
     """
 
     autonomous_system = models.ForeignKey("AutonomousSystem", on_delete=models.CASCADE)
-    ip_address = models.GenericIPAddressField()
+    ip_address = InetAddressField(store_prefix_length=False)
     password = models.CharField(max_length=255, blank=True, null=True)
     multihop_ttl = TTLField(
         blank=True,
@@ -249,6 +252,8 @@ class BGPSession(ChangeLoggedModel):
     advertised_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     last_established_state = models.DateTimeField(blank=True, null=True)
     comment = models.TextField(blank=True)
+
+    objects = NetManager()
 
     class Meta:
         abstract = True
@@ -391,8 +396,18 @@ class InternetExchange(ChangeLoggedModel, TemplateModel):
     peeringdb_id = models.PositiveIntegerField(blank=True, default=0)
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True)
-    ipv6_address = models.GenericIPAddressField(blank=True, null=True)
-    ipv4_address = models.GenericIPAddressField(blank=True, null=True)
+    ipv6_address = InetAddressField(
+        store_prefix_length=False,
+        blank=True,
+        null=True,
+        validators=[AddressFamilyValidator(6)],
+    )
+    ipv4_address = InetAddressField(
+        store_prefix_length=False,
+        blank=True,
+        null=True,
+        validators=[AddressFamilyValidator(4)],
+    )
     comment = models.TextField(blank=True)
     configuration_template = models.ForeignKey(
         "ConfigurationTemplate", blank=True, null=True, on_delete=models.SET_NULL
@@ -410,6 +425,7 @@ class InternetExchange(ChangeLoggedModel, TemplateModel):
     bgp_session_states_update = models.DateTimeField(blank=True, null=True)
     communities = models.ManyToManyField("Community", blank=True)
 
+    objects = NetManager()
     logger = logging.getLogger("peering.manager.peering")
 
     class Meta:
@@ -577,8 +593,8 @@ class InternetExchange(ChangeLoggedModel, TemplateModel):
                         str(prefix),
                     )
 
-                    # If the address fits, create a new InternetExchangePeeringSession object
-                    # and a new AutonomousSystem object if they does not exist
+                    # If the address fits, create a new InternetExchangePeeringSession
+                    # object and a new AutonomousSystem object if they does not exist
                     # already
                     if session["ip_address"] in prefix:
                         ip_address = str(session["ip_address"])
@@ -672,7 +688,7 @@ class InternetExchange(ChangeLoggedModel, TemplateModel):
             return False
 
         # Build a list based on prefixes based on PeeringDB records
-        prefixes = [ipaddress.ip_network(p) for p in self.get_prefixes()]
+        prefixes = self.get_prefixes()
         # No prefixes found
         if not prefixes:
             self.logger.debug("no prefixes found for %s", self.name.lower())
