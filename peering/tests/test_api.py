@@ -306,7 +306,7 @@ class DirectPeeringSessionTest(APITestCase):
         direct_peering_session = DirectPeeringSession.objects.get(
             pk=response.data["id"]
         )
-        self.assertEqual(direct_peering_session.ip_address, data["ip_address"])
+        self.assertEqual(str(direct_peering_session.ip_address), data["ip_address"])
 
     def test_create_direct_peering_session_bulk(self):
         data = [
@@ -348,7 +348,7 @@ class DirectPeeringSessionTest(APITestCase):
         direct_peering_session = DirectPeeringSession.objects.get(
             pk=response.data["id"]
         )
-        self.assertEqual(direct_peering_session.ip_address, data["ip_address"])
+        self.assertEqual(str(direct_peering_session.ip_address), data["ip_address"])
 
     def test_delete_direct_peering_session(self):
         url = reverse(
@@ -532,7 +532,7 @@ class InternetExchangePeeringSessionTest(APITestCase):
             pk=response.data["id"]
         )
         self.assertEqual(
-            internet_exchange_peering_session.ip_address, data["ip_address"]
+            str(internet_exchange_peering_session.ip_address), data["ip_address"]
         )
 
     def test_create_internet_exchange_peering_session_bulk(self):
@@ -576,7 +576,7 @@ class InternetExchangePeeringSessionTest(APITestCase):
             pk=response.data["id"]
         )
         self.assertEqual(
-            internet_exchange_peering_session.ip_address, data["ip_address"]
+            str(internet_exchange_peering_session.ip_address), data["ip_address"]
         )
 
     def test_delete_internet_exchange_peering_session(self):

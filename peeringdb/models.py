@@ -2,7 +2,10 @@ import logging
 
 from django.db import models
 
+from netfields import CidrAddressField, InetAddressField, NetManager
+
 from peering.fields import ASNField
+from utils.validators import AddressFamilyValidator
 
 
 class Network(models.Model):
@@ -22,12 +25,23 @@ class Network(models.Model):
 class NetworkIXLAN(models.Model):
     asn = ASNField()
     name = models.CharField(max_length=255)
-    ipaddr6 = models.GenericIPAddressField(protocol="IPv6", blank=True, null=True)
-    ipaddr4 = models.GenericIPAddressField(protocol="IPv4", blank=True, null=True)
+    ipaddr6 = InetAddressField(
+        store_prefix_length=False,
+        blank=True,
+        null=True,
+        validators=[AddressFamilyValidator(6)],
+    )
+    ipaddr4 = InetAddressField(
+        store_prefix_length=False,
+        blank=True,
+        null=True,
+        validators=[AddressFamilyValidator(4)],
+    )
     is_rs_peer = models.BooleanField(default=False)
     ix_id = models.PositiveIntegerField()
     ixlan_id = models.PositiveIntegerField()
 
+    objects = NetManager()
     logger = logging.getLogger("peering.manager.peeringdb")
 
     class Meta:
@@ -101,8 +115,10 @@ class PeerRecord(models.Model):
 
 class Prefix(models.Model):
     protocol = models.CharField(max_length=8)
-    prefix = models.CharField(max_length=64)
+    prefix = CidrAddressField()
     ixlan_id = models.PositiveIntegerField()
+
+    objects = NetManager()
 
     class Meta:
         ordering = ["prefix"]

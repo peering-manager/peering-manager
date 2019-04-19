@@ -1,3 +1,5 @@
+import ipaddress
+
 from django.test import TestCase
 from django.utils import timezone
 
@@ -192,14 +194,14 @@ class PeeringDBHTTPTestCase(TestCase):
         # Must be empty
         self.assertFalse(api.get_prefixes_for_ix_network(0))
 
-        known_prefixes = ["2001:7f8:1::/64", "80.249.208.0/21"]
+        known_prefixes = [
+            ipaddress.ip_network("2001:7f8:1::/64"),
+            ipaddress.ip_network("80.249.208.0/21"),
+        ]
         found_prefixes = []
 
-        ix_prefixes = api.get_prefixes_for_ix_network(ix_network_id)
-        for ix_prefix in ix_prefixes:
-            found_prefixes.append(ix_prefix)
-
-        self.assertEqual(sorted(found_prefixes), sorted(known_prefixes))
+        for ix_prefix in api.get_prefixes_for_ix_network(ix_network_id):
+            self.assertIn(ix_prefix, known_prefixes)
 
     def test_get_peers_for_ix(self):
         api = PeeringDB()

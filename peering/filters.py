@@ -35,13 +35,7 @@ class AutonomousSystemFilter(django_filters.FilterSet):
         )
         try:
             qs_filter |= Q(asn=int(value.strip()))
-        except ValueError:
-            pass
-        try:
             qs_filter |= Q(ipv6_max_prefixes=int(value.strip()))
-        except ValueError:
-            pass
-        try:
             qs_filter |= Q(ipv4_max_prefixes=int(value.strip()))
         except ValueError:
             pass
@@ -96,29 +90,26 @@ class DirectPeeringSessionFilter(django_filters.FilterSet):
 
     class Meta:
         model = DirectPeeringSession
-        fields = ["local_asn", "ip_address", "multihop_ttl", "enabled"]
+        fields = ["local_asn", "multihop_ttl", "enabled"]
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         qs_filter = Q(relationship__icontains=value) | Q(comment__icontains=value)
         try:
-            qs_filter |= Q(ip_address__icontains=str(ipaddress.ip_address(value)))
+            ip = ipaddress.ip_interface(value.strip())
+            qs_filter |= Q(ip_address__host=str(ip))
+        except ValueError:
+            pass
+        try:
             qs_filter |= Q(local_asn=int(value.strip()))
         except ValueError:
             pass
         return queryset.filter(qs_filter)
 
     def address_family_search(self, queryset, name, value):
-        # TODO: Fix this shit
-        # Ugly, ugly and ugly, I am ashamed of myself for thinking of it
-        # Works in this case but IPv6/IPv4 can have different types of
-        # representation
-        if value == 6:
-            return queryset.filter(Q(ip_address__icontains=":"))
-        if value == 4:
-            return queryset.exclude(Q(ip_address__icontains=":"))
-
+        if value in [4, 6]:
+            return queryset.filter(Q(ip_address__family=value))
         return queryset
 
 
@@ -139,15 +130,16 @@ class InternetExchangeFilter(django_filters.FilterSet):
 
     class Meta:
         model = InternetExchange
-        fields = ["name", "ipv6_address", "ipv4_address"]
+        fields = ["name"]
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         qs_filter = Q(name__icontains=value) | Q(comment__icontains=value)
         try:
-            qs_filter |= Q(ipv6_address__icontains=str(ipaddress.ip_address(value)))
-            qs_filter |= Q(ipv4_address__icontains=str(ipaddress.ip_address(value)))
+            ip = ipaddress.ip_interface(value.strip())
+            qs_filter |= Q(ipv6_address__host=str(value))
+            qs_filter |= Q(ipv4_address__host=str(value))
         except ValueError:
             pass
         return queryset.filter(qs_filter)
@@ -160,7 +152,6 @@ class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
     class Meta:
         model = InternetExchangePeeringSession
         fields = [
-            "ip_address",
             "multihop_ttl",
             "enabled",
             "is_route_server",
@@ -180,22 +171,19 @@ class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
             | Q(comment__icontains=value)
         )
         try:
+            ip = ipaddress.ip_interface(value.strip())
+            qs_filter |= Q(ip_address__host=str(ip))
+        except ValueError:
+            pass
+        try:
             qs_filter |= Q(autonomous_system__asn=int(value.strip()))
-            qs_filter |= Q(ip_address__icontains=str(ipaddress.ip_address(value)))
         except ValueError:
             pass
         return queryset.filter(qs_filter)
 
     def address_family_search(self, queryset, name, value):
-        # TODO: Fix this shit
-        # Ugly, ugly and ugly, I am ashamed of myself for thinking of it
-        # Works in this case but IPv6/IPv4 can have different types of
-        # representation
-        if value == 6:
-            return queryset.filter(Q(ip_address__icontains=":"))
-        if value == 4:
-            return queryset.exclude(Q(ip_address__icontains=":"))
-
+        if value in [4, 6]:
+            return queryset.filter(Q(ip_address__family=value))
         return queryset
 
 
@@ -210,8 +198,6 @@ class PeerRecordFilter(django_filters.FilterSet):
             "network__irr_as_set",
             "network__info_prefixes6",
             "network__info_prefixes4",
-            "network_ixlan__ipaddr6",
-            "network_ixlan__ipaddr4",
         ]
 
     def search(self, queryset, name, value):
@@ -221,11 +207,15 @@ class PeerRecordFilter(django_filters.FilterSet):
             network__irr_as_set__icontains=value
         )
         try:
+            ip = ipaddress.ip_interface(value.strip())
+            qs_filter |= Q(network_ixlan__ipaddr6__host=str(ip))
+            qs_filter |= Q(network_ixlan__ipaddr4__host=str(ip))
+        except ValueError:
+            pass
+        try:
             qs_filter |= Q(network__asn=int(value.strip()))
             qs_filter |= Q(network__info_prefixes6=int(value.strip()))
             qs_filter |= Q(network__info_prefixes4=int(value.strip()))
-            qs_filter |= Q(network_ixlan__ipaddr6=str(ipaddress.ip_address(value)))
-            qs_filter |= Q(network_ixlan__ipaddr4=str(ipaddress.ip_address(value)))
         except ValueError:
             pass
         return queryset.filter(qs_filter)

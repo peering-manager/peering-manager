@@ -262,7 +262,6 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
     model = DirectPeeringSession
     q = forms.CharField(required=False, label="Search")
     local_asn = forms.IntegerField(required=False, label="Local ASN")
-    ip_address = forms.CharField(required=False, label="IP Address")
     address_family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES)
     enabled = forms.NullBooleanField(
         required=False, widget=CustomNullBooleanSelect, label="Enabled"
@@ -518,8 +517,6 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
     model = InternetExchange
     q = forms.CharField(required=False, label="Search")
     name = forms.CharField(required=False, label="IX Name")
-    ipv6_address = forms.CharField(required=False, label="IPv6 Address")
-    ipv4_address = forms.CharField(required=False, label="IPv4 Address")
     import_routing_policies = FilterChoiceField(
         queryset=RoutingPolicy.objects.filter(
             Q(type=ROUTING_POLICY_TYPE_IMPORT)
@@ -658,7 +655,6 @@ class InternetExchangePeeringSessionFilterForm(BootstrapMixin, forms.Form):
     autonomous_system__asn = forms.IntegerField(required=False, label="ASN")
     autonomous_system__name = forms.CharField(required=False, label="AS Name")
     internet_exchange__name = forms.CharField(required=False, label="IX Name")
-    ip_address = forms.CharField(required=False, label="IP Address")
     address_family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES)
     is_route_server = forms.NullBooleanField(
         required=False, widget=CustomNullBooleanSelect, label="Route Server"
@@ -673,7 +669,6 @@ class InternetExchangePeeringSessionFilterFormForIX(BootstrapMixin, forms.Form):
     q = forms.CharField(required=False, label="Search")
     autonomous_system__asn = forms.IntegerField(required=False, label="ASN")
     autonomous_system__name = forms.CharField(required=False, label="AS Name")
-    ip_address = forms.CharField(required=False, label="IP Address")
     address_family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES)
     is_route_server = forms.NullBooleanField(
         required=False, widget=CustomNullBooleanSelect, label="Route Server"
@@ -686,7 +681,6 @@ class InternetExchangePeeringSessionFilterFormForIX(BootstrapMixin, forms.Form):
 class InternetExchangePeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
     model = InternetExchangePeeringSession
     q = forms.CharField(required=False, label="Search")
-    ip_address = forms.CharField(required=False, label="IP Address")
     address_family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES)
     is_route_server = forms.NullBooleanField(
         required=False, widget=CustomNullBooleanSelect, label="Route Server"
