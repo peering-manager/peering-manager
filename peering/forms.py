@@ -14,7 +14,6 @@ from .constants import (
     ROUTING_POLICY_TYPE_IMPORT,
     ROUTING_POLICY_TYPE_IMPORT_EXPORT,
 )
-from .formfields import CommentField, TemplateField
 from .models import (
     AutonomousSystem,
     Community,
@@ -35,8 +34,39 @@ from utils.forms import (
     PasswordField,
     SlugField,
     SmallTextarea,
+    TextareaField,
     add_blank_choice,
 )
+
+
+class CommentField(TextareaField):
+    """
+    A textarea with support for GitHub-Flavored Markdown. Note that it does not
+    actually do anything special. It just here to add a help text.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            label="Comments",
+            help_text='<i class="fab fa-markdown"></i> <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">GitHub-Flavored Markdown</a> syntax is supported',
+            *args,
+            **kwargs
+        )
+
+
+class TemplateField(TextareaField):
+    """
+    A textarea dedicated for template. Note that it does not actually do anything
+    special. It just here to add a help text.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            label="Template",
+            help_text='<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/config-template/#configuration-template" target="_blank">Jinja2 template</a> syntax is supported',
+            *args,
+            **kwargs
+        )
 
 
 class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
