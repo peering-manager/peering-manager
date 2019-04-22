@@ -9,7 +9,6 @@ ALLOWED_HOSTS = ["*"]
 # Must be unique to each setup (CHANGE IT!).
 SECRET_KEY = "ef7npku*djrj_r4jt4cojo8^j@2($$@05e(eq_mn!ywx*jg0vy"
 
-VERSION = "v0.99-dev ($Id$)"
 
 BASE_PATH = ""
 

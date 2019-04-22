@@ -2,4 +2,3 @@ project-static/bootstrap-4.3.1-dist/* linguist-vendored
 project-static/fontawesome-5.7.2/* linguist-vendored
 project-static/js/jquery-3.3.1.min.js linguist-vendored
 project-static/bootstrap-select-1.13.2/* linguist-vendored
-docker/configuration.py ident
