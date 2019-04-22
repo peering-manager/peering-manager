@@ -5,7 +5,7 @@ PostgreSQL.
 
 # Installation
 
-If a recent enough version of PostgreSQL is not available through your
+If a recent enough version of PostgreSQL (>= 9.6) is not available through your
 distribution's package manager, you'll need to install it from an official
 [PostgreSQL repository](https://wiki.postgresql.org/wiki/Apt).
 
@@ -13,6 +13,10 @@ distribution's package manager, you'll need to install it from an official
 # apt-get update
 # apt-get install -y postgresql libpq-dev
 ```
+
+CentOS users also should modify the configuration to accept password-based
+authentication by replacing `ident` with `md5` for all host entries in
+`/var/lib/pgsql/9.6/data/pg_hba.conf`.
 
 Then, ensure that the service is started and enabled to run at boot:
 

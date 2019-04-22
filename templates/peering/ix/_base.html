@@ -32,7 +32,7 @@
       {% if request.user.is_authenticated %}
       <ul class="nav nav-tabs">
         <li class="nav-item">
-          <a class="nav-link{% if request.path|notcontains:'/peering-sessions/,/peers/,/config/' %} active{% endif %}" href="{% url 'peering:internet_exchange_details' slug=internet_exchange.slug %}">
+          <a class="nav-link{% if request.path|notcontains:'/peering-sessions/,/peers/,/configuration/' %} active{% endif %}" href="{% url 'peering:internet_exchange_details' slug=internet_exchange.slug %}">
             <i class="fas fa-info-circle"></i> Info
           </a>
         </li>
@@ -50,7 +50,7 @@
         {% endif %}
         {% if perms.peering.view_configuration_internetexchange and internet_exchange.configuration_template %}
         <li class="nav-item">
-          <a class="nav-link{% if request.path|contains:'/config/' %} active{% endif %}" href="{% url 'peering:internet_exchange_configuration' slug=internet_exchange.slug %}">
+          <a class="nav-link{% if request.path|contains:'/configuration/' %} active{% endif %}" href="{% url 'peering:internet_exchange_configuration' slug=internet_exchange.slug %}">
             <i class="fas fa-terminal"></i> Configuration
           </a>
         </li>

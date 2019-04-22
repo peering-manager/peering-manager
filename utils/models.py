@@ -1,6 +1,7 @@
 import json
 
 from django.db import models
+from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -108,3 +109,44 @@ class ObjectChange(models.Model):
             self.get_action_display().lower(),
             self.user_name,
         )
+
+
+class TemplateModel(models.Model):
+    """
+    Abstract class providing functions to be used in templates.
+    """
+
+    class Meta:
+        abstract = True
+
+    def to_dict(self):
+        data = {}
+
+        # Iterate over croncrete and many-to-many fields
+        for field in self._meta.concrete_fields + self._meta.many_to_many:
+            value = None
+
+            # If the value of the field is another model, fetch an instance of it
+            if isinstance(field, ForeignKey):
+                value = (
+                    field.related_model.objects.get(pk=field.value_from_object(self))
+                    if field.value_from_object(self)
+                    else None
+                )
+            elif isinstance(field, ManyToManyField):
+                value = list(field.value_from_object(self))
+            else:
+                value = field.value_from_object(self)
+
+            # If the instance of a model as a to_dict() function, call it
+            if isinstance(value, TemplateModel):
+                data[field.name] = value.to_dict()
+            elif isinstance(value, list):
+                data[field.name] = []
+                for element in value:
+                    if isinstance(element, TemplateModel):
+                        data[field.name].append(element.to_dict())
+            else:
+                data[field.name] = value
+
+        return data

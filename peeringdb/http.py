@@ -1,3 +1,4 @@
+import ipaddress
 import json
 import logging
 import requests
@@ -65,6 +66,7 @@ class PeeringDB(object):
         Save the last synchronization details (number of objects and time) for
         later use (and logs).
         """
+        last_sync = None
         number_of_changes = (
             objects_changes["added"]
             + objects_changes["updated"]
@@ -86,6 +88,8 @@ class PeeringDB(object):
             self.logger.debug(
                 "synchronizated %s objects at %s", number_of_changes, last_sync.time
             )
+
+        return last_sync
 
     def get_last_synchronization(self):
         """
@@ -245,13 +249,23 @@ class PeeringDB(object):
         }
 
         # Save the last sync time
-        self.record_last_sync(time_of_sync, objects_changes)
+        return self.record_last_sync(time_of_sync, objects_changes)
+
+    def clear_local_database(self):
+        """
+        Delete all data related to the local database. This can be used to get a
+        fresh start.
+        """
+        for model in [Network, NetworkIXLAN, PeerRecord, Synchronization]:
+            model.objects.all().delete()
 
     def force_peer_records_discovery(self):
         """
         Force the peer records cache to be [re]built. This function can be used
         if this cache appears to be out of sync or inconsistent.
         """
+        indexed = 0
+
         with transaction.atomic():
             # First of all, delete all existing peer records
             PeerRecord.objects.all().delete()
@@ -283,12 +297,15 @@ class PeeringDB(object):
                         network_ixlan.asn,
                         network_ixlan.ixlan_id,
                     )
+                    indexed += 1
                 else:
                     self.logger.debug(
                         "network ixlan with as%s and ixlan id %s" " ignored",
                         network_ixlan.asn,
                         network_ixlan.ixlan_id,
                     )
+
+            return indexed
 
     def get_autonomous_system(self, asn):
         """
@@ -438,9 +455,9 @@ class PeeringDB(object):
                 for ix_prefix in result["data"]:
                     ix_prefixes.append(Object(ix_prefix))
 
-            # Build a list with protocol and prefix couples
+            # Build a list of prefixes
             for ix_prefix in ix_prefixes:
-                prefixes.append(ix_prefix.prefix)
+                prefixes.append(ipaddress.ip_network(ix_prefix.prefix))
 
         return prefixes
 

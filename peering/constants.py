@@ -32,13 +32,16 @@ COMMUNITY_TYPE_CHOICES = (
     (COMMUNITY_TYPE_INGRESS, "Ingress"),
 )
 
+# IP address families
+IP_FAMILY_CHOICES = ((0, "All"), (4, "IPv4"), (6, "IPv6"))
+
 # Platform constants, based on NAPALM drivers
 PLATFORM_JUNOS = "junos"
 PLATFORM_IOSXR = "iosxr"
 PLATFORM_IOS = "ios"
 PLATFORM_NXOS = "nxos"
 PLATFORM_EOS = "eos"
-PLATFORM_NONE = None
+PLATFORM_NONE = ""
 PLATFORM_CHOICES = (
     (PLATFORM_JUNOS, "Juniper JUNOS"),
     (PLATFORM_IOSXR, "Cisco IOS-XR"),
@@ -49,9 +52,11 @@ PLATFORM_CHOICES = (
 )
 
 # Routing policies constants
-ROUTING_POLICY_TYPE_IMPORT = "import-policy"
 ROUTING_POLICY_TYPE_EXPORT = "export-policy"
+ROUTING_POLICY_TYPE_IMPORT = "import-policy"
+ROUTING_POLICY_TYPE_IMPORT_EXPORT = "import-export-policy"
 ROUTING_POLICY_TYPE_CHOICES = (
-    (ROUTING_POLICY_TYPE_IMPORT, "Import"),
     (ROUTING_POLICY_TYPE_EXPORT, "Export"),
+    (ROUTING_POLICY_TYPE_IMPORT, "Import"),
+    (ROUTING_POLICY_TYPE_IMPORT_EXPORT, "Import and Export"),
 )

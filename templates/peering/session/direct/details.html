@@ -85,6 +85,12 @@
                 </td>
               </tr>
               {% endif %}
+              {% if peering_session.multihop_ttl > 1 %}
+              <tr>
+                <td>Multihop TTL</td>
+                <td>{{ peering_session.multihop_ttl }}</td>
+              </tr>
+              {% endif %}
             </table>
           </div>
           <div class="card">

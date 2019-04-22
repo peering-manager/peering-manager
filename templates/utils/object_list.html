@@ -9,21 +9,21 @@
     {% if table.paginator.num_pages > 1 and bulk_delete_url %}
     <div id="select_all_box" class="card form-row mb-2 d-none">
       <div class="card-body">
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="checkbox" id="select_all" name="_all" />
-          <label class="form-check-label" for="select_all">Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> matching query</label>
-        </div>
-        <div class="float-right">
-          {% if bulk_edit_url and permissions.edit %}
-          <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if bulk_querystring %}?{{ bulk_querystring }}{% elif request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm" disabled="disabled">
-            <i class="fa fa-pencil"></i> Edit All
-          </button>
-          {% endif %}
-          {% if bulk_delete_url and permissions.delete %}
-          <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if bulk_querystring %}?{{ bulk_querystring }}{% elif request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm" disabled="disabled">
-            <i class="fa fa-trash"></i> Delete All
-          </button>
-          {% endif %}
+        <div class="custom-control custom-checkbox">
+          <input type="checkbox" class="custom-control-input" id="select_all" name="_all" />
+          <label class="custom-control-label" for="select_all">Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> matching query</label>
+          <div class="float-right">
+            {% if bulk_edit_url and permissions.edit %}
+            <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if bulk_querystring %}?{{ bulk_querystring }}{% elif request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm" disabled="disabled">
+              <i class="fa fa-pencil"></i> Edit All
+            </button>
+            {% endif %}
+            {% if bulk_delete_url and permissions.delete %}
+            <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if bulk_querystring %}?{{ bulk_querystring }}{% elif request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm" disabled="disabled">
+              <i class="fa fa-trash"></i> Delete All
+            </button>
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>

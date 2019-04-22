@@ -15,19 +15,23 @@
               </tr>
               <tr>
                 <td>IPv6 Address</td>
-                {% if internet_exchange.ipv6_address %}
-                <td>{{ internet_exchange.ipv6_address }}</td>
-                {% else %}
-                <td><span class="text-muted">None</span></td>
-                {% endif %}
+                <td>
+                  {% if internet_exchange.ipv6_address %}
+                  {{ internet_exchange.ipv6_address }}
+                  {% else %}
+                  <span class="text-muted">&mdash;</span>
+                  {% endif %}
+                </td>
               </tr>
               <tr>
                 <td>IPv4 Address</td>
-                {% if internet_exchange.ipv6_address %}
-                <td>{{ internet_exchange.ipv4_address }}</td>
-                {% else %}
-                <td><span class="text-muted">None</span></td>
-                {% endif %}
+                <td>
+                  {% if internet_exchange.ipv4_address %}
+                  {{ internet_exchange.ipv4_address }}
+                  {% else %}
+                  <span class="text-muted">&mdash;</span>
+                  {% endif %}
+                </td>
               </tr>
               {% if internet_exchange.configuration_template %}
               <tr>

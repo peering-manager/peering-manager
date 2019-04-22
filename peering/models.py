@@ -5,23 +5,31 @@ import napalm
 from jinja2 import Template
 
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
 from django.db.models import Q
-from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
+from netfields import InetAddressField, NetManager
+
 from .constants import *
-from .fields import ASNField, CommunityField
-from peeringdb.api import PeeringDB
+from .fields import ASNField, CommunityField, TTLField
+from peeringdb.http import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
-from utils.models import ChangeLoggedModel
+from utils.crypto.cisco import encrypt as cisco_encrypt, decrypt as cisco_decrypt
+from utils.crypto.junos import encrypt as junos_encrypt, decrypt as junos_decrypt
+from utils.models import ChangeLoggedModel, TemplateModel
+from utils.validators import AddressFamilyValidator
 
 
-class AutonomousSystem(ChangeLoggedModel):
+class AutonomousSystem(ChangeLoggedModel, TemplateModel):
     asn = ASNField(unique=True)
     name = models.CharField(max_length=128)
+    contact_name = models.CharField(max_length=50, blank=True)
+    contact_phone = models.CharField(max_length=20, blank=True)
+    contact_email = models.EmailField(blank=True, verbose_name="Contact E-mail")
     comment = models.TextField(blank=True)
     irr_as_set = models.CharField(max_length=255, blank=True, null=True)
     irr_as_set_peeringdb_sync = models.BooleanField(default=True)
@@ -30,7 +38,7 @@ class AutonomousSystem(ChangeLoggedModel):
     ipv4_max_prefixes = models.PositiveIntegerField(blank=True, default=0)
     ipv4_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
     potential_internet_exchange_peering_sessions = ArrayField(
-        models.GenericIPAddressField(), blank=True, default=list
+        InetAddressField(store_prefix_length=False), blank=True, default=list
     )
 
     class Meta:
@@ -107,6 +115,8 @@ class AutonomousSystem(ChangeLoggedModel):
         Saves an IP address list. Each IP address of the list is the address of a
         potential peering session with the current AS on an Internet Exchange.
         """
+        # Potential IX peering sessions
+        potential_ix_peering_sessions = []
         # Get common IX networks between us and this AS
         common = PeeringDB().get_common_ix_networks_for_asns(settings.MY_ASN, self.asn)
 
@@ -131,22 +141,29 @@ class AutonomousSystem(ChangeLoggedModel):
             )
             # Check if peer IP addresses are known sessions
             for peering_session in peering_sessions:
-                # Consider the IP as not known at first
-                known = False
+                # Consider the session as not existing at first
+                exists = False
                 for known_session in known_sessions:
                     if peering_session == known_session.ip_address:
-                        # If the IP is found, stop looking for the info and mark
-                        # it as known
-                        known = True
+                        # If the IP is found, stop looking for the info and mark it
+                        # as the peering session as existing
+                        exists = True
                         break
-                # If the IP address is used in any peering sessions append it,
-                # keep an eye on it
-                if not known:
-                    self.potential_internet_exchange_peering_sessions.append(
-                        peering_session
-                    )
 
-        self.save()
+                if not exists:
+                    # If the IP address is not used in any peering sessions append it,
+                    # keep an eye on it
+                    potential_ix_peering_sessions.append(peering_session)
+
+        # Only save the new potential IX peering session list if it has changed
+        if (
+            potential_ix_peering_sessions
+            != self.potential_internet_exchange_peering_sessions
+        ):
+            self.potential_internet_exchange_peering_sessions = (
+                potential_ix_peering_sessions
+            )
+            self.save()
 
     def has_potential_ix_peering_sessions(self, internet_exchange=None):
         """
@@ -161,9 +178,7 @@ class AutonomousSystem(ChangeLoggedModel):
 
         for session in self.potential_internet_exchange_peering_sessions:
             for prefix in internet_exchange.get_prefixes():
-                network = ipaddress.ip_network(prefix)
-                session = ipaddress.ip_address(session)
-                if session in network:
+                if ipaddress.ip_address(session) in ipaddress.ip_network(prefix):
                     return True
 
         return False
@@ -215,8 +230,14 @@ class BGPSession(ChangeLoggedModel):
     """
 
     autonomous_system = models.ForeignKey("AutonomousSystem", on_delete=models.CASCADE)
-    ip_address = models.GenericIPAddressField()
+    ip_address = InetAddressField(store_prefix_length=False)
     password = models.CharField(max_length=255, blank=True, null=True)
+    multihop_ttl = TTLField(
+        blank=True,
+        default=1,
+        verbose_name="Multihop TTL",
+        help_text="Used a value greater than 1 for BGP multihop sessions",
+    )
     enabled = models.BooleanField(default=True)
     import_routing_policies = models.ManyToManyField(
         "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
@@ -232,8 +253,14 @@ class BGPSession(ChangeLoggedModel):
     last_established_state = models.DateTimeField(blank=True, null=True)
     comment = models.TextField(blank=True)
 
+    objects = NetManager()
+
     class Meta:
         abstract = True
+
+    @property
+    def ip_address_version(self):
+        return ipaddress.ip_address(self.ip_address).version
 
     def get_bgp_state_html(self):
         """
@@ -269,7 +296,7 @@ class BGPSession(ChangeLoggedModel):
         return mark_safe(text)
 
 
-class Community(ChangeLoggedModel):
+class Community(ChangeLoggedModel, TemplateModel):
     name = models.CharField(max_length=128)
     value = CommunityField(max_length=50)
     type = models.CharField(
@@ -316,6 +343,12 @@ class ConfigurationTemplate(ChangeLoggedModel):
     def get_absolute_url(self):
         return reverse("peering:configuration_template_details", kwargs={"pk": self.pk})
 
+    def render(self, variables):
+        """
+        Render the template using Jinja2.
+        """
+        return Template(self.template).render(variables)
+
     def __str__(self):
         return self.name
 
@@ -330,6 +363,9 @@ class DirectPeeringSession(BGPSession):
     router = models.ForeignKey(
         "Router", blank=True, null=True, on_delete=models.SET_NULL
     )
+
+    class Meta:
+        ordering = ["autonomous_system", "ip_address"]
 
     def get_absolute_url(self):
         return reverse("peering:direct_peering_session_details", kwargs={"pk": self.pk})
@@ -356,12 +392,22 @@ class DirectPeeringSession(BGPSession):
         )
 
 
-class InternetExchange(ChangeLoggedModel):
+class InternetExchange(ChangeLoggedModel, TemplateModel):
     peeringdb_id = models.PositiveIntegerField(blank=True, default=0)
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True)
-    ipv6_address = models.GenericIPAddressField(blank=True, null=True)
-    ipv4_address = models.GenericIPAddressField(blank=True, null=True)
+    ipv6_address = InetAddressField(
+        store_prefix_length=False,
+        blank=True,
+        null=True,
+        validators=[AddressFamilyValidator(6)],
+    )
+    ipv4_address = InetAddressField(
+        store_prefix_length=False,
+        blank=True,
+        null=True,
+        validators=[AddressFamilyValidator(4)],
+    )
     comment = models.TextField(blank=True)
     configuration_template = models.ForeignKey(
         "ConfigurationTemplate", blank=True, null=True, on_delete=models.SET_NULL
@@ -379,6 +425,7 @@ class InternetExchange(ChangeLoggedModel):
     bgp_session_states_update = models.DateTimeField(blank=True, null=True)
     communities = models.ManyToManyField("Community", blank=True)
 
+    objects = NetManager()
     logger = logging.getLogger("peering.manager.peering")
 
     class Meta:
@@ -443,100 +490,45 @@ class InternetExchange(ChangeLoggedModel):
         """
         return PeeringDB().get_prefixes_for_ix_network(self.peeringdb_id)
 
-    def _generate_configuration_variables(self):
+    def _get_configuration_variables(self):
         peers6 = {}
         peers4 = {}
 
         # Sort peering sessions based on IP protocol version
         for session in self.internetexchangepeeringsession_set.all():
-            ip_address = ipaddress.ip_address(session.ip_address)
-            ipv6_max_prefixes = session.autonomous_system.ipv6_max_prefixes
-            ipv4_max_prefixes = session.autonomous_system.ipv4_max_prefixes
-
-            if ip_address.version == 6:
+            if session.ip_address_version == 6:
                 if session.autonomous_system.asn not in peers6:
-                    peers6[session.autonomous_system.asn] = {
-                        "as_name": session.autonomous_system.name,
-                        "max_prefixes": ipv6_max_prefixes or 0,
-                        "sessions": [],
-                    }
-
+                    peers6[
+                        session.autonomous_system.asn
+                    ] = session.autonomous_system.to_dict()
+                    peers6[session.autonomous_system.asn].update({"sessions": []})
                 peers6[session.autonomous_system.asn]["sessions"].append(
-                    {
-                        "ip_address": str(ip_address),
-                        "password": session.password or False,
-                        "enabled": session.enabled,
-                        "is_route_server": session.is_route_server,
-                        "export_routing_policies": [
-                            {"name": rp.name, "slug": rp.slug}
-                            for rp in session.export_routing_policies.all()
-                        ],
-                        "import_routing_policies": [
-                            {"name": rp.name, "slug": rp.slug}
-                            for rp in session.import_routing_policies.all()
-                        ],
-                    }
+                    session.to_dict()
                 )
 
-            if ip_address.version == 4:
+            if session.ip_address_version == 4:
                 if session.autonomous_system.asn not in peers4:
-                    peers4[session.autonomous_system.asn] = {
-                        "as_name": session.autonomous_system.name,
-                        "max_prefixes": ipv4_max_prefixes or 0,
-                        "sessions": [],
-                    }
-
+                    peers4[
+                        session.autonomous_system.asn
+                    ] = session.autonomous_system.to_dict()
+                    peers4[session.autonomous_system.asn].update({"sessions": []})
                 peers4[session.autonomous_system.asn]["sessions"].append(
-                    {
-                        "ip_address": str(ip_address),
-                        "password": session.password or False,
-                        "enabled": session.enabled,
-                        "is_route_server": session.is_route_server,
-                        "export_routing_policies": [
-                            {"name": rp.name, "slug": rp.slug}
-                            for rp in session.export_routing_policies.all()
-                        ],
-                        "import_routing_policies": [
-                            {"name": rp.name, "slug": rp.slug}
-                            for rp in session.import_routing_policies.all()
-                        ],
-                    }
+                    session.to_dict()
                 )
 
-        peering_groups = [
-            {"ip_version": 6, "peers": peers6},
-            {"ip_version": 4, "peers": peers4},
-        ]
-
-        # Generate list of communities
-        communities = []
-        for community in self.communities.all():
-            communities.append({"name": community.name, "value": community.value})
-
-        # Generate list of routing policies
-        export_routing_policies = [
-            {"name": rp.name, "slug": rp.slug}
-            for rp in self.export_routing_policies.all()
-        ]
-        import_routing_policies = [
-            {"name": rp.name, "slug": rp.slug}
-            for rp in self.import_routing_policies.all()
-        ]
-
-        values = {
-            "internet_exchange": self,
-            "peering_groups": peering_groups,
-            "communities": communities,
-            "export_routing_policies": export_routing_policies,
-            "import_routing_policies": import_routing_policies,
+        return {
+            "my_asn": settings.MY_ASN,
+            "internet_exchange": self.to_dict(),
+            "peering_groups": [
+                {"ip_version": 6, "peers": peers6},
+                {"ip_version": 4, "peers": peers4},
+            ],
         }
 
-        return values
-
     def generate_configuration(self):
-        # Load and render the template using Jinja2
-        configuration_template = Template(self.configuration_template.template)
-        return configuration_template.render(self._generate_configuration_variables())
+        if not self.configuration_template:
+            return ""
+        return self.configuration_template.render(self._get_configuration_variables())
 
     def get_available_peers(self):
         # Not linked to PeeringDB, cannot determine peers
@@ -601,8 +593,8 @@ class InternetExchange(ChangeLoggedModel):
                         str(prefix),
                     )
 
-                    # If the address fits, create a new InternetExchangePeeringSession object
-                    # and a new AutonomousSystem object if they does not exist
+                    # If the address fits, create a new InternetExchangePeeringSession
+                    # object and a new AutonomousSystem object if they does not exist
                     # already
                     if session["ip_address"] in prefix:
                         ip_address = str(session["ip_address"])
@@ -696,7 +688,7 @@ class InternetExchange(ChangeLoggedModel):
             return False
 
         # Build a list based on prefixes based on PeeringDB records
-        prefixes = [ipaddress.ip_network(p) for p in self.get_prefixes()]
+        prefixes = self.get_prefixes()
         # No prefixes found
         if not prefixes:
             self.logger.debug("no prefixes found for %s", self.name.lower())
@@ -737,7 +729,7 @@ class InternetExchange(ChangeLoggedModel):
         # Get all BGP sessions detail
         bgp_neighbors_detail = self.router.get_napalm_bgp_neighbors_detail()
 
-        # AN error occured, probably
+        # An error occured, probably
         if not bgp_neighbors_detail:
             return False
 
@@ -798,11 +790,14 @@ class InternetExchange(ChangeLoggedModel):
         return self.name
 
 
-class InternetExchangePeeringSession(BGPSession):
+class InternetExchangePeeringSession(BGPSession, TemplateModel):
     internet_exchange = models.ForeignKey("InternetExchange", on_delete=models.CASCADE)
     is_route_server = models.BooleanField(blank=True, default=False)
 
     logger = logging.getLogger("peering.manager.peeringdb")
+
+    class Meta:
+        ordering = ["autonomous_system", "ip_address"]
 
     @staticmethod
     def does_exist(internet_exchange=None, autonomous_system=None, ip_address=None):
@@ -917,19 +912,14 @@ class InternetExchangePeeringSession(BGPSession):
     def save(self, *args, **kwargs):
         # Remove the IP address of this session from potential sessions for the AS
         # if it is in the list
-        ip_address = ipaddress.ip_address(self.ip_address)
-        for i in range(
-            len(self.autonomous_system.potential_internet_exchange_peering_sessions)
+        if (
+            self.ip_address
+            in self.autonomous_system.potential_internet_exchange_peering_sessions
         ):
-            potential = ipaddress.ip_address(
-                self.autonomous_system.potential_internet_exchange_peering_sessions[i]
+            self.autonomous_system.potential_internet_exchange_peering_sessions.remove(
+                self.ip_address
             )
-            if ip_address == potential:
-                del self.autonomous_system.potential_internet_exchange_peering_sessions[
-                    i
-                ]
-                self.autonomous_system.save()
-                break
+            self.autonomous_system.save()
 
         super().save(*args, **kwargs)
 
@@ -953,6 +943,11 @@ class Router(ChangeLoggedModel):
         blank=True,
         help_text="The router platform, used to interact with it",
     )
+    encrypt_passwords = models.BooleanField(
+        blank=True,
+        default=True,
+        help_text="Try to encrypt passwords in router's configuration",
+    )
     comment = models.TextField(blank=True)
     netbox_device_id = models.PositiveIntegerField(blank=True, default=0)
 
@@ -966,6 +961,34 @@ class Router(ChangeLoggedModel):
 
     def is_netbox_device(self):
         return self.netbox_device_id is not 0
+
+    def decrypt_string(self, string):
+        """
+        Returns a decrypted version of a given string based on the router platform.
+
+        If no crypto module can be found for the router platform, the returned string
+        will be the same as the one passed as argument to this function.
+        """
+        if self.platform == PLATFORM_JUNOS:
+            return junos_decrypt(string)
+        if self.platform in [PLATFORM_EOS, PLATFORM_IOS, PLATFORM_IOSXR, PLATFORM_NXOS]:
+            return cisco_decrypt(string)
+
+        return string
+
+    def encrypt_string(self, string):
+        """
+        Returns a encrypted version of a given string based on the router platform.
+
+        If no crypto module can be found for the router platform, the returned string
+        will be the same as the one passed as argument to this function.
+        """
+        if self.platform == PLATFORM_JUNOS:
+            return junos_encrypt(string)
+        if self.platform in [PLATFORM_IOS, PLATFORM_IOSXR, PLATFORM_NXOS]:
+            return cisco_encrypt(string)
+
+        return string
 
     def can_napalm_get_bgp_neighbors_detail(self):
         return (
@@ -1263,7 +1286,7 @@ class Router(ChangeLoggedModel):
         return self.name
 
 
-class RoutingPolicy(ChangeLoggedModel):
+class RoutingPolicy(ChangeLoggedModel, TemplateModel):
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True)
     type = models.CharField(
@@ -1271,11 +1294,17 @@ class RoutingPolicy(ChangeLoggedModel):
         choices=ROUTING_POLICY_TYPE_CHOICES,
         default=ROUTING_POLICY_TYPE_IMPORT,
     )
+    weight = models.PositiveSmallIntegerField(
+        default=0, help_text="The higher the number, the higher the priority"
+    )
+    address_family = models.PositiveSmallIntegerField(
+        default=0, choices=IP_FAMILY_CHOICES
+    )
     comment = models.TextField(blank=True)
 
     class Meta:
         verbose_name_plural = "routing policies"
-        ordering = ["name"]
+        ordering = ["-weight", "name"]
 
     def get_absolute_url(self):
         return reverse("peering:routing_policy_details", kwargs={"pk": self.pk})
@@ -1283,12 +1312,15 @@ class RoutingPolicy(ChangeLoggedModel):
     def get_type_html(self):
         if self.type == ROUTING_POLICY_TYPE_EXPORT:
             badge_type = "badge-info"
-            text = '<i class="fas fa-arrow-circle-up"></i> {}'.format(
-                self.get_type_display()
-            )
+            text = '<i class="fas fa-arrow-up"></i> {}'.format(self.get_type_display())
         elif self.type == ROUTING_POLICY_TYPE_IMPORT:
             badge_type = "badge-info"
-            text = '<i class="fas fa-arrow-circle-down"></i> {}'.format(
+            text = '<i class="fas fa-arrow-down"></i> {}'.format(
+                self.get_type_display()
+            )
+        elif self.type == ROUTING_POLICY_TYPE_IMPORT_EXPORT:
+            badge_type = "badge-info"
+            text = '<i class="fas fa-arrows-alt-v"></i> {}'.format(
                 self.get_type_display()
             )
         else:

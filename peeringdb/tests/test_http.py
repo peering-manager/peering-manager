@@ -1,11 +1,13 @@
+import ipaddress
+
 from django.test import TestCase
 from django.utils import timezone
 
-from .api import PeeringDB
-from .models import Network, NetworkIXLAN
+from peeringdb.http import PeeringDB
+from peeringdb.models import Network, NetworkIXLAN
 
 
-class PeeringDBTestCase(TestCase):
+class PeeringDBHTTPTestCase(TestCase):
     def test_get_last_synchronization(self):
         api = PeeringDB()
 
@@ -40,6 +42,12 @@ class PeeringDBTestCase(TestCase):
         time_of_sync = timezone.now()
         api.record_last_sync(time_of_sync, {"added": 1, "updated": 0, "deleted": 0})
         self.assertEqual(api.get_last_sync_time(), int(time_of_sync.timestamp()))
+
+    def test_clear_local_database(self):
+        try:
+            PeeringDB().clear_local_database()
+        except Exception:
+            self.fail("Unexpected exception raised.")
 
     def test_get_autonomous_system(self):
         api = PeeringDB()
@@ -151,6 +159,7 @@ class PeeringDBTestCase(TestCase):
             14659,
             17707,
             27863,
+            48704,
         ]
         found_ix_networks = []
 
@@ -185,14 +194,14 @@ class PeeringDBTestCase(TestCase):
         # Must be empty
         self.assertFalse(api.get_prefixes_for_ix_network(0))
 
-        known_prefixes = ["2001:7f8:1::/64", "80.249.208.0/21"]
+        known_prefixes = [
+            ipaddress.ip_network("2001:7f8:1::/64"),
+            ipaddress.ip_network("80.249.208.0/21"),
+        ]
         found_prefixes = []
 
-        ix_prefixes = api.get_prefixes_for_ix_network(ix_network_id)
-        for ix_prefix in ix_prefixes:
-            found_prefixes.append(ix_prefix)
-
-        self.assertEqual(sorted(found_prefixes), sorted(known_prefixes))
+        for ix_prefix in api.get_prefixes_for_ix_network(ix_network_id):
+            self.assertIn(ix_prefix, known_prefixes)
 
     def test_get_peers_for_ix(self):
         api = PeeringDB()
@@ -202,4 +211,4 @@ class PeeringDBTestCase(TestCase):
         self.assertIsNone(api.get_peers_for_ix(0))
 
         # Must have some peers
-        self.assertEqual(len(api.get_peers_for_ix(ix_id)), 9)
+        self.assertEqual(len(api.get_peers_for_ix(ix_id)), 10)

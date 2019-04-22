@@ -3,9 +3,6 @@
 {% block content %}
       <div class="float-right">
         {% if perms.peering.change_autonomoussystem %}
-        <a href="{% url 'peering:autonomous_system_peeringdb_sync' asn=autonomous_system.asn %}" class="btn btn-primary">
-          <i class="fas fa-sync"></i> Sync with PeeringDB
-        </a>
         <a href="{% url 'peering:autonomous_system_edit' asn=autonomous_system.asn %}" class="btn btn-warning">
           <i class="fas fa-edit"></i> Edit
         </a>
@@ -18,7 +15,6 @@
       </div>
       <h1>{% block title %}{{ autonomous_system }}{% endblock %}</h1>
       <p><small class="text-muted">Last updated: {{ autonomous_system.updated }}</small></p>
-
       <ul class="nav nav-tabs">
         <li class="nav-item">
           <a class="nav-link{% if request.path|notcontains:'/direct-peering-sessions/,/ix-peering-sessions/' %} active{% endif %}" href="{% url 'peering:autonomous_system_details' asn=autonomous_system.asn %}">

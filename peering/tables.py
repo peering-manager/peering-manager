@@ -91,6 +91,13 @@ ROUTER_ACTIONS = """
 <a href="{% url 'peering:router_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
 {% endif %}
 """
+ROUTER_ENCRYPT_PASSWORD = """
+{% if record.encrypt_passwords %}
+<i class="fas fa-check-square text-success"></i>
+{% else %}
+<i class="fas fa-times text-danger"></i>
+{% endif %}
+"""
 ROUTING_POLICY_ACTIONS = """
 {% if perms.peering.change_routingpolicy %}
 <a href="{% url 'peering:routing_policy_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
@@ -184,6 +191,7 @@ class DirectPeeringSessionTable(BaseTable):
 
     pk = SelectColumn()
     local_asn = tables.Column(verbose_name="Local ASN")
+    autonomous_system = tables.LinkColumn(verbose_name="AS")
     ip_address = tables.LinkColumn(verbose_name="IP Address")
     relationship = tables.TemplateColumn(
         verbose_name="Relationship", template_code=BGP_RELATIONSHIP
@@ -200,6 +208,7 @@ class DirectPeeringSessionTable(BaseTable):
         fields = (
             "pk",
             "local_asn",
+            "autonomous_system",
             "ip_address",
             "relationship",
             "enabled",
@@ -327,11 +336,16 @@ class RouterTable(BaseTable):
 
     pk = SelectColumn()
     name = tables.LinkColumn()
+    encrypt_passwords = tables.TemplateColumn(
+        verbose_name="Encrypt Password",
+        template_code=ROUTER_ENCRYPT_PASSWORD,
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
+    )
     actions = ActionsColumn(template_code=ROUTER_ACTIONS)
 
     class Meta(BaseTable.Meta):
         model = Router
-        fields = ("pk", "name", "hostname", "platform", "actions")
+        fields = ("pk", "name", "hostname", "platform", "encrypt_passwords", "actions")
 
 
 class RoutingPolicyTable(BaseTable):
@@ -346,4 +360,4 @@ class RoutingPolicyTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RoutingPolicy
-        fields = ("pk", "name", "type", "actions")
+        fields = ("pk", "name", "type", "weight", "address_family", "actions")

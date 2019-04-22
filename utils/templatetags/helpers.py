@@ -17,25 +17,6 @@ def contains(value, arg):
     return any(s in value for s in arg.split(","))
 
 
-@register.filter()
-def example_choices(field, number=3):
-    examples = []
-
-    for key, label in field.choices:
-        # We have reached the maximum number of examples
-        if len(examples) == number:
-            examples.append("etc.")
-            break
-
-        # No key, weird...
-        if not key or not label:
-            continue
-
-        examples.append(label)
-
-    return ", ".join(examples) or None
-
-
 @register.filter(is_safe=True)
 def markdown(value):
     """

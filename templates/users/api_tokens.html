@@ -1,0 +1,65 @@
+{% extends 'users/_user.html' %}
+{% load helpers %}
+{% block title %}API Tokens{% endblock %}
+{% block user_content %}
+<div class="row">
+  <div class="col">
+    {% for token in tokens %}
+    <div class="card{% if token.is_expired %} card-danger{% endif %} mb-2">
+      <div class="card-header">
+        <div class="float-right">
+          {% if perms.users.change_token %}
+          <a href="{% url 'users:token_edit' pk=token.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i> Edit</a>
+          {% endif %}
+          {% if perms.users.delete_token %}
+          <a href="{% url 'users:token_delete' pk=token.pk %}" class="btn btn-xs btn-danger"><i class="fas fa-trash"></i> Delete</a>
+          {% endif %}
+        </div>
+        <i class="fas fa-key"></i> {{ token.key }}
+        {% if token.is_expired %}
+        <span class="badge badge-danger">Expired</span>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-4">
+            <span title="{{ token.created }}">{{ token.created|date }}</span><br />
+            <small class="text-muted">Created</small>
+          </div>
+          <div class="col-4">
+            {% if token.expires %}
+            <span title="{{ token.expires }}">{{ token.expires|date }}</span><br />
+            {% else %}
+            <span>Never</span><br />
+            {% endif %}
+            <small class="text-muted">Expires</small>
+          </div>
+          <div class="col-4">
+            {% if token.write_enabled %}
+            <span class="label label-success">Enabled</span>
+            {% else %}
+            <span class="label label-danger">Disabled</span>
+            {% endif %}<br />
+            <small class="text-muted">Create/edit/delete operations</small>
+          </div>
+        </div>
+        {% if token.description %}
+        <br /><span>{{ token.description }}</span>
+        {% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <p>You do not have any API tokens.</p>
+    {% endfor %}
+    {% if perms.users.add_token %}
+    <a href="{% url 'users:token_add' %}" class="btn btn-primary">
+      <i class="fas fa-plus""></i> Add a token
+    </a>
+    {% else %}
+    <div class="alert alert-info text-center" role="alert">
+      You do not have permission to create new API tokens. If needed, ask an administrator to enable token creation for your account or an assigned group.
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

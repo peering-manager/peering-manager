@@ -14,11 +14,6 @@ urlpatterns = [
         name="autonomous_system_add",
     ),
     url(
-        r"^autonomous-systems/import/$",
-        views.ASImport.as_view(),
-        name="autonomous_system_import",
-    ),
-    url(
         r"^autonomous-systems/(?P<asn>[0-9]+)/$",
         views.ASDetails.as_view(),
         name="autonomous_system_details",
@@ -39,11 +34,6 @@ urlpatterns = [
         name="autonomous_system_bulk_delete",
     ),
     url(
-        r"^autonomous-systems/(?P<asn>[0-9]+)/sync/$",
-        views.ASPeeringDBSync.as_view(),
-        name="autonomous_system_peeringdb_sync",
-    ),
-    url(
         r"^autonomous-systems/(?P<asn>[\w-]+)/direct-peering-sessions/$",
         views.AutonomousSystemDirectPeeringSessions.as_view(),
         name="autonomous_system_direct_peering_sessions",
@@ -56,11 +46,6 @@ urlpatterns = [
     # BGP Communities
     url(r"^communities/$", views.CommunityList.as_view(), name="community_list"),
     url(r"^communities/add/$", views.CommunityAdd.as_view(), name="community_add"),
-    url(
-        r"^communities/import/$",
-        views.CommunityImport.as_view(),
-        name="community_import",
-    ),
     url(
         r"^communities/(?P<pk>[0-9]+)/$",
         views.CommunityDetails.as_view(),
@@ -180,11 +165,6 @@ urlpatterns = [
         name="internet_exchange_add",
     ),
     url(
-        r"^internet-exchanges/import/$",
-        views.InternetExchangeImport.as_view(),
-        name="internet_exchange_import",
-    ),
-    url(
         r"^internet-exchanges/peeringdb-import/$",
         views.InternetExchangePeeringDBImport.as_view(),
         name="internet_exchange_peeringdb_import",
@@ -235,24 +215,14 @@ urlpatterns = [
         name="internet_exchange_peering_sessions",
     ),
     url(
-        r"^internet-exchanges/(?P<slug>[\w-]+)/import-from-router$",
-        views.InternetExchangeImportFromRouter.as_view(),
-        name="internet_exchange_import_from_router",
-    ),
-    url(
         r"^internet-exchanges/(?P<slug>[\w-]+)/peers/$",
         views.InternetExchangePeers.as_view(),
         name="internet_exchange_peers",
     ),
     url(
-        r"^internet-exchanges/(?P<slug>[\w-]+)/config/$",
+        r"^internet-exchanges/(?P<slug>[\w-]+)/configuration/$",
         views.InternetExchangeConfig.as_view(),
         name="internet_exchange_configuration",
-    ),
-    url(
-        r"^internet-exchanges/(?P<slug>[\w-]+)/update-session-states/$",
-        views.InternetExchangeUpdateSessionStates.as_view(),
-        name="internet_exchange_update_session_states",
     ),
     # Internet Exchange Peering Sessions
     url(
@@ -308,7 +278,6 @@ urlpatterns = [
     # Routers
     url(r"^routers/$", views.RouterList.as_view(), name="router_list"),
     url(r"^routers/add/$", views.RouterAdd.as_view(), name="router_add"),
-    url(r"^routers/import/$", views.RouterImport.as_view(), name="router_import"),
     url(
         r"^routers/(?P<pk>[0-9]+)/$",
         views.RouterDetails.as_view(),
@@ -342,11 +311,6 @@ urlpatterns = [
         name="routing_policy_add",
     ),
     url(
-        r"^routing-policies/import/$",
-        views.RoutingPolicyImport.as_view(),
-        name="routing_policy_import",
-    ),
-    url(
         r"^routing-policies/(?P<pk>[0-9]+)/$",
         views.RoutingPolicyDetails.as_view(),
         name="routing_policy_details",
@@ -370,21 +334,5 @@ urlpatterns = [
         r"^routing-policies/edit/$",
         views.RoutingPolicyBulkEdit.as_view(),
         name="routing_policy_bulk_edit",
-    ),
-    # AJAX dedicated views
-    url(
-        r"^async/router_ping/(?P<router_id>[0-9]+)$",
-        views.AsyncRouterPing.as_view(),
-        name="async_router_ping",
-    ),
-    url(
-        r"^async/router_diff/(?P<slug>[\w-]+)$",
-        views.AsyncRouterDiff.as_view(),
-        name="async_router_diff",
-    ),
-    url(
-        r"^async/router_save(?P<slug>[\w-]+)$",
-        views.AsyncRouterSave.as_view(),
-        name="async_router_save",
     ),
 ]
