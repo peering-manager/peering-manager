@@ -77,8 +77,7 @@ def parse_irr_as_set(irr_as_set):
                 is_valid = False
 
         # If AS-SET looks OK keep it to find prefix-list
-        if not is_valid:
-            continue
-        as_sets.append(value)
+        if is_valid:
+            as_sets.append(value)
 
     return as_sets

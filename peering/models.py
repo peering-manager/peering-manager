@@ -210,10 +210,13 @@ class AutonomousSystem(ChangeLoggedModel, TemplateModel):
 
         return True
 
-    def get_irr_as_set_prefixes(self):
+    def get_irr_as_set_prefixes(self, address_family=0):
         """
         Return a prefix list for this AS' IRR AS-SET. If none is provided the list
         will be empty.
+
+        If specified, only a list of the prefixes for the given address family will be
+        returned. 6 for IPv6, 4 for IPv4, both for all other values.
         """
         as_sets = parse_irr_as_set(self.irr_as_set)
         prefixes = {"ipv6": [], "ipv4": []}
@@ -223,7 +226,12 @@ class AutonomousSystem(ChangeLoggedModel, TemplateModel):
             prefixes["ipv6"].extend(call_irr_as_set_resolver(as_set, ip_version=6))
             prefixes["ipv4"].extend(call_irr_as_set_resolver(as_set, ip_version=4))
 
-        return prefixes
+        if address_family == 6:
+            return prefixes["ipv6"]
+        elif address_family == 4:
+            return prefixes["ipv4"]
+        else:
+            return prefixes
 
     def __str__(self):
         return "AS{} - {}".format(self.asn, self.name)
@@ -363,7 +371,21 @@ class ConfigurationTemplate(ChangeLoggedModel):
         """
         Render the template using Jinja2.
         """
-        return Template(self.template).render(variables)
+        jinja2_template = Template(self.template)
+
+        def prefix_list(asn, address_family=0):
+            """
+            Return the prefixes for the given AS.
+            """
+            if not asn:
+                return []
+            autonomous_system = AutonomousSystem.objects.get(asn=asn)
+            return autonomous_system.get_irr_as_set_prefixes(address_family)
+
+        # Add custom filters to our template
+        jinja2_template.globals["prefix_list"] = prefix_list
+
+        return jinja2_template.render(variables)
 
     def __str__(self):
         return self.name

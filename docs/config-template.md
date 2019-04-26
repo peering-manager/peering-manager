@@ -18,6 +18,31 @@ Configuration templates are generated using 3 main variables:
   * `internet_exchange` exposing details about the current IX
   * `peering_groups` containing the list of peering sessions to by IP version
 
+### Functions And Filters
+
+Peering Manager exposes custom functions and filters that can be used in Jinja2
+based templates.
+
+`prefix_list` will fetch the list of prefixes given two parameters: an
+Autonomous System number and an address family (IP version). The ASN must be a
+valid integer (e.g. 201281), the address family must be an integer as well (4
+means IPv4, 6 means IPv6, any other values means both families). Here is an
+example that could be used in a template for JUNOS:
+
+```no-highlight
+policy-options {
+    {%- for group in peering_groups %}
+    {%- for asn in group.peers %}
+    prefix-list ipv{{ group.ip_version }}-as{{ asn }} {
+        {%- for p in prefix_list(asn, group.ip_version) %}
+        {{ p.prefix }};
+        {%- endfor %}
+    }
+    {%- endfor %}
+    {%- endfor %}
+}
+```
+
 ## Example
 
 ### JunOS
