@@ -28,6 +28,15 @@ def call_irr_as_set_resolver(irr_as_set, ip_version=6):
         "prefix_list",
         irr_as_set,
     ]
+
+    # Merge user settings to command line right before the name of the prefix list
+    if settings.BGPQ3_ARGS:
+        index = len(command) - 3
+        command[index:index] = settings.BGPQ3_ARGS[
+            "ipv6" if ip_version is 6 else "ipv4"
+        ]
+        print(command)
+
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = process.communicate()
 

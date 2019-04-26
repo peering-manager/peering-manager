@@ -99,6 +99,11 @@ BGPQ3_SOURCES = getattr(
     "BGPQ3_SOURCES",
     "RIPE,APNIC,AFRINIC,ARIN,NTTCOM,ALTDB,BBOI,BELL,JPIRR,LEVEL3,RADB,RGNET,SAVVIS,TC",
 )
+BGPQ3_ARGS = getattr(
+    configuration,
+    "BGPQ3_ARGS",
+    {"ipv6": ["-r", "16", "-R", "48"], "ipv4": ["-r", "8", "-R", "24"]},
+)
 
 # Pagination
 PER_PAGE_SELECTION = [25, 50, 100, 250, 500, 1000]
