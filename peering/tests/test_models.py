@@ -25,21 +25,21 @@ from peering.models import (
 
 class AutonomousSystemTest(TestCase):
     def test_does_exist(self):
-        asn = 29467
+        asn = 201281
 
         # AS should not exist
         autonomous_system = AutonomousSystem.does_exist(asn)
         self.assertEqual(None, autonomous_system)
 
         # Create the AS
-        new_as = AutonomousSystem.objects.create(asn=asn, name="LuxNetwork S.A.")
+        new_as = AutonomousSystem.objects.create(asn=asn, name="Guillaume Mazoyer")
 
         # AS must exist
         autonomous_system = AutonomousSystem.does_exist(asn)
         self.assertEqual(asn, new_as.asn)
 
     def test_create_from_peeringdb(self):
-        asn = 29467
+        asn = 201281
 
         # Illegal ASN
         self.assertIsNone(AutonomousSystem.create_from_peeringdb(64500))
@@ -63,7 +63,7 @@ class AutonomousSystemTest(TestCase):
 
     def test_synchronize_with_peeringdb(self):
         # Create legal AS to sync with PeeringDB
-        asn = 29467
+        asn = 201281
         autonomous_system = AutonomousSystem.create_from_peeringdb(asn)
         self.assertEqual(asn, autonomous_system.asn)
         self.assertTrue(autonomous_system.synchronize_with_peeringdb())
@@ -73,6 +73,12 @@ class AutonomousSystemTest(TestCase):
         autonomous_system = AutonomousSystem.objects.create(asn=asn, name="Test")
         self.assertEqual(asn, autonomous_system.asn)
         self.assertFalse(autonomous_system.synchronize_with_peeringdb())
+
+    def test_get_irr_as_set_prefixes(self):
+        autonomous_system = AutonomousSystem.create_from_peeringdb(201281)
+        prefixes = autonomous_system.get_irr_as_set_prefixes()
+        self.assertEqual(autonomous_system.ipv6_max_prefixes, len(prefixes["ipv6"]))
+        self.assertEqual(autonomous_system.ipv4_max_prefixes, len(prefixes["ipv4"]))
 
     def test__str__(self):
         asn = 64500
