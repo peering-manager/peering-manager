@@ -74,6 +74,9 @@ tfoot td {
 table.attr-table td:nth-child(1) {
   width: 25%;
 }
+table.attr-table tr:first-child td {
+  border-top: 0; /* Fix extra border when using table in card */
+}
 .table-headings th {
   background-color: #f5f5f5;
 }
