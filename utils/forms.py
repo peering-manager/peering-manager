@@ -242,16 +242,6 @@ class CustomNullBooleanSelect(StaticSelect):
         self.choices = (("1", "---------"), ("2", "Yes"), ("3", "No"))
 
 
-class IPAddressVersionSelect(StaticSelect, forms.NullBooleanSelect):
-    """
-    Do not enforce True/False when not selecting an option.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.choices = ((0, "---------"), (6, "IPv6"), (4, "IPv4"))
-
-
 class TextareaField(forms.CharField):
     """
     A textarea with support for GitHub-Flavored Markdown. Exists mostly just to

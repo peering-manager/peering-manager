@@ -31,7 +31,6 @@ from utils.forms import (
     BootstrapMixin,
     CustomNullBooleanSelect,
     FilterChoiceField,
-    IPAddressVersionSelect,
     PasswordField,
     SlugField,
     SmallTextarea,
