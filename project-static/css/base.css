@@ -110,3 +110,6 @@ div.dropdown-menu {
 select#id_per_page {
   width: auto;
 }
+div#action_buttons {
+  margin-left: 5px;
+}
