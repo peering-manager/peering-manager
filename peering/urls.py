@@ -34,12 +34,12 @@ urlpatterns = [
         name="autonomous_system_bulk_delete",
     ),
     url(
-        r"^autonomous-systems/(?P<asn>[\w-]+)/direct-peering-sessions/$",
+        r"^autonomous-systems/(?P<asn>[0-9]+)/direct-peering-sessions/$",
         views.AutonomousSystemDirectPeeringSessions.as_view(),
         name="autonomous_system_direct_peering_sessions",
     ),
     url(
-        r"^autonomous-systems/(?P<asn>[\w-]+)/ix-peering-sessions/$",
+        r"^autonomous-systems/(?P<asn>[0-9]+)/ix-peering-sessions/$",
         views.AutonomousSystemInternetExchangesPeeringSessions.as_view(),
         name="autonomous_system_internet_exchange_peering_sessions",
     ),

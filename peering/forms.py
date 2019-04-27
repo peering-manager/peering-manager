@@ -50,7 +50,7 @@ class CommentField(TextareaField):
     def __init__(self, *args, **kwargs):
         super().__init__(
             label="Comments",
-            help_text='<i class="fab fa-markdown"></i> <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">GitHub-Flavored Markdown</a> syntax is supported',
+            help_text='Styling with <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank"><i class="fab fa-markdown"></i> Markdown</a> is supported',
             *args,
             **kwargs
         )
