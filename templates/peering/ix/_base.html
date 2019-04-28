@@ -23,9 +23,6 @@
         <small>* This message will not disappear until you fixed the issue.</small>
       </div>
       {% endif %}
-      {% if internet_exchange.bgp_session_states_update %}
-      <p><small class="text-muted">Last peering session states updated: {{ internet_exchange.bgp_session_states_update }}</small></p>
-      {% endif %}
       <ul class="nav nav-tabs">
         <li class="nav-item">
           <a class="nav-link{% if request.path|notcontains:'/peering-sessions/,/peers/,/configuration/' %} active{% endif %}" href="{% url 'peering:internet_exchange_details' slug=internet_exchange.slug %}">
@@ -51,6 +48,15 @@
           </a>
         </li>
         {% endif %}
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">
+            {% if internet_exchange.bgp_session_states_update %}
+            Sessions last updated: {{ internet_exchange.bgp_session_states_update }}
+            {% else %}
+            Last updated: {{ internet_exchange.updated }}
+            {% endif %}
+          </a>
+        </li>
       </ul>
       {% block subcontent %}{% endblock %}
 {% endblock %}
