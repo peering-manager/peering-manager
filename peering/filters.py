@@ -163,7 +163,7 @@ class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
             "autonomous_system__asn",
             "autonomous_system__name",
             "internet_exchange__name",
-            "internet_exchange__slug",
+            "internet_exchange__id",
         ]
 
     def search(self, queryset, name, value):

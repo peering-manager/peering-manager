@@ -110,7 +110,6 @@ class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
     model = AutonomousSystem
     q = forms.CharField(required=False, label="Search")
     asn = forms.IntegerField(required=False, label="ASN")
-    name = forms.CharField(required=False, label="AS Name")
     irr_as_set = forms.CharField(required=False, label="IRR AS-SET")
     ipv6_max_prefixes = forms.IntegerField(required=False, label="IPv6 Max Prefixes")
     ipv4_max_prefixes = forms.IntegerField(required=False, label="IPv4 Max Prefixes")
@@ -148,7 +147,6 @@ class CommunityBulkEditForm(BootstrapMixin, BulkEditForm):
 class CommunityFilterForm(BootstrapMixin, forms.Form):
     model = Community
     q = forms.CharField(required=False, label="Search")
-    name = forms.CharField(required=False, label="Name")
     value = forms.CharField(required=False, label="Value")
     type = forms.MultipleChoiceField(
         required=False, choices=COMMUNITY_TYPE_CHOICES, widget=StaticSelectMultiple
@@ -167,7 +165,6 @@ class ConfigurationTemplateForm(BootstrapMixin, forms.ModelForm):
 class ConfigurationTemplateFilterForm(BootstrapMixin, forms.Form):
     model = ConfigurationTemplate
     q = forms.CharField(required=False, label="Search")
-    name = forms.CharField(required=False, label="Name")
 
 
 class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
@@ -563,7 +560,6 @@ class InternetExchangeRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
 class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
     model = InternetExchange
     q = forms.CharField(required=False, label="Search")
-    name = forms.CharField(required=False, label="IX Name")
     import_routing_policies = FilterChoiceField(
         queryset=RoutingPolicy.objects.all(),
         to_field_name="pk",
@@ -759,10 +755,12 @@ class InternetExchangePeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
     enabled = forms.NullBooleanField(
         required=False, label="Enabled", widget=CustomNullBooleanSelect
     )
-    internet_exchange__slug = FilterChoiceField(
+    internet_exchange__id = FilterChoiceField(
         queryset=InternetExchange.objects.all(),
-        to_field_name="slug",
+        to_field_name="pk",
         label="Internet Exchange",
+        null_label=True,
+        widget=APISelectMultiple(api_url="/api/peering/internet-exchanges/"),
     )
 
 
@@ -875,9 +873,9 @@ class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
 class RouterFilterForm(BootstrapMixin, forms.Form):
     model = Router
     q = forms.CharField(required=False, label="Search")
-    name = forms.CharField(required=False, label="Router Name")
-    hostname = forms.CharField(required=False, label="Router Hostname")
-    platform = forms.MultipleChoiceField(choices=PLATFORM_CHOICES, required=False)
+    platform = forms.MultipleChoiceField(
+        required=False, choices=PLATFORM_CHOICES, widget=StaticSelectMultiple
+    )
     encrypt_passwords = forms.NullBooleanField(
         required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
     )
@@ -915,7 +913,6 @@ class RoutingPolicyBulkEditForm(BootstrapMixin, BulkEditForm):
 class RoutingPolicyFilterForm(BootstrapMixin, forms.Form):
     model = RoutingPolicy
     q = forms.CharField(required=False, label="Search")
-    name = forms.CharField(required=False, label="Routing Policy Name")
     type = forms.MultipleChoiceField(
         required=False,
         choices=add_blank_choice(ROUTING_POLICY_TYPE_CHOICES),
