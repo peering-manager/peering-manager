@@ -543,7 +543,7 @@ class InternetExchangeTestCase(ViewTestCase):
         self.get_request(
             "peering:internet_exchange_peering_sessions",
             params={"slug": self.slug},
-            contains="Add a Peering Session",
+            contains="Add",
         )
 
         # IX not found
