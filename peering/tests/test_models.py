@@ -119,12 +119,9 @@ class CommunityTest(TestCase):
 
     def test_get_type_html(self):
         expected = [
-            '<span class="badge badge-info">'
-            '<i class="fas fa-arrow-circle-up"></i> Egress</span>',
-            '<span class="badge badge-info">'
-            '<i class="fas fa-arrow-circle-down"></i> Ingress</span>',
-            '<span class="badge badge-secondary">'
-            '<i class="fas fa-ban"></i> Unknown</span>',
+            '<span class="badge badge-info">Egress</span>',
+            '<span class="badge badge-primary">Ingress</span>',
+            '<span class="badge badge-secondary">Unknown</span>',
         ]
         community_types = [COMMUNITY_TYPE_EGRESS, COMMUNITY_TYPE_INGRESS, "unknown"]
 
@@ -486,10 +483,10 @@ class RoutingPolicyTest(TestCase):
 
     def test_get_type_html(self):
         expected = [
-            '<span class="badge badge-info"><i class="fas fa-arrow-up"></i> Export</span>',
-            '<span class="badge badge-info"><i class="fas fa-arrow-down"></i> Import</span>',
-            '<span class="badge badge-info"><i class="fas fa-arrows-alt-v"></i> Import and Export</span>',
-            '<span class="badge badge-secondary"><i class="fas fa-ban"></i> Unknown</span>',
+            '<span class="badge badge-primary">Export</span>',
+            '<span class="badge badge-info">Import</span>',
+            '<span class="badge badge-dark">Import+Export</span>',
+            '<span class="badge badge-secondary">Unknown</span>',
         ]
         routing_policy_types = [
             ROUTING_POLICY_TYPE_EXPORT,
