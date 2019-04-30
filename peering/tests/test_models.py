@@ -119,8 +119,8 @@ class CommunityTest(TestCase):
 
     def test_get_type_html(self):
         expected = [
-            '<span class="badge badge-info">Egress</span>',
-            '<span class="badge badge-primary">Ingress</span>',
+            '<span class="badge badge-primary">Egress</span>',
+            '<span class="badge badge-info">Ingress</span>',
             '<span class="badge badge-secondary">Unknown</span>',
         ]
         community_types = [COMMUNITY_TYPE_EGRESS, COMMUNITY_TYPE_INGRESS, "unknown"]

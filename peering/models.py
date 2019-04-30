@@ -337,10 +337,10 @@ class Community(ChangeLoggedModel, TemplateModel):
 
     def get_type_html(self):
         if self.type == COMMUNITY_TYPE_EGRESS:
-            badge_type = "badge-info"
+            badge_type = "badge-primary"
             text = self.get_type_display()
         elif self.type == COMMUNITY_TYPE_INGRESS:
-            badge_type = "badge-primary"
+            badge_type = "badge-info"
             text = self.get_type_display()
         else:
             badge_type = "badge-secondary"
