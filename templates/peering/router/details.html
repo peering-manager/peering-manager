@@ -55,6 +55,16 @@
                 <td>Other</td>
                 {% endif %}
               </tr>
+              <tr>
+                <td>Encrypt Passwords</td>
+                <td>
+                  {% if router.encrypt_passwords %}
+                  <i class="fas fa-check text-success"></i>
+                  {% else %}
+                  <i class="fas fa-times text-danger"></i>
+                  {% endif %}
+                </td>
+              </tr>
               {% if settings.NETBOX_API %}
               <tr>
                 <td>Source</td>
@@ -65,9 +75,15 @@
                 {% endif %}
               </tr>
               {% endif %}
+              <tr>
+                <td>Utilization</td>
+                <td>Connected to {% if internet_exchanges|length == 0 %}only one Internet exchange{% else %}{{ internet_exchanges|length }} Internet exchanges{% endif %}</td>
+              </tr>
             </table>
           </div>
-          <div class="card">
+        </div>
+        <div class="col-md-6">
+          <div class="card mb-2">
             <div class="card-header">
               <strong>Comments</strong>
             </div>
@@ -78,22 +94,6 @@
               <span class="text-muted">None</span>
               {% endif %}
             </div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="card">
-            <div class="card-header">
-              <strong>Internet Exchanges</strong>
-            </div>
-            <ul class="list-group list-group-flush">
-              {% if internet_exchanges|length > 0 %}
-              {% for ix in internet_exchanges %}
-              <li class="list-group-item"><a href="{% url 'peering:internet_exchange_details' slug=ix.slug %}">{{ ix }}</a></li>
-              {% endfor %}
-              {% else %}
-              <li class="list-group-item"><span class="text-muted">None</span></li>
-              {% endif %}
-            </ul>
           </div>
         </div>
       </div>
