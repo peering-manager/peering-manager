@@ -81,7 +81,7 @@ def parse_irr_as_set(irr_as_set):
             if number_of_subs_made > 0:
                 value = value.strip()
             # And reject a potential useless value
-            if not value or not value.startswith("AS-"):
+            if not value or "AS-" not in value:
                 is_valid = False
 
         # If AS-SET looks OK keep it to find prefix-list
