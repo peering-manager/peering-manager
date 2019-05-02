@@ -23,9 +23,11 @@
     </nav>
   </div>
   <form method="get">
-    {% for k, v in request.GET.items %}
+    {% for k, v in request.GET.lists %}
     {% if k != 'per_page' %}
-    <input type="hidden" name="{{ k }}" value="{{ v }}" />
+    {% for i in v %}
+    <input type="hidden" name="{{ k }}" value="{{ i }}" />
+    {% endfor %}
     {% endif %}
     {% endfor %}
     <select class="custom-select custom-select-sm" name="per_page" id="id_per_page">
