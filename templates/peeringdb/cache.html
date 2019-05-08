@@ -2,9 +2,6 @@
 {% load helpers %}
 {% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}Local Cache Management{% endblock %}</li>{% endblock %}
 {% block content %}
-      {% if last_sync_time is not 0 %}
-      <p><small class="text-muted">Last updated: {{ last_sync_time }}</small></p>
-      {% endif %}
       <div class="alert alert-dismissible" role="alert" id="id_cache_operation">
         <button type="button" class="close" aria-label="Close"><span>&times;</span></button>
         <span id="id_cache_operation_text"></span>
@@ -14,6 +11,9 @@
           <div class="card">
             <div class="card-header">
               <strong>PeeringDB Cache</strong>
+              {% if last_sync_time is not 0 %}
+              <small class="text-muted float-right">Last updated: {{ last_sync_time }}</small>
+              {% endif %}
             </div>
             <div class="card-body">
               <p><span class="font-weight-bolder" id="id_peeringdb_network_count">{{ peeringdb_network_count }}</span> networks and <span class="font-weight-bolder" id="id_peeringdb_networkixlan_count">{{ peeringdb_networkixlan_count }}</span> network IX LANs cached from PeeringDB.</p>
