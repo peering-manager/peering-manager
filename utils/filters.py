@@ -1,11 +1,15 @@
 import django_filters
 
+from .constants import *
 from .models import ObjectChange
 
 
 class ObjectChangeFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     time = django_filters.DateTimeFromToRangeFilter()
+    action = django_filters.MultipleChoiceFilter(
+        choices=OBJECT_CHANGE_ACTION_CHOICES, null_value=None
+    )
 
     class Meta:
         model = ObjectChange
@@ -13,7 +17,6 @@ class ObjectChangeFilter(django_filters.FilterSet):
             "user",
             "user_name",
             "request_id",
-            "action",
             "changed_object_type",
             "object_repr",
         ]

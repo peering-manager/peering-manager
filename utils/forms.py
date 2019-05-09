@@ -99,27 +99,6 @@ class FilterChoiceField(FilterChoiceFieldMixin, forms.ModelMultipleChoiceField):
     pass
 
 
-class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
-    model = ObjectChange
-    q = forms.CharField(required=False, label="Search")
-    time_after = forms.DateTimeField(
-        label="After",
-        required=False,
-        widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
-    )
-    time_before = forms.DateTimeField(
-        label="Before",
-        required=False,
-        widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
-    )
-    action = forms.ChoiceField(
-        choices=add_blank_choice(OBJECT_CHANGE_ACTION_CHOICES), required=False
-    )
-    user = forms.ModelChoiceField(
-        queryset=User.objects.order_by("username"), required=False
-    )
-
-
 class PasswordField(forms.CharField):
     """
     A field used to enter password. The field will hide the password unless the
@@ -253,3 +232,26 @@ class TextareaField(forms.CharField):
     def __init__(self, *args, **kwargs):
         required = kwargs.pop("required", False)
         super().__init__(required=required, *args, **kwargs)
+
+
+class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
+    model = ObjectChange
+    q = forms.CharField(required=False, label="Search")
+    time_after = forms.DateTimeField(
+        label="After",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
+    )
+    time_before = forms.DateTimeField(
+        label="Before",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
+    )
+    action = forms.ChoiceField(
+        required=False,
+        choices=OBJECT_CHANGE_ACTION_CHOICES,
+        widget=StaticSelectMultiple,
+    )
+    user = forms.ModelChoiceField(
+        required=False, queryset=User.objects.order_by("username"), widget=StaticSelect
+    )
