@@ -253,5 +253,7 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
         widget=StaticSelectMultiple,
     )
     user = forms.ModelChoiceField(
-        required=False, queryset=User.objects.order_by("username"), widget=StaticSelect
+        required=False,
+        queryset=User.objects.order_by("username"),
+        widget=StaticSelectMultiple,
     )

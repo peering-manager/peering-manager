@@ -1,5 +1,7 @@
 import django_filters
 
+from django.contrib.auth.models import User
+
 from .constants import *
 from .models import ObjectChange
 
@@ -10,16 +12,16 @@ class ObjectChangeFilter(django_filters.FilterSet):
     action = django_filters.MultipleChoiceFilter(
         choices=OBJECT_CHANGE_ACTION_CHOICES, null_value=None
     )
+    user = django_filters.ModelMultipleChoiceFilter(
+        field_name="user__id",
+        queryset=User.objects.all(),
+        to_field_name="id",
+        label="User",
+    )
 
     class Meta:
         model = ObjectChange
-        fields = [
-            "user",
-            "user_name",
-            "request_id",
-            "changed_object_type",
-            "object_repr",
-        ]
+        fields = ["user_name", "request_id", "changed_object_type", "object_repr"]
 
     def search(self, queryset, name, value):
         if not value.strip():
