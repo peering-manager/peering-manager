@@ -409,6 +409,8 @@ class BulkEditView(View):
 
         # Retrieve objects being edited
         table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
+        if "actions" in table.base_columns:
+            table.columns.hide("actions")
         if not table.rows:
             messages.warning(
                 request, "No {} were selected.".format(model._meta.verbose_name_plural)
