@@ -17,7 +17,7 @@
               {% endif %}
               </div>
             </div>
-            <table class="table table-hover card-body attr-table">
+            <table class="card-body table table-hover attr-table mb-0">
               <tr>
                 <td>ASN</td>
                 <td>{{ autonomous_system.asn }}</td>
@@ -26,15 +26,15 @@
                 <td>Name</td>
                 <td>{{ autonomous_system.name }}</td>
               </tr>
-              <tr{% if autonomous_system.irr_as_set_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="Synchronized with PeeringDB"{% endif %}>
+              <tr{% if autonomous_system.irr_as_set_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
                 <td>IRR AS-SET</td>
                 <td id="id_irr_as_set">{{ autonomous_system.irr_as_set }}</td>
               </tr>
-              <tr{% if autonomous_system.ipv6_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="Synchronized with PeeringDB"{% endif %}>
+              <tr{% if autonomous_system.ipv6_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
                 <td>IPv6 Max Prefixes</td>
                 <td id="id_ipv6_max_prefixes">{{ autonomous_system.ipv6_max_prefixes }}</td>
               </tr>
-              <tr{% if autonomous_system.ipv4_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="Synchronized with PeeringDB"{% endif %}>
+              <tr{% if autonomous_system.ipv4_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
                 <td>IPv4 Max Prefixes</td>
                 <td id="id_ipv4_max_prefixes">{{ autonomous_system.ipv4_max_prefixes }}</td>
               </tr>
@@ -42,7 +42,7 @@
           </div>
           <div class="card mb-2">
             <div class="card-header"><strong>Contact Info</strong></div>
-            <table class="table table-hover card-body attr-table">
+            <table class="card-body table table-hover attr-table mb-0">
               <tr>
                 <td>Contact Name</td>
                 <td>

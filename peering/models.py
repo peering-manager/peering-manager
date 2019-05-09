@@ -260,7 +260,7 @@ class BGPSession(ChangeLoggedModel):
         blank=True,
         default=1,
         verbose_name="Multihop TTL",
-        help_text="Used a value greater than 1 for BGP multihop sessions",
+        help_text="Use a value greater than 1 for BGP multihop sessions",
     )
     enabled = models.BooleanField(default=True)
     import_routing_policies = models.ManyToManyField(
@@ -337,18 +337,14 @@ class Community(ChangeLoggedModel, TemplateModel):
 
     def get_type_html(self):
         if self.type == COMMUNITY_TYPE_EGRESS:
-            badge_type = "badge-info"
-            text = '<i class="fas fa-arrow-circle-up"></i> {}'.format(
-                self.get_type_display()
-            )
+            badge_type = "badge-primary"
+            text = self.get_type_display()
         elif self.type == COMMUNITY_TYPE_INGRESS:
             badge_type = "badge-info"
-            text = '<i class="fas fa-arrow-circle-down"></i> {}'.format(
-                self.get_type_display()
-            )
+            text = self.get_type_display()
         else:
             badge_type = "badge-secondary"
-            text = '<i class="fas fa-ban"></i> Unknown'
+            text = "Unknown"
 
         return mark_safe('<span class="badge {}">{}</span>'.format(badge_type, text))
 
@@ -1349,21 +1345,17 @@ class RoutingPolicy(ChangeLoggedModel, TemplateModel):
 
     def get_type_html(self):
         if self.type == ROUTING_POLICY_TYPE_EXPORT:
-            badge_type = "badge-info"
-            text = '<i class="fas fa-arrow-up"></i> {}'.format(self.get_type_display())
+            badge_type = "badge-primary"
+            text = self.get_type_display()
         elif self.type == ROUTING_POLICY_TYPE_IMPORT:
             badge_type = "badge-info"
-            text = '<i class="fas fa-arrow-down"></i> {}'.format(
-                self.get_type_display()
-            )
+            text = self.get_type_display()
         elif self.type == ROUTING_POLICY_TYPE_IMPORT_EXPORT:
-            badge_type = "badge-info"
-            text = '<i class="fas fa-arrows-alt-v"></i> {}'.format(
-                self.get_type_display()
-            )
+            badge_type = "badge-dark"
+            text = self.get_type_display()
         else:
             badge_type = "badge-secondary"
-            text = '<i class="fas fa-ban"></i> Unknown'
+            text = "Unknown"
 
         return mark_safe('<span class="badge {}">{}</span>'.format(badge_type, text))
 

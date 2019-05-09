@@ -9,6 +9,11 @@ register = template.Library()
 
 
 @register.filter()
+def as_link(value):
+    return mark_safe('<a href="{}">{}</a>'.format(value.get_absolute_url(), value))
+
+
+@register.filter()
 def contains(value, arg):
     """
     Test whether a value contains any of a given set of strings.

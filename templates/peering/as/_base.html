@@ -1,20 +1,22 @@
 {% extends '_base.html' %}
 {% load helpers %}
+{% block actions %}
+{% if perms.peering.change_autonomoussystem %}
+<a href="{% url 'peering:autonomous_system_edit' asn=autonomous_system.asn %}" class="btn btn-warning">
+  <i class="fas fa-edit"></i> Edit
+</a>
+{% endif %}
+{% if perms.peering.delete_autonomoussystem %}
+<a href="{% url 'peering:autonomous_system_delete' asn=autonomous_system.asn %}" class="btn btn-danger">
+  <i class="fas fa-trash"></i> Delete
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'peering:autonomous_system_list' %}">Autonomous Systems</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ autonomous_system }}{% endblock %}</li>
+{% endblock %}
 {% block content %}
-      <div class="float-right">
-        {% if perms.peering.change_autonomoussystem %}
-        <a href="{% url 'peering:autonomous_system_edit' asn=autonomous_system.asn %}" class="btn btn-warning">
-          <i class="fas fa-edit"></i> Edit
-        </a>
-        {% endif %}
-        {% if perms.peering.delete_autonomoussystem %}
-        <a href="{% url 'peering:autonomous_system_delete' asn=autonomous_system.asn %}" class="btn btn-danger">
-          <i class="fas fa-trash"></i> Delete
-        </a>
-        {% endif %}
-      </div>
-      <h1>{% block title %}{{ autonomous_system }}{% endblock %}</h1>
-      <p><small class="text-muted">Last updated: {{ autonomous_system.updated }}</small></p>
       <ul class="nav nav-tabs">
         <li class="nav-item">
           <a class="nav-link{% if request.path|notcontains:'/direct-peering-sessions/,/ix-peering-sessions/' %} active{% endif %}" href="{% url 'peering:autonomous_system_details' asn=autonomous_system.asn %}">
@@ -33,6 +35,9 @@
           </a>
         </li>
         {% endif %}
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Last updated: {{ autonomous_system.updated }}</a>
+        </li>
       </ul>
       {% block subcontent %}{% endblock %}
 {% endblock %}

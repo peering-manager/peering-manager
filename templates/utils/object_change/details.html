@@ -1,12 +1,12 @@
 {% extends '_base.html' %}
 {% load helpers %}
+{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ object_change }}{% endblock %}</li>{% endblock %}
 {% block content %}
-      <h1>{% block title %}{{ object_change }}{% endblock %}</h1>
       <div class="row">
         <div class="col-md-5">
           <div class="card">
             <div class="card-header"><strong>Change</strong></div>
-            <table class="table table-hover card-body attr-table">
+            <table class="card-body table table-hover attr-table mb-0">
               <tr>
                 <td>Time</td>
                 <td>{{ object_change.time }}</td>

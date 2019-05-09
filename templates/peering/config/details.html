@@ -1,26 +1,29 @@
 {% extends '_base.html' %}
 {% load helpers %}
+{% block actions %}
+{% if perms.peering.change_configurationtemplate %}
+<a href="{% url 'peering:configuration_template_edit' pk=configuration_template.pk %}" class="btn btn-warning">
+  <i class="fas fa-edit"></i> Edit
+</a>
+{% endif %}
+{% if perms.peering.delete_configurationtemplate %}
+<a href="{% url 'peering:configuration_template_delete' pk=configuration_template.pk %}" class="btn btn-danger">
+  <i class="fas fa-trash"></i> Delete
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'peering:configuration_template_list' %}">Configuration Templates</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ configuration_template }}{% endblock %}</li>
+{% endblock %}
 {% block content %}
-      <div class="float-right">
-        {% if perms.peering.change_configurationtemplate %}
-        <a href="{% url 'peering:configuration_template_edit' pk=configuration_template.pk %}" class="btn btn-warning">
-          <i class="fas fa-edit"></i> Edit
-        </a>
-        {% endif %}
-        {% if perms.peering.delete_configurationtemplate %}
-        <a href="{% url 'peering:configuration_template_delete' pk=configuration_template.pk %}" class="btn btn-danger">
-          <i class="fas fa-trash"></i> Delete
-        </a>
-        {% endif %}
-      </div>
-      <h1>{% block title %}{{ configuration_template }}{% endblock %}</h1>
       <div class="row">
         <div class="col-md-6">
           <div class="card mb-2">
             <div class="card-header">
               <strong>Template Details</strong>
             </div>
-            <table class="table table-hover card-body attr-table">
+            <table class="card-body table table-hover attr-table mb-0">
               <tr>
                 <td>Name</td>
                 <td>{{ configuration_template.name }}</td>
@@ -31,7 +34,7 @@
               </tr>
               <tr>
                 <td>Utilization</td>
-                <td>{% if internet_exchanges|length == 0 %}Used by only one Internet exchange{% else %}Used by {{ internet_exchanges|length }} Internet exchanges{% endif %}</td>
+                <td>Used by {% if internet_exchanges|length == 0 %}only one Internet exchange{% else %}{{ internet_exchanges|length }} Internet exchanges{% endif %}</td>
               </tr>
             </table>
           </div>

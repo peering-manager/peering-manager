@@ -1,22 +1,18 @@
 {% extends 'utils/object_list.html' %}
-{% if request.user.is_authenticated %}
 {% block extra_buttons %}
+{% if perms.peering.change_internetexchangepeeringsession and internet_exchange.check_bgp_session_states and internet_exchange.router and internet_exchange.router.can_napalm_get_bgp_neighbors_detail %}
+<button type="button" class="btn btn-sm btn-success" id="id_update_session_states">
+  <i class="fas fa-sync"></i> Update States
+</button>
+{% endif %}
 {% if perms.peering.add_internetexchangepeeringsession %}
-<a href="{% url 'peering:internet_exchange_peering_session_add' slug=internet_exchange.slug %}" class="btn btn-sm btn-primary">
-  <i class="fas fa-plus"></i> Add a Peering Session
-</a>
 {% if internet_exchange.router and internet_exchange.router.platform %}
 <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#import_from_router">
   <i class="fas fa-upload"></i> Import from Router
 </button>
 {% endif %}
-{% endif %}
-{% if perms.peering.change_internetexchangepeeringsession %}
-{% if internet_exchange.check_bgp_session_states and internet_exchange.router and internet_exchange.router.can_napalm_get_bgp_neighbors_detail %}
-<button type="button" class="btn btn-sm btn-success" id="id_update_session_states">
-  <i class="fas fa-sync"></i> Update Session States
-</button>
-{% endif %}
+<a href="{% url 'peering:internet_exchange_peering_session_add' slug=internet_exchange.slug %}" class="btn btn-sm btn-primary">
+  <i class="fas fa-plus"></i> Add
+</a>
 {% endif %}
 {% endblock %}
-{% endif %}

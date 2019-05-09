@@ -4,7 +4,12 @@ from django.db.models import Q
 
 import django_filters
 
-from .constants import BGP_RELATIONSHIP_CHOICES, PLATFORM_CHOICES
+from .constants import (
+    BGP_RELATIONSHIP_CHOICES,
+    PLATFORM_CHOICES,
+    ROUTING_POLICY_TYPE_CHOICES,
+    ROUTING_POLICY_TYPE_IMPORT_EXPORT,
+)
 from .models import (
     AutonomousSystem,
     Community,
@@ -158,7 +163,7 @@ class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
             "autonomous_system__asn",
             "autonomous_system__name",
             "internet_exchange__name",
-            "internet_exchange__slug",
+            "internet_exchange__id",
         ]
 
     def search(self, queryset, name, value):
@@ -245,10 +250,13 @@ class RouterFilter(django_filters.FilterSet):
 
 class RoutingPolicyFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
+    type = django_filters.MultipleChoiceFilter(
+        method="type_search", choices=ROUTING_POLICY_TYPE_CHOICES, null_value=None
+    )
 
     class Meta:
         model = RoutingPolicy
-        fields = ["name", "type", "weight"]
+        fields = ["name", "weight"]
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -258,4 +266,13 @@ class RoutingPolicyFilter(django_filters.FilterSet):
             | Q(type__icontains=value)
             | Q(comment__icontains=value)
         )
+        return queryset.filter(qs_filter)
+
+    def type_search(self, queryset, name, value):
+        """
+        Return routing policies based on
+        """
+        qs_filter = Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        for v in value:
+            qs_filter |= Q(type=v)
         return queryset.filter(qs_filter)
