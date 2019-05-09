@@ -48,3 +48,10 @@ class NetBox(object):
             for device in result["results"]
             if device["device_role"]["slug"] in settings.NETBOX_DEVICE_ROLES
         ]
+
+    def napalm(self, device_id, method):
+        """
+        Runs method on device via the NetBox API.
+        """
+        path = "{}/devices/{}/napalm/".format(NAMESPACES["dcim"], device_id)
+        return self.lookup(path, {"method": method})[method]
