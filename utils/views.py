@@ -231,6 +231,7 @@ class BulkDeleteView(View):
     table = None
     template = "utils/object_bulk_delete.html"
     return_url = "home"
+    hidden_columns = []
 
     def get(self, request):
         return redirect(self.return_url)
@@ -295,6 +296,8 @@ class BulkDeleteView(View):
         # Retrieve objects being deleted
         queryset = self.queryset or self.model.objects.all()
         table = self.table(queryset.filter(pk__in=pk_list), orderable=False)
+        if "actions" in table.base_columns:
+            table.columns.hide("actions")
         if not table.rows:
             messages.warning(
                 request,

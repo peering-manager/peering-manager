@@ -260,7 +260,7 @@ class BGPSession(ChangeLoggedModel):
         blank=True,
         default=1,
         verbose_name="Multihop TTL",
-        help_text="Used a value greater than 1 for BGP multihop sessions",
+        help_text="Use a value greater than 1 for BGP multihop sessions",
     )
     enabled = models.BooleanField(default=True)
     import_routing_policies = models.ManyToManyField(
