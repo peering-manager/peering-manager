@@ -5,14 +5,16 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peering', '0040_auto_20190417_1851'),
-    ]
+    dependencies = [("peering", "0040_auto_20190417_1851")]
 
     operations = [
         migrations.AddField(
-            model_name='router',
-            name='use_netbox',
-            field=models.BooleanField(blank=True, default=False, help_text='Use NetBox to communicate instead of NAPALM'),
-        ),
+            model_name="router",
+            name="use_netbox",
+            field=models.BooleanField(
+                blank=True,
+                default=False,
+                help_text="Use NetBox to communicate instead of NAPALM",
+            ),
+        )
     ]
