@@ -30,7 +30,7 @@ AUTONOMOUS_SYSTEM_HAS_POTENTIAL_IX_PEERING_SESSIONS = """
 """
 BGPSESSION_STATUS = """
 {% if record.enabled %}
-<i class="fas fa-check-square text-success"></i>
+<i class="fas fa-check text-success"></i>
 {% else %}
 <i class="fas fa-times text-danger"></i>
 {% endif %}
@@ -81,7 +81,7 @@ INTERNET_EXCHANGE_PEERING_SESSION_ACTIONS = """
 """
 INTERNET_EXCHANGE_PEERING_SESSION_IS_ROUTE_SERVER = """
 {% if record.is_route_server %}
-<i class="fas fa-check-square text-success"></i>
+<i class="fas fa-check text-success"></i>
 {% else %}
 <i class="fas fa-times text-danger"></i>
 {% endif %}
@@ -93,7 +93,7 @@ ROUTER_ACTIONS = """
 """
 ROUTER_ENCRYPT_PASSWORD = """
 {% if record.encrypt_passwords %}
-<i class="fas fa-check-square text-success"></i>
+<i class="fas fa-check text-success"></i>
 {% else %}
 <i class="fas fa-times text-danger"></i>
 {% endif %}

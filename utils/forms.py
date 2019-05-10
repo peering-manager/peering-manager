@@ -13,16 +13,6 @@ def add_blank_choice(choices):
     return ((None, "---------"),) + tuple(choices)
 
 
-class CustomNullBooleanSelect(forms.NullBooleanSelect):
-    """
-    Do not enforce True/False when not selecting an option.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.choices = (("1", "---------"), ("2", "Yes"), ("3", "No"))
-
-
 class BulkEditForm(forms.Form):
     """
     Base form for editing several objects at the same time.
@@ -73,6 +63,12 @@ class ConfirmationForm(BootstrapMixin, forms.Form):
 
 class FilterChoiceIterator(forms.models.ModelChoiceIterator):
     def __iter__(self):
+        # null for the first time if we asked for it
+        if self.field.null_label:
+            yield (
+                settings.FILTERS_NULL_CHOICE_VALUE,
+                settings.FILTERS_NULL_CHOICE_LABEL,
+            )
         queryset = self.queryset.all()
         # Can't use iterator() when queryset uses prefetch_related()
         if not queryset._prefetch_related_lookups:
@@ -101,27 +97,6 @@ class FilterChoiceFieldMixin(object):
 
 class FilterChoiceField(FilterChoiceFieldMixin, forms.ModelMultipleChoiceField):
     pass
-
-
-class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
-    model = ObjectChange
-    q = forms.CharField(required=False, label="Search")
-    time_after = forms.DateTimeField(
-        label="After",
-        required=False,
-        widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
-    )
-    time_before = forms.DateTimeField(
-        label="Before",
-        required=False,
-        widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
-    )
-    action = forms.ChoiceField(
-        choices=add_blank_choice(OBJECT_CHANGE_ACTION_CHOICES), required=False
-    )
-    user = forms.ModelChoiceField(
-        queryset=User.objects.order_by("username"), required=False
-    )
 
 
 class PasswordField(forms.CharField):
@@ -169,6 +144,83 @@ class SmallTextarea(forms.Textarea):
     pass
 
 
+class APISelect(forms.Select):
+    """
+    Select widget using API calls to populate its choices.
+    """
+
+    def __init__(
+        self,
+        api_url,
+        display_field=None,
+        value_field=None,
+        query_filters=None,
+        null_option=False,
+        *args,
+        **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.attrs["class"] = "custom-select2-api"
+        self.attrs["data-url"] = "/{}{}".format(settings.BASE_PATH, api_url.lstrip("/"))
+
+        if display_field:
+            self.attrs["display-field"] = display_field
+        if value_field:
+            self.attrs["value-field"] = value_field
+        if query_filters:
+            for key, value in query_filters.items():
+                self.add_query_filter(key, value)
+        if null_option:
+            self.attrs["data-null-option"] = 1
+
+    def add_query_filter(self, condition, value):
+        """
+        Add a condition to filter the feedback from the API call.
+        """
+        self.attrs["data-query-filter-{}".format(condition)] = value
+
+
+class APISelectMultiple(APISelect, forms.SelectMultiple):
+    """
+    Same API select widget using select2 but allowing multiple choices.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.attrs["data-multiple"] = 1
+
+
+class StaticSelect(forms.Select):
+    """
+    Select widget for static choices leveraging the select2 component.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.attrs["class"] = "custom-select2-static"
+
+
+class StaticSelectMultiple(StaticSelect, forms.SelectMultiple):
+    """
+    Same static select widget using select2 but allowing multiple choices.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.attrs["data-multiple"] = 1
+        self.attrs["data-close-on-select"] = 0
+
+
+class CustomNullBooleanSelect(StaticSelect):
+    """
+    Do not enforce True/False when not selecting an option.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.choices = (("1", "---------"), ("2", "Yes"), ("3", "No"))
+
+
 class TextareaField(forms.CharField):
     """
     A textarea with support for GitHub-Flavored Markdown. Exists mostly just to
@@ -180,3 +232,28 @@ class TextareaField(forms.CharField):
     def __init__(self, *args, **kwargs):
         required = kwargs.pop("required", False)
         super().__init__(required=required, *args, **kwargs)
+
+
+class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
+    model = ObjectChange
+    q = forms.CharField(required=False, label="Search")
+    time_after = forms.DateTimeField(
+        label="After",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
+    )
+    time_before = forms.DateTimeField(
+        label="Before",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
+    )
+    action = forms.ChoiceField(
+        required=False,
+        choices=OBJECT_CHANGE_ACTION_CHOICES,
+        widget=StaticSelectMultiple,
+    )
+    user = forms.ModelChoiceField(
+        required=False,
+        queryset=User.objects.order_by("username"),
+        widget=StaticSelectMultiple,
+    )

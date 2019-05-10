@@ -1,33 +1,69 @@
 html {
   position: relative;
   min-height: 100%;
+  font-size: 14px;
 }
 body {
-  padding-top: 70px;
-  margin-bottom: 60px;
+  padding-top: 64px;
 }
-.container {
-  width: auto;
-  max-width: 1600px;
+.navbar-brand {
+  padding-top: .75rem;
+  padding-bottom: .75rem;
+  background-color: rgba(0, 0, 0, .25);
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
 }
-.wrapper {
-  min-height: 100%;
-  height: auto !important;
-  margin: 0 auto auto auto;
-  padding-bottom: 30px;
+nav > ol.breadcrumb {
+  padding-top: 0rem;
+  padding-bottom: 0rem;
+  margin-bottom: 0rem;
+  background-color: #343a40;
 }
-.footer, .push {
-  height: 60px; /* .push must be the same height as .footer */
+.breadcrumb-item.active {
+  color: white;
 }
-.footer {
+nav > ol.breadcrumb > li.breadcrumb-item > a {
+  color: white;
+}
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100; /* Behind the navbar */
+  padding: 48px 0 0; /* Height of navbar */
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+.sidebar-sticky {
+  background-color: #333;
+  position: relative;
+  top: 0;
+  height: calc(100vh - 48px);
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content */
+}
+.sidebar .nav-link, .sidebar .list-group-item {
+  font-weight: 500;
+  color: #f8f9fa;
+}
+.sidebar a:hover.list-group-item {
+  text-decoration: none;
+}
+.sidebar .list-group-item.active {
+  background-color: #1d2124!important;
+  border-color: #1d2124!important;
+}
+.sidebar-sticky .footer {
   position: absolute;
   bottom: 0;
-  width: 100%;
-  background-color: #f5f5f5;
-  border-top: 1px solid #d0d0d0;
 }
-footer p {
-  margin: 20px 0;
+.footer {
+  bottom: 0;
+  padding-left: 15px;
+  width: 100%;
+  position: absolute;
+}
+.footer > p, .footer > p > a {
+  color: white;
 }
 textarea {
   font-family: Consolas, Lucida Console, monospace;
@@ -37,6 +73,9 @@ tfoot td {
 }
 table.attr-table td:nth-child(1) {
   width: 25%;
+}
+table.attr-table tr:first-child td {
+  border-top: 0; /* Fix extra border when using table in card */
 }
 .table-headings th {
   background-color: #f5f5f5;
@@ -70,4 +109,7 @@ div.dropdown-menu {
 }
 select#id_per_page {
   width: auto;
+}
+div#action_buttons {
+  margin-left: 5px;
 }
