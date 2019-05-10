@@ -6,6 +6,7 @@
               <div class="card-body">
                 {% if settings.NETBOX_API %}
                 {% render_field form.netbox_device_id %}
+                {% render_field form.use_netbox %}
                 {% endif %}
                 {% render_field form.name %}
                 {% render_field form.hostname %}

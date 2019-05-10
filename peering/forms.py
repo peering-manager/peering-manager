@@ -773,6 +773,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
 
         fields = (
             "netbox_device_id",
+            "use_netbox",
             "name",
             "hostname",
             "platform",
