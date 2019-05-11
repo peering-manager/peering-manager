@@ -17,6 +17,7 @@ from netfields import InetAddressField, NetManager
 from . import call_irr_as_set_resolver, parse_irr_as_set
 from .constants import *
 from .fields import ASNField, CommunityField, TTLField
+from netbox.api import NetBox
 from peeringdb.http import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
 from utils.crypto.cisco import encrypt as cisco_encrypt, decrypt as cisco_decrypt
@@ -736,7 +737,7 @@ class InternetExchange(ChangeLoggedModel, TemplateModel):
             )
 
         # Gather all existing BGP sessions from the router connected to the IX
-        bgp_sessions = self.router.get_napalm_bgp_neighbors()
+        bgp_sessions = self.router.get_bgp_neighbors()
 
         return self._import_peering_sessions(bgp_sessions, prefixes)
 
@@ -761,7 +762,7 @@ class InternetExchange(ChangeLoggedModel, TemplateModel):
             return False
 
         # Get all BGP sessions detail
-        bgp_neighbors_detail = self.router.get_napalm_bgp_neighbors_detail()
+        bgp_neighbors_detail = self.router.get_bgp_neighbors_detail()
 
         # An error occured, probably
         if not bgp_neighbors_detail:
@@ -984,6 +985,11 @@ class Router(ChangeLoggedModel):
     )
     comment = models.TextField(blank=True)
     netbox_device_id = models.PositiveIntegerField(blank=True, default=0)
+    use_netbox = models.BooleanField(
+        blank=True,
+        default=False,
+        help_text="Use NetBox to communicate instead of NAPALM",
+    )
 
     logger = logging.getLogger("peering.manager.napalm")
 
@@ -1283,6 +1289,47 @@ class Router(ChangeLoggedModel):
 
         return bgp_sessions
 
+    def get_netbox_bgp_neighbors(self):
+        """
+        Returns a list of dictionaries listing all BGP neighbors found on the
+        router using NetBox.
+
+        Each dictionary contains two keys 'ip_address' and 'remote_asn'.
+
+        If an error occurs or no BGP neighbors can be found, the returned list
+        will be empty.
+        """
+        bgp_sessions = []
+
+        self.logger.debug("getting bgp neighbors on %s", self.hostname)
+        bgp_neighbors = NetBox().napalm(self.netbox_device_id, "get_bgp_neighbors")
+        self.logger.debug("raw napalm output %s", bgp_neighbors)
+        self.logger.debug(
+            "found %s vrfs with bgp neighbors on %s", len(bgp_neighbors), self.hostname
+        )
+
+        bgp_sessions = self._napalm_bgp_neighbors_to_peer_list(bgp_neighbors)
+        self.logger.debug(
+            "found %s bgp neighbors on %s", len(bgp_sessions), self.hostname
+        )
+
+        return bgp_sessions
+
+    def get_bgp_neighbors(self):
+        """
+        Returns a list of dictionaries listing all BGP neighbors found on the
+        router using either NAPALM or NetBox based on the use_netbox flag.
+
+        Each dictionary contains two keys 'ip_address' and 'remote_asn'.
+
+        If an error occurs or no BGP neighbors can be found, the returned list
+        will be empty.
+        """
+        if self.use_netbox:
+            return self.get_netbox_bgp_neighbors()
+        else:
+            return self.get_napalm_bgp_neighbors()
+
     def get_napalm_bgp_neighbors_detail(self):
         """
         Returns a list of dictionaries listing all BGP neighbors found on the
@@ -1315,6 +1362,43 @@ class Router(ChangeLoggedModel):
                 )
 
         return bgp_neighbors_detail
+
+    def get_netbox_bgp_neighbors_detail(self):
+        """
+        Returns a list of dictionaries listing all BGP neighbors found on the
+        router using NetBox and their respective detail.
+
+        If an error occurs or no BGP neighbors can be found, the returned list
+        will be empty.
+        """
+        bgp_neighbors_detail = []
+
+        self.logger.debug("getting bgp neighbors detail on %s", self.hostname)
+        bgp_neighbors_detail = NetBox().napalm(
+            self.netbox_device_id, "get_bgp_neighbors_detail"
+        )
+        self.logger.debug("raw napalm output %s", bgp_neighbors_detail)
+        self.logger.debug(
+            "found %s vrfs with bgp neighbors on %s",
+            len(bgp_neighbors_detail),
+            self.hostname,
+        )
+
+        return bgp_neighbors_detail
+
+    def get_bgp_neighbors_detail(self):
+        """
+        Returns a list of dictionaries listing all BGP neighbors found on the
+        router using either NAPALM or NetBox depending on the use_netbox flag
+        and their respective detail.
+
+        If an error occurs or no BGP neighbors can be found, the returned list
+        will be empty.
+        """
+        if self.use_netbox:
+            return self.get_netbox_bgp_neighbors_detail()
+        else:
+            return self.get_napalm_bgp_neighbors_detail()
 
     def __str__(self):
         return self.name

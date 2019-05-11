@@ -826,7 +826,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
                 label="NetBox Device",
                 choices=[(0, "--------")]
                 + [
-                    (device["id"], device["display_name"])
+                    (device.id, device.display_name)
                     for device in NetBox().get_devices()
                 ],
             )
@@ -844,6 +844,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
 
         fields = (
             "netbox_device_id",
+            "use_netbox",
             "name",
             "hostname",
             "platform",
