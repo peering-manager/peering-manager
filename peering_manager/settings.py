@@ -137,7 +137,7 @@ REST_FRAMEWORK = {
 NETBOX_API = getattr(configuration, "NETBOX_API", "")
 NETBOX_API_TOKEN = getattr(configuration, "NETBOX_API_TOKEN", "")
 NETBOX_DEVICE_ROLES = getattr(
-    configuration, "NETBOX_DEVICE_ROLES", ["router", "firewall", "switch"]
+    configuration, "NETBOX_DEVICE_ROLES", ["router", "firewall"]
 )
 
 # PeeringDB URLs
