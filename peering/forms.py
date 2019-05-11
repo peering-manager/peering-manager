@@ -816,6 +816,9 @@ class InternetExchangePeeringSessionRoutingPolicyForm(BootstrapMixin, forms.Mode
 
 class RouterForm(BootstrapMixin, forms.ModelForm):
     netbox_device_id = forms.IntegerField(label="NetBox Device", initial=0)
+    platform = forms.ChoiceField(
+        required=False, choices=add_blank_choice(PLATFORM_CHOICES), widget=StaticSelect
+    )
     comment = CommentField()
 
     def __init__(self, *args, **kwargs):
@@ -829,6 +832,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
                     (device.id, device.display_name)
                     for device in NetBox().get_devices()
                 ],
+                widget=StaticSelect,
             )
             self.fields["netbox_device_id"].widget.attrs["class"] = " ".join(
                 [
@@ -860,7 +864,7 @@ class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=Router.objects.all(), widget=forms.MultipleHiddenInput
     )
     platform = forms.ChoiceField(
-        choices=add_blank_choice(PLATFORM_CHOICES), required=False
+        required=False, choices=add_blank_choice(PLATFORM_CHOICES), widget=StaticSelect
     )
     encrypt_passwords = forms.NullBooleanField(
         required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
