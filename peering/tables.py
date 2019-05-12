@@ -197,7 +197,9 @@ class DirectPeeringSessionTable(BaseTable):
         verbose_name="Relationship", template_code=BGP_RELATIONSHIP
     )
     enabled = tables.TemplateColumn(
-        verbose_name="Status", template_code=BGPSESSION_STATUS
+        verbose_name="Status",
+        template_code=BGPSESSION_STATUS,
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     session_state = BGPSessionStateColumn(accessor="bgp_state")
     router = tables.Column(verbose_name="Router", accessor="router", linkify=True)
@@ -256,7 +258,7 @@ class InternetExchangePeeringSessionTable(BaseTable):
         verbose_name="AS", accessor="autonomous_system", linkify=True
     )
     internet_exchange = tables.Column(
-        verbose_name="IX Name", accessor="internet_exchange", linkify=True
+        verbose_name="IX", accessor="internet_exchange", linkify=True
     )
     ip_address = tables.Column(verbose_name="IP Address", linkify=True)
     is_route_server = tables.TemplateColumn(
