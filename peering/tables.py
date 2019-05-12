@@ -131,7 +131,7 @@ class AutonomousSystemTable(BaseTable):
 
     pk = SelectColumn()
     asn = tables.Column(verbose_name="ASN")
-    name = tables.LinkColumn()
+    name = tables.Column(linkify=True)
     irr_as_set = tables.Column(verbose_name="IRR AS-SET", orderable=False)
     ipv6_max_prefixes = tables.Column(verbose_name="IPv6 Max Prefixes")
     ipv4_max_prefixes = tables.Column(verbose_name="IPv4 Max Prefixes")
@@ -161,7 +161,7 @@ class CommunityTable(BaseTable):
     """
 
     pk = SelectColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(linkify=True)
     type = tables.TemplateColumn(template_code=COMMUNITY_TYPE)
     actions = ActionsColumn(template_code=COMMUNITY_ACTIONS)
 
@@ -176,7 +176,7 @@ class ConfigurationTemplateTable(BaseTable):
     """
 
     pk = SelectColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(linkify=True)
     actions = ActionsColumn(template_code=CONFIGURATION_TEMPLATE_ACTIONS)
 
     class Meta(BaseTable.Meta):
@@ -191,8 +191,8 @@ class DirectPeeringSessionTable(BaseTable):
 
     pk = SelectColumn()
     local_asn = tables.Column(verbose_name="Local ASN")
-    autonomous_system = tables.LinkColumn(verbose_name="AS")
-    ip_address = tables.LinkColumn(verbose_name="IP Address")
+    autonomous_system = tables.Column(verbose_name="AS", linkify=True)
+    ip_address = tables.Column(verbose_name="IP Address", linkify=True)
     relationship = tables.TemplateColumn(
         verbose_name="Relationship", template_code=BGP_RELATIONSHIP
     )
@@ -200,7 +200,7 @@ class DirectPeeringSessionTable(BaseTable):
         verbose_name="Status", template_code=BGPSESSION_STATUS
     )
     session_state = BGPSessionStateColumn(accessor="bgp_state")
-    router = tables.RelatedLinkColumn(verbose_name="Router", accessor="router")
+    router = tables.Column(verbose_name="Router", accessor="router", linkify=True)
     actions = ActionsColumn(template_code=DIRECT_PEERING_SESSION_ACTIONS)
 
     class Meta(BaseTable.Meta):
@@ -224,13 +224,13 @@ class InternetExchangeTable(BaseTable):
     """
 
     pk = SelectColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(linkify=True)
     ipv6_address = tables.Column(verbose_name="IPv6 Address")
     ipv4_address = tables.Column(verbose_name="IPv4 Address")
-    configuration_template = tables.RelatedLinkColumn(
-        verbose_name="Template", accessor="configuration_template"
+    configuration_template = tables.Column(
+        verbose_name="Template", accessor="configuration_template", linkify=True
     )
-    router = tables.RelatedLinkColumn(verbose_name="Router", accessor="router")
+    router = tables.Column(verbose_name="Router", accessor="router", linkify=True)
     actions = ActionsColumn(template_code=INTERNET_EXCHANGE_ACTIONS)
 
     class Meta(BaseTable.Meta):
@@ -252,16 +252,13 @@ class InternetExchangePeeringSessionTable(BaseTable):
     """
 
     pk = SelectColumn()
-    asn = tables.Column(verbose_name="ASN", accessor="autonomous_system.asn")
-    autonomous_system = tables.RelatedLinkColumn(
-        verbose_name="AS Name",
-        accessor="autonomous_system",
-        text=lambda record: record.autonomous_system.name,
+    autonomous_system = tables.Column(
+        verbose_name="AS", accessor="autonomous_system", linkify=True
     )
-    internet_exchange = tables.RelatedLinkColumn(
-        verbose_name="IX Name", accessor="internet_exchange"
+    internet_exchange = tables.Column(
+        verbose_name="IX Name", accessor="internet_exchange", linkify=True
     )
-    ip_address = tables.LinkColumn(verbose_name="IP Address")
+    ip_address = tables.Column(verbose_name="IP Address", linkify=True)
     is_route_server = tables.TemplateColumn(
         verbose_name="Route Server",
         template_code=INTERNET_EXCHANGE_PEERING_SESSION_IS_ROUTE_SERVER,
@@ -279,7 +276,6 @@ class InternetExchangePeeringSessionTable(BaseTable):
         model = InternetExchangePeeringSession
         fields = (
             "pk",
-            "asn",
             "autonomous_system",
             "internet_exchange",
             "ip_address",
@@ -335,7 +331,7 @@ class RouterTable(BaseTable):
     """
 
     pk = SelectColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(linkify=True)
     encrypt_passwords = tables.TemplateColumn(
         verbose_name="Encrypt Password",
         template_code=ROUTER_ENCRYPT_PASSWORD,
@@ -354,7 +350,7 @@ class RoutingPolicyTable(BaseTable):
     """
 
     pk = SelectColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(linkify=True)
     type = tables.TemplateColumn(template_code=ROUTING_POLICY_TYPE)
     actions = ActionsColumn(template_code=ROUTING_POLICY_ACTIONS)
 

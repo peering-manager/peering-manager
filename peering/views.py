@@ -178,7 +178,7 @@ class AutonomousSystemInternetExchangesPeeringSessions(ModelListView):
     filter_form = InternetExchangePeeringSessionFilterFormForAS
     table = InternetExchangePeeringSessionTable
     template = "peering/as/internet_exchange_peering_sessions.html"
-    hidden_columns = ["asn", "autonomous_system"]
+    hidden_columns = ["autonomous_system"]
 
     def build_queryset(self, request, kwargs):
         queryset = None
@@ -656,7 +656,7 @@ class InternetExchangePeeringSessions(ModelListView):
         if "slug" in kwargs:
             internet_exchange = get_object_or_404(InternetExchange, slug=kwargs["slug"])
             queryset = internet_exchange.internetexchangepeeringsession_set.order_by(
-                "autonomous_system.asn", "ip_address"
+                "autonomous_system", "ip_address"
             )
 
         return queryset
