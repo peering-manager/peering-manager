@@ -20,37 +20,33 @@ from .filters import (
     RoutingPolicyFilter,
 )
 from .forms import (
-    AutonomousSystemForm,
     AutonomousSystemFilterForm,
-    CommunityForm,
-    CommunityFilterForm,
+    AutonomousSystemForm,
     CommunityBulkEditForm,
-    ConfigurationTemplateForm,
+    CommunityFilterForm,
+    CommunityForm,
     ConfigurationTemplateFilterForm,
+    ConfigurationTemplateForm,
     DirectPeeringSessionBulkEditForm,
-    DirectPeeringSessionForm,
     DirectPeeringSessionFilterForm,
-    DirectPeeringSessionRoutingPolicyForm,
-    InternetExchangeForm,
+    DirectPeeringSessionForm,
     InternetExchangeBulkEditForm,
+    InternetExchangeFilterForm,
+    InternetExchangeForm,
     InternetExchangePeeringDBForm,
     InternetExchangePeeringDBFormSet,
-    InternetExchangeCommunityForm,
-    InternetExchangeRoutingPolicyForm,
-    InternetExchangeFilterForm,
     PeerRecordFilterForm,
     InternetExchangePeeringSessionBulkEditForm,
-    InternetExchangePeeringSessionForm,
     InternetExchangePeeringSessionFilterForm,
     InternetExchangePeeringSessionFilterFormForIX,
     InternetExchangePeeringSessionFilterFormForAS,
-    InternetExchangePeeringSessionRoutingPolicyForm,
-    RouterForm,
-    RouterFilterForm,
+    InternetExchangePeeringSessionForm,
     RouterBulkEditForm,
-    RoutingPolicyForm,
+    RouterFilterForm,
+    RouterForm,
     RoutingPolicyBulkEditForm,
     RoutingPolicyFilterForm,
+    RoutingPolicyForm,
 )
 from .models import (
     AutonomousSystem,
@@ -394,58 +390,6 @@ class DirectPeeringSessionList(ModelListView):
     template = "peering/session/direct/list.html"
 
 
-class DirectPeeringSessionUpdateRoutingPolicies(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "peering.change_directpeeringsession"
-    model = DirectPeeringSession
-    form = DirectPeeringSessionRoutingPolicyForm
-    template = "peering/session/routing_policies.html"
-
-    def get(self, request, *args, **kwargs):
-        obj = self.alter_object(self.get_object(kwargs), request, args, kwargs)
-        form = self.form(instance=obj)
-
-        return render(
-            request,
-            self.template,
-            {
-                "object": obj,
-                "object_type": self.model._meta.verbose_name,
-                "form": form,
-                "return_url": self.get_return_url(obj),
-            },
-        )
-
-    def post(self, request, *args, **kwargs):
-        obj = self.get_object(kwargs)
-        form = self.form(request.POST, instance=obj)
-
-        if form.is_valid():
-            # Clear routing policies to avoid duplicates
-            obj.export_routing_policies.clear()
-            obj.import_routing_policies.clear()
-
-            # Add routing policies one by one
-            for routing_policy in request.POST.getlist("export_routing_policies"):
-                obj.export_routing_policies.add(routing_policy)
-            for routing_policy in request.POST.getlist("import_routing_policies"):
-                obj.import_routing_policies.add(routing_policy)
-            # Save the object and its linked communities
-            obj.save()
-
-            return redirect(self.get_return_url(obj))
-
-        return render(
-            request,
-            self.template,
-            {
-                "object": obj,
-                "object_type": self.model._meta.verbose_name,
-                "form": form,
-                "return_url": self.get_return_url(obj),
-            },
-        )
-
-
 class InternetExchangeList(ModelListView):
     queryset = InternetExchange.objects.order_by("name")
     table = InternetExchangeTable
@@ -539,106 +483,6 @@ class InternetExchangeBulkEdit(PermissionRequiredMixin, BulkEditView):
     filter = InternetExchangeFilter
     table = InternetExchangeTable
     form = InternetExchangeBulkEditForm
-
-
-class InternetExchangeUpdateCommunities(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "peering.change_internetexchange"
-    model = InternetExchange
-    form = InternetExchangeCommunityForm
-    template = "peering/ix/communities.html"
-
-    def get(self, request, *args, **kwargs):
-        obj = self.alter_object(self.get_object(kwargs), request, args, kwargs)
-        form = self.form(instance=obj)
-
-        return render(
-            request,
-            self.template,
-            {
-                "object": obj,
-                "object_type": self.model._meta.verbose_name,
-                "form": form,
-                "return_url": self.get_return_url(obj),
-            },
-        )
-
-    def post(self, request, *args, **kwargs):
-        obj = self.get_object(kwargs)
-        form = self.form(request.POST, instance=obj)
-
-        if form.is_valid():
-            # Clear communities to avoid duplicates
-            obj.communities.clear()
-            # Add communities one by one
-            for community in request.POST.getlist("communities"):
-                obj.communities.add(community)
-            # Save the object and its linked communities
-            obj.save()
-
-            return redirect(self.get_return_url(obj))
-
-        return render(
-            request,
-            self.template,
-            {
-                "object": obj,
-                "object_type": self.model._meta.verbose_name,
-                "form": form,
-                "return_url": self.get_return_url(obj),
-            },
-        )
-
-
-class InternetExchangeUpdateRoutingPolicies(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "peering.change_internetexchange"
-    model = InternetExchange
-    form = InternetExchangeRoutingPolicyForm
-    template = "peering/ix/routing_policies.html"
-
-    def get(self, request, *args, **kwargs):
-        obj = self.alter_object(self.get_object(kwargs), request, args, kwargs)
-        form = self.form(instance=obj)
-
-        return render(
-            request,
-            self.template,
-            {
-                "object": obj,
-                "object_type": self.model._meta.verbose_name,
-                "form": form,
-                "return_url": self.get_return_url(obj),
-            },
-        )
-
-    def post(self, request, *args, **kwargs):
-        obj = self.get_object(kwargs)
-        form = self.form(request.POST, instance=obj)
-
-        if form.is_valid():
-            # Clear routing policies to avoid duplicates
-            obj.export_routing_policies.clear()
-            obj.import_routing_policies.clear()
-
-            # Add routing policies one by one
-            for routing_policy in request.POST.getlist("export_routing_policies"):
-                obj.export_routing_policies.add(routing_policy)
-            for routing_policy in request.POST.getlist("import_routing_policies"):
-                obj.import_routing_policies.add(routing_policy)
-            # Save the object and its linked communities
-            obj.save()
-
-            return redirect(self.get_return_url(obj))
-
-        return render(
-            request,
-            self.template,
-            {
-                "object": obj,
-                "object_type": self.model._meta.verbose_name,
-                "form": form,
-                "return_url": self.get_return_url(obj),
-            },
-        )
 
 
 class InternetExchangePeeringSessions(ModelListView):
@@ -881,60 +725,6 @@ class InternetExchangePeeringSessionEnable(PermissionRequiredMixin, View):
         peering_session.enabled = True
         peering_session.save()
         return redirect(peering_session.get_absolute_url())
-
-
-class InternetExchangePeeringSessionUpdateRoutingPolicies(
-    PermissionRequiredMixin, AddOrEditView
-):
-    permission_required = "peering.change_internetexchangepeeringsession"
-    model = InternetExchangePeeringSession
-    form = InternetExchangePeeringSessionRoutingPolicyForm
-    template = "peering/session/routing_policies.html"
-
-    def get(self, request, *args, **kwargs):
-        obj = self.alter_object(self.get_object(kwargs), request, args, kwargs)
-        form = self.form(instance=obj)
-
-        return render(
-            request,
-            self.template,
-            {
-                "object": obj,
-                "object_type": self.model._meta.verbose_name,
-                "form": form,
-                "return_url": self.get_return_url(obj),
-            },
-        )
-
-    def post(self, request, *args, **kwargs):
-        obj = self.get_object(kwargs)
-        form = self.form(request.POST, instance=obj)
-
-        if form.is_valid():
-            # Clear routing policies to avoid duplicates
-            obj.export_routing_policies.clear()
-            obj.import_routing_policies.clear()
-
-            # Add routing policies one by one
-            for routing_policy in request.POST.getlist("export_routing_policies"):
-                obj.export_routing_policies.add(routing_policy)
-            for routing_policy in request.POST.getlist("import_routing_policies"):
-                obj.import_routing_policies.add(routing_policy)
-            # Save the object and its linked communities
-            obj.save()
-
-            return redirect(self.get_return_url(obj))
-
-        return render(
-            request,
-            self.template,
-            {
-                "object": obj,
-                "object_type": self.model._meta.verbose_name,
-                "form": form,
-                "return_url": self.get_return_url(obj),
-            },
-        )
 
 
 class RouterList(ModelListView):

@@ -148,11 +148,6 @@ urlpatterns = [
         views.DirectPeeringSessionEnable.as_view(),
         name="direct_peering_session_enable",
     ),
-    url(
-        r"^direct-peering-sessions/(?P<pk>[0-9]+)/update-routing-policies/$",
-        views.DirectPeeringSessionUpdateRoutingPolicies.as_view(),
-        name="direct_peering_session_update_routing_policies",
-    ),
     # Internet Exchanges
     url(
         r"^internet-exchanges/$",
@@ -198,16 +193,6 @@ urlpatterns = [
         r"^internet-exchanges/(?P<slug>[\w-]+)/add-peering-session/$",
         views.InternetExchangePeeringSessionAdd.as_view(),
         name="internet_exchange_peering_session_add",
-    ),
-    url(
-        r"^internet-exchanges/(?P<slug>[\w-]+)/update-communities/$",
-        views.InternetExchangeUpdateCommunities.as_view(),
-        name="internet_exchange_update_communities",
-    ),
-    url(
-        r"^internet-exchanges/(?P<slug>[\w-]+)/update-routing-policies/$",
-        views.InternetExchangeUpdateRoutingPolicies.as_view(),
-        name="internet_exchange_update_routing_policies",
     ),
     url(
         r"^internet-exchanges/(?P<slug>[\w-]+)/peering-sessions/$",
@@ -269,11 +254,6 @@ urlpatterns = [
         r"^internet-exchange-peering-sessions/(?P<pk>[0-9]+)/enable/$",
         views.InternetExchangePeeringSessionEnable.as_view(),
         name="internet_exchange_peering_session_enable",
-    ),
-    url(
-        r"^internet-exchange-peering-sessions/(?P<pk>[0-9]+)/update-routing-policies/$",
-        views.InternetExchangePeeringSessionUpdateRoutingPolicies.as_view(),
-        name="internet_exchange_peering_session_update_routing_policies",
     ),
     # Routers
     url(r"^routers/$", views.RouterList.as_view(), name="router_list"),

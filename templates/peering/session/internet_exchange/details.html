@@ -129,13 +129,6 @@
               <span class="text-muted">None</span>
             </div>
             {% endif %}
-            {% if perms.peering.change_internetexchangepeeringsession %}
-            <div class="card-footer text-right">
-              <a href="{% url 'peering:internet_exchange_peering_session_update_routing_policies' pk=peering_session.pk %}" class="btn btn-xs btn-warning">
-                <i class="fas fa-edit"></i> Edit routing policies
-              </a>
-            </div>
-            {% endif %}
           </div>
         </div>
       </div>

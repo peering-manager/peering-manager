@@ -94,13 +94,6 @@
               <span class="text-muted">None</span>
             </div>
             {% endif %}
-            {% if perms.peering.change_internetexchange %}
-            <div class="card-footer text-right">
-              <a href="{% url 'peering:internet_exchange_update_communities' slug=internet_exchange.slug %}" class="btn btn-xs btn-warning">
-                <i class="fas fa-edit"></i> Edit communities
-              </a>
-            </div>
-            {% endif %}
           </div>
           <div class="card">
             <div class="card-header">
@@ -122,13 +115,6 @@
             {% else %}
             <div class="card-body">
               <span class="text-muted">None</span>
-            </div>
-            {% endif %}
-            {% if perms.peering.change_internetexchange %}
-            <div class="card-footer text-right">
-              <a href="{% url 'peering:internet_exchange_update_routing_policies' slug=internet_exchange.slug %}" class="btn btn-xs btn-warning">
-                <i class="fas fa-edit"></i> Edit routing policies
-              </a>
             </div>
             {% endif %}
           </div>

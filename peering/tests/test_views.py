@@ -499,36 +499,6 @@ class InternetExchangeTestCase(ViewTestCase):
             expected_status_code=404,
         )
 
-    def test_ix_update_communities_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:internet_exchange_update_communities",
-            params={"slug": self.slug},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:internet_exchange_update_communities", params={"slug": self.slug}
-        )
-
-        # IX not found
-        self.get_request(
-            "peering:internet_exchange_update_communities",
-            params={"slug": "not-found"},
-            expected_status_code=404,
-        )
-
-        # Check if adding a community works
-        self.assertFalse(self.ix.communities.all())
-        self.post_request(
-            "peering:internet_exchange_update_communities",
-            params={"slug": self.slug},
-            data={"communities": self.community.pk},
-        )
-        self.assertTrue(self.ix.communities.all())
-
     def test_internet_exchange_peering_sessions_view(self):
         # Not logged in, 200 OK but not contains Add Peering Session button
         self.get_request(
@@ -552,37 +522,6 @@ class InternetExchangeTestCase(ViewTestCase):
             params={"slug": "not-found"},
             expected_status_code=404,
         )
-
-    def test_ix_update_routing_policies_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:internet_exchange_update_routing_policies",
-            params={"slug": self.slug},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:internet_exchange_update_routing_policies",
-            params={"slug": self.slug},
-        )
-
-        # IX not found
-        self.get_request(
-            "peering:internet_exchange_update_routing_policies",
-            params={"slug": "not-found"},
-            expected_status_code=404,
-        )
-
-        # Check if adding a routing policy works
-        self.assertFalse(self.ix.export_routing_policies.all())
-        self.post_request(
-            "peering:internet_exchange_update_routing_policies",
-            params={"slug": self.slug},
-            data={"export_routing_policies": self.routing_policy.pk},
-        )
-        self.assertTrue(self.ix.export_routing_policies.all())
 
 
 class InternetExchangePeeringSessionTestCase(ViewTestCase):

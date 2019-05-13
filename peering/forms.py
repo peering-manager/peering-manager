@@ -352,6 +352,11 @@ class DirectPeeringSessionRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
 
 class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
+    communities = FilterChoiceField(
+        required=False,
+        queryset=Community.objects.all(),
+        widget=APISelectMultiple(api_url="/api/peering/communities/"),
+    )
     import_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
@@ -378,6 +383,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "slug",
             "ipv6_address",
             "ipv4_address",
+            "communities",
             "import_routing_policies",
             "export_routing_policies",
             "configuration_template",
@@ -480,81 +486,6 @@ class InternetExchangePeeringDBFormSet(forms.BaseFormSet):
                     "Internet Exchanges must have distinct slugs."
                 )
             slugs.append(slug)
-
-
-class InternetExchangeCommunityForm(BootstrapMixin, forms.ModelForm):
-    class Meta:
-        model = InternetExchange
-        fields = ("communities",)
-
-    def __init__(self, *args, **kwargs):
-        if kwargs.get("instance"):
-            # Get the IX object and remove it from kwargs in order to avoid
-            # propagating when calling super
-            instance = kwargs.pop("instance")
-            # Prepare initial communities
-            initial = kwargs.setdefault("initial", {})
-            # Add primary key for each community
-            initial["communities"] = [c.pk for c in instance.communities.all()]
-
-        super().__init__(*args, **kwargs)
-
-    def save(self):
-        instance = forms.ModelForm.save(self)
-        instance.communities.clear()
-
-        for community in self.cleaned_data["communities"]:
-            instance.communities.add(community)
-
-
-class InternetExchangeRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
-    import_routing_policies = FilterChoiceField(
-        required=False,
-        queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "import-policy"},
-        ),
-    )
-    export_routing_policies = FilterChoiceField(
-        required=False,
-        queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "export-policy"},
-        ),
-    )
-
-    class Meta:
-        model = InternetExchange
-        fields = ("export_routing_policies", "import_routing_policies")
-
-    def __init__(self, *args, **kwargs):
-        if kwargs.get("instance"):
-            # Get the IX object and remove it from kwargs in order to avoid
-            # propagating when calling super
-            instance = kwargs.pop("instance")
-            # Prepare initial communities
-            initial = kwargs.setdefault("initial", {})
-            # Add primary key for each routing policy
-            initial["export_routing_policies"] = [
-                p.pk for p in instance.export_routing_policies.all()
-            ]
-            initial["import_routing_policies"] = [
-                p.pk for p in instance.import_routing_policies.all()
-            ]
-
-        super().__init__(*args, **kwargs)
-
-    def save(self):
-        instance = forms.ModelForm.save(self)
-        instance.export_routing_policies.clear()
-        instance.import_routing_policies.clear()
-
-        for routing_policy in self.cleaned_data["export_routing_policies"]:
-            instance.export_routing_policies.add(routing_policy)
-        for routing_policy in self.cleaned_data["import_routing_policies"]:
-            instance.import_routing_policies.add(routing_policy)
 
 
 class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
