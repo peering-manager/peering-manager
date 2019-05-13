@@ -23,6 +23,13 @@
               </div>
             </div>
             <div class="card my-2">
+              <div class="card-header"><strong>Routing Policies</strong></div>
+              <div class="card-body">
+                {% render_field form.import_routing_policies %}
+                {% render_field form.export_routing_policies %}
+              </div>
+            </div>
+            <div class="card my-2">
               <div class="card-header"><strong>Synchronize with PeeringDB</strong></div>
               <div class="card-body">
                 {% render_field form.irr_as_set_peeringdb_sync %}

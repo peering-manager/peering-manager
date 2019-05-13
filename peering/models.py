@@ -39,6 +39,12 @@ class AutonomousSystem(ChangeLoggedModel, TemplateModel):
     ipv6_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
     ipv4_max_prefixes = models.PositiveIntegerField(blank=True, default=0)
     ipv4_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
+    import_routing_policies = models.ManyToManyField(
+        "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
+    )
+    export_routing_policies = models.ManyToManyField(
+        "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
+    )
     potential_internet_exchange_peering_sessions = ArrayField(
         InetAddressField(store_prefix_length=False), blank=True, default=list
     )
@@ -453,12 +459,12 @@ class InternetExchange(ChangeLoggedModel, TemplateModel):
     export_routing_policies = models.ManyToManyField(
         "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
     )
+    communities = models.ManyToManyField("Community", blank=True)
     router = models.ForeignKey(
         "Router", blank=True, null=True, on_delete=models.SET_NULL
     )
     check_bgp_session_states = models.BooleanField(default=False)
     bgp_session_states_update = models.DateTimeField(blank=True, null=True)
-    communities = models.ManyToManyField("Community", blank=True)
 
     objects = NetManager()
     logger = logging.getLogger("peering.manager.peering")

@@ -14,6 +14,9 @@ from peering.models import (
 
 
 class AutonomousSystemSerializer(serializers.ModelSerializer):
+    import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
+    export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
+
     class Meta:
         model = AutonomousSystem
         fields = [
@@ -30,6 +33,8 @@ class AutonomousSystemSerializer(serializers.ModelSerializer):
             "ipv6_max_prefixes_peeringdb_sync",
             "ipv4_max_prefixes",
             "ipv4_max_prefixes_peeringdb_sync",
+            "import_routing_policies",
+            "export_routing_policies",
         ]
 
 
