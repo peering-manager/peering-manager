@@ -5,6 +5,7 @@ from rest_framework import status
 from peering.constants import *
 from peering.models import (
     AutonomousSystem,
+    BGPGroup,
     Community,
     ConfigurationTemplate,
     DirectPeeringSession,
@@ -132,6 +133,63 @@ class AutonomousSystemTest(APITestCase):
         )
         response = self.client.patch(url, format="json", **self.header)
         self.assertStatus(response, status.HTTP_200_OK)
+
+
+class BGPGroupTest(APITestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.bgp_group = BGPGroup.objects.create(name="Test", slug="test")
+
+    def test_get_bgp_group(self):
+        url = reverse("peering-api:bgpgroup-detail", kwargs={"pk": self.bgp_group.pk})
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data["slug"], self.bgp_group.slug)
+
+    def test_list_bgp_groups(self):
+        url = reverse("peering-api:bgpgroup-list")
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data["count"], 1)
+
+    def test_create_bgp_group(self):
+        data = {"name": "Other", "slug": "other"}
+
+        url = reverse("peering-api:bgpgroup-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(BGPGroup.objects.count(), 2)
+        bgp_group = BGPGroup.objects.get(pk=response.data["id"])
+        self.assertEqual(bgp_group.slug, data["slug"])
+
+    def test_create_bgp_group_bulk(self):
+        data = [{"name": "Test1", "slug": "test1"}, {"name": "Test2", "slug": "test2"}]
+
+        url = reverse("peering-api:bgpgroup-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(BGPGroup.objects.count(), 3)
+        self.assertEqual(response.data[0]["slug"], data[0]["slug"])
+        self.assertEqual(response.data[1]["slug"], data[1]["slug"])
+
+    def test_update_bgp_group(self):
+        data = {"name": "Changed", "slug": "test"}
+
+        url = reverse("peering-api:bgpgroup-detail", kwargs={"pk": self.bgp_group.pk})
+        response = self.client.put(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(BGPGroup.objects.count(), 1)
+        bgp_group = BGPGroup.objects.get(pk=response.data["id"])
+        self.assertEqual(bgp_group.name, data["name"])
+
+    def test_delete_bgp_group(self):
+        url = reverse("peering-api:bgpgroup-detail", kwargs={"pk": self.bgp_group.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(BGPGroup.objects.count(), 0)
 
 
 class CommunityTest(APITestCase):

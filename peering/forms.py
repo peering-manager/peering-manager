@@ -335,6 +335,7 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
         to_field_name="pk",
         null_label=True,
         widget=APISelectMultiple(api_url="/api/peering/bgp-groups/", null_option=True),
+        label="BGP Group",
     )
     address_family = forms.ChoiceField(
         required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect

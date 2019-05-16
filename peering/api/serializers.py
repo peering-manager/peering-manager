@@ -71,7 +71,7 @@ class RoutingPolicySerializer(serializers.ModelSerializer):
 
 class DirectPeeringSessionSerializer(serializers.ModelSerializer):
     autonomous_system = AutonomousSystemNestedSerializer()
-    bgp_group = BGPGroupNestedSerializer()
+    bgp_group = BGPGroupNestedSerializer(required=False)
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     router = RouterNestedSerializer(required=False)
