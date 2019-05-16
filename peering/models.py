@@ -26,6 +26,15 @@ from utils.models import ChangeLoggedModel, TemplateModel
 from utils.validators import AddressFamilyValidator
 
 
+class AbstractGroup(ChangeLoggedModel, TemplateModel):
+    name = models.CharField(max_length=128)
+    slug = models.SlugField(unique=True)
+    comment = models.TextField(blank=True)
+
+    class Meta:
+        abstract = True
+
+
 class AutonomousSystem(ChangeLoggedModel, TemplateModel):
     asn = ASNField(unique=True)
     name = models.CharField(max_length=128)
@@ -244,6 +253,18 @@ class AutonomousSystem(ChangeLoggedModel, TemplateModel):
         return "AS{} - {}".format(self.asn, self.name)
 
 
+class BGPGroup(AbstractGroup):
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "BGP group"
+
+    def get_absolute_url(self):
+        return reverse("peering:bgp_group_details", kwargs={"slug": self.slug})
+
+    def __str__(self):
+        return self.name
+
+
 class BGPSession(ChangeLoggedModel):
     """
     Abstract class used to define common caracteristics of BGP sessions.
@@ -396,6 +417,13 @@ class ConfigurationTemplate(ChangeLoggedModel):
 
 class DirectPeeringSession(BGPSession):
     local_asn = ASNField(default=0)
+    bgp_group = models.ForeignKey(
+        "BGPGroup",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name="BGP Group",
+    )
     relationship = models.CharField(
         max_length=50,
         choices=BGP_RELATIONSHIP_CHOICES,
@@ -433,10 +461,8 @@ class DirectPeeringSession(BGPSession):
         )
 
 
-class InternetExchange(ChangeLoggedModel, TemplateModel):
+class InternetExchange(AbstractGroup):
     peeringdb_id = models.PositiveIntegerField(blank=True, default=0)
-    name = models.CharField(max_length=128)
-    slug = models.SlugField(unique=True)
     ipv6_address = InetAddressField(
         store_prefix_length=False,
         blank=True,
@@ -449,7 +475,6 @@ class InternetExchange(ChangeLoggedModel, TemplateModel):
         null=True,
         validators=[AddressFamilyValidator(4)],
     )
-    comment = models.TextField(blank=True)
     configuration_template = models.ForeignKey(
         "ConfigurationTemplate", blank=True, null=True, on_delete=models.SET_NULL
     )

@@ -14,6 +14,7 @@ from .constants import (
 )
 from .models import (
     AutonomousSystem,
+    BGPGroup,
     Community,
     ConfigurationTemplate,
     DirectPeeringSession,
@@ -133,6 +134,22 @@ class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
     ipv4_max_prefixes = forms.IntegerField(required=False, label="IPv4 Max Prefixes")
 
 
+class BGPGroupForm(BootstrapMixin, forms.ModelForm):
+    slug = SlugField()
+    comment = CommentField()
+
+    class Meta:
+        model = BGPGroup
+        fields = ("name", "slug", "comment")
+        labels = {"comment": "Comments"}
+        help_texts = {"name": "Full name of the BGP group"}
+
+
+class BGPGroupFilterForm(BootstrapMixin, forms.Form):
+    model = BGPGroup
+    q = forms.CharField(required=False, label="Search")
+
+
 class CommunityForm(BootstrapMixin, forms.ModelForm):
     comment = CommentField()
 
@@ -190,6 +207,12 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         queryset=AutonomousSystem.objects.all(),
         widget=APISelect(api_url="/api/peering/autonomous-systems/"),
     )
+    bgp_group = forms.ModelChoiceField(
+        required=False,
+        queryset=BGPGroup.objects.all(),
+        widget=APISelect(api_url="/api/peering/bgp-groups/"),
+        label="BGP Group",
+    )
     relationship = forms.ChoiceField(
         choices=BGP_RELATIONSHIP_CHOICES, widget=StaticSelect
     )
@@ -237,6 +260,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         fields = (
             "local_asn",
             "autonomous_system",
+            "bgp_group",
             "relationship",
             "ip_address",
             "password",
@@ -270,6 +294,11 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
     enabled = forms.NullBooleanField(
         required=False, label="Enable", widget=CustomNullBooleanSelect
     )
+    bgp_group = forms.ModelChoiceField(
+        required=False,
+        queryset=BGPGroup.objects.all(),
+        widget=APISelect(api_url="/api/peering/bgp-groups/"),
+    )
     import_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
@@ -301,6 +330,12 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
     model = DirectPeeringSession
     q = forms.CharField(required=False, label="Search")
     local_asn = forms.IntegerField(required=False, label="Local ASN")
+    bgp_group = FilterChoiceField(
+        queryset=BGPGroup.objects.all(),
+        to_field_name="pk",
+        null_label=True,
+        widget=APISelectMultiple(api_url="/api/peering/bgp-groups/", null_option=True),
+    )
     address_family = forms.ChoiceField(
         required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
     )

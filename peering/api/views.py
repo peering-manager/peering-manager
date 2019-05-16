@@ -7,6 +7,7 @@ from rest_framework.response import Response
 
 from .serializers import (
     AutonomousSystemSerializer,
+    BGPGroupSerializer,
     CommunitySerializer,
     ConfigurationTemplateSerializer,
     DirectPeeringSessionSerializer,
@@ -18,6 +19,7 @@ from .serializers import (
 )
 from peering.filters import (
     AutonomousSystemFilter,
+    BGPGroupFilter,
     CommunityFilter,
     ConfigurationTemplateFilter,
     DirectPeeringSessionFilter,
@@ -28,6 +30,7 @@ from peering.filters import (
 )
 from peering.models import (
     AutonomousSystem,
+    BGPGroup,
     Community,
     ConfigurationTemplate,
     DirectPeeringSession,
@@ -95,6 +98,12 @@ class AutonomousSystemViewSet(ModelViewSet):
     def find_potential_ix_peering_sessions(self, request, pk=None):
         self.get_object().find_potential_ix_peering_sessions()
         return Response({"status": "done"})
+
+
+class BGPGroupViewSet(ModelViewSet):
+    queryset = BGPGroup.objects.all()
+    serializer_class = BGPGroupSerializer
+    filterset_class = BGPGroupFilter
 
 
 class CommunityViewSet(ModelViewSet):

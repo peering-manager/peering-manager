@@ -2,6 +2,7 @@ import django_tables2 as tables
 
 from .models import (
     AutonomousSystem,
+    BGPGroup,
     Community,
     ConfigurationTemplate,
     DirectPeeringSession,
@@ -26,6 +27,11 @@ AUTONOMOUS_SYSTEM_HAS_POTENTIAL_IX_PEERING_SESSIONS = """
 <span class="text-right" data-toggle="tooltip" data-placement="left" title="Potential Peering Sessions">
   <i class="fas fa-exclamation-circle text-warning"></i>
 </span>
+{% endif %}
+"""
+BGP_GROUP_ACTIONS = """
+{% if perms.peering.change_bgpgroup %}
+<a href="{% url 'peering:bgp_group_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
 {% endif %}
 """
 BGPSESSION_STATUS = """
@@ -155,6 +161,20 @@ class AutonomousSystemTable(BaseTable):
         )
 
 
+class BGPGroupTable(BaseTable):
+    """
+    Table for BGPGroup lists
+    """
+
+    pk = SelectColumn()
+    name = tables.Column(linkify=True)
+    actions = ActionsColumn(template_code=BGP_GROUP_ACTIONS)
+
+    class Meta(BaseTable.Meta):
+        model = Community
+        fields = ("pk", "name", "actions")
+
+
 class CommunityTable(BaseTable):
     """
     Table for Community lists
@@ -193,6 +213,9 @@ class DirectPeeringSessionTable(BaseTable):
     local_asn = tables.Column(verbose_name="Local ASN")
     autonomous_system = tables.Column(verbose_name="AS", linkify=True)
     ip_address = tables.Column(verbose_name="IP Address", linkify=True)
+    bgp_group = tables.Column(
+        verbose_name="BGP Group", accessor="bgp_group", linkify=True
+    )
     relationship = tables.TemplateColumn(
         verbose_name="Relationship", template_code=BGP_RELATIONSHIP
     )
@@ -212,6 +235,7 @@ class DirectPeeringSessionTable(BaseTable):
             "local_asn",
             "autonomous_system",
             "ip_address",
+            "bgp_group",
             "relationship",
             "enabled",
             "session_state",

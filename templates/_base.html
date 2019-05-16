@@ -83,6 +83,9 @@
               </div>
             </a>
             <div id="deployment_menu_id" class="collapse sidebar-submenu">
+              <a href="{% url 'peering:bgp_group_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/bgp-groups/' %} active{% endif %}">
+                <span class="menu-collapsed">BGP Groups</span>
+              </a>
               <a href="{% url 'peering:router_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/routers/' %} active{% endif %}">
                 <span class="menu-collapsed">Routers</span>
               </a>

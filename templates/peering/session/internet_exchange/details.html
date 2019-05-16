@@ -43,24 +43,20 @@
               <tr>
                 <td>Internet Exchange</td>
                 <td>
-                  {{ peering_session.internet_exchange }}
+                  {{ peering_session.internet_exchange|as_link }}
                   {% if peering_session.internet_exchange.comment %}
                   <span class="float-right badge badge-info popover-hover" data-toggle="popover" data-html="true" data-content="{{ peering_session.internet_exchange.comment | markdown }}"><i class="fas fa-comment"></i></span>
                   {% endif %}
                 </td>
               </tr>
               <tr>
-                <td>AS Name</td>
+                <td>AS</td>
                 <td>
-                  {{ peering_session.autonomous_system.name }}
+                  {{ peering_session.autonomous_system|as_link }}
                   {% if peering_session.autonomous_system.comment %}
                   <span class="float-right badge badge-info popover-hover" data-toggle="popover" data-html="true" data-content="{{ peering_session.autonomous_system.comment | markdown }}"><i class="fas fa-comment"></i></span>
                   {% endif %}
                 </td>
-              </tr>
-              <tr>
-                <td>ASN</td>
-                <td>{{ peering_session.autonomous_system.asn }}</td>
               </tr>
               <tr>
                 <td>IP Address</td>

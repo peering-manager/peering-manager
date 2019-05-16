@@ -1,0 +1,49 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block actions %}
+{% if perms.peering.change_bgpgroup %}
+<a href="{% url 'peering:bgp_group_edit' slug=bgp_group.slug %}" class="btn btn-warning">
+  <i class="fas fa-edit"></i> Edit
+</a>
+{% endif %}
+{% if perms.peering.delete_bgpgroup %}
+<a href="{% url 'peering:bgp_group_delete' slug=bgp_group.slug %}" class="btn btn-danger">
+  <i class="fas fa-trash"></i> Delete
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'peering:bgp_group_list' %}">BGP Groups</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ bgp_group }}{% endblock %}</li>
+{% endblock %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <strong>BGP Group Details</strong>
+            </div>
+            <table class="card-body table table-hover attr-table mb-0">
+              <tr>
+                <td>Name</td>
+                <td>{{ bgp_group.name }}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <strong>Comments</strong>
+            </div>
+            <div class="card-body">
+              {% if bgp_group.comment %}
+              {{ bgp_group.comment|markdown }}
+              {% else %}
+              <span class="text-muted">None</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}

@@ -18,6 +18,7 @@ router.APIRootView = PeeringRootView
 router.register(r"_choices", views.PeeringFieldChoicesViewSet, base_name="field-choice")
 
 router.register(r"autonomous-systems", views.AutonomousSystemViewSet)
+router.register(r"bgp-groups", views.BGPGroupViewSet)
 router.register(r"communities", views.CommunityViewSet)
 router.register(r"direct-peering-sessions", views.DirectPeeringSessionViewSet)
 router.register(r"internet-exchanges", views.InternetExchangeViewSet)

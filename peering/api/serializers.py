@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .nested_serializers import *
 from peering.models import (
     AutonomousSystem,
+    BGPGroup,
     Community,
     ConfigurationTemplate,
     DirectPeeringSession,
@@ -38,6 +39,12 @@ class AutonomousSystemSerializer(serializers.ModelSerializer):
         ]
 
 
+class BGPGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BGPGroup
+        fields = ["id", "name", "slug"]
+
+
 class CommunitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Community
@@ -64,6 +71,7 @@ class RoutingPolicySerializer(serializers.ModelSerializer):
 
 class DirectPeeringSessionSerializer(serializers.ModelSerializer):
     autonomous_system = AutonomousSystemNestedSerializer()
+    bgp_group = BGPGroupNestedSerializer()
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     router = RouterNestedSerializer(required=False)
@@ -74,6 +82,7 @@ class DirectPeeringSessionSerializer(serializers.ModelSerializer):
             "id",
             "autonomous_system",
             "local_asn",
+            "bgp_group",
             "relationship",
             "ip_address",
             "password",

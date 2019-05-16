@@ -10,6 +10,7 @@ import json
 
 from .filters import (
     AutonomousSystemFilter,
+    BGPGroupFilter,
     CommunityFilter,
     ConfigurationTemplateFilter,
     DirectPeeringSessionFilter,
@@ -22,6 +23,8 @@ from .filters import (
 from .forms import (
     AutonomousSystemFilterForm,
     AutonomousSystemForm,
+    BGPGroupFilterForm,
+    BGPGroupForm,
     CommunityBulkEditForm,
     CommunityFilterForm,
     CommunityForm,
@@ -48,6 +51,7 @@ from .forms import (
 )
 from .models import (
     AutonomousSystem,
+    BGPGroup,
     BGPSession,
     Community,
     ConfigurationTemplate,
@@ -59,6 +63,7 @@ from .models import (
 )
 from .tables import (
     AutonomousSystemTable,
+    BGPGroupTable,
     CommunityTable,
     ConfigurationTemplateTable,
     DirectPeeringSessionTable,
@@ -198,6 +203,42 @@ class AutonomousSystemInternetExchangesPeeringSessions(ModelListView):
             extra_context.update({"autonomous_system": autonomous_system})
 
         return extra_context
+
+
+class BGPGroupList(ModelListView):
+    queryset = BGPGroup.objects.all()
+    filter = BGPGroupFilter
+    filter_form = BGPGroupFilterForm
+    table = BGPGroupTable
+    template = "peering/bgp-group/list.html"
+
+
+class BGPGroupDetails(View):
+    def get(self, request, slug):
+        bgp_group = get_object_or_404(BGPGroup, slug=slug)
+        context = {"bgp_group": bgp_group}
+        return render(request, "peering/bgp-group/details.html", context)
+
+
+class BGPGroupAdd(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "peering.add_bgpgroup"
+    model = BGPGroup
+    form = BGPGroupForm
+    return_url = "peering:bgp_group_list"
+    template = "peering/bgp-group/add_edit.html"
+
+
+class BGPGroupEdit(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "peering.change_bgpgroup"
+    model = BGPGroup
+    form = BGPGroupForm
+    template = "peering/bgp-group/add_edit.html"
+
+
+class BGPGroupDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = "peering.delete_bgpgroup"
+    model = BGPGroup
+    return_url = "peering:bgp_group_list"
 
 
 class CommunityList(ModelListView):

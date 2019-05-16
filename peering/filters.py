@@ -12,6 +12,7 @@ from .constants import (
 )
 from .models import (
     AutonomousSystem,
+    BGPGroup,
     Community,
     ConfigurationTemplate,
     DirectPeeringSession,
@@ -45,6 +46,19 @@ class AutonomousSystemFilter(django_filters.FilterSet):
         except ValueError:
             pass
         return queryset.filter(qs_filter)
+
+
+class BGPGroupFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(method="search", label="Search")
+
+    class Meta:
+        model = BGPGroup
+        fields = ["name"]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(name__icontains=value)
 
 
 class CommunityFilter(django_filters.FilterSet):
