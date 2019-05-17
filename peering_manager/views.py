@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 
 from peering.models import (
     AutonomousSystem,
+    BGPGroup,
     Community,
     ConfigurationTemplate,
     DirectPeeringSession,
@@ -72,6 +73,7 @@ class Home(View):
     def get(self, request):
         statistics = {
             "autonomous_systems_count": AutonomousSystem.objects.count(),
+            "bgp_groups_count": BGPGroup.objects.count(),
             "internet_exchanges_count": InternetExchange.objects.count(),
             "communities_count": Community.objects.count(),
             "templates_count": ConfigurationTemplate.objects.count(),
