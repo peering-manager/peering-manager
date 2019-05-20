@@ -363,11 +363,20 @@ class RouterTable(BaseTable):
         template_code=ROUTER_ENCRYPT_PASSWORD,
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
+    configuration_template = tables.Column(linkify=True, verbose_name="Configuration")
     actions = ActionsColumn(template_code=ROUTER_ACTIONS)
 
     class Meta(BaseTable.Meta):
         model = Router
-        fields = ("pk", "name", "hostname", "platform", "encrypt_passwords", "actions")
+        fields = (
+            "pk",
+            "name",
+            "hostname",
+            "platform",
+            "encrypt_passwords",
+            "configuration_template",
+            "actions",
+        )
 
 
 class RoutingPolicyTable(BaseTable):

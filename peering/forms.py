@@ -712,10 +712,21 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
             "hostname",
             "platform",
             "encrypt_passwords",
+            "configuration_template",
             "comment",
         )
-        labels = {"comment": "Comments"}
-        help_texts = {"hostname": "Router hostname (must be resolvable) or IP address"}
+        labels = {
+            "use_netbox": "Use NetBox",
+            "configuration_template": "Configuration",
+            "comment": "Comments",
+        }
+        help_texts = {
+            "hostname": "Router hostname (must be resolvable) or IP address",
+            "configuration_template": "Template used to generate device configuration",
+        }
+        widgets = {
+            "configuration_template": APISelect(api_url="/api/peering/templates/")
+        }
 
 
 class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -727,6 +738,11 @@ class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
     )
     encrypt_passwords = forms.NullBooleanField(
         required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
+    )
+    configuration_template = forms.ModelChoiceField(
+        required=False,
+        queryset=ConfigurationTemplate.objects.all(),
+        widget=APISelect(api_url="/api/peering/templates/"),
     )
     comment = CommentField(widget=SmallTextarea)
 
@@ -742,6 +758,12 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
     )
     encrypt_passwords = forms.NullBooleanField(
         required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
+    )
+    configuration_template = FilterChoiceField(
+        queryset=ConfigurationTemplate.objects.all(),
+        to_field_name="pk",
+        null_label=True,
+        widget=APISelectMultiple(api_url="/api/peering/templates/", null_option=True),
     )
 
 

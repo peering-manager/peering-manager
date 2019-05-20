@@ -40,4 +40,14 @@ class Migration(migrations.Migration):
                 verbose_name="BGP Group",
             ),
         ),
+        migrations.AddField(
+            model_name="router",
+            name="configuration_template",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="peering.ConfigurationTemplate",
+            ),
+        ),
     ]

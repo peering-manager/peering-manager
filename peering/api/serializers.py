@@ -58,9 +58,20 @@ class ConfigurationTemplateSerializer(serializers.ModelSerializer):
 
 
 class RouterSerializer(serializers.ModelSerializer):
+    configuration_template = ConfigurationTemplateNestedSerializer(required=False)
+
     class Meta:
         model = Router
-        fields = ["id", "name", "hostname", "platform", "comment", "netbox_device_id"]
+        fields = [
+            "id",
+            "name",
+            "hostname",
+            "platform",
+            "configuration_template",
+            "comment",
+            "netbox_device_id",
+            "use_netbox",
+        ]
 
 
 class RoutingPolicySerializer(serializers.ModelSerializer):

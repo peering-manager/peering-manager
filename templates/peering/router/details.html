@@ -65,6 +65,16 @@
                   {% endif %}
                 </td>
               </tr>
+              <tr>
+                <td>Configuration</td>
+                <td>
+                  {% if router.configuration_template %}
+                  {{ router.configuration_template|as_link }}
+                  {% else %}
+                  <span class="text-muted">&mdash;</span>
+                  {% endif %}
+                </td>
+              </tr>
               {% if settings.NETBOX_API %}
               <tr>
                 <td>Source</td>

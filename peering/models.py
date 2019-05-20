@@ -1014,6 +1014,9 @@ class Router(ChangeLoggedModel):
         default=True,
         help_text="Try to encrypt passwords in router's configuration",
     )
+    configuration_template = models.ForeignKey(
+        "ConfigurationTemplate", blank=True, null=True, on_delete=models.SET_NULL
+    )
     comment = models.TextField(blank=True)
     netbox_device_id = models.PositiveIntegerField(blank=True, default=0)
     use_netbox = models.BooleanField(
