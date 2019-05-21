@@ -171,7 +171,7 @@ class BGPGroupTable(BaseTable):
     actions = ActionsColumn(template_code=BGP_GROUP_ACTIONS)
 
     class Meta(BaseTable.Meta):
-        model = Community
+        model = BGPGroup
         fields = ("pk", "name", "actions")
 
 
