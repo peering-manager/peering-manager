@@ -210,8 +210,8 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     bgp_group = forms.ModelChoiceField(
         required=False,
         queryset=BGPGroup.objects.all(),
-        widget=APISelect(api_url="/api/peering/bgp-groups/"),
         label="BGP Group",
+        widget=APISelect(api_url="/api/peering/bgp-groups/"),
     )
     relationship = forms.ChoiceField(
         choices=BGP_RELATIONSHIP_CHOICES, widget=StaticSelect
@@ -297,6 +297,7 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
     bgp_group = forms.ModelChoiceField(
         required=False,
         queryset=BGPGroup.objects.all(),
+        label="BGP Group",
         widget=APISelect(api_url="/api/peering/bgp-groups/"),
     )
     import_routing_policies = FilterChoiceField(
@@ -334,8 +335,8 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
         queryset=BGPGroup.objects.all(),
         to_field_name="pk",
         null_label=True,
-        widget=APISelectMultiple(api_url="/api/peering/bgp-groups/", null_option=True),
         label="BGP Group",
+        widget=APISelectMultiple(api_url="/api/peering/bgp-groups/", null_option=True),
     )
     address_family = forms.ChoiceField(
         required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
