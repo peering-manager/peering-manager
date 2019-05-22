@@ -415,7 +415,7 @@ class ConfigurationTemplate(ChangeLoggedModel):
         return self.name
 
 
-class DirectPeeringSession(BGPSession):
+class DirectPeeringSession(BGPSession, TemplateModel):
     local_asn = ASNField(default=0)
     bgp_group = models.ForeignKey(
         "BGPGroup",
