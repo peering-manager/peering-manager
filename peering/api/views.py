@@ -219,6 +219,31 @@ class RouterViewSet(ModelViewSet):
             {"encrypted": self.get_object().encrypt_string(request.data["string"])}
         )
 
+    @action(detail=True, methods=["get"], url_path="configuration")
+    def configuration(self, request, pk=None):
+        # Check user permission first
+        if not request.user.has_perm("peering.view_configuration_router"):
+            return HttpResponseForbidden()
+        return Response({"configuration": self.get_object().generate_configuration()})
+
+    @action(detail=True, methods=["get", "post", "put", "patch"], url_path="configure")
+    def configure(self, request, pk=None):
+        router = self.get_object()
+
+        # Check if the router runs on a supported platform
+        if not router.platform:
+            raise ServiceUnavailable("Unsupported router platform.")
+
+        # Check user permission first
+        if not request.user.has_perm("peering.deploy_configuration_router"):
+            return HttpResponseForbidden()
+
+        # Commit changes only if not using a GET request
+        error, changes = router.set_napalm_configuration(
+            router.generate_configuration(), commit=(request.method not in SAFE_METHODS)
+        )
+        return Response({"changed": not error, "changes": changes, "error": error})
+
     @action(detail=True, methods=["get"], url_path="test-napalm-connection")
     def test_napalm_connection(self, request, pk=None):
         success = self.get_object().test_napalm_connection()

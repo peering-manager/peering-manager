@@ -792,6 +792,18 @@ class RouterDetails(View):
         return render(request, "peering/router/details.html", context)
 
 
+class RouterConfiguration(PermissionRequiredMixin, View):
+    permission_required = "peering.view_configuration_router"
+
+    def get(self, request, pk):
+        router = get_object_or_404(Router, pk=pk)
+        context = {
+            "router": router,
+            "router_configuration": router.generate_configuration(),
+        }
+        return render(request, "peering/router/configuration.html", context)
+
+
 class RouterEdit(PermissionRequiredMixin, AddOrEditView):
     permission_required = "peering.change_router"
     model = Router

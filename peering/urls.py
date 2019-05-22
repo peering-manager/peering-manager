@@ -292,6 +292,11 @@ urlpatterns = [
         name="router_details",
     ),
     url(
+        r"^routers/(?P<pk>[0-9]+)/configuration/$",
+        views.RouterConfiguration.as_view(),
+        name="router_configuration",
+    ),
+    url(
         r"^routers/(?P<pk>[0-9]+)/edit/$",
         views.RouterEdit.as_view(),
         name="router_edit",

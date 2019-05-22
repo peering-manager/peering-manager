@@ -1029,6 +1029,10 @@ class Router(ChangeLoggedModel):
 
     class Meta:
         ordering = ["name"]
+        permissions = [
+            ("view_configuration", "Can view router's configuration"),
+            ("deploy_configuration", "Can deploy router's configuration"),
+        ]
 
     def get_absolute_url(self):
         return reverse("peering:router_details", kwargs={"pk": self.pk})
@@ -1063,6 +1067,79 @@ class Router(ChangeLoggedModel):
             return cisco_encrypt(string)
 
         return string
+
+    def get_bgp_groups(self):
+        """
+        Returns BGP groups that can be deployed on this router. A group is considered
+        as deployable on a router if some direct peering sessions attached to the
+        group are also attached to the router.
+        """
+        bgp_groups = []
+        for bgp_group in BGPGroup.objects.all():
+            ipv6_sessions = [
+                session.to_dict()
+                for session in DirectPeeringSession.objects.filter(
+                    bgp_group=bgp_group, router=self, ip_address__family=6
+                )
+            ]
+            ipv4_sessions = [
+                session.to_dict()
+                for session in DirectPeeringSession.objects.filter(
+                    bgp_group=bgp_group, router=self, ip_address__family=4
+                )
+            ]
+
+            # Only keep track of the BGP group if there are sessions in it
+            if ipv6_sessions or ipv4_sessions:
+                bgp_groups.append(
+                    {
+                        "bgp_group": bgp_group.to_dict(),
+                        "ipv6_sessions": ipv6_sessions,
+                        "ipv4_sessions": ipv4_sessions,
+                    }
+                )
+        return bgp_groups
+
+    def get_internet_exchanges(self):
+        """
+        Returns Internet Exchanges attached to this router.
+        """
+        internet_exchanges = []
+        for internet_exchange in InternetExchange.objects.filter(router=self):
+            internet_exchanges.append(
+                {
+                    "internet_exchange": internet_exchange.to_dict(),
+                    "ipv6_sessions": [
+                        session.to_dict()
+                        for session in InternetExchangePeeringSession.objects.filter(
+                            internet_exchange=internet_exchange, ip_address__family=6
+                        )
+                    ],
+                    "ipv4_sessions": [
+                        session.to_dict()
+                        for session in InternetExchangePeeringSession.objects.filter(
+                            internet_exchange=internet_exchange, ip_address__family=4
+                        )
+                    ],
+                }
+            )
+        return internet_exchanges
+
+    def get_configuration_context(self):
+        context = {
+            "my_asn": settings.MY_ASN,
+            "bgp_groups": self.get_bgp_groups(),
+            "internet_exchanges": self.get_internet_exchanges(),
+        }
+
+        return context
+
+    def generate_configuration(self):
+        return (
+            self.configuration_template.render(self.get_configuration_context())
+            if self.configuration_template
+            else ""
+        )
 
     def can_napalm_get_bgp_neighbors_detail(self):
         return (

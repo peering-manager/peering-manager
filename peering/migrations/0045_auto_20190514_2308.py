@@ -50,4 +50,14 @@ class Migration(migrations.Migration):
                 to="peering.ConfigurationTemplate",
             ),
         ),
+        migrations.AlterModelOptions(
+            name="router",
+            options={
+                "ordering": ["name"],
+                "permissions": [
+                    ("view_configuration", "Can view router's configuration"),
+                    ("deploy_configuration", "Can deploy router's configuration"),
+                ],
+            },
+        ),
     ]

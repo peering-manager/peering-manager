@@ -1,0 +1,35 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block actions %}
+{% if perms.peering.change_router %}
+<a href="{% url 'peering:router_edit' pk=router.pk %}" class="btn btn-warning">
+  <i class="fas fa-edit"></i> Edit
+</a>
+{% endif %}
+{% if perms.peering.delete_router %}
+<a href="{% url 'peering:router_delete' pk=router.pk %}" class="btn btn-danger">
+  <i class="fas fa-trash"></i> Delete
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'peering:router_list' %}">Routers</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ router }}{% endblock %}</li>
+{% endblock %}
+{% block content %}
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link{% if request.path|notcontains:'/configuration/' %} active{% endif %}" href="{% url 'peering:router_details' pk=router.pk %}">
+            <i class="fas fa-info-circle"></i> Info
+          </a>
+        </li>
+        {% if perms.peering.view_configuration_router and router.configuration_template %}
+        <li class="nav-item">
+          <a class="nav-link{% if request.path|contains:'/configuration/' %} active{% endif %}" href="{% url 'peering:router_configuration' pk=router.pk %}">
+            <i class="fas fa-terminal"></i> Configuration
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+      {% block subcontent %}{% endblock %}
+{% endblock %}
