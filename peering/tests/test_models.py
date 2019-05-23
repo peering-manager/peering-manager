@@ -1,8 +1,10 @@
 import ipaddress
 
+from django.conf import settings
 from django.test import TestCase
 
 from peering.constants import (
+    BGP_RELATIONSHIP_PRIVATE_PEERING,
     COMMUNITY_TYPE_INGRESS,
     COMMUNITY_TYPE_EGRESS,
     PLATFORM_IOSXR,
@@ -14,8 +16,10 @@ from peering.constants import (
 )
 from peering.models import (
     AutonomousSystem,
+    BGPGroup,
     Community,
     ConfigurationTemplate,
+    DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
@@ -376,6 +380,82 @@ class InternetExchangePeeringSessionTest(TestCase):
 
 
 class RouterTest(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.router = Router(
+            name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
+        )
+        self.router.save()
+
+    def test_generate_configuration(self):
+        for i in range(1, 6):
+            AutonomousSystem.objects.create(asn=i, name="Test {}".format(i))
+        bgp_group = BGPGroup.objects.create(name="Test Group", slug="testgroup")
+        for i in range(1, 6):
+            DirectPeeringSession.objects.create(
+                autonomous_system=AutonomousSystem.objects.get(asn=i),
+                bgp_group=bgp_group,
+                relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
+                ip_address="10.0.0.{}".format(i),
+                router=self.router,
+            )
+        internet_exchange = InternetExchange.objects.create(
+            name="Test IX", slug="testix", router=self.router
+        )
+        for i in range(1, 6):
+            InternetExchangePeeringSession.objects.create(
+                autonomous_system=AutonomousSystem.objects.get(asn=i),
+                internet_exchange=internet_exchange,
+                ip_address="2001:db8::{}".format(i),
+            )
+            InternetExchangePeeringSession.objects.create(
+                autonomous_system=AutonomousSystem.objects.get(asn=i),
+                internet_exchange=internet_exchange,
+                ip_address="192.168.0.{}".format(i),
+            )
+
+        # Generate expected result
+        expected = {
+            "my_asn": settings.MY_ASN,
+            "bgp_groups": [
+                {
+                    "bgp_group": bgp_group.to_dict(),
+                    "ipv6_sessions": [
+                        session.to_dict()
+                        for session in DirectPeeringSession.objects.filter(
+                            ip_address__family=6
+                        )
+                    ],
+                    "ipv4_sessions": [
+                        session.to_dict()
+                        for session in DirectPeeringSession.objects.filter(
+                            ip_address__family=4
+                        )
+                    ],
+                }
+            ],
+            "internet_exchanges": [
+                {
+                    "internet_exchange": internet_exchange.to_dict(),
+                    "ipv6_sessions": [
+                        session.to_dict()
+                        for session in InternetExchangePeeringSession.objects.filter(
+                            ip_address__family=6
+                        )
+                    ],
+                    "ipv4_sessions": [
+                        session.to_dict()
+                        for session in InternetExchangePeeringSession.objects.filter(
+                            ip_address__family=4
+                        )
+                    ],
+                }
+            ],
+        }
+
+        result = self.router.get_configuration_context()
+        self.assertEqual(result, expected)
+
     def test_decrypt_encrypt_string(self):
         string = "myreallysecurepassword"
 
