@@ -46,11 +46,11 @@ urlpatterns = [
     # BGP Groups
     url(r"^bgp-groups/$", views.BGPGroupList.as_view(), name="bgp_group_list"),
     url(r"^bgp-groups/add/$", views.BGPGroupAdd.as_view(), name="bgp_group_add"),
-    # url(
-    #     r"^bgp-groups/delete/$",
-    #     views.BGPGroupBulkDelete.as_view(),
-    #     name="bgp_group_bulk_delete",
-    # ),
+    url(
+        r"^bgp-groups/delete/$",
+        views.BGPGroupBulkDelete.as_view(),
+        name="bgp_group_bulk_delete",
+    ),
     # url(
     #     r"^bgp-groups/edit/$",
     #     views.BGPGroupBulkEdit.as_view(),

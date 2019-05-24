@@ -241,6 +241,13 @@ class BGPGroupDelete(PermissionRequiredMixin, DeleteView):
     return_url = "peering:bgp_group_list"
 
 
+class BGPGroupBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = "peering.delete_bgpgroup"
+    model = BGPGroup
+    filter = BGPGroupFilter
+    table = BGPGroupTable
+
+
 class CommunityList(ModelListView):
     queryset = Community.objects.all()
     filter = CommunityFilter
