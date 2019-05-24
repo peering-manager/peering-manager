@@ -662,8 +662,14 @@ class RouterTest(APITestCase):
     def setUp(self):
         super().setUp()
 
+        self.template = ConfigurationTemplate.objects.create(
+            name="Test", template="Nothing useful"
+        )
         self.router = Router.objects.create(
-            name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
+            name="Test",
+            hostname="test.example.com",
+            platform=PLATFORM_JUNOS,
+            configuration_template=self.template,
         )
 
     def test_get_router(self):
@@ -746,6 +752,12 @@ class RouterTest(APITestCase):
         url = reverse("peering-api:router-encrypt", kwargs={"pk": self.router.pk})
         response = self.client.post(url, data, format="json", **self.header)
         self.assertStatus(response, status.HTTP_200_OK)
+
+    def test_configuration(self):
+        url = reverse("peering-api:router-configuration", kwargs={"pk": self.router.pk})
+        response = self.client.get(url, **self.header)
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual("Nothing useful", response.data["configuration"])
 
     def test_test_napalm_connection(self):
         url = reverse(

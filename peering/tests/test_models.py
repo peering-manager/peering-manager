@@ -382,10 +382,9 @@ class InternetExchangePeeringSessionTest(TestCase):
 class RouterTest(TestCase):
     def setUp(self):
         super().setUp()
-        self.router = Router(
+        self.router = Router.objects.create(
             name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
         )
-        self.router.save()
 
     def test_generate_configuration(self):
         for i in range(1, 6):
