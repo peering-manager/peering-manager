@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load helpers %}
 {% load form_helpers %}
 {% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}{% if object.pk %}Editing {{ object }}{% else %}Add a new {{ object_type|title_with_uppers }}{% endif %}{% endblock %}</li>{% endblock %}
 {% block content %}
