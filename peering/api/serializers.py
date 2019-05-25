@@ -40,9 +40,20 @@ class AutonomousSystemSerializer(serializers.ModelSerializer):
 
 
 class BGPGroupSerializer(serializers.ModelSerializer):
+    import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
+    export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
+    communities = CommunityNestedSerializer(many=True, required=False)
+
     class Meta:
         model = BGPGroup
-        fields = ["id", "name", "slug"]
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "import_routing_policies",
+            "export_routing_policies",
+            "communities",
+        ]
 
 
 class CommunitySerializer(serializers.ModelSerializer):
@@ -112,9 +123,9 @@ class DirectPeeringSessionSerializer(serializers.ModelSerializer):
 
 class InternetExchangeSerializer(serializers.ModelSerializer):
     configuration_template = ConfigurationTemplateNestedSerializer(required=False)
-    communities = CommunityNestedSerializer(many=True, required=False)
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
+    communities = CommunityNestedSerializer(many=True, required=False)
     router = RouterNestedSerializer(required=False)
 
     class Meta:
@@ -128,9 +139,9 @@ class InternetExchangeSerializer(serializers.ModelSerializer):
             "ipv4_address",
             "comment",
             "configuration_template",
-            "communities",
             "import_routing_policies",
             "export_routing_policies",
+            "communities",
             "router",
             "check_bgp_session_states",
             "bgp_session_states_update",

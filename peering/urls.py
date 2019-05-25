@@ -51,11 +51,11 @@ urlpatterns = [
         views.BGPGroupBulkDelete.as_view(),
         name="bgp_group_bulk_delete",
     ),
-    # url(
-    #     r"^bgp-groups/edit/$",
-    #     views.BGPGroupBulkEdit.as_view(),
-    #     name="bgp_group_bulk_edit",
-    # ),
+    url(
+        r"^bgp-groups/edit/$",
+        views.BGPGroupBulkEdit.as_view(),
+        name="bgp_group_bulk_edit",
+    ),
     url(
         r"^bgp-groups/(?P<slug>[\w-]+)/$",
         views.BGPGroupDetails.as_view(),

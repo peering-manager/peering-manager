@@ -30,9 +30,21 @@ class AbstractGroup(ChangeLoggedModel, TemplateModel):
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True)
     comment = models.TextField(blank=True)
+    import_routing_policies = models.ManyToManyField(
+        "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
+    )
+    export_routing_policies = models.ManyToManyField(
+        "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
+    )
+    communities = models.ManyToManyField("Community", blank=True)
+    check_bgp_session_states = models.BooleanField(default=False)
+    bgp_session_states_update = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         abstract = True
+
+    def poll_peering_session_states(self):
+        raise NotImplementedError
 
 
 class AutonomousSystem(ChangeLoggedModel, TemplateModel):
@@ -478,18 +490,9 @@ class InternetExchange(AbstractGroup):
     configuration_template = models.ForeignKey(
         "ConfigurationTemplate", blank=True, null=True, on_delete=models.SET_NULL
     )
-    import_routing_policies = models.ManyToManyField(
-        "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
-    )
-    export_routing_policies = models.ManyToManyField(
-        "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
-    )
-    communities = models.ManyToManyField("Community", blank=True)
     router = models.ForeignKey(
         "Router", blank=True, null=True, on_delete=models.SET_NULL
     )
-    check_bgp_session_states = models.BooleanField(default=False)
-    bgp_session_states_update = models.DateTimeField(blank=True, null=True)
 
     objects = NetManager()
     logger = logging.getLogger("peering.manager.peering")

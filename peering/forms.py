@@ -137,12 +137,78 @@ class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
 class BGPGroupForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
     comment = CommentField()
+    import_routing_policies = FilterChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "import-policy"},
+        ),
+    )
+    export_routing_policies = FilterChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "export-policy"},
+        ),
+    )
+    communities = FilterChoiceField(
+        required=False,
+        queryset=Community.objects.all(),
+        widget=APISelectMultiple(api_url="/api/peering/communities/"),
+    )
 
     class Meta:
         model = BGPGroup
-        fields = ("name", "slug", "comment")
-        labels = {"comment": "Comments"}
-        help_texts = {"name": "Full name of the BGP group"}
+        fields = (
+            "name",
+            "slug",
+            "comment",
+            "import_routing_policies",
+            "export_routing_policies",
+            "communities",
+            "check_bgp_session_states",
+        )
+        labels = {
+            "check_bgp_session_states": "Poll Peering Session States",
+            "comment": "Comments",
+        }
+        help_texts = {
+            "name": "Full name of the BGP group",
+            "check_bgp_session_states": "If enabled, the state of peering sessions will be polled.",
+        }
+
+
+class BGPGroupBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = FilterChoiceField(
+        queryset=BGPGroup.objects.all(), widget=forms.MultipleHiddenInput
+    )
+    import_routing_policies = FilterChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "import-policy"},
+        ),
+    )
+    export_routing_policies = FilterChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "export-policy"},
+        ),
+    )
+    communities = FilterChoiceField(
+        required=False,
+        queryset=Community.objects.all(),
+        widget=APISelectMultiple(api_url="/api/peering/communities/"),
+    )
+    comment = CommentField(widget=SmallTextarea)
+
+    class Meta:
+        nullable_fields = ["comment"]
 
 
 class BGPGroupFilterForm(BootstrapMixin, forms.Form):
@@ -400,7 +466,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "peeringdb_id": "PeeringDB ID",
             "ipv6_address": "IPv6 Address",
             "ipv4_address": "IPv4 Address",
-            "check_bgp_session_states": "Check Peering Session States",
+            "check_bgp_session_states": "Poll Peering Session States",
             "comment": "Comments",
         }
         help_texts = {
@@ -410,7 +476,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "ipv4_address": "IPv4 Address used to peer",
             "configuration_template": "Template for configuration generation",
             "router": "Router connected to the Internet Exchange point",
-            "check_bgp_session_states": "If enabled, with a usable router, the state of peering sessions will be updated.",
+            "check_bgp_session_states": "If enabled, with a usable router, the state of peering sessions will be polled.",
         }
         widgets = {
             "configuration_template": APISelect(api_url="/api/peering/templates/"),

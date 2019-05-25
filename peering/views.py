@@ -23,6 +23,7 @@ from .filters import (
 from .forms import (
     AutonomousSystemFilterForm,
     AutonomousSystemForm,
+    BGPGroupBulkEditForm,
     BGPGroupFilterForm,
     BGPGroupForm,
     CommunityBulkEditForm,
@@ -233,6 +234,14 @@ class BGPGroupEdit(PermissionRequiredMixin, AddOrEditView):
     model = BGPGroup
     form = BGPGroupForm
     template = "peering/bgp-group/add_edit.html"
+
+
+class BGPGroupBulkEdit(PermissionRequiredMixin, BulkEditView):
+    permission_required = "peering.change_bgpgroup"
+    queryset = BGPGroup.objects.all()
+    filter = BGPGroupFilter
+    table = BGPGroupTable
+    form = BGPGroupBulkEditForm
 
 
 class BGPGroupDelete(PermissionRequiredMixin, DeleteView):

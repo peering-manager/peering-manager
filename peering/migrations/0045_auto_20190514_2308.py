@@ -26,6 +26,31 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=128)),
                 ("slug", models.SlugField(unique=True)),
                 ("comment", models.TextField(blank=True)),
+                (
+                    "communities",
+                    models.ManyToManyField(blank=True, to="peering.Community"),
+                ),
+                (
+                    "export_routing_policies",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="bgpgroup_export_routing_policies",
+                        to="peering.RoutingPolicy",
+                    ),
+                ),
+                (
+                    "import_routing_policies",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="bgpgroup_import_routing_policies",
+                        to="peering.RoutingPolicy",
+                    ),
+                ),
+                (
+                    "bgp_session_states_update",
+                    models.DateTimeField(blank=True, null=True),
+                ),
+                ("check_bgp_session_states", models.BooleanField(default=False)),
             ],
             options={"verbose_name": "BGP group", "ordering": ["name"]},
         ),

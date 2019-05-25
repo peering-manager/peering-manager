@@ -34,6 +34,13 @@ BGP_GROUP_ACTIONS = """
 <a href="{% url 'peering:bgp_group_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
 {% endif %}
 """
+BGP_GROUP_POLL_SESSION_STATES = """
+{% if record.check_bgp_session_states %}
+<i class="fas fa-check text-success"></i>
+{% else %}
+<i class="fas fa-times text-danger"></i>
+{% endif %}
+"""
 BGPSESSION_STATUS = """
 {% if record.enabled %}
 <i class="fas fa-check text-success"></i>
@@ -168,11 +175,16 @@ class BGPGroupTable(BaseTable):
 
     pk = SelectColumn()
     name = tables.Column(linkify=True)
+    check_bgp_session_states = tables.TemplateColumn(
+        verbose_name="Poll Session States",
+        template_code=BGP_GROUP_POLL_SESSION_STATES,
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
+    )
     actions = ActionsColumn(template_code=BGP_GROUP_ACTIONS)
 
     class Meta(BaseTable.Meta):
         model = BGPGroup
-        fields = ("pk", "name", "actions")
+        fields = ("pk", "name", "check_bgp_session_states", "actions")
 
 
 class CommunityTable(BaseTable):

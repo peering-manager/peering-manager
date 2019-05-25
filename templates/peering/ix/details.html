@@ -47,7 +47,7 @@
               {% endif %}
               {% if internet_exchange.router and internet_exchange.router.can_napalm_get_bgp_neighbors_detail %}
               <tr>
-                <td>Pull Session States</td>
+                <td>Poll Session States</td>
                 <td>
                   {% if internet_exchange.check_bgp_session_states %}
                   <i class="fas fa-check text-success"></i>
