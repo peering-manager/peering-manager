@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load helpers %}
 {% block content %}
       <div class="card-columns">
         <div class="card">
@@ -74,7 +75,7 @@
             {% for change in changelog %}
             <div class="list-group-item">
               {{ change.get_html_icon }}
-              {{ change.changed_object_type.name | title }}
+              {{ change.changed_object_type.name | title_with_uppers }}
               {% if change.changed_object.get_absolute_url %}
                 <a href="{{ change.changed_object.get_absolute_url }}">{{ change.changed_object }}</a>
               {% else %}
