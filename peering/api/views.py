@@ -185,12 +185,10 @@ class InternetExchangeViewSet(ModelViewSet):
         return Response({"changed": not error, "changes": changes, "error": error})
 
     @action(
-        detail=True,
-        methods=["post", "put", "patch"],
-        url_path="update-peering-sessions",
+        detail=True, methods=["post", "put", "patch"], url_path="poll-peering-sessions"
     )
-    def update_peering_sessions(self, request, pk=None):
-        success = self.get_object().update_peering_session_states()
+    def poll_peering_sessions(self, request, pk=None):
+        success = self.get_object().poll_peering_sessions()
         if not success:
             raise ServiceUnavailable("Cannot update peering session states.")
         return Response({"status": "success"})
