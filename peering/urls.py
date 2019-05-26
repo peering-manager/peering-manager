@@ -71,6 +71,16 @@ urlpatterns = [
         views.InternetExchangeDelete.as_view(),
         name="bgp_group_delete",
     ),
+    url(
+        r"^bgp-groups/(?P<slug>[\w-]+)/peering-sessions/$",
+        views.BGPGroupPeeringSessions.as_view(),
+        name="bgp_group_peering_sessions",
+    ),
+    url(
+        r"^bgp-groups/(?P<slug>[\w-]+)/add-peering-session/$",
+        views.BGPGroupPeeringSessionAdd.as_view(),
+        name="bgp_group_peering_session_add",
+    ),
     # BGP Communities
     url(r"^communities/$", views.CommunityList.as_view(), name="community_list"),
     url(r"^communities/add/$", views.CommunityAdd.as_view(), name="community_add"),

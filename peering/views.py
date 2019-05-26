@@ -257,6 +257,57 @@ class BGPGroupBulkDelete(PermissionRequiredMixin, BulkDeleteView):
     table = BGPGroupTable
 
 
+class BGPGroupPeeringSessions(ModelListView):
+    filter = DirectPeeringSessionFilter
+    filter_form = DirectPeeringSessionFilterForm
+    table = DirectPeeringSessionTable
+    template = "peering/bgp-group/sessions.html"
+    hidden_columns = ["bgp_group"]
+
+    def build_queryset(self, request, kwargs):
+        queryset = None
+        if "slug" in kwargs:
+            bgp_group = get_object_or_404(BGPGroup, slug=kwargs["slug"])
+            queryset = bgp_group.directpeeringsession_set.order_by(
+                "autonomous_system", "ip_address"
+            )
+        return queryset
+
+    def extra_context(self, kwargs):
+        extra_context = {}
+        if "slug" in kwargs:
+            extra_context.update(
+                {"bgp_group": get_object_or_404(BGPGroup, slug=kwargs["slug"])}
+            )
+        return extra_context
+
+    def setup_table_columns(self, request, permissions, table, kwargs):
+        table.columns.show("session_state")
+        super().setup_table_columns(request, permissions, table, kwargs)
+
+
+class BGPGroupPeeringSessionAdd(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "peering.add_directpeeringsession"
+    model = DirectPeeringSession
+    form = DirectPeeringSessionForm
+    template = "peering/session/direct/add_edit.html"
+
+    def get_object(self, kwargs):
+        if "pk" in kwargs:
+            return get_object_or_404(self.model, pk=kwargs["pk"])
+
+        return self.model()
+
+    def alter_object(self, obj, request, args, kwargs):
+        if "slug" in kwargs:
+            obj.bgp_group = get_object_or_404(BGPGroup, slug=kwargs["slug"])
+
+        return obj
+
+    def get_return_url(self, obj):
+        return obj.bgp_group.get_peering_sessions_list_url()
+
+
 class CommunityList(ModelListView):
     queryset = Community.objects.all()
     filter = CommunityFilter

@@ -1,22 +1,6 @@
-{% extends '_base.html' %}
+{% extends 'peering/bgp-group/_base.html' %}
 {% load helpers %}
-{% block actions %}
-{% if perms.peering.change_bgpgroup %}
-<a href="{% url 'peering:bgp_group_edit' slug=bgp_group.slug %}" class="btn btn-warning">
-  <i class="fas fa-edit"></i> Edit
-</a>
-{% endif %}
-{% if perms.peering.delete_bgpgroup %}
-<a href="{% url 'peering:bgp_group_delete' slug=bgp_group.slug %}" class="btn btn-danger">
-  <i class="fas fa-trash"></i> Delete
-</a>
-{% endif %}
-{% endblock %}
-{% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'peering:bgp_group_list' %}">BGP Groups</a></li>
-<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ bgp_group }}{% endblock %}</li>
-{% endblock %}
-{% block content %}
+{% block subcontent %}
       <div class="row">
         <div class="col-md-6">
           <div class="card mb-2">
