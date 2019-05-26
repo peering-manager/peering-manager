@@ -1577,6 +1577,10 @@ class Router(ChangeLoggedModel):
         return bgp_neighbors_detail
 
     def bgp_neighbors_detail_as_list(self, bgp_neighbors_detail):
+        """
+        Returns a list based on the dict returned by calling
+        get_napalm_bgp_neighbors_detail.
+        """
         flattened = []
 
         if not bgp_neighbors_detail:
@@ -1584,8 +1588,7 @@ class Router(ChangeLoggedModel):
 
         for vrf in bgp_neighbors_detail:
             for asn in bgp_neighbors_detail[vrf]:
-                for session in bgp_neighbors_detail[vrf][asn]:
-                    flattened.append(session)
+                flattened.extend(bgp_neighbors_detail[vrf][asn])
 
         return flattened
 

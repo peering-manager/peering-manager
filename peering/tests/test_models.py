@@ -530,6 +530,35 @@ class RouterTest(TestCase):
                 len(router._napalm_bgp_neighbors_to_peer_list(napalm_dicts_list[i])),
             )
 
+    def test_bgp_neighbors_detail_as_list(self):
+        expected = [
+            {
+                "up": True,
+                "local_as": 201281,
+                "remote_as": 29467,
+                "local_address": "192.168.1.1",
+            }
+        ]
+        bgp_neighbors_detail = {
+            "global": {
+                8121: [
+                    {
+                        "up": True,
+                        "local_as": 201281,
+                        "remote_as": 29467,
+                        "local_address": "192.168.1.1",
+                    }
+                ]
+            }
+        }
+
+        router = Router.objects.create(
+            name="test", hostname="test.example.com", platform=PLATFORM_JUNOS
+        )
+        self.assertEqual(
+            expected, router.bgp_neighbors_detail_as_list(bgp_neighbors_detail)
+        )
+
 
 class RoutingPolicyTest(TestCase):
     def test_create(self):
