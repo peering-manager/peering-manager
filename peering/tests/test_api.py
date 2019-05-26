@@ -191,6 +191,14 @@ class BGPGroupTest(APITestCase):
         self.assertStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(BGPGroup.objects.count(), 0)
 
+    def test_poll_peering_sessions(self):
+        url = reverse(
+            "peering-api:bgpgroup-poll-peering-sessions",
+            kwargs={"pk": self.bgp_group.pk},
+        )
+        response = self.client.post(url, **self.header)
+        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+
 
 class CommunityTest(APITestCase):
     def setUp(self):

@@ -105,6 +105,15 @@ class BGPGroupViewSet(ModelViewSet):
     serializer_class = BGPGroupSerializer
     filterset_class = BGPGroupFilter
 
+    @action(
+        detail=True, methods=["post", "put", "patch"], url_path="poll-peering-sessions"
+    )
+    def poll_peering_sessions(self, request, pk=None):
+        success = self.get_object().poll_peering_sessions()
+        if not success:
+            raise ServiceUnavailable("Cannot update peering session states.")
+        return Response({"status": "success"})
+
 
 class CommunityViewSet(ModelViewSet):
     queryset = Community.objects.all()

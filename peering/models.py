@@ -43,6 +43,12 @@ class AbstractGroup(ChangeLoggedModel, TemplateModel):
     class Meta:
         abstract = True
 
+    def get_peering_sessions_list_url(self):
+        raise NotImplementedError
+
+    def get_peering_sessions(self):
+        raise NotImplementedError
+
     def poll_peering_sessions(self):
         raise NotImplementedError
 
@@ -266,12 +272,105 @@ class AutonomousSystem(ChangeLoggedModel, TemplateModel):
 
 
 class BGPGroup(AbstractGroup):
+    logger = logging.getLogger("peering.manager.peering")
+
     class Meta:
         ordering = ["name"]
         verbose_name = "BGP group"
 
     def get_absolute_url(self):
         return reverse("peering:bgp_group_details", kwargs={"slug": self.slug})
+
+    def get_peering_sessions_list_url(self):
+        return reverse("peering:bgp_group_peering_sessions", kwargs={"slug": self.slug})
+
+    def get_peering_sessions(self):
+        return self.directepeeringsession_set.all()
+
+    def poll_peering_sessions(self):
+        if not self.check_bgp_session_states:
+            self.logger.debug(
+                'ignoring session states for %s, reason: "check disabled"',
+                self.name.lower(),
+            )
+            return False
+
+        peering_sessions = DirectPeeringSession.objects.filter(bgp_group=self)
+        if not peering_sessions:
+            # Empty result no need to go further
+            return False
+
+        # Get BGP neighbors details from router, but only get them once
+        bgp_neighbors_detail = {}
+        for session in peering_sessions:
+            if not session.router.can_napalm_get_bgp_neighbors_detail():
+                self.logger.debug(
+                    'ignoring session states on %s, reason: "router with unsupported platform %s"',
+                    self.name.lower(),
+                    session.router.platform,
+                )
+                continue
+
+            if session.router not in bgp_neighbors_detail:
+                detail = session.router.get_bgp_neighbors_detail()
+                bgp_neighbors_detail.update(
+                    {
+                        session.router: session.router.bgp_neighbors_detail_as_list(
+                            detail
+                        )
+                    }
+                )
+
+        if not bgp_neighbors_detail:
+            # Empty result no need to go further
+            return False
+
+        with transaction.atomic():
+            for router, detail in bgp_neighbors_detail.items():
+                for session in detail:
+                    ip_address = session["remote_address"]
+                    self.logger.debug(
+                        "looking for session %s in %s", ip_address, self.name.lower()
+                    )
+
+                    try:
+                        peering_session = DirectPeeringSession.objects.get(
+                            ip_address=ip_address, bgp_group=self, router=router
+                        )
+
+                        # Get info that we are actually looking for
+                        state = session["connection_state"].lower()
+                        received = session["received_prefix_count"]
+                        advertised = session["advertised_prefix_count"]
+                        self.logger.debug(
+                            "found session %s in %s with state %s",
+                            ip_address,
+                            self.name.lower(),
+                            state,
+                        )
+
+                        # Update fields
+                        peering_session.bgp_state = state
+                        peering_session.received_prefix_count = (
+                            received if received > 0 else 0
+                        )
+                        peering_session.advertised_prefix_count = (
+                            advertised if advertised > 0 else 0
+                        )
+                        # Update the BGP state of the session
+                        if peering_session.bgp_state == BGP_STATE_ESTABLISHED:
+                            peering_session.last_established_state = timezone.now()
+                        peering_session.save()
+                    except DirectPeeringSession.DoesNotExist:
+                        self.logger.debug(
+                            "session %s in %s not found", ip_address, self.name.lower()
+                        )
+
+            # Save last session states update
+            self.bgp_session_states_update = timezone.now()
+            self.save()
+
+        return True
 
     def __str__(self):
         return self.name
@@ -1476,6 +1575,19 @@ class Router(ChangeLoggedModel):
                 )
 
         return bgp_neighbors_detail
+
+    def bgp_neighbors_detail_as_list(self, bgp_neighbors_detail):
+        flattened = []
+
+        if not bgp_neighbors_detail:
+            return flattened
+
+        for vrf in bgp_neighbors_detail:
+            for asn in bgp_neighbors_detail[vrf]:
+                for session in bgp_neighbors_detail[vrf][asn]:
+                    flattened.append(session)
+
+        return flattened
 
     def get_netbox_bgp_neighbors_detail(self):
         """
