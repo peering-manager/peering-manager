@@ -8,6 +8,7 @@ from peering.constants import (
 )
 from peering.models import (
     AutonomousSystem,
+    BGPGroup,
     Community,
     DirectPeeringSession,
     InternetExchange,
@@ -174,6 +175,143 @@ class AutonomousSystemTestCase(ViewTestCase):
             "peering:autonomous_system_internet_exchange_peering_sessions",
             params={"asn": self.asn},
             data={"q": "test"},
+        )
+
+
+class BGPGroupTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.model = BGPGroup
+        self.name = "Test Group"
+        self.slug = "test-group"
+        self.bgp_group = BGPGroup.objects.create(name=self.name, slug=self.slug)
+        self.asn = AutonomousSystem.objects.create(asn=64500, name="Test")
+        self.session = DirectPeeringSession.objects.create(
+            autonomous_system=self.asn,
+            ip_address="2001:db8::1",
+            bgp_group=self.bgp_group,
+        )
+        self.community = Community.objects.create(name="Test", value="64500:1")
+        self.routing_policy = RoutingPolicy.objects.create(
+            name="Test", slug="test", type=ROUTING_POLICY_TYPE_EXPORT, weight=0
+        )
+
+    def test_bgp_group_list_view(self):
+        self.get_request("peering:bgp_group_list", data={"q": "test"})
+
+    def test_bgp_group_add_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request("peering:bgp_group_add", expected_status_code=302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request("peering:bgp_group_add", contains="Create")
+
+        # Try to create an object with valid data
+        bgp_group_to_create = {"name": "bgp-group-created", "slug": "bgp-group-created"}
+        self.post_request("peering:bgp_group_add", data=bgp_group_to_create)
+        self.does_object_exist(bgp_group_to_create)
+
+        # Try to create an object with invalid data
+        bgp_group_not_to_create = {"name": "bgp-group-notcreated"}
+        self.post_request("peering:bgp_group_add", data=bgp_group_not_to_create)
+        self.does_object_not_exist(bgp_group_not_to_create)
+
+    def test_bgp_group_bulk_delete_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request("peering:bgp_group_bulk_delete", expected_status_code=302)
+
+    def test_bgp_group_details_view(self):
+        # No slug given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.get_request("peering:bgp_group_details")
+
+        # Using a wrong slug, status should be 404 not found
+        self.get_request(
+            "peering:bgp_group_details",
+            params={"slug": "not-found"},
+            expected_status_code=404,
+        )
+
+        # Using an existing slug, status should be 200 and the name of the IX
+        # should be somewhere in the HTML code
+        self.get_request(
+            "peering:bgp_group_details", params={"slug": self.slug}, contains=self.name
+        )
+
+    def test_bgp_group_edit_view(self):
+        # No slug given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.get_request("peering:bgp_group_edit")
+
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request(
+            "peering:bgp_group_edit",
+            params={"slug": self.slug},
+            expected_status_code=302,
+        )
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request(
+            "peering:bgp_group_edit", params={"slug": self.slug}, contains="Update"
+        )
+
+        # Still authenticated, wrong slug should be 404 not found
+        self.get_request(
+            "peering:bgp_group_edit",
+            params={"slug": "not-found"},
+            expected_status_code=404,
+        )
+
+    def test_bgp_group_delete_view(self):
+        # No slug given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.get_request("peering:bgp_group_delete")
+
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request(
+            "peering:bgp_group_delete",
+            params={"slug": self.slug},
+            expected_status_code=302,
+        )
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request(
+            "peering:bgp_group_delete", params={"slug": self.slug}, contains="Confirm"
+        )
+
+        # Still authenticated, wrong slug should be 404 not found
+        self.get_request(
+            "peering:bgp_group_delete",
+            params={"slug": "not-found"},
+            expected_status_code=404,
+        )
+
+    def test_bgp_group_peering_sessions_view(self):
+        # Not logged in, 200 OK but not contains Add Peering Session button
+        self.get_request(
+            "peering:bgp_group_peering_sessions",
+            params={"slug": self.slug},
+            notcontains="Add a Peering Session",
+        )
+
+        # Authenticate and retry, 200 OK and should contains Add Peering
+        # Session button
+        self.authenticate_user()
+        self.get_request(
+            "peering:bgp_group_peering_sessions",
+            params={"slug": self.slug},
+            contains="Add",
+        )
+
+        # BGP Group not found
+        self.get_request(
+            "peering:bgp_group_peering_sessions",
+            params={"slug": "not-found"},
+            expected_status_code=404,
         )
 
 

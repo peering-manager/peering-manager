@@ -25,7 +25,7 @@
         </li>
         <li class="nav-item">
           <a class="nav-link{% if request.path|contains:'/peering-sessions/' %} active{% endif %}" href="{% url 'peering:bgp_group_peering_sessions' slug=bgp_group.slug %}">
-            <i class="fas fa-network-wired"></i> Peering Sessions
+            <i class="fas fa-ethernet"></i> Direct Peering Sessions
           </a>
         </li>
         <li class="nav-item">

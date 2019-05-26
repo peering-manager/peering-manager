@@ -68,7 +68,7 @@ urlpatterns = [
     ),
     url(
         r"^bgp-groups/(?P<slug>[\w-]+)/delete/$",
-        views.InternetExchangeDelete.as_view(),
+        views.BGPGroupDelete.as_view(),
         name="bgp_group_delete",
     ),
     url(
