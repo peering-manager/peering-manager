@@ -43,7 +43,7 @@ class AbstractGroup(ChangeLoggedModel, TemplateModel):
     class Meta:
         abstract = True
 
-    def poll_peering_session_states(self):
+    def poll_peering_sessions(self):
         raise NotImplementedError
 
 
@@ -775,7 +775,7 @@ class InternetExchange(AbstractGroup):
 
         return self._import_peering_sessions(bgp_sessions, prefixes)
 
-    def update_peering_session_states(self):
+    def poll_peering_sessions(self):
         # Check if we are able to get BGP details
         log = 'ignoring session states on {}, reason: "{}"'
         if not self.router:
