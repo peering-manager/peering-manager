@@ -38,8 +38,6 @@ from .forms import (
     PeerRecordFilterForm,
     InternetExchangePeeringSessionBulkEditForm,
     InternetExchangePeeringSessionFilterForm,
-    InternetExchangePeeringSessionFilterFormForIX,
-    InternetExchangePeeringSessionFilterFormForAS,
     InternetExchangePeeringSessionForm,
     RouterBulkEditForm,
     RouterFilterForm,
@@ -171,10 +169,11 @@ class AutonomousSystemDirectPeeringSessions(ModelListView):
 
 class AutonomousSystemInternetExchangesPeeringSessions(ModelListView):
     filter = InternetExchangePeeringSessionFilter
-    filter_form = InternetExchangePeeringSessionFilterFormForAS
+    filter_form = InternetExchangePeeringSessionFilterForm
     table = InternetExchangePeeringSessionTable
     template = "peering/as/internet_exchange_peering_sessions.html"
     hidden_columns = ["autonomous_system"]
+    hidden_filters = ["autonomous_system__id"]
 
     def build_queryset(self, request, kwargs):
         queryset = None
@@ -487,10 +486,11 @@ class InternetExchangeBulkEdit(PermissionRequiredMixin, BulkEditView):
 
 class InternetExchangePeeringSessions(ModelListView):
     filter = InternetExchangePeeringSessionFilter
-    filter_form = InternetExchangePeeringSessionFilterFormForIX
+    filter_form = InternetExchangePeeringSessionFilterForm
     table = InternetExchangePeeringSessionTable
     template = "peering/ix/sessions.html"
     hidden_columns = ["internet_exchange"]
+    hidden_filters = ["internet_exchange__id"]
 
     def build_queryset(self, request, kwargs):
         queryset = None

@@ -612,47 +612,12 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
 class InternetExchangePeeringSessionFilterForm(BootstrapMixin, forms.Form):
     model = InternetExchangePeeringSession
     q = forms.CharField(required=False, label="Search")
-    autonomous_system__asn = forms.IntegerField(required=False, label="ASN")
-    autonomous_system__name = forms.CharField(required=False, label="AS Name")
-    internet_exchange__name = forms.CharField(required=False, label="IX Name")
-    address_family = forms.ChoiceField(
-        required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
-    )
-    is_route_server = forms.NullBooleanField(
-        required=False, label="Route Server", widget=CustomNullBooleanSelect
-    )
-    enabled = forms.NullBooleanField(
-        required=False, label="Enabled", widget=CustomNullBooleanSelect
-    )
-
-
-class InternetExchangePeeringSessionFilterFormForIX(BootstrapMixin, forms.Form):
-    model = InternetExchangePeeringSession
-    q = forms.CharField(required=False, label="Search")
-    autonomous_system__asn = forms.IntegerField(required=False, label="ASN")
-    autonomous_system__name = forms.CharField(required=False, label="AS Name")
-    address_family = forms.ChoiceField(
-        required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
-    )
-    is_route_server = forms.NullBooleanField(
-        required=False, label="Route Server", widget=CustomNullBooleanSelect
-    )
-    enabled = forms.NullBooleanField(
-        required=False, label="Enabled", widget=CustomNullBooleanSelect
-    )
-
-
-class InternetExchangePeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
-    model = InternetExchangePeeringSession
-    q = forms.CharField(required=False, label="Search")
-    address_family = forms.ChoiceField(
-        required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
-    )
-    is_route_server = forms.NullBooleanField(
-        required=False, label="Route Server", widget=CustomNullBooleanSelect
-    )
-    enabled = forms.NullBooleanField(
-        required=False, label="Enabled", widget=CustomNullBooleanSelect
+    autonomous_system__id = FilterChoiceField(
+        queryset=AutonomousSystem.objects.all(),
+        to_field_name="pk",
+        label="Autonomous System",
+        null_label=True,
+        widget=APISelectMultiple(api_url="/api/peering/autonomous-systems/"),
     )
     internet_exchange__id = FilterChoiceField(
         queryset=InternetExchange.objects.all(),
@@ -660,6 +625,15 @@ class InternetExchangePeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
         label="Internet Exchange",
         null_label=True,
         widget=APISelectMultiple(api_url="/api/peering/internet-exchanges/"),
+    )
+    address_family = forms.ChoiceField(
+        required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
+    )
+    is_route_server = forms.NullBooleanField(
+        required=False, label="Route Server", widget=CustomNullBooleanSelect
+    )
+    enabled = forms.NullBooleanField(
+        required=False, label="Enabled", widget=CustomNullBooleanSelect
     )
 
 

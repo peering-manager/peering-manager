@@ -161,6 +161,7 @@ class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
             "enabled",
             "is_route_server",
             "autonomous_system__asn",
+            "autonomous_system__id",
             "autonomous_system__name",
             "internet_exchange__name",
             "internet_exchange__id",
