@@ -152,6 +152,16 @@ class InternetExchangeFilter(django_filters.FilterSet):
 
 class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
+    autonomous_system__id = django_filters.ModelMultipleChoiceFilter(
+        field_name="autonomous_system__id",
+        queryset=AutonomousSystem.objects.all(),
+        to_field_name="id",
+    )
+    internet_exchange__id = django_filters.ModelMultipleChoiceFilter(
+        field_name="internet_exchange__id",
+        queryset=InternetExchange.objects.all(),
+        to_field_name="id",
+    )
     address_family = django_filters.NumberFilter(method="address_family_search")
 
     class Meta:
