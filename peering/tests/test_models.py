@@ -386,7 +386,7 @@ class RouterTest(TestCase):
             name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
         )
 
-    def test_generate_configuration(self):
+    def test_get_configuration_context(self):
         for i in range(1, 6):
             AutonomousSystem.objects.create(asn=i, name="Test {}".format(i))
         bgp_group = BGPGroup.objects.create(name="Test Group", slug="testgroup")
@@ -413,43 +413,51 @@ class RouterTest(TestCase):
                 ip_address="192.168.0.{}".format(i),
             )
 
+        # Convert to dict and merge values
+        bgp_group_dict = bgp_group.to_dict()
+        bgp_group_dict.update(
+            {
+                "sessions": {
+                    6: [
+                        session.to_dict()
+                        for session in DirectPeeringSession.objects.filter(
+                            ip_address__family=6
+                        )
+                    ],
+                    4: [
+                        session.to_dict()
+                        for session in DirectPeeringSession.objects.filter(
+                            ip_address__family=4
+                        )
+                    ],
+                }
+            }
+        )
+        internet_exchange_dict = internet_exchange.to_dict()
+        internet_exchange_dict.update(
+            {
+                "sessions": {
+                    6: [
+                        session.to_dict()
+                        for session in InternetExchangePeeringSession.objects.filter(
+                            ip_address__family=6
+                        )
+                    ],
+                    4: [
+                        session.to_dict()
+                        for session in InternetExchangePeeringSession.objects.filter(
+                            ip_address__family=4
+                        )
+                    ],
+                }
+            }
+        )
+
         # Generate expected result
         expected = {
             "my_asn": settings.MY_ASN,
-            "bgp_groups": [
-                {
-                    "bgp_group": bgp_group.to_dict(),
-                    "ipv6_sessions": [
-                        session.to_dict()
-                        for session in DirectPeeringSession.objects.filter(
-                            ip_address__family=6
-                        )
-                    ],
-                    "ipv4_sessions": [
-                        session.to_dict()
-                        for session in DirectPeeringSession.objects.filter(
-                            ip_address__family=4
-                        )
-                    ],
-                }
-            ],
-            "internet_exchanges": [
-                {
-                    "internet_exchange": internet_exchange.to_dict(),
-                    "ipv6_sessions": [
-                        session.to_dict()
-                        for session in InternetExchangePeeringSession.objects.filter(
-                            ip_address__family=6
-                        )
-                    ],
-                    "ipv4_sessions": [
-                        session.to_dict()
-                        for session in InternetExchangePeeringSession.objects.filter(
-                            ip_address__family=4
-                        )
-                    ],
-                }
-            ],
+            "bgp_groups": [bgp_group_dict],
+            "internet_exchanges": [internet_exchange_dict],
         }
 
         result = self.router.get_configuration_context()
