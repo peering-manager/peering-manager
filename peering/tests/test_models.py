@@ -541,7 +541,7 @@ class RouterTest(TestCase):
         ]
         bgp_neighbors_detail = {
             "global": {
-                8121: [
+                29467: [
                     {
                         "up": True,
                         "local_as": 201281,

@@ -263,6 +263,7 @@ class BGPGroupPeeringSessions(ModelListView):
     table = DirectPeeringSessionTable
     template = "peering/bgp-group/sessions.html"
     hidden_columns = ["bgp_group"]
+    hidden_filters = ["bgp_group"]
 
     def build_queryset(self, request, kwargs):
         queryset = None
