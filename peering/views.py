@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.defaultfilters import slugify
@@ -207,7 +208,9 @@ class AutonomousSystemInternetExchangesPeeringSessions(ModelListView):
 
 
 class BGPGroupList(ModelListView):
-    queryset = BGPGroup.objects.all()
+    queryset = BGPGroup.objects.annotate(
+        directpeeringsession_count=Count("directpeeringsession")
+    )
     filter = BGPGroupFilter
     filter_form = BGPGroupFilterForm
     table = BGPGroupTable

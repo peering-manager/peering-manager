@@ -180,11 +180,21 @@ class BGPGroupTable(BaseTable):
         template_code=BGP_GROUP_POLL_SESSION_STATES,
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
+    directpeeringsession_count = tables.Column(
+        verbose_name="Direct Peering Sessions",
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
+    )
     actions = ActionsColumn(template_code=BGP_GROUP_ACTIONS)
 
     class Meta(BaseTable.Meta):
         model = BGPGroup
-        fields = ("pk", "name", "check_bgp_session_states", "actions")
+        fields = (
+            "pk",
+            "name",
+            "check_bgp_session_states",
+            "directpeeringsession_count",
+            "actions",
+        )
 
 
 class CommunityTable(BaseTable):
