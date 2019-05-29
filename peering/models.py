@@ -1233,8 +1233,8 @@ class Router(ChangeLoggedModel):
             "my_asn": settings.MY_ASN,
             "bgp_groups": self.get_bgp_groups(),
             "internet_exchanges": self.get_internet_exchanges(),
-            # "routing_policies": [p.to_dict() for p in RoutingPolicy.objects.all()],
-            # "communities": [c.to_dict() for c in Community.objects.all()],
+            "routing_policies": [p.to_dict() for p in RoutingPolicy.objects.all()],
+            "communities": [c.to_dict() for c in Community.objects.all()],
         }
 
         return context

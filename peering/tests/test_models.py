@@ -458,6 +458,8 @@ class RouterTest(TestCase):
             "my_asn": settings.MY_ASN,
             "bgp_groups": [bgp_group_dict],
             "internet_exchanges": [internet_exchange_dict],
+            "routing_policies": [],
+            "communities": [],
         }
 
         result = self.router.get_configuration_context()
