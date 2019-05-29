@@ -222,7 +222,6 @@ class DirectPeeringSessionTable(BaseTable):
     """
 
     pk = SelectColumn()
-    local_asn = tables.Column(verbose_name="Local ASN")
     autonomous_system = tables.Column(verbose_name="AS", linkify=True)
     ip_address = tables.Column(verbose_name="IP Address", linkify=True)
     bgp_group = tables.Column(
@@ -244,7 +243,6 @@ class DirectPeeringSessionTable(BaseTable):
         model = DirectPeeringSession
         fields = (
             "pk",
-            "local_asn",
             "autonomous_system",
             "ip_address",
             "bgp_group",
