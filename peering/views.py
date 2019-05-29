@@ -378,13 +378,8 @@ class ConfigTemplateAdd(PermissionRequiredMixin, AddOrEditView):
 class ConfigTemplateDetails(View):
     def get(self, request, pk):
         configuration_template = get_object_or_404(ConfigurationTemplate, pk=pk)
-        internet_exchanges = InternetExchange.objects.filter(
-            configuration_template=configuration_template
-        )
-        context = {
-            "configuration_template": configuration_template,
-            "internet_exchanges": internet_exchanges,
-        }
+        routers = Router.objects.filter(configuration_template=configuration_template)
+        context = {"configuration_template": configuration_template, "routers": routers}
         return render(request, "peering/config/details.html", context)
 
 
