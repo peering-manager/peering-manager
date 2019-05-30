@@ -17,7 +17,7 @@ class Command(BaseCommand):
         for router in Router.objects.all():
             # Configuration can be applied only if there is a template and the router
             # is running on a supported platform
-            if router.configuration_template and router.router.platform:
+            if router.configuration_template and router.platform:
                 self.logger.info("Configuring {}".format(router.hostname))
                 # Generate configuration and apply it something has changed
                 configuration = router.generate_configuration()
