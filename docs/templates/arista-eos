@@ -1,3 +1,6 @@
+!!! warning
+    This template example needs an update.
+
 ```no-highlight
 router bgp 12345
    {%- for group in peering_groups %}
