@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls import include, url
+from django.conf.urls import include, re_path
 
 from . import views
 from .admin import admin_site
@@ -10,33 +10,33 @@ handler500 = views.handle_500
 
 __patterns = [
     # Include the peering app
-    url(r"", include("peering.urls")),
+    re_path(r"", include("peering.urls")),
     # Include the peeringdb app
-    url(r"", include("peeringdb.urls")),
+    re_path(r"", include("peeringdb.urls")),
     # Include the users app
-    url(r"^user/", include("users.urls")),
+    re_path(r"^user/", include("users.urls")),
     # Include the utils app
-    url(r"", include("utils.urls")),
+    re_path(r"", include("utils.urls")),
     # Users login/logout
-    url(r"^login/$", LoginView.as_view(), name="login"),
-    url(r"^logout/$", LogoutView.as_view(), name="logout"),
+    re_path(r"^login/$", LoginView.as_view(), name="login"),
+    re_path(r"^logout/$", LogoutView.as_view(), name="logout"),
     # Home
-    url(r"^$", views.Home.as_view(), name="home"),
+    re_path(r"^$", views.Home.as_view(), name="home"),
     # Admin
-    url(r"^admin/", admin_site.urls),
+    re_path(r"^admin/", admin_site.urls),
     # Error triggering
-    url(r"^error500/$", views.trigger_500),
+    re_path(r"^error500/$", views.trigger_500),
     # API
-    url(r"^api/$", views.APIRootView.as_view(), name="api-root"),
-    url(r"^api/peering/", include("peering.api.urls")),
-    url(r"^api/peeringdb/", include("peeringdb.api.urls")),
+    re_path(r"^api/$", views.APIRootView.as_view(), name="api-root"),
+    re_path(r"^api/peering/", include("peering.api.urls")),
+    re_path(r"^api/peeringdb/", include("peeringdb.api.urls")),
 ]
 
 # Add debug_toolbar in debug mode
 if settings.DEBUG:
     import debug_toolbar
 
-    __patterns += [url(r"^__debug__/", include(debug_toolbar.urls))]
+    __patterns += [re_path(r"^__debug__/", include(debug_toolbar.urls))]
 
 # Prepend BASE_PATH
-urlpatterns = [url(r"^{}".format(settings.BASE_PATH), include(__patterns))]
+urlpatterns = [re_path(r"^{}".format(settings.BASE_PATH), include(__patterns))]
