@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from peering.models import (
     AutonomousSystem,
+    BGPGroup,
     Community,
     ConfigurationTemplate,
     InternetExchange,
@@ -19,6 +20,14 @@ class AutonomousSystemNestedSerializer(WritableNestedSerializer):
     class Meta:
         model = AutonomousSystem
         fields = ["id", "url", "asn", "name"]
+
+
+class BGPGroupNestedSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name="peering-api:bgpgroup-detail")
+
+    class Meta:
+        model = BGPGroup
+        fields = ["id", "url", "name", "slug"]
 
 
 class CommunityNestedSerializer(WritableNestedSerializer):

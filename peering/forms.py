@@ -14,6 +14,7 @@ from .constants import (
 )
 from .models import (
     AutonomousSystem,
+    BGPGroup,
     Community,
     ConfigurationTemplate,
     DirectPeeringSession,
@@ -133,6 +134,88 @@ class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
     ipv4_max_prefixes = forms.IntegerField(required=False, label="IPv4 Max Prefixes")
 
 
+class BGPGroupForm(BootstrapMixin, forms.ModelForm):
+    slug = SlugField()
+    comment = CommentField()
+    import_routing_policies = FilterChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "import-policy"},
+        ),
+    )
+    export_routing_policies = FilterChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "export-policy"},
+        ),
+    )
+    communities = FilterChoiceField(
+        required=False,
+        queryset=Community.objects.all(),
+        widget=APISelectMultiple(api_url="/api/peering/communities/"),
+    )
+
+    class Meta:
+        model = BGPGroup
+        fields = (
+            "name",
+            "slug",
+            "comment",
+            "import_routing_policies",
+            "export_routing_policies",
+            "communities",
+            "check_bgp_session_states",
+        )
+        labels = {
+            "check_bgp_session_states": "Poll Peering Session States",
+            "comment": "Comments",
+        }
+        help_texts = {
+            "name": "Full name of the BGP group",
+            "check_bgp_session_states": "If enabled, the state of peering sessions will be polled.",
+        }
+
+
+class BGPGroupBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = FilterChoiceField(
+        queryset=BGPGroup.objects.all(), widget=forms.MultipleHiddenInput
+    )
+    import_routing_policies = FilterChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "import-policy"},
+        ),
+    )
+    export_routing_policies = FilterChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "export-policy"},
+        ),
+    )
+    communities = FilterChoiceField(
+        required=False,
+        queryset=Community.objects.all(),
+        widget=APISelectMultiple(api_url="/api/peering/communities/"),
+    )
+    comment = CommentField(widget=SmallTextarea)
+
+    class Meta:
+        nullable_fields = ["comment"]
+
+
+class BGPGroupFilterForm(BootstrapMixin, forms.Form):
+    model = BGPGroup
+    q = forms.CharField(required=False, label="Search")
+
+
 class CommunityForm(BootstrapMixin, forms.ModelForm):
     comment = CommentField()
 
@@ -190,6 +273,12 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         queryset=AutonomousSystem.objects.all(),
         widget=APISelect(api_url="/api/peering/autonomous-systems/"),
     )
+    bgp_group = forms.ModelChoiceField(
+        required=False,
+        queryset=BGPGroup.objects.all(),
+        label="BGP Group",
+        widget=APISelect(api_url="/api/peering/bgp-groups/"),
+    )
     relationship = forms.ChoiceField(
         choices=BGP_RELATIONSHIP_CHOICES, widget=StaticSelect
     )
@@ -237,6 +326,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         fields = (
             "local_asn",
             "autonomous_system",
+            "bgp_group",
             "relationship",
             "ip_address",
             "password",
@@ -270,6 +360,12 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
     enabled = forms.NullBooleanField(
         required=False, label="Enable", widget=CustomNullBooleanSelect
     )
+    bgp_group = forms.ModelChoiceField(
+        required=False,
+        queryset=BGPGroup.objects.all(),
+        label="BGP Group",
+        widget=APISelect(api_url="/api/peering/bgp-groups/"),
+    )
     import_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
@@ -301,6 +397,13 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
     model = DirectPeeringSession
     q = forms.CharField(required=False, label="Search")
     local_asn = forms.IntegerField(required=False, label="Local ASN")
+    bgp_group = FilterChoiceField(
+        queryset=BGPGroup.objects.all(),
+        to_field_name="pk",
+        null_label=True,
+        label="BGP Group",
+        widget=APISelectMultiple(api_url="/api/peering/bgp-groups/", null_option=True),
+    )
     address_family = forms.ChoiceField(
         required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
     )
@@ -363,7 +466,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "peeringdb_id": "PeeringDB ID",
             "ipv6_address": "IPv6 Address",
             "ipv4_address": "IPv4 Address",
-            "check_bgp_session_states": "Check Peering Session States",
+            "check_bgp_session_states": "Poll Peering Session States",
             "comment": "Comments",
         }
         help_texts = {
@@ -373,7 +476,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "ipv4_address": "IPv4 Address used to peer",
             "configuration_template": "Template for configuration generation",
             "router": "Router connected to the Internet Exchange point",
-            "check_bgp_session_states": "If enabled, with a usable router, the state of peering sessions will be updated.",
+            "check_bgp_session_states": "If enabled, with a usable router, the state of peering sessions will be polled.",
         }
         widgets = {
             "configuration_template": APISelect(api_url="/api/peering/templates/"),
@@ -676,10 +779,21 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
             "hostname",
             "platform",
             "encrypt_passwords",
+            "configuration_template",
             "comment",
         )
-        labels = {"comment": "Comments"}
-        help_texts = {"hostname": "Router hostname (must be resolvable) or IP address"}
+        labels = {
+            "use_netbox": "Use NetBox",
+            "configuration_template": "Configuration",
+            "comment": "Comments",
+        }
+        help_texts = {
+            "hostname": "Router hostname (must be resolvable) or IP address",
+            "configuration_template": "Template used to generate device configuration",
+        }
+        widgets = {
+            "configuration_template": APISelect(api_url="/api/peering/templates/")
+        }
 
 
 class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -691,6 +805,11 @@ class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
     )
     encrypt_passwords = forms.NullBooleanField(
         required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
+    )
+    configuration_template = forms.ModelChoiceField(
+        required=False,
+        queryset=ConfigurationTemplate.objects.all(),
+        widget=APISelect(api_url="/api/peering/templates/"),
     )
     comment = CommentField(widget=SmallTextarea)
 
@@ -706,6 +825,12 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
     )
     encrypt_passwords = forms.NullBooleanField(
         required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
+    )
+    configuration_template = FilterChoiceField(
+        queryset=ConfigurationTemplate.objects.all(),
+        to_field_name="pk",
+        null_label=True,
+        widget=APISelectMultiple(api_url="/api/peering/templates/", null_option=True),
     )
 
 

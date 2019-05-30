@@ -29,7 +29,8 @@ If Peering Manager is used to generate configuration stanzas and push them to
 routers, this task can be automated using the given command.
 
 ```no-highlight
-# python3 manage.py deploy_configurations
+# python3 manage.py deploy_configurations # Deprecated
+# python3 manage.py configure_routers
 ```
 
 This will generate the configuration for each IX and push it to the attached

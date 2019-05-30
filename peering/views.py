@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.defaultfilters import slugify
@@ -10,6 +11,7 @@ import json
 
 from .filters import (
     AutonomousSystemFilter,
+    BGPGroupFilter,
     CommunityFilter,
     ConfigurationTemplateFilter,
     DirectPeeringSessionFilter,
@@ -22,6 +24,9 @@ from .filters import (
 from .forms import (
     AutonomousSystemFilterForm,
     AutonomousSystemForm,
+    BGPGroupBulkEditForm,
+    BGPGroupFilterForm,
+    BGPGroupForm,
     CommunityBulkEditForm,
     CommunityFilterForm,
     CommunityForm,
@@ -48,6 +53,7 @@ from .forms import (
 )
 from .models import (
     AutonomousSystem,
+    BGPGroup,
     BGPSession,
     Community,
     ConfigurationTemplate,
@@ -59,6 +65,7 @@ from .models import (
 )
 from .tables import (
     AutonomousSystemTable,
+    BGPGroupTable,
     CommunityTable,
     ConfigurationTemplateTable,
     DirectPeeringSessionTable,
@@ -200,6 +207,111 @@ class AutonomousSystemInternetExchangesPeeringSessions(ModelListView):
         return extra_context
 
 
+class BGPGroupList(ModelListView):
+    queryset = BGPGroup.objects.annotate(
+        directpeeringsession_count=Count("directpeeringsession")
+    )
+    filter = BGPGroupFilter
+    filter_form = BGPGroupFilterForm
+    table = BGPGroupTable
+    template = "peering/bgp-group/list.html"
+
+
+class BGPGroupDetails(View):
+    def get(self, request, slug):
+        bgp_group = get_object_or_404(BGPGroup, slug=slug)
+        context = {"bgp_group": bgp_group}
+        return render(request, "peering/bgp-group/details.html", context)
+
+
+class BGPGroupAdd(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "peering.add_bgpgroup"
+    model = BGPGroup
+    form = BGPGroupForm
+    return_url = "peering:bgp_group_list"
+    template = "peering/bgp-group/add_edit.html"
+
+
+class BGPGroupEdit(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "peering.change_bgpgroup"
+    model = BGPGroup
+    form = BGPGroupForm
+    template = "peering/bgp-group/add_edit.html"
+
+
+class BGPGroupBulkEdit(PermissionRequiredMixin, BulkEditView):
+    permission_required = "peering.change_bgpgroup"
+    queryset = BGPGroup.objects.all()
+    filter = BGPGroupFilter
+    table = BGPGroupTable
+    form = BGPGroupBulkEditForm
+
+
+class BGPGroupDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = "peering.delete_bgpgroup"
+    model = BGPGroup
+    return_url = "peering:bgp_group_list"
+
+
+class BGPGroupBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = "peering.delete_bgpgroup"
+    model = BGPGroup
+    filter = BGPGroupFilter
+    table = BGPGroupTable
+
+
+class BGPGroupPeeringSessions(ModelListView):
+    filter = DirectPeeringSessionFilter
+    filter_form = DirectPeeringSessionFilterForm
+    table = DirectPeeringSessionTable
+    template = "peering/bgp-group/sessions.html"
+    hidden_columns = ["bgp_group"]
+    hidden_filters = ["bgp_group"]
+
+    def build_queryset(self, request, kwargs):
+        queryset = None
+        if "slug" in kwargs:
+            bgp_group = get_object_or_404(BGPGroup, slug=kwargs["slug"])
+            queryset = bgp_group.directpeeringsession_set.order_by(
+                "autonomous_system", "ip_address"
+            )
+        return queryset
+
+    def extra_context(self, kwargs):
+        extra_context = {}
+        if "slug" in kwargs:
+            extra_context.update(
+                {"bgp_group": get_object_or_404(BGPGroup, slug=kwargs["slug"])}
+            )
+        return extra_context
+
+    def setup_table_columns(self, request, permissions, table, kwargs):
+        table.columns.show("session_state")
+        super().setup_table_columns(request, permissions, table, kwargs)
+
+
+class BGPGroupPeeringSessionAdd(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "peering.add_directpeeringsession"
+    model = DirectPeeringSession
+    form = DirectPeeringSessionForm
+    template = "peering/session/direct/add_edit.html"
+
+    def get_object(self, kwargs):
+        if "pk" in kwargs:
+            return get_object_or_404(self.model, pk=kwargs["pk"])
+
+        return self.model()
+
+    def alter_object(self, obj, request, args, kwargs):
+        if "slug" in kwargs:
+            obj.bgp_group = get_object_or_404(BGPGroup, slug=kwargs["slug"])
+
+        return obj
+
+    def get_return_url(self, obj):
+        return obj.bgp_group.get_peering_sessions_list_url()
+
+
 class CommunityList(ModelListView):
     queryset = Community.objects.all()
     filter = CommunityFilter
@@ -269,13 +381,8 @@ class ConfigTemplateAdd(PermissionRequiredMixin, AddOrEditView):
 class ConfigTemplateDetails(View):
     def get(self, request, pk):
         configuration_template = get_object_or_404(ConfigurationTemplate, pk=pk)
-        internet_exchanges = InternetExchange.objects.filter(
-            configuration_template=configuration_template
-        )
-        context = {
-            "configuration_template": configuration_template,
-            "internet_exchanges": internet_exchanges,
-        }
+        routers = Router.objects.filter(configuration_template=configuration_template)
+        context = {"configuration_template": configuration_template, "routers": routers}
         return render(request, "peering/config/details.html", context)
 
 
@@ -749,6 +856,18 @@ class RouterDetails(View):
         internet_exchanges = InternetExchange.objects.filter(router=router)
         context = {"router": router, "internet_exchanges": internet_exchanges}
         return render(request, "peering/router/details.html", context)
+
+
+class RouterConfiguration(PermissionRequiredMixin, View):
+    permission_required = "peering.view_configuration_router"
+
+    def get(self, request, pk):
+        router = get_object_or_404(Router, pk=pk)
+        context = {
+            "router": router,
+            "router_configuration": router.generate_configuration(),
+        }
+        return render(request, "peering/router/configuration.html", context)
 
 
 class RouterEdit(PermissionRequiredMixin, AddOrEditView):

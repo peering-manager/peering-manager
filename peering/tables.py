@@ -2,6 +2,7 @@ import django_tables2 as tables
 
 from .models import (
     AutonomousSystem,
+    BGPGroup,
     Community,
     ConfigurationTemplate,
     DirectPeeringSession,
@@ -26,6 +27,18 @@ AUTONOMOUS_SYSTEM_HAS_POTENTIAL_IX_PEERING_SESSIONS = """
 <span class="text-right" data-toggle="tooltip" data-placement="left" title="Potential Peering Sessions">
   <i class="fas fa-exclamation-circle text-warning"></i>
 </span>
+{% endif %}
+"""
+BGP_GROUP_ACTIONS = """
+{% if perms.peering.change_bgpgroup %}
+<a href="{% url 'peering:bgp_group_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
+{% endif %}
+"""
+BGP_GROUP_POLL_SESSION_STATES = """
+{% if record.check_bgp_session_states %}
+<i class="fas fa-check text-success"></i>
+{% else %}
+<i class="fas fa-times text-danger"></i>
 {% endif %}
 """
 BGPSESSION_STATUS = """
@@ -155,6 +168,35 @@ class AutonomousSystemTable(BaseTable):
         )
 
 
+class BGPGroupTable(BaseTable):
+    """
+    Table for BGPGroup lists
+    """
+
+    pk = SelectColumn()
+    name = tables.Column(linkify=True)
+    check_bgp_session_states = tables.TemplateColumn(
+        verbose_name="Poll Session States",
+        template_code=BGP_GROUP_POLL_SESSION_STATES,
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
+    )
+    directpeeringsession_count = tables.Column(
+        verbose_name="Direct Peering Sessions",
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
+    )
+    actions = ActionsColumn(template_code=BGP_GROUP_ACTIONS)
+
+    class Meta(BaseTable.Meta):
+        model = BGPGroup
+        fields = (
+            "pk",
+            "name",
+            "check_bgp_session_states",
+            "directpeeringsession_count",
+            "actions",
+        )
+
+
 class CommunityTable(BaseTable):
     """
     Table for Community lists
@@ -190,9 +232,11 @@ class DirectPeeringSessionTable(BaseTable):
     """
 
     pk = SelectColumn()
-    local_asn = tables.Column(verbose_name="Local ASN")
     autonomous_system = tables.Column(verbose_name="AS", linkify=True)
     ip_address = tables.Column(verbose_name="IP Address", linkify=True)
+    bgp_group = tables.Column(
+        verbose_name="BGP Group", accessor="bgp_group", linkify=True
+    )
     relationship = tables.TemplateColumn(
         verbose_name="Relationship", template_code=BGP_RELATIONSHIP
     )
@@ -209,9 +253,9 @@ class DirectPeeringSessionTable(BaseTable):
         model = DirectPeeringSession
         fields = (
             "pk",
-            "local_asn",
             "autonomous_system",
             "ip_address",
+            "bgp_group",
             "relationship",
             "enabled",
             "session_state",
@@ -339,11 +383,20 @@ class RouterTable(BaseTable):
         template_code=ROUTER_ENCRYPT_PASSWORD,
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
+    configuration_template = tables.Column(linkify=True, verbose_name="Configuration")
     actions = ActionsColumn(template_code=ROUTER_ACTIONS)
 
     class Meta(BaseTable.Meta):
         model = Router
-        fields = ("pk", "name", "hostname", "platform", "encrypt_passwords", "actions")
+        fields = (
+            "pk",
+            "name",
+            "hostname",
+            "platform",
+            "encrypt_passwords",
+            "configuration_template",
+            "actions",
+        )
 
 
 class RoutingPolicyTable(BaseTable):

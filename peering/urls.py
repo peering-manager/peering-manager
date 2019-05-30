@@ -43,6 +43,44 @@ urlpatterns = [
         views.AutonomousSystemInternetExchangesPeeringSessions.as_view(),
         name="autonomous_system_internet_exchange_peering_sessions",
     ),
+    # BGP Groups
+    url(r"^bgp-groups/$", views.BGPGroupList.as_view(), name="bgp_group_list"),
+    url(r"^bgp-groups/add/$", views.BGPGroupAdd.as_view(), name="bgp_group_add"),
+    url(
+        r"^bgp-groups/delete/$",
+        views.BGPGroupBulkDelete.as_view(),
+        name="bgp_group_bulk_delete",
+    ),
+    url(
+        r"^bgp-groups/edit/$",
+        views.BGPGroupBulkEdit.as_view(),
+        name="bgp_group_bulk_edit",
+    ),
+    url(
+        r"^bgp-groups/(?P<slug>[\w-]+)/$",
+        views.BGPGroupDetails.as_view(),
+        name="bgp_group_details",
+    ),
+    url(
+        r"^bgp-groups/(?P<slug>[\w-]+)/edit/$",
+        views.BGPGroupEdit.as_view(),
+        name="bgp_group_edit",
+    ),
+    url(
+        r"^bgp-groups/(?P<slug>[\w-]+)/delete/$",
+        views.BGPGroupDelete.as_view(),
+        name="bgp_group_delete",
+    ),
+    url(
+        r"^bgp-groups/(?P<slug>[\w-]+)/peering-sessions/$",
+        views.BGPGroupPeeringSessions.as_view(),
+        name="bgp_group_peering_sessions",
+    ),
+    url(
+        r"^bgp-groups/(?P<slug>[\w-]+)/add-peering-session/$",
+        views.BGPGroupPeeringSessionAdd.as_view(),
+        name="bgp_group_peering_session_add",
+    ),
     # BGP Communities
     url(r"^communities/$", views.CommunityList.as_view(), name="community_list"),
     url(r"^communities/add/$", views.CommunityAdd.as_view(), name="community_add"),
@@ -262,6 +300,11 @@ urlpatterns = [
         r"^routers/(?P<pk>[0-9]+)/$",
         views.RouterDetails.as_view(),
         name="router_details",
+    ),
+    url(
+        r"^routers/(?P<pk>[0-9]+)/configuration/$",
+        views.RouterConfiguration.as_view(),
+        name="router_configuration",
     ),
     url(
         r"^routers/(?P<pk>[0-9]+)/edit/$",

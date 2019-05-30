@@ -7,6 +7,7 @@ from rest_framework.response import Response
 
 from .serializers import (
     AutonomousSystemSerializer,
+    BGPGroupSerializer,
     CommunitySerializer,
     ConfigurationTemplateSerializer,
     DirectPeeringSessionSerializer,
@@ -18,6 +19,7 @@ from .serializers import (
 )
 from peering.filters import (
     AutonomousSystemFilter,
+    BGPGroupFilter,
     CommunityFilter,
     ConfigurationTemplateFilter,
     DirectPeeringSessionFilter,
@@ -28,6 +30,7 @@ from peering.filters import (
 )
 from peering.models import (
     AutonomousSystem,
+    BGPGroup,
     Community,
     ConfigurationTemplate,
     DirectPeeringSession,
@@ -95,6 +98,21 @@ class AutonomousSystemViewSet(ModelViewSet):
     def find_potential_ix_peering_sessions(self, request, pk=None):
         self.get_object().find_potential_ix_peering_sessions()
         return Response({"status": "done"})
+
+
+class BGPGroupViewSet(ModelViewSet):
+    queryset = BGPGroup.objects.all()
+    serializer_class = BGPGroupSerializer
+    filterset_class = BGPGroupFilter
+
+    @action(
+        detail=True, methods=["post", "put", "patch"], url_path="poll-peering-sessions"
+    )
+    def poll_peering_sessions(self, request, pk=None):
+        success = self.get_object().poll_peering_sessions()
+        if not success:
+            raise ServiceUnavailable("Cannot update peering session states.")
+        return Response({"status": "success"})
 
 
 class CommunityViewSet(ModelViewSet):
@@ -176,12 +194,10 @@ class InternetExchangeViewSet(ModelViewSet):
         return Response({"changed": not error, "changes": changes, "error": error})
 
     @action(
-        detail=True,
-        methods=["post", "put", "patch"],
-        url_path="update-peering-sessions",
+        detail=True, methods=["post", "put", "patch"], url_path="poll-peering-sessions"
     )
-    def update_peering_sessions(self, request, pk=None):
-        success = self.get_object().update_peering_session_states()
+    def poll_peering_sessions(self, request, pk=None):
+        success = self.get_object().poll_peering_sessions()
         if not success:
             raise ServiceUnavailable("Cannot update peering session states.")
         return Response({"status": "success"})
@@ -209,6 +225,31 @@ class RouterViewSet(ModelViewSet):
         return Response(
             {"encrypted": self.get_object().encrypt_string(request.data["string"])}
         )
+
+    @action(detail=True, methods=["get"], url_path="configuration")
+    def configuration(self, request, pk=None):
+        # Check user permission first
+        if not request.user.has_perm("peering.view_configuration_router"):
+            return HttpResponseForbidden()
+        return Response({"configuration": self.get_object().generate_configuration()})
+
+    @action(detail=True, methods=["get", "post", "put", "patch"], url_path="configure")
+    def configure(self, request, pk=None):
+        router = self.get_object()
+
+        # Check if the router runs on a supported platform
+        if not router.platform:
+            raise ServiceUnavailable("Unsupported router platform.")
+
+        # Check user permission first
+        if not request.user.has_perm("peering.deploy_configuration_router"):
+            return HttpResponseForbidden()
+
+        # Commit changes only if not using a GET request
+        error, changes = router.set_napalm_configuration(
+            router.generate_configuration(), commit=(request.method not in SAFE_METHODS)
+        )
+        return Response({"changed": not error, "changes": changes, "error": error})
 
     @action(detail=True, methods=["get"], url_path="test-napalm-connection")
     def test_napalm_connection(self, request, pk=None):

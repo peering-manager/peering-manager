@@ -1,11 +1,8 @@
-{% extends 'peering/ix/_base.html' %}
+{% extends 'peering/router/_base.html' %}
 {% block subcontent %}
-      <div class="alert alert-warning" role="alert">
-      This feature is deprecated and will be removed in a near future. Please use the router configuration feature.
-      </div>
       <div class="row">
         <div class="col-md-2">
-          {% if perms.peering.deploy_configuration_internetexchange and internet_exchange.router and internet_exchange.router.platform %}
+          {% if perms.peering.deploy_configuration_router and router.platform %}
           <button type="button" class="btn btn-primary btn-block" id="router-diff">
             <i class="fa fa-cogs"></i> Deploy
           </button>
@@ -14,9 +11,9 @@
             <i class="fa fa-clipboard"></i> Copy
           </button>
         </div>
-        <pre class="col-md-10 pre-scrollable"><code>{{ internet_exchange_configuration }}</code></pre>
+        <pre class="col-md-10 pre-scrollable"><code>{{ router_configuration }}</code></pre>
       </div>
-      {% if perms.peering.deploy_configuration_internetexchange and internet_exchange.router and internet_exchange.router.platform %}
+      {% if perms.peering.deploy_configuration_router and router.platform %}
       <div class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
           <div class="modal-content">
@@ -35,7 +32,7 @@
       </div>
       {% endif %}
 {% endblock %}
-{% if perms.peering.deploy_configuration_internetexchange and internet_exchange.router and internet_exchange.router.platform %}
+{% if perms.peering.deploy_configuration_router and router.platform %}
 {% block javascript %}
     <script>
       // When the modal is closed, reset the button back to its defaults
@@ -56,7 +53,7 @@
       $('#router-diff').click(function() {
         $.ajax({
           method: 'get',
-          url: "{% url 'peering-api:internetexchange-configure-router' pk=internet_exchange.pk %}",
+          url: "{% url 'peering-api:router-configure' pk=router.pk %}",
           beforeSend: function() {
             $('#router-diff').attr('disabled', 'disabled').removeClass('btn-primary').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
           },
@@ -84,7 +81,7 @@
       $('#save-config').click(function() {
         $.ajax({
           method: 'post',
-          url: "{% url 'peering-api:internetexchange-configure-router' pk=internet_exchange.pk %}",
+          url: "{% url 'peering-api:router-configure' pk=router.pk %}",
           data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
           beforeSend: function() {
             $('#save-config').attr('disabled', 'disabled').removeClass('btn-primary').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');

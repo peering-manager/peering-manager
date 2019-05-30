@@ -1,21 +1,27 @@
 site_name: Peering Manager
+repo_url: https://github.com/respawner/peering-manager
 
 pages:
-  - 'Introduction': 'index.md'
-  - 'Setup':
-    - 'PostgreSQL': 'setup/postgresql.md'
-    - 'Peering Manager': 'setup/peering-manager.md'
-    - 'Web Server': 'setup/web-server.md'
-    - 'Logging': 'setup/logging.md'
-    - 'LDAP': 'setup/ldap.md'
-    - 'Upgrading': 'setup/upgrading.md'
-    - 'Scheduled Tasks': 'setup/scheduled-tasks.md'
-  - 'Configuration':
-    - 'Configuring' : 'configuration/index.md'
-    - 'Required Settings': 'configuration/required-settings.md'
-    - 'Optional Settings': 'configuration/optional-settings.md'
-  - 'User Manual': 'man.md'
-  - 'Templating': 'config-template.md'
-  - 'Integration': 'integration.md'
+  - Introduction: 'index.md'
+  - Setup:
+    - 1. PostgreSQL: 'setup/postgresql.md'
+    - 2. Peering Manager: 'setup/peering-manager.md'
+    - 3. Web Server: 'setup/web-server.md'
+    - 4. Logging (Optional): 'setup/logging.md'
+    - 5. LDAP (Optional): 'setup/ldap.md'
+    - 6. Scheduled Tasks (Optional): 'setup/scheduled-tasks.md'
+    - Upgrading: 'setup/upgrading.md'
+  - Configuration:
+    - Configuring: 'configuration/index.md'
+    - Required Settings: 'configuration/required-settings.md'
+    - Optional Settings: 'configuration/optional-settings.md'
+  - User Manual: 'man.md'
+  - Templating: 'templates/index.md'
+    - Juniper JUNOS: 'templates/juniper-junos.md'
+    - Cisco IOS-XR: 'templates/cisco-iosxr.md'
+    - Arista EOS: 'templates/arista-eos.md'
+  - Integration: 'integration.md'
 
 theme: readthedocs
+markdown_extensions:
+    - admonition:
