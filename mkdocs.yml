@@ -18,7 +18,7 @@ pages:
   - User Manual: 'man.md'
   - Templating: 'templates/index.md'
     - Juniper JUNOS: 'templates/juniper-junos.md'
-    - Cisco IOS-XR: 'templates/cisco-iosxr.md'
+    - Cisco IOS XR: 'templates/cisco-iosxr.md'
     - Arista EOS: 'templates/arista-eos.md'
   - Integration: 'integration.md'
 
