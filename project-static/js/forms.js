@@ -1,9 +1,13 @@
 $(document).ready(function() {
   // Select2
   $.fn.select2.defaults.set('theme', 'bootstrap');
-  $('.custom-select2-static').select2({placeholder: '---------'});
+  $('.custom-select2-static').select2({
+    placeholder: '---------',
+    allowClear: true
+  });
   $('.custom-select2-api').select2({
     placeholder: '---------',
+    allowClear: true,
     ajax: {
       delay: 500,
       url: function() {
