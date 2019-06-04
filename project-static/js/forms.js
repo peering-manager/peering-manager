@@ -128,8 +128,10 @@ $(document).ready(function() {
   $('input:checkbox[name=_nullify]').click(function() {
       var elementToHide = $('#id_' + this.value);
       if (elementToHide.is('select')) {
-        elementToHide = elementToHide.parent();
+        elementToHide.toggle('disabled');
+        elementToHide.next().toggle('disabled');
+      } else {
+        elementToHide.toggle('disabled');
       }
-      elementToHide.toggle('disabled');
   });
 });
