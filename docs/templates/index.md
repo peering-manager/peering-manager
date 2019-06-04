@@ -59,6 +59,6 @@ policy-options {
 
 Template examples are provided for:
 
-  * [Juniper JUNOS](templates/juniper-junos.md)
-  * [Cisco IOS-XR](templates/cisco-iosxr.md)
-  * [Arista EOS](templates/arista-eos.md)
+  * [Juniper JUNOS](juniper-junos.md)
+  * [Cisco IOS-XR](cisco-iosxr.md)
+  * [Arista EOS](arista-eos.md)
