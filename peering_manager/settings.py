@@ -79,6 +79,8 @@ for setting in ["DATABASE", "SECRET_KEY", "ALLOWED_HOSTS", "MY_ASN"]:
             "Mandatory setting {} is not in the configuration.py file.".format(setting)
         )
 
+CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
+
 BASE_PATH = getattr(configuration, "BASE_PATH", "")
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip("/") + "/"  # Enforce trailing slash only
