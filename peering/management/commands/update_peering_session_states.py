@@ -14,4 +14,4 @@ class Command(BaseCommand):
 
         internet_exchanges = InternetExchange.objects.all()
         for internet_exchange in internet_exchanges:
-            internet_exchange.update_peering_session_states()
+            internet_exchange.poll_peering_sessions()
