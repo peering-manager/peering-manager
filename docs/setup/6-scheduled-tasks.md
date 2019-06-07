@@ -41,15 +41,17 @@ as maximum prefix changes peers may have made against existing peering sessions.
 If no configuration template or no router is attached to a given IX, this one
 will be ignored during the execution of the task.
 
-## Update Peering Session States
+## Poll Peering Sessions
 
-If a router is connected to an Internet exchange and if this router is using
-a supported platform (that is able to give BGP peer details), it is possible
-to invoke the following command. It will update the state of each peering
-session.
+Poll peering sessions to update values shown in Peering Manager. The sessions
+must be in a BGP group or an Internet Exchange for them to be polled. They also
+have to be set in a reachable router.
 
 ```no-highlight
-# python3 manage.py update_peering_session_states
+# python3 manage.py update_peering_session_states # Deprecated
+# python3 manage.py poll_peering_sessions --all # can be -a (--all),
+                                                # -g (--bgp-groups) or
+                                                # -i (--internet-exchanges)
 ```
 
 ## Check for available IX Peering Sessions

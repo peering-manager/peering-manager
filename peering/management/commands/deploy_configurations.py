@@ -6,17 +6,19 @@ from peering.models import InternetExchange
 
 
 class Command(BaseCommand):
-    help = "Deploy configurations each IX having a router and a configuration template attached."
+    help = "[DEPRECATED] Deploy configurations each IX having a router and a configuration template attached."
     logger = logging.getLogger("peering.manager.peering")
 
     def handle(self, *args, **options):
-        self.logger.info("Deploying configurations...")
+        self.logger.info("[DEPRECATED] Deploying configurations...")
 
         for ix in InternetExchange.objects.all():
             # Only deploy config if there are at least a configuration template, a
             # router and a platform for the router
             if ix.configuration_template and ix.router and ix.router.platform:
-                self.logger.info("Deploying configuration on {}".format(ix.name))
+                self.logger.info(
+                    "[DEPRECATED] Deploying configuration on {}".format(ix.name)
+                )
 
                 # Generate configuration and deploy it if it changes something
                 # (without any errors)
@@ -25,6 +27,8 @@ class Command(BaseCommand):
                 if not error and changes:
                     ix.router.set_napalm_configuration(configuration, commit=True)
             else:
-                self.logger.info("No configuration to deploy on {}".format(ix.name))
+                self.logger.info(
+                    "[DEPRECATED] No configuration to deploy on {}".format(ix.name)
+                )
 
-        self.logger.info("Configurations deployed")
+        self.logger.info("[DEPRECATED] Configurations deployed")

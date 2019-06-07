@@ -10,7 +10,7 @@ class Command(BaseCommand):
     logger = logging.getLogger("peering.manager.peering")
 
     def handle(self, *args, **options):
-        self.logger.info("Updating peering session states...")
+        self.logger.info("[DEPRECATED] Updating peering session states...")
 
         internet_exchanges = InternetExchange.objects.all()
         for internet_exchange in internet_exchanges:
