@@ -517,6 +517,13 @@ class ConfigurationTemplate(ChangeLoggedModel):
             autonomous_system = AutonomousSystem.objects.get(asn=asn)
             return autonomous_system.get_irr_as_set_prefixes(address_family)
 
+        def cisco_password(password):
+            from utils.crypto.cisco import MAGIC as CISCO_MAGIC
+
+            if password.startswith(CISCO_MAGIC):
+                return password[2:]
+            return password
+
         # Add custom filters to our template
         jinja2_template.globals["prefix_list"] = prefix_list
 
