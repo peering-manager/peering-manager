@@ -29,6 +29,9 @@
         </nav>
         <ul class="navbar-nav ml-auto px-3">
           {% if request.user.is_authenticated %}
+          {% if request.session.last_search %}
+          <a href="{{ request.session.last_search }}" class="nav-link" title="Return to Last Search"><i class="fas fa-search"></i> Last Search</a>
+          {% endif %}
           <li class="nav-item dropdown">
             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" title="{{ request.user }}" role="button" aria-haspopup="true" aria-expanded="false">
               <i class="fas fa-user"></i>
