@@ -526,6 +526,7 @@ class ConfigurationTemplate(ChangeLoggedModel):
 
         # Add custom filters to our template
         jinja2_template.globals["prefix_list"] = prefix_list
+        jinja2_template.globals["cisco_password"] = cisco_password
 
         return jinja2_template.render(variables)
 
