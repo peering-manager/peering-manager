@@ -2,7 +2,7 @@ import ipaddress
 import logging
 import napalm
 
-from jinja2 import Template
+from jinja2 import Environment
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
@@ -506,7 +506,7 @@ class ConfigurationTemplate(ChangeLoggedModel):
         """
         Render the template using Jinja2.
         """
-        jinja2_template = Template(self.template)
+        environment = Environment()
 
         def prefix_list(asn, address_family=0):
             """
@@ -524,10 +524,11 @@ class ConfigurationTemplate(ChangeLoggedModel):
                 return password[2:]
             return password
 
-        # Add custom filters to our template
-        jinja2_template.globals["prefix_list"] = prefix_list
-        jinja2_template.globals["cisco_password"] = cisco_password
+        # Add custom filters to our environment
+        environment.filters["prefix_list"] = prefix_list
+        environment.filters["cisco_password"] = cisco_password
 
+        jinja2_template = environment.from_string(self.template)
         return jinja2_template.render(variables)
 
     def __str__(self):
