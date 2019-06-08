@@ -2,7 +2,7 @@ Django>=2.2,<2.3
 django-debug-toolbar==1.11
 djangorestframework==3.9.4
 django-filter==2.1.0
-django-netfields==0.10.0
+django-netfields==1.0.1
 django-tables2==2.0.6
 Jinja2==2.10.1
 napalm==2.4.0

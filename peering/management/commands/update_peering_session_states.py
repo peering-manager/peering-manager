@@ -6,7 +6,7 @@ from peering.models import InternetExchange
 
 
 class Command(BaseCommand):
-    help = "Update peering session states for Internet Exchanges."
+    help = "[DEPRECATED] Update peering session states for Internet Exchanges."
     logger = logging.getLogger("peering.manager.peering")
 
     def handle(self, *args, **options):
