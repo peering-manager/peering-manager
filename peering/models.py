@@ -1122,8 +1122,8 @@ class Router(ChangeLoggedModel):
     )
     encrypt_passwords = models.BooleanField(
         blank=True,
-        default=True,
-        help_text="Try to encrypt passwords in router's configuration",
+        default=False,
+        help_text="Try to encrypt passwords for peering sessions",
     )
     configuration_template = models.ForeignKey(
         "ConfigurationTemplate", blank=True, null=True, on_delete=models.SET_NULL
@@ -1172,10 +1172,11 @@ class Router(ChangeLoggedModel):
         If no crypto module can be found for the router platform, the returned string
         will be the same as the one passed as argument to this function.
         """
-        if self.platform == PLATFORM_JUNOS:
-            return junos_encrypt(string)
-        if self.platform in [PLATFORM_IOS, PLATFORM_IOSXR, PLATFORM_NXOS]:
-            return cisco_encrypt(string)
+        if self.encrypt_passwords:
+            if self.platform == PLATFORM_JUNOS:
+                return junos_encrypt(string)
+            if self.platform in [PLATFORM_IOS, PLATFORM_IOSXR, PLATFORM_NXOS]:
+                return cisco_encrypt(string)
 
         return string
 
