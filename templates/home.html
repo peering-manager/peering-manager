@@ -78,7 +78,7 @@
             <strong>Changelog</strong>
             <a class="float-right" href="{% url 'utils:object_change_list' %}" title="View full changelog"><i class="fas fa-bars"></i></a>
           </div>
-          <div class="list-group list-group-flush">
+          <div class="list-group list-group-flush fixed-size-list-group">
             {% for change in changelog %}
             <div class="list-group-item">
               {{ change.get_html_icon }}
@@ -106,7 +106,7 @@
           <div class="card-header">
             <strong>PeeringDB Synchronizations</strong>
           </div>
-          <div class="list-group list-group-flush">
+          <div class="list-group list-group-flush fixed-size-list-group">
             {% for synchronization in synchronizations %}
             <div class="list-group-item">
               <i class="fa fa-sync"></i> Added {{ synchronization.added }}, updated {{ synchronization.updated }} and deleted {{ synchronization.deleted }} objects<br />

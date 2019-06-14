@@ -83,7 +83,7 @@ table.attr-table tr:first-child td {
 ul.nav-tabs, ul.nav-pills {
   margin-bottom: 20px;
 }
-.card .list-group {
+.fixed-size-list-group {
   max-height: 340px;
   overflow: auto;
 }
