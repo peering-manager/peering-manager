@@ -7,7 +7,7 @@ django-tables2==2.0.6
 Jinja2==2.10.1
 napalm==2.4.0
 MarkupSafe==1.1.1
-psycopg2-binary==2.8.2
+psycopg2-binary==2.8.3
 py-gfm==0.1.4
 pynetbox==4.0.6
 pytz==2019.1

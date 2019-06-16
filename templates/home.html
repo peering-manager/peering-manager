@@ -25,13 +25,6 @@
           <div class="card-header"><strong>Deployment</strong></div>
           <div class="list-group list-group-flush">
             <div class="list-group-item">
-              <span class="badge badge-pill badge-secondary float-right">{{ statistics.bgp_groups_count }}</span>
-              <h4 class="list-group-item-heading">
-                <a href="{% url 'peering:bgp_group_list' %}">BGP Groups</a>
-              </h4>
-              <p class="list-group-item-textn text-muted">Groups of BGP sessions<p>
-            </div>
-            <div class="list-group-item">
               <span class="badge badge-pill badge-secondary float-right">{{ statistics.templates_count }}</span>
               <h4 class="list-group-item-heading">
                 <a href="{% url 'peering:configuration_template_list' %}">Templates</a>
@@ -56,6 +49,13 @@
                 <a href="{% url 'peering:autonomous_system_list' %}">Autonomous Systems</a>
               </h4>
               <p class="list-group-item-textn text-muted">Autonomous systems peering with the local AS<p>
+            </div>
+            <div class="list-group-item">
+              <span class="badge badge-pill badge-secondary float-right">{{ statistics.bgp_groups_count }}</span>
+              <h4 class="list-group-item-heading">
+                <a href="{% url 'peering:bgp_group_list' %}">BGP Groups</a>
+              </h4>
+              <p class="list-group-item-textn text-muted">Groups of BGP sessions<p>
             </div>
             <div class="list-group-item">
               <span class="badge badge-pill badge-secondary float-right">{{ statistics.internet_exchanges_count }}</span>

@@ -62,6 +62,9 @@
             <a href="{% url 'peering:autonomous_system_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/autonomous-systems/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">Autonomous Systems</div>
             </a>
+            <a href="{% url 'peering:bgp_group_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/bgp-groups/' %} active{% endif %}">
+              <div class="d-flex w-100 justify-content-start align-items-center">BGP Groups</div>
+            </a>
             <a href="{% url 'peering:internet_exchange_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/internet-exchanges/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">Internet Exchanges</div>
             </a>
@@ -86,9 +89,6 @@
               </div>
             </a>
             <div id="deployment_menu_id" class="collapse sidebar-submenu">
-              <a href="{% url 'peering:bgp_group_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/bgp-groups/' %} active{% endif %}">
-                <span class="menu-collapsed">BGP Groups</span>
-              </a>
               <a href="{% url 'peering:router_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/routers/' %} active{% endif %}">
                 <span class="menu-collapsed">Routers</span>
               </a>
