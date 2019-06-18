@@ -99,8 +99,8 @@ Create a configuration file `/etc/supervisor/conf.d/peering-manager.conf` and
 set its content.
 ```no-highlight
 [program:peering-manager]
-command = gunicorn -c /opt/peering-manager/gunicorn_config.py peering_manager.wsgi
 directory = /opt/peering-manager/
+command = gunicorn -c /opt/peering-manager/gunicorn_config.py peering_manager.wsgi
 user = www-data
 ```
 
