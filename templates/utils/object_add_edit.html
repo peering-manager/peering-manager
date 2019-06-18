@@ -1,6 +1,7 @@
 {% extends '_base.html' %}
+{% load helpers %}
 {% load form_helpers %}
-{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}{% if object.pk %}Editing {{ object }}{% else %}Add a new {{ object_type|title }}{% endif %}{% endblock %}</li>{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}{% if object.pk %}Editing {{ object }}{% else %}Add a new {{ object_type|title_with_uppers }}{% endif %}{% endblock %}</li>{% endblock %}
 {% block content %}
 <form method="post">
   {% csrf_token %}
@@ -19,7 +20,7 @@
       {% endif %}
       {% block form %}
       <div class="card my-2">
-        <div class="card-header"><strong>{{ object_type|title }}</strong></div>
+        <div class="card-header"><strong>{{ object_type|title_with_uppers }}</strong></div>
         <div class="card-body">
           {% render_form form %}
         </div>

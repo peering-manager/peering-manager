@@ -34,7 +34,7 @@
               </tr>
               <tr>
                 <td>Utilization</td>
-                <td>Used by {% if internet_exchanges|length == 0 %}only one Internet exchange{% else %}{{ internet_exchanges|length }} Internet exchanges{% endif %}</td>
+                <td>Used by {{ routers|length }} router{{ routers|length|pluralize }}</td>
               </tr>
             </table>
           </div>

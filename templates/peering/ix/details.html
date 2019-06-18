@@ -1,6 +1,5 @@
 {% extends 'peering/ix/_base.html' %}
 {% load helpers %}
-{% load render_table from django_tables2 %}
 {% block subcontent %}
       <div class="row">
         <div class="col-md-6">
@@ -47,7 +46,7 @@
               {% endif %}
               {% if internet_exchange.router and internet_exchange.router.can_napalm_get_bgp_neighbors_detail %}
               <tr>
-                <td>Pull Session States</td>
+                <td>Poll Session States</td>
                 <td>
                   {% if internet_exchange.check_bgp_session_states %}
                   <i class="fas fa-check text-success"></i>
@@ -94,13 +93,6 @@
               <span class="text-muted">None</span>
             </div>
             {% endif %}
-            {% if perms.peering.change_internetexchange %}
-            <div class="card-footer text-right">
-              <a href="{% url 'peering:internet_exchange_update_communities' slug=internet_exchange.slug %}" class="btn btn-xs btn-warning">
-                <i class="fas fa-edit"></i> Edit communities
-              </a>
-            </div>
-            {% endif %}
           </div>
           <div class="card">
             <div class="card-header">
@@ -122,13 +114,6 @@
             {% else %}
             <div class="card-body">
               <span class="text-muted">None</span>
-            </div>
-            {% endif %}
-            {% if perms.peering.change_internetexchange %}
-            <div class="card-footer text-right">
-              <a href="{% url 'peering:internet_exchange_update_routing_policies' slug=internet_exchange.slug %}" class="btn btn-xs btn-warning">
-                <i class="fas fa-edit"></i> Edit routing policies
-              </a>
             </div>
             {% endif %}
           </div>

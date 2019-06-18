@@ -1,0 +1,26 @@
+{% extends 'utils/object_add_edit.html' %}
+{% load form_helpers %}
+{% block form %}
+            <div class="card my-2">
+              <div class="card-header"><strong>BGP Group</strong></div>
+              <div class="card-body">
+                {% render_field form.name %}
+                {% render_field form.slug %}
+                {% render_field form.check_bgp_session_states %}
+              </div>
+            </div>
+            <div class="card my-2">
+              <div class="card-header"><strong>Routing Policies and Communities</strong></div>
+              <div class="card-body">
+                {% render_field form.import_routing_policies %}
+                {% render_field form.export_routing_policies %}
+                {% render_field form.communities %}
+              </div>
+            </div>
+            <div class="card my-2">
+              <div class="card-header"><strong>Comments</strong></div>
+              <div class="card-body">
+                {% render_field form.comment %}
+              </div>
+            </div>
+{% endblock %}

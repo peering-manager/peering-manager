@@ -542,6 +542,7 @@ class ModelListView(View):
     table = None
     template = None
     hidden_columns = []
+    hidden_filters = []
 
     def build_queryset(self, request, kwargs):
         return self.queryset
@@ -595,13 +596,21 @@ class ModelListView(View):
         }
         RequestConfig(request, paginate).configure(table)
 
+        # Build filter form
+        if self.filter_form:
+            filter_form = self.filter_form(request.GET, label_suffix="")
+            # Remove fields not to be displayed
+            for field in self.hidden_filters:
+                if field in filter_form.fields:
+                    del filter_form.fields[field]
+        else:
+            filter_form = None
+
         # Set context and render
         context = {
             "table": table,
             "filter": self.filter,
-            "filter_form": self.filter_form(request.GET, label_suffix="")
-            if self.filter_form
-            else None,
+            "filter_form": filter_form,
             "permissions": permissions,
         }
         context.update(self.extra_context(kwargs))

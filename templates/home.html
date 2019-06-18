@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load helpers %}
 {% block content %}
       <div class="card-columns">
         <div class="card">
@@ -50,6 +51,13 @@
               <p class="list-group-item-textn text-muted">Autonomous systems peering with the local AS<p>
             </div>
             <div class="list-group-item">
+              <span class="badge badge-pill badge-secondary float-right">{{ statistics.bgp_groups_count }}</span>
+              <h4 class="list-group-item-heading">
+                <a href="{% url 'peering:bgp_group_list' %}">BGP Groups</a>
+              </h4>
+              <p class="list-group-item-textn text-muted">Groups of BGP sessions<p>
+            </div>
+            <div class="list-group-item">
               <span class="badge badge-pill badge-secondary float-right">{{ statistics.internet_exchanges_count }}</span>
               <h4 class="list-group-item-heading">
                 <a href="{% url 'peering:internet_exchange_list' %}">Internet Exchanges</a>
@@ -70,11 +78,11 @@
             <strong>Changelog</strong>
             <a class="float-right" href="{% url 'utils:object_change_list' %}" title="View full changelog"><i class="fas fa-bars"></i></a>
           </div>
-          <div class="list-group list-group-flush">
+          <div class="list-group list-group-flush fixed-size-list-group">
             {% for change in changelog %}
             <div class="list-group-item">
               {{ change.get_html_icon }}
-              {{ change.changed_object_type.name | title }}
+              {{ change.changed_object_type.name | title_with_uppers }}
               {% if change.changed_object.get_absolute_url %}
                 <a href="{{ change.changed_object.get_absolute_url }}">{{ change.changed_object }}</a>
               {% else %}
@@ -98,7 +106,7 @@
           <div class="card-header">
             <strong>PeeringDB Synchronizations</strong>
           </div>
-          <div class="list-group list-group-flush">
+          <div class="list-group list-group-flush fixed-size-list-group">
             {% for synchronization in synchronizations %}
             <div class="list-group-item">
               <i class="fa fa-sync"></i> Added {{ synchronization.added }}, updated {{ synchronization.updated }} and deleted {{ synchronization.deleted }} objects<br />

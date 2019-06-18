@@ -79,6 +79,8 @@ for setting in ["DATABASE", "SECRET_KEY", "ALLOWED_HOSTS", "MY_ASN"]:
             "Mandatory setting {} is not in the configuration.py file.".format(setting)
         )
 
+CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
+
 BASE_PATH = getattr(configuration, "BASE_PATH", "")
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip("/") + "/"  # Enforce trailing slash only
@@ -137,7 +139,7 @@ REST_FRAMEWORK = {
 NETBOX_API = getattr(configuration, "NETBOX_API", "")
 NETBOX_API_TOKEN = getattr(configuration, "NETBOX_API_TOKEN", "")
 NETBOX_DEVICE_ROLES = getattr(
-    configuration, "NETBOX_DEVICE_ROLES", ["router", "firewall", "switch"]
+    configuration, "NETBOX_DEVICE_ROLES", ["router", "firewall"]
 )
 
 # PeeringDB URLs
@@ -206,6 +208,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "users.middleware.LastSearchMiddleware",
     "utils.middleware.ExceptionCatchingMiddleware",
     "utils.middleware.ObjectChangeMiddleware",
     "utils.middleware.RequireLoginMiddleware",

@@ -1,22 +1,6 @@
-{% extends '_base.html' %}
+{% extends 'peering/router/_base.html' %}
 {% load helpers %}
-{% block actions %}
-{% if perms.peering.change_router %}
-<a href="{% url 'peering:router_edit' pk=router.pk %}" class="btn btn-warning">
-  <i class="fas fa-edit"></i> Edit
-</a>
-{% endif %}
-{% if perms.peering.delete_router %}
-<a href="{% url 'peering:router_delete' pk=router.pk %}" class="btn btn-danger">
-  <i class="fas fa-trash"></i> Delete
-</a>
-{% endif %}
-{% endblock %}
-{% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'peering:router_list' %}">Routers</a></li>
-<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ router }}{% endblock %}</li>
-{% endblock %}
-{% block content %}
+{% block subcontent %}
       <div class="alert alert-success alert-dismissible" role="alert" id="message-can-ping">
         <button type="button" class="close" aria-label="Close"><span>&times;</span></button>
         Successfully connected to the router.
@@ -62,6 +46,16 @@
                   <i class="fas fa-check text-success"></i>
                   {% else %}
                   <i class="fas fa-times text-danger"></i>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td>Configuration</td>
+                <td>
+                  {% if router.configuration_template %}
+                  {{ router.configuration_template|as_link }}
+                  {% else %}
+                  <span class="text-muted">&mdash;</span>
                   {% endif %}
                 </td>
               </tr>

@@ -1,7 +1,7 @@
 {% extends '_base.html' %}
 {% load helpers %}
 {% load form_helpers %}
-{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}Editing {{ table.rows|length }} {{ object_type_plural|title }}{% endblock %}</li>{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}Editing {{ table.rows|length }} {{ object_type_plural|title_with_uppers }}{% endblock %}</li>{% endblock %}
 {% block content %}
 <form action="" method="post" class="form form-horizontal">
   {% csrf_token %}

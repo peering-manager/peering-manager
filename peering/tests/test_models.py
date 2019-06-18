@@ -1,8 +1,10 @@
 import ipaddress
 
+from django.conf import settings
 from django.test import TestCase
 
 from peering.constants import (
+    BGP_RELATIONSHIP_PRIVATE_PEERING,
     COMMUNITY_TYPE_INGRESS,
     COMMUNITY_TYPE_EGRESS,
     PLATFORM_IOSXR,
@@ -14,8 +16,10 @@ from peering.constants import (
 )
 from peering.models import (
     AutonomousSystem,
+    BGPGroup,
     Community,
     ConfigurationTemplate,
+    DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
@@ -376,6 +380,91 @@ class InternetExchangePeeringSessionTest(TestCase):
 
 
 class RouterTest(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.router = Router.objects.create(
+            name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
+        )
+
+    def test_get_configuration_context(self):
+        for i in range(1, 6):
+            AutonomousSystem.objects.create(asn=i, name="Test {}".format(i))
+        bgp_group = BGPGroup.objects.create(name="Test Group", slug="testgroup")
+        for i in range(1, 6):
+            DirectPeeringSession.objects.create(
+                autonomous_system=AutonomousSystem.objects.get(asn=i),
+                bgp_group=bgp_group,
+                relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
+                ip_address="10.0.0.{}".format(i),
+                router=self.router,
+            )
+        internet_exchange = InternetExchange.objects.create(
+            name="Test IX", slug="testix", router=self.router
+        )
+        for i in range(1, 6):
+            InternetExchangePeeringSession.objects.create(
+                autonomous_system=AutonomousSystem.objects.get(asn=i),
+                internet_exchange=internet_exchange,
+                ip_address="2001:db8::{}".format(i),
+            )
+            InternetExchangePeeringSession.objects.create(
+                autonomous_system=AutonomousSystem.objects.get(asn=i),
+                internet_exchange=internet_exchange,
+                ip_address="192.168.0.{}".format(i),
+            )
+
+        # Convert to dict and merge values
+        bgp_group_dict = bgp_group.to_dict()
+        bgp_group_dict.update(
+            {
+                "sessions": {
+                    6: [
+                        session.to_dict()
+                        for session in DirectPeeringSession.objects.filter(
+                            ip_address__family=6
+                        )
+                    ],
+                    4: [
+                        session.to_dict()
+                        for session in DirectPeeringSession.objects.filter(
+                            ip_address__family=4
+                        )
+                    ],
+                }
+            }
+        )
+        internet_exchange_dict = internet_exchange.to_dict()
+        internet_exchange_dict.update(
+            {
+                "sessions": {
+                    6: [
+                        session.to_dict()
+                        for session in InternetExchangePeeringSession.objects.filter(
+                            ip_address__family=6
+                        )
+                    ],
+                    4: [
+                        session.to_dict()
+                        for session in InternetExchangePeeringSession.objects.filter(
+                            ip_address__family=4
+                        )
+                    ],
+                }
+            }
+        )
+
+        # Generate expected result
+        expected = {
+            "my_asn": settings.MY_ASN,
+            "bgp_groups": [bgp_group_dict],
+            "internet_exchanges": [internet_exchange_dict],
+            "routing_policies": [],
+            "communities": [],
+        }
+
+        result = self.router.get_configuration_context()
+        self.assertEqual(result, expected)
+
     def test_decrypt_encrypt_string(self):
         string = "myreallysecurepassword"
 
@@ -450,6 +539,35 @@ class RouterTest(TestCase):
                 expected[i],
                 len(router._napalm_bgp_neighbors_to_peer_list(napalm_dicts_list[i])),
             )
+
+    def test_bgp_neighbors_detail_as_list(self):
+        expected = [
+            {
+                "up": True,
+                "local_as": 201281,
+                "remote_as": 29467,
+                "local_address": "192.168.1.1",
+            }
+        ]
+        bgp_neighbors_detail = {
+            "global": {
+                29467: [
+                    {
+                        "up": True,
+                        "local_as": 201281,
+                        "remote_as": 29467,
+                        "local_address": "192.168.1.1",
+                    }
+                ]
+            }
+        }
+
+        router = Router.objects.create(
+            name="test", hostname="test.example.com", platform=PLATFORM_JUNOS
+        )
+        self.assertEqual(
+            expected, router.bgp_neighbors_detail_as_list(bgp_neighbors_detail)
+        )
 
 
 class RoutingPolicyTest(TestCase):

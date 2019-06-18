@@ -27,8 +27,8 @@
   {{ field }}
   {% if bulk_nullable %}
   <div class="custom-control custom-checkbox">
-    <input type="checkbox" class="custom-control-input" id="set_null_checkbox" name="_nullify" value="{{ field.name }}">
-    <label class="custom-control-label" for="set_null_checkbox">Set null</label>
+    <input type="checkbox" class="custom-control-input" id="{{ field.name }}_set_null_checkbox" name="_nullify" value="{{ field.name }}">
+    <label class="custom-control-label" for="{{ field.name }}_set_null_checkbox">Set null</label>
   </div>
   {% endif %}
   {% if field.help_text %}
@@ -55,8 +55,8 @@
     {{ field }}
     {% if bulk_nullable %}
     <div class="custom-control custom-checkbox">
-      <input type="checkbox" class="custom-control-input" id="set_null_checkbox" name="_nullify" value="{{ field.name }}">
-      <label class="custom-control-label" for="set_null_checkbox">Set null</label>
+      <input type="checkbox" class="custom-control-input" id="{{ field.name }}_set_null_checkbox" name="_nullify" value="{{ field.name }}">
+      <label class="custom-control-label" for="{{ field.name }}_set_null_checkbox">Set null</label>
     </div>
     {% endif %}
     {% endif %}

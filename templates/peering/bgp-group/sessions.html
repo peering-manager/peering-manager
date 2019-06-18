@@ -1,0 +1,35 @@
+{% extends 'peering/bgp-group/_base.html' %}
+{% block subcontent %}
+      <div class="row">
+        <div class="col-md-9">
+          {% include 'peering/bgp-group/inc/sessions_table.html' with bulk_edit_url='peering:direct_peering_session_bulk_edit' bulk_delete_url='peering:direct_peering_session_bulk_delete' %}
+        </div>
+        <div class="col-md-3">
+          {% include 'utils/search_form.html' %}
+        </div>
+      </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+      $('.alert').hide();
+      $('.alert').on('click', '.close', function() {
+        $(this).closest('.alert').slideUp();
+      });
+
+      {% if bgp_group.check_bgp_session_states %}
+      $('#id_poll_session_states').click(function() {
+        $.ajax({
+          method: "post",
+          data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+          dataType: "json",
+          url: "{% url 'peering-api:bgpgroup-poll-peering-sessions' pk=bgp_group.pk %}",
+          beforeSend: function() {
+            $('#id_poll_session_states').attr('disabled', 'disabled').removeClass('btn-success').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+          },
+        }).done(function(response) {
+          location.reload();
+        });
+      });
+      {% endif %}
+    </script>
+{% endblock %}

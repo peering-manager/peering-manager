@@ -12,6 +12,7 @@ from .constants import (
 )
 from .models import (
     AutonomousSystem,
+    BGPGroup,
     Community,
     ConfigurationTemplate,
     DirectPeeringSession,
@@ -45,6 +46,19 @@ class AutonomousSystemFilter(django_filters.FilterSet):
         except ValueError:
             pass
         return queryset.filter(qs_filter)
+
+
+class BGPGroupFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(method="search", label="Search")
+
+    class Meta:
+        model = BGPGroup
+        fields = ["name"]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(name__icontains=value)
 
 
 class CommunityFilter(django_filters.FilterSet):
@@ -152,6 +166,16 @@ class InternetExchangeFilter(django_filters.FilterSet):
 
 class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
+    autonomous_system__id = django_filters.ModelMultipleChoiceFilter(
+        field_name="autonomous_system__id",
+        queryset=AutonomousSystem.objects.all(),
+        to_field_name="id",
+    )
+    internet_exchange__id = django_filters.ModelMultipleChoiceFilter(
+        field_name="internet_exchange__id",
+        queryset=InternetExchange.objects.all(),
+        to_field_name="id",
+    )
     address_family = django_filters.NumberFilter(method="address_family_search")
 
     class Meta:
@@ -161,6 +185,7 @@ class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
             "enabled",
             "is_route_server",
             "autonomous_system__asn",
+            "autonomous_system__id",
             "autonomous_system__name",
             "internet_exchange__name",
             "internet_exchange__id",

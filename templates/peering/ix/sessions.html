@@ -79,14 +79,14 @@
       });
       {% endif %}
       {% if internet_exchange.check_bgp_session_states and internet_exchange.router and internet_exchange.router.can_napalm_get_bgp_neighbors_detail %}
-      $('#id_update_session_states').click(function() {
+      $('#id_poll_session_states').click(function() {
         $.ajax({
           method: "post",
           data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
           dataType: "json",
-          url: "{% url 'peering-api:internetexchange-update-peering-sessions' pk=internet_exchange.pk %}",
+          url: "{% url 'peering-api:internetexchange-poll-peering-sessions' pk=internet_exchange.pk %}",
           beforeSend: function() {
-            $('#id_update_session_states').attr('disabled', 'disabled').removeClass('btn-success').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+            $('#id_poll_session_states').attr('disabled', 'disabled').removeClass('btn-success').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
           },
         }).done(function(response) {
           location.reload();

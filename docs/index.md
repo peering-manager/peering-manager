@@ -18,8 +18,8 @@ framework. It runs as a WSGI service behind your choice of HTTP server.
 
 # Getting Started
 
-See the [setup guide](setup/peering-manager.md) for help getting Peering
-Manager up and running.
+See the [setup guide](setup/1-postgresql.md) for help getting Peering Manager
+up and running.
 
 # Helping
 
@@ -35,4 +35,5 @@ time to develop this project.
 
 # Spreading The Word
 
-[RIPE76 Peering Manager - Easing Peering Sessions Management](https://ripe76.ripe.net/archives/video/13/) by Guillaume Mazoyer
+  * [RIPE76 Peering Manager - Easing Peering Sessions Management](https://ripe76.ripe.net/archives/video/13/) by Guillaume Mazoyer (English)
+  * [FRnOG32 Peering Automation and Documentation](https://www.dailymotion.com/video/x756n1e?playlist=x6c4hk) by Guillaume Mazoyer (French)

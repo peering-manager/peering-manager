@@ -9,10 +9,10 @@
 
     <title>{% block title %}Home{% endblock %} - Peering Manager</title>
 
-    <script defer src="{% static 'fontawesome-5.8.1/js/all.js' %}"></script>
+    <script defer src="{% static 'fontawesome-5.9.0/js/all.js' %}"></script>
 
     <link rel="stylesheet" href="{% static 'bootstrap-4.3.1-dist/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'select2-4.0.6-rc.1/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'select2-4.0.7/css/select2.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/select2-bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v{{ settings.VERSION }}">
   </head>
@@ -29,6 +29,9 @@
         </nav>
         <ul class="navbar-nav ml-auto px-3">
           {% if request.user.is_authenticated %}
+          {% if request.session.last_search %}
+          <a href="{{ request.session.last_search }}" class="nav-link" title="Return to Last Search"><i class="fas fa-search"></i> Last Search</a>
+          {% endif %}
           <li class="nav-item dropdown">
             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" title="{{ request.user }}" role="button" aria-haspopup="true" aria-expanded="false">
               <i class="fas fa-user"></i>
@@ -58,6 +61,9 @@
           <ul class="nav flex-column list-group">
             <a href="{% url 'peering:autonomous_system_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/autonomous-systems/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">Autonomous Systems</div>
+            </a>
+            <a href="{% url 'peering:bgp_group_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/bgp-groups/' %} active{% endif %}">
+              <div class="d-flex w-100 justify-content-start align-items-center">BGP Groups</div>
             </a>
             <a href="{% url 'peering:internet_exchange_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/internet-exchanges/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">Internet Exchanges</div>
@@ -117,9 +123,9 @@
       </main>
     </div>
 
-    <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+    <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
     <script src="{% static 'bootstrap-4.3.1-dist/js/bootstrap.bundle.min.js' %}"></script>
-    <script src="{% static 'select2-4.0.6-rc.1/js/select2.full.min.js' %}"></script>
+    <script src="{% static 'select2-4.0.7/js/select2.full.min.js' %}"></script>
     <script src="{% static 'js/base.js' %}?v{{ settings.VERSION }}"></script>
     <script src="{% static 'js/forms.js' %}?v{{ settings.VERSION }}"></script>
     {% block javascript %}{% endblock %}

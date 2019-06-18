@@ -14,6 +14,7 @@ from .constants import (
 )
 from .models import (
     AutonomousSystem,
+    BGPGroup,
     Community,
     ConfigurationTemplate,
     DirectPeeringSession,
@@ -72,6 +73,22 @@ class TemplateField(TextareaField):
 
 
 class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
+    import_routing_policies = FilterChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "import-policy"},
+        ),
+    )
+    export_routing_policies = FilterChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "export-policy"},
+        ),
+    )
     comment = CommentField()
 
     class Meta:
@@ -88,6 +105,8 @@ class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
             "ipv6_max_prefixes_peeringdb_sync",
             "ipv4_max_prefixes",
             "ipv4_max_prefixes_peeringdb_sync",
+            "import_routing_policies",
+            "export_routing_policies",
             "comment",
         )
         labels = {
@@ -113,6 +132,88 @@ class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
     irr_as_set = forms.CharField(required=False, label="IRR AS-SET")
     ipv6_max_prefixes = forms.IntegerField(required=False, label="IPv6 Max Prefixes")
     ipv4_max_prefixes = forms.IntegerField(required=False, label="IPv4 Max Prefixes")
+
+
+class BGPGroupForm(BootstrapMixin, forms.ModelForm):
+    slug = SlugField()
+    comment = CommentField()
+    import_routing_policies = FilterChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "import-policy"},
+        ),
+    )
+    export_routing_policies = FilterChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "export-policy"},
+        ),
+    )
+    communities = FilterChoiceField(
+        required=False,
+        queryset=Community.objects.all(),
+        widget=APISelectMultiple(api_url="/api/peering/communities/"),
+    )
+
+    class Meta:
+        model = BGPGroup
+        fields = (
+            "name",
+            "slug",
+            "comment",
+            "import_routing_policies",
+            "export_routing_policies",
+            "communities",
+            "check_bgp_session_states",
+        )
+        labels = {
+            "check_bgp_session_states": "Poll Peering Session States",
+            "comment": "Comments",
+        }
+        help_texts = {
+            "name": "Full name of the BGP group",
+            "check_bgp_session_states": "If enabled, the state of peering sessions will be polled.",
+        }
+
+
+class BGPGroupBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = FilterChoiceField(
+        queryset=BGPGroup.objects.all(), widget=forms.MultipleHiddenInput
+    )
+    import_routing_policies = FilterChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "import-policy"},
+        ),
+    )
+    export_routing_policies = FilterChoiceField(
+        required=False,
+        queryset=RoutingPolicy.objects.all(),
+        widget=APISelectMultiple(
+            api_url="/api/peering/routing-policies/",
+            query_filters={"type": "export-policy"},
+        ),
+    )
+    communities = FilterChoiceField(
+        required=False,
+        queryset=Community.objects.all(),
+        widget=APISelectMultiple(api_url="/api/peering/communities/"),
+    )
+    comment = CommentField(widget=SmallTextarea)
+
+    class Meta:
+        nullable_fields = ["comment"]
+
+
+class BGPGroupFilterForm(BootstrapMixin, forms.Form):
+    model = BGPGroup
+    q = forms.CharField(required=False, label="Search")
 
 
 class CommunityForm(BootstrapMixin, forms.ModelForm):
@@ -172,6 +273,12 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         queryset=AutonomousSystem.objects.all(),
         widget=APISelect(api_url="/api/peering/autonomous-systems/"),
     )
+    bgp_group = forms.ModelChoiceField(
+        required=False,
+        queryset=BGPGroup.objects.all(),
+        label="BGP Group",
+        widget=APISelect(api_url="/api/peering/bgp-groups/"),
+    )
     relationship = forms.ChoiceField(
         choices=BGP_RELATIONSHIP_CHOICES, widget=StaticSelect
     )
@@ -219,6 +326,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         fields = (
             "local_asn",
             "autonomous_system",
+            "bgp_group",
             "relationship",
             "ip_address",
             "password",
@@ -252,6 +360,12 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
     enabled = forms.NullBooleanField(
         required=False, label="Enable", widget=CustomNullBooleanSelect
     )
+    bgp_group = forms.ModelChoiceField(
+        required=False,
+        queryset=BGPGroup.objects.all(),
+        label="BGP Group",
+        widget=APISelect(api_url="/api/peering/bgp-groups/"),
+    )
     import_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
@@ -283,6 +397,13 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
     model = DirectPeeringSession
     q = forms.CharField(required=False, label="Search")
     local_asn = forms.IntegerField(required=False, label="Local ASN")
+    bgp_group = FilterChoiceField(
+        queryset=BGPGroup.objects.all(),
+        to_field_name="pk",
+        null_label=True,
+        label="BGP Group",
+        widget=APISelectMultiple(api_url="/api/peering/bgp-groups/", null_option=True),
+    )
     address_family = forms.ChoiceField(
         required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
     )
@@ -298,56 +419,6 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
         null_label=True,
         widget=APISelectMultiple(api_url="/api/peering/routers/", null_option=True),
     )
-
-
-class DirectPeeringSessionRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
-    import_routing_policies = FilterChoiceField(
-        required=False,
-        queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "import-policy"},
-        ),
-    )
-    export_routing_policies = FilterChoiceField(
-        required=False,
-        queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "export-policy"},
-        ),
-    )
-
-    class Meta:
-        model = InternetExchange
-        fields = ("export_routing_policies", "import_routing_policies")
-
-    def __init__(self, *args, **kwargs):
-        if kwargs.get("instance"):
-            # Get the session object and remove it from kwargs in order to
-            # avoid propagating when calling super
-            instance = kwargs.pop("instance")
-            # Prepare initial communities
-            initial = kwargs.setdefault("initial", {})
-            # Add primary key for each routing policy
-            initial["export_routing_policies"] = [
-                p.pk for p in instance.export_routing_policies.all()
-            ]
-            initial["import_routing_policies"] = [
-                p.pk for p in instance.import_routing_policies.all()
-            ]
-
-        super().__init__(*args, **kwargs)
-
-    def save(self):
-        instance = forms.ModelForm.save(self)
-        instance.export_routing_policies.clear()
-        instance.import_routing_policies.clear()
-
-        for routing_policy in self.cleaned_data["export_routing_policies"]:
-            instance.export_routing_policies.add(routing_policy)
-        for routing_policy in self.cleaned_data["import_routing_policies"]:
-            instance.import_routing_policies.add(routing_policy)
 
 
 class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
@@ -368,6 +439,11 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             query_filters={"type": "export-policy"},
         ),
     )
+    communities = FilterChoiceField(
+        required=False,
+        queryset=Community.objects.all(),
+        widget=APISelectMultiple(api_url="/api/peering/communities/"),
+    )
     comment = CommentField()
 
     class Meta:
@@ -378,6 +454,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "slug",
             "ipv6_address",
             "ipv4_address",
+            "communities",
             "import_routing_policies",
             "export_routing_policies",
             "configuration_template",
@@ -389,7 +466,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "peeringdb_id": "PeeringDB ID",
             "ipv6_address": "IPv6 Address",
             "ipv4_address": "IPv4 Address",
-            "check_bgp_session_states": "Check Peering Session States",
+            "check_bgp_session_states": "Poll Peering Session States",
             "comment": "Comments",
         }
         help_texts = {
@@ -399,7 +476,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "ipv4_address": "IPv4 Address used to peer",
             "configuration_template": "Template for configuration generation",
             "router": "Router connected to the Internet Exchange point",
-            "check_bgp_session_states": "If enabled, with a usable router, the state of peering sessions will be updated.",
+            "check_bgp_session_states": "If enabled, with a usable router, the state of peering sessions will be polled.",
         }
         widgets = {
             "configuration_template": APISelect(api_url="/api/peering/templates/"),
@@ -480,81 +557,6 @@ class InternetExchangePeeringDBFormSet(forms.BaseFormSet):
                     "Internet Exchanges must have distinct slugs."
                 )
             slugs.append(slug)
-
-
-class InternetExchangeCommunityForm(BootstrapMixin, forms.ModelForm):
-    class Meta:
-        model = InternetExchange
-        fields = ("communities",)
-
-    def __init__(self, *args, **kwargs):
-        if kwargs.get("instance"):
-            # Get the IX object and remove it from kwargs in order to avoid
-            # propagating when calling super
-            instance = kwargs.pop("instance")
-            # Prepare initial communities
-            initial = kwargs.setdefault("initial", {})
-            # Add primary key for each community
-            initial["communities"] = [c.pk for c in instance.communities.all()]
-
-        super().__init__(*args, **kwargs)
-
-    def save(self):
-        instance = forms.ModelForm.save(self)
-        instance.communities.clear()
-
-        for community in self.cleaned_data["communities"]:
-            instance.communities.add(community)
-
-
-class InternetExchangeRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
-    import_routing_policies = FilterChoiceField(
-        required=False,
-        queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "import-policy"},
-        ),
-    )
-    export_routing_policies = FilterChoiceField(
-        required=False,
-        queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "export-policy"},
-        ),
-    )
-
-    class Meta:
-        model = InternetExchange
-        fields = ("export_routing_policies", "import_routing_policies")
-
-    def __init__(self, *args, **kwargs):
-        if kwargs.get("instance"):
-            # Get the IX object and remove it from kwargs in order to avoid
-            # propagating when calling super
-            instance = kwargs.pop("instance")
-            # Prepare initial communities
-            initial = kwargs.setdefault("initial", {})
-            # Add primary key for each routing policy
-            initial["export_routing_policies"] = [
-                p.pk for p in instance.export_routing_policies.all()
-            ]
-            initial["import_routing_policies"] = [
-                p.pk for p in instance.import_routing_policies.all()
-            ]
-
-        super().__init__(*args, **kwargs)
-
-    def save(self):
-        instance = forms.ModelForm.save(self)
-        instance.export_routing_policies.clear()
-        instance.import_routing_policies.clear()
-
-        for routing_policy in self.cleaned_data["export_routing_policies"]:
-            instance.export_routing_policies.add(routing_policy)
-        for routing_policy in self.cleaned_data["import_routing_policies"]:
-            instance.import_routing_policies.add(routing_policy)
 
 
 class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
@@ -713,47 +715,12 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
 class InternetExchangePeeringSessionFilterForm(BootstrapMixin, forms.Form):
     model = InternetExchangePeeringSession
     q = forms.CharField(required=False, label="Search")
-    autonomous_system__asn = forms.IntegerField(required=False, label="ASN")
-    autonomous_system__name = forms.CharField(required=False, label="AS Name")
-    internet_exchange__name = forms.CharField(required=False, label="IX Name")
-    address_family = forms.ChoiceField(
-        required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
-    )
-    is_route_server = forms.NullBooleanField(
-        required=False, label="Route Server", widget=CustomNullBooleanSelect
-    )
-    enabled = forms.NullBooleanField(
-        required=False, label="Enabled", widget=CustomNullBooleanSelect
-    )
-
-
-class InternetExchangePeeringSessionFilterFormForIX(BootstrapMixin, forms.Form):
-    model = InternetExchangePeeringSession
-    q = forms.CharField(required=False, label="Search")
-    autonomous_system__asn = forms.IntegerField(required=False, label="ASN")
-    autonomous_system__name = forms.CharField(required=False, label="AS Name")
-    address_family = forms.ChoiceField(
-        required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
-    )
-    is_route_server = forms.NullBooleanField(
-        required=False, label="Route Server", widget=CustomNullBooleanSelect
-    )
-    enabled = forms.NullBooleanField(
-        required=False, label="Enabled", widget=CustomNullBooleanSelect
-    )
-
-
-class InternetExchangePeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
-    model = InternetExchangePeeringSession
-    q = forms.CharField(required=False, label="Search")
-    address_family = forms.ChoiceField(
-        required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
-    )
-    is_route_server = forms.NullBooleanField(
-        required=False, label="Route Server", widget=CustomNullBooleanSelect
-    )
-    enabled = forms.NullBooleanField(
-        required=False, label="Enabled", widget=CustomNullBooleanSelect
+    autonomous_system__id = FilterChoiceField(
+        queryset=AutonomousSystem.objects.all(),
+        to_field_name="pk",
+        label="Autonomous System",
+        null_label=True,
+        widget=APISelectMultiple(api_url="/api/peering/autonomous-systems/"),
     )
     internet_exchange__id = FilterChoiceField(
         queryset=InternetExchange.objects.all(),
@@ -762,60 +729,22 @@ class InternetExchangePeeringSessionFilterFormForAS(BootstrapMixin, forms.Form):
         null_label=True,
         widget=APISelectMultiple(api_url="/api/peering/internet-exchanges/"),
     )
-
-
-class InternetExchangePeeringSessionRoutingPolicyForm(BootstrapMixin, forms.ModelForm):
-    import_routing_policies = FilterChoiceField(
-        required=False,
-        queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "import-policy"},
-        ),
+    address_family = forms.ChoiceField(
+        required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
     )
-    export_routing_policies = FilterChoiceField(
-        required=False,
-        queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "export-policy"},
-        ),
+    is_route_server = forms.NullBooleanField(
+        required=False, label="Route Server", widget=CustomNullBooleanSelect
     )
-
-    class Meta:
-        model = InternetExchange
-        fields = ("export_routing_policies", "import_routing_policies")
-
-    def __init__(self, *args, **kwargs):
-        if kwargs.get("instance"):
-            # Get the session object and remove it from kwargs in order to
-            # avoid propagating when calling super
-            instance = kwargs.pop("instance")
-            # Prepare initial communities
-            initial = kwargs.setdefault("initial", {})
-            # Add primary key for each routing policy
-            initial["export_routing_policies"] = [
-                p.pk for p in instance.export_routing_policies.all()
-            ]
-            initial["import_routing_policies"] = [
-                p.pk for p in instance.import_routing_policies.all()
-            ]
-
-        super().__init__(*args, **kwargs)
-
-    def save(self):
-        instance = forms.ModelForm.save(self)
-        instance.export_routing_policies.clear()
-        instance.import_routing_policies.clear()
-
-        for routing_policy in self.cleaned_data["export_routing_policies"]:
-            instance.export_routing_policies.add(routing_policy)
-        for routing_policy in self.cleaned_data["import_routing_policies"]:
-            instance.import_routing_policies.add(routing_policy)
+    enabled = forms.NullBooleanField(
+        required=False, label="Enabled", widget=CustomNullBooleanSelect
+    )
 
 
 class RouterForm(BootstrapMixin, forms.ModelForm):
     netbox_device_id = forms.IntegerField(label="NetBox Device", initial=0)
+    platform = forms.ChoiceField(
+        required=False, choices=add_blank_choice(PLATFORM_CHOICES), widget=StaticSelect
+    )
     comment = CommentField()
 
     def __init__(self, *args, **kwargs):
@@ -829,6 +758,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
                     (device.id, device.display_name)
                     for device in NetBox().get_devices()
                 ],
+                widget=StaticSelect,
             )
             self.fields["netbox_device_id"].widget.attrs["class"] = " ".join(
                 [
@@ -849,10 +779,21 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
             "hostname",
             "platform",
             "encrypt_passwords",
+            "configuration_template",
             "comment",
         )
-        labels = {"comment": "Comments"}
-        help_texts = {"hostname": "Router hostname (must be resolvable) or IP address"}
+        labels = {
+            "use_netbox": "Use NetBox",
+            "configuration_template": "Configuration",
+            "comment": "Comments",
+        }
+        help_texts = {
+            "hostname": "Router hostname (must be resolvable) or IP address",
+            "configuration_template": "Template used to generate device configuration",
+        }
+        widgets = {
+            "configuration_template": APISelect(api_url="/api/peering/templates/")
+        }
 
 
 class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -860,10 +801,15 @@ class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=Router.objects.all(), widget=forms.MultipleHiddenInput
     )
     platform = forms.ChoiceField(
-        choices=add_blank_choice(PLATFORM_CHOICES), required=False
+        required=False, choices=add_blank_choice(PLATFORM_CHOICES), widget=StaticSelect
     )
     encrypt_passwords = forms.NullBooleanField(
         required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
+    )
+    configuration_template = forms.ModelChoiceField(
+        required=False,
+        queryset=ConfigurationTemplate.objects.all(),
+        widget=APISelect(api_url="/api/peering/templates/"),
     )
     comment = CommentField(widget=SmallTextarea)
 
@@ -879,6 +825,12 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
     )
     encrypt_passwords = forms.NullBooleanField(
         required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
+    )
+    configuration_template = FilterChoiceField(
+        queryset=ConfigurationTemplate.objects.all(),
+        to_field_name="pk",
+        null_label=True,
+        widget=APISelectMultiple(api_url="/api/peering/templates/", null_option=True),
     )
 
 

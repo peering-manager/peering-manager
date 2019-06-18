@@ -1,5 +1,8 @@
 {% extends 'peering/ix/_base.html' %}
 {% block subcontent %}
+      <div class="alert alert-warning" role="alert">
+      This feature is deprecated and will be removed in a near future. Please use the router configuration feature.
+      </div>
       <div class="row">
         <div class="col-md-2">
           {% if perms.peering.deploy_configuration_internetexchange and internet_exchange.router and internet_exchange.router.platform %}

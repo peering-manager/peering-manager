@@ -218,7 +218,7 @@ class CustomNullBooleanSelect(StaticSelect):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.choices = (("1", "---------"), ("2", "Yes"), ("3", "No"))
+        self.choices = (("unknown", "---------"), ("true", "Yes"), ("false", "No"))
 
 
 class TextareaField(forms.CharField):

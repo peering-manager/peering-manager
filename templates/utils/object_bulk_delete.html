@@ -1,6 +1,6 @@
 {% extends '_base.html' %}
 {% load helpers %}
-{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}Delete {{ table.rows|length }} {{ object_type_plural|title }}?{% endblock %}</li>{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}Delete {{ table.rows|length }} {{ object_type_plural|title_with_uppers }}?{% endblock %}</li>{% endblock %}
 {% block content %}
   <div class="row justify-content-md-center">
     <div class="col-md-8">

@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load helpers %}
 {% load form_helpers %}
 {% block content %}
       <form method="post">
@@ -12,7 +13,7 @@
         {% endif %}
         <div class="row justify-content-center">
           <div class="col-8">
-            <h3>{% block title %}{{ obj_type|title }} Import{% endblock %}</h3>
+            <h3>{% block title %}{{ obj_type|title_with_uppers }} Import{% endblock %}</h3>
             {% for error in formset.non_form_errors %}
             <div class="alert alert-danger alert-dismissible" role="alert">
               <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
