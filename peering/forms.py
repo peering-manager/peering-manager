@@ -135,7 +135,7 @@ class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
 
 
 class BGPGroupForm(BootstrapMixin, forms.ModelForm):
-    slug = SlugField()
+    slug = SlugField(max_length=255)
     comment = CommentField()
     import_routing_policies = FilterChoiceField(
         required=False,
@@ -422,7 +422,7 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
 
 
 class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
-    slug = SlugField()
+    slug = SlugField(max_length=255)
     import_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
@@ -521,7 +521,7 @@ class InternetExchangeBulkEditForm(BootstrapMixin, BulkEditForm):
 
 
 class InternetExchangePeeringDBForm(BootstrapMixin, forms.ModelForm):
-    slug = SlugField()
+    slug = SlugField(max_length=255)
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("label_suffix", "")
@@ -835,7 +835,7 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
 
 
 class RoutingPolicyForm(BootstrapMixin, forms.ModelForm):
-    slug = SlugField()
+    slug = SlugField(max_length=255)
     type = forms.ChoiceField(choices=ROUTING_POLICY_TYPE_CHOICES, widget=StaticSelect)
     comment = CommentField()
 

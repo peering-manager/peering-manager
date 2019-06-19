@@ -28,7 +28,7 @@ from utils.validators import AddressFamilyValidator
 
 class AbstractGroup(ChangeLoggedModel, TemplateModel):
     name = models.CharField(max_length=128)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, max_length=255)
     comment = models.TextField(blank=True)
     import_routing_policies = models.ManyToManyField(
         "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
@@ -1648,7 +1648,7 @@ class Router(ChangeLoggedModel):
 
 class RoutingPolicy(ChangeLoggedModel, TemplateModel):
     name = models.CharField(max_length=128)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, max_length=255)
     type = models.CharField(
         max_length=50,
         choices=ROUTING_POLICY_TYPE_CHOICES,
