@@ -535,7 +535,7 @@ class InternetExchangePeeringDBImport(PermissionRequiredMixin, TableImportView):
                 slug = slugify(ix_network.name)
 
                 if slug in slugs_occurences:
-                    slugs_occurences[slug] +=1
+                    slugs_occurences[slug] += 1
                     slug = "{}-{}".format(slug, slugs_occurences[slug])
                 else:
                     slugs_occurences[slug] = 0
