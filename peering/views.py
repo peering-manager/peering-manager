@@ -528,13 +528,23 @@ class InternetExchangePeeringDBImport(PermissionRequiredMixin, TableImportView):
                 known_objects.append(ix.peeringdb_id)
 
         ix_networks = api.get_ix_networks_for_asn(settings.MY_ASN) or []
+        slugs_occurences = {}
+
         for ix_network in ix_networks:
             if ix_network.id not in known_objects:
+                slug = slugify(ix_network.name)
+
+                if slug in slugs_occurences:
+                    slugs_occurences[slug] +=1
+                    slug = "{}-{}".format(slug, slugs_occurences[slug])
+                else:
+                    slugs_occurences[slug] = 0
+
                 objects.append(
                     {
                         "peeringdb_id": ix_network.id,
                         "name": ix_network.name,
-                        "slug": slugify(ix_network.name),
+                        "slug": slug,
                         "ipv6_address": ix_network.ipaddr6,
                         "ipv4_address": ix_network.ipaddr4,
                     }
