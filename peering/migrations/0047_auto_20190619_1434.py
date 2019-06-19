@@ -5,24 +5,22 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peering', '0046_auto_20190608_2215'),
-    ]
+    dependencies = [("peering", "0046_auto_20190608_2215")]
 
     operations = [
         migrations.AlterField(
-            model_name='bgpgroup',
-            name='slug',
+            model_name="bgpgroup",
+            name="slug",
             field=models.SlugField(max_length=255, unique=True),
         ),
         migrations.AlterField(
-            model_name='internetexchange',
-            name='slug',
+            model_name="internetexchange",
+            name="slug",
             field=models.SlugField(max_length=255, unique=True),
         ),
         migrations.AlterField(
-            model_name='routingpolicy',
-            name='slug',
+            model_name="routingpolicy",
+            name="slug",
             field=models.SlugField(max_length=255, unique=True),
         ),
     ]
