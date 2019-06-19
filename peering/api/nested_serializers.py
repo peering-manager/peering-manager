@@ -19,7 +19,7 @@ class AutonomousSystemNestedSerializer(WritableNestedSerializer):
 
     class Meta:
         model = AutonomousSystem
-        fields = ["id", "url", "asn", "name"]
+        fields = ["id", "url", "asn", "name", "ipv6_max_prefixes", "ipv4_max_prefixes"]
 
 
 class BGPGroupNestedSerializer(WritableNestedSerializer):
