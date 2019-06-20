@@ -12,11 +12,13 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
+from utils.api import InetAddressArrayField
 
 
 class AutonomousSystemSerializer(serializers.ModelSerializer):
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
+    potential_internet_exchange_peering_sessions = InetAddressArrayField(read_only=True)
 
     class Meta:
         model = AutonomousSystem
@@ -36,6 +38,7 @@ class AutonomousSystemSerializer(serializers.ModelSerializer):
             "ipv4_max_prefixes_peeringdb_sync",
             "import_routing_policies",
             "export_routing_policies",
+            "potential_internet_exchange_peering_sessions",
         ]
 
 

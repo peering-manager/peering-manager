@@ -3,10 +3,24 @@ from collections import OrderedDict
 from django.http import Http404
 
 from rest_framework.exceptions import APIException
+from rest_framework.fields import ListField
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer, ValidationError
 from rest_framework.viewsets import ModelViewSet as __ModelViewSet, ViewSet
+
+
+class InetAddressArrayField(ListField):
+    """
+    Converts an array of InetAddressField to something usable in an API.
+    """
+
+    def to_representation(self, data):
+        inet_addresses = super().to_representation(data)
+        if not inet_addresses:
+            return []
+
+        return [str(inet_address) for inet_address in inet_addresses]
 
 
 class ServiceUnavailable(APIException):
