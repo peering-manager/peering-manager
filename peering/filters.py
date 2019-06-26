@@ -21,7 +21,6 @@ from .models import (
     Router,
     RoutingPolicy,
 )
-from peeringdb.models import PeerRecord
 
 
 class AutonomousSystemFilter(django_filters.FilterSet):
@@ -215,40 +214,6 @@ class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
         if value in [4, 6]:
             return queryset.filter(Q(ip_address__family=value))
         return queryset
-
-
-class PeerRecordFilter(django_filters.FilterSet):
-    q = django_filters.CharFilter(method="search", label="Search")
-
-    class Meta:
-        model = PeerRecord
-        fields = [
-            "network__asn",
-            "network__name",
-            "network__irr_as_set",
-            "network__info_prefixes6",
-            "network__info_prefixes4",
-        ]
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        qs_filter = Q(network__name__icontains=value) | Q(
-            network__irr_as_set__icontains=value
-        )
-        try:
-            ip = ipaddress.ip_interface(value.strip())
-            qs_filter |= Q(network_ixlan__ipaddr6__host=str(ip))
-            qs_filter |= Q(network_ixlan__ipaddr4__host=str(ip))
-        except ValueError:
-            pass
-        try:
-            qs_filter |= Q(network__asn=int(value.strip()))
-            qs_filter |= Q(network__info_prefixes6=int(value.strip()))
-            qs_filter |= Q(network__info_prefixes4=int(value.strip()))
-        except ValueError:
-            pass
-        return queryset.filter(qs_filter)
 
 
 class RouterFilter(django_filters.FilterSet):

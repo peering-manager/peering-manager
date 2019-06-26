@@ -1,5 +1,5 @@
 Django>=2.2,<2.3
-django-debug-toolbar==1.11
+django-debug-toolbar==2.0
 djangorestframework==3.9.4
 django-filter==2.1.0
 django-netfields==1.0.1

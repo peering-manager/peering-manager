@@ -16,7 +16,6 @@ from .filters import (
     ConfigurationTemplateFilter,
     DirectPeeringSessionFilter,
     InternetExchangeFilter,
-    PeerRecordFilter,
     InternetExchangePeeringSessionFilter,
     RouterFilter,
     RoutingPolicyFilter,
@@ -40,7 +39,6 @@ from .forms import (
     InternetExchangeForm,
     InternetExchangePeeringDBForm,
     InternetExchangePeeringDBFormSet,
-    PeerRecordFilterForm,
     InternetExchangePeeringSessionBulkEditForm,
     InternetExchangePeeringSessionFilterForm,
     InternetExchangePeeringSessionForm,
@@ -70,13 +68,15 @@ from .tables import (
     ConfigurationTemplateTable,
     DirectPeeringSessionTable,
     InternetExchangeTable,
-    PeerRecordTable,
     InternetExchangePeeringSessionTable,
     RouterTable,
     RoutingPolicyTable,
 )
+from peeringdb.filters import PeerRecordFilter
+from peeringdb.forms import PeerRecordFilterForm
 from peeringdb.http import PeeringDB
 from peeringdb.models import PeerRecord
+from peeringdb.tables import PeerRecordTable
 from utils.views import (
     AddOrEditView,
     BulkAddFromDependencyView,
