@@ -89,13 +89,14 @@ $(document).ready(function() {
   }
 
   // Show/Hide password in a password input field
-  $('#id_password_reveal').click(function() {
-    inputType = $('#id_password').attr('type');
+  $('button[id$="_reveal"]').click(function() {
+    var passwordInputID = '#' + this.id.replace('_reveal', '');
+    inputType = $(passwordInputID).attr('type');
     if (inputType == 'password') {
-      $('#id_password').attr('type', 'text');
+      $(passwordInputID).attr('type', 'text');
       $(this).html('<i class="fas fa-eye-slash"></i> Hide');
     } else {
-      $('#id_password').attr('type', 'password');
+      $(passwordInputID).attr('type', 'password');
       $(this).html('<i class="fas fa-eye"></i> Show');
     }
   });
