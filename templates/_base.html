@@ -92,7 +92,7 @@
               <a href="{% url 'peering:router_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/routers/' %} active{% endif %}">
                 <span class="menu-collapsed">Routers</span>
               </a>
-              <a href="{% url 'peering:configuration_template_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/templates/' %} active{% endif %}">
+              <a href="{% url 'peering:template_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/templates/' %} active{% endif %}">
                 <span class="menu-collapsed">Templates</span>
               </a>
             </div>

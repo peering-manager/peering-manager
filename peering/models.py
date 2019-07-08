@@ -491,50 +491,6 @@ class Community(ChangeLoggedModel, TemplateModel):
         return self.name
 
 
-class ConfigurationTemplate(ChangeLoggedModel):
-    name = models.CharField(max_length=128)
-    template = models.TextField()
-    comment = models.TextField(blank=True)
-
-    class Meta:
-        ordering = ["name"]
-
-    def get_absolute_url(self):
-        return reverse("peering:configuration_template_details", kwargs={"pk": self.pk})
-
-    def render(self, variables):
-        """
-        Render the template using Jinja2.
-        """
-        environment = Environment()
-
-        def prefix_list(asn, address_family=0):
-            """
-            Return the prefixes for the given AS.
-            """
-            if not asn:
-                return []
-            autonomous_system = AutonomousSystem.objects.get(asn=asn)
-            return autonomous_system.get_irr_as_set_prefixes(address_family)
-
-        def cisco_password(password):
-            from utils.crypto.cisco import MAGIC as CISCO_MAGIC
-
-            if password.startswith(CISCO_MAGIC):
-                return password[2:]
-            return password
-
-        # Add custom filters to our environment
-        environment.filters["prefix_list"] = prefix_list
-        environment.filters["cisco_password"] = cisco_password
-
-        jinja2_template = environment.from_string(self.template)
-        return jinja2_template.render(variables)
-
-    def __str__(self):
-        return self.name
-
-
 class DirectPeeringSession(BGPSession, TemplateModel):
     local_asn = ASNField(default=0)
     bgp_group = models.ForeignKey(
@@ -596,7 +552,7 @@ class InternetExchange(AbstractGroup):
         validators=[AddressFamilyValidator(4)],
     )
     configuration_template = models.ForeignKey(
-        "ConfigurationTemplate", blank=True, null=True, on_delete=models.SET_NULL
+        "Template", blank=True, null=True, on_delete=models.SET_NULL
     )
     router = models.ForeignKey(
         "Router", blank=True, null=True, on_delete=models.SET_NULL
@@ -1126,7 +1082,7 @@ class Router(ChangeLoggedModel):
         help_text="Try to encrypt passwords for peering sessions",
     )
     configuration_template = models.ForeignKey(
-        "ConfigurationTemplate", blank=True, null=True, on_delete=models.SET_NULL
+        "Template", blank=True, null=True, on_delete=models.SET_NULL
     )
     comment = models.TextField(blank=True)
     netbox_device_id = models.PositiveIntegerField(blank=True, default=0)
@@ -1684,6 +1640,55 @@ class RoutingPolicy(ChangeLoggedModel, TemplateModel):
             text = "Unknown"
 
         return mark_safe('<span class="badge {}">{}</span>'.format(badge_type, text))
+
+    def __str__(self):
+        return self.name
+
+
+class Template(ChangeLoggedModel):
+    name = models.CharField(max_length=128)
+    type = models.CharField(
+        max_length=50,
+        choices=TEMPLATE_TYPE_CHOICES,
+        default=TEMPLATE_TYPE_CONFIGURATION,
+    )
+    template = models.TextField()
+    comment = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def get_absolute_url(self):
+        return reverse("peering:template_details", kwargs={"pk": self.pk})
+
+    def render(self, variables):
+        """
+        Render the template using Jinja2.
+        """
+        environment = Environment()
+
+        def prefix_list(asn, address_family=0):
+            """
+            Return the prefixes for the given AS.
+            """
+            if not asn:
+                return []
+            autonomous_system = AutonomousSystem.objects.get(asn=asn)
+            return autonomous_system.get_irr_as_set_prefixes(address_family)
+
+        def cisco_password(password):
+            from utils.crypto.cisco import MAGIC as CISCO_MAGIC
+
+            if password.startswith(CISCO_MAGIC):
+                return password[2:]
+            return password
+
+        # Add custom filters to our environment
+        environment.filters["prefix_list"] = prefix_list
+        environment.filters["cisco_password"] = cisco_password
+
+        jinja2_template = environment.from_string(self.template)
+        return jinja2_template.render(variables)
 
     def __str__(self):
         return self.name

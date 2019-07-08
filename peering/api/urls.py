@@ -27,7 +27,7 @@ router.register(
 )
 router.register(r"routers", views.RouterViewSet)
 router.register(r"routing-policies", views.RoutingPolicyViewSet)
-router.register(r"templates", views.ConfigurationTemplateViewSet)
+router.register(r"templates", views.TemplateViewSet)
 
 app_name = "peering-api"
 urlpatterns = router.urls

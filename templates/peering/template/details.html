@@ -1,20 +1,20 @@
 {% extends '_base.html' %}
 {% load helpers %}
 {% block actions %}
-{% if perms.peering.change_configurationtemplate %}
-<a href="{% url 'peering:configuration_template_edit' pk=configuration_template.pk %}" class="btn btn-warning">
+{% if perms.peering.change_template %}
+<a href="{% url 'peering:template_edit' pk=template.pk %}" class="btn btn-warning">
   <i class="fas fa-edit"></i> Edit
 </a>
 {% endif %}
-{% if perms.peering.delete_configurationtemplate %}
-<a href="{% url 'peering:configuration_template_delete' pk=configuration_template.pk %}" class="btn btn-danger">
+{% if perms.peering.delete_template %}
+<a href="{% url 'peering:template_delete' pk=template.pk %}" class="btn btn-danger">
   <i class="fas fa-trash"></i> Delete
 </a>
 {% endif %}
 {% endblock %}
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'peering:configuration_template_list' %}">Configuration Templates</a></li>
-<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ configuration_template }}{% endblock %}</li>
+<li class="breadcrumb-item"><a href="{% url 'peering:template_list' %}">Templates</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ template }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
       <div class="row">
@@ -26,11 +26,11 @@
             <table class="card-body table table-hover attr-table mb-0">
               <tr>
                 <td>Name</td>
-                <td>{{ configuration_template.name }}</td>
+                <td>{{ template.name }}</td>
               </tr>
               <tr>
                 <td>Last update</td>
-                <td>{{ configuration_template.updated }}</td>
+                <td>{{ template.updated }}</td>
               </tr>
               <tr>
                 <td>Utilization</td>
@@ -45,8 +45,8 @@
               <strong>Comments</strong>
             </div>
             <div class="card-body">
-              {% if autonomous_system.comment %}
-              {{ autonomous_system.comment|markdown }}
+              {% if template.comment %}
+              {{ template.comment|markdown }}
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}
@@ -60,7 +60,7 @@
             <div class="card-header">
               <strong>Template</strong>
             </div>
-            <pre class="pre-scrollable">{{ configuration_template.template }}</pre>
+            <pre class="pre-scrollable">{{ template.template }}</pre>
             <div class="card-footer">
               <i class="fa fa-info-circle"></i>
               <a href="https://github.com/respawner/peering-manager/wiki/configuration_template" target="_blank">Jinja2 template</a> syntax

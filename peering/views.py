@@ -13,12 +13,12 @@ from .filters import (
     AutonomousSystemFilter,
     BGPGroupFilter,
     CommunityFilter,
-    ConfigurationTemplateFilter,
     DirectPeeringSessionFilter,
     InternetExchangeFilter,
     InternetExchangePeeringSessionFilter,
     RouterFilter,
     RoutingPolicyFilter,
+    TemplateFilter,
 )
 from .forms import (
     AutonomousSystemFilterForm,
@@ -29,8 +29,6 @@ from .forms import (
     CommunityBulkEditForm,
     CommunityFilterForm,
     CommunityForm,
-    ConfigurationTemplateFilterForm,
-    ConfigurationTemplateForm,
     DirectPeeringSessionBulkEditForm,
     DirectPeeringSessionFilterForm,
     DirectPeeringSessionForm,
@@ -48,29 +46,31 @@ from .forms import (
     RoutingPolicyBulkEditForm,
     RoutingPolicyFilterForm,
     RoutingPolicyForm,
+    TemplateFilterForm,
+    TemplateForm,
 )
 from .models import (
     AutonomousSystem,
     BGPGroup,
     BGPSession,
     Community,
-    ConfigurationTemplate,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
+    Template,
 )
 from .tables import (
     AutonomousSystemTable,
     BGPGroupTable,
     CommunityTable,
-    ConfigurationTemplateTable,
     DirectPeeringSessionTable,
     InternetExchangeTable,
     InternetExchangePeeringSessionTable,
     RouterTable,
     RoutingPolicyTable,
+    TemplateTable,
 )
 from peeringdb.filters import PeerRecordFilter
 from peeringdb.forms import PeerRecordFilterForm
@@ -361,48 +361,6 @@ class CommunityBulkEdit(PermissionRequiredMixin, BulkEditView):
     filter = CommunityFilter
     table = CommunityTable
     form = CommunityBulkEditForm
-
-
-class ConfigTemplateList(ModelListView):
-    queryset = ConfigurationTemplate.objects.all()
-    filter = ConfigurationTemplateFilter
-    filter_form = ConfigurationTemplateFilterForm
-    table = ConfigurationTemplateTable
-    template = "peering/config/list.html"
-
-
-class ConfigTemplateAdd(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "peering.add_configurationtemplate"
-    model = ConfigurationTemplate
-    form = ConfigurationTemplateForm
-    return_url = "peering:configuration_template_list"
-
-
-class ConfigTemplateDetails(View):
-    def get(self, request, pk):
-        configuration_template = get_object_or_404(ConfigurationTemplate, pk=pk)
-        routers = Router.objects.filter(configuration_template=configuration_template)
-        context = {"configuration_template": configuration_template, "routers": routers}
-        return render(request, "peering/config/details.html", context)
-
-
-class ConfigTemplateEdit(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "peering.change_configurationtemplate"
-    model = ConfigurationTemplate
-    form = ConfigurationTemplateForm
-
-
-class ConfigTemplateDelete(PermissionRequiredMixin, DeleteView):
-    permission_required = "peering.delete_configurationtemplate"
-    model = ConfigurationTemplate
-    return_url = "peering:configuration_template_list"
-
-
-class ConfigTemplateBulkDelete(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = "peering.delete_configurationtemplate"
-    model = ConfigurationTemplate
-    filter = ConfigurationTemplateFilter
-    table = ConfigurationTemplateTable
 
 
 class DirectPeeringSessionAdd(PermissionRequiredMixin, AddOrEditView):
@@ -957,3 +915,45 @@ class RoutingPolicyBulkEdit(PermissionRequiredMixin, BulkEditView):
     filter = RoutingPolicyFilter
     table = RoutingPolicyTable
     form = RoutingPolicyBulkEditForm
+
+
+class TemplateList(ModelListView):
+    queryset = Template.objects.all()
+    filter = TemplateFilter
+    filter_form = TemplateFilterForm
+    table = TemplateTable
+    template = "peering/template/list.html"
+
+
+class TemplateAdd(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "peering.add_template"
+    model = Template
+    form = TemplateForm
+    return_url = "peering:template_list"
+
+
+class TemplateDetails(View):
+    def get(self, request, pk):
+        template = get_object_or_404(Template, pk=pk)
+        routers = Router.objects.filter(configuration_template=template)
+        context = {"template": template, "routers": routers}
+        return render(request, "peering/template/details.html", context)
+
+
+class TemplateEdit(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "peering.change_template"
+    model = Template
+    form = TemplateForm
+
+
+class TemplateDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = "peering.delete_template"
+    model = Template
+    return_url = "peering:template_list"
+
+
+class TemplateBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = "peering.delete_template"
+    model = Template
+    filter = TemplateFilter
+    table = TemplateTable

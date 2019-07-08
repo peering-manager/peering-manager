@@ -109,37 +109,6 @@ urlpatterns = [
         views.CommunityBulkEdit.as_view(),
         name="community_bulk_edit",
     ),
-    # Configuration Templates
-    re_path(
-        r"^templates/$",
-        views.ConfigTemplateList.as_view(),
-        name="configuration_template_list",
-    ),
-    re_path(
-        r"^templates/add/$",
-        views.ConfigTemplateAdd.as_view(),
-        name="configuration_template_add",
-    ),
-    re_path(
-        r"^templates/(?P<pk>[0-9]+)/$",
-        views.ConfigTemplateDetails.as_view(),
-        name="configuration_template_details",
-    ),
-    re_path(
-        r"^templates/(?P<pk>[0-9]+)/edit/$",
-        views.ConfigTemplateEdit.as_view(),
-        name="configuration_template_edit",
-    ),
-    re_path(
-        r"^templates/(?P<pk>[0-9]+)/delete/$",
-        views.ConfigTemplateDelete.as_view(),
-        name="configuration_template_delete",
-    ),
-    re_path(
-        r"^templates/delete/$",
-        views.ConfigTemplateBulkDelete.as_view(),
-        name="configuration_template_bulk_delete",
-    ),
     # Direct Peering Sessions
     re_path(
         r"^direct-peering-sessions/$",
@@ -359,5 +328,28 @@ urlpatterns = [
         r"^routing-policies/edit/$",
         views.RoutingPolicyBulkEdit.as_view(),
         name="routing_policy_bulk_edit",
+    ),
+    # Templates
+    re_path(r"^templates/$", views.TemplateList.as_view(), name="template_list"),
+    re_path(r"^templates/add/$", views.TemplateAdd.as_view(), name="template_add"),
+    re_path(
+        r"^templates/(?P<pk>[0-9]+)/$",
+        views.TemplateDetails.as_view(),
+        name="template_details",
+    ),
+    re_path(
+        r"^templates/(?P<pk>[0-9]+)/edit/$",
+        views.TemplateEdit.as_view(),
+        name="template_edit",
+    ),
+    re_path(
+        r"^templates/(?P<pk>[0-9]+)/delete/$",
+        views.TemplateDelete.as_view(),
+        name="template_delete",
+    ),
+    re_path(
+        r"^templates/delete/$",
+        views.TemplateBulkDelete.as_view(),
+        name="template_bulk_delete",
     ),
 ]

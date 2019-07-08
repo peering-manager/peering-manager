@@ -11,17 +11,18 @@ from .constants import (
     ROUTING_POLICY_TYPE_EXPORT,
     ROUTING_POLICY_TYPE_IMPORT,
     ROUTING_POLICY_TYPE_IMPORT_EXPORT,
+    TEMPLATE_TYPE_CHOICES,
 )
 from .models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    ConfigurationTemplate,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
+    Template,
 )
 from netbox.api import NetBox
 from utils.forms import (
@@ -251,20 +252,6 @@ class CommunityFilterForm(BootstrapMixin, forms.Form):
     type = forms.MultipleChoiceField(
         required=False, choices=COMMUNITY_TYPE_CHOICES, widget=StaticSelectMultiple
     )
-
-
-class ConfigurationTemplateForm(BootstrapMixin, forms.ModelForm):
-    template = TemplateField()
-
-    class Meta:
-        model = ConfigurationTemplate
-        fields = ("name", "template", "comment")
-        labels = {"comment": "Comments"}
-
-
-class ConfigurationTemplateFilterForm(BootstrapMixin, forms.Form):
-    model = ConfigurationTemplate
-    q = forms.CharField(required=False, label="Search")
 
 
 class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
@@ -505,7 +492,7 @@ class InternetExchangeBulkEditForm(BootstrapMixin, BulkEditForm):
     )
     configuration_template = forms.ModelChoiceField(
         required=False,
-        queryset=ConfigurationTemplate.objects.all(),
+        queryset=Template.objects.all(),
         widget=APISelect(api_url="/api/peering/templates/"),
     )
     router = forms.ModelChoiceField(
@@ -582,7 +569,7 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
         ),
     )
     configuration_template = FilterChoiceField(
-        queryset=ConfigurationTemplate.objects.all(),
+        queryset=Template.objects.all(),
         to_field_name="pk",
         null_label=True,
         widget=APISelectMultiple(api_url="/api/peering/templates/", null_option=True),
@@ -793,7 +780,7 @@ class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
     )
     configuration_template = forms.ModelChoiceField(
         required=False,
-        queryset=ConfigurationTemplate.objects.all(),
+        queryset=Template.objects.all(),
         widget=APISelect(api_url="/api/peering/templates/"),
     )
     comment = CommentField(widget=SmallTextarea)
@@ -812,7 +799,7 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
         required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
     )
     configuration_template = FilterChoiceField(
-        queryset=ConfigurationTemplate.objects.all(),
+        queryset=Template.objects.all(),
         to_field_name="pk",
         null_label=True,
         widget=APISelectMultiple(api_url="/api/peering/templates/", null_option=True),
@@ -858,3 +845,27 @@ class RoutingPolicyFilterForm(BootstrapMixin, forms.Form):
     )
     weight = forms.IntegerField(required=False, min_value=0, max_value=32767)
     address_family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES)
+
+
+class TemplateForm(BootstrapMixin, forms.ModelForm):
+    type = forms.ChoiceField(
+        required=False,
+        choices=add_blank_choice(TEMPLATE_TYPE_CHOICES),
+        widget=StaticSelect,
+    )
+    template = TemplateField()
+
+    class Meta:
+        model = Template
+        fields = ("name", "type", "template", "comment")
+        labels = {"comment": "Comments"}
+
+
+class TemplateFilterForm(BootstrapMixin, forms.Form):
+    model = Template
+    q = forms.CharField(required=False, label="Search")
+    type = forms.MultipleChoiceField(
+        required=False,
+        choices=add_blank_choice(TEMPLATE_TYPE_CHOICES),
+        widget=StaticSelectMultiple,
+    )

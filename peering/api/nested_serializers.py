@@ -4,10 +4,10 @@ from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    ConfigurationTemplate,
     InternetExchange,
     Router,
     RoutingPolicy,
+    Template,
 )
 from utils.api import WritableNestedSerializer
 
@@ -38,16 +38,6 @@ class CommunityNestedSerializer(WritableNestedSerializer):
         fields = ["id", "url", "name", "value", "type"]
 
 
-class ConfigurationTemplateNestedSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="peering-api:configurationtemplate-detail"
-    )
-
-    class Meta:
-        model = ConfigurationTemplate
-        fields = ["id", "url", "name"]
-
-
 class InternetExchangeNestedSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="peering-api:internetexchange-detail"
@@ -74,3 +64,11 @@ class RoutingPolicyNestedSerializer(WritableNestedSerializer):
     class Meta:
         model = RoutingPolicy
         fields = ["id", "url", "name", "slug", "type"]
+
+
+class TemplateNestedSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name="peering-api:template-detail")
+
+    class Meta:
+        model = Template
+        fields = ["id", "url", "type", "name"]

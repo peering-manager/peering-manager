@@ -4,12 +4,12 @@ from peering.constants import *
 from peering.forms import (
     AutonomousSystemForm,
     CommunityForm,
-    ConfigurationTemplateForm,
     DirectPeeringSessionForm,
     InternetExchangeForm,
     InternetExchangePeeringSessionForm,
     RouterForm,
     RoutingPolicyForm,
+    TemplateForm,
 )
 from peering.models import AutonomousSystem, InternetExchange
 
@@ -25,15 +25,6 @@ class CommunityTest(TestCase):
     def test_community_form(self):
         test = CommunityForm(
             data={"name": "test", "value": "64500:1", "type": COMMUNITY_TYPE_EGRESS}
-        )
-        self.assertTrue(test.is_valid())
-        self.assertTrue(test.save())
-
-
-class ConfigurationTemplateTest(TestCase):
-    def test_configuration_template_form(self):
-        test = ConfigurationTemplateForm(
-            data={"name": "Test", "template": "test_template"}
         )
         self.assertTrue(test.is_valid())
         self.assertTrue(test.save())
@@ -113,6 +104,19 @@ class RoutingPolicyTest(TestCase):
                 "type": ROUTING_POLICY_TYPE_IMPORT,
                 "weight": 0,
                 "address_family": 0,
+            }
+        )
+        self.assertTrue(test.is_valid())
+        self.assertTrue(test.save())
+
+
+class TemplateTest(TestCase):
+    def test_template_form(self):
+        test = TemplateForm(
+            data={
+                "type": TEMPLATE_TYPE_CONFIGURATION,
+                "name": "Test",
+                "template": "test_template",
             }
         )
         self.assertTrue(test.is_valid())

@@ -5,12 +5,12 @@ from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    ConfigurationTemplate,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
+    Template,
 )
 from utils.api import InetAddressArrayField
 
@@ -65,14 +65,8 @@ class CommunitySerializer(serializers.ModelSerializer):
         fields = ["id", "name", "value", "type", "comment"]
 
 
-class ConfigurationTemplateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ConfigurationTemplate
-        fields = ["id", "name", "template", "comment"]
-
-
 class RouterSerializer(serializers.ModelSerializer):
-    configuration_template = ConfigurationTemplateNestedSerializer(required=False)
+    configuration_template = TemplateNestedSerializer(required=False)
 
     class Meta:
         model = Router
@@ -125,7 +119,7 @@ class DirectPeeringSessionSerializer(serializers.ModelSerializer):
 
 
 class InternetExchangeSerializer(serializers.ModelSerializer):
-    configuration_template = ConfigurationTemplateNestedSerializer(required=False)
+    configuration_template = TemplateNestedSerializer(required=False)
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     communities = CommunityNestedSerializer(many=True, required=False)
@@ -176,3 +170,9 @@ class InternetExchangePeeringSessionSerializer(serializers.ModelSerializer):
             "last_established_state",
             "comment",
         ]
+
+
+class TemplateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Template
+        fields = ["id", "type", "name", "template", "comment"]

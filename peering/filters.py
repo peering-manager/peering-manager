@@ -9,17 +9,18 @@ from .constants import (
     PLATFORM_CHOICES,
     ROUTING_POLICY_TYPE_CHOICES,
     ROUTING_POLICY_TYPE_IMPORT_EXPORT,
+    TEMPLATE_TYPE_CHOICES,
 )
 from .models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    ConfigurationTemplate,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
+    Template,
 )
 
 
@@ -79,20 +80,6 @@ class CommunityFilter(django_filters.FilterSet):
         return queryset.filter(qs_filter)
 
 
-class ConfigurationTemplateFilter(django_filters.FilterSet):
-    q = django_filters.CharFilter(method="search", label="Search")
-
-    class Meta:
-        model = ConfigurationTemplate
-        fields = ["name"]
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        qs_filter = Q(name__icontains=value) | Q(template__icontains=value)
-        return queryset.filter(qs_filter)
-
-
 class DirectPeeringSessionFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     address_family = django_filters.NumberFilter(method="address_family_search")
@@ -135,7 +122,7 @@ class InternetExchangeFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     configuration_template = django_filters.ModelMultipleChoiceFilter(
         field_name="configuration_template__id",
-        queryset=ConfigurationTemplate.objects.all(),
+        queryset=Template.objects.all(),
         to_field_name="id",
         label="Template",
     )
@@ -265,4 +252,21 @@ class RoutingPolicyFilter(django_filters.FilterSet):
         qs_filter = Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
         for v in value:
             qs_filter |= Q(type=v)
+        return queryset.filter(qs_filter)
+
+
+class TemplateFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(method="search", label="Search")
+    type = django_filters.MultipleChoiceFilter(
+        choices=TEMPLATE_TYPE_CHOICES, null_value=None
+    )
+
+    class Meta:
+        model = Template
+        fields = ["name"]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = Q(name__icontains=value) | Q(template__icontains=value)
         return queryset.filter(qs_filter)

@@ -12,12 +12,12 @@ from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    ConfigurationTemplate,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
+    Template,
 )
 from peeringdb.models import Synchronization
 from utils.models import ObjectChange
@@ -76,7 +76,7 @@ class Home(View):
             "bgp_groups_count": BGPGroup.objects.count(),
             "internet_exchanges_count": InternetExchange.objects.count(),
             "communities_count": Community.objects.count(),
-            "templates_count": ConfigurationTemplate.objects.count(),
+            "templates_count": Template.objects.count(),
             "routers_count": Router.objects.count(),
             "direct_peering_sessions_count": DirectPeeringSession.objects.count(),
             "internet_exchange_peering_sessions_count": InternetExchangePeeringSession.objects.count(),

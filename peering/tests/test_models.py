@@ -18,12 +18,12 @@ from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    ConfigurationTemplate,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
+    Template,
 )
 
 
@@ -138,17 +138,6 @@ class CommunityTest(TestCase):
                     type=community_types[i],
                 ).get_type_html(),
             )
-
-
-class ConfigurationTemplateTest(TestCase):
-    def setUp(self):
-        super().setUp()
-        self.configuration_template = ConfigurationTemplate(
-            name="Test", template="{{ test }}"
-        )
-
-    def test_render(self):
-        self.assertEqual(self.configuration_template.render({"test": "test"}), "test")
 
 
 class InternetExchangeTest(TestCase):
@@ -622,3 +611,12 @@ class RoutingPolicyTest(TestCase):
                     type=routing_policy_types[i],
                 ).get_type_html(),
             )
+
+
+class TemplateTest(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.template = Template(name="Test", template="{{ test }}")
+
+    def test_render(self):
+        self.assertEqual(self.template.render({"test": "test"}), "test")

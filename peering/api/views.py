@@ -9,35 +9,35 @@ from .serializers import (
     AutonomousSystemSerializer,
     BGPGroupSerializer,
     CommunitySerializer,
-    ConfigurationTemplateSerializer,
     DirectPeeringSessionSerializer,
     InternetExchangeSerializer,
     InternetExchangeNestedSerializer,
     InternetExchangePeeringSessionSerializer,
     RouterSerializer,
     RoutingPolicySerializer,
+    TemplateSerializer,
 )
 from peering.filters import (
     AutonomousSystemFilter,
     BGPGroupFilter,
     CommunityFilter,
-    ConfigurationTemplateFilter,
     DirectPeeringSessionFilter,
     InternetExchangeFilter,
     InternetExchangePeeringSessionFilter,
     RouterFilter,
     RoutingPolicyFilter,
+    TemplateFilter,
 )
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    ConfigurationTemplate,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
+    Template,
 )
 from peeringdb.api.serializers import PeerRecordSerializer
 from utils.api import ModelViewSet, ServiceUnavailable, StaticChoicesViewSet
@@ -119,12 +119,6 @@ class CommunityViewSet(ModelViewSet):
     queryset = Community.objects.all()
     serializer_class = CommunitySerializer
     filterset_class = CommunityFilter
-
-
-class ConfigurationTemplateViewSet(ModelViewSet):
-    queryset = ConfigurationTemplate.objects.all()
-    serializer_class = ConfigurationTemplateSerializer
-    filterset_class = ConfigurationTemplateFilter
 
 
 class DirectPeeringSessionViewSet(ModelViewSet):
@@ -265,3 +259,9 @@ class RoutingPolicyViewSet(ModelViewSet):
     queryset = RoutingPolicy.objects.all()
     serializer_class = RoutingPolicySerializer
     filterset_class = RoutingPolicyFilter
+
+
+class TemplateViewSet(ModelViewSet):
+    queryset = Template.objects.all()
+    serializer_class = TemplateSerializer
+    filterset_class = TemplateFilter

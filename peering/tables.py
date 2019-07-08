@@ -4,7 +4,7 @@ from .models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    ConfigurationTemplate,
+    Template,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -55,8 +55,8 @@ COMMUNITY_ACTIONS = """
 """
 COMMUNITY_TYPE = "{{ record.get_type_html }}"
 CONFIGURATION_TEMPLATE_ACTIONS = """
-{% if perms.peering.change_configurationtemplate %}
-<a href="{% url 'peering:configuration_template_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
+{% if perms.peering.change_template %}
+<a href="{% url 'peering:template_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
 {% endif %}
 """
 DIRECT_PEERING_SESSION_ACTIONS = """
@@ -211,20 +211,6 @@ class CommunityTable(BaseTable):
         fields = ("pk", "name", "value", "type", "actions")
 
 
-class ConfigurationTemplateTable(BaseTable):
-    """
-    Table for ConfigurationTemplate lists
-    """
-
-    pk = SelectColumn()
-    name = tables.Column(linkify=True)
-    actions = ActionsColumn(template_code=CONFIGURATION_TEMPLATE_ACTIONS)
-
-    class Meta(BaseTable.Meta):
-        model = ConfigurationTemplate
-        fields = ("pk", "name", "updated", "actions")
-
-
 class DirectPeeringSessionTable(BaseTable):
     """
     Table for DirectPeeringSession lists
@@ -372,3 +358,17 @@ class RoutingPolicyTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = RoutingPolicy
         fields = ("pk", "name", "type", "weight", "address_family", "actions")
+
+
+class TemplateTable(BaseTable):
+    """
+    Table for Template lists
+    """
+
+    pk = SelectColumn()
+    name = tables.Column(linkify=True)
+    actions = ActionsColumn(template_code=CONFIGURATION_TEMPLATE_ACTIONS)
+
+    class Meta(BaseTable.Meta):
+        model = Template
+        fields = ("pk", "type", "name", "updated", "actions")
