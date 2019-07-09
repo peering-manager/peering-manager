@@ -764,7 +764,10 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
             "configuration_template": "Template used to generate device configuration",
         }
         widgets = {
-            "configuration_template": APISelect(api_url="/api/peering/templates/")
+            "configuration_template": APISelect(
+                api_url="/api/peering/templates/",
+                query_filters={"type": "configuration"},
+            )
         }
 
 
@@ -781,7 +784,9 @@ class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
     configuration_template = forms.ModelChoiceField(
         required=False,
         queryset=Template.objects.all(),
-        widget=APISelect(api_url="/api/peering/templates/"),
+        widget=APISelect(
+            api_url="/api/peering/templates/", query_filters={"type": "configuration"}
+        ),
     )
     comment = CommentField(widget=SmallTextarea)
 
