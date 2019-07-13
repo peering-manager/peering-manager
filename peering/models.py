@@ -2,7 +2,7 @@ import ipaddress
 import logging
 import napalm
 
-from jinja2 import Environment
+from jinja2 import Environment, TemplateSyntaxError
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
@@ -1687,8 +1687,13 @@ class Template(ChangeLoggedModel):
         environment.filters["prefix_list"] = prefix_list
         environment.filters["cisco_password"] = cisco_password
 
-        jinja2_template = environment.from_string(self.template)
-        return jinja2_template.render(variables)
+        # Try rendering the template, return a message about syntax issues if there
+        # are any
+        try:
+            jinja2_template = environment.from_string(self.template)
+            return jinja2_template.render(variables)
+        except TemplateSyntaxError as e:
+            return "Syntax error in template at line {}: {}".format(e.lineno, e.message)
 
     def __str__(self):
         return self.name
