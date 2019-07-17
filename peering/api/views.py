@@ -126,6 +126,15 @@ class DirectPeeringSessionViewSet(ModelViewSet):
     serializer_class = DirectPeeringSessionSerializer
     filterset_class = DirectPeeringSessionFilter
 
+    @action(detail=True, methods=["get"], url_path="clear")
+    def clear(self, request, pk=None):
+        router = self.get_object().router
+        if not router:
+            raise ServiceUnavailable("No router available to clear session")
+
+        result = router.clear_bgp_session(self.get_object())
+        return Response({"result": result})
+
 
 class InternetExchangeViewSet(ModelViewSet):
     queryset = InternetExchange.objects.all()
@@ -203,6 +212,15 @@ class InternetExchangePeeringSessionViewSet(ModelViewSet):
     queryset = InternetExchangePeeringSession.objects.all()
     serializer_class = InternetExchangePeeringSessionSerializer
     filterset_class = InternetExchangePeeringSessionFilter
+
+    @action(detail=True, methods=["get"], url_path="clear")
+    def clear(self, request, pk=None):
+        router = self.get_object().internet_exchange.router
+        if not router:
+            raise ServiceUnavailable("No router available to clear session")
+
+        result = router.clear_bgp_session(self.get_object())
+        return Response({"result": result})
 
 
 class RouterViewSet(ModelViewSet):

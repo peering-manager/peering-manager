@@ -1545,22 +1545,6 @@ class Router(ChangeLoggedModel):
 
         return bgp_neighbors_detail
 
-    def bgp_neighbors_detail_as_list(self, bgp_neighbors_detail):
-        """
-        Returns a list based on the dict returned by calling
-        get_napalm_bgp_neighbors_detail.
-        """
-        flattened = []
-
-        if not bgp_neighbors_detail:
-            return flattened
-
-        for vrf in bgp_neighbors_detail:
-            for asn in bgp_neighbors_detail[vrf]:
-                flattened.extend(bgp_neighbors_detail[vrf][asn])
-
-        return flattened
-
     def get_netbox_bgp_neighbors_detail(self):
         """
         Returns a list of dictionaries listing all BGP neighbors found on the
@@ -1597,6 +1581,75 @@ class Router(ChangeLoggedModel):
             return self.get_netbox_bgp_neighbors_detail()
         else:
             return self.get_napalm_bgp_neighbors_detail()
+
+    def bgp_neighbors_detail_as_list(self, bgp_neighbors_detail):
+        """
+        Returns a list based on the dict returned by calling
+        get_napalm_bgp_neighbors_detail.
+        """
+        flattened = []
+
+        if not bgp_neighbors_detail:
+            return flattened
+
+        for vrf in bgp_neighbors_detail:
+            for asn in bgp_neighbors_detail[vrf]:
+                flattened.extend(bgp_neighbors_detail[vrf][asn])
+
+        return flattened
+
+    def clear_bgp_neighbor_command(self, address_family=6):
+        """
+        Returns a command to clear a BGP neighbor based on the router's platform and
+        the address family.
+        """
+        if address_family not in [6, 4]:
+            return None
+
+        if self.platform == PLATFORM_JUNOS:
+            return "clear bgp neighbor"
+        if self.platform in [PLATFORM_EOS, PLATFORM_IOS]:
+            if address_family is 6:
+                return "clear ipv6 bgp"
+            else:
+                return "clear ip bgp"
+        if self.platform == PLATFORM_IOSXR:
+            return "clear bgp"
+
+        return None
+
+    def clear_bgp_session(self, bgp_session):
+        if not bgp_session or not isinstance(bgp_session, BGPSession):
+            self.logger.debug("no bgp session to clear")
+            return None
+        if not self.clear_bgp_neighbor_command:
+            self.logger.debug("no command found to clear bgp session")
+            return None
+
+        device = self.get_napalm_device()
+        opened = self.open_napalm_device(device)
+
+        if opened:
+            # Send command to clear the BGP neighbor
+            address = ipaddress.ip_address(bgp_session.ip_address)
+            command = "{} {}".format(
+                self.clear_bgp_neighbor_command(address_family=address.version),
+                str(address),
+            )
+            self.logger.debug("clearing bgp neighbor %s", str(address))
+            result = device.cli([command])
+            self.logger.debug("raw napalm output %s", result)
+
+            # Close connection to the device
+            closed = self.close_napalm_device(device)
+            if not closed:
+                self.logger.debug(
+                    "error while closing connection with %s", self.hostname
+                )
+
+            return result[command]
+
+        return None
 
     def __str__(self):
         return self.name
