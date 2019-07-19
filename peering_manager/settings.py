@@ -193,6 +193,8 @@ INSTALLED_APPS = [
     "django_tables2",
     "rest_framework",
     "netfields",
+    "taggit",
+    "taggit_serializer",
     "peering",
     "peeringdb",
     "users",
