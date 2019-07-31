@@ -469,7 +469,7 @@ class Community(ChangeLoggedModel, TemplateModel):
 
     class Meta:
         verbose_name_plural = "communities"
-        ordering = ["name"]
+        ordering = ["value", "name"]
 
     def get_absolute_url(self):
         return reverse("peering:community_details", kwargs={"pk": self.pk})
