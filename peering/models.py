@@ -493,6 +493,9 @@ class Community(ChangeLoggedModel, TemplateModel):
 
 class DirectPeeringSession(BGPSession, TemplateModel):
     local_asn = ASNField(default=0)
+    local_ip_address = InetAddressField(
+        store_prefix_length=False, blank=True, null=True
+    )
     bgp_group = models.ForeignKey(
         "BGPGroup",
         blank=True,

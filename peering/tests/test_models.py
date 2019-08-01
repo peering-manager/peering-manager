@@ -381,6 +381,7 @@ class RouterTest(TestCase):
         bgp_group = BGPGroup.objects.create(name="Test Group", slug="testgroup")
         for i in range(1, 6):
             DirectPeeringSession.objects.create(
+                local_ip_address="192.0.2.1",
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
                 bgp_group=bgp_group,
                 relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,

@@ -103,7 +103,7 @@ class DirectPeeringSessionFilter(django_filters.FilterSet):
         qs_filter = Q(relationship__icontains=value) | Q(comment__icontains=value)
         try:
             ip = ipaddress.ip_interface(value.strip())
-            qs_filter |= Q(ip_address__host=str(ip))
+            qs_filter |= Q(ip_address__host=str(ip)) | Q(local_ip_address__host=str(ip))
         except ValueError:
             pass
         try:

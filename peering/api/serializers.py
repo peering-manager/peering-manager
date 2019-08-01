@@ -101,6 +101,7 @@ class DirectPeeringSessionSerializer(serializers.ModelSerializer):
             "id",
             "autonomous_system",
             "local_asn",
+            "local_ip_address",
             "bgp_group",
             "relationship",
             "ip_address",

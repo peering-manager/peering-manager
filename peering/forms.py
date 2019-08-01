@@ -311,6 +311,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         model = DirectPeeringSession
         fields = (
             "local_asn",
+            "local_ip_address",
             "autonomous_system",
             "bgp_group",
             "relationship",
@@ -325,6 +326,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         )
         labels = {
             "local_asn": "Local ASN",
+            "local_ip_address": "Local IP Address",
             "autonomous_system": "AS",
             "ip_address": "IP Address",
             "comment": "Comments",
@@ -333,6 +335,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "local_asn": "ASN to be used locally, defaults to {}".format(
                 settings.MY_ASN
             ),
+            "local_ip_address": "IPv6 or IPv4 address",
             "ip_address": "IPv6 or IPv4 address",
             "enabled": "Should this session be enabled?",
             "router": "Router on which this session is configured",

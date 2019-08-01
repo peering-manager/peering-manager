@@ -52,6 +52,12 @@
                 <td>Local ASN</td>
                 <td>{{ peering_session.local_asn }}</td>
               </tr>
+              {% if peering_session.local_ip_address %}
+              <tr>
+                <td>Local IP Address</td>
+                <td>{{ peering_session.local_ip_address }}</td>
+              </tr>
+              {% endif %}
               <tr>
                 <td>AS</td>
                 <td>
