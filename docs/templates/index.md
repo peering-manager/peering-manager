@@ -23,8 +23,8 @@ template:
   * `my_asn` exposing the ASN specified in the configuration (your ASN)
   * `bgp_groups` exposing details about direct peering sessions via a list of
     [BGPGroup](objects/bgpgroup.md) objects
-  * `internet_exchanges` exposing details Internet Exchange peering sessions
-    via a list of [InternetExchange](objects/internetexchange.md) objects
+  * `internet_exchanges` exposing Internet Exchange peering sessions via a list
+    of [InternetExchange](objects/internetexchange.md) objects
   * `routing_policies` containing the list of
     [RoutingPolicy](objects/routingpolicy.md) objects
   * `communities` containing the list of [Community](objects/community.md)

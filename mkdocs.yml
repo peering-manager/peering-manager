@@ -15,7 +15,15 @@ pages:
     - Configuring: 'configuration/index.md'
     - Required Settings: 'configuration/required-settings.md'
     - Optional Settings: 'configuration/optional-settings.md'
-  - User Manual: 'man.md'
+  - User Manual:
+    - Autonomous System: 'templates/objects/autonomoussystem.md'
+    - BGP Group: 'templates/objects/bgpgroup.md'
+    - Community: 'templates/objects/community.md'
+    - Direct Peering Session: 'templates/objects/directpeeringsession.md'
+    - Internet Exchange: 'templates/objects/internetexchange.md'
+    - Internet Exchange Peering Session: 'templates/objects/internetexchangepeeringsession.md'
+    - Router: 'templates/objects/router.md'
+    - Routing Policy: 'templates/objects/routingpolicy.md'
   - Templating:
     - Writing Templates: 'templates/index.md'
     - Juniper JUNOS: 'templates/juniper-junos.md'
