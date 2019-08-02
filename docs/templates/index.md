@@ -21,10 +21,14 @@ The following variables are provided to generate a configuration based on a
 template:
 
   * `my_asn` exposing the ASN specified in the configuration (your ASN)
-  * `bgp_groups` exposing details about direct peering sessions in groups
-  * `internet_exchange` exposing details about the current IX
-  * `routing_policies` containing the list of routing policies
-  * `communities` containing the list of communities
+  * `bgp_groups` exposing details about direct peering sessions via a list of
+    [BGPGroup](objects/bgpgroup.md) objects
+  * `internet_exchanges` exposing details Internet Exchange peering sessions
+    via a list of [InternetExchange](objects/internetexchange.md) objects
+  * `routing_policies` containing the list of
+    [RoutingPolicy](objects/routingpolicy.md) objects
+  * `communities` containing the list of [Community](objects/community.md)
+    objects
 
 It is possible to iterate over these variables, except the first one, using the
 `for` keyword of Jinja2. More details can be found about how to use these in

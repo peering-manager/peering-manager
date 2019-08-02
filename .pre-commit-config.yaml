@@ -4,3 +4,9 @@ repos:
     hooks:
     - id: black
       language_version: python3.7
+-   repo: local
+    hooks:
+    - id: documentation
+      name: gendoc
+      entry: ./scripts/documentation/generate_template_doc.py
+      language: python
