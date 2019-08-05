@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 from .constants import *
+from .fields import CommentField, SlugField
 from .models import ObjectChange
 
 
@@ -99,43 +100,6 @@ class FilterChoiceField(FilterChoiceFieldMixin, forms.ModelMultipleChoiceField):
     pass
 
 
-class PasswordField(forms.CharField):
-    """
-    A field used to enter password. The field will hide the password unless the
-    reveal button is clicked.
-    """
-
-    def __init__(self, password_source="password", render_value=False, *args, **kwargs):
-        widget = kwargs.pop("widget", forms.PasswordInput(render_value=render_value))
-        label = kwargs.pop("label", "Password")
-        help_text = kwargs.pop(
-            "help_text",
-            "It can be a clear text password or an "
-            "encrypted one. It really depends on how you "
-            "want to use it. Be aware that it is stored "
-            "without encryption in the database.",
-        )
-        super().__init__(
-            widget=widget, label=label, help_text=help_text, *args, **kwargs
-        )
-        self.widget.attrs["password-source"] = password_source
-
-
-class SlugField(forms.SlugField):
-    """
-    An improved SlugField that allows to be automatically generated based on a
-    field used as source.
-    """
-
-    def __init__(self, slug_source="name", *args, **kwargs):
-        label = kwargs.pop("label", "Slug")
-        help_text = kwargs.pop(
-            "help_text", "Friendly unique shorthand used for URL and config"
-        )
-        super().__init__(label=label, help_text=help_text, *args, **kwargs)
-        self.widget.attrs["slug-source"] = slug_source
-
-
 class SmallTextarea(forms.Textarea):
     """
     Just to be used as small text area.
@@ -219,19 +183,6 @@ class CustomNullBooleanSelect(StaticSelect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.choices = (("unknown", "---------"), ("true", "Yes"), ("false", "No"))
-
-
-class TextareaField(forms.CharField):
-    """
-    A textarea with support for GitHub-Flavored Markdown. Exists mostly just to
-    add a standard help_text.
-    """
-
-    widget = forms.Textarea
-
-    def __init__(self, *args, **kwargs):
-        required = kwargs.pop("required", False)
-        super().__init__(required=required, *args, **kwargs)
 
 
 class ObjectChangeFilterForm(BootstrapMixin, forms.Form):

@@ -25,6 +25,7 @@ from .models import (
     Template,
 )
 from netbox.api import NetBox
+from utils.fields import CommentField, PasswordField, SlugField, TextareaField
 from utils.forms import (
     APISelect,
     APISelectMultiple,
@@ -32,29 +33,11 @@ from utils.forms import (
     BootstrapMixin,
     CustomNullBooleanSelect,
     FilterChoiceField,
-    PasswordField,
-    SlugField,
     SmallTextarea,
     StaticSelect,
     StaticSelectMultiple,
-    TextareaField,
     add_blank_choice,
 )
-
-
-class CommentField(TextareaField):
-    """
-    A textarea with support for GitHub-Flavored Markdown. Note that it does not
-    actually do anything special. It just here to add a help text.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            label="Comments",
-            help_text='Styling with <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank"><i class="fab fa-markdown"></i> Markdown</a> is supported',
-            *args,
-            **kwargs
-        )
 
 
 class TemplateField(TextareaField):
