@@ -14,6 +14,8 @@ from peering.models import (
 )
 from utils.api import InetAddressArrayField
 
+from taggit_serializer.serializers import (TagListSerializerField,
+					   TaggitSerializer)
 
 class AutonomousSystemSerializer(serializers.ModelSerializer):
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
@@ -125,6 +127,9 @@ class InternetExchangeSerializer(serializers.ModelSerializer):
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     communities = CommunityNestedSerializer(many=True, required=False)
     router = RouterNestedSerializer(required=False)
+
+    # Make Internet Exchange tags available through the API
+    tags = TagListSerializerField()
 
     class Meta:
         model = InternetExchange

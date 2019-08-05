@@ -197,6 +197,8 @@ INSTALLED_APPS = [
     "peeringdb",
     "users",
     "utils",
+    "taggit",
+    "taggit_serializer",
 ]
 
 MIDDLEWARE = [

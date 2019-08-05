@@ -25,6 +25,7 @@ from utils.crypto.junos import encrypt as junos_encrypt, decrypt as junos_decryp
 from utils.models import ChangeLoggedModel, TemplateModel
 from utils.validators import AddressFamilyValidator
 
+from taggit.managers import TaggableManager
 
 class AbstractGroup(ChangeLoggedModel, TemplateModel):
     name = models.CharField(max_length=128)
@@ -924,6 +925,9 @@ class InternetExchange(AbstractGroup):
 
     def __str__(self):
         return self.name
+
+    # Taggable internet exchange
+    tags = TaggableManager()
 
 
 class InternetExchangePeeringSession(BGPSession, TemplateModel):

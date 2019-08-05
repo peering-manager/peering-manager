@@ -11,3 +11,5 @@ psycopg2-binary==2.8.3
 py-gfm==0.1.4
 pynetbox==4.0.6
 requests==2.22.0
+django-taggit
+django-taggit-serializer
