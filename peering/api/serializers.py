@@ -148,6 +148,7 @@ class InternetExchangeSerializer(serializers.ModelSerializer):
             "router",
             "check_bgp_session_states",
             "bgp_session_states_update",
+	    "tags",
         ]
 
 
