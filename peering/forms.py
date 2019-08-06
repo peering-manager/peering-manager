@@ -450,6 +450,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "router",
             "check_bgp_session_states",
             "comment",
+	    "tags",
         )
         labels = {
             "peeringdb_id": "PeeringDB ID",

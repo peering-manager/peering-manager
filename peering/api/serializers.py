@@ -121,7 +121,7 @@ class DirectPeeringSessionSerializer(serializers.ModelSerializer):
         ]
 
 
-class InternetExchangeSerializer(serializers.ModelSerializer):
+class InternetExchangeSerializer(TaggitSerializer, serializers.ModelSerializer):
     configuration_template = TemplateNestedSerializer(required=False)
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
