@@ -2,6 +2,8 @@ from django import forms
 from django.db.models import Q
 from django.conf import settings
 
+from taggit.forms import TagField
+
 from .constants import (
     BGP_RELATIONSHIP_CHOICES,
     COMMUNITY_TYPE_CHOICES,
@@ -73,6 +75,7 @@ class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
         ),
     )
     comment = CommentField()
+    tags = TagField(required=False)
 
     class Meta:
         model = AutonomousSystem
@@ -91,6 +94,7 @@ class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
             "import_routing_policies",
             "export_routing_policies",
             "comment",
+            "tags",
         )
         labels = {
             "asn": "ASN",
@@ -141,6 +145,7 @@ class BGPGroupForm(BootstrapMixin, forms.ModelForm):
         queryset=Community.objects.all(),
         widget=APISelectMultiple(api_url="/api/peering/communities/"),
     )
+    tags = TagField(required=False)
 
     class Meta:
         model = BGPGroup
@@ -152,6 +157,7 @@ class BGPGroupForm(BootstrapMixin, forms.ModelForm):
             "export_routing_policies",
             "communities",
             "check_bgp_session_states",
+            "tags",
         )
         labels = {
             "check_bgp_session_states": "Poll Peering Session States",
@@ -201,11 +207,12 @@ class BGPGroupFilterForm(BootstrapMixin, forms.Form):
 
 class CommunityForm(BootstrapMixin, forms.ModelForm):
     comment = CommentField()
+    tags = TagField(required=False)
 
     class Meta:
         model = Community
 
-        fields = ("name", "value", "type", "comment")
+        fields = ("name", "value", "type", "comment", "tags")
         labels = {"comment": "Comments"}
         help_texts = {
             "value": "Community (RFC1997) or Large Community (RFC8092)",
@@ -274,6 +281,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     )
     password = PasswordField(required=False, render_value=True)
     comment = CommentField()
+    tags = TagField(required=False)
 
     def clean(self):
         # Do the regular cleanup
@@ -306,6 +314,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "import_routing_policies",
             "export_routing_policies",
             "comment",
+            "tags",
         )
         labels = {
             "local_asn": "Local ASN",
@@ -417,6 +426,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
         widget=APISelectMultiple(api_url="/api/peering/communities/"),
     )
     comment = CommentField()
+    tags = TagField(required=False)
 
     class Meta:
         model = InternetExchange
@@ -433,6 +443,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "router",
             "check_bgp_session_states",
             "comment",
+            "tags",
         )
         labels = {
             "peeringdb_id": "PeeringDB ID",
@@ -620,6 +631,7 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
         ),
     )
     comment = CommentField()
+    tags = TagField(required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -653,6 +665,7 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "import_routing_policies",
             "export_routing_policies",
             "comment",
+            "tags",
         )
         labels = {
             "autonomous_system": "AS",
@@ -704,6 +717,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
         required=False, choices=add_blank_choice(PLATFORM_CHOICES), widget=StaticSelect
     )
     comment = CommentField()
+    tags = TagField(required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -739,6 +753,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
             "encrypt_passwords",
             "configuration_template",
             "comment",
+            "tags",
         )
         labels = {
             "use_netbox": "Use NetBox",
@@ -801,11 +816,12 @@ class RoutingPolicyForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField(max_length=255)
     type = forms.ChoiceField(choices=ROUTING_POLICY_TYPE_CHOICES, widget=StaticSelect)
     comment = CommentField()
+    tags = TagField(required=False)
 
     class Meta:
         model = RoutingPolicy
 
-        fields = ("name", "slug", "type", "weight", "address_family", "comment")
+        fields = ("name", "slug", "type", "weight", "address_family", "comment", "tags")
         labels = {"comment": "Comments"}
 
 
@@ -845,10 +861,12 @@ class TemplateForm(BootstrapMixin, forms.ModelForm):
         widget=StaticSelect,
     )
     template = TemplateField()
+    comment = CommentField()
+    tags = TagField(required=False)
 
     class Meta:
         model = Template
-        fields = ("name", "type", "template", "comment")
+        fields = ("name", "type", "template", "comment", "tags")
         labels = {"comment": "Comments"}
 
 
