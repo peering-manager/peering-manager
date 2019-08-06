@@ -929,6 +929,7 @@ class TemplateAdd(PermissionRequiredMixin, AddOrEditView):
     permission_required = "peering.add_template"
     model = Template
     form = TemplateForm
+    template = "peering/template/add_edit.html"
     return_url = "peering:template_list"
 
 
@@ -944,6 +945,7 @@ class TemplateEdit(PermissionRequiredMixin, AddOrEditView):
     permission_required = "peering.change_template"
     model = Template
     form = TemplateForm
+    template = "peering/template/add_edit.html"
 
 
 class TemplateDelete(PermissionRequiredMixin, DeleteView):

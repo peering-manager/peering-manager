@@ -1,0 +1,18 @@
+{% extends 'utils/object_add_edit.html' %}
+{% load form_helpers %}
+{% block form %}
+            <div class="card my-2">
+              <div class="card-header"><strong>Template</strong></div>
+              <div class="card-body">
+                {% render_field form.name %}
+                {% render_field form.type %}
+                {% render_field form.template %}
+              </div>
+            </div>
+            <div class="card my-2">
+              <div class="card-header"><strong>Comments</strong></div>
+              <div class="card-body">
+                {% render_field form.comment %}
+              </div>
+            </div>
+{% endblock %}
