@@ -10,6 +10,8 @@ from django.core.serializers import serialize
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
+from taggit.managers import TaggableManager
+
 from .constants import *
 from .templatetags.helpers import title_with_uppers
 
@@ -109,6 +111,17 @@ class ObjectChange(models.Model):
             self.get_action_display().lower(),
             self.user_name,
         )
+
+
+class TaggableModel(models.Model):
+    """
+    Abstract class that just provides tags to its subclasses.
+    """
+
+    tags = TaggableManager()
+
+    class Meta:
+        abstract = True
 
 
 class TemplateModel(models.Model):
