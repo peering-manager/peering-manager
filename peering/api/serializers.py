@@ -1,4 +1,5 @@
-from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer
+from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from .nested_serializers import *
 from peering.models import (
@@ -15,10 +16,11 @@ from peering.models import (
 from utils.api import InetAddressArrayField
 
 
-class AutonomousSystemSerializer(serializers.ModelSerializer):
+class AutonomousSystemSerializer(ModelSerializer, TaggitSerializer):
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     potential_internet_exchange_peering_sessions = InetAddressArrayField(read_only=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = AutonomousSystem
@@ -39,13 +41,15 @@ class AutonomousSystemSerializer(serializers.ModelSerializer):
             "import_routing_policies",
             "export_routing_policies",
             "potential_internet_exchange_peering_sessions",
+            "tags",
         ]
 
 
-class BGPGroupSerializer(serializers.ModelSerializer):
+class BGPGroupSerializer(ModelSerializer, TaggitSerializer):
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     communities = CommunityNestedSerializer(many=True, required=False)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = BGPGroup
@@ -56,17 +60,21 @@ class BGPGroupSerializer(serializers.ModelSerializer):
             "import_routing_policies",
             "export_routing_policies",
             "communities",
+            "tags",
         ]
 
 
-class CommunitySerializer(serializers.ModelSerializer):
+class CommunitySerializer(ModelSerializer, TaggitSerializer):
+    tags = TagListSerializerField(required=False)
+
     class Meta:
         model = Community
-        fields = ["id", "name", "value", "type", "comment"]
+        fields = ["id", "name", "value", "type", "comment", "tags"]
 
 
-class RouterSerializer(serializers.ModelSerializer):
+class RouterSerializer(ModelSerializer, TaggitSerializer):
     configuration_template = TemplateNestedSerializer(required=False)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Router
@@ -79,21 +87,34 @@ class RouterSerializer(serializers.ModelSerializer):
             "comment",
             "netbox_device_id",
             "use_netbox",
+            "tags",
         ]
 
 
-class RoutingPolicySerializer(serializers.ModelSerializer):
+class RoutingPolicySerializer(ModelSerializer, TaggitSerializer):
+    tags = TagListSerializerField(required=False)
+
     class Meta:
         model = RoutingPolicy
-        fields = ["id", "name", "slug", "type", "weight", "address_family", "comment"]
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "type",
+            "weight",
+            "address_family",
+            "comment",
+            "tags",
+        ]
 
 
-class DirectPeeringSessionSerializer(serializers.ModelSerializer):
+class DirectPeeringSessionSerializer(ModelSerializer, TaggitSerializer):
     autonomous_system = AutonomousSystemNestedSerializer()
     bgp_group = BGPGroupNestedSerializer(required=False)
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     router = RouterNestedSerializer(required=False)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = DirectPeeringSession
@@ -116,15 +137,17 @@ class DirectPeeringSessionSerializer(serializers.ModelSerializer):
             "advertised_prefix_count",
             "last_established_state",
             "comment",
+            "tags",
         ]
 
 
-class InternetExchangeSerializer(serializers.ModelSerializer):
+class InternetExchangeSerializer(ModelSerializer, TaggitSerializer):
     configuration_template = TemplateNestedSerializer(required=False)
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     communities = CommunityNestedSerializer(many=True, required=False)
     router = RouterNestedSerializer(required=False)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = InternetExchange
@@ -143,14 +166,16 @@ class InternetExchangeSerializer(serializers.ModelSerializer):
             "router",
             "check_bgp_session_states",
             "bgp_session_states_update",
+            "tags",
         ]
 
 
-class InternetExchangePeeringSessionSerializer(serializers.ModelSerializer):
+class InternetExchangePeeringSessionSerializer(ModelSerializer, TaggitSerializer):
     autonomous_system = AutonomousSystemNestedSerializer()
     internet_exchange = InternetExchangeNestedSerializer()
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = InternetExchangePeeringSession
@@ -170,10 +195,13 @@ class InternetExchangePeeringSessionSerializer(serializers.ModelSerializer):
             "advertised_prefix_count",
             "last_established_state",
             "comment",
+            "tags",
         ]
 
 
-class TemplateSerializer(serializers.ModelSerializer):
+class TemplateSerializer(ModelSerializer, TaggitSerializer):
+    tags = TagListSerializerField(required=False)
+
     class Meta:
         model = Template
-        fields = ["id", "type", "name", "template", "comment"]
+        fields = ["id", "type", "name", "template", "comment", "tags"]
