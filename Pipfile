@@ -1,0 +1,24 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+django-debug-toolbar = "==2.0"
+djangorestframework = "==3.10.2"
+django-filter = "==2.2.0"
+django-netfields = "==1.0.1"
+django-tables2 = "==2.1.0"
+napalm = "==2.4.0"
+psycopg2-binary = "==2.8.3"
+py-gfm = "==0.1.4"
+pynetbox = "==4.0.6"
+requests = "==2.22.0"
+Django = ">=2.2,<2.3"
+Jinja2 = "==2.10.1"
+MarkupSafe = "==1.1.1"
+
+[requires]
+python_version = "3.7"
