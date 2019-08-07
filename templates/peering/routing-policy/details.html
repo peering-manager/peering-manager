@@ -56,6 +56,7 @@
               {% endif %}
             </div>
           </div>
+          {% include 'utils/includes/tags_card.html' with tags=routing_policy.tags.all %}
         </div>
       </div>
 {% endblock %}

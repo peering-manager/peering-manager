@@ -127,6 +127,7 @@
               {% endif %}
             </div>
           </div>
+          {% include 'utils/includes/tags_card.html' with tags=autonomous_system.tags.all %}
         </div>
       </div>
 {% endblock %}

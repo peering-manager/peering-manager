@@ -77,7 +77,7 @@
           </div>
         </div>
         <div class="col-md-6">
-          <div class="card mb-2">
+          <div class="card">
             <div class="card-header">
               <strong>Comments</strong>
             </div>
@@ -89,6 +89,7 @@
               {% endif %}
             </div>
           </div>
+          {% include 'utils/includes/tags_card.html' with tags=router.tags.all %}
         </div>
       </div>
 {% endblock %}
