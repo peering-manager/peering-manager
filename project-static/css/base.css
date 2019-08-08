@@ -7,10 +7,10 @@ body {
   padding-top: 64px;
 }
 .navbar-brand {
-  padding-top: .75rem;
-  padding-bottom: .75rem;
-  background-color: rgba(0, 0, 0, .25);
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  background-color: rgba(0, 0, 0, 0.25);
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25);
 }
 nav > ol.breadcrumb {
   padding-top: 0rem;
@@ -31,7 +31,7 @@ nav > ol.breadcrumb > li.breadcrumb-item > a {
   left: 0;
   z-index: 100; /* Behind the navbar */
   padding: 48px 0 0; /* Height of navbar */
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
 }
 .sidebar-sticky {
   background-color: #333;
@@ -41,7 +41,8 @@ nav > ol.breadcrumb > li.breadcrumb-item > a {
   overflow-x: hidden;
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content */
 }
-.sidebar .nav-link, .sidebar .list-group-item {
+.sidebar .nav-link,
+.sidebar .list-group-item {
   font-weight: 500;
   color: #f8f9fa;
 }
@@ -49,8 +50,8 @@ nav > ol.breadcrumb > li.breadcrumb-item > a {
   text-decoration: none;
 }
 .sidebar .list-group-item.active {
-  background-color: #1d2124!important;
-  border-color: #1d2124!important;
+  background-color: #1d2124 !important;
+  border-color: #1d2124 !important;
 }
 .sidebar-sticky .footer {
   position: absolute;
@@ -62,7 +63,8 @@ nav > ol.breadcrumb > li.breadcrumb-item > a {
   width: 100%;
   position: absolute;
 }
-.footer > p, .footer > p > a {
+.footer > p,
+.footer > p > a {
   color: white;
 }
 textarea {
@@ -80,7 +82,8 @@ table.attr-table tr:first-child td {
 .table-headings th {
   background-color: #f5f5f5;
 }
-ul.nav-tabs, ul.nav-pills {
+ul.nav-tabs,
+ul.nav-pills {
   margin-bottom: 20px;
 }
 .fixed-size-list-group {
@@ -101,15 +104,19 @@ nav ul.pagination {
 div.dropdown-menu {
   width: 250px;
 }
-.btn-group-xs > .btn, .btn-xs {
-  padding: .25rem .4rem;
-  font-size: .875rem;
-  line-height: .5;
-  border-radius: .2rem;
+.btn-group-xs > .btn,
+.btn-xs {
+  padding: 0.25rem 0.4rem;
+  font-size: 0.875rem;
+  line-height: 0.5;
+  border-radius: 0.2rem;
 }
 select#id_per_page {
   width: auto;
 }
 div#action_buttons {
   margin-left: 5px;
+}
+.list-group-item {
+  position: inherit !important;
 }
