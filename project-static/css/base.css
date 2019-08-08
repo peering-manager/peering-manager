@@ -113,3 +113,6 @@ select#id_per_page {
 div#action_buttons {
   margin-left: 5px;
 }
+.list-group-item {
+  position: inherit !important;
+}
