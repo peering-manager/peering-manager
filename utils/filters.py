@@ -1,4 +1,5 @@
 import django_filters
+from taggit.forms import TagField
 
 from django.contrib.auth.models import User
 
@@ -29,3 +30,12 @@ class ObjectChangeFilter(django_filters.FilterSet):
         return queryset.filter(
             Q(user_name__icontains=value) | Q(object_repr__icontains=value)
         )
+
+
+class TagFilter(django_filters.CharFilter):
+    field_class = TagField
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("lookup_expr", "in")
+        kwargs.setdefault("field_name", "tags__name")
+        super().__init__(*args, **kwargs)
