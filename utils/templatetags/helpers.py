@@ -75,3 +75,11 @@ def title_with_uppers(value):
     if not isinstance(value, str):
         value = str(value)
     return " ".join([word[0].upper() + word[1:] for word in value.split()])
+
+
+@register.inclusion_tag("utils/templatetags/tag.html")
+def tag(tag, url_name=None):
+    """
+    Render a tag and a URL to filter by it if the base URL is provided.
+    """
+    return {"tag": tag, "url_name": url_name}
