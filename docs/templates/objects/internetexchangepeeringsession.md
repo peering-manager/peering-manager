@@ -17,5 +17,6 @@
   * `comment`: text value
   * `internet_exchange`: [InternetExchange](internetexchange.md) object
   * `is_route_server`: boolean value
+  * `tags`: list of tags
   * `import_routing_policies`: list of [RoutingPolicy](routingpolicy.md) objects
   * `export_routing_policies`: list of [RoutingPolicy](routingpolicy.md) objects

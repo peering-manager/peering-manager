@@ -140,6 +140,8 @@ class TemplateModel(models.Model):
             value = None
 
             # If the value of the field is another model, fetch an instance of it
+            # Exception made of tags for which we just retrieve the list of them for later
+            # conversion to simple strings
             if isinstance(field, ForeignKey):
                 value = (
                     field.related_model.objects.get(pk=field.value_from_object(self))
@@ -148,6 +150,8 @@ class TemplateModel(models.Model):
                 )
             elif isinstance(field, ManyToManyField):
                 value = list(field.value_from_object(self))
+            elif isinstance(field, TaggableManager):
+                value = field.value_from_object(self)
             else:
                 value = field.value_from_object(self)
 
@@ -159,6 +163,8 @@ class TemplateModel(models.Model):
                 for element in value:
                     if isinstance(element, TemplateModel):
                         data[field.name].append(element.to_dict())
+                    else:
+                        data[field.name].append(str(element))
             else:
                 data[field.name] = value
 
