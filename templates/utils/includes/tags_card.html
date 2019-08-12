@@ -1,0 +1,11 @@
+{% load helpers %}
+<div class="card mt-2">
+  <div class="card-header"><strong>Tags</strong></div>
+  <div class="card-body">
+    {% for tag in tags %}
+    {% tag tag url %}
+    {% empty %}
+    <span class="text-muted">No tags assigned</span>
+    {% endfor %}
+  </div>
+</div>

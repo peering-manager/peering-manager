@@ -9,3 +9,4 @@
   * `value`: string value
   * `type`: string value
   * `comment`: text value
+  * `tags`: list of tags

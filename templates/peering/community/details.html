@@ -52,6 +52,7 @@
               {% endif %}
             </div>
           </div>
+          {% include 'utils/includes/tags_card.html' with tags=community.tags.all url='peering:community_list' %}
         </div>
       </div>
 {% endblock %}

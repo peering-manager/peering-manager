@@ -31,6 +31,7 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
+from taggit.managers import TaggableManager
 
 
 DOC_PATH = "docs/templates/objects"
@@ -58,6 +59,8 @@ def get_model_variables(model):
             variable = "`{}`: list of {} objects".format(
                 field.name, get_model_file_link(field.related_model)
             )
+        elif isinstance(field, TaggableManager):
+            variable = "`{}`: list of tags".format(field.name)
         else:
             field_type = None
             if isinstance(field, BooleanField):

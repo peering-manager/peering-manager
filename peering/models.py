@@ -22,11 +22,11 @@ from peeringdb.http import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
 from utils.crypto.cisco import encrypt as cisco_encrypt, decrypt as cisco_decrypt
 from utils.crypto.junos import encrypt as junos_encrypt, decrypt as junos_decrypt
-from utils.models import ChangeLoggedModel, TemplateModel
+from utils.models import ChangeLoggedModel, TaggableModel, TemplateModel
 from utils.validators import AddressFamilyValidator
 
 
-class AbstractGroup(ChangeLoggedModel, TemplateModel):
+class AbstractGroup(ChangeLoggedModel, TaggableModel, TemplateModel):
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, max_length=255)
     comment = models.TextField(blank=True)
@@ -53,7 +53,7 @@ class AbstractGroup(ChangeLoggedModel, TemplateModel):
         raise NotImplementedError
 
 
-class AutonomousSystem(ChangeLoggedModel, TemplateModel):
+class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
     asn = ASNField(unique=True)
     name = models.CharField(max_length=128)
     contact_name = models.CharField(max_length=50, blank=True)
@@ -376,7 +376,7 @@ class BGPGroup(AbstractGroup):
         return self.name
 
 
-class BGPSession(ChangeLoggedModel):
+class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
     """
     Abstract class used to define common caracteristics of BGP sessions.
 
@@ -459,7 +459,7 @@ class BGPSession(ChangeLoggedModel):
         return mark_safe(text)
 
 
-class Community(ChangeLoggedModel, TemplateModel):
+class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
     name = models.CharField(max_length=128)
     value = CommunityField(max_length=50)
     type = models.CharField(
@@ -491,7 +491,7 @@ class Community(ChangeLoggedModel, TemplateModel):
         return self.name
 
 
-class DirectPeeringSession(BGPSession, TemplateModel):
+class DirectPeeringSession(BGPSession):
     local_asn = ASNField(default=0)
     local_ip_address = InetAddressField(
         store_prefix_length=False, blank=True, null=True
@@ -926,7 +926,7 @@ class InternetExchange(AbstractGroup):
         return self.name
 
 
-class InternetExchangePeeringSession(BGPSession, TemplateModel):
+class InternetExchangePeeringSession(BGPSession):
     internet_exchange = models.ForeignKey("InternetExchange", on_delete=models.CASCADE)
     is_route_server = models.BooleanField(blank=True, default=False)
 
@@ -1070,7 +1070,7 @@ class InternetExchangePeeringSession(BGPSession, TemplateModel):
         )
 
 
-class Router(ChangeLoggedModel):
+class Router(ChangeLoggedModel, TaggableModel):
     name = models.CharField(max_length=128)
     hostname = models.CharField(max_length=256)
     platform = models.CharField(
@@ -1658,7 +1658,7 @@ class Router(ChangeLoggedModel):
         return self.name
 
 
-class RoutingPolicy(ChangeLoggedModel, TemplateModel):
+class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel):
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, max_length=255)
     type = models.CharField(
@@ -1701,7 +1701,7 @@ class RoutingPolicy(ChangeLoggedModel, TemplateModel):
         return self.name
 
 
-class Template(ChangeLoggedModel):
+class Template(ChangeLoggedModel, TaggableModel):
     name = models.CharField(max_length=128)
     type = models.CharField(
         max_length=50,

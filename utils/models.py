@@ -10,6 +10,8 @@ from django.core.serializers import serialize
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
+from taggit.managers import TaggableManager
+
 from .constants import *
 from .templatetags.helpers import title_with_uppers
 
@@ -111,6 +113,17 @@ class ObjectChange(models.Model):
         )
 
 
+class TaggableModel(models.Model):
+    """
+    Abstract class that just provides tags to its subclasses.
+    """
+
+    tags = TaggableManager()
+
+    class Meta:
+        abstract = True
+
+
 class TemplateModel(models.Model):
     """
     Abstract class providing functions to be used in templates.
@@ -127,6 +140,8 @@ class TemplateModel(models.Model):
             value = None
 
             # If the value of the field is another model, fetch an instance of it
+            # Exception made of tags for which we just retrieve the list of them for later
+            # conversion to simple strings
             if isinstance(field, ForeignKey):
                 value = (
                     field.related_model.objects.get(pk=field.value_from_object(self))
@@ -135,6 +150,8 @@ class TemplateModel(models.Model):
                 )
             elif isinstance(field, ManyToManyField):
                 value = list(field.value_from_object(self))
+            elif isinstance(field, TaggableManager):
+                value = field.value_from_object(self)
             else:
                 value = field.value_from_object(self)
 
@@ -146,6 +163,8 @@ class TemplateModel(models.Model):
                 for element in value:
                     if isinstance(element, TemplateModel):
                         data[field.name].append(element.to_dict())
+                    else:
+                        data[field.name].append(str(element))
             else:
                 data[field.name] = value
 

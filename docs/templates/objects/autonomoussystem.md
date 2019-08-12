@@ -17,5 +17,6 @@
   * `ipv6_max_prefixes_peeringdb_sync`: boolean value
   * `ipv4_max_prefixes`: integer value
   * `ipv4_max_prefixes_peeringdb_sync`: boolean value
+  * `tags`: list of tags
   * `import_routing_policies`: list of [RoutingPolicy](routingpolicy.md) objects
   * `export_routing_policies`: list of [RoutingPolicy](routingpolicy.md) objects

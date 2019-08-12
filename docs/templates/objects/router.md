@@ -13,3 +13,4 @@
   * `comment`: text value
   * `netbox_device_id`: integer value
   * `use_netbox`: boolean value
+  * `tags`: list of tags

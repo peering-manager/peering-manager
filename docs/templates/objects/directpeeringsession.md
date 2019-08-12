@@ -20,5 +20,6 @@
   * `bgp_group`: [BGPGroup](bgpgroup.md) object
   * `relationship`: string value
   * `router`: [Router](router.md) object
+  * `tags`: list of tags
   * `import_routing_policies`: list of [RoutingPolicy](routingpolicy.md) objects
   * `export_routing_policies`: list of [RoutingPolicy](routingpolicy.md) objects
