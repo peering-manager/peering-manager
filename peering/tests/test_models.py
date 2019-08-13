@@ -170,10 +170,10 @@ class InternetExchangeTest(TestCase):
             {"ipv4_address": "192.168.168.1"},
             {"ipv6_address": "2001:db8::1", "ipv4_address": "192.168.168.1"},
             {"ipv6_address": "2001:7f8:1::a502:9467:1"},
-            {"ipv4_address": "80.249.212.207"},
+            {"ipv4_address": "80.249.210.208"},
             {
                 "ipv6_address": "2001:7f8:1::a502:9467:1",
-                "ipv4_address": "80.249.212.207",
+                "ipv4_address": "80.249.210.208",
             },
         ]
 
@@ -445,6 +445,10 @@ class RouterTest(TestCase):
 
         # Generate expected result
         expected = {
+            "autonomous_systems": [
+                autonomous_system.to_dict()
+                for autonomous_system in AutonomousSystem.objects.all()
+            ],
             "my_asn": settings.MY_ASN,
             "bgp_groups": [bgp_group_dict],
             "internet_exchanges": [internet_exchange_dict],
