@@ -1206,6 +1206,13 @@ class Router(ChangeLoggedModel, TaggableModel):
             "communities": [c.to_dict() for c in Community.objects.all()],
         }
 
+        autonomous_systems = []
+        for group in context["bgp_groups"] + context["internet_exchanges"]:
+            for session in group["sessions"][6] + group["sessions"][4]:
+                if session["autonomous_system"] not in autonomous_systems:
+                    autonomous_systems.append(session["autonomous_system"])
+        context.update({"autonomous_systems": autonomous_systems})
+
         return context
 
     def generate_configuration(self):

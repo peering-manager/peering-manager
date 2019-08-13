@@ -21,6 +21,11 @@ The following variables are provided to generate a configuration based on a
 template:
 
   * `my_asn` exposing the ASN specified in the configuration (your ASN)
+  * `autonomous_systems` exposing the list of
+    [AutonomousSystem](objects/autonomoussystem.md) that can be found in the
+    [BGPGroup](objects/bgpgroup.md) or
+    [InternetExchange](objects/internetexchange.md) mentioned in other
+    variables. This is useful to generate prefix lists.
   * `bgp_groups` exposing details about direct peering sessions via a list of
     [BGPGroup](objects/bgpgroup.md) objects
   * `internet_exchanges` exposing Internet Exchange peering sessions via a list
@@ -47,14 +52,18 @@ example that could be used in a template for JUNOS:
 
 ```no-highlight
 policy-options {
-    {%- for group in peering_groups %}
-    {%- for asn in group.peers %}
-    prefix-list ipv{{ group.ip_version }}-as{{ asn }} {
-        {%- for p in prefix_list(asn, group.ip_version) %}
+    {%- for autonomous_system in autonomous_systems %}
+    {%- set asn = autonomous_system['asn'] %}
+    prefix-list ipv6-as{{ asn }} {
+        {%- for p in asn|prefix_list(6) %}
         {{ p.prefix }};
         {%- endfor %}
     }
-    {%- endfor %}
+    prefix-list ipv4-as{{ asn }} {
+        {%- for p in asn|prefix_list(4) %}
+        {{ p.prefix }};
+        {%- endfor %}
+    }
     {%- endfor %}
 }
 ```
