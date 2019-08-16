@@ -65,6 +65,25 @@ class AutonomousSystemTest(APITestCase):
         autonomous_system = AutonomousSystem.objects.get(pk=response.data["id"])
         self.assertEqual(autonomous_system.asn, data["asn"])
 
+    def test_create_autonomous_system_with_nested(self):
+        routing_policy = RoutingPolicy.objects.create(
+            name="Test", slug="test", type=ROUTING_POLICY_TYPE_IMPORT_EXPORT, weight=0
+        )
+        data = {
+            "asn": 29467,
+            "name": "LuxNetwork S.A.",
+            "import_routing_policies": [routing_policy.pk],
+            "export_routing_policies": [routing_policy.pk],
+        }
+
+        url = reverse("peering-api:autonomoussystem-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(AutonomousSystem.objects.count(), 2)
+        autonomous_system = AutonomousSystem.objects.get(pk=response.data["id"])
+        self.assertEqual(autonomous_system.asn, data["asn"])
+
     def test_create_autonomous_system_bulk(self):
         data = [{"asn": 15169, "name": "Google"}, {"asn": 32934, "name": "Facebook"}]
 
@@ -78,6 +97,28 @@ class AutonomousSystemTest(APITestCase):
 
     def test_update_autonomous_system(self):
         data = {"asn": 201281, "name": "Guillaume Mazoyer"}
+
+        url = reverse(
+            "peering-api:autonomoussystem-detail",
+            kwargs={"pk": self.autonomous_system.pk},
+        )
+        response = self.client.put(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(AutonomousSystem.objects.count(), 1)
+        autonomous_system = AutonomousSystem.objects.get(pk=response.data["id"])
+        self.assertEqual(autonomous_system.asn, data["asn"])
+
+    def test_update_autonomous_system_with_nested(self):
+        routing_policy = RoutingPolicy.objects.create(
+            name="Test", slug="test", type=ROUTING_POLICY_TYPE_IMPORT_EXPORT, weight=0
+        )
+        data = {
+            "asn": 201281,
+            "name": "Guillaume Mazoyer",
+            "import_routing_policies": [routing_policy.pk],
+            "export_routing_policies": [routing_policy.pk],
+        }
 
         url = reverse(
             "peering-api:autonomoussystem-detail",
@@ -162,6 +203,29 @@ class BGPGroupTest(APITestCase):
         bgp_group = BGPGroup.objects.get(pk=response.data["id"])
         self.assertEqual(bgp_group.slug, data["slug"])
 
+    def test_create_bgp_group_with_nested(self):
+        routing_policy = RoutingPolicy.objects.create(
+            name="Test", slug="test", type=ROUTING_POLICY_TYPE_IMPORT_EXPORT, weight=0
+        )
+        community = Community.objects.create(
+            name="Test", value="64500:1", type=COMMUNITY_TYPE_EGRESS
+        )
+        data = {
+            "name": "Other",
+            "slug": "other",
+            "import_routing_policies": [routing_policy.pk],
+            "export_routing_policies": [routing_policy.pk],
+            "communities": [community.pk],
+        }
+
+        url = reverse("peering-api:bgpgroup-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(BGPGroup.objects.count(), 2)
+        bgp_group = BGPGroup.objects.get(pk=response.data["id"])
+        self.assertEqual(bgp_group.slug, data["slug"])
+
     def test_create_bgp_group_bulk(self):
         data = [{"name": "Test1", "slug": "test1"}, {"name": "Test2", "slug": "test2"}]
 
@@ -175,6 +239,29 @@ class BGPGroupTest(APITestCase):
 
     def test_update_bgp_group(self):
         data = {"name": "Changed", "slug": "test"}
+
+        url = reverse("peering-api:bgpgroup-detail", kwargs={"pk": self.bgp_group.pk})
+        response = self.client.put(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(BGPGroup.objects.count(), 1)
+        bgp_group = BGPGroup.objects.get(pk=response.data["id"])
+        self.assertEqual(bgp_group.name, data["name"])
+
+    def test_update_bgp_group_with_nested(self):
+        routing_policy = RoutingPolicy.objects.create(
+            name="Test", slug="test", type=ROUTING_POLICY_TYPE_IMPORT_EXPORT, weight=0
+        )
+        community = Community.objects.create(
+            name="Test", value="64500:1", type=COMMUNITY_TYPE_EGRESS
+        )
+        data = {
+            "name": "Changed",
+            "slug": "test",
+            "import_routing_policies": [routing_policy.pk],
+            "export_routing_policies": [routing_policy.pk],
+            "communities": [community.pk],
+        }
 
         url = reverse("peering-api:bgpgroup-detail", kwargs={"pk": self.bgp_group.pk})
         response = self.client.put(url, data, format="json", **self.header)
@@ -392,6 +479,33 @@ class InternetExchangeTest(APITestCase):
         internet_exchange = InternetExchange.objects.get(pk=response.data["id"])
         self.assertEqual(internet_exchange.slug, data["slug"])
 
+    def test_create_internet_exchange_with_nested(self):
+        routing_policy = RoutingPolicy.objects.create(
+            name="Test", slug="test", type=ROUTING_POLICY_TYPE_IMPORT_EXPORT, weight=0
+        )
+        community = Community.objects.create(
+            name="Test", value="64500:1", type=COMMUNITY_TYPE_EGRESS
+        )
+        router = Router.objects.create(
+            name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
+        )
+        data = {
+            "name": "Other",
+            "slug": "other",
+            "import_routing_policies": [routing_policy.pk],
+            "export_routing_policies": [routing_policy.pk],
+            "communities": [community.pk],
+            "router": router.pk,
+        }
+
+        url = reverse("peering-api:internetexchange-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(InternetExchange.objects.count(), 2)
+        internet_exchange = InternetExchange.objects.get(pk=response.data["id"])
+        self.assertEqual(internet_exchange.slug, data["slug"])
+
     def test_create_internet_exchange_bulk(self):
         data = [{"name": "Test1", "slug": "test1"}, {"name": "Test2", "slug": "test2"}]
 
@@ -405,6 +519,36 @@ class InternetExchangeTest(APITestCase):
 
     def test_update_internet_exchange(self):
         data = {"name": "Test", "slug": "test"}
+
+        url = reverse(
+            "peering-api:internetexchange-detail",
+            kwargs={"pk": self.internet_exchange.pk},
+        )
+        response = self.client.put(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(InternetExchange.objects.count(), 1)
+        internet_exchange = InternetExchange.objects.get(pk=response.data["id"])
+        self.assertEqual(internet_exchange.slug, data["slug"])
+
+    def test_update_internet_exchange_with_nested(self):
+        routing_policy = RoutingPolicy.objects.create(
+            name="Test", slug="test", type=ROUTING_POLICY_TYPE_IMPORT_EXPORT, weight=0
+        )
+        community = Community.objects.create(
+            name="Test", value="64500:1", type=COMMUNITY_TYPE_EGRESS
+        )
+        router = Router.objects.create(
+            name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
+        )
+        data = {
+            "name": "Test",
+            "slug": "test",
+            "import_routing_policies": [routing_policy.pk],
+            "export_routing_policies": [routing_policy.pk],
+            "communities": [community.pk],
+            "router": router.pk,
+        }
 
         url = reverse(
             "peering-api:internetexchange-detail",
@@ -626,6 +770,22 @@ class RouterTest(APITestCase):
         router = Router.objects.get(pk=response.data["id"])
         self.assertEqual(router.hostname, data["hostname"])
 
+    def test_create_router_with_nested(self):
+        data = {
+            "name": "Other",
+            "hostname": "other.example.com",
+            "platform": PLATFORM_JUNOS,
+            "configuration_template": self.template.pk,
+        }
+
+        url = reverse("peering-api:router-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Router.objects.count(), 2)
+        router = Router.objects.get(pk=response.data["id"])
+        self.assertEqual(router.hostname, data["hostname"])
+
     def test_create_router_bulk(self):
         data = [
             {
@@ -653,6 +813,22 @@ class RouterTest(APITestCase):
             "name": "Test",
             "hostname": "test.example.com",
             "platform": PLATFORM_IOSXR,
+        }
+
+        url = reverse("peering-api:router-detail", kwargs={"pk": self.router.pk})
+        response = self.client.put(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(Router.objects.count(), 1)
+        router = Router.objects.get(pk=response.data["id"])
+        self.assertEqual(router.hostname, data["hostname"])
+
+    def test_update_router_with_nested(self):
+        data = {
+            "name": "Test",
+            "hostname": "test.example.com",
+            "platform": PLATFORM_IOSXR,
+            "configuration_template": self.template.pk,
         }
 
         url = reverse("peering-api:router-detail", kwargs={"pk": self.router.pk})

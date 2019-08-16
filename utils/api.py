@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from django.db.models import ManyToManyField
 from django.http import Http404
 
 from rest_framework.exceptions import APIException
@@ -98,3 +99,46 @@ class WritableNestedSerializer(ModelSerializer):
             raise ValidationError("Primary key must be an integer")
         except ObjectDoesNotExist:
             raise ValidationError("Invalid ID")
+
+
+class WriteEnabledNestedSerializer(ModelSerializer):
+    """
+    Allow write operations on create and on update for nested serializers.
+    """
+
+    def create_or_update(self, instance=None, validated_data={}):
+        """
+        Create or update an object also setting the values of nested fields. The
+        object will only be created if no instance of it already exist (on update).
+        """
+        nested = {}
+
+        # Retrieve the nested field values to create the instance before assigning
+        # these values to the instance's field
+        for field in self.Meta.nested_fields:
+            if field in validated_data:
+                nested[field] = validated_data.pop(field)
+
+        if instance is None:
+            # Create the instance and set nested field values
+            instance = self.Meta.model.objects.create(**validated_data)
+        else:
+            # Update the instance
+            for field_name, value in validated_data.items():
+                setattr(instance, field_name, value)
+
+        for field_name, value in nested.items():
+            # Special case for many-to-many fields that require to use set()
+            # Direct assignment won't work for those fields
+            if isinstance(instance._meta.get_field(field_name), ManyToManyField):
+                getattr(instance, field_name).set(value)
+            else:
+                setattr(instance, field_name, value)
+        instance.save()
+        return instance
+
+    def create(self, validated_data):
+        return self.create_or_update(validated_data=validated_data)
+
+    def update(self, instance, validated_data):
+        return self.create_or_update(instance=instance, validated_data=validated_data)
