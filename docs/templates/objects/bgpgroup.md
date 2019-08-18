@@ -7,7 +7,7 @@
   * `updated`: date value
   * `name`: string value
   * `slug`: string value
-  * `comment`: text value
+  * `comments`: text value
   * `check_bgp_session_states`: boolean value
   * `bgp_session_states_update`: date value
   * `tags`: list of tags

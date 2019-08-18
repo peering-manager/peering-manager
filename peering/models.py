@@ -29,7 +29,7 @@ from utils.validators import AddressFamilyValidator
 class AbstractGroup(ChangeLoggedModel, TaggableModel, TemplateModel):
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, max_length=255)
-    comment = models.TextField(blank=True)
+    comments = models.TextField(blank=True)
     import_routing_policies = models.ManyToManyField(
         "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
     )
@@ -59,7 +59,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
     contact_name = models.CharField(max_length=50, blank=True)
     contact_phone = models.CharField(max_length=20, blank=True)
     contact_email = models.EmailField(blank=True, verbose_name="Contact E-mail")
-    comment = models.TextField(blank=True)
+    comments = models.TextField(blank=True)
     irr_as_set = models.CharField(max_length=255, blank=True, null=True)
     irr_as_set_peeringdb_sync = models.BooleanField(default=True)
     ipv6_max_prefixes = models.PositiveIntegerField(blank=True, default=0)
@@ -414,7 +414,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
     received_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     advertised_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     last_established_state = models.DateTimeField(blank=True, null=True)
-    comment = models.TextField(blank=True)
+    comments = models.TextField(blank=True)
 
     objects = NetManager()
 
@@ -465,7 +465,7 @@ class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
     type = models.CharField(
         max_length=50, choices=COMMUNITY_TYPE_CHOICES, default=COMMUNITY_TYPE_INGRESS
     )
-    comment = models.TextField(blank=True)
+    comments = models.TextField(blank=True)
 
     class Meta:
         verbose_name_plural = "communities"
@@ -1087,7 +1087,7 @@ class Router(ChangeLoggedModel, TaggableModel):
     configuration_template = models.ForeignKey(
         "Template", blank=True, null=True, on_delete=models.SET_NULL
     )
-    comment = models.TextField(blank=True)
+    comments = models.TextField(blank=True)
     netbox_device_id = models.PositiveIntegerField(blank=True, default=0)
     use_netbox = models.BooleanField(
         blank=True,
@@ -1679,7 +1679,7 @@ class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel):
     address_family = models.PositiveSmallIntegerField(
         default=0, choices=IP_FAMILY_CHOICES
     )
-    comment = models.TextField(blank=True)
+    comments = models.TextField(blank=True)
 
     class Meta:
         verbose_name_plural = "routing policies"
@@ -1716,7 +1716,7 @@ class Template(ChangeLoggedModel, TaggableModel):
         default=TEMPLATE_TYPE_CONFIGURATION,
     )
     template = models.TextField()
-    comment = models.TextField(blank=True)
+    comments = models.TextField(blank=True)
 
     class Meta:
         ordering = ["name"]

@@ -49,8 +49,8 @@
               <strong>Comments</strong>
             </div>
             <div class="card-body">
-              {% if routing_policy.comment %}
-              {{ routing_policy.comment|markdown }}
+              {% if routing_policy.comments %}
+              {{ routing_policy.comments|markdown }}
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}

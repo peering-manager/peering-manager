@@ -14,7 +14,7 @@
   * `received_prefix_count`: integer value
   * `advertised_prefix_count`: integer value
   * `last_established_state`: date value
-  * `comment`: text value
+  * `comments`: text value
   * `internet_exchange`: [InternetExchange](internetexchange.md) object
   * `is_route_server`: boolean value
   * `tags`: list of tags

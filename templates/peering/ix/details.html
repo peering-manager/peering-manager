@@ -124,8 +124,8 @@
               <strong>Comments</strong>
             </div>
             <div class="card-body">
-              {% if internet_exchange.comment %}
-              {{ internet_exchange.comment|markdown }}
+              {% if internet_exchange.comments %}
+              {{ internet_exchange.comments|markdown }}
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}

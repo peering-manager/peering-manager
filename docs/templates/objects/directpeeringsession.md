@@ -14,7 +14,7 @@
   * `received_prefix_count`: integer value
   * `advertised_prefix_count`: integer value
   * `last_established_state`: date value
-  * `comment`: text value
+  * `comments`: text value
   * `local_asn`: integer value
   * `local_ip_address`: IP address value
   * `bgp_group`: [BGPGroup](bgpgroup.md) object

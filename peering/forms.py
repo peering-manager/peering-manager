@@ -74,7 +74,7 @@ class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
             query_filters={"type": "export-policy"},
         ),
     )
-    comment = CommentField()
+    comments = CommentField()
     tags = TagField(required=False)
 
     class Meta:
@@ -93,7 +93,7 @@ class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
             "ipv4_max_prefixes_peeringdb_sync",
             "import_routing_policies",
             "export_routing_policies",
-            "comment",
+            "comments",
             "tags",
         )
         labels = {
@@ -104,7 +104,6 @@ class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
             "irr_as_set_peeringdb_sync": "IRR AS-SET",
             "ipv6_max_prefixes_peeringdb_sync": "IPv6 Max Prefixes",
             "ipv4_max_prefixes_peeringdb_sync": "IPv4 Max Prefixes",
-            "comment": "Comments",
         }
         help_texts = {
             "asn": "BGP autonomous system number (32-bit capable)",
@@ -123,7 +122,7 @@ class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
 
 class BGPGroupForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField(max_length=255)
-    comment = CommentField()
+    comments = CommentField()
     import_routing_policies = FilterChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
@@ -152,17 +151,14 @@ class BGPGroupForm(BootstrapMixin, forms.ModelForm):
         fields = (
             "name",
             "slug",
-            "comment",
+            "comments",
             "import_routing_policies",
             "export_routing_policies",
             "communities",
             "check_bgp_session_states",
             "tags",
         )
-        labels = {
-            "check_bgp_session_states": "Poll Peering Session States",
-            "comment": "Comments",
-        }
+        labels = {"check_bgp_session_states": "Poll Peering Session States"}
         help_texts = {
             "name": "Full name of the BGP group",
             "check_bgp_session_states": "If enabled, the state of peering sessions will be polled.",
@@ -194,10 +190,10 @@ class BGPGroupBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=Community.objects.all(),
         widget=APISelectMultiple(api_url="/api/peering/communities/"),
     )
-    comment = CommentField(widget=SmallTextarea)
+    comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ["comment"]
+        nullable_fields = ["comments"]
 
 
 class BGPGroupFilterForm(BootstrapMixin, forms.Form):
@@ -206,14 +202,13 @@ class BGPGroupFilterForm(BootstrapMixin, forms.Form):
 
 
 class CommunityForm(BootstrapMixin, forms.ModelForm):
-    comment = CommentField()
+    comments = CommentField()
     tags = TagField(required=False)
 
     class Meta:
         model = Community
 
-        fields = ("name", "value", "type", "comment", "tags")
-        labels = {"comment": "Comments"}
+        fields = ("name", "value", "type", "comments", "tags")
         help_texts = {
             "value": "Community (RFC1997) or Large Community (RFC8092)",
             "type": "Ingress to tag received routes or Egress to tag advertised routes",
@@ -229,10 +224,10 @@ class CommunityBulkEditForm(BootstrapMixin, BulkEditForm):
         choices=add_blank_choice(COMMUNITY_TYPE_CHOICES),
         widget=StaticSelect,
     )
-    comment = CommentField(widget=SmallTextarea)
+    comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ["comment"]
+        nullable_fields = ["comments"]
 
 
 class CommunityFilterForm(BootstrapMixin, forms.Form):
@@ -280,7 +275,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         ),
     )
     password = PasswordField(required=False, render_value=True)
-    comment = CommentField()
+    comments = CommentField()
     tags = TagField(required=False)
 
     def clean(self):
@@ -313,7 +308,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "router",
             "import_routing_policies",
             "export_routing_policies",
-            "comment",
+            "comments",
             "tags",
         )
         labels = {
@@ -321,7 +316,6 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "local_ip_address": "Local IP Address",
             "autonomous_system": "AS",
             "ip_address": "IP Address",
-            "comment": "Comments",
         }
         help_texts = {
             "local_asn": "ASN to be used locally, defaults to {}".format(
@@ -368,10 +362,10 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=Router.objects.all(),
         widget=APISelect(api_url="/api/peering/routers/"),
     )
-    comment = CommentField()
+    comments = CommentField()
 
     class Meta:
-        nullable_fields = ["router", "comment"]
+        nullable_fields = ["router", "comments"]
 
 
 class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
@@ -425,7 +419,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
         queryset=Community.objects.all(),
         widget=APISelectMultiple(api_url="/api/peering/communities/"),
     )
-    comment = CommentField()
+    comments = CommentField()
     tags = TagField(required=False)
 
     class Meta:
@@ -442,7 +436,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "configuration_template",
             "router",
             "check_bgp_session_states",
-            "comment",
+            "comments",
             "tags",
         )
         labels = {
@@ -450,7 +444,6 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "ipv6_address": "IPv6 Address",
             "ipv4_address": "IPv4 Address",
             "check_bgp_session_states": "Poll Peering Session States",
-            "comment": "Comments",
         }
         help_texts = {
             "peeringdb_id": "The PeeringDB ID for the IX connection (can be left empty)",
@@ -497,10 +490,10 @@ class InternetExchangeBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=Router.objects.all(),
         widget=APISelect(api_url="/api/peering/routers/"),
     )
-    comment = CommentField(widget=SmallTextarea)
+    comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ["configuration_template", "router", "comment"]
+        nullable_fields = ["configuration_template", "router", "comments"]
 
 
 class InternetExchangePeeringDBForm(BootstrapMixin, forms.ModelForm):
@@ -606,10 +599,10 @@ class InternetExchangePeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
             query_filters={"type": "export-policy"},
         ),
     )
-    comment = CommentField(widget=SmallTextarea)
+    comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ["comment"]
+        nullable_fields = ["comments"]
 
 
 class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
@@ -630,7 +623,7 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
             query_filters={"type": "export-policy"},
         ),
     )
-    comment = CommentField()
+    comments = CommentField()
     tags = TagField(required=False)
 
     def __init__(self, *args, **kwargs):
@@ -664,7 +657,7 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "enabled",
             "import_routing_policies",
             "export_routing_policies",
-            "comment",
+            "comments",
             "tags",
         )
         labels = {
@@ -716,7 +709,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
     platform = forms.ChoiceField(
         required=False, choices=add_blank_choice(PLATFORM_CHOICES), widget=StaticSelect
     )
-    comment = CommentField()
+    comments = CommentField()
     tags = TagField(required=False)
 
     def __init__(self, *args, **kwargs):
@@ -752,14 +745,10 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
             "platform",
             "encrypt_passwords",
             "configuration_template",
-            "comment",
+            "comments",
             "tags",
         )
-        labels = {
-            "use_netbox": "Use NetBox",
-            "configuration_template": "Configuration",
-            "comment": "Comments",
-        }
+        labels = {"use_netbox": "Use NetBox", "configuration_template": "Configuration"}
         help_texts = {
             "hostname": "Router hostname (must be resolvable) or IP address",
             "configuration_template": "Template used to generate device configuration",
@@ -789,10 +778,10 @@ class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
             api_url="/api/peering/templates/", query_filters={"type": "configuration"}
         ),
     )
-    comment = CommentField(widget=SmallTextarea)
+    comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ["comment"]
+        nullable_fields = ["comments"]
 
 
 class RouterFilterForm(BootstrapMixin, forms.Form):
@@ -815,14 +804,21 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
 class RoutingPolicyForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField(max_length=255)
     type = forms.ChoiceField(choices=ROUTING_POLICY_TYPE_CHOICES, widget=StaticSelect)
-    comment = CommentField()
+    comments = CommentField()
     tags = TagField(required=False)
 
     class Meta:
         model = RoutingPolicy
 
-        fields = ("name", "slug", "type", "weight", "address_family", "comment", "tags")
-        labels = {"comment": "Comments"}
+        fields = (
+            "name",
+            "slug",
+            "type",
+            "weight",
+            "address_family",
+            "comments",
+            "tags",
+        )
 
 
 class RoutingPolicyBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -836,10 +832,10 @@ class RoutingPolicyBulkEditForm(BootstrapMixin, BulkEditForm):
     )
     weight = forms.IntegerField(required=False, min_value=0, max_value=32767)
     address_family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES)
-    comment = CommentField(widget=SmallTextarea)
+    comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ["comment"]
+        nullable_fields = ["comments"]
 
 
 class RoutingPolicyFilterForm(BootstrapMixin, forms.Form):
@@ -861,13 +857,12 @@ class TemplateForm(BootstrapMixin, forms.ModelForm):
         widget=StaticSelect,
     )
     template = TemplateField()
-    comment = CommentField()
+    comments = CommentField()
     tags = TagField(required=False)
 
     class Meta:
         model = Template
-        fields = ("name", "type", "template", "comment", "tags")
-        labels = {"comment": "Comments"}
+        fields = ("name", "type", "template", "comments", "tags")
 
 
 class TemplateFilterForm(BootstrapMixin, forms.Form):

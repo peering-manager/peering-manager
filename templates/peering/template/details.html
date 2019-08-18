@@ -49,8 +49,8 @@
               <strong>Comments</strong>
             </div>
             <div class="card-body">
-              {% if template.comment %}
-              {{ template.comment|markdown }}
+              {% if template.comments %}
+              {{ template.comments|markdown }}
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}

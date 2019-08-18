@@ -120,8 +120,8 @@
               <strong>Comments</strong>
             </div>
             <div class="card-body">
-              {% if autonomous_system.comment %}
-              {{ autonomous_system.comment|markdown }}
+              {% if autonomous_system.comments %}
+              {{ autonomous_system.comments|markdown }}
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}

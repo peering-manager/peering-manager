@@ -44,8 +44,8 @@
                 <td>Internet Exchange</td>
                 <td>
                   {{ peering_session.internet_exchange|as_link }}
-                  {% if peering_session.internet_exchange.comment %}
-                  <span class="float-right badge badge-info popover-hover" data-toggle="popover" data-html="true" data-content="{{ peering_session.internet_exchange.comment | markdown }}"><i class="fas fa-comment"></i></span>
+                  {% if peering_session.internet_exchange.comments %}
+                  <span class="float-right badge badge-info popover-hover" data-toggle="popover" data-html="true" data-content="{{ peering_session.internet_exchange.comments | markdown }}"><i class="fas fa-comment"></i></span>
                   {% endif %}
                 </td>
               </tr>
@@ -53,8 +53,8 @@
                 <td>AS</td>
                 <td>
                   {{ peering_session.autonomous_system|as_link }}
-                  {% if peering_session.autonomous_system.comment %}
-                  <span class="float-right badge badge-info popover-hover" data-toggle="popover" data-html="true" data-content="{{ peering_session.autonomous_system.comment | markdown }}"><i class="fas fa-comment"></i></span>
+                  {% if peering_session.autonomous_system.comments %}
+                  <span class="float-right badge badge-info popover-hover" data-toggle="popover" data-html="true" data-content="{{ peering_session.autonomous_system.comments | markdown }}"><i class="fas fa-comment"></i></span>
                   {% endif %}
                 </td>
               </tr>
@@ -94,8 +94,8 @@
               <strong>Comments</strong>
             </div>
             <div class="card-body">
-              {% if peering_session.comment %}
-              {{ peering_session.comment|markdown }}
+              {% if peering_session.comments %}
+              {{ peering_session.comments|markdown }}
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}

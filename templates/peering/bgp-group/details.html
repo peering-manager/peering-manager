@@ -29,8 +29,8 @@
               <strong>Comments</strong>
             </div>
             <div class="card-body">
-              {% if bgp_group.comment %}
-              {{ bgp_group.comment|markdown }}
+              {% if bgp_group.comments %}
+              {{ bgp_group.comments|markdown }}
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}

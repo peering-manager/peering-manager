@@ -82,8 +82,8 @@
               <strong>Comments</strong>
             </div>
             <div class="card-body">
-              {% if router.comment %}
-              {{ router.comment|markdown }}
+              {% if router.comments %}
+              {{ router.comments|markdown }}
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}

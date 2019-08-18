@@ -39,7 +39,7 @@ class AutonomousSystemFilter(django_filters.FilterSet):
         qs_filter = (
             Q(name__icontains=value)
             | Q(irr_as_set__icontains=value)
-            | Q(comment__icontains=value)
+            | Q(comments__icontains=value)
         )
         try:
             qs_filter |= Q(asn=int(value.strip()))
@@ -79,7 +79,7 @@ class CommunityFilter(django_filters.FilterSet):
             Q(name__icontains=value)
             | Q(value__icontains=value)
             | Q(type__icontains=value)
-            | Q(comment__icontains=value)
+            | Q(comments__icontains=value)
         )
         return queryset.filter(qs_filter)
 
@@ -105,7 +105,7 @@ class DirectPeeringSessionFilter(django_filters.FilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        qs_filter = Q(relationship__icontains=value) | Q(comment__icontains=value)
+        qs_filter = Q(relationship__icontains=value) | Q(comments__icontains=value)
         try:
             ip = ipaddress.ip_interface(value.strip())
             qs_filter |= Q(ip_address__host=str(ip)) | Q(local_ip_address__host=str(ip))
@@ -146,7 +146,7 @@ class InternetExchangeFilter(django_filters.FilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        qs_filter = Q(name__icontains=value) | Q(comment__icontains=value)
+        qs_filter = Q(name__icontains=value) | Q(comments__icontains=value)
         try:
             ip = ipaddress.ip_interface(value.strip())
             qs_filter |= Q(ipv6_address__host=str(value))
@@ -191,7 +191,7 @@ class InternetExchangePeeringSessionFilter(django_filters.FilterSet):
             Q(autonomous_system__name__icontains=value)
             | Q(internet_exchange__name__icontains=value)
             | Q(internet_exchange__slug__icontains=value)
-            | Q(comment__icontains=value)
+            | Q(comments__icontains=value)
         )
         try:
             ip = ipaddress.ip_interface(value.strip())
@@ -228,7 +228,7 @@ class RouterFilter(django_filters.FilterSet):
             Q(name__icontains=value)
             | Q(hostname__icontains=value)
             | Q(platform__icontains=value)
-            | Q(comment__icontains=value)
+            | Q(comments__icontains=value)
         )
         return queryset.filter(qs_filter)
 
@@ -250,7 +250,7 @@ class RoutingPolicyFilter(django_filters.FilterSet):
         qs_filter = (
             Q(name__icontains=value)
             | Q(type__icontains=value)
-            | Q(comment__icontains=value)
+            | Q(comments__icontains=value)
         )
         return queryset.filter(qs_filter)
 

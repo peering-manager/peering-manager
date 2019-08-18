@@ -31,7 +31,7 @@ class AutonomousSystemSerializer(TaggitSerializer, WriteEnabledNestedSerializer)
             "contact_name",
             "contact_phone",
             "contact_email",
-            "comment",
+            "comments",
             "irr_as_set",
             "irr_as_set_peeringdb_sync",
             "ipv6_max_prefixes",
@@ -75,7 +75,7 @@ class CommunitySerializer(TaggitSerializer, ModelSerializer):
 
     class Meta:
         model = Community
-        fields = ["id", "name", "value", "type", "comment", "tags"]
+        fields = ["id", "name", "value", "type", "comments", "tags"]
 
 
 class RouterSerializer(TaggitSerializer, WriteEnabledNestedSerializer):
@@ -90,7 +90,7 @@ class RouterSerializer(TaggitSerializer, WriteEnabledNestedSerializer):
             "hostname",
             "platform",
             "configuration_template",
-            "comment",
+            "comments",
             "netbox_device_id",
             "use_netbox",
             "tags",
@@ -110,7 +110,7 @@ class RoutingPolicySerializer(TaggitSerializer, ModelSerializer):
             "type",
             "weight",
             "address_family",
-            "comment",
+            "comments",
             "tags",
         ]
 
@@ -143,7 +143,7 @@ class DirectPeeringSessionSerializer(TaggitSerializer, WriteEnabledNestedSeriali
             "received_prefix_count",
             "advertised_prefix_count",
             "last_established_state",
-            "comment",
+            "comments",
             "tags",
         ]
         nested_fields = [
@@ -171,7 +171,7 @@ class InternetExchangeSerializer(TaggitSerializer, WriteEnabledNestedSerializer)
             "slug",
             "ipv6_address",
             "ipv4_address",
-            "comment",
+            "comments",
             "configuration_template",
             "import_routing_policies",
             "export_routing_policies",
@@ -216,7 +216,7 @@ class InternetExchangePeeringSessionSerializer(
             "received_prefix_count",
             "advertised_prefix_count",
             "last_established_state",
-            "comment",
+            "comments",
             "tags",
         ]
         nested_fields = ["import_routing_policies", "export_routing_policies"]
@@ -227,4 +227,4 @@ class TemplateSerializer(TaggitSerializer, ModelSerializer):
 
     class Meta:
         model = Template
-        fields = ["id", "type", "name", "template", "comment", "tags"]
+        fields = ["id", "type", "name", "template", "comments", "tags"]

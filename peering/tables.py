@@ -61,11 +61,11 @@ CONFIGURATION_TEMPLATE_ACTIONS = """
 """
 DIRECT_PEERING_SESSION_ACTIONS = """
 {% load helpers %}
-{% if record.comment %}
-<button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Peering Session Comments" data-content="{{ record.comment | markdown }}"><i class="fas fa-comment"></i></button>
+{% if record.comments %}
+<button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Peering Session Comments" data-content="{{ record.comments | markdown }}"><i class="fas fa-comment"></i></button>
 {% endif %}
-{% if record.autonomous_system.comment %}
-<button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Autonomous System Comments" data-content="{{ record.autonomous_system.comment | markdown }}"><i class="fas fa-comments"></i></button>
+{% if record.autonomous_system.comments %}
+<button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Autonomous System Comments" data-content="{{ record.autonomous_system.comments | markdown }}"><i class="fas fa-comments"></i></button>
 {% endif %}
 {% if perms.peering.change_directpeeringsession %}
 <a href="{% url 'peering:direct_peering_session_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
@@ -78,14 +78,14 @@ INTERNET_EXCHANGE_ACTIONS = """
 """
 INTERNET_EXCHANGE_PEERING_SESSION_ACTIONS = """
 {% load helpers %}
-{% if record.comment %}
-<button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Peering Session Comments" data-content="{{ record.comment | markdown }}"><i class="fas fa-comment"></i></button>
+{% if record.comments %}
+<button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Peering Session Comments" data-content="{{ record.comments | markdown }}"><i class="fas fa-comment"></i></button>
 {% endif %}
-{% if record.autonomous_system.comment %}
-<button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Autonomous System Comments" data-content="{{ record.autonomous_system.comment | markdown }}"><i class="fas fa-comments"></i></button>
+{% if record.autonomous_system.comments %}
+<button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Autonomous System Comments" data-content="{{ record.autonomous_system.comments | markdown }}"><i class="fas fa-comments"></i></button>
 {% endif %}
-{% if record.internet_exchange.comment %}
-<button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Internet Exchange Comments" data-content="{{ record.internet_exchange.comment | markdown }}"><i class="fas fa-comment-dots"></i></button>
+{% if record.internet_exchange.comments %}
+<button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Internet Exchange Comments" data-content="{{ record.internet_exchange.comments | markdown }}"><i class="fas fa-comment-dots"></i></button>
 {% endif %}
 {% if perms.peering.change_internetexchangepeeringsession %}
 <a href="{% url 'peering:internet_exchange_peering_session_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>

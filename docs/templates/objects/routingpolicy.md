@@ -10,5 +10,5 @@
   * `type`: string value
   * `weight`: integer value
   * `address_family`: integer value
-  * `comment`: text value
+  * `comments`: text value
   * `tags`: list of tags

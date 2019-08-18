@@ -8,5 +8,5 @@
   * `name`: string value
   * `value`: string value
   * `type`: string value
-  * `comment`: text value
+  * `comments`: text value
   * `tags`: list of tags
