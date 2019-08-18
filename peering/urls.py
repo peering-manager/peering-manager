@@ -211,11 +211,6 @@ urlpatterns = [
         views.InternetExchangePeers.as_view(),
         name="internet_exchange_peers",
     ),
-    re_path(
-        r"^internet-exchanges/(?P<slug>[\w-]+)/configuration/$",
-        views.InternetExchangeConfig.as_view(),
-        name="internet_exchange_configuration",
-    ),
     # Internet Exchange Peering Sessions
     re_path(
         r"^internet-exchange-peering-sessions/$",

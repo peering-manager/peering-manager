@@ -41,13 +41,6 @@
           </a>
         </li>
         {% endif %}
-        {% if perms.peering.view_configuration_internetexchange and internet_exchange.configuration_template %}
-        <li class="nav-item">
-          <a class="nav-link{% if request.path|contains:'/configuration/' %} active{% endif %}" href="{% url 'peering:internet_exchange_configuration' slug=internet_exchange.slug %}">
-            <i class="fas fa-terminal"></i> Configuration
-          </a>
-        </li>
-        {% endif %}
         <li class="nav-item">
           <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">
             {% if internet_exchange.bgp_session_states_update %}

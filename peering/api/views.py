@@ -151,13 +151,6 @@ class InternetExchangeViewSet(ModelViewSet):
             {"available-peers": PeerRecordSerializer(available_peers, many=True).data}
         )
 
-    @action(detail=True, methods=["get"], url_path="configuration")
-    def configuration(self, request, pk=None):
-        # Check user permission first
-        if not request.user.has_perm("peering.view_configuration_internetexchange"):
-            return HttpResponseForbidden()
-        return Response({"configuration": self.get_object().generate_configuration()})
-
     @action(detail=True, methods=["post"], url_path="import-peering-sessions")
     def import_peering_sessions(self, request, pk=None):
         result = self.get_object().import_peering_sessions_from_router()

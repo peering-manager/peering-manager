@@ -231,46 +231,6 @@ class InternetExchangeTest(TestCase):
             )
             self.assertEqual(expected[i][1], len(ixp.get_peering_sessions()))
 
-    def test_generate_configuration(self):
-        # Test setup
-        internet_exchange = InternetExchange.objects.create(name="Test", slug="test")
-        for i in range(1, 6):
-            InternetExchangePeeringSession.objects.create(
-                autonomous_system=AutonomousSystem.objects.create(
-                    asn=i, name="Test {}".format(i)
-                ),
-                internet_exchange=internet_exchange,
-                ip_address="2001:db8::{}".format(i),
-            )
-
-        # Generate expected result
-        expected = [
-            {
-                "ip_version": 6,
-                "peers": {
-                    1: AutonomousSystem.objects.get(asn=1).to_dict(),
-                    2: AutonomousSystem.objects.get(asn=2).to_dict(),
-                    3: AutonomousSystem.objects.get(asn=3).to_dict(),
-                    4: AutonomousSystem.objects.get(asn=4).to_dict(),
-                    5: AutonomousSystem.objects.get(asn=5).to_dict(),
-                },
-            },
-            {"ip_version": 4, "peers": {}},
-        ]
-        for i in range(1, 6):
-            expected[0]["peers"][i].update(
-                {
-                    "sessions": [
-                        InternetExchangePeeringSession.objects.get(
-                            ip_address="2001:db8::{}".format(i)
-                        ).to_dict()
-                    ]
-                }
-            )
-
-        result = internet_exchange._get_configuration_variables()
-        self.assertEqual(result["peering_groups"], expected)
-
 
 class InternetExchangePeeringSessionTest(TestCase):
     def test_does_exist(self):

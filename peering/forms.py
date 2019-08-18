@@ -433,7 +433,6 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "communities",
             "import_routing_policies",
             "export_routing_policies",
-            "configuration_template",
             "router",
             "check_bgp_session_states",
             "comments",
@@ -450,14 +449,10 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "name": "Full name of the Internet Exchange point",
             "ipv6_address": "IPv6 Address used to peer",
             "ipv4_address": "IPv4 Address used to peer",
-            "configuration_template": "Template for configuration generation",
             "router": "Router connected to the Internet Exchange point",
             "check_bgp_session_states": "If enabled, with a usable router, the state of peering sessions will be polled.",
         }
-        widgets = {
-            "configuration_template": APISelect(api_url="/api/peering/templates/"),
-            "router": APISelect(api_url="/api/peering/routers/"),
-        }
+        widgets = {"router": APISelect(api_url="/api/peering/routers/")}
 
 
 class InternetExchangeBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -480,11 +475,6 @@ class InternetExchangeBulkEditForm(BootstrapMixin, BulkEditForm):
             query_filters={"type": "export-policy"},
         ),
     )
-    configuration_template = forms.ModelChoiceField(
-        required=False,
-        queryset=Template.objects.all(),
-        widget=APISelect(api_url="/api/peering/templates/"),
-    )
     router = forms.ModelChoiceField(
         required=False,
         queryset=Router.objects.all(),
@@ -493,7 +483,7 @@ class InternetExchangeBulkEditForm(BootstrapMixin, BulkEditForm):
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ["configuration_template", "router", "comments"]
+        nullable_fields = ["router", "comments"]
 
 
 class InternetExchangePeeringDBForm(BootstrapMixin, forms.ModelForm):
@@ -557,12 +547,6 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
             query_filters={"type": "export-policy"},
             null_option=True,
         ),
-    )
-    configuration_template = FilterChoiceField(
-        queryset=Template.objects.all(),
-        to_field_name="pk",
-        null_label=True,
-        widget=APISelectMultiple(api_url="/api/peering/templates/", null_option=True),
     )
     router = FilterChoiceField(
         queryset=Router.objects.all(),

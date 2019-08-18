@@ -155,7 +155,6 @@ class DirectPeeringSessionSerializer(TaggitSerializer, WriteEnabledNestedSeriali
 
 
 class InternetExchangeSerializer(TaggitSerializer, WriteEnabledNestedSerializer):
-    configuration_template = TemplateNestedSerializer(required=False)
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     communities = CommunityNestedSerializer(many=True, required=False)
@@ -172,7 +171,6 @@ class InternetExchangeSerializer(TaggitSerializer, WriteEnabledNestedSerializer)
             "ipv6_address",
             "ipv4_address",
             "comments",
-            "configuration_template",
             "import_routing_policies",
             "export_routing_policies",
             "communities",
@@ -182,7 +180,6 @@ class InternetExchangeSerializer(TaggitSerializer, WriteEnabledNestedSerializer)
             "tags",
         ]
         nested_fields = [
-            "configuration_template",
             "import_routing_policies",
             "export_routing_policies",
             "communities",

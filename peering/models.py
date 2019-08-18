@@ -554,22 +554,12 @@ class InternetExchange(AbstractGroup):
         null=True,
         validators=[AddressFamilyValidator(4)],
     )
-    configuration_template = models.ForeignKey(
-        "Template", blank=True, null=True, on_delete=models.SET_NULL
-    )
     router = models.ForeignKey(
         "Router", blank=True, null=True, on_delete=models.SET_NULL
     )
 
     objects = NetManager()
     logger = logging.getLogger("peering.manager.peering")
-
-    class Meta:
-        ordering = ["name"]
-        permissions = [
-            ("view_configuration", "Can view Internet Exchange's configuration"),
-            ("deploy_configuration", "Can deploy Internet Exchange's configuration"),
-        ]
 
     def get_absolute_url(self):
         return reverse("peering:internet_exchange_details", kwargs={"slug": self.slug})
@@ -625,46 +615,6 @@ class InternetExchange(AbstractGroup):
         Returns a list of prefixes found in PeeringDB for this IX.
         """
         return PeeringDB().get_prefixes_for_ix_network(self.peeringdb_id)
-
-    def _get_configuration_variables(self):
-        peers6 = {}
-        peers4 = {}
-
-        # Sort peering sessions based on IP protocol version
-        for session in self.internetexchangepeeringsession_set.all():
-            if session.ip_address_version == 6:
-                if session.autonomous_system.asn not in peers6:
-                    peers6[
-                        session.autonomous_system.asn
-                    ] = session.autonomous_system.to_dict()
-                    peers6[session.autonomous_system.asn].update({"sessions": []})
-                peers6[session.autonomous_system.asn]["sessions"].append(
-                    session.to_dict()
-                )
-
-            if session.ip_address_version == 4:
-                if session.autonomous_system.asn not in peers4:
-                    peers4[
-                        session.autonomous_system.asn
-                    ] = session.autonomous_system.to_dict()
-                    peers4[session.autonomous_system.asn].update({"sessions": []})
-                peers4[session.autonomous_system.asn]["sessions"].append(
-                    session.to_dict()
-                )
-
-        return {
-            "my_asn": settings.MY_ASN,
-            "internet_exchange": self.to_dict(),
-            "peering_groups": [
-                {"ip_version": 6, "peers": peers6},
-                {"ip_version": 4, "peers": peers4},
-            ],
-        }
-
-    def generate_configuration(self):
-        if not self.configuration_template:
-            return ""
-        return self.configuration_template.render(self._get_configuration_variables())
 
     def get_available_peers(self):
         # Not linked to PeeringDB, cannot determine peers

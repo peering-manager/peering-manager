@@ -643,20 +643,6 @@ class InternetExchangePeers(ModelListView):
         return extra_context
 
 
-class InternetExchangeConfig(PermissionRequiredMixin, View):
-    permission_required = "peering.view_configuration_internetexchange"
-
-    def get(self, request, slug):
-        internet_exchange = get_object_or_404(InternetExchange, slug=slug)
-
-        context = {
-            "internet_exchange": internet_exchange,
-            "internet_exchange_configuration": internet_exchange.generate_configuration(),
-        }
-
-        return render(request, "peering/ix/configuration.html", context)
-
-
 class InternetExchangePeeringSessionList(ModelListView):
     queryset = InternetExchangePeeringSession.objects.order_by("autonomous_system")
     table = InternetExchangePeeringSessionTable
