@@ -1,3 +1,4 @@
+```no-highlight
 router bgp 123456
 {%- for internet_exchange in internet_exchanges %}
 {%- for address_familiy, sessions in internet_exchange.sessions.items() %}
@@ -43,3 +44,4 @@ router bgp 123456
 {%- endif %}
 {%- endfor %}
 {%- endfor %}
+```
