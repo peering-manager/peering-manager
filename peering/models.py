@@ -640,14 +640,19 @@ class InternetExchange(AbstractGroup):
 
         # Find all peers belonging to the same IX and order them by ASN
         # Exclude our own ASN and already existing sessions
-        return PeerRecord.objects.filter(
-            Q(network_ixlan__ixlan_id=network_ixlan.ixlan_id)
-            & ~Q(network__asn=settings.MY_ASN)
-            & (
-                ~Q(network_ixlan__ipaddr6__in=ipv6_sessions)
-                | ~Q(network_ixlan__ipaddr4__in=ipv4_sessions)
+        return (
+            PeerRecord.objects.filter(
+                Q(network_ixlan__ixlan_id=network_ixlan.ixlan_id)
+                & ~Q(network__asn=settings.MY_ASN)
+                & (
+                    ~Q(network_ixlan__ipaddr6__in=ipv6_sessions)
+                    | ~Q(network_ixlan__ipaddr4__in=ipv4_sessions)
+                )
             )
-        ).order_by("network__asn")
+            .prefetch_related("network")
+            .prefetch_related("network_ixlan")
+            .order_by("network__asn")
+        )
 
     def _import_peering_sessions(self, sessions=[], prefixes=[]):
         # No sessions or no prefixes, can't work with that
