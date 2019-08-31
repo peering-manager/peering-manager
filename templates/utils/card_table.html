@@ -1,0 +1,11 @@
+{% load render_table from django_tables2 %}
+<div class="card">
+  {% if header %}
+  <div class="card-header"><strong>{{ header }}</strong></div>
+  {% endif %}
+  {% if table.rows %}
+  {% render_table table 'utils/includes/table.html' %}
+  {% else %}
+  <div class="card-body text-muted">None</div>
+  {% endif %}
+</div>
