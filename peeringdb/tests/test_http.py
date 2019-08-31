@@ -161,6 +161,7 @@ class PeeringDBHTTPTestCase(TestCase):
             27863,
             48704,
             51129,
+            51874,
         ]
         found_ix_networks = []
 
