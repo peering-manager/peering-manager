@@ -295,7 +295,9 @@ class BGPGroup(AbstractGroup):
             )
             return False
 
-        peering_sessions = DirectPeeringSession.objects.filter(bgp_group=self)
+        peering_sessions = DirectPeeringSession.objects.prefetch_related(
+            "router"
+        ).filter(bgp_group=self)
         if not peering_sessions:
             # Empty result no need to go further
             return False
@@ -1101,18 +1103,27 @@ class Router(ChangeLoggedModel, TaggableModel):
         group are also attached to the router.
         """
         bgp_groups = []
-        for bgp_group in BGPGroup.objects.all():
+        for bgp_group in (
+            BGPGroup.objects.all()
+            .prefetch_related("communities")
+            .prefetch_related("import_routing_policies")
+            .prefetch_related("export_routing_policies")
+            .prefetch_related("tags")
+        ):
+            peering_sessions = (
+                DirectPeeringSession.objects.filter(bgp_group=bgp_group, router=self)
+                .prefetch_related("import_routing_policies")
+                .prefetch_related("export_routing_policies")
+                .prefetch_related("tags")
+                .select_related("autonomous_system")
+            )
             ipv6_sessions = [
                 session.to_dict()
-                for session in DirectPeeringSession.objects.filter(
-                    bgp_group=bgp_group, router=self, ip_address__family=6
-                )
+                for session in peering_sessions.filter(ip_address__family=6)
             ]
             ipv4_sessions = [
                 session.to_dict()
-                for session in DirectPeeringSession.objects.filter(
-                    bgp_group=bgp_group, router=self, ip_address__family=4
-                )
+                for session in peering_sessions.filter(ip_address__family=4)
             ]
 
             # Only keep track of the BGP group if there are sessions in it
@@ -1127,24 +1138,34 @@ class Router(ChangeLoggedModel, TaggableModel):
         Returns Internet Exchanges attached to this router.
         """
         internet_exchanges = []
-        for internet_exchange in InternetExchange.objects.filter(router=self):
+        for internet_exchange in (
+            InternetExchange.objects.filter(router=self)
+            .prefetch_related("communities")
+            .prefetch_related("import_routing_policies")
+            .prefetch_related("export_routing_policies")
+            .prefetch_related("tags")
+            .select_related("router")
+        ):
+            peering_sessions = (
+                InternetExchangePeeringSession.objects.filter(
+                    internet_exchange=internet_exchange
+                )
+                .prefetch_related("import_routing_policies")
+                .prefetch_related("export_routing_policies")
+                .prefetch_related("tags")
+                .select_related("autonomous_system")
+            )
             dict = internet_exchange.to_dict()
             dict.update(
                 {
                     "sessions": {
                         6: [
                             session.to_dict()
-                            for session in InternetExchangePeeringSession.objects.filter(
-                                internet_exchange=internet_exchange,
-                                ip_address__family=6,
-                            )
+                            for session in peering_sessions.filter(ip_address__family=6)
                         ],
                         4: [
                             session.to_dict()
-                            for session in InternetExchangePeeringSession.objects.filter(
-                                internet_exchange=internet_exchange,
-                                ip_address__family=4,
-                            )
+                            for session in peering_sessions.filter(ip_address__family=4)
                         ],
                     }
                 }
