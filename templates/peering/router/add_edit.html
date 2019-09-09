@@ -38,6 +38,7 @@
         } else {
           var device_name = $("#id_netbox_device_id option:selected").text();
           $("#id_name").val(device_name);
+          $("#id_use_netbox").prop("checked", true);
         }
       });
     </script>
