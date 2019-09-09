@@ -815,7 +815,9 @@ class RoutingPolicyBulkEditForm(BootstrapMixin, BulkEditForm):
         widget=StaticSelect,
     )
     weight = forms.IntegerField(required=False, min_value=0, max_value=32767)
-    address_family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES)
+    address_family = forms.ChoiceField(
+        required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
+    )
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
@@ -831,7 +833,9 @@ class RoutingPolicyFilterForm(BootstrapMixin, forms.Form):
         widget=StaticSelectMultiple,
     )
     weight = forms.IntegerField(required=False, min_value=0, max_value=32767)
-    address_family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES)
+    address_family = forms.ChoiceField(
+        required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
+    )
 
 
 class TemplateForm(BootstrapMixin, forms.ModelForm):
