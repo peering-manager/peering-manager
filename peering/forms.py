@@ -788,6 +788,7 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
 class RoutingPolicyForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField(max_length=255)
     type = forms.ChoiceField(choices=ROUTING_POLICY_TYPE_CHOICES, widget=StaticSelect)
+    address_family = forms.ChoiceField(choices=IP_FAMILY_CHOICES, widget=StaticSelect)
     comments = CommentField()
     tags = TagField(required=False)
 

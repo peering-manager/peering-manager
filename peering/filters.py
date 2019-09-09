@@ -242,14 +242,14 @@ class RoutingPolicyFilter(django_filters.FilterSet):
 
     class Meta:
         model = RoutingPolicy
-        fields = ["name", "weight"]
+        fields = ["name", "slug", "weight", "address_family"]
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         qs_filter = (
             Q(name__icontains=value)
-            | Q(type__icontains=value)
+            | Q(slug__icontains=value)
             | Q(comments__icontains=value)
         )
         return queryset.filter(qs_filter)
