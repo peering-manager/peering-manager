@@ -32,12 +32,6 @@
                   {% endif %}
                 </td>
               </tr>
-              {% if internet_exchange.configuration_template %}
-              <tr>
-                <td>Template</td>
-                <td>{{ internet_exchange.configuration_template|as_link }}</td>
-              </tr>
-              {% endif %}
               {% if internet_exchange.router %}
               <tr>
                 <td>Router</td>

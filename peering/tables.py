@@ -258,23 +258,12 @@ class InternetExchangeTable(BaseTable):
     name = tables.Column(linkify=True)
     ipv6_address = tables.Column(verbose_name="IPv6 Address")
     ipv4_address = tables.Column(verbose_name="IPv4 Address")
-    configuration_template = tables.Column(
-        verbose_name="Template", accessor="configuration_template", linkify=True
-    )
     router = tables.Column(verbose_name="Router", accessor="router", linkify=True)
     actions = ActionsColumn(template_code=INTERNET_EXCHANGE_ACTIONS)
 
     class Meta(BaseTable.Meta):
         model = InternetExchange
-        fields = (
-            "pk",
-            "name",
-            "ipv6_address",
-            "ipv4_address",
-            "configuration_template",
-            "router",
-            "actions",
-        )
+        fields = ("pk", "name", "ipv6_address", "ipv4_address", "router", "actions")
 
 
 class InternetExchangePeeringSessionTable(BaseTable):

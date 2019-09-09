@@ -1336,7 +1336,6 @@ class Router(ChangeLoggedModel, TaggableModel):
                 if commit:
                     self.logger.debug("commiting configuration on %s", self.hostname)
                     device.commit_config()
-
                 else:
                     self.logger.debug("discarding configuration on %s", self.hostname)
                     device.discard_config()
