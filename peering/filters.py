@@ -278,5 +278,9 @@ class TemplateFilter(django_filters.FilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        qs_filter = Q(name__icontains=value) | Q(template__icontains=value)
+        qs_filter = (
+            Q(name__icontains=value)
+            | Q(template__icontains=value)
+            | Q(comments__icontains=value)
+        )
         return queryset.filter(qs_filter)
