@@ -224,7 +224,6 @@ class CommunityBulkEditForm(BootstrapMixin, BulkEditForm):
         choices=add_blank_choice(COMMUNITY_TYPE_CHOICES),
         widget=StaticSelect,
     )
-    comments = CommentField(widget=SmallTextarea)
 
     class Meta:
         nullable_fields = ["comments"]
@@ -233,7 +232,6 @@ class CommunityBulkEditForm(BootstrapMixin, BulkEditForm):
 class CommunityFilterForm(BootstrapMixin, forms.Form):
     model = Community
     q = forms.CharField(required=False, label="Search")
-    value = forms.CharField(required=False, label="Value")
     type = forms.MultipleChoiceField(
         required=False, choices=COMMUNITY_TYPE_CHOICES, widget=StaticSelectMultiple
     )

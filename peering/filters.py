@@ -70,7 +70,7 @@ class CommunityFilter(django_filters.FilterSet):
 
     class Meta:
         model = Community
-        fields = ["name", "value", "type"]
+        fields = ["name", "value", "type", "comments"]
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -242,7 +242,7 @@ class RoutingPolicyFilter(django_filters.FilterSet):
 
     class Meta:
         model = RoutingPolicy
-        fields = ["name", "slug", "weight", "address_family"]
+        fields = ["name", "slug", "weight", "address_family", "comments"]
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -273,7 +273,7 @@ class TemplateFilter(django_filters.FilterSet):
 
     class Meta:
         model = Template
-        fields = ["name"]
+        fields = ["name", "comments"]
 
     def search(self, queryset, name, value):
         if not value.strip():
