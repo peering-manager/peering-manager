@@ -821,6 +821,12 @@ class RouterConfiguration(PermissionRequiredMixin, View):
             "router": router,
             "router_configuration": router.generate_configuration(),
         }
+
+        # Asked for raw output
+        if "raw" in request.GET:
+            return HttpResponse(
+                context["router_configuration"], content_type="text/plain"
+            )
         return render(request, "peering/router/configuration.html", context)
 
 
