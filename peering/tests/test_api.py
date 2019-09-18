@@ -156,8 +156,8 @@ class AutonomousSystemTest(APITestCase):
         )
         response = self.client.get(url, format="json", **self.header)
         self.assertStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["prefixes"]["ipv6"]), 1)
-        self.assertEqual(len(response.data["prefixes"]["ipv4"]), 0)
+        self.assertEqual(len(response.data["prefixes"]["ipv6"]), 2)
+        self.assertEqual(len(response.data["prefixes"]["ipv4"]), 1)
 
     def test_common_internet_exchanges(self):
         url = reverse(

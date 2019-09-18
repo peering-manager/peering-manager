@@ -81,8 +81,8 @@ class AutonomousSystemTest(TestCase):
     def test_get_irr_as_set_prefixes(self):
         autonomous_system = AutonomousSystem.create_from_peeringdb(201281)
         prefixes = autonomous_system.get_irr_as_set_prefixes()
-        self.assertEqual(autonomous_system.ipv6_max_prefixes, len(prefixes["ipv6"]))
-        self.assertEqual(autonomous_system.ipv4_max_prefixes, len(prefixes["ipv4"]))
+        self.assertEqual(2, len(prefixes["ipv6"]))
+        self.assertEqual(1, len(prefixes["ipv4"]))
 
     def test__str__(self):
         asn = 64500
