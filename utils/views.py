@@ -2,8 +2,9 @@ import sys
 
 from django.conf import settings
 from django.db import transaction
-from django.db.models import ProtectedError
+from django.db.models import Count, ProtectedError
 from django.contrib import messages
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import ValidationError
 from django.forms import CharField, Form, MultipleHiddenInput
 from django.forms.formsets import formset_factory
@@ -21,16 +22,19 @@ from django.views.generic import View
 
 from django_tables2 import RequestConfig
 
-from .filters import ObjectChangeFilter
+from .filters import ObjectChangeFilter, TagFilter
 from .forms import (
     BootstrapMixin,
     ConfirmationForm,
     FilterChoiceField,
     ObjectChangeFilterForm,
+    TagBulkEditForm,
+    TagFilterForm,
+    TagForm,
 )
-from .models import ObjectChange
+from .models import ObjectChange, Tag, TaggedItem
 from .paginators import EnhancedPaginator
-from .tables import ObjectChangeTable
+from .tables import ObjectChangeTable, TagTable
 
 
 class AddOrEditView(View):
@@ -750,3 +754,64 @@ def ServerError(request, template_name=ERROR_500_TEMPLATE_NAME):
     return HttpResponseServerError(
         template.render({"exception": str(type_), "error": error})
     )
+
+
+class TagList(ModelListView):
+    queryset = Tag.objects.annotate(
+        items=Count("utils_taggeditem_items", distinct=True)
+    ).order_by("name")
+    filter = TagFilter
+    filter_form = TagFilterForm
+    table = TagTable
+    template = "utils/tag/list.html"
+
+
+class TagAdd(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "utils.add_tag"
+    model = Tag
+    form = TagForm
+    return_url = "utils:tag_list"
+    template = "utils/tag/add_edit.html"
+
+
+class TagDetails(View):
+    def get(self, request, slug):
+        tag = get_object_or_404(Tag, slug=slug)
+        tagged_items = TaggedItem.objects.filter(tag=tag).count()
+
+        return render(
+            request, "utils/tag/details.html", {"tag": tag, "items_count": tagged_items}
+        )
+
+
+class TagEdit(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "utils.change_tag"
+    model = Tag
+    form = TagForm
+    template = "utils/tag/add_edit.html"
+
+
+class TagDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = "utils.delete_tag"
+    model = Tag
+    return_url = "utils:tag_list"
+
+
+class TagBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = "utils.delete_tag"
+    model = Tag
+    queryset = Tag.objects.annotate(
+        items=Count("utils_taggeditem_items", distinct=True)
+    ).order_by("name")
+    filter = TagFilter
+    table = TagTable
+
+
+class TagBulkEdit(PermissionRequiredMixin, BulkEditView):
+    permission_required = "utils.change_tag"
+    queryset = Tag.objects.annotate(
+        items=Count("utils_taggeditem_items", distinct=True)
+    ).order_by("name")
+    filter = TagFilter
+    table = TagTable
+    form = TagBulkEditForm

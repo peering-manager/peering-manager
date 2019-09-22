@@ -4,7 +4,7 @@ from taggit.forms import TagField
 from django.contrib.auth.models import User
 
 from .constants import *
-from .models import ObjectChange
+from .models import ObjectChange, Tag
 
 
 class ObjectChangeFilter(django_filters.FilterSet):
@@ -32,10 +32,14 @@ class ObjectChangeFilter(django_filters.FilterSet):
         )
 
 
-class TagFilter(django_filters.CharFilter):
-    field_class = TagField
+class TagFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(method="search", label="Search")
 
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault("lookup_expr", "in")
-        kwargs.setdefault("field_name", "tags__name")
-        super().__init__(*args, **kwargs)
+    class Meta:
+        model = Tag
+        fields = ["name", "slug"]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(Q(name__icontains=value) | Q(slug__icontains=value))
