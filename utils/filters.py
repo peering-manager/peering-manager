@@ -2,6 +2,7 @@ import django_filters
 from taggit.forms import TagField
 
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 from .constants import *
 from .models import ObjectChange, Tag
