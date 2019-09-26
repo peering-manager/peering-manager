@@ -96,6 +96,9 @@
                 <span class="menu-collapsed">Templates</span>
               </a>
             </div>
+            <a href="{% url 'utils:tag_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/tags/' %} active{% endif %}">
+              <div class="d-flex w-100 justify-content-start align-items-center">Tags</div>
+            </a>
           </ul>
           <div class="footer">
             <p>{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
@@ -128,6 +131,9 @@
     <script src="{% static 'select2-4.0.10/js/select2.full.min.js' %}"></script>
     <script src="{% static 'js/base.js' %}?v{{ settings.VERSION }}"></script>
     <script src="{% static 'js/forms.js' %}?v{{ settings.VERSION }}"></script>
+    <script type="text/javascript">
+      var our_api_path = "/{{ settings.BASE_PATH }}api/";
+    </script>
     {% block javascript %}{% endblock %}
   </body>
   </html>

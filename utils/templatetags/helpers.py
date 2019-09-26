@@ -1,3 +1,5 @@
+import re
+
 from json import dumps as json_dumps
 from markdown import markdown as md
 
@@ -83,3 +85,19 @@ def tag(tag, url_name=None):
     Render a tag and a URL to filter by it if the base URL is provided.
     """
     return {"tag": tag, "url_name": url_name}
+
+
+@register.filter()
+def foreground_color(value):
+    """
+    Return black (#000000) or white (#ffffff) given a background color in RRGGBB format.
+    """
+    value = value.lower().strip("#")
+    if not re.match("^[0-9a-f]{6}$", value):
+        return ""
+
+    r, g, b = [int(value[c : c + 2], 16) for c in (0, 2, 4)]
+    if r * 0.299 + g * 0.587 + b * 0.114 > 186:
+        return "#000000"
+    else:
+        return "#ffffff"

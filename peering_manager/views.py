@@ -64,6 +64,12 @@ class APIRootView(APIView):
                             "peeringdb-api:api-root", request=request, format=format
                         ),
                     ),
+                    (
+                        "utils",
+                        rest_reverse(
+                            "utils-api:api-root", request=request, format=format
+                        ),
+                    ),
                 )
             )
         )

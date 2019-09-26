@@ -60,6 +60,28 @@ $(document).ready(function() {
     },
   });
 
+  // Assign color picker selection classes
+  function colorPickerClassCopy(data, container) {
+    if (data.element) {
+      // Remove any existing color-selection classes
+      $(container).attr('class', function(i, c) {
+        return c.replace(/(^|\s)color-selection-\S+/g, '');
+      });
+      console.log($(data.element).attr("class"));
+      $(container).addClass($(data.element).attr("class"));
+    }
+    return data.text;
+  }
+
+  // Color Picker
+  $('.custom-select2-color-picker').select2({
+    placeholder: "---------",
+    allowClear: true,
+    templateResult: colorPickerClassCopy,
+    templateSelection: colorPickerClassCopy
+  });
+
+
   // Pagination
   $('select#id_per_page').change(function() {
     this.form.submit();
@@ -138,5 +160,63 @@ $(document).ready(function() {
       } else {
         elementToHide.toggle('disabled');
       }
+  });
+
+  // Grab tags in the text input
+  var tags = $('#id_tags');
+  if ((tags.length > 0) && (tags.val().length > 0)){
+    tags = $('#id_tags').val().split(/,\s*/);
+  } else {
+    tags = [];
+  }
+  // Generate a map of tags to be used in the select element
+  tag_objects = $.map(tags, function(tag) {
+    return { id: tag, text: tag, selected: true }
+  });
+  // Replace the text input with a select element
+  $('#id_tags').replaceWith('<select name="tags" id="id_tags" class="form-control"></select>');
+  // Improve the previously added select element with select2
+  $('#id_tags').select2({
+    placeholder: 'Tags',
+    allowClear: true,
+    multiple: true,
+    tags: true,
+    tokenSeparators: [','],
+    data: tag_objects,
+    ajax: {
+      delay: 250,
+      url: our_api_path + 'utils/tags/', // API endpoint to query
+      data: function(params) {
+        var offset = (params.page - 1) * 50 || 0;
+        var parameters = {
+          q: params.term,
+          brief: 1,
+          limit: 50,
+          offset: offset,
+        };
+        return parameters;
+      },
+      processResults: function(data) {
+        var results = $.map(data.results, function(obj) {
+          // If tag contains space add double quotes
+          if (/\s/.test(obj.name)) {
+            obj.name = '"' + obj.name + '"'
+          }
+          return { id: obj.name, text: obj.name };
+        });
+        var page = data.next !== null;
+        return { results: results, pagination: { more: page } };
+      }
+    }
+  });
+  $('#id_tags').closest('form').submit(function(event) {
+    // django-taggit can only accept a single comma seperated string value
+    var value = $('#id_tags').val();
+    if (value.length > 0) {
+      var final_tags = value.join(', ');
+      $('#id_tags').val(null).trigger('change');
+      var option = new Option(final_tags, final_tags, true, true);
+      $('#id_tags').append(option).trigger('change');
+    }
   });
 });
