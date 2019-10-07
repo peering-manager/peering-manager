@@ -11,3 +11,6 @@ class IRRASSetFunctions(TestCase):
             parse_irr_as_set("RADB::AS-HURRICANE RADB::AS-HURRICANEv6"),
         )
         self.assertEqual(["AS51706:AS-MEMBERS"], parse_irr_as_set("AS51706:AS-MEMBERS"))
+        self.assertEqual(
+            ["AS3333:RS-CUSTOMERS"], parse_irr_as_set("AS3333:RS-CUSTOMERS")
+        )
