@@ -50,7 +50,7 @@ def call_irr_as_set_resolver(irr_as_set, ip_version=6):
     return prefixes
 
 
-def parse_irr_as_set(irr_as_set):
+def parse_irr_as_set(asn, irr_as_set):
     """
     Validate that an AS-SET is usable and split it into smaller part if it is actually
     composed of several several AS-SETs.
@@ -59,7 +59,7 @@ def parse_irr_as_set(irr_as_set):
 
     # Can't work with empty or whitespace only AS-SET
     if not irr_as_set or not irr_as_set.strip():
-        return as_sets
+        return ["AS{}".format(asn)]
 
     unparsed = re.split(r"[/,&\s]", irr_as_set)
     for value in unparsed:
