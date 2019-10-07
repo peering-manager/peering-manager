@@ -68,7 +68,6 @@ def parse_irr_as_set(irr_as_set):
         if not value:
             continue
 
-        is_valid = True
         for regexp in [
             # Remove registry prefix if any
             r"^(?:{}):[:\s]".format(settings.BGPQ3_SOURCES.replace(",", "|")),
@@ -80,12 +79,7 @@ def parse_irr_as_set(irr_as_set):
             # If some substitutions have been made, make sure to clean things up
             if number_of_subs_made > 0:
                 value = value.strip()
-            # And reject a potential useless value
-            if not value or "AS-" not in value:
-                is_valid = False
 
-        # If AS-SET looks OK keep it to find prefix-list
-        if is_valid:
-            as_sets.append(value)
+        as_sets.append(value)
 
     return as_sets
