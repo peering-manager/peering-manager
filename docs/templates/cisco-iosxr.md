@@ -1,7 +1,7 @@
 ```no-highlight
-router bgp 123456
+router bgp {{ my_asn }}
 {%- for internet_exchange in internet_exchanges %}
-{%- for address_familiy, sessions in internet_exchange.sessions.items() %}
+{%- for address_family, sessions in internet_exchange.sessions.items() %}
 {%- if sessions|length > 0 %}
 {%- for session in sessions %}
 {% if session.enabled %}
@@ -20,21 +20,21 @@ router bgp 123456
       {%- endif %}
       {%- endif %}
       {%- if session.is_route_server %}
-      use neighbor-group ng{{ address_familiy }}-ROUTESRV
+      use neighbor-group ng{{ address_family }}-ROUTESRV
       {%- else %}
-      use neighbor-group ng{{ address_familiy }}-PEERING
+      use neighbor-group ng{{ address_family }}-PEERING
       {%- endif %}
-      address-family ipv{{ address_familiy }} unicast
+      address-family ipv{{ address_family }} unicast
       {%- if session.import_routing_policies %}
         route-policy {{ session.import_routing_policies | map(attribute='name') | join(' ') }} in
       {%- endif %}
       {%- if session.export_routing_policies %}
         route-policy {{ session.import_routing_policies | map(attribute='name') | join(' ') }} out
       {%- endif %}
-      {%- if address_familiy == 4 and session.autonomous_system.ipv4_max_prefixes > 0 %}
+      {%- if address_family == 4 and session.autonomous_system.ipv4_max_prefixes > 0 %}
         maximum-prefix {{ session.autonomous_system.ipv4_max_prefixes }} 95 restart 15
       {%- endif %}
-      {%- if address_familiy == 6 and session.autonomous_system.ipv6_max_prefixes > 0 %}
+      {%- if address_family == 6 and session.autonomous_system.ipv6_max_prefixes > 0 %}
         maximum-prefix {{ session.autonomous_system.ipv6_max_prefixes }} 95 restart 15
       {%- endif %}
 {%- else %}
