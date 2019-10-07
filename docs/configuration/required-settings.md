@@ -19,7 +19,7 @@ Peering Manager server).
 Example:
 
 ```no-highlight
-ALLOWED_HOSTS = ['peering.example.com', '192.168.42.42']
+ALLOWED_HOSTS = ['peering.example.com', '192.0.2.42']
 ```
 
 ---

@@ -381,7 +381,7 @@ class DirectPeeringSessionTest(APITestCase):
         data = {
             "autonomous_system": self.autonomous_system.pk,
             "relationship": BGP_RELATIONSHIP_PRIVATE_PEERING,
-            "ip_address": "192.168.0.1",
+            "ip_address": "192.0.2.1",
         }
 
         url = reverse("peering-api:directpeeringsession-list")
@@ -399,12 +399,12 @@ class DirectPeeringSessionTest(APITestCase):
             {
                 "autonomous_system": self.autonomous_system.pk,
                 "relationship": BGP_RELATIONSHIP_PRIVATE_PEERING,
-                "ip_address": "10.0.0.1",
+                "ip_address": "198.51.100.1",
             },
             {
                 "autonomous_system": self.autonomous_system.pk,
                 "relationship": BGP_RELATIONSHIP_PRIVATE_PEERING,
-                "ip_address": "10.0.0.2",
+                "ip_address": "198.51.100.2",
             },
         ]
 
@@ -653,7 +653,7 @@ class InternetExchangePeeringSessionTest(APITestCase):
         data = {
             "autonomous_system": self.autonomous_system.pk,
             "internet_exchange": self.internet_exchange.pk,
-            "ip_address": "192.168.0.1",
+            "ip_address": "192.0.2.1",
         }
 
         url = reverse("peering-api:internetexchangepeeringsession-list")
@@ -673,12 +673,12 @@ class InternetExchangePeeringSessionTest(APITestCase):
             {
                 "autonomous_system": self.autonomous_system.pk,
                 "internet_exchange": self.internet_exchange.pk,
-                "ip_address": "10.0.0.1",
+                "ip_address": "198.51.100.1",
             },
             {
                 "autonomous_system": self.autonomous_system.pk,
                 "internet_exchange": self.internet_exchange.pk,
-                "ip_address": "10.0.0.2",
+                "ip_address": "198.51.100.2",
             },
         ]
 
