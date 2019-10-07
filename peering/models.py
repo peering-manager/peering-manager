@@ -252,7 +252,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         If specified, only a list of the prefixes for the given address family will be
         returned. 6 for IPv6, 4 for IPv4, both for all other values.
         """
-        as_sets = parse_irr_as_set(self.irr_as_set)
+        as_sets = parse_irr_as_set(self.asn, self.irr_as_set)
         prefixes = {"ipv6": [], "ipv4": []}
 
         # For each AS-SET try getting IPv6 and IPv4 prefixes
