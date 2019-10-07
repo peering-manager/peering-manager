@@ -2,7 +2,7 @@ import django_tables2 as tables
 
 from django.utils.safestring import mark_safe
 
-from .models import ObjectChange
+from .models import ObjectChange, Tag
 
 
 OBJECT_CHANGE_TIME = """
@@ -26,6 +26,12 @@ OBJECT_CHANGE_OBJECT = """
 <a href="{{ record.related_object.get_absolute_url }}">{{ record.object_repr }}</a>
 {% else %}
 {{ record.object_repr }}
+{% endif %}
+"""
+
+TAG_ACTIONS = """
+{% if perms.utils.change_tag %}
+<a href="{% url 'utils:tag_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
 {% endif %}
 """
 
@@ -74,6 +80,19 @@ class BaseTable(tables.Table):
         attrs = {"class": "table table-sm table-hover table-headings"}
 
 
+class ColorColumn(tables.Column):
+    """
+    Display a colored block.
+    """
+
+    def render(self, value):
+        return mark_safe(
+            '<span class="label color-block" style="background-color: #{}">&nbsp;</span>'.format(
+                value
+            )
+        )
+
+
 class ObjectChangeTable(BaseTable):
     time = tables.TemplateColumn(template_code=OBJECT_CHANGE_TIME)
     action = tables.TemplateColumn(template_code=OBJECT_CHANGE_ACTION)
@@ -106,3 +125,14 @@ class SelectColumn(tables.CheckBoxColumn):
     @property
     def header(self):
         return mark_safe('<input type="checkbox" class="toggle" title="Select all" />')
+
+
+class TagTable(BaseTable):
+    pk = SelectColumn()
+    name = tables.LinkColumn()
+    color = ColorColumn()
+    actions = ActionsColumn(template_code=TAG_ACTIONS, verbose_name="")
+
+    class Meta(BaseTable.Meta):
+        model = Tag
+        fields = ("pk", "name", "slug", "color", "items", "actions")
