@@ -66,7 +66,7 @@
             $('#save-config').hide();
             $('.modal').modal('show');
           } else {
-            if (response['changed'].trim()) {
+            if (response['changed'] && response['changes'].trim()) {
               $('.modal-body').html('<pre class="pre-scrollable">' + response['changes'] + '</pre>');
               $('.modal').modal('show');
             } else {
