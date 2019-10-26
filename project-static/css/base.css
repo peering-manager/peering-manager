@@ -230,4 +230,5 @@ div#action_buttons {
   display: block;
   width: 40px;
   border: 1px solid #9e9e9e;
+  border-radius: 0.25em;
 }

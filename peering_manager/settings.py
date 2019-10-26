@@ -94,6 +94,7 @@ NAPALM_TIMEOUT = getattr(configuration, "NAPALM_TIMEOUT", 30)
 NAPALM_ARGS = getattr(configuration, "NAPALM_ARGS", {})
 PAGINATE_COUNT = getattr(configuration, "PAGINATE_COUNT", 20)
 TIME_ZONE = getattr(configuration, "TIME_ZONE", "UTC")
+EMAIL = getattr(configuration, "EMAIL", {})
 BGPQ3_PATH = getattr(configuration, "BGPQ3_PATH", "bgpq3")
 BGPQ3_HOST = getattr(configuration, "BGPQ3_HOST", "rr.ntt.net")
 BGPQ3_SOURCES = getattr(
@@ -182,6 +183,17 @@ if LDAP_CONFIGURED:
 configuration.DATABASE.update({"ENGINE": "django.db.backends.postgresql"})
 # Actually set the database's settings
 DATABASES = {"default": configuration.DATABASE}
+
+
+# Email
+if EMAIL:
+    EMAIL_HOST = EMAIL.get("SERVER")
+    EMAIL_PORT = EMAIL.get("PORT", 25)
+    EMAIL_HOST_USER = EMAIL.get("USERNAME")
+    EMAIL_HOST_PASSWORD = EMAIL.get("PASSWORD")
+    EMAIL_TIMEOUT = EMAIL.get("TIMEOUT", 10)
+    SERVER_EMAIL = EMAIL.get("FROM_ADDRESS")
+    EMAIL_SUBJECT_PREFIX = EMAIL.get("SUBJECT_PREFIX")
 
 
 # Application definition

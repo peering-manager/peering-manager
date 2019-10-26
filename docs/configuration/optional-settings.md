@@ -56,6 +56,22 @@ read-only.
 
 ---
 
+## EMAIL
+
+In order to send email, Peering Manager needs an email server configured. The
+following items can be defined within the `EMAIL` setting:
+
+  * `SERVER` - Host name or IP address of the email server (use `localhost` if
+    running locally)
+  * `PORT` - TCP port to use for the connection (default: 25)
+  * `USERNAME` - Username with which to authenticate
+  * `PASSSWORD` - Password with which to authenticate
+  * `TIMEOUT` - Time to wait for a connection (in seconds)
+  * `FROM_ADDRESS` - Sender address for emails sent by Peering Manager
+  * `SUBJECT_PREFIX` - Prefix of the subject for outgoing emails
+
+---
+
 ## NAPALM_USERNAME / NAPALM_PASSWORD
 
 Peering Manager will use these credentials when authenticating to remote

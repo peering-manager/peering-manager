@@ -7,8 +7,7 @@ from .constants import *
 
 class TextareaField(forms.CharField):
     """
-    A textarea with support for GitHub-Flavored Markdown. Exists mostly just to
-    add a standard help_text.
+    A textarea field. Exists mostly just to set it an non-required by default.
     """
 
     widget = forms.Textarea
