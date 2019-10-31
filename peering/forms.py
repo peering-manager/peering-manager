@@ -29,6 +29,7 @@ from .models import (
 from netbox.api import NetBox
 from utils.fields import CommentField, PasswordField, SlugField, TextareaField
 from utils.forms import (
+    add_blank_choice,
     APISelect,
     APISelectMultiple,
     BulkEditForm,
@@ -38,7 +39,6 @@ from utils.forms import (
     SmallTextarea,
     StaticSelect,
     StaticSelectMultiple,
-    add_blank_choice,
 )
 
 
@@ -118,6 +118,17 @@ class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
     irr_as_set = forms.CharField(required=False, label="IRR AS-SET")
     ipv6_max_prefixes = forms.IntegerField(required=False, label="IPv6 Max Prefixes")
     ipv4_max_prefixes = forms.IntegerField(required=False, label="IPv4 Max Prefixes")
+
+
+class AutonomousSystemEmailForm(BootstrapMixin, forms.Form):
+    template = forms.ModelChoiceField(
+        queryset=Template.objects.all(),
+        widget=APISelect(
+            api_url="/api/peering/templates/", query_filters={"type": "email"}
+        ),
+    )
+    subject = forms.CharField(label="E-mail Subject")
+    body = TextareaField(required=True, label="E-mail Body")
 
 
 class BGPGroupForm(BootstrapMixin, forms.ModelForm):

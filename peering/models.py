@@ -78,6 +78,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     class Meta:
         ordering = ["asn"]
+        permissions = [("send_email", "Can send e-mails to AS contact")]
 
     @staticmethod
     def does_exist(asn):
