@@ -753,12 +753,14 @@ class InternetExchangePeeringSessionAddFromPeeringDB(
     template = "peering/session/internet_exchange/add_from_peeringdb.html"
 
     def process_dependency_object(self, dependency):
-        session6, created6 = InternetExchangePeeringSession.get_from_peeringdb_peer_record(
-            dependency, 6
-        )
-        session4, created4 = InternetExchangePeeringSession.get_from_peeringdb_peer_record(
-            dependency, 4
-        )
+        (
+            session6,
+            created6,
+        ) = InternetExchangePeeringSession.get_from_peeringdb_peer_record(dependency, 6)
+        (
+            session4,
+            created4,
+        ) = InternetExchangePeeringSession.get_from_peeringdb_peer_record(dependency, 4)
         return_value = []
 
         if session6 and created6:
