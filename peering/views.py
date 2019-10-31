@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.mail import send_mail
 from django.db.models import Count
 from django.http import HttpResponseBadRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
@@ -151,8 +152,16 @@ class ASEmail(PermissionRequiredMixin, View):
         form = AutonomousSystemEmailForm(request.POST)
 
         if form.is_valid():
-            # TODO: send the email
-            messages.success(request, "Email sent.")
+            sent = send_mail(
+                form.cleaned_data["subject"],
+                form.cleaned_data["body"],
+                settings.SERVER_EMAIL,
+                [autonomous_system.contact_email],
+            )
+            if sent is 1:
+                messages.success(request, "Email sent.")
+            else:
+                messages.error(request, "Unable to send the email.")
 
         return redirect(autonomous_system.get_absolute_url())
 
