@@ -19,7 +19,7 @@
 {% block content %}
       <ul class="nav nav-tabs">
         <li class="nav-item">
-          <a class="nav-link{% if request.path|notcontains:'/direct-peering-sessions/,/ix-peering-sessions/' %} active{% endif %}" href="{% url 'peering:autonomous_system_details' asn=autonomous_system.asn %}">
+          <a class="nav-link{% if request.path|notcontains:'/direct-peering-sessions/,/ix-peering-sessions/,/email/' %} active{% endif %}" href="{% url 'peering:autonomous_system_details' asn=autonomous_system.asn %}">
             <i class="fas fa-info-circle"></i> Details
           </a>
         </li>
@@ -32,6 +32,13 @@
         <li class="nav-item">
           <a class="nav-link{% if request.path|contains:'/ix-peering-sessions/' %} active{% endif %}" href="{% url 'peering:autonomous_system_internet_exchange_peering_sessions' asn=autonomous_system.asn %}">
             <i class="fas fa-network-wired"></i> IX Peering Sessions
+          </a>
+        </li>
+        {% endif %}
+        {% if perms.peering.send_email_autonomoussystem and autonomous_system.contact_email %}
+        <li class="nav-item">
+          <a class="nav-link{% if request.path|contains:'/email/' %} active{% endif %}" href="{% url 'peering:autonomous_system_email' asn=autonomous_system.asn %}">
+            <i class="fas fa-envelope-open-text"></i> Send E-mail
           </a>
         </li>
         {% endif %}
