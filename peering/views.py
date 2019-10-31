@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count
-from django.http import HttpResponse
+from django.http import HttpResponseBadRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.defaultfilters import slugify
 from django.views.generic import View
@@ -21,6 +21,7 @@ from .filters import (
     TemplateFilter,
 )
 from .forms import (
+    AutonomousSystemEmailForm,
     AutonomousSystemFilterForm,
     AutonomousSystemForm,
     BGPGroupBulkEditForm,
@@ -131,6 +132,29 @@ class ASEdit(PermissionRequiredMixin, AddOrEditView):
     model = AutonomousSystem
     form = AutonomousSystemForm
     template = "peering/as/add_edit.html"
+
+
+class ASEmail(PermissionRequiredMixin, View):
+    permission_required = "peering.send_email_autonomoussystem"
+
+    def get(self, request, *args, **kwargs):
+        autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+        form = AutonomousSystemEmailForm()
+        return render(
+            request,
+            "peering/as/email.html",
+            {"autonomous_system": autonomous_system, "form": form},
+        )
+
+    def post(self, request, *args, **kwargs):
+        autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+        form = AutonomousSystemEmailForm(request.POST)
+
+        if form.is_valid():
+            # TODO: send the email
+            messages.success(request, "Email sent.")
+
+        return redirect(autonomous_system.get_absolute_url())
 
 
 class ASDelete(PermissionRequiredMixin, DeleteView):
