@@ -40,7 +40,16 @@
     <script>
       $("#id_template").on("select2:select", function(e) {
         $("#id_subject").val(e.params.data["name"]);
-        $("#id_body").val(e.params.data["template"]);
+        $.ajax({
+          method: "post",
+          url: "{% url 'peering-api:autonomoussystem-generate-email' pk=autonomous_system.pk %}",
+          data: {
+            csrfmiddlewaretoken: "{{ csrf_token }}",
+            template: e.params.data["id"],
+          },
+        }).done(function(response) {
+          $("#id_body").val(response["email"]);
+        });
       });
     </script>
 {% endblock %}
