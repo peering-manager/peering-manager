@@ -99,6 +99,11 @@ class AutonomousSystemViewSet(ModelViewSet):
         self.get_object().find_potential_ix_peering_sessions()
         return Response({"status": "done"})
 
+    @action(detail=True, methods=["post"], url_path="generate-email")
+    def generate_email(self, request, pk=None):
+        template = Template.objects.get(pk=int(request.data["template"]))
+        return Response({"email": self.get_object().generate_email(template)})
+
 
 class BGPGroupViewSet(ModelViewSet):
     queryset = BGPGroup.objects.all()

@@ -268,6 +268,12 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         else:
             return prefixes
 
+    def get_email_variables(self):
+        return {"autonomous_system": self}
+
+    def generate_email(self, template):
+        return template.render(self.get_email_variables())
+
     def __str__(self):
         return "AS{} - {}".format(self.asn, self.name)
 
