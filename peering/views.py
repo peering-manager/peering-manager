@@ -10,6 +10,7 @@ from django.views.generic import View
 
 import json
 
+from .constants import BGP_STATE_IDLE
 from .filters import (
     AutonomousSystemFilter,
     BGPGroupFilter,
@@ -458,6 +459,9 @@ class DirectPeeringSessionDisable(PermissionRequiredMixin, View):
     def get(self, request, pk):
         peering_session = get_object_or_404(DirectPeeringSession, pk=pk)
         peering_session.enabled = False
+        peering_session.advertised_prefix_count = 0
+        peering_session.received_prefix_count = 0
+        peering_session.bgp_state = BGP_STATE_IDLE
         peering_session.save()
         return redirect(peering_session.get_absolute_url())
 
