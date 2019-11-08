@@ -30,6 +30,7 @@ from netbox.api import NetBox
 from utils.fields import CommentField, PasswordField, SlugField, TextareaField
 from utils.forms import (
     add_blank_choice,
+    AddRemoveTagsForm,
     APISelect,
     APISelectMultiple,
     BulkEditForm,
@@ -176,7 +177,7 @@ class BGPGroupForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class BGPGroupBulkEditForm(BootstrapMixin, BulkEditForm):
+class BGPGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = FilterChoiceField(
         queryset=BGPGroup.objects.all(), widget=forms.MultipleHiddenInput
     )
@@ -226,7 +227,7 @@ class CommunityForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class CommunityBulkEditForm(BootstrapMixin, BulkEditForm):
+class CommunityBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = FilterChoiceField(
         queryset=Community.objects.all(), widget=forms.MultipleHiddenInput
     )
@@ -338,7 +339,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class DirectPeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
+class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = FilterChoiceField(
         queryset=DirectPeeringSession.objects.all(), widget=forms.MultipleHiddenInput
     )
@@ -465,7 +466,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
         widgets = {"router": APISelect(api_url="/api/peering/routers/")}
 
 
-class InternetExchangeBulkEditForm(BootstrapMixin, BulkEditForm):
+class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = FilterChoiceField(
         queryset=InternetExchange.objects.all(), widget=forms.MultipleHiddenInput
     )
@@ -566,7 +567,9 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
     )
 
 
-class InternetExchangePeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
+class InternetExchangePeeringSessionBulkEditForm(
+    BootstrapMixin, AddRemoveTagsForm, BulkEditForm
+):
     pk = FilterChoiceField(
         queryset=InternetExchangePeeringSession.objects.all(),
         widget=forms.MultipleHiddenInput,
@@ -755,7 +758,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
+class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = FilterChoiceField(
         queryset=Router.objects.all(), widget=forms.MultipleHiddenInput
     )
@@ -816,7 +819,7 @@ class RoutingPolicyForm(BootstrapMixin, forms.ModelForm):
         )
 
 
-class RoutingPolicyBulkEditForm(BootstrapMixin, BulkEditForm):
+class RoutingPolicyBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = FilterChoiceField(
         queryset=RoutingPolicy.objects.all(), widget=forms.MultipleHiddenInput
     )

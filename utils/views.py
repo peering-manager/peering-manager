@@ -393,6 +393,13 @@ class BulkEditView(View):
                                         setattr(obj, name, form.cleaned_data[name])
                             obj.full_clean()
                             obj.save()
+
+                            # Handle tags
+                            if form.cleaned_data.get("add_tags", None):
+                                obj.tags.add(*form.cleaned_data["add_tags"])
+                            if form.cleaned_data.get("remove_tags", None):
+                                obj.tags.remove(*form.cleaned_data["remove_tags"])
+
                             updated_count += 1
 
                     if updated_count:

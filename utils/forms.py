@@ -1,6 +1,7 @@
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
+from taggit.forms import TagField
 
 from .constants import *
 from .fields import ColorSelect, CommentField, SlugField
@@ -232,3 +233,10 @@ class TagForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Tag
         fields = ["name", "slug", "color", "comments"]
+
+
+class AddRemoveTagsForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["add_tags"] = TagField(required=False)
+        self.fields["remove_tags"] = TagField(required=False)
