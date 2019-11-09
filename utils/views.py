@@ -3,6 +3,7 @@ import sys
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Count, ProtectedError
+from django.db.models.query import QuerySet
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import ValidationError
@@ -379,16 +380,25 @@ class BulkEditView(View):
                                     name in form.nullable_fields
                                     and name in nullified_fields
                                 ):
-                                    setattr(
-                                        obj,
-                                        name,
-                                        ""
-                                        if isinstance(form.fields[name], CharField)
-                                        else None,
-                                    )
-                                elif form.cleaned_data[name] not in (None, ""):
-                                    if isinstance(form.fields[name], FilterChoiceField):
+                                    if isinstance(form.cleaned_data[name], QuerySet):
+                                        getattr(obj, name).set([])
+                                        print("1) {} set to []".format(name))
+                                    else:
+                                        setattr(
+                                            obj,
+                                            name,
+                                            ""
+                                            if isinstance(form.fields[name], CharField)
+                                            else None,
+                                        )
+                                elif form.cleaned_data[name]:
+                                    if isinstance(form.cleaned_data[name], QuerySet):
                                         getattr(obj, name).set(form.cleaned_data[name])
+                                        print(
+                                            "2) {} set to {}".format(
+                                                name, form.cleaned_data[name]
+                                            )
+                                        )
                                     else:
                                         setattr(obj, name, form.cleaned_data[name])
                             obj.full_clean()

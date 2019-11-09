@@ -205,7 +205,12 @@ class BGPGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ["comments"]
+        nullable_fields = [
+            "import_routing_policies",
+            "export_routing_policies",
+            "communities",
+            "comments",
+        ]
 
 
 class BGPGroupFilterForm(BootstrapMixin, forms.Form):
@@ -376,7 +381,12 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEd
     comments = CommentField()
 
     class Meta:
-        nullable_fields = ["router", "comments"]
+        nullable_fields = [
+            "import_routing_policies",
+            "export_routing_policies",
+            "router",
+            "comments",
+        ]
 
 
 class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
@@ -486,6 +496,11 @@ class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFo
             query_filters={"type": "export-policy"},
         ),
     )
+    communities = FilterChoiceField(
+        required=False,
+        queryset=Community.objects.all(),
+        widget=APISelectMultiple(api_url="/api/peering/communities/"),
+    )
     router = forms.ModelChoiceField(
         required=False,
         queryset=Router.objects.all(),
@@ -494,7 +509,13 @@ class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFo
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ["router", "comments"]
+        nullable_fields = [
+            "import_routing_policies",
+            "export_routing_policies",
+            "communities",
+            "router",
+            "comments",
+        ]
 
 
 class InternetExchangePeeringDBForm(BootstrapMixin, forms.ModelForm):
@@ -599,7 +620,11 @@ class InternetExchangePeeringSessionBulkEditForm(
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ["comments"]
+        nullable_fields = [
+            "import_routing_policies",
+            "export_routing_policies",
+            "comments",
+        ]
 
 
 class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
