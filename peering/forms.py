@@ -613,6 +613,10 @@ class InternetExchangePeeringSessionBulkEditForm(
 
 
 class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
+    autonomous_system = forms.ModelChoiceField(
+        queryset=AutonomousSystem.objects.all(),
+        widget=APISelect(api_url="/api/peering/autonomous-systems/"),
+    )
     password = PasswordField(required=False, render_value=True)
     import_routing_policies = FilterChoiceField(
         required=False,
@@ -635,7 +639,6 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["autonomous_system"].widget.attrs["data-live-search"] = "true"
 
     class Meta:
         model = InternetExchangePeeringSession
