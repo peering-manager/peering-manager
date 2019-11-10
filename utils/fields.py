@@ -75,16 +75,7 @@ class PasswordField(forms.CharField):
     def __init__(self, password_source="password", render_value=False, *args, **kwargs):
         widget = kwargs.pop("widget", forms.PasswordInput(render_value=render_value))
         label = kwargs.pop("label", "Password")
-        help_text = kwargs.pop(
-            "help_text",
-            "It can be a clear text password or an "
-            "encrypted one. It really depends on how you "
-            "want to use it. Be aware that it is stored "
-            "without encryption in the database.",
-        )
-        super().__init__(
-            widget=widget, label=label, help_text=help_text, *args, **kwargs
-        )
+        super().__init__(widget=widget, label=label, *args, **kwargs)
         self.widget.attrs["password-source"] = password_source
 
 

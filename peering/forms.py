@@ -294,21 +294,6 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     comments = CommentField()
     tags = TagField(required=False)
 
-    def clean(self):
-        # Do the regular cleanup
-        cleaned_data = super().clean()
-
-        # This should be cleaned up, ready to be used
-        password = cleaned_data["password"]
-        router = cleaned_data["router"]
-
-        # Process to password check/encryption if we have what we need
-        if router and password:
-            # Encrypt the password only if it is not already
-            cleaned_data["password"] = router.encrypt_string(password)
-
-        return cleaned_data
-
     class Meta:
         model = DirectPeeringSession
         fields = (
@@ -651,21 +636,6 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["autonomous_system"].widget.attrs["data-live-search"] = "true"
-
-    def clean(self):
-        # Do the regular cleanup
-        cleaned_data = super().clean()
-
-        # This should be cleaned up, ready to be used
-        password = cleaned_data["password"]
-        internet_exchange = cleaned_data["internet_exchange"]
-
-        # Process to password check/encryption if we have what we need
-        if internet_exchange.router and password:
-            # Encrypt the password only if it is not already
-            cleaned_data["password"] = internet_exchange.router.encrypt_string(password)
-
-        return cleaned_data
 
     class Meta:
         model = InternetExchangePeeringSession

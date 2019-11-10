@@ -13,8 +13,8 @@ router bgp {{ my_asn }}
       description {{ session.autonomous_system.name }}
       {%- endif %}
       {%- if session.password %}
-      {%- if '7 ' in session.password %}
-      password encrypted {{ session.password|replace("7 ","") }}
+      {%- if session.encrypted_password %}
+      password encrypted {{ session.encrypted_password|replace("7 ","") }}
       {%- else %}
       password clear {{ session.password }}
       {%- endif %}

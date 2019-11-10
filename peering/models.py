@@ -20,8 +20,16 @@ from .fields import ASNField, CommunityField, TTLField
 from netbox.api import NetBox
 from peeringdb.http import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
-from utils.crypto.cisco import encrypt as cisco_encrypt, decrypt as cisco_decrypt
-from utils.crypto.junos import encrypt as junos_encrypt, decrypt as junos_decrypt
+from utils.crypto.cisco import (
+    encrypt as cisco_encrypt,
+    decrypt as cisco_decrypt,
+    is_encrypted as cisco_is_encrypted,
+)
+from utils.crypto.junos import (
+    encrypt as junos_encrypt,
+    decrypt as junos_decrypt,
+    is_encrypted as junos_is_encrypted,
+)
 from utils.models import ChangeLoggedModel, TaggableModel, TemplateModel
 from utils.validators import AddressFamilyValidator
 
@@ -398,18 +406,25 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
     A BGP session is always defined with the following fields:
       * an AS, or autonomous system, it can also be called a peer
       * an IP address used to establish the session
-      * a enabled or disabled status telling if the session should be
-        administratively up or not
+      * a plain text password
+      * an encrypted version of the password if the user asked for encryption
+      * a TTL for multihoping
+      * an enabled or disabled status telling if the session should be
+        administratively up or down
+      * import routing policies to apply to prefixes sent by the remote device
+      * export routing policies to apply to prefixed sent to the remote device
       * a BGP state giving the current operational state of session (it will
         remain to unkown if the is disabled)
       * a received prefix count (it will stay none if polling is disabled)
       * a advertised prefix count (it will stay none if polling is disabled)
+      * a date and time record of the last established state of the session
       * comments that consist of plain text that can use the markdown format
     """
 
     autonomous_system = models.ForeignKey("AutonomousSystem", on_delete=models.CASCADE)
     ip_address = InetAddressField(store_prefix_length=False)
     password = models.CharField(max_length=255, blank=True, null=True)
+    encrypted_password = models.CharField(max_length=255, blank=True, null=True)
     multihop_ttl = TTLField(
         blank=True,
         default=1,
@@ -473,6 +488,57 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         return mark_safe(text)
 
+    def encrypt_password(self, platform, commit=True):
+        """
+        Set the `encrypted_password` field if a crypto module is found for the given
+        platform. The field will be set to `None` otherwise.
+
+        If no crypto module can be found for the router platform, the returned string
+        will be the same as the one passed as argument to this function.
+        """
+        # Make sure encrypted_password is not set if there is no password or if the
+        # platform is not supported
+        if not self.password or platform not in [
+            PLATFORM_JUNOS,
+            PLATFORM_IOS,
+            PLATFORM_IOSXR,
+            PLATFORM_NXOS,
+        ]:
+            # Reset password
+            if self.encrypted_password:
+                self.encrypted_password = None
+                if commit:
+                    self.save()
+            return
+
+        encrypt = junos_encrypt if platform == PLATFORM_JUNOS else cisco_encrypt
+
+        if not self.encrypted_password:
+            # If the password is not encrypted yet, do it
+            self.encrypted_password = encrypt(self.password)
+        else:
+            # Check if the platform has changed and if so, decrypt the current
+            # password and then re-encrypt it
+            if platform == PLATFORM_JUNOS and not junos_is_encrypted(
+                self.encrypted_password
+            ):
+                if cisco_is_encrypted(self.encrypted_password):
+                    self.encrypted_password = encrypt(
+                        cisco_decrypt(self.encrypt_password)
+                    )
+            elif platform in [
+                PLATFORM_IOS,
+                PLATFORM_IOSXR,
+                PLATFORM_NXOS,
+            ] and not cisco_is_encrypted(self.encrypted_password):
+                if junos_is_encrypted(self.encrypted_password):
+                    self.encrypted_password = encrypt(
+                        junos_decrypt(self.encrypted_password)
+                    )
+
+        if commit:
+            self.save()
+
 
 class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
     name = models.CharField(max_length=128)
@@ -529,6 +595,11 @@ class DirectPeeringSession(BGPSession):
 
     class Meta:
         ordering = ["autonomous_system", "ip_address"]
+
+    def save(self, *args, **kwargs):
+        if self.router and self.router.encrypt_passwords:
+            self.encrypt_password(self.router.platform, commit=False)
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse("peering:direct_peering_session_details", kwargs={"pk": self.pk})
@@ -1027,6 +1098,13 @@ class InternetExchangePeeringSession(BGPSession):
             )
             self.autonomous_system.save()
 
+        # Change encrypted password
+        if (
+            self.internet_exchange.router
+            and self.internet_exchange.router.encrypt_passwords
+        ):
+            self.encrypt_password(self.internet_exchange.router.platform, commit=False)
+
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -1079,35 +1157,6 @@ class Router(ChangeLoggedModel, TaggableModel):
 
     def is_netbox_device(self):
         return self.netbox_device_id is not 0
-
-    def decrypt_string(self, string):
-        """
-        Returns a decrypted version of a given string based on the router platform.
-
-        If no crypto module can be found for the router platform, the returned string
-        will be the same as the one passed as argument to this function.
-        """
-        if self.platform == PLATFORM_JUNOS:
-            return junos_decrypt(string)
-        if self.platform in [PLATFORM_EOS, PLATFORM_IOS, PLATFORM_IOSXR, PLATFORM_NXOS]:
-            return cisco_decrypt(string)
-
-        return string
-
-    def encrypt_string(self, string):
-        """
-        Returns a encrypted version of a given string based on the router platform.
-
-        If no crypto module can be found for the router platform, the returned string
-        will be the same as the one passed as argument to this function.
-        """
-        if self.encrypt_passwords:
-            if self.platform == PLATFORM_JUNOS:
-                return junos_encrypt(string)
-            if self.platform in [PLATFORM_IOS, PLATFORM_IOSXR, PLATFORM_NXOS]:
-                return cisco_encrypt(string)
-
-        return string
 
     def get_bgp_groups(self):
         """

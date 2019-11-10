@@ -8,6 +8,7 @@
   * `autonomous_system`: [AutonomousSystem](autonomoussystem.md) object
   * `ip_address`: IP address value
   * `password`: string value
+  * `encrypted_password`: string value
   * `multihop_ttl`: integer value
   * `enabled`: boolean value
   * `bgp_state`: string value

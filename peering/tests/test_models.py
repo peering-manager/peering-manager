@@ -25,6 +25,14 @@ from peering.models import (
     RoutingPolicy,
     Template,
 )
+from utils.crypto.cisco import (
+    decrypt as cisco_decrypt,
+    is_encrypted as cisco_is_encrypted,
+)
+from utils.crypto.junos import (
+    decrypt as junos_decrypt,
+    is_encrypted as junos_is_encrypted,
+)
 
 
 class AutonomousSystemTest(TestCase):
@@ -138,6 +146,50 @@ class CommunityTest(TestCase):
                     type=community_types[i],
                 ).get_type_html(),
             )
+
+
+class DirectPeeringSessionTest(TestCase):
+    def test_encrypt_password(self):
+        autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Test")
+        router = Router.objects.create(
+            name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
+        )
+        peering_session = DirectPeeringSession.objects.create(
+            autonomous_system=autonomous_system,
+            ip_address="2001:db8::1",
+            password="mypassword",
+            router=router,
+        )
+        self.assertIsNotNone(peering_session.password)
+        self.assertIsNone(peering_session.encrypted_password)
+
+        # Encrypt the password
+        peering_session.encrypt_password(router.platform)
+        self.assertIsNotNone(peering_session.encrypted_password)
+        self.assertTrue(junos_is_encrypted(peering_session.encrypted_password))
+        self.assertEqual(
+            peering_session.password, junos_decrypt(peering_session.encrypted_password)
+        )
+
+        # Change router platform and re-encrypt
+        router.platform = PLATFORM_IOSXR
+        peering_session.encrypt_password(router.platform)
+        self.assertIsNotNone(peering_session.encrypted_password)
+        self.assertTrue(cisco_is_encrypted(peering_session.encrypted_password))
+        self.assertEqual(
+            peering_session.password, cisco_decrypt(peering_session.encrypted_password)
+        )
+
+        # Change router platform to an unsupported one
+        router.platform = PLATFORM_NONE
+        peering_session.encrypt_password(router.platform)
+        self.assertIsNone(peering_session.encrypted_password)
+
+        # Change password to None and
+        peering_session.password = None
+        router.platform = PLATFORM_JUNOS
+        peering_session.encrypt_password(router.platform)
+        self.assertIsNone(peering_session.encrypted_password)
 
 
 class InternetExchangeTest(TestCase):
@@ -327,6 +379,51 @@ class InternetExchangePeeringSessionTest(TestCase):
             ),
         )
 
+    def test_encrypt_password(self):
+        autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Test")
+        router = Router.objects.create(
+            name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
+        )
+        internet_exchange = InternetExchange.objects.create(
+            name="Test", slug="test", router=router
+        )
+        peering_session = InternetExchangePeeringSession.objects.create(
+            autonomous_system=autonomous_system,
+            internet_exchange=internet_exchange,
+            ip_address="2001:db8::1",
+            password="mypassword",
+        )
+        self.assertIsNotNone(peering_session.password)
+        self.assertIsNone(peering_session.encrypted_password)
+
+        # Encrypt the password
+        peering_session.encrypt_password(router.platform)
+        self.assertIsNotNone(peering_session.encrypted_password)
+        self.assertTrue(junos_is_encrypted(peering_session.encrypted_password))
+        self.assertEqual(
+            peering_session.password, junos_decrypt(peering_session.encrypted_password)
+        )
+
+        # Change router platform and re-encrypt
+        router.platform = PLATFORM_IOSXR
+        peering_session.encrypt_password(router.platform)
+        self.assertIsNotNone(peering_session.encrypted_password)
+        self.assertTrue(cisco_is_encrypted(peering_session.encrypted_password))
+        self.assertEqual(
+            peering_session.password, cisco_decrypt(peering_session.encrypted_password)
+        )
+
+        # Change router platform to an unsupported one
+        router.platform = PLATFORM_NONE
+        peering_session.encrypt_password(router.platform)
+        self.assertIsNone(peering_session.encrypted_password)
+
+        # Change password to None and
+        peering_session.password = None
+        router.platform = PLATFORM_JUNOS
+        peering_session.encrypt_password(router.platform)
+        self.assertIsNone(peering_session.encrypted_password)
+
 
 class RouterTest(TestCase):
     def setUp(self):
@@ -418,35 +515,6 @@ class RouterTest(TestCase):
 
         result = self.router.get_configuration_context()
         self.assertEqual(result, expected)
-
-    def test_decrypt_encrypt_string(self):
-        string = "myreallysecurepassword"
-
-        # Generic router (crypto not implemented)
-        router = Router.objects.create(
-            name="test", hostname="test.example.com", platform=PLATFORM_NONE
-        )
-        self.assertEqual(string, router.decrypt_string(router.encrypt_string(string)))
-
-        for platform in [PLATFORM_JUNOS, PLATFORM_IOSXR]:
-            router = Router.objects.create(
-                name="test", hostname="test.example.com", platform=platform
-            )
-            self.assertEqual(
-                string, router.decrypt_string(router.encrypt_string(string))
-            )
-
-            # Should detect that it is already encrypted
-            self.assertEqual(
-                string,
-                router.decrypt_string(
-                    router.encrypt_string(router.encrypt_string(string))
-                ),
-            )
-            # Should detect that it is not encrypted
-            self.assertEqual(
-                string, router.decrypt_string(router.decrypt_string(string))
-            )
 
     def test_napalm_bgp_neighbors_to_peer_list(self):
         # Expected results
