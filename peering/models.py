@@ -222,10 +222,40 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         for session in self.potential_internet_exchange_peering_sessions:
             for prefix in internet_exchange.get_prefixes():
-                if ipaddress.ip_address(session) in ipaddress.ip_network(prefix):
+                if session in ipaddress.ip_network(prefix):
                     return True
 
         return False
+
+    def get_common_internet_exchanges_and_sessions(self):
+        """
+        Returns a list of dictionaries, each containing an `InternetExchange` object
+        and lists of IP addresses. These addresses are the ones with which peering
+        sessions have not been configured yet on the `InternetExchange`.
+        """
+        ix_and_sessions = []
+
+        for internet_exchange in self.get_common_internet_exchanges():
+            missing_sessions = []
+            for session in self.potential_internet_exchange_peering_sessions:
+                for prefix in internet_exchange.get_prefixes():
+                    if session in ipaddress.ip_network(prefix):
+                        missing_sessions.append(session)
+
+            ix_and_sessions.append(
+                {
+                    "internet_exchange": internet_exchange.to_dict(),
+                    "sessions": [
+                        s.to_dict()
+                        for s in InternetExchangePeeringSession.objects.filter(
+                            autonomous_system=self, internet_exchange=internet_exchange
+                        )
+                    ],
+                    "missing_sessions": missing_sessions,
+                }
+            )
+
+        return ix_and_sessions
 
     def synchronize_with_peeringdb(self):
         """
@@ -280,8 +310,10 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         return {
             "my_asn": settings.MY_ASN,
             "autonomous_system": self,
-            "common_internet_exchanges": [
-                ix for ix in self.get_common_internet_exchanges()
+            "internet_exchanges": self.get_common_internet_exchanges_and_sessions(),
+            "direct_peering_sessions": [
+                s.to_dict()
+                for s in DirectPeeringSession.objects.filter(autonomous_system=self)
             ],
         }
 
