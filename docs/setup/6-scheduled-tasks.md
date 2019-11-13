@@ -29,7 +29,6 @@ If Peering Manager is used to generate configuration stanzas and push them to
 routers, this task can be automated using the given command.
 
 ```no-highlight
-# python3 manage.py deploy_configurations # Deprecated
 # python3 manage.py configure_routers
 ```
 
@@ -48,7 +47,6 @@ must be in a BGP group or an Internet Exchange for them to be polled. They also
 have to be set in a reachable router.
 
 ```no-highlight
-# python3 manage.py update_peering_session_states # Deprecated
 # python3 manage.py poll_peering_sessions --all # can be -a (--all),
                                                 # -g (--bgp-groups) or
                                                 # -i (--internet-exchanges)
