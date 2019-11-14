@@ -18,7 +18,7 @@ except ImportError:
         "Configuration file is not present. Please define peering_manager/configuration.py per the documentation."
     )
 
-VERSION = "v1.0.0"
+VERSION = "v1.0.1-dev"
 DEFAULT_LOGGING = {
     "version": 1,
     "formatters": {
