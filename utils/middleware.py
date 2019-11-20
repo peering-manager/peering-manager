@@ -11,7 +11,6 @@ from django.conf import settings
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.functional import curry
 
 from .views import ServerError
 from utils.constants import *

@@ -3,7 +3,7 @@ django-debug-toolbar==2.1
 djangorestframework==3.10.3
 django-filter==2.2.0
 django-netfields==1.1.1
-django-tables2==2.1.1
+django-tables2==2.2.0
 django-taggit==1.1.0
 django-taggit-serializer==0.1.7
 Jinja2==2.10.3
@@ -11,5 +11,5 @@ napalm==2.5.0
 MarkupSafe==1.1.1
 psycopg2-binary==2.8.4
 py-gfm==0.1.4
-pynetbox==4.0.8
+pynetbox==4.1.0
 requests==2.22.0
