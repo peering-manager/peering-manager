@@ -1,6 +1,12 @@
 from rest_framework import serializers
 
-from peeringdb.models import Network, NetworkIXLAN, PeerRecord, Synchronization
+from peeringdb.models import Contact, Network, NetworkIXLAN, PeerRecord, Synchronization
+
+
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = ["id", "role", "visible", "name", "phone", "email", "url", "network"]
 
 
 class NetworkSerializer(serializers.ModelSerializer):

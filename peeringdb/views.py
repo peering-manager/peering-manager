@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render, reverse
 from django.views.generic import View
 
 from .http import PeeringDB
-from .models import Network, NetworkIXLAN, PeerRecord
+from .models import Contact, Network, NetworkIXLAN, PeerRecord
 
 
 class CacheManagementView(View):
@@ -18,6 +18,7 @@ class CacheManagementView(View):
 
         context = {
             "last_sync_time": sync_time,
+            "peeringdb_contact_count": Contact.objects.count(),
             "peeringdb_network_count": Network.objects.count(),
             "peeringdb_networkixlan_count": NetworkIXLAN.objects.count(),
             "peer_record_count": PeerRecord.objects.count(),

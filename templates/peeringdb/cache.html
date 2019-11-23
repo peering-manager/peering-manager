@@ -15,11 +15,21 @@
               <small class="text-muted float-right">Last updated: {{ last_sync_time }}</small>
               {% endif %}
             </div>
-            <div class="card-body">
-              <p><span class="font-weight-bolder" id="id_peeringdb_network_count">{{ peeringdb_network_count }}</span> networks and <span class="font-weight-bolder" id="id_peeringdb_networkixlan_count">{{ peeringdb_networkixlan_count }}</span> network IX LANs cached from PeeringDB.</p>
-              <button type="button" class="btn btn-primary" id="id_update_cache"><i class="fas fa-sync"></i> Update Cache</button>
-              <button type="button" class="btn btn-danger" id="id_clear_cache"><i class="fas fa-broom"></i> Clear Cache</button>
-            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Contacts <span class="badge badge-primary badge-pill" id="id_peeringdb_contact_count">{{ peeringdb_contact_count }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Networks <span class="badge badge-primary badge-pill" id="id_peeringdb_network_count">{{ peeringdb_network_count }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Network IX LANs <span class="badge badge-primary badge-pill" id="id_peeringdb_networkixlan_count">{{ peeringdb_networkixlan_count }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <button type="button" class="btn btn-primary" id="id_update_cache"><i class="fas fa-sync"></i> Update Cache</button>
+                  <button type="button" class="btn btn-danger" id="id_clear_cache"><i class="fas fa-broom"></i> Clear Cache</button>
+                </li>
+            </ul>
           </div>
         </div>
         <div class="col-md-6">
@@ -64,6 +74,7 @@
             method: "get",
             url: "{% url 'peeringdb-api:cache-statistics' %}",
           }).done(function(response) {
+            $('#id_peeringdb_contact_count').text(response['contact-count']);
             $('#id_peeringdb_network_count').text(response['network-count']);
             $('#id_peeringdb_networkixlan_count').text(response['network-ixlan-count']);
             $('#id_peer_record_count').text(response['peer-record-count']);
@@ -83,6 +94,7 @@
             $('#id_clear_cache').removeClass('btn-warning').addClass('btn-danger').removeAttr('disabled').html('<i class="fas fa-broom"></i> Clear Cache');
           },
         }).done(function(response) {
+          $('#id_peeringdb_contact_count').text('0');
           $('#id_peeringdb_network_count').text('0');
           $('#id_peeringdb_networkixlan_count').text('0');
           $('#id_peer_record_count').text('0');

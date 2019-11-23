@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.utils import timezone
 
-from .models import Network, NetworkIXLAN, PeerRecord, Prefix, Synchronization
+from .models import Contact, Network, NetworkIXLAN, PeerRecord, Prefix, Synchronization
 
 
 NAMESPACES = {
@@ -56,8 +56,16 @@ class PeeringDB(object):
             search["depth"] = 1
 
         # Make the request
+        # Authenticate with a basic auth method if the user provided some credentials
         self.logger.debug("calling api: %s | %s", api_url, search)
-        response = requests.get(api_url, params=search)
+        if settings.PEERINGDB_USERNAME:
+            response = requests.get(
+                api_url,
+                params=search,
+                auth=(settings.PEERINGDB_USERNAME, settings.PEERINGDB_PASSWORD),
+            )
+        else:
+            response = requests.get(api_url, params=search)
 
         return response.json() if response.status_code == 200 else None
 
@@ -191,12 +199,13 @@ class PeeringDB(object):
 
             try:
                 local_object.full_clean()
-            except ValidationError:
+            except ValidationError as e:
                 self.logger.error(
                     "bug found? error while validating id: %s for model: %s",
                     peeringdb_object.id,
                     model._meta.verbose_name.lower(),
                 )
+                self.logger.error(e)
                 continue
 
             # Save the local object
@@ -228,6 +237,7 @@ class PeeringDB(object):
         # Set time of sync
         time_of_sync = timezone.now()
         objects_to_sync = [
+            (NAMESPACES["network_contact"], Contact),
             (NAMESPACES["network"], Network),
             (NAMESPACES["network_internet_exchange_lan"], NetworkIXLAN),
             (NAMESPACES["internet_exchange_prefix"], Prefix),
@@ -256,7 +266,7 @@ class PeeringDB(object):
         Delete all data related to the local database. This can be used to get a
         fresh start.
         """
-        for model in [Network, NetworkIXLAN, PeerRecord, Synchronization]:
+        for model in [Contact, Network, NetworkIXLAN, PeerRecord, Synchronization]:
             model.objects.all().delete()
 
     def force_peer_records_discovery(self):

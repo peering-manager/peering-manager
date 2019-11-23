@@ -150,6 +150,8 @@ NETBOX_DEVICE_ROLES = getattr(
 # PeeringDB URLs
 PEERINGDB_API = "https://peeringdb.com/api/"
 PEERINGDB = "https://peeringdb.com/asn/"
+PEERINGDB_USERNAME = getattr(configuration, "PEERINGDB_USERNAME", "")
+PEERINGDB_PASSWORD = getattr(configuration, "PEERINGDB_PASSWORD", "")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
