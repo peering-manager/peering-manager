@@ -72,6 +72,12 @@ following items can be defined within the `EMAIL` setting:
 
 ---
 
+## PEERINGDB_USERNAME / PEERINGDB_PASSWORD
+
+These settings are being used to authenticate to PeeringDB.
+
+---
+
 ## NAPALM_USERNAME / NAPALM_PASSWORD
 
 Peering Manager will use these credentials when authenticating to remote
