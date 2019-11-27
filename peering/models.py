@@ -1034,8 +1034,8 @@ class InternetExchangePeeringSession(BGPSession):
             return None
 
     @staticmethod
-    def get_from_peeringdb_peer_record(peer_record, ip_version):
-        internet_exchange = None
+    def create_from_peeringdb(peer_record, ip_version, internet_exchange=None):
+        found_internet_exchange = None
         peer_ixlan = None
 
         # If no peer record, no ASN or no IP address have been given, we
@@ -1043,31 +1043,36 @@ class InternetExchangePeeringSession(BGPSession):
         if not peer_record or not peer_record.network.asn:
             return (None, False)
 
-        # Find the Internet exchange given a NetworkIXLAN ID
-        for ix in InternetExchange.objects.exclude(peeringdb_id__isnull=True):
-            # Get the IXLAN corresponding to our network
-            try:
-                ixlan = NetworkIXLAN.objects.get(id=ix.peeringdb_id)
-            except NetworkIXLAN.DoesNotExist:
-                InternetExchangePeeringSession.logger.debug(
-                    "NetworkIXLAN with ID {} not found, ignoring IX {}".format(
-                        ix.peeringdb_id, ix.name
+        # If the IX is given to us there is no point to try guessing which one it is
+        # If the IX is not given try guessing which one to use
+        if internet_exchange:
+            found_internet_exchange = internet_exchange
+        else:
+            # Find the Internet exchange given a NetworkIXLAN ID
+            for ix in InternetExchange.objects.exclude(peeringdb_id__isnull=True):
+                # Get the IXLAN corresponding to our network
+                try:
+                    ixlan = NetworkIXLAN.objects.get(id=ix.peeringdb_id)
+                except NetworkIXLAN.DoesNotExist:
+                    InternetExchangePeeringSession.logger.debug(
+                        "NetworkIXLAN with ID {} not found, ignoring IX {}".format(
+                            ix.peeringdb_id, ix.name
+                        )
                     )
+                    continue
+
+                # Get a potentially matching IXLAN
+                peer_ixlan = NetworkIXLAN.objects.filter(
+                    id=peer_record.network_ixlan.id, ix_id=ixlan.ix_id
                 )
-                continue
 
-            # Get a potentially matching IXLAN
-            peer_ixlan = NetworkIXLAN.objects.filter(
-                id=peer_record.network_ixlan.id, ix_id=ixlan.ix_id
-            )
-
-            # IXLAN found lets get out
-            if peer_ixlan:
-                internet_exchange = ix
-                break
+                # IXLAN found lets get out
+                if peer_ixlan:
+                    found_internet_exchange = ix
+                    break
 
         # Unable to find the Internet exchange, no point of going further
-        if not internet_exchange:
+        if not found_internet_exchange:
             return (None, False)
 
         # Get the AS, create it if necessary

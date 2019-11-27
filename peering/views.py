@@ -668,14 +668,10 @@ class InternetExchangePeers(ModelListView):
         extra_context = {}
 
         # Since we are in the context of an IX we need to keep the reference for it
+        # Keep track of its ID as well to be able to find the IX when adding sessions
         if "slug" in kwargs:
-            extra_context.update(
-                {
-                    "internet_exchange": get_object_or_404(
-                        InternetExchange, slug=kwargs["slug"]
-                    )
-                }
-            )
+            ix = get_object_or_404(InternetExchange, slug=kwargs["slug"])
+            extra_context.update(internet_exchange=ix, internet_exchange_id=ix.pk)
 
         return extra_context
 
@@ -756,15 +752,18 @@ class InternetExchangePeeringSessionAddFromPeeringDB(
     form_model = InternetExchangePeeringSessionForm
     template = "peering/session/internet_exchange/add_from_peeringdb.html"
 
-    def process_dependency_object(self, dependency):
-        (
-            session6,
-            created6,
-        ) = InternetExchangePeeringSession.get_from_peeringdb_peer_record(dependency, 6)
-        (
-            session4,
-            created4,
-        ) = InternetExchangePeeringSession.get_from_peeringdb_peer_record(dependency, 4)
+    def process_dependency_object(self, request, dependency):
+        ix_id = request.POST.get("internet_exchange_id", 0)
+        if not ix_id:
+            ix = None
+        else:
+            ix = InternetExchange.objects.get(pk=ix_id)
+        (session6, created6) = InternetExchangePeeringSession.create_from_peeringdb(
+            dependency, 6, internet_exchange=ix
+        )
+        (session4, created4) = InternetExchangePeeringSession.create_from_peeringdb(
+            dependency, 4, internet_exchange=ix
+        )
         return_value = []
 
         if session6 and created6:

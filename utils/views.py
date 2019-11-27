@@ -146,7 +146,7 @@ class BulkAddFromDependencyView(View):
             return []
         return list(self.dependency_model.objects.filter(pk__in=pk_list))
 
-    def process_dependency_object(self, dependency):
+    def process_dependency_object(self, request, dependency):
         return None
 
     def sort_objects(self, object_list):
@@ -194,7 +194,7 @@ class BulkAddFromDependencyView(View):
             dependencies_processing_result = []
             for dependency in dependencies:
                 dependencies_processing_result.append(
-                    self.process_dependency_object(dependency)
+                    self.process_dependency_object(request, dependency)
                 )
 
             formset = ObjectFormSet(
@@ -627,14 +627,18 @@ class ModelListView(View):
         else:
             filter_form = None
 
+        # Compute the extra context to attach to this view
+        extra_context = self.extra_context(kwargs)
+
         # Set context and render
         context = {
             "table": table,
             "filter": self.filter,
             "filter_form": filter_form,
             "permissions": permissions,
+            "extra_context": extra_context,
         }
-        context.update(self.extra_context(kwargs))
+        context.update(extra_context)
 
         return render(request, self.template, context)
 
