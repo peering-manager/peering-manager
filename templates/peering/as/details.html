@@ -7,14 +7,14 @@
             <div class="card-header">
               <strong>AS Details</strong>
               <div class="float-right">
-              <a class="btn btn-xs btn-primary" href="{{ settings.PEERINGDB }}{{ autonomous_system.asn }}" target="_blank">
-                <i class="fas fa-external-link-alt"></i> PeeringDB
-              </a>
-              {% if perms.peering.change_autonomoussystem %}
-              <button class="btn btn-xs btn-success" id="synchronize-with-peeringdb">
-                <i class="fas fa-sync"></i> Synchronize
-              </button>
-              {% endif %}
+                <a class="btn btn-xs btn-primary" href="{{ settings.PEERINGDB }}{{ autonomous_system.asn }}" target="_blank">
+                  <i class="fas fa-external-link-alt"></i> PeeringDB
+                </a>
+                {% if perms.peering.change_autonomoussystem %}
+                <button class="btn btn-xs btn-success" id="synchronize-with-peeringdb">
+                  <i class="fas fa-sync"></i> Synchronize
+                </button>
+                {% endif %}
               </div>
             </div>
             <table class="card-body table table-hover attr-table mb-0">

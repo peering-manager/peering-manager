@@ -19,7 +19,7 @@
 {% block content %}
       <ul class="nav nav-tabs">
         <li class="nav-item">
-          <a class="nav-link{% if request.path|notcontains:'/direct-peering-sessions/,/ix-peering-sessions/,/email/' %} active{% endif %}" href="{% url 'peering:autonomous_system_details' asn=autonomous_system.asn %}">
+          <a class="nav-link{% if request.path|notcontains:'/direct-peering-sessions/,/ix-peering-sessions/,/contacts/,/email/' %} active{% endif %}" href="{% url 'peering:autonomous_system_details' asn=autonomous_system.asn %}">
             <i class="fas fa-info-circle"></i> Details
           </a>
         </li>
@@ -35,7 +35,14 @@
           </a>
         </li>
         {% endif %}
-        {% if perms.peering.send_email_autonomoussystem and autonomous_system.contact_email %}
+        {% if autonomous_system.get_peeringdb_contacts|length > 0 %}
+        <li class="nav-item">
+          <a class="nav-link{% if request.path|contains:'/contacts/' %} active{% endif %}" href="{% url 'peering:autonomous_system_contacts' asn=autonomous_system.asn %}">
+            <i class="fas fa-address-book"></i> PeeringDB Contacts
+          </a>
+        </li>
+        {% endif %}
+        {% if perms.peering.send_email_autonomoussystem and autonomous_system.can_receive_email %}
         <li class="nav-item">
           <a class="nav-link{% if request.path|contains:'/email/' %} active{% endif %}" href="{% url 'peering:autonomous_system_email' asn=autonomous_system.asn %}">
             <i class="fas fa-envelope-open-text"></i> Send E-mail

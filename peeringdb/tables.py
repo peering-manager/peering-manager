@@ -1,7 +1,21 @@
 import django_tables2 as tables
 
-from .models import PeerRecord
+from .models import Contact, PeerRecord
 from utils.tables import BaseTable, SelectColumn
+
+
+class ContactTable(BaseTable):
+    """
+    Table for Contact lists
+    """
+
+    empty_text = "No contacts found."
+    email = tables.Column(verbose_name="E-mail")
+    url = tables.Column(verbose_name="URL")
+
+    class Meta(BaseTable.Meta):
+        model = Contact
+        fields = ("role", "name", "phone", "email", "url")
 
 
 class PeerRecordTable(BaseTable):

@@ -79,7 +79,7 @@ from peeringdb.filters import PeerRecordFilter
 from peeringdb.forms import PeerRecordFilterForm
 from peeringdb.http import PeeringDB
 from peeringdb.models import PeerRecord
-from peeringdb.tables import PeerRecordTable
+from peeringdb.tables import ContactTable, PeerRecordTable
 from utils.views import (
     AddOrEditView,
     BulkAddFromDependencyView,
@@ -111,6 +111,9 @@ class ASAdd(PermissionRequiredMixin, AddOrEditView):
 class ASDetails(View):
     def get(self, request, asn):
         autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
+        peeringdb_contacts = PeeringDB().get_autonomous_system_contacts(
+            autonomous_system.asn
+        )
         common_ix_and_sessions = []
         for ix in autonomous_system.get_common_internet_exchanges():
             common_ix_and_sessions.append(
@@ -124,6 +127,7 @@ class ASDetails(View):
 
         context = {
             "autonomous_system": autonomous_system,
+            "peeringdb_contacts": peeringdb_contacts,
             "common_ix_and_sessions": common_ix_and_sessions,
         }
         return render(request, "peering/as/details.html", context)
@@ -142,6 +146,9 @@ class ASEmail(PermissionRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
         form = AutonomousSystemEmailForm()
+        form.fields[
+            "recipient"
+        ].choices = autonomous_system.get_contact_email_addresses()
         return render(
             request,
             "peering/as/email.html",
@@ -157,7 +164,7 @@ class ASEmail(PermissionRequiredMixin, View):
                 form.cleaned_data["subject"],
                 form.cleaned_data["body"],
                 settings.SERVER_EMAIL,
-                [autonomous_system.contact_email],
+                [form.cleaned_data["recipient"]],
             )
             if sent is 1:
                 messages.success(request, "Email sent.")
@@ -178,6 +185,29 @@ class ASBulkDelete(PermissionRequiredMixin, BulkDeleteView):
     model = AutonomousSystem
     filter = AutonomousSystemFilter
     table = AutonomousSystemTable
+
+
+class AutonomousSystemContacts(ModelListView):
+    table = ContactTable
+    template = "peering/as/contacts.html"
+
+    def build_queryset(self, request, kwargs):
+        queryset = None
+        # The queryset needs to be composed of Contact objects related to the AS we
+        # are looking at.
+        if "asn" in kwargs:
+            autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+            queryset = PeeringDB().get_autonomous_system_contacts(autonomous_system.asn)
+        return queryset
+
+    def extra_context(self, kwargs):
+        extra_context = {}
+        # Since we are in the context of an AS we need to keep the reference
+        # for it
+        if "asn" in kwargs:
+            autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+            extra_context.update({"autonomous_system": autonomous_system})
+        return extra_context
 
 
 class AutonomousSystemDirectPeeringSessions(ModelListView):

@@ -88,6 +88,14 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         ordering = ["asn"]
         permissions = [("send_email", "Can send e-mails to AS contact")]
 
+    @property
+    def can_receive_email(self):
+        if self.contact_email:
+            return True
+        if self.get_peeringdb_contacts():
+            return True
+        return False
+
     @staticmethod
     def does_exist(asn):
         try:
@@ -305,6 +313,42 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             return prefixes["ipv4"]
         else:
             return prefixes
+
+    def get_peeringdb_contacts(self):
+        return PeeringDB().get_autonomous_system_contacts(self.asn)
+
+    def get_contact_email_addresses(self):
+        """
+        Returns a list of all contacts with their respective e-mails addresses.
+        The returned list can be used in form choice fields.
+        """
+        addresses = []
+
+        # Append the contact set by the user if one has been set
+        if self.contact_email:
+            addresses.append(
+                (
+                    self.contact_email,
+                    "{} - {}".format(self.contact_name, self.contact_email)
+                    if self.contact_name
+                    else self.contact_email,
+                )
+            )
+
+        # Append the contacts found in PeeringDB, avoid re-adding a contact if the
+        # email address is the same as the one set by the user manually
+        for contact in self.get_peeringdb_contacts():
+            if contact.email and contact.email not in [a[0] for a in addresses]:
+                addresses.append(
+                    (
+                        contact.email,
+                        "{} - {}".format(contact.name, contact.email)
+                        if contact.name
+                        else contact.email,
+                    )
+                )
+
+        return addresses
 
     def get_email_context(self):
         return {

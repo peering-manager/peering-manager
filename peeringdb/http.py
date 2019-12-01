@@ -339,6 +339,13 @@ class PeeringDB(object):
 
         return network
 
+    def get_autonomous_system_contacts(self, asn):
+        network = self.get_autonomous_system(asn)
+        if network:
+            return Contact.objects.filter(net_id=network.id)
+        else:
+            return Contact.objects.none()
+
     def get_ix_network(self, ix_network_id):
         """
         Return an IX network (and its details) given an IP address. The result
