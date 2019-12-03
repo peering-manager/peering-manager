@@ -2,7 +2,7 @@ import ipaddress
 
 from django.test import TestCase
 from django.utils import timezone
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from .mocked_data import *
 from peeringdb.http import PeeringDB
@@ -57,11 +57,9 @@ class PeeringDBHTTPTestCase(TestCase):
         asn = 65536
 
         # Must not exist
-        # mocked_api.get.return_value = Mock(status_code=404)
         self.assertIsNone(api.get_autonomous_system(64500))
 
         # Using an API call (no cached data)
-        # mocked_api.get.return_value = Mock(status_code=200, json=ASN_65536)
         autonomous_system = api.get_autonomous_system(asn)
         self.assertEqual(autonomous_system.asn, asn)
 
