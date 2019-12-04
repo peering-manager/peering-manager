@@ -1,4 +1,5 @@
 from django.urls import reverse
+from unittest.mock import patch
 
 from rest_framework import status
 
@@ -14,6 +15,7 @@ from peering.models import (
     RoutingPolicy,
     Template,
 )
+from peering.tests.mocked_data import *
 from utils.testing import APITestCase
 
 
@@ -36,7 +38,7 @@ class AutonomousSystemTest(APITestCase):
         super().setUp()
 
         self.autonomous_system = AutonomousSystem.objects.create(
-            asn=201281, name="Guillaume Mazoyer", irr_as_set="AS-MAZOYER-EU"
+            asn=65536, name="Test", irr_as_set="AS-MOCKED"
         )
 
     def test_get_autonomous_system(self):
@@ -96,7 +98,7 @@ class AutonomousSystemTest(APITestCase):
         self.assertEqual(response.data[1]["asn"], data[1]["asn"])
 
     def test_update_autonomous_system(self):
-        data = {"asn": 201281, "name": "Guillaume Mazoyer"}
+        data = {"asn": 65536, "name": "Guillaume Mazoyer"}
 
         url = reverse(
             "peering-api:autonomoussystem-detail",
@@ -114,7 +116,7 @@ class AutonomousSystemTest(APITestCase):
             name="Test", slug="test", type=ROUTING_POLICY_TYPE_IMPORT_EXPORT, weight=0
         )
         data = {
-            "asn": 201281,
+            "asn": 65536,
             "name": "Guillaume Mazoyer",
             "import_routing_policies": [routing_policy.pk],
             "export_routing_policies": [routing_policy.pk],
@@ -142,22 +144,26 @@ class AutonomousSystemTest(APITestCase):
         self.assertEqual(AutonomousSystem.objects.count(), 0)
 
     def test_synchronize_with_peeringdb(self):
+        autonomous_system = AutonomousSystem.objects.create(
+            asn=201281, name="Test", irr_as_set="AS-TEST"
+        )
         url = reverse(
             "peering-api:autonomoussystem-synchronize-with-peeringdb",
-            kwargs={"pk": self.autonomous_system.pk},
+            kwargs={"pk": autonomous_system.pk},
         )
         response = self.client.post(url, format="json", **self.header)
         self.assertStatus(response, status.HTTP_200_OK)
 
     def test_get_irr_as_set_prefixes(self):
-        url = reverse(
-            "peering-api:autonomoussystem-get-irr-as-set-prefixes",
-            kwargs={"pk": self.autonomous_system.pk},
-        )
-        response = self.client.get(url, format="json", **self.header)
-        self.assertStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["prefixes"]["ipv6"]), 2)
-        self.assertEqual(len(response.data["prefixes"]["ipv4"]), 1)
+        with patch("peering.subprocess.Popen", side_effect=mocked_subprocess_popen):
+            url = reverse(
+                "peering-api:autonomoussystem-get-irr-as-set-prefixes",
+                kwargs={"pk": self.autonomous_system.pk},
+            )
+            response = self.client.get(url, format="json", **self.header)
+            self.assertStatus(response, status.HTTP_200_OK)
+            self.assertEqual(len(response.data["prefixes"]["ipv6"]), 1)
+            self.assertEqual(len(response.data["prefixes"]["ipv4"]), 1)
 
     def test_common_internet_exchanges(self):
         url = reverse(

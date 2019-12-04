@@ -2,6 +2,7 @@ import ipaddress
 
 from django.conf import settings
 from django.test import TestCase
+from unittest.mock import patch
 
 from peering.constants import (
     BGP_RELATIONSHIP_PRIVATE_PEERING,
@@ -25,6 +26,7 @@ from peering.models import (
     RoutingPolicy,
     Template,
 )
+from peering.tests.mocked_data import *
 from utils.crypto.cisco import (
     decrypt as cisco_decrypt,
     is_encrypted as cisco_is_encrypted,
@@ -36,6 +38,13 @@ from utils.crypto.junos import (
 
 
 class AutonomousSystemTest(TestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.autonomous_system = AutonomousSystem.objects.create(
+            asn=65536, name="Test", irr_as_set="AS-MOCKED"
+        )
+
     def test_does_exist(self):
         asn = 201281
 
@@ -87,10 +96,10 @@ class AutonomousSystemTest(TestCase):
         self.assertFalse(autonomous_system.synchronize_with_peeringdb())
 
     def test_get_irr_as_set_prefixes(self):
-        autonomous_system = AutonomousSystem.create_from_peeringdb(201281)
-        prefixes = autonomous_system.get_irr_as_set_prefixes()
-        self.assertEqual(2, len(prefixes["ipv6"]))
-        self.assertEqual(1, len(prefixes["ipv4"]))
+        with patch("peering.subprocess.Popen", side_effect=mocked_subprocess_popen):
+            prefixes = self.autonomous_system.get_irr_as_set_prefixes()
+            self.assertEqual(1, len(prefixes["ipv6"]))
+            self.assertEqual(1, len(prefixes["ipv4"]))
 
     def test__str__(self):
         asn = 64500
