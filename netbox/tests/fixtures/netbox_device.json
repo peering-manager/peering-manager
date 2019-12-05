@@ -1,0 +1,89 @@
+{
+  "id": 1,
+  "name": "router01.example.net",
+  "display_name": "router01.example.net",
+  "device_type": {
+    "id": 1,
+    "url": "http://netbox.example.net/api/dcim/device-types/1/",
+    "manufacturer": {
+      "id": 5,
+      "url": "http://netbox.example.net/api/dcim/manufacturers/5/",
+      "name": "Juniper",
+      "slug": "juniper"
+    },
+    "model": "SRX300",
+    "slug": "srx300",
+    "display_name": "Juniper SRX300"
+  },
+  "device_role": {
+    "id": 7,
+    "url": "http://netbox.example.net/api/dcim/device-roles/7/",
+    "name": "Router",
+    "slug": "router"
+  },
+  "tenant": {
+    "id": 1,
+    "url": "http://netbox.example.net/api/tenancy/tenants/1/",
+    "name": "example.net",
+    "slug": "example-net"
+  },
+  "platform": {
+    "id": 3,
+    "url": "http://netbox.example.net/api/dcim/platforms/3/",
+    "name": "Juniper Junos",
+    "slug": "juniper-junos"
+  },
+  "serial": "CV3216AF0132",
+  "asset_tag": null,
+  "site": {
+    "id": 4,
+    "url": "http://netbox.example.net/api/dcim/sites/4/",
+    "name": "Metz",
+    "slug": "metz"
+  },
+  "rack": {
+    "id": 1,
+    "url": "http://netbox.example.net/api/dcim/racks/1/",
+    "name": "RACK-001",
+    "display_name": "RACK-001"
+  },
+  "position": 9,
+  "face": {
+    "value": 0,
+    "label": "Front"
+  },
+  "parent_device": null,
+  "status": {
+    "value": 1,
+    "label": "Active"
+  },
+  "primary_ip": {
+    "id": 7,
+    "url": "http://netbox.example.net/api/ipam/ip-addresses/7/",
+    "family": 6,
+    "address": "2001:678:794::2/128"
+  },
+  "primary_ip4": {
+    "id": 265,
+    "url": "http://netbox.example.net/api/ipam/ip-addresses/265/",
+    "family": 4,
+    "address": "45.154.62.2/32"
+  },
+  "primary_ip6": {
+    "id": 7,
+    "url": "http://netbox.example.net/api/ipam/ip-addresses/7/",
+    "family": 6,
+    "address": "2001:db8::2/128"
+  },
+  "cluster": null,
+  "virtual_chassis": null,
+  "vc_position": null,
+  "vc_priority": null,
+  "comments": "",
+  "local_context_data": null,
+  "tags": [],
+  "custom_fields": {},
+  "config_context": {},
+  "created": "2016-12-16",
+  "last_updated": "2019-11-01T16:25:55.481312+01:00"
+}
