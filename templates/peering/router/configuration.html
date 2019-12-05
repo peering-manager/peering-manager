@@ -10,6 +10,9 @@
           <button type="button" class="btn btn-secondary btn-block" id="copy-config">
             <i class="fa fa-clipboard"></i> Copy
           </button>
+          <a href=".?raw" class="btn btn-dark btn-block">
+            <i class="fas fa-file-alt"></i> Raw Output
+          </a>
         </div>
         <pre class="col-md-10 pre-scrollable"><code>{{ router_configuration }}</code></pre>
       </div>
@@ -63,7 +66,7 @@
             $('#save-config').hide();
             $('.modal').modal('show');
           } else {
-            if (response['changed']) {
+            if (response['changed'] && response['changes'].trim()) {
               $('.modal-body').html('<pre class="pre-scrollable">' + response['changes'] + '</pre>');
               $('.modal').modal('show');
             } else {

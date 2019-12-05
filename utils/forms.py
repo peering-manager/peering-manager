@@ -1,10 +1,11 @@
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
+from taggit.forms import TagField
 
 from .constants import *
-from .fields import CommentField, SlugField
-from .models import ObjectChange
+from .fields import ColorSelect, CommentField, SlugField
+from .models import ObjectChange, Tag
 
 
 def add_blank_choice(choices):
@@ -208,3 +209,34 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
         queryset=User.objects.order_by("username"),
         widget=StaticSelectMultiple,
     )
+
+
+class TagBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(), widget=forms.MultipleHiddenInput
+    )
+    color = forms.CharField(max_length=6, required=False, widget=ColorSelect())
+
+    class Meta:
+        nullable_fields = ["comments"]
+
+
+class TagFilterForm(BootstrapMixin, forms.Form):
+    model = Tag
+    q = forms.CharField(required=False, label="Search")
+
+
+class TagForm(BootstrapMixin, forms.ModelForm):
+    slug = SlugField()
+    comments = CommentField()
+
+    class Meta:
+        model = Tag
+        fields = ["name", "slug", "color", "comments"]
+
+
+class AddRemoveTagsForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["add_tags"] = TagField(required=False)
+        self.fields["remove_tags"] = TagField(required=False)

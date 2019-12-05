@@ -93,7 +93,7 @@ def __randc(counter=0):
     return return_value
 
 
-def __is_encrypted(value):
+def is_encrypted(value):
     return value.startswith(MAGIC)
 
 
@@ -101,7 +101,7 @@ def decrypt(value):
     if not value:
         return ""
 
-    if not __is_encrypted(value):
+    if not is_encrypted(value):
         return value
 
     chars = value.split("$9$", 1)[1]
@@ -127,7 +127,7 @@ def encrypt(value, salt=None):
     if not value:
         return ""
 
-    if __is_encrypted(value):
+    if is_encrypted(value):
         return value
 
     if not salt:

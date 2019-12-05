@@ -49,7 +49,11 @@ protocols {
                 export [ {{ session.export_routing_policies | map(attribute='slug') | join(' ') }} ];
                 {%- endif %}
                 {%- if session.password %}
+                {%- if session.encrypted_password %}
+                authentication-key "{{ session.encrypted_password }}";
+                {%- else %}
                 authentication-key "{{ session.password }}";
+                {%- endif %}
                 {%- endif %}
                 peer-as {{ session.autonomous_system.asn }};
             }
@@ -107,7 +111,11 @@ protocols {
                 export [ {{ session.export_routing_policies | map(attribute='slug') | join(' ') }} ];
                 {%- endif %}
                 {%- if session.password %}
+                {%- if session.encrypted_password %}
+                authentication-key "{{ session.encrypted_password }}";
+                {%- else %}
                 authentication-key "{{ session.password }}";
+                {%- endif %}
                 {%- endif %}
                 peer-as {{ session.autonomous_system.asn }};
             }

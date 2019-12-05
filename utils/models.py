@@ -11,8 +11,10 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from taggit.managers import TaggableManager
+from taggit.models import TagBase, GenericTaggedItemBase
 
 from .constants import *
+from .fields import ColorField
 from .templatetags.helpers import title_with_uppers
 
 
@@ -113,12 +115,29 @@ class ObjectChange(models.Model):
         )
 
 
+class Tag(TagBase, ChangeLoggedModel):
+    color = ColorField(default="9e9e9e")
+    comments = models.TextField(blank=True, default="")
+
+    def get_absolute_url(self):
+        return reverse("utils:tag_details", kwargs={"slug": self.slug})
+
+
+class TaggedItem(GenericTaggedItemBase):
+    tag = models.ForeignKey(
+        to=Tag, related_name="%(app_label)s_%(class)s_items", on_delete=models.CASCADE
+    )
+
+    class Meta:
+        index_together = ("content_type", "object_id")
+
+
 class TaggableModel(models.Model):
     """
     Abstract class that just provides tags to its subclasses.
     """
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     class Meta:
         abstract = True

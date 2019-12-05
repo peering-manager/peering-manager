@@ -66,7 +66,7 @@ XLAT = [
 ]
 
 
-def __is_encrypted(value):
+def is_encrypted(value):
     return value.startswith(MAGIC)
 
 
@@ -74,7 +74,7 @@ def decrypt(value):
     if not value:
         return ""
 
-    if not __is_encrypted(value):
+    if not is_encrypted(value):
         return value
 
     value = value.replace(MAGIC, "")
@@ -101,7 +101,7 @@ def encrypt(value):
     if not value:
         return ""
 
-    if __is_encrypted(value):
+    if is_encrypted(value):
         return value
 
     salt = random.randrange(0, 15)

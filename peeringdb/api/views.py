@@ -6,7 +6,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 from .serializers import SynchronizationSerializer
 from peeringdb.filters import SynchronizationFilter
 from peeringdb.http import PeeringDB
-from peeringdb.models import Network, NetworkIXLAN, PeerRecord, Synchronization
+from peeringdb.models import Contact, Network, NetworkIXLAN, PeerRecord, Synchronization
 
 
 class CacheViewSet(ViewSet):
@@ -19,6 +19,7 @@ class CacheViewSet(ViewSet):
     def statistics(self, request):
         return Response(
             {
+                "contact-count": Contact.objects.count(),
                 "network-count": Network.objects.count(),
                 "network-ixlan-count": NetworkIXLAN.objects.count(),
                 "peer-record-count": PeerRecord.objects.count(),

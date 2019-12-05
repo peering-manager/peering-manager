@@ -9,6 +9,7 @@ class CacheTest(APITestCase):
     def test_statistics(self):
         url = reverse("peeringdb-api:cache-statistics")
         response = self.client.get(url, **self.header)
+        self.assertEqual(response.data["contact-count"], 0)
         self.assertEqual(response.data["network-count"], 0)
         self.assertEqual(response.data["network-ixlan-count"], 0)
         self.assertEqual(response.data["peer-record-count"], 0)

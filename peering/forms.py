@@ -29,6 +29,8 @@ from .models import (
 from netbox.api import NetBox
 from utils.fields import CommentField, PasswordField, SlugField, TextareaField
 from utils.forms import (
+    add_blank_choice,
+    AddRemoveTagsForm,
     APISelect,
     APISelectMultiple,
     BulkEditForm,
@@ -38,7 +40,6 @@ from utils.forms import (
     SmallTextarea,
     StaticSelect,
     StaticSelectMultiple,
-    add_blank_choice,
 )
 
 
@@ -120,6 +121,18 @@ class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
     ipv4_max_prefixes = forms.IntegerField(required=False, label="IPv4 Max Prefixes")
 
 
+class AutonomousSystemEmailForm(BootstrapMixin, forms.Form):
+    template = forms.ModelChoiceField(
+        queryset=Template.objects.all(),
+        widget=APISelect(
+            api_url="/api/peering/templates/", query_filters={"type": "email"}
+        ),
+    )
+    recipient = forms.ChoiceField(widget=StaticSelect)
+    subject = forms.CharField(label="E-mail Subject")
+    body = TextareaField(label="E-mail Body")
+
+
 class BGPGroupForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField(max_length=255)
     comments = CommentField()
@@ -165,7 +178,7 @@ class BGPGroupForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class BGPGroupBulkEditForm(BootstrapMixin, BulkEditForm):
+class BGPGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = FilterChoiceField(
         queryset=BGPGroup.objects.all(), widget=forms.MultipleHiddenInput
     )
@@ -193,7 +206,12 @@ class BGPGroupBulkEditForm(BootstrapMixin, BulkEditForm):
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ["comments"]
+        nullable_fields = [
+            "import_routing_policies",
+            "export_routing_policies",
+            "communities",
+            "comments",
+        ]
 
 
 class BGPGroupFilterForm(BootstrapMixin, forms.Form):
@@ -215,7 +233,7 @@ class CommunityForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class CommunityBulkEditForm(BootstrapMixin, BulkEditForm):
+class CommunityBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = FilterChoiceField(
         queryset=Community.objects.all(), widget=forms.MultipleHiddenInput
     )
@@ -277,21 +295,6 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     comments = CommentField()
     tags = TagField(required=False)
 
-    def clean(self):
-        # Do the regular cleanup
-        cleaned_data = super().clean()
-
-        # This should be cleaned up, ready to be used
-        password = cleaned_data["password"]
-        router = cleaned_data["router"]
-
-        # Process to password check/encryption if we have what we need
-        if router and password:
-            # Encrypt the password only if it is not already
-            cleaned_data["password"] = router.encrypt_string(password)
-
-        return cleaned_data
-
     class Meta:
         model = DirectPeeringSession
         fields = (
@@ -327,7 +330,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class DirectPeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
+class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = FilterChoiceField(
         queryset=DirectPeeringSession.objects.all(), widget=forms.MultipleHiddenInput
     )
@@ -364,7 +367,12 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
     comments = CommentField()
 
     class Meta:
-        nullable_fields = ["router", "comments"]
+        nullable_fields = [
+            "import_routing_policies",
+            "export_routing_policies",
+            "router",
+            "comments",
+        ]
 
 
 class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
@@ -454,7 +462,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
         widgets = {"router": APISelect(api_url="/api/peering/routers/")}
 
 
-class InternetExchangeBulkEditForm(BootstrapMixin, BulkEditForm):
+class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = FilterChoiceField(
         queryset=InternetExchange.objects.all(), widget=forms.MultipleHiddenInput
     )
@@ -474,6 +482,11 @@ class InternetExchangeBulkEditForm(BootstrapMixin, BulkEditForm):
             query_filters={"type": "export-policy"},
         ),
     )
+    communities = FilterChoiceField(
+        required=False,
+        queryset=Community.objects.all(),
+        widget=APISelectMultiple(api_url="/api/peering/communities/"),
+    )
     router = forms.ModelChoiceField(
         required=False,
         queryset=Router.objects.all(),
@@ -482,7 +495,13 @@ class InternetExchangeBulkEditForm(BootstrapMixin, BulkEditForm):
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ["router", "comments"]
+        nullable_fields = [
+            "import_routing_policies",
+            "export_routing_policies",
+            "communities",
+            "router",
+            "comments",
+        ]
 
 
 class InternetExchangePeeringDBForm(BootstrapMixin, forms.ModelForm):
@@ -555,7 +574,9 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
     )
 
 
-class InternetExchangePeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
+class InternetExchangePeeringSessionBulkEditForm(
+    BootstrapMixin, AddRemoveTagsForm, BulkEditForm
+):
     pk = FilterChoiceField(
         queryset=InternetExchangePeeringSession.objects.all(),
         widget=forms.MultipleHiddenInput,
@@ -585,10 +606,18 @@ class InternetExchangePeeringSessionBulkEditForm(BootstrapMixin, BulkEditForm):
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ["comments"]
+        nullable_fields = [
+            "import_routing_policies",
+            "export_routing_policies",
+            "comments",
+        ]
 
 
 class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
+    autonomous_system = forms.ModelChoiceField(
+        queryset=AutonomousSystem.objects.all(),
+        widget=APISelect(api_url="/api/peering/autonomous-systems/"),
+    )
     password = PasswordField(required=False, render_value=True)
     import_routing_policies = FilterChoiceField(
         required=False,
@@ -611,22 +640,6 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["autonomous_system"].widget.attrs["data-live-search"] = "true"
-
-    def clean(self):
-        # Do the regular cleanup
-        cleaned_data = super().clean()
-
-        # This should be cleaned up, ready to be used
-        password = cleaned_data["password"]
-        internet_exchange = cleaned_data["internet_exchange"]
-
-        # Process to password check/encryption if we have what we need
-        if internet_exchange.router and password:
-            # Encrypt the password only if it is not already
-            cleaned_data["password"] = internet_exchange.router.encrypt_string(password)
-
-        return cleaned_data
 
     class Meta:
         model = InternetExchangePeeringSession
@@ -744,7 +757,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class RouterBulkEditForm(BootstrapMixin, BulkEditForm):
+class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = FilterChoiceField(
         queryset=Router.objects.all(), widget=forms.MultipleHiddenInput
     )
@@ -805,7 +818,7 @@ class RoutingPolicyForm(BootstrapMixin, forms.ModelForm):
         )
 
 
-class RoutingPolicyBulkEditForm(BootstrapMixin, BulkEditForm):
+class RoutingPolicyBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = FilterChoiceField(
         queryset=RoutingPolicy.objects.all(), widget=forms.MultipleHiddenInput
     )

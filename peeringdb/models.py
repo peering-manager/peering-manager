@@ -4,8 +4,29 @@ from django.db import models
 
 from netfields import CidrAddressField, InetAddressField, NetManager
 
+from .constants import *
 from peering.fields import ASNField
 from utils.validators import AddressFamilyValidator
+
+
+class Contact(models.Model):
+    role = models.CharField(max_length=32, choices=CONTACT_ROLE_CHOICES)
+    visible = models.CharField(
+        max_length=64,
+        choices=CONTACT_VISIBILITY_CHOICES,
+        default=CONTACT_VISIBILITY_PUBLIC,
+    )
+    name = models.CharField(max_length=255, blank=True)
+    phone = models.CharField(max_length=100, blank=True)
+    email = models.EmailField(max_length=255, blank=True)
+    url = models.URLField(max_length=255, blank=True)
+    net_id = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ["net_id", "name"]
+
+    def __str__(self):
+        return "{} - {} - {}".format(self.net_id, self.role, self.name)
 
 
 class Network(models.Model):

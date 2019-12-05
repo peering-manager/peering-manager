@@ -55,11 +55,10 @@
 {% endblock %}
 {% block javascript %}
     <script>
-      // Wait for user to focust out of the ASN field
+      // Wait for user to focus out of the ASN field
       $("#id_asn").focusout(function() {
         var asn = $(this).val();
         $.ajax({
-          // Call for a ping
           type: "get",
           dataType: "json",
           url: "{{ settings.PEERINGDB_API }}net?asn=" + asn,

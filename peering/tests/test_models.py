@@ -25,6 +25,14 @@ from peering.models import (
     RoutingPolicy,
     Template,
 )
+from utils.crypto.cisco import (
+    decrypt as cisco_decrypt,
+    is_encrypted as cisco_is_encrypted,
+)
+from utils.crypto.junos import (
+    decrypt as junos_decrypt,
+    is_encrypted as junos_is_encrypted,
+)
 
 
 class AutonomousSystemTest(TestCase):
@@ -81,8 +89,8 @@ class AutonomousSystemTest(TestCase):
     def test_get_irr_as_set_prefixes(self):
         autonomous_system = AutonomousSystem.create_from_peeringdb(201281)
         prefixes = autonomous_system.get_irr_as_set_prefixes()
-        self.assertEqual(autonomous_system.ipv6_max_prefixes, len(prefixes["ipv6"]))
-        self.assertEqual(autonomous_system.ipv4_max_prefixes, len(prefixes["ipv4"]))
+        self.assertEqual(2, len(prefixes["ipv6"]))
+        self.assertEqual(1, len(prefixes["ipv4"]))
 
     def test__str__(self):
         asn = 64500
@@ -140,6 +148,50 @@ class CommunityTest(TestCase):
             )
 
 
+class DirectPeeringSessionTest(TestCase):
+    def test_encrypt_password(self):
+        autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Test")
+        router = Router.objects.create(
+            name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
+        )
+        peering_session = DirectPeeringSession.objects.create(
+            autonomous_system=autonomous_system,
+            ip_address="2001:db8::1",
+            password="mypassword",
+            router=router,
+        )
+        self.assertIsNotNone(peering_session.password)
+        self.assertIsNone(peering_session.encrypted_password)
+
+        # Encrypt the password
+        peering_session.encrypt_password(router.platform)
+        self.assertIsNotNone(peering_session.encrypted_password)
+        self.assertTrue(junos_is_encrypted(peering_session.encrypted_password))
+        self.assertEqual(
+            peering_session.password, junos_decrypt(peering_session.encrypted_password)
+        )
+
+        # Change router platform and re-encrypt
+        router.platform = PLATFORM_IOSXR
+        peering_session.encrypt_password(router.platform)
+        self.assertIsNotNone(peering_session.encrypted_password)
+        self.assertTrue(cisco_is_encrypted(peering_session.encrypted_password))
+        self.assertEqual(
+            peering_session.password, cisco_decrypt(peering_session.encrypted_password)
+        )
+
+        # Change router platform to an unsupported one
+        router.platform = PLATFORM_NONE
+        peering_session.encrypt_password(router.platform)
+        self.assertIsNone(peering_session.encrypted_password)
+
+        # Change password to None and
+        peering_session.password = None
+        router.platform = PLATFORM_JUNOS
+        peering_session.encrypt_password(router.platform)
+        self.assertIsNone(peering_session.encrypted_password)
+
+
 class InternetExchangeTest(TestCase):
     def test_is_peeringdb_valid(self):
         ix = InternetExchange.objects.create(name="Test", slug="test")
@@ -167,8 +219,8 @@ class InternetExchangeTest(TestCase):
                 # No IP addresses
             },
             {"ipv6_address": "2001:db8::1"},
-            {"ipv4_address": "192.168.168.1"},
-            {"ipv6_address": "2001:db8::1", "ipv4_address": "192.168.168.1"},
+            {"ipv4_address": "198.51.100.1"},
+            {"ipv6_address": "2001:db8::1", "ipv4_address": "198.51.100.1"},
             {"ipv6_address": "2001:7f8:1::a502:9467:1"},
             {"ipv4_address": "80.249.210.208"},
             {
@@ -201,21 +253,21 @@ class InternetExchangeTest(TestCase):
             # First case, one new session with one new AS
             [{"ip_address": ipaddress.ip_address("2001:db8::1"), "remote_asn": 29467}],
             # Second case, one new session with one known AS
-            [{"ip_address": ipaddress.ip_address("192.168.0.1"), "remote_asn": 29467}],
+            [{"ip_address": ipaddress.ip_address("192.0.2.1"), "remote_asn": 29467}],
             # Third case, new IPv4 session on another IX but with an IP that
             # has already been used
-            [{"ip_address": ipaddress.ip_address("192.168.0.1"), "remote_asn": 29467}],
+            [{"ip_address": ipaddress.ip_address("192.0.2.1"), "remote_asn": 29467}],
             # Fourth case, new IPv4 session with IPv6 prefix
-            [{"ip_address": ipaddress.ip_address("192.168.2.1"), "remote_asn": 29467}],
+            [{"ip_address": ipaddress.ip_address("203.0.113.1"), "remote_asn": 29467}],
         ]
 
         prefix_lists = [
             # First case
             [ipaddress.ip_network("2001:db8::/64")],
             # Second case
-            [ipaddress.ip_network("192.168.0.0/24")],
+            [ipaddress.ip_network("192.0.2.0/24")],
             # Third case
-            [ipaddress.ip_network("192.168.0.0/24")],
+            [ipaddress.ip_network("192.0.2.0/24")],
             # Fourth case
             [ipaddress.ip_network("2001:db8::/64")],
         ]
@@ -275,7 +327,7 @@ class InternetExchangePeeringSessionTest(TestCase):
         peering_session1 = InternetExchangePeeringSession.objects.create(
             autonomous_system=autonomous_system0,
             internet_exchange=internet_exchange0,
-            ip_address="192.168.1.1",
+            ip_address="198.51.100.1",
         )
 
         # Make sure that the session has been created
@@ -285,7 +337,7 @@ class InternetExchangePeeringSessionTest(TestCase):
         # Make sure we can retrieve the session with its IP
         self.assertEqual(
             peering_session1,
-            InternetExchangePeeringSession.does_exist(ip_address="192.168.1.1"),
+            InternetExchangePeeringSession.does_exist(ip_address="198.51.100.1"),
         )
         # Make sure it returns None when using a field that the two sessions
         # have in common
@@ -327,6 +379,51 @@ class InternetExchangePeeringSessionTest(TestCase):
             ),
         )
 
+    def test_encrypt_password(self):
+        autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Test")
+        router = Router.objects.create(
+            name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
+        )
+        internet_exchange = InternetExchange.objects.create(
+            name="Test", slug="test", router=router
+        )
+        peering_session = InternetExchangePeeringSession.objects.create(
+            autonomous_system=autonomous_system,
+            internet_exchange=internet_exchange,
+            ip_address="2001:db8::1",
+            password="mypassword",
+        )
+        self.assertIsNotNone(peering_session.password)
+        self.assertIsNone(peering_session.encrypted_password)
+
+        # Encrypt the password
+        peering_session.encrypt_password(router.platform)
+        self.assertIsNotNone(peering_session.encrypted_password)
+        self.assertTrue(junos_is_encrypted(peering_session.encrypted_password))
+        self.assertEqual(
+            peering_session.password, junos_decrypt(peering_session.encrypted_password)
+        )
+
+        # Change router platform and re-encrypt
+        router.platform = PLATFORM_IOSXR
+        peering_session.encrypt_password(router.platform)
+        self.assertIsNotNone(peering_session.encrypted_password)
+        self.assertTrue(cisco_is_encrypted(peering_session.encrypted_password))
+        self.assertEqual(
+            peering_session.password, cisco_decrypt(peering_session.encrypted_password)
+        )
+
+        # Change router platform to an unsupported one
+        router.platform = PLATFORM_NONE
+        peering_session.encrypt_password(router.platform)
+        self.assertIsNone(peering_session.encrypted_password)
+
+        # Change password to None and
+        peering_session.password = None
+        router.platform = PLATFORM_JUNOS
+        peering_session.encrypt_password(router.platform)
+        self.assertIsNone(peering_session.encrypted_password)
+
 
 class RouterTest(TestCase):
     def setUp(self):
@@ -360,7 +457,7 @@ class RouterTest(TestCase):
             InternetExchangePeeringSession.objects.create(
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
                 internet_exchange=internet_exchange,
-                ip_address="192.168.0.{}".format(i),
+                ip_address="192.0.2.{}".format(i),
             )
 
         # Convert to dict and merge values
@@ -419,35 +516,6 @@ class RouterTest(TestCase):
         result = self.router.get_configuration_context()
         self.assertEqual(result, expected)
 
-    def test_decrypt_encrypt_string(self):
-        string = "myreallysecurepassword"
-
-        # Generic router (crypto not implemented)
-        router = Router.objects.create(
-            name="test", hostname="test.example.com", platform=PLATFORM_NONE
-        )
-        self.assertEqual(string, router.decrypt_string(router.encrypt_string(string)))
-
-        for platform in [PLATFORM_JUNOS, PLATFORM_IOSXR]:
-            router = Router.objects.create(
-                name="test", hostname="test.example.com", platform=platform
-            )
-            self.assertEqual(
-                string, router.decrypt_string(router.encrypt_string(string))
-            )
-
-            # Should detect that it is already encrypted
-            self.assertEqual(
-                string,
-                router.decrypt_string(
-                    router.encrypt_string(router.encrypt_string(string))
-                ),
-            )
-            # Should detect that it is not encrypted
-            self.assertEqual(
-                string, router.decrypt_string(router.decrypt_string(string))
-            )
-
     def test_napalm_bgp_neighbors_to_peer_list(self):
         # Expected results
         expected = [0, 0, 1, 2, 3, 2, 2]
@@ -457,28 +525,28 @@ class RouterTest(TestCase):
             None,
             {},
             # List size must match peers number including VRFs
-            {"global": {"peers": {"192.168.0.1": {"remote_as": 64500}}}},
+            {"global": {"peers": {"192.0.2.1": {"remote_as": 64500}}}},
             {
-                "global": {"peers": {"192.168.0.1": {"remote_as": 64500}}},
-                "vrf": {"peers": {"192.168.1.1": {"remote_as": 64501}}},
+                "global": {"peers": {"192.0.2.1": {"remote_as": 64500}}},
+                "vrf": {"peers": {"198.51.100.1": {"remote_as": 64501}}},
             },
             {
-                "global": {"peers": {"192.168.0.1": {"remote_as": 64500}}},
-                "vrf0": {"peers": {"192.168.1.1": {"remote_as": 64501}}},
-                "vrf1": {"peers": {"192.168.2.1": {"remote_as": 64502}}},
+                "global": {"peers": {"192.0.2.1": {"remote_as": 64500}}},
+                "vrf0": {"peers": {"198.51.100.1": {"remote_as": 64501}}},
+                "vrf1": {"peers": {"203.0.113.1": {"remote_as": 64502}}},
             },
             # If peer does not have remote_as field, it must be ignored
             {
-                "global": {"peers": {"192.168.0.1": {"remote_as": 64500}}},
-                "vrf0": {"peers": {"192.168.1.1": {"remote_as": 64501}}},
-                "vrf1": {"peers": {"192.168.2.1": {"not_valid": 64502}}},
+                "global": {"peers": {"192.0.2.1": {"remote_as": 64500}}},
+                "vrf0": {"peers": {"198.51.100.1": {"remote_as": 64501}}},
+                "vrf1": {"peers": {"203.0.113.1": {"not_valid": 64502}}},
             },
             # If an IP address appears more than one time, only the first
             # occurence  must be retained
             {
-                "global": {"peers": {"192.168.0.1": {"remote_as": 64500}}},
-                "vrf0": {"peers": {"192.168.1.1": {"remote_as": 64501}}},
-                "vrf1": {"peers": {"192.168.1.1": {"remote_as": 64502}}},
+                "global": {"peers": {"192.0.2.1": {"remote_as": 64500}}},
+                "vrf0": {"peers": {"198.51.100.1": {"remote_as": 64501}}},
+                "vrf1": {"peers": {"198.51.100.1": {"remote_as": 64502}}},
             },
         ]
 
@@ -500,7 +568,7 @@ class RouterTest(TestCase):
                 "up": True,
                 "local_as": 201281,
                 "remote_as": 29467,
-                "local_address": "192.168.1.1",
+                "local_address": "198.51.100.1",
             }
         ]
         bgp_neighbors_detail = {
@@ -510,7 +578,7 @@ class RouterTest(TestCase):
                         "up": True,
                         "local_as": 201281,
                         "remote_as": 29467,
-                        "local_address": "192.168.1.1",
+                        "local_address": "198.51.100.1",
                     }
                 ]
             }

@@ -20,8 +20,16 @@ from .fields import ASNField, CommunityField, TTLField
 from netbox.api import NetBox
 from peeringdb.http import PeeringDB
 from peeringdb.models import NetworkIXLAN, PeerRecord
-from utils.crypto.cisco import encrypt as cisco_encrypt, decrypt as cisco_decrypt
-from utils.crypto.junos import encrypt as junos_encrypt, decrypt as junos_decrypt
+from utils.crypto.cisco import (
+    encrypt as cisco_encrypt,
+    decrypt as cisco_decrypt,
+    is_encrypted as cisco_is_encrypted,
+)
+from utils.crypto.junos import (
+    encrypt as junos_encrypt,
+    decrypt as junos_decrypt,
+    is_encrypted as junos_is_encrypted,
+)
 from utils.models import ChangeLoggedModel, TaggableModel, TemplateModel
 from utils.validators import AddressFamilyValidator
 
@@ -78,6 +86,15 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     class Meta:
         ordering = ["asn"]
+        permissions = [("send_email", "Can send e-mails to AS contact")]
+
+    @property
+    def can_receive_email(self):
+        if self.contact_email:
+            return True
+        if self.get_peeringdb_contacts():
+            return True
+        return False
 
     @staticmethod
     def does_exist(asn):
@@ -213,10 +230,40 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         for session in self.potential_internet_exchange_peering_sessions:
             for prefix in internet_exchange.get_prefixes():
-                if ipaddress.ip_address(session) in ipaddress.ip_network(prefix):
+                if session in ipaddress.ip_network(prefix):
                     return True
 
         return False
+
+    def get_common_internet_exchanges_and_sessions(self):
+        """
+        Returns a list of dictionaries, each containing an `InternetExchange` object
+        and lists of IP addresses. These addresses are the ones with which peering
+        sessions have not been configured yet on the `InternetExchange`.
+        """
+        ix_and_sessions = []
+
+        for internet_exchange in self.get_common_internet_exchanges():
+            missing_sessions = []
+            for session in self.potential_internet_exchange_peering_sessions:
+                for prefix in internet_exchange.get_prefixes():
+                    if session in ipaddress.ip_network(prefix):
+                        missing_sessions.append(session)
+
+            ix_and_sessions.append(
+                {
+                    "internet_exchange": internet_exchange.to_dict(),
+                    "sessions": [
+                        s.to_dict()
+                        for s in InternetExchangePeeringSession.objects.filter(
+                            autonomous_system=self, internet_exchange=internet_exchange
+                        )
+                    ],
+                    "missing_sessions": missing_sessions,
+                }
+            )
+
+        return ix_and_sessions
 
     def synchronize_with_peeringdb(self):
         """
@@ -252,7 +299,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         If specified, only a list of the prefixes for the given address family will be
         returned. 6 for IPv6, 4 for IPv4, both for all other values.
         """
-        as_sets = parse_irr_as_set(self.irr_as_set)
+        as_sets = parse_irr_as_set(self.asn, self.irr_as_set)
         prefixes = {"ipv6": [], "ipv4": []}
 
         # For each AS-SET try getting IPv6 and IPv4 prefixes
@@ -266,6 +313,56 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             return prefixes["ipv4"]
         else:
             return prefixes
+
+    def get_peeringdb_contacts(self):
+        return PeeringDB().get_autonomous_system_contacts(self.asn)
+
+    def get_contact_email_addresses(self):
+        """
+        Returns a list of all contacts with their respective e-mails addresses.
+        The returned list can be used in form choice fields.
+        """
+        addresses = []
+
+        # Append the contact set by the user if one has been set
+        if self.contact_email:
+            addresses.append(
+                (
+                    self.contact_email,
+                    "{} - {}".format(self.contact_name, self.contact_email)
+                    if self.contact_name
+                    else self.contact_email,
+                )
+            )
+
+        # Append the contacts found in PeeringDB, avoid re-adding a contact if the
+        # email address is the same as the one set by the user manually
+        for contact in self.get_peeringdb_contacts():
+            if contact.email and contact.email not in [a[0] for a in addresses]:
+                addresses.append(
+                    (
+                        contact.email,
+                        "{} - {}".format(contact.name, contact.email)
+                        if contact.name
+                        else contact.email,
+                    )
+                )
+
+        return addresses
+
+    def get_email_context(self):
+        return {
+            "my_asn": settings.MY_ASN,
+            "autonomous_system": self,
+            "internet_exchanges": self.get_common_internet_exchanges_and_sessions(),
+            "direct_peering_sessions": [
+                s.to_dict()
+                for s in DirectPeeringSession.objects.filter(autonomous_system=self)
+            ],
+        }
+
+    def generate_email(self, template):
+        return template.render(self.get_email_context())
 
     def __str__(self):
         return "AS{} - {}".format(self.asn, self.name)
@@ -385,18 +482,25 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
     A BGP session is always defined with the following fields:
       * an AS, or autonomous system, it can also be called a peer
       * an IP address used to establish the session
-      * a enabled or disabled status telling if the session should be
-        administratively up or not
+      * a plain text password
+      * an encrypted version of the password if the user asked for encryption
+      * a TTL for multihoping
+      * an enabled or disabled status telling if the session should be
+        administratively up or down
+      * import routing policies to apply to prefixes sent by the remote device
+      * export routing policies to apply to prefixed sent to the remote device
       * a BGP state giving the current operational state of session (it will
         remain to unkown if the is disabled)
       * a received prefix count (it will stay none if polling is disabled)
       * a advertised prefix count (it will stay none if polling is disabled)
+      * a date and time record of the last established state of the session
       * comments that consist of plain text that can use the markdown format
     """
 
     autonomous_system = models.ForeignKey("AutonomousSystem", on_delete=models.CASCADE)
     ip_address = InetAddressField(store_prefix_length=False)
     password = models.CharField(max_length=255, blank=True, null=True)
+    encrypted_password = models.CharField(max_length=255, blank=True, null=True)
     multihop_ttl = TTLField(
         blank=True,
         default=1,
@@ -460,6 +564,57 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         return mark_safe(text)
 
+    def encrypt_password(self, platform, commit=True):
+        """
+        Set the `encrypted_password` field if a crypto module is found for the given
+        platform. The field will be set to `None` otherwise.
+
+        If no crypto module can be found for the router platform, the returned string
+        will be the same as the one passed as argument to this function.
+        """
+        # Make sure encrypted_password is not set if there is no password or if the
+        # platform is not supported
+        if not self.password or platform not in [
+            PLATFORM_JUNOS,
+            PLATFORM_IOS,
+            PLATFORM_IOSXR,
+            PLATFORM_NXOS,
+        ]:
+            # Reset password
+            if self.encrypted_password:
+                self.encrypted_password = None
+                if commit:
+                    self.save()
+            return
+
+        encrypt = junos_encrypt if platform == PLATFORM_JUNOS else cisco_encrypt
+
+        if not self.encrypted_password:
+            # If the password is not encrypted yet, do it
+            self.encrypted_password = encrypt(self.password)
+        else:
+            # Check if the platform has changed and if so, decrypt the current
+            # password and then re-encrypt it
+            if platform == PLATFORM_JUNOS and not junos_is_encrypted(
+                self.encrypted_password
+            ):
+                if cisco_is_encrypted(self.encrypted_password):
+                    self.encrypted_password = encrypt(
+                        cisco_decrypt(self.encrypt_password)
+                    )
+            elif platform in [
+                PLATFORM_IOS,
+                PLATFORM_IOSXR,
+                PLATFORM_NXOS,
+            ] and not cisco_is_encrypted(self.encrypted_password):
+                if junos_is_encrypted(self.encrypted_password):
+                    self.encrypted_password = encrypt(
+                        junos_decrypt(self.encrypted_password)
+                    )
+
+        if commit:
+            self.save()
+
 
 class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
     name = models.CharField(max_length=128)
@@ -516,6 +671,11 @@ class DirectPeeringSession(BGPSession):
 
     class Meta:
         ordering = ["autonomous_system", "ip_address"]
+
+    def save(self, *args, **kwargs):
+        if self.router and self.router.encrypt_passwords:
+            self.encrypt_password(self.router.platform, commit=False)
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse("peering:direct_peering_session_details", kwargs={"pk": self.pk})
@@ -918,8 +1078,8 @@ class InternetExchangePeeringSession(BGPSession):
             return None
 
     @staticmethod
-    def get_from_peeringdb_peer_record(peer_record, ip_version):
-        internet_exchange = None
+    def create_from_peeringdb(peer_record, ip_version, internet_exchange=None):
+        found_internet_exchange = None
         peer_ixlan = None
 
         # If no peer record, no ASN or no IP address have been given, we
@@ -927,31 +1087,36 @@ class InternetExchangePeeringSession(BGPSession):
         if not peer_record or not peer_record.network.asn:
             return (None, False)
 
-        # Find the Internet exchange given a NetworkIXLAN ID
-        for ix in InternetExchange.objects.exclude(peeringdb_id__isnull=True):
-            # Get the IXLAN corresponding to our network
-            try:
-                ixlan = NetworkIXLAN.objects.get(id=ix.peeringdb_id)
-            except NetworkIXLAN.DoesNotExist:
-                InternetExchangePeeringSession.logger.debug(
-                    "NetworkIXLAN with ID {} not found, ignoring IX {}".format(
-                        ix.peeringdb_id, ix.name
+        # If the IX is given to us there is no point to try guessing which one it is
+        # If the IX is not given try guessing which one to use
+        if internet_exchange:
+            found_internet_exchange = internet_exchange
+        else:
+            # Find the Internet exchange given a NetworkIXLAN ID
+            for ix in InternetExchange.objects.exclude(peeringdb_id__isnull=True):
+                # Get the IXLAN corresponding to our network
+                try:
+                    ixlan = NetworkIXLAN.objects.get(id=ix.peeringdb_id)
+                except NetworkIXLAN.DoesNotExist:
+                    InternetExchangePeeringSession.logger.debug(
+                        "NetworkIXLAN with ID {} not found, ignoring IX {}".format(
+                            ix.peeringdb_id, ix.name
+                        )
                     )
+                    continue
+
+                # Get a potentially matching IXLAN
+                peer_ixlan = NetworkIXLAN.objects.filter(
+                    id=peer_record.network_ixlan.id, ix_id=ixlan.ix_id
                 )
-                continue
 
-            # Get a potentially matching IXLAN
-            peer_ixlan = NetworkIXLAN.objects.filter(
-                id=peer_record.network_ixlan.id, ix_id=ixlan.ix_id
-            )
-
-            # IXLAN found lets get out
-            if peer_ixlan:
-                internet_exchange = ix
-                break
+                # IXLAN found lets get out
+                if peer_ixlan:
+                    found_internet_exchange = ix
+                    break
 
         # Unable to find the Internet exchange, no point of going further
-        if not internet_exchange:
+        if not found_internet_exchange:
             return (None, False)
 
         # Get the AS, create it if necessary
@@ -1014,6 +1179,13 @@ class InternetExchangePeeringSession(BGPSession):
             )
             self.autonomous_system.save()
 
+        # Change encrypted password
+        if (
+            self.internet_exchange.router
+            and self.internet_exchange.router.encrypt_passwords
+        ):
+            self.encrypt_password(self.internet_exchange.router.platform, commit=False)
+
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -1066,35 +1238,6 @@ class Router(ChangeLoggedModel, TaggableModel):
 
     def is_netbox_device(self):
         return self.netbox_device_id is not 0
-
-    def decrypt_string(self, string):
-        """
-        Returns a decrypted version of a given string based on the router platform.
-
-        If no crypto module can be found for the router platform, the returned string
-        will be the same as the one passed as argument to this function.
-        """
-        if self.platform == PLATFORM_JUNOS:
-            return junos_decrypt(string)
-        if self.platform in [PLATFORM_EOS, PLATFORM_IOS, PLATFORM_IOSXR, PLATFORM_NXOS]:
-            return cisco_decrypt(string)
-
-        return string
-
-    def encrypt_string(self, string):
-        """
-        Returns a encrypted version of a given string based on the router platform.
-
-        If no crypto module can be found for the router platform, the returned string
-        will be the same as the one passed as argument to this function.
-        """
-        if self.encrypt_passwords:
-            if self.platform == PLATFORM_JUNOS:
-                return junos_encrypt(string)
-            if self.platform in [PLATFORM_IOS, PLATFORM_IOSXR, PLATFORM_NXOS]:
-                return cisco_encrypt(string)
-
-        return string
 
     def get_bgp_groups(self):
         """

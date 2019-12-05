@@ -156,8 +156,8 @@ class AutonomousSystemTest(APITestCase):
         )
         response = self.client.get(url, format="json", **self.header)
         self.assertStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["prefixes"]["ipv6"]), 1)
-        self.assertEqual(len(response.data["prefixes"]["ipv4"]), 0)
+        self.assertEqual(len(response.data["prefixes"]["ipv6"]), 2)
+        self.assertEqual(len(response.data["prefixes"]["ipv4"]), 1)
 
     def test_common_internet_exchanges(self):
         url = reverse(
@@ -360,7 +360,20 @@ class DirectPeeringSessionTest(APITestCase):
             autonomous_system=self.autonomous_system,
             relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
             ip_address="2001:db8::1",
+            password="mypassword",
         )
+
+    def test_encrypt_password(self):
+        url = reverse(
+            "peering-api:directpeeringsession-encrypt-password",
+            kwargs={"pk": self.direct_peering_session.pk},
+        )
+        response = self.client.post(
+            url, {"platform": PLATFORM_JUNOS}, format="json", **self.header
+        )
+
+        self.assertIsNotNone(response.data["encrypted_password"])
+        self.assertNotEqual(response.data["encrypted_password"], "")
 
     def test_get_direct_peering_session(self):
         url = reverse(
@@ -381,7 +394,7 @@ class DirectPeeringSessionTest(APITestCase):
         data = {
             "autonomous_system": self.autonomous_system.pk,
             "relationship": BGP_RELATIONSHIP_PRIVATE_PEERING,
-            "ip_address": "192.168.0.1",
+            "ip_address": "192.0.2.1",
         }
 
         url = reverse("peering-api:directpeeringsession-list")
@@ -399,12 +412,12 @@ class DirectPeeringSessionTest(APITestCase):
             {
                 "autonomous_system": self.autonomous_system.pk,
                 "relationship": BGP_RELATIONSHIP_PRIVATE_PEERING,
-                "ip_address": "10.0.0.1",
+                "ip_address": "198.51.100.1",
             },
             {
                 "autonomous_system": self.autonomous_system.pk,
                 "relationship": BGP_RELATIONSHIP_PRIVATE_PEERING,
-                "ip_address": "10.0.0.2",
+                "ip_address": "198.51.100.2",
             },
         ]
 
@@ -630,7 +643,19 @@ class InternetExchangePeeringSessionTest(APITestCase):
             autonomous_system=self.autonomous_system,
             internet_exchange=self.internet_exchange,
             ip_address="2001:db8::1",
+            password="mypassword",
         )
+
+    def test_encrypt_password(self):
+        url = reverse(
+            "peering-api:internetexchangepeeringsession-encrypt-password",
+            kwargs={"pk": self.internet_exchange_peering_session.pk},
+        )
+        response = self.client.post(
+            url, {"platform": PLATFORM_JUNOS}, format="json", **self.header
+        )
+        self.assertIsNotNone(response.data["encrypted_password"])
+        self.assertNotEqual(response.data["encrypted_password"], "")
 
     def test_get_internet_exchange_peering_session(self):
         url = reverse(
@@ -653,7 +678,7 @@ class InternetExchangePeeringSessionTest(APITestCase):
         data = {
             "autonomous_system": self.autonomous_system.pk,
             "internet_exchange": self.internet_exchange.pk,
-            "ip_address": "192.168.0.1",
+            "ip_address": "192.0.2.1",
         }
 
         url = reverse("peering-api:internetexchangepeeringsession-list")
@@ -673,12 +698,12 @@ class InternetExchangePeeringSessionTest(APITestCase):
             {
                 "autonomous_system": self.autonomous_system.pk,
                 "internet_exchange": self.internet_exchange.pk,
-                "ip_address": "10.0.0.1",
+                "ip_address": "198.51.100.1",
             },
             {
                 "autonomous_system": self.autonomous_system.pk,
                 "internet_exchange": self.internet_exchange.pk,
-                "ip_address": "10.0.0.2",
+                "ip_address": "198.51.100.2",
             },
         ]
 
@@ -835,18 +860,6 @@ class RouterTest(APITestCase):
 
         self.assertStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Router.objects.count(), 0)
-
-    def test_decrypt(self):
-        data = {"string": "$9$Hqfzp0IRcl.P1hrlXxqmfz6AuORyrv"}
-        url = reverse("peering-api:router-decrypt", kwargs={"pk": self.router.pk})
-        response = self.client.post(url, data, format="json", **self.header)
-        self.assertStatus(response, status.HTTP_200_OK)
-
-    def test_encrypt(self):
-        data = {"string": "mypassword"}
-        url = reverse("peering-api:router-encrypt", kwargs={"pk": self.router.pk})
-        response = self.client.post(url, data, format="json", **self.header)
-        self.assertStatus(response, status.HTTP_200_OK)
 
     def test_configuration(self):
         url = reverse("peering-api:router-configuration", kwargs={"pk": self.router.pk})

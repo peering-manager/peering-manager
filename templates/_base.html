@@ -9,12 +9,12 @@
 
     <title>{% block title %}Home{% endblock %} - Peering Manager</title>
 
-    <script defer src="{% static 'fontawesome-5.10.2/js/all.js' %}"></script>
+    <script defer src="{% static 'fontawesome-5.11.2/js/all.js' %}"></script>
 
     <link rel="stylesheet" href="{% static 'bootstrap-4.3.1-dist/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'select2-4.0.10/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'select2-4.0.11/css/select2.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/select2-bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v{{ settings.VERSION }}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?{{ settings.VERSION }}">
   </head>
   <body>
     <nav class="navbar fixed-top navbar-expand-md navbar-dark bg-dark shadow p-0 flex-md-nowrap">
@@ -96,9 +96,12 @@
                 <span class="menu-collapsed">Templates</span>
               </a>
             </div>
+            <a href="{% url 'utils:tag_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/tags/' %} active{% endif %}">
+              <div class="d-flex w-100 justify-content-start align-items-center">Tags</div>
+            </a>
           </ul>
           <div class="footer">
-            <p>{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
+            <p>{{ settings.HOSTNAME }} ({{ settings.VERSION }})</p>
             <p>{% now 'Y-m-d H:i:s T' %}</p>
             <p>
               <i class="fas fa-fw fa-cloud"></i> <a href="{% url 'api-root' %}">API</a> &middot;
@@ -125,9 +128,12 @@
 
     <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
     <script src="{% static 'bootstrap-4.3.1-dist/js/bootstrap.bundle.min.js' %}"></script>
-    <script src="{% static 'select2-4.0.10/js/select2.full.min.js' %}"></script>
-    <script src="{% static 'js/base.js' %}?v{{ settings.VERSION }}"></script>
-    <script src="{% static 'js/forms.js' %}?v{{ settings.VERSION }}"></script>
+    <script src="{% static 'select2-4.0.11/js/select2.full.min.js' %}"></script>
+    <script src="{% static 'js/base.js' %}?{{ settings.VERSION }}"></script>
+    <script src="{% static 'js/forms.js' %}?{{ settings.VERSION }}"></script>
+    <script type="text/javascript">
+      var our_api_path = "/{{ settings.BASE_PATH }}api/";
+    </script>
     {% block javascript %}{% endblock %}
   </body>
   </html>

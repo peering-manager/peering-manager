@@ -2,8 +2,10 @@ import sys
 
 from django.conf import settings
 from django.db import transaction
-from django.db.models import ProtectedError
+from django.db.models import Count, ProtectedError
+from django.db.models.query import QuerySet
 from django.contrib import messages
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import ValidationError
 from django.forms import CharField, Form, MultipleHiddenInput
 from django.forms.formsets import formset_factory
@@ -21,16 +23,19 @@ from django.views.generic import View
 
 from django_tables2 import RequestConfig
 
-from .filters import ObjectChangeFilter
+from .filters import ObjectChangeFilter, TagFilter
 from .forms import (
     BootstrapMixin,
     ConfirmationForm,
     FilterChoiceField,
     ObjectChangeFilterForm,
+    TagBulkEditForm,
+    TagFilterForm,
+    TagForm,
 )
-from .models import ObjectChange
+from .models import ObjectChange, Tag, TaggedItem
 from .paginators import EnhancedPaginator
-from .tables import ObjectChangeTable
+from .tables import ObjectChangeTable, TagTable
 
 
 class AddOrEditView(View):
@@ -141,7 +146,7 @@ class BulkAddFromDependencyView(View):
             return []
         return list(self.dependency_model.objects.filter(pk__in=pk_list))
 
-    def process_dependency_object(self, dependency):
+    def process_dependency_object(self, request, dependency):
         return None
 
     def sort_objects(self, object_list):
@@ -189,7 +194,7 @@ class BulkAddFromDependencyView(View):
             dependencies_processing_result = []
             for dependency in dependencies:
                 dependencies_processing_result.append(
-                    self.process_dependency_object(dependency)
+                    self.process_dependency_object(request, dependency)
                 )
 
             formset = ObjectFormSet(
@@ -375,20 +380,36 @@ class BulkEditView(View):
                                     name in form.nullable_fields
                                     and name in nullified_fields
                                 ):
-                                    setattr(
-                                        obj,
-                                        name,
-                                        ""
-                                        if isinstance(form.fields[name], CharField)
-                                        else None,
-                                    )
-                                elif form.cleaned_data[name] not in (None, ""):
-                                    if isinstance(form.fields[name], FilterChoiceField):
+                                    if isinstance(form.cleaned_data[name], QuerySet):
+                                        getattr(obj, name).set([])
+                                        print("1) {} set to []".format(name))
+                                    else:
+                                        setattr(
+                                            obj,
+                                            name,
+                                            ""
+                                            if isinstance(form.fields[name], CharField)
+                                            else None,
+                                        )
+                                elif form.cleaned_data[name]:
+                                    if isinstance(form.cleaned_data[name], QuerySet):
                                         getattr(obj, name).set(form.cleaned_data[name])
+                                        print(
+                                            "2) {} set to {}".format(
+                                                name, form.cleaned_data[name]
+                                            )
+                                        )
                                     else:
                                         setattr(obj, name, form.cleaned_data[name])
                             obj.full_clean()
                             obj.save()
+
+                            # Handle tags
+                            if form.cleaned_data.get("add_tags", None):
+                                obj.tags.add(*form.cleaned_data["add_tags"])
+                            if form.cleaned_data.get("remove_tags", None):
+                                obj.tags.remove(*form.cleaned_data["remove_tags"])
+
                             updated_count += 1
 
                     if updated_count:
@@ -606,14 +627,18 @@ class ModelListView(View):
         else:
             filter_form = None
 
+        # Compute the extra context to attach to this view
+        extra_context = self.extra_context(kwargs)
+
         # Set context and render
         context = {
             "table": table,
             "filter": self.filter,
             "filter_form": filter_form,
             "permissions": permissions,
+            "extra_context": extra_context,
         }
-        context.update(self.extra_context(kwargs))
+        context.update(extra_context)
 
         return render(request, self.template, context)
 
@@ -750,3 +775,64 @@ def ServerError(request, template_name=ERROR_500_TEMPLATE_NAME):
     return HttpResponseServerError(
         template.render({"exception": str(type_), "error": error})
     )
+
+
+class TagList(ModelListView):
+    queryset = Tag.objects.annotate(
+        items=Count("utils_taggeditem_items", distinct=True)
+    ).order_by("name")
+    filter = TagFilter
+    filter_form = TagFilterForm
+    table = TagTable
+    template = "utils/tag/list.html"
+
+
+class TagAdd(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "utils.add_tag"
+    model = Tag
+    form = TagForm
+    return_url = "utils:tag_list"
+    template = "utils/tag/add_edit.html"
+
+
+class TagDetails(View):
+    def get(self, request, slug):
+        tag = get_object_or_404(Tag, slug=slug)
+        tagged_items = TaggedItem.objects.filter(tag=tag).count()
+
+        return render(
+            request, "utils/tag/details.html", {"tag": tag, "items_count": tagged_items}
+        )
+
+
+class TagEdit(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "utils.change_tag"
+    model = Tag
+    form = TagForm
+    template = "utils/tag/add_edit.html"
+
+
+class TagDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = "utils.delete_tag"
+    model = Tag
+    return_url = "utils:tag_list"
+
+
+class TagBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = "utils.delete_tag"
+    model = Tag
+    queryset = Tag.objects.annotate(
+        items=Count("utils_taggeditem_items", distinct=True)
+    ).order_by("name")
+    filter = TagFilter
+    table = TagTable
+
+
+class TagBulkEdit(PermissionRequiredMixin, BulkEditView):
+    permission_required = "utils.change_tag"
+    queryset = Tag.objects.annotate(
+        items=Count("utils_taggeditem_items", distinct=True)
+    ).order_by("name")
+    filter = TagFilter
+    table = TagTable
+    form = TagBulkEditForm

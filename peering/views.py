@@ -1,14 +1,16 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.mail import send_mail
 from django.db.models import Count
-from django.http import HttpResponse
+from django.http import HttpResponseBadRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.defaultfilters import slugify
 from django.views.generic import View
 
 import json
 
+from .constants import BGP_STATE_IDLE
 from .filters import (
     AutonomousSystemFilter,
     BGPGroupFilter,
@@ -21,6 +23,7 @@ from .filters import (
     TemplateFilter,
 )
 from .forms import (
+    AutonomousSystemEmailForm,
     AutonomousSystemFilterForm,
     AutonomousSystemForm,
     BGPGroupBulkEditForm,
@@ -76,7 +79,7 @@ from peeringdb.filters import PeerRecordFilter
 from peeringdb.forms import PeerRecordFilterForm
 from peeringdb.http import PeeringDB
 from peeringdb.models import PeerRecord
-from peeringdb.tables import PeerRecordTable
+from peeringdb.tables import ContactTable, PeerRecordTable
 from utils.views import (
     AddOrEditView,
     BulkAddFromDependencyView,
@@ -108,6 +111,9 @@ class ASAdd(PermissionRequiredMixin, AddOrEditView):
 class ASDetails(View):
     def get(self, request, asn):
         autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
+        peeringdb_contacts = PeeringDB().get_autonomous_system_contacts(
+            autonomous_system.asn
+        )
         common_ix_and_sessions = []
         for ix in autonomous_system.get_common_internet_exchanges():
             common_ix_and_sessions.append(
@@ -121,6 +127,7 @@ class ASDetails(View):
 
         context = {
             "autonomous_system": autonomous_system,
+            "peeringdb_contacts": peeringdb_contacts,
             "common_ix_and_sessions": common_ix_and_sessions,
         }
         return render(request, "peering/as/details.html", context)
@@ -131,6 +138,40 @@ class ASEdit(PermissionRequiredMixin, AddOrEditView):
     model = AutonomousSystem
     form = AutonomousSystemForm
     template = "peering/as/add_edit.html"
+
+
+class ASEmail(PermissionRequiredMixin, View):
+    permission_required = "peering.send_email_autonomoussystem"
+
+    def get(self, request, *args, **kwargs):
+        autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+        form = AutonomousSystemEmailForm()
+        form.fields[
+            "recipient"
+        ].choices = autonomous_system.get_contact_email_addresses()
+        return render(
+            request,
+            "peering/as/email.html",
+            {"autonomous_system": autonomous_system, "form": form},
+        )
+
+    def post(self, request, *args, **kwargs):
+        autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+        form = AutonomousSystemEmailForm(request.POST)
+
+        if form.is_valid():
+            sent = send_mail(
+                form.cleaned_data["subject"],
+                form.cleaned_data["body"],
+                settings.SERVER_EMAIL,
+                [form.cleaned_data["recipient"]],
+            )
+            if sent is 1:
+                messages.success(request, "Email sent.")
+            else:
+                messages.error(request, "Unable to send the email.")
+
+        return redirect(autonomous_system.get_absolute_url())
 
 
 class ASDelete(PermissionRequiredMixin, DeleteView):
@@ -144,6 +185,29 @@ class ASBulkDelete(PermissionRequiredMixin, BulkDeleteView):
     model = AutonomousSystem
     filter = AutonomousSystemFilter
     table = AutonomousSystemTable
+
+
+class AutonomousSystemContacts(ModelListView):
+    table = ContactTable
+    template = "peering/as/contacts.html"
+
+    def build_queryset(self, request, kwargs):
+        queryset = None
+        # The queryset needs to be composed of Contact objects related to the AS we
+        # are looking at.
+        if "asn" in kwargs:
+            autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+            queryset = PeeringDB().get_autonomous_system_contacts(autonomous_system.asn)
+        return queryset
+
+    def extra_context(self, kwargs):
+        extra_context = {}
+        # Since we are in the context of an AS we need to keep the reference
+        # for it
+        if "asn" in kwargs:
+            autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+            extra_context.update({"autonomous_system": autonomous_system})
+        return extra_context
 
 
 class AutonomousSystemDirectPeeringSessions(ModelListView):
@@ -425,6 +489,9 @@ class DirectPeeringSessionDisable(PermissionRequiredMixin, View):
     def get(self, request, pk):
         peering_session = get_object_or_404(DirectPeeringSession, pk=pk)
         peering_session.enabled = False
+        peering_session.advertised_prefix_count = 0
+        peering_session.received_prefix_count = 0
+        peering_session.bgp_state = BGP_STATE_IDLE
         peering_session.save()
         return redirect(peering_session.get_absolute_url())
 
@@ -631,14 +698,10 @@ class InternetExchangePeers(ModelListView):
         extra_context = {}
 
         # Since we are in the context of an IX we need to keep the reference for it
+        # Keep track of its ID as well to be able to find the IX when adding sessions
         if "slug" in kwargs:
-            extra_context.update(
-                {
-                    "internet_exchange": get_object_or_404(
-                        InternetExchange, slug=kwargs["slug"]
-                    )
-                }
-            )
+            ix = get_object_or_404(InternetExchange, slug=kwargs["slug"])
+            extra_context.update(internet_exchange=ix, internet_exchange_id=ix.pk)
 
         return extra_context
 
@@ -719,12 +782,17 @@ class InternetExchangePeeringSessionAddFromPeeringDB(
     form_model = InternetExchangePeeringSessionForm
     template = "peering/session/internet_exchange/add_from_peeringdb.html"
 
-    def process_dependency_object(self, dependency):
-        session6, created6 = InternetExchangePeeringSession.get_from_peeringdb_peer_record(
-            dependency, 6
+    def process_dependency_object(self, request, dependency):
+        ix_id = request.POST.get("internet_exchange_id", 0)
+        if not ix_id:
+            ix = None
+        else:
+            ix = InternetExchange.objects.get(pk=ix_id)
+        (session6, created6) = InternetExchangePeeringSession.create_from_peeringdb(
+            dependency, 6, internet_exchange=ix
         )
-        session4, created4 = InternetExchangePeeringSession.get_from_peeringdb_peer_record(
-            dependency, 4
+        (session4, created4) = InternetExchangePeeringSession.create_from_peeringdb(
+            dependency, 4, internet_exchange=ix
         )
         return_value = []
 
@@ -821,6 +889,12 @@ class RouterConfiguration(PermissionRequiredMixin, View):
             "router": router,
             "router_configuration": router.generate_configuration(),
         }
+
+        # Asked for raw output
+        if "raw" in request.GET:
+            return HttpResponse(
+                context["router_configuration"], content_type="text/plain"
+            )
         return render(request, "peering/router/configuration.html", context)
 
 

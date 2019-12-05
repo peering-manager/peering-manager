@@ -29,6 +29,7 @@ pages:
     - Juniper JUNOS: 'templates/juniper-junos.md'
     - Cisco IOS-XR: 'templates/cisco-iosxr.md'
     - Arista EOS: 'templates/arista-eos.md'
+    - Peering Request E-mail: 'templates/peering-request-email.md'
   - Integration: 'integration.md'
 
 theme: readthedocs

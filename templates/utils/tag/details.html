@@ -1,0 +1,63 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block actions %}
+{% if perms.utils.change_tag %}
+<a href="{% url 'utils:tag_edit' slug=tag.slug %}" class="btn btn-warning">
+  <i class="fas fa-edit"></i> Edit
+</a>
+{% endif %}
+{% if perms.utils.delete_tag %}
+<a href="{% url 'utils:tag_delete' slug=tag.slug %}" class="btn btn-danger">
+  <i class="fas fa-trash"></i> Delete
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'utils:tag_list' %}">Tags</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ tag }}{% endblock %}</li>
+{% endblock %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card mb-2">
+            <div class="card-header"><strong>Tag Details</strong></div>
+            <table class="card-body table table-hover attr-table mb-0">
+              <tr>
+                <td>Name</td>
+                <td>{{ tag.name }}</td>
+              </tr>
+              <tr>
+                <td>Slug</td>
+                <td>{{ tag.slug }}</td>
+              </tr>
+              <tr>
+                <td>Tagged Items</td>
+                <td>{{ items_count }}</td>
+              </tr>
+              <tr>
+                <td>Color</td>
+                <td>
+                  <span class="label color-block" style="background-color: #{{ tag.color }}">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  </span>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <strong>Comments</strong>
+            </div>
+            <div class="card-body">
+              {% if tag.comments %}
+              {{ tag.comments|markdown }}
+              {% else %}
+              <span class="text-muted">None</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}

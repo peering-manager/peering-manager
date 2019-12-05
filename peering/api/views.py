@@ -99,6 +99,11 @@ class AutonomousSystemViewSet(ModelViewSet):
         self.get_object().find_potential_ix_peering_sessions()
         return Response({"status": "done"})
 
+    @action(detail=True, methods=["post"], url_path="generate-email")
+    def generate_email(self, request, pk=None):
+        template = Template.objects.get(pk=int(request.data["template"]))
+        return Response({"email": self.get_object().generate_email(template)})
+
 
 class BGPGroupViewSet(ModelViewSet):
     queryset = BGPGroup.objects.all()
@@ -125,6 +130,11 @@ class DirectPeeringSessionViewSet(ModelViewSet):
     queryset = DirectPeeringSession.objects.all()
     serializer_class = DirectPeeringSessionSerializer
     filterset_class = DirectPeeringSessionFilter
+
+    @action(detail=True, methods=["post"], url_path="encrypt-password")
+    def encrypt_password(self, request, pk=None):
+        self.get_object().encrypt_password(request.data["platform"])
+        return Response({"encrypted_password": self.get_object().encrypted_password})
 
     @action(detail=True, methods=["get"], url_path="clear")
     def clear(self, request, pk=None):
@@ -206,6 +216,11 @@ class InternetExchangePeeringSessionViewSet(ModelViewSet):
     serializer_class = InternetExchangePeeringSessionSerializer
     filterset_class = InternetExchangePeeringSessionFilter
 
+    @action(detail=True, methods=["post"], url_path="encrypt-password")
+    def encrypt_password(self, request, pk=None):
+        self.get_object().encrypt_password(request.data["platform"])
+        return Response({"encrypted_password": self.get_object().encrypted_password})
+
     @action(detail=True, methods=["get"], url_path="clear")
     def clear(self, request, pk=None):
         router = self.get_object().internet_exchange.router
@@ -220,18 +235,6 @@ class RouterViewSet(ModelViewSet):
     queryset = Router.objects.all()
     serializer_class = RouterSerializer
     filterset_class = RouterFilter
-
-    @action(detail=True, methods=["post"], url_path="decrypt")
-    def decrypt(self, request, pk=None):
-        return Response(
-            {"decrypted": self.get_object().decrypt_string(request.data["string"])}
-        )
-
-    @action(detail=True, methods=["post"], url_path="encrypt")
-    def encrypt(self, request, pk=None):
-        return Response(
-            {"encrypted": self.get_object().encrypt_string(request.data["string"])}
-        )
 
     @action(detail=True, methods=["get"], url_path="configuration")
     def configuration(self, request, pk=None):

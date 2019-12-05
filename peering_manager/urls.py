@@ -30,6 +30,7 @@ __patterns = [
     re_path(r"^api/$", views.APIRootView.as_view(), name="api-root"),
     re_path(r"^api/peering/", include("peering.api.urls")),
     re_path(r"^api/peeringdb/", include("peeringdb.api.urls")),
+    re_path(r"^api/utils/", include("utils.api.urls")),
 ]
 
 # Add debug_toolbar in debug mode

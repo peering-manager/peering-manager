@@ -66,12 +66,15 @@ Install **gunicorn** using **pip**.
 Save the following configuration in the root of the Peering Manager
 installation path as `gunicorn_config.py`. Be sure to verify the location of
 the **gunicorn** executable on your server (e.g. which gunicorn) and to update
-the pythonpath variable if needed.
+the pythonpath variable if needed. Note that some tasks such as importing
+existing peering sessions or generating prefix lists can take a lot of time to
+complete so setting a timeout greater than 30 seconds can be helpful.
 ```no-highlight
 command = '/usr/local/bin/gunicorn'
 pythonpath = '/opt/peering-manager'
 bind = '127.0.0.1:8001'
 workers = 4
+timeout = 300
 user = 'www-data'
 ```
 

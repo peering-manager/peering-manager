@@ -4,10 +4,8 @@ Peering Manager comes with a built-in templating feature. This feature can be
 used to generate the BGP configuration of routers to peer on Internet Exchange
 points but also with direct peering sessions that can be grouped together.
 
-!!! warning
-    If you use the template feature inside each Internet Exchange, you should
-    move it to templates defined per-router. The original feature per-IX will
-    be removed in a near future.
+The templating system is also used to generate e-mails that can be send to
+autonomous systems through Peering Manager.
 
 ## Jinja2
 
@@ -38,6 +36,23 @@ template:
 It is possible to iterate over these variables, except the first one, using the
 `for` keyword of Jinja2. More details can be found about how to use these in
 the examples below.
+
+## E-mail
+
+The following variables are provided to generate an e-mail based on a template:
+
+  * `my_asn` exposing the ASN specified in the configuration (your ASN)
+  * `autonomous_system` exposing the detail of the current
+    [AutonomousSystem](objects/autonomoussystem.md).
+  * `internet_exchanges` exposing a list of
+    [InternetExchange](objects/internetexchange.md) objects that the AS as in
+    common with `my_asn`. Each list item is composed of three keys:
+    `internet_exchange` which holds the actual details for the IX, `sessions`
+    which holds the sessions setup on the IX and `missing_sessions` which holds
+    the IP addresses that can be used to configure peering sessions.
+  * `direct_peering_sessions` exposing a list of
+    [DirectPeeringSession](objects/directpeeringsession.md) setup with the
+    current AS.
 
 ### Functions And Filters
 
@@ -75,3 +90,4 @@ Template examples are provided for:
   * [Juniper JUNOS](juniper-junos.md)
   * [Cisco IOS-XR](cisco-iosxr.md)
   * [Arista EOS](arista-eos.md)
+  * [Peering Request E-mail](peering-request-email.md)
