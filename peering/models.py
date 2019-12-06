@@ -5,7 +5,7 @@ import napalm
 from jinja2 import Environment, TemplateSyntaxError
 
 from django.conf import settings
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
