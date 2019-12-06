@@ -707,6 +707,11 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
     )
     comments = CommentField()
     tags = TagField(required=False)
+    
+    napalm_username = forms.CharField(required=False, label="Username")
+    napalm_password = forms.CharField(required=False, label="Password")
+    napalm_timeout = forms.IntegerField(label="Timeout in seconds", initial=0)
+    napalm_args = forms.CharField(required=False, label="Optional Arguments (dictionary)")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
