@@ -1202,6 +1202,12 @@ class InternetExchangePeeringSession(BGPSession):
 class Router(ChangeLoggedModel, TaggableModel):
     name = models.CharField(max_length=128)
     hostname = models.CharField(max_length=256)
+    
+    napalm_username = models.CharField(blank=True, max_length=256)
+    napalm_password = models.CharField(blank=True, max_length=256)
+    napalm_timeout = models.PositiveIntegerField(blank=True, default=30)
+    napalm_args = models.CharField(blank=True, max_length=512)
+    
     platform = models.CharField(
         max_length=50,
         choices=PLATFORM_CHOICES,
@@ -1357,10 +1363,10 @@ class Router(ChangeLoggedModel, TaggableModel):
             self.logger.debug('found napalm driver "%s"', self.platform)
             return driver(
                 hostname=self.hostname,
-                username=settings.NAPALM_USERNAME,
-                password=settings.NAPALM_PASSWORD,
-                timeout=settings.NAPALM_TIMEOUT,
-                optional_args=settings.NAPALM_ARGS,
+                username=self.napalm_username,
+                password=self.napalm_password,
+                timeout=self.napalm_timeout,
+                optional_args=self.napalm_args,
             )
         except napalm.base.exceptions.ModuleImportError:
             # Unable to import proper driver from napalm
