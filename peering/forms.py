@@ -1,5 +1,4 @@
 from django import forms
-from django.db.models import Q
 from django.conf import settings
 
 from taggit.forms import TagField
@@ -10,9 +9,6 @@ from .constants import (
     IP_FAMILY_CHOICES,
     PLATFORM_CHOICES,
     ROUTING_POLICY_TYPE_CHOICES,
-    ROUTING_POLICY_TYPE_EXPORT,
-    ROUTING_POLICY_TYPE_IMPORT,
-    ROUTING_POLICY_TYPE_IMPORT_EXPORT,
     TEMPLATE_TYPE_CHOICES,
 )
 from .models import (

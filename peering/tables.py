@@ -13,7 +13,6 @@ from .models import (
 )
 from peering_manager import settings
 from utils.tables import ActionsColumn, BaseTable, SelectColumn
-from utils.templatetags.helpers import markdown
 
 
 AUTONOMOUS_SYSTEM_ACTIONS = """

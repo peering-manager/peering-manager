@@ -1,5 +1,4 @@
 import random
-import sys
 
 
 # This code is the result of the attempt at converting a Perl module, the expected
