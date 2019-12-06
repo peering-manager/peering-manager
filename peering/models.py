@@ -1206,7 +1206,8 @@ class Router(ChangeLoggedModel, TaggableModel):
     napalm_username = models.CharField(blank=True, max_length=256)
     napalm_password = models.CharField(blank=True, max_length=256)
     napalm_timeout = models.PositiveIntegerField(blank=True, default=30)
-    napalm_args = models.CharField(blank=True, max_length=512)
+    # napalm_args is a JSONField so actually stores it as a dict, not as a str
+    napalm_args = JSONField()
     
     platform = models.CharField(
         max_length=50,
@@ -1366,7 +1367,7 @@ class Router(ChangeLoggedModel, TaggableModel):
                 username=self.napalm_username,
                 password=self.napalm_password,
                 timeout=self.napalm_timeout,
-                optional_args=self.napalm_args,
+                optional_args=json.loads(self.napalm_args),
             )
         except napalm.base.exceptions.ModuleImportError:
             # Unable to import proper driver from napalm
