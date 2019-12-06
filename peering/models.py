@@ -1,6 +1,7 @@
 import ipaddress
 import logging
 import napalm
+import json
 
 from jinja2 import Environment, TemplateSyntaxError
 
