@@ -13,4 +13,8 @@
   * `comments`: text value
   * `netbox_device_id`: integer value
   * `use_netbox`: boolean value
+  * `napalm_username`: string value
+  * `napalm_password`: string value
+  * `napalm_timeout`: integer value
+  * `napalm_args`: dictionary value
   * `tags`: list of tags
