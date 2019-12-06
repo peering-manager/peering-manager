@@ -25,6 +25,3 @@ DATABASE = {
     "HOST": "localhost",  # Database server
     "PORT": "",  # Database port (leave blank for default)
 }
-
-NETBOX_API = "http://netbox.example.net/"
-NETBOX_API_TOKEN = "ThisIsASpecialNetBoxAPIToken"
