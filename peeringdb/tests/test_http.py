@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from peeringdb.http import PeeringDB
 from peeringdb.models import Network, NetworkIXLAN
-from utils.tests.mock import MockedResponse
+from utils.testing import MockedResponse
 
 
 def mocked_get_autonomous_system(*args, **kwargs):
@@ -15,6 +15,16 @@ def mocked_get_autonomous_system(*args, **kwargs):
             fixture="peeringdb/tests/fixtures/netixlans_as{}.json".format(
                 kwargs["params"]["asn"]
             )
+        )
+
+    return MockedResponse(status_code=500)
+
+
+def mocked_synchronization(*args, **kwargs):
+    namespace = args[0].split("/")[-1]
+    if namespace in ["ixpfx", "net", "netixlan", "poc"]:
+        return MockedResponse(
+            fixture="peeringdb/tests/fixtures/sync_{}.json".format(namespace)
         )
 
     return MockedResponse(status_code=500)
@@ -55,6 +65,13 @@ class PeeringDBHTTPTestCase(TestCase):
         time_of_sync = timezone.now()
         api.record_last_sync(time_of_sync, {"added": 1, "updated": 0, "deleted": 0})
         self.assertEqual(api.get_last_sync_time(), int(time_of_sync.timestamp()))
+
+    @patch("peeringdb.http.requests.get", side_effect=mocked_synchronization)
+    def test_update_local_database(self, *_):
+        sync_result = PeeringDB().update_local_database(0)
+        self.assertEqual(8, sync_result.added)
+        self.assertEqual(0, sync_result.updated)
+        self.assertEqual(0, sync_result.deleted)
 
     def test_clear_local_database(self):
         try:

@@ -4,7 +4,7 @@ from django.test import TestCase
 from unittest.mock import patch
 
 from netbox.api import NetBox
-from utils.tests.mock import MockedResponse
+from utils.testing import MockedResponse
 
 
 class NetBoxTestCase(TestCase):
