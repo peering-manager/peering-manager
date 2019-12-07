@@ -1,0 +1,21 @@
+{
+  "meta": {},
+  "data": [
+    {
+      "id": 1,
+      "net_id": 1,
+      "ix_id": 1,
+      "name": "Mocked",
+      "ixlan_id": 1,
+      "notes": "",
+      "speed": 100000,
+      "asn": 65536,
+      "ipaddr4": "203.0.113.1",
+      "ipaddr6": "2001:db8:1337::1",
+      "is_rs_peer": true,
+      "created": "2016-06-15T13:23:35Z",
+      "updated": "2019-08-13T13:38:52Z",
+      "status": "ok"
+    }
+  ]
+}

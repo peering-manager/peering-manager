@@ -3,8 +3,8 @@ import pynetbox
 from django.test import TestCase
 from unittest.mock import patch
 
-from .mock import MockedResponse
 from netbox.api import NetBox
+from utils.tests.mock import MockedResponse
 
 
 class NetBoxTestCase(TestCase):
@@ -16,9 +16,7 @@ class NetBoxTestCase(TestCase):
 
     @patch(
         "pynetbox.core.query.requests.sessions.Session.get",
-        return_value=MockedResponse(
-            fixture="netbox/tests/fixtures/netbox_devices.json"
-        ),
+        return_value=MockedResponse(fixture="netbox/tests/fixtures/devices.json"),
     )
     def test_get_devices(self, *_):
         devices = self.netbox.get_devices()
@@ -31,16 +29,14 @@ class NetBoxTestCase(TestCase):
         "pynetbox.core.endpoint.RODetailEndpoint.list",
         return_value={
             "get_facts": MockedResponse(
-                fixture="netbox/tests/fixtures/netbox_device_facts.json"
+                fixture="netbox/tests/fixtures/device_facts.json"
             ).json()
         },
     )
     def test_napalm(self, *_):
         with patch(
             "pynetbox.core.query.requests.sessions.Session.get",
-            return_value=MockedResponse(
-                fixture="netbox/tests/fixtures/netbox_device.json"
-            ),
+            return_value=MockedResponse(fixture="netbox/tests/fixtures/device.json"),
         ):
             facts = self.netbox.napalm(1, "get_facts")
             self.assertEqual("router01", facts["hostname"])

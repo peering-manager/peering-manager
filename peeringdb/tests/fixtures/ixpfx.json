@@ -1,0 +1,23 @@
+{
+  "meta": {},
+  "data": [
+    {
+      "id": 1,
+      "ixlan_id": 1,
+      "protocol": "IPv6",
+      "prefix": "2001:db8:1337::/64",
+      "created": "2011-04-19T00:00:00Z",
+      "updated": "2016-03-14T21:55:43Z",
+      "status": "ok"
+    },
+    {
+      "id": 2,
+      "ixlan_id": 1,
+      "protocol": "IPv4",
+      "prefix": "203.0.113.0/24",
+      "created": "2014-10-16T00:00:00Z",
+      "updated": "2016-03-14T21:33:56Z",
+      "status": "ok"
+    }
+  ]
+}

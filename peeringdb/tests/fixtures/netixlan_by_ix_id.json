@@ -1,0 +1,37 @@
+{
+  "meta": {},
+  "data": [
+    {
+      "id": 1,
+      "net_id": 1,
+      "ix_id": 1,
+      "name": "Mocked",
+      "ixlan_id": 1,
+      "notes": "",
+      "speed": 100000,
+      "asn": 65536,
+      "ipaddr4": "203.0.113.1",
+      "ipaddr6": "2001:db8:1337::1",
+      "is_rs_peer": true,
+      "created": "2016-02-10T00:00:00Z",
+      "updated": "2017-11-21T10:38:33Z",
+      "status": "ok"
+    },
+    {
+      "id": 2,
+      "net_id": 2,
+      "ix_id": 1,
+      "name": "Mocked",
+      "ixlan_id": 1,
+      "notes": "",
+      "speed": 100000,
+      "asn": 65537,
+      "ipaddr4": "203.0.113.2",
+      "ipaddr6": "2001:db8:1337::2",
+      "is_rs_peer": true,
+      "created": "2016-02-14T00:00:00Z",
+      "updated": "2016-04-15T18:58:44Z",
+      "status": "ok"
+    }
+  ]
+}
