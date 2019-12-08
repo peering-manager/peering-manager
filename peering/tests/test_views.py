@@ -1,3 +1,4 @@
+from django.core import mail
 from django.db import transaction
 from django.urls.exceptions import NoReverseMatch
 
@@ -5,6 +6,8 @@ from peering.constants import (
     COMMUNITY_TYPE_INGRESS,
     ROUTING_POLICY_TYPE_IMPORT,
     ROUTING_POLICY_TYPE_EXPORT,
+    TEMPLATE_TYPE_CONFIGURATION,
+    TEMPLATE_TYPE_EMAIL,
 )
 from peering.models import (
     AutonomousSystem,
@@ -15,6 +18,7 @@ from peering.models import (
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
+    Template,
 )
 
 from utils.tests import ViewTestCase
@@ -176,6 +180,69 @@ class AutonomousSystemTestCase(ViewTestCase):
             params={"asn": self.asn},
             data={"q": "test"},
         )
+
+    def test_as_contacts(self):
+        # Using a wrong AS number, status should be 404 not found
+        self.get_request(
+            "peering:autonomous_system_contacts",
+            params={"asn": 64500},
+            expected_status_code=404,
+        )
+
+        self.get_request(
+            "peering:autonomous_system_contacts",
+            params={"asn": self.asn},
+            contains="E-mail",
+        )
+
+    def test_as_email(self):
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request(
+            "peering:autonomous_system_email",
+            params={"asn": self.asn},
+            expected_status_code=302,
+        )
+
+        # Authenticate and retry
+        self.authenticate_user()
+
+        # Using a wrong AS number, status should be 404 not found
+        self.get_request(
+            "peering:autonomous_system_email",
+            params={"asn": 64500},
+            expected_status_code=404,
+        )
+
+        # No contacts, should be redirected
+        self.get_request(
+            "peering:autonomous_system_email",
+            params={"asn": self.asn},
+            expected_status_code=302,
+        )
+
+        # Set a contact a retry
+        self.autonomous_system.contact_email = "test@example.net"
+        self.autonomous_system.save()
+        self.get_request(
+            "peering:autonomous_system_email", params={"asn": self.asn}, contains="Send"
+        )
+
+        # Send an email
+        self.assertEqual(len(mail.outbox), 0)
+        template = Template.objects.create(
+            name="E-mail", type=TEMPLATE_TYPE_EMAIL, template="Hello"
+        )
+        email = {
+            "template": template.pk,
+            "recipient": "test@example.net",
+            "subject": "Test",
+            "body": "Hello",
+        }
+        self.post_request(
+            "peering:autonomous_system_email", params={"asn": self.asn}, data=email
+        )
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].body, "Hello")
 
 
 class BGPGroupTestCase(ViewTestCase):
@@ -986,3 +1053,114 @@ class RoutingPolicyTestCase(ViewTestCase):
     def test_routing_policy_bulk_edit_view(self):
         # Not logged in, no right to access the view, should be redirected
         self.get_request("peering:routing_policy_bulk_edit", expected_status_code=302)
+
+
+class TemplateTestCase(ViewTestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.model = Template
+        self.name = "Configuration"
+        self.type = TEMPLATE_TYPE_CONFIGURATION
+        self.template_code = "This is a test"
+        self.template = Template.objects.create(
+            name=self.name, type=self.type, template=self.template_code
+        )
+
+    def test_template_list_view(self):
+        self.get_request("peering:template_list", data={"q": "configuration"})
+
+    def test_template_add_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request("peering:template_add", expected_status_code=302)
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request("peering:template_add", contains="Create")
+
+        # Try to create an object with valid data
+        template_to_create = {
+            "name": "Another configuration",
+            "type": TEMPLATE_TYPE_CONFIGURATION,
+            "template": "Testing again",
+        }
+        self.post_request("peering:template_add", data=template_to_create)
+        self.does_object_exist(template_to_create)
+
+        # Try to create an object with invalid data
+        template_not_to_create = {
+            "name": "template-not-created",
+            "type": "something-wrong",
+        }
+        self.post_request("peering:template_add", data=template_not_to_create)
+        self.does_object_not_exist(template_not_to_create)
+
+    def test_template_details_view(self):
+        # No routing policy PK given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.get_request("peering:template_details")
+
+        # Using a wrong PK, status should be 404 not found
+        self.get_request(
+            "peering:template_details", params={"pk": 666}, expected_status_code=404
+        )
+
+        # Using an existing PK, status should be 200 and the name of the
+        # routing policy should be somewhere in the HTML code
+        self.get_request(
+            "peering:template_details",
+            params={"pk": self.template.pk},
+            contains=self.name,
+        )
+
+    def test_template_edit_view(self):
+        # No PK given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.get_request("peering:template_edit")
+
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request(
+            "peering:template_edit",
+            params={"pk": self.template.pk},
+            expected_status_code=302,
+        )
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request(
+            "peering:template_edit", params={"pk": self.template.pk}, contains="Update"
+        )
+
+        # Still authenticated, wrong PK should be 404 not found
+        self.get_request(
+            "peering:template_edit", params={"pk": 2}, expected_status_code=404
+        )
+
+    def test_template_delete_view(self):
+        # No PK given, view should not work
+        with self.assertRaises(NoReverseMatch):
+            self.get_request("peering:template_delete")
+
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request(
+            "peering:template_delete",
+            params={"pk": self.template.pk},
+            expected_status_code=302,
+        )
+
+        # Authenticate and retry, should be OK
+        self.authenticate_user()
+        self.get_request(
+            "peering:template_delete",
+            params={"pk": self.template.pk},
+            contains="Confirm",
+        )
+
+        # Still authenticated, wrong PK should be 404 not found
+        self.get_request(
+            "peering:template_delete", params={"pk": 2}, expected_status_code=404
+        )
+
+    def test_template_bulk_delete_view(self):
+        # Not logged in, no right to access the view, should be redirected
+        self.get_request("peering:template_bulk_delete", expected_status_code=302)
