@@ -282,7 +282,7 @@ class AutonomousSystemInternetExchangesPeeringSessions(ModelListView):
 class BGPGroupList(ModelListView):
     queryset = BGPGroup.objects.annotate(
         directpeeringsession_count=Count("directpeeringsession")
-    )
+    ).order_by("name")
     filter = BGPGroupFilter
     filter_form = BGPGroupFilterForm
     table = BGPGroupTable
