@@ -145,6 +145,10 @@ class ASEmail(PermissionRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+
+        if not autonomous_system.can_receive_email:
+            return redirect(autonomous_system.get_absolute_url())
+
         form = AutonomousSystemEmailForm()
         form.fields[
             "recipient"
@@ -157,7 +161,14 @@ class ASEmail(PermissionRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+
+        if not autonomous_system.can_receive_email:
+            redirect(autonomous_system.get_absolute_url())
+
         form = AutonomousSystemEmailForm(request.POST)
+        form.fields[
+            "recipient"
+        ].choices = autonomous_system.get_contact_email_addresses()
 
         if form.is_valid():
             sent = send_mail(

@@ -128,7 +128,7 @@ class AutonomousSystemEmailForm(BootstrapMixin, forms.Form):
             api_url="/api/peering/templates/", query_filters={"type": "email"}
         ),
     )
-    recipient = forms.ChoiceField(widget=StaticSelect)
+    recipient = forms.ChoiceField(widget=StaticSelect, label="E-mail Recipient")
     subject = forms.CharField(label="E-mail Subject")
     body = TextareaField(label="E-mail Body")
 
