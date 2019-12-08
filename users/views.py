@@ -77,6 +77,10 @@ class ChangePasswordView(View, LoginRequiredMixin):
         if not is_user_logged_in(request):
             return redirect("home")
 
+        # LDAP users must not change their passwords
+        if getattr(request.user, "ldap_username", None):
+            return redirect("users:profile")
+
         form = UserPasswordChangeForm(user=request.user)
         context = {"form": form, "active_tab": "password"}
 

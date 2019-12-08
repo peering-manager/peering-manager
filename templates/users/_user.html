@@ -5,7 +5,9 @@
         <div class="col-md-2">
           <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
             <a class="nav-link {% ifequal active_tab "profile" %} active{% endifequal %}" role="tab" href="{% url 'users:profile' %}">Profile</a>
+            {% if not request.user.ldap_username %}
             <a class="nav-link {% ifequal active_tab "password" %} active{% endifequal %}" role="tab" href="{% url 'users:change_password' %}">Change Password</a>
+            {% endif %}
             <a class="nav-link {% ifequal active_tab "api_tokens" %} active{% endifequal %}" role="tab" href="{% url 'users:token_list' %}">API Tokens</a>
           </div>
         </div>
