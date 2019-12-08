@@ -2,6 +2,7 @@ from django.test import TestCase
 
 from peering.constants import *
 from peering.forms import (
+    AutonomousSystemEmailForm,
     AutonomousSystemForm,
     CommunityForm,
     DirectPeeringSessionForm,
@@ -11,7 +12,7 @@ from peering.forms import (
     RoutingPolicyForm,
     TemplateForm,
 )
-from peering.models import AutonomousSystem, InternetExchange
+from peering.models import AutonomousSystem, InternetExchange, Template
 
 
 class AutonomousSystemTest(TestCase):
@@ -19,6 +20,21 @@ class AutonomousSystemTest(TestCase):
         test = AutonomousSystemForm(data={"asn": 201281, "name": "Guillaume Mazoyer"})
         self.assertTrue(test.is_valid())
         self.assertTrue(test.save())
+
+    def test_autonomous_system_email_form(self):
+        template = Template.objects.create(
+            name="E-mail", type=TEMPLATE_TYPE_EMAIL, template="Hello"
+        )
+        test = AutonomousSystemEmailForm(
+            data={
+                "template": template.pk,
+                "recipient": "test@example.net",
+                "subject": "Test",
+                "body": "Hello",
+            }
+        )
+        test.fields["recipient"].choices = [("test@example.net", "Test")]
+        self.assertTrue(test.is_valid())
 
 
 class CommunityTest(TestCase):

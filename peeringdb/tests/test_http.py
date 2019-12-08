@@ -2,9 +2,32 @@ import ipaddress
 
 from django.test import TestCase
 from django.utils import timezone
+from unittest.mock import patch
 
 from peeringdb.http import PeeringDB
 from peeringdb.models import Network, NetworkIXLAN
+from utils.testing import MockedResponse
+
+
+def mocked_get_autonomous_system(*args, **kwargs):
+    if "asn" in kwargs["params"]:
+        return MockedResponse(
+            fixture="peeringdb/tests/fixtures/netixlans_as{}.json".format(
+                kwargs["params"]["asn"]
+            )
+        )
+
+    return MockedResponse(status_code=500)
+
+
+def mocked_synchronization(*args, **kwargs):
+    namespace = args[0].split("/")[-1]
+    if namespace in ["ixpfx", "net", "netixlan", "poc"]:
+        return MockedResponse(
+            fixture="peeringdb/tests/fixtures/sync_{}.json".format(namespace)
+        )
+
+    return MockedResponse(status_code=500)
 
 
 class PeeringDBHTTPTestCase(TestCase):
@@ -43,18 +66,32 @@ class PeeringDBHTTPTestCase(TestCase):
         api.record_last_sync(time_of_sync, {"added": 1, "updated": 0, "deleted": 0})
         self.assertEqual(api.get_last_sync_time(), int(time_of_sync.timestamp()))
 
+    @patch("peeringdb.http.requests.get", side_effect=mocked_synchronization)
+    def test_update_local_database(self, *_):
+        sync_result = PeeringDB().update_local_database(0)
+        self.assertEqual(8, sync_result.added)
+        self.assertEqual(0, sync_result.updated)
+        self.assertEqual(0, sync_result.deleted)
+
     def test_clear_local_database(self):
         try:
             PeeringDB().clear_local_database()
         except Exception:
             self.fail("Unexpected exception raised.")
 
-    def test_get_autonomous_system(self):
+    @patch(
+        "peeringdb.http.requests.get",
+        return_value=MockedResponse(fixture="peeringdb/tests/fixtures/as65536.json"),
+    )
+    def test_get_autonomous_system(self, *_):
         api = PeeringDB()
-        asn = 15169
+        asn = 65536
 
         # Must not exist
-        self.assertIsNone(api.get_autonomous_system(64500))
+        with patch(
+            "peeringdb.http.requests.get", return_value=MockedResponse(status_code=404)
+        ):
+            self.assertIsNone(api.get_autonomous_system(64500))
 
         # Using an API call (no cached data)
         autonomous_system = api.get_autonomous_system(asn)
@@ -73,12 +110,19 @@ class PeeringDBHTTPTestCase(TestCase):
         autonomous_system = api.get_autonomous_system(asn)
         self.assertEqual(autonomous_system.asn, asn)
 
-    def test_get_ix_network(self):
+    @patch(
+        "peeringdb.http.requests.get",
+        return_value=MockedResponse(fixture="peeringdb/tests/fixtures/netixlan.json"),
+    )
+    def test_get_ix_network(self, *_):
         api = PeeringDB()
-        ix_network_id = 29146
+        ix_network_id = 1
 
-        # Must not exist
-        self.assertIsNone(api.get_ix_network(0))
+        with patch(
+            "peeringdb.http.requests.get", return_value=MockedResponse(status_code=404)
+        ):
+            # Must not exist
+            self.assertIsNone(api.get_ix_network(0))
 
         # Using an API call (no cached data)
         ix_network = api.get_ix_network(ix_network_id)
@@ -99,11 +143,15 @@ class PeeringDBHTTPTestCase(TestCase):
         ix_network = api.get_ix_network(ix_network_id)
         self.assertEqual(ix_network.id, ix_network_id)
 
-    def test_get_ix_network_by_ip_address(self):
+    @patch(
+        "peeringdb.http.requests.get",
+        return_value=MockedResponse(fixture="peeringdb/tests/fixtures/netixlan.json"),
+    )
+    def test_get_ix_network_by_ip_address(self, *_):
         api = PeeringDB()
-        ipv6_address = "2001:7f8:1::a502:9467:1"
-        ipv4_address = "80.249.210.208"
-        ix_network_id = 29146
+        ipv6_address = "2001:db8:1337::1"
+        ipv4_address = "203.0.113.1"
+        ix_network_id = 1
 
         # No IP given we cannot guess what the user wants
         self.assertIsNone(api.get_ix_network_by_ip_address())
@@ -141,28 +189,23 @@ class PeeringDBHTTPTestCase(TestCase):
         )
         self.assertEqual(ix_network.id, ix_network_id)
 
-    def test_get_ix_networks_for_asn(self):
+    @patch(
+        "peeringdb.http.requests.get",
+        return_value=MockedResponse(
+            fixture="peeringdb/tests/fixtures/netixlans_as65536.json"
+        ),
+    )
+    def test_get_ix_networks_for_asn(self, *_):
         api = PeeringDB()
-        asn = 29467
+        asn = 65536
 
-        # Must not exist
-        self.assertIsNone(api.get_ix_networks_for_asn(64500))
+        with patch(
+            "peeringdb.http.requests.get", return_value=MockedResponse(status_code=404)
+        ):
+            # Must not exist
+            self.assertIsNone(api.get_ix_networks_for_asn(64500))
 
-        known_ix_networks = [
-            29146,
-            15321,
-            24292,
-            15210,
-            16774,
-            14657,
-            23162,
-            14659,
-            17707,
-            27863,
-            48704,
-            51129,
-            51874,
-        ]
+        known_ix_networks = [1, 2]
         found_ix_networks = []
 
         ix_networks = api.get_ix_networks_for_asn(asn)
@@ -171,34 +214,43 @@ class PeeringDBHTTPTestCase(TestCase):
 
         self.assertEqual(sorted(found_ix_networks), sorted(known_ix_networks))
 
-    def test_get_common_ix_networks_for_asns(self):
+    @patch("peeringdb.http.requests.get", side_effect=mocked_get_autonomous_system)
+    def test_get_common_ix_networks_for_asns(self, *_):
         api = PeeringDB()
-        asn1 = 29467
-        asn2 = 50903
+        asn1 = 65536
+        asn2 = 65537
 
-        # Empty list should be returned
-        self.assertFalse(api.get_common_ix_networks_for_asns(asn1, 64500))
+        with patch(
+            "peeringdb.http.requests.get", return_value=MockedResponse(status_code=404)
+        ):
+            # Empty list should be returned
+            self.assertFalse(api.get_common_ix_networks_for_asns(asn1, 64500))
 
-        # Known common IX networks
-        known_ix_networks = [359, 255]
-        found_ix_networks = []
         # Found common IX networks
+        found_ix_networks = []
         for n1, n2 in api.get_common_ix_networks_for_asns(asn1, asn2):
             self.assertEqual(n1.ixlan_id, n2.ixlan_id)
             found_ix_networks.append(n1.ixlan_id)
 
-        self.assertEqual(sorted(known_ix_networks), sorted(found_ix_networks))
+        self.assertEqual([1], found_ix_networks)
 
-    def test_get_prefixes_for_ix_network(self):
+    @patch(
+        "peeringdb.http.requests.get",
+        return_value=MockedResponse(fixture="peeringdb/tests/fixtures/ixpfx.json"),
+    )
+    def test_get_prefixes_for_ix_network(self, *_):
         api = PeeringDB()
         ix_network_id = 29146
 
-        # Must be empty
-        self.assertFalse(api.get_prefixes_for_ix_network(0))
+        with patch(
+            "peeringdb.http.requests.get", return_value=MockedResponse(status_code=404)
+        ):
+            # Must be empty
+            self.assertFalse(api.get_prefixes_for_ix_network(0))
 
         known_prefixes = [
-            ipaddress.ip_network("2001:7f8:1::/64"),
-            ipaddress.ip_network("80.249.208.0/21"),
+            ipaddress.ip_network("2001:db8:1337::/64"),
+            ipaddress.ip_network("203.0.113.0/24"),
         ]
         found_prefixes = []
 
@@ -207,10 +259,18 @@ class PeeringDBHTTPTestCase(TestCase):
 
     def test_get_peers_for_ix(self):
         api = PeeringDB()
-        ix_id = 1019
 
-        # Must not be found
-        self.assertIsNone(api.get_peers_for_ix(0))
+        with patch(
+            "peeringdb.http.requests.get", return_value=MockedResponse(status_code=404)
+        ):
+            # Must not be found
+            self.assertIsNone(api.get_peers_for_ix(0))
 
-        # Must have some peers
-        self.assertEqual(len(api.get_peers_for_ix(ix_id)), 11)
+        with patch(
+            "peeringdb.http.requests.get",
+            return_value=MockedResponse(
+                fixture="peeringdb/tests/fixtures/netixlan_by_ix_id.json"
+            ),
+        ):
+            # Must have some peers
+            self.assertEqual(len(api.get_peers_for_ix(1)), 2)

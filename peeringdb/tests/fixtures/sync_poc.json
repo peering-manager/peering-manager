@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "generated": 1575713444.605
+  },
+  "data": [
+    {
+      "status": "ok",
+      "updated": "2017-06-20T17:41:51Z",
+      "name": "Peering Request",
+      "phone": "",
+      "url": "",
+      "created": "2010-07-29T00:00:00Z",
+      "net_id": 1,
+      "visible": "Public",
+      "email": "peering-request@example.net",
+      "role": "Policy",
+      "id": 1
+    },
+    {
+      "status": "ok",
+      "updated": "2016-09-06T15:30:45Z",
+      "name": "NOC",
+      "phone": "",
+      "url": "",
+      "created": "2010-07-29T00:00:00Z",
+      "net_id": 1,
+      "visible": "Public",
+      "email": "inoc@example.net",
+      "role": "NOC",
+      "id": 2
+    }
+  ]
+}

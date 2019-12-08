@@ -1,0 +1,34 @@
+{
+  "meta": {},
+  "data": [
+    {
+      "id": 1,
+      "org_id": 1,
+      "name": "Mocked",
+      "aka": "mocked",
+      "website": "https://example.net",
+      "asn": 65536,
+      "looking_glass": "https://lg.example.net",
+      "route_server": "",
+      "irr_as_set": "MOCKED::AS-MOCKED",
+      "info_type": "Non-Profit",
+      "info_prefixes4": 5,
+      "info_prefixes6": 5,
+      "info_traffic": "20-100Mbps",
+      "info_ratio": "Balanced",
+      "info_scope": "Europe",
+      "info_unicast": true,
+      "info_multicast": false,
+      "info_ipv6": true,
+      "notes": "",
+      "policy_url": "https://example.net",
+      "policy_general": "Open",
+      "policy_locations": "Not Required",
+      "policy_ratio": false,
+      "policy_contracts": "Not Required",
+      "created": "2018-07-16T17:14:59Z",
+      "updated": "2019-09-16T21:12:34Z",
+      "status": "ok"
+    }
+  ]
+}

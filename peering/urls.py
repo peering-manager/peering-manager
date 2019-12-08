@@ -24,6 +24,11 @@ urlpatterns = [
         name="autonomous_system_edit",
     ),
     re_path(
+        r"^autonomous-systems/(?P<asn>[0-9]+)/contacts/$",
+        views.AutonomousSystemContacts.as_view(),
+        name="autonomous_system_contacts",
+    ),
+    re_path(
         r"^autonomous-systems/(?P<asn>[0-9]+)/email/$",
         views.ASEmail.as_view(),
         name="autonomous_system_email",
@@ -47,11 +52,6 @@ urlpatterns = [
         r"^autonomous-systems/(?P<asn>[0-9]+)/ix-peering-sessions/$",
         views.AutonomousSystemInternetExchangesPeeringSessions.as_view(),
         name="autonomous_system_internet_exchange_peering_sessions",
-    ),
-    re_path(
-        r"^autonomous-systems/(?P<asn>[0-9]+)/contacts/$",
-        views.AutonomousSystemContacts.as_view(),
-        name="autonomous_system_contacts",
     ),
     # BGP Groups
     re_path(r"^bgp-groups/$", views.BGPGroupList.as_view(), name="bgp_group_list"),

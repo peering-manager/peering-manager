@@ -1,0 +1,39 @@
+{
+  "meta": {
+    "generated": 1575727891.596
+  },
+  "data": [
+    {
+      "ix_id": 1,
+      "status": "ok",
+      "asn": 65536,
+      "updated": "2018-09-24T15:16:52Z",
+      "name": "Mocked",
+      "created": "2010-07-29T00:00:00Z",
+      "speed": 100000,
+      "notes": "",
+      "ipaddr4": "203.0.113.1",
+      "net_id": 1,
+      "is_rs_peer": false,
+      "ipaddr6": "2001:db8::1",
+      "ixlan_id": 1,
+      "id": 1
+    },
+    {
+      "ix_id": 1,
+      "status": "ok",
+      "asn": 65536,
+      "updated": "2018-09-24T15:16:52Z",
+      "name": "Mocked",
+      "created": "2010-07-29T00:00:00Z",
+      "speed": 100000,
+      "notes": "",
+      "ipaddr4": "203.0.113.2",
+      "net_id": 1,
+      "is_rs_peer": false,
+      "ipaddr6": "2001:db8::2",
+      "ixlan_id": 1,
+      "id": 2
+    }
+  ]
+}

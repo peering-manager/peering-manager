@@ -15,11 +15,11 @@ Questions? Comments? Join us in the #peering-manager Slack channel on
 ## Requirements
 
 This tool is written with the
-[Django framework](https://www.djangoproject.com/) and requires Python with
+[Django framework](https://www.djangoproject.com/) and requires Python 3 with
 some dependencies to run. For a complete list of requirements, see
 `requirements.txt`.
 
-It is built against Python 3 versions. Tested versions are 3.5, 3.6 and 3.7.
+Tested Python versions are 3.5, 3.6, 3.7 and 3.8.
 
 The best way to start setting up this tool is to use **pip** within a
 **virtualenv**.

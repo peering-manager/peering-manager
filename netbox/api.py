@@ -4,9 +4,6 @@ import pynetbox
 from django.conf import settings
 
 
-NAMESPACES = {"dcim": "dcim"}
-
-
 class NetBox(object):
     """
     Class used to interact with the NetBox API.
@@ -30,12 +27,7 @@ class NetBox(object):
         self.logger.debug(
             "calling dcim.devices.filter: role=%s", settings.NETBOX_DEVICE_ROLES
         )
-        result = self.api.dcim.devices.filter(role=settings.NETBOX_DEVICE_ROLES)
-
-        if not result:
-            return None
-
-        return result
+        return self.api.dcim.devices.filter(role=settings.NETBOX_DEVICE_ROLES)
 
     def napalm(self, device_id, method):
         """
