@@ -1237,7 +1237,7 @@ class Router(ChangeLoggedModel, TaggableModel):
         return reverse("peering:router_details", kwargs={"pk": self.pk})
 
     def is_netbox_device(self):
-        return self.netbox_device_id is not 0
+        return self.netbox_device_id != 0
 
     def get_bgp_groups(self):
         """
@@ -1737,7 +1737,7 @@ class Router(ChangeLoggedModel, TaggableModel):
         if self.platform == PLATFORM_JUNOS:
             return "clear bgp neighbor"
         if self.platform in [PLATFORM_EOS, PLATFORM_IOS]:
-            if address_family is 6:
+            if address_family == 6:
                 return "clear ipv6 bgp"
             else:
                 return "clear ip bgp"

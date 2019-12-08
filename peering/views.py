@@ -177,7 +177,7 @@ class ASEmail(PermissionRequiredMixin, View):
                 settings.SERVER_EMAIL,
                 [form.cleaned_data["recipient"]],
             )
-            if sent is 1:
+            if sent == 1:
                 messages.success(request, "Email sent.")
             else:
                 messages.error(request, "Unable to send the email.")
