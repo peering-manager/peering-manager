@@ -3,12 +3,10 @@ from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.mail import send_mail
 from django.db.models import Count
-from django.http import HttpResponseBadRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import slugify
 from django.views.generic import View
-
-import json
 
 from .constants import BGP_STATE_IDLE
 from .filters import (
@@ -85,7 +83,6 @@ from utils.views import (
     BulkAddFromDependencyView,
     BulkEditView,
     BulkDeleteView,
-    ConfirmationView,
     DeleteView,
     ModelListView,
     TableImportView,

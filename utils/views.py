@@ -7,7 +7,7 @@ from django.db.models.query import QuerySet
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import ValidationError
-from django.forms import CharField, Form, MultipleHiddenInput
+from django.forms import CharField, MultipleHiddenInput
 from django.forms.formsets import formset_factory
 from django.http import HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
@@ -25,7 +25,6 @@ from django_tables2 import RequestConfig
 
 from .filters import ObjectChangeFilter, TagFilter
 from .forms import (
-    BootstrapMixin,
     ConfirmationForm,
     FilterChoiceField,
     ObjectChangeFilterForm,

@@ -1,7 +1,5 @@
 from django.db.models import Count
 
-from rest_framework.viewsets import ViewSet
-
 from . import ModelViewSet
 from .serializers import TagSerializer
 from utils.filters import TagFilter
