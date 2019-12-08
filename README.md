@@ -19,7 +19,7 @@ This tool is written with the
 some dependencies to run. For a complete list of requirements, see
 `requirements.txt`.
 
-Tested Python versions are 3.5, 3.6, 3.7 and 3.8.
+Tested Python versions are 3.6, 3.7 and 3.8.
 
 The best way to start setting up this tool is to use **pip** within a
 **virtualenv**.
