@@ -3,8 +3,7 @@
 {% block subcontent %}
       <div class="row">
         <div class="col-md-9">
-          {% include 'utils/responsive_table.html' %}
-          {% include 'utils/includes/pagination.html' with paginator=table.paginator page=table.page %}
+          {% include 'peering/as/inc/internet_exchange_peering_sessions_table.html' with bulk_edit_url='peering:internet_exchange_peering_session_bulk_edit' bulk_delete_url='peering:internet_exchange_peering_session_bulk_delete' %}
         </div>
         <div class="col-md-3">
           {% include 'utils/search_form.html' %}
