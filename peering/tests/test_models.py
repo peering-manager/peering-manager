@@ -35,6 +35,14 @@ from utils.crypto.junos import (
     decrypt as junos_decrypt,
     is_encrypted as junos_is_encrypted,
 )
+from utils.testing import MockedResponse
+
+
+def mocked_peeringdb(*args, **kwargs):
+    if "asn" in kwargs["params"] and kwargs["params"]["asn"] == 65536:
+        return MockedResponse(fixture="peeringdb/tests/fixtures/as65536.json")
+
+    return MockedResponse(status_code=404)
 
 
 class AutonomousSystemTest(TestCase):
@@ -42,7 +50,7 @@ class AutonomousSystemTest(TestCase):
         super().setUp()
 
         self.autonomous_system = AutonomousSystem.objects.create(
-            asn=65536, name="Test", irr_as_set="AS-MOCKED"
+            asn=65537, name="Test", irr_as_set="AS-MOCKED"
         )
 
     def test_does_exist(self):
@@ -59,8 +67,9 @@ class AutonomousSystemTest(TestCase):
         autonomous_system = AutonomousSystem.does_exist(asn)
         self.assertEqual(asn, new_as.asn)
 
-    def test_create_from_peeringdb(self):
-        asn = 201281
+    @patch("peeringdb.http.requests.get", side_effect=mocked_peeringdb)
+    def test_create_from_peeringdb(self, *_):
+        asn = 65536
 
         # Illegal ASN
         self.assertIsNone(AutonomousSystem.create_from_peeringdb(64500))
@@ -82,9 +91,10 @@ class AutonomousSystemTest(TestCase):
         # Must exist now also
         self.assertEqual(asn, AutonomousSystem.does_exist(asn).asn)
 
-    def test_synchronize_with_peeringdb(self):
+    @patch("peeringdb.http.requests.get", side_effect=mocked_peeringdb)
+    def test_synchronize_with_peeringdb(self, *_):
         # Create legal AS to sync with PeeringDB
-        asn = 201281
+        asn = 65536
         autonomous_system = AutonomousSystem.create_from_peeringdb(asn)
         self.assertEqual(asn, autonomous_system.asn)
         self.assertTrue(autonomous_system.synchronize_with_peeringdb())
