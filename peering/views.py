@@ -138,7 +138,7 @@ class ASEdit(PermissionRequiredMixin, AddOrEditView):
 
 
 class ASEmail(PermissionRequiredMixin, View):
-    permission_required = "peering.send_email_autonomoussystem"
+    permission_required = "peering.send_email"
 
     def get(self, request, *args, **kwargs):
         autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])

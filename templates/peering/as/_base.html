@@ -42,7 +42,7 @@
           </a>
         </li>
         {% endif %}
-        {% if perms.peering.send_email_autonomoussystem and autonomous_system.can_receive_email %}
+        {% if perms.peering.send_email and autonomous_system.can_receive_email %}
         <li class="nav-item">
           <a class="nav-link{% if request.path|contains:'/email/' %} active{% endif %}" href="{% url 'peering:autonomous_system_email' asn=autonomous_system.asn %}">
             <i class="fas fa-envelope-open-text"></i> Send E-mail
