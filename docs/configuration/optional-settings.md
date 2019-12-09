@@ -72,6 +72,28 @@ following items can be defined within the `EMAIL` setting:
 
 ---
 
+# NAPALM_USERNAME / NAPALM_PASSWORD
+
+Peering Manager will use these credentials when authenticating to remote	
+devices via the [NAPALM library](https://napalm-automation.net/), if installed.	
+Both parameters are optional but they are required if you want Peering Manager	
+to push configurations to your devices.	
+
+## NAPALM_ARGS	
+
+A dictionary of optional arguments to pass to NAPALM when instantiating a	
+network driver. See the NAPALM documentation for a	
+[complete list of optional arguments](http://napalm.readthedocs.io/en/latest/support/#optional-arguments).	
+
+## NAPALM_TIMEOUT	
+
+Default: `30` seconds	
+
+The amount of time (in seconds) to wait for NAPALM to connect to a device.	
+
+---	
+
+
 ## PEERINGDB_USERNAME / PEERINGDB_PASSWORD
 
 These settings are being used to authenticate to PeeringDB.
