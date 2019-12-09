@@ -757,6 +757,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
         help_texts = {
             "hostname": "Router hostname (must be resolvable) or IP address",
             "configuration_template": "Template used to generate device configuration",
+            "napalm_timeout": "Maximum time to wait for a connection (in seconds)",
         }
         widgets = {
             "configuration_template": APISelect(
