@@ -1203,7 +1203,6 @@ class InternetExchangePeeringSession(BGPSession):
 class Router(ChangeLoggedModel, TaggableModel):
     name = models.CharField(max_length=128)
     hostname = models.CharField(max_length=256)
-    
     napalm_username = models.CharField(blank=True, max_length=256)
     napalm_password = models.CharField(blank=True, max_length=256)
     napalm_timeout = models.PositiveIntegerField(blank=True, default=30)
