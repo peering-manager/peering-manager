@@ -758,6 +758,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
             "hostname": "Router hostname (must be resolvable) or IP address",
             "configuration_template": "Template used to generate device configuration",
             "napalm_timeout": "Maximum time to wait for a connection (in seconds)",
+            "napalm_args": "See https://napalm.readthedocs.io/en/latest/base.html#networkdriver for more info",
         }
         widgets = {
             "configuration_template": APISelect(
