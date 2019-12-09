@@ -1362,13 +1362,22 @@ class Router(ChangeLoggedModel, TaggableModel):
             # Driver found, instanciate it
             driver = napalm.get_network_driver(self.platform)
             self.logger.debug('found napalm driver "%s"', self.platform)
-            return driver(
-                hostname=self.hostname,
-                username=self.napalm_username,
-                password=self.napalm_password,
-                timeout=self.napalm_timeout,
-                optional_args=json.loads(self.napalm_args),
-            )
+            if self.napalm_username and self.napalm_password:
+                return driver(
+                    hostname=self.hostname,
+                    username=self.napalm_username,
+                    password=self.napalm_password,
+                    timeout=self.napalm_timeout,
+                    optional_args=json.loads(self.napalm_args),
+                )
+            else:
+                return driver(
+                    hostname=self.hostname,
+                    username=settings.NAPALM_USERNAME,
+                    password=settings.NAPALM_PASSWORD,
+                    timeout=settings.NAPALM_TIMEOUT,
+                    optional_args=settings.NAPALM_ARGS,
+                )
         except napalm.base.exceptions.ModuleImportError:
             # Unable to import proper driver from napalm
             # Most probably due to a broken install
