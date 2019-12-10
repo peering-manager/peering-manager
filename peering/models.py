@@ -1205,9 +1205,15 @@ class Router(ChangeLoggedModel, TaggableModel):
     hostname = models.CharField(max_length=256)
     napalm_username = models.CharField(blank=True, max_length=256)
     napalm_password = models.CharField(blank=True, max_length=256)
-    napalm_timeout = models.PositiveIntegerField(blank=True, default=30)
+    napalm_timeout = models.PositiveIntegerField(
+        blank=True,
+        default=30,
+        help_text="The maximum time to wait for a connection in seconds",
+    )
     # napalm_args is a JSONField so actually stores it as a dict, not as a str
-    napalm_args = JSONField()
+    napalm_args = JSONField(
+        help_text="See https://napalm.readthedocs.io/en/latest/support/#optional-arguments for more info",
+    )
     
     platform = models.CharField(
         max_length=50,
