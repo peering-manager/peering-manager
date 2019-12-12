@@ -1212,7 +1212,7 @@ class Router(ChangeLoggedModel, TaggableModel):
     )
     # napalm_args is a JSONField so actually stores it as a dict, not as a str
     napalm_args = JSONField(
-        help_text="See https://napalm.readthedocs.io/en/latest/support/#optional-arguments for more info",
+        default=dict,
     )
     
     platform = models.CharField(
