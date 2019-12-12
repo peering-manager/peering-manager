@@ -101,7 +101,10 @@
             </a>
           </ul>
           <div class="footer">
-            <p>{{ settings.HOSTNAME }} ({{ settings.VERSION }})</p>
+            <p>
+              {{ settings.HOSTNAME }} ({{ settings.VERSION }})
+              <span id="latest_release" class="text-danger"></span>
+            </p>
             <p>{% now 'Y-m-d H:i:s T' %}</p>
             <p>
               <i class="fas fa-fw fa-cloud"></i> <a href="{% url 'api-root' %}">API</a> &middot;
@@ -133,6 +136,7 @@
     <script src="{% static 'js/forms.js' %}?{{ settings.VERSION }}"></script>
     <script type="text/javascript">
       var our_api_path = "/{{ settings.BASE_PATH }}api/";
+      var current_version = "{{ settings.VERSION }}";
     </script>
     {% block javascript %}{% endblock %}
   </body>
