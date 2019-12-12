@@ -126,7 +126,7 @@ class BGPSessionStateColumn(tables.TemplateColumn):
                 "visible", Router.napalm_username and Router.napalm_password
             )
         else:
-            visible = kwars.pop(
+            visible = kwargs.pop(
                 "visible", settings.NAPALM_USERNAME and settings.NAPALM_PASSWORD
             )
         verbose_name = kwargs.pop("verbose_name", "State")
