@@ -13,6 +13,14 @@ services:
     ports:
       - 5432:5432
 
+  cache:
+    image: redis:5.0-alpine
+    volumes:
+      - ./redis/data:/data
+    restart: always
+    ports:
+      - 6379:6379
+
   adminer:
     image: adminer
     restart: always
