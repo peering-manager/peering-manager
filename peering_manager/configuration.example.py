@@ -25,3 +25,16 @@ DATABASE = {
     "HOST": "localhost",  # Database server
     "PORT": "",  # Database port (leave blank for default)
 }
+
+# Redis configuration
+REDIS = {
+    "HOST": "localhost",
+    "PORT": 6379,
+    "PASSWORD": "",
+    "CACHE_DATABASE": 1,
+    "DEFAULT_TIMEOUT": 300,
+    "SSL": False,
+}
+
+# Cache timeout in seconds. Set ti 0 to disable caching.
+CACHE_TIMEOUT = 900
