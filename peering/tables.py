@@ -355,4 +355,4 @@ class TemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Template
-        fields = ("pk", "type", "name", "updated", "actions")
+        fields = ("pk", "name", "type", "updated", "actions")
