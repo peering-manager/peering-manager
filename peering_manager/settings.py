@@ -83,14 +83,17 @@ except ImportError:
         "Configuration file is not present. Please define peering_manager/configuration.py per the documentation."
     )
 
-DATABASE = SECRET_KEY = ALLOWED_HOSTS = MY_ASN = None
-for setting in ["DATABASE", "SECRET_KEY", "ALLOWED_HOSTS", "MY_ASN"]:
-    try:
-        globals()[setting] = getattr(configuration, setting)
-    except AttributeError:
+for setting in ["ALLOWED_HOSTS", "DATABASE", "SECRET_KEY", "MY_ASN"]:
+    if not hasattr(configuration, setting):
         raise ImproperlyConfigured(
             "Mandatory setting {} is not in the configuration.py file.".format(setting)
         )
+
+# Set required parameters
+ALLOWED_HOSTS = getattr(configuration, "ALLOWED_HOSTS")
+DATABASE = getattr(configuration, "DATABASE")
+SECRET_KEY = getattr(configuration, "SECRET_KEY")
+MY_ASN = getattr(configuration, "MY_ASN")
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
