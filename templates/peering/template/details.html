@@ -36,10 +36,12 @@
                 <td>Last update</td>
                 <td>{{ template.updated }}</td>
               </tr>
+              {% if template.type == "configuration" %}
               <tr>
                 <td>Utilization</td>
                 <td>Used by {{ routers|length }} router{{ routers|length|pluralize }}</td>
               </tr>
+              {% endif %}
             </table>
           </div>
         </div>
