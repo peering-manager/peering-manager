@@ -83,8 +83,8 @@ class NetworkIXLAN(models.Model):
             )
             return
 
-        # Trigger the build of a new PeerRecord or just ignore if it already
-        # exists, assumes it exists
+        # Trigger the build of a new PeerRecord or just ignore if it already exists,
+        # assumes it exists
         # Note that there is not point of doing the same thing when a Network
         # or a NetworkIXLAN is deleted because it will automatically delete the
         # PeerRecord linked to it using the foreign key (with the CASCADE mode)
@@ -127,6 +127,7 @@ class NetworkIXLAN(models.Model):
 class PeerRecord(models.Model):
     network = models.ForeignKey("Network", on_delete=models.CASCADE)
     network_ixlan = models.ForeignKey("NetworkIXLAN", on_delete=models.CASCADE)
+    visible = models.BooleanField(blank=True, default=True)
 
     def __str__(self):
         return "AS{} ({}) on {}".format(

@@ -1,7 +1,22 @@
 from django import forms
 
 from .models import PeerRecord
-from utils.forms import BootstrapMixin
+from utils.forms import (
+    BootstrapMixin,
+    BulkEditForm,
+    CustomNullBooleanSelect,
+    FilterChoiceField,
+)
+
+
+class PeerRecordBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = FilterChoiceField(
+        queryset=PeerRecord.objects.all(), widget=forms.MultipleHiddenInput
+    )
+    visible = forms.NullBooleanField(required=False, widget=CustomNullBooleanSelect)
+
+    class Meta:
+        pass
 
 
 class PeerRecordFilterForm(BootstrapMixin, forms.Form):
@@ -16,3 +31,4 @@ class PeerRecordFilterForm(BootstrapMixin, forms.Form):
     network__info_prefixes4 = forms.IntegerField(
         required=False, label="IPv4 Max Prefixes"
     )
+    visible = forms.NullBooleanField(required=False, widget=CustomNullBooleanSelect)

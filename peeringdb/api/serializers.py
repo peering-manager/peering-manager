@@ -31,12 +31,12 @@ class NetworkIXLANSerializer(serializers.ModelSerializer):
 
 
 class PeerRecordSerializer(serializers.ModelSerializer):
-    network = NetworkSerializer()
-    network_ixlan = NetworkIXLANSerializer()
+    network = NetworkSerializer(read_only=True)
+    network_ixlan = NetworkIXLANSerializer(read_only=True)
 
     class Meta:
         model = PeerRecord
-        fields = ["id", "network", "network_ixlan"]
+        fields = ["id", "network", "network_ixlan", "visible"]
 
 
 class SynchronizationSerializer(serializers.ModelSerializer):

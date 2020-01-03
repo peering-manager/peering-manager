@@ -16,6 +16,7 @@ router = routers.DefaultRouter()
 router.APIRootView = PeeringDBRootView
 
 router.register(r"cache", views.CacheViewSet, basename="cache")
+router.register(r"peer-records", views.PeerRecordViewSet)
 router.register(r"synchronizations", views.SynchronizationViewSet)
 
 app_name = "peeringdb-api"

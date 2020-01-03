@@ -18,6 +18,7 @@ class PeerRecordFilter(django_filters.FilterSet):
             "network__irr_as_set",
             "network__info_prefixes6",
             "network__info_prefixes4",
+            "visible",
         ]
 
     def search(self, queryset, name, value):

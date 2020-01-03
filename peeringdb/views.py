@@ -1,9 +1,14 @@
 from django.contrib import messages
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect, render, reverse
 from django.views.generic import View
 
+from .filters import PeerRecordFilter
+from .forms import PeerRecordBulkEditForm
 from .http import PeeringDB
 from .models import Contact, Network, NetworkIXLAN, PeerRecord
+from .tables import PeerRecordTable
+from utils.views import BulkEditView
 
 
 class CacheManagementView(View):
@@ -23,3 +28,11 @@ class CacheManagementView(View):
             "peer_record_count": PeerRecord.objects.count(),
         }
         return render(request, "peeringdb/cache.html", context)
+
+
+class PeerRecordBulkEdit(PermissionRequiredMixin, BulkEditView):
+    permission_required = "peeringdb.change_peerrecord"
+    queryset = PeerRecord.objects.all()
+    filter = PeerRecordFilter
+    table = PeerRecordTable
+    form = PeerRecordBulkEditForm

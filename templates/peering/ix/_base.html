@@ -36,7 +36,7 @@
         </li>
         {% if internet_exchange.peeringdb_id %}
         <li class="nav-item">
-          <a class="nav-link{% if request.path|contains:'/peers/' %} active{% endif %}" href="{% url 'peering:internet_exchange_peers' slug=internet_exchange.slug %}">
+          <a class="nav-link{% if request.path|contains:'/peers/' %} active{% endif %}" href="{% url 'peering:internet_exchange_peers' slug=internet_exchange.slug %}?visible=true">
             <i class="fas fa-link"></i> Available Peers
           </a>
         </li>

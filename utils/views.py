@@ -381,7 +381,6 @@ class BulkEditView(View):
                                 ):
                                     if isinstance(form.cleaned_data[name], QuerySet):
                                         getattr(obj, name).set([])
-                                        print("1) {} set to []".format(name))
                                     else:
                                         setattr(
                                             obj,
@@ -390,14 +389,9 @@ class BulkEditView(View):
                                             if isinstance(form.fields[name], CharField)
                                             else None,
                                         )
-                                elif form.cleaned_data[name]:
+                                elif form.cleaned_data[name] is not None:
                                     if isinstance(form.cleaned_data[name], QuerySet):
                                         getattr(obj, name).set(form.cleaned_data[name])
-                                        print(
-                                            "2) {} set to {}".format(
-                                                name, form.cleaned_data[name]
-                                            )
-                                        )
                                     else:
                                         setattr(obj, name, form.cleaned_data[name])
                             obj.full_clean()
