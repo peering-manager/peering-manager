@@ -1,0 +1,60 @@
+name: Run tests and code formatting check
+on: [push, pull_request]
+
+jobs:
+  black:
+    name: black
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: setup python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox
+      - name: run tox -e black
+        run: tox
+        env:
+          TOXENV: black
+
+  tests:
+    name: tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        toxenv:
+          - py36
+          - py37
+          - py38
+        include:
+          - toxenv: py36
+            python-version: 3.6
+          - toxenv: py37
+            python-version: 3.7
+          - toxenv: py38
+            python-version: 3.8
+    services:
+      postgres:
+        image: postgres:9.6
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v1
+      - name: setup python
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox coveralls
+      - name: run tox
+        run: |
+          tox
+          coveralls
+        env:
+          TOXENV: ${{ matrix.toxenv }}
+          COVERALLS_REPO_TOKEN: $ {{ secrets.COVERALLS_REPO_TOKEN }}
