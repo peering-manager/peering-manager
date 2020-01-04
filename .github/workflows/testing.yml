@@ -41,7 +41,7 @@ jobs:
         image: postgres:9.6
         ports:
           - 5432:5432
-        environment:
+        env:
           POSTGRES_DB: peering_manager
           POSTGRES_USER: devbox
           POSTGRES_PASSWORD: devbox
