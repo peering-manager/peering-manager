@@ -1,4 +1,4 @@
-name: Run tests and code formatting check
+name: Tests and code formatting
 on: [push, pull_request]
 
 jobs:
@@ -7,15 +7,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: setup python
+      - name: Setup Python
         uses: actions/setup-python@v1
         with:
           python-version: 3.7
-      - name: install dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install tox
-      - name: run tox -e black
+      - name: Run tox -e black
         run: tox
         env:
           TOXENV: black
@@ -47,15 +47,15 @@ jobs:
           POSTGRES_PASSWORD: devbox
     steps:
       - uses: actions/checkout@v1
-      - name: setup python
+      - name: Setup Python
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
-      - name: install dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install tox coveralls
-      - name: run tox
+      - name: Run tox
         run: |
           tox
           coveralls
