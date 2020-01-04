@@ -105,11 +105,23 @@ class AutonomousSystemTest(TestCase):
         self.assertEqual(asn, autonomous_system.asn)
         self.assertFalse(autonomous_system.synchronize_with_peeringdb())
 
-    def test_get_irr_as_set_prefixes(self):
+    def test_retrieve_irr_as_set_prefixes(self):
         with patch("peering.subprocess.Popen", side_effect=mocked_subprocess_popen):
-            prefixes = self.autonomous_system.get_irr_as_set_prefixes()
+            prefixes = self.autonomous_system.retrieve_irr_as_set_prefixes()
             self.assertEqual(1, len(prefixes["ipv6"]))
             self.assertEqual(1, len(prefixes["ipv4"]))
+
+    def test_get_irr_as_set_prefixes(self):
+        with patch("peering.subprocess.Popen", side_effect=mocked_subprocess_popen):
+            self.autonomous_system.prefixes = (
+                self.autonomous_system.retrieve_irr_as_set_prefixes()
+            )
+            self.assertEqual(1, len(self.autonomous_system.prefixes["ipv6"]))
+            self.assertEqual(1, len(self.autonomous_system.prefixes["ipv4"]))
+
+        prefixes = self.autonomous_system.get_irr_as_set_prefixes()
+        self.assertEqual(self.autonomous_system.prefixes["ipv6"], prefixes["ipv6"])
+        self.assertEqual(self.autonomous_system.prefixes["ipv4"], prefixes["ipv4"])
 
     def test__str__(self):
         asn = 64500

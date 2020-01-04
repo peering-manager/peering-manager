@@ -62,6 +62,20 @@ already configured.
 # python3 manage.py check_for_ix_peering_sessions
 ```
 
+## Storing IRR AS-SET Prefixes
+
+Calling `bgpq3` each time to generate a prefix list for an autonomous system is
+quite time consuming, even more if the prefix list is large. A command is
+provided to perform the `bgpq3` calls and store the results in the database for
+later use. A lookup in a database being less time consuming, this can improve
+prefix list generation in template significantly. Note that there are no
+invalidations of the prefixes found in the database, so make sure to run this
+command at regular intervals to keep data up-to-date.
+
+```no-highlight
+# python3 manage.py grab_prefixes
+```
+
 ## CRON
 
 To avoid executing these commands by hand (which could be annoying) they can be
@@ -72,4 +86,5 @@ run in a cron task.
 55 * * * * user cd /opt/peering-manager && python3 manage.py configure_routers
 0  * * * * user cd /opt/peering-manager && python3 manage.py poll_peering_sessions --all
 0  0 * * * user cd /opt/peering-manager && python3 manage.py check_for_ix_peering_sessions
+30 4 * * * user cd /opt/peering-manager && python3 manage.py grab_prefixes
 ```

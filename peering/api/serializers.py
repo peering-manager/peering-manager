@@ -41,6 +41,7 @@ class AutonomousSystemSerializer(TaggitSerializer, WriteEnabledNestedSerializer)
             "import_routing_policies",
             "export_routing_policies",
             "potential_internet_exchange_peering_sessions",
+            "prefixes",
             "tags",
         ]
         nested_fields = ["import_routing_policies", "export_routing_policies"]

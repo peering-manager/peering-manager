@@ -5,9 +5,9 @@ import subprocess
 from django.conf import settings
 
 
-def call_irr_as_set_resolver(irr_as_set, ip_version=6):
+def call_irr_as_set_resolver(irr_as_set, address_family=6):
     """
-    Call a subprocess to expand the given AS-SET for the wanted IP version.
+    Call a subprocess to expand the given AS-SET for an IP version.
     """
     prefixes = []
 
@@ -21,7 +21,7 @@ def call_irr_as_set_resolver(irr_as_set, ip_version=6):
         settings.BGPQ3_HOST,
         "-S",
         settings.BGPQ3_SOURCES,
-        "-{}".format(ip_version),
+        "-{}".format(address_family),
         "-A",
         "-j",
         "-l",
@@ -33,7 +33,7 @@ def call_irr_as_set_resolver(irr_as_set, ip_version=6):
     if settings.BGPQ3_ARGS:
         index = len(command) - 3
         command[index:index] = settings.BGPQ3_ARGS[
-            "ipv6" if ip_version == 6 else "ipv4"
+            "ipv6" if address_family == 6 else "ipv4"
         ]
 
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -53,7 +53,7 @@ def call_irr_as_set_resolver(irr_as_set, ip_version=6):
 def parse_irr_as_set(asn, irr_as_set):
     """
     Validate that an AS-SET is usable and split it into smaller part if it is actually
-    composed of several several AS-SETs.
+    composed of several AS-SETs.
     """
     as_sets = []
 

@@ -5,7 +5,7 @@ import napalm
 from jinja2 import Environment, TemplateSyntaxError
 
 from django.conf import settings
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
@@ -83,6 +83,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
     potential_internet_exchange_peering_sessions = ArrayField(
         InetAddressField(store_prefix_length=False), blank=True, default=list
     )
+    prefixes = JSONField(blank=True, null=True, editable=False)
 
     class Meta:
         ordering = ["asn"]
@@ -293,6 +294,25 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         return True
 
+    def retrieve_irr_as_set_prefixes(self):
+        """
+        Return a prefix list for this AS' IRR AS-SET. If none is provided the list
+        will be empty.
+
+        This function will actually retrieve prefixes from IRR online sources. It is
+        expected to be slow due to network operations and depending on the size of the
+        data to process.
+        """
+        as_sets = parse_irr_as_set(self.asn, self.irr_as_set)
+        prefixes = {"ipv6": [], "ipv4": []}
+
+        # For each AS-SET try getting IPv6 and IPv4 prefixes
+        for as_set in as_sets:
+            prefixes["ipv6"].extend(call_irr_as_set_resolver(as_set, address_family=6))
+            prefixes["ipv4"].extend(call_irr_as_set_resolver(as_set, address_family=4))
+
+        return prefixes
+
     def get_irr_as_set_prefixes(self, address_family=0):
         """
         Return a prefix list for this AS' IRR AS-SET. If none is provided the list
@@ -300,14 +320,12 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         If specified, only a list of the prefixes for the given address family will be
         returned. 6 for IPv6, 4 for IPv4, both for all other values.
-        """
-        as_sets = parse_irr_as_set(self.asn, self.irr_as_set)
-        prefixes = {"ipv6": [], "ipv4": []}
 
-        # For each AS-SET try getting IPv6 and IPv4 prefixes
-        for as_set in as_sets:
-            prefixes["ipv6"].extend(call_irr_as_set_resolver(as_set, ip_version=6))
-            prefixes["ipv4"].extend(call_irr_as_set_resolver(as_set, ip_version=4))
+        The stored database value will be used if it exists.
+        """
+        prefixes = (
+            self.prefixes if self.prefixes else self.retrieve_irr_as_set_prefixes()
+        )
 
         if address_family == 6:
             return prefixes["ipv6"]

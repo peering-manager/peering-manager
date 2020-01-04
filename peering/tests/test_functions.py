@@ -11,7 +11,7 @@ class IRRASSetFunctions(TestCase):
         prefixes6 = call_irr_as_set_resolver("AS-MOCKED")
         self.assertEqual(1, len(prefixes6))
 
-        prefixes4 = call_irr_as_set_resolver("AS-MOCKED", ip_version=4)
+        prefixes4 = call_irr_as_set_resolver("AS-MOCKED", address_family=4)
         self.assertEqual(1, len(prefixes4))
 
         # Nothing happens
