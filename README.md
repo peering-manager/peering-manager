@@ -24,7 +24,7 @@ Tested Python versions are 3.6, 3.7 and 3.8.
 The best way to start setting up this tool is to use **pip** within a
 **virtualenv**.
 
-[![Build Status](https://travis-ci.org/respawner/peering-manager.svg?branch=master)](https://travis-ci.org/respawner/peering-manager)
+[![Build Status](https://github.com/respawner/peering-manager/workflows/Run%20tests%20and%20code%20formatting%20check/badge.svg)
 [![Requirements Status](https://requires.io/github/respawner/peering-manager/requirements.svg?branch=master)](https://requires.io/github/respawner/peering-manager/requirements/?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/respawner/peering-manager/badge.svg)](https://coveralls.io/github/respawner/peering-manager)
 [![Documentation Status](https://readthedocs.org/projects/peering-manager/badge/?version=latest)](http://peering-manager.readthedocs.io/en/latest/?badge=latest)
