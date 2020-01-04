@@ -20,8 +20,8 @@ MY_ASN = 64512
 # PostgreSQL database configuration
 DATABASE = {
     "NAME": "peering_manager",  # Database name
-    "USER": "",  # PostgreSQL username
-    "PASSWORD": "",  # PostgreSQL password
+    "USER": "devbox",  # PostgreSQL username
+    "PASSWORD": "devbox",  # PostgreSQL password
     "HOST": "localhost",  # Database server
     "PORT": "",  # Database port (leave blank for default)
 }

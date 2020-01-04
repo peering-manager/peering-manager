@@ -43,7 +43,6 @@ drwxr-xr-x  13 user  staff    416  3 Feb 16:27 .git
 drwxr-xr-x   4 user  staff    128  3 Feb 16:27 .github
 -rw-r--r--   1 user  staff   1674  3 Feb 16:27 .gitignore
 -rw-r--r--   1 user  staff    124  3 Feb 16:27 .pre-commit-config.yaml
--rw-r--r--   1 user  staff    408  3 Feb 16:27 .travis.yml
 -rw-r--r--   1 user  staff  10174  3 Feb 16:27 LICENSE
 -rw-r--r--   1 user  staff   2484  3 Feb 16:27 README.md
 drwxr-xr-x   7 user  staff    224  3 Feb 16:27 docs
