@@ -37,6 +37,7 @@
                 {% if peering_session.is_route_server %}<span class="badge badge-primary">Route Server</span>{% endif %}
                 {{ peering_session.get_enabled_html }}
                 {% if peering_session.bgp_state and peering_session.internet_exchange.check_bgp_session_states %}{{ peering_session.get_bgp_state_html }}{% endif %}
+                {% if is_abandoned %}<span class="badge badge-warning">Abandoned?</span>{% endif %}
               </div>
             </div>
             <table class="card-body table table-hover attr-table mb-0">

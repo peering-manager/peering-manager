@@ -19,7 +19,7 @@ from .constants import *
 from .fields import ASNField, CommunityField, TTLField
 from netbox.api import NetBox
 from peeringdb.http import PeeringDB
-from peeringdb.models import NetworkIXLAN, PeerRecord
+from peeringdb.models import Network, NetworkIXLAN, PeerRecord
 from utils.crypto.cisco import (
     encrypt as cisco_encrypt,
     decrypt as cisco_decrypt,
@@ -128,6 +128,12 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     def get_absolute_url(self):
         return reverse("peering:autonomous_system_details", kwargs={"asn": self.asn})
+
+    def get_peeringdb_network(self):
+        try:
+            return Network.objects.get(asn=self.asn)
+        except Network.DoesNotExist:
+            return None
 
     def get_internet_exchange_peering_sessions_list_url(self):
         return reverse(
@@ -1212,6 +1218,44 @@ class InternetExchangePeeringSession(BGPSession):
         return reverse(
             "peering:internet_exchange_peering_session_details", kwargs={"pk": self.pk}
         )
+
+    def exists_in_peeringdb(self):
+        """
+        Returns True if a PeerRecord exists for this session's IP.
+        """
+        lookup = {
+            "network_ixlan__ipaddr{}".format(self.ip_address.version): str(
+                self.ip_address
+            )
+        }
+        try:
+            PeerRecord.objects.get(**lookup)
+            return True
+        except PeerRecord.DoesNotExist:
+            pass
+        return False
+
+    def is_abandoned(self):
+        """
+        Returns True if a session is considered as abandoned. Returns False otherwise.
+
+        A session is *not* considered as abandoned if one it matches one of the following
+        criteria:
+          * The Internet Exchange is not linked to a PeeringDB record
+          * User does not poll peering session states
+          * The peer AS has no cached PeeringDB record
+          * The peer AS has a cached PeeringDB record with the session IP address
+          * The BGP state for the session is not idle or active
+        """
+        if (
+            not self.internet_exchange.peeringdb_id
+            or not self.internet_exchange.check_bgp_session_states
+            or not self.autonomous_system.get_peeringdb_network()
+            or self.exists_in_peeringdb()
+            or self.bgp_state not in [BGP_STATE_IDLE, BGP_STATE_ACTIVE]
+        ):
+            return False
+        return True
 
     def __str__(self):
         return "{} - AS{} - IP {}".format(

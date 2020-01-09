@@ -760,7 +760,10 @@ class InternetExchangePeeringSessionBulkEdit(PermissionRequiredMixin, BulkEditVi
 class InternetExchangePeeringSessionDetails(View):
     def get(self, request, pk):
         peering_session = get_object_or_404(InternetExchangePeeringSession, pk=pk)
-        context = {"peering_session": peering_session}
+        context = {
+            "peering_session": peering_session,
+            "is_abandoned": peering_session.is_abandoned(),
+        }
         return render(
             request, "peering/session/internet_exchange/details.html", context
         )
