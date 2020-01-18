@@ -12,7 +12,7 @@ will fall back to built-in Django users in the event of a failure.
 ## Install django-auth-ldap
 
 ```
-# pip3 install django-auth-ldap
+# pip3 install -r requirements_ldap.txt
 ```
 
 # Configuration

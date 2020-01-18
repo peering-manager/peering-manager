@@ -1,0 +1,3 @@
+-r requirements.txt
+-r requirements_ldap.txt
+django-debug-toolbar
