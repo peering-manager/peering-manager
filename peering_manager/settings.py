@@ -216,7 +216,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "debug_toolbar",
     "django_filters",
     "django_tables2",
     "rest_framework",
@@ -230,7 +229,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -243,6 +241,11 @@ MIDDLEWARE = [
     "utils.middleware.ObjectChangeMiddleware",
     "utils.middleware.RequireLoginMiddleware",
 ]
+
+if DEBUG:
+    # Enable debug toolbar only in debugging mode
+    INSTALLED_APPS.append("debug_toolbar")
+    MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
 
 ROOT_URLCONF = "peering_manager.urls"
 
