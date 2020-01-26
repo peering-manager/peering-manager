@@ -21,13 +21,14 @@ Clone the Git repository from the base directory.  This will create the
 `peering-manager` application directory and extract the repository into it.
 
 ```no-highlight
-# git clone https://github.com/respawner/peering-manager.git .
-Cloning into '.'...
-remote: Counting objects: 431, done.
-remote: Compressing objects: 100% (123/123), done.
-remote: Total 431 (delta 100), reused 117 (delta 48), pack-reused 255
-Receiving objects: 100% (431/431), 1.18 MiB | 593.00 KiB/s, done.
-Resolving deltas: 100% (217/217), done.
+# git clone https://github.com/respawner/peering-manager.git
+Cloning into 'peering-manager'...
+remote: Enumerating objects: 126, done.
+remote: Counting objects: 100% (126/126), done.
+remote: Compressing objects: 100% (91/91), done.
+remote: Total 8579 (delta 46), reused 71 (delta 30), pack-reused 8453
+Receiving objects: 100% (8579/8579), 12.07 MiB | 13.52 MiB/s, done.
+Resolving deltas: 100% (5135/5135), done.
 ```
 
 Verify the repository was extracted.
