@@ -6,6 +6,12 @@ from rest_framework.test import APITestCase as __APITestCase
 from users.models import Token
 
 
+def json_file_to_python_type(filename):
+    with open(filename, mode="r") as f:
+        return json.load(f)
+    return None
+
+
 class APITestCase(__APITestCase):
     def setUp(self):
         """

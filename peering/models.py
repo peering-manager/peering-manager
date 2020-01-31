@@ -553,6 +553,9 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
     class Meta:
         abstract = True
 
+    def poll(self):
+        raise NotImplementedError
+
     @property
     def ip_address_version(self):
         return ipaddress.ip_address(self.ip_address).version
@@ -705,6 +708,45 @@ class DirectPeeringSession(BGPSession):
 
     def get_absolute_url(self):
         return reverse("peering:direct_peering_session_details", kwargs={"pk": self.pk})
+
+    def poll(self):
+        # Check if we are able to get BGP details
+        log = 'ignoring session states on {}, reason: "{}"'
+        if not self.router:
+            log = log.format(self.name.lower(), "no router attached")
+        elif not self.router.can_napalm_get_bgp_neighbors_detail():
+            log = log.format(
+                self.name.lower(),
+                "router with unsupported platform {}".format(self.router.platform),
+            )
+        elif self.bgp_group and not self.bgp_group.check_bgp_session_states:
+            log = log.format(self.name.lower(), "check disabled")
+        else:
+            log = None
+
+        # If we cannot check for BGP details, don't do anything
+        if log:
+            self.logger.debug(log)
+            return False
+
+        # Get BGP session detail
+        bgp_neighbor_detail = self.router.get_bgp_neighbors_detail(
+            ip_address=self.ip_address
+        )
+        if bgp_neighbor_detail:
+            received = bgp_neighbor_detail["received_prefix_count"]
+            advertised = bgp_neighbor_detail["advertised_prefix_count"]
+
+            # Update fields
+            self.bgp_state = bgp_neighbor_detail["connection_state"].lower()
+            self.received_prefix_count = received if received > 0 else 0
+            self.advertised_prefix_count = advertised if advertised > 0 else 0
+            if self.bgp_state == BGP_STATE_ESTABLISHED:
+                self.last_established_state = timezone.now()
+            self.save()
+            return True
+
+        return False
 
     def get_relationship_html(self):
         if self.relationship == BGP_RELATIONSHIP_CUSTOMER:
@@ -1219,6 +1261,45 @@ class InternetExchangePeeringSession(BGPSession):
             "peering:internet_exchange_peering_session_details", kwargs={"pk": self.pk}
         )
 
+    def poll(self):
+        # Check if we are able to get BGP details
+        log = 'ignoring session states on {}, reason: "{}"'
+        if not self.internet_exchange.router:
+            log = log.format(self.name.lower(), "no router attached")
+        elif not self.internet_exchange.router.can_napalm_get_bgp_neighbors_detail():
+            log = log.format(
+                self.name.lower(),
+                "router with unsupported platform {}".format(self.router.platform),
+            )
+        elif not self.internet_exchange.check_bgp_session_states:
+            log = log.format(self.name.lower(), "check disabled")
+        else:
+            log = None
+
+        # If we cannot check for BGP details, don't do anything
+        if log:
+            self.logger.debug(log)
+            return False
+
+        # Get BGP session detail
+        bgp_neighbor_detail = self.internet_exchange.router.get_bgp_neighbors_detail(
+            ip_address=self.ip_address
+        )
+        if bgp_neighbor_detail:
+            received = bgp_neighbor_detail["received_prefix_count"]
+            advertised = bgp_neighbor_detail["advertised_prefix_count"]
+
+            # Update fields
+            self.bgp_state = bgp_neighbor_detail["connection_state"].lower()
+            self.received_prefix_count = received if received > 0 else 0
+            self.advertised_prefix_count = advertised if advertised > 0 else 0
+            if self.bgp_state == BGP_STATE_ESTABLISHED:
+                self.last_established_state = timezone.now()
+            self.save()
+            return True
+
+        return False
+
     def exists_in_peeringdb(self):
         """
         Returns True if a PeerRecord exists for this session's IP.
@@ -1704,7 +1785,30 @@ class Router(ChangeLoggedModel, TaggableModel):
         else:
             return self.get_napalm_bgp_neighbors()
 
-    def get_napalm_bgp_neighbors_detail(self):
+    def find_bgp_neighbor_detail(self, bgp_neighbors, ip_address):
+        """
+        Finds and returns a single BGP neighbor amongst others.
+        """
+        # NAPALM dict expected
+        if not isinstance(bgp_neighbors, dict):
+            return None
+
+        # Make sure to use an IP object
+        if isinstance(ip_address, str):
+            ip_address = ipaddress.ip_address(ip_address)
+
+        for _, asn in bgp_neighbors.items():
+            for _, neighbors in asn.items():
+                for neighbor in neighbors:
+                    neighbor_ip_address = ipaddress.ip_address(
+                        neighbor["remote_address"]
+                    )
+                    if ip_address == neighbor_ip_address:
+                        return neighbor
+
+        return None
+
+    def get_napalm_bgp_neighbors_detail(self, ip_address=None):
         """
         Returns a list of dictionaries listing all BGP neighbors found on the
         router using NAPALM and there respective detail.
@@ -1735,9 +1839,13 @@ class Router(ChangeLoggedModel, TaggableModel):
                     "error while closing connection with %s", self.hostname
                 )
 
-        return bgp_neighbors_detail
+        return (
+            bgp_neighbors_detail
+            if not ip_address
+            else self.find_bgp_neighbor_detail(bgp_neighbors_detail, ip_address)
+        )
 
-    def get_netbox_bgp_neighbors_detail(self):
+    def get_netbox_bgp_neighbors_detail(self, ip_address=None):
         """
         Returns a list of dictionaries listing all BGP neighbors found on the
         router using NetBox and their respective detail.
@@ -1758,21 +1866,28 @@ class Router(ChangeLoggedModel, TaggableModel):
             self.hostname,
         )
 
-        return bgp_neighbors_detail
+        return (
+            bgp_neighbors_detail
+            if not ip_address
+            else self.find_bgp_neighbor_detail(bgp_neighbors_detail, ip_address)
+        )
 
-    def get_bgp_neighbors_detail(self):
+    def get_bgp_neighbors_detail(self, ip_address=None):
         """
-        Returns a list of dictionaries listing all BGP neighbors found on the
-        router using either NAPALM or NetBox depending on the use_netbox flag
-        and their respective detail.
+        Returns a list of dictionaries listing all BGP neighbors found on the router
+        using either NAPALM or NetBox depending on the use_netbox flag and their
+        respective detail.
+
+        If the `ip_address` named parameter is not `None`, only the neighbor with this
+        IP address will be returned
 
         If an error occurs or no BGP neighbors can be found, the returned list
         will be empty.
         """
         if self.use_netbox:
-            return self.get_netbox_bgp_neighbors_detail()
+            return self.get_netbox_bgp_neighbors_detail(ip_address=ip_address)
         else:
-            return self.get_napalm_bgp_neighbors_detail()
+            return self.get_napalm_bgp_neighbors_detail(ip_address=ip_address)
 
     def bgp_neighbors_detail_as_list(self, bgp_neighbors_detail):
         """

@@ -24,14 +24,11 @@ class ViewTestCase(TestCase):
         self.assertTrue(response.context["user"].is_active)
 
     def _check_if_object_exists(self, kwargs):
-        exists = True
-
         try:
             self.model.objects.get(**kwargs)
+            return True
         except self.model.DoesNotExist:
-            exists = False
-
-        return exists
+            return False
 
     def does_object_exist(self, kwargs):
         self.assertTrue(self._check_if_object_exists(kwargs))

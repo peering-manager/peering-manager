@@ -145,6 +145,10 @@ class DirectPeeringSessionViewSet(ModelViewSet):
         result = router.clear_bgp_session(self.get_object())
         return Response({"result": result})
 
+    @action(detail=True, methods=["post", "patch"], url_path="poll")
+    def poll(self, request, pk=None):
+        return Response({"success": self.get_object().poll()})
+
 
 class InternetExchangeViewSet(ModelViewSet):
     queryset = InternetExchange.objects.all()
@@ -229,6 +233,10 @@ class InternetExchangePeeringSessionViewSet(ModelViewSet):
 
         result = router.clear_bgp_session(self.get_object())
         return Response({"result": result})
+
+    @action(detail=True, methods=["post", "patch"], url_path="poll")
+    def poll(self, request, pk=None):
+        return Response({"success": self.get_object().poll()})
 
 
 class RouterViewSet(ModelViewSet):

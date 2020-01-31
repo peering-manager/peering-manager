@@ -35,7 +35,7 @@ from utils.crypto.junos import (
     decrypt as junos_decrypt,
     is_encrypted as junos_is_encrypted,
 )
-from utils.testing import MockedResponse
+from utils.testing import json_file_to_python_type, MockedResponse
 
 
 def mocked_peeringdb(*args, **kwargs):
@@ -183,47 +183,67 @@ class CommunityTest(TestCase):
 
 
 class DirectPeeringSessionTest(TestCase):
-    def test_encrypt_password(self):
-        autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Test")
-        router = Router.objects.create(
+    @classmethod
+    def setUpTestData(cls):
+        cls.autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Test")
+        cls.group = BGPGroup.objects.create(
+            name="Test Group", slug="testgroup", check_bgp_session_states=True
+        )
+        cls.router = Router.objects.create(
             name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
         )
-        peering_session = DirectPeeringSession.objects.create(
-            autonomous_system=autonomous_system,
+        cls.session = DirectPeeringSession.objects.create(
+            autonomous_system=cls.autonomous_system,
+            bgp_group=cls.group,
             ip_address="2001:db8::1",
             password="mypassword",
-            router=router,
+            router=cls.router,
         )
-        self.assertIsNotNone(peering_session.password)
-        self.assertIsNone(peering_session.encrypted_password)
+
+    def test_encrypt_password(self):
+        self.assertIsNotNone(self.session.password)
+        self.assertIsNone(self.session.encrypted_password)
 
         # Encrypt the password
-        peering_session.encrypt_password(router.platform)
-        self.assertIsNotNone(peering_session.encrypted_password)
-        self.assertTrue(junos_is_encrypted(peering_session.encrypted_password))
+        self.session.encrypt_password(self.router.platform)
+        self.assertIsNotNone(self.session.encrypted_password)
+        self.assertTrue(junos_is_encrypted(self.session.encrypted_password))
         self.assertEqual(
-            peering_session.password, junos_decrypt(peering_session.encrypted_password)
+            self.session.password, junos_decrypt(self.session.encrypted_password)
         )
 
         # Change router platform and re-encrypt
-        router.platform = PLATFORM_IOSXR
-        peering_session.encrypt_password(router.platform)
-        self.assertIsNotNone(peering_session.encrypted_password)
-        self.assertTrue(cisco_is_encrypted(peering_session.encrypted_password))
+        self.router.platform = PLATFORM_IOSXR
+        self.session.encrypt_password(self.router.platform)
+        self.assertIsNotNone(self.session.encrypted_password)
+        self.assertTrue(cisco_is_encrypted(self.session.encrypted_password))
         self.assertEqual(
-            peering_session.password, cisco_decrypt(peering_session.encrypted_password)
+            self.session.password, cisco_decrypt(self.session.encrypted_password)
         )
 
         # Change router platform to an unsupported one
-        router.platform = PLATFORM_NONE
-        peering_session.encrypt_password(router.platform)
-        self.assertIsNone(peering_session.encrypted_password)
+        self.router.platform = PLATFORM_NONE
+        self.session.encrypt_password(self.router.platform)
+        self.assertIsNone(self.session.encrypted_password)
 
         # Change password to None and
-        peering_session.password = None
-        router.platform = PLATFORM_JUNOS
-        peering_session.encrypt_password(router.platform)
-        self.assertIsNone(peering_session.encrypted_password)
+        self.session.password = None
+        self.router.platform = PLATFORM_JUNOS
+        self.session.encrypt_password(self.router.platform)
+        self.assertIsNone(self.session.encrypted_password)
+
+    def test_poll(self):
+        with patch(
+            "peering.models.Router.get_bgp_neighbors_detail",
+            return_value=self.router.find_bgp_neighbor_detail(
+                json_file_to_python_type(
+                    "peering/tests/fixtures/get_bgp_neighbors_detail.json"
+                ),
+                "2001:db8::1",
+            ),
+        ):
+            self.assertTrue(self.session.poll())
+            self.assertEqual(567257, self.session.received_prefix_count)
 
 
 class InternetExchangeTest(TestCase):
@@ -319,87 +339,82 @@ class InternetExchangeTest(TestCase):
 
 
 class InternetExchangePeeringSessionTest(TestCase):
-    def test_does_exist(self):
-        # No session, must expect None
-        self.assertIsNone(InternetExchangePeeringSession.does_exist())
-
-        # Prepare objects and create a peering session
-        autonomous_system0 = AutonomousSystem.objects.create(asn=64500, name="Test")
-        internet_exchange0 = InternetExchange.objects.create(name="Test0", slug="test0")
-        peering_session0 = InternetExchangePeeringSession.objects.create(
-            autonomous_system=autonomous_system0,
-            internet_exchange=internet_exchange0,
+    @classmethod
+    def setUpTestData(cls):
+        cls.autonomous_system = AutonomousSystem.objects.create(asn=64510, name="Test")
+        cls.router = Router.objects.create(
+            name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
+        )
+        cls.exchange = InternetExchange.objects.create(
+            name="Test Group",
+            slug="testgroup",
+            ipv6_address="2001:db8::1337",
+            ipv4_address="192.0.2.64",
+            router=cls.router,
+            check_bgp_session_states=True,
+        )
+        cls.session = InternetExchangePeeringSession.objects.create(
+            autonomous_system=cls.autonomous_system,
+            internet_exchange=cls.exchange,
             ip_address="2001:db8::1",
         )
 
-        # Make sure that the session has been created
-        self.assertIsNotNone(peering_session0)
+    def test_does_exist(self):
         # Make sure that the session is returned by calling does_exist()
         # without arguments (only one session in the database)
         self.assertIsNotNone(InternetExchangePeeringSession.does_exist())
         # Make sure we can retrieve the session with its IP
         self.assertEqual(
-            peering_session0,
+            self.session,
             InternetExchangePeeringSession.does_exist(ip_address="2001:db8::1"),
         )
         # Make sure we can retrieve the session with its IX
         self.assertEqual(
-            peering_session0,
-            InternetExchangePeeringSession.does_exist(
-                internet_exchange=internet_exchange0
-            ),
+            self.session,
+            InternetExchangePeeringSession.does_exist(internet_exchange=self.exchange),
         )
         # Make sure we can retrieve the session with AS
         self.assertEqual(
-            peering_session0,
+            self.session,
             InternetExchangePeeringSession.does_exist(
-                autonomous_system=autonomous_system0
+                autonomous_system=self.autonomous_system
             ),
         )
 
         # Create another peering session
-        peering_session1 = InternetExchangePeeringSession.objects.create(
-            autonomous_system=autonomous_system0,
-            internet_exchange=internet_exchange0,
-            ip_address="198.51.100.1",
+        session1 = InternetExchangePeeringSession.objects.create(
+            autonomous_system=self.autonomous_system,
+            internet_exchange=self.exchange,
+            ip_address="192.0.2.1",
         )
 
-        # Make sure that the session has been created
-        self.assertIsNotNone(peering_session1)
         # More than one session, must expect None
         self.assertIsNone(InternetExchangePeeringSession.does_exist())
         # Make sure we can retrieve the session with its IP
         self.assertEqual(
-            peering_session1,
-            InternetExchangePeeringSession.does_exist(ip_address="198.51.100.1"),
+            session1, InternetExchangePeeringSession.does_exist(ip_address="192.0.2.1")
         )
         # Make sure it returns None when using a field that the two sessions
         # have in common
         self.assertIsNone(
-            InternetExchangePeeringSession.does_exist(
-                internet_exchange=internet_exchange0
-            )
+            InternetExchangePeeringSession.does_exist(internet_exchange=self.exchange)
         )
 
         # Create a new IX
-        internet_exchange1 = InternetExchange.objects.create(name="Test1", slug="test1")
+        exchange1 = InternetExchange.objects.create(name="Test1", slug="test1")
 
         # Make sure it returns None when there is no session
         self.assertIsNone(
-            InternetExchangePeeringSession.does_exist(
-                internet_exchange=internet_exchange1
-            )
+            InternetExchangePeeringSession.does_exist(internet_exchange=exchange1)
         )
 
-        # Create a new session with a already used IP in another OX
-        peering_session2 = InternetExchangePeeringSession.objects.create(
-            autonomous_system=autonomous_system0,
-            internet_exchange=internet_exchange1,
+        # Create a new session with a already used IP in another IX
+        session2 = InternetExchangePeeringSession.objects.create(
+            autonomous_system=self.autonomous_system,
+            internet_exchange=exchange1,
             ip_address="2001:db8::1",
         )
 
-        # Make sure that the session has been created
-        self.assertIsNotNone(peering_session2)
         # Make sure we have None, because two sessions will be found
         self.assertIsNone(
             InternetExchangePeeringSession.does_exist(ip_address="2001:db8::1")
@@ -407,9 +422,9 @@ class InternetExchangePeeringSessionTest(TestCase):
         # But if we narrow the search with the IX we must have the proper
         # session
         self.assertEqual(
-            peering_session2,
+            session2,
             InternetExchangePeeringSession.does_exist(
-                ip_address="2001:db8::1", internet_exchange=internet_exchange1
+                ip_address="2001:db8::1", internet_exchange=exchange1
             ),
         )
 
@@ -459,13 +474,6 @@ class InternetExchangePeeringSessionTest(TestCase):
         self.assertIsNone(peering_session.encrypted_password)
 
     def test_exists_in_peeringdb(self):
-        autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Test")
-        internet_exchange = InternetExchange.objects.create(name="Test", slug="test")
-        InternetExchangePeeringSession.objects.create(
-            autonomous_system=autonomous_system,
-            internet_exchange=internet_exchange,
-            ip_address="2001:db8::1",
-        )
         self.assertFalse(
             InternetExchangePeeringSession.objects.get(
                 ip_address="2001:db8::1"
@@ -482,8 +490,27 @@ class InternetExchangePeeringSessionTest(TestCase):
         )
         self.assertFalse(peering_session.is_abandoned())
 
+    def test_poll(self):
+        with patch(
+            "peering.models.Router.get_bgp_neighbors_detail",
+            return_value=self.router.find_bgp_neighbor_detail(
+                json_file_to_python_type(
+                    "peering/tests/fixtures/get_bgp_neighbors_detail.json"
+                ),
+                "2001:db8::1",
+            ),
+        ):
+            self.assertTrue(self.session.poll())
+            self.assertEqual(567257, self.session.received_prefix_count)
+
 
 class RouterTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.bgp_neighbors_detail = json_file_to_python_type(
+            "peering/tests/fixtures/get_bgp_neighbors_detail.json"
+        )
+
     def setUp(self):
         super().setUp()
         self.router = Router.objects.create(
@@ -623,30 +650,124 @@ class RouterTest(TestCase):
     def test_bgp_neighbors_detail_as_list(self):
         expected = [
             {
+                "multipath": False,
+                "previous_connection_state": "OpenConfirm",
+                "configured_keepalive": 30,
+                "messages_queued_out": 0,
+                "routing_table": "global",
+                "keepalive": 30,
+                "input_messages": 26006050,
+                "remove_private_as": False,
+                "configured_holdtime": 0,
+                "suppress_4byte_as": False,
+                "suppressed_prefix_count": 0,
+                "local_address": "192.0.2.2",
+                "remote_address": "192.0.2.1",
+                "input_updates": 25604153,
+                "multihop": False,
+                "export_policy": "",
+                "remote_port": 54687,
+                "local_port": 179,
+                "active_prefix_count": 37358,
+                "output_messages": 383524,
+                "import_policy": "",
+                "connection_state": "Established",
+                "received_prefix_count": 567162,
+                "local_as": 64510,
+                "accepted_prefix_count": 566998,
+                "router_id": "172.17.17.1",
+                "flap_count": 0,
+                "last_event": "RecvKeepAlive",
+                "holdtime": 90,
+                "local_as_prepend": True,
                 "up": True,
-                "local_as": 201281,
-                "remote_as": 29467,
-                "local_address": "198.51.100.1",
-            }
+                "remote_as": 64500,
+                "local_address_configured": False,
+                "advertised_prefix_count": 111,
+                "output_updates": 524,
+            },
+            {
+                "multipath": False,
+                "previous_connection_state": "EstabSync",
+                "configured_keepalive": 30,
+                "messages_queued_out": 0,
+                "routing_table": "global",
+                "keepalive": 30,
+                "input_messages": 12094123,
+                "remove_private_as": False,
+                "configured_holdtime": 0,
+                "suppress_4byte_as": False,
+                "suppressed_prefix_count": 0,
+                "local_address": "2001:db8::2",
+                "remote_address": "2001:db8::1",
+                "input_updates": 11951665,
+                "multihop": False,
+                "export_policy": "",
+                "remote_port": 50877,
+                "local_port": 179,
+                "active_prefix_count": 101545,
+                "output_messages": 141052,
+                "import_policy": "",
+                "connection_state": "Established",
+                "received_prefix_count": 567257,
+                "local_as": 64510,
+                "accepted_prefix_count": 567257,
+                "router_id": "192.168.100.1",
+                "flap_count": 2,
+                "last_event": "RecvKeepAlive",
+                "holdtime": 90,
+                "local_as_prepend": True,
+                "up": True,
+                "remote_as": 64501,
+                "local_address_configured": False,
+                "advertised_prefix_count": 111,
+                "output_updates": 158,
+            },
         ]
-        bgp_neighbors_detail = {
-            "global": {
-                29467: [
-                    {
-                        "up": True,
-                        "local_as": 201281,
-                        "remote_as": 29467,
-                        "local_address": "198.51.100.1",
-                    }
-                ]
-            }
-        }
 
-        router = Router.objects.create(
-            name="test", hostname="test.example.com", platform=PLATFORM_JUNOS
-        )
         self.assertEqual(
-            expected, router.bgp_neighbors_detail_as_list(bgp_neighbors_detail)
+            expected,
+            self.router.bgp_neighbors_detail_as_list(self.bgp_neighbors_detail),
+        )
+
+    def test_find_bgp_neighbor_detail(self):
+        self.assertIsNone(
+            self.router.find_bgp_neighbor_detail(
+                self.bgp_neighbors_detail, "192.0.2.250"
+            )
+        )
+        self.assertIsNone(
+            self.router.find_bgp_neighbor_detail(
+                self.bgp_neighbors_detail, ipaddress.ip_address("192.0.2.250")
+            )
+        )
+        self.assertIsNotNone(
+            self.router.find_bgp_neighbor_detail(self.bgp_neighbors_detail, "192.0.2.1")
+        )
+        self.assertIsNotNone(
+            self.router.find_bgp_neighbor_detail(
+                self.bgp_neighbors_detail, ipaddress.ip_address("192.0.2.1")
+            )
+        )
+        self.assertIsNone(
+            self.router.find_bgp_neighbor_detail(
+                self.bgp_neighbors_detail, "2001:db8::1337"
+            )
+        )
+        self.assertIsNone(
+            self.router.find_bgp_neighbor_detail(
+                self.bgp_neighbors_detail, ipaddress.ip_address("2001:db8::1337")
+            )
+        )
+        self.assertIsNotNone(
+            self.router.find_bgp_neighbor_detail(
+                self.bgp_neighbors_detail, "2001:db8::1"
+            )
+        )
+        self.assertIsNotNone(
+            self.router.find_bgp_neighbor_detail(
+                self.bgp_neighbors_detail, ipaddress.ip_address("2001:db8::1")
+            )
         )
 
 
