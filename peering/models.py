@@ -98,13 +98,6 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         return False
 
     @staticmethod
-    def does_exist(asn):
-        try:
-            return AutonomousSystem.objects.get(asn=asn)
-        except AutonomousSystem.DoesNotExist:
-            return None
-
-    @staticmethod
     def create_from_peeringdb(asn):
         peeringdb_network = PeeringDB().get_autonomous_system(asn)
 
@@ -924,9 +917,16 @@ class InternetExchange(AbstractGroup):
                             "ip %s fits in prefix %s", ip_address, str(prefix)
                         )
 
-                        if not InternetExchangePeeringSession.does_exist(
-                            ip_address=ip_address, internet_exchange=self
-                        ):
+                        try:
+                            InternetExchangePeeringSession.objects.get(
+                                ip_address=ip_address, internet_exchange=self
+                            )
+                            self.logger.debug(
+                                "session %s with as%s already exists",
+                                ip_address,
+                                remote_asn,
+                            )
+                        except InternetExchangePeeringSession.DoesNotExist:
                             self.logger.debug(
                                 "session %s with as%s does not exist",
                                 ip_address,
@@ -935,8 +935,12 @@ class InternetExchange(AbstractGroup):
 
                             # Grab the AS, create it if it does not exist in
                             # the database yet
-                            autonomous_system = AutonomousSystem.does_exist(remote_asn)
-                            if not autonomous_system:
+                            autonomous_system = None
+                            try:
+                                autonomous_system = AutonomousSystem.objects.get(
+                                    asn=remote_asn
+                                )
+                            except AutonomousSystem.DoesNotExist:
                                 self.logger.debug(
                                     "as%s not present importing from peeringdb",
                                     remote_asn,
@@ -974,12 +978,6 @@ class InternetExchange(AbstractGroup):
                                 peering_session.save()
                                 number_of_peering_sessions += 1
                                 self.logger.debug("session %s created", ip_address)
-                        else:
-                            self.logger.debug(
-                                "session %s with as%s already exists",
-                                ip_address,
-                                remote_asn,
-                            )
                     else:
                         self.logger.debug(
                             "ip %s do not fit in prefix %s",
@@ -1067,10 +1065,10 @@ class InternetExchange(AbstractGroup):
                         )
 
                         # Check if the BGP session is on this IX
-                        peering_session = InternetExchangePeeringSession.does_exist(
-                            internet_exchange=self, ip_address=ip_address
-                        )
-                        if peering_session:
+                        try:
+                            InternetExchangePeeringSession.objects.get(
+                                internet_exchange=self, ip_address=ip_address
+                            )
                             # Get the BGP state for the session
                             state = session["connection_state"].lower()
                             received = session["received_prefix_count"]
@@ -1094,7 +1092,7 @@ class InternetExchange(AbstractGroup):
                             if peering_session.bgp_state == BGP_STATE_ESTABLISHED:
                                 peering_session.last_established_state = timezone.now()
                             peering_session.save()
-                        else:
+                        except InternetExchangePeeringSession.DoesNotExist:
                             self.logger.debug(
                                 "session %s in %s not found",
                                 ip_address,
@@ -1119,31 +1117,6 @@ class InternetExchangePeeringSession(BGPSession):
 
     class Meta:
         ordering = ["autonomous_system", "ip_address"]
-
-    @staticmethod
-    def does_exist(internet_exchange=None, autonomous_system=None, ip_address=None):
-        """
-        Returns a InternetExchangePeeringSession object or None based on the positional
-        arguments. If several objects are found, None is returned.
-
-        TODO: the method must be reworked in order to have its proper return
-        value if multiple objects are found.
-        """
-        # Filter based on fields that are not None
-        filter = {}
-        if internet_exchange:
-            filter.update({"internet_exchange": internet_exchange})
-        if autonomous_system:
-            filter.update({"autonomous_system": autonomous_system})
-        if ip_address:
-            filter.update({"ip_address": ip_address})
-
-        try:
-            return InternetExchangePeeringSession.objects.get(**filter)
-        except InternetExchangePeeringSession.DoesNotExist:
-            return None
-        except InternetExchangePeeringSession.MultipleObjectsReturned:
-            return None
 
     @staticmethod
     def create_from_peeringdb(peer_record, ip_version, internet_exchange=None):
@@ -1216,24 +1189,22 @@ class InternetExchangePeeringSession(BGPSession):
         )
 
         # Try to get the session, in case it already exists
-        session = InternetExchangePeeringSession.does_exist(
-            autonomous_system=autonomous_system,
-            internet_exchange=internet_exchange,
-            ip_address=ip_address,
-        )
-
-        # Session exists, nothing to do
-        if session:
+        try:
+            InternetExchangePeeringSession.objects.get(
+                autonomous_system=autonomous_system,
+                internet_exchange=internet_exchange,
+                ip_address=ip_address,
+            )
+            # Session exists, nothing to do
             return (session, False)
-
-        # Create the session but do not save it
-        session = InternetExchangePeeringSession(
-            autonomous_system=autonomous_system,
-            internet_exchange=internet_exchange,
-            ip_address=ip_address,
-        )
-
-        return (session, True)
+        except InternetExchangePeeringSession.DoesNotExist:
+            # Create the session but do not save it
+            session = InternetExchangePeeringSession(
+                autonomous_system=autonomous_system,
+                internet_exchange=internet_exchange,
+                ip_address=ip_address,
+            )
+            return (session, True)
 
     def save(self, *args, **kwargs):
         # Remove the IP address of this session from potential sessions for the AS

@@ -46,26 +46,11 @@ def mocked_peeringdb(*args, **kwargs):
 
 
 class AutonomousSystemTest(TestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.autonomous_system = AutonomousSystem.objects.create(
+    @classmethod
+    def setUpTestData(cls):
+        cls.autonomous_system = AutonomousSystem.objects.create(
             asn=65537, name="Test", irr_as_set="AS-MOCKED"
         )
-
-    def test_does_exist(self):
-        asn = 201281
-
-        # AS should not exist
-        autonomous_system = AutonomousSystem.does_exist(asn)
-        self.assertEqual(None, autonomous_system)
-
-        # Create the AS
-        new_as = AutonomousSystem.objects.create(asn=asn, name="Guillaume Mazoyer")
-
-        # AS must exist
-        autonomous_system = AutonomousSystem.does_exist(asn)
-        self.assertEqual(asn, new_as.asn)
 
     @patch("peeringdb.http.requests.get", side_effect=mocked_peeringdb)
     def test_create_from_peeringdb(self, *_):
@@ -74,36 +59,46 @@ class AutonomousSystemTest(TestCase):
         # Illegal ASN
         self.assertIsNone(AutonomousSystem.create_from_peeringdb(64500))
 
-        # Must not exist at first
-        self.assertIsNone(AutonomousSystem.does_exist(asn))
-
         # Create the AS
-        autonomous_system1 = AutonomousSystem.create_from_peeringdb(asn)
-        self.assertEqual(asn, autonomous_system1.asn)
+        a_s = AutonomousSystem.create_from_peeringdb(asn)
+        self.assertIsNotNone(a_s)
+        self.assertEqual(asn, a_s.asn)
 
-        # Must exist now
-        self.assertEqual(asn, AutonomousSystem.does_exist(asn).asn)
+        exists = True
+        try:
+            AutonomousSystem.objects.get(asn=asn)
+        except AutonomousSystem.DoesNotExist:
+            exists = False
+        self.assertTrue(exists)
 
-        # Must not rise error, just return the AS
-        autonomous_system2 = AutonomousSystem.create_from_peeringdb(asn)
-        self.assertEqual(asn, autonomous_system2.asn)
+        # Trying to re-create the AS should just return it
+        a_s = AutonomousSystem.create_from_peeringdb(asn)
+        self.assertIsNotNone(a_s)
+        self.assertEqual(asn, a_s.asn)
 
-        # Must exist now also
-        self.assertEqual(asn, AutonomousSystem.does_exist(asn).asn)
+        exists = True
+        try:
+            AutonomousSystem.objects.get(asn=asn)
+        except (
+            AutonomousSystem.DoesNotExist,
+            AutonomousSystem.MultipleObjectsReturned,
+        ):
+            exists = False
+        self.assertTrue(exists)
 
     @patch("peeringdb.http.requests.get", side_effect=mocked_peeringdb)
     def test_synchronize_with_peeringdb(self, *_):
         # Create legal AS to sync with PeeringDB
         asn = 65536
-        autonomous_system = AutonomousSystem.create_from_peeringdb(asn)
-        self.assertEqual(asn, autonomous_system.asn)
-        self.assertTrue(autonomous_system.synchronize_with_peeringdb())
+        a_s = AutonomousSystem.create_from_peeringdb(asn)
+        self.assertEqual(asn, a_s.asn)
+        self.assertTrue(a_s.synchronize_with_peeringdb())
 
         # Create illegal AS to fail sync with PeeringDB
         asn = 64500
-        autonomous_system = AutonomousSystem.objects.create(asn=asn, name="Test")
-        self.assertEqual(asn, autonomous_system.asn)
-        self.assertFalse(autonomous_system.synchronize_with_peeringdb())
+        a_s = AutonomousSystem.objects.create(asn=asn, name="Test")
+        self.assertEqual(asn, a_s.asn)
+        self.assertFalse(a_s.synchronize_with_peeringdb())
 
     def test_retrieve_irr_as_set_prefixes(self):
         with patch("peering.subprocess.Popen", side_effect=mocked_subprocess_popen):
@@ -127,12 +122,10 @@ class AutonomousSystemTest(TestCase):
         self.assertIsNone(self.autonomous_system.get_peeringdb_network())
 
     def test__str__(self):
-        asn = 64500
-        name = "Test"
-        expected = "AS{} - {}".format(asn, name)
-        autonomous_system = AutonomousSystem.objects.create(asn=asn, name=name)
-
-        self.assertEqual(expected, str(autonomous_system))
+        self.assertEqual(
+            f"AS{self.autonomous_system.asn} - {self.autonomous_system.name}",
+            str(self.autonomous_system),
+        )
 
 
 class CommunityTest(TestCase):
@@ -243,7 +236,7 @@ class DirectPeeringSessionTest(TestCase):
             ),
         ):
             self.assertTrue(self.session.poll())
-            self.assertEqual(567257, self.session.received_prefix_count)
+            self.assertEqual(567_257, self.session.received_prefix_count)
 
 
 class InternetExchangeTest(TestCase):
@@ -359,75 +352,6 @@ class InternetExchangePeeringSessionTest(TestCase):
             ip_address="2001:db8::1",
         )
 
-    def test_does_exist(self):
-        # Make sure that the session is returned by calling does_exist()
-        # without arguments (only one session in the database)
-        self.assertIsNotNone(InternetExchangePeeringSession.does_exist())
-        # Make sure we can retrieve the session with its IP
-        self.assertEqual(
-            self.session,
-            InternetExchangePeeringSession.does_exist(ip_address="2001:db8::1"),
-        )
-        # Make sure we can retrieve the session with its IX
-        self.assertEqual(
-            self.session,
-            InternetExchangePeeringSession.does_exist(internet_exchange=self.exchange),
-        )
-        # Make sure we can retrieve the session with AS
-        self.assertEqual(
-            self.session,
-            InternetExchangePeeringSession.does_exist(
-                autonomous_system=self.autonomous_system
-            ),
-        )
-
-        # Create another peering session
-        session1 = InternetExchangePeeringSession.objects.create(
-            autonomous_system=self.autonomous_system,
-            internet_exchange=self.exchange,
-            ip_address="192.0.2.1",
-        )
-
-        # More than one session, must expect None
-        self.assertIsNone(InternetExchangePeeringSession.does_exist())
-        # Make sure we can retrieve the session with its IP
-        self.assertEqual(
-            session1, InternetExchangePeeringSession.does_exist(ip_address="192.0.2.1")
-        )
-        # Make sure it returns None when using a field that the two sessions
-        # have in common
-        self.assertIsNone(
-            InternetExchangePeeringSession.does_exist(internet_exchange=self.exchange)
-        )
-
-        # Create a new IX
-        exchange1 = InternetExchange.objects.create(name="Test1", slug="test1")
-
-        # Make sure it returns None when there is no session
-        self.assertIsNone(
-            InternetExchangePeeringSession.does_exist(internet_exchange=exchange1)
-        )
-
-        # Create a new session with a already used IP in another IX
-        session2 = InternetExchangePeeringSession.objects.create(
-            autonomous_system=self.autonomous_system,
-            internet_exchange=exchange1,
-            ip_address="2001:db8::1",
-        )
-
-        # Make sure we have None, because two sessions will be found
-        self.assertIsNone(
-            InternetExchangePeeringSession.does_exist(ip_address="2001:db8::1")
-        )
-        # But if we narrow the search with the IX we must have the proper
-        # session
-        self.assertEqual(
-            session2,
-            InternetExchangePeeringSession.does_exist(
-                ip_address="2001:db8::1", internet_exchange=exchange1
-            ),
-        )
-
     def test_encrypt_password(self):
         autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Test")
         router = Router.objects.create(
@@ -501,7 +425,7 @@ class InternetExchangePeeringSessionTest(TestCase):
             ),
         ):
             self.assertTrue(self.session.poll())
-            self.assertEqual(567257, self.session.received_prefix_count)
+            self.assertEqual(567_257, self.session.received_prefix_count)
 
 
 class RouterTest(TestCase):
@@ -656,25 +580,25 @@ class RouterTest(TestCase):
                 "messages_queued_out": 0,
                 "routing_table": "global",
                 "keepalive": 30,
-                "input_messages": 26006050,
+                "input_messages": 26_006_050,
                 "remove_private_as": False,
                 "configured_holdtime": 0,
                 "suppress_4byte_as": False,
                 "suppressed_prefix_count": 0,
                 "local_address": "192.0.2.2",
                 "remote_address": "192.0.2.1",
-                "input_updates": 25604153,
+                "input_updates": 25_604_153,
                 "multihop": False,
                 "export_policy": "",
                 "remote_port": 54687,
                 "local_port": 179,
                 "active_prefix_count": 37358,
-                "output_messages": 383524,
+                "output_messages": 383_524,
                 "import_policy": "",
                 "connection_state": "Established",
-                "received_prefix_count": 567162,
+                "received_prefix_count": 567_162,
                 "local_as": 64510,
-                "accepted_prefix_count": 566998,
+                "accepted_prefix_count": 566_998,
                 "router_id": "172.17.17.1",
                 "flap_count": 0,
                 "last_event": "RecvKeepAlive",
@@ -693,25 +617,25 @@ class RouterTest(TestCase):
                 "messages_queued_out": 0,
                 "routing_table": "global",
                 "keepalive": 30,
-                "input_messages": 12094123,
+                "input_messages": 12_094_123,
                 "remove_private_as": False,
                 "configured_holdtime": 0,
                 "suppress_4byte_as": False,
                 "suppressed_prefix_count": 0,
                 "local_address": "2001:db8::2",
                 "remote_address": "2001:db8::1",
-                "input_updates": 11951665,
+                "input_updates": 11_951_665,
                 "multihop": False,
                 "export_policy": "",
                 "remote_port": 50877,
                 "local_port": 179,
-                "active_prefix_count": 101545,
-                "output_messages": 141052,
+                "active_prefix_count": 101_545,
+                "output_messages": 141_052,
                 "import_policy": "",
                 "connection_state": "Established",
-                "received_prefix_count": 567257,
+                "received_prefix_count": 567_257,
                 "local_as": 64510,
-                "accepted_prefix_count": 567257,
+                "accepted_prefix_count": 567_257,
                 "router_id": "192.168.100.1",
                 "flap_count": 2,
                 "last_event": "RecvKeepAlive",
