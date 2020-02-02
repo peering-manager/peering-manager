@@ -129,32 +129,14 @@ class AutonomousSystemTest(TestCase):
 
 
 class CommunityTest(TestCase):
-    def test_create(self):
-        community_list = [
-            {"name": "Test", "value": "64500:1", "type": None, "str": "Test"},
-            {
-                "name": "Test",
-                "value": "64500:1",
-                "type": COMMUNITY_TYPE_EGRESS,
-                "str": "Test",
-            },
+    @classmethod
+    def setUpTestData(cls):
+        cls.communities = [
+            Community(name="test-1", value="64500:1", type=COMMUNITY_TYPE_EGRESS),
+            Community(name="test-2", value="64500:2", type=COMMUNITY_TYPE_INGRESS),
+            Community(name="test-3", value="64500:3", type="unknown"),
         ]
-
-        for details in community_list:
-            if details["type"]:
-                community = Community.objects.create(
-                    name=details["name"], value=details["value"], type=details["type"]
-                )
-            else:
-                community = Community.objects.create(
-                    name=details["name"], value=details["value"]
-                )
-
-            self.assertIsNotNone(community)
-            self.assertEqual(details["name"], community.name)
-            self.assertEqual(details["value"], community.value)
-            self.assertEqual(details["type"] or COMMUNITY_TYPE_INGRESS, community.type)
-            self.assertEqual(details["str"], str(community))
+        Community.objects.bulk_create(cls.communities)
 
     def test_get_type_html(self):
         expected = [
@@ -162,17 +144,9 @@ class CommunityTest(TestCase):
             '<span class="badge badge-info">Ingress</span>',
             '<span class="badge badge-secondary">Unknown</span>',
         ]
-        community_types = [COMMUNITY_TYPE_EGRESS, COMMUNITY_TYPE_INGRESS, "unknown"]
 
-        for i in range(len(community_types)):
-            self.assertEqual(
-                expected[i],
-                Community.objects.create(
-                    name="test{}".format(i),
-                    value="64500:{}".format(i),
-                    type=community_types[i],
-                ).get_type_html(),
-            )
+        for i in range(len(expected)):
+            self.assertEqual(expected[i], self.communities[i].get_type_html())
 
 
 class DirectPeeringSessionTest(TestCase):
@@ -240,21 +214,25 @@ class DirectPeeringSessionTest(TestCase):
 
 
 class InternetExchangeTest(TestCase):
-    def test_is_peeringdb_valid(self):
-        ix = InternetExchange.objects.create(name="Test", slug="test")
+    @classmethod
+    def setUpTestData(cls):
+        cls.internet_exchange = InternetExchange.objects.create(
+            name="Test", slug="test"
+        )
 
+    def test_is_peeringdb_valid(self):
         # Not linked with PeeringDB but considered as valid
-        self.assertTrue(ix.is_peeringdb_valid())
+        self.assertTrue(self.internet_exchange.is_peeringdb_valid())
 
         # Set invalid ID, must result in false
-        ix.peeringdb_id = 14658
-        ix.save()
-        self.assertFalse(ix.is_peeringdb_valid())
+        self.internet_exchange.peeringdb_id = 14658
+        self.internet_exchange.save()
+        self.assertFalse(self.internet_exchange.is_peeringdb_valid())
 
         # Set valid ID, must result in true
-        ix.peeringdb_id = 29146
-        ix.save()
-        self.assertTrue(ix.is_peeringdb_valid())
+        self.internet_exchange.peeringdb_id = 29146
+        self.internet_exchange.save()
+        self.assertTrue(self.internet_exchange.is_peeringdb_valid())
 
     def test_get_peeringdb_id(self):
         # Expected results
@@ -696,33 +674,21 @@ class RouterTest(TestCase):
 
 
 class RoutingPolicyTest(TestCase):
-    def test_create(self):
-        routing_policy_list = [
-            {"name": "Test1", "slug": "test1", "type": None, "weight": 0},
-            {
-                "name": "Test2",
-                "slug": "test2",
-                "type": ROUTING_POLICY_TYPE_EXPORT,
-                "weight": 0,
-            },
+    @classmethod
+    def setUpTestData(cls):
+        cls.routing_policies = [
+            RoutingPolicy(
+                name="test-1", slug="test-1", type=ROUTING_POLICY_TYPE_EXPORT
+            ),
+            RoutingPolicy(
+                name="test-2", slug="test-2", type=ROUTING_POLICY_TYPE_IMPORT
+            ),
+            RoutingPolicy(
+                name="test-3", slug="test-3", type=ROUTING_POLICY_TYPE_IMPORT_EXPORT
+            ),
+            RoutingPolicy(name="test-4", slug="test-4", type="unknown"),
         ]
-
-        for details in routing_policy_list:
-            if details["type"]:
-                routing_policy = RoutingPolicy.objects.create(
-                    name=details["name"], slug=details["slug"], type=details["type"]
-                )
-            else:
-                routing_policy = RoutingPolicy.objects.create(
-                    name=details["name"], slug=details["slug"]
-                )
-
-            self.assertIsNotNone(routing_policy)
-            self.assertEqual(details["name"], routing_policy.name)
-            self.assertEqual(details["slug"], routing_policy.slug)
-            self.assertEqual(
-                details["type"] or ROUTING_POLICY_TYPE_IMPORT, routing_policy.type
-            )
+        RoutingPolicy.objects.bulk_create(cls.routing_policies)
 
     def test_get_type_html(self):
         expected = [
@@ -731,28 +697,15 @@ class RoutingPolicyTest(TestCase):
             '<span class="badge badge-dark">Import+Export</span>',
             '<span class="badge badge-secondary">Unknown</span>',
         ]
-        routing_policy_types = [
-            ROUTING_POLICY_TYPE_EXPORT,
-            ROUTING_POLICY_TYPE_IMPORT,
-            ROUTING_POLICY_TYPE_IMPORT_EXPORT,
-            "unknown",
-        ]
 
-        for i in range(len(routing_policy_types)):
-            self.assertEqual(
-                expected[i],
-                RoutingPolicy.objects.create(
-                    name="test{}".format(i),
-                    slug="test{}".format(i),
-                    type=routing_policy_types[i],
-                ).get_type_html(),
-            )
+        for i in range(len(expected)):
+            self.assertEqual(expected[i], self.routing_policies[i].get_type_html())
 
 
 class TemplateTest(TestCase):
-    def setUp(self):
-        super().setUp()
-        self.template = Template(name="Test", template="{{ test }}")
+    @classmethod
+    def setUpTestData(cls):
+        cls.template = Template.objects.create(name="Test", template="{{ test }}")
 
     def test_render(self):
         self.assertEqual(self.template.render({"test": "test"}), "test")
