@@ -448,7 +448,6 @@ class DirectPeeringSessionAdd(PermissionRequiredMixin, AddOrEditView):
         return self.model()
 
     def alter_object(self, obj, request, args, kwargs):
-        obj.local_asn = settings.MY_ASN
         if "asn" in kwargs:
             obj.autonomous_system = get_object_or_404(
                 AutonomousSystem, asn=kwargs["asn"]

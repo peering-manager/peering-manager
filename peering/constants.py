@@ -1,3 +1,7 @@
+# ASN bounds
+ASN_MIN = 1
+ASN_MAX = 2 ** 32 - 1
+
 # BGP relationship between us and a peer
 BGP_RELATIONSHIP_PRIVATE_PEERING = "private-peering"
 BGP_RELATIONSHIP_TRANSIT_PROVIDER = "transit-provider"

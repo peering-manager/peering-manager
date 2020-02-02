@@ -4,6 +4,8 @@ from django.conf import settings
 from taggit.forms import TagField
 
 from .constants import (
+    ASN_MAX,
+    ASN_MIN,
     BGP_RELATIONSHIP_CHOICES,
     COMMUNITY_TYPE_CHOICES,
     IP_FAMILY_CHOICES,
@@ -50,7 +52,7 @@ class TemplateField(TextareaField):
             label="Template",
             help_text='<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/config-template/#configuration-template" target="_blank">Jinja2 template</a> syntax is supported',
             *args,
-            **kwargs
+            **kwargs,
         )
 
 
@@ -253,6 +255,13 @@ class CommunityFilterForm(BootstrapMixin, forms.Form):
 
 
 class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
+    local_asn = forms.IntegerField(
+        min_value=ASN_MIN,
+        max_value=ASN_MAX,
+        initial=settings.MY_ASN,
+        label="Local ASN",
+        help_text=f"ASN to be used locally, defaults to {settings.MY_ASN}",
+    )
     autonomous_system = forms.ModelChoiceField(
         queryset=AutonomousSystem.objects.all(),
         widget=APISelect(api_url="/api/peering/autonomous-systems/"),
@@ -310,15 +319,11 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "tags",
         )
         labels = {
-            "local_asn": "Local ASN",
             "local_ip_address": "Local IP Address",
             "autonomous_system": "AS",
             "ip_address": "IP Address",
         }
         help_texts = {
-            "local_asn": "ASN to be used locally, defaults to {}".format(
-                settings.MY_ASN
-            ),
             "local_ip_address": "IPv6 or IPv4 address",
             "ip_address": "IPv6 or IPv4 address",
             "enabled": "Should this session be enabled?",
