@@ -10,5 +10,5 @@ napalm==2.5.0
 MarkupSafe==1.1.1
 psycopg2-binary==2.8.4
 py-gfm==0.1.4
-pynetbox==4.2.4
-requests==2.22.0
+pynetbox==4.2.5
+requests==2.23.0
