@@ -1,10 +1,15 @@
+import ipaddress
+
 from django.core import mail
 from django.db import transaction
 from django.urls.exceptions import NoReverseMatch
 
 from peering.constants import (
+    BGP_RELATIONSHIP_PRIVATE_PEERING,
     COMMUNITY_TYPE_INGRESS,
+    PLATFORM_JUNOS,
     ROUTING_POLICY_TYPE_IMPORT,
+    ROUTING_POLICY_TYPE_IMPORT_EXPORT,
     ROUTING_POLICY_TYPE_EXPORT,
     TEMPLATE_TYPE_CONFIGURATION,
     TEMPLATE_TYPE_EMAIL,
@@ -21,1146 +26,330 @@ from peering.models import (
     Template,
 )
 
-from utils.tests import ViewTestCase
+from utils.testing import StandardTestCases
 
 
-class AutonomousSystemTestCase(ViewTestCase):
-    def setUp(self):
-        super().setUp()
+class AutonomousSystemTestCase(StandardTestCases.Views):
+    model = AutonomousSystem
 
-        self.model = AutonomousSystem
-        self.asn = 29467
-        self.as_name = "LuxNetwork S.A."
-        self.autonomous_system = AutonomousSystem.objects.create(
-            asn=self.asn, name=self.as_name, comments="This is a comment"
+    test_bulk_edit_objects = None
+
+    @classmethod
+    def setUpTestData(cls):
+        AutonomousSystem.objects.bulk_create(
+            [
+                AutonomousSystem(asn=64501, name="Autonomous System 1"),
+                AutonomousSystem(asn=64502, name="Autonomous System 2"),
+                AutonomousSystem(asn=64503, name="Autonomous System 3"),
+            ]
         )
 
-    def test_as_list_view(self):
-        with transaction.atomic():
-            for i in range(50):
-                AutonomousSystem.objects.create(
-                    asn=(64500 + i), name="Test {}".format(i)
-                )
-        self.get_request("peering:autonomous_system_list", data={"q": 29467})
-
-    def test_as_add_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:autonomous_system_add", expected_status_code=302)
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request("peering:autonomous_system_add", contains="Create")
-
-        # Try to create an object with valid data
-        as_to_create = {"asn": 64500, "name": "as-created"}
-        self.post_request("peering:autonomous_system_add", data=as_to_create)
-        self.does_object_exist(as_to_create)
-
-        # Try to create an object with invalid data
-        as_not_to_create = {"asn": 64501}
-        self.post_request("peering:autonomous_system_add", data=as_not_to_create)
-        self.does_object_not_exist(as_not_to_create)
-
-    def test_as_details_view(self):
-        # No ASN given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:autonomous_system_details")
-
-        # Using a wrong AS number, status should be 404 not found
-        self.get_request(
-            "peering:autonomous_system_details",
-            params={"asn": 64500},
-            expected_status_code=404,
-        )
-
-        # Using an existing AS, status should be 200 and the name of the AS
-        # should be somewhere in the HTML code
-        self.get_request(
-            "peering:autonomous_system_details",
-            params={"asn": self.asn},
-            contains="LuxNetwork",
-        )
-
-    def test_as_edit_view(self):
-        # No ASN given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:autonomous_system_edit")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:autonomous_system_edit",
-            params={"asn": self.asn},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:autonomous_system_edit",
-            params={"asn": self.asn},
-            contains="Update",
-        )
-
-        # Still authenticated, wrong AS should be 404 not found
-        self.get_request(
-            "peering:autonomous_system_edit",
-            params={"asn": 64500},
-            expected_status_code=404,
-        )
-
-    def test_as_delete_view(self):
-        # No ASN given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:autonomous_system_delete")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:autonomous_system_delete",
-            params={"asn": self.asn},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:autonomous_system_delete",
-            params={"asn": self.asn},
-            contains="Confirm",
-        )
-
-        # Still authenticated, wrong AS should be 404 not found
-        self.get_request(
-            "peering:autonomous_system_delete",
-            params={"asn": 64500},
-            expected_status_code=404,
-        )
-
-    def test_as_bulk_delete_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:autonomous_system_bulk_delete", expected_status_code=302
-        )
-
-    def test_as_direct_peering_sessions_view(self):
-        # No ASN given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:autonomous_system_direct_peering_sessions")
-
-        # Using a wrong AS number, status should be 404 not found
-        self.get_request(
-            "peering:autonomous_system_direct_peering_sessions",
-            params={"asn": 64500},
-            expected_status_code=404,
-        )
-
-        # Using an existing AS, status should be OK
-        self.get_request(
-            "peering:autonomous_system_direct_peering_sessions",
-            params={"asn": self.asn},
-            data={"q": "test"},
-        )
-
-    def test_as_internet_exchange_peering_sessions_view(self):
-        # No ASN given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request(
-                "peering:autonomous_system_internet_exchange_peering_sessions"
-            )
-
-        # Using a wrong AS number, status should be 404 not found
-        self.get_request(
-            "peering:autonomous_system_internet_exchange_peering_sessions",
-            params={"asn": 64500},
-            expected_status_code=404,
-        )
-
-        # Using an existing AS, status should be OK
-        self.get_request(
-            "peering:autonomous_system_internet_exchange_peering_sessions",
-            params={"asn": self.asn},
-            data={"q": "test"},
-        )
-
-    def test_as_contacts(self):
-        # Using a wrong AS number, status should be 404 not found
-        self.get_request(
-            "peering:autonomous_system_contacts",
-            params={"asn": 64500},
-            expected_status_code=404,
-        )
-
-        self.get_request(
-            "peering:autonomous_system_contacts",
-            params={"asn": self.asn},
-            contains="E-mail",
-        )
-
-    def test_as_email(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:autonomous_system_email",
-            params={"asn": self.asn},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry
-        self.authenticate_user()
-
-        # Using a wrong AS number, status should be 404 not found
-        self.get_request(
-            "peering:autonomous_system_email",
-            params={"asn": 64500},
-            expected_status_code=404,
-        )
-
-        # No contacts, should be redirected
-        self.get_request(
-            "peering:autonomous_system_email",
-            params={"asn": self.asn},
-            expected_status_code=302,
-        )
-
-        # Set a contact a retry
-        self.autonomous_system.contact_email = "test@example.net"
-        self.autonomous_system.save()
-        self.get_request(
-            "peering:autonomous_system_email", params={"asn": self.asn}, contains="Send"
-        )
-
-        # Send an email
-        self.assertEqual(len(mail.outbox), 0)
-        template = Template.objects.create(
-            name="E-mail", type=TEMPLATE_TYPE_EMAIL, template="Hello"
-        )
-        email = {
-            "template": template.pk,
-            "recipient": "test@example.net",
-            "subject": "Test",
-            "body": "Hello",
+        cls.form_data = {
+            "asn": 64504,
+            "name": "Autonomous System 4",
+            "contact_email": "",
+            "contact_name": "",
+            "contact_phone": "",
+            "export_routing_policies": [],
+            "import_routing_policies": [],
+            "ipv4_max_prefixes": 0,
+            "ipv4_max_prefixes_peeringdb_sync": False,
+            "ipv6_max_prefixes": 0,
+            "ipv6_max_prefixes_peeringdb_sync": False,
+            "irr_as_set": None,
+            "irr_as_set_peeringdb_sync": False,
+            "potential_internet_exchange_peering_sessions": [],
+            "comments": "",
+            "tags": "",
         }
-        self.post_request(
-            "peering:autonomous_system_email", params={"asn": self.asn}, data=email
-        )
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].body, "Hello")
 
 
-class BGPGroupTestCase(ViewTestCase):
-    def setUp(self):
-        super().setUp()
+class BGPGroupTestCase(StandardTestCases.Views):
+    model = BGPGroup
 
-        self.model = BGPGroup
-        self.name = "Test Group"
-        self.slug = "test-group"
-        self.bgp_group = BGPGroup.objects.create(name=self.name, slug=self.slug)
-        self.asn = AutonomousSystem.objects.create(asn=64500, name="Test")
-        self.session = DirectPeeringSession.objects.create(
-            autonomous_system=self.asn,
-            ip_address="2001:db8::1",
-            bgp_group=self.bgp_group,
-        )
-        self.community = Community.objects.create(name="Test", value="64500:1")
-        self.routing_policy = RoutingPolicy.objects.create(
-            name="Test", slug="test", type=ROUTING_POLICY_TYPE_EXPORT, weight=0
+    @classmethod
+    def setUpTestData(cls):
+        BGPGroup.objects.bulk_create(
+            [
+                BGPGroup(name="BGP Group 1", slug="bgp-group-1"),
+                BGPGroup(name="BGP Group 2", slug="bgp-group-2"),
+                BGPGroup(name="BGP Group 3", slug="bgp-group-3"),
+            ]
         )
 
-    def test_bgp_group_list_view(self):
-        self.get_request("peering:bgp_group_list", data={"q": "test"})
+        cls.form_data = {
+            "name": "BGP Group 4",
+            "slug": "bgp-group-4",
+            "bgp_session_states_update": None,
+            "check_bgp_session_states": False,
+            "communities": [],
+            "export_routing_policies": [],
+            "import_routing_policies": [],
+            "comments": "",
+            "tags": "",
+        }
+        cls.bulk_edit_data = {"comments": "New comments"}
 
-    def test_bgp_group_add_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:bgp_group_add", expected_status_code=302)
 
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request("peering:bgp_group_add", contains="Create")
+class CommunityTestCase(StandardTestCases.Views):
+    model = Community
 
-        # Try to create an object with valid data
-        bgp_group_to_create = {"name": "bgp-group-created", "slug": "bgp-group-created"}
-        self.post_request("peering:bgp_group_add", data=bgp_group_to_create)
-        self.does_object_exist(bgp_group_to_create)
-
-        # Try to create an object with invalid data
-        bgp_group_not_to_create = {"name": "bgp-group-notcreated"}
-        self.post_request("peering:bgp_group_add", data=bgp_group_not_to_create)
-        self.does_object_not_exist(bgp_group_not_to_create)
-
-    def test_bgp_group_bulk_delete_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:bgp_group_bulk_delete", expected_status_code=302)
-
-    def test_bgp_group_details_view(self):
-        # No slug given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:bgp_group_details")
-
-        # Using a wrong slug, status should be 404 not found
-        self.get_request(
-            "peering:bgp_group_details",
-            params={"slug": "not-found"},
-            expected_status_code=404,
+    @classmethod
+    def setUpTestData(cls):
+        Community.objects.bulk_create(
+            [
+                Community(name="Community 1", value="64500:1"),
+                Community(name="Community 2", value="64500:2"),
+                Community(name="Community 3", value="64500:3"),
+            ]
         )
 
-        # Using an existing slug, status should be 200 and the name of the IX
-        # should be somewhere in the HTML code
-        self.get_request(
-            "peering:bgp_group_details", params={"slug": self.slug}, contains=self.name
-        )
-
-    def test_bgp_group_edit_view(self):
-        # No slug given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:bgp_group_edit")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:bgp_group_edit",
-            params={"slug": self.slug},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:bgp_group_edit", params={"slug": self.slug}, contains="Update"
-        )
-
-        # Still authenticated, wrong slug should be 404 not found
-        self.get_request(
-            "peering:bgp_group_edit",
-            params={"slug": "not-found"},
-            expected_status_code=404,
-        )
-
-    def test_bgp_group_delete_view(self):
-        # No slug given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:bgp_group_delete")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:bgp_group_delete",
-            params={"slug": self.slug},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:bgp_group_delete", params={"slug": self.slug}, contains="Confirm"
-        )
-
-        # Still authenticated, wrong slug should be 404 not found
-        self.get_request(
-            "peering:bgp_group_delete",
-            params={"slug": "not-found"},
-            expected_status_code=404,
-        )
-
-    def test_bgp_group_peering_sessions_view(self):
-        # Not logged in, 200 OK but not contains Add Peering Session button
-        self.get_request(
-            "peering:bgp_group_peering_sessions",
-            params={"slug": self.slug},
-            notcontains="Add a Peering Session",
-        )
-
-        # Authenticate and retry, 200 OK and should contains Add Peering
-        # Session button
-        self.authenticate_user()
-        self.get_request(
-            "peering:bgp_group_peering_sessions",
-            params={"slug": self.slug},
-            contains="Add",
-        )
-
-        # BGP Group not found
-        self.get_request(
-            "peering:bgp_group_peering_sessions",
-            params={"slug": "not-found"},
-            expected_status_code=404,
-        )
-
-
-class CommunityTestCase(ViewTestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.model = Community
-        self.name = "peering-all-exchanges"
-        self.value = "64500:1"
-        self.community = Community.objects.create(name=self.name, value=self.value)
-
-    def test_community_list_view(self):
-        self.get_request("peering:community_list", data={"q": "peering"})
-
-    def test_community_add_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:community_add", expected_status_code=302)
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request("peering:community_add", contains="Create")
-
-        # Try to create an object with valid data
-        community_to_create = {
-            "name": "community-created",
-            "value": "64500:1",
+        cls.form_data = {
+            "name": "Community 4",
+            "value": "64500:4",
             "type": COMMUNITY_TYPE_INGRESS,
+            "comments": "",
+            "tags": "",
         }
-        self.post_request("peering:community_add", data=community_to_create)
-        self.does_object_exist(community_to_create)
+        cls.bulk_edit_data = {"comments": "New comments"}
 
-        # Try to create an object with invalid data
-        community_not_to_create = {"name": "community-not-created"}
-        self.post_request("peering:community_add", data=community_not_to_create)
-        self.does_object_not_exist(community_not_to_create)
 
-    def test_community_details_view(self):
-        # No community PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:community_details")
+class DirectPeeringSessionTestCase(StandardTestCases.Views):
+    model = DirectPeeringSession
 
-        # Using a wrong PK, status should be 404 not found
-        self.get_request(
-            "peering:community_details", params={"pk": 666}, expected_status_code=404
+    @classmethod
+    def setUpTestData(cls):
+        cls.a_s = AutonomousSystem.objects.create(asn=64501, name="Autonomous System 1")
+        DirectPeeringSession.objects.bulk_create(
+            [
+                DirectPeeringSession(
+                    local_asn=64500,
+                    autonomous_system=cls.a_s,
+                    ip_address="192.0.2.1",
+                    relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
+                ),
+                DirectPeeringSession(
+                    local_asn=64500,
+                    autonomous_system=cls.a_s,
+                    ip_address="192.0.2.2",
+                    relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
+                ),
+                DirectPeeringSession(
+                    local_asn=64500,
+                    autonomous_system=cls.a_s,
+                    ip_address="192.0.2.3",
+                    relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
+                ),
+            ]
         )
 
-        # Using an existing PK, status should be 200 and the name of the
-        # community should be somewhere in the HTML code
-        self.get_request(
-            "peering:community_details",
-            params={"pk": self.community.pk},
-            contains=self.name,
+        cls.form_data = {
+            "local_asn": 64500,
+            "local_ip_address": None,
+            "autonomous_system": cls.a_s.pk,
+            "ip_address": ipaddress.ip_address("2001:db8::4"),
+            "multihop_ttl": 1,
+            "relationship": BGP_RELATIONSHIP_PRIVATE_PEERING,
+            "password": "",
+            "encrypted_password": None,
+            "enabled": True,
+            "bgp_group": None,
+            "router": None,
+            "export_routing_policies": [],
+            "import_routing_policies": [],
+            "bgp_state": None,
+            "last_established_state": None,
+            "advertised_prefix_count": 0,
+            "received_prefix_count": 0,
+            "comments": "",
+            "tags": "",
+        }
+        cls.bulk_edit_data = {"enabled": False, "comments": "New comments"}
+
+
+class InternetExchangeTestCase(StandardTestCases.Views):
+    model = InternetExchange
+
+    @classmethod
+    def setUpTestData(cls):
+        InternetExchange.objects.bulk_create(
+            [
+                InternetExchange(name="Internet Exchange 1", slug="ix-1"),
+                InternetExchange(name="Internet Exchange 2", slug="ix-2"),
+                InternetExchange(name="Internet Exchange 3", slug="ix-3"),
+            ]
         )
 
-    def test_community_edit_view(self):
-        # No PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:community_edit")
+        cls.form_data = {
+            "name": "Internet Exchange 4",
+            "slug": "ix-4",
+            "ipv4_address": None,
+            "ipv6_address": None,
+            "router": None,
+            "communities": [],
+            "export_routing_policies": [],
+            "import_routing_policies": [],
+            "bgp_session_states_update": None,
+            "check_bgp_session_states": False,
+            "peeringdb_id": 0,
+            "comments": "",
+            "tags": "",
+        }
+        cls.bulk_edit_data = {"comments": "New comments"}
 
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:community_edit",
-            params={"pk": self.community.pk},
-            expected_status_code=302,
+
+class InternetExchangePeeringSessionTestCase(StandardTestCases.Views):
+    model = InternetExchangePeeringSession
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.a_s = AutonomousSystem.objects.create(asn=64501, name="Autonomous System 1")
+        cls.ix = InternetExchange.objects.create(
+            name="Internet Exchange 1", slug="ix-1"
+        )
+        InternetExchangePeeringSession.objects.bulk_create(
+            [
+                InternetExchangePeeringSession(
+                    autonomous_system=cls.a_s,
+                    internet_exchange=cls.ix,
+                    ip_address="192.0.2.1",
+                ),
+                InternetExchangePeeringSession(
+                    autonomous_system=cls.a_s,
+                    internet_exchange=cls.ix,
+                    ip_address="192.0.2.2",
+                ),
+                InternetExchangePeeringSession(
+                    autonomous_system=cls.a_s,
+                    internet_exchange=cls.ix,
+                    ip_address="192.0.2.3",
+                ),
+            ]
         )
 
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:community_edit",
-            params={"pk": self.community.pk},
-            contains="Update",
+        cls.form_data = {
+            "autonomous_system": cls.a_s.pk,
+            "internet_exchange": cls.ix.pk,
+            "ip_address": ipaddress.ip_address("2001:db8::4"),
+            "multihop_ttl": 1,
+            "password": "",
+            "encrypted_password": None,
+            "is_route_server": False,
+            "enabled": True,
+            "export_routing_policies": [],
+            "import_routing_policies": [],
+            "bgp_state": None,
+            "last_established_state": None,
+            "advertised_prefix_count": 0,
+            "received_prefix_count": 0,
+            "comments": "",
+            "tags": "",
+        }
+        cls.bulk_edit_data = {
+            "is_route_server": True,
+            "enabled": False,
+            "comments": "New comments",
+        }
+
+
+class RouterTestCase(StandardTestCases.Views):
+    model = Router
+
+    @classmethod
+    def setUpTestData(cls):
+        Router.objects.bulk_create(
+            [
+                Router(name="Router 1", hostname="router1.example.net"),
+                Router(name="Router 2", hostname="router2.example.net"),
+                Router(name="Router 3", hostname="router3.example.net"),
+            ]
         )
 
-        # Still authenticated, wrong PK should be 404 not found
-        self.get_request(
-            "peering:community_edit", params={"pk": 2}, expected_status_code=404
-        )
-
-    def test_community_delete_view(self):
-        # No PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:community_delete")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:community_delete",
-            params={"pk": self.community.pk},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:community_delete",
-            params={"pk": self.community.pk},
-            contains="Confirm",
-        )
-
-        # Still authenticated, wrong PK should be 404 not found
-        self.get_request(
-            "peering:community_delete", params={"pk": 2}, expected_status_code=404
-        )
-
-    def test_community_bulk_delete_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:community_bulk_delete", expected_status_code=302)
-
-
-class DirectPeeringSessionTestCase(ViewTestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.model = DirectPeeringSession
-        self.ip_address = "2001:db8::64:501"
-        self.as64500 = AutonomousSystem.objects.create(asn=64500, name="Test")
-        self.peering_session = DirectPeeringSession.objects.create(
-            autonomous_system=self.as64500, ip_address=self.ip_address
-        )
-
-    def test_direct_peering_session_list_view(self):
-        self.get_request("peering:direct_peering_session_list", data={"q": "test"})
-
-    def test_direct_peering_session_details_view(self):
-        # No PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:direct_peering_session_details")
-
-        # Using a wrong PK, status should be 404 not found
-        self.get_request(
-            "peering:direct_peering_session_details",
-            params={"pk": 2},
-            expected_status_code=404,
-        )
-
-        # Using an existing PK, status should be 200 and the name of the IP
-        # should be somewhere in the HTML code
-        self.get_request(
-            "peering:direct_peering_session_details",
-            params={"pk": self.peering_session.pk},
-            contains=self.ip_address,
-        )
-
-    def test_direct_peering_session_edit_view(self):
-        # No PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:direct_peering_session_edit")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:direct_peering_session_edit",
-            params={"pk": self.peering_session.pk},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:direct_peering_session_edit",
-            params={"pk": self.peering_session.pk},
-            contains="Update",
-        )
-
-        # Still authenticated, wrong PK should be 404 not found
-        self.get_request(
-            "peering:direct_peering_session_edit",
-            params={"pk": 2},
-            expected_status_code=404,
-        )
-
-    def test_direct_peering_session_delete_view(self):
-        # No PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:direct_peering_session_delete")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:direct_peering_session_delete",
-            params={"pk": self.peering_session.pk},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:direct_peering_session_delete",
-            params={"pk": self.peering_session.pk},
-            contains="Confirm",
-        )
-
-        # Still authenticated, wrong router should be 404 not found
-        self.get_request(
-            "peering:direct_peering_session_delete",
-            params={"pk": 2},
-            expected_status_code=404,
-        )
-
-    def test_direct_peering_session_bulk_delete_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:direct_peering_session_bulk_delete", expected_status_code=302
-        )
-
-
-class InternetExchangeTestCase(ViewTestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.model = InternetExchange
-        self.name = "Test IX"
-        self.slug = "test-ix"
-        self.ix = InternetExchange.objects.create(name=self.name, slug=self.slug)
-        self.asn = AutonomousSystem.objects.create(asn=64500, name="Test")
-        self.session = InternetExchangePeeringSession.objects.create(
-            internet_exchange=self.ix,
-            autonomous_system=self.asn,
-            ip_address="2001:db8::1",
-        )
-        self.community = Community.objects.create(name="Test", value="64500:1")
-        self.routing_policy = RoutingPolicy.objects.create(
-            name="Test", slug="test", type=ROUTING_POLICY_TYPE_EXPORT, weight=0
-        )
-
-    def test_ix_list_view(self):
-        self.get_request("peering:internet_exchange_list", data={"q": "test"})
-
-    def test_ix_add_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:internet_exchange_add", expected_status_code=302)
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request("peering:internet_exchange_add", contains="Create")
-
-        # Try to create an object with valid data
-        ix_to_create = {"name": "ix-created", "slug": "ix-created"}
-        self.post_request("peering:internet_exchange_add", data=ix_to_create)
-        self.does_object_exist(ix_to_create)
-
-        # Try to create an object with invalid data
-        ix_not_to_create = {"name": "ix-notcreated"}
-        self.post_request("peering:internet_exchange_add", data=ix_not_to_create)
-        self.does_object_not_exist(ix_not_to_create)
-
-    def test_ix_bulk_delete_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:internet_exchange_bulk_delete", expected_status_code=302
-        )
-
-    def test_ix_details_view(self):
-        # No slug given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:internet_exchange_details")
-
-        # Using a wrong slug, status should be 404 not found
-        self.get_request(
-            "peering:internet_exchange_details",
-            params={"slug": "not-found"},
-            expected_status_code=404,
-        )
-
-        # Using an existing slug, status should be 200 and the name of the IX
-        # should be somewhere in the HTML code
-        self.get_request(
-            "peering:internet_exchange_details",
-            params={"slug": self.slug},
-            contains=self.name,
-        )
-
-    def test_ix_edit_view(self):
-        # No slug given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:internet_exchange_edit")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:internet_exchange_edit",
-            params={"slug": self.slug},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:internet_exchange_edit",
-            params={"slug": self.slug},
-            contains="Update",
-        )
-
-        # Still authenticated, wrong slug should be 404 not found
-        self.get_request(
-            "peering:internet_exchange_edit",
-            params={"slug": "not-found"},
-            expected_status_code=404,
-        )
-
-    def test_ix_delete_view(self):
-        # No slug given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:internet_exchange_delete")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:internet_exchange_delete",
-            params={"slug": self.slug},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:internet_exchange_delete",
-            params={"slug": self.slug},
-            contains="Confirm",
-        )
-
-        # Still authenticated, wrong slug should be 404 not found
-        self.get_request(
-            "peering:internet_exchange_delete",
-            params={"slug": "not-found"},
-            expected_status_code=404,
-        )
-
-    def test_internet_exchange_peering_sessions_view(self):
-        # Not logged in, 200 OK but not contains Add Peering Session button
-        self.get_request(
-            "peering:internet_exchange_peering_sessions",
-            params={"slug": self.slug},
-            notcontains="Add a Peering Session",
-        )
-
-        # Authenticate and retry, 200 OK and should contains Add Peering
-        # Session button
-        self.authenticate_user()
-        self.get_request(
-            "peering:internet_exchange_peering_sessions",
-            params={"slug": self.slug},
-            contains="Add",
-        )
-
-        # IX not found
-        self.get_request(
-            "peering:internet_exchange_peering_sessions",
-            params={"slug": "not-found"},
-            expected_status_code=404,
-        )
-
-
-class InternetExchangePeeringSessionTestCase(ViewTestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.model = InternetExchangePeeringSession
-        self.ip_address = "2001:db8::64:501"
-        self.as64500 = AutonomousSystem.objects.create(asn=64500, name="Test")
-        self.ix = InternetExchange.objects.create(name="Test", slug="test")
-        self.peering_session = InternetExchangePeeringSession.objects.create(
-            autonomous_system=self.as64500,
-            internet_exchange=self.ix,
-            ip_address=self.ip_address,
-        )
-
-    def test_internet_exchange_peering_session_list_view(self):
-        self.get_request(
-            "peering:internet_exchange_peering_session_list", data={"q": "test"}
-        )
-
-    def test_internet_exchange_peering_session_details_view(self):
-        # No PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:internet_exchange_peering_session_details")
-
-        # Using a wrong PK, status should be 404 not found
-        self.get_request(
-            "peering:internet_exchange_peering_session_details",
-            params={"pk": 2},
-            expected_status_code=404,
-        )
-
-        # Using an existing PK, status should be 200 and the name of the IP
-        # should be somewhere in the HTML code
-        self.get_request(
-            "peering:internet_exchange_peering_session_details",
-            params={"pk": self.peering_session.pk},
-            contains=self.ip_address,
-        )
-
-    def test_internet_exchange_peering_session_edit_view(self):
-        # No PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:internet_exchange_peering_session_edit")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:internet_exchange_peering_session_edit",
-            params={"pk": self.peering_session.pk},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:internet_exchange_peering_session_edit",
-            params={"pk": self.peering_session.pk},
-            contains="Update",
-        )
-
-        # Still authenticated, wrong PK should be 404 not found
-        self.get_request(
-            "peering:internet_exchange_peering_session_edit",
-            params={"pk": 2},
-            expected_status_code=404,
-        )
-
-    def test_internet_exchange_peering_session_delete_view(self):
-        # No PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:internet_exchange_peering_session_delete")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:internet_exchange_peering_session_delete",
-            params={"pk": self.peering_session.pk},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:internet_exchange_peering_session_delete",
-            params={"pk": self.peering_session.pk},
-            contains="Confirm",
-        )
-
-        # Still authenticated, wrong router should be 404 not found
-        self.get_request(
-            "peering:internet_exchange_peering_session_delete",
-            params={"pk": 2},
-            expected_status_code=404,
-        )
-
-    def test_internet_exchange_peering_session_bulk_delete_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:internet_exchange_peering_session_bulk_delete",
-            expected_status_code=302,
-        )
-
-
-class RouterTestCase(ViewTestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.model = Router
-        self.name = "test.router"
-        self.hostname = "test.router.example.org"
-        self.router = Router.objects.create(name=self.name, hostname=self.hostname)
-
-    def test_router_list_view(self):
-        with transaction.atomic():
-            for i in range(500):
-                Router.objects.create(
-                    name="Test {}".format(i), hostname="test{}.example.com".format(i)
-                )
-        self.get_request("peering:router_list", data={"q": "test"})
-
-    def test_router_add_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:router_add", expected_status_code=302)
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request("peering:router_add", contains="Create")
-
-        # Try to create an object with valid data
-        router_to_create = {
+        cls.form_data = {
+            "name": "Router 4",
+            "hostname": "router4.example.net",
+            "configuration_template": None,
+            "encrypt_passwords": False,
+            "platform": PLATFORM_JUNOS,
             "netbox_device_id": 0,
-            "name": "router.created",
-            "hostname": "router.created.example.com",
+            "use_netbox": False,
+            "comments": "",
+            "tags": "",
         }
-        self.post_request("peering:router_add", data=router_to_create)
-        self.does_object_exist(router_to_create)
+        cls.bulk_edit_data = {"platform": PLATFORM_JUNOS, "comments": "New comments"}
 
-        # Try to create an object with invalid data
-        router_not_to_create = {"name": "router.notcreated"}
-        self.post_request("peering:router_add", data=router_not_to_create)
-        self.does_object_not_exist(router_not_to_create)
 
-    def test_router_details_view(self):
-        # No PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:router_details")
+class RoutingPolicyTestCase(StandardTestCases.Views):
+    model = RoutingPolicy
 
-        # Using a wrong PK, status should be 404 not found
-        self.get_request(
-            "peering:router_details", params={"pk": 2}, expected_status_code=404
+    @classmethod
+    def setUpTestData(cls):
+        RoutingPolicy.objects.bulk_create(
+            [
+                RoutingPolicy(
+                    name="Routing Policy 1",
+                    slug="routing-policy-1",
+                    type=ROUTING_POLICY_TYPE_EXPORT,
+                    weight=0,
+                ),
+                RoutingPolicy(
+                    name="Routing Policy 2",
+                    slug="routing-policy-2",
+                    type=ROUTING_POLICY_TYPE_IMPORT,
+                    weight=0,
+                ),
+                RoutingPolicy(
+                    name="Routing Policy 3",
+                    slug="routing-policy-3",
+                    type=ROUTING_POLICY_TYPE_IMPORT_EXPORT,
+                    weight=0,
+                ),
+            ]
         )
 
-        # Using an existing PK, status should be 200 and the name of the router
-        # should be somewhere in the HTML code
-        self.get_request(
-            "peering:router_details", params={"pk": self.router.pk}, contains=self.name
-        )
-
-    def test_router_edit_view(self):
-        # No PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:router_edit")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:router_edit",
-            params={"pk": self.router.pk},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:router_edit", params={"pk": self.router.pk}, contains="Update"
-        )
-
-        # Still authenticated, wrong PK should be 404 not found
-        self.get_request(
-            "peering:router_edit", params={"pk": 2}, expected_status_code=404
-        )
-
-    def test_router_delete_view(self):
-        # No PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:router_delete")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:router_delete",
-            params={"pk": self.router.pk},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:router_delete", params={"pk": self.router.pk}, contains="Confirm"
-        )
-
-        # Still authenticated, wrong router should be 404 not found
-        self.get_request(
-            "peering:router_delete", params={"pk": 2}, expected_status_code=404
-        )
-
-    def test_router_bulk_delete_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:router_bulk_delete", expected_status_code=302)
-
-
-class RoutingPolicyTestCase(ViewTestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.model = RoutingPolicy
-        self.name = "Export Policy"
-        self.slug = "export-policy"
-        self.routing_policy = RoutingPolicy.objects.create(
-            name=self.name, slug=self.slug, type=ROUTING_POLICY_TYPE_EXPORT, weight=0
-        )
-
-    def test_routing_policy_list_view(self):
-        self.get_request("peering:routing_policy_list", data={"q": "export"})
-
-    def test_routing_policy_add_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:routing_policy_add", expected_status_code=302)
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request("peering:routing_policy_add", contains="Create")
-
-        # Try to create an object with valid data
-        routing_policy_to_create = {
-            "name": "Import Policy",
-            "slug": "import-policy",
+        cls.form_data = {
+            "name": "Routing Policy 4",
+            "slug": "routing-policy-4",
             "type": ROUTING_POLICY_TYPE_IMPORT,
-            "weight": 0,
-            "address_family": 0,
+            "address_family": 6,
+            "weight": 1,
+            "comments": "",
+            "tags": "",
         }
-        self.post_request("peering:routing_policy_add", data=routing_policy_to_create)
-        self.does_object_exist(routing_policy_to_create)
+        cls.bulk_edit_data = {"weight": 10, "comments": "New comments"}
 
-        # Try to create an object with invalid data
-        routing_policy_not_to_create = {"name": "routing-policy-not-created"}
-        self.post_request(
-            "peering:routing_policy_add", data=routing_policy_not_to_create
-        )
-        self.does_object_not_exist(routing_policy_not_to_create)
 
-    def test_routing_policy_details_view(self):
-        # No routing policy PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:routing_policy_details")
+class TemplateTestCase(StandardTestCases.Views):
+    model = Template
 
-        # Using a wrong PK, status should be 404 not found
-        self.get_request(
-            "peering:routing_policy_details",
-            params={"pk": 666},
-            expected_status_code=404,
-        )
+    test_bulk_edit_objects = None
 
-        # Using an existing PK, status should be 200 and the name of the
-        # routing policy should be somewhere in the HTML code
-        self.get_request(
-            "peering:routing_policy_details",
-            params={"pk": self.routing_policy.pk},
-            contains=self.name,
-        )
-
-    def test_routing_policy_edit_view(self):
-        # No PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:routing_policy_edit")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:routing_policy_edit",
-            params={"pk": self.routing_policy.pk},
-            expected_status_code=302,
+    @classmethod
+    def setUpTestData(cls):
+        Template.objects.bulk_create(
+            [
+                Template(
+                    name="Template 1",
+                    type=TEMPLATE_TYPE_CONFIGURATION,
+                    template="Template 1",
+                ),
+                Template(
+                    name="Template 2",
+                    type=TEMPLATE_TYPE_CONFIGURATION,
+                    template="Template 2",
+                ),
+                Template(
+                    name="Template 3",
+                    type=TEMPLATE_TYPE_CONFIGURATION,
+                    template="Template 3",
+                ),
+            ]
         )
 
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:routing_policy_edit",
-            params={"pk": self.routing_policy.pk},
-            contains="Update",
-        )
-
-        # Still authenticated, wrong PK should be 404 not found
-        self.get_request(
-            "peering:routing_policy_edit", params={"pk": 2}, expected_status_code=404
-        )
-
-    def test_routing_policy_delete_view(self):
-        # No PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:routing_policy_delete")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:routing_policy_delete",
-            params={"pk": self.routing_policy.pk},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:routing_policy_delete",
-            params={"pk": self.routing_policy.pk},
-            contains="Confirm",
-        )
-
-        # Still authenticated, wrong PK should be 404 not found
-        self.get_request(
-            "peering:routing_policy_delete", params={"pk": 2}, expected_status_code=404
-        )
-
-    def test_routing_policy_bulk_delete_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:routing_policy_bulk_delete", expected_status_code=302)
-
-    def test_routing_policy_bulk_edit_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:routing_policy_bulk_edit", expected_status_code=302)
-
-
-class TemplateTestCase(ViewTestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.model = Template
-        self.name = "Configuration"
-        self.type = TEMPLATE_TYPE_CONFIGURATION
-        self.template_code = "This is a test"
-        self.template = Template.objects.create(
-            name=self.name, type=self.type, template=self.template_code
-        )
-
-    def test_template_list_view(self):
-        self.get_request("peering:template_list", data={"q": "configuration"})
-
-    def test_template_add_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:template_add", expected_status_code=302)
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request("peering:template_add", contains="Create")
-
-        # Try to create an object with valid data
-        template_to_create = {
-            "name": "Another configuration",
-            "type": TEMPLATE_TYPE_CONFIGURATION,
-            "template": "Testing again",
+        cls.form_data = {
+            "name": "Routing Policy 4",
+            "type": TEMPLATE_TYPE_EMAIL,
+            "template": "Template 4",
+            "comments": "",
+            "tags": "",
         }
-        self.post_request("peering:template_add", data=template_to_create)
-        self.does_object_exist(template_to_create)
-
-        # Try to create an object with invalid data
-        template_not_to_create = {
-            "name": "template-not-created",
-            "type": "something-wrong",
-        }
-        self.post_request("peering:template_add", data=template_not_to_create)
-        self.does_object_not_exist(template_not_to_create)
-
-    def test_template_details_view(self):
-        # No routing policy PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:template_details")
-
-        # Using a wrong PK, status should be 404 not found
-        self.get_request(
-            "peering:template_details", params={"pk": 666}, expected_status_code=404
-        )
-
-        # Using an existing PK, status should be 200 and the name of the
-        # routing policy should be somewhere in the HTML code
-        self.get_request(
-            "peering:template_details",
-            params={"pk": self.template.pk},
-            contains=self.name,
-        )
-
-    def test_template_edit_view(self):
-        # No PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:template_edit")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:template_edit",
-            params={"pk": self.template.pk},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:template_edit", params={"pk": self.template.pk}, contains="Update"
-        )
-
-        # Still authenticated, wrong PK should be 404 not found
-        self.get_request(
-            "peering:template_edit", params={"pk": 2}, expected_status_code=404
-        )
-
-    def test_template_delete_view(self):
-        # No PK given, view should not work
-        with self.assertRaises(NoReverseMatch):
-            self.get_request("peering:template_delete")
-
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request(
-            "peering:template_delete",
-            params={"pk": self.template.pk},
-            expected_status_code=302,
-        )
-
-        # Authenticate and retry, should be OK
-        self.authenticate_user()
-        self.get_request(
-            "peering:template_delete",
-            params={"pk": self.template.pk},
-            contains="Confirm",
-        )
-
-        # Still authenticated, wrong PK should be 404 not found
-        self.get_request(
-            "peering:template_delete", params={"pk": 2}, expected_status_code=404
-        )
-
-    def test_template_bulk_delete_view(self):
-        # Not logged in, no right to access the view, should be redirected
-        self.get_request("peering:template_bulk_delete", expected_status_code=302)

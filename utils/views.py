@@ -2,11 +2,11 @@ import sys
 
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Count, ProtectedError
+from django.db.models import Count, ManyToManyField, ProtectedError
 from django.db.models.query import QuerySet
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.core.exceptions import ValidationError
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.forms import CharField, MultipleHiddenInput
 from django.forms.formsets import formset_factory
 from django.http import HttpResponseServerError
@@ -23,7 +23,7 @@ from django.views.generic import View
 
 from django_tables2 import RequestConfig
 
-from .filters import ObjectChangeFilter, TagFilter
+from .filters import ObjectChangeFilterSet, TagFilterSet
 from .forms import (
     ConfirmationForm,
     FilterChoiceField,
@@ -375,25 +375,25 @@ class BulkEditView(View):
                         updated_count = 0
                         for obj in model.objects.filter(pk__in=pk_list):
                             for name in fields:
+                                try:
+                                    model_field = model._meta.get_field(name)
+                                except FieldDoesNotExist:
+                                    pass
+
                                 if (
                                     name in form.nullable_fields
                                     and name in nullified_fields
                                 ):
-                                    if isinstance(form.cleaned_data[name], QuerySet):
+                                    if isinstance(model_field, ManyToManyField):
                                         getattr(obj, name).set([])
                                     else:
                                         setattr(
-                                            obj,
-                                            name,
-                                            ""
-                                            if isinstance(form.fields[name], CharField)
-                                            else None,
+                                            obj, name, None if model_field.null else ""
                                         )
-                                elif form.cleaned_data[name] is not None:
-                                    if isinstance(form.cleaned_data[name], QuerySet):
-                                        getattr(obj, name).set(form.cleaned_data[name])
-                                    else:
-                                        setattr(obj, name, form.cleaned_data[name])
+                                elif isinstance(model_field, ManyToManyField):
+                                    getattr(obj, name).set(form.cleaned_data[name])
+                                elif form.cleaned_data[name] not in (None, ""):
+                                    setattr(obj, name, form.cleaned_data[name])
                             obj.full_clean()
                             obj.save()
 
@@ -722,15 +722,18 @@ class TableImportView(View):
         )
 
 
-class ObjectChangeList(ModelListView):
+class ObjectChangeList(PermissionRequiredMixin, ModelListView):
+    permission_required = "utils.view_objectchange"
     queryset = ObjectChange.objects.select_related("user", "changed_object_type")
-    filter = ObjectChangeFilter
+    filter = ObjectChangeFilterSet
     filter_form = ObjectChangeFilterForm
     table = ObjectChangeTable
     template = "utils/object_change/list.html"
 
 
-class ObjectChangeDetails(View):
+class ObjectChangeDetails(PermissionRequiredMixin, View):
+    permission_required = "utils.view_objectchange"
+
     def get(self, request, pk):
         object_change = get_object_or_404(ObjectChange, pk=pk)
 
@@ -770,11 +773,12 @@ def ServerError(request, template_name=ERROR_500_TEMPLATE_NAME):
     )
 
 
-class TagList(ModelListView):
+class TagList(PermissionRequiredMixin, ModelListView):
+    permission_required = "utils.view_tag"
     queryset = Tag.objects.annotate(
         items=Count("utils_taggeditem_items", distinct=True)
     ).order_by("name")
-    filter = TagFilter
+    filter = TagFilterSet
     filter_form = TagFilterForm
     table = TagTable
     template = "utils/tag/list.html"
@@ -788,7 +792,9 @@ class TagAdd(PermissionRequiredMixin, AddOrEditView):
     template = "utils/tag/add_edit.html"
 
 
-class TagDetails(View):
+class TagDetails(PermissionRequiredMixin, View):
+    permission_required = "utils.view_tag"
+
     def get(self, request, slug):
         tag = get_object_or_404(Tag, slug=slug)
         tagged_items = TaggedItem.objects.filter(tag=tag).count()
@@ -817,7 +823,7 @@ class TagBulkDelete(PermissionRequiredMixin, BulkDeleteView):
     queryset = Tag.objects.annotate(
         items=Count("utils_taggeditem_items", distinct=True)
     ).order_by("name")
-    filter = TagFilter
+    filter = TagFilterSet
     table = TagTable
 
 
@@ -826,6 +832,6 @@ class TagBulkEdit(PermissionRequiredMixin, BulkEditView):
     queryset = Tag.objects.annotate(
         items=Count("utils_taggeditem_items", distinct=True)
     ).order_by("name")
-    filter = TagFilter
+    filter = TagFilterSet
     table = TagTable
     form = TagBulkEditForm

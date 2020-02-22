@@ -11,7 +11,7 @@
   <i class="fas fa-upload"></i> Import from Router
 </button>
 {% endif %}
-<a href="{% url 'peering:internet_exchange_peering_session_add' slug=internet_exchange.slug %}" class="btn btn-sm btn-primary">
+<a href="{% url 'peering:internetexchangepeeringsession_add' %}?internet_exchange={{ internet_exchange.pk }}" class="btn btn-sm btn-primary">
   <i class="fas fa-plus"></i> Add
 </a>
 {% endif %}

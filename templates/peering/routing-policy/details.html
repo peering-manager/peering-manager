@@ -2,18 +2,18 @@
 {% load helpers %}
 {% block actions %}
 {% if perms.peering.change_routingpolicy %}
-<a href="{% url 'peering:routing_policy_edit' pk=routing_policy.pk %}" class="btn btn-warning">
+<a href="{% url 'peering:routingpolicy_edit' pk=routing_policy.pk %}" class="btn btn-warning">
   <i class="fas fa-edit"></i> Edit
 </a>
 {% endif %}
 {% if perms.peering.delete_routingpolicy %}
-<a href="{% url 'peering:routing_policy_delete' pk=routing_policy.pk %}" class="btn btn-danger">
+<a href="{% url 'peering:routingpolicy_delete' pk=routing_policy.pk %}" class="btn btn-danger">
   <i class="fas fa-trash"></i> Delete
 </a>
 {% endif %}
 {% endblock %}
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'peering:routing_policy_list' %}">Routing Policies</a></li>
+<li class="breadcrumb-item"><a href="{% url 'peering:routingpolicy_list' %}">Routing Policies</a></li>
 <li class="breadcrumb-item active" aria-current="page">{% block title %}{{ routing_policy }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
@@ -56,7 +56,7 @@
               {% endif %}
             </div>
           </div>
-          {% include 'utils/includes/tags_card.html' with tags=routing_policy.tags.all url='peering:routing_policy_list' %}
+          {% include 'utils/includes/tags_card.html' with tags=routing_policy.tags.all url='peering:routingpolicy_list' %}
         </div>
       </div>
 {% endblock %}

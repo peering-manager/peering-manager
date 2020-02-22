@@ -8,7 +8,7 @@
             <div class="list-group-item">
               <span class="badge badge-pill badge-secondary float-right">{{ statistics.routing_policies_count }}</span>
               <h4 class="list-group-item-heading">
-                <a href="{% url 'peering:routing_policy_list' %}">Routing Policies</a>
+                <a href="{% url 'peering:routingpolicy_list' %}">Routing Policies</a>
               </h4>
               <p class="list-group-item-textn text-muted">Routing policies used for routes filtering<p>
             </div>
@@ -46,37 +46,37 @@
             <div class="list-group-item">
               <span class="badge badge-pill badge-secondary float-right">{{ statistics.autonomous_systems_count }}</span>
               <h4 class="list-group-item-heading">
-                <a href="{% url 'peering:autonomous_system_list' %}">Autonomous Systems</a>
+                <a href="{% url 'peering:autonomoussystem_list' %}">Autonomous Systems</a>
               </h4>
               <p class="list-group-item-textn text-muted">Autonomous systems peering with the local AS<p>
             </div>
             <div class="list-group-item">
               <span class="badge badge-pill badge-secondary float-right">{{ statistics.bgp_groups_count }}</span>
               <h4 class="list-group-item-heading">
-                <a href="{% url 'peering:bgp_group_list' %}">BGP Groups</a>
+                <a href="{% url 'peering:bgpgroup_list' %}">BGP Groups</a>
               </h4>
               <p class="list-group-item-textn text-muted">Groups of BGP sessions<p>
             </div>
             <div class="list-group-item">
               <span class="badge badge-pill badge-secondary float-right">{{ statistics.internet_exchanges_count }}</span>
               <h4 class="list-group-item-heading">
-                <a href="{% url 'peering:internet_exchange_list' %}">Internet Exchanges</a>
+                <a href="{% url 'peering:internetexchange_list' %}">Internet Exchanges</a>
               </h4>
               <p class="list-group-item-textn text-muted">Internet exchanges that local AS is connected to<p>
             </div>
             <div class="list-group-item">
               <h4 class="list-group-item-heading">Peering Sessions</h4>
               <span class="badge badge-pill badge-secondary float-right">{{ statistics.direct_peering_sessions_count }}</span>
-              <p style="padding-left: 20px;"><a href="{% url 'peering:direct_peering_session_list' %}">Direct</a></p>
+              <p style="padding-left: 20px;"><a href="{% url 'peering:directpeeringsession_list' %}">Direct</a></p>
               <span class="badge badge-pill badge-secondary float-right">{{ statistics.internet_exchange_peering_sessions_count }}</span>
-              <p style="padding-left: 20px;"><a href="{% url 'peering:internet_exchange_peering_session_list' %}">Internet Exchange</a></p>
+              <p style="padding-left: 20px;"><a href="{% url 'peering:internetexchangepeeringsession_list' %}">Internet Exchange</a></p>
             </div>
           </div>
         </div>
         <div class="card">
           <div class="card-header">
             <strong>Changelog</strong>
-            <a class="float-right" href="{% url 'utils:object_change_list' %}" title="View full changelog"><i class="fas fa-bars"></i></a>
+            <a class="float-right" href="{% url 'utils:objectchange_list' %}" title="View full changelog"><i class="fas fa-bars"></i></a>
           </div>
           <div class="list-group list-group-flush fixed-size-list-group">
             {% for change in changelog %}

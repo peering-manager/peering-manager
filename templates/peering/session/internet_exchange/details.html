@@ -3,28 +3,28 @@
 {% block actions %}
 {% if perms.peering.change_internetexchangepeeringsession %}
 {% if peering_session.enabled %}
-<a href="{% url 'peering:internet_exchange_peering_session_disable' pk=peering_session.pk %}" class="btn btn-danger">
+<a href="{% url 'peering:internetexchangepeeringsession_disable' pk=peering_session.pk %}" class="btn btn-danger">
   <i class="fas fa-toggle-off"></i> Disable
 </a>
 {% else %}
-<a href="{% url 'peering:internet_exchange_peering_session_enable' pk=peering_session.pk %}" class="btn btn-success">
+<a href="{% url 'peering:internetexchangepeeringsession_enable' pk=peering_session.pk %}" class="btn btn-success">
   <i class="fas fa-toggle-on"></i> Enable
 </a>
 {% endif %}
-<a href="{% url 'peering:internet_exchange_peering_session_edit' pk=peering_session.pk %}" class="btn btn-warning">
+<a href="{% url 'peering:internetexchangepeeringsession_edit' pk=peering_session.pk %}" class="btn btn-warning">
   <i class="fas fa-edit"></i> Edit
 </a>
 {% endif %}
 {% if perms.peering.delete_internetexchangepeeringsession %}
-<a href="{% url 'peering:internet_exchange_peering_session_delete' pk=peering_session.pk %}" class="btn btn-danger">
+<a href="{% url 'peering:internetexchangepeeringsession_delete' pk=peering_session.pk %}" class="btn btn-danger">
   <i class="fas fa-trash"></i> Delete
 </a>
 {% endif %}
 {% endblock %}
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'peering:internet_exchange_list' %}">Internet Exchanges</a></li>
-<li class="breadcrumb-item"><a href="{% url 'peering:internet_exchange_details' slug=peering_session.internet_exchange.slug %}">{{ peering_session.internet_exchange }}</a></li>
-<li class="breadcrumb-item"><a href="{% url 'peering:internet_exchange_peering_sessions' slug=peering_session.internet_exchange.slug %}">Peering Sessions</a></li>
+<li class="breadcrumb-item"><a href="{% url 'peering:internetexchange_list' %}">Internet Exchanges</a></li>
+<li class="breadcrumb-item"><a href="{% url 'peering:internetexchange_details' slug=peering_session.internet_exchange.slug %}">{{ peering_session.internet_exchange }}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'peering:internetexchange_peering_sessions' slug=peering_session.internet_exchange.slug %}">Peering Sessions</a></li>
 <li class="breadcrumb-item active" aria-current="page">{% block title %}{{ peering_session }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
@@ -102,7 +102,7 @@
               {% endif %}
             </div>
           </div>
-          {% include 'utils/includes/tags_card.html' with tags=peering_session.tags.all url='peering:internet_exchange_peering_session_list' %}
+          {% include 'utils/includes/tags_card.html' with tags=peering_session.tags.all url='peering:internetexchangepeeringsession_list' %}
         </div>
         <div class="col-md-6">
           <div class="card">

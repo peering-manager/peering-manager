@@ -120,7 +120,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         return autonomous_system
 
     def get_absolute_url(self):
-        return reverse("peering:autonomous_system_details", kwargs={"asn": self.asn})
+        return reverse("peering:autonomoussystem_details", kwargs={"asn": self.asn})
 
     def get_peeringdb_network(self):
         try:
@@ -130,14 +130,13 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     def get_internet_exchange_peering_sessions_list_url(self):
         return reverse(
-            "peering:autonomous_system_internet_exchange_peering_sessions",
+            "peering:autonomoussystem_internet_exchange_peering_sessions",
             kwargs={"asn": self.asn},
         )
 
     def get_direct_peering_sessions_list_url(self):
         return reverse(
-            "peering:autonomous_system_direct_peering_sessions",
-            kwargs={"asn": self.asn},
+            "peering:autonomoussystem_direct_peering_sessions", kwargs={"asn": self.asn}
         )
 
     def get_peering_sessions(self):
@@ -395,10 +394,10 @@ class BGPGroup(AbstractGroup):
         verbose_name = "BGP group"
 
     def get_absolute_url(self):
-        return reverse("peering:bgp_group_details", kwargs={"slug": self.slug})
+        return reverse("peering:bgpgroup_details", kwargs={"slug": self.slug})
 
     def get_peering_sessions_list_url(self):
-        return reverse("peering:bgp_group_peering_sessions", kwargs={"slug": self.slug})
+        return reverse("peering:bgpgroup_peering_sessions", kwargs={"slug": self.slug})
 
     def get_peering_sessions(self):
         return self.directepeeringsession_set.all()
@@ -700,7 +699,7 @@ class DirectPeeringSession(BGPSession):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("peering:direct_peering_session_details", kwargs={"pk": self.pk})
+        return reverse("peering:directpeeringsession_details", kwargs={"pk": self.pk})
 
     def poll(self):
         # Check if we are able to get BGP details
@@ -785,11 +784,11 @@ class InternetExchange(AbstractGroup):
     logger = logging.getLogger("peering.manager.peering")
 
     def get_absolute_url(self):
-        return reverse("peering:internet_exchange_details", kwargs={"slug": self.slug})
+        return reverse("peering:internetexchange_details", kwargs={"slug": self.slug})
 
     def get_peering_sessions_list_url(self):
         return reverse(
-            "peering:internet_exchange_peering_sessions", kwargs={"slug": self.slug}
+            "peering:internetexchange_peering_sessions", kwargs={"slug": self.slug}
         )
 
     def get_peer_list_url(self):
@@ -1229,7 +1228,7 @@ class InternetExchangePeeringSession(BGPSession):
 
     def get_absolute_url(self):
         return reverse(
-            "peering:internet_exchange_peering_session_details", kwargs={"pk": self.pk}
+            "peering:internetexchangepeeringsession_details", kwargs={"pk": self.pk}
         )
 
     def poll(self):
@@ -1954,7 +1953,7 @@ class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel):
         ordering = ["-weight", "name"]
 
     def get_absolute_url(self):
-        return reverse("peering:routing_policy_details", kwargs={"pk": self.pk})
+        return reverse("peering:routingpolicy_details", kwargs={"pk": self.pk})
 
     def get_type_html(self):
         if self.type == ROUTING_POLICY_TYPE_EXPORT:

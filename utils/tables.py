@@ -36,7 +36,7 @@ TAG_ACTIONS = """
 """
 
 OBJECT_CHANGE_REQUEST_ID = """
-<a href="{% url 'utils:object_change_list' %}?request_id={{ value }}">{{ value }}</a>
+<a href="{% url 'utils:objectchange_list' %}?request_id={{ value }}">{{ value }}</a>
 """
 
 

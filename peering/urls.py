@@ -6,90 +6,88 @@ app_name = "peering"
 urlpatterns = [
     # Autonomous Systems
     re_path(
-        r"^autonomous-systems/$", views.ASList.as_view(), name="autonomous_system_list"
+        r"^autonomous-systems/$", views.ASList.as_view(), name="autonomoussystem_list"
     ),
     re_path(
-        r"^autonomous-systems/add/$",
-        views.ASAdd.as_view(),
-        name="autonomous_system_add",
+        r"^autonomous-systems/add/$", views.ASAdd.as_view(), name="autonomoussystem_add"
     ),
     re_path(
         r"^autonomous-systems/(?P<asn>[0-9]+)/$",
         views.ASDetails.as_view(),
-        name="autonomous_system_details",
+        name="autonomoussystem_details",
     ),
     re_path(
         r"^autonomous-systems/(?P<asn>[0-9]+)/edit/$",
         views.ASEdit.as_view(),
-        name="autonomous_system_edit",
+        name="autonomoussystem_edit",
     ),
     re_path(
         r"^autonomous-systems/(?P<asn>[0-9]+)/contacts/$",
         views.AutonomousSystemContacts.as_view(),
-        name="autonomous_system_contacts",
+        name="autonomoussystem_contacts",
     ),
     re_path(
         r"^autonomous-systems/(?P<asn>[0-9]+)/email/$",
         views.ASEmail.as_view(),
-        name="autonomous_system_email",
+        name="autonomoussystem_email",
     ),
     re_path(
         r"^autonomous-systems/(?P<asn>[0-9]+)/delete/$",
         views.ASDelete.as_view(),
-        name="autonomous_system_delete",
+        name="autonomoussystem_delete",
     ),
     re_path(
         r"^autonomous-systems/delete/$",
         views.ASBulkDelete.as_view(),
-        name="autonomous_system_bulk_delete",
+        name="autonomoussystem_bulk_delete",
     ),
     re_path(
         r"^autonomous-systems/(?P<asn>[0-9]+)/direct-peering-sessions/$",
         views.AutonomousSystemDirectPeeringSessions.as_view(),
-        name="autonomous_system_direct_peering_sessions",
+        name="autonomoussystem_direct_peering_sessions",
     ),
     re_path(
         r"^autonomous-systems/(?P<asn>[0-9]+)/ix-peering-sessions/$",
         views.AutonomousSystemInternetExchangesPeeringSessions.as_view(),
-        name="autonomous_system_internet_exchange_peering_sessions",
+        name="autonomoussystem_internet_exchange_peering_sessions",
     ),
     # BGP Groups
-    re_path(r"^bgp-groups/$", views.BGPGroupList.as_view(), name="bgp_group_list"),
-    re_path(r"^bgp-groups/add/$", views.BGPGroupAdd.as_view(), name="bgp_group_add"),
+    re_path(r"^bgp-groups/$", views.BGPGroupList.as_view(), name="bgpgroup_list"),
+    re_path(r"^bgp-groups/add/$", views.BGPGroupAdd.as_view(), name="bgpgroup_add"),
     re_path(
         r"^bgp-groups/delete/$",
         views.BGPGroupBulkDelete.as_view(),
-        name="bgp_group_bulk_delete",
+        name="bgpgroup_bulk_delete",
     ),
     re_path(
         r"^bgp-groups/edit/$",
         views.BGPGroupBulkEdit.as_view(),
-        name="bgp_group_bulk_edit",
+        name="bgpgroup_bulk_edit",
     ),
     re_path(
         r"^bgp-groups/(?P<slug>[\w-]+)/$",
         views.BGPGroupDetails.as_view(),
-        name="bgp_group_details",
+        name="bgpgroup_details",
     ),
     re_path(
         r"^bgp-groups/(?P<slug>[\w-]+)/edit/$",
         views.BGPGroupEdit.as_view(),
-        name="bgp_group_edit",
+        name="bgpgroup_edit",
     ),
     re_path(
         r"^bgp-groups/(?P<slug>[\w-]+)/delete/$",
         views.BGPGroupDelete.as_view(),
-        name="bgp_group_delete",
+        name="bgpgroup_delete",
     ),
     re_path(
         r"^bgp-groups/(?P<slug>[\w-]+)/peering-sessions/$",
         views.BGPGroupPeeringSessions.as_view(),
-        name="bgp_group_peering_sessions",
+        name="bgpgroup_peering_sessions",
     ),
     re_path(
         r"^bgp-groups/(?P<slug>[\w-]+)/add-peering-session/$",
         views.BGPGroupPeeringSessionAdd.as_view(),
-        name="bgp_group_peering_session_add",
+        name="bgpgroup_peering_session_add",
     ),
     # BGP Communities
     re_path(r"^communities/$", views.CommunityList.as_view(), name="community_list"),
@@ -123,149 +121,149 @@ urlpatterns = [
     re_path(
         r"^direct-peering-sessions/$",
         views.DirectPeeringSessionList.as_view(),
-        name="direct_peering_session_list",
+        name="directpeeringsession_list",
     ),
     re_path(
         r"^direct-peering-sessions/(?P<pk>[0-9]+)/$",
         views.DirectPeeringSessionDetails.as_view(),
-        name="direct_peering_session_details",
+        name="directpeeringsession_details",
     ),
     re_path(
-        r"^direct-peering-sessions/add/(?P<asn>[0-9]+)/$",
+        r"^direct-peering-sessions/add/$",
         views.DirectPeeringSessionAdd.as_view(),
-        name="direct_peering_session_add",
+        name="directpeeringsession_add",
     ),
     re_path(
         r"^direct-peering-sessions/edit/$",
         views.DirectPeeringSessionBulkEdit.as_view(),
-        name="direct_peering_session_bulk_edit",
+        name="directpeeringsession_bulk_edit",
     ),
     re_path(
         r"^direct-peering-sessions/delete/$",
         views.DirectPeeringSessionBulkDelete.as_view(),
-        name="direct_peering_session_bulk_delete",
+        name="directpeeringsession_bulk_delete",
     ),
     re_path(
         r"^direct-peering-sessions/(?P<pk>[0-9]+)/edit/$",
         views.DirectPeeringSessionEdit.as_view(),
-        name="direct_peering_session_edit",
+        name="directpeeringsession_edit",
     ),
     re_path(
         r"^direct-peering-sessions/(?P<pk>[0-9]+)/delete/$",
         views.DirectPeeringSessionDelete.as_view(),
-        name="direct_peering_session_delete",
+        name="directpeeringsession_delete",
     ),
     re_path(
         r"^direct-peering-sessions/(?P<pk>[0-9]+)/disable/$",
         views.DirectPeeringSessionDisable.as_view(),
-        name="direct_peering_session_disable",
+        name="directpeeringsession_disable",
     ),
     re_path(
         r"^direct-peering-sessions/(?P<pk>[0-9]+)/enable/$",
         views.DirectPeeringSessionEnable.as_view(),
-        name="direct_peering_session_enable",
+        name="directpeeringsession_enable",
     ),
     # Internet Exchanges
     re_path(
         r"^internet-exchanges/$",
         views.InternetExchangeList.as_view(),
-        name="internet_exchange_list",
+        name="internetexchange_list",
     ),
     re_path(
         r"^internet-exchanges/add/$",
         views.InternetExchangeAdd.as_view(),
-        name="internet_exchange_add",
+        name="internetexchange_add",
     ),
     re_path(
         r"^internet-exchanges/peeringdb-import/$",
         views.InternetExchangePeeringDBImport.as_view(),
-        name="internet_exchange_peeringdb_import",
+        name="internetexchange_peeringdb_import",
     ),
     re_path(
         r"^internet-exchanges/delete/$",
         views.InternetExchangeBulkDelete.as_view(),
-        name="internet_exchange_bulk_delete",
+        name="internetexchange_bulk_delete",
     ),
     re_path(
         r"^internet-exchanges/edit/$",
         views.InternetExchangeBulkEdit.as_view(),
-        name="internet_exchange_bulk_edit",
+        name="internetexchange_bulk_edit",
     ),
     re_path(
         r"^internet-exchanges/(?P<slug>[\w-]+)/$",
         views.InternetExchangeDetails.as_view(),
-        name="internet_exchange_details",
+        name="internetexchange_details",
     ),
     re_path(
         r"^internet-exchanges/(?P<slug>[\w-]+)/edit/$",
         views.InternetExchangeEdit.as_view(),
-        name="internet_exchange_edit",
+        name="internetexchange_edit",
     ),
     re_path(
         r"^internet-exchanges/(?P<slug>[\w-]+)/delete/$",
         views.InternetExchangeDelete.as_view(),
-        name="internet_exchange_delete",
-    ),
-    re_path(
-        r"^internet-exchanges/(?P<slug>[\w-]+)/add-peering-session/$",
-        views.InternetExchangePeeringSessionAdd.as_view(),
-        name="internet_exchange_peering_session_add",
+        name="internetexchange_delete",
     ),
     re_path(
         r"^internet-exchanges/(?P<slug>[\w-]+)/peering-sessions/$",
         views.InternetExchangePeeringSessions.as_view(),
-        name="internet_exchange_peering_sessions",
+        name="internetexchange_peering_sessions",
     ),
     re_path(
         r"^internet-exchanges/(?P<slug>[\w-]+)/peers/$",
         views.InternetExchangePeers.as_view(),
-        name="internet_exchange_peers",
+        name="internetexchange_peers",
     ),
     # Internet Exchange Peering Sessions
     re_path(
         r"^internet-exchange-peering-sessions/$",
         views.InternetExchangePeeringSessionList.as_view(),
-        name="internet_exchange_peering_session_list",
+        name="internetexchangepeeringsession_list",
+    ),
+    re_path(
+        r"^internet-exchange-peering-sessions/add/$",
+        views.InternetExchangePeeringSessionAdd.as_view(),
+        name="internetexchangepeeringsession_add",
     ),
     re_path(
         r"^internet-exchange-peering-sessions/(?P<pk>[0-9]+)/$",
         views.InternetExchangePeeringSessionDetails.as_view(),
-        name="internet_exchange_peering_session_details",
+        name="internetexchangepeeringsession_details",
     ),
     re_path(
         r"^internet-exchange-peering-sessions/(?P<pk>[0-9]+)/edit/$",
         views.InternetExchangePeeringSessionEdit.as_view(),
-        name="internet_exchange_peering_session_edit",
+        name="internetexchangepeeringsession_edit",
     ),
     re_path(
         r"^internet-exchange-peering-sessions/(?P<pk>[0-9]+)/delete/$",
         views.InternetExchangePeeringSessionDelete.as_view(),
-        name="internet_exchange_peering_session_delete",
+        name="internetexchangepeeringsession_delete",
     ),
     re_path(
         r"^internet-exchange-peering-sessions/add_from_peeringdb/$",
         views.InternetExchangePeeringSessionAddFromPeeringDB.as_view(),
-        name="internet_exchange_peering_session_add_from_peeringdb",
+        name="internetexchangepeeringsession_add_from_peeringdb",
     ),
     re_path(
         r"^internet-exchange-peering-sessions/edit/$",
         views.InternetExchangePeeringSessionBulkEdit.as_view(),
-        name="internet_exchange_peering_session_bulk_edit",
+        name="internetexchangepeeringsession_bulk_edit",
     ),
     re_path(
         r"^internet-exchange-peering-sessions/delete/$",
         views.InternetExchangePeeringSessionBulkDelete.as_view(),
-        name="internet_exchange_peering_session_bulk_delete",
+        name="internetexchangepeeringsession_bulk_delete",
     ),
     re_path(
         r"^internet-exchange-peering-sessions/(?P<pk>[0-9]+)/disable/$",
         views.InternetExchangePeeringSessionDisable.as_view(),
-        name="internet_exchange_peering_session_disable",
+        name="internetexchangepeeringsession_disable",
     ),
     re_path(
         r"^internet-exchange-peering-sessions/(?P<pk>[0-9]+)/enable/$",
         views.InternetExchangePeeringSessionEnable.as_view(),
-        name="internet_exchange_peering_session_enable",
+        name="internetexchangepeeringsession_enable",
     ),
     # Routers
     re_path(r"^routers/$", views.RouterList.as_view(), name="router_list"),
@@ -302,37 +300,37 @@ urlpatterns = [
     re_path(
         r"^routing-policies/$",
         views.RoutingPolicyList.as_view(),
-        name="routing_policy_list",
+        name="routingpolicy_list",
     ),
     re_path(
         r"^routing-policies/add/$",
         views.RoutingPolicyAdd.as_view(),
-        name="routing_policy_add",
+        name="routingpolicy_add",
     ),
     re_path(
         r"^routing-policies/(?P<pk>[0-9]+)/$",
         views.RoutingPolicyDetails.as_view(),
-        name="routing_policy_details",
+        name="routingpolicy_details",
     ),
     re_path(
         r"^routing-policies/(?P<pk>[0-9]+)/edit/$",
         views.RoutingPolicyEdit.as_view(),
-        name="routing_policy_edit",
+        name="routingpolicy_edit",
     ),
     re_path(
         r"^routing-policies/(?P<pk>[0-9]+)/delete/$",
         views.RoutingPolicyDelete.as_view(),
-        name="routing_policy_delete",
+        name="routingpolicy_delete",
     ),
     re_path(
         r"^routing-policies/delete/$",
         views.RoutingPolicyBulkDelete.as_view(),
-        name="routing_policy_bulk_delete",
+        name="routingpolicy_bulk_delete",
     ),
     re_path(
         r"^routing-policies/edit/$",
         views.RoutingPolicyBulkEdit.as_view(),
-        name="routing_policy_bulk_edit",
+        name="routingpolicy_bulk_edit",
     ),
     # Templates
     re_path(r"^templates/$", views.TemplateList.as_view(), name="template_list"),

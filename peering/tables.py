@@ -17,7 +17,7 @@ from utils.tables import ActionsColumn, BaseTable, SelectColumn
 
 AUTONOMOUS_SYSTEM_ACTIONS = """
 {% if perms.peering.change_autonomoussystem %}
-<a href="{% url 'peering:autonomous_system_edit' asn=record.asn %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
+<a href="{% url 'peering:autonomoussystem_edit' asn=record.asn %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
 {% endif %}
 """
 AUTONOMOUS_SYSTEM_HAS_POTENTIAL_IX_PEERING_SESSIONS = """
@@ -29,7 +29,7 @@ AUTONOMOUS_SYSTEM_HAS_POTENTIAL_IX_PEERING_SESSIONS = """
 """
 BGP_GROUP_ACTIONS = """
 {% if perms.peering.change_bgpgroup %}
-<a href="{% url 'peering:bgp_group_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
+<a href="{% url 'peering:bgpgroup_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
 {% endif %}
 """
 BGP_GROUP_POLL_SESSION_STATES = """
@@ -67,12 +67,12 @@ DIRECT_PEERING_SESSION_ACTIONS = """
 <button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Autonomous System Comments" data-content="{{ record.autonomous_system.comments | markdown }}"><i class="fas fa-comments"></i></button>
 {% endif %}
 {% if perms.peering.change_directpeeringsession %}
-<a href="{% url 'peering:direct_peering_session_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
+<a href="{% url 'peering:directpeeringsession_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
 {% endif %}
 """
 INTERNET_EXCHANGE_ACTIONS = """
 {% if perms.peering.change_internetexchange %}
-<a href="{% url 'peering:internet_exchange_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
+<a href="{% url 'peering:internetexchange_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
 {% endif %}
 """
 INTERNET_EXCHANGE_PEERING_SESSION_ACTIONS = """
@@ -87,7 +87,7 @@ INTERNET_EXCHANGE_PEERING_SESSION_ACTIONS = """
 <button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Internet Exchange Comments" data-content="{{ record.internet_exchange.comments | markdown }}"><i class="fas fa-comment-dots"></i></button>
 {% endif %}
 {% if perms.peering.change_internetexchangepeeringsession %}
-<a href="{% url 'peering:internet_exchange_peering_session_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
+<a href="{% url 'peering:internetexchangepeeringsession_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
 {% endif %}
 """
 INTERNET_EXCHANGE_PEERING_SESSION_IS_ROUTE_SERVER = """
@@ -111,7 +111,7 @@ ROUTER_ENCRYPT_PASSWORD = """
 """
 ROUTING_POLICY_ACTIONS = """
 {% if perms.peering.change_routingpolicy %}
-<a href="{% url 'peering:routing_policy_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
+<a href="{% url 'peering:routingpolicy_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
 {% endif %}
 """
 ROUTING_POLICY_TYPE = "{{ record.get_type_html }}"

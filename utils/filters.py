@@ -7,7 +7,7 @@ from .constants import *
 from .models import ObjectChange, Tag
 
 
-class ObjectChangeFilter(django_filters.FilterSet):
+class ObjectChangeFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     time = django_filters.DateTimeFromToRangeFilter()
     action = django_filters.MultipleChoiceFilter(
@@ -32,7 +32,7 @@ class ObjectChangeFilter(django_filters.FilterSet):
         )
 
 
-class TagFilter(django_filters.FilterSet):
+class TagFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
 
     class Meta:

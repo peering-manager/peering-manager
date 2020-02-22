@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect, render, reverse
 from django.views.generic import View
 
-from .filters import PeerRecordFilter
+from .filters import PeerRecordFilterSet
 from .forms import PeerRecordBulkEditForm
 from .http import PeeringDB
 from .models import Contact, Network, NetworkIXLAN, PeerRecord
@@ -33,6 +33,6 @@ class CacheManagementView(View):
 class PeerRecordBulkEdit(PermissionRequiredMixin, BulkEditView):
     permission_required = "peeringdb.change_peerrecord"
     queryset = PeerRecord.objects.all()
-    filter = PeerRecordFilter
+    filter = PeerRecordFilterSet
     table = PeerRecordTable
     form = PeerRecordBulkEditForm

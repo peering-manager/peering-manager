@@ -13,8 +13,8 @@ about: Report a reproducible bug in the current release
     Be sure that you are running an unmodified instance before submitting a bug report.
 -->
 ### Environment
-* Python version:  <!-- Example: 3.5.4 -->
-* Peering Manager version:  <!-- Example: 1.0, 2.0, …, master -->
+* Python version:  <!-- Example: 3.7.6 -->
+* Peering Manager version:  <!-- Example: 1.1.0, …, master -->
 
 <!--
     Describe in detail the steps for someone else to reproduce this bug using

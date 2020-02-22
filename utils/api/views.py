@@ -2,7 +2,7 @@ from django.db.models import Count
 
 from . import ModelViewSet
 from .serializers import TagSerializer
-from utils.filters import TagFilter
+from utils.filters import TagFilterSet
 from utils.models import Tag
 
 
@@ -11,4 +11,4 @@ class TagViewSet(ModelViewSet):
         tagged_items=Count("utils_taggeditem_items", distinct=True)
     )
     serializer_class = TagSerializer
-    filterset_class = TagFilter
+    filterset_class = TagFilterSet

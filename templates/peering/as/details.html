@@ -79,11 +79,11 @@
           <div class="card">
             <div class="card-header"><strong>Common Internet Exchanges</strong></div>
             <ul class="list-group list-group-flush">
-              {% for internet_exchange_details in common_ix_and_sessions %}
+              {% for internetexchange_details in common_ix_and_sessions %}
               <li class="list-group-item d-flex justify-content-between align-items-center">
-                <a href="{{ internet_exchange_details.internet_exchange.get_absolute_url }}">{{ internet_exchange_details.internet_exchange }}</a>
-                {% if internet_exchange_details.has_potential_ix_peering_sessions %}
-                <a href="{% url 'peering:internet_exchange_peers' slug=internet_exchange_details.internet_exchange.slug %}?q=&network__asn={{ autonomous_system.asn }}" class="text-warning" data-toggle="tooltip" data-placement="left" title="Potential Peering Sessions"><i class="fas fa-exclamation-circle"></i></a>
+                <a href="{{ internetexchange_details.internet_exchange.get_absolute_url }}">{{ internetexchange_details.internet_exchange }}</a>
+                {% if internetexchange_details.has_potential_ix_peering_sessions %}
+                <a href="{% url 'peering:internetexchange_peers' slug=internetexchange_details.internet_exchange.slug %}?q=&network__asn={{ autonomous_system.asn }}" class="text-warning" data-toggle="tooltip" data-placement="left" title="Potential Peering Sessions"><i class="fas fa-exclamation-circle"></i></a>
                 {% endif %}
               </li>
               {% endfor %}
@@ -127,7 +127,7 @@
               {% endif %}
             </div>
           </div>
-          {% include 'utils/includes/tags_card.html' with tags=autonomous_system.tags.all url='peering:autonomous_system_list' %}
+          {% include 'utils/includes/tags_card.html' with tags=autonomous_system.tags.all url='peering:autonomoussystem_list' %}
         </div>
       </div>
 {% endblock %}

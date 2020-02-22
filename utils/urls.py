@@ -6,12 +6,12 @@ app_name = "utils"
 urlpatterns = [
     # Change logging
     re_path(
-        r"^changelog/$", views.ObjectChangeList.as_view(), name="object_change_list"
+        r"^changelog/$", views.ObjectChangeList.as_view(), name="objectchange_list"
     ),
     re_path(
         r"^changelog/(?P<pk>\d+)/$",
         views.ObjectChangeDetails.as_view(),
-        name="object_change_details",
+        name="objectchange_details",
     ),
     # Tags
     re_path(r"^tags/$", views.TagList.as_view(), name="tag_list"),

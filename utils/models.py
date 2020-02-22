@@ -95,7 +95,7 @@ class ObjectChange(models.Model):
         return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("utils:object_change_details", kwargs={"pk": self.pk})
+        return reverse("utils:objectchange_details", kwargs={"pk": self.pk})
 
     def get_html_icon(self):
         if self.action == OBJECT_CHANGE_ACTION_CREATE:

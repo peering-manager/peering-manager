@@ -59,13 +59,13 @@
       <nav class="col-md-2 d-none d-md-block bg-dark sidebar">
         <div class="sidebar-sticky">
           <ul class="nav flex-column list-group">
-            <a href="{% url 'peering:autonomous_system_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/autonomous-systems/' %} active{% endif %}">
+            <a href="{% url 'peering:autonomoussystem_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/autonomous-systems/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">Autonomous Systems</div>
             </a>
-            <a href="{% url 'peering:bgp_group_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/bgp-groups/' %} active{% endif %}">
+            <a href="{% url 'peering:bgpgroup_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/bgp-groups/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">BGP Groups</div>
             </a>
-            <a href="{% url 'peering:internet_exchange_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/internet-exchanges/' %} active{% endif %}">
+            <a href="{% url 'peering:internetexchange_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/internet-exchanges/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">Internet Exchanges</div>
             </a>
             <a href="#policy_options_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/communities/,/routing-policies/' %} active{% endif %}">
@@ -78,7 +78,7 @@
               <a href="{% url 'peering:community_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/communities/' %} active{% endif %}">
                 <span class="menu-collapsed">Communities</span>
               </a>
-              <a href="{% url 'peering:routing_policy_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/routing-policies/' %} active{% endif %}">
+              <a href="{% url 'peering:routingpolicy_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/routing-policies/' %} active{% endif %}">
                 <span class="menu-collapsed">Routing Policies</span>
               </a>
             </div>

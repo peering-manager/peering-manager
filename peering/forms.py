@@ -258,12 +258,12 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     local_asn = forms.IntegerField(
         min_value=ASN_MIN,
         max_value=ASN_MAX,
-        initial=settings.MY_ASN,
         label="Local ASN",
         help_text=f"ASN to be used locally, defaults to {settings.MY_ASN}",
     )
     autonomous_system = forms.ModelChoiceField(
         queryset=AutonomousSystem.objects.all(),
+        label="Autonomous System",
         widget=APISelect(api_url="/api/peering/autonomous-systems/"),
     )
     bgp_group = forms.ModelChoiceField(
@@ -318,17 +318,22 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "comments",
             "tags",
         )
-        labels = {
-            "local_ip_address": "Local IP Address",
-            "autonomous_system": "AS",
-            "ip_address": "IP Address",
-        }
+        labels = {"local_ip_address": "Local IP Address", "ip_address": "IP Address"}
         help_texts = {
             "local_ip_address": "IPv6 or IPv4 address",
             "ip_address": "IPv6 or IPv4 address",
             "enabled": "Should this session be enabled?",
             "router": "Router on which this session is configured",
         }
+
+    def __init__(self, *args, **kwargs):
+        initial = kwargs.get("initial", None)
+        updated = {}
+        if initial:
+            updated["autonomous_system"] = initial.get("autonomous_system", None)
+        updated["local_asn"] = settings.MY_ASN
+        kwargs.update(initial=updated)
+        super().__init__(*args, **kwargs)
 
 
 class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
@@ -617,6 +622,7 @@ class InternetExchangePeeringSessionBulkEditForm(
 class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
     autonomous_system = forms.ModelChoiceField(
         queryset=AutonomousSystem.objects.all(),
+        label="Autonomous System",
         widget=APISelect(api_url="/api/peering/autonomous-systems/"),
     )
     password = PasswordField(required=False, render_value=True)
@@ -658,8 +664,7 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "tags",
         )
         labels = {
-            "autonomous_system": "AS",
-            "internet_exchange": "IX",
+            "internet_exchange": "Internet Exchange",
             "ip_address": "IP Address",
             "is_route_server": "Route Server",
         }

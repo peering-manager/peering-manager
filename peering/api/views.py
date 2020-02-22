@@ -18,15 +18,15 @@ from .serializers import (
     TemplateSerializer,
 )
 from peering.filters import (
-    AutonomousSystemFilter,
-    BGPGroupFilter,
-    CommunityFilter,
-    DirectPeeringSessionFilter,
-    InternetExchangeFilter,
-    InternetExchangePeeringSessionFilter,
-    RouterFilter,
-    RoutingPolicyFilter,
-    TemplateFilter,
+    AutonomousSystemFilterSet,
+    BGPGroupFilterSet,
+    CommunityFilterSet,
+    DirectPeeringSessionFilterSet,
+    InternetExchangeFilterSet,
+    InternetExchangePeeringSessionFilterSet,
+    RouterFilterSet,
+    RoutingPolicyFilterSet,
+    TemplateFilterSet,
 )
 from peering.models import (
     AutonomousSystem,
@@ -56,7 +56,7 @@ class PeeringFieldChoicesViewSet(StaticChoicesViewSet):
 class AutonomousSystemViewSet(ModelViewSet):
     queryset = AutonomousSystem.objects.all()
     serializer_class = AutonomousSystemSerializer
-    filterset_class = AutonomousSystemFilter
+    filterset_class = AutonomousSystemFilterSet
 
     @action(
         detail=True,
@@ -108,7 +108,7 @@ class AutonomousSystemViewSet(ModelViewSet):
 class BGPGroupViewSet(ModelViewSet):
     queryset = BGPGroup.objects.all()
     serializer_class = BGPGroupSerializer
-    filterset_class = BGPGroupFilter
+    filterset_class = BGPGroupFilterSet
 
     @action(
         detail=True, methods=["post", "put", "patch"], url_path="poll-peering-sessions"
@@ -123,13 +123,13 @@ class BGPGroupViewSet(ModelViewSet):
 class CommunityViewSet(ModelViewSet):
     queryset = Community.objects.all()
     serializer_class = CommunitySerializer
-    filterset_class = CommunityFilter
+    filterset_class = CommunityFilterSet
 
 
 class DirectPeeringSessionViewSet(ModelViewSet):
     queryset = DirectPeeringSession.objects.all()
     serializer_class = DirectPeeringSessionSerializer
-    filterset_class = DirectPeeringSessionFilter
+    filterset_class = DirectPeeringSessionFilterSet
 
     @action(detail=True, methods=["post"], url_path="encrypt-password")
     def encrypt_password(self, request, pk=None):
@@ -153,7 +153,7 @@ class DirectPeeringSessionViewSet(ModelViewSet):
 class InternetExchangeViewSet(ModelViewSet):
     queryset = InternetExchange.objects.all()
     serializer_class = InternetExchangeSerializer
-    filterset_class = InternetExchangeFilter
+    filterset_class = InternetExchangeFilterSet
 
     @action(detail=True, methods=["get"], url_path="available-peers")
     def available_peers(self, request, pk=None):
@@ -218,7 +218,7 @@ class InternetExchangeViewSet(ModelViewSet):
 class InternetExchangePeeringSessionViewSet(ModelViewSet):
     queryset = InternetExchangePeeringSession.objects.all()
     serializer_class = InternetExchangePeeringSessionSerializer
-    filterset_class = InternetExchangePeeringSessionFilter
+    filterset_class = InternetExchangePeeringSessionFilterSet
 
     @action(detail=True, methods=["post"], url_path="encrypt-password")
     def encrypt_password(self, request, pk=None):
@@ -242,7 +242,7 @@ class InternetExchangePeeringSessionViewSet(ModelViewSet):
 class RouterViewSet(ModelViewSet):
     queryset = Router.objects.all()
     serializer_class = RouterSerializer
-    filterset_class = RouterFilter
+    filterset_class = RouterFilterSet
 
     @action(detail=True, methods=["get"], url_path="configuration")
     def configuration(self, request, pk=None):
@@ -280,10 +280,10 @@ class RouterViewSet(ModelViewSet):
 class RoutingPolicyViewSet(ModelViewSet):
     queryset = RoutingPolicy.objects.all()
     serializer_class = RoutingPolicySerializer
-    filterset_class = RoutingPolicyFilter
+    filterset_class = RoutingPolicyFilterSet
 
 
 class TemplateViewSet(ModelViewSet):
     queryset = Template.objects.all()
     serializer_class = TemplateSerializer
-    filterset_class = TemplateFilter
+    filterset_class = TemplateFilterSet

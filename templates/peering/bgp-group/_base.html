@@ -2,29 +2,29 @@
 {% load helpers %}
 {% block actions %}
 {% if perms.peering.change_bgpgroup %}
-<a href="{% url 'peering:bgp_group_edit' slug=bgp_group.slug %}" class="btn btn-warning">
+<a href="{% url 'peering:bgpgroup_edit' slug=bgp_group.slug %}" class="btn btn-warning">
   <i class="fas fa-edit"></i> Edit
 </a>
 {% endif %}
 {% if perms.peering.delete_bgpgroup %}
-<a href="{% url 'peering:bgp_group_delete' slug=bgp_group.slug %}" class="btn btn-danger">
+<a href="{% url 'peering:bgpgroup_delete' slug=bgp_group.slug %}" class="btn btn-danger">
   <i class="fas fa-trash"></i> Delete
 </a>
 {% endif %}
 {% endblock %}
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'peering:bgp_group_list' %}">BGP Groups</a></li>
+<li class="breadcrumb-item"><a href="{% url 'peering:bgpgroup_list' %}">BGP Groups</a></li>
 <li class="breadcrumb-item active" aria-current="page">{% block title %}{{ bgp_group }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
       <ul class="nav nav-tabs">
         <li class="nav-item">
-          <a class="nav-link{% if request.path|notcontains:'/peering-sessions/' %} active{% endif %}" href="{% url 'peering:bgp_group_details' slug=bgp_group.slug %}">
+          <a class="nav-link{% if request.path|notcontains:'/peering-sessions/' %} active{% endif %}" href="{% url 'peering:bgpgroup_details' slug=bgp_group.slug %}">
             <i class="fas fa-info-circle"></i> Info
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link{% if request.path|contains:'/peering-sessions/' %} active{% endif %}" href="{% url 'peering:bgp_group_peering_sessions' slug=bgp_group.slug %}">
+          <a class="nav-link{% if request.path|contains:'/peering-sessions/' %} active{% endif %}" href="{% url 'peering:bgpgroup_peering_sessions' slug=bgp_group.slug %}">
             <i class="fas fa-ethernet"></i> Direct Peering Sessions
           </a>
         </li>
