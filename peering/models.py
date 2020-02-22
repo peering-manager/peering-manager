@@ -1065,7 +1065,7 @@ class InternetExchange(AbstractGroup):
 
                         # Check if the BGP session is on this IX
                         try:
-                            InternetExchangePeeringSession.objects.get(
+                            peering_session = InternetExchangePeeringSession.objects.get(
                                 internet_exchange=self, ip_address=ip_address
                             )
                             # Get the BGP state for the session
