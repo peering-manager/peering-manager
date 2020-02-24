@@ -153,16 +153,6 @@ urlpatterns = [
         views.DirectPeeringSessionDelete.as_view(),
         name="directpeeringsession_delete",
     ),
-    re_path(
-        r"^direct-peering-sessions/(?P<pk>[0-9]+)/disable/$",
-        views.DirectPeeringSessionDisable.as_view(),
-        name="directpeeringsession_disable",
-    ),
-    re_path(
-        r"^direct-peering-sessions/(?P<pk>[0-9]+)/enable/$",
-        views.DirectPeeringSessionEnable.as_view(),
-        name="directpeeringsession_enable",
-    ),
     # Internet Exchanges
     re_path(
         r"^internet-exchanges/$",
@@ -254,16 +244,6 @@ urlpatterns = [
         r"^internet-exchange-peering-sessions/delete/$",
         views.InternetExchangePeeringSessionBulkDelete.as_view(),
         name="internetexchangepeeringsession_bulk_delete",
-    ),
-    re_path(
-        r"^internet-exchange-peering-sessions/(?P<pk>[0-9]+)/disable/$",
-        views.InternetExchangePeeringSessionDisable.as_view(),
-        name="internetexchangepeeringsession_disable",
-    ),
-    re_path(
-        r"^internet-exchange-peering-sessions/(?P<pk>[0-9]+)/enable/$",
-        views.InternetExchangePeeringSessionEnable.as_view(),
-        name="internetexchangepeeringsession_enable",
     ),
     # Routers
     re_path(r"^routers/$", views.RouterList.as_view(), name="router_list"),

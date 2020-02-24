@@ -8,7 +8,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import slugify
 from django.views.generic import View
 
-from .constants import BGP_STATE_IDLE
 from .filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
@@ -501,34 +500,11 @@ class DirectPeeringSessionDetails(PermissionRequiredMixin, View):
         return render(request, "peering/session/direct/details.html", context)
 
 
-class DirectPeeringSessionDisable(PermissionRequiredMixin, View):
-    permission_required = "peering.change_directpeeringsession"
-
-    def get(self, request, pk):
-        peering_session = get_object_or_404(DirectPeeringSession, pk=pk)
-        peering_session.enabled = False
-        peering_session.advertised_prefix_count = 0
-        peering_session.received_prefix_count = 0
-        peering_session.bgp_state = BGP_STATE_IDLE
-        peering_session.save()
-        return redirect(peering_session.get_absolute_url())
-
-
 class DirectPeeringSessionEdit(PermissionRequiredMixin, AddOrEditView):
     permission_required = "peering.change_directpeeringsession"
     model = DirectPeeringSession
     form = DirectPeeringSessionForm
     template = "peering/session/direct/add_edit.html"
-
-
-class DirectPeeringSessionEnable(PermissionRequiredMixin, View):
-    permission_required = "peering.change_directpeeringsession"
-
-    def get(self, request, pk):
-        peering_session = get_object_or_404(DirectPeeringSession, pk=pk)
-        peering_session.enabled = True
-        peering_session.save()
-        return redirect(peering_session.get_absolute_url())
 
 
 class DirectPeeringSessionList(PermissionRequiredMixin, ModelListView):
@@ -858,26 +834,6 @@ class InternetExchangePeeringSessionBulkDelete(PermissionRequiredMixin, BulkDele
             )
             return queryset.filter(internet_exchange=internet_exchange)
         return queryset
-
-
-class InternetExchangePeeringSessionDisable(PermissionRequiredMixin, View):
-    permission_required = "peering.change_internetexchangepeeringsession"
-
-    def get(self, request, pk):
-        peering_session = get_object_or_404(InternetExchangePeeringSession, pk=pk)
-        peering_session.enabled = False
-        peering_session.save()
-        return redirect(peering_session.get_absolute_url())
-
-
-class InternetExchangePeeringSessionEnable(PermissionRequiredMixin, View):
-    permission_required = "peering.change_internetexchangepeeringsession"
-
-    def get(self, request, pk):
-        peering_session = get_object_or_404(InternetExchangePeeringSession, pk=pk)
-        peering_session.enabled = True
-        peering_session.save()
-        return redirect(peering_session.get_absolute_url())
 
 
 class RouterList(PermissionRequiredMixin, ModelListView):

@@ -2,15 +2,12 @@
 {% load helpers %}
 {% block actions %}
 {% if perms.peering.change_directpeeringsession %}
-{% if peering_session.enabled %}
-<a href="{% url 'peering:directpeeringsession_disable' pk=peering_session.pk %}" class="btn btn-danger">
+<button type="button" class="btn btn-danger{% if not peering_session.enabled %} d-none{% endif %}" id="id_session_disable">
   <i class="fas fa-toggle-off"></i> Disable
-</a>
-{% else %}
-<a href="{% url 'peering:directpeeringsession_enable' pk=peering_session.pk %}" class="btn btn-success">
+</button>
+<button type="button" class="btn btn-success{% if peering_session.enabled %} d-none{% endif %}" id="id_session_enable">
   <i class="fas fa-toggle-on"></i> Enable
-</a>
-{% endif %}
+</button>
 <a href="{% url 'peering:directpeeringsession_edit' pk=peering_session.pk %}" class="btn btn-warning">
   <i class="fas fa-edit"></i> Edit
 </a>
@@ -138,4 +135,36 @@
           </div>
         </div>
       </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+      $("#id_session_disable").click(function() {
+        $.ajax({
+          method: "patch",
+          url: "{% url 'peering-api:directpeeringsession-detail' pk=peering_session.pk %}",
+          headers: { "X-CSRFTOKEN": "{{ csrf_token }}" },
+          data: {
+            "id": {{ peering_session.pk }},
+            "enabled": false,
+            "bgp_state": "idle",
+            "received_prefix_count": 0,
+            "advertised_prefix_count": 0
+          }
+        }).done(function() {
+          $("#id_session_enable").removeClass("d-none");
+          $("#id_session_disable").addClass("d-none");
+        });
+      });
+      $("#id_session_enable").click(function() {
+        $.ajax({
+          method: "patch",
+          url: "{% url 'peering-api:directpeeringsession-detail' pk=peering_session.pk %}",
+          headers: { "X-CSRFTOKEN": "{{ csrf_token }}" },
+          data: { "id": {{ peering_session.pk }}, "enabled": true }
+        }).done(function() {
+          $("#id_session_enable").addClass("d-none");
+          $("#id_session_disable").removeClass("d-none");
+        });
+      });
+    </script>
 {% endblock %}
