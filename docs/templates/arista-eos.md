@@ -1,3 +1,4 @@
+```no-highlight
 router bgp 8757
         {%- for internet_exchange in internet_exchanges %}
         {%- for address_family, sessions in internet_exchange.sessions.items() %}
@@ -67,3 +68,4 @@ router bgp 8757
         {%- endfor %}
         {%- endfor %}
 exit
+```
