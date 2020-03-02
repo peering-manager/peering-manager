@@ -1189,7 +1189,7 @@ class InternetExchangePeeringSession(BGPSession):
 
         # Try to get the session, in case it already exists
         try:
-            InternetExchangePeeringSession.objects.get(
+            session = InternetExchangePeeringSession.objects.get(
                 autonomous_system=autonomous_system,
                 internet_exchange=internet_exchange,
                 ip_address=ip_address,
