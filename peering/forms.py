@@ -853,7 +853,7 @@ class RoutingPolicyFilterForm(BootstrapMixin, forms.Form):
     )
     weight = forms.IntegerField(required=False, min_value=0, max_value=32767)
     address_family = forms.ChoiceField(
-        required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
+        required=False, choices=add_blank_choice(IP_FAMILY_CHOICES), widget=StaticSelect
     )
 
 
