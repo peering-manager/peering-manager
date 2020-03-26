@@ -106,6 +106,12 @@ class AutonomousSystemTest(TestCase):
             self.assertEqual(1, len(prefixes["ipv6"]))
             self.assertEqual(1, len(prefixes["ipv4"]))
 
+        with patch("peering.subprocess.Popen", side_effect=mocked_subprocess_popen):
+            self.autonomous_system.irr_as_set = "AS-ERROR"
+            prefixes = self.autonomous_system.retrieve_irr_as_set_prefixes()
+            self.assertEqual(1, len(prefixes["ipv6"]))
+            self.assertEqual(1, len(prefixes["ipv4"]))
+
     def test_get_irr_as_set_prefixes(self):
         with patch("peering.subprocess.Popen", side_effect=mocked_subprocess_popen):
             self.autonomous_system.prefixes = (

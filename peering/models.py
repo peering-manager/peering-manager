@@ -85,6 +85,8 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
     )
     prefixes = JSONField(blank=True, null=True, editable=False)
 
+    logger = logging.getLogger("peering.manager.peering")
+
     class Meta:
         ordering = ["asn"]
         permissions = [("send_email", "Can send e-mails to AS contact")]
@@ -294,20 +296,39 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     def retrieve_irr_as_set_prefixes(self):
         """
-        Return a prefix list for this AS' IRR AS-SET. If none is provided the list
-        will be empty.
+        Return a prefix list for this AS' IRR AS-SET. If none is provided the function
+        will try to look for a prefix list based on the AS number.
 
         This function will actually retrieve prefixes from IRR online sources. It is
         expected to be slow due to network operations and depending on the size of the
         data to process.
         """
+        fallback = False
         as_sets = parse_irr_as_set(self.asn, self.irr_as_set)
         prefixes = {"ipv6": [], "ipv4": []}
 
-        # For each AS-SET try getting IPv6 and IPv4 prefixes
-        for as_set in as_sets:
-            prefixes["ipv6"].extend(call_irr_as_set_resolver(as_set, address_family=6))
-            prefixes["ipv4"].extend(call_irr_as_set_resolver(as_set, address_family=4))
+        try:
+            # For each AS-SET try getting IPv6 and IPv4 prefixes
+            for as_set in as_sets:
+                prefixes["ipv6"].extend(
+                    call_irr_as_set_resolver(as_set, address_family=6)
+                )
+                prefixes["ipv4"].extend(
+                    call_irr_as_set_resolver(as_set, address_family=4)
+                )
+        except ValueError:
+            # Error parsing AS-SETs
+            fallback = True
+
+        # If fallback is triggered or no prefixes found, try prefix lookup by ASN
+        if fallback or not prefixes["ipv6"] and not prefixes["ipv4"]:
+            self.logger.debug("falling back to AS number lookup")
+            prefixes["ipv6"].extend(
+                call_irr_as_set_resolver(f"AS{self.asn}", address_family=6)
+            )
+            prefixes["ipv4"].extend(
+                call_irr_as_set_resolver(f"AS{self.asn}", address_family=4)
+            )
 
         return prefixes
 
