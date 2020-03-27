@@ -199,11 +199,23 @@ class DirectPeeringSessionTest(TestCase):
         self.session.encrypt_password(self.router.platform)
         self.assertIsNone(self.session.encrypted_password)
 
-        # Change password to None and
+        # Change password to None
         self.session.password = None
         self.router.platform = PLATFORM_JUNOS
         self.session.encrypt_password(self.router.platform)
         self.assertIsNone(self.session.encrypted_password)
+
+        # Change the password to a new one and make sure it changes the encrypted one
+        self.session.password = "mypassword1"
+        self.session.encrypt_password(self.router.platform)
+        self.assertEqual(
+            self.session.password, junos_decrypt(self.session.encrypted_password)
+        )
+        self.session.password = "mypassword2"
+        self.session.encrypt_password(self.router.platform)
+        self.assertEqual(
+            self.session.password, junos_decrypt(self.session.encrypted_password)
+        )
 
     def test_poll(self):
         with patch(

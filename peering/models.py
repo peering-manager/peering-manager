@@ -629,7 +629,12 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
                     self.save()
             return
 
-        encrypt = junos_encrypt if platform == PLATFORM_JUNOS else cisco_encrypt
+        # Choose encryption/decryption method
+        encrypt = junos_encrypt
+        decrypt = junos_decrypt
+        if platform != PLATFORM_JUNOS:
+            encrypt = cisco_encrypt
+            decrypt = cisco_decrypt
 
         if not self.encrypted_password:
             # If the password is not encrypted yet, do it
@@ -653,6 +658,11 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
                     self.encrypted_password = encrypt(
                         junos_decrypt(self.encrypted_password)
                     )
+
+        # Check if the encrypted password matches the clear one
+        # Force encryption if there a difference
+        if self.password != decrypt(self.encrypted_password):
+            self.encrypted_password = encrypt(self.password)
 
         if commit:
             self.save()
