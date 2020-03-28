@@ -73,8 +73,13 @@ invalidations of the prefixes found in the database, so make sure to run this
 command at regular intervals to keep data up-to-date.
 
 ```no-highlight
-# python3 manage.py grab_prefixes
+# python3 manage.py grab_prefixes --limit 100
 ```
+
+If the `--limit 100` flag is set, the command will not store prefixes for an IP
+family if the number of prefixes is greater than 100. This can help to avoid
+storing large number of prefixes for a single autonomous system, preventing out
+of memory errors for future database lookups.
 
 ## CRON
 
