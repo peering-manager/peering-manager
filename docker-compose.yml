@@ -18,10 +18,10 @@ services:
       - docker/web.env
       - docker/db.env
     volumes:
-      - web:/opt/peering-manager/
+      - config:/opt/peering-manager/config
     entrypoint: /opt/docker/entrypoint.sh
 volumes:
   database:
     driver: local
-  web:
+  config:
     driver: local
