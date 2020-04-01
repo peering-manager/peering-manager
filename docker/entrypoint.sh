@@ -1,5 +1,9 @@
 #!/bin/sh
 
+## Set Timezone
+cp "/usr/share/zoneinfo/$TZ" /etc/localtime
+>&2 echo $TZ > /etc/timezone
+
 ## Attempt connection to Postgres DB
 until PGPASSWORD=$POSTGRES_PASSWORD psql -h $DATABASE_HOST -U $POSTGRES_USER -c '\q'; do
     >&2 echo "Waiting for Postgres..."

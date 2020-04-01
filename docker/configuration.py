@@ -11,7 +11,7 @@ SECRET_KEY = os.environ['SECRET_KEY']
 
 BASE_PATH = ""
 
-TIME_ZONE = open('/etc/timezone','r').read()
+TIME_ZONE = os.environ['TZ']
 MY_ASN = os.environ['MY_ASN']
 DATABASE = {
   'NAME': os.environ['POSTGRES_DB'],

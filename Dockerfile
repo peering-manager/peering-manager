@@ -23,6 +23,7 @@ FROM ${FROM} as main
 
 RUN apk add --no-cache \
       bash \
+      tzdata \
       libffi \
       libxslt \
       libxml2 \
@@ -35,5 +36,4 @@ ENV PYTHONUNBUFFERED 1
 COPY --from=builder /install /usr/local
 COPY . /opt/peering-manager
 
-RUN apk add --no-cache tzdata && cp /usr/share/zoneinfo/Australia/Brisbane /etc/localtime && echo -n "Australia/Brisbane" > /etc/timezone && apk del --no-cache tzdata
 RUN ln -s /opt/peering-manager/docker/ /opt/docker && ln -s /opt/docker/configuration.py /opt/peering-manager/peering_manager/configuration.py && chmod +x /opt/docker/entrypoint.sh
