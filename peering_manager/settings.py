@@ -108,7 +108,7 @@ NAPALM_ARGS = getattr(configuration, "NAPALM_ARGS", {})
 PAGINATE_COUNT = getattr(configuration, "PAGINATE_COUNT", 20)
 
 try:
-    TZ_FILE = open('/etc/timezone','r')
+    TZ_FILE = open("/etc/timezone", "r")
     BASE_TZ = TZ_FILE.read()
 except IOError:
     BASE_TZ = "UTC"
