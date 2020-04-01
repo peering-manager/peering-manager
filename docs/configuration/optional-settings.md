@@ -111,7 +111,8 @@ Determine how many objects to display per page within each list of objects.
 
 Default: `UTC`
 
-The time zone Peering Manager will for date and time operations.
+The time zone Peering Manager will for date and time operations. Peering Manager will
+also attempt to determine this value from `/etc/timezone` before defaulting to UTC.
 [List of available time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
 ---
