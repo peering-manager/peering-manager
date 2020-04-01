@@ -21,9 +21,4 @@ if [ ! -f "/opt/peering-manager/config/has_run" ]; then
     >&2 echo "First-Run complete."
 fi
 
-## Initial pull of PeeringDB information
->&2 echo "Syncing with PeeringDB..."
-python3 manage.py peeringdb_sync
->&2 echo "PeeringDB Sync complete."
-
 exec "$@"
