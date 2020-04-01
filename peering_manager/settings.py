@@ -106,7 +106,14 @@ NAPALM_PASSWORD = getattr(configuration, "NAPALM_PASSWORD", "")
 NAPALM_TIMEOUT = getattr(configuration, "NAPALM_TIMEOUT", 30)
 NAPALM_ARGS = getattr(configuration, "NAPALM_ARGS", {})
 PAGINATE_COUNT = getattr(configuration, "PAGINATE_COUNT", 20)
-TIME_ZONE = getattr(configuration, "TIME_ZONE", "UTC")
+
+try:
+    TZ_FILE = open("/etc/timezone", "r")
+    BASE_TZ = TZ_FILE.read()
+except IOError:
+    BASE_TZ = "UTC"
+
+TIME_ZONE = getattr(configuration, "TIME_ZONE", BASE_TZ)
 EMAIL = getattr(configuration, "EMAIL", {})
 BGPQ3_PATH = getattr(configuration, "BGPQ3_PATH", "bgpq3")
 BGPQ3_HOST = getattr(configuration, "BGPQ3_HOST", "rr.ntt.net")
