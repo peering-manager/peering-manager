@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    env_file: docker/db.env
+    volumes:
+      - database:/var/lib/postgresql/data
+  web:
+    build: .
+    command: python3 manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file: 
+      - docker/web.env
+      - docker/db.env
+    volumes:
+      - web:/opt/peering-manager/
+    entrypoint: /opt/docker/entrypoint.sh
+volumes:
+  database:
+    driver: local
+  web:
+    driver: local
