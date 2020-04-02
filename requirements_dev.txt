@@ -1,3 +1,4 @@
 -r requirements.txt
 -r requirements_ldap.txt
+-r requirements_radius.txt
 django-debug-toolbar
