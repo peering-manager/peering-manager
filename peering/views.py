@@ -249,6 +249,10 @@ class AutonomousSystemDirectPeeringSessions(PermissionRequiredMixin, ModelListVi
             extra_context.update({"autonomous_system": autonomous_system})
         return extra_context
 
+    def setup_table_columns(self, request, permissions, table, kwargs):
+        table.columns.show("session_state")
+        super().setup_table_columns(request, permissions, table, kwargs)
+
 
 class AutonomousSystemInternetExchangesPeeringSessions(
     PermissionRequiredMixin, ModelListView
@@ -284,6 +288,10 @@ class AutonomousSystemInternetExchangesPeeringSessions(
             extra_context.update({"autonomous_system": autonomous_system})
 
         return extra_context
+
+    def setup_table_columns(self, request, permissions, table, kwargs):
+        table.columns.show("session_state")
+        super().setup_table_columns(request, permissions, table, kwargs)
 
 
 class BGPGroupList(PermissionRequiredMixin, ModelListView):
