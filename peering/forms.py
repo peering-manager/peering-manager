@@ -498,6 +498,11 @@ class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFo
         queryset=Router.objects.all(),
         widget=APISelect(api_url="/api/peering/routers/"),
     )
+    check_bgp_session_states = forms.NullBooleanField(
+        required=False,
+        label="Poll BGP State",
+        widget=CustomNullBooleanSelect
+    )
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
