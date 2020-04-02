@@ -716,7 +716,9 @@ class InternetExchangePeers(PermissionRequiredMixin, ModelListView):
 
 class InternetExchangePeeringSessionList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_internetexchangepeeringsession"
-    queryset = InternetExchangePeeringSession.objects.order_by("autonomous_system", "ip_address")
+    queryset = InternetExchangePeeringSession.objects.order_by(
+        "autonomous_system", "ip_address"
+    )
     table = InternetExchangePeeringSessionTable
     filter = InternetExchangePeeringSessionFilterSet
     filter_form = InternetExchangePeeringSessionFilterForm
