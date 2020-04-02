@@ -18,7 +18,7 @@ services:
       - docker/web.env
       - docker/db.env
     volumes:
-      - config:/opt/peering-manager/config
+      - config:/opt/docker
     entrypoint: /opt/docker/entrypoint.sh
 volumes:
   database:
