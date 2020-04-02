@@ -161,7 +161,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         common = PeeringDB().get_common_ix_networks_for_asns(settings.MY_ASN, self.asn)
         return InternetExchange.objects.filter(
             peeringdb_id__in=[us.id for us, _ in common]
-        )
+        ).order_by("name", "slug")
 
     def find_potential_ix_peering_sessions(self):
         """
