@@ -199,20 +199,23 @@ if LDAP_CONFIGURED:
 
 try:
     from peering_manager.radius_config import *
+
     RADIUS_CONFIGURED = True
 except ImportError:
     RADIUS_CONFIGURED = False
 
 if RADIUS_CONFIGURED:
     try:
-        # Prepend LDAPBackend to the default ModelBackend
+        import radiusauth
+
+        # Prepend RADIUSBackend to the default ModelBackend
         AUTHENTICATION_BACKENDS = [
-            "peering_manager.radius.backends.PMRADIUSBackend",
+            "radiusauth.backends.RADIUSBackend",
             "django.contrib.auth.backends.ModelBackend",
         ]
     except ImportError:
         raise ImproperlyConfigured(
-            "RADIUS authentication has been configured, but django-radius is not installed. You can remove peering_manager/radius_config.py to disable LDAP."
+            "RADIUS authentication has been configured, but django-radius is not installed. You can remove peering_manager/radius_config.py to disable RADIUS."
         )
 
 
