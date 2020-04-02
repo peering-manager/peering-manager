@@ -57,6 +57,7 @@ local_settings.py
 db.sqlite3
 peering_manager/configuration.py
 peering_manager/ldap_config.py
+peering_manager/radius_config.py
 
 # Flask stuff:
 instance/
