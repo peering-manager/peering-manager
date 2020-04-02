@@ -298,7 +298,7 @@ class BGPGroupList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_bgpgroup"
     queryset = BGPGroup.objects.annotate(
         directpeeringsession_count=Count("directpeeringsession")
-    ).order_by("name")
+    ).order_by("name", "slug")
     filter = BGPGroupFilterSet
     filter_form = BGPGroupFilterForm
     table = BGPGroupTable
@@ -517,7 +517,7 @@ class DirectPeeringSessionEdit(PermissionRequiredMixin, AddOrEditView):
 
 class DirectPeeringSessionList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_directpeeringsession"
-    queryset = DirectPeeringSession.objects.order_by("autonomous_system")
+    queryset = DirectPeeringSession.objects.order_by("autonomous_system", "ip_address")
     table = DirectPeeringSessionTable
     filter = DirectPeeringSessionFilterSet
     filter_form = DirectPeeringSessionFilterForm
@@ -526,7 +526,7 @@ class DirectPeeringSessionList(PermissionRequiredMixin, ModelListView):
 
 class InternetExchangeList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_internetexchange"
-    queryset = InternetExchange.objects.order_by("name")
+    queryset = InternetExchange.objects.order_by("name", "slug")
     table = InternetExchangeTable
     filter = InternetExchangeFilterSet
     filter_form = InternetExchangeFilterForm
@@ -716,7 +716,7 @@ class InternetExchangePeers(PermissionRequiredMixin, ModelListView):
 
 class InternetExchangePeeringSessionList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_internetexchangepeeringsession"
-    queryset = InternetExchangePeeringSession.objects.order_by("autonomous_system")
+    queryset = InternetExchangePeeringSession.objects.order_by("autonomous_system", "ip_address")
     table = InternetExchangePeeringSessionTable
     filter = InternetExchangePeeringSessionFilterSet
     filter_form = InternetExchangePeeringSessionFilterForm
