@@ -56,6 +56,7 @@ class PeerRecordTable(BaseTable):
             "ipv4_address",
         )
 
+
 class ASPeerRecordTable(BaseTable):
     """
     Table for AS PeerRecord lists

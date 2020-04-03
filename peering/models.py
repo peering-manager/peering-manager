@@ -280,7 +280,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             )
             .prefetch_related("network")
             .prefetch_related("network_ixlan")
-            .order_by("network_ixlan__name","network_ixlan__ipaddr6")
+            .order_by("network_ixlan__name", "network_ixlan__ipaddr6")
         )
 
     def synchronize_with_peeringdb(self):
@@ -1167,7 +1167,9 @@ class InternetExchangePeeringSession(BGPSession):
     def get_ix_list_for_peer_record(peer_record):
         ix_list = []
         # Find the Internet exchange given a NetworkIXLAN ID
-        for ix in InternetExchange.objects.exclude(peeringdb_id__isnull=True).exclude(peeringdb_id=0):
+        for ix in InternetExchange.objects.exclude(peeringdb_id__isnull=True).exclude(
+            peeringdb_id=0
+        ):
             # Get the IXLAN corresponding to our network
             try:
                 ixlan = NetworkIXLAN.objects.get(id=ix.peeringdb_id)
@@ -1189,8 +1191,6 @@ class InternetExchangePeeringSession(BGPSession):
                 ix_list.append(ix)
         return ix_list
 
-
-
     @staticmethod
     def create_from_peeringdb(peer_record, ip_version, internet_exchange=None):
         found_internet_exchange = None
@@ -1206,7 +1206,9 @@ class InternetExchangePeeringSession(BGPSession):
         if internet_exchange:
             found_internet_exchange = internet_exchange
         else:
-            ix_list = InternetExchangePeeringSession.get_ix_list_for_peer_record(peer_record)
+            ix_list = InternetExchangePeeringSession.get_ix_list_for_peer_record(
+                peer_record
+            )
             found_internet_exchange = ix_list[0]
 
         # Unable to find the Internet exchange, no point of going further

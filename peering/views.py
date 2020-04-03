@@ -312,6 +312,7 @@ class AutonomousSystemPeers(PermissionRequiredMixin, ModelListView):
             extra_context.update({"autonomous_system": autonomous_system})
         return extra_context
 
+
 class AutonomousSystemAddFromPeeringDB(
     PermissionRequiredMixin, BulkAddFromDependencyView
 ):
@@ -324,7 +325,9 @@ class AutonomousSystemAddFromPeeringDB(
     def process_dependency_object(self, request, dependency):
         return_value = []
 
-        for ix in InternetExchangePeeringSession.get_ix_list_for_peer_record(dependency):
+        for ix in InternetExchangePeeringSession.get_ix_list_for_peer_record(
+            dependency
+        ):
             (session6, created6) = InternetExchangePeeringSession.create_from_peeringdb(
                 dependency, 6, internet_exchange=ix
             )
@@ -353,7 +356,6 @@ class AutonomousSystemAddFromPeeringDB(
                     )
         return objects
 
-    
 
 class BGPGroupList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_bgpgroup"
