@@ -35,6 +35,13 @@
           </a>
         </li>
         {% endif %}
+        {% if autonomous_system.potential_internet_exchange_peering_sessions|length > 0 %}
+        <li class="nav-item">
+          <a class="nav-link{% if request.path|contains:'/peers/' %} active{% endif %}" href="{% url 'peering:autonomoussystem_peers' asn=autonomous_system.asn %}">
+            <i class="fas fa-link"></i> Available Sessions
+          </a>
+        </li>
+        {% endif %}
         {% if autonomous_system.get_peeringdb_contacts|length > 0 %}
         <li class="nav-item">
           <a class="nav-link{% if request.path|contains:'/contacts/' %} active{% endif %}" href="{% url 'peering:autonomoussystem_contacts' asn=autonomous_system.asn %}">
