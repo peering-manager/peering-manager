@@ -178,15 +178,9 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             peering_sessions = []
 
             if peer.ipaddr6:
-                try:
-                    peering_sessions.append(str(ipaddress.IPv6Address(peer.ipaddr6)))
-                except ipaddress.AddressValueError:
-                    continue
+                peering_sessions.append(peer.ipaddr6)
             if peer.ipaddr4:
-                try:
-                    peering_sessions.append(str(ipaddress.IPv4Address(peer.ipaddr4)))
-                except ipaddress.AddressValueError:
-                    continue
+                peering_sessions.append(peer.ipaddr4)
 
             # Get all known sessions for this AS on the given IX
             known_sessions = InternetExchangePeeringSession.objects.filter(
