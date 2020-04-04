@@ -19,7 +19,7 @@ class Command(BaseCommand):
             # is running on a supported platform
             if router.configuration_template and router.platform:
                 self.logger.info("Configuring {}".format(router.hostname))
-                # Generate configuration and apply it something has changed
+                # Generate configuration and apply it if something has changed
                 configuration = router.generate_configuration()
                 error, changes = router.set_napalm_configuration(configuration)
                 if not error and changes:
