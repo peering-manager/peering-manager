@@ -430,10 +430,7 @@ class RouterTest(TestCase):
         cls.bgp_neighbors_detail = json_file_to_python_type(
             "peering/tests/fixtures/get_bgp_neighbors_detail.json"
         )
-
-    def setUp(self):
-        super().setUp()
-        self.router = Router.objects.create(
+        cls.router = Router.objects.create(
             name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
         )
 
@@ -689,6 +686,17 @@ class RouterTest(TestCase):
                 self.bgp_neighbors_detail, ipaddress.ip_address("2001:db8::1")
             )
         )
+
+    def test_set_napalm_configuration(self):
+        error, changes = self.router.set_napalm_configuration(None)
+        self.assertIsNotNone(error)
+        self.assertIsNone(changes)
+        error, changes = self.router.set_napalm_configuration({})
+        self.assertIsNotNone(error)
+        self.assertIsNone(changes)
+        error, changes = self.router.set_napalm_configuration("")
+        self.assertIsNotNone(error)
+        self.assertIsNone(changes)
 
 
 class RoutingPolicyTest(TestCase):

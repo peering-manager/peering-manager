@@ -1598,6 +1598,12 @@ class Router(ChangeLoggedModel, TaggableModel):
         """
         error = changes = None
 
+        # Make sure there actually a configuration to merge
+        if config is None or not isinstance(config, str) or not config.strip():
+            self.logger.debug("no configuration to merge: %s", config)
+            error = f"no configuration found to be merged"
+            return error, changes
+
         device = self.get_napalm_device()
         opened = self.open_napalm_device(device)
 
@@ -1623,15 +1629,11 @@ class Router(ChangeLoggedModel, TaggableModel):
                     self.logger.debug("discarding configuration on %s", self.hostname)
                     device.discard_config()
             except napalm.base.exceptions.MergeConfigException as e:
-                error = 'unable to merge configuration on {} reason "{}"'.format(
-                    self.hostname, e
-                )
+                error = f'unable to merge configuration on {self.hostname} reason "{e}"'
                 changes = None
                 self.logger.debug(error)
             except Exception as e:
-                error = 'unable to merge configuration on {} reason "{}"'.format(
-                    self.hostname, e
-                )
+                error = f'unable to merge configuration on {self.hostname} reason "{e}"'
                 changes = None
                 self.logger.debug(error)
             else:
@@ -1645,7 +1647,7 @@ class Router(ChangeLoggedModel, TaggableModel):
                         "error while closing connection with %s", self.hostname
                     )
         else:
-            error = "Unable to connect to {}".format(self.hostname)
+            error = f"Unable to connect to {self.hostname}"
 
         return error, changes
 
