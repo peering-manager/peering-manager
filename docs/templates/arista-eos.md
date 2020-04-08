@@ -1,5 +1,5 @@
 ```no-highlight
-router bgp 8757
+router bgp {{ my_asn }}
         {%- for internet_exchange in internet_exchanges %}
         {%- for address_family, sessions in internet_exchange.sessions.items() %}
         {%- if sessions|length > 0 %}
@@ -57,10 +57,10 @@ router bgp 8757
     {%- if address_family == 6 %}
     address-family ipv6
     {%- endif %}
-       neighbor {{ session.ip_address }} route-map {% for import_policy in session.import_routing_policies %}{%- if import_policy.address_family == address_family %}{{ import_policy.slug }} {% endif %}{% endfor %}in
+       neighbor {{ session.ip_address }} route-map {% for import_policy in session.import_routing_policies %}{%- if (import_policy.address_family == address_family or export_policy.address_family == 0) %}{{ import_policy.slug }} {% endif %}{% endfor %}in
     {%- endif %}
     {%- if session.export_routing_policies %}
-       neighbor {{ session.ip_address }} route-map {% for export_policy in session.export_routing_policies %}{%- if export_policy.address_family == address_family %}{{ export_policy.slug }} {% endif %}{% endfor %}out
+       neighbor {{ session.ip_address }} route-map {% for export_policy in session.export_routing_policies %}{%- if (export_policy.address_family == address_family or export_policy.address_family == 0) %}{{ export_policy.slug }} {% endif %}{% endfor %}out
     {%- endif %}
     !
 {%- endfor %}
