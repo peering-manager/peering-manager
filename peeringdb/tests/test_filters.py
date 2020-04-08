@@ -63,6 +63,22 @@ class PeerRecordTestCase(StandardTestCases.Filters):
             ]
         )
 
+    def test_q(self):
+        params = {"q": "Test"}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        params = {"q": "Test 1"}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        params = {"q": "AS-TEST"}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        params = {"q": "AS-TEST-1"}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        params = {"q": "2001:db8::1"}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        params = {"q": "192.0.2.1"}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        params = {"q": 64501}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+
     def test_network__asn(self):
         params = {"network__asn": 64501}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)

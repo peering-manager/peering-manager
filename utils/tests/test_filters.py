@@ -25,6 +25,12 @@ class ObjectChangeTestCase(StandardTestCases.Filters):
             cls.uuids.append(uid)
             tag.log_change(user, uid, OBJECT_CHANGE_ACTION_UPDATE)
 
+    def test_q(self):
+        params = {"q": ""}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        params = {"q": "testuser2"}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+
     def test_action(self):
         params = {"action": OBJECT_CHANGE_ACTION_UPDATE}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
@@ -55,6 +61,12 @@ class TagTestCase(StandardTestCases.Filters):
                 Tag(name="Tag 3", slug="tag-3"),
             )
         )
+
+    def test_q(self):
+        params = {"q": ""}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        params = {"q": "tag-1"}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
         params = {"name": "Tag 1"}
