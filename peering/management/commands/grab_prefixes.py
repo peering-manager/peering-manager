@@ -22,22 +22,23 @@ class Command(BaseCommand):
         for autonomous_system in AutonomousSystem.objects.all():
             prefixes = autonomous_system.retrieve_irr_as_set_prefixes()
 
-            if len(prefixes["ipv6"]) > options["limit"]:
-                self.logger.debug(
-                    "Too many IPv6 prefixes for as%s: %s > %s, ignoring",
-                    autonomous_system.asn,
-                    len(prefixes["ipv6"]),
-                    options["limit"],
-                )
-                prefixes["ipv6"] = []
-            if len(prefixes["ipv4"]) > options["limit"]:
-                self.logger.debug(
-                    "Too many IPv4 prefixes for as%s: %s > %s, ignoring",
-                    autonomous_system.asn,
-                    len(prefixes["ipv6"]),
-                    options["limit"],
-                )
-                prefixes["ipv4"] = []
+            if "limit" in options:
+                if len(prefixes["ipv6"]) > options["limit"]:
+                    self.logger.debug(
+                        "Too many IPv6 prefixes for as%s: %s > %s, ignoring",
+                        autonomous_system.asn,
+                        len(prefixes["ipv6"]),
+                        options["limit"],
+                    )
+                    prefixes["ipv6"] = []
+                if len(prefixes["ipv4"]) > options["limit"]:
+                    self.logger.debug(
+                        "Too many IPv4 prefixes for as%s: %s > %s, ignoring",
+                        autonomous_system.asn,
+                        len(prefixes["ipv6"]),
+                        options["limit"],
+                    )
+                    prefixes["ipv4"] = []
 
             autonomous_system.prefixes = prefixes
             autonomous_system.save()
