@@ -53,8 +53,8 @@ class ColorField(models.CharField):
 
 class CommentField(TextareaField):
     """
-    A textarea with support for GitHub-Flavored Markdown. Note that it does not
-    actually do anything special. It just here to add a help text.
+    A textarea with support for Markdown. Note that it does not actually do anything
+    special. It just here to add a help text.
     """
 
     def __init__(self, *args, **kwargs):

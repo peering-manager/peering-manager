@@ -4,6 +4,7 @@ from json import dumps as json_dumps
 from markdown import markdown as md
 
 from django import template
+from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 
 
@@ -27,9 +28,11 @@ def contains(value, arg):
 @register.filter(is_safe=True)
 def markdown(value):
     """
-    Render text as GitHub-Flavored Markdown.
+    Render text as Markdown.
     """
-    return mark_safe(md(value, extensions=["mdx_gfm"]))
+    # Strip HTML tags and render Markdown
+    html = md(strip_tags(value), extensions=["fenced_code", "tables"])
+    return mark_safe(html)
 
 
 @register.filter()
