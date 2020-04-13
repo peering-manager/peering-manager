@@ -124,6 +124,10 @@ class APISelect(forms.Select):
         *args,
         **kwargs
     ):
+        # Only preload the selected option(s); new options are dynamically displayed
+        # and added via the API
+        template_name = "widgets/select_api.html"
+
         super().__init__(*args, **kwargs)
         self.attrs["class"] = "custom-select2-api"
         self.attrs["data-url"] = "/{}{}".format(settings.BASE_PATH, api_url.lstrip("/"))
