@@ -94,6 +94,7 @@ class RouterSerializer(TaggitSerializer, WriteEnabledNestedSerializer):
             "comments",
             "netbox_device_id",
             "use_netbox",
+            "encrypt_passwords",
             "tags",
         ]
         nested_fields = ["configuration_template"]
