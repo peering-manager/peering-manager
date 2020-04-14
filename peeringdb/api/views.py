@@ -61,18 +61,6 @@ class CacheViewSet(ViewSet):
         )
 
 
-class PeerRecordViewSet(ModelViewSet):
-    queryset = PeerRecord.objects.all()
-    serializer_class = PeerRecordSerializer
-    filterset_class = PeerRecordFilterSet
-
-
-class SynchronizationViewSet(ReadOnlyModelViewSet):
-    queryset = Synchronization.objects.all()
-    serializer_class = SynchronizationSerializer
-    filterset_class = SynchronizationFilterSet
-
-
 class ContactsViewSet(ReadOnlyModelViewSet):
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
@@ -83,3 +71,15 @@ class NetworksViewSet(ReadOnlyModelViewSet):
     queryset = Network.objects.all()
     serializer_class = NetworkSerializer
     filterset_class = NetworkFilterSet
+
+
+class PeerRecordViewSet(ModelViewSet):
+    queryset = PeerRecord.objects.all()
+    serializer_class = PeerRecordSerializer
+    filterset_class = PeerRecordFilterSet
+
+
+class SynchronizationViewSet(ReadOnlyModelViewSet):
+    queryset = Synchronization.objects.all()
+    serializer_class = SynchronizationSerializer
+    filterset_class = SynchronizationFilterSet
