@@ -922,7 +922,7 @@ class RouterDirectPeeringSessions(PermissionRequiredMixin, ModelListView):
         # The queryset needs to be composed of DirectPeeringSession objects
         # related to the AS we are looking at.
         if "pk" in kwargs:
-            router = get_object_or_404(Router, asn=kwargs["pk"])
+            router = get_object_or_404(Router, pk=kwargs["pk"])
             queryset = router.directpeeringsession_set.order_by(
                 "relationship", "ip_address"
             )
@@ -933,7 +933,7 @@ class RouterDirectPeeringSessions(PermissionRequiredMixin, ModelListView):
         # Since we are in the context of an AS we need to keep the reference
         # for it
         if "pk" in kwargs:
-            router = get_object_or_404(Router, asn=kwargs["pk"])
+            router = get_object_or_404(Router, pk=kwargs["pk"])
             extra_context.update({"router": router})
         return extra_context
 
@@ -955,7 +955,7 @@ class RouterInternetExchangesPeeringSessions(
         # are linked to an AS. So first of all we need to retrieve the AS for
         # which we want to get the peering sessions.
         if "pk" in kwargs:
-            router = get_object_or_404(Router, asn=kwargs["pk"])
+            router = get_object_or_404(Router, pk=kwargs["pk"])
             queryset = router.internetexchangepeeringsession_set.order_by(
                 "internet_exchange", "ip_address"
             )
@@ -968,7 +968,7 @@ class RouterInternetExchangesPeeringSessions(
         # Since we are in the context of an AS we need to keep the reference
         # for it
         if "pk" in kwargs:
-            router = get_object_or_404(Router, asn=kwargs["asn"])
+            router = get_object_or_404(Router, pk=kwargs["pk"])
             extra_context.update({"router": router})
 
         return extra_context
