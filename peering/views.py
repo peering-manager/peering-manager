@@ -909,6 +909,71 @@ class RouterBulkDelete(PermissionRequiredMixin, BulkDeleteView):
     table = RouterTable
 
 
+class RouterDirectPeeringSessions(PermissionRequiredMixin, ModelListView):
+    permission_required = "peering.view_router"
+    filter = DirectPeeringSessionFilterSet
+    filter_form = DirectPeeringSessionFilterForm
+    table = DirectPeeringSessionTable
+    template = "peering/as/direct_peering_sessions.html"
+    hidden_columns = ["router"]
+
+    def build_queryset(self, request, kwargs):
+        queryset = None
+        # The queryset needs to be composed of DirectPeeringSession objects
+        # related to the AS we are looking at.
+        if "pk" in kwargs:
+            router = get_object_or_404(Router, asn=kwargs["pk"])
+            queryset = router.directpeeringsession_set.order_by(
+                "relationship", "ip_address"
+            )
+        return queryset
+
+    def extra_context(self, kwargs):
+        extra_context = {}
+        # Since we are in the context of an AS we need to keep the reference
+        # for it
+        if "pk" in kwargs:
+            router = get_object_or_404(Router, asn=kwargs["pk"])
+            extra_context.update({"router": router})
+        return extra_context
+
+
+class RouterInternetExchangesPeeringSessions(
+    PermissionRequiredMixin, ModelListView
+):
+    permission_required = "peering.view_router"
+    filter = InternetExchangePeeringSessionFilterSet
+    filter_form = InternetExchangePeeringSessionFilterForm
+    table = InternetExchangePeeringSessionTable
+    template = "peering/as/internet_exchange_peering_sessions.html"
+    hidden_columns = ["router"]
+    hidden_filters = ["router__id"]
+
+    def build_queryset(self, request, kwargs):
+        queryset = None
+        # The queryset needs to be composed of InternetExchangePeeringSession objects but they
+        # are linked to an AS. So first of all we need to retrieve the AS for
+        # which we want to get the peering sessions.
+        if "pk" in kwargs:
+            router = get_object_or_404(Router, asn=kwargs["pk"])
+            queryset = router.internetexchangepeeringsession_set.order_by(
+                "internet_exchange", "ip_address"
+            )
+
+        return queryset
+
+    def extra_context(self, kwargs):
+        extra_context = {}
+
+        # Since we are in the context of an AS we need to keep the reference
+        # for it
+        if "pk" in kwargs:
+            router = get_object_or_404(Router, asn=kwargs["asn"])
+            extra_context.update({"router": router})
+
+        return extra_context
+
+
 class RoutingPolicyList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_routingpolicy"
     queryset = RoutingPolicy.objects.all()

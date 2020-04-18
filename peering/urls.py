@@ -276,6 +276,16 @@ urlpatterns = [
     re_path(
         r"^routers/edit/$", views.RouterBulkEdit.as_view(), name="router_bulk_edit"
     ),
+        re_path(
+        r"^routers/(?P<pk>[0-9]+)/direct-peering-sessions/$",
+        views.RouterDirectPeeringSessions.as_view(),
+        name="router_direct_peering_sessions",
+    ),
+    re_path(
+        r"^routers/(?P<pk>[0-9]+)/ix-peering-sessions/$",
+        views.RouterInternetExchangesPeeringSessions.as_view(),
+        name="router_internet_exchange_peering_sessions",
+    ),
     # Routing Policies
     re_path(
         r"^routing-policies/$",

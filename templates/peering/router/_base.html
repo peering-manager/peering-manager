@@ -30,6 +30,18 @@
           </a>
         </li>
         {% endif %}
+        <li class="nav-item">
+          <a class="nav-link{% if request.path|contains:'/direct-peering-sessions/' %} active{% endif %}" href="{% url 'peering:router_direct_peering_sessions' pk=router.pk %}">
+            <i class="fas fa-ethernet"></i> Direct Peering Sessions
+          </a>
+        </li>
+        {% if autonomous_system.get_peering_sessions|length > 0 %}
+        <li class="nav-item">
+          <a class="nav-link{% if request.path|contains:'/ix-peering-sessions/' %} active{% endif %}" href="{% url 'peering:router_internet_exchange_peering_sessions' pk=router.pk %}">
+            <i class="fas fa-network-wired"></i> IX Peering Sessions
+          </a>
+        </li>
+        {% endif %}
       </ul>
       {% block subcontent %}{% endblock %}
 {% endblock %}
