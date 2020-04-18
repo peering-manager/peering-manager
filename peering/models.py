@@ -242,10 +242,12 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             missing_sessions = {"ipv6": [], "ipv4": []}
             for session in self.potential_internet_exchange_peering_sessions:
                 for prefix in internet_exchange.get_prefixes():
-                    if session in ipaddress.ip_network(prefix):
-                        missing_sessions["ipv{}".format(session.version)].append(
-                            session
-                        )
+                    if (
+                        session not in missing_sessions["ipv6"]
+                        and session not in missing_sessions["ipv4"]
+                    ):
+                        if session in ipaddress.ip_network(prefix):
+                            missing_sessions[f"ipv{session.version}"].append(session)
 
             ix_and_sessions.append(
                 {
