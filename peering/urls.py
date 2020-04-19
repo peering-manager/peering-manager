@@ -276,7 +276,7 @@ urlpatterns = [
     re_path(
         r"^routers/edit/$", views.RouterBulkEdit.as_view(), name="router_bulk_edit"
     ),
-        re_path(
+    re_path(
         r"^routers/(?P<pk>[0-9]+)/direct-peering-sessions/$",
         views.RouterDirectPeeringSessions.as_view(),
         name="router_direct_peering_sessions",
