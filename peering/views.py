@@ -969,6 +969,10 @@ class RouterDirectPeeringSessions(PermissionRequiredMixin, ModelListView):
             extra_context.update({"router": router, "router_id": router.pk})
         return extra_context
 
+    def setup_table_columns(self, request, permissions, table, kwargs):
+        table.columns.show("session_state")
+        super().setup_table_columns(request, permissions, table, kwargs)
+
 
 class RouterInternetExchangesPeeringSessions(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_router"
