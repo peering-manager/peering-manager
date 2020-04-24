@@ -344,7 +344,9 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEd
         required=False, label="Enable", widget=CustomNullBooleanSelect
     )
     relationship = forms.ChoiceField(
-        choices=BGP_RELATIONSHIP_CHOICES, widget=StaticSelect
+        required=False,
+        choices=add_blank_choice(BGP_RELATIONSHIP_CHOICES), 
+        widget=StaticSelect
     )
     bgp_group = forms.ModelChoiceField(
         required=False,
