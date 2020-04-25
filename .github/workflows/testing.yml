@@ -23,6 +23,7 @@ jobs:
   tests:
     name: tests
     runs-on: ubuntu-latest
+    if: github.event_name == "push"
     strategy:
       matrix:
         toxenv:
@@ -56,10 +57,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install tox coveralls
       - name: Run tox
-        run: tox
+        run: |
+          tox
+          coveralls
         env:
           TOXENV: ${{ matrix.toxenv }}
-      - name: Coverage report
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
