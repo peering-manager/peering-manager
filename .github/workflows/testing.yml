@@ -6,7 +6,7 @@ jobs:
     name: black
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Setup Python
         uses: actions/setup-python@v1
         with:
@@ -46,7 +46,7 @@ jobs:
           POSTGRES_USER: devbox
           POSTGRES_PASSWORD: devbox
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Setup Python
         uses: actions/setup-python@v1
         with:
@@ -56,9 +56,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install tox coveralls
       - name: Run tox
-        run: |
-          tox
-          coveralls
+        run: tox
         env:
           TOXENV: ${{ matrix.toxenv }}
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      - name: Coverage report
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
