@@ -671,10 +671,11 @@ class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
         max_length=50, choices=COMMUNITY_TYPE_CHOICES, default=COMMUNITY_TYPE_INGRESS
     )
     comments = models.TextField(blank=True)
+    description = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
         verbose_name_plural = "communities"
-        ordering = ["value", "name"]
+        ordering = ["value", "name","description"]
 
     def get_absolute_url(self):
         return reverse("peering:community_details", kwargs={"pk": self.pk})
