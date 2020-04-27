@@ -37,7 +37,7 @@ Type "help" for help.
 
 postgres=# CREATE DATABASE peering_manager;
 CREATE DATABASE
-postgres=# CREATE USER peering_manager WITH PASSWORD 'DoNotUseMe';
+postgres=# CREATE USER peering_manager WITH PASSWORD 'DoNotUseMe' ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF8' LC_CTYPE = 'en_US.UTF8';
 CREATE ROLE
 postgres=# GRANT ALL PRIVILEGES ON DATABASE peering_manager TO peering_manager;
 GRANT
