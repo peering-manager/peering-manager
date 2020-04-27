@@ -70,7 +70,7 @@ class CommunityFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = Community
-        fields = ["name", "value", "type", "comments"]
+        fields = ["name", "value", "type", "comments", "description"]
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -80,6 +80,8 @@ class CommunityFilterSet(django_filters.FilterSet):
             | Q(value__icontains=value)
             | Q(type__icontains=value)
             | Q(comments__icontains=value)
+            | Q(description__icontains=value)
+            
         )
         return queryset.filter(qs_filter)
 

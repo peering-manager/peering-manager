@@ -227,8 +227,9 @@ class CommunityForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Community
 
-        fields = ("name", "value", "type", "comments", "tags")
+        fields = ("name", "description", "value", "type", "comments", "tags")
         help_texts = {
+            "description": "A descriptive value that will be used on the configuration, example: originTransit",
             "value": "Community (RFC1997) or Large Community (RFC8092)",
             "type": "Ingress to tag received routes or Egress to tag advertised routes",
         }

@@ -35,7 +35,7 @@ class CommunityNestedSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Community
-        fields = ["id", "url", "name", "value", "type"]
+        fields = ["id", "url", "name", "description", "value", "type"]
 
 
 class InternetExchangeNestedSerializer(WritableNestedSerializer):
