@@ -15,19 +15,19 @@ class PeeringRootView(routers.APIRootView):
 router = routers.DefaultRouter()
 router.APIRootView = PeeringRootView
 
-router.register(r"_choices", views.PeeringFieldChoicesViewSet, basename="field-choice")
+router.register("_choices", views.PeeringFieldChoicesViewSet, basename="field-choice")
 
-router.register(r"autonomous-systems", views.AutonomousSystemViewSet)
-router.register(r"bgp-groups", views.BGPGroupViewSet)
-router.register(r"communities", views.CommunityViewSet)
-router.register(r"direct-peering-sessions", views.DirectPeeringSessionViewSet)
-router.register(r"internet-exchanges", views.InternetExchangeViewSet)
+router.register("autonomous-systems", views.AutonomousSystemViewSet)
+router.register("bgp-groups", views.BGPGroupViewSet)
+router.register("communities", views.CommunityViewSet)
+router.register("direct-peering-sessions", views.DirectPeeringSessionViewSet)
+router.register("internet-exchanges", views.InternetExchangeViewSet)
 router.register(
-    r"internet-exchange-peering-sessions", views.InternetExchangePeeringSessionViewSet
+    "internet-exchange-peering-sessions", views.InternetExchangePeeringSessionViewSet
 )
-router.register(r"routers", views.RouterViewSet)
-router.register(r"routing-policies", views.RoutingPolicyViewSet)
-router.register(r"templates", views.TemplateViewSet)
+router.register("routers", views.RouterViewSet)
+router.register("routing-policies", views.RoutingPolicyViewSet)
+router.register("templates", views.TemplateViewSet)
 
 app_name = "peering-api"
 urlpatterns = router.urls

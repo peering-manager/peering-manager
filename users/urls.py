@@ -1,21 +1,15 @@
-from django.conf.urls import re_path
+from django.urls import path
 
 from . import views
 
 app_name = "users"
 urlpatterns = [
-    re_path(r"^profile/$", views.ProfileView.as_view(), name="profile"),
-    re_path(r"^password/$", views.ChangePasswordView.as_view(), name="change_password"),
-    re_path(r"^api-tokens/$", views.TokenList.as_view(), name="token_list"),
-    re_path(r"^api-tokens/add/$", views.TokenAddEdit.as_view(), name="token_add"),
-    re_path(
-        r"^api-tokens/(?P<pk>\d+)/edit/$",
-        views.TokenAddEdit.as_view(),
-        name="token_edit",
-    ),
-    re_path(
-        r"^api-tokens/(?P<pk>\d+)/delete/$",
-        views.TokenDelete.as_view(),
-        name="token_delete",
+    path("profile/", views.ProfileView.as_view(), name="profile"),
+    path("password/", views.ChangePasswordView.as_view(), name="change_password"),
+    path("api-tokens/", views.TokenList.as_view(), name="token_list"),
+    path("api-tokens/add/", views.TokenAddEdit.as_view(), name="token_add"),
+    path("api-tokens/<int:pk>/edit/", views.TokenAddEdit.as_view(), name="token_edit"),
+    path(
+        "api-tokens/<int:pk>/delete/", views.TokenDelete.as_view(), name="token_delete"
     ),
 ]
