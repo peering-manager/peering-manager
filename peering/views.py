@@ -76,7 +76,7 @@ from peeringdb.filters import PeerRecordFilterSet
 from peeringdb.forms import PeerRecordFilterForm
 from peeringdb.http import PeeringDB
 from peeringdb.models import PeerRecord
-from peeringdb.tables import ContactTable, PeerRecordTable, ASPeerRecordTable
+from peeringdb.tables import ASPeerRecordTable, ContactTable, PeerRecordTable
 from utils.views import (
     AddOrEditView,
     BulkAddFromDependencyView,
@@ -288,8 +288,6 @@ class AutonomousSystemInternetExchangesPeeringSessions(
 
 class AutonomousSystemPeers(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_autonomoussystem"
-    filter = None
-    filter_form = None
     table = ASPeerRecordTable
     template = "peering/as/peers.html"
 

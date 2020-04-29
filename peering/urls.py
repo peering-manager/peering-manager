@@ -47,13 +47,13 @@ urlpatterns = [
         views.AutonomousSystemInternetExchangesPeeringSessions.as_view(),
         name="autonomoussystem_internet_exchange_peering_sessions",
     ),
-    re_path(
-        r"^autonomous-systems/(?P<asn>[0-9]+)/peers/$",
+    path(
+        "autonomous-systems/<int:asn>/peers/",
         views.AutonomousSystemPeers.as_view(),
         name="autonomoussystem_peers",
     ),
-    re_path(
-        r"^autonomous-systems/add_from_peeringdb/$",
+    path(
+        "autonomous-systems/add_from_peeringdb/",
         views.AutonomousSystemAddFromPeeringDB.as_view(),
         name="autonomoussystem_add_from_peeringdb",
     ),
