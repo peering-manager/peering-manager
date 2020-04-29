@@ -47,6 +47,16 @@ urlpatterns = [
         views.AutonomousSystemInternetExchangesPeeringSessions.as_view(),
         name="autonomoussystem_internet_exchange_peering_sessions",
     ),
+    re_path(
+        r"^autonomous-systems/(?P<asn>[0-9]+)/peers/$",
+        views.AutonomousSystemPeers.as_view(),
+        name="autonomoussystem_peers",
+    ),
+    re_path(
+        r"^autonomous-systems/add_from_peeringdb/$",
+        views.AutonomousSystemAddFromPeeringDB.as_view(),
+        name="autonomoussystem_add_from_peeringdb",
+    ),
     # BGP Groups
     path("bgp-groups/", views.BGPGroupList.as_view(), name="bgpgroup_list"),
     path("bgp-groups/add/", views.BGPGroupAdd.as_view(), name="bgpgroup_add"),

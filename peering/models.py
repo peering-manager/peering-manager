@@ -264,6 +264,21 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         return ix_and_sessions
 
+    def get_available_sessions(self):
+        missing_sessions = self.potential_internet_exchange_peering_sessions
+
+        return (
+            PeerRecord.objects.filter(
+                (
+                    Q(network_ixlan__ipaddr6__in=missing_sessions)
+                    | Q(network_ixlan__ipaddr4__in=missing_sessions)
+                )
+            )
+            .prefetch_related("network")
+            .prefetch_related("network_ixlan")
+            .order_by("network_ixlan__name", "network_ixlan__ipaddr6")
+        )
+
     def synchronize_with_peeringdb(self):
         """
         Synchronize AS properties with those found in PeeringDB.
@@ -1145,6 +1160,34 @@ class InternetExchangePeeringSession(BGPSession):
         ordering = ["autonomous_system", "ip_address"]
 
     @staticmethod
+    def get_ix_list_for_peer_record(peer_record):
+        ix_list = []
+        # Find the Internet exchange given a NetworkIXLAN ID
+        for ix in InternetExchange.objects.exclude(peeringdb_id__isnull=True).exclude(
+            peeringdb_id=0
+        ):
+            # Get the IXLAN corresponding to our network
+            try:
+                ixlan = NetworkIXLAN.objects.get(id=ix.peeringdb_id)
+            except NetworkIXLAN.DoesNotExist:
+                InternetExchangePeeringSession.logger.debug(
+                    "NetworkIXLAN with ID {} not found, ignoring IX {}".format(
+                        ix.peeringdb_id, ix.name
+                    )
+                )
+                continue
+
+            # Get a potentially matching IXLAN
+            peer_ixlan = NetworkIXLAN.objects.filter(
+                id=peer_record.network_ixlan.id, ix_id=ixlan.ix_id
+            )
+
+            # IXLAN found lets get out
+            if peer_ixlan:
+                ix_list.append(ix)
+        return ix_list
+
+    @staticmethod
     def create_from_peeringdb(peer_record, ip_version, internet_exchange=None):
         found_internet_exchange = None
         peer_ixlan = None
@@ -1159,28 +1202,10 @@ class InternetExchangePeeringSession(BGPSession):
         if internet_exchange:
             found_internet_exchange = internet_exchange
         else:
-            # Find the Internet exchange given a NetworkIXLAN ID
-            for ix in InternetExchange.objects.exclude(peeringdb_id__isnull=True):
-                # Get the IXLAN corresponding to our network
-                try:
-                    ixlan = NetworkIXLAN.objects.get(id=ix.peeringdb_id)
-                except NetworkIXLAN.DoesNotExist:
-                    InternetExchangePeeringSession.logger.debug(
-                        "NetworkIXLAN with ID {} not found, ignoring IX {}".format(
-                            ix.peeringdb_id, ix.name
-                        )
-                    )
-                    continue
-
-                # Get a potentially matching IXLAN
-                peer_ixlan = NetworkIXLAN.objects.filter(
-                    id=peer_record.network_ixlan.id, ix_id=ixlan.ix_id
-                )
-
-                # IXLAN found lets get out
-                if peer_ixlan:
-                    found_internet_exchange = ix
-                    break
+            ix_list = InternetExchangePeeringSession.get_ix_list_for_peer_record(
+                peer_record
+            )
+            found_internet_exchange = ix_list[0]
 
         # Unable to find the Internet exchange, no point of going further
         if not found_internet_exchange:
