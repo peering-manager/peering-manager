@@ -22,12 +22,12 @@ from .models import (
     RoutingPolicy,
     Template,
 )
-from utils.filters import TagFilterSet
+from utils.filters import TagFilter
 
 
 class AutonomousSystemFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
-    tag = TagFilterSet()
+    tag = TagFilter()
 
     class Meta:
         model = AutonomousSystem
@@ -52,7 +52,7 @@ class AutonomousSystemFilterSet(django_filters.FilterSet):
 
 class BGPGroupFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
-    tag = TagFilterSet()
+    tag = TagFilter()
 
     class Meta:
         model = BGPGroup
@@ -66,7 +66,7 @@ class BGPGroupFilterSet(django_filters.FilterSet):
 
 class CommunityFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
-    tag = TagFilterSet()
+    tag = TagFilter()
 
     class Meta:
         model = Community
@@ -96,7 +96,7 @@ class DirectPeeringSessionFilterSet(django_filters.FilterSet):
         to_field_name="id",
         label="Router",
     )
-    tag = TagFilterSet()
+    tag = TagFilter()
 
     class Meta:
         model = DirectPeeringSession
@@ -131,7 +131,7 @@ class InternetExchangeFilterSet(django_filters.FilterSet):
         to_field_name="id",
         label="Router",
     )
-    tag = TagFilterSet()
+    tag = TagFilter()
 
     class Meta:
         model = InternetExchange
@@ -163,7 +163,7 @@ class InternetExchangePeeringSessionFilterSet(django_filters.FilterSet):
         to_field_name="id",
     )
     address_family = django_filters.NumberFilter(method="address_family_search")
-    tag = TagFilterSet()
+    tag = TagFilter()
 
     class Meta:
         model = InternetExchangePeeringSession
@@ -209,7 +209,7 @@ class RouterFilterSet(django_filters.FilterSet):
     platform = django_filters.MultipleChoiceFilter(
         choices=PLATFORM_CHOICES, null_value=None
     )
-    tag = TagFilterSet()
+    tag = TagFilter()
 
     class Meta:
         model = Router
@@ -232,7 +232,7 @@ class RoutingPolicyFilterSet(django_filters.FilterSet):
     type = django_filters.MultipleChoiceFilter(
         method="type_search", choices=ROUTING_POLICY_TYPE_CHOICES, null_value=None
     )
-    tag = TagFilterSet()
+    tag = TagFilter()
 
     class Meta:
         model = RoutingPolicy
@@ -263,7 +263,7 @@ class TemplateFilterSet(django_filters.FilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=TEMPLATE_TYPE_CHOICES, null_value=None
     )
-    tag = TagFilterSet()
+    tag = TagFilter()
 
     class Meta:
         model = Template

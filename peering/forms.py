@@ -38,6 +38,7 @@ from utils.forms import (
     SmallTextarea,
     StaticSelect,
     StaticSelectMultiple,
+    TagFilterField,
 )
 
 
@@ -117,6 +118,7 @@ class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
     irr_as_set = forms.CharField(required=False, label="IRR AS-SET")
     ipv6_max_prefixes = forms.IntegerField(required=False, label="IPv6 Max Prefixes")
     ipv4_max_prefixes = forms.IntegerField(required=False, label="IPv4 Max Prefixes")
+    tag = TagFilterField(model)
 
 
 class AutonomousSystemEmailForm(BootstrapMixin, forms.Form):
@@ -215,6 +217,7 @@ class BGPGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
 class BGPGroupFilterForm(BootstrapMixin, forms.Form):
     model = BGPGroup
     q = forms.CharField(required=False, label="Search")
+    tag = TagFilterField(model)
 
 
 class CommunityForm(BootstrapMixin, forms.ModelForm):
@@ -252,6 +255,7 @@ class CommunityFilterForm(BootstrapMixin, forms.Form):
     type = forms.MultipleChoiceField(
         required=False, choices=COMMUNITY_TYPE_CHOICES, widget=StaticSelectMultiple
     )
+    tag = TagFilterField(model)
 
 
 class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
@@ -407,6 +411,7 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
         null_label=True,
         widget=APISelectMultiple(api_url="/api/peering/routers/", null_option=True),
     )
+    tag = TagFilterField(model)
 
 
 class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
@@ -578,6 +583,7 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
         null_label=True,
         widget=APISelectMultiple(api_url="/api/peering/routers/", null_option=True),
     )
+    tag = TagFilterField(model)
 
 
 class InternetExchangePeeringSessionBulkEditForm(
@@ -704,6 +710,7 @@ class InternetExchangePeeringSessionFilterForm(BootstrapMixin, forms.Form):
     enabled = forms.NullBooleanField(
         required=False, label="Enabled", widget=CustomNullBooleanSelect
     )
+    tag = TagFilterField(model)
 
 
 class RouterForm(BootstrapMixin, forms.ModelForm):
@@ -801,6 +808,7 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
         null_label=True,
         widget=APISelectMultiple(api_url="/api/peering/templates/", null_option=True),
     )
+    tag = TagFilterField(model)
 
 
 class RoutingPolicyForm(BootstrapMixin, forms.ModelForm):
@@ -855,6 +863,7 @@ class RoutingPolicyFilterForm(BootstrapMixin, forms.Form):
     address_family = forms.ChoiceField(
         required=False, choices=add_blank_choice(IP_FAMILY_CHOICES), widget=StaticSelect
     )
+    tag = TagFilterField(model)
 
 
 class TemplateForm(BootstrapMixin, forms.ModelForm):
@@ -880,3 +889,4 @@ class TemplateFilterForm(BootstrapMixin, forms.Form):
         choices=add_blank_choice(TEMPLATE_TYPE_CHOICES),
         widget=StaticSelectMultiple,
     )
+    tag = TagFilterField(model)

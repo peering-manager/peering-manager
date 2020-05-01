@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Count
 from django.conf import settings
 from django.contrib.auth.models import User
 from taggit.forms import TagField
@@ -122,7 +123,7 @@ class APISelect(forms.Select):
         query_filters=None,
         null_option=False,
         *args,
-        **kwargs
+        **kwargs,
     ):
         # Only preload the selected option(s); new options are dynamically displayed
         # and added via the API
@@ -244,3 +245,24 @@ class AddRemoveTagsForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["add_tags"] = TagField(required=False)
         self.fields["remove_tags"] = TagField(required=False)
+
+
+class TagFilterField(forms.MultipleChoiceField):
+    """
+    A filter field for the tags of a model.
+    Only the tags used by a model are displayed.
+    """
+
+    widget = StaticSelectMultiple
+
+    def __init__(self, model, *args, **kwargs):
+        def get_choices():
+            tags = model.tags.annotate(count=Count("utils_taggeditem_items")).order_by(
+                "name"
+            )
+            return [(str(tag.slug), f"{tag.name} ({tag.count})") for tag in tags]
+
+        # Choices are fetched each time the form is initialized
+        super().__init__(
+            label="Tags", choices=get_choices, required=False, *args, **kwargs
+        )
