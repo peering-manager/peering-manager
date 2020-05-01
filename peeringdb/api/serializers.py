@@ -6,7 +6,7 @@ from peeringdb.models import Contact, Network, NetworkIXLAN, PeerRecord, Synchro
 class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
-        fields = ["id", "role", "visible", "name", "phone", "email", "url", "network"]
+        fields = ["id", "role", "visible", "name", "phone", "email", "url", "net_id"]
 
 
 class NetworkSerializer(serializers.ModelSerializer):

@@ -5,10 +5,9 @@ django-netfields==1.2.2
 django-tables2==2.3.1
 django-taggit==1.2.0
 django-taggit-serializer==0.1.7
-Jinja2==2.11.1
+Jinja2==2.11.2
+Markdown==3.2.1
 napalm==2.5.0
-MarkupSafe==1.1.1
-psycopg2-binary==2.8.4
-py-gfm==0.1.4
+psycopg2-binary==2.8.5
 pynetbox==4.3.1
 requests==2.23.0

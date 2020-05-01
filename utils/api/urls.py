@@ -15,7 +15,7 @@ class UtilsRootView(routers.APIRootView):
 router = routers.DefaultRouter()
 router.APIRootView = UtilsRootView
 
-router.register(r"tags", views.TagViewSet)
+router.register("tags", views.TagViewSet)
 
 app_name = "utils-api"
 urlpatterns = router.urls

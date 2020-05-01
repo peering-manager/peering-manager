@@ -1,21 +1,20 @@
-# Peering Manager
+<p align="center">
+  <img src="project-static/img/peering-manager.svg" alt="Peering Manager logo"/>
+</p>
 
-When you start to peer a lot on different Internet exchange points, managing
-all your sessions can be time consuming.
+Peering Manager is a BGP session management tool. Initially conceived as a way
+to document Internet Exchanges points and peering sessions, its goal is now to
+provide a source of truth and configuration management for external BGP
+sessions of all kind (transit, customers, peering, …).
 
-In order to make peering management less difficult, it needs to be organized
-and documented. This is the goal of this project.
-
-The idea is to document every Internet exchange points that you are connected
-to and every autonomous systems that you are peering with.
-
-Questions? Comments? Join us in the #peering-manager Slack channel on
+Questions? Comments? Join us in the `#peering-manager` Slack channel on
 [NetworkToCode](https://networktocode.slack.com/).
 
 ## Requirements
 
 This tool is written with the
-[Django framework](https://www.djangoproject.com/) and requires Python 3 with
+[Django framework](https://www.djangoproject.com/) with a
+[PostgreSQL](https://www.postgresql.org) database and requires Python 3 with
 some dependencies to run. For a complete list of requirements, see
 `requirements.txt`.
 

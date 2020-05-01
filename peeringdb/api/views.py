@@ -3,8 +3,18 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 
-from .serializers import PeerRecordSerializer, SynchronizationSerializer
-from peeringdb.filters import PeerRecordFilterSet, SynchronizationFilterSet
+from .serializers import (
+    PeerRecordSerializer,
+    SynchronizationSerializer,
+    ContactSerializer,
+    NetworkSerializer,
+)
+from peeringdb.filters import (
+    PeerRecordFilterSet,
+    SynchronizationFilterSet,
+    ContactFilterSet,
+    NetworkFilterSet,
+)
 from peeringdb.http import PeeringDB
 from peeringdb.models import Contact, Network, NetworkIXLAN, PeerRecord, Synchronization
 
@@ -49,6 +59,18 @@ class CacheViewSet(ViewSet):
         return Response(
             {"peer-record-count": PeeringDB().force_peer_records_discovery()}
         )
+
+
+class ContactsViewSet(ReadOnlyModelViewSet):
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
+    filterset_class = ContactFilterSet
+
+
+class NetworksViewSet(ReadOnlyModelViewSet):
+    queryset = Network.objects.all()
+    serializer_class = NetworkSerializer
+    filterset_class = NetworkFilterSet
 
 
 class PeerRecordViewSet(ModelViewSet):

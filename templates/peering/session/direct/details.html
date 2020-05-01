@@ -93,6 +93,12 @@
                 <td>{{ peering_session.multihop_ttl }}</td>
               </tr>
               {% endif %}
+              {% if peering_session.router %}
+              <tr>
+                <td>Router</td>
+                <td>{{ peering_session.router|as_link }}</td>
+              </tr>
+              {% endif %}
             </table>
           </div>
           <div class="card">

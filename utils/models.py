@@ -162,17 +162,13 @@ class TemplateModel(models.Model):
             # Exception made of tags for which we just retrieve the list of them for later
             # conversion to simple strings
             if isinstance(field, ForeignKey):
-                value = (
-                    field.related_model.objects.get(pk=field.value_from_object(self))
-                    if field.value_from_object(self)
-                    else None
-                )
+                value = self.__getattribute__(field.name)
             elif isinstance(field, ManyToManyField):
-                value = list(field.value_from_object(self))
+                value = list(self.__getattribute__(field.name).all())
             elif isinstance(field, TaggableManager):
-                value = field.value_from_object(self)
+                value = list(self.__getattribute__(field.name).all())
             else:
-                value = field.value_from_object(self)
+                value = self.__getattribute__(field.name)
 
             # If the instance of a model as a to_dict() function, call it
             if isinstance(value, TemplateModel):

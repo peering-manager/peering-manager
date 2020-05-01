@@ -76,7 +76,7 @@ from peeringdb.filters import PeerRecordFilterSet
 from peeringdb.forms import PeerRecordFilterForm
 from peeringdb.http import PeeringDB
 from peeringdb.models import PeerRecord
-from peeringdb.tables import ContactTable, PeerRecordTable
+from peeringdb.tables import ASPeerRecordTable, ContactTable, PeerRecordTable
 from utils.views import (
     AddOrEditView,
     BulkAddFromDependencyView,
@@ -288,6 +288,75 @@ class AutonomousSystemInternetExchangesPeeringSessions(
             )
 
         return extra_context
+
+
+class AutonomousSystemPeers(PermissionRequiredMixin, ModelListView):
+    permission_required = "peering.view_autonomoussystem"
+    table = ASPeerRecordTable
+    template = "peering/as/peers.html"
+
+    def build_queryset(self, request, kwargs):
+        # The queryset needs to be composed of PeerRecord objects but they are linked
+        # to an IX. So first of all we need to retrieve the IX on which we want to get
+        # the peering sessions.
+        if "asn" in kwargs:
+            autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+            queryset = autonomous_system.get_available_sessions()
+
+        return queryset
+
+    def extra_context(self, kwargs):
+        extra_context = {}
+        # Since we are in the context of an AS we need to keep the reference
+        # for it
+        if "asn" in kwargs:
+            autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+            extra_context.update({"autonomous_system": autonomous_system})
+        return extra_context
+
+
+class AutonomousSystemAddFromPeeringDB(
+    PermissionRequiredMixin, BulkAddFromDependencyView
+):
+    permission_required = "peering.add_internetexchangepeeringsession"
+    model = InternetExchangePeeringSession
+    dependency_model = PeerRecord
+    form_model = InternetExchangePeeringSessionForm
+    template = "peering/session/internet_exchange/add_from_peeringdb.html"
+
+    def process_dependency_object(self, request, dependency):
+        return_value = []
+
+        for ix in InternetExchangePeeringSession.get_ix_list_for_peer_record(
+            dependency
+        ):
+            (session6, created6) = InternetExchangePeeringSession.create_from_peeringdb(
+                dependency, 6, internet_exchange=ix
+            )
+            (session4, created4) = InternetExchangePeeringSession.create_from_peeringdb(
+                dependency, 4, internet_exchange=ix
+            )
+
+            if session6 and created6:
+                return_value.append(session6)
+            if session4 and created4:
+                return_value.append(session4)
+
+        return return_value
+
+    def sort_objects(self, object_list):
+        objects = []
+        for object_couple in object_list:
+            for obj in object_couple:
+                if obj:
+                    objects.append(
+                        {
+                            "autonomous_system": obj.autonomous_system,
+                            "internet_exchange": obj.internet_exchange,
+                            "ip_address": obj.ip_address,
+                        }
+                    )
+        return objects
 
 
 class BGPGroupList(PermissionRequiredMixin, ModelListView):

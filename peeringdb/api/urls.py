@@ -15,9 +15,11 @@ class PeeringDBRootView(routers.APIRootView):
 router = routers.DefaultRouter()
 router.APIRootView = PeeringDBRootView
 
-router.register(r"cache", views.CacheViewSet, basename="cache")
-router.register(r"peer-records", views.PeerRecordViewSet)
-router.register(r"synchronizations", views.SynchronizationViewSet)
+router.register("cache", views.CacheViewSet, basename="cache")
+router.register("contacts", views.ContactsViewSet)
+router.register("networks", views.NetworksViewSet)
+router.register("peer-records", views.PeerRecordViewSet)
+router.register("synchronizations", views.SynchronizationViewSet)
 
 app_name = "peeringdb-api"
 urlpatterns = router.urls

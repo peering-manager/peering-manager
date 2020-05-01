@@ -1,0 +1,8 @@
+{% extends 'peering/as/_base.html' %}
+{% block subcontent %}
+      <div class="row">
+        <div class="col">
+          {% include 'utils/object_list.html' with bulk_add_url='peering:autonomoussystem_add_from_peeringdb' bulk_edit_url='peeringdb:peer_record_bulk_edit' %}
+        </div>
+      </div>
+{% endblock %}
