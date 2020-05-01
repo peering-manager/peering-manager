@@ -50,6 +50,7 @@ class AbstractGroup(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     class Meta:
         abstract = True
+        ordering = ["name", "slug"]
 
     def get_peering_sessions_list_url(self):
         raise NotImplementedError
@@ -161,7 +162,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         common = PeeringDB().get_common_ix_networks_for_asns(settings.MY_ASN, self.asn)
         return InternetExchange.objects.filter(
             peeringdb_id__in=[us.id for us, _ in common]
-        )
+        ).order_by("name", "slug")
 
     def find_potential_ix_peering_sessions(self):
         """
@@ -422,7 +423,7 @@ class BGPGroup(AbstractGroup):
     logger = logging.getLogger("peering.manager.peering")
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["name", "slug"]
         verbose_name = "BGP group"
 
     def get_absolute_url(self):
@@ -576,6 +577,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     class Meta:
         abstract = True
+        ordering = ["autonomous_system", "ip_address"]
 
     def poll(self):
         raise NotImplementedError
