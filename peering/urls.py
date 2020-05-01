@@ -254,6 +254,16 @@ urlpatterns = [
     path("routers/add/", views.RouterAdd.as_view(), name="router_add"),
     path("routers/<int:pk>/", views.RouterDetails.as_view(), name="router_details"),
     path(
+        "routers/<int:pk>/direct-peering-sessions/",
+        views.RouterDirectPeeringSessions.as_view(),
+        name="router_direct_peering_sessions",
+    ),
+    path(
+        "routers/<int:pk>/ix-peering-sessions/",
+        views.RouterInternetExchangesPeeringSessions.as_view(),
+        name="router_internet_exchange_peering_sessions",
+    ),
+    path(
         "routers/<int:pk>/configuration/",
         views.RouterConfiguration.as_view(),
         name="router_configuration",

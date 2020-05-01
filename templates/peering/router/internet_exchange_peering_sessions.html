@@ -1,0 +1,12 @@
+{% extends 'peering/router/_base.html' %}
+{% load render_table from django_tables2 %}
+{% block subcontent %}
+      <div class="row">
+        <div class="col-md-9">
+          {% include 'utils/object_list.html' with bulk_edit_url='peering:internetexchangepeeringsession_bulk_edit' bulk_delete_url='peering:internetexchangepeeringsession_bulk_delete' %}
+        </div>
+        <div class="col-md-3">
+          {% include 'utils/search_form.html' %}
+        </div>
+      </div>
+{% endblock %}

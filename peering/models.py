@@ -1495,6 +1495,13 @@ class Router(ChangeLoggedModel, TaggableModel):
             internet_exchanges.append(dict)
         return internet_exchanges
 
+    def get_peering_sessions(self):
+        return (
+            InternetExchangePeeringSession.objects.filter(
+                internet_exchange__router=self
+            ).order_by("internet_exchange", "ip_address")
+        ).all()
+
     def get_configuration_context(self):
         context = {
             "my_asn": settings.MY_ASN,
