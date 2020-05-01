@@ -251,10 +251,6 @@ class AutonomousSystemDirectPeeringSessions(PermissionRequiredMixin, ModelListVi
             )
         return extra_context
 
-    def setup_table_columns(self, request, permissions, table, kwargs):
-        table.columns.show("session_state")
-        super().setup_table_columns(request, permissions, table, kwargs)
-
 
 class AutonomousSystemInternetExchangesPeeringSessions(
     PermissionRequiredMixin, ModelListView
@@ -317,10 +313,6 @@ class AutonomousSystemPeers(PermissionRequiredMixin, ModelListView):
             autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
             extra_context.update({"autonomous_system": autonomous_system})
         return extra_context
-
-    def setup_table_columns(self, request, permissions, table, kwargs):
-        table.columns.show("session_state")
-        super().setup_table_columns(request, permissions, table, kwargs)
 
 
 class AutonomousSystemAddFromPeeringDB(
@@ -448,10 +440,6 @@ class BGPGroupPeeringSessions(PermissionRequiredMixin, ModelListView):
                 {"bgp_group": get_object_or_404(BGPGroup, slug=kwargs["slug"])}
             )
         return extra_context
-
-    def setup_table_columns(self, request, permissions, table, kwargs):
-        table.columns.show("session_state")
-        super().setup_table_columns(request, permissions, table, kwargs)
 
 
 class BGPGroupPeeringSessionAdd(PermissionRequiredMixin, AddOrEditView):
@@ -757,20 +745,6 @@ class InternetExchangePeeringSessions(PermissionRequiredMixin, ModelListView):
 
         return extra_context
 
-    def setup_table_columns(self, request, permissions, table, kwargs):
-        if "slug" in kwargs:
-            internet_exchange = get_object_or_404(InternetExchange, slug=kwargs["slug"])
-
-            if (
-                internet_exchange.check_bgp_session_states
-                and internet_exchange.router
-                and internet_exchange.router.can_napalm_get_bgp_neighbors_detail()
-            ):
-                if "session_state" in table.base_columns:
-                    table.columns.show("session_state")
-
-        super().setup_table_columns(request, permissions, table, kwargs)
-
 
 class InternetExchangePeers(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_internetexchange"
@@ -1045,10 +1019,6 @@ class RouterDirectPeeringSessions(PermissionRequiredMixin, ModelListView):
             router = get_object_or_404(Router, pk=kwargs["pk"])
             extra_context.update({"router": router, "router_id": router.pk})
         return extra_context
-
-    def setup_table_columns(self, request, permissions, table, kwargs):
-        table.columns.show("session_state")
-        super().setup_table_columns(request, permissions, table, kwargs)
 
 
 class RouterInternetExchangesPeeringSessions(PermissionRequiredMixin, ModelListView):

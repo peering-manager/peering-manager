@@ -19,7 +19,7 @@
 {% block content %}
       <ul class="nav nav-tabs">
         <li class="nav-item">
-          <a class="nav-link{% if request.path|notcontains:'/configuration/' %} active{% endif %}" href="{% url 'peering:router_details' pk=router.pk %}">
+          <a class="nav-link{% if request.path|notcontains:'/configuration/,/direct-peering-sessions/,/ix-peering-sessions/' %} active{% endif %}" href="{% url 'peering:router_details' pk=router.pk %}">
             <i class="fas fa-info-circle"></i> Info
           </a>
         </li>

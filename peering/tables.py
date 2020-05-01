@@ -120,9 +120,6 @@ ROUTING_POLICY_TYPE = "{{ record.get_type_html }}"
 class BGPSessionStateColumn(tables.TemplateColumn):
     def __init__(self, *args, **kwargs):
         default = kwargs.pop("default", "")
-        visible = kwargs.pop(
-            "visible", settings.NAPALM_USERNAME and settings.NAPALM_PASSWORD
-        )
         verbose_name = kwargs.pop("verbose_name", "State")
         template_code = kwargs.pop("template_code", "{{ record.get_bgp_state_html }}")
         super().__init__(
@@ -130,7 +127,6 @@ class BGPSessionStateColumn(tables.TemplateColumn):
             default=default,
             verbose_name=verbose_name,
             template_code=template_code,
-            visible=visible,
             **kwargs
         )
 
