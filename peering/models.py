@@ -2098,7 +2098,87 @@ class Template(ChangeLoggedModel, TaggableModel):
             jinja2_template = environment.from_string(self.template)
             return jinja2_template.render(variables)
         except TemplateSyntaxError as e:
-            return "Syntax error in template at line {}: {}".format(e.lineno, e.message)
+            return f"Syntax error in template at line {e.lineno}: {e.message}"
+        except Exception as e:
+            return str(e)
+
+    def render_preview(self):
+        """
+        Render the template using Jinja2 for previewing it.
+        """
+        variables = None
+
+        # Variables for template preview
+        a_s = AutonomousSystem(asn=64501, name="ACME")
+        i_x = InternetExchange(
+            name="Wakanda-IX",
+            slug="wakanda-ix",
+            ipv6_address="2001:db8:a::ffff",
+            ipv4_address="192.0.2.128",
+        )
+        dps6 = DirectPeeringSession(
+            local_asn=settings.MY_ASN,
+            autonomous_system=a_s,
+            ip_address="2001:db8::1",
+            relationship=BGP_RELATIONSHIP_TRANSIT_PROVIDER,
+        )
+        dps4 = DirectPeeringSession(
+            local_asn=settings.MY_ASN,
+            autonomous_system=a_s,
+            ip_address="192.0.2.1",
+            relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
+        )
+
+        if self.type == TEMPLATE_TYPE_EMAIL:
+            variables = {
+                "my_asn": settings.MY_ASN,
+                "autonomous_system": a_s,
+                "internet_exchanges": [
+                    {
+                        "internet_exchange": i_x,
+                        "sessions": [],
+                        "missing_sessions": {
+                            "ipv6": ["2001:db8:a::aaaa"],
+                            "ipv4": ["192.0.2.64"],
+                        },
+                    }
+                ],
+                "direct_peering_sessions": [dps6, dps4],
+            }
+        else:
+            group = BGPGroup(name="Transit Providers", slug="transit")
+            group.sessions = {6: [dps6], 4: [dps4]}
+            i_x.sessions = {
+                6: [
+                    InternetExchangePeeringSession(
+                        autonomous_system=a_s,
+                        internet_exchange=ix,
+                        ip_address="2001:db8:a::aaaa",
+                    )
+                ],
+                4: [
+                    InternetExchangePeeringSession(
+                        autonomous_system=a_s,
+                        internet_exchange=ix,
+                        ip_address="192.0.2.64",
+                    )
+                ],
+            }
+            variables = {
+                "my_asn": settings.MY_ASN,
+                "bgp_groups": [group],
+                "internet_exchanges": [i_x],
+                "routing_policies": [
+                    RoutingPolicy(
+                        name="Export/Import None",
+                        slug="none",
+                        type=ROUTING_POLICY_TYPE_IMPORT_EXPORT,
+                    )
+                ],
+                "communities": [Community(name="Community Transit", value="64500:1")],
+            }
+
+        return self.render(variables)
 
     def __str__(self):
         return self.name

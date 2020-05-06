@@ -287,3 +287,7 @@ class TemplateViewSet(ModelViewSet):
     queryset = Template.objects.all()
     serializer_class = TemplateSerializer
     filterset_class = TemplateFilterSet
+
+    @action(detail=True, methods=["get"], url_path="render-preview")
+    def render_preview(self, request, pk=None):
+        return Response({"preview": self.get_object().render_preview()})
