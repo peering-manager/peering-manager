@@ -129,7 +129,7 @@ class CommunityTestCase(StandardTestCases.Filters):
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
     def test_description(self):
-        params = {"description":"community2"}
+        params = {"description": "community2"}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
 
