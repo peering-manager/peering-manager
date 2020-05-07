@@ -35,9 +35,9 @@ username and password for authentication.
 psql (9.6.3)
 Type "help" for help.
 
-postgres=# CREATE DATABASE peering_manager;
+postgres=# CREATE DATABASE peering_manager ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TEMPLATE template0;
 CREATE DATABASE
-postgres=# CREATE USER peering_manager WITH PASSWORD 'DoNotUseMe' ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF8' LC_CTYPE = 'en_US.UTF8';
+postgres=# CREATE USER peering_manager WITH PASSWORD 'DoNotUseMe';
 CREATE ROLE
 postgres=# GRANT ALL PRIVILEGES ON DATABASE peering_manager TO peering_manager;
 GRANT
@@ -76,3 +76,18 @@ move to the PostgreSQL one, apply the following process.
   13. Once the script is completed, close the terminal you are in
   14. Back in the first terminal, `$ git checkout origin/HEAD`
   15. `$ ./scripts/upgrade.sh`
+
+# Migrating encoding to UTF8
+
+If your database was created with regular Latin encoding, you will need to migrate it to UTF8
+
+```
+$ pg_dump --encoding utf8 peering_manager -f peering_manager.sql
+postgres=# DROP DATABASE peering_manager;
+DROP DATABASE
+postgres=# CREATE DATABASE peering_manager ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TEMPLATE template0;
+CREATE DATABASE
+GRANT ALL PRIVILEGES ON DATABASE peering_manager TO peering_manager;
+GRANT
+$ psql -f peering_manager.sql -d peering_manager
+```
