@@ -98,9 +98,15 @@ class CommunityTestCase(StandardTestCases.Views):
     def setUpTestData(cls):
         Community.objects.bulk_create(
             [
-                Community(name="Community 1", description="community1", value="64500:1"),
-                Community(name="Community 2", description="community2", value="64500:2"),
-                Community(name="Community 3", description="community3", value="64500:3"),
+                Community(
+                    name="Community 1", description="community1", value="64500:1"
+                ),
+                Community(
+                    name="Community 2", description="community2", value="64500:2"
+                ),
+                Community(
+                    name="Community 3", description="community3", value="64500:3"
+                ),
             ]
         )
 

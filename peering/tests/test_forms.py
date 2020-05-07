@@ -40,7 +40,12 @@ class AutonomousSystemTest(TestCase):
 class CommunityTest(TestCase):
     def test_community_form(self):
         test = CommunityForm(
-            data={"name": "test", "description": "test", "value": "64500:1", "type": COMMUNITY_TYPE_EGRESS}
+            data={
+                "name": "test",
+                "description": "test",
+                "value": "64500:1",
+                "type": COMMUNITY_TYPE_EGRESS,
+            }
         )
         self.assertTrue(test.is_valid())
         self.assertTrue(test.save())

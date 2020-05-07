@@ -312,7 +312,12 @@ class CommunityTest(APITestCase):
         self.assertEqual(response.data["count"], 1)
 
     def test_create_community(self):
-        data = {"name": "Other", "description":"other", "value": "64500:2", "type": COMMUNITY_TYPE_EGRESS}
+        data = {
+            "name": "Other",
+            "description": "other",
+            "value": "64500:2",
+            "type": COMMUNITY_TYPE_EGRESS,
+        }
 
         url = reverse("peering-api:community-list")
         response = self.client.post(url, data, format="json", **self.header)
@@ -324,8 +329,18 @@ class CommunityTest(APITestCase):
 
     def test_create_community_bulk(self):
         data = [
-            {"name": "Test1", "description": "test1", "value": "64500:11", "type": COMMUNITY_TYPE_EGRESS},
-            {"name": "Test2", "description": "test2", "value": "64500:12", "type": COMMUNITY_TYPE_EGRESS},
+            {
+                "name": "Test1",
+                "description": "test1",
+                "value": "64500:11",
+                "type": COMMUNITY_TYPE_EGRESS,
+            },
+            {
+                "name": "Test2",
+                "description": "test2",
+                "value": "64500:12",
+                "type": COMMUNITY_TYPE_EGRESS,
+            },
         ]
 
         url = reverse("peering-api:community-list")
@@ -337,7 +352,12 @@ class CommunityTest(APITestCase):
         self.assertEqual(response.data[1]["value"], data[1]["value"])
 
     def test_update_community(self):
-        data = {"name": "Other", "description": "other", "value": "64500:2", "type": COMMUNITY_TYPE_INGRESS}
+        data = {
+            "name": "Other",
+            "description": "other",
+            "value": "64500:2",
+            "type": COMMUNITY_TYPE_INGRESS,
+        }
 
         url = reverse("peering-api:community-detail", kwargs={"pk": self.community.pk})
         response = self.client.put(url, data, format="json", **self.header)

@@ -81,7 +81,6 @@ class CommunityFilterSet(django_filters.FilterSet):
             | Q(type__icontains=value)
             | Q(comments__icontains=value)
             | Q(description__icontains=value)
-            
         )
         return queryset.filter(qs_filter)
 
