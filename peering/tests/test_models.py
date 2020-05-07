@@ -735,3 +735,6 @@ class TemplateTest(TestCase):
 
     def test_render(self):
         self.assertEqual(self.template.render({"test": "test"}), "test")
+
+    def test_render_preview(self):
+        self.assertEqual(self.template.render_preview(), "")

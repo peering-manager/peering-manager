@@ -2109,25 +2109,41 @@ class Template(ChangeLoggedModel, TaggableModel):
         variables = None
 
         # Variables for template preview
-        a_s = AutonomousSystem(asn=64501, name="ACME")
+        a_s = AutonomousSystem(
+            asn=64501, name="ACME", ipv6_max_prefixes=50, ipv4_max_prefixes=100
+        )
+        a_s.tags = ["foo", "bar"]
         i_x = InternetExchange(
             name="Wakanda-IX",
             slug="wakanda-ix",
             ipv6_address="2001:db8:a::ffff",
             ipv4_address="192.0.2.128",
         )
+        i_x.tags = ["foo", "bar"]
+        group = BGPGroup(name="Transit Providers", slug="transit")
+        group.tags = ["foo", "bar"]
         dps6 = DirectPeeringSession(
             local_asn=settings.MY_ASN,
             autonomous_system=a_s,
             ip_address="2001:db8::1",
             relationship=BGP_RELATIONSHIP_TRANSIT_PROVIDER,
         )
+        dps6.tags = ["foo", "bar"]
         dps4 = DirectPeeringSession(
             local_asn=settings.MY_ASN,
             autonomous_system=a_s,
             ip_address="192.0.2.1",
             relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
         )
+        dps4.tags = ["foo", "bar"]
+        ixps6 = InternetExchangePeeringSession(
+            autonomous_system=a_s, internet_exchange=i_x, ip_address="2001:db8:a::aaaa"
+        )
+        ixps6.tags = ["foo", "bar"]
+        ixps4 = InternetExchangePeeringSession(
+            autonomous_system=a_s, internet_exchange=i_x, ip_address="192.0.2.64"
+        )
+        ixps4.tags = ["foo", "bar"]
 
         if self.type == TEMPLATE_TYPE_EMAIL:
             variables = {
@@ -2146,24 +2162,8 @@ class Template(ChangeLoggedModel, TaggableModel):
                 "direct_peering_sessions": [dps6, dps4],
             }
         else:
-            group = BGPGroup(name="Transit Providers", slug="transit")
             group.sessions = {6: [dps6], 4: [dps4]}
-            i_x.sessions = {
-                6: [
-                    InternetExchangePeeringSession(
-                        autonomous_system=a_s,
-                        internet_exchange=ix,
-                        ip_address="2001:db8:a::aaaa",
-                    )
-                ],
-                4: [
-                    InternetExchangePeeringSession(
-                        autonomous_system=a_s,
-                        internet_exchange=ix,
-                        ip_address="192.0.2.64",
-                    )
-                ],
-            }
+            i_x.sessions = {6: [ixps6], 4: [ixps4]}
             variables = {
                 "my_asn": settings.MY_ASN,
                 "bgp_groups": [group],
