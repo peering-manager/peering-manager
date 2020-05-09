@@ -16,6 +16,15 @@
               </div>
             </div>
             <div class="card my-2">
+              <div class="card-header"><strong>NAPALM</strong></div>
+              <div class="card-body">
+                {% render_field form.napalm_username %}
+                {% render_field form.napalm_password %}
+                {% render_field form.napalm_timeout %}
+                {% render_field form.napalm_args %}
+              </div>
+            </div>
+            <div class="card my-2">
               <div class="card-header"><strong>Tags</strong></div>
               <div class="card-body">
                 {% render_field form.tags %}

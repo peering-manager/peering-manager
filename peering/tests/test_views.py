@@ -275,6 +275,10 @@ class RouterTestCase(StandardTestCases.Views):
             "use_netbox": False,
             "comments": "",
             "tags": "",
+            "napalm_args": "",
+            "napalm_password": "",
+            "napalm_timeout": 30,
+            "napalm_username": "",
         }
         cls.bulk_edit_data = {"platform": PLATFORM_JUNOS, "comments": "New comments"}
 

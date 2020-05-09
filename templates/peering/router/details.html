@@ -75,12 +75,48 @@
               </tr>
             </table>
           </div>
+          {% if router.napalm_username or router.napalm_password or router.napalm_timeout or router.napalm_args %}
+          <div class="card">
+            <div class="card-header"><strong>NAPALM</strong></div>
+            <table class="card-body table table-hover attr-table mb-0">
+              {% if router.napalm_username %}
+              <tr>
+                <td>Username</td>
+                <td>{{ router.napalm_username }}</td>
+              </tr>
+              {% endif %}
+              {% if router.napalm_password %}
+              <tr>
+                <td>Password</td>
+                <td>
+                  <div class="input-group">
+                    <input type="password" class="form-control" id="id_password" value="{{ router.napalm_password }}" disabled>
+                    <div class="input-group-append">
+                      <button type="button" class="btn btn-secondary" id="id_password_reveal"><i class="fas fa-eye"></i> Show</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {% endif %}
+              {% if router.napalm_timeout %}
+              <tr>
+                <td>Timeout</td>
+                <td>{{ router.napalm_timeout }} seconds</td>
+              </tr>
+              {% endif %}
+              {% if router.napalm_args %}
+              <tr>
+                <td>Optional Arguments</td>
+                <td><pre>{{ router.napalm_args }}</pre></td>
+              </tr>
+              {% endif %}
+            </table>
+          </div>
+          {% endif %}
         </div>
         <div class="col-md-6">
           <div class="card">
-            <div class="card-header">
-              <strong>Comments</strong>
-            </div>
+            <div class="card-header"><strong>Comments</strong></div>
             <div class="card-body">
               {% if router.comments %}
               {{ router.comments|markdown }}

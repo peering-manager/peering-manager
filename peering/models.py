@@ -1385,13 +1385,17 @@ class Router(ChangeLoggedModel, TaggableModel):
     configuration_template = models.ForeignKey(
         "Template", blank=True, null=True, on_delete=models.SET_NULL
     )
-    comments = models.TextField(blank=True)
     netbox_device_id = models.PositiveIntegerField(blank=True, default=0)
     use_netbox = models.BooleanField(
         blank=True,
         default=False,
         help_text="Use NetBox to communicate instead of NAPALM",
     )
+    napalm_username = models.CharField(blank=True, max_length=256)
+    napalm_password = models.CharField(blank=True, max_length=256)
+    napalm_timeout = models.PositiveIntegerField(blank=True, default=0)
+    napalm_args = JSONField(blank=True, null=True)
+    comments = models.TextField(blank=True)
 
     logger = logging.getLogger("peering.manager.napalm")
 
@@ -1545,10 +1549,10 @@ class Router(ChangeLoggedModel, TaggableModel):
             self.logger.debug('found napalm driver "%s"', self.platform)
             return driver(
                 hostname=self.hostname,
-                username=settings.NAPALM_USERNAME,
-                password=settings.NAPALM_PASSWORD,
-                timeout=settings.NAPALM_TIMEOUT,
-                optional_args=settings.NAPALM_ARGS,
+                username=self.napalm_username or settings.NAPALM_USERNAME,
+                password=self.napalm_password or settings.NAPALM_PASSWORD,
+                timeout=self.napalm_timeout or settings.NAPALM_TIMEOUT,
+                optional_args=self.napalm_args or settings.NAPALM_ARGS,
             )
         except napalm.base.exceptions.ModuleImportError:
             # Unable to import proper driver from napalm

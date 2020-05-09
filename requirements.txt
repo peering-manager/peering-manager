@@ -6,8 +6,8 @@ django-tables2==2.3.1
 django-taggit==1.2.0
 django-taggit-serializer==0.1.7
 Jinja2==2.11.2
-Markdown==3.2.1
-napalm==2.5.0
+Markdown==3.2.2
+napalm==3.0.0
 psycopg2-binary==2.8.5
 pynetbox==4.3.1
 requests==2.23.0

@@ -726,6 +726,19 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
     platform = forms.ChoiceField(
         required=False, choices=add_blank_choice(PLATFORM_CHOICES), widget=StaticSelect
     )
+    napalm_username = forms.CharField(required=False, label="Username")
+    napalm_password = PasswordField(required=False, render_value=True, label="Password")
+    napalm_timeout = forms.IntegerField(
+        required=False,
+        label="Timeout",
+        help_text="The maximum time to wait for a connection in seconds",
+    )
+    napalm_args = TextareaField(
+        required=False,
+        label="Optional Arguments",
+        help_text="See NAPALM's <a href='http://napalm.readthedocs.io/en/latest/support/#optional-arguments'>documentation</a> for a complete list of optional arguments",
+        widget=SmallTextarea,
+    )
     comments = CommentField()
     tags = TagField(required=False)
 
@@ -762,6 +775,10 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
             "platform",
             "encrypt_passwords",
             "configuration_template",
+            "napalm_username",
+            "napalm_password",
+            "napalm_timeout",
+            "napalm_args",
             "comments",
             "tags",
         )
