@@ -47,6 +47,7 @@ class AutonomousSystemTestCase(StandardTestCases.Views):
         cls.form_data = {
             "asn": 64504,
             "name": "Autonomous System 4",
+            "name_peeringdb_sync": False,
             "contact_email": "",
             "contact_name": "",
             "contact_phone": "",

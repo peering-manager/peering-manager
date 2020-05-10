@@ -32,6 +32,7 @@
             <div class="card my-2">
               <div class="card-header"><strong>Synchronize with PeeringDB</strong></div>
               <div class="card-body">
+                {% render_field form.name_peeringdb_sync %}
                 {% render_field form.irr_as_set_peeringdb_sync %}
                 {% render_field form.ipv6_max_prefixes_peeringdb_sync %}
                 {% render_field form.ipv4_max_prefixes_peeringdb_sync %}

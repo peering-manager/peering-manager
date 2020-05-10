@@ -7,6 +7,7 @@
   * `updated`: date value
   * `asn`: integer value
   * `name`: string value
+  * `name_peeringdb_sync`: boolean value
   * `contact_name`: string value
   * `contact_phone`: string value
   * `contact_email`: string value

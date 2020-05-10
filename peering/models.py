@@ -65,6 +65,7 @@ class AbstractGroup(ChangeLoggedModel, TaggableModel, TemplateModel):
 class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
     asn = ASNField(unique=True)
     name = models.CharField(max_length=128)
+    name_peeringdb_sync = models.BooleanField(default=True)
     contact_name = models.CharField(max_length=50, blank=True)
     contact_phone = models.CharField(max_length=20, blank=True)
     contact_email = models.EmailField(blank=True, verbose_name="Contact E-mail")
@@ -290,10 +291,8 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         if not peeringdb_info:
             return False
 
-        # Always synchronize the name
-        self.name = peeringdb_info.name
-
-        # Sync other properties if we are told to do so
+        if self.name_peeringdb_sync:
+            self.name = peeringdb_info.name
         if self.irr_as_set_peeringdb_sync:
             self.irr_as_set = peeringdb_info.irr_as_set
         if self.ipv6_max_prefixes_peeringdb_sync:

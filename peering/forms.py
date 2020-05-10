@@ -82,6 +82,7 @@ class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
         fields = (
             "asn",
             "name",
+            "name_peeringdb_sync",
             "contact_name",
             "contact_phone",
             "contact_email",
@@ -101,6 +102,7 @@ class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
             "irr_as_set": "IRR AS-SET",
             "ipv6_max_prefixes": "IPv6 Max Prefixes",
             "ipv4_max_prefixes": "IPv4 Max Prefixes",
+            "name_peeringdb_sync": "Name",
             "irr_as_set_peeringdb_sync": "IRR AS-SET",
             "ipv6_max_prefixes_peeringdb_sync": "IPv6 Max Prefixes",
             "ipv4_max_prefixes_peeringdb_sync": "IPv4 Max Prefixes",
