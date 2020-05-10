@@ -604,7 +604,9 @@ class DirectPeeringSessionList(PermissionRequiredMixin, ModelListView):
 
 class InternetExchangeList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_internetexchange"
-    queryset = InternetExchange.objects.order_by("name", "slug")
+    queryset = InternetExchange.objects.prefetch_related("autonomous_system").order_by(
+        "name", "slug"
+    )
     table = InternetExchangeTable
     filter = InternetExchangeFilterSet
     filter_form = InternetExchangeFilterForm
@@ -925,7 +927,7 @@ class InternetExchangePeeringSessionBulkDelete(PermissionRequiredMixin, BulkDele
 
 class RouterList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_router"
-    queryset = Router.objects.all()
+    queryset = Router.objects.prefetch_related("configuration_template").all()
     filter = RouterFilterSet
     filter_form = RouterFilterForm
     table = RouterTable
