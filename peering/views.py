@@ -604,7 +604,7 @@ class DirectPeeringSessionList(PermissionRequiredMixin, ModelListView):
 
 class InternetExchangeList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_internetexchange"
-    queryset = InternetExchange.objects.prefetch_related("autonomous_system").order_by(
+    queryset = InternetExchange.objects.prefetch_related("router").order_by(
         "name", "slug"
     )
     table = InternetExchangeTable
