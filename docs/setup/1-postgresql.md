@@ -35,7 +35,7 @@ username and password for authentication.
 psql (9.6.3)
 Type "help" for help.
 
-postgres=# CREATE DATABASE peering_manager;
+postgres=# CREATE DATABASE peering_manager ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TEMPLATE template0;
 CREATE DATABASE
 postgres=# CREATE USER peering_manager WITH PASSWORD 'DoNotUseMe';
 CREATE ROLE
@@ -52,6 +52,25 @@ You can test that authentication works with the following command. (Replace
 ```
 
 If successful, you will enter a `peering_manager` prompt. Type `\q` to exit.
+
+# Migrating encoding to UTF-8
+
+If your database was created with regular another encoding than UTF-8, you will
+need to migrate it. To convert the database you'll need to drop it and
+re-create it. It's not mandatory but you may face some issues if the encoding
+of your database is not set to UTF-8.
+
+```
+$ pg_dump --encoding utf8 peering_manager -f peering_manager.sql
+postgres=# DROP DATABASE peering_manager;
+DROP DATABASE
+postgres=# CREATE DATABASE peering_manager ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TEMPLATE template0;
+CREATE DATABASE
+postgres=# GRANT ALL PRIVILEGES ON DATABASE peering_manager TO peering_manager;
+GRANT
+postgres=# \q
+$ psql -f peering_manager.sql -d peering_manager
+```
 
 # Migrating From SQLite
 
