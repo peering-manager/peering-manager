@@ -83,14 +83,17 @@ except ImportError:
         "Configuration file is not present. Please define peering_manager/configuration.py per the documentation."
     )
 
-DATABASE = SECRET_KEY = ALLOWED_HOSTS = MY_ASN = None
-for setting in ["DATABASE", "SECRET_KEY", "ALLOWED_HOSTS", "MY_ASN"]:
-    try:
-        globals()[setting] = getattr(configuration, setting)
-    except AttributeError:
+for setting in ["ALLOWED_HOSTS", "DATABASE", "SECRET_KEY", "MY_ASN"]:
+    if not hasattr(configuration, setting):
         raise ImproperlyConfigured(
             "Mandatory setting {} is not in the configuration.py file.".format(setting)
         )
+
+# Set required parameters
+ALLOWED_HOSTS = getattr(configuration, "ALLOWED_HOSTS")
+DATABASE = getattr(configuration, "DATABASE")
+SECRET_KEY = getattr(configuration, "SECRET_KEY")
+MY_ASN = getattr(configuration, "MY_ASN")
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
@@ -99,6 +102,8 @@ if BASE_PATH:
     BASE_PATH = BASE_PATH.strip("/") + "/"  # Enforce trailing slash only
 DEBUG = getattr(configuration, "DEBUG", False)
 LOGGING = getattr(configuration, "LOGGING", DEFAULT_LOGGING)
+REDIS = getattr(configuration, "REDIS", {})
+CACHE_TIMEOUT = getattr(configuration, "CACHE_TIMEOUT", 0)
 CHANGELOG_RETENTION = getattr(configuration, "CHANGELOG_RETENTION", 90)
 LOGIN_REQUIRED = getattr(configuration, "LOGIN_REQUIRED", False)
 NAPALM_USERNAME = getattr(configuration, "NAPALM_USERNAME", "")
@@ -225,6 +230,36 @@ configuration.DATABASE.update({"ENGINE": "django.db.backends.postgresql"})
 DATABASES = {"default": configuration.DATABASE}
 
 
+# Redis
+if REDIS:
+    REDIS_HOST = REDIS.get("HOST", "localhost")
+    REDIS_PORT = REDIS.get("PORT", 6379)
+    REDIS_PASSWORD = REDIS.get("PASSWORD", "")
+    REDIS_CACHE_DATABASE = REDIS.get("CACHE_DATABASE", 1)
+    REDIS_DEFAULT_TIMEOUT = REDIS.get("DEFAULT_TIMEOUT", 300)
+    REDIS_SSL = REDIS.get("SSL", False)
+
+    # Caching
+    CACHEOPS_ENABLED = CACHE_TIMEOUT > 0
+    CACHEOPS_REDIS = "rediss://" if REDIS_SSL else "redis://"
+    if REDIS_PASSWORD:
+        CACHEOPS_REDIS = "{}:{}@".format(CACHEOPS_REDIS, REDIS_PASSWORD)
+    CACHEOPS_REDIS = "{}{}:{}/{}".format(
+        CACHEOPS_REDIS, REDIS_HOST, REDIS_PORT, REDIS_CACHE_DATABASE
+    )
+    CACHEOPS_DEFAULTS = {"timeout": CACHE_TIMEOUT}
+    CACHEOPS = {
+        "auth.user": {"ops": "get", "timeout": 900},
+        "auth.*": {"ops": ("fetch", "get")},
+        "auth.permission": {"ops": "all"},
+        "peering.*": {"ops": "all"},
+        "peeringdb.*": {"ops": "all"},
+        "users.*": {"ops": "all"},
+        "utils.*": {"ops": "all"},
+    }
+    CACHEOPS_DEGRADE_ON_FAILURE = True
+
+
 # Email
 if EMAIL:
     EMAIL_HOST = EMAIL.get("SERVER")
@@ -244,6 +279,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "cacheops",
     "django_filters",
     "django_tables2",
     "rest_framework",
