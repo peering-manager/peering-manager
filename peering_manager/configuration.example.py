@@ -36,5 +36,5 @@ REDIS = {
     "SSL": False,
 }
 
-# Cache timeout in seconds. Set ti 0 to disable caching.
+# Cache timeout in seconds. Set to 0 to disable caching.
 CACHE_TIMEOUT = 900
