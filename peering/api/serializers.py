@@ -90,11 +90,15 @@ class RouterSerializer(TaggitSerializer, WriteEnabledNestedSerializer):
             "name",
             "hostname",
             "platform",
+            "encrypt_passwords",
             "configuration_template",
-            "comments",
             "netbox_device_id",
             "use_netbox",
-            "encrypt_passwords",
+            "napalm_username",
+            "napalm_password",
+            "napalm_timeout",
+            "napalm_args",
+            "comments",
             "tags",
         ]
         nested_fields = ["configuration_template"]

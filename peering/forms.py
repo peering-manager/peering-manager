@@ -1,5 +1,6 @@
 from django import forms
 from django.conf import settings
+from django.contrib.postgres.forms.jsonb import JSONField
 
 from taggit.forms import TagField
 
@@ -735,7 +736,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
         label="Timeout",
         help_text="The maximum time to wait for a connection in seconds",
     )
-    napalm_args = TextareaField(
+    napalm_args = JSONField(
         required=False,
         label="Optional Arguments",
         help_text="See NAPALM's <a href='http://napalm.readthedocs.io/en/latest/support/#optional-arguments'>documentation</a> for a complete list of optional arguments",

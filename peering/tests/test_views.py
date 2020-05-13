@@ -276,7 +276,7 @@ class RouterTestCase(StandardTestCases.Views):
             "use_netbox": False,
             "comments": "",
             "tags": "",
-            "napalm_args": "",
+            "napalm_args": None,
             "napalm_password": "",
             "napalm_timeout": 30,
             "napalm_username": "",
