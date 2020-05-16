@@ -1,4 +1,23 @@
 $(document).ready(function() {
+  // Parse URLs which may contain variable refrences to other field values
+  function parseURL(url) {
+    var filter_regex = /\{\{([a-z_]+)\}\}/g;
+    var rendered_url = url;
+    var match, filter_field;
+    while (match = filter_regex.exec(url)) {
+      filter_field = $('#id_' + match[1]);
+      var custom_attr = $('option:selected', filter_field).attr('api-value');
+      if (custom_attr) {
+        rendered_url = rendered_url.replace(match[0], custom_attr);
+      } else if (filter_field.val()) {
+        rendered_url = rendered_url.replace(match[0], filter_field.val());
+      } else if ('true' == filter_field.attr('nullable')) {
+        rendered_url = rendered_url.replace(match[0], 'null');
+      }
+    }
+    return rendered_url;
+  }
+
   // Select2
   $.fn.select2.defaults.set('theme', 'bootstrap');
   $('.custom-select2-static').select2({
@@ -10,22 +29,75 @@ $(document).ready(function() {
     allowClear: true,
     ajax: {
       delay: 500,
-      url: function() {
-        return this[0].getAttribute('data-url')
+      url: function(params) {
+        var element = this[0];
+        var url = parseURL(element.getAttribute('data-url'));
+
+        if (url.includes('{{')) {
+          // URL is not fully rendered yet, abort the request
+          return false;
+        }
+        return url;
       },
       data: function(params) {
         var element = this[0];
-        var parameters = {
-            q: params.term,
-            brief: 1,
-            limit: 50,
-            offset: (params.page - 1) * 50 || 0,
-        };
+        // Paging. Note that `params.page` indexes at 1
+        var offset = (params.page - 1) * 50 || 0;
+        // Base query params
+        var parameters = { q: params.term, limit: 50, offset: offset };
 
+        // Allow for controlling the brief setting from within APISelect
+        parameters.brief = $(element).is('[data-full]') ? undefined : true;
+
+        // filter-for fields from a chain
+        var attr_name = 'data-filter-for-' + $(element).attr('name');
+        var form = $(element).closest('form');
+        var filter_for_elements = form.find('select[' + attr_name + ']');
+
+        filter_for_elements.each(function(index, filter_for_element) {
+          var param_name = $(filter_for_element).attr(attr_name);
+          var is_required = $(filter_for_element).attr('required');
+          var is_nullable = $(filter_for_element).attr('nullable');
+          var is_visible = $(filter_for_element).is(':visible');
+          var value = $(filter_for_element).val();
+
+          if (param_name && is_visible) {
+            if (value) {
+              parameters[param_name] = value;
+            } else if (is_required && is_nullable) {
+              parameters[param_name] = 'null';
+            }
+          }
+        });
+        // Conditional query params
         $.each(element.attributes, function(index, attr) {
-          if (attr.name.includes('data-query-filter-')) {
-            var parameter_name = attr.name.split('data-query-filter-')[1]
-            parameters[parameter_name] = attr.value;
+          if (attr.name.includes('data-conditional-query-param-')) {
+            var conditional = attr.name.split('data-conditional-query-param-')[1].split('__');
+            var field = $('#id_' + conditional[0]);
+            var field_value = conditional[1];
+
+            if ($('option:selected', field).attr('api-value') === field_value) {
+              var _val = attr.value.split("=");
+              parameters[_val[0]] = _val[1];
+            }
+          }
+        });
+        // Additional query params
+        $.each(element.attributes, function(index, attr) {
+          if (attr.name.includes('data-additional-query-param-')) {
+            var param_name = attr.name.split('data-additional-query-param-')[1];
+
+            $.each($.parseJSON(attr.value), function(index, value) {
+              if (param_name in parameters) {
+                if (Array.isArray(parameters[param_name])) {
+                  parameters[param_name].push(value);
+                } else {
+                  parameters[param_name] = [parameters[param_name], value];
+                }
+              } else {
+                parameters[param_name] = value;
+              }
+            });
           }
         });
 
@@ -33,31 +105,31 @@ $(document).ready(function() {
       },
       processResults: function(data) {
         var element = this.$element[0];
-        var results = $.map(data.results, function(object) {
-          object.text = object[element.getAttribute('display-field')] || object.name;
-          object.id = object[element.getAttribute('value-field')] || object.id;
-          return object;
-        });
+        $(element).children('option').attr('disabled', false);
+        var results = data.results;
 
-        // Add null option one time
+        results = results.reduce((results, record, idx) => {
+          record.text = record[element.getAttribute('display-field')] || record.name;
+          record.id = record[element.getAttribute('value-field')] || record.id;
+          if (element.getAttribute('disabled-indicator') && record[element.getAttribute('disabled-indicator')]) {
+              // The disabled-indicator equated to true, so we disable this option
+              record.disabled = true;
+          }
+          results[idx] = record;
+
+          return results;
+        }, Object.create(null));
+
+        results = Object.values(results);
+
+        // Handle the null option, but only add it once
         if (element.getAttribute('data-null-option') && (data.previous === null)) {
-          var null_option = $(element).children()[0]
-          results.unshift({
-            id: null_option.value,
-            text: null_option.text
-          });
+          results.unshift({ id: 'null', text: 'None' });
         }
 
-        // Check if the result is paginated
-        var page = data.next !== null;
-        return {
-          results: results,
-          pagination: {
-            more: page
-          }
-        };
-      },
-    },
+        return { results: results, pagination: { more: data.next !== null } };
+      }
+    }
   });
 
   // Assign color picker selection classes

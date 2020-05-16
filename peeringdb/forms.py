@@ -5,12 +5,12 @@ from utils.forms import (
     BootstrapMixin,
     BulkEditForm,
     CustomNullBooleanSelect,
-    FilterChoiceField,
+    DynamicModelMultipleChoiceField,
 )
 
 
 class PeerRecordBulkEditForm(BootstrapMixin, BulkEditForm):
-    pk = FilterChoiceField(
+    pk = DynamicModelMultipleChoiceField(
         queryset=PeerRecord.objects.all(), widget=forms.MultipleHiddenInput
     )
     visible = forms.NullBooleanField(required=False, widget=CustomNullBooleanSelect)

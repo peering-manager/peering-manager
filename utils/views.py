@@ -26,7 +26,7 @@ from django_tables2 import RequestConfig
 from .filters import ObjectChangeFilterSet, TagFilterSet
 from .forms import (
     ConfirmationForm,
-    FilterChoiceField,
+    DynamicModelMultipleChoiceField,
     ObjectChangeFilterForm,
     TagBulkEditForm,
     TagFilterForm,
@@ -248,7 +248,7 @@ class BulkDeleteView(View):
 
     def get_form(self):
         class BulkDeleteForm(ConfirmationForm):
-            pk = FilterChoiceField(
+            pk = DynamicModelMultipleChoiceField(
                 queryset=self.model.objects.all(), widget=MultipleHiddenInput
             )
 

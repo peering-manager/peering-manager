@@ -35,7 +35,8 @@ from utils.forms import (
     BulkEditForm,
     BootstrapMixin,
     CustomNullBooleanSelect,
-    FilterChoiceField,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
     SmallTextarea,
     StaticSelect,
     StaticSelectMultiple,
@@ -59,21 +60,15 @@ class TemplateField(TextareaField):
 
 
 class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
-    import_routing_policies = FilterChoiceField(
+    import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "import-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
     )
-    export_routing_policies = FilterChoiceField(
+    export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "export-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
     )
     comments = CommentField()
     tags = TagField(required=False)
@@ -125,11 +120,9 @@ class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
 
 
 class AutonomousSystemEmailForm(BootstrapMixin, forms.Form):
-    template = forms.ModelChoiceField(
+    template = DynamicModelChoiceField(
         queryset=Template.objects.all(),
-        widget=APISelect(
-            api_url="/api/peering/templates/", query_filters={"type": "email"}
-        ),
+        widget=APISelect(additional_query_params={"type": "email"}),
     )
     recipient = forms.ChoiceField(widget=StaticSelect, label="E-mail Recipient")
     subject = forms.CharField(label="E-mail Subject")
@@ -139,26 +132,18 @@ class AutonomousSystemEmailForm(BootstrapMixin, forms.Form):
 class BGPGroupForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField(max_length=255)
     comments = CommentField()
-    import_routing_policies = FilterChoiceField(
+    import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "import-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
     )
-    export_routing_policies = FilterChoiceField(
+    export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "export-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
     )
-    communities = FilterChoiceField(
-        required=False,
-        queryset=Community.objects.all(),
-        widget=APISelectMultiple(api_url="/api/peering/communities/"),
+    communities = DynamicModelMultipleChoiceField(
+        required=False, queryset=Community.objects.all()
     )
     tags = TagField(required=False)
 
@@ -182,29 +167,21 @@ class BGPGroupForm(BootstrapMixin, forms.ModelForm):
 
 
 class BGPGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
-    pk = FilterChoiceField(
+    pk = DynamicModelMultipleChoiceField(
         queryset=BGPGroup.objects.all(), widget=forms.MultipleHiddenInput
     )
-    import_routing_policies = FilterChoiceField(
+    import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "import-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
     )
-    export_routing_policies = FilterChoiceField(
+    export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "export-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
     )
-    communities = FilterChoiceField(
-        required=False,
-        queryset=Community.objects.all(),
-        widget=APISelectMultiple(api_url="/api/peering/communities/"),
+    communities = DynamicModelMultipleChoiceField(
+        required=False, queryset=Community.objects.all()
     )
     comments = CommentField(widget=SmallTextarea)
 
@@ -238,7 +215,7 @@ class CommunityForm(BootstrapMixin, forms.ModelForm):
 
 
 class CommunityBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
-    pk = FilterChoiceField(
+    pk = DynamicModelMultipleChoiceField(
         queryset=Community.objects.all(), widget=forms.MultipleHiddenInput
     )
     type = forms.ChoiceField(
@@ -268,40 +245,29 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         label="Local ASN",
         help_text=f"ASN to be used locally, defaults to {settings.MY_ASN}",
     )
-    autonomous_system = forms.ModelChoiceField(
-        queryset=AutonomousSystem.objects.all(),
-        label="Autonomous System",
-        widget=APISelect(api_url="/api/peering/autonomous-systems/"),
+    autonomous_system = DynamicModelChoiceField(
+        queryset=AutonomousSystem.objects.all(), label="Autonomous System"
     )
-    bgp_group = forms.ModelChoiceField(
-        required=False,
-        queryset=BGPGroup.objects.all(),
-        label="BGP Group",
-        widget=APISelect(api_url="/api/peering/bgp-groups/"),
+    bgp_group = DynamicModelChoiceField(
+        required=False, queryset=BGPGroup.objects.all(), label="BGP Group"
     )
     relationship = forms.ChoiceField(
         choices=BGP_RELATIONSHIP_CHOICES, widget=StaticSelect
     )
-    router = forms.ModelChoiceField(
+    router = DynamicModelChoiceField(
         required=False,
         queryset=Router.objects.all(),
-        widget=APISelect(api_url="/api/peering/routers/"),
+        help_text="Router on which this session is configured",
     )
-    import_routing_policies = FilterChoiceField(
+    import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "import-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
     )
-    export_routing_policies = FilterChoiceField(
+    export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "export-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
     )
     password = PasswordField(required=False, render_value=True)
     comments = CommentField()
@@ -330,21 +296,17 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "local_ip_address": "IPv6 or IPv4 address",
             "ip_address": "IPv6 or IPv4 address",
             "enabled": "Should this session be enabled?",
-            "router": "Router on which this session is configured",
         }
 
     def __init__(self, *args, **kwargs):
-        initial = kwargs.get("initial", None)
-        updated = {}
-        if initial:
-            updated["autonomous_system"] = initial.get("autonomous_system", None)
-        updated["local_asn"] = settings.MY_ASN
-        kwargs.update(initial=updated)
+        initial = kwargs.get("initial", {})
+        # Set local ASN according to the one found in the settings
+        initial.update({"local_asn": settings.MY_ASN})
         super().__init__(*args, **kwargs)
 
 
 class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
-    pk = FilterChoiceField(
+    pk = DynamicModelMultipleChoiceField(
         queryset=DirectPeeringSession.objects.all(), widget=forms.MultipleHiddenInput
     )
     enabled = forms.NullBooleanField(
@@ -355,33 +317,20 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEd
         choices=add_blank_choice(BGP_RELATIONSHIP_CHOICES),
         widget=StaticSelect,
     )
-    bgp_group = forms.ModelChoiceField(
-        required=False,
-        queryset=BGPGroup.objects.all(),
-        label="BGP Group",
-        widget=APISelect(api_url="/api/peering/bgp-groups/"),
+    bgp_group = DynamicModelChoiceField(
+        required=False, queryset=BGPGroup.objects.all(), label="BGP Group"
     )
-    import_routing_policies = FilterChoiceField(
+    import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "import-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
     )
-    export_routing_policies = FilterChoiceField(
+    export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "export-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
     )
-    router = forms.ModelChoiceField(
-        required=False,
-        queryset=Router.objects.all(),
-        widget=APISelect(api_url="/api/peering/routers/"),
-    )
+    router = DynamicModelChoiceField(required=False, queryset=Router.objects.all())
     comments = CommentField()
 
     class Meta:
@@ -397,12 +346,11 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
     model = DirectPeeringSession
     q = forms.CharField(required=False, label="Search")
     local_asn = forms.IntegerField(required=False, label="Local ASN")
-    bgp_group = FilterChoiceField(
+    bgp_group = DynamicModelMultipleChoiceField(
         queryset=BGPGroup.objects.all(),
         to_field_name="pk",
-        null_label=True,
         label="BGP Group",
-        widget=APISelectMultiple(api_url="/api/peering/bgp-groups/", null_option=True),
+        widget=APISelectMultiple(null_option=True),
     )
     address_family = forms.ChoiceField(
         required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
@@ -413,37 +361,33 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
     relationship = forms.MultipleChoiceField(
         required=False, choices=BGP_RELATIONSHIP_CHOICES, widget=StaticSelectMultiple
     )
-    router = FilterChoiceField(
+    router = DynamicModelMultipleChoiceField(
         queryset=Router.objects.all(),
         to_field_name="pk",
-        null_label=True,
-        widget=APISelectMultiple(api_url="/api/peering/routers/", null_option=True),
+        widget=APISelectMultiple(null_option=True),
     )
     tag = TagFilterField(model)
 
 
 class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField(max_length=255)
-    import_routing_policies = FilterChoiceField(
+    import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "import-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
     )
-    export_routing_policies = FilterChoiceField(
+    export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "export-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
     )
-    communities = FilterChoiceField(
+    communities = DynamicModelMultipleChoiceField(
+        required=False, queryset=Community.objects.all()
+    )
+    router = DynamicModelChoiceField(
         required=False,
-        queryset=Community.objects.all(),
-        widget=APISelectMultiple(api_url="/api/peering/communities/"),
+        queryset=Router.objects.all(),
+        help_text="Router connected to the Internet Exchange point",
     )
     comments = CommentField()
     tags = TagField(required=False)
@@ -475,45 +419,31 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "name": "Full name of the Internet Exchange point",
             "ipv6_address": "IPv6 Address used to peer",
             "ipv4_address": "IPv4 Address used to peer",
-            "router": "Router connected to the Internet Exchange point",
             "check_bgp_session_states": "If enabled, with a usable router, the state of peering sessions will be polled.",
         }
-        widgets = {"router": APISelect(api_url="/api/peering/routers/")}
 
 
 class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
-    pk = FilterChoiceField(
+    pk = DynamicModelMultipleChoiceField(
         queryset=InternetExchange.objects.all(), widget=forms.MultipleHiddenInput
     )
-    import_routing_policies = FilterChoiceField(
+    import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "import-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
     )
-    export_routing_policies = FilterChoiceField(
+    export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "export-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
     )
-    communities = FilterChoiceField(
-        required=False,
-        queryset=Community.objects.all(),
-        widget=APISelectMultiple(api_url="/api/peering/communities/"),
-    )
-    router = forms.ModelChoiceField(
-        required=False,
-        queryset=Router.objects.all(),
-        widget=APISelect(api_url="/api/peering/routers/"),
+    communities = DynamicModelMultipleChoiceField(
+        required=False, queryset=Community.objects.all()
     )
     check_bgp_session_states = forms.NullBooleanField(
         required=False, label="Poll BGP State", widget=CustomNullBooleanSelect
     )
+    router = DynamicModelChoiceField(required=False, queryset=Router.objects.all())
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
@@ -568,31 +498,27 @@ class InternetExchangePeeringDBFormSet(forms.BaseFormSet):
 class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
     model = InternetExchange
     q = forms.CharField(required=False, label="Search")
-    import_routing_policies = FilterChoiceField(
+    import_routing_policies = DynamicModelMultipleChoiceField(
+        required=False,
         queryset=RoutingPolicy.objects.all(),
         to_field_name="pk",
-        null_label=True,
         widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "import-policy"},
-            null_option=True,
+            additional_query_params={"type": "import-policy"}, null_option=True
         ),
     )
-    export_routing_policies = FilterChoiceField(
+    export_routing_policies = DynamicModelMultipleChoiceField(
+        required=False,
         queryset=RoutingPolicy.objects.all(),
         to_field_name="pk",
-        null_label=True,
         widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "export-policy"},
-            null_option=True,
+            additional_query_params={"type": "export-policy"}, null_option=True
         ),
     )
-    router = FilterChoiceField(
+    router = DynamicModelMultipleChoiceField(
+        required=False,
         queryset=Router.objects.all(),
         to_field_name="pk",
-        null_label=True,
-        widget=APISelectMultiple(api_url="/api/peering/routers/", null_option=True),
+        widget=APISelectMultiple(null_option=True),
     )
     tag = TagFilterField(model)
 
@@ -600,7 +526,7 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
 class InternetExchangePeeringSessionBulkEditForm(
     BootstrapMixin, AddRemoveTagsForm, BulkEditForm
 ):
-    pk = FilterChoiceField(
+    pk = DynamicModelMultipleChoiceField(
         queryset=InternetExchangePeeringSession.objects.all(),
         widget=forms.MultipleHiddenInput,
     )
@@ -610,21 +536,15 @@ class InternetExchangePeeringSessionBulkEditForm(
     enabled = forms.NullBooleanField(
         required=False, label="Enable", widget=CustomNullBooleanSelect
     )
-    import_routing_policies = FilterChoiceField(
+    import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "import-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
     )
-    export_routing_policies = FilterChoiceField(
+    export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "export-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
     )
     comments = CommentField(widget=SmallTextarea)
 
@@ -637,33 +557,25 @@ class InternetExchangePeeringSessionBulkEditForm(
 
 
 class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
-    autonomous_system = forms.ModelChoiceField(
-        queryset=AutonomousSystem.objects.all(),
-        label="Autonomous System",
-        widget=APISelect(api_url="/api/peering/autonomous-systems/"),
+    autonomous_system = DynamicModelChoiceField(
+        queryset=AutonomousSystem.objects.all(), label="Autonomous System"
+    )
+    internet_exchange = DynamicModelChoiceField(
+        queryset=InternetExchange.objects.all(), label="Internet Exchange"
     )
     password = PasswordField(required=False, render_value=True)
-    import_routing_policies = FilterChoiceField(
+    import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "import-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
     )
-    export_routing_policies = FilterChoiceField(
+    export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(
-            api_url="/api/peering/routing-policies/",
-            query_filters={"type": "export-policy"},
-        ),
+        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
     )
     comments = CommentField()
     tags = TagField(required=False)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
     class Meta:
         model = InternetExchangePeeringSession
@@ -680,37 +592,27 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "comments",
             "tags",
         )
-        labels = {
-            "internet_exchange": "Internet Exchange",
-            "ip_address": "IP Address",
-            "is_route_server": "Route Server",
-        }
+        labels = {"ip_address": "IP Address", "is_route_server": "Route Server"}
         help_texts = {
             "ip_address": "IPv6 or IPv4 address",
             "is_route_server": "Define if this session is with a route server",
-        }
-        widgets = {
-            "autonomous_system": APISelect(api_url="/api/peering/autonomous-systems/"),
-            "internet_exchange": APISelect(api_url="/api/peering/internet-exchanges/"),
         }
 
 
 class InternetExchangePeeringSessionFilterForm(BootstrapMixin, forms.Form):
     model = InternetExchangePeeringSession
     q = forms.CharField(required=False, label="Search")
-    autonomous_system__id = FilterChoiceField(
+    autonomous_system__id = DynamicModelMultipleChoiceField(
+        required=False,
         queryset=AutonomousSystem.objects.all(),
         to_field_name="pk",
         label="Autonomous System",
-        null_label=True,
-        widget=APISelectMultiple(api_url="/api/peering/autonomous-systems/"),
     )
-    internet_exchange__id = FilterChoiceField(
+    internet_exchange__id = DynamicModelMultipleChoiceField(
+        required=False,
         queryset=InternetExchange.objects.all(),
         to_field_name="pk",
         label="Internet Exchange",
-        null_label=True,
-        widget=APISelectMultiple(api_url="/api/peering/internet-exchanges/"),
     )
     address_family = forms.ChoiceField(
         required=False, choices=IP_FAMILY_CHOICES, widget=StaticSelect
@@ -728,6 +630,13 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
     netbox_device_id = forms.IntegerField(label="NetBox Device", initial=0)
     platform = forms.ChoiceField(
         required=False, choices=add_blank_choice(PLATFORM_CHOICES), widget=StaticSelect
+    )
+    configuration_template = DynamicModelChoiceField(
+        required=False,
+        queryset=Template.objects.all(),
+        widget=APISelect(additional_query_params={"type": "configuration"}),
+        label="Configuration",
+        help_text="Template used to generate device configuration",
     )
     napalm_username = forms.CharField(required=False, label="Username")
     napalm_password = PasswordField(required=False, render_value=True, label="Password")
@@ -785,21 +694,12 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
             "comments",
             "tags",
         )
-        labels = {"use_netbox": "Use NetBox", "configuration_template": "Configuration"}
-        help_texts = {
-            "hostname": "Router hostname (must be resolvable) or IP address",
-            "configuration_template": "Template used to generate device configuration",
-        }
-        widgets = {
-            "configuration_template": APISelect(
-                api_url="/api/peering/templates/",
-                query_filters={"type": "configuration"},
-            )
-        }
+        labels = {"use_netbox": "Use NetBox"}
+        help_texts = {"hostname": "Router hostname (must be resolvable) or IP address"}
 
 
 class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
-    pk = FilterChoiceField(
+    pk = DynamicModelMultipleChoiceField(
         queryset=Router.objects.all(), widget=forms.MultipleHiddenInput
     )
     platform = forms.ChoiceField(
@@ -808,12 +708,10 @@ class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     encrypt_passwords = forms.NullBooleanField(
         required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
     )
-    configuration_template = forms.ModelChoiceField(
+    configuration_template = DynamicModelChoiceField(
         required=False,
         queryset=Template.objects.all(),
-        widget=APISelect(
-            api_url="/api/peering/templates/", query_filters={"type": "configuration"}
-        ),
+        widget=APISelect(additional_query_params={"type": "configuration"}),
     )
     comments = CommentField(widget=SmallTextarea)
 
@@ -830,11 +728,11 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
     encrypt_passwords = forms.NullBooleanField(
         required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
     )
-    configuration_template = FilterChoiceField(
+    configuration_template = DynamicModelMultipleChoiceField(
+        required=False,
         queryset=Template.objects.all(),
         to_field_name="pk",
-        null_label=True,
-        widget=APISelectMultiple(api_url="/api/peering/templates/", null_option=True),
+        widget=APISelectMultiple(null_option=True),
     )
     tag = TagFilterField(model)
 
@@ -861,7 +759,7 @@ class RoutingPolicyForm(BootstrapMixin, forms.ModelForm):
 
 
 class RoutingPolicyBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
-    pk = FilterChoiceField(
+    pk = DynamicModelMultipleChoiceField(
         queryset=RoutingPolicy.objects.all(), widget=forms.MultipleHiddenInput
     )
     type = forms.ChoiceField(

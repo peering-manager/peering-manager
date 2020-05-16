@@ -1,7 +1,12 @@
+import django_filters
+import json
+
 from django import forms
 from django.db.models import Count
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.forms import BoundField
+from django.urls import reverse
 from taggit.forms import TagField
 
 from .constants import *
@@ -64,44 +69,6 @@ class ConfirmationForm(BootstrapMixin, forms.Form):
     )
 
 
-class FilterChoiceIterator(forms.models.ModelChoiceIterator):
-    def __iter__(self):
-        # null for the first time if we asked for it
-        if self.field.null_label:
-            yield (
-                settings.FILTERS_NULL_CHOICE_VALUE,
-                settings.FILTERS_NULL_CHOICE_LABEL,
-            )
-        queryset = self.queryset.all()
-        # Can't use iterator() when queryset uses prefetch_related()
-        if not queryset._prefetch_related_lookups:
-            queryset = queryset.iterator()
-        for obj in queryset:
-            yield self.choice(obj)
-
-
-class FilterChoiceFieldMixin(object):
-    iterator = FilterChoiceIterator
-
-    def __init__(self, null_label=None, *args, **kwargs):
-        self.null_label = null_label
-        if "required" not in kwargs:
-            kwargs["required"] = False
-        if "widget" not in kwargs:
-            kwargs["widget"] = forms.SelectMultiple(attrs={"size": 6})
-        super().__init__(*args, **kwargs)
-
-    def label_from_instance(self, obj):
-        label = super().label_from_instance(obj)
-        if hasattr(obj, "filter_count"):
-            return "{} ({})".format(label, obj.filter_count)
-        return label
-
-
-class FilterChoiceField(FilterChoiceFieldMixin, forms.ModelMultipleChoiceField):
-    pass
-
-
 class SmallTextarea(forms.Textarea):
     """
     Just to be used as small text area.
@@ -117,37 +84,68 @@ class APISelect(forms.Select):
 
     def __init__(
         self,
-        api_url,
+        api_url=None,
         display_field=None,
         value_field=None,
-        query_filters=None,
+        disabled_indicator=None,
+        filter_for=None,
+        conditional_query_params=None,
+        additional_query_params=None,
         null_option=False,
+        full=False,
         *args,
         **kwargs,
     ):
-        # Only preload the selected option(s); new options are dynamically displayed
-        # and added via the API
-        template_name = "widgets/select_api.html"
-
         super().__init__(*args, **kwargs)
         self.attrs["class"] = "custom-select2-api"
-        self.attrs["data-url"] = "/{}{}".format(settings.BASE_PATH, api_url.lstrip("/"))
 
+        if api_url:
+            self.attrs["data-url"] = f"/{settings.BASE_PATH}{api_url.lstrip('/')}"
+        if full:
+            self.attrs["data-full"] = full
         if display_field:
             self.attrs["display-field"] = display_field
         if value_field:
             self.attrs["value-field"] = value_field
-        if query_filters:
-            for key, value in query_filters.items():
-                self.add_query_filter(key, value)
+        if disabled_indicator:
+            self.attrs["disabled-indicator"] = disabled_indicator
+        if filter_for:
+            for key, value in filter_for.items():
+                self.add_filter_for(key, value)
+        if conditional_query_params:
+            for key, value in conditional_query_params.items():
+                self.add_conditional_query_param(key, value)
+        if additional_query_params:
+            for key, value in additional_query_params.items():
+                self.add_additional_query_param(key, value)
         if null_option:
             self.attrs["data-null-option"] = 1
 
-    def add_query_filter(self, condition, value):
+    def add_filter_for(self, name, value):
         """
-        Add a condition to filter the feedback from the API call.
+        Add details for an additional query param in the form of a data-filter-for-*
+        attribute.
         """
-        self.attrs["data-query-filter-{}".format(condition)] = value
+        self.attrs[f"data-filter-for-{name}"] = value
+
+    def add_additional_query_param(self, name, value):
+        """
+        Add details for an additional query param in the form of a data-* JSON-encoded
+        list attribute.
+        """
+        key = f"data-additional-query-param-{name}"
+
+        values = json.loads(self.attrs.get(key, "[]"))
+        values.append(value)
+
+        self.attrs[key] = json.dumps(values)
+
+    def add_conditional_query_param(self, condition, value):
+        """
+        Add details for a URL query strings to append to the URL if the condition is
+        met. The condition is specified in the form `<field_name>__<field_value>`.
+        """
+        self.attrs[f"data-conditional-query-param-{condition}"] = value
 
 
 class APISelectMultiple(APISelect, forms.SelectMultiple):
@@ -158,6 +156,7 @@ class APISelectMultiple(APISelect, forms.SelectMultiple):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.attrs["data-multiple"] = 1
+        self.attrs["data-close-on-select"] = 0
 
 
 class StaticSelect(forms.Select):
@@ -189,6 +188,60 @@ class CustomNullBooleanSelect(StaticSelect):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.choices = (("unknown", "---------"), ("true", "Yes"), ("false", "No"))
+
+
+class DynamicModelChoiceMixin(object):
+    filter = django_filters.ModelChoiceFilter
+    widget = APISelect
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def get_bound_field(self, form, field_name):
+        bound_field = BoundField(form, self, field_name)
+
+        # Modify the QuerySet of the field before we return it. Limit choices to any
+        # data already bound: Options will be populated on-demand via the APISelect
+        # widget
+        data = self.prepare_value(bound_field.data or bound_field.initial)
+        if data:
+            filter = self.filter(
+                field_name=self.to_field_name or "pk", queryset=self.queryset
+            )
+            self.queryset = filter.filter(self.queryset, data)
+        else:
+            self.queryset = self.queryset.none()
+
+        # Set the data URL on the APISelect widget (if not already set)
+        widget = bound_field.field.widget
+        if not widget.attrs.get("data-url"):
+            data_url = reverse(
+                f"{self.queryset.model._meta.app_label}-api:{self.queryset.model._meta.model_name}-list"
+            )
+            widget.attrs["data-url"] = data_url
+
+        return bound_field
+
+
+class DynamicModelChoiceField(DynamicModelChoiceMixin, forms.ModelChoiceField):
+    """
+    Override get_bound_field() to avoid pre-populating field choices with a SQL query.
+    The field will be rendered only with choices set via bound data.
+    Choices are populated on-demand via the APISelect widget.
+    """
+
+    pass
+
+
+class DynamicModelMultipleChoiceField(
+    DynamicModelChoiceMixin, forms.ModelMultipleChoiceField
+):
+    """
+    A multiple-choice version of DynamicModelChoiceField.
+    """
+
+    filter = django_filters.ModelMultipleChoiceFilter
+    widget = APISelectMultiple
 
 
 class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
