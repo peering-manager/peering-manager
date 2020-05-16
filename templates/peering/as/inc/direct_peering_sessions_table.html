@@ -1,6 +1,6 @@
 {% extends 'utils/object_list.html' %}
 {% block extra_buttons %}
-<a href="{% url 'peering:directpeeringsession_add' %}?autonomous_system={{ autonomous_system.pk }}" class="btn btn-sm btn-primary">
+<a href="{% url 'peering:directpeeringsession_add' %}?autonomous_system={{ autonomous_system.pk }}&return_url={{ autonomous_system.get_direct_peering_sessions_list_url }}" class="btn btn-sm btn-primary">
   <i class="fas fa-plus"></i> Add a Peering Session
 </a>
 {% endblock %}

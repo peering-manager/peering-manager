@@ -444,28 +444,6 @@ class BGPGroupPeeringSessions(PermissionRequiredMixin, ModelListView):
         return extra_context
 
 
-class BGPGroupPeeringSessionAdd(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "peering.add_directpeeringsession"
-    model = DirectPeeringSession
-    form = DirectPeeringSessionForm
-    template = "peering/session/direct/add_edit.html"
-
-    def get_object(self, kwargs):
-        if "pk" in kwargs:
-            return get_object_or_404(self.model, pk=kwargs["pk"])
-
-        return self.model()
-
-    def alter_object(self, obj, request, args, kwargs):
-        if "slug" in kwargs:
-            obj.bgp_group = get_object_or_404(BGPGroup, slug=kwargs["slug"])
-
-        return obj
-
-    def get_return_url(self, obj):
-        return obj.bgp_group.get_peering_sessions_list_url()
-
-
 class CommunityList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_community"
     queryset = Community.objects.all()
