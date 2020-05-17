@@ -1408,6 +1408,9 @@ class Router(ChangeLoggedModel, TaggableModel):
     def get_absolute_url(self):
         return reverse("peering:router_details", kwargs={"pk": self.pk})
 
+    def get_direct_peering_sessions_list_url(self):
+        return reverse("peering:router_direct_peering_sessions", kwargs={"pk": self.pk})
+
     def is_netbox_device(self):
         return self.netbox_device_id != 0
 

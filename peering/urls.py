@@ -88,11 +88,6 @@ urlpatterns = [
         views.BGPGroupPeeringSessions.as_view(),
         name="bgpgroup_peering_sessions",
     ),
-    path(
-        "bgp-groups/<slug:slug>/add-peering-session/",
-        views.BGPGroupPeeringSessionAdd.as_view(),
-        name="bgpgroup_peering_session_add",
-    ),
     # BGP Communities
     path("communities/", views.CommunityList.as_view(), name="community_list"),
     path("communities/add/", views.CommunityAdd.as_view(), name="community_add"),

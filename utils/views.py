@@ -26,7 +26,7 @@ from django_tables2 import RequestConfig
 from .filters import ObjectChangeFilterSet, TagFilterSet
 from .forms import (
     ConfirmationForm,
-    FilterChoiceField,
+    DynamicModelMultipleChoiceField,
     ObjectChangeFilterForm,
     TagBulkEditForm,
     TagFilterForm,
@@ -37,10 +37,35 @@ from .paginators import EnhancedPaginator
 from .tables import ObjectChangeTable, TagTable
 
 
-class AddOrEditView(View):
+class ReturnURLMixin(object):
+    """
+    Provides a way to determine where a user should be redirected after processing a
+    form.
+    """
+
+    default_return_url = None
+
+    def get_return_url(self, request, obj=None):
+        # First, see if `return_url` was specified as a query parameter or form data.
+        # Use this URL only if it's considered safe.
+        query_param = request.GET.get("return_url") or request.POST.get("return_url")
+        if query_param and is_safe_url(
+            url=query_param, allowed_hosts=request.get_host()
+        ):
+            return query_param
+        # Next, check if the object being modified (if any) has an absolute URL.
+        elif obj is not None and obj.pk and hasattr(obj, "get_absolute_url"):
+            return obj.get_absolute_url()
+        # Fall back to the default URL (if specified) for the view.
+        elif self.default_return_url is not None:
+            return reverse(self.default_return_url)
+        # If all else fails, return home. Ideally this should never happen.
+        return reverse("home")
+
+
+class AddOrEditView(ReturnURLMixin, View):
     model = None
     form = None
-    return_url = None
     template = "utils/object_add_edit.html"
 
     def get_object(self, kwargs):
@@ -62,24 +87,14 @@ class AddOrEditView(View):
     def alter_object(self, obj, request, args, kwargs):
         return obj
 
-    def get_return_url(self, obj):
-        if obj.pk:
-            # If the object has an absolute URL, use it
-            return obj.get_absolute_url()
-
-        if self.return_url:
-            # Otherwise use the default URL if given
-            return reverse(self.return_url)
-
-        # Or return to home
-        return reverse("home")
-
     def get(self, request, *args, **kwargs):
         """
         Method used to render the view when form is not submitted.
         """
         obj = self.alter_object(self.get_object(kwargs), request, args, kwargs)
-        form = self.form(instance=obj, initial=request.GET)
+        # Parse initial data manually to avoid setting field values as lists
+        initial_data = {k: request.GET[k] for k in request.GET}
+        form = self.form(instance=obj, initial=initial_data)
 
         return render(
             request,
@@ -88,7 +103,7 @@ class AddOrEditView(View):
                 "object": obj,
                 "object_type": self.model._meta.verbose_name,
                 "form": form,
-                "return_url": self.get_return_url(obj),
+                "return_url": self.get_return_url(request, obj),
             },
         )
 
@@ -117,7 +132,7 @@ class AddOrEditView(View):
             if "_addanother" in request.POST:
                 return redirect(request.get_full_path())
 
-            return redirect(self.get_return_url(obj))
+            return redirect(self.get_return_url(request, obj))
 
         return render(
             request,
@@ -126,17 +141,16 @@ class AddOrEditView(View):
                 "object": obj,
                 "object_type": self.model._meta.verbose_name,
                 "form": form,
-                "return_url": self.get_return_url(obj),
+                "return_url": self.get_return_url(request, obj),
             },
         )
 
 
-class BulkAddFromDependencyView(View):
+class BulkAddFromDependencyView(ReturnURLMixin, View):
     model = None
     dependency_model = None
     custom_formset = None
     form_model = None
-    return_url = None
     template = "utils/table_import.html"
 
     def get_dependency_objects(self, pk_list):
@@ -151,17 +165,9 @@ class BulkAddFromDependencyView(View):
     def sort_objects(self, object_list):
         return []
 
-    def get_return_url(self):
-        if self.return_url:
-            # Use the default URL if given
-            return self.return_url
-
-        # Or return to home
-        return reverse("home")
-
     def get(self, request):
         # Don't allow direct GET requests
-        return redirect(self.get_return_url())
+        return redirect(self.get_return_url(request))
 
     def post(self, request):
         """
@@ -215,7 +221,7 @@ class BulkAddFromDependencyView(View):
                 )
                 messages.success(request, message)
 
-            return redirect(self.get_return_url())
+            return redirect(self.get_return_url(request))
 
         return render(
             request,
@@ -223,7 +229,7 @@ class BulkAddFromDependencyView(View):
             {
                 "formset": formset,
                 "obj_type": self.form_model._meta.model._meta.verbose_name,
-                "return_url": self.get_return_url(),
+                "return_url": self.get_return_url(request),
             },
         )
 
@@ -242,7 +248,7 @@ class BulkDeleteView(View):
 
     def get_form(self):
         class BulkDeleteForm(ConfirmationForm):
-            pk = FilterChoiceField(
+            pk = DynamicModelMultipleChoiceField(
                 queryset=self.model.objects.all(), widget=MultipleHiddenInput
             )
 
@@ -323,25 +329,13 @@ class BulkDeleteView(View):
         )
 
 
-class BulkEditView(View):
+class BulkEditView(ReturnURLMixin, View):
     queryset = None
     parent_model = None
     filter = None
     table = None
     form = None
     template = "utils/object_bulk_edit.html"
-    return_url = None
-
-    def get_return_url(self, request):
-        if self.return_url:
-            # Use the default URL if given
-            return self.return_url
-
-        if request.POST.get("return_url"):
-            return request.POST.get("return_url")
-
-        # Or return to home
-        return reverse("home")
 
     def get(self, request):
         return redirect(self.get_return_url(request))
@@ -444,7 +438,6 @@ class BulkEditView(View):
 
 
 class ConfirmationView(View):
-    return_url = None
     template = None
 
     def extra_context(self, kwargs):
@@ -471,9 +464,8 @@ class ConfirmationView(View):
         return render(request, self.template, context)
 
 
-class DeleteView(View):
+class DeleteView(ReturnURLMixin, View):
     model = None
-    return_url = None
     template = "utils/object_delete.html"
 
     def get_object(self, kwargs):
@@ -491,18 +483,6 @@ class DeleteView(View):
 
         return None
 
-    def get_return_url(self, obj):
-        if obj.pk:
-            # If the object has an absolute URL, use it
-            return obj.get_absolute_url()
-
-        if self.return_url:
-            # Otherwise use the default URL if given
-            return reverse(self.return_url)
-
-        # Or return to home
-        return reverse("home")
-
     def get(self, request, *args, **kwargs):
         """
         Method used to render the view when form is not submitted.
@@ -517,7 +497,7 @@ class DeleteView(View):
                 "object": obj,
                 "form": form,
                 "object_type": self.model._meta.verbose_name,
-                "return_url": self.get_return_url(obj),
+                "return_url": self.get_return_url(request, obj),
             },
         )
 
@@ -535,7 +515,7 @@ class DeleteView(View):
             message = "Deleted {} {}".format(self.model._meta.verbose_name, escape(obj))
             messages.success(request, message)
 
-            return redirect(self.get_return_url(obj))
+            return redirect(self.get_return_url(request, obj))
 
         return render(
             request,
@@ -544,7 +524,7 @@ class DeleteView(View):
                 "object": obj,
                 "form": form,
                 "object_type": self.model._meta.verbose_name,
-                "return_url": self.get_return_url(obj),
+                "return_url": self.get_return_url(request, obj),
             },
         )
 
@@ -636,22 +616,13 @@ class ModelListView(View):
         return render(request, self.template, context)
 
 
-class TableImportView(View):
+class TableImportView(ReturnURLMixin, View):
     custom_formset = None
     form_model = None
-    return_url = None
     template = "utils/table_import.html"
 
     def get_objects(self):
         return []
-
-    def get_return_url(self):
-        if self.return_url:
-            # Use the default URL if given
-            return reverse(self.return_url)
-
-        # Or return to home
-        return reverse("home")
 
     def get(self, request):
         """
@@ -670,7 +641,7 @@ class TableImportView(View):
             formset = ObjectFormSet(initial=objects)
         else:
             messages.info(request, "No data to import.")
-            return redirect(self.get_return_url())
+            return redirect(self.get_return_url(request))
 
         return render(
             request,
@@ -678,7 +649,7 @@ class TableImportView(View):
             {
                 "formset": formset,
                 "obj_type": self.form_model._meta.model._meta.verbose_name,
-                "return_url": self.get_return_url(),
+                "return_url": self.get_return_url(request),
             },
         )
 
@@ -709,7 +680,7 @@ class TableImportView(View):
                 )
                 messages.success(request, message)
 
-            return redirect(self.get_return_url())
+            return redirect(self.get_return_url(request))
 
         return render(
             request,
@@ -717,7 +688,7 @@ class TableImportView(View):
             {
                 "formset": formset,
                 "obj_type": self.form_model._meta.model._meta.verbose_name,
-                "return_url": self.get_return_url(),
+                "return_url": self.get_return_url(request),
             },
         )
 

@@ -6,7 +6,7 @@
 </button>
 {% endif %}
 {% if perms.peering.add_directpeeringsession %}
-<a href="{% url 'peering:bgpgroup_peering_session_add' slug=bgp_group.slug %}" class="btn btn-sm btn-primary">
+<a href="{% url 'peering:directpeeringsession_add' %}?bgp_group={{ bgp_group.pk }}&return_url={{ bgp_group.get_peering_sessions_list_url }}" class="btn btn-sm btn-primary">
   <i class="fas fa-plus"></i> Add
 </a>
 {% endif %}

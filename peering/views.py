@@ -444,28 +444,6 @@ class BGPGroupPeeringSessions(PermissionRequiredMixin, ModelListView):
         return extra_context
 
 
-class BGPGroupPeeringSessionAdd(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "peering.add_directpeeringsession"
-    model = DirectPeeringSession
-    form = DirectPeeringSessionForm
-    template = "peering/session/direct/add_edit.html"
-
-    def get_object(self, kwargs):
-        if "pk" in kwargs:
-            return get_object_or_404(self.model, pk=kwargs["pk"])
-
-        return self.model()
-
-    def alter_object(self, obj, request, args, kwargs):
-        if "slug" in kwargs:
-            obj.bgp_group = get_object_or_404(BGPGroup, slug=kwargs["slug"])
-
-        return obj
-
-    def get_return_url(self, obj):
-        return obj.bgp_group.get_peering_sessions_list_url()
-
-
 class CommunityList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_community"
     queryset = Community.objects.all()
@@ -526,17 +504,6 @@ class DirectPeeringSessionAdd(PermissionRequiredMixin, AddOrEditView):
     form = DirectPeeringSessionForm
     template = "peering/session/direct/add_edit.html"
 
-    def alter_object(self, obj, request, args, kwargs):
-        if "autonomous_system" in request.GET:
-            obj.autonomous_system = get_object_or_404(
-                AutonomousSystem, pk=request.GET.get("autonomous_system")
-            )
-
-        return obj
-
-    def get_return_url(self, obj):
-        return obj.autonomous_system.get_direct_peering_sessions_list_url()
-
 
 class DirectPeeringSessionBulkDelete(PermissionRequiredMixin, BulkDeleteView):
     permission_required = "peering.delete_directpeeringsession"
@@ -572,9 +539,6 @@ class DirectPeeringSessionBulkEdit(PermissionRequiredMixin, BulkEditView):
 class DirectPeeringSessionDelete(PermissionRequiredMixin, DeleteView):
     permission_required = "peering.delete_directpeeringsession"
     model = DirectPeeringSession
-
-    def get_return_url(self, obj):
-        return obj.autonomous_system.get_direct_peering_sessions_list_url()
 
 
 class DirectPeeringSessionDetails(PermissionRequiredMixin, View):
@@ -798,17 +762,6 @@ class InternetExchangePeeringSessionAdd(PermissionRequiredMixin, AddOrEditView):
     form = InternetExchangePeeringSessionForm
     template = "peering/session/internet_exchange/add_edit.html"
 
-    def alter_object(self, obj, request, args, kwargs):
-        if "internet_exchange" in request.GET:
-            obj.internet_exchange = get_object_or_404(
-                InternetExchange, pk=request.GET.get("internet_exchange")
-            )
-
-        return obj
-
-    def get_return_url(self, obj):
-        return obj.internet_exchange.get_peering_sessions_list_url()
-
 
 class InternetExchangePeeringSessionBulkEdit(PermissionRequiredMixin, BulkEditView):
     permission_required = "peering.change_internetexchangepeeringsession"
@@ -845,9 +798,6 @@ class InternetExchangePeeringSessionEdit(PermissionRequiredMixin, AddOrEditView)
 class InternetExchangePeeringSessionDelete(PermissionRequiredMixin, DeleteView):
     permission_required = "peering.delete_internetexchangepeeringsession"
     model = InternetExchangePeeringSession
-
-    def get_return_url(self, obj):
-        return obj.internet_exchange.get_peering_sessions_list_url()
 
 
 class InternetExchangePeeringSessionAddFromPeeringDB(

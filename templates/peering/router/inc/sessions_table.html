@@ -1,0 +1,8 @@
+{% extends 'utils/object_list.html' %}
+{% block extra_buttons %}
+{% if perms.peering.add_directpeeringsession %}
+<a href="{% url 'peering:directpeeringsession_add' %}?router={{ router.pk }}&return_url={{ router.get_direct_peering_sessions_list_url }}" class="btn btn-sm btn-primary">
+  <i class="fas fa-plus"></i> Add
+</a>
+{% endif %}
+{% endblock %}
