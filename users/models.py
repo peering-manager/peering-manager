@@ -2,8 +2,11 @@ import binascii
 import os
 
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import JSONField
 from django.core.validators import MinLengthValidator
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils import timezone
 
 
@@ -47,3 +50,27 @@ class Token(models.Model):
             # Generate a key if none is given
             self.key = self.__generate_key()
         return super().save(*args, **kwargs)
+
+
+class UserPreferences(models.Model):
+    """
+    This model stores user-specific preferences as JSON.
+    """
+
+    user = models.OneToOneField(
+        to=User, on_delete=models.CASCADE, related_name="preferences"
+    )
+    data = JSONField(default=dict)
+
+    class Meta:
+        ordering = ["user"]
+        verbose_name = verbose_name_plural = "User Preferences"
+
+
+@receiver(post_save, sender=User)
+def create_userpreferences(instance, created, **kwargs):
+    """
+    Creates a new `UserPreferences` when a new `User` is created.
+    """
+    if created:
+        UserPreferences(user=instance).save()
