@@ -31,3 +31,22 @@ class EnhancedPage(Page):
             pages_list.insert(pages_list.index(i), False)
 
         return pages_list
+
+
+def get_paginate_count(request):
+    """
+    Determines the number of items to display in one page, based on the following in
+    order:
+      1. `per_page` URL query parameter (saving it as user preference in the process)
+      2. user preference
+      3. `PAGINATE_COUNT` setting
+    """
+    if "per_page" in request.GET:
+        try:
+            per_page = int(request.GET.get("per_page"))
+            request.user.preferences.set("pagination.per_page", per_page, commit=True)
+            return per_page
+        except ValueError:
+            pass
+
+    return request.user.preferences.get("pagination.per_page", settings.PAGINATE_COUNT)
