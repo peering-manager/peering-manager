@@ -1,0 +1,10 @@
+{% extends 'users/_user.html' %}
+{% load helpers %}
+{% block title %}User Preferences{% endblock %}
+{% block user_content %}
+{% if preferences %}
+          <pre class="col-md-10 pre-scrollable"><code>{{ preferences | render_json }}</code></pre>
+{% else %}
+          <h4 class="text-muted text-center">No preferences found</h4>
+{% endif %}
+{% endblock %}

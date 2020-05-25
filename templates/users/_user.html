@@ -5,6 +5,7 @@
         <div class="col-md-2">
           <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
             <a class="nav-link {% ifequal active_tab "profile" %} active{% endifequal %}" role="tab" href="{% url 'users:profile' %}">Profile</a>
+            <a class="nav-link {% ifequal active_tab "preferences" %} active{% endifequal %}" role="tab" href="{% url 'users:preferences' %}">Preferences</a>
             {% if not request.user.ldap_username %}
             <a class="nav-link {% ifequal active_tab "password" %} active{% endifequal %}" role="tab" href="{% url 'users:change_password' %}">Change Password</a>
             {% endif %}

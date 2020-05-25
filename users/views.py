@@ -70,6 +70,17 @@ class ProfileView(View, LoginRequiredMixin):
         return render(request, "users/profile.html", {"active_tab": "profile"})
 
 
+class PreferencesView(View, LoginRequiredMixin):
+    template_name = "users/preferences.html"
+
+    def get(self, request):
+        return render(
+            request,
+            self.template_name,
+            {"preferences": request.user.preferences.data, "active_tab": "preferences"},
+        )
+
+
 class ChangePasswordView(View, LoginRequiredMixin):
     template = "users/change_password.html"
 
