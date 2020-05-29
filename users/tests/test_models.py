@@ -15,6 +15,17 @@ class UserPreferencesTest(TestCase):
         user.preferences.save()
         self.preferences = user.preferences
 
+    def test_all(self):
+        flattened_data = {
+            "a": True,
+            "b.test": 1,
+            "b.foo": 2,
+            "c.test.x": 10,
+            "c.foo.y": 11,
+            "c.bar.z": 12,
+        }
+        self.assertEqual(self.preferences.all(), flattened_data)
+
     def test_get(self):
         # Retrieve root and nested values
         self.assertEqual(self.preferences.get("a"), True)

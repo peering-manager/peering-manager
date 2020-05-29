@@ -66,6 +66,23 @@ class UserPreferences(models.Model):
         ordering = ["user"]
         verbose_name = verbose_name_plural = "User Preferences"
 
+    def all(self):
+        """
+        Returns a dictionary of all defined keys and their values.
+        """
+
+        def flatten(d, prefix="", separator="."):
+            r = {}
+            for k, v in d.items():
+                key = separator.join([prefix, k]) if prefix else k
+                if type(v) == dict:
+                    r.update(flatten(v, prefix=key))
+                else:
+                    r[key] = v
+            return r
+
+        return flatten(self.data)
+
     def get(self, path, default=None, separator="."):
         """
         Retrieves a value based on its path. Each category and value are separated by
