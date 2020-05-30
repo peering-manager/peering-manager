@@ -7,7 +7,7 @@ from peering_manager.admin import admin_site
 from .models import Token, UserPreferences
 
 
-admin.site.unregister(User)
+admin_site.unregister(User)
 
 
 class TokenAdminForm(forms.ModelForm):
@@ -34,7 +34,7 @@ class UserPreferencesInline(admin.TabularInline):
     verbose_name = "Preferences"
 
 
-@admin.register(User)
+@admin.register(User, site=admin_site)
 class UserAdmin(UA):
     list_display = [
         "username",
