@@ -1,6 +1,5 @@
 import sys
 
-from django.conf import settings
 from django.db import transaction
 from django.db.models import Count, ManyToManyField, ProtectedError
 from django.db.models.query import QuerySet
@@ -33,7 +32,7 @@ from .forms import (
     TagForm,
 )
 from .models import ObjectChange, Tag, TaggedItem
-from .paginators import EnhancedPaginator
+from .paginators import EnhancedPaginator, get_paginate_count
 from .tables import ObjectChangeTable, TagTable
 
 
@@ -586,7 +585,7 @@ class ModelListView(View):
         # Apply pagination
         paginate = {
             "paginator_class": EnhancedPaginator,
-            "per_page": request.GET.get("per_page", settings.PAGINATE_COUNT),
+            "per_page": get_paginate_count(request),
         }
         RequestConfig(request, paginate).configure(table)
 

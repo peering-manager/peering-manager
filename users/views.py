@@ -70,6 +70,33 @@ class ProfileView(View, LoginRequiredMixin):
         return render(request, "users/profile.html", {"active_tab": "profile"})
 
 
+class PreferencesView(View, LoginRequiredMixin):
+    template_name = "users/preferences.html"
+
+    def get(self, request):
+        return render(
+            request,
+            self.template_name,
+            {
+                "preferences": request.user.preferences.all(),
+                "active_tab": "preferences",
+            },
+        )
+
+    def post(self, request):
+        preferences = request.user.preferences
+        data = preferences.all()
+
+        # Delete selected preferences
+        for key in request.POST.getlist("pk"):
+            if key in data:
+                preferences.delete(key)
+        preferences.save()
+        messages.success(request, "Your preferences have been updated.")
+
+        return redirect("users:preferences")
+
+
 class ChangePasswordView(View, LoginRequiredMixin):
     template = "users/change_password.html"
 

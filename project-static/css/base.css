@@ -71,6 +71,9 @@ textarea {
 tfoot td {
   font-weight: bold;
 }
+td.min-width {
+  width: 1%;
+}
 table.attr-table td:nth-child(1) {
   width: 25%;
 }
