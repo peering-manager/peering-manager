@@ -142,18 +142,25 @@ class UserPreferences(models.Model):
             self.save()
 
     def delete(self, path, separator=".", commit=False):
+        """
+        Deletes a preference specified by its path given a separator.
+        The key and its children will be deleted. If the key is not valid it will be
+        ignored.
+        """
         data = self.data
         keys = path.split(separator)
 
         # Look only for categories for now, excluding the name of the value
         for i, key in enumerate(keys[:-1]):
-            if key in data and type(data[key]) == dict:
+            if key not in data:
+                break
+            if type(data[key]) == dict:
                 # Step by step down the dicts
                 data = data[key]
 
         # Now delete the preference
         key = keys[-1]
-        del data[key]
+        data.pop(key, None)
 
         if commit:
             self.save()

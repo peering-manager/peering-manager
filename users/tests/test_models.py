@@ -80,6 +80,5 @@ class UserPreferencesTest(TestCase):
         self.assertTrue("foo" not in preferences.data["b"])
         self.assertEqual(preferences.data["b"]["test"], 1)
 
-        # Try to delete an invalid value
-        with self.assertRaises(KeyError):
-            preferences.delete("invalid")
+        # Try to delete an invalid value, nothing should happen
+        preferences.delete("invalid")
