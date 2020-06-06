@@ -1,14 +1,15 @@
 # Web Server Setup
 
-We will set up a simple WSGI frontend using **gunicorn** and **supervisord**
-for service persistence. As web server we will use Apache 2. You can of course
-use whatever combination of tool that you want.
+We will set up a simple WSGI frontend using **gunicorn** and **systemd** for
+service persistence. As web server we will use Apache 2. You can of course use
+whatever combination of tool that you want.
 
-# Apache 2
+## Apache 2
 
 Install the Apache 2 package and enable mod proxy.
 ```no-highlight
 # apt install apache2
+# a2enmod headers
 # a2enmod proxy
 # a2enmod proxy_http
 ```
@@ -34,6 +35,7 @@ The content of the file can be something like this.
     ProxyPass !
   </Location>
 
+  RequestHeader set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
   ProxyPass / http://127.0.0.1:8001/
   ProxyPassReverse / http://127.0.0.1:8001/
 </VirtualHost>
@@ -56,7 +58,6 @@ of the Peering Manager directory.
 # chown -R www-data:www-data /opt/peering-manager
 ```
 
-
 ## gunicorn
 
 Install **gunicorn** using **pip**.
@@ -64,7 +65,7 @@ Install **gunicorn** using **pip**.
 # pip3 install gunicorn
 ```
 Save the following configuration in the root of the Peering Manager
-installation path as `gunicorn_config.py`. Be sure to verify the location of
+installation path as `gunicorn.py`. Be sure to verify the location of
 the **gunicorn** executable on your server (e.g. which gunicorn) and to update
 the pythonpath variable if needed. Note that some tasks such as importing
 existing peering sessions or generating prefix lists can take a lot of time to
@@ -73,8 +74,11 @@ complete so setting a timeout greater than 30 seconds can be helpful.
 command = '/usr/local/bin/gunicorn'
 pythonpath = '/opt/peering-manager'
 bind = '127.0.0.1:8001'
-workers = 4
+workers = 5
+threads = 3
 timeout = 300
+max_requests = 5000
+max_requests_jitter = 500
 user = 'www-data'
 ```
 
@@ -91,26 +95,45 @@ in the WSGI name):
 [2017-09-27 22:49:03 +0200] [7222] [INFO] Booting worker with pid: 7222
 ```
 
-## supervisord
+## systemd
 
-Install **supervisord**.
-```no-highlight
-# apt install supervisor
-```
-
-Create a configuration file `/etc/supervisor/conf.d/peering-manager.conf` and
+Create a service file `/etc/systemd/systemd/peering-manager.service` and
 set its content.
 ```no-highlight
-[program:peering-manager]
-directory = /opt/peering-manager/
-command = gunicorn -c /opt/peering-manager/gunicorn_config.py peering_manager.wsgi
-user = www-data
+[[Unit]
+Description=Peering Manager WSGI Service
+Documentation=https://peering-manager.readthedocs.io/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+User=peering-manager
+Group=peering-manager
+PIDFile=/var/tmp/peering-manager.pid
+WorkingDirectory=/opt/peering-manager
+
+ExecStart=/opt/peering-manager/venv/bin/gunicorn --pid /var/tmp/peering-manager.pid --pythonpath /opt/peering-manager --config /opt/peering-manager/gunicorn.py peering-manager.wsgi
+
+Restart=on-failure
+RestartSec=30
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
 ```
 
-Restart **supervisord** to load the configuration.
+Reload **systemd** to load the service, start the `peering-manager` service and
+enable it at boot time.
 ```no-highlight
-# systemctl restart supervisor
+# systemctl daemon-reload
+# systemctl start peering-manager
+# systemctl enable peering-manager
 ```
+
+You can use the command `systemctl status peering-manager` to verify that the
+WSGI service is running.
 
 At this point, you should be able to connect to the Apache 2 HTTP service at
 the server name or IP address you provided. If you receive a 502 (bad gateway)

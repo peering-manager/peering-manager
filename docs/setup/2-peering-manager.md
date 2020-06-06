@@ -63,11 +63,31 @@ drwxr-xr-x  17 user  staff    544  3 Feb 16:27 utils
 #
 ```
 
-## Python Packages
+## Create the Peering Manager User
 
-After that requirements must be installed. We will use **pip** to do that.
+Create a system user account named `peering-manager`. It'll be used by the WSGI
+and HTTP services to run under this account.
 ```no-highlight
-# pip3 install -r requirements.txt
+# groupadd --system peering-manager
+# adduser --system --gid peering-manager peering-manager
+```
+
+## Set Up Python Environment
+
+It is highly recommended to use a Python
+[virtual environment](https://docs.python.org/3.6/tutorial/venv.html) to ensure
+Peering Manager's required packages don't conflict with anything in the system.
+This will create a directory named `venv` in the Peering Manager root.
+
+```no-highlight
+# python3 -m venv /opt/peering-manager/venv
+```
+
+Activate the virtual environment and install the required Python packages.
+
+```no-highlight
+# source venv/bin/activate
+(venv) # pip3 install -r requirements.txt
 ...
 Installing collected packages: ...
 ```
