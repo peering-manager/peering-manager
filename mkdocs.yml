@@ -11,6 +11,7 @@ pages:
     - '5. LDAP (Optional)': 'setup/5-ldap.md'
     - '6. Scheduled Tasks (Optional)': 'setup/6-scheduled-tasks.md'
     - Upgrading: 'setup/upgrading.md'
+    - Migrate to systemd: 'setup/migrate-to-systemd.md'
   - Configuration:
     - Configuring: 'configuration/index.md'
     - Required Settings: 'configuration/required-settings.md'
