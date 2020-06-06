@@ -30,6 +30,11 @@
     {% endif %}
     {% include 'utils/responsive_table.html' %}
     <div class="float-left">
+      {% if table_configuration_form %}
+      <button type="button" class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#table_configuration">
+        <i class="fas fa-cog"></i> Configure
+      </button>
+      {% endif %}
       {% block extra_buttons %}{% endblock %}
       {% if bulk_add_url and permissions.add %}
       <button type="submit" name="_add" formaction="{% url bulk_add_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-sm btn-primary">
@@ -53,3 +58,6 @@
 {% endif %}
 {% include 'utils/includes/pagination.html' with paginator=table.paginator page=table.page %}
 <div class="clearfix"></div>
+{% if table_configuration_form %}
+  {% include 'utils/includes/table_configuration_form.html' %}
+{% endif %}

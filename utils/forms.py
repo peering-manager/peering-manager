@@ -69,6 +69,24 @@ class ConfirmationForm(BootstrapMixin, forms.Form):
     )
 
 
+class TableConfigurationForm(BootstrapMixin, forms.Form):
+    """
+    Form used to configure table and store the result in user's preferences.
+    """
+
+    columns = forms.MultipleChoiceField(
+        choices=[],
+        widget=forms.SelectMultiple(attrs={"size": 10}),
+        help_text="Use the buttons below to arrange columns in the desired order, then select all columns to display.",
+    )
+
+    def __init__(self, table, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["columns"].choices = table.configurable_columns
+        self.fields["columns"].initial = table.visible_columns
+
+
 class SmallTextarea(forms.Textarea):
     """
     Just to be used as small text area.

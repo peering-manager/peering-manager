@@ -291,4 +291,31 @@ $(document).ready(function() {
       $('#id_tags').append(option).trigger('change');
     }
   });
+  // Rearrange options within a <select> list
+  $('#move-option-up').bind('click', function() {
+    var selectID = '#' + $(this).attr('data-target');
+    $(selectID + ' option:selected').each(function() {
+      var newPos = $(selectID + ' option').index(this) - 1;
+      if (newPos > -1) {
+        $(selectID + ' option').eq(newPos).before("<option value='" + $(this).val() + "' selected='selected'>" + $(this).text() + "</option>");
+        $(this).remove();
+      }
+    });
+  });
+  $('#move-option-down').bind('click', function() {
+    var selectID = '#' + $(this).attr('data-target');
+    var countOptions = $(selectID + ' option').length;
+    var countSelectedOptions = $(selectID + ' option:selected').length;
+    $(selectID + ' option:selected').each(function() {
+      var newPos = $(selectID + ' option').index(this) + countSelectedOptions;
+      if (newPos < countOptions) {
+        $(selectID + ' option').eq(newPos).after("<option value='" + $(this).val() + "' selected='selected'>" + $(this).text() + "</option>");
+        $(this).remove();
+      }
+    });
+  });
+  $('#select-all-options').bind('click', function() {
+    var selectID = '#' + $(this).attr('data-target');
+    $(selectID + ' option').prop('selected',true);
+  });
 });

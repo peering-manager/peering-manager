@@ -604,18 +604,6 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
             badge, self.get_bgp_state_display() or "Unknown"
         )
 
-        # Only if the session is established, display some details
-        if self.bgp_state == BGP_STATE_ESTABLISHED:
-            text = "{} {}".format(
-                text,
-                '<span class="badge badge-primary">Routes: '
-                '<i class="fas fa-arrow-circle-down"></i> {} '
-                '<i class="fas fa-arrow-circle-up"></i> {}'
-                "</span>".format(
-                    self.received_prefix_count, self.advertised_prefix_count
-                ),
-            )
-
         return mark_safe(text)
 
     def encrypt_password(self, platform, commit=True):

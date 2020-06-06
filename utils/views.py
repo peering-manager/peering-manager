@@ -27,6 +27,7 @@ from .forms import (
     ConfirmationForm,
     DynamicModelMultipleChoiceField,
     ObjectChangeFilterForm,
+    TableConfigurationForm,
     TagBulkEditForm,
     TagFilterForm,
     TagForm,
@@ -546,17 +547,6 @@ class ModelListView(View):
     def extra_context(self, kwargs):
         return {}
 
-    def setup_table_columns(self, request, permissions, table, kwargs):
-        if "pk" in table.base_columns and (
-            permissions["add"] or permissions["change"] or permissions["delete"]
-        ):
-            table.columns.show("pk")
-
-        # Hide columns on-demand
-        for column in self.hidden_columns:
-            if column in table.base_columns:
-                table.columns.hide(column)
-
     def get(self, request, *args, **kwargs):
         # If no query set has been provided for some reasons
         if not self.queryset:
@@ -579,8 +569,14 @@ class ModelListView(View):
         }
 
         # Build the table based on the queryset
-        table = self.table(self.queryset)
-        self.setup_table_columns(request, permissions, table, kwargs)
+        columns = request.user.preferences.get(
+            f"tables.{self.table.__name__}.columns".lower()
+        )
+        table = self.table(self.queryset, columns=columns)
+        if "pk" in table.base_columns and (
+            permissions["add"] or permissions["change"] or permissions["delete"]
+        ):
+            table.columns.show("pk")
 
         # Apply pagination
         paginate = {
@@ -605,6 +601,7 @@ class ModelListView(View):
         # Set context and render
         context = {
             "table": table,
+            "table_configuration_form": TableConfigurationForm(table=table),
             "filter": self.filter,
             "filter_form": filter_form,
             "permissions": permissions,
@@ -613,6 +610,23 @@ class ModelListView(View):
         context.update(extra_context)
 
         return render(request, self.template, context)
+
+    def post(self, request):
+        table = self.table(self.queryset)
+        form = TableConfigurationForm(table=table, data=request.POST)
+
+        if form.is_valid():
+            preference = f"tables.{self.table.__name__}.columns".lower()
+
+            if "save" in request.POST:
+                request.user.preferences.set(
+                    preference, form.cleaned_data["columns"], commit=True
+                )
+            elif "reset" in request.POST:
+                request.user.preferences.delete(preference, commit=True)
+            messages.success(request, "Your preferences have been updated.")
+
+        return redirect(request.get_full_path())
 
 
 class TableImportView(ReturnURLMixin, View):

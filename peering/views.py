@@ -90,7 +90,10 @@ from utils.views import (
 
 class ASList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_autonomoussystem"
-    queryset = AutonomousSystem.objects.order_by("asn")
+    queryset = AutonomousSystem.objects.annotate(
+        directpeeringsession_count=Count("directpeeringsession"),
+        internetexchangepeeringsession_count=Count("internetexchangepeeringsession"),
+    ).order_by("asn")
     filter = AutonomousSystemFilterSet
     filter_form = AutonomousSystemFilterForm
     table = AutonomousSystemTable
@@ -227,7 +230,6 @@ class AutonomousSystemDirectPeeringSessions(PermissionRequiredMixin, ModelListVi
     filter_form = DirectPeeringSessionFilterForm
     table = DirectPeeringSessionTable
     template = "peering/as/direct_peering_sessions.html"
-    hidden_columns = ["autonomous_system"]
 
     def build_queryset(self, request, kwargs):
         queryset = None
@@ -260,7 +262,6 @@ class AutonomousSystemInternetExchangesPeeringSessions(
     filter_form = InternetExchangePeeringSessionFilterForm
     table = InternetExchangePeeringSessionTable
     template = "peering/as/internet_exchange_peering_sessions.html"
-    hidden_columns = ["autonomous_system"]
     hidden_filters = ["autonomous_system__id"]
 
     def build_queryset(self, request, kwargs):
@@ -423,7 +424,6 @@ class BGPGroupPeeringSessions(PermissionRequiredMixin, ModelListView):
     filter_form = DirectPeeringSessionFilterForm
     table = DirectPeeringSessionTable
     template = "peering/bgp-group/sessions.html"
-    hidden_columns = ["bgp_group"]
     hidden_filters = ["bgp_group"]
 
     def build_queryset(self, request, kwargs):
@@ -568,8 +568,12 @@ class DirectPeeringSessionList(PermissionRequiredMixin, ModelListView):
 
 class InternetExchangeList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_internetexchange"
-    queryset = InternetExchange.objects.prefetch_related("router").order_by(
-        "name", "slug"
+    queryset = (
+        InternetExchange.objects.annotate(
+            internetexchangepeeringsession_count=Count("internetexchangepeeringsession")
+        )
+        .prefetch_related("router")
+        .order_by("name", "slug")
     )
     table = InternetExchangeTable
     filter = InternetExchangeFilterSet
@@ -682,7 +686,6 @@ class InternetExchangePeeringSessions(PermissionRequiredMixin, ModelListView):
     filter_form = InternetExchangePeeringSessionFilterForm
     table = InternetExchangePeeringSessionTable
     template = "peering/ix/sessions.html"
-    hidden_columns = ["internet_exchange"]
     hidden_filters = ["internet_exchange__id"]
 
     def build_queryset(self, request, kwargs):
@@ -877,7 +880,14 @@ class InternetExchangePeeringSessionBulkDelete(PermissionRequiredMixin, BulkDele
 
 class RouterList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_router"
-    queryset = Router.objects.prefetch_related("configuration_template").all()
+    queryset = (
+        Router.objects.annotate(
+            internetexchange_count=Count("internetexchange"),
+            directpeeringsession_count=Count("directpeeringsession"),
+        )
+        .prefetch_related("configuration_template")
+        .order_by("name")
+    )
     filter = RouterFilterSet
     filter_form = RouterFilterForm
     table = RouterTable
@@ -954,7 +964,6 @@ class RouterDirectPeeringSessions(PermissionRequiredMixin, ModelListView):
     filter_form = DirectPeeringSessionFilterForm
     table = DirectPeeringSessionTable
     template = "peering/router/direct_peering_sessions.html"
-    hidden_columns = ["router"]
 
     def build_queryset(self, request, kwargs):
         queryset = None
@@ -983,7 +992,6 @@ class RouterInternetExchangesPeeringSessions(PermissionRequiredMixin, ModelListV
     filter_form = InternetExchangePeeringSessionFilterForm
     table = InternetExchangePeeringSessionTable
     template = "peering/router/internet_exchange_peering_sessions.html"
-    hidden_columns = ["router"]
     hidden_filters = ["router__id"]
 
     def build_queryset(self, request, kwargs):
