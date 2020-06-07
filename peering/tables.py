@@ -1,5 +1,7 @@
 import django_tables2 as tables
 
+from django.utils.safestring import mark_safe
+
 from .models import (
     AutonomousSystem,
     BGPGroup,
@@ -109,6 +111,17 @@ class BGPSessionStateColumn(tables.TemplateColumn):
         )
 
 
+class RoutingPolicyColumn(tables.ManyToManyColumn):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            *args,
+            default=mark_safe('<span class="text-muted">&mdash;</span>'),
+            separator=" ",
+            transform=lambda p: p.get_type_html(display_name=True),
+            **kwargs
+        )
+
+
 class AutonomousSystemTable(BaseTable):
     """
     Table for AutonomousSystem lists
@@ -120,6 +133,8 @@ class AutonomousSystemTable(BaseTable):
     irr_as_set = tables.Column(verbose_name="IRR AS-SET", orderable=False)
     ipv6_max_prefixes = tables.Column(verbose_name="IPv6 Max Prefixes")
     ipv4_max_prefixes = tables.Column(verbose_name="IPv4 Max Prefixes")
+    import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
+    export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     directpeeringsession_count = tables.Column(
         verbose_name="Direct Sessions",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
@@ -145,6 +160,8 @@ class AutonomousSystemTable(BaseTable):
             "irr_as_set",
             "ipv6_max_prefixes",
             "ipv4_max_prefixes",
+            "import_routing_policies",
+            "export_routing_policies",
             "directpeeringsession_count",
             "internetexchangepeeringsession_count",
             "has_potential_ix_peering_sessions",
@@ -174,6 +191,8 @@ class BGPGroupTable(BaseTable):
         verbose_name="Poll Session States",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
+    import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
+    export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     directpeeringsession_count = tables.Column(
         verbose_name="Direct Sessions",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
@@ -188,6 +207,8 @@ class BGPGroupTable(BaseTable):
             "name",
             "slug",
             "check_bgp_session_states",
+            "import_routing_policies",
+            "export_routing_policies",
             "directpeeringsession_count",
             "tags",
             "actions",
@@ -236,6 +257,8 @@ class DirectPeeringSessionTable(BaseTable):
         verbose_name="Status",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
+    import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
+    export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     state = BGPSessionStateColumn(accessor="bgp_state")
     router = tables.Column(verbose_name="Router", accessor="router", linkify=True)
     tags = TagColumn(url_name="peering:directpeeringsession_list")
@@ -250,6 +273,8 @@ class DirectPeeringSessionTable(BaseTable):
             "bgp_group",
             "relationship",
             "enabled",
+            "import_routing_policies",
+            "export_routing_policies",
             "state",
             "last_established_state",
             "received_prefix_count",
@@ -285,6 +310,8 @@ class InternetExchangeTable(BaseTable):
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     bgp_session_states_update = tables.Column(verbose_name="Last Sessions Check")
+    import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
+    export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     internetexchangepeeringsession_count = tables.Column(
         verbose_name="Sessions",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
@@ -300,6 +327,8 @@ class InternetExchangeTable(BaseTable):
             "slug",
             "ipv6_address",
             "ipv4_address",
+            "import_routing_policies",
+            "export_routing_policies",
             "router",
             "check_bgp_session_states",
             "bgp_session_states_update",
@@ -339,6 +368,8 @@ class InternetExchangePeeringSessionTable(BaseTable):
         verbose_name="Enabled",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
+    import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
+    export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     state = BGPSessionStateColumn(accessor="bgp_state")
     tags = TagColumn(url_name="peering:internetexchangepeeringsession_list")
     actions = ActionsColumn(template_code=INTERNET_EXCHANGE_PEERING_SESSION_ACTIONS)
@@ -352,6 +383,8 @@ class InternetExchangePeeringSessionTable(BaseTable):
             "ip_address",
             "is_route_server",
             "enabled",
+            "import_routing_policies",
+            "export_routing_policies",
             "state",
             "last_established_state",
             "received_prefix_count",

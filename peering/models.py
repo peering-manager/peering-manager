@@ -2024,7 +2024,7 @@ class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel):
     def get_absolute_url(self):
         return reverse("peering:routingpolicy_details", kwargs={"pk": self.pk})
 
-    def get_type_html(self):
+    def get_type_html(self, display_name=False):
         if self.type == ROUTING_POLICY_TYPE_EXPORT:
             badge_type = "badge-primary"
             text = self.get_type_display()
@@ -2038,7 +2038,10 @@ class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel):
             badge_type = "badge-secondary"
             text = "Unknown"
 
-        return mark_safe('<span class="badge {}">{}</span>'.format(badge_type, text))
+        if display_name:
+            text = self.name
+
+        return mark_safe(f'<span class="badge {badge_type}">{text}</span>')
 
     def __str__(self):
         return self.name
