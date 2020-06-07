@@ -1355,7 +1355,7 @@ class InternetExchangePeeringSession(BGPSession):
         )
 
 
-class Router(ChangeLoggedModel, TaggableModel):
+class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
     name = models.CharField(max_length=128)
     hostname = models.CharField(max_length=256)
     platform = models.CharField(
