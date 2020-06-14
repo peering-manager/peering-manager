@@ -2,7 +2,7 @@ import ipaddress
 import logging
 import napalm
 
-from jinja2 import Environment, TemplateSyntaxError
+from cacheops import CacheMiss, cache
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField, JSONField
@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
+from jinja2 import Environment, TemplateSyntaxError
 from netfields import InetAddressField, NetManager
 
 from . import call_irr_as_set_resolver, parse_irr_as_set
@@ -1517,11 +1518,22 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         return context
 
     def generate_configuration(self):
-        return (
+        cached_config_name = f"configuration_router_{self.pk}"
+        if settings.REDIS:
+            try:
+                return cache.get(cached_config_name)
+            except CacheMiss:
+                self.logger.info("no cached configuration for %s", self.hostname)
+
+        config = (
             self.configuration_template.render(self.get_configuration_context())
             if self.configuration_template
             else ""
         )
+        if settings.REDIS:
+            cache.set(cached_config_name, config, settings.CACHE_TIMEOUT)
+            self.logger.info("cached configuration for %s", self.hostname)
+        return config
 
     def can_napalm_get_bgp_neighbors_detail(self):
         return (
