@@ -31,8 +31,8 @@ What does this script do?
 ## Restart the WSGI Service
 
 The WSGI service needs to be restart in order to run the new code. Assuming
-that you are using **supervisord** like in the setup guide, you can user the
-`supervisorctl` command to restart **gunicorn**:
+that you are using **systemd** like in the setup guide, you can use the
+following command to restart **gunicorn**:
 ```no-highlight
-# supervisorctl restart peering-manager
+# systemctl restart peering-manager
 ```
