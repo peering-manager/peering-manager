@@ -11,18 +11,17 @@ import socket
 
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
+from django.core.validators import URLValidator
 
 
 HOSTNAME = platform.node()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-VERSION = "v1.1.1-dev"
+VERSION = "v1.2.0-dev"
 
 if platform.python_version_tuple() < ("3", "6"):
     raise RuntimeError(
-        "Peering Manager requires Python 3.6 or higher (current: Python {})".format(
-            platform.python_version()
-        )
+        f"Peering Manager requires Python 3.6 or higher (current: Python {platform.python_version()})"
     )
 
 DEFAULT_LOGGING = {
@@ -86,7 +85,7 @@ except ImportError:
 for setting in ["ALLOWED_HOSTS", "DATABASE", "SECRET_KEY", "MY_ASN"]:
     if not hasattr(configuration, setting):
         raise ImproperlyConfigured(
-            "Mandatory setting {} is not in the configuration.py file.".format(setting)
+            f"Mandatory setting {setting} is not in the configuration.py file."
         )
 
 # Set required parameters
@@ -231,33 +230,89 @@ DATABASES = {"default": configuration.DATABASE}
 
 
 # Redis
-if REDIS:
-    REDIS_HOST = REDIS.get("HOST", "localhost")
-    REDIS_PORT = REDIS.get("PORT", 6379)
-    REDIS_PASSWORD = REDIS.get("PASSWORD", "")
-    REDIS_CACHE_DATABASE = REDIS.get("CACHE_DATABASE", 1)
-    REDIS_DEFAULT_TIMEOUT = REDIS.get("DEFAULT_TIMEOUT", 300)
-    REDIS_SSL = REDIS.get("SSL", False)
-
-    # Caching
-    CACHEOPS_ENABLED = CACHE_TIMEOUT > 0
-    CACHEOPS_REDIS = "rediss://" if REDIS_SSL else "redis://"
-    if REDIS_PASSWORD:
-        CACHEOPS_REDIS = "{}:{}@".format(CACHEOPS_REDIS, REDIS_PASSWORD)
-    CACHEOPS_REDIS = "{}{}:{}/{}".format(
-        CACHEOPS_REDIS, REDIS_HOST, REDIS_PORT, REDIS_CACHE_DATABASE
+# Background task queuing
+if "tasks" not in REDIS:
+    raise ImproperlyConfigured(
+        "REDIS section in configuration.py is missing the 'tasks' subsection."
     )
-    CACHEOPS_DEFAULTS = {"timeout": CACHE_TIMEOUT}
-    CACHEOPS = {
-        "auth.user": {"ops": "get", "timeout": 900},
-        "auth.*": {"ops": ("fetch", "get")},
-        "auth.permission": {"ops": "all"},
-        "peering.*": {"ops": "all"},
-        "peeringdb.*": {"ops": "all"},
-        "users.*": {"ops": "all"},
-        "utils.*": {"ops": "all"},
+TASKS_REDIS = REDIS["tasks"]
+TASKS_REDIS_HOST = TASKS_REDIS.get("HOST", "localhost")
+TASKS_REDIS_PORT = TASKS_REDIS.get("PORT", 6379)
+TASKS_REDIS_SENTINELS = TASKS_REDIS.get("SENTINELS", [])
+TASKS_REDIS_USING_SENTINEL = all(
+    [isinstance(TASKS_REDIS_SENTINELS, (list, tuple)), len(TASKS_REDIS_SENTINELS) > 0]
+)
+TASKS_REDIS_SENTINEL_SERVICE = TASKS_REDIS.get("SENTINEL_SERVICE", "default")
+TASKS_REDIS_PASSWORD = TASKS_REDIS.get("PASSWORD", "")
+TASKS_REDIS_DATABASE = TASKS_REDIS.get("DATABASE", 0)
+TASKS_REDIS_DEFAULT_TIMEOUT = TASKS_REDIS.get("DEFAULT_TIMEOUT", 300)
+TASKS_REDIS_SSL = TASKS_REDIS.get("SSL", False)
+# Caching
+if "caching" not in REDIS:
+    raise ImproperlyConfigured(
+        "REDIS section in configuration.py is missing caching subsection."
+    )
+CACHING_REDIS = REDIS["caching"]
+CACHING_REDIS_HOST = CACHING_REDIS.get("HOST", "localhost")
+CACHING_REDIS_PORT = CACHING_REDIS.get("PORT", 6379)
+CACHING_REDIS_SENTINELS = CACHING_REDIS.get("SENTINELS", [])
+CACHING_REDIS_USING_SENTINEL = all(
+    [
+        isinstance(CACHING_REDIS_SENTINELS, (list, tuple)),
+        len(CACHING_REDIS_SENTINELS) > 0,
+    ]
+)
+CACHING_REDIS_SENTINEL_SERVICE = CACHING_REDIS.get("SENTINEL_SERVICE", "default")
+CACHING_REDIS_PASSWORD = CACHING_REDIS.get("PASSWORD", "")
+CACHING_REDIS_DATABASE = CACHING_REDIS.get("DATABASE", 0)
+CACHING_REDIS_DEFAULT_TIMEOUT = CACHING_REDIS.get("DEFAULT_TIMEOUT", 300)
+CACHING_REDIS_SSL = CACHING_REDIS.get("SSL", False)
+
+if CACHING_REDIS_USING_SENTINEL:
+    CACHEOPS_SENTINEL = {
+        "locations": CACHING_REDIS_SENTINELS,
+        "service_name": CACHING_REDIS_SENTINEL_SERVICE,
+        "db": CACHING_REDIS_DATABASE,
     }
-    CACHEOPS_DEGRADE_ON_FAILURE = True
+else:
+    REDIS_CACHE_CON_STRING = "rediss://" if CACHING_REDIS_SSL else "redis://"
+    if CACHING_REDIS_PASSWORD:
+        REDIS_CACHE_CON_STRING = f"{REDIS_CACHE_CON_STRING}:{CACHING_REDIS_PASSWORD}@"
+    REDIS_CACHE_CON_STRING = f"{REDIS_CACHE_CON_STRING}{CACHING_REDIS_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}"
+    CACHEOPS_REDIS = REDIS_CACHE_CON_STRING
+
+CACHEOPS_ENABLED = bool(CACHE_TIMEOUT)
+CACHEOPS_DEFAULTS = {"timeout": CACHE_TIMEOUT}
+CACHEOPS = {
+    "auth.user": {"ops": "get", "timeout": 900},
+    "auth.*": {"ops": ("fetch", "get")},
+    "auth.permission": {"ops": "all"},
+    "peering.*": {"ops": "all"},
+    "peeringdb.*": {"ops": "all"},
+    "users.*": {"ops": "all"},
+    "utils.*": {"ops": "all"},
+}
+CACHEOPS_DEGRADE_ON_FAILURE = True
+
+if TASKS_REDIS_USING_SENTINEL:
+    RQ_PARAMS = {
+        "SENTINELS": TASKS_REDIS_SENTINELS,
+        "MASTER_NAME": TASKS_REDIS_SENTINEL_SERVICE,
+        "DB": TASKS_REDIS_DATABASE,
+        "PASSWORD": TASKS_REDIS_PASSWORD,
+        "SOCKET_TIMEOUT": None,
+        "CONNECTION_KWARGS": {"socket_connect_timeout": TASKS_REDIS_DEFAULT_TIMEOUT},
+    }
+else:
+    RQ_PARAMS = {
+        "HOST": TASKS_REDIS_HOST,
+        "PORT": TASKS_REDIS_PORT,
+        "DB": TASKS_REDIS_DATABASE,
+        "PASSWORD": TASKS_REDIS_PASSWORD,
+        "DEFAULT_TIMEOUT": TASKS_REDIS_DEFAULT_TIMEOUT,
+        "SSL": TASKS_REDIS_SSL,
+    }
+RQ_QUEUES = {"default": RQ_PARAMS, "check_releases": RQ_PARAMS}
 
 
 # Email
@@ -290,6 +345,7 @@ INSTALLED_APPS = [
     "peeringdb",
     "users",
     "utils",
+    "django_rq",
 ]
 
 MIDDLEWARE = [
@@ -353,7 +409,7 @@ USE_TZ = True
 
 
 # Authentication URL
-LOGIN_URL = "/{}login/".format(BASE_PATH)
+LOGIN_URL = f"/{BASE_PATH}login/"
 
 
 # Messages
@@ -362,7 +418,7 @@ MESSAGE_TAGS = {messages.ERROR: "danger"}
 
 # Static files (CSS, JavaScript, Images)
 STATIC_ROOT = BASE_DIR + "/static/"
-STATIC_URL = "/{}static/".format(BASE_PATH)
+STATIC_URL = f"/{BASE_PATH}static/"
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "project-static"),)
 
 # Django debug toolbar

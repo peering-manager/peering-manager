@@ -1519,11 +1519,10 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     def generate_configuration(self):
         cached_config_name = f"configuration_router_{self.pk}"
-        if settings.REDIS:
-            try:
-                return cache.get(cached_config_name)
-            except CacheMiss:
-                self.logger.info("no cached configuration for %s", self.hostname)
+        try:
+            return cache.get(cached_config_name)
+        except CacheMiss:
+            self.logger.info("no cached configuration for %s", self.hostname)
 
         config = (
             self.configuration_template.render(self.get_configuration_context())
