@@ -30,37 +30,8 @@ Default: several files will be used for logging in the `logs` directory.
 
 The Django framework on which Peering Manager runs allows for the customization
 of logging, e.g. to write logs to file. Please consult the
-[Django logging documentation](https://docs.djangoproject.com/en/2.2/topics/logging/)
+[Django logging documentation](https://docs.djangoproject.com/en/3.0/topics/logging/)
 for more information on configuring this setting.
-
----
-
-## REDIS
-
-[Redis](https://redis.io/) is an in-memory data store similar to memcached. It
-is required to support caching functionality .
-
-Redis is configured using a configuration setting similar to `DATABASE`:
-
-* `HOST` - Name or IP address of the Redis server (use `localhost` if running locally)
-* `PORT` - TCP port of the Redis service; leave blank for default port (6379)
-* `PASSWORD` - Redis password (if set)
-* `CACHE_DATABASE` - Numeric database ID for caching
-* `DEFAULT_TIMEOUT` - Connection timeout in seconds
-* `SSL` - Use SSL connection to Redis
-
-Example:
-
-```
-REDIS = {
-    'HOST': 'localhost',
-    'PORT': 6379,
-    'PASSWORD': '',
-    'CACHE_DATABASE': 1,
-    'DEFAULT_TIMEOUT': 300,
-    'SSL': False,
-}
-```
 
 ---
 

@@ -124,16 +124,45 @@ PrivateTmp=true
 WantedBy=multi-user.target
 ```
 
-Reload **systemd** to load the service, start the `peering-manager` service and
-enable it at boot time.
+Create another service file `/etc/systemd/systemd/peering-manager-rq.service`
+and set its content.
+```no-highlight
+[Unit]
+Description=Peering Manager Request Queue Worker
+Documentation=https://peering-manager.readthedocs.io/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+User=peering-manager
+Group=peering-manager
+WorkingDirectory=/opt/peering-manager
+
+ExecStart=/opt/peering-manager/venv/bin/python3 /opt/peering-manager/manage.py rqworker
+
+Restart=on-failure
+RestartSec=30
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Reload **systemd** to load the services, start them and enable them at boot
+time.
 ```no-highlight
 # systemctl daemon-reload
 # systemctl start peering-manager
 # systemctl enable peering-manager
+# systemctl start peering-manager-rq
+# systemctl enable peering-manager-rq
 ```
 
-You can use the command `systemctl status peering-manager` to verify that the
-WSGI service is running.
+You can use the `systemctl status peering-manager` and
+`systemctl status peering-manager-rq` to verify that the WSGI service and the
+request queue worker service are respectively running.
 
 At this point, you should be able to connect to the Apache 2 HTTP service at
 the server name or IP address you provided. If you receive a 502 (bad gateway)
