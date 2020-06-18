@@ -42,14 +42,6 @@ DEFAULT_LOGGING = {
             "backupCount": 5,
             "formatter": "simple",
         },
-        "peeringdb_file": {
-            "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "logs/peeringdb.log",
-            "when": "midnight",
-            "interval": 1,
-            "backupCount": 5,
-            "formatter": "simple",
-        },
         "napalm_file": {
             "class": "logging.handlers.TimedRotatingFileHandler",
             "filename": "logs/napalm.log",
@@ -66,12 +58,29 @@ DEFAULT_LOGGING = {
             "backupCount": 5,
             "formatter": "simple",
         },
+        "peeringdb_file": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": "logs/peeringdb.log",
+            "when": "midnight",
+            "interval": 1,
+            "backupCount": 5,
+            "formatter": "simple",
+        },
+        "releases_file": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": "logs/releases.log",
+            "when": "midnight",
+            "interval": 1,
+            "backupCount": 5,
+            "formatter": "simple",
+        },
     },
     "loggers": {
-        "peering.manager.peering": {"handlers": ["file"], "level": "DEBUG"},
-        "peering.manager.peeringdb": {"handlers": ["peeringdb_file"], "level": "DEBUG"},
         "peering.manager.napalm": {"handlers": ["napalm_file"], "level": "DEBUG"},
         "peering.manager.netbox": {"handlers": ["netbox_file"], "level": "DEBUG"},
+        "peering.manager.peering": {"handlers": ["file"], "level": "DEBUG"},
+        "peering.manager.peeringdb": {"handlers": ["peeringdb_file"], "level": "DEBUG"},
+        "peering.manager.releases": {"handlers": ["releases_file"], "level": "DEBUG"},
     },
 }
 
@@ -176,6 +185,27 @@ PEERINGDB_API = "https://peeringdb.com/api/"
 PEERINGDB = "https://peeringdb.com/asn/"
 PEERINGDB_USERNAME = getattr(configuration, "PEERINGDB_USERNAME", "")
 PEERINGDB_PASSWORD = getattr(configuration, "PEERINGDB_PASSWORD", "")
+
+# GitHub releases check
+RELEASE_CHECK_URL = getattr(
+    configuration,
+    "RELEASE_CHECK_URL",
+    "https://api.github.com/repos/respawner/peering-manager/releases",
+)
+RELEASE_CHECK_TIMEOUT = getattr(configuration, "RELEASE_CHECK_TIMEOUT", 86400)
+
+# Validate repository URL and timeout
+if RELEASE_CHECK_URL:
+    try:
+        URLValidator(RELEASE_CHECK_URL)
+    except ValidationError:
+        raise ImproperlyConfigured(
+            "RELEASE_CHECK_URL must be a valid API URL. Example: https://api.github.com/repos/respawner/peering-manager"
+        )
+if RELEASE_CHECK_TIMEOUT < 3600:
+    raise ImproperlyConfigured(
+        "RELEASE_CHECK_TIMEOUT must be at least 3600 seconds (1 hour)"
+    )
 
 
 try:
