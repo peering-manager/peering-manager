@@ -16,6 +16,7 @@ class ContactTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Contact
         fields = ("role", "name", "phone", "email", "url")
+        default_columns = ("role", "name", "phone", "email")
 
 
 class PeerRecordTable(BaseTable):
@@ -55,6 +56,16 @@ class PeerRecordTable(BaseTable):
             "ipv6_address",
             "ipv4_address",
         )
+        default_columns = (
+            "pk",
+            "asn",
+            "name",
+            "irr_as_set",
+            "ipv6_max_prefixes",
+            "ipv4_max_prefixes",
+            "ipv6_address",
+            "ipv4_address",
+        )
 
 
 class ASPeerRecordTable(BaseTable):
@@ -84,6 +95,15 @@ class ASPeerRecordTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = PeerRecord
         fields = (
+            "pk",
+            "ix",
+            "irr_as_set",
+            "ipv6_max_prefixes",
+            "ipv4_max_prefixes",
+            "ipv6_address",
+            "ipv4_address",
+        )
+        default_columns = (
             "pk",
             "ix",
             "irr_as_set",
