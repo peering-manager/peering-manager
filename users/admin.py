@@ -1,9 +1,9 @@
 from django import forms
 from django.contrib import admin
+from django.contrib.admin import site as admin_site
 from django.contrib.auth.admin import UserAdmin as UA
 from django.contrib.auth.models import User
 
-from peering_manager.admin import admin_site
 from .models import Token, UserPreferences
 
 
