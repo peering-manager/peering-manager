@@ -611,7 +611,11 @@ class ModelListView(View):
 
         return render(request, self.template, context)
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
+        # If no query set has been provided for some reasons
+        if not self.queryset:
+            self.queryset = self.build_queryset(request, kwargs)
+
         table = self.table(self.queryset)
         form = TableConfigurationForm(table=table, data=request.POST)
 
