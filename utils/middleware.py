@@ -3,17 +3,18 @@ import uuid
 
 from copy import deepcopy
 from datetime import timedelta
-
 from django.db import ProgrammingError
 from django.db.models.signals import post_save, pre_delete
 from django.conf import settings
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
+from redis.exceptions import RedisError
 
 from .views import ServerError
 from utils.constants import *
 from utils.models import ObjectChange
+from webhooks.workers import enqueue_webhooks
 
 
 # For resources sharing
@@ -107,9 +108,20 @@ class ObjectChangeMiddleware(object):
             return response
 
         # Record change for each object that need to be tracked
+        has_redis_failed = False
         for changed_object, action in local_thread.changed_objects:
             if hasattr(changed_object, "log_change"):
                 changed_object.log_change(request.user, request.id, action)
+
+            try:
+                enqueue_webhooks(changed_object, request.user, request.id, action)
+            except RedisError as e:
+                if not has_redis_failed:
+                    messages.error(
+                        request,
+                        f"An error has occured while processing webhooks for this request. Check that the Redis service is running and reachable. The full error details were: {e}",
+                    )
+                    has_redis_failed = True
 
         # Cleanup object changes that are too old (based on changelog retention)
         if local_thread.changed_objects and settings.CHANGELOG_RETENTION:

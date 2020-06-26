@@ -74,6 +74,14 @@ DEFAULT_LOGGING = {
             "backupCount": 5,
             "formatter": "simple",
         },
+        "webhooks_file": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": "logs/webhooks.log",
+            "when": "midnight",
+            "interval": 1,
+            "backupCount": 5,
+            "formatter": "simple",
+        },
     },
     "loggers": {
         "peering.manager.napalm": {"handlers": ["napalm_file"], "level": "DEBUG"},
@@ -81,6 +89,7 @@ DEFAULT_LOGGING = {
         "peering.manager.peering": {"handlers": ["file"], "level": "DEBUG"},
         "peering.manager.peeringdb": {"handlers": ["peeringdb_file"], "level": "DEBUG"},
         "peering.manager.releases": {"handlers": ["releases_file"], "level": "DEBUG"},
+        "peering.manager.webhooks": {"handlers": ["webhooks_file"], "level": "DEBUG"},
     },
 }
 
