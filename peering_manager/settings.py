@@ -321,6 +321,7 @@ CACHEOPS = {
     "peeringdb.*": {"ops": "all"},
     "users.*": {"ops": "all"},
     "utils.*": {"ops": "all"},
+    "webhooks.*": {"ops": "all"},
 }
 CACHEOPS_DEGRADE_ON_FAILURE = True
 
@@ -375,6 +376,7 @@ INSTALLED_APPS = [
     "peeringdb",
     "users",
     "utils",
+    "webhooks",
     "django_rq",
 ]
 
