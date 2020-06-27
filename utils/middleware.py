@@ -107,6 +107,14 @@ class ObjectChangeMiddleware(object):
         if not local_thread.changed_objects:
             return response
 
+        # Stop listening for object changes
+        post_save.disconnect(
+            cache_changed_object, dispatch_uid="log_object_being_changed"
+        )
+        pre_delete.disconnect(
+            cache_deleted_object, dispatch_uid="log_object_being_deleted"
+        )
+
         # Record change for each object that need to be tracked
         has_redis_failed = False
         for changed_object, action in local_thread.changed_objects:
@@ -147,7 +155,7 @@ class RequireLoginMiddleware(object):
                 and request.path_info != settings.LOGIN_URL
             ):
                 return HttpResponseRedirect(
-                    "{}?next={}".format(settings.LOGIN_URL, request.path_info)
+                    f"{settings.LOGIN_URL}?next={request.path_info}"
                 )
 
         return self.get_response(request)

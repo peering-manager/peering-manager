@@ -31,11 +31,19 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
     Makes a request to the defined Webhook endpoint.
     """
     headers = {"Content-Type": webhook.http_content_type}
+    context = {
+        "event": event,
+        "timestamp": timestamp,
+        "model": model_name,
+        "username": username,
+        "request_id": request_id,
+        "data": data,
+    }
     params = {
         "method": webhook.http_method,
         "url": webhook.url,
         "headers": headers,
-        "data": webhook.render_body(data).encode("utf8"),
+        "data": webhook.render_body(context).encode("utf8"),
     }
 
     logger.info(
