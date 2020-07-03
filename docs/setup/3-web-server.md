@@ -60,13 +60,14 @@ of the Peering Manager directory.
 
 ## gunicorn
 
-Install **gunicorn** using **pip**.
+Install **gunicorn** using **pip** inside the Python virtual environment.
 ```no-highlight
-# pip3 install gunicorn
+(venv) # pip3 install gunicorn
 ```
+
 Save the following configuration in the root of the Peering Manager
-installation path as `gunicorn.py`. Be sure to verify the location of
-the **gunicorn** executable on your server (e.g. which gunicorn) and to update
+installation path as `gunicorn.py`. Be sure to verify the location of the
+**gunicorn** executable on your server (e.g. `which gunicorn`) and to update
 the pythonpath variable if needed. Note that some tasks such as importing
 existing peering sessions or generating prefix lists can take a lot of time to
 complete so setting a timeout greater than 30 seconds can be helpful.
@@ -79,13 +80,13 @@ threads = 3
 timeout = 300
 max_requests = 5000
 max_requests_jitter = 500
-user = 'www-data'
+user = 'peering-manager'
 ```
 
 We can test if the configuration is correct by running (note the _ instead of -
 in the WSGI name):
 ```no-highlight
-# gunicorn -c /opt/peering-manager/gunicorn_config.py peering_manager.wsgi
+(venv) # ./venv/bin/gunicorn -c /opt/peering-manager/gunicorn_config.py peering_manager.wsgi
 [2017-09-27 22:49:02 +0200] [7214] [INFO] Starting gunicorn 19.7.1
 [2017-09-27 22:49:02 +0200] [7214] [INFO] Listening at: http://127.0.0.1:8001 (7214)
 [2017-09-27 22:49:02 +0200] [7214] [INFO] Using worker: sync
@@ -97,10 +98,10 @@ in the WSGI name):
 
 ## systemd
 
-Create a service file `/etc/systemd/systemd/peering-manager.service` and
+Create a service file `/etc/systemd/system/peering-manager.service` and
 set its content.
 ```no-highlight
-[[Unit]
+[Unit]
 Description=Peering Manager WSGI Service
 Documentation=https://peering-manager.readthedocs.io/
 After=network-online.target
@@ -124,7 +125,7 @@ PrivateTmp=true
 WantedBy=multi-user.target
 ```
 
-Create another service file `/etc/systemd/systemd/peering-manager-rq.service`
+Create another service file `/etc/systemd/system/peering-manager-rq.service`
 and set its content.
 ```no-highlight
 [Unit]

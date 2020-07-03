@@ -3,16 +3,25 @@
 This document contains instructions to migrate from
 [supervisor](http://supervisord.org/) to systemd-based.
 
-### Uninstall supervisord
+## Uninstall supervisord
 
 ```no-highlight
 # apt remove supervisor
 ```
 
-### Configure systemd
+## Create the Peering Manager User
 
+Create a system user account named `peering-manager`. It'll be used by the WSGI
+and HTTP services to run under this account.
+```no-highlight
+# groupadd --system peering-manager
+# adduser --system --gid peering-manager peering-manager
+# chown --recursive peering-manager /opt/peering-manager
+```
 
-Create a service file `/etc/systemd/systemd/peering-manager.service` and
+## Configure systemd
+
+Create a service file `/etc/systemd/system/peering-manager.service` and
 set its content.
 ```no-highlight
 [[Unit]

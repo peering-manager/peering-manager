@@ -70,14 +70,16 @@ and HTTP services to run under this account.
 ```no-highlight
 # groupadd --system peering-manager
 # adduser --system --gid peering-manager peering-manager
+# chown --recursive peering-manager /opt/peering-manager
 ```
 
 ## Set Up Python Environment
 
-It is highly recommended to use a Python
+First create a Python
 [virtual environment](https://docs.python.org/3.6/tutorial/venv.html) to ensure
 Peering Manager's required packages don't conflict with anything in the system.
-This will create a directory named `venv` in the Peering Manager root.
+This will create a directory named `venv` in the Peering Manager root
+directory.
 
 ```no-highlight
 # python3 -m venv /opt/peering-manager/venv
@@ -132,7 +134,7 @@ DATABASE = {
 
 Before Peering Manager can run, we need to install the database schema.
 ```no-highlight
-# python3 manage.py migrate
+(venv) # python3 manage.py migrate
 Operations to perform:
   Apply all migrations: admin, auth, contenttypes, peering, sessions, utils
 Running migrations:
@@ -156,7 +158,7 @@ Running migrations:
 A superuser is required to log into Peering Manager and start its
 administration (eg. creating other user accounts).
 ```no-highlight
-# python3 manage.py createsuperuser
+(venv) # python3 manage.py createsuperuser
 Username (leave blank to use 'root'): admin
 Email address: gmazoyer@gravitons.in
 Password:
@@ -167,7 +169,7 @@ Superuser created successfully.
 ## Collect Static Files
 
 ```no-highlight
-# python3 manage.py collectstatic --no-input
+(venv) # python3 manage.py collectstatic --no-input
 ...
 127 static files copied to '/opt/peering-manager/static'.
 ```
@@ -176,7 +178,7 @@ Superuser created successfully.
 
 And now we can start testing the setup.
 ```no-highlight
-# python3 manage.py runserver 0.0.0.0:8000 --insecure
+(venv) # python3 manage.py runserver 0.0.0.0:8000 --insecure
 Performing system checks...
 
 System check identified no issues (0 silenced).
