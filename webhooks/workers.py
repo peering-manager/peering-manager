@@ -1,28 +1,16 @@
-import hashlib
-import hmac
 import logging
 import requests
 
 from django.utils import timezone
-from django_rq import job, get_queue
+from django_rq import get_queue, job
 
 from .models import Webhook
 from utils.constants import *
+from utils.functions import generate_signature, get_serializer_for_model
 from utils.models import ObjectChange
 
 
 logger = logging.getLogger("peering.manager.webhooks")
-
-
-def generate_signature(request_body, secret):
-    """
-    Returns a signature that can be used to verify that the webhook data were not
-    altered.
-    """
-    signature = hmac.new(
-        key=secret.encode("utf8"), msg=request_body, digestmod=hashlib.sha512
-    )
-    return signature.hexdigest()
 
 
 @job("default")
@@ -84,25 +72,6 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
         )
         raise requests.exceptions.RequestException(
             f"Status {response.status_code} returned with content '{response.content}', webhook FAILED to process"
-        )
-
-
-def get_serializer_for_model(model, prefix=""):
-    """
-    Returns the appropriate API serializer for a model.
-    """
-    app_name, model_name = model._meta.label.split(".")
-    serializer_name = f"{app_name}.api.serializers.{prefix}{model_name}Serializer"
-    try:
-        # Try importing the serializer class
-        components = serializer_name.split(".")
-        mod = __import__(components[0])
-        for c in components[1:]:
-            mod = getattr(mod, c)
-        return mod
-    except AttributeError:
-        raise Exception(
-            f"Could not determine serializer for {app_name}.{model_name} with prefix '{prefix}'"
         )
 
 
