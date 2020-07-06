@@ -10,5 +10,5 @@ Jinja2==2.11.2
 Markdown==3.2.2
 napalm==3.0.1
 psycopg2-binary==2.8.5
-pynetbox==4.3.1
+pynetbox==5.0.1
 requests==2.23.0
