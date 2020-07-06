@@ -1,4 +1,8 @@
 -r requirements.txt
 -r requirements_ldap.txt
 -r requirements_radius.txt
+black
+coveralls
 django-debug-toolbar
+pre-commit
+tox
