@@ -1530,7 +1530,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
             if self.configuration_template
             else ""
         )
-        if settings.REDIS:
+        if settings.REDIS and settings.CACHE_TIMEOUT:
             cache.set(cached_config_name, config, settings.CACHE_TIMEOUT)
             self.logger.info("cached configuration for %s", self.hostname)
         return config
