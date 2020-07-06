@@ -378,7 +378,7 @@ class BGPGroupDetails(PermissionRequiredMixin, View):
 
     def get(self, request, slug):
         bgp_group = get_object_or_404(BGPGroup, slug=slug)
-        context = {"bgp_group": bgp_group}
+        context = {"bgpgroup": bgp_group}
         return render(request, "peering/bgp-group/details.html", context)
 
 
@@ -439,7 +439,7 @@ class BGPGroupPeeringSessions(PermissionRequiredMixin, ModelListView):
         extra_context = {}
         if "slug" in kwargs:
             extra_context.update(
-                {"bgp_group": get_object_or_404(BGPGroup, slug=kwargs["slug"])}
+                {"bgpgroup": get_object_or_404(BGPGroup, slug=kwargs["slug"])}
             )
         return extra_context
 
