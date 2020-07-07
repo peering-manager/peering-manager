@@ -648,7 +648,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
             ):
                 if cisco_is_encrypted(self.encrypted_password):
                     self.encrypted_password = encrypt(
-                        cisco_decrypt(self.encrypt_password)
+                        cisco_decrypt(self.encrypted_password)
                     )
             elif platform in [
                 PLATFORM_IOS,
@@ -724,11 +724,6 @@ class DirectPeeringSession(BGPSession):
 
     class Meta:
         ordering = ["autonomous_system", "ip_address"]
-
-    def save(self, *args, **kwargs):
-        if self.router and self.router.encrypt_passwords:
-            self.encrypt_password(self.router.platform, commit=False)
-        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse("peering:directpeeringsession_details", kwargs={"pk": self.pk})
@@ -1246,27 +1241,6 @@ class InternetExchangePeeringSession(BGPSession):
                 ip_address=ip_address,
             )
             return (session, True)
-
-    def save(self, *args, **kwargs):
-        # Remove the IP address of this session from potential sessions for the AS
-        # if it is in the list
-        if (
-            self.ip_address
-            in self.autonomous_system.potential_internet_exchange_peering_sessions
-        ):
-            self.autonomous_system.potential_internet_exchange_peering_sessions.remove(
-                self.ip_address
-            )
-            self.autonomous_system.save()
-
-        # Change encrypted password
-        if (
-            self.internet_exchange.router
-            and self.internet_exchange.router.encrypt_passwords
-        ):
-            self.encrypt_password(self.internet_exchange.router.platform, commit=False)
-
-        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse(
