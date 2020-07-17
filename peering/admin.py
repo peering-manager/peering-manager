@@ -1,3 +1,5 @@
+from django.contrib.admin import site as admin_site
+
 from .models import (
     AutonomousSystem,
     BGPGroup,
@@ -9,7 +11,6 @@ from .models import (
     RoutingPolicy,
     Template,
 )
-from peering_manager.admin import admin_site
 
 admin_site.register(AutonomousSystem)
 admin_site.register(BGPGroup)

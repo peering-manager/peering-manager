@@ -52,6 +52,52 @@ DATABASE = {
 
 ---
 
+## REDIS
+
+[Redis](https://redis.io/) is an in-memory data store similar to memcached. It
+is required to support task scheduling and caching features.
+
+Redis is configured using a configuration setting similar to `DATABASE` except
+you need to have two different instances, one for tasks and one for caching.
+
+For each instance the following settings must be defined:
+
+* `HOST` - Name or IP address of the Redis server (use `localhost` if running locally)
+* `PORT` - TCP port of the Redis service; leave blank for default port (6379)
+* `PASSWORD` - Redis password (if set)
+* `CACHE_DATABASE` - Numeric database ID for caching
+* `DEFAULT_TIMEOUT` - Connection timeout in seconds
+* `SSL` - Use SSL connection to Redis
+
+Example:
+
+```
+REDIS = {
+    'tasks': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'PASSWORD': '',
+        'CACHE_DATABASE': 0,
+        'DEFAULT_TIMEOUT': 300,
+        'SSL': False,
+    },
+    'caching': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'PASSWORD': '',
+        'CACHE_DATABASE': 1,
+        'DEFAULT_TIMEOUT': 300,
+        'SSL': False,
+    }
+}
+```
+
+It is highly recommended to keep the task and cache databases separate. Using
+the same database number on the same Redis instance for both may result in
+unexpected side-effects such as data loss.
+
+---
+
 ## SECRET_KEY
 
 This is a secret cryptographic key is used to improve the security of cookies

@@ -270,6 +270,7 @@ class RouterTestCase(StandardTestCases.Views):
             "name": "Router 4",
             "hostname": "router4.example.net",
             "configuration_template": None,
+            "last_deployment_id": None,
             "encrypt_passwords": False,
             "platform": PLATFORM_JUNOS,
             "netbox_device_id": 0,

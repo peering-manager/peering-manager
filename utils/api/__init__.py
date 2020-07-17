@@ -112,6 +112,7 @@ class WriteEnabledNestedSerializer(ModelSerializer):
         object will only be created if no instance of it already exist (on update).
         """
         nested = {}
+        final_save = False
 
         # Retrieve the nested field values to create the instance before assigning
         # these values to the instance's field
@@ -126,6 +127,7 @@ class WriteEnabledNestedSerializer(ModelSerializer):
             # Update the instance
             for field_name, value in validated_data.items():
                 setattr(instance, field_name, value)
+                final_save = True
 
         for field_name, value in nested.items():
             # Special case for many-to-many fields that require to use set()
@@ -134,7 +136,10 @@ class WriteEnabledNestedSerializer(ModelSerializer):
                 getattr(instance, field_name).set(value)
             else:
                 setattr(instance, field_name, value)
-        instance.save()
+            final_save = True
+
+        if final_save:
+            instance.save()
         return instance
 
     def create(self, validated_data):

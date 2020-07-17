@@ -17,5 +17,6 @@ The Peering Manager service must be restarted after changing the configuration
 in order for it to take effect:
 
 ```no-highlight
-# supervisorctl restart peering-manager
+# systemctl restart peering-manager
+# systemctl restart peering-manager-rq
 ```

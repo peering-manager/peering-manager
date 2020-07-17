@@ -15,17 +15,4 @@ $(document).ready(function() {
   $('.collapse').on('shown.bs.collapse', toggleIcon);
 
   $('.nav > .list-group-item.active').click();
-
-  $.getJSON(
-    "https://api.github.com/repos/respawner/peering-manager/releases/latest"
-  ).done(
-    function(json) {
-      if (current_version != json["tag_name"]) {
-        $("#latest_release").html(
-          '&nbsp;<a href="' + json["html_url"] + '" title="New stable release: '
-          + json["name"] + '" target="_blank"><i class="fas fa-asterisk text-warning"></i></a>'
-        );
-      }
-    }
-  );
 });

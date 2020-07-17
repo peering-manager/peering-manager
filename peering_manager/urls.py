@@ -27,6 +27,7 @@ __patterns = [
     path("api/utils/", include("utils.api.urls")),
     # Admin
     path("admin/", admin_site.urls),
+    path("admin/background-tasks/", include("django_rq.urls")),
     # Error triggering
     path("error500/", views.trigger_500),
 ]

@@ -1,13 +1,17 @@
 from collections import OrderedDict
 import sys
 
+from django.conf import settings
 from django.shortcuts import render
 from django.views.generic import View
+
+from packaging import version
 
 from rest_framework.response import Response
 from rest_framework.reverse import reverse as rest_reverse
 from rest_framework.views import APIView
 
+from .releases import get_latest_release
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -88,11 +92,22 @@ class Home(View):
             "internet_exchange_peering_sessions_count": InternetExchangePeeringSession.objects.count(),
             "routing_policies_count": RoutingPolicy.objects.count(),
         }
+
+        # Check whether a new release is available for staff and superuser
+        new_release = None
+        if request.user.is_staff or request.user.is_superuser:
+            latest_release, release_url = get_latest_release()
+            if isinstance(latest_release, version.Version):
+                current_version = version.parse(settings.VERSION)
+                if latest_release > current_version:
+                    new_release = {"version": str(latest_release), "url": release_url}
+
         context = {
             "statistics": statistics,
             "changelog": ObjectChange.objects.select_related(
                 "user", "changed_object_type"
             )[:50],
             "synchronizations": Synchronization.objects.all()[:5],
+            "new_release": new_release,
         }
         return render(request, "home.html", context)

@@ -28,13 +28,22 @@ DATABASE = {
 
 # Redis configuration
 REDIS = {
-    "HOST": "localhost",
-    "PORT": 6379,
-    "PASSWORD": "",
-    "CACHE_DATABASE": 1,
-    "DEFAULT_TIMEOUT": 300,
-    "SSL": False,
+    "tasks": {
+        "HOST": "localhost",
+        "PORT": 6379,
+        "PASSWORD": "",
+        "CACHE_DATABASE": 0,
+        "DEFAULT_TIMEOUT": 300,
+        "SSL": False,
+    },
+    "caching": {
+        "HOST": "localhost",
+        "PORT": 6379,
+        "PASSWORD": "",
+        "CACHE_DATABASE": 1,
+        "DEFAULT_TIMEOUT": 300,
+        "SSL": False,
+    },
 }
-
 # Cache timeout in seconds. Set to 0 to disable caching.
 CACHE_TIMEOUT = 900

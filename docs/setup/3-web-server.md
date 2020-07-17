@@ -60,13 +60,14 @@ of the Peering Manager directory.
 
 ## gunicorn
 
-Install **gunicorn** using **pip**.
+Install **gunicorn** using **pip** inside the Python virtual environment.
 ```no-highlight
-# pip3 install gunicorn
+(venv) # pip3 install gunicorn
 ```
+
 Save the following configuration in the root of the Peering Manager
-installation path as `gunicorn.py`. Be sure to verify the location of
-the **gunicorn** executable on your server (e.g. which gunicorn) and to update
+installation path as `gunicorn.py`. Be sure to verify the location of the
+**gunicorn** executable on your server (e.g. `which gunicorn`) and to update
 the pythonpath variable if needed. Note that some tasks such as importing
 existing peering sessions or generating prefix lists can take a lot of time to
 complete so setting a timeout greater than 30 seconds can be helpful.
@@ -79,13 +80,13 @@ threads = 3
 timeout = 300
 max_requests = 5000
 max_requests_jitter = 500
-user = 'www-data'
+user = 'peering-manager'
 ```
 
 We can test if the configuration is correct by running (note the _ instead of -
 in the WSGI name):
 ```no-highlight
-# gunicorn -c /opt/peering-manager/gunicorn_config.py peering_manager.wsgi
+(venv) # ./venv/bin/gunicorn -c /opt/peering-manager/gunicorn_config.py peering_manager.wsgi
 [2017-09-27 22:49:02 +0200] [7214] [INFO] Starting gunicorn 19.7.1
 [2017-09-27 22:49:02 +0200] [7214] [INFO] Listening at: http://127.0.0.1:8001 (7214)
 [2017-09-27 22:49:02 +0200] [7214] [INFO] Using worker: sync
@@ -97,10 +98,10 @@ in the WSGI name):
 
 ## systemd
 
-Create a service file `/etc/systemd/systemd/peering-manager.service` and
+Create a service file `/etc/systemd/system/peering-manager.service` and
 set its content.
 ```no-highlight
-[[Unit]
+[Unit]
 Description=Peering Manager WSGI Service
 Documentation=https://peering-manager.readthedocs.io/
 After=network-online.target
@@ -124,16 +125,45 @@ PrivateTmp=true
 WantedBy=multi-user.target
 ```
 
-Reload **systemd** to load the service, start the `peering-manager` service and
-enable it at boot time.
+Create another service file `/etc/systemd/system/peering-manager-rq.service`
+and set its content.
+```no-highlight
+[Unit]
+Description=Peering Manager Request Queue Worker
+Documentation=https://peering-manager.readthedocs.io/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+User=peering-manager
+Group=peering-manager
+WorkingDirectory=/opt/peering-manager
+
+ExecStart=/opt/peering-manager/venv/bin/python3 /opt/peering-manager/manage.py rqworker
+
+Restart=on-failure
+RestartSec=30
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Reload **systemd** to load the services, start them and enable them at boot
+time.
 ```no-highlight
 # systemctl daemon-reload
 # systemctl start peering-manager
 # systemctl enable peering-manager
+# systemctl start peering-manager-rq
+# systemctl enable peering-manager-rq
 ```
 
-You can use the command `systemctl status peering-manager` to verify that the
-WSGI service is running.
+You can use the `systemctl status peering-manager` and
+`systemctl status peering-manager-rq` to verify that the WSGI service and the
+request queue worker service are respectively running.
 
 At this point, you should be able to connect to the Apache 2 HTTP service at
 the server name or IP address you provided. If you receive a 502 (bad gateway)
