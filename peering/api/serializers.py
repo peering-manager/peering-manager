@@ -92,6 +92,7 @@ class RouterSerializer(TaggitSerializer, WriteEnabledNestedSerializer):
             "platform",
             "encrypt_passwords",
             "configuration_template",
+            "last_deployment_id",
             "netbox_device_id",
             "use_netbox",
             "napalm_username",

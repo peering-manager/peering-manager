@@ -18,16 +18,21 @@ def call_function(name, instance=None, **params):
     """
     if instance is None:
         components = name.split(".")
-        getattr(".".join(components[:-1]), components[-1])(**params)
+        return getattr(".".join(components[:-1]), components[-1])(**params)
     else:
-        getattr(instance, name)(**params)
+        return getattr(instance, name)(**params)
 
 
 def enqueue_background_task(function_name, instance=None, **params):
     queue = get_queue("default")
-    queue.enqueue(
+    return queue.enqueue(
         "utils.functions.call_function", function_name, instance=instance, **params
     )
+
+
+def get_background_task(job_id):
+    queue = get_queue("default")
+    return queue.fetch_job(job_id)
 
 
 def generate_signature(data, secret):

@@ -1,0 +1,8 @@
+{% extends 'utils/object_list.html' %}
+{% block extra_buttons %}
+{% if perms.peering.deploy_configuration_router %}
+<button type="button" class="btn btn-sm btn-primary" id="deploy-on-selected">
+  <i class="fa fa-cogs"></i> Deploy On Selected
+</button>
+{% endif %}
+{% endblock %}

@@ -41,6 +41,7 @@ from peering.models import (
 )
 from peeringdb.api.serializers import PeerRecordSerializer
 from utils.api import ModelViewSet, ServiceUnavailable, StaticChoicesViewSet
+from utils.functions import enqueue_background_task
 
 
 class PeeringFieldChoicesViewSet(StaticChoicesViewSet):
@@ -268,6 +269,31 @@ class RouterViewSet(ModelViewSet):
             router.generate_configuration(), commit=(request.method not in SAFE_METHODS)
         )
         return Response({"changed": not error, "changes": changes, "error": error})
+
+    @action(detail=True, methods=["post"], url_path="configure-task")
+    def configure_task(self, request, pk=None):
+        router = self.get_object()
+
+        # Check if the router runs on a supported platform
+        if not router.platform:
+            raise ServiceUnavailable("Unsupported router platform.")
+
+        # Check user permission first
+        if not request.user.has_perm("peering.deploy_configuration_router"):
+            return HttpResponseForbidden()
+
+        # Enqueue a task and record the job ID in the router instance
+        job = enqueue_background_task(
+            "set_napalm_configuration",
+            router,
+            config=router.generate_configuration(),
+            commit=True,
+        )
+        if job:
+            router.last_deployment_id = job.id
+            router.save()
+
+        return Response({"status": "success"})
 
     @action(detail=True, methods=["get"], url_path="test-napalm-connection")
     def test_napalm_connection(self, request, pk=None):

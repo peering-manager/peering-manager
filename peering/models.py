@@ -1347,6 +1347,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
     configuration_template = models.ForeignKey(
         "Template", blank=True, null=True, on_delete=models.SET_NULL
     )
+    last_deployment_id = models.CharField(max_length=64, blank=True, null=True)
     netbox_device_id = models.PositiveIntegerField(blank=True, default=0)
     use_netbox = models.BooleanField(
         blank=True,

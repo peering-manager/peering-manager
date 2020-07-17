@@ -1,5 +1,5 @@
 Django>=3.0,<3.1
-django-cacheops==5.0
+django-cacheops==5.0.1
 djangorestframework==3.11.0
 django-filter==2.3.0
 django-netfields==1.2.2
@@ -12,5 +12,5 @@ Markdown==3.2.2
 napalm==3.0.1
 packaging==20.4
 psycopg2-binary==2.8.5
-pynetbox==5.0.3
+pynetbox==5.0.5
 requests==2.24.0
