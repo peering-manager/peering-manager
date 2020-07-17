@@ -1354,8 +1354,8 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         default=False,
         help_text="Use NetBox to communicate instead of NAPALM",
     )
-    napalm_username = models.CharField(blank=True, max_length=256)
-    napalm_password = models.CharField(blank=True, max_length=256)
+    napalm_username = models.CharField(blank=True, null=True, max_length=256)
+    napalm_password = models.CharField(blank=True, null=True, max_length=256)
     napalm_timeout = models.PositiveIntegerField(blank=True, default=0)
     napalm_args = JSONField(blank=True, null=True)
     comments = models.TextField(blank=True)

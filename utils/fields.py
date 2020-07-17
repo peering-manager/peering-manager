@@ -75,7 +75,10 @@ class PasswordField(forms.CharField):
     def __init__(self, password_source="password", render_value=False, *args, **kwargs):
         widget = kwargs.pop("widget", forms.PasswordInput(render_value=render_value))
         label = kwargs.pop("label", "Password")
-        super().__init__(widget=widget, label=label, *args, **kwargs)
+        empty_value = kwargs.pop("empty_value", None)
+        super().__init__(
+            widget=widget, label=label, empty_value=empty_value, *args, **kwargs
+        )
         self.widget.attrs["password-source"] = password_source
 
 
