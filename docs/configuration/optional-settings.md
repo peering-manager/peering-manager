@@ -181,3 +181,21 @@ The API token registered in the NetBox instance to be used in queries.
 Default: `["router", "firewall", "switch"]`
 
 The roles that devices must have in the NetBox instance that will be queried.
+
+---
+
+### RELEASE_CHECK_URL
+
+Default: "https://api.github.com/repos/respawner/peering-manager/releases"
+
+The URL to detect new releases, which are shown on the home page of the web
+interface. You can change this to your own fork, or set it to None to disable
+it. The URL provided must be compatible with the GitHub API.
+
+### RELEASE_CHECK_TIMEOUT
+
+Default: 86400 (24 hours)
+
+The number of seconds to retain the latest version that is fetched from the
+GitHub API before fetching it from the API again. This value cannot be set to
+less than 3600 seconds (1 hour).
