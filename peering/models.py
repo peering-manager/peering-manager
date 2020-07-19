@@ -671,6 +671,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
 
 class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
     name = models.CharField(max_length=128)
+    slug = models.SlugField(unique=True, max_length=255)
     value = CommunityField(max_length=50)
     type = models.CharField(
         max_length=50, choices=COMMUNITY_TYPE_CHOICES, default=COMMUNITY_TYPE_INGRESS
@@ -695,7 +696,7 @@ class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
             badge_type = "badge-secondary"
             text = "Unknown"
 
-        return mark_safe('<span class="badge {}">{}</span>'.format(badge_type, text))
+        return mark_safe(f'<span class="badge {badge_type}">{text}</span>')
 
     def __str__(self):
         return self.name

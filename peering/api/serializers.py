@@ -76,7 +76,7 @@ class CommunitySerializer(TaggitSerializer, ModelSerializer):
 
     class Meta:
         model = Community
-        fields = ["id", "name", "value", "type", "comments", "tags"]
+        fields = ["id", "name", "slug", "value", "type", "comments", "tags"]
 
 
 class RouterSerializer(TaggitSerializer, WriteEnabledNestedSerializer):

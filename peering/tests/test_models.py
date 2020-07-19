@@ -138,9 +138,19 @@ class CommunityTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.communities = [
-            Community(name="test-1", value="64500:1", type=COMMUNITY_TYPE_EGRESS),
-            Community(name="test-2", value="64500:2", type=COMMUNITY_TYPE_INGRESS),
-            Community(name="test-3", value="64500:3", type="unknown"),
+            Community(
+                name="test-1",
+                slug="test-1",
+                value="64500:1",
+                type=COMMUNITY_TYPE_EGRESS,
+            ),
+            Community(
+                name="test-2",
+                slug="test-2",
+                value="64500:2",
+                type=COMMUNITY_TYPE_INGRESS,
+            ),
+            Community(name="test-3", slug="test-3", value="64500:3", type="unknown"),
         ]
         Community.objects.bulk_create(cls.communities)
 

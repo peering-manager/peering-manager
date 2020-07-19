@@ -6,6 +6,7 @@
   * `created`: date value
   * `updated`: date value
   * `name`: string value
+  * `slug`: string value
   * `value`: string value
   * `type`: string value
   * `comments`: text value

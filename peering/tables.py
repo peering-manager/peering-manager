@@ -235,7 +235,7 @@ class CommunityTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Community
-        fields = ("pk", "name", "value", "type", "tags", "actions")
+        fields = ("pk", "name", "slug", "value", "type", "tags", "actions")
         default_columns = ("pk", "name", "value", "type", "actions")
 
 

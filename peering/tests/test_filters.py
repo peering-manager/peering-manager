@@ -109,15 +109,22 @@ class CommunityTestCase(StandardTestCases.Filters):
         Community.objects.bulk_create(
             [
                 Community(
-                    name="Community 1", value="64500:1", type=COMMUNITY_TYPE_EGRESS
+                    name="Community 1",
+                    slug="community-1",
+                    value="64500:1",
+                    type=COMMUNITY_TYPE_EGRESS,
                 ),
-                Community(name="Community 2", value="64500:2"),
-                Community(name="Community 3", value="64500:3"),
+                Community(name="Community 2", slug="community-2", value="64500:2"),
+                Community(name="Community 3", slug="community-3", value="64500:3"),
             ]
         )
 
     def test_name(self):
         params = {"name": "Community 1"}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+
+    def test_slug(self):
+        params = {"slug": "community-1"}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
     def test_type(self):

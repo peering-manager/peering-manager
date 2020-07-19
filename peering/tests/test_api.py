@@ -214,7 +214,7 @@ class BGPGroupTest(APITestCase):
             name="Test", slug="test", type=ROUTING_POLICY_TYPE_IMPORT_EXPORT, weight=0
         )
         community = Community.objects.create(
-            name="Test", value="64500:1", type=COMMUNITY_TYPE_EGRESS
+            name="Test", slug="test", value="64500:1", type=COMMUNITY_TYPE_EGRESS
         )
         data = {
             "name": "Other",
@@ -259,7 +259,7 @@ class BGPGroupTest(APITestCase):
             name="Test", slug="test", type=ROUTING_POLICY_TYPE_IMPORT_EXPORT, weight=0
         )
         community = Community.objects.create(
-            name="Test", value="64500:1", type=COMMUNITY_TYPE_EGRESS
+            name="Test", slug="test", value="64500:1", type=COMMUNITY_TYPE_EGRESS
         )
         data = {
             "name": "Changed",
@@ -298,7 +298,7 @@ class CommunityTest(APITestCase):
         super().setUp()
 
         self.community = Community.objects.create(
-            name="Test", value="64500:1", type=COMMUNITY_TYPE_EGRESS
+            name="Test", slug="test", value="64500:1", type=COMMUNITY_TYPE_EGRESS
         )
 
     def test_get_community(self):
@@ -312,7 +312,12 @@ class CommunityTest(APITestCase):
         self.assertEqual(response.data["count"], 1)
 
     def test_create_community(self):
-        data = {"name": "Other", "value": "64500:2", "type": COMMUNITY_TYPE_EGRESS}
+        data = {
+            "name": "Other",
+            "slug": "other",
+            "value": "64500:2",
+            "type": COMMUNITY_TYPE_EGRESS,
+        }
 
         url = reverse("peering-api:community-list")
         response = self.client.post(url, data, format="json", **self.header)
@@ -324,8 +329,18 @@ class CommunityTest(APITestCase):
 
     def test_create_community_bulk(self):
         data = [
-            {"name": "Test1", "value": "64500:11", "type": COMMUNITY_TYPE_EGRESS},
-            {"name": "Test2", "value": "64500:12", "type": COMMUNITY_TYPE_EGRESS},
+            {
+                "name": "Test1",
+                "slug": "test1",
+                "value": "64500:11",
+                "type": COMMUNITY_TYPE_EGRESS,
+            },
+            {
+                "name": "Test2",
+                "slug": "test2",
+                "value": "64500:12",
+                "type": COMMUNITY_TYPE_EGRESS,
+            },
         ]
 
         url = reverse("peering-api:community-list")
@@ -337,7 +352,12 @@ class CommunityTest(APITestCase):
         self.assertEqual(response.data[1]["value"], data[1]["value"])
 
     def test_update_community(self):
-        data = {"name": "Other", "value": "64500:2", "type": COMMUNITY_TYPE_INGRESS}
+        data = {
+            "name": "Other",
+            "slug": "other",
+            "value": "64500:2",
+            "type": COMMUNITY_TYPE_INGRESS,
+        }
 
         url = reverse("peering-api:community-detail", kwargs={"pk": self.community.pk})
         response = self.client.put(url, data, format="json", **self.header)
@@ -503,7 +523,7 @@ class InternetExchangeTest(APITestCase):
             name="Test", slug="test", type=ROUTING_POLICY_TYPE_IMPORT_EXPORT, weight=0
         )
         community = Community.objects.create(
-            name="Test", value="64500:1", type=COMMUNITY_TYPE_EGRESS
+            name="Test", slug="test", value="64500:1", type=COMMUNITY_TYPE_EGRESS
         )
         router = Router.objects.create(
             name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
@@ -555,7 +575,7 @@ class InternetExchangeTest(APITestCase):
             name="Test", slug="test", type=ROUTING_POLICY_TYPE_IMPORT_EXPORT, weight=0
         )
         community = Community.objects.create(
-            name="Test", value="64500:1", type=COMMUNITY_TYPE_EGRESS
+            name="Test", slug="test", value="64500:1", type=COMMUNITY_TYPE_EGRESS
         )
         router = Router.objects.create(
             name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
