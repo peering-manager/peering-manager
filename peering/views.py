@@ -882,7 +882,7 @@ class RouterList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_router"
     queryset = (
         Router.objects.annotate(
-            internetexchange_count=Count("internetexchange"),
+            internetexchange_count=Count("internetexchange__internetexchangepeeringsession"),
             directpeeringsession_count=Count("directpeeringsession"),
         )
         .prefetch_related("configuration_template")
