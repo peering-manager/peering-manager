@@ -92,7 +92,9 @@ class ASList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_autonomoussystem"
     queryset = AutonomousSystem.objects.annotate(
         directpeeringsession_count=Count("directpeeringsession", distinct=True),
-        internetexchangepeeringsession_count=Count("internetexchangepeeringsession", distinct=True),
+        internetexchangepeeringsession_count=Count(
+            "internetexchangepeeringsession", distinct=True
+        ),
     ).order_by("asn")
     filter = AutonomousSystemFilterSet
     filter_form = AutonomousSystemFilterForm
@@ -882,7 +884,9 @@ class RouterList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_router"
     queryset = (
         Router.objects.annotate(
-            internetexchangepeeringsession_count=Count("internetexchange__internetexchangepeeringsession", distinct=True),
+            internetexchangepeeringsession_count=Count(
+                "internetexchange__internetexchangepeeringsession", distinct=True
+            ),
             directpeeringsession_count=Count("directpeeringsession", distinct=True),
         )
         .prefetch_related("configuration_template")
