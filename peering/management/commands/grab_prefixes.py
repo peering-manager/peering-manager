@@ -35,7 +35,7 @@ class Command(BaseCommand):
                     self.logger.debug(
                         "Too many IPv4 prefixes for as%s: %s > %s, ignoring",
                         autonomous_system.asn,
-                        len(prefixes["ipv6"]),
+                        len(prefixes["ipv4"]),
                         options["limit"],
                     )
                     prefixes["ipv4"] = []

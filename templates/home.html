@@ -1,14 +1,14 @@
 {% extends '_base.html' %}
 {% load helpers %}
 {% block header %}
-    {{ block.super }}
-    {% if new_release %}
-    <div class="alert alert-info text-center" role="alert">
-      <i class="fas fa-info-circle"></i>
-      A new release is available: <a href="{{ new_release.url }}">Peering Manager v{{ new_release.version }}</a> |
-      <a href="https://peering-manager.readthedocs.io/en/latest/setup/upgrading/">Upgrade instructions</a>
-    </div>
-    {% endif %}
+      {{ block.super }}
+      {% if new_release %}
+      <div class="alert alert-info text-center" role="alert">
+        <i class="fas fa-info-circle"></i>
+        A new release is available: <a href="{{ new_release.url }}">Peering Manager v{{ new_release.version }}</a> |
+        <a href="https://peering-manager.readthedocs.io/en/latest/setup/upgrading/">Upgrade instructions</a>
+      </div>
+      {% endif %}
 {% endblock %}
 {% block content %}
       <div class="card-columns">
