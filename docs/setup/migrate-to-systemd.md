@@ -38,7 +38,7 @@ Group=peering-manager
 PIDFile=/var/tmp/peering-manager.pid
 WorkingDirectory=/opt/peering-manager
 
-ExecStart=/opt/peering-manager/venv/bin/gunicorn --pid /var/tmp/peering-manager.pid --pythonpath /opt/peering-manager --config /opt/peering-manager/gunicorn.py peering-manager.wsgi
+ExecStart=/opt/peering-manager/venv/bin/gunicorn --pid /var/tmp/peering-manager.pid --pythonpath /opt/peering-manager --config /opt/peering-manager/gunicorn.py peering_manager.wsgi
 
 Restart=on-failure
 RestartSec=30
