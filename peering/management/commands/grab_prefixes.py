@@ -23,7 +23,11 @@ class Command(BaseCommand):
             prefixes = autonomous_system.retrieve_irr_as_set_prefixes()
 
             try:
-                if "limit" in options and int(options["limit"]):
+                if (
+                    "limit" in options
+                    and options["limit"] is not None
+                    and int(options["limit"])
+                ):
                     if len(prefixes["ipv6"]) > options["limit"]:
                         self.logger.debug(
                             "Too many IPv6 prefixes for as%s: %s > %s, ignoring",
