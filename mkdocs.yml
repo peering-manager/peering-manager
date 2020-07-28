@@ -5,11 +5,12 @@ pages:
   - Introduction: 'index.md'
   - Setup:
     - '1. PostgreSQL': 'setup/1-postgresql.md'
-    - '2. Peering Manager': 'setup/2-peering-manager.md'
-    - '3. Web Server': 'setup/3-web-server.md'
-    - '4. Logging (Optional)': 'setup/4-logging.md'
-    - '5. LDAP (Optional)': 'setup/5-ldap.md'
-    - '6. Scheduled Tasks (Optional)': 'setup/6-scheduled-tasks.md'
+    - '2. Redis': 'setup/2-redis.md'
+    - '3. Peering Manager': 'setup/2-peering-manager.md'
+    - '4. Web Server': 'setup/3-web-server.md'
+    - '5. Logging (Optional)': 'setup/4-logging.md'
+    - '6. LDAP (Optional)': 'setup/5-ldap.md'
+    - '7. Scheduled Tasks (Optional)': 'setup/6-scheduled-tasks.md'
     - Upgrading: 'setup/upgrading.md'
     - Migrate to systemd: 'setup/migrate-to-systemd.md'
   - Configuration:
