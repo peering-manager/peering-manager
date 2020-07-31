@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.mail import send_mail
 from django.db.models import Count
 from django.http import HttpResponse
@@ -84,6 +83,7 @@ from utils.views import (
     BulkDeleteView,
     DeleteView,
     ModelListView,
+    PermissionRequiredMixin,
     TableImportView,
 )
 

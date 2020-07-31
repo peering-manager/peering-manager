@@ -390,17 +390,17 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "users.middleware.LastSearchMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "utils.middleware.RequireLoginMiddleware",
     "utils.middleware.ExceptionCatchingMiddleware",
     "utils.middleware.ObjectChangeMiddleware",
-    "utils.middleware.RequireLoginMiddleware",
+    "users.middleware.LastSearchMiddleware",
 ]
 
 if DEBUG:

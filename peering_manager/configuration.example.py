@@ -47,3 +47,5 @@ REDIS = {
 }
 # Cache timeout in seconds. Set to 0 to disable caching.
 CACHE_TIMEOUT = 900
+
+LOGIN_REQUIRED = True

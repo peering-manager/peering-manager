@@ -3,8 +3,11 @@ import sys
 from django.db import transaction
 from django.db.models import Count, ManyToManyField, ProtectedError
 from django.db.models.query import QuerySet
+from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import (
+    PermissionRequiredMixin as _PermissionRequiredMixin,
+)
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.forms import CharField, MultipleHiddenInput
 from django.forms.formsets import formset_factory
@@ -35,6 +38,22 @@ from .forms import (
 from .models import ObjectChange, Tag, TaggedItem
 from .paginators import EnhancedPaginator, get_paginate_count
 from .tables import ObjectChangeTable, TagTable
+
+
+class PermissionRequiredMixin(_PermissionRequiredMixin):
+    """
+    Override the original `PermissionRequiredMixin` class to handle the
+    `LOGIN_REQUIRED` with `*.view_*` permission.
+    """
+
+    def has_permission(self):
+        if (
+            not settings.LOGIN_REQUIRED
+            and isinstance(self.permission_required, str)
+            and ".view_" in self.permission_required
+        ):
+            return True
+        return super().has_permission()
 
 
 class ReturnURLMixin(object):
@@ -569,8 +588,12 @@ class ModelListView(View):
         }
 
         # Build the table based on the queryset
-        columns = request.user.preferences.get(
-            f"tables.{self.table.__name__}.columns".lower()
+        columns = (
+            request.user.preferences.get(
+                f"tables.{self.table.__name__}.columns".lower()
+            )
+            if request.user.is_authenticated
+            else None
         )
         table = self.table(self.queryset, columns=columns)
         if "pk" in table.base_columns and (
