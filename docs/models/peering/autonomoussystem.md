@@ -10,7 +10,7 @@ not be routed on the Internet.
 
 ## In Peering Manager
 
-Inside Peering Manager, you create the autonomous systems that you want to peer
+Inside Peering Manager, you create autonomous systems that you want to peer
 with. Your own ASN number must be provided as a setting called `MY_ASN`. For
 each AS that you create, the following properties are to be provided (some are
 however optional):
