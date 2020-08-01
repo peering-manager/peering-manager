@@ -29,4 +29,4 @@ optional):
   * `Type`: when to apply the community on ingress or on egress.
   * `Comments`: some text that can be formatted in Markdown to use to explain
     what the group is for or to use for any other purposes.
-  * `Tags`: a list of tags to help identifying and searching for a group.
+  * `Tags`: a list of tags to help identifying and searching for a community.
