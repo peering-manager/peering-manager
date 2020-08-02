@@ -27,6 +27,6 @@ optional):
     is automatically generated from the community's name.
   * `Value`: actual value of the community depending of the RFC.
   * `Type`: when to apply the community on ingress or on egress.
-  * `Comments`: some text that can be formatted in Markdown to use to explain
-    what the group is for or to use for any other purposes.
+  * `Comments`: some text that can be formatted in Markdown to explain what the
+    community is for or to use for any other purposes.
   * `Tags`: a list of tags to help identifying and searching for a community.
