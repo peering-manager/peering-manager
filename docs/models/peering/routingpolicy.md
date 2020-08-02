@@ -22,5 +22,7 @@ following properties are to be provided (some are however optional):
     policy with the higher value will be evaluated first.
   * `Address Family`: the IP address family the policy can be used for ; it can
     be IPv6, IPv4 or both of them.
+  * `Comments`: some text that can be formatted in Markdown to explain what the
+    routing policy is for or to use for any other purposes.
   * `Tags`: a list of tags to help identifying and searching for a routing
     policy.

@@ -34,6 +34,8 @@ however optional):
     name, the IRR AS-SET and prefix limits can be synchronized from the
     AS' [PeeringDB](https://peeringdb.com/) record.
   * `Tags`: a list of tags to help identifying and searching for an AS.
+  * `Comments`: some text that can be formatted in Markdown to record some
+    notes about the AS.
 
 Note that the best way to keep all of this properties up-to-date is to use the
 PeeringDB integration that can synchronize some of them automatically.

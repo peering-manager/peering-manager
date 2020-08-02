@@ -14,8 +14,8 @@ the following properties are to be provided (some are however optional):
   * `Name`: a human readable name attached to a group.
   * `Slug`: a unique configuration and URL friendly name; most of the time it
     is automatically generated from the group's name.
-  * `Comments`: some text that can be formatted in Markdown to use to explain
-    what the group is for or to use for any other purposes.
+  * `Comments`: some text that can be formatted in Markdown to explain what the
+    Internet Exchange is for or to use for any other purposes.
   * `Check BGP Session States`: a value used to know if routers attached to BGP
     sessions within the group have to check for the state of these sessions.
   * `Import Routing Policies`: a list of routing policies to apply when
