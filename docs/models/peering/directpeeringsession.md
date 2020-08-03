@@ -11,7 +11,7 @@ may not be dedicated to routing Internet traffic.
 Inside Peering Manager, you create direct peering sessions to model BGP
 sessions established with remote peers and that are not using Internet
 exchange LANs. For each direct peering session that you create, the following
-properties are to be provided (some are however optional):
+properties can be configured (n.b. some are optional):
 
   * `Local ASN`: an autonomous system to be used by a local router.
   * `Local IP Address`: a local IPv6 or IPv4 address to be bounded on a local
@@ -36,6 +36,6 @@ properties are to be provided (some are however optional):
      receiving prefixes though the BGP session.
   * `Export Routing Policies`: a list of routing policies to apply when
      advertising prefixes though the BGP session.
-  * `Comments`: some text that can be formatted in Markdown to explain the
-    purposes of the BGP sessions or other details.
+  * `Comments`: text to explain the purposes of the BGP sessions. Can use
+    Markdown formatting.
   * `Tags`: a list of tags to help identifying and searching for a BGP session.

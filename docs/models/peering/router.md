@@ -11,9 +11,9 @@ Inside Peering Manager, you create routers and connect them to Internet
 exchanges or assigned direct peering sessions to them. You'll then be able to
 track on which router a BGP session is configured as well as add, change or
 delete said session. For each router that you create, the following properties
-are to be provided (some are however optional):
+can be configured (n.b. some are optional):
 
-  * `Name`: a human readable name attached to a router.
+  * `Name`: a human-readable name attached to a router.
   * `Hostname`: a resolvable FQDN or an IP address to reach the router.
   * `Platform`: a network operating system which is running on the router.
   * `Encrypt Passwords`: an option to tell if protected BGP sessions use
@@ -34,6 +34,6 @@ are to be provided (some are however optional):
   * `NAPALM Optional Arguments`: optional arguments for Peering Manager to use
     for connecting to the router. It overrides the `NAPALM_ARGS` global
     setting.
-  * `Comments`: some text that can be formatted in Markdown to record some
-    notes about the router.
+  * `Comments`: text to record some notes about the router. Can use Markdown
+    formatting.
   * `Tags`: a list of tags to help identifying and searching for a router.
