@@ -19,14 +19,14 @@ community.
 
 Inside Peering Manager, you create communities to apply them on autonomous
 systems, BGP groups, Internet Exchanges or BGP sessions. For each community
-that you create, the following properties are to be provided (some are however
+that you create, the following properties can be configured (n.b. some are
 optional):
 
-  * `Name`: a human readable name attached to a community.
+  * `Name`: a human-readable name attached to a community.
   * `Slug`: a unique configuration and URL friendly name; most of the time it
     is automatically generated from the community's name.
   * `Value`: actual value of the community depending of the RFC.
   * `Type`: when to apply the community on ingress or on egress.
-  * `Comments`: some text that can be formatted in Markdown to explain what the
-    community is for or to use for any other purposes.
+  * `Comments`: text to explain what the community is for. Can use Markdown
+    formatting.
   * `Tags`: a list of tags to help identifying and searching for a community.

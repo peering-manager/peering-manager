@@ -12,7 +12,7 @@ routing Internet traffic.
 Inside Peering Manager, you create Internet exchange peering sessions to model
 BGP sessions established with remote peers and that are using Internet exchange
 LANs. For each Internet exchange peering session that you create, the following
-properties are to be provided (some are however optional):
+properties can be configured (n.b. some are optional):
 
   * `Autonomous System`: an autonomous system managed by a remote peer.
   * `Internet Exchange`: an Internet exchange providing a LAN and IP addresses
@@ -31,6 +31,6 @@ properties are to be provided (some are however optional):
      receiving prefixes though the BGP session.
   * `Export Routing Policies`: a list of routing policies to apply when
      advertising prefixes though the BGP session.
-  * `Comments`: some text that can be formatted in Markdown to explain the
-    purposes of the BGP sessions or other details.
+  * `Comments`: text to explain the purposes of the BGP session. Can use
+    Markdown formatting.
   * `Tags`: a list of tags to help identifying and searching for a BGP session.
