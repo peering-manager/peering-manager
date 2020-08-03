@@ -4,6 +4,7 @@ from json import dumps as json_dumps
 from markdown import markdown as md
 
 from django import template
+from django.conf import settings
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 
@@ -104,3 +105,20 @@ def foreground_color(value):
         return "#000000"
     else:
         return "#ffffff"
+
+
+@register.filter()
+def get_docs(model):
+    """
+    Render and return documentation for the given model.
+    """
+    path = f"{settings.DOCS_DIR}/models/{model._meta.app_label}/{model._meta.model_name}.md"
+    try:
+        with open(path, encoding="utf-8") as docfile:
+            content = docfile.read()
+    except FileNotFoundError:
+        return f"Unable to load documentation, file not found: {path}"
+    except IOError:
+        return f"Unable to load documentation, error reading file: {path}"
+
+    return mark_safe(markdown(content))
