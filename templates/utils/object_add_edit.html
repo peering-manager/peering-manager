@@ -1,7 +1,19 @@
 {% extends '_base.html' %}
 {% load helpers %}
 {% load form_helpers %}
-{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}{% if object.pk %}Editing {{ object }}{% else %}Add a new {{ object_type|title_with_uppers }}{% endif %}{% endblock %}</li>{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">
+  {% block title %}
+  {% if object.pk %}Editing {{ object }}{% else %}Add a new {{ object_type|title_with_uppers }}{% endif %}
+  {% if settings.DOCS_DIR %}
+  &nbsp;
+  <a type="button" data-toggle="modal" data-target="#docs_modal">
+    <i class="fas fa-question-circle"></i>
+  </a>
+  {% endif %}
+  {% endblock %}
+</li>
+{% endblock %}
 {% block content %}
 <form method="post">
   {% csrf_token %}
@@ -40,4 +52,7 @@
     </div>
   </div>
 </form>
+{% if object and settings.DOCS_DIR %}
+{% include 'utils/includes/modal.html' with name='docs' content=object|get_docs %}
+{% endif %}
 {% endblock %}
