@@ -14,7 +14,8 @@ framework. It runs as a WSGI service behind your choice of HTTP server.
 | HTTP Service | Apache 2 or nginx     |
 | WSGI Service | gunicorn or uWSGI     |
 | Application  | Django/Python         |
-| Database     | PostgreSQL            |
+| Database     | PostgreSQL 9.6+       |
+| Task queuing | Redis 4.0+            |
 
 # Getting Started
 
@@ -28,7 +29,7 @@ give some ideas for future development, open issues if you found any and
 contribute to the code with pull requests and patches.
 
 You can also support the development of this project by
-[donating some money](https://paypal.me/GuillaumeMazoyer). Developing such
+[sponsoring it](https://github.com/sponsors/respawner). Developing such
 project can be time consuming and it is done on personal time. Giving few
 dollars/euros/pounds/etc... can be a way to say thanks and help to free some
 time to develop this project.
