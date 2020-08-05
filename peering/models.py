@@ -5,7 +5,7 @@ import napalm
 from cacheops import CacheMiss, cache
 
 from django.conf import settings
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
@@ -86,7 +86,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
     potential_internet_exchange_peering_sessions = ArrayField(
         InetAddressField(store_prefix_length=False), blank=True, default=list
     )
-    prefixes = JSONField(blank=True, null=True, editable=False)
+    prefixes = models.JSONField(blank=True, null=True, editable=False)
 
     logger = logging.getLogger("peering.manager.peering")
 
@@ -1358,7 +1358,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
     napalm_username = models.CharField(blank=True, null=True, max_length=256)
     napalm_password = models.CharField(blank=True, null=True, max_length=256)
     napalm_timeout = models.PositiveIntegerField(blank=True, default=0)
-    napalm_args = JSONField(blank=True, null=True)
+    napalm_args = models.JSONField(blank=True, null=True)
     comments = models.TextField(blank=True)
 
     logger = logging.getLogger("peering.manager.napalm")

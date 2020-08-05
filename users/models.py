@@ -2,7 +2,6 @@ import binascii
 import os
 
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.db.models.signals import post_save
@@ -60,7 +59,7 @@ class UserPreferences(models.Model):
     user = models.OneToOneField(
         to=User, on_delete=models.CASCADE, related_name="preferences"
     )
-    data = JSONField(default=dict)
+    data = models.JSONField(default=dict)
 
     class Meta:
         ordering = ["user"]
