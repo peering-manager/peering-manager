@@ -8,12 +8,13 @@ from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
+    Configuration,
     DirectPeeringSession,
+    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
-    Template,
 )
 from peering.tests.mocked_data import *
 from utils.testing import APITestCase
@@ -375,6 +376,74 @@ class CommunityTest(APITestCase):
         self.assertEqual(Community.objects.count(), 0)
 
 
+class ConfigurationTest(APITestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.configuration = Configuration.objects.create(
+            name="Test", template="test_template"
+        )
+
+    def test_get_configuration(self):
+        url = reverse(
+            "peering-api:configuration-detail", kwargs={"pk": self.configuration.pk}
+        )
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data["template"], self.configuration.template)
+
+    def test_list_configurations(self):
+        url = reverse("peering-api:configuration-list")
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data["count"], 1)
+
+    def test_create_configuration(self):
+        data = {"name": "Other", "template": "other_template"}
+
+        url = reverse("peering-api:configuration-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Configuration.objects.count(), 2)
+        configuration = Configuration.objects.get(pk=response.data["id"])
+        self.assertEqual(configuration.template, data["template"])
+
+    def test_create_configuration_bulk(self):
+        data = [
+            {"name": "Test1", "template": "test1_template"},
+            {"name": "Test2", "template": "test2_template"},
+        ]
+
+        url = reverse("peering-api:configuration-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Configuration.objects.count(), 3)
+        self.assertEqual(response.data[0]["template"], data[0]["template"])
+        self.assertEqual(response.data[1]["template"], data[1]["template"])
+
+    def test_update_configuration(self):
+        data = {"name": "Test", "template": "updated_template"}
+
+        url = reverse(
+            "peering-api:configuration-detail", kwargs={"pk": self.configuration.pk}
+        )
+        response = self.client.put(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(Configuration.objects.count(), 1)
+        configuration = Configuration.objects.get(pk=response.data["id"])
+        self.assertEqual(configuration.template, data["template"])
+
+    def test_delete_configuration(self):
+        url = reverse(
+            "peering-api:configuration-detail", kwargs={"pk": self.configuration.pk}
+        )
+        response = self.client.delete(url, **self.header)
+
+        self.assertStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Configuration.objects.count(), 0)
+
+
 class DirectPeeringSessionTest(APITestCase):
     def setUp(self):
         super().setUp()
@@ -484,6 +553,76 @@ class DirectPeeringSessionTest(APITestCase):
 
         self.assertStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(DirectPeeringSession.objects.count(), 0)
+
+
+class EmailTest(APITestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.email = Email.objects.create(
+            name="Test", subject="test_subject", template="test_template"
+        )
+
+    def test_get_email(self):
+        url = reverse("peering-api:email-detail", kwargs={"pk": self.email.pk})
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data["template"], self.email.template)
+
+    def test_list_emails(self):
+        url = reverse("peering-api:email-list")
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data["count"], 1)
+
+    def test_create_email(self):
+        data = {
+            "name": "Other",
+            "subject": "other_subject",
+            "template": "other_template",
+        }
+
+        url = reverse("peering-api:email-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Email.objects.count(), 2)
+        email = Email.objects.get(pk=response.data["id"])
+        self.assertEqual(email.template, data["template"])
+
+    def test_create_email_bulk(self):
+        data = [
+            {"name": "Test1", "subject": "test1_subject", "template": "test1_template"},
+            {"name": "Test2", "subject": "test2_subject", "template": "test2_template"},
+        ]
+
+        url = reverse("peering-api:email-list")
+        response = self.client.post(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Email.objects.count(), 3)
+        self.assertEqual(response.data[0]["template"], data[0]["template"])
+        self.assertEqual(response.data[1]["template"], data[1]["template"])
+
+    def test_update_email(self):
+        data = {
+            "name": "Test",
+            "subject": "updated_subject",
+            "template": "updated_template",
+        }
+
+        url = reverse("peering-api:email-detail", kwargs={"pk": self.email.pk})
+        response = self.client.put(url, data, format="json", **self.header)
+
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(Email.objects.count(), 1)
+        email = Email.objects.get(pk=response.data["id"])
+        self.assertEqual(email.template, data["template"])
+
+    def test_delete_email(self):
+        url = reverse("peering-api:email-detail", kwargs={"pk": self.email.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Email.objects.count(), 0)
 
 
 class InternetExchangeTest(APITestCase):
@@ -778,7 +917,9 @@ class RouterTest(APITestCase):
     def setUp(self):
         super().setUp()
 
-        self.template = Template.objects.create(name="Test", template="Nothing useful")
+        self.template = Configuration.objects.create(
+            name="Test", template="Nothing useful"
+        )
         self.router = Router.objects.create(
             name="Test",
             hostname="test.example.com",
@@ -977,63 +1118,3 @@ class RoutingPolicyTest(APITestCase):
 
         self.assertStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(RoutingPolicy.objects.count(), 0)
-
-
-class TemplateTest(APITestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.template = Template.objects.create(name="Test", template="test_template")
-
-    def test_get_template(self):
-        url = reverse("peering-api:template-detail", kwargs={"pk": self.template.pk})
-        response = self.client.get(url, **self.header)
-        self.assertEqual(response.data["template"], self.template.template)
-
-    def test_list_templates(self):
-        url = reverse("peering-api:template-list")
-        response = self.client.get(url, **self.header)
-        self.assertEqual(response.data["count"], 1)
-
-    def test_create_template(self):
-        data = {"name": "Other", "template": "other_template"}
-
-        url = reverse("peering-api:template-list")
-        response = self.client.post(url, data, format="json", **self.header)
-
-        self.assertStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Template.objects.count(), 2)
-        template = Template.objects.get(pk=response.data["id"])
-        self.assertEqual(template.template, data["template"])
-
-    def test_create_template_bulk(self):
-        data = [
-            {"name": "Test1", "template": "test1_template"},
-            {"name": "Test2", "template": "test2_template"},
-        ]
-
-        url = reverse("peering-api:template-list")
-        response = self.client.post(url, data, format="json", **self.header)
-
-        self.assertStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Template.objects.count(), 3)
-        self.assertEqual(response.data[0]["template"], data[0]["template"])
-        self.assertEqual(response.data[1]["template"], data[1]["template"])
-
-    def test_update_template(self):
-        data = {"name": "Test", "template": "updated_template"}
-
-        url = reverse("peering-api:template-detail", kwargs={"pk": self.template.pk})
-        response = self.client.put(url, data, format="json", **self.header)
-
-        self.assertStatus(response, status.HTTP_200_OK)
-        self.assertEqual(Template.objects.count(), 1)
-        template = Template.objects.get(pk=response.data["id"])
-        self.assertEqual(template.template, data["template"])
-
-    def test_delete_template(self):
-        url = reverse("peering-api:template-detail", kwargs={"pk": self.template.pk})
-        response = self.client.delete(url, **self.header)
-
-        self.assertStatus(response, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Template.objects.count(), 0)

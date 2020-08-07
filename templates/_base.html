@@ -83,7 +83,7 @@
                 <span class="menu-collapsed">Routing Policies</span>
               </a>
             </div>
-            <a href="#deployment_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/routers/,/templates/' %} active{% endif %}">
+            <a href="#deployment_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/configurations/,/emails/,/routers/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
                 <span class="menu-collapsed">Deployment</span>
                 <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
@@ -93,8 +93,11 @@
               <a href="{% url 'peering:router_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/routers/' %} active{% endif %}">
                 <span class="menu-collapsed">Routers</span>
               </a>
-              <a href="{% url 'peering:template_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/templates/' %} active{% endif %}">
-                <span class="menu-collapsed">Templates</span>
+              <a href="{% url 'peering:configuration_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/configurations/' %} active{% endif %}">
+                <span class="menu-collapsed">Configurations</span>
+              </a>
+              <a href="{% url 'peering:email_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/emails/' %} active{% endif %}">
+                <span class="menu-collapsed">E-mails</span>
               </a>
             </div>
             <a href="{% url 'utils:tag_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/tags/' %} active{% endif %}">

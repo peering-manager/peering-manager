@@ -9,18 +9,18 @@ from .constants import (
     PLATFORM_CHOICES,
     ROUTING_POLICY_TYPE_CHOICES,
     ROUTING_POLICY_TYPE_IMPORT_EXPORT,
-    TEMPLATE_TYPE_CHOICES,
 )
 from .models import (
     AutonomousSystem,
     BGPGroup,
     Community,
+    Configuration,
     DirectPeeringSession,
+    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
-    Template,
 )
 from utils.filters import TagFilter
 
@@ -85,6 +85,25 @@ class CommunityFilterSet(django_filters.FilterSet):
         return queryset.filter(qs_filter)
 
 
+class ConfigurationFilterSet(django_filters.FilterSet):
+    q = django_filters.CharFilter(method="search", label="Search")
+    tag = TagFilter()
+
+    class Meta:
+        model = Configuration
+        fields = ["name", "comments"]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(name__icontains=value)
+            | Q(template__icontains=value)
+            | Q(comments__icontains=value)
+        )
+        return queryset.filter(qs_filter)
+
+
 class DirectPeeringSessionFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     address_family = django_filters.NumberFilter(method="address_family_search")
@@ -122,6 +141,26 @@ class DirectPeeringSessionFilterSet(django_filters.FilterSet):
         if value in [4, 6]:
             return queryset.filter(Q(ip_address__family=value))
         return queryset
+
+
+class EmailFilterSet(django_filters.FilterSet):
+    q = django_filters.CharFilter(method="search", label="Search")
+    tag = TagFilter()
+
+    class Meta:
+        model = Email
+        fields = ["name", "comments"]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(name__icontains=value)
+            | Q(subject__icontains=value)
+            | Q(template__icontains=value)
+            | Q(comments__icontains=value)
+        )
+        return queryset.filter(qs_filter)
 
 
 class InternetExchangeFilterSet(django_filters.FilterSet):
@@ -256,26 +295,4 @@ class RoutingPolicyFilterSet(django_filters.FilterSet):
         qs_filter = Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
         for v in value:
             qs_filter |= Q(type=v)
-        return queryset.filter(qs_filter)
-
-
-class TemplateFilterSet(django_filters.FilterSet):
-    q = django_filters.CharFilter(method="search", label="Search")
-    type = django_filters.MultipleChoiceFilter(
-        choices=TEMPLATE_TYPE_CHOICES, null_value=None
-    )
-    tag = TagFilter()
-
-    class Meta:
-        model = Template
-        fields = ["name", "comments"]
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        qs_filter = (
-            Q(name__icontains=value)
-            | Q(template__icontains=value)
-            | Q(comments__icontains=value)
-        )
         return queryset.filter(qs_filter)

@@ -6,12 +6,13 @@ from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
+    Configuration,
     DirectPeeringSession,
+    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
-    Template,
 )
 from utils.api import InetAddressArrayField, WriteEnabledNestedSerializer
 
@@ -79,8 +80,24 @@ class CommunitySerializer(TaggitSerializer, ModelSerializer):
         fields = ["id", "name", "slug", "value", "type", "comments", "tags"]
 
 
+class ConfigurationSerializer(TaggitSerializer, ModelSerializer):
+    tags = TagListSerializerField(required=False)
+
+    class Meta:
+        model = Configuration
+        fields = ["id", "name", "template", "comments", "tags"]
+
+
+class EmailSerializer(TaggitSerializer, ModelSerializer):
+    tags = TagListSerializerField(required=False)
+
+    class Meta:
+        model = Email
+        fields = ["id", "name", "subject", "template", "comments", "tags"]
+
+
 class RouterSerializer(TaggitSerializer, WriteEnabledNestedSerializer):
-    configuration_template = TemplateNestedSerializer(required=False)
+    configuration_template = ConfigurationNestedSerializer(required=False)
     tags = TagListSerializerField(required=False)
 
     class Meta:
@@ -226,11 +243,3 @@ class InternetExchangePeeringSessionSerializer(
             "tags",
         ]
         nested_fields = ["import_routing_policies", "export_routing_policies"]
-
-
-class TemplateSerializer(TaggitSerializer, ModelSerializer):
-    tags = TagListSerializerField(required=False)
-
-    class Meta:
-        model = Template
-        fields = ["id", "type", "name", "template", "comments", "tags"]

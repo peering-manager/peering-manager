@@ -9,7 +9,7 @@
   * `hostname`: string value
   * `platform`: string value
   * `encrypt_passwords`: boolean value
-  * `configuration_template`: [Template](template.md) object
+  * `configuration_template`: [Configuration](configuration.md) object
   * `last_deployment_id`: string value
   * `netbox_device_id`: integer value
   * `use_netbox`: boolean value

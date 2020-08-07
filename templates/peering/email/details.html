@@ -1,48 +1,51 @@
 {% extends '_base.html' %}
 {% load helpers %}
 {% block actions %}
-{% if perms.peering.change_template %}
-<a href="{% url 'peering:template_edit' pk=template.pk %}" class="btn btn-warning">
+{% if perms.peering.change_email %}
+<a href="{% url 'peering:email_edit' pk=email.pk %}" class="btn btn-warning">
   <i class="fas fa-edit"></i> Edit
 </a>
 {% endif %}
-{% if perms.peering.delete_template %}
-<a href="{% url 'peering:template_delete' pk=template.pk %}" class="btn btn-danger">
+{% if perms.peering.delete_email %}
+<a href="{% url 'peering:email_delete' pk=email.pk %}" class="btn btn-danger">
   <i class="fas fa-trash"></i> Delete
 </a>
 {% endif %}
 {% endblock %}
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'peering:template_list' %}">Templates</a></li>
-<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ template }}{% endblock %}</li>
+<li class="breadcrumb-item"><a href="{% url 'peering:email_list' %}">Configurations</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ email }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
       <div class="row">
         <div class="col-md-6">
           <div class="card mb-2">
             <div class="card-header">
-              <strong>Template Details</strong>
+              <strong>E-mail Details</strong>
+              <div class="float-right">
+                <button class="btn btn-xs btn-primary" id="preview" title="Render an example">
+                  <i class="fas fa-envelope-open-text"></i> Preview
+                </button>
+              </div>
             </div>
             <table class="card-body table table-hover attr-table mb-0">
               <tr>
                 <td>Name</td>
-                <td>{{ template.name }}</td>
-              </tr>
-              <tr>
-                <td>Type</td>
-                <td>{{ template.get_type_display }}</td>
+                <td>{{ email.name }}</td>
               </tr>
               <tr>
                 <td>Last update</td>
-                <td>{{ template.updated }}</td>
+                <td>{{ email.updated }}</td>
               </tr>
-              {% if template.type == "configuration" %}
-              <tr>
-                <td>Utilization</td>
-                <td>Used by {{ routers|length }} router{{ routers|length|pluralize }}</td>
-              </tr>
-              {% endif %}
             </table>
+          </div>
+          <div class="card mb-2">
+            <div class="card-header"><strong>Subject Template</strong></div>
+            <pre class="pre-scrollable">{{ email.subject }}</pre>
+            <div class="card-footer">
+              <i class="fa fa-info-circle"></i>
+              <a href="https://peering-manager.readthedocs.io/en/latest/templates/" target="_blank">Jinja2 template</a> syntax
+            </div>
           </div>
         </div>
         <div class="col-md-6">
@@ -51,28 +54,21 @@
               <strong>Comments</strong>
             </div>
             <div class="card-body">
-              {% if template.comments %}
-              {{ template.comments|markdown }}
+              {% if email.comments %}
+              {{ email.comments|markdown }}
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}
             </div>
           </div>
-          {% include 'utils/includes/tags_card.html' with tags=template.tags.all url='peering:template_list' %}
+          {% include 'utils/includes/tags_card.html' with tags=email.tags.all url='peering:email_list' %}
         </div>
       </div>
       <div class="row">
         <div class="col">
           <div class="card mt-2">
-            <div class="card-header">
-              <strong>Template</strong>
-              <div class="float-right">
-                <button class="btn btn-xs btn-primary" id="preview" title="Render a template example">
-                  <i class="fas fa-code"></i> Preview
-                </button>
-              </div>
-            </div>
-            <pre class="pre-scrollable">{{ template.template }}</pre>
+            <div class="card-header"><strong>Body Template</strong></div>
+            <pre class="pre-scrollable">{{ email.template }}</pre>
             <div class="card-footer">
               <i class="fa fa-info-circle"></i>
               <a href="https://peering-manager.readthedocs.io/en/latest/templates/" target="_blank">Jinja2 template</a> syntax
@@ -84,7 +80,7 @@
         <div class="modal-dialog modal-lg" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Rendered Template</h5>
+              <h5 class="modal-title"></h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
             </div>
             <div class="modal-body">
@@ -101,7 +97,7 @@
       $('#preview').click(function() {
         $.ajax({
           method: 'get',
-          url: "{% url 'peering-api:template-render-preview' pk=template.pk %}",
+          url: "{% url 'peering-api:email-render-preview' pk=email.pk %}",
           data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
           beforeSend: function() {
             $('#preview').attr('disabled', 'disabled')
@@ -110,10 +106,12 @@
           },
         }).done(function(response) {
           if (response['error']) {
-            $('.modal-body').html('<p>An error occured while rendering the template.</p><pre class="pre-scrollable">' + response['error'] + '</pre>');
+            $('.modal-title').html('An error occured while rendering the template')
+            $('.modal-body').html('<pre class="pre-scrollable">' + response['error'] + '</pre>');
             $('.modal').modal('show');
           } else {
-            $('.modal-body').html('<pre class="pre-scrollable">' + response['preview'] + '</pre>');
+            $('.modal-title').html(response['preview'][0])
+            $('.modal-body').html('<pre class="pre-scrollable">' + response['preview'][1] + '</pre>');
             $('.modal').modal('show');
           }
         }).always(function() {

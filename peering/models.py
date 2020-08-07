@@ -380,7 +380,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             addresses.append(
                 (
                     self.contact_email,
-                    "{} - {}".format(self.contact_name, self.contact_email)
+                    f"{self.contact_name} - {self.contact_email}"
                     if self.contact_name
                     else self.contact_email,
                 )
@@ -393,7 +393,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
                 addresses.append(
                     (
                         contact.email,
-                        "{} - {}".format(contact.name, contact.email)
+                        f"{contact.name} - {contact.email}"
                         if contact.name
                         else contact.email,
                     )
@@ -412,11 +412,11 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             ],
         }
 
-    def generate_email(self, template):
-        return template.render(self.get_email_context())
+    def generate_email(self, email):
+        return email.render(self.get_email_context())
 
     def __str__(self):
-        return "AS{} - {}".format(self.asn, self.name)
+        return f"AS{self.asn} - {self.name}"
 
 
 class BGPGroup(AbstractGroup):
@@ -1346,7 +1346,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         help_text="Try to encrypt passwords for peering sessions",
     )
     configuration_template = models.ForeignKey(
-        "Template", blank=True, null=True, on_delete=models.SET_NULL
+        "Configuration", blank=True, null=True, on_delete=models.SET_NULL
     )
     last_deployment_id = models.CharField(max_length=64, blank=True, null=True)
     netbox_device_id = models.PositiveIntegerField(blank=True, default=0)
@@ -1366,8 +1366,8 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
     class Meta:
         ordering = ["name"]
         permissions = [
-            ("view_configuration", "Can view router's configuration"),
-            ("deploy_configuration", "Can deploy router's configuration"),
+            ("view_router_configuration", "Can view router's configuration"),
+            ("deploy_router_configuration", "Can deploy router's configuration"),
         ]
 
     def get_absolute_url(self):
@@ -2036,19 +2036,26 @@ class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel):
 
 class Template(ChangeLoggedModel, TaggableModel):
     name = models.CharField(max_length=128)
-    type = models.CharField(
-        max_length=50,
-        choices=TEMPLATE_TYPE_CHOICES,
-        default=TEMPLATE_TYPE_CONFIGURATION,
-    )
     template = models.TextField()
     comments = models.TextField(blank=True)
 
     class Meta:
+        abstract = True
         ordering = ["name"]
 
+    def render(self, variables):
+        raise NotImplementedError()
+
+    def render_preview(self):
+        raise NotImplementedError()
+
+    def __str__(self):
+        return self.name
+
+
+class Configuration(Template):
     def get_absolute_url(self):
-        return reverse("peering:template_details", kwargs={"pk": self.pk})
+        return reverse("peering:configuration_details", kwargs={"pk": self.pk})
 
     def render(self, variables):
         """
@@ -2128,9 +2135,108 @@ class Template(ChangeLoggedModel, TaggableModel):
             autonomous_system=a_s, internet_exchange=i_x, ip_address="192.0.2.64"
         )
         ixps4.tags = ["foo", "bar"]
+        group.sessions = {6: [dps6], 4: [dps4]}
+        i_x.sessions = {6: [ixps6], 4: [ixps4]}
 
-        if self.type == TEMPLATE_TYPE_EMAIL:
-            variables = {
+        return self.render(
+            {
+                "my_asn": settings.MY_ASN,
+                "bgp_groups": [group],
+                "internet_exchanges": [i_x],
+                "routing_policies": [
+                    RoutingPolicy(
+                        name="Export/Import None",
+                        slug="none",
+                        type=ROUTING_POLICY_TYPE_IMPORT_EXPORT,
+                    )
+                ],
+                "communities": [Community(name="Community Transit", value="64500:1")],
+            }
+        )
+
+
+class Email(Template):
+    # While a line length should not exceed 78 characters (as per RFC2822), we allow
+    # user more characters for templating and let the user to decide what he wants to
+    # with this recommended limit, including not respecting it
+    subject = models.CharField(max_length=512)
+
+    def get_absolute_url(self):
+        return reverse("peering:email_details", kwargs={"pk": self.pk})
+
+    def render(self, variables):
+        """
+        Render the template using Jinja2.
+        """
+        subject = ""
+        body = ""
+        environment = Environment()
+
+        try:
+            jinja2_template = environment.from_string(self.subject)
+            subject = jinja2_template.render(variables)
+        except TemplateSyntaxError as e:
+            subject = (
+                f"Syntax error in subject template at line {e.lineno}: {e.message}"
+            )
+        except Exception as e:
+            subject = str(e)
+
+        try:
+            jinja2_template = environment.from_string(self.template)
+            body = jinja2_template.render(variables)
+        except TemplateSyntaxError as e:
+            body = f"Syntax error in body template at line {e.lineno}: {e.message}"
+        except Exception as e:
+            body = str(e)
+
+        return subject, body
+
+    def render_preview(self):
+        """
+        Render the template using Jinja2 for previewing it.
+        """
+        variables = None
+
+        # Variables for template preview
+        a_s = AutonomousSystem(
+            asn=64501, name="ACME", ipv6_max_prefixes=50, ipv4_max_prefixes=100
+        )
+        a_s.tags = ["foo", "bar"]
+        i_x = InternetExchange(
+            name="Wakanda-IX",
+            slug="wakanda-ix",
+            ipv6_address="2001:db8:a::ffff",
+            ipv4_address="192.0.2.128",
+        )
+        i_x.tags = ["foo", "bar"]
+        group = BGPGroup(name="Transit Providers", slug="transit")
+        group.tags = ["foo", "bar"]
+        dps6 = DirectPeeringSession(
+            local_asn=settings.MY_ASN,
+            autonomous_system=a_s,
+            ip_address="2001:db8::1",
+            relationship=BGP_RELATIONSHIP_TRANSIT_PROVIDER,
+        )
+        dps6.tags = ["foo", "bar"]
+        dps4 = DirectPeeringSession(
+            local_asn=settings.MY_ASN,
+            autonomous_system=a_s,
+            ip_address="192.0.2.1",
+            relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
+        )
+        dps4.tags = ["foo", "bar"]
+        ixps6 = InternetExchangePeeringSession(
+            autonomous_system=a_s, internet_exchange=i_x, ip_address="2001:db8:a::aaaa"
+        )
+        ixps6.tags = ["foo", "bar"]
+        ixps4 = InternetExchangePeeringSession(
+            autonomous_system=a_s, internet_exchange=i_x, ip_address="192.0.2.64"
+        )
+        ixps4.tags = ["foo", "bar"]
+
+        return self.render(
+            {
                 "my_asn": settings.MY_ASN,
                 "autonomous_system": a_s,
                 "internet_exchanges": [
@@ -2145,24 +2251,4 @@ class Template(ChangeLoggedModel, TaggableModel):
                 ],
                 "direct_peering_sessions": [dps6, dps4],
             }
-        else:
-            group.sessions = {6: [dps6], 4: [dps4]}
-            i_x.sessions = {6: [ixps6], 4: [ixps4]}
-            variables = {
-                "my_asn": settings.MY_ASN,
-                "bgp_groups": [group],
-                "internet_exchanges": [i_x],
-                "routing_policies": [
-                    RoutingPolicy(
-                        name="Export/Import None",
-                        slug="none",
-                        type=ROUTING_POLICY_TYPE_IMPORT_EXPORT,
-                    )
-                ],
-                "communities": [Community(name="Community Transit", value="64500:1")],
-            }
-
-        return self.render(variables)
-
-    def __str__(self):
-        return self.name
+        )

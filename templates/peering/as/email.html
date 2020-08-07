@@ -21,7 +21,7 @@
             <div class="card my-2">
               <div class="card-header"><strong>E-mail</strong></div>
               <div class="card-body">
-                {% render_field form.template %}
+                {% render_field form.email %}
                 {% render_field form.recipient %}
                 {% render_field form.subject %}
                 {% render_field form.body %}
@@ -39,17 +39,17 @@
 {% endblock %}
 {% block javascript %}
     <script>
-      $("#id_template").on("select2:select", function(e) {
-        $("#id_subject").val(e.params.data["name"]);
+      $("#id_email").on("select2:select", function(e) {
         $.ajax({
           method: "post",
           url: "{% url 'peering-api:autonomoussystem-generate-email' pk=autonomous_system.pk %}",
           data: {
             csrfmiddlewaretoken: "{{ csrf_token }}",
-            template: e.params.data["id"],
+            email: e.params.data["id"],
           },
         }).done(function(response) {
-          $("#id_body").val(response["email"]);
+          $("#id_subject").val(response["email"][0]);
+          $("#id_body").val(response["email"][1]);
         });
       });
     </script>

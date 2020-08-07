@@ -12,18 +12,18 @@ from .constants import (
     IP_FAMILY_CHOICES,
     PLATFORM_CHOICES,
     ROUTING_POLICY_TYPE_CHOICES,
-    TEMPLATE_TYPE_CHOICES,
 )
 from .models import (
     AutonomousSystem,
     BGPGroup,
     Community,
+    Configuration,
     DirectPeeringSession,
+    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
-    Template,
 )
 from netbox.api import NetBox
 from utils.fields import CommentField, PasswordField, SlugField, TextareaField
@@ -51,9 +51,10 @@ class TemplateField(TextareaField):
     """
 
     def __init__(self, *args, **kwargs):
+        label = kwargs.pop("label", "Template")
         super().__init__(
-            label="Template",
-            help_text='<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/config-template/#configuration-template" target="_blank">Jinja2 template</a> syntax is supported',
+            label=label,
+            help_text='<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/templates/" target="_blank">Jinja2 template</a> syntax is supported',
             *args,
             **kwargs,
         )
@@ -120,10 +121,7 @@ class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
 
 
 class AutonomousSystemEmailForm(BootstrapMixin, forms.Form):
-    template = DynamicModelChoiceField(
-        queryset=Template.objects.all(),
-        widget=APISelect(additional_query_params={"type": "email"}),
-    )
+    email = DynamicModelChoiceField(required=False, queryset=Email.objects.all())
     recipient = forms.ChoiceField(widget=StaticSelect, label="E-mail Recipient")
     subject = forms.CharField(label="E-mail Subject")
     body = TextareaField(label="E-mail Body")
@@ -236,6 +234,22 @@ class CommunityFilterForm(BootstrapMixin, forms.Form):
     type = forms.MultipleChoiceField(
         required=False, choices=COMMUNITY_TYPE_CHOICES, widget=StaticSelectMultiple
     )
+    tag = TagFilterField(model)
+
+
+class ConfigurationForm(BootstrapMixin, forms.ModelForm):
+    template = TemplateField()
+    comments = CommentField()
+    tags = TagField(required=False)
+
+    class Meta:
+        model = Configuration
+        fields = ("name", "template", "comments", "tags")
+
+
+class ConfigurationFilterForm(BootstrapMixin, forms.Form):
+    model = Configuration
+    q = forms.CharField(required=False, label="Search")
     tag = TagFilterField(model)
 
 
@@ -367,6 +381,25 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
         to_field_name="pk",
         widget=APISelectMultiple(null_option=True),
     )
+    tag = TagFilterField(model)
+
+
+class EmailForm(BootstrapMixin, forms.ModelForm):
+    subject = forms.CharField(
+        help_text='<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/templates/" target="_blank">Jinja2 template</a> syntax is supported'
+    )
+    template = TemplateField(label="Body")
+    comments = CommentField()
+    tags = TagField(required=False)
+
+    class Meta:
+        model = Email
+        fields = ("name", "subject", "template", "comments", "tags")
+
+
+class EmailFilterForm(BootstrapMixin, forms.Form):
+    model = Configuration
+    q = forms.CharField(required=False, label="Search")
     tag = TagFilterField(model)
 
 
@@ -634,8 +667,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
     )
     configuration_template = DynamicModelChoiceField(
         required=False,
-        queryset=Template.objects.all(),
-        widget=APISelect(additional_query_params={"type": "configuration"}),
+        queryset=Configuration.objects.all(),
         label="Configuration",
         help_text="Template used to generate device configuration",
     )
@@ -710,9 +742,7 @@ class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
     )
     configuration_template = DynamicModelChoiceField(
-        required=False,
-        queryset=Template.objects.all(),
-        widget=APISelect(additional_query_params={"type": "configuration"}),
+        required=False, queryset=Configuration.objects.all()
     )
     comments = CommentField(widget=SmallTextarea)
 
@@ -731,7 +761,7 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
     )
     configuration_template = DynamicModelMultipleChoiceField(
         required=False,
-        queryset=Template.objects.all(),
+        queryset=Configuration.objects.all(),
         to_field_name="pk",
         widget=APISelectMultiple(null_option=True),
     )
@@ -789,31 +819,5 @@ class RoutingPolicyFilterForm(BootstrapMixin, forms.Form):
     weight = forms.IntegerField(required=False, min_value=0, max_value=32767)
     address_family = forms.ChoiceField(
         required=False, choices=add_blank_choice(IP_FAMILY_CHOICES), widget=StaticSelect
-    )
-    tag = TagFilterField(model)
-
-
-class TemplateForm(BootstrapMixin, forms.ModelForm):
-    type = forms.ChoiceField(
-        required=False,
-        choices=add_blank_choice(TEMPLATE_TYPE_CHOICES),
-        widget=StaticSelect,
-    )
-    template = TemplateField()
-    comments = CommentField()
-    tags = TagField(required=False)
-
-    class Meta:
-        model = Template
-        fields = ("name", "type", "template", "comments", "tags")
-
-
-class TemplateFilterForm(BootstrapMixin, forms.Form):
-    model = Template
-    q = forms.CharField(required=False, label="Search")
-    type = forms.MultipleChoiceField(
-        required=False,
-        choices=add_blank_choice(TEMPLATE_TYPE_CHOICES),
-        widget=StaticSelectMultiple,
     )
     tag = TagFilterField(model)

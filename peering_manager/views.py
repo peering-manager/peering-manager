@@ -1,12 +1,10 @@
-from collections import OrderedDict
 import sys
 
+from collections import OrderedDict
 from django.conf import settings
 from django.shortcuts import render
 from django.views.generic import View
-
 from packaging import version
-
 from rest_framework.response import Response
 from rest_framework.reverse import reverse as rest_reverse
 from rest_framework.views import APIView
@@ -16,12 +14,13 @@ from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
+    Configuration,
     DirectPeeringSession,
+    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
-    Template,
 )
 from peeringdb.models import Synchronization
 from utils.models import ObjectChange
@@ -86,7 +85,8 @@ class Home(View):
             "bgp_groups_count": BGPGroup.objects.count(),
             "internet_exchanges_count": InternetExchange.objects.count(),
             "communities_count": Community.objects.count(),
-            "templates_count": Template.objects.count(),
+            "configurations_count": Configuration.objects.count(),
+            "emails_count": Email.objects.count(),
             "routers_count": Router.objects.count(),
             "direct_peering_sessions_count": DirectPeeringSession.objects.count(),
             "internet_exchange_peering_sessions_count": InternetExchangePeeringSession.objects.count(),

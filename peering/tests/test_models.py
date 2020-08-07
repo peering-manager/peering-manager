@@ -19,12 +19,13 @@ from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
+    Configuration,
     DirectPeeringSession,
+    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
-    Template,
 )
 from peering.tests.mocked_data import *
 from utils.crypto.cisco import (
@@ -165,6 +166,18 @@ class CommunityTest(TestCase):
             self.assertEqual(expected[i], self.communities[i].get_type_html())
 
 
+class ConfigurationTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.template = Configuration.objects.create(name="Test", template="{{ test }}")
+
+    def test_render(self):
+        self.assertEqual(self.template.render({"test": "test"}), "test")
+
+    def test_render_preview(self):
+        self.assertEqual(self.template.render_preview(), "")
+
+
 class DirectPeeringSessionTest(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -239,6 +252,20 @@ class DirectPeeringSessionTest(TestCase):
         ):
             self.assertTrue(self.session.poll())
             self.assertEqual(567_257, self.session.received_prefix_count)
+
+
+class EmailTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.email = Email.objects.create(
+            name="Test", subject="{{ test }}", template="{{ test }}"
+        )
+
+    def test_render(self):
+        self.assertEqual(self.email.render({"test": "test"}), ("test", "test"))
+
+    def test_render_preview(self):
+        self.assertEqual(self.email.render_preview(), ("", ""))
 
 
 class InternetExchangeTest(TestCase):
@@ -739,15 +766,3 @@ class RoutingPolicyTest(TestCase):
 
         for i in range(len(expected)):
             self.assertEqual(expected[i], self.routing_policies[i].get_type_html())
-
-
-class TemplateTest(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.template = Template.objects.create(name="Test", template="{{ test }}")
-
-    def test_render(self):
-        self.assertEqual(self.template.render({"test": "test"}), "test")
-
-    def test_render_preview(self):
-        self.assertEqual(self.template.render_preview(), "")

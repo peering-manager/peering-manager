@@ -11,19 +11,18 @@ from peering.constants import (
     ROUTING_POLICY_TYPE_IMPORT,
     ROUTING_POLICY_TYPE_IMPORT_EXPORT,
     ROUTING_POLICY_TYPE_EXPORT,
-    TEMPLATE_TYPE_CONFIGURATION,
-    TEMPLATE_TYPE_EMAIL,
 )
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
+    Configuration,
     DirectPeeringSession,
+    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
-    Template,
 )
 
 from utils.testing import StandardTestCases
@@ -116,6 +115,29 @@ class CommunityTestCase(StandardTestCases.Views):
         cls.bulk_edit_data = {"comments": "New comments"}
 
 
+class ConfigurationTestCase(StandardTestCases.Views):
+    model = Configuration
+
+    test_bulk_edit_objects = None
+
+    @classmethod
+    def setUpTestData(cls):
+        Configuration.objects.bulk_create(
+            [
+                Configuration(name="Configuration 1", template="Configuration 1"),
+                Configuration(name="Configuration 2", template="Configuration 2"),
+                Configuration(name="Configuration 3", template="Configuration 3"),
+            ]
+        )
+
+        cls.form_data = {
+            "name": "Configuration 4",
+            "template": "Configuration 4",
+            "comments": "",
+            "tags": "",
+        }
+
+
 class DirectPeeringSessionTestCase(StandardTestCases.Views):
     model = DirectPeeringSession
 
@@ -167,6 +189,42 @@ class DirectPeeringSessionTestCase(StandardTestCases.Views):
             "tags": "",
         }
         cls.bulk_edit_data = {"enabled": False, "comments": "New comments"}
+
+
+class EmailTestCase(StandardTestCases.Views):
+    model = Email
+
+    test_bulk_edit_objects = None
+
+    @classmethod
+    def setUpTestData(cls):
+        Email.objects.bulk_create(
+            [
+                Email(
+                    name="E-mail 1",
+                    subject="E-mail subject 1",
+                    template="E-mail template 1",
+                ),
+                Email(
+                    name="E-mail 2",
+                    subject="E-mail subject 2",
+                    template="E-mail template 2",
+                ),
+                Email(
+                    name="E-mail 3",
+                    subject="E-mail subject 3",
+                    template="E-mail template 3",
+                ),
+            ]
+        )
+
+        cls.form_data = {
+            "name": "E-mail 4",
+            "subject": "E-mail subject 4",
+            "template": "E-mail template 4",
+            "comments": "",
+            "tags": "",
+        }
 
 
 class InternetExchangeTestCase(StandardTestCases.Views):
@@ -324,39 +382,3 @@ class RoutingPolicyTestCase(StandardTestCases.Views):
             "tags": "",
         }
         cls.bulk_edit_data = {"weight": 10, "comments": "New comments"}
-
-
-class TemplateTestCase(StandardTestCases.Views):
-    model = Template
-
-    test_bulk_edit_objects = None
-
-    @classmethod
-    def setUpTestData(cls):
-        Template.objects.bulk_create(
-            [
-                Template(
-                    name="Template 1",
-                    type=TEMPLATE_TYPE_CONFIGURATION,
-                    template="Template 1",
-                ),
-                Template(
-                    name="Template 2",
-                    type=TEMPLATE_TYPE_CONFIGURATION,
-                    template="Template 2",
-                ),
-                Template(
-                    name="Template 3",
-                    type=TEMPLATE_TYPE_CONFIGURATION,
-                    template="Template 3",
-                ),
-            ]
-        )
-
-        cls.form_data = {
-            "name": "Routing Policy 4",
-            "type": TEMPLATE_TYPE_EMAIL,
-            "template": "Template 4",
-            "comments": "",
-            "tags": "",
-        }
