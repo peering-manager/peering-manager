@@ -23,10 +23,13 @@ are still correct after running the script.
 
 What does this script do?
 
+  * creates a Python virtual environment if none is found
   * installs or upgrades any new required Python dependencies
   * applies any database migrations when required
   * collects static files to be served over HTTP
-  * cleans old compiled bytecode
+  * remove stale content types
+  * clear expired sessions
+  * invalidate the cache to avoid getting out-dated data
 
 ## Restart the WSGI Service
 
