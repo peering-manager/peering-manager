@@ -128,6 +128,26 @@ DATABASE = {
     "HOST": "localhost",  # Database server
     "PORT": "",  # Database port (leave blank for default)
 }
+
+# Redis configuration
+REDIS = {
+    'tasks': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'PASSWORD': '',
+        'CACHE_DATABASE': 0,
+        'DEFAULT_TIMEOUT': 300,
+        'SSL': False,
+    },
+    'caching': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'PASSWORD': '',
+        'CACHE_DATABASE': 1,
+        'DEFAULT_TIMEOUT': 300,
+        'SSL': False,
+    }
+}
 ```
 
 ## Database Migrations
