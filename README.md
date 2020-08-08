@@ -24,7 +24,6 @@ The best way to start setting up this tool is to use **pip** within a
 **virtualenv**.
 
 ![Build Status](https://github.com/peering-manager/peering-manager/workflows/Tests%20and%20code%20formatting/badge.svg)
-[![Requirements Status](https://requires.io/github/peering-manager/peering-manager/requirements.svg?branch=master)](https://requires.io/github/peering-manager/peering-manager/requirements/?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/peering-manager/peering-manager/badge.svg?branch=master)](https://coveralls.io/github/peering-manager/peering-manager?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/peering-manager/badge/?version=latest)](https://peering-manager.readthedocs.io/en/latest/?badge=latest)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
