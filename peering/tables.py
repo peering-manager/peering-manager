@@ -6,8 +6,9 @@ from .models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    Template,
+    Configuration,
     DirectPeeringSession,
+    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
@@ -47,9 +48,9 @@ COMMUNITY_ACTIONS = """
 {% endif %}
 """
 COMMUNITY_TYPE = "{{ record.get_type_html }}"
-CONFIGURATION_TEMPLATE_ACTIONS = """
-{% if perms.peering.change_template %}
-<a href="{% url 'peering:template_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
+CONFIGURATION_ACTIONS = """
+{% if perms.peering.change_configuration %}
+<a href="{% url 'peering:configuration_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
 {% endif %}
 """
 DIRECT_PEERING_SESSION_ACTIONS = """
@@ -62,6 +63,11 @@ DIRECT_PEERING_SESSION_ACTIONS = """
 {% endif %}
 {% if perms.peering.change_directpeeringsession %}
 <a href="{% url 'peering:directpeeringsession_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
+{% endif %}
+"""
+EMAIL_ACTIONS = """
+{% if perms.peering.change_email %}
+<a href="{% url 'peering:email_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
 {% endif %}
 """
 INTERNET_EXCHANGE_ACTIONS = """
@@ -239,6 +245,22 @@ class CommunityTable(BaseTable):
         default_columns = ("pk", "name", "value", "type", "actions")
 
 
+class ConfigurationTable(BaseTable):
+    """
+    Table for Configuration lists
+    """
+
+    pk = SelectColumn()
+    name = tables.Column(linkify=True)
+    tags = TagColumn(url_name="peering:configuration_list")
+    actions = ActionsColumn(template_code=CONFIGURATION_ACTIONS)
+
+    class Meta(BaseTable.Meta):
+        model = Configuration
+        fields = ("pk", "name", "updated", "tags", "actions")
+        default_columns = ("pk", "name", "updated", "actions")
+
+
 class DirectPeeringSessionTable(BaseTable):
     """
     Table for DirectPeeringSession lists
@@ -293,6 +315,22 @@ class DirectPeeringSessionTable(BaseTable):
             "router",
             "actions",
         )
+
+
+class EmailTable(BaseTable):
+    """
+    Table for Email lists
+    """
+
+    pk = SelectColumn()
+    name = tables.Column(linkify=True)
+    tags = TagColumn(url_name="peering:configuration_list")
+    actions = ActionsColumn(template_code=EMAIL_ACTIONS)
+
+    class Meta(BaseTable.Meta):
+        model = Email
+        fields = ("pk", "name", "subject", "updated", "tags", "actions")
+        default_columns = ("pk", "name", "updated", "actions")
 
 
 class InternetExchangeTable(BaseTable):
@@ -470,19 +508,3 @@ class RoutingPolicyTable(BaseTable):
         model = RoutingPolicy
         fields = ("pk", "name", "type", "weight", "address_family", "tags", "actions")
         default_columns = ("pk", "name", "type", "weight", "address_family", "actions")
-
-
-class TemplateTable(BaseTable):
-    """
-    Table for Template lists
-    """
-
-    pk = SelectColumn()
-    name = tables.Column(linkify=True)
-    tags = TagColumn(url_name="peering:template_list")
-    actions = ActionsColumn(template_code=CONFIGURATION_TEMPLATE_ACTIONS)
-
-    class Meta(BaseTable.Meta):
-        model = Template
-        fields = ("pk", "name", "type", "updated", "tags", "actions")
-        default_columns = ("pk", "name", "type", "updated", "actions")

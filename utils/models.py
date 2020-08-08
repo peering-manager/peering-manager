@@ -5,7 +5,6 @@ from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import JSONField
 from django.core.serializers import serialize
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -83,7 +82,7 @@ class ObjectChange(models.Model):
         ct_field="related_object_type", fk_field="related_object_id"
     )
     object_repr = models.CharField(max_length=256, editable=False)
-    object_data = JSONField(editable=False)
+    object_data = models.JSONField(editable=False)
 
     class Meta:
         ordering = ["-time"]

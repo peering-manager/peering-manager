@@ -35,11 +35,18 @@
           <div class="card-header"><strong>Deployment</strong></div>
           <div class="list-group list-group-flush">
             <div class="list-group-item">
-              <span class="badge badge-pill badge-secondary float-right">{{ statistics.templates_count }}</span>
+              <span class="badge badge-pill badge-secondary float-right">{{ statistics.configurations_count }}</span>
               <h4 class="list-group-item-heading">
-                <a href="{% url 'peering:template_list' %}">Templates</a>
+                <a href="{% url 'peering:configuration_list' %}">Configurations</a>
               </h4>
-              <p class="list-group-item-textn text-muted">Templates used to generate configuration and emails<p>
+              <p class="list-group-item-textn text-muted">Templates used to generate router configurations<p>
+            </div>
+            <div class="list-group-item">
+              <span class="badge badge-pill badge-secondary float-right">{{ statistics.emails_count }}</span>
+              <h4 class="list-group-item-heading">
+                <a href="{% url 'peering:email_list' %}">E-mails</a>
+              </h4>
+              <p class="list-group-item-textn text-muted">Templates used to generate e-mails<p>
             </div>
             <div class="list-group-item">
               <span class="badge badge-pill badge-secondary float-right">{{ statistics.routers_count }}</span>

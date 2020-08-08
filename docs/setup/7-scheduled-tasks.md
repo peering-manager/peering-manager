@@ -2,6 +2,9 @@
 
 Peering Manager can run scheduled tasks to speed up some processes.
 
+Before adding any of these tasks in a cron file, make sure that they use the
+Python virtual environment if you have one for Peering Manager (you should).
+
 Since it is based on the [PeeringDB](https://www.peeringdb.com) API, querying
 these API can take quite a lot of time depending of the data that is needed to
 be retrieved. To avoid such time loss, Peering Manager is able to cached some

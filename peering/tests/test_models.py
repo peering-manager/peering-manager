@@ -19,12 +19,13 @@ from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
+    Configuration,
     DirectPeeringSession,
+    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
-    Template,
 )
 from peering.tests.mocked_data import *
 from utils.crypto.cisco import (
@@ -165,6 +166,18 @@ class CommunityTest(TestCase):
             self.assertEqual(expected[i], self.communities[i].get_type_html())
 
 
+class ConfigurationTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.template = Configuration.objects.create(name="Test", template="{{ test }}")
+
+    def test_render(self):
+        self.assertEqual(self.template.render({"test": "test"}), "test")
+
+    def test_render_preview(self):
+        self.assertEqual(self.template.render_preview(), "")
+
+
 class DirectPeeringSessionTest(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -239,6 +252,20 @@ class DirectPeeringSessionTest(TestCase):
         ):
             self.assertTrue(self.session.poll())
             self.assertEqual(567_257, self.session.received_prefix_count)
+
+
+class EmailTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.email = Email.objects.create(
+            name="Test", subject="{{ test }}", template="{{ test }}"
+        )
+
+    def test_render(self):
+        self.assertEqual(self.email.render({"test": "test"}), ("test", "test"))
+
+    def test_render_preview(self):
+        self.assertEqual(self.email.render_preview(), ("", ""))
 
 
 class InternetExchangeTest(TestCase):
@@ -446,7 +473,7 @@ class RouterTest(TestCase):
 
     def test_get_configuration_context(self):
         for i in range(1, 6):
-            AutonomousSystem.objects.create(asn=i, name="Test {}".format(i))
+            AutonomousSystem.objects.create(asn=i, name=f"Test {i}")
         bgp_group = BGPGroup.objects.create(name="Test Group", slug="testgroup")
         for i in range(1, 6):
             DirectPeeringSession.objects.create(
@@ -454,7 +481,8 @@ class RouterTest(TestCase):
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
                 bgp_group=bgp_group,
                 relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
-                ip_address="10.0.0.{}".format(i),
+                ip_address=f"10.0.0.{i}",
+                enabled=bool(i % 2),
                 router=self.router,
             )
         internet_exchange = InternetExchange.objects.create(
@@ -464,12 +492,14 @@ class RouterTest(TestCase):
             InternetExchangePeeringSession.objects.create(
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
                 internet_exchange=internet_exchange,
-                ip_address="2001:db8::{}".format(i),
+                ip_address=f"2001:db8::{i}",
+                enabled=bool(i % 2),
             )
             InternetExchangePeeringSession.objects.create(
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
                 internet_exchange=internet_exchange,
-                ip_address="192.0.2.{}".format(i),
+                ip_address=f"192.0.2.{i}",
+                enabled=bool(i % 2),
             )
 
         # Convert to dict and merge values
@@ -736,15 +766,3 @@ class RoutingPolicyTest(TestCase):
 
         for i in range(len(expected)):
             self.assertEqual(expected[i], self.routing_policies[i].get_type_html())
-
-
-class TemplateTest(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.template = Template.objects.create(name="Test", template="{{ test }}")
-
-    def test_render(self):
-        self.assertEqual(self.template.render({"test": "test"}), "test")
-
-    def test_render_preview(self):
-        self.assertEqual(self.template.render_preview(), "")

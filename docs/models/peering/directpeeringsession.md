@@ -24,7 +24,7 @@ properties can be configured (n.b. some are optional):
   * `Password`: MD5 password to secure the BGP session ; it can be a clear text
     password or an encrypted one. In the latter case, make sure that the router
     will not try to encrypt the password again.
-  * `Multihop TTL`: a value to set the time to live interval for IP packets
+  * `Multihop TTL`: value to set the time to live interval for IP packets
     used for the BGP control traffic. It defaults to 1 for external BGP
     sessions but can be set to a higher value to establish sessions that have
     to cross a network composed of more than one router in the transit path of

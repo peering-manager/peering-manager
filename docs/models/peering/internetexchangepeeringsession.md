@@ -14,8 +14,8 @@ BGP sessions established with remote peers and that are using Internet exchange
 LANs. For each Internet exchange peering session that you create, the following
 properties can be configured (n.b. some are optional):
 
-  * `Autonomous System`: the autonomous system of the remote peer.
-  * `Internet Exchange`: an Internet exchange providing a LAN and IP addresses
+  * `Autonomous System`: autonomous system of the remote peer.
+  * `Internet Exchange`: Internet exchange providing a LAN and IP addresses
     for autonomous systems to peer.
   * `Password`: a password to secure a BGP session; it can be a clear text
     password or an encrypted one. In the latter case, make sure that the router

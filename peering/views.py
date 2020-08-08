@@ -11,12 +11,13 @@ from .filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
     CommunityFilterSet,
+    ConfigurationFilterSet,
     DirectPeeringSessionFilterSet,
+    EmailFilterSet,
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
     RouterFilterSet,
     RoutingPolicyFilterSet,
-    TemplateFilterSet,
 )
 from .forms import (
     AutonomousSystemEmailForm,
@@ -28,9 +29,13 @@ from .forms import (
     CommunityBulkEditForm,
     CommunityFilterForm,
     CommunityForm,
+    ConfigurationFilterForm,
+    ConfigurationForm,
     DirectPeeringSessionBulkEditForm,
     DirectPeeringSessionFilterForm,
     DirectPeeringSessionForm,
+    EmailFilterForm,
+    EmailForm,
     InternetExchangeBulkEditForm,
     InternetExchangeFilterForm,
     InternetExchangeForm,
@@ -45,31 +50,31 @@ from .forms import (
     RoutingPolicyBulkEditForm,
     RoutingPolicyFilterForm,
     RoutingPolicyForm,
-    TemplateFilterForm,
-    TemplateForm,
 )
 from .models import (
     AutonomousSystem,
     BGPGroup,
     BGPSession,
     Community,
+    Configuration,
     DirectPeeringSession,
+    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
-    Template,
 )
 from .tables import (
     AutonomousSystemTable,
     BGPGroupTable,
     CommunityTable,
+    ConfigurationTable,
     DirectPeeringSessionTable,
+    EmailTable,
     InternetExchangeTable,
     InternetExchangePeeringSessionTable,
     RouterTable,
     RoutingPolicyTable,
-    TemplateTable,
 )
 from peeringdb.filters import PeerRecordFilterSet
 from peeringdb.forms import PeerRecordFilterForm
@@ -500,6 +505,53 @@ class CommunityBulkEdit(PermissionRequiredMixin, BulkEditView):
     form = CommunityBulkEditForm
 
 
+class ConfigurationList(PermissionRequiredMixin, ModelListView):
+    permission_required = "peering.view_configuration"
+    queryset = Configuration.objects.all()
+    filter = ConfigurationFilterSet
+    filter_form = ConfigurationFilterForm
+    table = ConfigurationTable
+    template = "peering/configuration/list.html"
+
+
+class ConfigurationAdd(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "peering.add_configuration"
+    model = Configuration
+    form = ConfigurationForm
+    template = "peering/configuration/add_edit.html"
+    return_url = "peering:configuration_list"
+
+
+class ConfigurationDetails(PermissionRequiredMixin, View):
+    permission_required = "peering.view_configuration"
+
+    def get(self, request, pk):
+        configuration = get_object_or_404(Configuration, pk=pk)
+        routers = Router.objects.filter(configuration_template=configuration)
+        context = {"configuration": configuration, "routers": routers}
+        return render(request, "peering/configuration/details.html", context)
+
+
+class ConfigurationEdit(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "peering.change_configuration"
+    model = Configuration
+    form = ConfigurationForm
+    template = "peering/configuration/add_edit.html"
+
+
+class ConfigurationDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = "peering.delete_configuration"
+    model = Configuration
+    return_url = "peering:configuration_list"
+
+
+class ConfigurationBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = "peering.delete_configuration"
+    model = Configuration
+    filter = ConfigurationFilterSet
+    table = ConfigurationTable
+
+
 class DirectPeeringSessionAdd(PermissionRequiredMixin, AddOrEditView):
     permission_required = "peering.add_directpeeringsession"
     model = DirectPeeringSession
@@ -566,6 +618,51 @@ class DirectPeeringSessionList(PermissionRequiredMixin, ModelListView):
     filter = DirectPeeringSessionFilterSet
     filter_form = DirectPeeringSessionFilterForm
     template = "peering/session/direct/list.html"
+
+
+class EmailList(PermissionRequiredMixin, ModelListView):
+    permission_required = "peering.view_email"
+    queryset = Email.objects.all()
+    filter = EmailFilterSet
+    filter_form = EmailFilterForm
+    table = EmailTable
+    template = "peering/email/list.html"
+
+
+class EmailAdd(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "peering.add_email"
+    model = Email
+    form = EmailForm
+    template = "peering/email/add_edit.html"
+    return_url = "peering:email_list"
+
+
+class EmailDetails(PermissionRequiredMixin, View):
+    permission_required = "peering.view_email"
+
+    def get(self, request, pk):
+        context = {"email": get_object_or_404(Email, pk=pk)}
+        return render(request, "peering/email/details.html", context)
+
+
+class EmailEdit(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "peering.change_email"
+    model = Email
+    form = EmailForm
+    template = "peering/email/add_edit.html"
+
+
+class EmailDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = "peering.delete_email"
+    model = Email
+    return_url = "peering:email_list"
+
+
+class EmailBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = "peering.delete_email"
+    model = Email
+    filter = EmailFilterSet
+    table = EmailTable
 
 
 class InternetExchangeList(PermissionRequiredMixin, ModelListView):
@@ -1073,50 +1170,3 @@ class RoutingPolicyBulkEdit(PermissionRequiredMixin, BulkEditView):
     filter = RoutingPolicyFilterSet
     table = RoutingPolicyTable
     form = RoutingPolicyBulkEditForm
-
-
-class TemplateList(PermissionRequiredMixin, ModelListView):
-    permission_required = "peering.view_template"
-    queryset = Template.objects.all()
-    filter = TemplateFilterSet
-    filter_form = TemplateFilterForm
-    table = TemplateTable
-    template = "peering/template/list.html"
-
-
-class TemplateAdd(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "peering.add_template"
-    model = Template
-    form = TemplateForm
-    template = "peering/template/add_edit.html"
-    return_url = "peering:template_list"
-
-
-class TemplateDetails(PermissionRequiredMixin, View):
-    permission_required = "peering.view_template"
-
-    def get(self, request, pk):
-        template = get_object_or_404(Template, pk=pk)
-        routers = Router.objects.filter(configuration_template=template)
-        context = {"template": template, "routers": routers}
-        return render(request, "peering/template/details.html", context)
-
-
-class TemplateEdit(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "peering.change_template"
-    model = Template
-    form = TemplateForm
-    template = "peering/template/add_edit.html"
-
-
-class TemplateDelete(PermissionRequiredMixin, DeleteView):
-    permission_required = "peering.delete_template"
-    model = Template
-    return_url = "peering:template_list"
-
-
-class TemplateBulkDelete(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = "peering.delete_template"
-    model = Template
-    filter = TemplateFilterSet
-    table = TemplateTable

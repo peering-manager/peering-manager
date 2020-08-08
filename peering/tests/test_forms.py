@@ -5,14 +5,15 @@ from peering.forms import (
     AutonomousSystemEmailForm,
     AutonomousSystemForm,
     CommunityForm,
+    ConfigurationForm,
     DirectPeeringSessionForm,
+    EmailForm,
     InternetExchangeForm,
     InternetExchangePeeringSessionForm,
     RouterForm,
     RoutingPolicyForm,
-    TemplateForm,
 )
-from peering.models import AutonomousSystem, InternetExchange, Template
+from peering.models import AutonomousSystem, Configuration, Email, InternetExchange
 
 
 class AutonomousSystemTest(TestCase):
@@ -22,18 +23,16 @@ class AutonomousSystemTest(TestCase):
         self.assertTrue(test.save())
 
     def test_autonomous_system_email_form(self):
-        template = Template.objects.create(
-            name="E-mail", type=TEMPLATE_TYPE_EMAIL, template="Hello"
-        )
+        email = Email.objects.create(name="E-mail", subject="Hello", template="World")
         test = AutonomousSystemEmailForm(
             data={
-                "template": template.pk,
+                "email": email.pk,
                 "recipient": "test@example.net",
-                "subject": "Test",
-                "body": "Hello",
+                "subject": "Hello",
+                "body": "World",
             }
         )
-        test.fields["recipient"].choices = [("test@example.net", "Test")]
+        test.fields["recipient"].choices = [("test@example.net", "Hello")]
         self.assertTrue(test.is_valid())
 
 
@@ -47,6 +46,13 @@ class CommunityTest(TestCase):
                 "type": COMMUNITY_TYPE_EGRESS,
             }
         )
+        self.assertTrue(test.is_valid())
+        self.assertTrue(test.save())
+
+
+class ConfigurationTest(TestCase):
+    def test_configuration_form(self):
+        test = ConfigurationForm(data={"name": "Test", "template": "test_template"})
         self.assertTrue(test.is_valid())
         self.assertTrue(test.save())
 
@@ -66,6 +72,19 @@ class DirectPeeringSessionTest(TestCase):
                 "autonomous_system": self.autonomous_system.pk,
                 "relationship": BGP_RELATIONSHIP_PRIVATE_PEERING,
                 "ip_address": "2001:db8::1",
+            }
+        )
+        self.assertTrue(test.is_valid())
+        self.assertTrue(test.save())
+
+
+class EmailTest(TestCase):
+    def test_email_form(self):
+        test = EmailForm(
+            data={
+                "name": "Test",
+                "subject": "test_subject",
+                "template": "test_template",
             }
         )
         self.assertTrue(test.is_valid())
@@ -125,19 +144,6 @@ class RoutingPolicyTest(TestCase):
                 "type": ROUTING_POLICY_TYPE_IMPORT,
                 "weight": 0,
                 "address_family": 0,
-            }
-        )
-        self.assertTrue(test.is_valid())
-        self.assertTrue(test.save())
-
-
-class TemplateTest(TestCase):
-    def test_template_form(self):
-        test = TemplateForm(
-            data={
-                "type": TEMPLATE_TYPE_CONFIGURATION,
-                "name": "Test",
-                "template": "test_template",
             }
         )
         self.assertTrue(test.is_valid())

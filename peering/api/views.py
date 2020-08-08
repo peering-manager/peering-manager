@@ -9,35 +9,38 @@ from .serializers import (
     AutonomousSystemSerializer,
     BGPGroupSerializer,
     CommunitySerializer,
+    ConfigurationSerializer,
     DirectPeeringSessionSerializer,
+    EmailSerializer,
     InternetExchangeSerializer,
     InternetExchangeNestedSerializer,
     InternetExchangePeeringSessionSerializer,
     RouterSerializer,
     RoutingPolicySerializer,
-    TemplateSerializer,
 )
 from peering.filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
     CommunityFilterSet,
+    ConfigurationFilterSet,
     DirectPeeringSessionFilterSet,
+    EmailFilterSet,
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
     RouterFilterSet,
     RoutingPolicyFilterSet,
-    TemplateFilterSet,
 )
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
+    Configuration,
     DirectPeeringSession,
+    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
-    Template,
 )
 from peeringdb.api.serializers import PeerRecordSerializer
 from utils.api import ModelViewSet, ServiceUnavailable, StaticChoicesViewSet
@@ -102,7 +105,7 @@ class AutonomousSystemViewSet(ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="generate-email")
     def generate_email(self, request, pk=None):
-        template = Template.objects.get(pk=int(request.data["template"]))
+        template = Email.objects.get(pk=int(request.data["email"]))
         return Response({"email": self.get_object().generate_email(template)})
 
 
@@ -127,6 +130,16 @@ class CommunityViewSet(ModelViewSet):
     filterset_class = CommunityFilterSet
 
 
+class ConfigurationViewSet(ModelViewSet):
+    queryset = Configuration.objects.all()
+    serializer_class = ConfigurationSerializer
+    filterset_class = ConfigurationFilterSet
+
+    @action(detail=True, methods=["get"], url_path="render-preview")
+    def render_preview(self, request, pk=None):
+        return Response({"preview": self.get_object().render_preview()})
+
+
 class DirectPeeringSessionViewSet(ModelViewSet):
     queryset = DirectPeeringSession.objects.all()
     serializer_class = DirectPeeringSessionSerializer
@@ -149,6 +162,16 @@ class DirectPeeringSessionViewSet(ModelViewSet):
     @action(detail=True, methods=["post", "patch"], url_path="poll")
     def poll(self, request, pk=None):
         return Response({"success": self.get_object().poll()})
+
+
+class EmailViewSet(ModelViewSet):
+    queryset = Email.objects.all()
+    serializer_class = EmailSerializer
+    filterset_class = EmailFilterSet
+
+    @action(detail=True, methods=["get"], url_path="render-preview")
+    def render_preview(self, request, pk=None):
+        return Response({"preview": self.get_object().render_preview()})
 
 
 class InternetExchangeViewSet(ModelViewSet):
@@ -307,13 +330,3 @@ class RoutingPolicyViewSet(ModelViewSet):
     queryset = RoutingPolicy.objects.all()
     serializer_class = RoutingPolicySerializer
     filterset_class = RoutingPolicyFilterSet
-
-
-class TemplateViewSet(ModelViewSet):
-    queryset = Template.objects.all()
-    serializer_class = TemplateSerializer
-    filterset_class = TemplateFilterSet
-
-    @action(detail=True, methods=["get"], url_path="render-preview")
-    def render_preview(self, request, pk=None):
-        return Response({"preview": self.get_object().render_preview()})

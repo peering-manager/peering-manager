@@ -1,3 +1,6 @@
+from django.db import models
+
+
 # ASN bounds
 ASN_MIN = 1
 ASN_MAX = 2 ** 32 - 1
@@ -63,12 +66,4 @@ ROUTING_POLICY_TYPE_CHOICES = (
     (ROUTING_POLICY_TYPE_EXPORT, "Export"),
     (ROUTING_POLICY_TYPE_IMPORT, "Import"),
     (ROUTING_POLICY_TYPE_IMPORT_EXPORT, "Import+Export"),
-)
-
-# Templates constants
-TEMPLATE_TYPE_CONFIGURATION = "configuration"
-TEMPLATE_TYPE_EMAIL = "email"
-TEMPLATE_TYPE_CHOICES = (
-    (TEMPLATE_TYPE_CONFIGURATION, "Configuration"),
-    (TEMPLATE_TYPE_EMAIL, "E-mail"),
 )

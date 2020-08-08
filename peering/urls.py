@@ -116,6 +116,35 @@ urlpatterns = [
         views.CommunityBulkEdit.as_view(),
         name="community_bulk_edit",
     ),
+    # Configurations
+    path(
+        "configurations/", views.ConfigurationList.as_view(), name="configuration_list"
+    ),
+    path(
+        "configurations/add/",
+        views.ConfigurationAdd.as_view(),
+        name="configuration_add",
+    ),
+    path(
+        "configurations/<int:pk>/",
+        views.ConfigurationDetails.as_view(),
+        name="configuration_details",
+    ),
+    path(
+        "configurations/<int:pk>/edit/",
+        views.ConfigurationEdit.as_view(),
+        name="configuration_edit",
+    ),
+    path(
+        "configurations/<int:pk>/delete/",
+        views.ConfigurationDelete.as_view(),
+        name="configuration_delete",
+    ),
+    path(
+        "configurations/delete/",
+        views.ConfigurationBulkDelete.as_view(),
+        name="configuration_bulk_delete",
+    ),
     # Direct Peering Sessions
     path(
         "direct-peering-sessions/",
@@ -152,6 +181,13 @@ urlpatterns = [
         views.DirectPeeringSessionDelete.as_view(),
         name="directpeeringsession_delete",
     ),
+    # E-mails
+    path("emails/", views.EmailList.as_view(), name="email_list"),
+    path("emails/add/", views.EmailAdd.as_view(), name="email_add"),
+    path("emails/<int:pk>/", views.EmailDetails.as_view(), name="email_details"),
+    path("emails/<int:pk>/edit/", views.EmailEdit.as_view(), name="email_edit"),
+    path("emails/<int:pk>/delete/", views.EmailDelete.as_view(), name="email_delete"),
+    path("emails/delete/", views.EmailBulkDelete.as_view(), name="email_bulk_delete"),
     # Internet Exchanges
     path(
         "internet-exchanges/",
@@ -306,24 +342,5 @@ urlpatterns = [
         "routing-policies/edit/",
         views.RoutingPolicyBulkEdit.as_view(),
         name="routingpolicy_bulk_edit",
-    ),
-    # Templates
-    path("templates/", views.TemplateList.as_view(), name="template_list"),
-    path("templates/add/", views.TemplateAdd.as_view(), name="template_add"),
-    path(
-        "templates/<int:pk>/", views.TemplateDetails.as_view(), name="template_details"
-    ),
-    path(
-        "templates/<int:pk>/edit/", views.TemplateEdit.as_view(), name="template_edit"
-    ),
-    path(
-        "templates/<int:pk>/delete/",
-        views.TemplateDelete.as_view(),
-        name="template_delete",
-    ),
-    path(
-        "templates/delete/",
-        views.TemplateBulkDelete.as_view(),
-        name="template_bulk_delete",
     ),
 ]

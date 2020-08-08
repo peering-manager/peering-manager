@@ -20,14 +20,15 @@ router.register("_choices", views.PeeringFieldChoicesViewSet, basename="field-ch
 router.register("autonomous-systems", views.AutonomousSystemViewSet)
 router.register("bgp-groups", views.BGPGroupViewSet)
 router.register("communities", views.CommunityViewSet)
+router.register("configurations", views.ConfigurationViewSet)
 router.register("direct-peering-sessions", views.DirectPeeringSessionViewSet)
+router.register("emails", views.EmailViewSet)
 router.register("internet-exchanges", views.InternetExchangeViewSet)
 router.register(
     "internet-exchange-peering-sessions", views.InternetExchangePeeringSessionViewSet
 )
 router.register("routers", views.RouterViewSet)
 router.register("routing-policies", views.RoutingPolicyViewSet)
-router.register("templates", views.TemplateViewSet)
 
 app_name = "peering-api"
 urlpatterns = router.urls

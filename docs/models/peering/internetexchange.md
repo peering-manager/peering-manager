@@ -12,7 +12,7 @@ related to an Internet exchange. For each Internet exchange that you create,
 the following properties can be configured (n.b. some are optional):
 
   * `Name`: human-readable name attached to the IX.
-  * `Slug`: a unique configuration and URL friendly name; usually it is
+  * `Slug`: unique configuration and URL friendly name; usually it is
      automatically generated from the group's name.
   * `Comments`: text to explain what the Internet exchange is for. Can use
     Markdown formatting.

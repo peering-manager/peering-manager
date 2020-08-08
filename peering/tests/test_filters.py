@@ -3,23 +3,25 @@ from peering.filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
     CommunityFilterSet,
+    ConfigurationFilterSet,
     DirectPeeringSessionFilterSet,
+    EmailFilterSet,
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
     RouterFilterSet,
     RoutingPolicyFilterSet,
-    TemplateFilterSet,
 )
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
+    Configuration,
     DirectPeeringSession,
+    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
-    Template,
 )
 from utils.testing import StandardTestCases
 
@@ -136,6 +138,24 @@ class CommunityTestCase(StandardTestCases.Filters):
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
 
+class ConfigurationTestCase(StandardTestCases.Filters):
+    model = Configuration
+    filter = ConfigurationFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        Configuration.objects.bulk_create(
+            [
+                Configuration(name="Configuration 1", template="Configuration 1"),
+                Configuration(name="Configuration 2", template="Configuration 2"),
+            ]
+        )
+
+    def test_name(self):
+        params = {"name": "Configuration 1"}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+
+
 class DirectPeeringSessionTestCase(StandardTestCases.Filters):
     model = DirectPeeringSession
     filter = DirectPeeringSessionFilterSet
@@ -202,6 +222,32 @@ class DirectPeeringSessionTestCase(StandardTestCases.Filters):
         params = {"enabled": True}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
         params = {"enabled": False}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+
+
+class EmailTestCase(StandardTestCases.Filters):
+    model = Email
+    filter = EmailFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        Email.objects.bulk_create(
+            [
+                Email(
+                    name="E-mail 1",
+                    subject="E-mail subject 1",
+                    template="E-mail template 1",
+                ),
+                Email(
+                    name="E-mail 2",
+                    subject="E-mail subject 2",
+                    template="E-mail template 2",
+                ),
+            ]
+        )
+
+    def test_name(self):
+        params = {"name": "E-mail 1"}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
 
@@ -411,40 +457,3 @@ class RoutingPolicyTestCase(StandardTestCases.Filters):
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
         params = {"address_family": 4}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 0)
-
-
-class TemplateTestCase(StandardTestCases.Filters):
-    model = Template
-    filter = TemplateFilterSet
-
-    @classmethod
-    def setUpTestData(cls):
-        Template.objects.bulk_create(
-            [
-                Template(
-                    name="Template 1",
-                    type=TEMPLATE_TYPE_CONFIGURATION,
-                    template="Template 1",
-                ),
-                Template(
-                    name="Template 2",
-                    type=TEMPLATE_TYPE_CONFIGURATION,
-                    template="Template 2",
-                ),
-                Template(
-                    name="Template 3", type=TEMPLATE_TYPE_EMAIL, template="Template 3"
-                ),
-            ]
-        )
-
-    def test_type(self):
-        params = {"type": [TEMPLATE_TYPE_CONFIGURATION]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
-        params = {"type": [TEMPLATE_TYPE_EMAIL]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
-        params = {"type": [TEMPLATE_TYPE_CONFIGURATION, TEMPLATE_TYPE_EMAIL]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
-
-    def test_name(self):
-        params = {"name": "Template 1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
