@@ -15,9 +15,9 @@ Examples of templates are provided in the Peering Manager's
 For each template that you create, the following properties can be configured
 (n.b. some are optional):
 
-  * `Name`: a human-readable name attached to a template.
-  * `Slug`: a unique configuration and URL friendly name; most of the time it
-    is automatically generated from the template's name.
+  * `Name`: human-readable name attached to a template.
+  * `Slug`: unique configuration and URL friendly name; usually it is
+     automatically generated from the template's name.
   * `Type`: identifies if the template is for device configuration or e-mail.
   * `Template`: the template itself, formatted using Jinja2 syntax.
   * `Comments`: text to explain what the template is for. Can use Markdown

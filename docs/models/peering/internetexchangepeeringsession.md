@@ -2,7 +2,7 @@
 
 An Internet exchange peering session is a BGP session which is established over
 an Internet exchange LAN. When peering on an IX, it is a common practice to
-create BGP sessions with route servers (if they are any) and other autonomous
+create BGP sessions with route servers (if there are any) and other autonomous
 systems which you want to reach directly without having to rely on transit
 providers. They are configured on routers which may or may not be dedicated to
 routing Internet traffic.
@@ -14,10 +14,10 @@ BGP sessions established with remote peers and that are using Internet exchange
 LANs. For each Internet exchange peering session that you create, the following
 properties can be configured (n.b. some are optional):
 
-  * `Autonomous System`: an autonomous system managed by a remote peer.
+  * `Autonomous System`: the autonomous system of the remote peer.
   * `Internet Exchange`: an Internet exchange providing a LAN and IP addresses
     for autonomous systems to peer.
-  * `Password`: a password to secure a BGP session ; it can be a clear text
+  * `Password`: a password to secure a BGP session; it can be a clear text
     password or an encrypted one. In the latter case, make sure that the router
     will not try to encrypt the password again.
   * `Multihop TTL`: a value to set the time to leave interval for IP packets
