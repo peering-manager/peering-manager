@@ -18,7 +18,7 @@ HOSTNAME = platform.node()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS_DIR = os.path.join(BASE_DIR, "docs")
 
-VERSION = "v1.2.0"
+VERSION = "v1.2.1-dev"
 
 if platform.python_version_tuple() < ("3", "6"):
     raise RuntimeError(
@@ -200,7 +200,7 @@ PEERINGDB_PASSWORD = getattr(configuration, "PEERINGDB_PASSWORD", "")
 RELEASE_CHECK_URL = getattr(
     configuration,
     "RELEASE_CHECK_URL",
-    "https://api.github.com/repos/respawner/peering-manager/releases",
+    "https://api.github.com/repos/peering-manager/peering-manager/releases",
 )
 RELEASE_CHECK_TIMEOUT = getattr(configuration, "RELEASE_CHECK_TIMEOUT", 86400)
 
