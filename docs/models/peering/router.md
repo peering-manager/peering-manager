@@ -8,14 +8,14 @@ implementation of routers to track peers and sessions.
 ## In Peering Manager
 
 Inside Peering Manager, you create routers and connect them to Internet
-exchanges or assigned direct peering sessions to them. You'll then be able to
+exchanges, and/or assign direct peering sessions to them. You'll then be able to
 track on which router a BGP session is configured as well as add, change or
 delete said session. For each router that you create, the following properties
 can be configured (n.b. some are optional):
 
-  * `Name`: a human-readable name attached to a router.
-  * `Hostname`: a resolvable FQDN or an IP address to reach the router.
-  * `Platform`: a network operating system which is running on the router.
+  * `Name`: human-readable name attached to a router.
+  * `Hostname`: resolvable FQDN or an IP address to reach the router.
+  * `Platform`: network operating system which is running on the router.
   * `Encrypt Passwords`: an option to tell if protected BGP sessions use
     encrypted passwords and if Peering Manager should generate and record the
     encrypted password if it can.

@@ -3,7 +3,7 @@
 A group of BGP sessions that share, more or less, the same purpose. It is a
 common practice to group BGP sessions together. For instance, one may want to
 make a group composed of transit provider BGP sessions only. A group can be
-defined once but it is not tight to a router. This means that one group can be
+defined once but it is not tied to a router. This means that one group can be
 configured on several routers depending on which router the BGP sessions are
 attached.
 
@@ -16,13 +16,13 @@ private peering sessions. You can create as many groups as you want depending
 on how you want to manage BGP sessions in your network. For each group that you
 create, the following properties can be configured (n.b. some are optional):
 
-  * `Name`: a human-readable name attached to a group.
-  * `Slug`: a unique configuration and URL friendly name; most of the time it
-    is automatically generated from the group's name.
+  * `Name`: human-readable name attached to a group.
+  * `Slug`: unique configuration and URL friendly name; usually it is
+     automatically generated from the group's name.
   * `Comments`: text to explain what the group is for. Can use Markdown
     formatting.
-  * `Check BGP Session States`: a value used to know if routers attached to BGP
-    sessions within the group have to check for the state of these sessions.
+  * `Check BGP Session States`: defines if Peering Manager should poll the
+    status of sessions within this group. 
   * `Import Routing Policies`: a list of routing policies to apply when
      receiving prefixes though BGP sessions in the group.
   * `Export Routing Policies`: a list of routing policies to apply when

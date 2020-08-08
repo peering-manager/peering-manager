@@ -15,16 +15,16 @@ with. Your own ASN number must be provided as a setting called `MY_ASN`. For
 each AS that you create, the following properties can be configured (n.b. some
 are optional):
 
-  * `ASN`: a unique autonomous system number of the entity.
-  * `Name`: a human-readable name attached to an AS.
+  * `ASN`: unique autonomous system number of the entity.
+  * `Name`: human-readable name attached to an AS.
   * `IRR AS-SET`: the set of other ASNs that can be found behind this AS.
   * `IPv6 Max Prefixes`: a zero or positive integer which defines the maximum
     number of IPv6 prefixes to receive from the AS.
   * `IPv4 Max Prefixes`: a zero or positive integer which defines the maximum
     number of IPv4 prefixes to receive from the AS.
   * `Contact Name`: contact person/team in charge of BGP/peering operations.
-  * `Contact Phone`: a phone number to get in touch with the contact.
-  * `Contact E-mail`: an e-mail address to get in touch with the contact.
+  * `Contact Phone`: phone number to get in touch with the contact.
+  * `Contact E-mail`: e-mail address to get in touch with the contact.
   * `Import Routing Policies`: a list of routing policies to apply when
      receiving prefixes from the AS.
   * `Export Routing Policies`: a list of routing policies to apply when
@@ -36,5 +36,5 @@ are optional):
   * `Comments`: text to record some notes about the AS. Can use Markdown
     formatting.
 
-Note that the best way to keep all of this properties up-to-date is to use the
+Note that the best way to keep all of these properties up-to-date is to use the
 PeeringDB integration that can synchronize some of them automatically.
