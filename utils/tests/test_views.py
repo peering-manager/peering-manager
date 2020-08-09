@@ -2,7 +2,7 @@ import uuid
 
 from django.contrib.auth.models import User
 
-from utils.constants import OBJECT_CHANGE_ACTION_UPDATE
+from utils.enums import ObjectChangeAction
 from utils.models import ObjectChange, Tag
 from utils.testing import StandardTestCases
 
@@ -23,7 +23,7 @@ class ObjectChangeTestCase(StandardTestCases.Views):
 
         user = User.objects.create_user(username="testuser2")
         for i in range(1, 4):
-            tag.log_change(user, uuid.uuid4(), OBJECT_CHANGE_ACTION_UPDATE)
+            tag.log_change(user, uuid.uuid4(), ObjectChangeAction.UPDATE)
 
 
 class TagTestCase(StandardTestCases.Views):

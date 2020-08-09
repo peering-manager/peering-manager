@@ -11,9 +11,9 @@ from django.urls import reverse
 from django.utils import timezone
 from redis.exceptions import RedisError
 
+from .enums import ObjectChangeAction
+from .models import ObjectChange
 from .views import ServerError
-from utils.constants import *
-from utils.models import ObjectChange
 from webhooks.workers import enqueue_webhooks
 
 
@@ -27,9 +27,7 @@ def cache_changed_object(instance, **kwargs):
     modified.
     """
     action = (
-        OBJECT_CHANGE_ACTION_CREATE
-        if kwargs["created"]
-        else OBJECT_CHANGE_ACTION_UPDATE
+        ObjectChangeAction.CREATE if kwargs["created"] else ObjectChangeAction.UPDATE
     )
 
     # Cache the object to finish processing it once the response has completed
@@ -41,7 +39,7 @@ def cache_deleted_object(instance, **kwargs):
     Record a deleted object as an object change.
     """
     copy = deepcopy(instance)
-    local_thread.changed_objects.append((copy, OBJECT_CHANGE_ACTION_DELETE))
+    local_thread.changed_objects.append((copy, ObjectChangeAction.DELETE))
 
 
 class ExceptionCatchingMiddleware(object):

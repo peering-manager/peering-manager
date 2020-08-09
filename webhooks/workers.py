@@ -5,7 +5,7 @@ from django.utils import timezone
 from django_rq import get_queue, job
 
 from .models import Webhook
-from utils.constants import *
+from utils.enums import ObjectChangeAction
 from utils.functions import generate_signature, get_serializer_for_model
 from utils.models import ObjectChange
 
@@ -85,9 +85,9 @@ def enqueue_webhooks(instance, user, request_id, action):
 
     # Finds usable webhooks
     action_flag = {
-        OBJECT_CHANGE_ACTION_CREATE: "type_create",
-        OBJECT_CHANGE_ACTION_UPDATE: "type_update",
-        OBJECT_CHANGE_ACTION_DELETE: "type_delete",
+        ObjectChangeAction.CREATE: "type_create",
+        ObjectChangeAction.UPDATE: "type_update",
+        ObjectChangeAction.DELETE: "type_delete",
     }[action]
     webhooks = Webhook.objects.filter(enabled=True, **{action_flag: True})
 

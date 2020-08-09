@@ -4,17 +4,7 @@ from django.conf import settings
 from django.test import TestCase
 from unittest.mock import patch
 
-from peering.constants import (
-    BGP_RELATIONSHIP_PRIVATE_PEERING,
-    COMMUNITY_TYPE_INGRESS,
-    COMMUNITY_TYPE_EGRESS,
-    PLATFORM_IOSXR,
-    PLATFORM_JUNOS,
-    PLATFORM_NONE,
-    ROUTING_POLICY_TYPE_EXPORT,
-    ROUTING_POLICY_TYPE_IMPORT,
-    ROUTING_POLICY_TYPE_IMPORT_EXPORT,
-)
+from peering.enums import BGPRelationship, CommunityType, Platform, RoutingPolicyType
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -143,13 +133,13 @@ class CommunityTest(TestCase):
                 name="test-1",
                 slug="test-1",
                 value="64500:1",
-                type=COMMUNITY_TYPE_EGRESS,
+                type=CommunityType.EGRESS,
             ),
             Community(
                 name="test-2",
                 slug="test-2",
                 value="64500:2",
-                type=COMMUNITY_TYPE_INGRESS,
+                type=CommunityType.INGRESS,
             ),
             Community(name="test-3", slug="test-3", value="64500:3", type="unknown"),
         ]
@@ -186,7 +176,7 @@ class DirectPeeringSessionTest(TestCase):
             name="Test Group", slug="testgroup", check_bgp_session_states=True
         )
         cls.router = Router.objects.create(
-            name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
+            name="Test", hostname="test.example.com", platform=Platform.JUNOS
         )
         cls.session = DirectPeeringSession.objects.create(
             autonomous_system=cls.autonomous_system,
@@ -209,7 +199,7 @@ class DirectPeeringSessionTest(TestCase):
         )
 
         # Change router platform and re-encrypt
-        self.router.platform = PLATFORM_IOSXR
+        self.router.platform = Platform.IOSXR
         self.session.encrypt_password(self.router.platform)
         self.assertIsNotNone(self.session.encrypted_password)
         self.assertTrue(cisco_is_encrypted(self.session.encrypted_password))
@@ -218,13 +208,13 @@ class DirectPeeringSessionTest(TestCase):
         )
 
         # Change router platform to an unsupported one
-        self.router.platform = PLATFORM_NONE
+        self.router.platform = Platform.NONE
         self.session.encrypt_password(self.router.platform)
         self.assertIsNone(self.session.encrypted_password)
 
         # Change password to None
         self.session.password = None
-        self.router.platform = PLATFORM_JUNOS
+        self.router.platform = Platform.JUNOS
         self.session.encrypt_password(self.router.platform)
         self.assertIsNone(self.session.encrypted_password)
 
@@ -369,7 +359,7 @@ class InternetExchangePeeringSessionTest(TestCase):
     def setUpTestData(cls):
         cls.autonomous_system = AutonomousSystem.objects.create(asn=64510, name="Test")
         cls.router = Router.objects.create(
-            name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
+            name="Test", hostname="test.example.com", platform=Platform.JUNOS
         )
         cls.exchange = InternetExchange.objects.create(
             name="Test Group",
@@ -388,7 +378,7 @@ class InternetExchangePeeringSessionTest(TestCase):
     def test_encrypt_password(self):
         autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Test")
         router = Router.objects.create(
-            name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
+            name="Test", hostname="test.example.com", platform=Platform.JUNOS
         )
         internet_exchange = InternetExchange.objects.create(
             name="Test", slug="test", router=router
@@ -411,7 +401,7 @@ class InternetExchangePeeringSessionTest(TestCase):
         )
 
         # Change router platform and re-encrypt
-        router.platform = PLATFORM_IOSXR
+        router.platform = Platform.IOSXR
         peering_session.encrypt_password(router.platform)
         self.assertIsNotNone(peering_session.encrypted_password)
         self.assertTrue(cisco_is_encrypted(peering_session.encrypted_password))
@@ -420,13 +410,13 @@ class InternetExchangePeeringSessionTest(TestCase):
         )
 
         # Change router platform to an unsupported one
-        router.platform = PLATFORM_NONE
+        router.platform = Platform.NONE
         peering_session.encrypt_password(router.platform)
         self.assertIsNone(peering_session.encrypted_password)
 
         # Change password to None and
         peering_session.password = None
-        router.platform = PLATFORM_JUNOS
+        router.platform = Platform.JUNOS
         peering_session.encrypt_password(router.platform)
         self.assertIsNone(peering_session.encrypted_password)
 
@@ -468,7 +458,7 @@ class RouterTest(TestCase):
             "peering/tests/fixtures/get_bgp_neighbors_detail.json"
         )
         cls.router = Router.objects.create(
-            name="Test", hostname="test.example.com", platform=PLATFORM_JUNOS
+            name="Test", hostname="test.example.com", platform=Platform.JUNOS
         )
 
     def test_get_configuration_context(self):
@@ -480,7 +470,7 @@ class RouterTest(TestCase):
                 local_ip_address="192.0.2.1",
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
                 bgp_group=bgp_group,
-                relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
+                relationship=BGPRelationship.PRIVATE_PEERING,
                 ip_address=f"10.0.0.{i}",
                 enabled=bool(i % 2),
                 router=self.router,
@@ -594,7 +584,7 @@ class RouterTest(TestCase):
 
         # Create a router
         router = Router.objects.create(
-            name="test", hostname="test.example.com", platform=PLATFORM_JUNOS
+            name="test", hostname="test.example.com", platform=Platform.JUNOS
         )
 
         # Run test cases
@@ -743,14 +733,10 @@ class RoutingPolicyTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.routing_policies = [
+            RoutingPolicy(name="test-1", slug="test-1", type=RoutingPolicyType.EXPORT),
+            RoutingPolicy(name="test-2", slug="test-2", type=RoutingPolicyType.IMPORT),
             RoutingPolicy(
-                name="test-1", slug="test-1", type=ROUTING_POLICY_TYPE_EXPORT
-            ),
-            RoutingPolicy(
-                name="test-2", slug="test-2", type=ROUTING_POLICY_TYPE_IMPORT
-            ),
-            RoutingPolicy(
-                name="test-3", slug="test-3", type=ROUTING_POLICY_TYPE_IMPORT_EXPORT
+                name="test-3", slug="test-3", type=RoutingPolicyType.IMPORT_EXPORT
             ),
             RoutingPolicy(name="test-4", slug="test-4", type="unknown"),
         ]

@@ -1,4 +1,5 @@
 from peering.constants import *
+from peering.enums import BGPRelationship, CommunityType, Platform, RoutingPolicyType
 from peering.filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
@@ -114,7 +115,7 @@ class CommunityTestCase(StandardTestCases.Filters):
                     name="Community 1",
                     slug="community-1",
                     value="64500:1",
-                    type=COMMUNITY_TYPE_EGRESS,
+                    type=CommunityType.EGRESS,
                 ),
                 Community(name="Community 2", slug="community-2", value="64500:2"),
                 Community(name="Community 3", slug="community-3", value="64500:3"),
@@ -130,7 +131,7 @@ class CommunityTestCase(StandardTestCases.Filters):
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
     def test_type(self):
-        params = {"type": COMMUNITY_TYPE_INGRESS}
+        params = {"type": CommunityType.INGRESS}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
 
     def test_value(self):
@@ -172,21 +173,21 @@ class DirectPeeringSessionTestCase(StandardTestCases.Filters):
                     local_asn=64500,
                     autonomous_system=cls.a_s,
                     ip_address="192.0.2.1",
-                    relationship=BGP_RELATIONSHIP_TRANSIT_PROVIDER,
+                    relationship=BGPRelationship.TRANSIT_PROVIDER,
                     router=cls.router,
                 ),
                 DirectPeeringSession(
                     local_asn=64500,
                     autonomous_system=cls.a_s,
                     ip_address="192.0.2.2",
-                    relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
+                    relationship=BGPRelationship.PRIVATE_PEERING,
                     multihop_ttl=2,
                 ),
                 DirectPeeringSession(
                     local_asn=64500,
                     autonomous_system=cls.a_s,
                     ip_address="192.0.2.3",
-                    relationship=BGP_RELATIONSHIP_CUSTOMER,
+                    relationship=BGPRelationship.CUSTOMER,
                     enabled=False,
                 ),
             ]
@@ -199,7 +200,7 @@ class DirectPeeringSessionTestCase(StandardTestCases.Filters):
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 0)
 
     def test_relationship(self):
-        params = {"relationship": [BGP_RELATIONSHIP_TRANSIT_PROVIDER]}
+        params = {"relationship": [BGPRelationship.TRANSIT_PROVIDER]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
     def test_router(self):
@@ -374,21 +375,21 @@ class RouterTestCase(StandardTestCases.Filters):
                 Router(
                     name="Router 1",
                     hostname="router1.example.net",
-                    platform=PLATFORM_JUNOS,
+                    platform=Platform.JUNOS,
                 ),
                 Router(
                     name="Router 2",
                     hostname="router2.example.net",
-                    platform=PLATFORM_IOSXR,
+                    platform=Platform.IOSXR,
                 ),
                 Router(name="Router 3", hostname="router3.example.net"),
             ]
         )
 
     def test_platform(self):
-        params = {"platform": [PLATFORM_JUNOS]}
+        params = {"platform": [Platform.JUNOS]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
-        params = {"platform": [PLATFORM_JUNOS, PLATFORM_IOSXR]}
+        params = {"platform": [Platform.JUNOS, Platform.IOSXR]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
@@ -411,31 +412,31 @@ class RoutingPolicyTestCase(StandardTestCases.Filters):
                 RoutingPolicy(
                     name="Routing Policy 1",
                     slug="routing-policy-1",
-                    type=ROUTING_POLICY_TYPE_EXPORT,
+                    type=RoutingPolicyType.EXPORT,
                     weight=0,
                 ),
                 RoutingPolicy(
                     name="Routing Policy 2",
                     slug="routing-policy-2",
-                    type=ROUTING_POLICY_TYPE_IMPORT,
+                    type=RoutingPolicyType.IMPORT,
                     weight=0,
                     address_family=6,
                 ),
                 RoutingPolicy(
                     name="Routing Policy 3",
                     slug="routing-policy-3",
-                    type=ROUTING_POLICY_TYPE_IMPORT_EXPORT,
+                    type=RoutingPolicyType.IMPORT_EXPORT,
                     weight=10,
                 ),
             ]
         )
 
     def test_type(self):
-        params = {"type": [ROUTING_POLICY_TYPE_IMPORT]}
+        params = {"type": [RoutingPolicyType.IMPORT]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
-        params = {"type": [ROUTING_POLICY_TYPE_EXPORT]}
+        params = {"type": [RoutingPolicyType.EXPORT]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
-        params = {"type": [ROUTING_POLICY_TYPE_IMPORT_EXPORT]}
+        params = {"type": [RoutingPolicyType.IMPORT_EXPORT]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
     def test_name(self):

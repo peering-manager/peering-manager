@@ -9,7 +9,7 @@ from rest_framework import status
 from unittest.mock import patch
 
 from peering.models import AutonomousSystem
-from utils.constants import *
+from utils.enums import ObjectChangeAction
 from utils.testing import APITestCase
 from webhooks.models import Webhook
 from webhooks.workers import enqueue_webhooks, generate_signature, process_webhook
@@ -64,7 +64,7 @@ class WebhookTest(APITestCase):
         self.assertEqual(job.args[0], Webhook.objects.get(type_create=True))
         self.assertEqual(job.args[1]["id"], response.data["id"])
         self.assertEqual(job.args[2], "autonomoussystem")
-        self.assertEqual(job.args[3], OBJECT_CHANGE_ACTION_CREATE)
+        self.assertEqual(job.args[3], ObjectChangeAction.CREATE)
 
     def test_enqueue_webhook_update(self):
         a_s = AutonomousSystem.objects.create(asn=201281, name="Guillaume Mazoyer")
@@ -79,7 +79,7 @@ class WebhookTest(APITestCase):
         self.assertEqual(job.args[0], Webhook.objects.get(type_update=True))
         self.assertEqual(job.args[1]["id"], a_s.pk)
         self.assertEqual(job.args[2], "autonomoussystem")
-        self.assertEqual(job.args[3], OBJECT_CHANGE_ACTION_UPDATE)
+        self.assertEqual(job.args[3], ObjectChangeAction.UPDATE)
 
     def test_enqueue_webhook_delete(self):
         a_s = AutonomousSystem.objects.create(asn=201281, name="Guillaume Mazoyer")
@@ -93,7 +93,7 @@ class WebhookTest(APITestCase):
         self.assertEqual(job.args[0], Webhook.objects.get(type_delete=True))
         self.assertEqual(job.args[1]["id"], a_s.pk)
         self.assertEqual(job.args[2], "autonomoussystem")
-        self.assertEqual(job.args[3], OBJECT_CHANGE_ACTION_DELETE)
+        self.assertEqual(job.args[3], ObjectChangeAction.DELETE)
 
     def test_worker(self):
         request_id = uuid.uuid4()
@@ -112,7 +112,7 @@ class WebhookTest(APITestCase):
 
             # Validate the outgoing request body
             body = json.loads(request.body)
-            self.assertEqual(body["event"], OBJECT_CHANGE_ACTION_CREATE)
+            self.assertEqual(body["event"], ObjectChangeAction.CREATE)
             self.assertEqual(body["timestamp"], job.args[4])
             self.assertEqual(body["model"], "autonomoussystem")
             self.assertEqual(body["username"], "testuser")
@@ -123,7 +123,7 @@ class WebhookTest(APITestCase):
 
         # Enqueue a webhook for processing
         a_s = AutonomousSystem.objects.create(asn=201281, name="Guillaume Mazoyer")
-        enqueue_webhooks(a_s, self.user, request_id, OBJECT_CHANGE_ACTION_CREATE)
+        enqueue_webhooks(a_s, self.user, request_id, ObjectChangeAction.CREATE)
 
         job = self.queue.jobs[0]
         with patch.object(Session, "send", mock_send):

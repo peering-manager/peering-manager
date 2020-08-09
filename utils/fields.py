@@ -2,7 +2,7 @@ from django import forms
 from django.db import models
 from django.core.validators import RegexValidator
 
-from .constants import *
+from .enums import Color
 
 
 class TextareaField(forms.CharField):
@@ -27,7 +27,7 @@ class ColorSelect(forms.Select):
     def __init__(self, *args, **kwargs):
         from .forms import add_blank_choice
 
-        kwargs["choices"] = add_blank_choice(COLOR_CHOICES)
+        kwargs["choices"] = add_blank_choice(Color.choices)
         super().__init__(*args, **kwargs)
         self.attrs["class"] = "custom-select2-color-picker"
 

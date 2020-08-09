@@ -4,14 +4,7 @@ from django.core import mail
 from django.db import transaction
 from django.urls.exceptions import NoReverseMatch
 
-from peering.constants import (
-    BGP_RELATIONSHIP_PRIVATE_PEERING,
-    COMMUNITY_TYPE_INGRESS,
-    PLATFORM_JUNOS,
-    ROUTING_POLICY_TYPE_IMPORT,
-    ROUTING_POLICY_TYPE_IMPORT_EXPORT,
-    ROUTING_POLICY_TYPE_EXPORT,
-)
+from peering.enums import BGPRelationship, CommunityType, Platform, RoutingPolicyType
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -108,7 +101,7 @@ class CommunityTestCase(StandardTestCases.Views):
             "name": "Community 4",
             "slug": "community-4",
             "value": "64500:4",
-            "type": COMMUNITY_TYPE_INGRESS,
+            "type": CommunityType.INGRESS,
             "comments": "",
             "tags": "",
         }
@@ -150,19 +143,19 @@ class DirectPeeringSessionTestCase(StandardTestCases.Views):
                     local_asn=64500,
                     autonomous_system=cls.a_s,
                     ip_address="192.0.2.1",
-                    relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
+                    relationship=BGPRelationship.PRIVATE_PEERING,
                 ),
                 DirectPeeringSession(
                     local_asn=64500,
                     autonomous_system=cls.a_s,
                     ip_address="192.0.2.2",
-                    relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
+                    relationship=BGPRelationship.PRIVATE_PEERING,
                 ),
                 DirectPeeringSession(
                     local_asn=64500,
                     autonomous_system=cls.a_s,
                     ip_address="192.0.2.3",
-                    relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
+                    relationship=BGPRelationship.PRIVATE_PEERING,
                 ),
             ]
         )
@@ -173,7 +166,7 @@ class DirectPeeringSessionTestCase(StandardTestCases.Views):
             "autonomous_system": cls.a_s.pk,
             "ip_address": ipaddress.ip_address("2001:db8::4"),
             "multihop_ttl": 1,
-            "relationship": BGP_RELATIONSHIP_PRIVATE_PEERING,
+            "relationship": BGPRelationship.PRIVATE_PEERING,
             "password": None,
             "encrypted_password": None,
             "enabled": True,
@@ -331,7 +324,7 @@ class RouterTestCase(StandardTestCases.Views):
             "configuration_template": None,
             "last_deployment_id": None,
             "encrypt_passwords": False,
-            "platform": PLATFORM_JUNOS,
+            "platform": Platform.JUNOS,
             "netbox_device_id": 0,
             "use_netbox": False,
             "comments": "",
@@ -341,7 +334,7 @@ class RouterTestCase(StandardTestCases.Views):
             "napalm_timeout": 30,
             "napalm_username": "",
         }
-        cls.bulk_edit_data = {"platform": PLATFORM_JUNOS, "comments": "New comments"}
+        cls.bulk_edit_data = {"platform": Platform.JUNOS, "comments": "New comments"}
 
 
 class RoutingPolicyTestCase(StandardTestCases.Views):
@@ -354,19 +347,19 @@ class RoutingPolicyTestCase(StandardTestCases.Views):
                 RoutingPolicy(
                     name="Routing Policy 1",
                     slug="routing-policy-1",
-                    type=ROUTING_POLICY_TYPE_EXPORT,
+                    type=RoutingPolicyType.EXPORT,
                     weight=0,
                 ),
                 RoutingPolicy(
                     name="Routing Policy 2",
                     slug="routing-policy-2",
-                    type=ROUTING_POLICY_TYPE_IMPORT,
+                    type=RoutingPolicyType.IMPORT,
                     weight=0,
                 ),
                 RoutingPolicy(
                     name="Routing Policy 3",
                     slug="routing-policy-3",
-                    type=ROUTING_POLICY_TYPE_IMPORT_EXPORT,
+                    type=RoutingPolicyType.IMPORT_EXPORT,
                     weight=0,
                 ),
             ]
@@ -375,7 +368,7 @@ class RoutingPolicyTestCase(StandardTestCases.Views):
         cls.form_data = {
             "name": "Routing Policy 4",
             "slug": "routing-policy-4",
-            "type": ROUTING_POLICY_TYPE_IMPORT,
+            "type": RoutingPolicyType.IMPORT,
             "address_family": 6,
             "weight": 1,
             "comments": "",

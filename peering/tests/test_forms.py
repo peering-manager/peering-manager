@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from peering.constants import *
+from peering.enums import BGPRelationship, CommunityType, Platform, RoutingPolicyType
 from peering.forms import (
     AutonomousSystemEmailForm,
     AutonomousSystemForm,
@@ -43,7 +44,7 @@ class CommunityTest(TestCase):
                 "name": "test",
                 "slug": "test",
                 "value": "64500:1",
-                "type": COMMUNITY_TYPE_EGRESS,
+                "type": CommunityType.EGRESS,
             }
         )
         self.assertTrue(test.is_valid())
@@ -70,7 +71,7 @@ class DirectPeeringSessionTest(TestCase):
             data={
                 "local_asn": 64500,
                 "autonomous_system": self.autonomous_system.pk,
-                "relationship": BGP_RELATIONSHIP_PRIVATE_PEERING,
+                "relationship": BGPRelationship.PRIVATE_PEERING,
                 "ip_address": "2001:db8::1",
             }
         )
@@ -128,7 +129,7 @@ class RouterTest(TestCase):
                 "netbox_device_id": 0,
                 "name": "test",
                 "hostname": "test.example.com",
-                "platform": PLATFORM_JUNOS,
+                "platform": Platform.JUNOS,
             }
         )
         self.assertTrue(test.is_valid())
@@ -141,7 +142,7 @@ class RoutingPolicyTest(TestCase):
             data={
                 "name": "Test",
                 "slug": "test",
-                "type": ROUTING_POLICY_TYPE_IMPORT,
+                "type": RoutingPolicyType.IMPORT,
                 "weight": 0,
                 "address_family": 0,
             }

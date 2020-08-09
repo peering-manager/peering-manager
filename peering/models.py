@@ -16,7 +16,14 @@ from jinja2 import Environment, TemplateSyntaxError
 from netfields import InetAddressField, NetManager
 
 from . import call_irr_as_set_resolver, parse_irr_as_set
-from .constants import *
+from .enums import (
+    BGPRelationship,
+    BGPState,
+    CommunityType,
+    IPFamily,
+    Platform,
+    RoutingPolicyType,
+)
 from .fields import ASNField, CommunityField, TTLField
 from netbox.api import NetBox
 from peeringdb.http import PeeringDB
@@ -508,7 +515,7 @@ class BGPGroup(AbstractGroup):
                             advertised if advertised > 0 else 0
                         )
                         # Update the BGP state of the session
-                        if peering_session.bgp_state == BGP_STATE_ESTABLISHED:
+                        if peering_session.bgp_state == BGPState.ESTABLISHED:
                             peering_session.last_established_state = timezone.now()
                         peering_session.save()
                     except DirectPeeringSession.DoesNotExist:
@@ -566,7 +573,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
         "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
     )
     bgp_state = models.CharField(
-        max_length=50, choices=BGP_STATE_CHOICES, blank=True, null=True
+        max_length=50, choices=BGPState.choices, blank=True, null=True
     )
     received_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     advertised_prefix_count = models.PositiveIntegerField(blank=True, default=0)
@@ -590,13 +597,13 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
         """
         Return an HTML element based on the BGP state.
         """
-        if self.bgp_state == BGP_STATE_IDLE:
+        if self.bgp_state == BGPState.IDLE:
             badge = "danger"
-        elif self.bgp_state in [BGP_STATE_CONNECT, BGP_STATE_ACTIVE]:
+        elif self.bgp_state in [BGPState.CONNECT, BGPState.ACTIVE]:
             badge = "warning"
-        elif self.bgp_state in [BGP_STATE_OPENSENT, BGP_STATE_OPENCONFIRM]:
+        elif self.bgp_state in [BGPState.OPENSENT, BGPState.OPENCONFIRM]:
             badge = "info"
-        elif self.bgp_state == BGP_STATE_ESTABLISHED:
+        elif self.bgp_state == BGPState.ESTABLISHED:
             badge = "success"
         else:
             badge = "secondary"
@@ -618,10 +625,10 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
         # Make sure encrypted_password is not set if there is no password or if the
         # platform is not supported
         if not self.password or platform not in [
-            PLATFORM_JUNOS,
-            PLATFORM_IOS,
-            PLATFORM_IOSXR,
-            PLATFORM_NXOS,
+            Platform.JUNOS,
+            Platform.IOS,
+            Platform.IOSXR,
+            Platform.NXOS,
         ]:
             # Reset password
             if self.encrypted_password:
@@ -633,7 +640,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
         # Choose encryption/decryption method
         encrypt = junos_encrypt
         decrypt = junos_decrypt
-        if platform != PLATFORM_JUNOS:
+        if platform != Platform.JUNOS:
             encrypt = cisco_encrypt
             decrypt = cisco_decrypt
 
@@ -643,7 +650,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
         else:
             # Check if the platform has changed and if so, decrypt the current
             # password and then re-encrypt it
-            if platform == PLATFORM_JUNOS and not junos_is_encrypted(
+            if platform == Platform.JUNOS and not junos_is_encrypted(
                 self.encrypted_password
             ):
                 if cisco_is_encrypted(self.encrypted_password):
@@ -651,9 +658,9 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
                         cisco_decrypt(self.encrypted_password)
                     )
             elif platform in [
-                PLATFORM_IOS,
-                PLATFORM_IOSXR,
-                PLATFORM_NXOS,
+                Platform.IOS,
+                Platform.IOSXR,
+                Platform.NXOS,
             ] and not cisco_is_encrypted(self.encrypted_password):
                 if junos_is_encrypted(self.encrypted_password):
                     self.encrypted_password = encrypt(
@@ -674,7 +681,7 @@ class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
     slug = models.SlugField(unique=True, max_length=255)
     value = CommunityField(max_length=50)
     type = models.CharField(
-        max_length=50, choices=COMMUNITY_TYPE_CHOICES, default=COMMUNITY_TYPE_INGRESS
+        max_length=50, choices=CommunityType.choices, default=CommunityType.INGRESS
     )
     comments = models.TextField(blank=True)
 
@@ -686,10 +693,10 @@ class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
         return reverse("peering:community_details", kwargs={"pk": self.pk})
 
     def get_type_html(self):
-        if self.type == COMMUNITY_TYPE_EGRESS:
+        if self.type == CommunityType.EGRESS:
             badge_type = "badge-primary"
             text = self.get_type_display()
-        elif self.type == COMMUNITY_TYPE_INGRESS:
+        elif self.type == CommunityType.INGRESS:
             badge_type = "badge-info"
             text = self.get_type_display()
         else:
@@ -716,7 +723,7 @@ class DirectPeeringSession(BGPSession):
     )
     relationship = models.CharField(
         max_length=50,
-        choices=BGP_RELATIONSHIP_CHOICES,
+        choices=BGPRelationship.choices,
         help_text="Relationship with the remote peer.",
     )
     router = models.ForeignKey(
@@ -761,7 +768,7 @@ class DirectPeeringSession(BGPSession):
             self.bgp_state = bgp_neighbor_detail["connection_state"].lower()
             self.received_prefix_count = received if received > 0 else 0
             self.advertised_prefix_count = advertised if advertised > 0 else 0
-            if self.bgp_state == BGP_STATE_ESTABLISHED:
+            if self.bgp_state == BGPState.ESTABLISHED:
                 self.last_established_state = timezone.now()
             self.save()
             return True
@@ -769,11 +776,11 @@ class DirectPeeringSession(BGPSession):
         return False
 
     def get_relationship_html(self):
-        if self.relationship == BGP_RELATIONSHIP_CUSTOMER:
+        if self.relationship == BGPRelationship.CUSTOMER:
             badge_type = "badge-danger"
-        elif self.relationship == BGP_RELATIONSHIP_PRIVATE_PEERING:
+        elif self.relationship == BGPRelationship.PRIVATE_PEERING:
             badge_type = "badge-success"
-        elif self.relationship == BGP_RELATIONSHIP_TRANSIT_PROVIDER:
+        elif self.relationship == BGPRelationship.TRANSIT_PROVIDER:
             badge_type = "badge-primary"
         else:
             badge_type = "badge-secondary"
@@ -1116,7 +1123,7 @@ class InternetExchange(AbstractGroup):
                                 advertised if advertised > 0 else 0
                             )
                             # Update the BGP state of the session
-                            if peering_session.bgp_state == BGP_STATE_ESTABLISHED:
+                            if peering_session.bgp_state == BGPState.ESTABLISHED:
                                 peering_session.last_established_state = timezone.now()
                             peering_session.save()
                         except InternetExchangePeeringSession.DoesNotExist:
@@ -1280,7 +1287,7 @@ class InternetExchangePeeringSession(BGPSession):
             self.bgp_state = bgp_neighbor_detail["connection_state"].lower()
             self.received_prefix_count = received if received > 0 else 0
             self.advertised_prefix_count = advertised if advertised > 0 else 0
-            if self.bgp_state == BGP_STATE_ESTABLISHED:
+            if self.bgp_state == BGPState.ESTABLISHED:
                 self.last_established_state = timezone.now()
             self.save()
             return True
@@ -1320,7 +1327,7 @@ class InternetExchangePeeringSession(BGPSession):
             or not self.internet_exchange.check_bgp_session_states
             or not self.autonomous_system.get_peeringdb_network()
             or self.exists_in_peeringdb()
-            or self.bgp_state not in [BGP_STATE_IDLE, BGP_STATE_ACTIVE]
+            or self.bgp_state not in [BGPState.IDLE, BGPState.ACTIVE]
         ):
             return False
         return True
@@ -1336,7 +1343,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
     hostname = models.CharField(max_length=256)
     platform = models.CharField(
         max_length=50,
-        choices=PLATFORM_CHOICES,
+        choices=Platform.choices,
         blank=True,
         help_text="The router platform, used to interact with it",
     )
@@ -1515,7 +1522,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
             False
             if not self.platform
             else self.platform
-            in [PLATFORM_EOS, PLATFORM_IOS, PLATFORM_IOSXR, PLATFORM_JUNOS]
+            in [Platform.EOS, Platform.IOS, Platform.IOSXR, Platform.JUNOS]
         )
 
     def get_napalm_device(self):
@@ -1939,14 +1946,14 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         if address_family not in [6, 4]:
             return None
 
-        if self.platform == PLATFORM_JUNOS:
+        if self.platform == Platform.JUNOS:
             return "clear bgp neighbor"
-        if self.platform in [PLATFORM_EOS, PLATFORM_IOS]:
+        if self.platform in [Platform.EOS, Platform.IOS]:
             if address_family == 6:
                 return "clear ipv6 bgp"
             else:
                 return "clear ip bgp"
-        if self.platform == PLATFORM_IOSXR:
+        if self.platform == Platform.IOSXR:
             return "clear bgp"
 
         return None
@@ -1993,14 +2000,14 @@ class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel):
     slug = models.SlugField(unique=True, max_length=255)
     type = models.CharField(
         max_length=50,
-        choices=ROUTING_POLICY_TYPE_CHOICES,
-        default=ROUTING_POLICY_TYPE_IMPORT,
+        choices=RoutingPolicyType.choices,
+        default=RoutingPolicyType.IMPORT,
     )
     weight = models.PositiveSmallIntegerField(
         default=0, help_text="The higher the number, the higher the priority"
     )
     address_family = models.PositiveSmallIntegerField(
-        default=0, choices=IP_FAMILY_CHOICES
+        default=IPFamily.ALL, choices=IPFamily.choices
     )
     comments = models.TextField(blank=True)
 
@@ -2012,13 +2019,13 @@ class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel):
         return reverse("peering:routingpolicy_details", kwargs={"pk": self.pk})
 
     def get_type_html(self, display_name=False):
-        if self.type == ROUTING_POLICY_TYPE_EXPORT:
+        if self.type == RoutingPolicyType.EXPORT:
             badge_type = "badge-primary"
             text = self.get_type_display()
-        elif self.type == ROUTING_POLICY_TYPE_IMPORT:
+        elif self.type == RoutingPolicyType.IMPORT:
             badge_type = "badge-info"
             text = self.get_type_display()
-        elif self.type == ROUTING_POLICY_TYPE_IMPORT_EXPORT:
+        elif self.type == RoutingPolicyType.IMPORT_EXPORT:
             badge_type = "badge-dark"
             text = self.get_type_display()
         else:
@@ -2117,14 +2124,14 @@ class Configuration(Template):
             local_asn=settings.MY_ASN,
             autonomous_system=a_s,
             ip_address="2001:db8::1",
-            relationship=BGP_RELATIONSHIP_TRANSIT_PROVIDER,
+            relationship=BGPRelationship.TRANSIT_PROVIDER,
         )
         dps6.tags = ["foo", "bar"]
         dps4 = DirectPeeringSession(
             local_asn=settings.MY_ASN,
             autonomous_system=a_s,
             ip_address="192.0.2.1",
-            relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
+            relationship=BGPRelationship.PRIVATE_PEERING,
         )
         dps4.tags = ["foo", "bar"]
         ixps6 = InternetExchangePeeringSession(
@@ -2147,7 +2154,7 @@ class Configuration(Template):
                     RoutingPolicy(
                         name="Export/Import None",
                         slug="none",
-                        type=ROUTING_POLICY_TYPE_IMPORT_EXPORT,
+                        type=RoutingPolicyType.IMPORT_EXPORT,
                     )
                 ],
                 "communities": [Community(name="Community Transit", value="64500:1")],
@@ -2216,14 +2223,14 @@ class Email(Template):
             local_asn=settings.MY_ASN,
             autonomous_system=a_s,
             ip_address="2001:db8::1",
-            relationship=BGP_RELATIONSHIP_TRANSIT_PROVIDER,
+            relationship=BGPRelationship.TRANSIT_PROVIDER,
         )
         dps6.tags = ["foo", "bar"]
         dps4 = DirectPeeringSession(
             local_asn=settings.MY_ASN,
             autonomous_system=a_s,
             ip_address="192.0.2.1",
-            relationship=BGP_RELATIONSHIP_PRIVATE_PEERING,
+            relationship=BGPRelationship.PRIVATE_PEERING,
         )
         dps4.tags = ["foo", "bar"]
         ixps6 = InternetExchangePeeringSession(

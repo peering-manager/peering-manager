@@ -9,7 +9,7 @@ from django.forms import BoundField
 from django.urls import reverse
 from taggit.forms import TagField
 
-from .constants import *
+from .enums import ObjectChangeAction
 from .fields import ColorSelect, CommentField, SlugField
 from .models import ObjectChange, Tag
 
@@ -276,9 +276,7 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
         widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
     )
     action = forms.ChoiceField(
-        required=False,
-        choices=OBJECT_CHANGE_ACTION_CHOICES,
-        widget=StaticSelectMultiple,
+        required=False, choices=ObjectChangeAction.choices, widget=StaticSelectMultiple,
     )
     user = forms.ModelChoiceField(
         required=False,

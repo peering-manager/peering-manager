@@ -4,12 +4,7 @@ from django.db.models import Q
 
 import django_filters
 
-from .constants import (
-    BGP_RELATIONSHIP_CHOICES,
-    PLATFORM_CHOICES,
-    ROUTING_POLICY_TYPE_CHOICES,
-    ROUTING_POLICY_TYPE_IMPORT_EXPORT,
-)
+from .enums import BGPRelationship, Platform, RoutingPolicyType
 from .models import (
     AutonomousSystem,
     BGPGroup,
@@ -108,7 +103,7 @@ class DirectPeeringSessionFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     address_family = django_filters.NumberFilter(method="address_family_search")
     relationship = django_filters.MultipleChoiceFilter(
-        choices=BGP_RELATIONSHIP_CHOICES, null_value=None
+        choices=BGPRelationship.choices, null_value=None
     )
     router = django_filters.ModelMultipleChoiceFilter(
         field_name="router__id",
@@ -247,7 +242,7 @@ class InternetExchangePeeringSessionFilterSet(django_filters.FilterSet):
 class RouterFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     platform = django_filters.MultipleChoiceFilter(
-        choices=PLATFORM_CHOICES, null_value=None
+        choices=Platform.choices, null_value=None
     )
     tag = TagFilter()
 
@@ -261,7 +256,7 @@ class RouterFilterSet(django_filters.FilterSet):
         qs_filter = (
             Q(name__icontains=value)
             | Q(hostname__icontains=value)
-            | Q(platform__icontains=value)
+            | Q(platform_icontains=value)
             | Q(comments__icontains=value)
         )
         return queryset.filter(qs_filter)
@@ -270,7 +265,7 @@ class RouterFilterSet(django_filters.FilterSet):
 class RoutingPolicyFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     type = django_filters.MultipleChoiceFilter(
-        method="type_search", choices=ROUTING_POLICY_TYPE_CHOICES, null_value=None
+        method="type_search", choices=RoutingPolicyType.choices, null_value=None
     )
     tag = TagFilter()
 
@@ -292,7 +287,7 @@ class RoutingPolicyFilterSet(django_filters.FilterSet):
         """
         Return routing policies based on
         """
-        qs_filter = Q(type=ROUTING_POLICY_TYPE_IMPORT_EXPORT)
+        qs_filter = Q(type=RoutingPolicyType.IMPORT_EXPORT)
         for v in value:
             qs_filter |= Q(type=v)
         return queryset.filter(qs_filter)

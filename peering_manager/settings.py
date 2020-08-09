@@ -133,6 +133,10 @@ PAGINATE_COUNT = getattr(configuration, "PAGINATE_COUNT", 20)
 try:
     TZ_FILE = open("/etc/timezone", "r")
     BASE_TZ = TZ_FILE.read()
+
+    # For some reasons, Django does not seem to be happy about this particular value
+    if BASE_TZ == "Etc/UTC":
+        BASE_TZ = "UTC"
 except IOError:
     BASE_TZ = "UTC"
 

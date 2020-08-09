@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from taggit.managers import TaggableManager
 from taggit.models import TagBase, GenericTaggedItemBase
 
-from .constants import *
+from .enums import ObjectChangeAction
 from .fields import ColorField
 from .templatetags.helpers import title_with_uppers
 
@@ -62,7 +62,7 @@ class ObjectChange(models.Model):
     )
     user_name = models.CharField(max_length=150, editable=False)
     request_id = models.UUIDField(editable=False)
-    action = models.PositiveSmallIntegerField(choices=OBJECT_CHANGE_ACTION_CHOICES)
+    action = models.PositiveSmallIntegerField(choices=ObjectChangeAction.choices)
     changed_object_type = models.ForeignKey(
         to=ContentType, on_delete=models.PROTECT, related_name="+"
     )
@@ -97,11 +97,11 @@ class ObjectChange(models.Model):
         return reverse("utils:objectchange_details", kwargs={"pk": self.pk})
 
     def get_html_icon(self):
-        if self.action == OBJECT_CHANGE_ACTION_CREATE:
+        if self.action == ObjectChangeAction.CREATE:
             return mark_safe('<i class="fas fa-plus-square text-success"></i>')
-        if self.action == OBJECT_CHANGE_ACTION_UPDATE:
+        if self.action == ObjectChangeAction.UPDATE:
             return mark_safe('<i class="fas fa-pen-square text-warning"></i>')
-        if self.action == OBJECT_CHANGE_ACTION_DELETE:
+        if self.action == ObjectChangeAction.DELETE:
             return mark_safe('<i class="fas fa-minus-square text-danger"></i>')
         return mark_safe('<i class="fas fa-question-circle text-secondary"></i>')
 
