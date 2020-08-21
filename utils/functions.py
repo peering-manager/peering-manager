@@ -44,12 +44,14 @@ def generate_signature(data, secret):
     return signature.hexdigest()
 
 
-def get_serializer_for_model(model, prefix=""):
+def get_serializer_for_model(model, prefix="", suffix=""):
     """
     Returns the appropriate API serializer for a model.
     """
     app_name, model_name = model._meta.label.split(".")
-    serializer_name = f"{app_name}.api.serializers.{prefix}{model_name}Serializer"
+    serializer_name = (
+        f"{app_name}.api.serializers.{prefix}{model_name}{suffix}Serializer"
+    )
     try:
         # Try importing the serializer class
         components = serializer_name.split(".")
@@ -59,5 +61,5 @@ def get_serializer_for_model(model, prefix=""):
         return mod
     except AttributeError:
         raise Exception(
-            f"Could not determine serializer for {app_name}.{model_name} with prefix '{prefix}'"
+            f"Could not determine serializer for {app_name}.{model_name} with prefix '{prefix}' and suffix '{suffix}'"
         )

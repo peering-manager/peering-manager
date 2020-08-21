@@ -1,14 +1,14 @@
 from collections import OrderedDict
-
 from django.db.models import ManyToManyField
 from django.http import Http404
-
 from rest_framework.exceptions import APIException
 from rest_framework.fields import ListField
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer, ValidationError
 from rest_framework.viewsets import ModelViewSet as __ModelViewSet, ViewSet
+
+from utils.functions import get_serializer_for_model
 
 
 class InetAddressArrayField(ListField):
@@ -42,6 +42,29 @@ class ModelViewSet(__ModelViewSet):
             kwargs["many"] = True
 
         return super().get_serializer(*args, **kwargs)
+
+    def get_serializer_class(self):
+        request = self.get_serializer_context()["request"]
+        if request.query_params.get("brief"):
+            try:
+                return get_serializer_for_model(self.queryset.model, suffix="Nested")
+            except Exception:
+                pass
+
+        # Fall back to the hard-coded serializer class
+        return self.serializer_class
+
+    def list(self, *args, **kwargs):
+        """
+        For caching purpose.
+        """
+        return super().list(*args, **kwargs)
+
+    def retrieve(self, *args, **kwargs):
+        """
+        For caching purpose.
+        """
+        return super().retrieve(*args, **kwargs)
 
 
 class StaticChoicesViewSet(ViewSet):
