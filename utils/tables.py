@@ -184,6 +184,13 @@ class ObjectChangeTable(BaseTable):
             "object_repr",
             "request_id",
         )
+        default_columns = (
+            "time",
+            "user_name",
+            "action",
+            "changed_object_type",
+            "request_id",
+        )
 
 
 class SelectColumn(tables.CheckBoxColumn):
