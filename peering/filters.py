@@ -248,7 +248,13 @@ class RouterFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = Router
-        fields = ["name", "hostname", "last_deployment_id"]
+        fields = [
+            "name",
+            "hostname",
+            "encrypt_passwords",
+            "configuration_template",
+            "last_deployment_id",
+        ]
 
     def search(self, queryset, name, value):
         if not value.strip():
