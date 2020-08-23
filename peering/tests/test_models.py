@@ -321,14 +321,14 @@ class InternetExchangeTest(TestCase):
 
         session_lists = [
             # First case, one new session with one new AS
-            [{"ip_address": ipaddress.ip_address("2001:db8::1"), "remote_asn": 29467}],
+            [{"ip_address": ipaddress.ip_address("2001:db8::1"), "remote_asn": 201281}],
             # Second case, one new session with one known AS
-            [{"ip_address": ipaddress.ip_address("192.0.2.1"), "remote_asn": 29467}],
+            [{"ip_address": ipaddress.ip_address("192.0.2.1"), "remote_asn": 201281}],
             # Third case, new IPv4 session on another IX but with an IP that
             # has already been used
-            [{"ip_address": ipaddress.ip_address("192.0.2.1"), "remote_asn": 29467}],
+            [{"ip_address": ipaddress.ip_address("192.0.2.1"), "remote_asn": 201281}],
             # Fourth case, new IPv4 session with IPv6 prefix
-            [{"ip_address": ipaddress.ip_address("203.0.113.1"), "remote_asn": 29467}],
+            [{"ip_address": ipaddress.ip_address("203.0.113.1"), "remote_asn": 201281}],
         ]
 
         prefix_lists = [

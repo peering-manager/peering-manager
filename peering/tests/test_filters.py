@@ -370,19 +370,28 @@ class RouterTestCase(StandardTestCases.Filters):
 
     @classmethod
     def setUpTestData(cls):
+        cls.configuration = Configuration.objects.create(
+            name="Configuration 1", template="Configuration 1"
+        )
         Router.objects.bulk_create(
             [
                 Router(
                     name="Router 1",
                     hostname="router1.example.net",
                     platform=Platform.JUNOS,
+                    encrypt_passwords=True,
                 ),
                 Router(
                     name="Router 2",
                     hostname="router2.example.net",
                     platform=Platform.IOSXR,
+                    encrypt_passwords=True,
                 ),
-                Router(name="Router 3", hostname="router3.example.net"),
+                Router(
+                    name="Router 3",
+                    hostname="router3.example.net",
+                    configuration_template=cls.configuration,
+                ),
             ]
         )
 
@@ -398,6 +407,16 @@ class RouterTestCase(StandardTestCases.Filters):
 
     def test_hostname(self):
         params = {"hostname": "router1.example.net"}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+
+    def test_encrypt_passwords(self):
+        params = {"encrypt_passwords": True}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {"encrypt_passwords": False}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+
+    def test_configuration_template(self):
+        params = {"configuration_template": self.configuration.pk}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
 
