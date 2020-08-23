@@ -1,3 +1,4 @@
+import platform
 import sys
 
 from collections import OrderedDict
@@ -33,7 +34,15 @@ def handle_500(request):
     type, error, traceback = sys.exc_info()
     del traceback
     return render(
-        request, "500.html", {"exception": str(type), "error": error}, status=500
+        request,
+        "500.html",
+        {
+            "python_version": platform.python_version(),
+            "peering_manager_version": settings.VERSION,
+            "exception": str(type),
+            "error": error,
+        },
+        status=500,
     )
 
 

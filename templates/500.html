@@ -20,7 +20,14 @@
             {% endblock %}
             <hr />
             <p class="card-text">The complete exception is provided below:</p>
-            <pre><strong>{{ exception }}</strong><br />{{ error }}</pre>
+            <pre>
+              <strong>{{ exception }}</strong>
+              <br />
+              {{ error }}
+              <br />
+              Python version: {{ python_version }}
+              Peering Manager version: {{ peering_manager_version }}
+            </pre>
             <div class="text-right">
               <a href="{% url 'home' %}" class="btn btn-primary">Home Page</a>
             </div>
