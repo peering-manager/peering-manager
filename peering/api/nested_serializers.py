@@ -5,6 +5,7 @@ from peering.models import (
     BGPGroup,
     Community,
     Configuration,
+    Email,
     InternetExchange,
     Router,
     RoutingPolicy,
@@ -42,6 +43,14 @@ class ConfigurationNestedSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="peering-api:configuration-detail"
     )
+
+    class Meta:
+        model = Configuration
+        fields = ["id", "url", "name"]
+
+
+class EmailNestedSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name="peering-api:email-detail")
 
     class Meta:
         model = Configuration
