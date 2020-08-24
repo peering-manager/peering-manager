@@ -355,6 +355,7 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
     q = forms.CharField(required=False, label="Search")
     local_asn = forms.IntegerField(required=False, label="Local ASN")
     bgp_group = DynamicModelMultipleChoiceField(
+        required=False,
         queryset=BGPGroup.objects.all(),
         to_field_name="pk",
         label="BGP Group",
@@ -370,7 +371,10 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
         required=False, choices=BGPRelationship.choices, widget=StaticSelectMultiple
     )
     router = DynamicModelMultipleChoiceField(
-        queryset=Router.objects.all(), to_field_name="pk", null_option="None"
+        required=False,
+        queryset=Router.objects.all(),
+        to_field_name="pk",
+        null_option="None",
     )
     tag = TagFilterField(model)
 
