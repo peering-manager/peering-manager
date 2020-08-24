@@ -5,8 +5,10 @@ from peering.models import (
     BGPGroup,
     Community,
     Configuration,
+    DirectPeeringSession,
     Email,
     InternetExchange,
+    InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
 )
@@ -49,6 +51,17 @@ class ConfigurationNestedSerializer(WritableNestedSerializer):
         fields = ["id", "url", "name"]
 
 
+class DirectPeeringSessionNestedSerializer(WritableNestedSerializer):
+    class Meta:
+        model = DirectPeeringSession
+        fields = [
+            "id",
+            "local_asn",
+            "ip_address",
+            "enabled",
+        ]
+
+
 class EmailNestedSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="peering-api:email-detail")
 
@@ -65,6 +78,17 @@ class InternetExchangeNestedSerializer(WritableNestedSerializer):
     class Meta:
         model = InternetExchange
         fields = ["id", "url", "name", "slug"]
+
+
+class InternetExchangePeeringSessionNestedSerializer(WritableNestedSerializer):
+    class Meta:
+        model = InternetExchangePeeringSession
+        fields = [
+            "id",
+            "ip_address",
+            "enabled",
+            "is_route_server",
+        ]
 
 
 class RouterNestedSerializer(WritableNestedSerializer):

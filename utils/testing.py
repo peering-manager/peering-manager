@@ -1,3 +1,4 @@
+import ipaddress
 import json
 
 from django.contrib.auth.models import Permission, User
@@ -5,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict as _model_to_dict
 from django.test import Client, TestCase as _TestCase
 from django.urls import reverse, NoReverseMatch
+from rest_framework import status
 from rest_framework.test import APIClient
 
 from users.models import Token
@@ -63,7 +65,9 @@ def post_data(data):
 
 
 class MockedResponse(object):
-    def __init__(self, status_code=200, ok=True, fixture=None, content=None):
+    def __init__(
+        self, status_code=status.HTTP_200_OK, ok=True, fixture=None, content=None
+    ):
         self.status_code = status_code
         if fixture:
             self.content = self.load_fixture(fixture)
@@ -130,16 +134,47 @@ class TestCase(_TestCase):
 
 class APITestCase(TestCase):
     client_class = APIClient
+    model = None
+    view_namespace = None
 
     def setUp(self):
         """
-        Create a superuser and token for API calls.
+        Creates a superuser and token for API calls.
         """
         self.user = User.objects.create(
             username="testuser", is_staff=True, is_superuser=True
         )
         self.token = Token.objects.create(user=self.user)
         self.header = {"HTTP_AUTHORIZATION": f"Token {self.token.key}"}
+
+    def _get_view_namespace(self):
+        return f"{self.view_namespace or self.model._meta.app_label}-api"
+
+    def _get_detail_url(self, instance):
+        viewname = f"{self._get_view_namespace()}:{instance._meta.model_name}-detail"
+        return reverse(viewname, kwargs={"pk": instance.pk})
+
+    def _get_list_url(self):
+        viewname = f"{self._get_view_namespace()}:{self.model._meta.model_name}-list"
+        return reverse(viewname)
+
+    def assertInstanceEqual(self, instance, data, api=False):
+        model_dict = model_to_dict(instance, fields=data.keys())
+        relevant_data = {}
+        for k, v in data.items():
+            # Omit any dictionary keys which are not instance attributes
+            if hasattr(instance, k):
+                # Transform IP address strings to IP address instances
+                if isinstance(v, str):
+                    try:
+                        v = ipaddress.IPv6Address(v)
+                    except ValueError:
+                        try:
+                            v = ipaddress.IPv4Address(v)
+                        except ValueError:
+                            pass
+                relevant_data[k] = v
+        self.assertDictEqual(model_dict, relevant_data)
 
 
 class StandardTestCases(object):
@@ -217,27 +252,31 @@ class StandardTestCases(object):
 
         def test_list_objects(self):
             # Attempt to make the request without required permissions
-            self.assertStatus(self.client.get(self._get_url("list")), 403)
+            self.assertStatus(
+                self.client.get(self._get_url("list")), status.HTTP_403_FORBIDDEN
+            )
 
             # Assign the required permission and submit again
             self.add_permissions(
                 f"{self.model._meta.app_label}.view_{self.model._meta.model_name}"
             )
             response = self.client.get(self._get_url("list"))
-            self.assertStatus(response, 200)
+            self.assertStatus(response, status.HTTP_200_OK)
 
         def test_get_object(self):
             instance = self.model.objects.first()
 
             # Attempt to make the request without required permissions
-            self.assertStatus(self.client.get(instance.get_absolute_url()), 403)
+            self.assertStatus(
+                self.client.get(instance.get_absolute_url()), status.HTTP_403_FORBIDDEN
+            )
 
             # Assign the required permission and submit again
             self.add_permissions(
                 f"{self.model._meta.app_label}.view_{self.model._meta.model_name}"
             )
             response = self.client.get(instance.get_absolute_url())
-            self.assertStatus(response, 200)
+            self.assertStatus(response, status.HTTP_200_OK)
 
         def test_create_object(self):
             initial_count = self.model.objects.count()
@@ -248,14 +287,14 @@ class StandardTestCases(object):
             }
 
             # Attempt to make the request without required permissions
-            self.assertStatus(self.client.post(**request), 403)
+            self.assertStatus(self.client.post(**request), status.HTTP_403_FORBIDDEN)
 
             # Assign the required permission and submit again
             self.add_permissions(
                 f"{self.model._meta.app_label}.add_{self.model._meta.model_name}"
             )
             response = self.client.post(**request)
-            self.assertStatus(response, 302)
+            self.assertStatus(response, status.HTTP_302_FOUND)
 
             self.assertEqual(initial_count + 1, self.model.objects.count())
             instance = self.model.objects.order_by("-pk").first()
@@ -271,14 +310,14 @@ class StandardTestCases(object):
             }
 
             # Attempt to make the request without required permissions
-            self.assertStatus(self.client.post(**request), 403)
+            self.assertStatus(self.client.post(**request), status.HTTP_403_FORBIDDEN)
 
             # Assign the required permission and submit again
             self.add_permissions(
                 f"{self.model._meta.app_label}.change_{self.model._meta.model_name}"
             )
             response = self.client.post(**request)
-            self.assertStatus(response, 302)
+            self.assertStatus(response, status.HTTP_302_FOUND)
 
             instance = self.model.objects.get(pk=instance.pk)
             self.assertDictEqual(model_to_dict(instance), self.form_data)
@@ -293,14 +332,14 @@ class StandardTestCases(object):
             }
 
             # Attempt to make the request without required permissions
-            self.assertStatus(self.client.post(**request), 403)
+            self.assertStatus(self.client.post(**request), status.HTTP_403_FORBIDDEN)
 
             # Assign the required permission and submit again
             self.add_permissions(
                 f"{self.model._meta.app_label}.delete_{self.model._meta.model_name}"
             )
             response = self.client.post(**request)
-            self.assertStatus(response, 302)
+            self.assertStatus(response, status.HTTP_302_FOUND)
 
             with self.assertRaises(ObjectDoesNotExist):
                 self.model.objects.get(pk=instance.pk)
@@ -318,14 +357,14 @@ class StandardTestCases(object):
             request["data"].update(post_data(self.bulk_edit_data))
 
             # Attempt to make the request without required permissions
-            self.assertStatus(self.client.post(**request), 403)
+            self.assertStatus(self.client.post(**request), status.HTTP_403_FORBIDDEN)
 
             # Assign the required permission and submit again
             self.add_permissions(
                 f"{self.model._meta.app_label}.change_{self.model._meta.model_name}"
             )
             response = self.client.post(**request)
-            self.assertStatus(response, 302)
+            self.assertStatus(response, status.HTTP_302_FOUND)
 
             bulk_edit_fields = self.bulk_edit_data.keys()
             for i, instance in enumerate(self.model.objects.filter(pk__in=pk_list)):
@@ -349,14 +388,124 @@ class StandardTestCases(object):
             }
 
             # Attempt to make the request without required permissions
-            self.assertStatus(self.client.post(**request), 403)
+            self.assertStatus(self.client.post(**request), status.HTTP_403_FORBIDDEN)
 
             # Assign the required permission and submit again
             self.add_permissions(
                 f"{self.model._meta.app_label}.delete_{self.model._meta.model_name}"
             )
             response = self.client.post(**request)
-            self.assertStatus(response, 302)
+            self.assertStatus(response, status.HTTP_302_FOUND)
 
             # Check that all objects were deleted
             self.assertEqual(self.model.objects.count(), 0)
+
+
+class StandardAPITestCases(object):
+    class GetObjectView(APITestCase):
+        def test_get_object(self):
+            """
+            GET a single object identified by its numeric ID.
+            """
+            instance = self.model.objects.first()
+            url = self._get_detail_url(instance)
+            response = self.client.get(url, **self.header)
+
+            self.assertEqual(response.data["id"], instance.pk)
+
+    class ListObjectsView(APITestCase):
+        brief_fields = []
+
+        def test_list_objects(self):
+            """
+            GET a list of objects.
+            """
+            url = self._get_list_url()
+            response = self.client.get(url, **self.header)
+
+            self.assertEqual(len(response.data["results"]), self.model.objects.count())
+
+        def test_list_objects_brief(self):
+            """
+            GET a list of objects using the "brief" parameter.
+            """
+            url = f"{self._get_list_url()}?brief=1"
+            response = self.client.get(url, **self.header)
+
+            self.assertEqual(len(response.data["results"]), self.model.objects.count())
+            self.assertEqual(
+                sorted(response.data["results"][0]), sorted(self.brief_fields)
+            )
+
+    class CreateObjectView(APITestCase):
+        create_data = []
+
+        def test_create_object(self):
+            """
+            POST a single object.
+            """
+            initial_count = self.model.objects.count()
+            url = self._get_list_url()
+            response = self.client.post(
+                url, self.create_data[0], format="json", **self.header
+            )
+
+            self.assertStatus(response, status.HTTP_201_CREATED)
+            self.assertEqual(self.model.objects.count(), initial_count + 1)
+            self.assertInstanceEqual(
+                self.model.objects.get(pk=response.data["id"]),
+                self.create_data[0],
+                api=True,
+            )
+
+        def test_bulk_create_object(self):
+            """
+            POST a set of objects in a single request.
+            """
+            initial_count = self.model.objects.count()
+            url = self._get_list_url()
+            response = self.client.post(
+                url, self.create_data, format="json", **self.header
+            )
+
+            self.assertStatus(response, status.HTTP_201_CREATED)
+            self.assertEqual(
+                self.model.objects.count(), initial_count + len(self.create_data)
+            )
+
+    class UpdateObjectView(APITestCase):
+        update_data = {}
+
+        def test_update_object(self):
+            """
+            PATCH a single object identified by its numeric ID.
+            """
+            instance = self.model.objects.first()
+            url = self._get_detail_url(instance)
+            update_data = self.update_data or getattr(self, "create_data")[0]
+            response = self.client.patch(url, update_data, format="json", **self.header)
+
+            self.assertStatus(response, status.HTTP_200_OK)
+            instance.refresh_from_db()
+            self.assertInstanceEqual(instance, self.update_data, api=True)
+
+    class DeleteObjectView(APITestCase):
+        def test_delete_object(self):
+            """
+            DELETE a single object identified by its numeric ID.
+            """
+            instance = self.model.objects.first()
+            url = self._get_detail_url(instance)
+            response = self.client.delete(url, **self.header)
+
+            self.assertStatus(response, status.HTTP_204_NO_CONTENT)
+            self.assertFalse(self.model.objects.filter(pk=instance.pk).exists())
+
+    class View(
+        GetObjectView,
+        ListObjectsView,
+        CreateObjectView,
+        UpdateObjectView,
+        DeleteObjectView,
+    ):
+        pass
