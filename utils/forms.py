@@ -100,20 +100,7 @@ class APISelect(forms.Select):
     Select widget using API calls to populate its choices.
     """
 
-    def __init__(
-        self,
-        api_url=None,
-        display_field=None,
-        value_field=None,
-        disabled_indicator=None,
-        filter_for=None,
-        conditional_query_params=None,
-        additional_query_params=None,
-        null_option=False,
-        full=False,
-        *args,
-        **kwargs,
-    ):
+    def __init__(self, api_url=None, full=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.attrs["class"] = "custom-select2-api"
 
@@ -121,49 +108,17 @@ class APISelect(forms.Select):
             self.attrs["data-url"] = f"/{settings.BASE_PATH}{api_url.lstrip('/')}"
         if full:
             self.attrs["data-full"] = full
-        if display_field:
-            self.attrs["display-field"] = display_field
-        if value_field:
-            self.attrs["value-field"] = value_field
-        if disabled_indicator:
-            self.attrs["disabled-indicator"] = disabled_indicator
-        if filter_for:
-            for key, value in filter_for.items():
-                self.add_filter_for(key, value)
-        if conditional_query_params:
-            for key, value in conditional_query_params.items():
-                self.add_conditional_query_param(key, value)
-        if additional_query_params:
-            for key, value in additional_query_params.items():
-                self.add_additional_query_param(key, value)
-        if null_option:
-            self.attrs["data-null-option"] = 1
 
-    def add_filter_for(self, name, value):
-        """
-        Add details for an additional query param in the form of a data-filter-for-*
-        attribute.
-        """
-        self.attrs[f"data-filter-for-{name}"] = value
-
-    def add_additional_query_param(self, name, value):
-        """
-        Add details for an additional query param in the form of a data-* JSON-encoded
-        list attribute.
-        """
-        key = f"data-additional-query-param-{name}"
+    def add_query_param(self, name, value):
+        key = f"data-query-param-{name}"
 
         values = json.loads(self.attrs.get(key, "[]"))
-        values.append(value)
+        if type(value) is list:
+            values.extend([str(v) for v in value])
+        else:
+            values.append(str(value))
 
         self.attrs[key] = json.dumps(values)
-
-    def add_conditional_query_param(self, condition, value):
-        """
-        Add details for a URL query strings to append to the URL if the condition is
-        met. The condition is specified in the form `<field_name>__<field_value>`.
-        """
-        self.attrs[f"data-conditional-query-param-{condition}"] = value
 
 
 class APISelectMultiple(APISelect, forms.SelectMultiple):
@@ -212,7 +167,21 @@ class DynamicModelChoiceMixin(object):
     filter = django_filters.ModelChoiceFilter
     widget = APISelect
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        *args,
+        display_field="name",
+        query_params=None,
+        null_option=None,
+        disabled_indicator=None,
+        **kwargs,
+    ):
+        self.display_field = display_field
+        self.to_field_name = kwargs.get("to_field_name")
+        self.query_params = query_params or {}
+        self.null_option = null_option
+        self.disabled_indicator = disabled_indicator
+
         super().__init__(*args, **kwargs)
 
     def get_bound_field(self, form, field_name):
@@ -239,6 +208,27 @@ class DynamicModelChoiceMixin(object):
             widget.attrs["data-url"] = data_url
 
         return bound_field
+
+    def widget_attrs(self, widget):
+        attrs = {"display-field": self.display_field}
+
+        # Set value-field attribute if the field specifies to_field_name
+        if self.to_field_name:
+            attrs["value-field"] = self.to_field_name
+
+        # Attach any static query parameters
+        for key, value in self.query_params.items():
+            widget.add_query_param(key, value)
+
+        # Set the string used to represent a null option
+        if self.null_option is not None:
+            attrs["data-null-option"] = self.null_option
+
+        # Set the disabled indicator
+        if self.disabled_indicator is not None:
+            attrs["disabled-indicator"] = self.disabled_indicator
+
+        return attrs
 
 
 class DynamicModelChoiceField(DynamicModelChoiceMixin, forms.ModelChoiceField):
@@ -278,10 +268,11 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     action = forms.ChoiceField(
         required=False, choices=ObjectChangeAction.choices, widget=StaticSelectMultiple,
     )
-    user = forms.ModelChoiceField(
+    user = DynamicModelMultipleChoiceField(
+        queryset=User.objects.all(),
         required=False,
-        queryset=User.objects.order_by("username"),
-        widget=StaticSelectMultiple,
+        display_field="username",
+        widget=APISelectMultiple(api_url="/api/users/users/"),
     )
 
 

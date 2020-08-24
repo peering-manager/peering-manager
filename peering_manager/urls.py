@@ -24,6 +24,7 @@ __patterns = [
     path("api/", views.APIRootView.as_view(), name="api-root"),
     path("api/peering/", include("peering.api.urls")),
     path("api/peeringdb/", include("peeringdb.api.urls")),
+    path("api/users/", include("users.api.urls")),
     path("api/utils/", include("utils.api.urls")),
     # Admin
     path("admin/", admin_site.urls),

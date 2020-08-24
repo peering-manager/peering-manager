@@ -49,6 +49,8 @@ def get_serializer_for_model(model, prefix="", suffix=""):
     Returns the appropriate API serializer for a model.
     """
     app_name, model_name = model._meta.label.split(".")
+    if app_name == "auth":
+        app_name = "users"
     serializer_name = (
         f"{app_name}.api.serializers.{prefix}{model_name}{suffix}Serializer"
     )

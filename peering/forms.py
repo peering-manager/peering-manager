@@ -57,12 +57,12 @@ class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
+        query_params={"type": "import-policy"},
     )
     export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
+        query_params={"type": "export-policy"},
     )
     comments = CommentField()
     tags = TagField(required=False)
@@ -126,12 +126,12 @@ class BGPGroupForm(BootstrapMixin, forms.ModelForm):
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
+        query_params={"type": "import-policy"},
     )
     export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
+        query_params={"type": "export-policy"},
     )
     communities = DynamicModelMultipleChoiceField(
         required=False, queryset=Community.objects.all()
@@ -164,12 +164,12 @@ class BGPGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
+        query_params={"type": "import-policy"},
     )
     export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
+        query_params={"type": "export-policy"},
     )
     communities = DynamicModelMultipleChoiceField(
         required=False, queryset=Community.objects.all()
@@ -270,12 +270,12 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
+        query_params={"type": "import-policy"},
     )
     export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
+        query_params={"type": "export-policy"},
     )
     password = PasswordField(required=False, render_value=True)
     comments = CommentField()
@@ -331,12 +331,12 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEd
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
+        query_params={"type": "import-policy"},
     )
     export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
+        query_params={"type": "export-policy"},
     )
     router = DynamicModelChoiceField(required=False, queryset=Router.objects.all())
     comments = CommentField()
@@ -358,7 +358,7 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
         queryset=BGPGroup.objects.all(),
         to_field_name="pk",
         label="BGP Group",
-        widget=APISelectMultiple(null_option=True),
+        null_option="None",
     )
     address_family = forms.ChoiceField(
         required=False, choices=IPFamily.choices, widget=StaticSelect
@@ -370,9 +370,7 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
         required=False, choices=BGPRelationship.choices, widget=StaticSelectMultiple
     )
     router = DynamicModelMultipleChoiceField(
-        queryset=Router.objects.all(),
-        to_field_name="pk",
-        widget=APISelectMultiple(null_option=True),
+        queryset=Router.objects.all(), to_field_name="pk", null_option="None"
     )
     tag = TagFilterField(model)
 
@@ -401,12 +399,12 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
+        query_params={"type": "import-policy"},
     )
     export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
+        query_params={"type": "export-policy"},
     )
     communities = DynamicModelMultipleChoiceField(
         required=False, queryset=Community.objects.all()
@@ -457,12 +455,12 @@ class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFo
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
+        query_params={"type": "import-policy"},
     )
     export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
+        query_params={"type": "export-policy"},
     )
     communities = DynamicModelMultipleChoiceField(
         required=False, queryset=Community.objects.all()
@@ -529,23 +527,21 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
         required=False,
         queryset=RoutingPolicy.objects.all(),
         to_field_name="pk",
-        widget=APISelectMultiple(
-            additional_query_params={"type": "import-policy"}, null_option=True
-        ),
+        null_option="None",
+        query_params={"type": "import-policy"},
     )
     export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
         to_field_name="pk",
-        widget=APISelectMultiple(
-            additional_query_params={"type": "export-policy"}, null_option=True
-        ),
+        null_option="None",
+        query_params={"type": "export-policy"},
     )
     router = DynamicModelMultipleChoiceField(
         required=False,
         queryset=Router.objects.all(),
         to_field_name="pk",
-        widget=APISelectMultiple(null_option=True),
+        null_option="None",
     )
     tag = TagFilterField(model)
 
@@ -566,12 +562,12 @@ class InternetExchangePeeringSessionBulkEditForm(
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
+        query_params={"type": "import-policy"},
     )
     export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
+        query_params={"type": "export-policy"},
     )
     comments = CommentField(widget=SmallTextarea)
 
@@ -594,12 +590,12 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "import-policy"}),
+        query_params={"type": "import-policy"},
     )
     export_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
-        widget=APISelectMultiple(additional_query_params={"type": "export-policy"}),
+        query_params={"type": "export-policy"},
     )
     comments = CommentField()
     tags = TagField(required=False)
@@ -756,7 +752,7 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
         required=False,
         queryset=Configuration.objects.all(),
         to_field_name="pk",
-        widget=APISelectMultiple(null_option=True),
+        null_option="None",
     )
     tag = TagFilterField(model)
 

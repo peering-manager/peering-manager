@@ -49,43 +49,10 @@ $(document).ready(function() {
         // Allow for controlling the brief setting from within APISelect
         parameters.brief = $(element).is('[data-full]') ? undefined : true;
 
-        // filter-for fields from a chain
-        var attr_name = 'data-filter-for-' + $(element).attr('name');
-        var form = $(element).closest('form');
-        var filter_for_elements = form.find('select[' + attr_name + ']');
-
-        filter_for_elements.each(function(index, filter_for_element) {
-          var param_name = $(filter_for_element).attr(attr_name);
-          var is_required = $(filter_for_element).attr('required');
-          var is_nullable = $(filter_for_element).attr('nullable');
-          var is_visible = $(filter_for_element).is(':visible');
-          var value = $(filter_for_element).val();
-
-          if (param_name && is_visible) {
-            if (value) {
-              parameters[param_name] = value;
-            } else if (is_required && is_nullable) {
-              parameters[param_name] = 'null';
-            }
-          }
-        });
-        // Conditional query params
+        // Query params
         $.each(element.attributes, function(index, attr) {
-          if (attr.name.includes('data-conditional-query-param-')) {
-            var conditional = attr.name.split('data-conditional-query-param-')[1].split('__');
-            var field = $('#id_' + conditional[0]);
-            var field_value = conditional[1];
-
-            if ($('option:selected', field).attr('api-value') === field_value) {
-              var _val = attr.value.split("=");
-              parameters[_val[0]] = _val[1];
-            }
-          }
-        });
-        // Additional query params
-        $.each(element.attributes, function(index, attr) {
-          if (attr.name.includes('data-additional-query-param-')) {
-            var param_name = attr.name.split('data-additional-query-param-')[1];
+          if (attr.name.includes('data-query-param-')) {
+            var param_name = attr.name.split('data-query-param-')[1];
 
             $.each($.parseJSON(attr.value), function(index, value) {
               if (param_name in parameters) {
@@ -124,7 +91,10 @@ $(document).ready(function() {
 
         // Handle the null option, but only add it once
         if (element.getAttribute('data-null-option') && (data.previous === null)) {
-          results.unshift({ id: 'null', text: 'None' });
+          results.unshift({
+            id: 'null',
+            text: element.getAttribute('data-null-option')
+          });
         }
 
         return { results: results, pagination: { more: data.next !== null } };
