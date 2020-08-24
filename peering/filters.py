@@ -262,7 +262,7 @@ class RouterFilterSet(django_filters.FilterSet):
         qs_filter = (
             Q(name__icontains=value)
             | Q(hostname__icontains=value)
-            | Q(platform_icontains=value)
+            | Q(platform__icontains=value)
             | Q(comments__icontains=value)
         )
         return queryset.filter(qs_filter)
