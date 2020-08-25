@@ -166,15 +166,28 @@ equal to 24.
 
 ### NETBOX_API
 
-Default: None
+Default: `None`
 
 The NetBox API URL to which the queries must be sent to.
 
 ### NETBOX_API_TOKEN
 
-Default: None
+Default: `None`
 
 The API token registered in the NetBox instance to be used in queries.
+
+### NETBOX_API_THREADING
+
+Default: `False`
+
+Turn on or off threading in some API requests.
+
+### NETBOX_API_VERIFY_SSL
+
+Default: `True`
+
+Turn on or off API SSL certificate verification. Turning it off may be useful
+if you use an auto-generated certificate for the NetBox API.
 
 ### NETBOX_DEVICE_ROLES
 

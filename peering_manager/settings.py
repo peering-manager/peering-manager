@@ -190,6 +190,8 @@ TAGGIT_CASE_INSENSITIVE = True
 # NetBox API configuration
 NETBOX_API = getattr(configuration, "NETBOX_API", "")
 NETBOX_API_TOKEN = getattr(configuration, "NETBOX_API_TOKEN", "")
+NETBOX_API_THREADING = getattr(configuration, "NETBOX_API_THREADING", False)
+NETBOX_API_VERIFY_SSL = getattr(configuration, "NETBOX_API_THREADING", True)
 NETBOX_DEVICE_ROLES = getattr(
     configuration, "NETBOX_DEVICE_ROLES", ["router", "firewall"]
 )

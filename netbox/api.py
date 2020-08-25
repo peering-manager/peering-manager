@@ -1,5 +1,6 @@
 import logging
 import pynetbox
+import requests
 
 from django.conf import settings
 
@@ -18,7 +19,17 @@ class NetBox(object):
         base_url = settings.NETBOX_API.strip("/")
         if base_url.endswith("/api"):
             base_url = base_url[:-3]
-        api = pynetbox.api(base_url, token=settings.NETBOX_API_TOKEN)
+        api = pynetbox.api(
+            base_url,
+            token=settings.NETBOX_API_TOKEN,
+            threading=settings.NETBOX_API_THREADING,
+        )
+
+        # Disable SSL verification on user request
+        if not settings.NETBOX_API_VERIFY_SSL:
+            session = requests.Session()
+            session.verify = False
+            api.http_session = session
 
     def get_devices(self):
         """
