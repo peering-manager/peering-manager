@@ -12,24 +12,23 @@ class NetBox(object):
 
     logger = logging.getLogger("peering.manager.netbox")
 
-    api = None
-    if settings.NETBOX_API:
-        # pynetbox adds /api on its own. strip it off here to maintain
-        # backward compatibility with earlier Peering Manager behavior
-        base_url = settings.NETBOX_API.strip("/")
-        if base_url.endswith("/api"):
-            base_url = base_url[:-3]
-        api = pynetbox.api(
-            base_url,
-            token=settings.NETBOX_API_TOKEN,
-            threading=settings.NETBOX_API_THREADING,
-        )
+    def __init__(self, *args, **kwargs):
+        self.api = None
+        if settings.NETBOX_API:
+            # pynetbox adds /api on its own. strip it off here to maintain
+            # backward compatibility with earlier Peering Manager behavior
+            base_url = settings.NETBOX_API.strip("/")
+            if base_url.endswith("/api"):
+                base_url = base_url[:-3]
+            self.api = pynetbox.api(
+                base_url,
+                token=settings.NETBOX_API_TOKEN,
+                threading=settings.NETBOX_API_THREADING,
+            )
 
-        # Disable SSL verification on user request
-        if not settings.NETBOX_API_VERIFY_SSL:
-            session = requests.Session()
-            session.verify = False
-            api.http_session = session
+            # Disable SSL verification on user request
+            if not settings.NETBOX_API_VERIFY_SSL:
+                self.api.http_session.verify = False
 
     def get_devices(self):
         """
