@@ -27,13 +27,7 @@
       <div class="row">
         <div class="col-md-6">
           <div class="card mb-2">
-            <div class="card-header">
-              <strong>Peering Session Details</strong>
-              <div class="float-right">
-                {{ peering_session.get_enabled_html }}
-                {% if peering_session.bgp_state %}{{ peering_session.get_bgp_state_html }}{% endif %}
-              </div>
-            </div>
+            <div class="card-header"><strong>Peering Session Details</strong></div>
             <table class="card-body table table-hover attr-table mb-0">
               <tr>
                 <td>Relationship</td>
@@ -68,12 +62,6 @@
                 <td>IP Address</td>
                 <td>{{ peering_session.ip_address }}</td>
               </tr>
-              {% if peering_session.last_established_state %}
-              <tr>
-                <td>Last Established</td>
-                <td>{{ peering_session.last_established_state }}</td>
-              </tr>
-              {% endif %}
               {% if request.user.is_authenticated and peering_session.password %}
               <tr>
                 <td>Password</td>
@@ -102,9 +90,7 @@
             </table>
           </div>
           <div class="card">
-            <div class="card-header">
-              <strong>Comments</strong>
-            </div>
+            <div class="card-header"><strong>Comments</strong></div>
             <div class="card-body">
               {% if peering_session.comments %}
               {{ peering_session.comments|markdown }}
@@ -116,10 +102,35 @@
           {% include 'utils/includes/tags_card.html' with tags=peering_session.tags.all url='peering:directpeeringsession_list' %}
         </div>
         <div class="col-md-6">
+          {% if peering_session.bgp_state != None %}
+          <div class="card mb-2">
+            <div class="card-header"><strong>Peering Session State</strong></div>
+            <table class="card-body table table-hover attr-table mb-0">
+              <tr>
+                <td>Enabled</td>
+                <td>{{ peering_session.enabled|boolean_as_icon }}</td>
+              </tr>
+              <tr>
+                <td>State</td>
+                <td>{{ peering_session.get_bgp_state_html }}</td>
+              </tr>
+              <tr>
+                <td>Last Established</td>
+                <td>{{ peering_session.last_established_state }}</td>
+              </tr>
+              <tr>
+                <td>Received Prefix Count</td>
+                <td><span class="badge badge-pill badge-primary">{{ peering_session.received_prefix_count }}</span></td>
+              </tr>
+              <tr>
+                <td>Advertised Prefix Count</td>
+                <td><span class="badge badge-pill badge-primary">{{ peering_session.advertised_prefix_count }}</span></td>
+              </tr>
+            </table>
+          </div>
+          {% endif %}
           <div class="card">
-            <div class="card-header">
-              <strong>Routing Policies</strong>
-            </div>
+            <div class="card-header"><strong>Routing Policies</strong></div>
             {% if peering_session.export_routing_policies.all.count > 0 or peering_session.import_routing_policies.all.count > 0 %}
             <ul class="list-group list-group-flush">
             {% for routing_policy in peering_session.export_routing_policies.all %}

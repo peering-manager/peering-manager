@@ -13,6 +13,15 @@ register = template.Library()
 
 
 @register.filter()
+def boolean_as_icon(value):
+    html = '<i class="fas fa-check text-success"></i>'
+    if not value:
+        html = '<i class="fas fa-times text-danger"></i>'
+
+    return mark_safe(html)
+
+
+@register.filter()
 def as_link(value):
     return mark_safe('<a href="{}">{}</a>'.format(value.get_absolute_url(), value))
 

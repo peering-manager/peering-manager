@@ -1299,9 +1299,7 @@ class InternetExchangePeeringSession(BGPSession):
         Returns True if a PeerRecord exists for this session's IP.
         """
         lookup = {
-            "network_ixlan__ipaddr{}".format(self.ip_address.version): str(
-                self.ip_address
-            )
+            f"network_ixlan__ipaddr{self.ip_address.version}": str(self.ip_address)
         }
         try:
             PeerRecord.objects.get(**lookup)
@@ -1314,7 +1312,7 @@ class InternetExchangePeeringSession(BGPSession):
         """
         Returns True if a session is considered as abandoned. Returns False otherwise.
 
-        A session is *not* considered as abandoned if one it matches one of the following
+        A session is *not* considered as abandoned if it matches one of the following
         criteria:
           * The Internet Exchange is not linked to a PeeringDB record
           * User does not poll peering session states
@@ -1333,9 +1331,7 @@ class InternetExchangePeeringSession(BGPSession):
         return True
 
     def __str__(self):
-        return "{} - AS{} - IP {}".format(
-            self.internet_exchange.name, self.autonomous_system.asn, self.ip_address
-        )
+        return f"{self.internet_exchange.name} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
 
 
 class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
