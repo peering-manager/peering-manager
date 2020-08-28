@@ -278,10 +278,10 @@ class AutonomousSystemInternetExchangesPeeringSessions(
         # which we want to get the peering sessions.
         if "asn" in kwargs:
             autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
-            queryset = autonomous_system.internetexchangepeeringsession_set.prefetch_related(
-                "internet_exchange"
-            ).order_by(
-                "internet_exchange", "ip_address"
+            queryset = (
+                autonomous_system.internetexchangepeeringsession_set.prefetch_related(
+                    "internet_exchange"
+                ).order_by("internet_exchange", "ip_address")
             )
 
         return queryset
@@ -794,10 +794,10 @@ class InternetExchangePeeringSessions(PermissionRequiredMixin, ModelListView):
         # which we want to get the peering sessions.
         if "slug" in kwargs:
             internet_exchange = get_object_or_404(InternetExchange, slug=kwargs["slug"])
-            queryset = internet_exchange.internetexchangepeeringsession_set.prefetch_related(
-                "autonomous_system"
-            ).order_by(
-                "autonomous_system", "ip_address"
+            queryset = (
+                internet_exchange.internetexchangepeeringsession_set.prefetch_related(
+                    "autonomous_system"
+                ).order_by("autonomous_system", "ip_address")
             )
 
         return queryset

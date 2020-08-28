@@ -454,11 +454,13 @@ class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
             asn=201281, name="Guillaume Mazoyer"
         )
         internet_exchange = InternetExchange.objects.create(name="Test", slug="test")
-        cls.internet_exchange_peering_session = InternetExchangePeeringSession.objects.create(
-            autonomous_system=autonomous_system,
-            internet_exchange=internet_exchange,
-            ip_address="2001:db8::1",
-            password="mypassword",
+        cls.internet_exchange_peering_session = (
+            InternetExchangePeeringSession.objects.create(
+                autonomous_system=autonomous_system,
+                internet_exchange=internet_exchange,
+                ip_address="2001:db8::1",
+                password="mypassword",
+            )
         )
         cls.create_data = [
             {

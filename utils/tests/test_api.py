@@ -15,9 +15,18 @@ class TagTest(StandardAPITestCases.View):
     model = Tag
     brief_fields = ["id", "name", "slug", "color", "comments", "tagged_items"]
     create_data = [
-        {"name": "Test 4", "slug": "test-4",},
-        {"name": "Test 5", "slug": "test-5",},
-        {"name": "Test 6", "slug": "test-6",},
+        {
+            "name": "Test 4",
+            "slug": "test-4",
+        },
+        {
+            "name": "Test 5",
+            "slug": "test-5",
+        },
+        {
+            "name": "Test 6",
+            "slug": "test-6",
+        },
     ]
 
     @classmethod

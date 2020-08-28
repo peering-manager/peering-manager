@@ -657,11 +657,15 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
                     self.encrypted_password = encrypt(
                         cisco_decrypt(self.encrypted_password)
                     )
-            elif platform in [
-                Platform.IOS,
-                Platform.IOSXR,
-                Platform.NXOS,
-            ] and not cisco_is_encrypted(self.encrypted_password):
+            elif (
+                platform
+                in [
+                    Platform.IOS,
+                    Platform.IOSXR,
+                    Platform.NXOS,
+                ]
+                and not cisco_is_encrypted(self.encrypted_password)
+            ):
                 if junos_is_encrypted(self.encrypted_password):
                     self.encrypted_password = encrypt(
                         junos_decrypt(self.encrypted_password)
@@ -979,8 +983,8 @@ class InternetExchange(AbstractGroup):
                                     "as%s not present importing from peeringdb",
                                     remote_asn,
                                 )
-                                autonomous_system = AutonomousSystem.create_from_peeringdb(
-                                    remote_asn
+                                autonomous_system = (
+                                    AutonomousSystem.create_from_peeringdb(remote_asn)
                                 )
 
                                 # Do not count the AS if it does not have a
@@ -1100,8 +1104,10 @@ class InternetExchange(AbstractGroup):
 
                         # Check if the BGP session is on this IX
                         try:
-                            peering_session = InternetExchangePeeringSession.objects.get(
-                                internet_exchange=self, ip_address=ip_address
+                            peering_session = (
+                                InternetExchangePeeringSession.objects.get(
+                                    internet_exchange=self, ip_address=ip_address
+                                )
                             )
                             # Get the BGP state for the session
                             state = session["connection_state"].lower()
