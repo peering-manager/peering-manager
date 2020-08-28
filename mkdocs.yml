@@ -1,5 +1,5 @@
 site_name: Peering Manager
-repo_url: https://github.com/respawner/peering-manager
+repo_url: https://github.com/peering-manager/peering-manager
 
 pages:
   - Introduction: 'index.md'

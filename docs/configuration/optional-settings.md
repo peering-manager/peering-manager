@@ -199,7 +199,7 @@ The roles that devices must have in the NetBox instance that will be queried.
 
 ### RELEASE_CHECK_URL
 
-Default: "https://api.github.com/repos/respawner/peering-manager/releases"
+Default: "https://api.github.com/repos/peering-manager/peering-manager/releases"
 
 The URL to detect new releases, which are shown on the home page of the web
 interface. You can change this to your own fork, or set it to None to disable

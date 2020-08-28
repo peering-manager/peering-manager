@@ -84,7 +84,7 @@ move to the PostgreSQL one, apply the following process.
   3. `$ git checkout 44dfa7c0f7c35e8f312047ab653f22739901a030`
   4. `$ ./scripts/upgrade.sh`
   5. Open another terminal into the Peering Manager directory
-  6. `$ wget https://raw.githubusercontent.com/respawner/peering-manager/master/scripts/migrate-from-sqlite.sh`
+  6. `$ wget https://raw.githubusercontent.com/peering-manager/peering-manager/master/scripts/migrate-from-sqlite.sh`
   7. `$ chmod a+x migrate-from-sqlite.sh`
   8. In the second terminal run the `$ ./migrate-from-sqlite.sh` when the
      script pauses, switch back to the first terminal

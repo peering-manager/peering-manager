@@ -19,7 +19,7 @@ def successful_github_response(url, *_args, **_kwargs):
     r.reason = "OK"
     r.headers = {"Content-Type": "application/json; charset=utf-8"}
     r.raw = BytesIO(
-        b'[{"html_url": "https://github.com/respawner/peering-manager/releases/tag/v1.1.0","tag_name": "v1.1.0","prerelease": false},{"html_url": "https://github.com/respawner/peering-manager/releases/tag/v1.1-beta1","tag_name": "v1.1-beta1","prerelease": true},{"html_url": "https://github.com/respawner/peering-manager/releases/tag/v1.0.0","tag_name": "v1.0.0","prerelease": false}]'
+        b'[{"html_url": "https://github.com/peering-manager/peering-manager/releases/tag/v1.1.0","tag_name": "v1.1.0","prerelease": false},{"html_url": "https://github.com/peering-manager/peering-manager/releases/tag/v1.1-beta1","tag_name": "v1.1-beta1","prerelease": true},{"html_url": "https://github.com/peering-manager/peering-manager/releases/tag/v1.0.0","tag_name": "v1.0.0","prerelease": false}]'
     )
     return r
 
@@ -54,15 +54,15 @@ class GetReleasesTestCase(SimpleTestCase):
             [
                 (
                     Version("1.1.0"),
-                    "https://github.com/respawner/peering-manager/releases/tag/v1.1.0",
+                    "https://github.com/peering-manager/peering-manager/releases/tag/v1.1.0",
                 ),
                 (
                     Version("1.1b1"),
-                    "https://github.com/respawner/peering-manager/releases/tag/v1.1-beta1",
+                    "https://github.com/peering-manager/peering-manager/releases/tag/v1.1-beta1",
                 ),
                 (
                     Version("1.0.0"),
-                    "https://github.com/respawner/peering-manager/releases/tag/v1.0.0",
+                    "https://github.com/peering-manager/peering-manager/releases/tag/v1.0.0",
                 ),
             ],
         )
@@ -89,11 +89,11 @@ class GetReleasesTestCase(SimpleTestCase):
             [
                 (
                     Version("1.1.0"),
-                    "https://github.com/respawner/peering-manager/releases/tag/v1.1.0",
+                    "https://github.com/peering-manager/peering-manager/releases/tag/v1.1.0",
                 ),
                 (
                     Version("1.0.0"),
-                    "https://github.com/respawner/peering-manager/releases/tag/v1.0.0",
+                    "https://github.com/peering-manager/peering-manager/releases/tag/v1.0.0",
                 ),
             ],
         )

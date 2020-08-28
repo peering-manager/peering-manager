@@ -21,7 +21,7 @@ Clone the Git repository from the base directory.  This will create the
 `peering-manager` application directory and extract the repository into it.
 
 ```no-highlight
-# git clone https://github.com/respawner/peering-manager.git
+# git clone https://github.com/peering-manager/peering-manager.git
 Cloning into 'peering-manager'...
 remote: Enumerating objects: 126, done.
 remote: Counting objects: 100% (126/126), done.

@@ -216,7 +216,7 @@ if RELEASE_CHECK_URL:
         URLValidator(RELEASE_CHECK_URL)
     except ValidationError:
         raise ImproperlyConfigured(
-            "RELEASE_CHECK_URL must be a valid API URL. Example: https://api.github.com/repos/respawner/peering-manager"
+            "RELEASE_CHECK_URL must be a valid API URL. Example: https://api.github.com/repos/peering-manager/peering-manager"
         )
 if RELEASE_CHECK_TIMEOUT < 3600:
     raise ImproperlyConfigured(
