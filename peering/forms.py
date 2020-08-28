@@ -686,7 +686,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
         if settings.NETBOX_API:
             self.fields["netbox_device_id"] = forms.ChoiceField(
                 label="NetBox Device",
-                choices=[(0, "--------")]
+                choices=[(0, "---------")]
                 + [
                     (device.id, device.display_name)
                     for device in NetBox().get_devices()
