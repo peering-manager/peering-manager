@@ -11,6 +11,6 @@ Jinja2==2.11.2
 Markdown==3.2.2
 napalm==3.1.0
 packaging==20.4
-psycopg2-binary==2.8.5
+psycopg2-binary==2.8.6
 pynetbox==5.0.7
 requests==2.24.0
