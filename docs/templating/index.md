@@ -20,17 +20,17 @@ template:
 
   * `my_asn` exposing the ASN specified in the configuration (your ASN)
   * `autonomous_systems` exposing the list of
-    [AutonomousSystem](objects/autonomoussystem.md) that can be found in the
-    [BGPGroup](objects/bgpgroup.md) or
-    [InternetExchange](objects/internetexchange.md) mentioned in other
+    [AutonomousSystem](/models/peering/autonomoussystem.md) that can be found in the
+    [BGPGroup](/models/peering/bgpgroup.md) or
+    [InternetExchange](/models/peering/internetexchange.md) mentioned in other
     variables. This is useful to generate prefix lists.
   * `bgp_groups` exposing details about direct peering sessions via a list of
-    [BGPGroup](objects/bgpgroup.md) objects
+    [BGPGroup](/models/peering/bgpgroup.md) objects
   * `internet_exchanges` exposing Internet Exchange peering sessions via a list
-    of [InternetExchange](objects/internetexchange.md) objects
+    of [InternetExchange](/models/peering/internetexchange.md) objects
   * `routing_policies` containing the list of
-    [RoutingPolicy](objects/routingpolicy.md) objects
-  * `communities` containing the list of [Community](objects/community.md)
+    [RoutingPolicy](/models/peering/routingpolicy.md) objects
+  * `communities` containing the list of [Community](/models/peering/community.md)
     objects
 
 It is possible to iterate over these variables, except the first one, using the
@@ -43,15 +43,15 @@ The following variables are provided to generate an e-mail based on a template:
 
   * `my_asn` exposing the ASN specified in the configuration (your ASN)
   * `autonomous_system` exposing the detail of the current
-    [AutonomousSystem](objects/autonomoussystem.md).
+    [AutonomousSystem](/models/peering/autonomoussystem.md).
   * `internet_exchanges` exposing a list of
-    [InternetExchange](objects/internetexchange.md) objects that the AS as in
+    [InternetExchange](/models/peering/internetexchange.md) objects that the AS as in
     common with `my_asn`. Each list item is composed of three keys:
     `internet_exchange` which holds the actual details for the IX, `sessions`
     which holds the sessions setup on the IX and `missing_sessions` which holds
     the IP addresses that can be used to configure peering sessions.
   * `direct_peering_sessions` exposing a list of
-    [DirectPeeringSession](objects/directpeeringsession.md) setup with the
+    [DirectPeeringSession](/models/peering/directpeeringsession.md) setup with the
     current AS.
 
 ### Functions And Filters
