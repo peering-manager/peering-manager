@@ -9,7 +9,7 @@ Inside Peering Manager, templates use the
 logic building.
 
 Examples of e-mails are provided in the Peering Manager's
-[documentation](../../templating).
+[documentation](../../../templating).
 
 For each e-mail that you create, the following properties can be configured
 (n.b. some are optional):
