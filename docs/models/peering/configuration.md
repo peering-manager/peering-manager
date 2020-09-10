@@ -9,7 +9,7 @@ Inside Peering Manager, templates use the
 logic building.
 
 Examples of configuration are provided in the Peering Manager's
-[documentation](https://peering-manager.readthedocs.io/en/latest/templates/).
+[documentation](../../../templating).
 
 For each configuration that you create, the following properties can be
 configured (n.b. some are optional):
