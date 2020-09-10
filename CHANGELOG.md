@@ -1,5 +1,27 @@
 # Changelog
 
+## Version 1.2.1 | MARK I (Bug fixes release) | 2020-09-10
+
+### Enhancements
+
+  * Improve code readability by using enumerations instead of constant lists
+  * Add brief output to API by using `?brief=1`
+  * Show Python and Peering Manager versions in error 500
+  * Expose users and groups API endpoint …
+  * Rework API based widget to offload complexity to the mixin class as much as possible
+  * [#276](https://github.com/peering-manager/peering-manager/issues/276) Add threading (`NETBOX_API_THREADING`) and SSL/TLS certification verification (`NETBOX_API_VERIFY_SSL`) when using NetBox API
+  * Show BGP states a prefix counts in peering session views
+  * [#279](https://github.com/peering-manager/peering-manager/issues/279) Improve documentation about the `DEBUG` optional setting
+  * Cleanup unused code
+
+### Bug Fixes
+
+  * Fix router filter when using config and password encryption as parameters
+  * Fix default columns for changelog table which appeared to be empty
+  * Fix router search when using platform as a parameter
+  * [#275](https://github.com/peering-manager/peering-manager/issues/275) Make BGP group an optional parameter when searching direct peering sessions
+  * [#277](https://github.com/peering-manager/peering-manager/issues/277) Fix documentation compilation (by @mngan)
+
 ## Version 1.2.0 | MARK I (Features release) | 2020-08-08
 
 Peering Manager is now available in a [dedicated organization](https://github.com/peering-manager).
