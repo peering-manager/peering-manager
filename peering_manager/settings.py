@@ -18,7 +18,7 @@ HOSTNAME = platform.node()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS_DIR = os.path.join(BASE_DIR, "docs")
 
-VERSION = "v1.2.1"
+VERSION = "v1.2.2-dev"
 
 if platform.python_version_tuple() < ("3", "6"):
     raise RuntimeError(
