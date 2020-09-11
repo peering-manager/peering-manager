@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls import include
+from django.conf.urls import include, url
 from django.urls import path
 
 from . import views
@@ -38,6 +38,9 @@ if settings.DEBUG:
     import debug_toolbar
 
     __patterns += [path("__debug__/", include(debug_toolbar.urls))]
+
+if settings.METRICS_ENABLED:
+    __patterns += [url("", include("django_prometheus.urls"))]
 
 # Prepend BASE_PATH
 urlpatterns = [path(f"{settings.BASE_PATH}", include(__patterns))]

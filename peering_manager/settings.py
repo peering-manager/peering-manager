@@ -129,6 +129,7 @@ NAPALM_PASSWORD = getattr(configuration, "NAPALM_PASSWORD", "")
 NAPALM_TIMEOUT = getattr(configuration, "NAPALM_TIMEOUT", 30)
 NAPALM_ARGS = getattr(configuration, "NAPALM_ARGS", {})
 PAGINATE_COUNT = getattr(configuration, "PAGINATE_COUNT", 20)
+METRICS_ENABLED = getattr(configuration, "METRICS_ENABLED", False)
 
 try:
     TZ_FILE = open("/etc/timezone", "r")
@@ -267,7 +268,6 @@ if RADIUS_CONFIGURED:
         raise ImproperlyConfigured(
             "RADIUS authentication has been configured, but django-radius is not installed. You can remove peering_manager/radius_config.py to disable RADIUS."
         )
-
 
 # Force PostgreSQL to be used as database backend
 configuration.DATABASE.update({"ENGINE": "django.db.backends.postgresql"})
@@ -409,6 +409,19 @@ MIDDLEWARE = [
     "utils.middleware.ObjectChangeMiddleware",
     "users.middleware.LastSearchMiddleware",
 ]
+
+# Prometheus setup
+if METRICS_ENABLED:
+    PROMETHEUS_EXPORT_MIGRATIONS = False
+    INSTALLED_APPS.append("django_prometheus")
+    MIDDLEWARE = (
+        ["django_prometheus.middleware.PrometheusBeforeMiddleware"]
+        + MIDDLEWARE
+        + ["django_prometheus.middleware.PrometheusAfterMiddleware"]
+    )
+    configuration.DATABASE.update(
+        {"ENGINE": "django_prometheus.db.backends.postgresql"}
+    )
 
 if DEBUG:
     # Enable debug toolbar only in debugging mode
