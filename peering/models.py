@@ -94,11 +94,12 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         InetAddressField(store_prefix_length=False), blank=True, default=None, null=True
     )
     prefixes = models.JSONField(blank=True, null=True, editable=False)
+    affiliated = models.BooleanField(default=False)
 
     logger = logging.getLogger("peering.manager.peering")
 
     class Meta:
-        ordering = ["asn"]
+        ordering = ["asn", "affiliated"]
         permissions = [("send_email", "Can send e-mails to AS contact")]
 
     @property
@@ -542,7 +543,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
     Abstract class used to define common caracteristics of BGP sessions.
 
     A BGP session is always defined with the following fields:
-      * an AS, or autonomous system, it can also be called a peer
+      * an autonomous system, it can also be called a peer
       * an IP address used to establish the session
       * a plain text password
       * an encrypted version of the password if the user asked for encryption
@@ -718,7 +719,12 @@ class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
 
 
 class DirectPeeringSession(BGPSession):
-    local_asn = ASNField(default=0)
+    local_autonomous_system = models.ForeignKey(
+        "AutonomousSystem",
+        on_delete=models.CASCADE,
+        related_name="%(class)s_local_autonomous_system",
+        null=True,
+    )
     local_ip_address = InetAddressField(
         store_prefix_length=False, blank=True, null=True
     )
@@ -752,7 +758,7 @@ class DirectPeeringSession(BGPSession):
         elif not self.router.can_napalm_get_bgp_neighbors_detail():
             log = log.format(
                 self.name.lower(),
-                "router with unsupported platform {}".format(self.router.platform),
+                f"router with unsupported platform {self.router.platform}",
             )
         elif self.bgp_group and not self.bgp_group.check_bgp_session_states:
             log = log.format(self.name.lower(), "check disabled")
@@ -794,19 +800,18 @@ class DirectPeeringSession(BGPSession):
             badge_type = "badge-secondary"
 
         return mark_safe(
-            '<span class="badge {}">{}</span>'.format(
-                badge_type, self.get_relationship_display()
-            )
+            f'<span class="badge {badge_type}">{self.get_relationship_display()}</span>'
         )
 
     def __str__(self):
-        return "{} - AS{} - IP {}".format(
-            self.get_relationship_display(), self.autonomous_system.asn, self.ip_address
-        )
+        return f"{self.get_relationship_display()} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
 
 
 class InternetExchange(AbstractGroup):
     peeringdb_id = models.PositiveIntegerField(blank=True, default=0)
+    local_autonomous_system = models.ForeignKey(
+        "AutonomousSystem", on_delete=models.CASCADE, null=True
+    )
     ipv6_address = InetAddressField(
         store_prefix_length=False,
         blank=True,
@@ -2113,6 +2118,13 @@ class Configuration(Template):
         variables = None
 
         # Variables for template preview
+        my_as = AutonomousSystem(
+            asn=64500,
+            name="My AS",
+            ipv6_max_prefixes=50,
+            ipv4_max_prefixes=100,
+            affiliated=True,
+        )
         a_s = AutonomousSystem(
             asn=64501, name="ACME", ipv6_max_prefixes=50, ipv4_max_prefixes=100
         )
@@ -2127,14 +2139,14 @@ class Configuration(Template):
         group = BGPGroup(name="Transit Providers", slug="transit")
         group.tags = ["foo", "bar"]
         dps6 = DirectPeeringSession(
-            local_asn=settings.MY_ASN,
+            local_autonomous_system=my_as,
             autonomous_system=a_s,
             ip_address="2001:db8::1",
             relationship=BGPRelationship.TRANSIT_PROVIDER,
         )
         dps6.tags = ["foo", "bar"]
         dps4 = DirectPeeringSession(
-            local_asn=settings.MY_ASN,
+            local_autonomous_system=my_as,
             autonomous_system=a_s,
             ip_address="192.0.2.1",
             relationship=BGPRelationship.PRIVATE_PEERING,
@@ -2212,6 +2224,13 @@ class Email(Template):
         variables = None
 
         # Variables for template preview
+        my_as = AutonomousSystem(
+            asn=64500,
+            name="My AS",
+            ipv6_max_prefixes=50,
+            ipv4_max_prefixes=100,
+            affiliated=True,
+        )
         a_s = AutonomousSystem(
             asn=64501, name="ACME", ipv6_max_prefixes=50, ipv4_max_prefixes=100
         )
@@ -2226,14 +2245,14 @@ class Email(Template):
         group = BGPGroup(name="Transit Providers", slug="transit")
         group.tags = ["foo", "bar"]
         dps6 = DirectPeeringSession(
-            local_asn=settings.MY_ASN,
+            local_autonomous_system=my_as,
             autonomous_system=a_s,
             ip_address="2001:db8::1",
             relationship=BGPRelationship.TRANSIT_PROVIDER,
         )
         dps6.tags = ["foo", "bar"]
         dps4 = DirectPeeringSession(
-            local_asn=settings.MY_ASN,
+            local_autonomous_system=my_as,
             autonomous_system=a_s,
             ip_address="192.0.2.1",
             relationship=BGPRelationship.PRIVATE_PEERING,
