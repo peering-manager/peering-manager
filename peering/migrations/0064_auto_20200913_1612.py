@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     ]
 
     @transaction.atomic()
-    def set_local_autonous_system(apps, schema_editor):
+    def set_local_autonomous_system(apps, schema_editor):
         db_alias = schema_editor.connection.alias
 
         my_asn = getattr(settings, "MY_ASN", None)
@@ -74,7 +74,7 @@ class Migration(migrations.Migration):
                 to="peering.autonomoussystem",
             ),
         ),
-        migrations.RunPython(set_local_autonous_system),
+        migrations.RunPython(set_local_autonomous_system),
         migrations.RemoveField(
             model_name="directpeeringsession",
             name="local_asn",
