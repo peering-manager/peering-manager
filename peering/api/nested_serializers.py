@@ -56,7 +56,6 @@ class DirectPeeringSessionNestedSerializer(WritableNestedSerializer):
         model = DirectPeeringSession
         fields = [
             "id",
-            "local_asn",
             "ip_address",
             "enabled",
         ]
