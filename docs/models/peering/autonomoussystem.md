@@ -11,12 +11,13 @@ for private use and must not be routed on the Internet.
 ## In Peering Manager
 
 Inside Peering Manager, you create autonomous systems that you want to peer
-with. Your own ASN number must be provided as a setting called `MY_ASN`. For
-each AS that you create, the following properties can be configured (n.b. some
-are optional):
+with. Your own ASN numbers must be provided by checking the `affiliated field`.
+For each AS that you create, the following properties can be configured (n.b.
+some are optional):
 
   * `ASN`: unique autonomous system number of the entity.
   * `Name`: human-readable name attached to an AS.
+  * `Affiliated`: whether or not you manage said autonomous system.
   * `IRR AS-SET`: the set of other ASNs that can be found behind this AS.
   * `IPv6 Max Prefixes`: a zero or positive integer which defines the maximum
     number of IPv6 prefixes to receive from the AS.

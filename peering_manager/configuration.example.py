@@ -14,9 +14,6 @@ BASE_PATH = ""
 # Time zone to use for date.
 TIME_ZONE = "Europe/Paris"
 
-# Autonomous System number
-MY_ASN = 64512
-
 # PostgreSQL database configuration
 DATABASE = {
     "NAME": "peering_manager",  # Database name

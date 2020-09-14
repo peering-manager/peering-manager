@@ -100,6 +100,7 @@ class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
         help_texts = {
             "asn": "BGP autonomous system number (32-bit capable)",
             "name": "Full name of the AS",
+            "affiliated": "Check if you own/manage this AS",
         }
 
 
@@ -110,6 +111,7 @@ class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
     irr_as_set = forms.CharField(required=False, label="IRR AS-SET")
     ipv6_max_prefixes = forms.IntegerField(required=False, label="IPv6 Max Prefixes")
     ipv4_max_prefixes = forms.IntegerField(required=False, label="IPv4 Max Prefixes")
+    affiliated = forms.NullBooleanField(required=False, widget=CustomNullBooleanSelect)
     tag = TagFilterField(model)
 
 
