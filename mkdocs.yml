@@ -16,6 +16,7 @@ nav:
     - 5. Logging (Optional): 'setup/5-logging.md'
     - 6. LDAP (Optional): 'setup/6-ldap.md'
     - 7. Scheduled Tasks (Optional): 'setup/7-scheduled-tasks.md'
+    - 8. Prometheus (Optional): 'setup/8-prometheus.md'
     - Upgrading: 'setup/upgrading.md'
     - Migrate to systemd: 'setup/migrate-to-systemd.md'
   - Configuration:
