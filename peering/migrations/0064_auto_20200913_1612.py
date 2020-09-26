@@ -42,6 +42,10 @@ class Migration(migrations.Migration):
         InternetExchange = apps.get_model("peering", "DirectPeeringSession")
         InternetExchange.objects.using(db_alias).update(local_autonomous_system=my_asn)
 
+        # Same thing for Routers
+        Router = apps.get_model("peering", "Router")
+        Router.objects.using(db_alias).update(local_autonomous_system=my_asn)
+
     operations = [
         migrations.AlterModelOptions(
             name="autonomoussystem",
@@ -67,6 +71,15 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="internetexchange",
+            name="local_autonomous_system",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="peering.autonomoussystem",
+            ),
+        ),
+        migrations.AddField(
+            model_name="router",
             name="local_autonomous_system",
             field=models.ForeignKey(
                 null=True,

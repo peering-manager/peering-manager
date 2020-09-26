@@ -99,6 +99,7 @@ class EmailSerializer(TaggitSerializer, ModelSerializer):
 
 class RouterSerializer(TaggitSerializer, WriteEnabledNestedSerializer):
     configuration_template = ConfigurationNestedSerializer(required=False)
+    local_autonomous_system = AutonomousSystemNestedSerializer()
     tags = TagListSerializerField(required=False)
 
     class Meta:
@@ -110,6 +111,7 @@ class RouterSerializer(TaggitSerializer, WriteEnabledNestedSerializer):
             "platform",
             "encrypt_passwords",
             "configuration_template",
+            "local_autonomous_system",
             "last_deployment_id",
             "netbox_device_id",
             "use_netbox",
@@ -154,9 +156,8 @@ class DirectPeeringSessionSerializer(TaggitSerializer, WriteEnabledNestedSeriali
         fields = [
             "id",
             "local_autonomous_system",
-            "autonomous_system",
-            "local_asn",
             "local_ip_address",
+            "autonomous_system",
             "bgp_group",
             "relationship",
             "ip_address",
