@@ -154,6 +154,10 @@ class AutonomousSystemTable(BaseTable):
         orderable=False,
         template_code=AUTONOMOUS_SYSTEM_HAS_POTENTIAL_IX_PEERING_SESSIONS,
     )
+    affiliated = BooleanColumn(
+        verbose_name="Affiliated",
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
+    )
     tags = TagColumn(url_name="peering:autonomoussystem_list")
     actions = ActionsColumn(template_code=AUTONOMOUS_SYSTEM_ACTIONS)
 
@@ -171,6 +175,7 @@ class AutonomousSystemTable(BaseTable):
             "directpeeringsession_count",
             "internetexchangepeeringsession_count",
             "has_potential_ix_peering_sessions",
+            "affiliated",
             "tags",
             "actions",
         )
@@ -267,6 +272,7 @@ class DirectPeeringSessionTable(BaseTable):
     """
 
     pk = SelectColumn()
+    local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     autonomous_system = tables.Column(verbose_name="AS", linkify=True)
     ip_address = tables.Column(verbose_name="IP Address", linkify=True)
     bgp_group = tables.Column(
@@ -290,6 +296,7 @@ class DirectPeeringSessionTable(BaseTable):
         model = DirectPeeringSession
         fields = (
             "pk",
+            "local_autonomous_system",
             "autonomous_system",
             "ip_address",
             "bgp_group",
@@ -307,6 +314,7 @@ class DirectPeeringSessionTable(BaseTable):
         )
         default_columns = (
             "pk",
+            "local_autonomous_system",
             "autonomous_system",
             "ip_address",
             "bgp_group",
@@ -339,6 +347,7 @@ class InternetExchangeTable(BaseTable):
     """
 
     pk = SelectColumn()
+    local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     name = tables.Column(linkify=True)
     ipv6_address = tables.Column(verbose_name="IPv6 Address")
     ipv4_address = tables.Column(verbose_name="IPv4 Address")
@@ -361,6 +370,7 @@ class InternetExchangeTable(BaseTable):
         model = InternetExchange
         fields = (
             "pk",
+            "local_autonomous_system",
             "name",
             "slug",
             "ipv6_address",
@@ -454,6 +464,7 @@ class RouterTable(BaseTable):
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     configuration_template = tables.Column(linkify=True, verbose_name="Configuration")
+    local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     directpeeringsession_count = tables.Column(
         verbose_name="Direct Sessions",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
@@ -474,6 +485,7 @@ class RouterTable(BaseTable):
             "platform",
             "encrypt_passwords",
             "configuration_template",
+            "local_autonomous_system",
             "last_deployment_id",
             "directpeeringsession_count",
             "internetexchangepeeringsession_count",

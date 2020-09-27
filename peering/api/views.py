@@ -84,15 +84,25 @@ class AutonomousSystemViewSet(ModelViewSet):
 
     @action(detail=True, methods=["get"], url_path="common-internet-exchanges")
     def common_internet_exchanges(self, request, pk=None):
-        return Response(
-            {
-                "common-internet-exchanges": InternetExchangeNestedSerializer(
-                    self.get_object().get_common_internet_exchanges(),
-                    many=True,
-                    context={"request": request},
-                ).data
-            }
-        )
+        try:
+            affiliated = AutonomousSystem.objects.get(
+                pk=request.user.preferences.get("context.asn")
+            )
+        except AutonomousSystem.DoesNotExist:
+            affiliated = None
+
+        if affiliated:
+            return Response(
+                {
+                    "common-internet-exchanges": InternetExchangeNestedSerializer(
+                        self.get_object().get_common_internet_exchanges(affiliated),
+                        many=True,
+                        context={"request": request},
+                    ).data
+                }
+            )
+
+        raise ServiceUnavailable("User did not choose an affiliated AS.")
 
     @action(
         detail=True,
@@ -100,8 +110,17 @@ class AutonomousSystemViewSet(ModelViewSet):
         url_path="find-potential-ix-peering-sessions",
     )
     def find_potential_ix_peering_sessions(self, request, pk=None):
-        self.get_object().find_potential_ix_peering_sessions()
-        return Response({"status": "done"})
+        try:
+            affiliated = AutonomousSystem.objects.get(
+                pk=request.user.preferences.get("context.asn")
+            )
+        except AutonomousSystem.DoesNotExist:
+            affiliated = None
+        if affiliated:
+            self.get_object().find_potential_ix_peering_sessions(affiliated)
+            return Response({"status": "done"})
+
+        raise ServiceUnavailable("User did not choose an affiliated AS.")
 
     @action(detail=True, methods=["post"], url_path="generate-email")
     def generate_email(self, request, pk=None):
@@ -181,7 +200,9 @@ class InternetExchangeViewSet(ModelViewSet):
 
     @action(detail=True, methods=["get"], url_path="available-peers")
     def available_peers(self, request, pk=None):
-        available_peers = self.get_object().get_available_peers()
+        available_peers = self.get_object().get_available_peers(
+            self.get_object().local_autonomous_system
+        )
         if not available_peers:
             raise ServiceUnavailable("No peers found.")
 

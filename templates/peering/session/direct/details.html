@@ -40,8 +40,8 @@
               </tr>
               {% endif %}
               <tr>
-                <td>Local ASN</td>
-                <td>{{ peering_session.local_asn }}</td>
+                <td>Local AS</td>
+                <td>{{ peering_session.local_autonomous_system|as_link }}</td>
               </tr>
               {% if peering_session.local_ip_address %}
               <tr>

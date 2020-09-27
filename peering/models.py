@@ -164,25 +164,26 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         return internet_exchanges
 
-    def get_common_internet_exchanges(self):
+    def get_common_internet_exchanges(self, other):
         """
-        Return all IX we have in common with the AS.
+        Return all IX this AS has with the other one.
         """
         # Get common IX networks between us and this AS
-        common = PeeringDB().get_common_ix_networks_for_asns(settings.MY_ASN, self.asn)
+        common = PeeringDB().get_common_ix_networks_for_asns(self.asn, other.asn)
         return InternetExchange.objects.filter(
             peeringdb_id__in=[us.id for us, _ in common]
         ).order_by("name", "slug")
 
-    def find_potential_ix_peering_sessions(self):
+    def find_potential_ix_peering_sessions(self, other):
         """
         Saves an IP address list. Each IP address of the list is the address of a
-        potential peering session with the current AS on an Internet Exchange.
+        potential peering session between this AS and the other on an Internet
+        Exchange.
         """
         # Potential IX peering sessions
         potential_ix_peering_sessions = []
         # Get common IX networks between us and this AS
-        common = PeeringDB().get_common_ix_networks_for_asns(settings.MY_ASN, self.asn)
+        common = PeeringDB().get_common_ix_networks_for_asns(self.asn, other.asn)
 
         # For each common networks take a look at it
         for us, peer in common:
@@ -242,7 +243,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         return False
 
-    def get_common_internet_exchanges_and_sessions(self):
+    def get_common_internet_exchanges_and_sessions(self, affiliated):
         """
         Returns a list of dictionaries, each containing an `InternetExchange` object
         and lists of IP addresses. These addresses are the ones with which peering
@@ -250,7 +251,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         """
         ix_and_sessions = []
 
-        for internet_exchange in self.get_common_internet_exchanges():
+        for internet_exchange in self.get_common_internet_exchanges(affiliated):
             missing_sessions = {"ipv6": [], "ipv4": []}
             for session in self.potential_internet_exchange_peering_sessions:
                 for prefix in internet_exchange.get_prefixes():
@@ -413,9 +414,11 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         return addresses
 
-    def get_email_context(self):
+    def get_email_context(self, user):
         return {
-            "my_asn": settings.MY_ASN,
+            "my_as": AutonomousSystem.objects.get(
+                pk=user.preferences.get("context.asn")
+            ),
             "autonomous_system": self,
             "internet_exchanges": self.get_common_internet_exchanges_and_sessions(),
             "direct_peering_sessions": [
@@ -886,7 +889,10 @@ class InternetExchange(AbstractGroup):
         """
         return PeeringDB().get_prefixes_for_ix_network(self.peeringdb_id)
 
-    def get_available_peers(self):
+    def get_available_peers(self, other):
+        """
+        Finds available peers between this AS and another one.
+        """
         # Not linked to PeeringDB, cannot determine peers
         if not self.peeringdb_id:
             return None
@@ -913,7 +919,7 @@ class InternetExchange(AbstractGroup):
         return (
             PeerRecord.objects.filter(
                 Q(network_ixlan__ixlan_id=network_ixlan.ixlan_id)
-                & ~Q(network__asn=settings.MY_ASN)
+                & ~Q(network__asn=other.asn)
                 & (
                     ~Q(network_ixlan__ipaddr6__in=ipv6_sessions)
                     | ~Q(network_ixlan__ipaddr4__in=ipv4_sessions)
@@ -1313,11 +1319,14 @@ class InternetExchangePeeringSession(BGPSession):
         """
         Returns True if a PeerRecord exists for this session's IP.
         """
-        lookup = {
-            f"network_ixlan__ipaddr{self.ip_address.version}": str(self.ip_address)
-        }
+        if isinstance(self.ip_address, str):
+            ip_version = ipaddress.ip_address(self.ip_address).version
+        else:
+            ip_version = self.ip_address.version
         try:
-            PeerRecord.objects.get(**lookup)
+            PeerRecord.objects.get(
+                **{f"network_ixlan__ipaddr{ip_version}": str(self.ip_address)}
+            )
             return True
         except PeerRecord.DoesNotExist:
             pass
@@ -1500,19 +1509,18 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     def get_configuration_context(self):
         context = {
-            "my_asn": settings.MY_ASN,
+            "my_as": self.local_autonomous_system.to_dict(),
+            "autonomous_systems": [],
             "bgp_groups": self.get_bgp_groups(),
             "internet_exchanges": self.get_internet_exchanges(),
             "routing_policies": [p.to_dict() for p in RoutingPolicy.objects.all()],
             "communities": [c.to_dict() for c in Community.objects.all()],
         }
 
-        autonomous_systems = []
         for group in context["bgp_groups"] + context["internet_exchanges"]:
             for session in group["sessions"][6] + group["sessions"][4]:
-                if session["autonomous_system"] not in autonomous_systems:
-                    autonomous_systems.append(session["autonomous_system"])
-        context.update({"autonomous_systems": autonomous_systems})
+                if session["autonomous_system"] not in context["autonomous_systems"]:
+                    context["autonomous_systems"].append(session["autonomous_system"])
 
         return context
 
@@ -2170,7 +2178,7 @@ class Configuration(Template):
 
         return self.render(
             {
-                "my_asn": settings.MY_ASN,
+                "my_as": my_as,
                 "bgp_groups": [group],
                 "internet_exchanges": [i_x],
                 "routing_policies": [
@@ -2274,7 +2282,7 @@ class Email(Template):
 
         return self.render(
             {
-                "my_asn": settings.MY_ASN,
+                "my_as": my_as,
                 "autonomous_system": a_s,
                 "internet_exchanges": [
                     {

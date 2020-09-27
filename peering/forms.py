@@ -85,6 +85,7 @@ class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
             "import_routing_policies",
             "export_routing_policies",
             "comments",
+            "affiliated",
             "tags",
         )
         labels = {
@@ -249,11 +250,10 @@ class ConfigurationFilterForm(BootstrapMixin, forms.Form):
 
 
 class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
-    local_asn = forms.IntegerField(
-        min_value=ASN_MIN,
-        max_value=ASN_MAX,
-        label="Local ASN",
-        help_text=f"ASN to be used locally, defaults to {settings.MY_ASN}",
+    local_autonomous_system = DynamicModelChoiceField(
+        queryset=AutonomousSystem.objects.all(),
+        query_params={"affiliated": True},
+        label="Local Autonomous System",
     )
     autonomous_system = DynamicModelChoiceField(
         queryset=AutonomousSystem.objects.all(), label="Autonomous System"
@@ -286,7 +286,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = DirectPeeringSession
         fields = (
-            "local_asn",
+            "local_autonomous_system",
             "local_ip_address",
             "autonomous_system",
             "bgp_group",
@@ -307,12 +307,6 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "ip_address": "IPv6 or IPv4 address",
             "enabled": "Should this session be enabled?",
         }
-
-    def __init__(self, *args, **kwargs):
-        initial = kwargs.get("initial", {})
-        # Set local ASN according to the one found in the settings
-        initial.update({"local_asn": settings.MY_ASN})
-        super().__init__(*args, **kwargs)
 
 
 class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
@@ -355,7 +349,12 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEd
 class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
     model = DirectPeeringSession
     q = forms.CharField(required=False, label="Search")
-    local_asn = forms.IntegerField(required=False, label="Local ASN")
+    local_autonomous_system = DynamicModelChoiceField(
+        queryset=AutonomousSystem.objects.all(),
+        query_params={"affiliated": True},
+        to_field_name="pk",
+        label="Local Autonomous System",
+    )
     bgp_group = DynamicModelMultipleChoiceField(
         required=False,
         queryset=BGPGroup.objects.all(),
@@ -402,6 +401,11 @@ class EmailFilterForm(BootstrapMixin, forms.Form):
 
 class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField(max_length=255)
+    local_autonomous_system = DynamicModelChoiceField(
+        queryset=AutonomousSystem.objects.all(),
+        query_params={"affiliated": True},
+        label="Local Autonomous System",
+    )
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
@@ -429,6 +433,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "peeringdb_id",
             "name",
             "slug",
+            "local_autonomous_system",
             "ipv6_address",
             "ipv4_address",
             "communities",
@@ -666,6 +671,11 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
         label="Configuration",
         help_text="Template used to generate device configuration",
     )
+    local_autonomous_system = DynamicModelChoiceField(
+        queryset=AutonomousSystem.objects.all(),
+        query_params={"affiliated": True},
+        label="Local Autonomous System",
+    )
     napalm_username = forms.CharField(required=False, label="Username")
     napalm_password = PasswordField(required=False, render_value=True, label="Password")
     napalm_timeout = forms.IntegerField(
@@ -715,6 +725,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
             "platform",
             "encrypt_passwords",
             "configuration_template",
+            "local_autonomous_system",
             "napalm_username",
             "napalm_password",
             "napalm_timeout",
@@ -757,6 +768,13 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
     configuration_template = DynamicModelMultipleChoiceField(
         required=False,
         queryset=Configuration.objects.all(),
+        to_field_name="pk",
+        null_option="None",
+    )
+    local_autonomous_system = DynamicModelMultipleChoiceField(
+        required=False,
+        queryset=AutonomousSystem.objects.all(),
+        query_params={"affiliated": True},
         to_field_name="pk",
         null_option="None",
     )

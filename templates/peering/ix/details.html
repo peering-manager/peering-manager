@@ -32,6 +32,10 @@
                   {% endif %}
                 </td>
               </tr>
+              <tr>
+                <td>Local AS</td>
+                <td>{{ internet_exchange.local_autonomous_system|as_link }}</td>
+              </tr>
               {% if internet_exchange.router %}
               <tr>
                 <td>Router</td>

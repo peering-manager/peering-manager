@@ -98,7 +98,8 @@ try:
     from peering_manager import configuration
 except ImportError:
     raise ImproperlyConfigured(
-        "Configuration file is not present. Please define peering_manager/configuration.py per the documentation."
+        "Configuration file is not present. "
+        "Please define peering_manager/configuration.py per the documentation."
     )
 
 for setting in ["ALLOWED_HOSTS", "DATABASE", "SECRET_KEY"]:
@@ -131,13 +132,13 @@ PAGINATE_COUNT = getattr(configuration, "PAGINATE_COUNT", 20)
 METRICS_ENABLED = getattr(configuration, "METRICS_ENABLED", False)
 
 try:
-    TZ_FILE = open("/etc/timezone", "r")
-    BASE_TZ = TZ_FILE.read()
+    with open("/etc/timezone", "r") as f:
+        BASE_TZ = f.readline().strip()
 
     # For some reasons, Django does not seem to be happy about this particular value
-    if BASE_TZ == "Etc/UTC":
-        BASE_TZ = "UTC"
-except IOError:
+    if "Etc/UTC" in BASE_TZ:
+        raise Exception("Unsupported TZ")
+except (IOError, Exception):
     BASE_TZ = "UTC"
 
 TIME_ZONE = getattr(configuration, "TIME_ZONE", BASE_TZ)
@@ -216,7 +217,8 @@ if RELEASE_CHECK_URL:
         URLValidator(RELEASE_CHECK_URL)
     except ValidationError:
         raise ImproperlyConfigured(
-            "RELEASE_CHECK_URL must be a valid API URL. Example: https://api.github.com/repos/peering-manager/peering-manager"
+            "RELEASE_CHECK_URL must be a valid API URL. "
+            "Example: https://api.github.com/repos/peering-manager/peering-manager"
         )
 if RELEASE_CHECK_TIMEOUT < 3600:
     raise ImproperlyConfigured(
@@ -244,7 +246,9 @@ if LDAP_CONFIGURED:
         ]
     except ImportError:
         raise ImproperlyConfigured(
-            "LDAP authentication has been configured, but django-auth-ldap is not installed. You can remove peering_manager/ldap_config.py to disable LDAP."
+            "LDAP authentication has been configured, but django-auth-ldap is not "
+            "installed. You can remove peering_manager/ldap_config.py to disable "
+            "LDAP."
         )
 
 try:
@@ -265,7 +269,9 @@ if RADIUS_CONFIGURED:
         ]
     except ImportError:
         raise ImproperlyConfigured(
-            "RADIUS authentication has been configured, but django-radius is not installed. You can remove peering_manager/radius_config.py to disable RADIUS."
+            "RADIUS authentication has been configured, but django-radius is not "
+            "installed. You can remove peering_manager/radius_config.py to disable "
+            "RADIUS."
         )
 
 # Force PostgreSQL to be used as database backend

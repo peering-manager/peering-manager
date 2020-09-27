@@ -41,6 +41,7 @@ class AutonomousSystemTestCase(StandardTestCases.Filters):
                     irr_as_set="AS-SET-1",
                     ipv6_max_prefixes=1,
                     ipv4_max_prefixes=0,
+                    affiliated=True,
                 ),
                 AutonomousSystem(
                     asn=64502,
@@ -82,6 +83,12 @@ class AutonomousSystemTestCase(StandardTestCases.Filters):
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
         params = {"ipv4_max_prefixes": 0}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_affiliated(self):
+        params = {"affiliated": False}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {"affiliated": True}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
 
 class BGPGroupTestCase(StandardTestCases.Filters):
@@ -163,28 +170,33 @@ class DirectPeeringSessionTestCase(StandardTestCases.Filters):
 
     @classmethod
     def setUpTestData(cls):
-        cls.a_s = AutonomousSystem.objects.create(asn=64501, name="Autonomous System 1")
+        cls.local_as = AutonomousSystem.objects.create(
+            asn=64501, name="Autonomous System 1", affiliated=True
+        )
+        cls.a_s = AutonomousSystem.objects.create(asn=64502, name="Autonomous System 2")
         cls.router = Router.objects.create(
-            name="Router 1", hostname="router1.example.net"
+            name="Router 1",
+            hostname="router1.example.net",
+            local_autonomous_system=cls.local_as,
         )
         DirectPeeringSession.objects.bulk_create(
             [
                 DirectPeeringSession(
-                    local_asn=64500,
+                    local_autonomous_system=cls.local_as,
                     autonomous_system=cls.a_s,
                     ip_address="192.0.2.1",
                     relationship=BGPRelationship.TRANSIT_PROVIDER,
                     router=cls.router,
                 ),
                 DirectPeeringSession(
-                    local_asn=64500,
+                    local_autonomous_system=cls.local_as,
                     autonomous_system=cls.a_s,
                     ip_address="192.0.2.2",
                     relationship=BGPRelationship.PRIVATE_PEERING,
                     multihop_ttl=2,
                 ),
                 DirectPeeringSession(
-                    local_asn=64500,
+                    local_autonomous_system=cls.local_as,
                     autonomous_system=cls.a_s,
                     ip_address="192.0.2.3",
                     relationship=BGPRelationship.CUSTOMER,
@@ -207,10 +219,10 @@ class DirectPeeringSessionTestCase(StandardTestCases.Filters):
         params = {"router": [self.router]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
-    def test_local_asn(self):
-        params = {"local_asn": 64500}
+    def test_local_autonomous_system(self):
+        params = {"local_autonomous_system": [self.local_as]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
-        params = {"local_asn": 64501}
+        params = {"local_autonomous_system": [self.a_s]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 0)
 
     def test_multihop_ttl(self):
@@ -258,8 +270,13 @@ class InternetExchangeTestCase(StandardTestCases.Filters):
 
     @classmethod
     def setUpTestData(cls):
+        local_as = AutonomousSystem.objects.create(
+            asn=64501, name="Autonomous System 1", affiliated=True
+        )
         cls.router = Router.objects.create(
-            name="Router 1", hostname="router1.example.net"
+            name="Router 1",
+            hostname="router1.example.net",
+            local_autonomous_system=local_as,
         )
         InternetExchange.objects.bulk_create(
             [
@@ -370,6 +387,9 @@ class RouterTestCase(StandardTestCases.Filters):
 
     @classmethod
     def setUpTestData(cls):
+        cls.local_as = AutonomousSystem.objects.create(
+            asn=64501, name="Autonomous System 1", affiliated=True
+        )
         cls.configuration = Configuration.objects.create(
             name="Configuration 1", template="Configuration 1"
         )
@@ -380,17 +400,20 @@ class RouterTestCase(StandardTestCases.Filters):
                     hostname="router1.example.net",
                     platform=Platform.JUNOS,
                     encrypt_passwords=True,
+                    local_autonomous_system=cls.local_as,
                 ),
                 Router(
                     name="Router 2",
                     hostname="router2.example.net",
                     platform=Platform.IOSXR,
                     encrypt_passwords=True,
+                    local_autonomous_system=cls.local_as,
                 ),
                 Router(
                     name="Router 3",
                     hostname="router3.example.net",
                     configuration_template=cls.configuration,
+                    local_autonomous_system=cls.local_as,
                 ),
             ]
         )
@@ -418,6 +441,10 @@ class RouterTestCase(StandardTestCases.Filters):
     def test_configuration_template(self):
         params = {"configuration_template": self.configuration.pk}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+
+    def test_local_autonomous_system(self):
+        params = {"local_autonomous_system": [self.local_as]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
 
 
 class RoutingPolicyTestCase(StandardTestCases.Filters):

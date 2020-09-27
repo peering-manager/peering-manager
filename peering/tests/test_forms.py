@@ -62,14 +62,17 @@ class DirectPeeringSessionTest(TestCase):
     def setUp(self):
         super().setUp()
 
+        self.local_autonomous_system = AutonomousSystem.objects.create(
+            asn=201281, name="Guillaume Mazoyer", affiliated=True
+        )
         self.autonomous_system = AutonomousSystem.objects.create(
-            asn=201281, name="Guillaume Mazoyer"
+            asn=64500, name="Dummy"
         )
 
     def test_direct_peering_session_form(self):
         test = DirectPeeringSessionForm(
             data={
-                "local_asn": 64500,
+                "local_autonomous_system": self.local_autonomous_system.pk,
                 "autonomous_system": self.autonomous_system.pk,
                 "relationship": BGPRelationship.PRIVATE_PEERING,
                 "ip_address": "2001:db8::1",
@@ -93,8 +96,21 @@ class EmailTest(TestCase):
 
 
 class InternetExchangeTest(TestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.local_autonomous_system = AutonomousSystem.objects.create(
+            asn=201281, name="Guillaume Mazoyer", affiliated=True
+        )
+
     def test_internet_exchange_form(self):
-        test = InternetExchangeForm(data={"name": "Test", "slug": "test"})
+        test = InternetExchangeForm(
+            data={
+                "local_autonomous_system": self.local_autonomous_system.pk,
+                "name": "Test",
+                "slug": "test",
+            }
+        )
         self.assertTrue(test.is_valid())
         self.assertTrue(test.save())
 
@@ -130,6 +146,14 @@ class RouterTest(TestCase):
                 "name": "test",
                 "hostname": "test.example.com",
                 "platform": Platform.JUNOS,
+                "local_autonomous_system": AutonomousSystem.objects.create(
+                    asn=64501,
+                    name="Autonomous System 1",
+                    irr_as_set="AS-SET-1",
+                    ipv6_max_prefixes=1,
+                    ipv4_max_prefixes=0,
+                    affiliated=True,
+                ).pk,
             }
         )
         self.assertTrue(test.is_valid())

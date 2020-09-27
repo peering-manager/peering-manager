@@ -171,12 +171,19 @@ class ConfigurationTest(TestCase):
 class DirectPeeringSessionTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Test")
+        cls.autonomous_system = AutonomousSystem.objects.create(asn=64501, name="Test")
         cls.group = BGPGroup.objects.create(
             name="Test Group", slug="testgroup", check_bgp_session_states=True
         )
         cls.router = Router.objects.create(
-            name="Test", hostname="test.example.com", platform=Platform.JUNOS
+            name="Test",
+            hostname="test.example.com",
+            platform=Platform.JUNOS,
+            local_autonomous_system=AutonomousSystem.objects.create(
+                asn=64500,
+                name="Autonomous System",
+                affiliated=True,
+            ),
         )
         cls.session = DirectPeeringSession.objects.create(
             autonomous_system=cls.autonomous_system,
@@ -357,11 +364,18 @@ class InternetExchangeTest(TestCase):
 class InternetExchangePeeringSessionTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.autonomous_system = AutonomousSystem.objects.create(asn=64510, name="Test")
+        cls.a_s = AutonomousSystem.objects.create(asn=64510, name="Test")
         cls.router = Router.objects.create(
-            name="Test", hostname="test.example.com", platform=Platform.JUNOS
+            name="Test",
+            hostname="test.example.com",
+            platform=Platform.JUNOS,
+            local_autonomous_system=AutonomousSystem.objects.create(
+                asn=64500,
+                name="Autonomous System",
+                affiliated=True,
+            ),
         )
-        cls.exchange = InternetExchange.objects.create(
+        cls.ix = InternetExchange.objects.create(
             name="Test Group",
             slug="testgroup",
             ipv6_address="2001:db8::1337",
@@ -370,72 +384,50 @@ class InternetExchangePeeringSessionTest(TestCase):
             check_bgp_session_states=True,
         )
         cls.session = InternetExchangePeeringSession.objects.create(
-            autonomous_system=cls.autonomous_system,
-            internet_exchange=cls.exchange,
-            ip_address="2001:db8::1",
-        )
-
-    def test_encrypt_password(self):
-        autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Test")
-        router = Router.objects.create(
-            name="Test", hostname="test.example.com", platform=Platform.JUNOS
-        )
-        internet_exchange = InternetExchange.objects.create(
-            name="Test", slug="test", router=router
-        )
-        peering_session = InternetExchangePeeringSession.objects.create(
-            autonomous_system=autonomous_system,
-            internet_exchange=internet_exchange,
+            autonomous_system=cls.a_s,
+            internet_exchange=cls.ix,
             ip_address="2001:db8::1",
             password="mypassword",
         )
-        self.assertIsNotNone(peering_session.password)
-        self.assertIsNone(peering_session.encrypted_password)
+
+    def test_encrypt_password(self):
+        self.session.password = "mypassword"
+        self.assertIsNotNone(self.session.password)
+        self.assertIsNone(self.session.encrypted_password)
 
         # Encrypt the password
-        peering_session.encrypt_password(router.platform)
-        self.assertIsNotNone(peering_session.encrypted_password)
-        self.assertTrue(junos_is_encrypted(peering_session.encrypted_password))
+        self.session.encrypt_password(self.router.platform)
+        self.assertIsNotNone(self.session.encrypted_password)
+        self.assertTrue(junos_is_encrypted(self.session.encrypted_password))
         self.assertEqual(
-            peering_session.password, junos_decrypt(peering_session.encrypted_password)
+            self.session.password, junos_decrypt(self.session.encrypted_password)
         )
 
         # Change router platform and re-encrypt
-        router.platform = Platform.IOSXR
-        peering_session.encrypt_password(router.platform)
-        self.assertIsNotNone(peering_session.encrypted_password)
-        self.assertTrue(cisco_is_encrypted(peering_session.encrypted_password))
+        self.router.platform = Platform.IOSXR
+        self.session.encrypt_password(self.router.platform)
+        self.assertIsNotNone(self.session.encrypted_password)
+        self.assertTrue(cisco_is_encrypted(self.session.encrypted_password))
         self.assertEqual(
-            peering_session.password, cisco_decrypt(peering_session.encrypted_password)
+            self.session.password, cisco_decrypt(self.session.encrypted_password)
         )
 
         # Change router platform to an unsupported one
-        router.platform = Platform.NONE
-        peering_session.encrypt_password(router.platform)
-        self.assertIsNone(peering_session.encrypted_password)
+        self.router.platform = Platform.NONE
+        self.session.encrypt_password(self.router.platform)
+        self.assertIsNone(self.session.encrypted_password)
 
         # Change password to None and
-        peering_session.password = None
-        router.platform = Platform.JUNOS
-        peering_session.encrypt_password(router.platform)
-        self.assertIsNone(peering_session.encrypted_password)
+        self.session.password = None
+        self.router.platform = Platform.JUNOS
+        self.session.encrypt_password(self.router.platform)
+        self.assertIsNone(self.session.encrypted_password)
 
     def test_exists_in_peeringdb(self):
-        self.assertFalse(
-            InternetExchangePeeringSession.objects.get(
-                ip_address="2001:db8::1"
-            ).exists_in_peeringdb()
-        )
+        self.assertFalse(self.session.exists_in_peeringdb())
 
     def test_is_abandoned(self):
-        autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Test")
-        internet_exchange = InternetExchange.objects.create(name="Test", slug="test")
-        peering_session = InternetExchangePeeringSession.objects.create(
-            autonomous_system=autonomous_system,
-            internet_exchange=internet_exchange,
-            ip_address="2001:db8::1",
-        )
-        self.assertFalse(peering_session.is_abandoned())
+        self.assertFalse(self.session.is_abandoned())
 
     def test_poll(self):
         with patch(
@@ -454,11 +446,19 @@ class InternetExchangePeeringSessionTest(TestCase):
 class RouterTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        cls.local_as = AutonomousSystem.objects.create(
+            asn=64500,
+            name="Autonomous System",
+            affiliated=True,
+        )
         cls.bgp_neighbors_detail = json_file_to_python_type(
             "peering/tests/fixtures/get_bgp_neighbors_detail.json"
         )
         cls.router = Router.objects.create(
-            name="Test", hostname="test.example.com", platform=Platform.JUNOS
+            name="Test",
+            hostname="test.example.com",
+            platform=Platform.JUNOS,
+            local_autonomous_system=cls.local_as,
         )
 
     def test_get_configuration_context(self):
@@ -534,11 +534,13 @@ class RouterTest(TestCase):
 
         # Generate expected result
         expected = {
+            "my_as": self.local_as.to_dict(),
             "autonomous_systems": [
                 autonomous_system.to_dict()
-                for autonomous_system in AutonomousSystem.objects.all()
+                for autonomous_system in AutonomousSystem.objects.exclude(
+                    pk=self.local_as.pk
+                )
             ],
-            "my_asn": settings.MY_ASN,
             "bgp_groups": [bgp_group_dict],
             "internet_exchanges": [internet_exchange_dict],
             "routing_policies": [],
@@ -584,7 +586,14 @@ class RouterTest(TestCase):
 
         # Create a router
         router = Router.objects.create(
-            name="test", hostname="test.example.com", platform=Platform.JUNOS
+            name="test",
+            hostname="test.example.com",
+            platform=Platform.JUNOS,
+            local_autonomous_system=AutonomousSystem.objects.create(
+                asn=64510,
+                name="Autonomous System",
+                affiliated=True,
+            ),
         )
 
         # Run test cases

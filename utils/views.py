@@ -661,14 +661,14 @@ class TableImportView(ReturnURLMixin, View):
     form_model = None
     template = "utils/table_import.html"
 
-    def get_objects(self):
+    def get_objects(self, request):
         return []
 
     def get(self, request):
         """
         Method used to render the view when form is not submitted.
         """
-        objects = self.get_objects()
+        objects = self.get_objects(request)
         formset = None
 
         if len(objects) > 0:
