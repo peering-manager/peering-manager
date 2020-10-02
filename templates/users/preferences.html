@@ -1,33 +1,48 @@
 {% extends 'users/_user.html' %}
+{% load form_helpers %}
 {% load helpers %}
 {% block title %}User Preferences{% endblock %}
 {% block user_content %}
+<div class="row">
+  <div class="col">
 {% if preferences %}
-          <form method="post" action="">
-            {% csrf_token %}
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th><input type="checkbox" class="toggle" title="Toggle all"></th>
-                  <th>Preference</th>
-                  <th>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-              {% for key, value in preferences.items %}
-                <tr>
-                  <td class="min-width"><input type="checkbox" name="pk" value="{{ key }}"></td>
-                  <td>{{ key }}</td>
-                  <td>{{ value }}</td>
-                </tr>
-              {% endfor %}
-              </tbody>
-            </table>
-            <button type="submit" class="btn btn-danger">
-                <i class="fas fa-trash"></i> Delete Selected
-            </button>
-          </form>
+    <form method="post" action="">
+      {% csrf_token %}
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th><input type="checkbox" class="toggle" title="Toggle all"></th>
+            <th>Preference</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for key, value in preferences.items %}
+          <tr>
+            <td class="min-width"><input type="checkbox" name="pk" value="{{ key }}"></td>
+            <td>{{ key }}</td>
+            <td>{{ value }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <button type="submit" class="btn btn-danger">
+        <i class="fas fa-trash"></i> Delete Selected
+      </button>
+    </form>
 {% else %}
-          <h4 class="text-muted text-center">No preferences found</h4>
+    <h4 class="text-muted text-center">No preferences found</h4>
 {% endif %}
+  </div>
+</div>
+<hr />
+<div class="row">
+  <div class="col">
+    <form method="post" action="">
+      {% csrf_token %}
+      {% render_field form.preferred_autonomous_system %}
+      <button type="submit" class="btn btn-primary float-right" name="_preferred">Save</button>
+    </form>
+  </div>
+</div>
 {% endblock %}

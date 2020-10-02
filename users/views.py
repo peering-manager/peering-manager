@@ -12,7 +12,12 @@ from django.urls import reverse
 from django.utils.http import is_safe_url
 from django.views.generic import View
 
-from .forms import LoginForm, TokenForm, UserPasswordChangeForm
+from .forms import (
+    LoginForm,
+    TokenForm,
+    UserPasswordChangeForm,
+    UserPreferredASChangeForm,
+)
 from .models import Token
 from utils.forms import ConfirmationForm
 
@@ -78,6 +83,7 @@ class PreferencesView(View, LoginRequiredMixin):
             request,
             self.template_name,
             {
+                "form": UserPreferredASChangeForm(),
                 "preferences": request.user.preferences.all(),
                 "active_tab": "preferences",
             },
@@ -87,10 +93,16 @@ class PreferencesView(View, LoginRequiredMixin):
         preferences = request.user.preferences
         data = preferences.all()
 
-        # Delete selected preferences
-        for key in request.POST.getlist("pk"):
-            if key in data:
-                preferences.delete(key)
+        if "_preferred" in request.POST:
+            preferences.set(
+                "context.asn", request.POST.get("preferred_autonomous_system")
+            )
+        else:
+            # Delete selected preferences
+            for key in request.POST.getlist("pk"):
+                if key in data:
+                    preferences.delete(key)
+
         preferences.save()
         messages.success(request, "Your preferences have been updated.")
 
