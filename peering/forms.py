@@ -313,6 +313,12 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEd
     pk = DynamicModelMultipleChoiceField(
         queryset=DirectPeeringSession.objects.all(), widget=forms.MultipleHiddenInput
     )
+    local_autonomous_system = DynamicModelChoiceField(
+        required=False,
+        queryset=AutonomousSystem.objects.all(),
+        query_params={"affiliated": True},
+        label="Local Autonomous System",
+    )
     enabled = forms.NullBooleanField(
         required=False, label="Enable", widget=CustomNullBooleanSelect
     )
@@ -463,6 +469,12 @@ class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFo
     pk = DynamicModelMultipleChoiceField(
         queryset=InternetExchange.objects.all(), widget=forms.MultipleHiddenInput
     )
+    local_autonomous_system = DynamicModelChoiceField(
+        required=False,
+        queryset=AutonomousSystem.objects.all(),
+        query_params={"affiliated": True},
+        label="Local Autonomous System",
+    )
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
@@ -534,6 +546,12 @@ class InternetExchangePeeringDBFormSet(forms.BaseFormSet):
 class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
     model = InternetExchange
     q = forms.CharField(required=False, label="Search")
+    local_autonomous_system = DynamicModelChoiceField(
+        required=False,
+        queryset=AutonomousSystem.objects.all(),
+        query_params={"affiliated": True},
+        label="Local Autonomous System",
+    )
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
@@ -741,6 +759,12 @@ class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = DynamicModelMultipleChoiceField(
         queryset=Router.objects.all(), widget=forms.MultipleHiddenInput
     )
+    local_autonomous_system = DynamicModelChoiceField(
+        required=False,
+        queryset=AutonomousSystem.objects.all(),
+        query_params={"affiliated": True},
+        label="Local Autonomous System",
+    )
     platform = forms.ChoiceField(
         required=False, choices=add_blank_choice(Platform.choices), widget=StaticSelect
     )
@@ -759,6 +783,12 @@ class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
 class RouterFilterForm(BootstrapMixin, forms.Form):
     model = Router
     q = forms.CharField(required=False, label="Search")
+    local_autonomous_system = DynamicModelChoiceField(
+        required=False,
+        queryset=AutonomousSystem.objects.all(),
+        query_params={"affiliated": True},
+        label="Local Autonomous System",
+    )
     platform = forms.MultipleChoiceField(
         required=False, choices=Platform.choices, widget=StaticSelectMultiple
     )
