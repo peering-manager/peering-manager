@@ -83,7 +83,13 @@ class PreferencesView(View, LoginRequiredMixin):
             request,
             self.template_name,
             {
-                "form": UserPreferredASChangeForm(),
+                "form": UserPreferredASChangeForm(
+                    initial={
+                        "preferred_autonomous_system": request.user.preferences.get(
+                            "context.asn"
+                        )
+                    }
+                ),
                 "preferences": request.user.preferences.all(),
                 "active_tab": "preferences",
             },

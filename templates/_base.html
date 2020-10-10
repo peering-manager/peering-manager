@@ -117,6 +117,12 @@
       </nav>
       <main role="main" class="ml-sm-auto col-md-9 col-lg-10" style="padding-left: 0; padding-right: 0;">
         <div class="justify-content-between flex-wrap flex-md-nowrap align-items-center">
+          {% if not request|user_context_asn %}
+          <div class="alert alert-warning text-center" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> No preferred affiliated autonomous system select.
+            Please update your <a href="{% url 'users:preferences' %}">preferences</a>.
+          </div>
+          {% endif %}
           {% for message in messages %}
           <div class="alert alert-{{ message.tags }} alert-dismissable" role="alert">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
