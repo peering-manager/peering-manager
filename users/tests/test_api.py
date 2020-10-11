@@ -2,6 +2,8 @@ from django.contrib.auth.models import Group, User
 from django.urls import reverse
 from rest_framework import status
 
+
+from peering.models import AutonomousSystem
 from utils.testing import APITestCase, StandardAPITestCases
 
 
@@ -40,6 +42,27 @@ class UserTest(StandardAPITestCases.View):
 
     @classmethod
     def setUpTestData(cls):
-        User.objects.bulk_create(
-            [User(username="User_1"), User(username="User_2"), User(username="User_3")]
+        User.objects.create(username="User_1")
+        User.objects.bulk_create([User(username="User_2"), User(username="User_3")])
+
+    def test_set_context_asn(self):
+        affiliated = AutonomousSystem.objects.create(
+            asn=201281, name="Guillaume Mazoyer", affiliated=True
         )
+        AutonomousSystem.objects.create(asn=65000, name="ACME")
+        user = User.objects.get(username="User_1")
+
+        url = reverse(
+            "users-api:user-set-context-asn",
+            kwargs={"pk": user.pk},
+        )
+
+        data = {"asn": 201281}
+        response = self.client.patch(url, data, format="json", **self.header)
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(user.preferences.get("context.asn"), affiliated.pk)
+
+        data = {"asn": 65000}
+        response = self.client.patch(url, data, format="json", **self.header)
+        self.assertStatus(response, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(user.preferences.get("context.asn"), affiliated.pk)
