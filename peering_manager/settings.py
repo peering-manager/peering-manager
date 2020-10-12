@@ -394,6 +394,7 @@ INSTALLED_APPS = [
     "utils",
     "webhooks",
     "django_rq",
+    "safedelete",
 ]
 
 MIDDLEWARE = [
@@ -483,4 +484,4 @@ STATIC_URL = f"/{BASE_PATH}static/"
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "project-static"),)
 
 # Django debug toolbar
-INTERNAL_IPS = ["127.0.0.1", "::1"]
+INTERNAL_IPS = getattr(configuration, "INTERNAL_IPS", ["127.0.0.1", "::1"])

@@ -1,7 +1,8 @@
+from enum import unique
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import send_mail
-from django.db.models import Count
+from django.db.models import Count, Case, When, F
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import slugify
@@ -96,9 +97,23 @@ from utils.views import (
 class ASList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_autonomoussystem"
     queryset = AutonomousSystem.objects.annotate(
-        directpeeringsession_count=Count("directpeeringsession", distinct=True),
+        directpeeringsession_count=Count(
+            Case(
+                When(
+                    directpeeringsession__deleted__isnull=True,
+                    then=F("directpeeringsession"),
+                )
+            ),
+            distinct=True,
+        ),
         internetexchangepeeringsession_count=Count(
-            "internetexchangepeeringsession", distinct=True
+            Case(
+                When(
+                    internetexchangepeeringsession__deleted__isnull=True,
+                    then=F("internetexchangepeeringsession"),
+                )
+            ),
+            distinct=True,
         ),
     ).order_by("asn")
     filter = AutonomousSystemFilterSet
@@ -372,7 +387,15 @@ class AutonomousSystemAddFromPeeringDB(
 class BGPGroupList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_bgpgroup"
     queryset = BGPGroup.objects.annotate(
-        directpeeringsession_count=Count("directpeeringsession")
+        directpeeringsession_count=Count(
+            Case(
+                When(
+                    directpeeringsession__deleted__isnull=True,
+                    then=F("directpeeringsession"),
+                )
+            ),
+            distinct=True,
+        )
     ).order_by("name", "slug")
     filter = BGPGroupFilterSet
     filter_form = BGPGroupFilterForm
@@ -669,7 +692,15 @@ class InternetExchangeList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_internetexchange"
     queryset = (
         InternetExchange.objects.annotate(
-            internetexchangepeeringsession_count=Count("internetexchangepeeringsession")
+            internetexchangepeeringsession_count=Count(
+                Case(
+                    When(
+                        internetexchangepeeringsession__deleted__isnull=True,
+                        then=F("internetexchangepeeringsession"),
+                    )
+                ),
+                distinct=True,
+            )
         )
         .prefetch_related("router")
         .order_by("name", "slug")
@@ -982,9 +1013,23 @@ class RouterList(PermissionRequiredMixin, ModelListView):
     queryset = (
         Router.objects.annotate(
             internetexchangepeeringsession_count=Count(
-                "internetexchange__internetexchangepeeringsession", distinct=True
+                Case(
+                    When(
+                        internetexchange__internetexchangepeeringsession__deleted__isnull=True,
+                        then=F("internetexchange__internetexchangepeeringsession"),
+                    )
+                ),
+                distinct=True,
             ),
-            directpeeringsession_count=Count("directpeeringsession", distinct=True),
+            directpeeringsession_count=Count(
+                Case(
+                    When(
+                        directpeeringsession__deleted__isnull=True,
+                        then=F("directpeeringsession"),
+                    )
+                ),
+                distinct=True,
+            ),
         )
         .prefetch_related("configuration_template")
         .order_by("name")

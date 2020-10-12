@@ -12,8 +12,10 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
+from safedelete.models import SafeDeleteModel, SOFT_DELETE_CASCADE, SOFT_DELETE
+
 from jinja2 import Environment, TemplateSyntaxError
-from netfields import InetAddressField, NetManager
+from netfields import InetAddressField
 
 from . import call_irr_as_set_resolver, parse_irr_as_set
 from .enums import (
@@ -39,10 +41,12 @@ from utils.crypto.junos import (
     is_encrypted as junos_is_encrypted,
 )
 from utils.models import ChangeLoggedModel, TaggableModel, TemplateModel
+from utils.managers import SafeDeleteNetManager
 from utils.validators import AddressFamilyValidator
 
 
-class AbstractGroup(ChangeLoggedModel, TaggableModel, TemplateModel):
+class AbstractGroup(ChangeLoggedModel, TaggableModel, TemplateModel, SafeDeleteModel):
+    _safedelete_policy = SOFT_DELETE_CASCADE
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, max_length=255)
     comments = models.TextField(blank=True)
@@ -253,8 +257,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             for session in self.potential_internet_exchange_peering_sessions:
                 for prefix in internet_exchange.get_prefixes():
                     if (
-                        session not in missing_sessions["ipv6"]
-                        and session not in missing_sessions["ipv4"]
+                        session not in missing_sessions[f"ipv{session.version}"]
                     ):
                         if session in ipaddress.ip_network(prefix):
                             missing_sessions[f"ipv{session.version}"].append(session)
@@ -533,7 +536,7 @@ class BGPGroup(AbstractGroup):
         return self.name
 
 
-class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
+class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel, SafeDeleteModel):
     """
     Abstract class used to define common caracteristics of BGP sessions.
 
@@ -555,6 +558,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
       * comments that consist of plain text that can use the markdown format
     """
 
+    _safedelete_policy = SOFT_DELETE
     autonomous_system = models.ForeignKey("AutonomousSystem", on_delete=models.CASCADE)
     ip_address = InetAddressField(store_prefix_length=False)
     password = models.CharField(max_length=255, blank=True, null=True)
@@ -580,7 +584,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
     last_established_state = models.DateTimeField(blank=True, null=True)
     comments = models.TextField(blank=True)
 
-    objects = NetManager()
+    objects = SafeDeleteNetManager()
 
     class Meta:
         abstract = True
@@ -680,7 +684,8 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
             self.save()
 
 
-class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
+class Community(ChangeLoggedModel, TaggableModel, TemplateModel, SafeDeleteModel):
+    _safedelete_policy = SOFT_DELETE
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, max_length=255)
     value = CommunityField(max_length=50)
@@ -722,7 +727,7 @@ class DirectPeeringSession(BGPSession):
         "BGPGroup",
         blank=True,
         null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         verbose_name="BGP Group",
     )
     relationship = models.CharField(
@@ -731,7 +736,10 @@ class DirectPeeringSession(BGPSession):
         help_text="Relationship with the remote peer.",
     )
     router = models.ForeignKey(
-        "Router", blank=True, null=True, on_delete=models.SET_NULL
+        "Router",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
     )
 
     class Meta:
@@ -816,10 +824,14 @@ class InternetExchange(AbstractGroup):
         validators=[AddressFamilyValidator(4)],
     )
     router = models.ForeignKey(
-        "Router", blank=True, null=True, on_delete=models.SET_NULL
+        "Router",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        # related_name='internetexchange'
     )
 
-    objects = NetManager()
+    objects = SafeDeleteNetManager()
     logger = logging.getLogger("peering.manager.peering")
 
     def get_absolute_url(self):
@@ -1388,22 +1400,27 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
     def is_netbox_device(self):
         return self.netbox_device_id != 0
 
-    def get_bgp_groups(self):
+    def get_bgp_groups(self, with_deleted=False):
         """
         Returns BGP groups that can be deployed on this router. A group is considered
         as deployable on a router if some direct peering sessions attached to the
         group are also attached to the router.
         """
+        bgp_group_query_set = BGPGroup.all_objects if with_deleted else BGPGroup.objects
+        direct_peering_session_query_set = DirectPeeringSession.all_objects if with_deleted else DirectPeeringSession.objects
         bgp_groups = []
         for bgp_group in (
-            BGPGroup.objects.all()
+            bgp_group_query_set
             .prefetch_related("communities")
             .prefetch_related("import_routing_policies")
             .prefetch_related("export_routing_policies")
             .prefetch_related("tags")
         ):
             peering_sessions = (
-                DirectPeeringSession.objects.filter(bgp_group=bgp_group, router=self)
+                direct_peering_session_query_set
+                .filter(
+                    bgp_group=bgp_group, router=self
+                )
                 .prefetch_related("import_routing_policies")
                 .prefetch_related("export_routing_policies")
                 .prefetch_related("tags")
@@ -1428,13 +1445,16 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
                 bgp_groups.append(dict)
         return bgp_groups
 
-    def get_internet_exchanges(self):
+    def get_internet_exchanges(self, with_deleted=False):
         """
         Returns Internet Exchanges attached to this router.
         """
+        internet_exchange_query_set = InternetExchange.all_objects if with_deleted else InternetExchange.objects
+        internet_exchange_peering_session_query_set = InternetExchangePeeringSession.all_objects if with_deleted else InternetExchangePeeringSession.objects
         internet_exchanges = []
         for internet_exchange in (
-            InternetExchange.objects.filter(router=self)
+            internet_exchange_query_set
+            .filter(router=self)
             .prefetch_related("communities")
             .prefetch_related("import_routing_policies")
             .prefetch_related("export_routing_policies")
@@ -1442,7 +1462,8 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
             .select_related("router")
         ):
             peering_sessions = (
-                InternetExchangePeeringSession.objects.filter(
+                internet_exchange_peering_session_query_set
+                .filter(
                     internet_exchange=internet_exchange
                 )
                 .prefetch_related("import_routing_policies")
@@ -1487,10 +1508,10 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
     def get_configuration_context(self):
         context = {
             "my_asn": settings.MY_ASN,
-            "bgp_groups": self.get_bgp_groups(),
-            "internet_exchanges": self.get_internet_exchanges(),
-            "routing_policies": [p.to_dict() for p in RoutingPolicy.objects.all()],
-            "communities": [c.to_dict() for c in Community.objects.all()],
+            "bgp_groups": self.get_bgp_groups(with_deleted=True),
+            "internet_exchanges": self.get_internet_exchanges(with_deleted=True),
+            "routing_policies": [p.to_dict() for p in RoutingPolicy.all_objects.all()],
+            "communities": [c.to_dict() for c in Community.all_objects.all()],
         }
 
         autonomous_systems = []
@@ -1997,7 +2018,8 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         return self.name
 
 
-class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel):
+class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel, SafeDeleteModel):
+    _safedelete_policy = SOFT_DELETE
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, max_length=255)
     type = models.CharField(
@@ -2099,8 +2121,8 @@ class Configuration(Template):
             return jinja2_template.render(variables)
         except TemplateSyntaxError as e:
             return f"Syntax error in template at line {e.lineno}: {e.message}"
-        except Exception as e:
-            return str(e)
+        # except Exception as e:
+        #     return str(e)
 
     def render_preview(self):
         """
