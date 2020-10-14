@@ -7,13 +7,10 @@ from cacheops import CacheMiss, cache
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
-from django.db.models import Q
+from django.db.models import Q, constraints
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-
-from safedelete.models import SafeDeleteModel, SOFT_DELETE_CASCADE, SOFT_DELETE
-
 from jinja2 import Environment, TemplateSyntaxError
 from netfields import InetAddressField
 
@@ -40,15 +37,22 @@ from utils.crypto.junos import (
     decrypt as junos_decrypt,
     is_encrypted as junos_is_encrypted,
 )
-from utils.models import ChangeLoggedModel, TaggableModel, TemplateModel
-from utils.managers import SafeDeleteNetManager
+from utils.models import (
+    ChangeLoggedModel,
+    TaggableModel,
+    TemplateModel,
+    SoftDeleteModel,
+    CascadingSoftDeleteModel,
+)
+from utils.managers import SoftDeleteNetManager
 from utils.validators import AddressFamilyValidator
 
 
-class AbstractGroup(ChangeLoggedModel, TaggableModel, TemplateModel, SafeDeleteModel):
-    _safedelete_policy = SOFT_DELETE_CASCADE
+class AbstractGroup(
+    ChangeLoggedModel, TaggableModel, TemplateModel, CascadingSoftDeleteModel
+):
     name = models.CharField(max_length=128)
-    slug = models.SlugField(unique=True, max_length=255)
+    slug = models.SlugField(max_length=255)
     comments = models.TextField(blank=True)
     import_routing_policies = models.ManyToManyField(
         "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
@@ -63,6 +67,13 @@ class AbstractGroup(ChangeLoggedModel, TaggableModel, TemplateModel, SafeDeleteM
     class Meta:
         abstract = True
         ordering = ["name", "slug"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=("slug",),
+                condition=Q(deleted__isnull=True),
+                name="%(class)s_slug_constraint",
+            )
+        ]
 
     def get_peering_sessions_list_url(self):
         raise NotImplementedError
@@ -256,9 +267,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             missing_sessions = {"ipv6": [], "ipv4": []}
             for session in self.potential_internet_exchange_peering_sessions:
                 for prefix in internet_exchange.get_prefixes():
-                    if (
-                        session not in missing_sessions[f"ipv{session.version}"]
-                    ):
+                    if session not in missing_sessions[f"ipv{session.version}"]:
                         if session in ipaddress.ip_network(prefix):
                             missing_sessions[f"ipv{session.version}"].append(session)
 
@@ -432,8 +441,8 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 class BGPGroup(AbstractGroup):
     logger = logging.getLogger("peering.manager.peering")
 
-    class Meta:
-        ordering = ["name", "slug"]
+    class Meta(AbstractGroup.Meta):
+        abstract = False
         verbose_name = "BGP group"
 
     def get_absolute_url(self):
@@ -536,7 +545,7 @@ class BGPGroup(AbstractGroup):
         return self.name
 
 
-class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel, SafeDeleteModel):
+class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel, SoftDeleteModel):
     """
     Abstract class used to define common caracteristics of BGP sessions.
 
@@ -558,7 +567,6 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel, SafeDeleteMode
       * comments that consist of plain text that can use the markdown format
     """
 
-    _safedelete_policy = SOFT_DELETE
     autonomous_system = models.ForeignKey("AutonomousSystem", on_delete=models.CASCADE)
     ip_address = InetAddressField(store_prefix_length=False)
     password = models.CharField(max_length=255, blank=True, null=True)
@@ -584,7 +592,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel, SafeDeleteMode
     last_established_state = models.DateTimeField(blank=True, null=True)
     comments = models.TextField(blank=True)
 
-    objects = SafeDeleteNetManager()
+    objects = SoftDeleteNetManager()
 
     class Meta:
         abstract = True
@@ -684,10 +692,9 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel, SafeDeleteMode
             self.save()
 
 
-class Community(ChangeLoggedModel, TaggableModel, TemplateModel, SafeDeleteModel):
-    _safedelete_policy = SOFT_DELETE
+class Community(ChangeLoggedModel, TaggableModel, TemplateModel, SoftDeleteModel):
     name = models.CharField(max_length=128)
-    slug = models.SlugField(unique=True, max_length=255)
+    slug = models.SlugField(max_length=255)
     value = CommunityField(max_length=50)
     type = models.CharField(
         max_length=50, choices=CommunityType.choices, default=CommunityType.INGRESS
@@ -697,6 +704,13 @@ class Community(ChangeLoggedModel, TaggableModel, TemplateModel, SafeDeleteModel
     class Meta:
         verbose_name_plural = "communities"
         ordering = ["value", "name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=("slug",),
+                condition=Q(deleted__isnull=True),
+                name="%(class)s_slug_constraint",
+            )
+        ]
 
     def get_absolute_url(self):
         return reverse("peering:community_details", kwargs={"pk": self.pk})
@@ -742,8 +756,8 @@ class DirectPeeringSession(BGPSession):
         on_delete=models.SET_NULL,
     )
 
-    class Meta:
-        ordering = ["autonomous_system", "ip_address"]
+    class Meta(BGPSession.Meta):
+        abstract = False
 
     def get_absolute_url(self):
         return reverse("peering:directpeeringsession_details", kwargs={"pk": self.pk})
@@ -831,7 +845,7 @@ class InternetExchange(AbstractGroup):
         # related_name='internetexchange'
     )
 
-    objects = SafeDeleteNetManager()
+    objects = SoftDeleteNetManager()
     logger = logging.getLogger("peering.manager.peering")
 
     def get_absolute_url(self):
@@ -1167,8 +1181,8 @@ class InternetExchangePeeringSession(BGPSession):
 
     logger = logging.getLogger("peering.manager.peeringdb")
 
-    class Meta:
-        ordering = ["autonomous_system", "ip_address"]
+    class Meta(BGPSession.Meta):
+        abstract = False
 
     @staticmethod
     def get_ix_list_for_peer_record(peer_record):
@@ -1407,18 +1421,20 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         group are also attached to the router.
         """
         bgp_group_query_set = BGPGroup.all_objects if with_deleted else BGPGroup.objects
-        direct_peering_session_query_set = DirectPeeringSession.all_objects if with_deleted else DirectPeeringSession.objects
+        direct_peering_session_query_set = (
+            DirectPeeringSession.all_objects
+            if with_deleted
+            else DirectPeeringSession.objects
+        )
         bgp_groups = []
         for bgp_group in (
-            bgp_group_query_set
-            .prefetch_related("communities")
+            bgp_group_query_set.prefetch_related("communities")
             .prefetch_related("import_routing_policies")
             .prefetch_related("export_routing_policies")
             .prefetch_related("tags")
         ):
             peering_sessions = (
-                direct_peering_session_query_set
-                .filter(
+                direct_peering_session_query_set.filter(
                     bgp_group=bgp_group, router=self
                 )
                 .prefetch_related("import_routing_policies")
@@ -1449,12 +1465,17 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         """
         Returns Internet Exchanges attached to this router.
         """
-        internet_exchange_query_set = InternetExchange.all_objects if with_deleted else InternetExchange.objects
-        internet_exchange_peering_session_query_set = InternetExchangePeeringSession.all_objects if with_deleted else InternetExchangePeeringSession.objects
+        internet_exchange_query_set = (
+            InternetExchange.all_objects if with_deleted else InternetExchange.objects
+        )
+        internet_exchange_peering_session_query_set = (
+            InternetExchangePeeringSession.all_objects
+            if with_deleted
+            else InternetExchangePeeringSession.objects
+        )
         internet_exchanges = []
         for internet_exchange in (
-            internet_exchange_query_set
-            .filter(router=self)
+            internet_exchange_query_set.filter(router=self)
             .prefetch_related("communities")
             .prefetch_related("import_routing_policies")
             .prefetch_related("export_routing_policies")
@@ -1462,8 +1483,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
             .select_related("router")
         ):
             peering_sessions = (
-                internet_exchange_peering_session_query_set
-                .filter(
+                internet_exchange_peering_session_query_set.filter(
                     internet_exchange=internet_exchange
                 )
                 .prefetch_related("import_routing_policies")
@@ -2018,10 +2038,9 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         return self.name
 
 
-class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel, SafeDeleteModel):
-    _safedelete_policy = SOFT_DELETE
+class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel, SoftDeleteModel):
     name = models.CharField(max_length=128)
-    slug = models.SlugField(unique=True, max_length=255)
+    slug = models.SlugField(max_length=255)
     type = models.CharField(
         max_length=50,
         choices=RoutingPolicyType.choices,
@@ -2038,6 +2057,13 @@ class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel, SafeDeleteM
     class Meta:
         verbose_name_plural = "routing policies"
         ordering = ["-weight", "name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=("slug",),
+                condition=Q(deleted__isnull=True),
+                name="%(class)s_slug_constraint",
+            )
+        ]
 
     def get_absolute_url(self):
         return reverse("peering:routingpolicy_details", kwargs={"pk": self.pk})

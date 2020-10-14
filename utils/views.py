@@ -62,7 +62,7 @@ class ReturnURLMixin(object):
     form.
     """
 
-    default_return_url = None
+    return_url = None
 
     def get_return_url(self, request, obj=None):
         # First, see if `return_url` was specified as a query parameter or form data.
@@ -73,11 +73,16 @@ class ReturnURLMixin(object):
         ):
             return query_param
         # Next, check if the object being modified (if any) has an absolute URL.
-        elif obj is not None and obj.pk and hasattr(obj, "get_absolute_url"):
+        elif (
+            obj is not None
+            and getattr(obj, "deleted", None) is None
+            and obj.pk
+            and hasattr(obj, "get_absolute_url")
+        ):
             return obj.get_absolute_url()
         # Fall back to the default URL (if specified) for the view.
-        elif self.default_return_url is not None:
-            return reverse(self.default_return_url)
+        elif self.return_url is not None:
+            return reverse(self.return_url)
         # If all else fails, return home. Ideally this should never happen.
         return reverse("home")
 
@@ -317,8 +322,9 @@ class BulkDeleteView(View):
                     deleted_count, self.model._meta.verbose_name_plural
                 )
                 messages.success(request, message)
-
-                return redirect(self.return_url)
+            else:
+                messages.error(request, form.errors)
+            return redirect(self.return_url)
         else:
             form = form_model(initial={"pk": pk_list, "return_url": self.return_url})
 
@@ -391,7 +397,7 @@ class BulkEditView(ReturnURLMixin, View):
                                 try:
                                     model_field = model._meta.get_field(name)
                                 except FieldDoesNotExist:
-                                    pass
+                                    model_field = None
 
                                 if (
                                     name in form.nullable_fields

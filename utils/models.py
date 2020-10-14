@@ -12,6 +12,9 @@ from django.utils.safestring import mark_safe
 from taggit.managers import TaggableManager
 from taggit.models import TagBase, GenericTaggedItemBase
 
+from safedelete.models import SafeDeleteModel
+from safedelete.models import SOFT_DELETE_CASCADE, SOFT_DELETE, HARD_DELETE
+
 from .enums import ObjectChangeAction
 from .fields import ColorField
 from .templatetags.helpers import title_with_uppers
@@ -183,3 +186,17 @@ class TemplateModel(models.Model):
                 data[field.name] = value
 
         return data
+
+
+class SoftDeleteModel(SafeDeleteModel):
+    _safedelete_policy = SOFT_DELETE
+
+    class Meta:
+        abstract = True
+
+
+class CascadingSoftDeleteModel(SoftDeleteModel):
+    _safedelete_policy = SOFT_DELETE_CASCADE
+
+    class Meta:
+        abstract = True
