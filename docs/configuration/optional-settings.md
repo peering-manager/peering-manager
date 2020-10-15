@@ -78,7 +78,11 @@ following items can be defined within the `EMAIL` setting:
   * `PASSSWORD` - Password with which to authenticate
   * `TIMEOUT` - Time to wait for a connection (in seconds)
   * `FROM_ADDRESS` - Sender address for emails sent by Peering Manager
-  * `SUBJECT_PREFIX` - Prefix of the subject for outgoing emails
+  * `SUBJECT_PREFIX` - Prefix of the subject` for outgoing emails
+  * `USE_SSL` - Use implicit TLS connections, usually on port 465
+  * `USE_TLS` - Use explicit TLS connections, usually on port 587
+
+Note that `USE_TLS`/`USE_SSL` are mutually exclusive, so only set one of those settings to True.
 
 ---
 
