@@ -7,79 +7,101 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('peering', '0063_auto_20200807_1503'),
+        ("peering", "0063_auto_20200807_1503"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='bgpgroup',
-            name='deleted',
+            model_name="bgpgroup",
+            name="deleted",
             field=models.DateTimeField(editable=False, null=True),
         ),
         migrations.AddField(
-            model_name='community',
-            name='deleted',
+            model_name="community",
+            name="deleted",
             field=models.DateTimeField(editable=False, null=True),
         ),
         migrations.AddField(
-            model_name='directpeeringsession',
-            name='deleted',
+            model_name="directpeeringsession",
+            name="deleted",
             field=models.DateTimeField(editable=False, null=True),
         ),
         migrations.AddField(
-            model_name='internetexchange',
-            name='deleted',
+            model_name="internetexchange",
+            name="deleted",
             field=models.DateTimeField(editable=False, null=True),
         ),
         migrations.AddField(
-            model_name='internetexchangepeeringsession',
-            name='deleted',
+            model_name="internetexchangepeeringsession",
+            name="deleted",
             field=models.DateTimeField(editable=False, null=True),
         ),
         migrations.AddField(
-            model_name='routingpolicy',
-            name='deleted',
+            model_name="routingpolicy",
+            name="deleted",
             field=models.DateTimeField(editable=False, null=True),
         ),
         migrations.AlterField(
-            model_name='bgpgroup',
-            name='slug',
+            model_name="bgpgroup",
+            name="slug",
             field=models.SlugField(max_length=255),
         ),
         migrations.AlterField(
-            model_name='community',
-            name='slug',
+            model_name="community",
+            name="slug",
             field=models.SlugField(max_length=255),
         ),
         migrations.AlterField(
-            model_name='directpeeringsession',
-            name='bgp_group',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='peering.bgpgroup', verbose_name='BGP Group'),
+            model_name="directpeeringsession",
+            name="bgp_group",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="peering.bgpgroup",
+                verbose_name="BGP Group",
+            ),
         ),
         migrations.AlterField(
-            model_name='internetexchange',
-            name='slug',
+            model_name="internetexchange",
+            name="slug",
             field=models.SlugField(max_length=255),
         ),
         migrations.AlterField(
-            model_name='routingpolicy',
-            name='slug',
+            model_name="routingpolicy",
+            name="slug",
             field=models.SlugField(max_length=255),
         ),
         migrations.AddConstraint(
-            model_name='bgpgroup',
-            constraint=models.UniqueConstraint(condition=models.Q(deleted__isnull=True), fields=('slug',), name='bgpgroup_slug_constraint'),
+            model_name="bgpgroup",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(deleted__isnull=True),
+                fields=("slug",),
+                name="bgpgroup_slug_constraint",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='community',
-            constraint=models.UniqueConstraint(condition=models.Q(deleted__isnull=True), fields=('slug',), name='community_slug_constraint'),
+            model_name="community",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(deleted__isnull=True),
+                fields=("slug",),
+                name="community_slug_constraint",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='internetexchange',
-            constraint=models.UniqueConstraint(condition=models.Q(deleted__isnull=True), fields=('slug',), name='internetexchange_slug_constraint'),
+            model_name="internetexchange",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(deleted__isnull=True),
+                fields=("slug",),
+                name="internetexchange_slug_constraint",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='routingpolicy',
-            constraint=models.UniqueConstraint(condition=models.Q(deleted__isnull=True), fields=('slug',), name='routingpolicy_slug_constraint'),
+            model_name="routingpolicy",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(deleted__isnull=True),
+                fields=("slug",),
+                name="routingpolicy_slug_constraint",
+            ),
         ),
     ]
