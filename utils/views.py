@@ -25,6 +25,9 @@ from django.views.generic import View
 
 from django_tables2 import RequestConfig
 
+import peering.models
+from utils.models import SoftDeleteModel
+
 from .filters import ObjectChangeFilterSet, TagFilterSet
 from .forms import (
     ConfirmationForm,
@@ -852,3 +855,18 @@ class TagBulkEdit(PermissionRequiredMixin, BulkEditView):
     filter = TagFilterSet
     table = TagTable
     form = TagBulkEditForm
+
+
+class SoftDeleteManagementView(View):
+    def get(self, request):
+        if not request.user.is_staff and not request.user.is_superuser:
+            messages.error(request, "You do not have the rights to index peer records.")
+            return redirect(reverse("home"))
+
+        models = SoftDeleteModel.get_deleted_counts(peering.models)
+
+        return render(
+            request,
+            "utils/softdelete.html",
+            dict(models=models, return_url=request.get_full_path()),
+        )

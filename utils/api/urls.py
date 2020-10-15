@@ -16,6 +16,7 @@ router = routers.DefaultRouter()
 router.APIRootView = UtilsRootView
 
 router.register("tags", views.TagViewSet)
+router.register("soft-delete", views.SoftDeleteViewSet, basename="soft-delete")
 
 app_name = "utils-api"
 urlpatterns = router.urls
