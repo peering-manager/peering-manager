@@ -8,13 +8,19 @@ import netfields.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('peering', '0063_auto_20200807_1503'),
+        ("peering", "0063_auto_20200807_1503"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='autonomoussystem',
-            name='potential_internet_exchange_peering_sessions',
-            field=django.contrib.postgres.fields.ArrayField(base_field=netfields.fields.InetAddressField(max_length=39), blank=True, default=None, null=True, size=None),
+            model_name="autonomoussystem",
+            name="potential_internet_exchange_peering_sessions",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=netfields.fields.InetAddressField(max_length=39),
+                blank=True,
+                default=None,
+                null=True,
+                size=None,
+            ),
         ),
     ]
