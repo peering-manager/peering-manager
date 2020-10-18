@@ -2230,7 +2230,10 @@ class Configuration(Template):
                     ],
                     "communities": [
                         Community(
-                            id=100008, name="Community Transit", slug="comm-transit", value="64500:1"
+                            id=100008,
+                            name="Community Transit",
+                            slug="comm-transit",
+                            value="64500:1",
                         ).to_dict()
                     ],
                     "autonomous_systems": [a_s.to_dict()],
@@ -2238,6 +2241,7 @@ class Configuration(Template):
             )
         except:
             import traceback
+
             return traceback.format_exc()
 
 
