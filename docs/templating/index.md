@@ -37,6 +37,8 @@ It is possible to iterate over these variables, except the first one, using the
 `for` keyword of Jinja2. More details can be found about how to use these in
 the examples below.
 
+The objects in the lists: `bgp_groups`, `bgp_group[4].sessions`, `bgp_group[6].sessions`, `internet_exchanges`, `internet_exchanges[4].sessions`. `internet_exchanges[6].sessions`. `routing_policies` and `communities`, will include any objects. These can be detected by checking the `deleted` field of each object. 
+
 ## E-mail
 
 The following variables are provided to generate an e-mail based on a template:

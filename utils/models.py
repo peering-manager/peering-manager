@@ -15,7 +15,7 @@ from django.core.serializers import serialize
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
-from taggit.managers import TaggableManager
+from taggit.managers import TaggableManager, _TaggableManager
 from taggit.models import TagBase, GenericTaggedItemBase
 
 from safedelete.models import SafeDeleteModel
@@ -174,7 +174,11 @@ class TemplateModel(models.Model):
             elif isinstance(field, ManyToManyField):
                 value = list(self.__getattribute__(field.name).all())
             elif isinstance(field, TaggableManager):
-                value = list(self.__getattribute__(field.name).all())
+                # Hack to deal with Template Preview
+                if not isinstance(self.__getattribute__(field.name), _TaggableManager):
+                    value = list(self.__getattribute__(field.name))
+                else:
+                    value = list(self.__getattribute__(field.name).all())
             else:
                 value = self.__getattribute__(field.name)
 

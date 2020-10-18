@@ -2158,19 +2158,25 @@ class Configuration(Template):
 
         # Variables for template preview
         a_s = AutonomousSystem(
-            asn=64501, name="ACME", ipv6_max_prefixes=50, ipv4_max_prefixes=100
+            id=100000,
+            asn=64501,
+            name="ACME",
+            ipv6_max_prefixes=50,
+            ipv4_max_prefixes=100,
         )
         a_s.tags = ["foo", "bar"]
         i_x = InternetExchange(
+            id=100001,
             name="Wakanda-IX",
             slug="wakanda-ix",
             ipv6_address="2001:db8:a::ffff",
             ipv4_address="192.0.2.128",
         )
         i_x.tags = ["foo", "bar"]
-        group = BGPGroup(name="Transit Providers", slug="transit")
+        group = BGPGroup(id=100002, name="Transit Providers", slug="transit")
         group.tags = ["foo", "bar"]
         dps6 = DirectPeeringSession(
+            id=100003,
             local_asn=settings.MY_ASN,
             autonomous_system=a_s,
             ip_address="2001:db8::1",
@@ -2178,6 +2184,7 @@ class Configuration(Template):
         )
         dps6.tags = ["foo", "bar"]
         dps4 = DirectPeeringSession(
+            id=100004,
             local_asn=settings.MY_ASN,
             autonomous_system=a_s,
             ip_address="192.0.2.1",
@@ -2185,31 +2192,53 @@ class Configuration(Template):
         )
         dps4.tags = ["foo", "bar"]
         ixps6 = InternetExchangePeeringSession(
-            autonomous_system=a_s, internet_exchange=i_x, ip_address="2001:db8:a::aaaa"
+            id=100005,
+            autonomous_system=a_s,
+            internet_exchange=i_x,
+            ip_address="2001:db8:a::aaaa",
         )
         ixps6.tags = ["foo", "bar"]
         ixps4 = InternetExchangePeeringSession(
-            autonomous_system=a_s, internet_exchange=i_x, ip_address="192.0.2.64"
+            id=100006,
+            autonomous_system=a_s,
+            internet_exchange=i_x,
+            ip_address="192.0.2.64",
         )
         ixps4.tags = ["foo", "bar"]
         group.sessions = {6: [dps6], 4: [dps4]}
         i_x.sessions = {6: [ixps6], 4: [ixps4]}
 
-        return self.render(
-            {
-                "my_asn": settings.MY_ASN,
-                "bgp_groups": [group],
-                "internet_exchanges": [i_x],
-                "routing_policies": [
-                    RoutingPolicy(
-                        name="Export/Import None",
-                        slug="none",
-                        type=RoutingPolicyType.IMPORT_EXPORT,
-                    )
-                ],
-                "communities": [Community(name="Community Transit", value="64500:1")],
-            }
-        )
+        try:
+            bgp_group = group.to_dict()
+            bgp_group.update({"sessions": {6: [dps6.to_dict()], 4: [dps4.to_dict()]}})
+            internet_exchange = i_x.to_dict()
+            internet_exchange.update(
+                {"sessions": {6: [ixps6.to_dict()], 4: [ixps4.to_dict()]}}
+            )
+            return self.render(
+                {
+                    "my_asn": settings.MY_ASN,
+                    "bgp_groups": [bgp_group],
+                    "internet_exchanges": [internet_exchange],
+                    "routing_policies": [
+                        RoutingPolicy(
+                            id=100007,
+                            name="Export/Import None",
+                            slug="block-all",
+                            type=RoutingPolicyType.IMPORT_EXPORT,
+                        ).to_dict()
+                    ],
+                    "communities": [
+                        Community(
+                            id=100008, name="Community Transit", slug="comm-transit", value="64500:1"
+                        ).to_dict()
+                    ],
+                    "autonomous_systems": [a_s.to_dict()],
+                }
+            )
+        except:
+            import traceback
+            return traceback.format_exc()
 
 
 class Email(Template):
