@@ -35,14 +35,4 @@
 {% endif %}
   </div>
 </div>
-<hr />
-<div class="row">
-  <div class="col">
-    <form method="post" action="">
-      {% csrf_token %}
-      {% render_field form.preferred_autonomous_system %}
-      <button type="submit" class="btn btn-primary float-right" name="_preferred">Save</button>
-    </form>
-  </div>
-</div>
 {% endblock %}

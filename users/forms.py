@@ -2,8 +2,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 
 from .models import Token
-from peering.models import AutonomousSystem
-from utils.forms import BootstrapMixin, DynamicModelChoiceField
+from utils.forms import BootstrapMixin
 
 
 class LoginForm(BootstrapMixin, AuthenticationForm):
@@ -16,14 +15,6 @@ class LoginForm(BootstrapMixin, AuthenticationForm):
 
         self.fields["username"].widget.attrs["placeholder"] = ""
         self.fields["password"].widget.attrs["placeholder"] = ""
-
-
-class UserPreferredASChangeForm(BootstrapMixin, forms.Form):
-    preferred_autonomous_system = DynamicModelChoiceField(
-        queryset=AutonomousSystem.objects.all(),
-        query_params={"affiliated": True},
-        label="Preferred Autonomous System",
-    )
 
 
 class UserPasswordChangeForm(BootstrapMixin, PasswordChangeForm):

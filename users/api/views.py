@@ -27,13 +27,13 @@ class UserViewSet(ModelViewSet):
         preferences = self.get_object().preferences
         try:
             autonomous_system = AutonomousSystem.objects.get(
-                asn=int(request.data["asn"]), affiliated=True
+                pk=int(request.data["as_id"]), affiliated=True
             )
             preferences.set("context.asn", autonomous_system.pk, commit=True)
         except AutonomousSystem.DoesNotExist:
             return Response(
                 {
-                    "error": f"affiliated autonomous system with asn {request.data['asn']} not found"
+                    "error": f"affiliated autonomous system with id {request.data['as_id']} not found"
                 },
                 status=status.HTTP_404_NOT_FOUND,
             )

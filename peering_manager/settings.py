@@ -451,6 +451,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "utils.context_processors.settings",
+                "utils.context_processors.affiliated_autonomous_systems",
             ]
         },
     }

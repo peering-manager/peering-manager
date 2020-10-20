@@ -49,7 +49,7 @@ class UserTest(StandardAPITestCases.View):
         affiliated = AutonomousSystem.objects.create(
             asn=201281, name="Guillaume Mazoyer", affiliated=True
         )
-        AutonomousSystem.objects.create(asn=65000, name="ACME")
+        a_s = AutonomousSystem.objects.create(asn=65000, name="ACME")
         user = User.objects.get(username="User_1")
 
         url = reverse(
@@ -57,12 +57,12 @@ class UserTest(StandardAPITestCases.View):
             kwargs={"pk": user.pk},
         )
 
-        data = {"asn": 201281}
+        data = {"as_id": affiliated.pk}
         response = self.client.patch(url, data, format="json", **self.header)
         self.assertStatus(response, status.HTTP_200_OK)
         self.assertEqual(user.preferences.get("context.asn"), affiliated.pk)
 
-        data = {"asn": 65000}
+        data = {"as_id": a_s.pk}
         response = self.client.patch(url, data, format="json", **self.header)
         self.assertStatus(response, status.HTTP_404_NOT_FOUND)
         self.assertEqual(user.preferences.get("context.asn"), affiliated.pk)

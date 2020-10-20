@@ -458,13 +458,13 @@ class RouterTable(BaseTable):
     """
 
     pk = SelectColumn()
+    local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     name = tables.Column(linkify=True)
     encrypt_passwords = BooleanColumn(
         verbose_name="Encrypt Password",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     configuration_template = tables.Column(linkify=True, verbose_name="Configuration")
-    local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     directpeeringsession_count = tables.Column(
         verbose_name="Direct Sessions",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
@@ -480,12 +480,12 @@ class RouterTable(BaseTable):
         model = Router
         fields = (
             "pk",
+            "local_autonomous_system",
             "name",
             "hostname",
             "platform",
             "encrypt_passwords",
             "configuration_template",
-            "local_autonomous_system",
             "last_deployment_id",
             "directpeeringsession_count",
             "internetexchangepeeringsession_count",

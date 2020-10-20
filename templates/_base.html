@@ -34,6 +34,16 @@
           <a href="{{ request.session.last_search }}" class="nav-link" title="Return to Last Search"><i class="fas fa-search"></i> Last Search</a>
           {% endif %}
           <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" title="Affiliated Autonomous Systems" role="button" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-server"></i>{% if context_asn %} AS{{ context_asn.asn }}{% endif %}
+            </a>
+            <div class="dropdown-menu dropdown-menu-right">
+              {% for a in affiliated_autonomous_systems %}
+              <a role="button" class="dropdown-item{% if a.pk == context_asn.pk %} active{% endif %} context-as" data-as-id="{{ a.pk }}">AS{{ a.asn }} - {{ a.name }}</a>
+              {% endfor %}
+            </div>
+          </li>
+          <li class="nav-item dropdown">
             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" title="{{ request.user }}" role="button" aria-haspopup="true" aria-expanded="false">
               <i class="fas fa-user"></i>
             </a>
@@ -119,8 +129,7 @@
         <div class="justify-content-between flex-wrap flex-md-nowrap align-items-center">
           {% if not request|user_context_asn %}
           <div class="alert alert-warning text-center" role="alert">
-            <i class="fas fa-exclamation-triangle"></i> No preferred affiliated autonomous system select.
-            Please update your <a href="{% url 'users:preferences' %}">preferences</a>.
+            <i class="fas fa-exclamation-triangle"></i> No preferred affiliated autonomous system selected.
           </div>
           {% endif %}
           {% for message in messages %}
@@ -144,6 +153,17 @@
     <script src="{% static 'js/forms.js' %}?{{ settings.VERSION }}"></script>
     <script type="text/javascript">
       var our_api_path = "/{{ settings.BASE_PATH }}api/";
+
+      $('.context-as').click(function() {
+        asID = $(this).attr("data-as-id");
+        $.ajax({
+          method: 'post',
+          url: "{% url 'users:preferences' %}",
+          data: { csrfmiddlewaretoken: '{{ csrf_token }}', as_id: asID }
+        }).done(function() {
+          location.reload();
+        });
+      });
     </script>
     {% block javascript %}{% endblock %}
   </body>
