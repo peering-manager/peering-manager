@@ -47,13 +47,6 @@ class Migration(migrations.Migration):
         Router.objects.using(db_alias).update(local_autonomous_system=my_asn)
 
     operations = [
-        migrations.AlterModelOptions(
-            name="autonomoussystem",
-            options={
-                "ordering": ["asn", "affiliated"],
-                "permissions": [("send_email", "Can send e-mails to AS contact")],
-            },
-        ),
         migrations.AddField(
             model_name="autonomoussystem",
             name="affiliated",
@@ -86,6 +79,40 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.CASCADE,
                 to="peering.autonomoussystem",
             ),
+        ),
+        migrations.AlterModelOptions(
+            name="autonomoussystem",
+            options={
+                "ordering": ["asn", "affiliated"],
+                "permissions": [("send_email", "Can send e-mails to AS contact")],
+            },
+        ),
+        migrations.AlterModelOptions(
+            name="directpeeringsession",
+            options={
+                "ordering": [
+                    "local_autonomous_system",
+                    "autonomous_system",
+                    "ip_address",
+                ]
+            },
+        ),
+        migrations.AlterModelOptions(
+            name="internetexchange",
+            options={"ordering": ["local_autonomous_system", "name", "slug"]},
+        ),
+        migrations.AlterModelOptions(
+            name="router",
+            options={
+                "ordering": ["local_autonomous_system", "name"],
+                "permissions": [
+                    ("view_router_configuration", "Can view router's configuration"),
+                    (
+                        "deploy_router_configuration",
+                        "Can deploy router's configuration",
+                    ),
+                ],
+            },
         ),
         migrations.RunPython(set_local_autonomous_system),
         migrations.RemoveField(

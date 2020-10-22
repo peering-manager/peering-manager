@@ -100,7 +100,7 @@ class ASList(PermissionRequiredMixin, ModelListView):
         internetexchangepeeringsession_count=Count(
             "internetexchangepeeringsession", distinct=True
         ),
-    ).order_by("asn")
+    ).order_by("affiliated", "asn")
     filter = AutonomousSystemFilterSet
     filter_form = AutonomousSystemFilterForm
     table = AutonomousSystemTable
@@ -620,7 +620,9 @@ class DirectPeeringSessionEdit(PermissionRequiredMixin, AddOrEditView):
 
 class DirectPeeringSessionList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_directpeeringsession"
-    queryset = DirectPeeringSession.objects.order_by("autonomous_system", "ip_address")
+    queryset = DirectPeeringSession.objects.order_by(
+        "local_autonomous_system", "autonomous_system", "ip_address"
+    )
     table = DirectPeeringSessionTable
     filter = DirectPeeringSessionFilterSet
     filter_form = DirectPeeringSessionFilterForm
@@ -679,7 +681,7 @@ class InternetExchangeList(PermissionRequiredMixin, ModelListView):
             internetexchangepeeringsession_count=Count("internetexchangepeeringsession")
         )
         .prefetch_related("router")
-        .order_by("name", "slug")
+        .order_by("local_autonomous_system", "name", "slug")
     )
     table = InternetExchangeTable
     filter = InternetExchangeFilterSet
@@ -997,7 +999,7 @@ class RouterList(PermissionRequiredMixin, ModelListView):
             directpeeringsession_count=Count("directpeeringsession", distinct=True),
         )
         .prefetch_related("configuration_template")
-        .order_by("name")
+        .order_by("local_autonomous_system", "name")
     )
     filter = RouterFilterSet
     filter_form = RouterFilterForm

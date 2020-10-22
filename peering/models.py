@@ -748,7 +748,7 @@ class DirectPeeringSession(BGPSession):
     )
 
     class Meta:
-        ordering = ["autonomous_system", "ip_address"]
+        ordering = ["local_autonomous_system", "autonomous_system", "ip_address"]
 
     def get_absolute_url(self):
         return reverse("peering:directpeeringsession_details", kwargs={"pk": self.pk})
@@ -833,6 +833,9 @@ class InternetExchange(AbstractGroup):
 
     objects = NetManager()
     logger = logging.getLogger("peering.manager.peering")
+
+    class Meta(AbstractGroup.Meta):
+        ordering = ["local_autonomous_system", "name", "slug"]
 
     def get_absolute_url(self):
         return reverse("peering:internetexchange_details", kwargs={"slug": self.slug})
@@ -1359,6 +1362,11 @@ class InternetExchangePeeringSession(BGPSession):
 
 
 class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
+    local_autonomous_system = models.ForeignKey(
+        "AutonomousSystem",
+        on_delete=models.CASCADE,
+        null=True,
+    )
     name = models.CharField(max_length=128)
     hostname = models.CharField(max_length=256)
     platform = models.CharField(
@@ -1374,11 +1382,6 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
     )
     configuration_template = models.ForeignKey(
         "Configuration", blank=True, null=True, on_delete=models.SET_NULL
-    )
-    local_autonomous_system = models.ForeignKey(
-        "AutonomousSystem",
-        on_delete=models.CASCADE,
-        null=True,
     )
     last_deployment_id = models.CharField(max_length=64, blank=True, null=True)
     netbox_device_id = models.PositiveIntegerField(blank=True, default=0)
@@ -1396,7 +1399,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
     logger = logging.getLogger("peering.manager.napalm")
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["local_autonomous_system", "name"]
         permissions = [
             ("view_router_configuration", "Can view router's configuration"),
             ("deploy_router_configuration", "Can deploy router's configuration"),
