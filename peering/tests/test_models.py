@@ -534,7 +534,7 @@ class RouterTest(TestCase):
 
         # Generate expected result
         expected = {
-            "my_as": self.local_as.to_dict(),
+            "my_as": [self.local_as.to_dict()],
             "autonomous_systems": [
                 autonomous_system.to_dict()
                 for autonomous_system in AutonomousSystem.objects.exclude(

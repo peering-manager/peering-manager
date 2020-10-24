@@ -416,9 +416,9 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     def get_email_context(self, user):
         return {
-            "my_as": AutonomousSystem.objects.get(
-                pk=user.preferences.get("context.asn")
-            ),
+            "my_as": [
+                a.to_dict() for a in AutonomousSystem.objects.filter(affiliated=True)
+            ],
             "autonomous_system": self,
             "internet_exchanges": self.get_common_internet_exchanges_and_sessions(),
             "direct_peering_sessions": [
@@ -1512,7 +1512,9 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     def get_configuration_context(self):
         context = {
-            "my_as": self.local_autonomous_system.to_dict(),
+            "my_as": [
+                a.to_dict() for a in AutonomousSystem.objects.filter(affiliated=True)
+            ],
             "autonomous_systems": [],
             "bgp_groups": self.get_bgp_groups(),
             "internet_exchanges": self.get_internet_exchanges(),
@@ -2181,7 +2183,7 @@ class Configuration(Template):
 
         return self.render(
             {
-                "my_as": my_as,
+                "my_as": [my_as],
                 "bgp_groups": [group],
                 "internet_exchanges": [i_x],
                 "routing_policies": [
@@ -2285,7 +2287,7 @@ class Email(Template):
 
         return self.render(
             {
-                "my_as": my_as,
+                "my_as": [my_as],
                 "autonomous_system": a_s,
                 "internet_exchanges": [
                     {
