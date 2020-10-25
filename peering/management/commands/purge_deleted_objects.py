@@ -2,6 +2,7 @@ import logging
 import peering.models
 
 from argparse import Action
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from utils.models import SoftDeleteModel
 
@@ -24,7 +25,8 @@ class Command(BaseCommand):
             type=int,
             action=MinAgeAction,
             required=True,
-            help="Minimum age to purge in days (>=0)",
+            default=settings.SOFTDELETE_RETENTION,
+            help=f"Minimum age to purge in days (>=0) [default={settings.SOFTDELETE_RETENTION}]",
         )
 
     def handle(self, *args, **options):

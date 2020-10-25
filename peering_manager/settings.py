@@ -10,7 +10,7 @@ import platform
 import socket
 
 from django.contrib.messages import constants as messages
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
 
 
@@ -130,6 +130,10 @@ NAPALM_TIMEOUT = getattr(configuration, "NAPALM_TIMEOUT", 30)
 NAPALM_ARGS = getattr(configuration, "NAPALM_ARGS", {})
 PAGINATE_COUNT = getattr(configuration, "PAGINATE_COUNT", 20)
 METRICS_ENABLED = getattr(configuration, "METRICS_ENABLED", False)
+SOFTDELETE_ENABLED = getattr(configuration, "SOFTDELETE_ENABLED", False)
+SOFTDELETE_RETENTION = getattr(
+    configuration, "SOFTDELETE_RETENTION", CHANGELOG_RETENTION
+)
 
 try:
     TZ_FILE = open("/etc/timezone", "r")

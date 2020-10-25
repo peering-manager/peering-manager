@@ -2,10 +2,8 @@ import json
 import inspect
 import datetime
 import pytz
-from safedelete.queryset import SafeDeleteQueryset
 
-from peering_manager import settings
-
+from django.conf import settings
 from django.db import models
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.contrib.auth.models import User
@@ -18,8 +16,13 @@ from django.utils.safestring import mark_safe
 from taggit.managers import TaggableManager, _TaggableManager
 from taggit.models import TagBase, GenericTaggedItemBase
 
-from safedelete.models import SafeDeleteModel
-from safedelete.models import SOFT_DELETE_CASCADE, SOFT_DELETE, HARD_DELETE
+from safedelete.queryset import SafeDeleteQueryset
+from safedelete.models import (
+    SafeDeleteModel,
+    SOFT_DELETE,
+    SOFT_DELETE_CASCADE,
+    HARD_DELETE,
+)
 
 from .enums import ObjectChangeAction
 from .fields import ColorField

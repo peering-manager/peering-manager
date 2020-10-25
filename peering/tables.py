@@ -1,5 +1,6 @@
 import django_tables2 as tables
 
+from django.conf import settings
 from django.utils.safestring import mark_safe
 
 from .models import (
@@ -14,7 +15,6 @@ from .models import (
     Router,
     RoutingPolicy,
 )
-from peering_manager import settings
 from utils.tables import (
     ActionsColumn,
     BaseTable,

@@ -1526,12 +1526,20 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         ).all()
 
     def get_configuration_context(self):
+        with_deleted = settings.SOFTDELETE_ENABLED
+        routing_policy_objects = (
+            RoutingPolicy.all_objects if with_deleted else RoutingPolicy.objects
+        )
+        community_objects = Community.all_objects if with_deleted else Community.objects
+
         context = {
             "my_asn": settings.MY_ASN,
-            "bgp_groups": self.get_bgp_groups(with_deleted=True),
-            "internet_exchanges": self.get_internet_exchanges(with_deleted=True),
-            "routing_policies": [p.to_dict() for p in RoutingPolicy.all_objects.all()],
-            "communities": [c.to_dict() for c in Community.all_objects.all()],
+            "bgp_groups": self.get_bgp_groups(with_deleted=with_deleted),
+            "internet_exchanges": self.get_internet_exchanges(
+                with_deleted=with_deleted
+            ),
+            "routing_policies": [p.to_dict() for p in routing_policy_objects.all()],
+            "communities": [c.to_dict() for c in community_objects.all()],
         }
 
         autonomous_systems = []
