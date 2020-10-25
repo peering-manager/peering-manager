@@ -91,7 +91,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
     )
     potential_internet_exchange_peering_sessions = ArrayField(
-        InetAddressField(store_prefix_length=False), blank=True, default=list
+        InetAddressField(store_prefix_length=False), blank=True, default=None, null=True
     )
     prefixes = models.JSONField(blank=True, null=True, editable=False)
 
@@ -228,8 +228,9 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         `AutonomousSystem`. If the `internet_exchange` parameter is given, it will
         only check for potential sessions in the given `InternetExchange`.
         """
-        if not self.potential_internet_exchange_peering_sessions:
-            return False
+        if self.potential_internet_exchange_peering_sessions is None:
+            # Fill in the potential IX sessions if it isn't initialized
+            self.find_potential_ix_peering_sessions()
         if not internet_exchange:
             return len(self.potential_internet_exchange_peering_sessions) > 0
 
@@ -275,6 +276,9 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         return ix_and_sessions
 
     def get_available_sessions(self):
+        if self.potential_internet_exchange_peering_sessions is None:
+            # Fill in the potential IX sessions if it isn't initialized
+            self.find_potential_ix_peering_sessions()
         missing_sessions = self.potential_internet_exchange_peering_sessions
 
         return (
