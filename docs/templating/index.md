@@ -18,7 +18,9 @@ will take care of everything else.
 The following variables are provided to generate a configuration based on a
 template:
 
-  * `my_asn` exposing the ASN specified in the configuration (your ASN)
+  * `my_as` exposing the
+    [AutonomousSystem](../models/peering/autonomoussystem.md) objects, marked
+    as affiliated, as a list
   * `autonomous_systems` exposing the list of
     [AutonomousSystem](../models/peering/autonomoussystem.md) that can be found in the
     [BGPGroup](../models/peering/bgpgroup.md) or

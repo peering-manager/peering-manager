@@ -1,4 +1,5 @@
 ```no-highlight
+{%- set my_asn = my_asn[0].asn -%}
 Dear {{ autonomous_system.name }},
 
 We are AS{{ my_asn }}.
