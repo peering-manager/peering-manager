@@ -19,4 +19,6 @@ urlpatterns = [
     path("tags/<slug:slug>/", views.TagDetails.as_view(), name="tag_details"),
     path("tags/<slug:slug>/edit/", views.TagEdit.as_view(), name="tag_edit"),
     path("tags/<slug:slug>/delete/", views.TagDelete.as_view(), name="tag_delete"),
+    # SoftDelete
+    path("soft-delete/", views.SoftDeleteManagementView.as_view(), name="soft_delete"),
 ]

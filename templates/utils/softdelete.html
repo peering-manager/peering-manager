@@ -1,0 +1,84 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}Soft Delete Object Management{% endblock %}</li>{% endblock %}
+{% block content %}
+      <div class="alert alert-dismissible" role="alert" id="id_soft_delete">
+        <button type="button" class="close" aria-label="Close"><span>&times;</span></button>
+        <span id="id_soft_delete_text"></span>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <strong>Soft Deleted Objects</strong>
+            </div>
+            <ul class="list-group list-group-flush">
+{% for model, count in models.items %}            
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  {{model}} <span class="badge badge-primary badge-pill" id="id_{{model | slugify}}">{{ count }}</span>
+                </li>
+{% endfor %}
+                  <button type="button" class="btn btn-danger" id="id_purge_soft_delete"><i class="fas fa-broom"></i> Purge Deleted Objects</button>
+                </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+      $('.alert').hide();
+      $('.alert').on('click', '.close', function() {
+        $(this).closest('.alert').slideUp();
+      });
+
+      function showSuccessAlert(text) {
+        $('#id_soft_delete').addClass('alert-success');
+        $('#id_soft_delete_text').text(text);
+        $('#id_soft_delete').slideDown();
+      }
+
+      function string_to_slug (str) {
+        str = str.replace(/^\s+|\s+$/g, ''); // trim
+        str = str.toLowerCase();
+      
+        // remove accents, swap ñ for n, etc
+        var from = "àáäâèéëêìíïîòóöôùúüûñç·/_,:;";
+        var to   = "aaaaeeeeiiiioooouuuunc------";
+        for (var i=0, l=from.length ; i<l ; i++) {
+            str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
+        }
+    
+        str = str.replace(/[^a-z0-9 -]/g, '') // remove invalid chars
+            .replace(/\s+/g, '-') // collapse whitespace and replace by -
+            .replace(/-+/g, '-'); // collapse dashes
+    
+        return str;
+    }      
+
+      $('#id_purge_soft_delete').click(function() {
+        $.ajax({
+          method: "post",
+          data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+          url: "{% url 'utils-api:soft-delete-purge' %}",
+          beforeSend: function() {
+            $('#id_purge_soft_delete').attr('disabled', 'disabled').removeClass('btn-danger').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+          },
+          complete: function() {
+            $('#id_purge_soft_delete').removeClass('btn-warning').addClass('btn-danger').removeAttr('disabled').html('<i class="fas fa-broom"></i> Purge Deleted Objects');
+          },
+        }).done(function(response) {
+            $.ajax({
+                method: "get",
+                url: "{% url 'utils-api:soft-delete-statistics' %}",
+            }).done(function(response) {
+                for (var model in response) {
+                    id = '#id_' + string_to_slug(model);
+                    $(id).text(response[model]);
+                }
+            });
+            showSuccessAlert('Deleted objects successfully purged.');
+        });
+    });
+    </script>
+{% endblock %}

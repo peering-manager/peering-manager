@@ -88,6 +88,21 @@ family if the number of prefixes is greater than 100. This can help to avoid
 storing large number of prefixes for a single autonomous system, preventing out
 of memory errors for future database lookups.
 
+## Purging soft deleted objects
+
+A number of objects are now soft deleted. These will accumulate in the database 
+forever unless they are purged periodically. These do not need to live forever, 
+once the deletion has had a chance to propagate to the devices, then it is safe 
+to purge these records. If left unchecked, these records will potentially slow 
+down template generation as the system must iterate through all deleted objects. 
+
+```no-highlight
+# python3 manage.py purge_deleted_objects --age 1
+```
+
+The `--age` flag must be given age of the deleted objects in days. Any object that 
+was deleted at least this many days ago, will be hard deleted from the database. 
+
 ## CRON
 
 To avoid executing these commands by hand (which could be annoying) they can be
@@ -99,4 +114,5 @@ run in a cron task.
 0  * * * * user cd /opt/peering-manager && python3 manage.py poll_peering_sessions --all
 0  0 * * * user cd /opt/peering-manager && python3 manage.py check_for_ix_peering_sessions
 30 4 * * * user cd /opt/peering-manager && python3 manage.py grab_prefixes
+10  * * * * user cd /opt/peering-manager && python3 manage.py purge_deleted_objects --age 1
 ```

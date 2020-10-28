@@ -1,7 +1,9 @@
 import ipaddress
+from ipaddress import ip_address
 
 from django.conf import settings
 from django.test import TestCase
+from django.db import IntegrityError
 from unittest.mock import patch
 
 from peering.enums import BGPRelationship, CommunityType, Platform, RoutingPolicyType
@@ -34,6 +36,55 @@ def mocked_peeringdb(*args, **kwargs):
         return MockedResponse(fixture="peeringdb/tests/fixtures/as65536.json")
 
     return MockedResponse(status_code=404)
+
+
+class SoftDeleteModelTestCase(object):
+    model = None
+    key_field_name = None
+    key_field_value = None
+
+    def new_test_obj(self):
+        pass
+
+    def test_soft_deletion(self):
+        obj_count = self.model.objects.count()
+        self.model.objects.get(**{self.key_field_name: self.key_field_value}).delete()
+        self.assertEqual(obj_count - 1, self.model.objects.count())
+        self.assertEqual(1, self.model.deleted_objects.count())
+
+
+class SoftDeleteModelCondIndexTestCase(SoftDeleteModelTestCase):
+    def test_conditional_index_deleted_duplicate(self):
+        # Should allow another object with the same slug to be created
+        self.model.objects.get(**{self.key_field_name: self.key_field_value}).delete()
+        new_obj = self.new_test_obj()
+
+        try:
+            new_obj.save()
+        except:
+            self.fail("Conditional Partial Index")
+
+    def test_conditional_index_duplicate(self):
+        new_obj = self.new_test_obj()
+
+        with self.assertRaises(IntegrityError):
+            new_obj.save()
+
+
+class SoftDeleteModelCascadeTestCase(SoftDeleteModelCondIndexTestCase):
+    cascade_key_value = None
+    related_model = None
+    related_object_count = 0
+
+    def test_cascaded_soft_deletion(self):
+        obj_count = self.related_model.objects.count()
+        self.model.objects.get(**{self.key_field_name: self.cascade_key_value}).delete()
+        self.assertEqual(
+            obj_count - self.related_object_count, self.related_model.objects.count()
+        )
+        self.assertEqual(
+            self.related_object_count, self.related_model.deleted_objects.count()
+        )
 
 
 class AutonomousSystemTest(TestCase):
@@ -125,7 +176,41 @@ class AutonomousSystemTest(TestCase):
         )
 
 
-class CommunityTest(TestCase):
+class BGPGroupTest(TestCase, SoftDeleteModelCascadeTestCase):
+    model = BGPGroup
+    key_field_name = "slug"
+    key_field_value = "test-1"
+
+    cascade_key_value = "test-4"
+    related_model = DirectPeeringSession
+    related_object_count = 2
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.bgpgroups = [
+            BGPGroup(name=f"test-{i}", slug=f"test-{i}") for i in range(1, 5)
+        ]
+        BGPGroup.objects.bulk_create(cls.bgpgroups)
+        cls.autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Test")
+        cls.sessions = [
+            DirectPeeringSession(
+                autonomous_system=cls.autonomous_system,
+                bgp_group=cls.bgpgroups[-1],
+                ip_address=f"2001:db8::{i}",
+            )
+            for i in range(1, cls.related_object_count + 1)
+        ]
+        DirectPeeringSession.objects.bulk_create(cls.sessions)
+
+    def new_test_obj(self):
+        return BGPGroup(name="test-1", slug="test-1")
+
+
+class CommunityTest(TestCase, SoftDeleteModelCondIndexTestCase):
+    model = Community
+    key_field_name = "slug"
+    key_field_value = "test-1"
+
     @classmethod
     def setUpTestData(cls):
         cls.communities = [
@@ -144,6 +229,14 @@ class CommunityTest(TestCase):
             Community(name="test-3", slug="test-3", value="64500:3", type="unknown"),
         ]
         Community.objects.bulk_create(cls.communities)
+
+    def new_test_obj(self):
+        return Community(
+            name="test-1",
+            slug="test-1",
+            value="64500:1",
+            type=CommunityType.EGRESS,
+        )
 
     def test_get_type_html(self):
         expected = [
@@ -168,7 +261,11 @@ class ConfigurationTest(TestCase):
         self.assertEqual(self.template.render_preview(), "")
 
 
-class DirectPeeringSessionTest(TestCase):
+class DirectPeeringSessionTest(TestCase, SoftDeleteModelTestCase):
+    model = DirectPeeringSession
+    key_field_name = "ip_address"
+    key_field_value = "2001:db8::1"
+
     @classmethod
     def setUpTestData(cls):
         cls.autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Test")
@@ -258,12 +355,35 @@ class EmailTest(TestCase):
         self.assertEqual(self.email.render_preview(), ("", ""))
 
 
-class InternetExchangeTest(TestCase):
+class InternetExchangeTest(TestCase, SoftDeleteModelCascadeTestCase):
+    model = InternetExchange
+    key_field_name = "slug"
+    key_field_value = "test"
+
+    cascade_key_value = "test"
+    related_model = InternetExchangePeeringSession
+    related_object_count = 4
+
     @classmethod
     def setUpTestData(cls):
         cls.internet_exchange = InternetExchange.objects.create(
             name="Test", slug="test"
         )
+        cls.autonomous_system = AutonomousSystem.objects.create(asn=64510, name="Test")
+        cls.internet_exchange_sessions = [
+            InternetExchangePeeringSession(
+                autonomous_system=cls.autonomous_system,
+                internet_exchange=cls.internet_exchange,
+                ip_address=f"2001:db8::{i}",
+            )
+            for i in range(1, cls.related_object_count + 1)
+        ]
+        InternetExchangePeeringSession.objects.bulk_create(
+            cls.internet_exchange_sessions
+        )
+
+    def new_test_obj(self):
+        return InternetExchange(name="Test", slug="test")
 
     def test_is_peeringdb_valid(self):
         # Not linked with PeeringDB but considered as valid
@@ -354,7 +474,11 @@ class InternetExchangeTest(TestCase):
             self.assertEqual(expected[i][1], len(ixp.get_peering_sessions()))
 
 
-class InternetExchangePeeringSessionTest(TestCase):
+class InternetExchangePeeringSessionTest(TestCase, SoftDeleteModelTestCase):
+    model = InternetExchangePeeringSession
+    key_field_name = "ip_address"
+    key_field_value = "2001:db8::1"
+
     @classmethod
     def setUpTestData(cls):
         cls.autonomous_system = AutonomousSystem.objects.create(asn=64510, name="Test")
@@ -729,7 +853,11 @@ class RouterTest(TestCase):
         self.assertIsNone(changes)
 
 
-class RoutingPolicyTest(TestCase):
+class RoutingPolicyTest(TestCase, SoftDeleteModelCondIndexTestCase):
+    model = RoutingPolicy
+    key_field_name = "slug"
+    key_field_value = "test-1"
+
     @classmethod
     def setUpTestData(cls):
         cls.routing_policies = [
@@ -741,6 +869,11 @@ class RoutingPolicyTest(TestCase):
             RoutingPolicy(name="test-4", slug="test-4", type="unknown"),
         ]
         RoutingPolicy.objects.bulk_create(cls.routing_policies)
+
+    def new_test_obj(self):
+        return RoutingPolicy(
+            name="test-1", slug="test-1", type=RoutingPolicyType.EXPORT
+        )
 
     def test_get_type_html(self):
         expected = [

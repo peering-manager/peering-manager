@@ -7,13 +7,12 @@ from cacheops import CacheMiss, cache
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
-from django.db.models import Q
+from django.db.models import Q, constraints
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-
 from jinja2 import Environment, TemplateSyntaxError
-from netfields import InetAddressField, NetManager
+from netfields import InetAddressField
 
 from . import call_irr_as_set_resolver, parse_irr_as_set
 from .enums import (
@@ -38,13 +37,22 @@ from utils.crypto.junos import (
     decrypt as junos_decrypt,
     is_encrypted as junos_is_encrypted,
 )
-from utils.models import ChangeLoggedModel, TaggableModel, TemplateModel
+from utils.models import (
+    ChangeLoggedModel,
+    TaggableModel,
+    TemplateModel,
+    SoftDeleteModel,
+    CascadingSoftDeleteModel,
+)
+from utils.managers import SoftDeleteNetManager
 from utils.validators import AddressFamilyValidator
 
 
-class AbstractGroup(ChangeLoggedModel, TaggableModel, TemplateModel):
+class AbstractGroup(
+    ChangeLoggedModel, TaggableModel, TemplateModel, CascadingSoftDeleteModel
+):
     name = models.CharField(max_length=128)
-    slug = models.SlugField(unique=True, max_length=255)
+    slug = models.SlugField(max_length=255)
     comments = models.TextField(blank=True)
     import_routing_policies = models.ManyToManyField(
         "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
@@ -59,6 +67,13 @@ class AbstractGroup(ChangeLoggedModel, TaggableModel, TemplateModel):
     class Meta:
         abstract = True
         ordering = ["name", "slug"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=("slug",),
+                condition=Q(deleted__isnull=True),
+                name="%(class)s_slug_constraint",
+            )
+        ]
 
     def get_peering_sessions_list_url(self):
         raise NotImplementedError
@@ -253,10 +268,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             missing_sessions = {"ipv6": [], "ipv4": []}
             for session in self.potential_internet_exchange_peering_sessions:
                 for prefix in internet_exchange.get_prefixes():
-                    if (
-                        session not in missing_sessions["ipv6"]
-                        and session not in missing_sessions["ipv4"]
-                    ):
+                    if session not in missing_sessions[f"ipv{session.version}"]:
                         if session in ipaddress.ip_network(prefix):
                             missing_sessions[f"ipv{session.version}"].append(session)
 
@@ -433,8 +445,8 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 class BGPGroup(AbstractGroup):
     logger = logging.getLogger("peering.manager.peering")
 
-    class Meta:
-        ordering = ["name", "slug"]
+    class Meta(AbstractGroup.Meta):
+        abstract = False
         verbose_name = "BGP group"
 
     def get_absolute_url(self):
@@ -537,7 +549,7 @@ class BGPGroup(AbstractGroup):
         return self.name
 
 
-class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
+class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel, SoftDeleteModel):
     """
     Abstract class used to define common caracteristics of BGP sessions.
 
@@ -584,7 +596,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
     last_established_state = models.DateTimeField(blank=True, null=True)
     comments = models.TextField(blank=True)
 
-    objects = NetManager()
+    objects = SoftDeleteNetManager()
 
     class Meta:
         abstract = True
@@ -684,9 +696,9 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
             self.save()
 
 
-class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
+class Community(ChangeLoggedModel, TaggableModel, TemplateModel, SoftDeleteModel):
     name = models.CharField(max_length=128)
-    slug = models.SlugField(unique=True, max_length=255)
+    slug = models.SlugField(max_length=255)
     value = CommunityField(max_length=50)
     type = models.CharField(
         max_length=50, choices=CommunityType.choices, default=CommunityType.INGRESS
@@ -696,6 +708,13 @@ class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
     class Meta:
         verbose_name_plural = "communities"
         ordering = ["value", "name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=("slug",),
+                condition=Q(deleted__isnull=True),
+                name="%(class)s_slug_constraint",
+            )
+        ]
 
     def get_absolute_url(self):
         return reverse("peering:community_details", kwargs={"pk": self.pk})
@@ -726,7 +745,7 @@ class DirectPeeringSession(BGPSession):
         "BGPGroup",
         blank=True,
         null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         verbose_name="BGP Group",
     )
     relationship = models.CharField(
@@ -735,11 +754,14 @@ class DirectPeeringSession(BGPSession):
         help_text="Relationship with the remote peer.",
     )
     router = models.ForeignKey(
-        "Router", blank=True, null=True, on_delete=models.SET_NULL
+        "Router",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
     )
 
-    class Meta:
-        ordering = ["autonomous_system", "ip_address"]
+    class Meta(BGPSession.Meta):
+        abstract = False
 
     def get_absolute_url(self):
         return reverse("peering:directpeeringsession_details", kwargs={"pk": self.pk})
@@ -820,10 +842,14 @@ class InternetExchange(AbstractGroup):
         validators=[AddressFamilyValidator(4)],
     )
     router = models.ForeignKey(
-        "Router", blank=True, null=True, on_delete=models.SET_NULL
+        "Router",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        # related_name='internetexchange'
     )
 
-    objects = NetManager()
+    objects = SoftDeleteNetManager()
     logger = logging.getLogger("peering.manager.peering")
 
     def get_absolute_url(self):
@@ -1159,8 +1185,8 @@ class InternetExchangePeeringSession(BGPSession):
 
     logger = logging.getLogger("peering.manager.peeringdb")
 
-    class Meta:
-        ordering = ["autonomous_system", "ip_address"]
+    class Meta(BGPSession.Meta):
+        abstract = False
 
     @staticmethod
     def get_ix_list_for_peer_record(peer_record):
@@ -1392,22 +1418,29 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
     def is_netbox_device(self):
         return self.netbox_device_id != 0
 
-    def get_bgp_groups(self):
+    def get_bgp_groups(self, with_deleted=False):
         """
         Returns BGP groups that can be deployed on this router. A group is considered
         as deployable on a router if some direct peering sessions attached to the
         group are also attached to the router.
         """
+        bgp_group_query_set = BGPGroup.all_objects if with_deleted else BGPGroup.objects
+        direct_peering_session_query_set = (
+            DirectPeeringSession.all_objects
+            if with_deleted
+            else DirectPeeringSession.objects
+        )
         bgp_groups = []
         for bgp_group in (
-            BGPGroup.objects.all()
-            .prefetch_related("communities")
+            bgp_group_query_set.prefetch_related("communities")
             .prefetch_related("import_routing_policies")
             .prefetch_related("export_routing_policies")
             .prefetch_related("tags")
         ):
             peering_sessions = (
-                DirectPeeringSession.objects.filter(bgp_group=bgp_group, router=self)
+                direct_peering_session_query_set.filter(
+                    bgp_group=bgp_group, router=self
+                )
                 .prefetch_related("import_routing_policies")
                 .prefetch_related("export_routing_policies")
                 .prefetch_related("tags")
@@ -1432,13 +1465,21 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
                 bgp_groups.append(dict)
         return bgp_groups
 
-    def get_internet_exchanges(self):
+    def get_internet_exchanges(self, with_deleted=False):
         """
         Returns Internet Exchanges attached to this router.
         """
+        internet_exchange_query_set = (
+            InternetExchange.all_objects if with_deleted else InternetExchange.objects
+        )
+        internet_exchange_peering_session_query_set = (
+            InternetExchangePeeringSession.all_objects
+            if with_deleted
+            else InternetExchangePeeringSession.objects
+        )
         internet_exchanges = []
         for internet_exchange in (
-            InternetExchange.objects.filter(router=self)
+            internet_exchange_query_set.filter(router=self)
             .prefetch_related("communities")
             .prefetch_related("import_routing_policies")
             .prefetch_related("export_routing_policies")
@@ -1446,7 +1487,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
             .select_related("router")
         ):
             peering_sessions = (
-                InternetExchangePeeringSession.objects.filter(
+                internet_exchange_peering_session_query_set.filter(
                     internet_exchange=internet_exchange
                 )
                 .prefetch_related("import_routing_policies")
@@ -1489,12 +1530,20 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         ).all()
 
     def get_configuration_context(self):
+        with_deleted = settings.SOFTDELETE_ENABLED
+        routing_policy_objects = (
+            RoutingPolicy.all_objects if with_deleted else RoutingPolicy.objects
+        )
+        community_objects = Community.all_objects if with_deleted else Community.objects
+
         context = {
             "my_asn": settings.MY_ASN,
-            "bgp_groups": self.get_bgp_groups(),
-            "internet_exchanges": self.get_internet_exchanges(),
-            "routing_policies": [p.to_dict() for p in RoutingPolicy.objects.all()],
-            "communities": [c.to_dict() for c in Community.objects.all()],
+            "bgp_groups": self.get_bgp_groups(with_deleted=with_deleted),
+            "internet_exchanges": self.get_internet_exchanges(
+                with_deleted=with_deleted
+            ),
+            "routing_policies": [p.to_dict() for p in routing_policy_objects.all()],
+            "communities": [c.to_dict() for c in community_objects.all()],
         }
 
         autonomous_systems = []
@@ -2001,9 +2050,9 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         return self.name
 
 
-class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel):
+class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel, SoftDeleteModel):
     name = models.CharField(max_length=128)
-    slug = models.SlugField(unique=True, max_length=255)
+    slug = models.SlugField(max_length=255)
     type = models.CharField(
         max_length=50,
         choices=RoutingPolicyType.choices,
@@ -2020,6 +2069,13 @@ class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel):
     class Meta:
         verbose_name_plural = "routing policies"
         ordering = ["-weight", "name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=("slug",),
+                condition=Q(deleted__isnull=True),
+                name="%(class)s_slug_constraint",
+            )
+        ]
 
     def get_absolute_url(self):
         return reverse("peering:routingpolicy_details", kwargs={"pk": self.pk})
@@ -2103,8 +2159,8 @@ class Configuration(Template):
             return jinja2_template.render(variables)
         except TemplateSyntaxError as e:
             return f"Syntax error in template at line {e.lineno}: {e.message}"
-        except Exception as e:
-            return str(e)
+        # except Exception as e:
+        #     return str(e)
 
     def render_preview(self):
         """
@@ -2114,19 +2170,25 @@ class Configuration(Template):
 
         # Variables for template preview
         a_s = AutonomousSystem(
-            asn=64501, name="ACME", ipv6_max_prefixes=50, ipv4_max_prefixes=100
+            id=100000,
+            asn=64501,
+            name="ACME",
+            ipv6_max_prefixes=50,
+            ipv4_max_prefixes=100,
         )
         a_s.tags = ["foo", "bar"]
         i_x = InternetExchange(
+            id=100001,
             name="Wakanda-IX",
             slug="wakanda-ix",
             ipv6_address="2001:db8:a::ffff",
             ipv4_address="192.0.2.128",
         )
         i_x.tags = ["foo", "bar"]
-        group = BGPGroup(name="Transit Providers", slug="transit")
+        group = BGPGroup(id=100002, name="Transit Providers", slug="transit")
         group.tags = ["foo", "bar"]
         dps6 = DirectPeeringSession(
+            id=100003,
             local_asn=settings.MY_ASN,
             autonomous_system=a_s,
             ip_address="2001:db8::1",
@@ -2134,6 +2196,7 @@ class Configuration(Template):
         )
         dps6.tags = ["foo", "bar"]
         dps4 = DirectPeeringSession(
+            id=100004,
             local_asn=settings.MY_ASN,
             autonomous_system=a_s,
             ip_address="192.0.2.1",
@@ -2141,31 +2204,57 @@ class Configuration(Template):
         )
         dps4.tags = ["foo", "bar"]
         ixps6 = InternetExchangePeeringSession(
-            autonomous_system=a_s, internet_exchange=i_x, ip_address="2001:db8:a::aaaa"
+            id=100005,
+            autonomous_system=a_s,
+            internet_exchange=i_x,
+            ip_address="2001:db8:a::aaaa",
         )
         ixps6.tags = ["foo", "bar"]
         ixps4 = InternetExchangePeeringSession(
-            autonomous_system=a_s, internet_exchange=i_x, ip_address="192.0.2.64"
+            id=100006,
+            autonomous_system=a_s,
+            internet_exchange=i_x,
+            ip_address="192.0.2.64",
         )
         ixps4.tags = ["foo", "bar"]
         group.sessions = {6: [dps6], 4: [dps4]}
         i_x.sessions = {6: [ixps6], 4: [ixps4]}
 
-        return self.render(
-            {
-                "my_asn": settings.MY_ASN,
-                "bgp_groups": [group],
-                "internet_exchanges": [i_x],
-                "routing_policies": [
-                    RoutingPolicy(
-                        name="Export/Import None",
-                        slug="none",
-                        type=RoutingPolicyType.IMPORT_EXPORT,
-                    )
-                ],
-                "communities": [Community(name="Community Transit", value="64500:1")],
-            }
-        )
+        try:
+            bgp_group = group.to_dict()
+            bgp_group.update({"sessions": {6: [dps6.to_dict()], 4: [dps4.to_dict()]}})
+            internet_exchange = i_x.to_dict()
+            internet_exchange.update(
+                {"sessions": {6: [ixps6.to_dict()], 4: [ixps4.to_dict()]}}
+            )
+            return self.render(
+                {
+                    "my_asn": settings.MY_ASN,
+                    "bgp_groups": [bgp_group],
+                    "internet_exchanges": [internet_exchange],
+                    "routing_policies": [
+                        RoutingPolicy(
+                            id=100007,
+                            name="Export/Import None",
+                            slug="block-all",
+                            type=RoutingPolicyType.IMPORT_EXPORT,
+                        ).to_dict()
+                    ],
+                    "communities": [
+                        Community(
+                            id=100008,
+                            name="Community Transit",
+                            slug="comm-transit",
+                            value="64500:1",
+                        ).to_dict()
+                    ],
+                    "autonomous_systems": [a_s.to_dict()],
+                }
+            )
+        except:
+            import traceback
+
+            return traceback.format_exc()
 
 
 class Email(Template):

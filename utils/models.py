@@ -1,5 +1,9 @@
 import json
+import inspect
+import datetime
+import pytz
 
+from django.conf import settings
 from django.db import models
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.contrib.auth.models import User
@@ -9,8 +13,16 @@ from django.core.serializers import serialize
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
-from taggit.managers import TaggableManager
+from taggit.managers import TaggableManager, _TaggableManager
 from taggit.models import TagBase, GenericTaggedItemBase
+
+from safedelete.queryset import SafeDeleteQueryset
+from safedelete.models import (
+    SafeDeleteModel,
+    SOFT_DELETE,
+    SOFT_DELETE_CASCADE,
+    HARD_DELETE,
+)
 
 from .enums import ObjectChangeAction
 from .fields import ColorField
@@ -165,7 +177,11 @@ class TemplateModel(models.Model):
             elif isinstance(field, ManyToManyField):
                 value = list(self.__getattribute__(field.name).all())
             elif isinstance(field, TaggableManager):
-                value = list(self.__getattribute__(field.name).all())
+                # Hack to deal with Template Preview
+                if not isinstance(self.__getattribute__(field.name), _TaggableManager):
+                    value = list(self.__getattribute__(field.name))
+                else:
+                    value = list(self.__getattribute__(field.name).all())
             else:
                 value = self.__getattribute__(field.name)
 
@@ -183,3 +199,76 @@ class TemplateModel(models.Model):
                 data[field.name] = value
 
         return data
+
+
+class SoftDeleteModel(SafeDeleteModel):
+    _safedelete_policy = SOFT_DELETE
+
+    class Meta:
+        abstract = True
+
+    @classmethod
+    def _get_models_from_module(cls, module):
+        return [
+            x[1]
+            for x in inspect.getmembers(module, inspect.isclass)
+            if issubclass(x[1], cls) and not x[1]._meta.abstract
+        ]
+
+    @classmethod
+    def get_deleted_counts(cls, module):
+        return {
+            model._meta.verbose_name: model.deleted_objects.count()
+            for model in cls._get_models_from_module(module)
+        }
+
+    @classmethod
+    def purge_deleted(cls, module, age=0):
+        now = datetime.datetime.now(tz=pytz.timezone(settings.TIME_ZONE))
+        expiry_date = now - datetime.timedelta()
+
+        deleted = {}
+        total = 0
+        for model in cls._get_models_from_module(module):
+            count, deleted_count = model.deleted_objects.filter(
+                deleted__lte=expiry_date
+            ).delete(HARD_DELETE)
+            total += count
+            deleted.update(deleted_count)
+        return total, deleted
+
+
+class CascadingSoftDeleteModel(SoftDeleteModel):
+    _safedelete_policy = SOFT_DELETE_CASCADE
+
+    class Meta:
+        abstract = True
+
+
+# Patch safedelete's queryset delete so it returns the
+# counts of objects deleted like the regular queryset delete.
+def safedelete_queryset_delete(self, force_policy=None):
+    """Overrides bulk delete behaviour.
+
+    .. note::
+        The current implementation loses performance on bulk deletes in order
+        to safely delete objects according to the deletion policies set.
+
+    .. seealso::
+        :py:func:`safedelete.models.SafeDeleteModel.delete`
+    """
+    assert self.query.can_filter(), "Cannot use 'limit' or 'offset' with delete."
+    # TODO: Replace this by bulk update if we can
+    from collections import Counter
+
+    deleted_counter = Counter()
+    for obj in self.all():
+        obj.delete(force_policy=force_policy)
+        deleted_counter[self.model._meta.label] += 1
+    self._result_cache = None
+
+    return sum(deleted_counter.values()), dict(deleted_counter)
+
+
+SafeDeleteQueryset.delete = safedelete_queryset_delete
+SafeDeleteQueryset.delete.alters_data = True
