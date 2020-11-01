@@ -90,8 +90,8 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
     export_routing_policies = models.ManyToManyField(
         "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
     )
-    potential_internet_exchange_peering_sessions = ArrayField(
-        InetAddressField(store_prefix_length=False), blank=True, default=None, null=True
+    potential_internet_exchange_peering_sessions = models.JSONField(
+        blank=True, null=True, editable=False
     )
     prefixes = models.JSONField(blank=True, null=True, editable=False)
     affiliated = models.BooleanField(default=False)
@@ -174,45 +174,53 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             peeringdb_id__in=[us.id for us, _ in common]
         ).order_by("name", "slug")
 
-    def find_potential_ix_peering_sessions(self, other):
+    def find_potential_ix_peering_sessions(self):
         """
         Saves an IP address list. Each IP address of the list is the address of a
         potential peering session between this AS and the other on an Internet
         Exchange.
         """
         # Potential IX peering sessions
-        potential_ix_peering_sessions = []
-        # Get common IX networks between us and this AS
-        common = PeeringDB().get_common_ix_networks_for_asns(self.asn, other.asn)
+        potential_ix_peering_sessions = {}
 
-        # For each common networks take a look at it
-        for us, peer in common:
-            peering_sessions = []
-
-            if peer.ipaddr6:
-                peering_sessions.append(peer.ipaddr6)
-            if peer.ipaddr4:
-                peering_sessions.append(peer.ipaddr4)
-
-            # Get all known sessions for this AS on the given IX
-            known_sessions = InternetExchangePeeringSession.objects.filter(
-                autonomous_system=self, ip_address__in=peering_sessions
+        for affiliated in AutonomousSystem.objects.filter(affiliated=True):
+            # Get common IX networks between us and this AS
+            common = PeeringDB().get_common_ix_networks_for_asns(
+                self.asn, affiliated.asn
             )
-            # Check if peer IP addresses are known sessions
-            for peering_session in peering_sessions:
-                # Consider the session as not existing at first
-                exists = False
-                for known_session in known_sessions:
-                    if peering_session == known_session.ip_address:
-                        # If the IP is found, stop looking for the info and mark it
-                        # as the peering session as existing
-                        exists = True
-                        break
 
-                if not exists:
-                    # If the IP address is not used in any peering sessions append it,
-                    # keep an eye on it
-                    potential_ix_peering_sessions.append(peering_session)
+            # For each common networks take a look at it
+            for us, peer in common:
+                potential_ix_peering_sessions[affiliated.asn] = []
+
+                if peer.ipaddr6:
+                    potential_ix_peering_sessions[affiliated.asn].append(peer.ipaddr6)
+                if peer.ipaddr4:
+                    potential_ix_peering_sessions[affiliated.asn].append(peer.ipaddr4)
+
+                # Get all known sessions for this AS on the given IX
+                known_sessions = InternetExchangePeeringSession.objects.filter(
+                    local_autonomous_system=affiliated,
+                    autonomous_system=self,
+                    ip_address__in=potential_ix_peering_sessions[affiliated.asn],
+                )
+                # Check if peer IP addresses are known sessions
+                for peering_session in potential_ix_peering_sessions[affiliated.asn]:
+                    # Consider the session as not existing at first
+                    exists = False
+                    for known_session in known_sessions:
+                        if peering_session == known_session.ip_address:
+                            # If the IP is found, stop looking for the info and mark
+                            # it as the peering session as existing
+                            exists = True
+                            break
+
+                        if not exists:
+                            # If the IP address is not used in any peering sessions
+                            # append it, keep an eye on it
+                            potential_ix_peering_sessions[affiliated.asn].append(
+                                str(peering_session)
+                            )
 
         # Only save the new potential IX peering session list if it has changed
         if (
@@ -222,7 +230,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             self.potential_internet_exchange_peering_sessions = (
                 potential_ix_peering_sessions
             )
-            self.save()
+        self.save()
 
     def has_potential_ix_peering_sessions(self, internet_exchange=None):
         """
@@ -234,7 +242,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             # Fill in the potential IX sessions if it isn't initialized
             self.find_potential_ix_peering_sessions()
         if not internet_exchange:
-            return len(self.potential_internet_exchange_peering_sessions) > 0
+            return self.potential_internet_exchange_peering_sessions
 
         for session in self.potential_internet_exchange_peering_sessions:
             for prefix in internet_exchange.get_prefixes():

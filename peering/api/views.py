@@ -110,17 +110,8 @@ class AutonomousSystemViewSet(ModelViewSet):
         url_path="find-potential-ix-peering-sessions",
     )
     def find_potential_ix_peering_sessions(self, request, pk=None):
-        try:
-            affiliated = AutonomousSystem.objects.get(
-                pk=request.user.preferences.get("context.asn")
-            )
-        except AutonomousSystem.DoesNotExist:
-            affiliated = None
-        if affiliated:
-            self.get_object().find_potential_ix_peering_sessions(affiliated)
-            return Response({"status": "done"})
-
-        raise ServiceUnavailable("User did not choose an affiliated AS.")
+        self.get_object().find_potential_ix_peering_sessions()
+        return Response({"status": "done"})
 
     @action(detail=True, methods=["post"], url_path="generate-email")
     def generate_email(self, request, pk=None):

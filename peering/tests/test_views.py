@@ -51,7 +51,6 @@ class AutonomousSystemTestCase(StandardTestCases.Views):
             "ipv6_max_prefixes_peeringdb_sync": False,
             "irr_as_set": None,
             "irr_as_set_peeringdb_sync": False,
-            "potential_internet_exchange_peering_sessions": None,
             "comments": "",
             "affiliated": False,
             "tags": "",
