@@ -3,7 +3,7 @@ django-cacheops==5.1
 djangorestframework==3.12.1
 django-filter==2.4.0
 django-netfields==1.2.2
-django-rq==2.3.2
+django-rq==2.4.0
 django-tables2==2.3.3
 django-taggit==1.3.0
 django-taggit-serializer==0.1.7
