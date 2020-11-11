@@ -200,7 +200,6 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
                 # Get all known sessions for this AS on the given IX
                 known_sessions = InternetExchangePeeringSession.objects.filter(
-                    local_autonomous_system=affiliated,
                     autonomous_system=self,
                     ip_address__in=potential_ix_peering_sessions[affiliated.asn],
                 )
