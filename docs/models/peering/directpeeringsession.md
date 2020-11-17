@@ -13,7 +13,7 @@ sessions established with remote peers and that are not using Internet
 exchange LANs. For each direct peering session that you create, the following
 properties can be configured (n.b. some are optional):
 
-  * `Local ASN`: autonomous system to be used by a local router.
+  * `Local Autonomous System`: autonomous system owning the session.
   * `Local IP Address`: local IPv6 or IPv4 address to be bounded on a local
     router.
   * `Autonomous System`: autonomous system number of the remote peer.

@@ -13,6 +13,7 @@ track on which router a BGP session is configured as well as add, change or
 delete said session. For each router that you create, the following properties
 can be configured (n.b. some are optional):
 
+  * `Local Autonomous System`: autonomous system to which the router belongs.
   * `Name`: human-readable name attached to a router.
   * `Hostname`: resolvable FQDN or an IP address to reach the router.
   * `Platform`: network operating system which is running on the router.
