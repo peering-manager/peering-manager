@@ -1,24 +1,18 @@
 from django.contrib import messages
-from django.contrib.auth import (
-    login as auth_login,
-    logout as auth_logout,
-    update_session_auth_hash,
-)
+from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.http import is_safe_url
 from django.views.generic import View
 
-from .forms import (
-    LoginForm,
-    TokenForm,
-    UserPasswordChangeForm,
-)
-from .models import Token
 from utils.forms import ConfirmationForm
+
+from .forms import LoginForm, TokenForm, UserPasswordChangeForm
+from .models import Token
 
 
 def is_user_logged_in(request):

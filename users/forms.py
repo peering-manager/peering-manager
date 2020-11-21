@@ -1,8 +1,9 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 
-from .models import Token
 from utils.forms import BootstrapMixin
+
+from .models import Token
 
 
 class LoginForm(BootstrapMixin, AuthenticationForm):

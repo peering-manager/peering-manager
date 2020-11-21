@@ -1,13 +1,11 @@
 import re
-
 from json import dumps as json_dumps
-from markdown import markdown as md
 
 from django import template
 from django.conf import settings
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
-
+from markdown import markdown as md
 
 register = template.Library()
 

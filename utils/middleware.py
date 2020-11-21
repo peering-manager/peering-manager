@@ -1,21 +1,21 @@
 import threading
 import uuid
-
 from copy import deepcopy
 from datetime import timedelta
+
+from django.conf import settings
 from django.db import ProgrammingError
 from django.db.models.signals import post_save, pre_delete
-from django.conf import settings
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 from redis.exceptions import RedisError
 
+from webhooks.workers import enqueue_webhooks
+
 from .enums import ObjectChangeAction
 from .models import ObjectChange
 from .views import ServerError
-from webhooks.workers import enqueue_webhooks
-
 
 # For resources sharing
 local_thread = threading.local()

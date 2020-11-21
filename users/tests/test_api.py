@@ -2,7 +2,6 @@ from django.contrib.auth.models import Group, User
 from django.urls import reverse
 from rest_framework import status
 
-
 from peering.models import AutonomousSystem
 from utils.testing import APITestCase, StandardAPITestCases
 

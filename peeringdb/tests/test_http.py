@@ -1,8 +1,8 @@
 import ipaddress
+from unittest.mock import patch
 
 from django.test import TestCase
 from django.utils import timezone
-from unittest.mock import patch
 
 from peeringdb.http import PeeringDB
 from peeringdb.models import Network, NetworkIXLAN

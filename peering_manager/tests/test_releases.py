@@ -1,13 +1,13 @@
-import requests
+from io import BytesIO
+from logging import ERROR
+from unittest.mock import Mock, patch
 
+import requests
 from cacheops import CacheMiss, RedisCache
 from django.conf import settings
 from django.test import SimpleTestCase, override_settings
-from io import BytesIO
-from logging import ERROR
 from packaging.version import Version
 from requests import Response
-from unittest.mock import Mock, patch
 
 from peering_manager.releases import get_releases
 

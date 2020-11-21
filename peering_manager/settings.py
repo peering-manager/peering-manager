@@ -13,7 +13,6 @@ from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
 from django.core.validators import URLValidator
 
-
 HOSTNAME = platform.node()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS_DIR = os.path.join(BASE_DIR, "docs")
@@ -236,8 +235,8 @@ except ImportError:
 # If LDAP is configured, load the config
 if LDAP_CONFIGURED:
     try:
-        import ldap
         import django_auth_ldap
+        import ldap
 
         # Prepend LDAPBackend to the default ModelBackend
         AUTHENTICATION_BACKENDS = [

@@ -1,6 +1,5 @@
-import re
 import random
-
+import re
 
 # Let's bring some fun, this code is based on the following readings
 #

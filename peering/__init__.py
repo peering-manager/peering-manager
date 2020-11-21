@@ -4,7 +4,6 @@ import subprocess
 
 from django.conf import settings
 
-
 default_app_config = "peering.apps.PeeringConfig"
 
 

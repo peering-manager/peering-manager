@@ -1,10 +1,27 @@
 from django import forms
 from django.conf import settings
 from django.contrib.postgres.forms.jsonb import JSONField
-
 from taggit.forms import TagField
 
-from .constants import ASN_MIN, ASN_MAX
+from netbox.api import NetBox
+from utils.fields import CommentField, PasswordField, SlugField, TextareaField
+from utils.forms import (
+    AddRemoveTagsForm,
+    APISelect,
+    APISelectMultiple,
+    BootstrapMixin,
+    BulkEditForm,
+    CustomNullBooleanSelect,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    SmallTextarea,
+    StaticSelect,
+    StaticSelectMultiple,
+    TagFilterField,
+    add_blank_choice,
+)
+
+from .constants import ASN_MAX, ASN_MIN
 from .enums import BGPRelationship, CommunityType, IPFamily, Platform, RoutingPolicyType
 from .models import (
     AutonomousSystem,
@@ -17,23 +34,6 @@ from .models import (
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
-)
-from netbox.api import NetBox
-from utils.fields import CommentField, PasswordField, SlugField, TextareaField
-from utils.forms import (
-    add_blank_choice,
-    AddRemoveTagsForm,
-    APISelect,
-    APISelectMultiple,
-    BulkEditForm,
-    BootstrapMixin,
-    CustomNullBooleanSelect,
-    DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField,
-    SmallTextarea,
-    StaticSelect,
-    StaticSelectMultiple,
-    TagFilterField,
 )
 
 

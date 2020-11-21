@@ -1,9 +1,8 @@
 import ipaddress
 import logging
+
 import napalm
-
 from cacheops import CacheMiss, cache
-
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
@@ -11,9 +10,20 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-
 from jinja2 import Environment, TemplateSyntaxError
 from netfields import InetAddressField, NetManager
+
+from netbox.api import NetBox
+from peeringdb.http import PeeringDB
+from peeringdb.models import Network, NetworkIXLAN, PeerRecord
+from utils.crypto.cisco import decrypt as cisco_decrypt
+from utils.crypto.cisco import encrypt as cisco_encrypt
+from utils.crypto.cisco import is_encrypted as cisco_is_encrypted
+from utils.crypto.junos import decrypt as junos_decrypt
+from utils.crypto.junos import encrypt as junos_encrypt
+from utils.crypto.junos import is_encrypted as junos_is_encrypted
+from utils.models import ChangeLoggedModel, TaggableModel, TemplateModel
+from utils.validators import AddressFamilyValidator
 
 from . import call_irr_as_set_resolver, parse_irr_as_set
 from .enums import (
@@ -25,21 +35,6 @@ from .enums import (
     RoutingPolicyType,
 )
 from .fields import ASNField, CommunityField, TTLField
-from netbox.api import NetBox
-from peeringdb.http import PeeringDB
-from peeringdb.models import Network, NetworkIXLAN, PeerRecord
-from utils.crypto.cisco import (
-    encrypt as cisco_encrypt,
-    decrypt as cisco_decrypt,
-    is_encrypted as cisco_is_encrypted,
-)
-from utils.crypto.junos import (
-    encrypt as junos_encrypt,
-    decrypt as junos_decrypt,
-    is_encrypted as junos_is_encrypted,
-)
-from utils.models import ChangeLoggedModel, TaggableModel, TemplateModel
-from utils.validators import AddressFamilyValidator
 
 
 class AbstractGroup(ChangeLoggedModel, TaggableModel, TemplateModel):

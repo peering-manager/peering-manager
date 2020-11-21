@@ -1,12 +1,12 @@
 import logging
 
 from django.db import models
-
 from netfields import CidrAddressField, InetAddressField, NetManager
 
-from .constants import *
 from peering.fields import ASNField
 from utils.validators import AddressFamilyValidator
+
+from .constants import *
 
 
 class Contact(models.Model):

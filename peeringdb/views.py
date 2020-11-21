@@ -3,12 +3,13 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect, render, reverse
 from django.views.generic import View
 
+from utils.views import BulkEditView
+
 from .filters import PeerRecordFilterSet
 from .forms import PeerRecordBulkEditForm
 from .http import PeeringDB
 from .models import Contact, Network, NetworkIXLAN, PeerRecord
 from .tables import PeerRecordTable
-from utils.views import BulkEditView
 
 
 class CacheManagementView(View):

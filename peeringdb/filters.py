@@ -1,10 +1,9 @@
 import ipaddress
 
+import django_filters
 from django.db.models import Q
 
-import django_filters
-
-from .models import PeerRecord, Synchronization, Contact, Network
+from .models import Contact, Network, PeerRecord, Synchronization
 
 
 class PeerRecordFilterSet(django_filters.FilterSet):

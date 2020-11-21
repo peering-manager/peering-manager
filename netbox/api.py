@@ -1,7 +1,7 @@
 import logging
+
 import pynetbox
 import requests
-
 from django.conf import settings
 
 

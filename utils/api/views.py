@@ -1,9 +1,10 @@
 from django.db.models import Count
 
-from . import ModelViewSet
-from .serializers import TagSerializer
 from utils.filters import TagFilterSet
 from utils.models import Tag
+
+from . import ModelViewSet
+from .serializers import TagSerializer
 
 
 class TagViewSet(ModelViewSet):

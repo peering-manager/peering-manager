@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
-from .nested_serializers import NestedTagSerializer
 from utils.models import Tag
+
+from .nested_serializers import NestedTagSerializer
 
 
 class TagSerializer(serializers.ModelSerializer):

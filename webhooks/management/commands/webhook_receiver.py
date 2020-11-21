@@ -1,8 +1,7 @@
 import sys
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from django.core.management.base import BaseCommand
-from http.server import HTTPServer, BaseHTTPRequestHandler
-
 
 request_counter = 1
 

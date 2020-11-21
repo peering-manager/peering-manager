@@ -1,6 +1,14 @@
 import django_tables2 as tables
-
 from django.utils.safestring import mark_safe
+
+from peering_manager import settings
+from utils.tables import (
+    ActionsColumn,
+    BaseTable,
+    BooleanColumn,
+    SelectColumn,
+    TagColumn,
+)
 
 from .models import (
     AutonomousSystem,
@@ -14,15 +22,6 @@ from .models import (
     Router,
     RoutingPolicy,
 )
-from peering_manager import settings
-from utils.tables import (
-    ActionsColumn,
-    BaseTable,
-    BooleanColumn,
-    SelectColumn,
-    TagColumn,
-)
-
 
 AUTONOMOUS_SYSTEM_ACTIONS = """
 {% if perms.peering.change_autonomoussystem %}

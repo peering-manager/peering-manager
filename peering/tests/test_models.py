@@ -1,8 +1,8 @@
 import ipaddress
+from unittest.mock import patch
 
 from django.conf import settings
 from django.test import TestCase
-from unittest.mock import patch
 
 from peering.enums import BGPRelationship, CommunityType, Platform, RoutingPolicyType
 from peering.models import (
@@ -18,15 +18,11 @@ from peering.models import (
     RoutingPolicy,
 )
 from peering.tests.mocked_data import *
-from utils.crypto.cisco import (
-    decrypt as cisco_decrypt,
-    is_encrypted as cisco_is_encrypted,
-)
-from utils.crypto.junos import (
-    decrypt as junos_decrypt,
-    is_encrypted as junos_is_encrypted,
-)
-from utils.testing import json_file_to_python_type, MockedResponse
+from utils.crypto.cisco import decrypt as cisco_decrypt
+from utils.crypto.cisco import is_encrypted as cisco_is_encrypted
+from utils.crypto.junos import decrypt as junos_decrypt
+from utils.crypto.junos import is_encrypted as junos_is_encrypted
+from utils.testing import MockedResponse, json_file_to_python_type
 
 
 def mocked_peeringdb(*args, **kwargs):

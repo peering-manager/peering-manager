@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 
 from .models import Token, UserPreferences
 
-
 admin_site.unregister(User)
 
 

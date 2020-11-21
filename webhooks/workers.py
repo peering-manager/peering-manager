@@ -1,14 +1,14 @@
 import logging
-import requests
 
+import requests
 from django.utils import timezone
 from django_rq import get_queue, job
 
-from .models import Webhook
 from utils.enums import ObjectChangeAction
 from utils.functions import generate_signature, get_serializer_for_model
 from utils.models import ObjectChange
 
+from .models import Webhook
 
 logger = logging.getLogger("peering.manager.webhooks")
 

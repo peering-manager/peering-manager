@@ -5,10 +5,11 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 
-from .serializers import GroupSerializer, UserSerializer
 from peering.models import AutonomousSystem
 from users.filters import GroupFilterSet, UserFilterSet
 from utils.api import ModelViewSet
+
+from .serializers import GroupSerializer, UserSerializer
 
 
 class GroupViewSet(ModelViewSet):

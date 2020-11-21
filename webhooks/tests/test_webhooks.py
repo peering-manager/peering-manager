@@ -1,12 +1,12 @@
-import django_rq
 import json
 import uuid
+from unittest.mock import patch
 
+import django_rq
 from django.http import HttpResponse
 from django.urls import reverse
 from requests import Session
 from rest_framework import status
-from unittest.mock import patch
 
 from peering.models import AutonomousSystem
 from utils.enums import ObjectChangeAction

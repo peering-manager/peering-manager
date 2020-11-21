@@ -1,14 +1,14 @@
 import sys
 
-from django.db import transaction
-from django.db.models import Count, ManyToManyField, ProtectedError
-from django.db.models.query import QuerySet
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import (
     PermissionRequiredMixin as _PermissionRequiredMixin,
 )
 from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.db import transaction
+from django.db.models import Count, ManyToManyField, ProtectedError
+from django.db.models.query import QuerySet
 from django.forms import CharField, MultipleHiddenInput
 from django.forms.formsets import formset_factory
 from django.http import HttpResponseServerError
@@ -22,7 +22,6 @@ from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME
 from django.views.generic import View
-
 from django_tables2 import RequestConfig
 
 from .filters import ObjectChangeFilterSet, TagFilterSet

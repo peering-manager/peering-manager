@@ -1,10 +1,12 @@
-from django.urls import reverse
-from django.utils import timezone
 from unittest.mock import patch
 
-from .test_http import mocked_synchronization
+from django.urls import reverse
+from django.utils import timezone
+
 from peeringdb.models import Synchronization
 from utils.testing import APITestCase
+
+from .test_http import mocked_synchronization
 
 
 class CacheTest(APITestCase):

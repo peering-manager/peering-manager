@@ -1,6 +1,6 @@
 from django import forms
-from django.db import models
 from django.core.validators import RegexValidator
+from django.db import models
 
 from .enums import Color
 

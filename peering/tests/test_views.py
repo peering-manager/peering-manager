@@ -17,7 +17,6 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-
 from utils.testing import StandardTestCases
 
 

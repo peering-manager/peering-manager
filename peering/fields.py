@@ -1,7 +1,7 @@
-from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models
 
-from .constants import ASN_MIN, ASN_MAX
+from .constants import ASN_MAX, ASN_MIN
 
 
 class ASNField(models.BigIntegerField):

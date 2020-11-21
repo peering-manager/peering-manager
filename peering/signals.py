@@ -1,5 +1,5 @@
 from cacheops import CacheMiss, cache
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
 from .models import (

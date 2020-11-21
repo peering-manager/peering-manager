@@ -7,6 +7,22 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import slugify
 from django.views.generic import View
 
+from peeringdb.filters import PeerRecordFilterSet
+from peeringdb.forms import PeerRecordFilterForm
+from peeringdb.http import PeeringDB
+from peeringdb.models import PeerRecord
+from peeringdb.tables import ASPeerRecordTable, ContactTable, PeerRecordTable
+from utils.views import (
+    AddOrEditView,
+    BulkAddFromDependencyView,
+    BulkDeleteView,
+    BulkEditView,
+    DeleteView,
+    ModelListView,
+    PermissionRequiredMixin,
+    TableImportView,
+)
+
 from .filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
@@ -71,25 +87,10 @@ from .tables import (
     ConfigurationTable,
     DirectPeeringSessionTable,
     EmailTable,
-    InternetExchangeTable,
     InternetExchangePeeringSessionTable,
+    InternetExchangeTable,
     RouterTable,
     RoutingPolicyTable,
-)
-from peeringdb.filters import PeerRecordFilterSet
-from peeringdb.forms import PeerRecordFilterForm
-from peeringdb.http import PeeringDB
-from peeringdb.models import PeerRecord
-from peeringdb.tables import ASPeerRecordTable, ContactTable, PeerRecordTable
-from utils.views import (
-    AddOrEditView,
-    BulkAddFromDependencyView,
-    BulkEditView,
-    BulkDeleteView,
-    DeleteView,
-    ModelListView,
-    PermissionRequiredMixin,
-    TableImportView,
 )
 
 

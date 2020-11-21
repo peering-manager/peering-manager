@@ -1,7 +1,8 @@
 import django_tables2 as tables
 
-from .models import Contact, PeerRecord
 from utils.tables import BaseTable, SelectColumn
+
+from .models import Contact, PeerRecord
 
 
 class ContactTable(BaseTable):

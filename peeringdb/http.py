@@ -1,15 +1,14 @@
 import ipaddress
 import json
 import logging
-import requests
 
-from django.db import transaction
+import requests
 from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.db import transaction
 from django.utils import timezone
 
 from .models import Contact, Network, NetworkIXLAN, PeerRecord, Prefix, Synchronization
-
 
 NAMESPACES = {
     "facility": "fac",

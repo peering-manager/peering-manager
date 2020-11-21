@@ -1,6 +1,6 @@
 from django.conf import settings
 from rest_framework import authentication, exceptions
-from rest_framework.permissions import DjangoModelPermissions, SAFE_METHODS
+from rest_framework.permissions import SAFE_METHODS, DjangoModelPermissions
 
 from users.models import Token
 

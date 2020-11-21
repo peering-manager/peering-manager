@@ -4,8 +4,9 @@ import json
 from django.contrib.auth.models import Permission, User
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict as _model_to_dict
-from django.test import Client, TestCase as _TestCase
-from django.urls import reverse, NoReverseMatch
+from django.test import Client
+from django.test import TestCase as _TestCase
+from django.urls import NoReverseMatch, reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 

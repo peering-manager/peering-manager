@@ -2,10 +2,10 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.urls import path
 
-from . import views
-from .admin import admin_site
 from users.views import LoginView, LogoutView
 
+from . import views
+from .admin import admin_site
 
 handler500 = views.handle_500
 

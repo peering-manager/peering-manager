@@ -1,7 +1,7 @@
-import pynetbox
-
-from django.test import TestCase
 from unittest.mock import patch
+
+import pynetbox
+from django.test import TestCase
 
 from netbox.api import NetBox
 from utils.testing import MockedResponse

@@ -1,11 +1,10 @@
 import logging
-import requests
 
-from cacheops import cache, CacheMiss
+import requests
+from cacheops import CacheMiss, cache
 from django.conf import settings
 from django_rq import get_queue, job
 from packaging import version
-
 
 logger = logging.getLogger("peering.manager.releases")
 

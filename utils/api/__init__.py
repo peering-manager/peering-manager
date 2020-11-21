@@ -1,4 +1,5 @@
 from collections import OrderedDict
+
 from django.db.models import ManyToManyField
 from django.http import Http404
 from rest_framework.exceptions import APIException
@@ -6,7 +7,8 @@ from rest_framework.fields import ListField
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer, ValidationError
-from rest_framework.viewsets import ModelViewSet as __ModelViewSet, ViewSet
+from rest_framework.viewsets import ModelViewSet as __ModelViewSet
+from rest_framework.viewsets import ViewSet
 
 from utils.functions import get_serializer_for_model
 

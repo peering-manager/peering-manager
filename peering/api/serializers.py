@@ -1,6 +1,5 @@
 from rest_framework.serializers import ModelSerializer
 
-from .nested_serializers import *
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -15,6 +14,8 @@ from peering.models import (
 )
 from utils.api import InetAddressArrayField, WriteEnabledNestedSerializer
 from utils.api.serializers import TaggedObjectSerializer
+
+from .nested_serializers import *
 
 
 class AutonomousSystemSerializer(TaggedObjectSerializer, WriteEnabledNestedSerializer):

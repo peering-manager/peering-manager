@@ -1,8 +1,9 @@
 import ipaddress
 
+import django_filters
 from django.db.models import Q
 
-import django_filters
+from utils.filters import TagFilter
 
 from .enums import BGPRelationship, Platform, RoutingPolicyType
 from .models import (
@@ -17,7 +18,6 @@ from .models import (
     Router,
     RoutingPolicy,
 )
-from utils.filters import TagFilter
 
 
 class AutonomousSystemFilterSet(django_filters.FilterSet):

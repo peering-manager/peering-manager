@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.core.paginator import Paginator, Page
+from django.core.paginator import Page, Paginator
 
 
 class EnhancedPaginator(Paginator):

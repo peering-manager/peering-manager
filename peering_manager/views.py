@@ -1,7 +1,7 @@
 import platform
 import sys
-
 from collections import OrderedDict
+
 from django.conf import settings
 from django.shortcuts import render
 from django.views.generic import View
@@ -10,7 +10,6 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse as rest_reverse
 from rest_framework.views import APIView
 
-from .releases import get_latest_release
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -25,6 +24,8 @@ from peering.models import (
 )
 from peeringdb.models import Synchronization
 from utils.models import ObjectChange
+
+from .releases import get_latest_release
 
 
 def handle_500(request):

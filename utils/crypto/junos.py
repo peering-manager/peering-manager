@@ -1,6 +1,5 @@
 import random
 
-
 # This code is the result of the attempt at converting a Perl module, the expected
 # result might not actually be what we really want it to be ¯\_(ツ)_/¯
 #

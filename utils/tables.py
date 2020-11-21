@@ -1,11 +1,9 @@
 import django_tables2 as tables
-
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models import ForeignKey
 from django.utils.safestring import mark_safe
 
 from .models import ObjectChange, Tag
-
 
 OBJECT_CHANGE_TIME = """
 <a href="{{ record.get_absolute_url }}">{{ value | date:"SHORT_DATETIME_FORMAT" }}</a>

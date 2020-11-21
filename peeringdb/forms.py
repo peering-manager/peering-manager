@@ -1,12 +1,13 @@
 from django import forms
 
-from .models import PeerRecord
 from utils.forms import (
     BootstrapMixin,
     BulkEditForm,
     CustomNullBooleanSelect,
     DynamicModelMultipleChoiceField,
 )
+
+from .models import PeerRecord
 
 
 class PeerRecordBulkEditForm(BootstrapMixin, BulkEditForm):
