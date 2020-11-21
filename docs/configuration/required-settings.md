@@ -1,13 +1,5 @@
 # Required Configuration Settings
 
-## MY_ASN
-
-The autonomous system number that you are using. This will be used for several
-features of Peering Manager such as looking for objects with the
-[PeeringDB](https://peeringdb.com/) API.
-
----
-
 ## ALLOWED_HOSTS
 
 This is a list of valid fully-qualified domain names (FQDNs) and/or IP

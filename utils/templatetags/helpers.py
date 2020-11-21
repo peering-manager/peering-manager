@@ -131,3 +131,8 @@ def get_docs(model):
         return f"Unable to load documentation, error reading file: {path}"
 
     return mark_safe(markdown(content))
+
+
+@register.filter()
+def user_context_asn(request):
+    return request.user.preferences.get("context.asn")

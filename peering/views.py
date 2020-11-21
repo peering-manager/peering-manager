@@ -100,7 +100,7 @@ class ASList(PermissionRequiredMixin, ModelListView):
         internetexchangepeeringsession_count=Count(
             "internetexchangepeeringsession", distinct=True
         ),
-    ).order_by("asn")
+    ).order_by("affiliated", "asn")
     filter = AutonomousSystemFilterSet
     filter_form = AutonomousSystemFilterForm
     table = AutonomousSystemTable
@@ -120,19 +120,26 @@ class ASDetails(PermissionRequiredMixin, View):
 
     def get(self, request, asn):
         autonomous_system = get_object_or_404(AutonomousSystem, asn=asn)
+        try:
+            affiliated = AutonomousSystem.objects.get(
+                pk=request.user.preferences.get("context.asn")
+            )
+        except AutonomousSystem.DoesNotExist:
+            affiliated = None
         peeringdb_contacts = PeeringDB().get_autonomous_system_contacts(
             autonomous_system.asn
         )
         common_ix_and_sessions = []
-        for ix in autonomous_system.get_common_internet_exchanges():
-            common_ix_and_sessions.append(
-                {
-                    "internet_exchange": ix,
-                    "has_potential_ix_peering_sessions": autonomous_system.has_potential_ix_peering_sessions(
-                        ix
-                    ),
-                }
-            )
+        if affiliated:
+            for ix in autonomous_system.get_common_internet_exchanges(affiliated):
+                common_ix_and_sessions.append(
+                    {
+                        "internet_exchange": ix,
+                        "has_potential_ix_peering_sessions": autonomous_system.has_potential_ix_peering_sessions(
+                            ix
+                        ),
+                    }
+                )
 
         context = {
             "autonomous_system": autonomous_system,
@@ -613,7 +620,9 @@ class DirectPeeringSessionEdit(PermissionRequiredMixin, AddOrEditView):
 
 class DirectPeeringSessionList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_directpeeringsession"
-    queryset = DirectPeeringSession.objects.order_by("autonomous_system", "ip_address")
+    queryset = DirectPeeringSession.objects.order_by(
+        "local_autonomous_system", "autonomous_system", "ip_address"
+    )
     table = DirectPeeringSessionTable
     filter = DirectPeeringSessionFilterSet
     filter_form = DirectPeeringSessionFilterForm
@@ -672,7 +681,7 @@ class InternetExchangeList(PermissionRequiredMixin, ModelListView):
             internetexchangepeeringsession_count=Count("internetexchangepeeringsession")
         )
         .prefetch_related("router")
-        .order_by("name", "slug")
+        .order_by("local_autonomous_system", "name", "slug")
     )
     table = InternetExchangeTable
     filter = InternetExchangeFilterSet
@@ -694,7 +703,7 @@ class InternetExchangePeeringDBImport(PermissionRequiredMixin, TableImportView):
     form_model = InternetExchangePeeringDBForm
     return_url = "peering:internetexchange_list"
 
-    def get_objects(self):
+    def get_objects(self, request):
         objects = []
         known_objects = []
         api = PeeringDB()
@@ -703,7 +712,10 @@ class InternetExchangePeeringDBImport(PermissionRequiredMixin, TableImportView):
             if ix.peeringdb_id:
                 known_objects.append(ix.peeringdb_id)
 
-        ix_networks = api.get_ix_networks_for_asn(settings.MY_ASN) or []
+        ix_networks = (
+            api.get_ix_networks_for_asn(request.user.preferences.get("context.asn"))
+            or []
+        )
         slugs_occurences = {}
 
         for ix_network in ix_networks:
@@ -987,7 +999,7 @@ class RouterList(PermissionRequiredMixin, ModelListView):
             directpeeringsession_count=Count("directpeeringsession", distinct=True),
         )
         .prefetch_related("configuration_template")
-        .order_by("name")
+        .order_by("local_autonomous_system", "name")
     )
     filter = RouterFilterSet
     filter_form = RouterFilterForm

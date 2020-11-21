@@ -391,7 +391,7 @@ class BulkEditView(ReturnURLMixin, View):
                                 try:
                                     model_field = model._meta.get_field(name)
                                 except FieldDoesNotExist:
-                                    pass
+                                    model_field = None
 
                                 if (
                                     name in form.nullable_fields
@@ -404,7 +404,8 @@ class BulkEditView(ReturnURLMixin, View):
                                             obj, name, None if model_field.null else ""
                                         )
                                 elif isinstance(model_field, ManyToManyField):
-                                    getattr(obj, name).set(form.cleaned_data[name])
+                                    if form.cleaned_data[name]:
+                                        getattr(obj, name).set(form.cleaned_data[name])
                                 elif form.cleaned_data[name] not in (None, ""):
                                     setattr(obj, name, form.cleaned_data[name])
                             obj.full_clean()
@@ -419,16 +420,14 @@ class BulkEditView(ReturnURLMixin, View):
                             updated_count += 1
 
                     if updated_count:
-                        message = "Updated {} {}".format(
-                            updated_count, model._meta.verbose_name_plural
+                        message = (
+                            f"Updated {updated_count} {model._meta.verbose_name_plural}"
                         )
                         messages.success(self.request, message)
 
                     return redirect(self.get_return_url(request))
                 except ValidationError as e:
-                    messages.error(
-                        self.request, "{} failed validation: {}".format(obj, e)
-                    )
+                    messages.error(self.request, f"{obj} failed validation: {e}")
         else:
             initial_data = request.POST.copy()
             initial_data["pk"] = pk_list
@@ -440,7 +439,7 @@ class BulkEditView(ReturnURLMixin, View):
             table.columns.hide("actions")
         if not table.rows:
             messages.warning(
-                request, "No {} were selected.".format(model._meta.verbose_name_plural)
+                request, f"No {model._meta.verbose_name_plural} were selected."
             )
             return redirect(self.get_return_url(request))
 
@@ -661,14 +660,14 @@ class TableImportView(ReturnURLMixin, View):
     form_model = None
     template = "utils/table_import.html"
 
-    def get_objects(self):
+    def get_objects(self, request):
         return []
 
     def get(self, request):
         """
         Method used to render the view when form is not submitted.
         """
-        objects = self.get_objects()
+        objects = self.get_objects(request)
         formset = None
 
         if len(objects) > 0:

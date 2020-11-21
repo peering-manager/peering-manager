@@ -43,6 +43,7 @@ class AutonomousSystemSerializer(TaggitSerializer, WriteEnabledNestedSerializer)
             "export_routing_policies",
             "potential_internet_exchange_peering_sessions",
             "prefixes",
+            "affiliated",
             "tags",
         ]
         nested_fields = ["import_routing_policies", "export_routing_policies"]
@@ -98,6 +99,7 @@ class EmailSerializer(TaggitSerializer, ModelSerializer):
 
 class RouterSerializer(TaggitSerializer, WriteEnabledNestedSerializer):
     configuration_template = ConfigurationNestedSerializer(required=False)
+    local_autonomous_system = AutonomousSystemNestedSerializer()
     tags = TagListSerializerField(required=False)
 
     class Meta:
@@ -109,6 +111,7 @@ class RouterSerializer(TaggitSerializer, WriteEnabledNestedSerializer):
             "platform",
             "encrypt_passwords",
             "configuration_template",
+            "local_autonomous_system",
             "last_deployment_id",
             "netbox_device_id",
             "use_netbox",
@@ -140,6 +143,7 @@ class RoutingPolicySerializer(TaggitSerializer, ModelSerializer):
 
 
 class DirectPeeringSessionSerializer(TaggitSerializer, WriteEnabledNestedSerializer):
+    local_autonomous_system = AutonomousSystemNestedSerializer()
     autonomous_system = AutonomousSystemNestedSerializer()
     bgp_group = BGPGroupNestedSerializer(required=False)
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
@@ -151,9 +155,9 @@ class DirectPeeringSessionSerializer(TaggitSerializer, WriteEnabledNestedSeriali
         model = DirectPeeringSession
         fields = [
             "id",
-            "autonomous_system",
-            "local_asn",
+            "local_autonomous_system",
             "local_ip_address",
+            "autonomous_system",
             "bgp_group",
             "relationship",
             "ip_address",
@@ -180,6 +184,7 @@ class DirectPeeringSessionSerializer(TaggitSerializer, WriteEnabledNestedSeriali
 
 
 class InternetExchangeSerializer(TaggitSerializer, WriteEnabledNestedSerializer):
+    local_autonomous_system = AutonomousSystemNestedSerializer()
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     communities = CommunityNestedSerializer(many=True, required=False)
@@ -191,6 +196,7 @@ class InternetExchangeSerializer(TaggitSerializer, WriteEnabledNestedSerializer)
         fields = [
             "id",
             "peeringdb_id",
+            "local_autonomous_system",
             "name",
             "slug",
             "ipv6_address",

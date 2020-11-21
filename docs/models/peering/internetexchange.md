@@ -14,6 +14,7 @@ the following properties can be configured (n.b. some are optional):
   * `Name`: human-readable name attached to the IX.
   * `Slug`: unique configuration and URL friendly name; usually it is
      automatically generated from the group's name.
+  * `Local Autonomous System`: autonomous system connected to the IX.
   * `Comments`: text to explain what the Internet exchange is for. Can use
     Markdown formatting.
   * `Check BGP Session States`: whether Peering Manager should poll the state

@@ -90,15 +90,16 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
     export_routing_policies = models.ManyToManyField(
         "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
     )
-    potential_internet_exchange_peering_sessions = ArrayField(
-        InetAddressField(store_prefix_length=False), blank=True, default=None, null=True
+    potential_internet_exchange_peering_sessions = models.JSONField(
+        blank=True, null=True, editable=False
     )
     prefixes = models.JSONField(blank=True, null=True, editable=False)
+    affiliated = models.BooleanField(default=False)
 
     logger = logging.getLogger("peering.manager.peering")
 
     class Meta:
-        ordering = ["asn"]
+        ordering = ["asn", "affiliated"]
         permissions = [("send_email", "Can send e-mails to AS contact")]
 
     @property
@@ -163,12 +164,12 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         return internet_exchanges
 
-    def get_common_internet_exchanges(self):
+    def get_common_internet_exchanges(self, other):
         """
-        Return all IX we have in common with the AS.
+        Return all IX this AS has with the other one.
         """
         # Get common IX networks between us and this AS
-        common = PeeringDB().get_common_ix_networks_for_asns(settings.MY_ASN, self.asn)
+        common = PeeringDB().get_common_ix_networks_for_asns(self.asn, other.asn)
         return InternetExchange.objects.filter(
             peeringdb_id__in=[us.id for us, _ in common]
         ).order_by("name", "slug")
@@ -176,41 +177,49 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
     def find_potential_ix_peering_sessions(self):
         """
         Saves an IP address list. Each IP address of the list is the address of a
-        potential peering session with the current AS on an Internet Exchange.
+        potential peering session between this AS and the other on an Internet
+        Exchange.
         """
         # Potential IX peering sessions
-        potential_ix_peering_sessions = []
-        # Get common IX networks between us and this AS
-        common = PeeringDB().get_common_ix_networks_for_asns(settings.MY_ASN, self.asn)
+        potential_ix_peering_sessions = {}
 
-        # For each common networks take a look at it
-        for us, peer in common:
-            peering_sessions = []
-
-            if peer.ipaddr6:
-                peering_sessions.append(peer.ipaddr6)
-            if peer.ipaddr4:
-                peering_sessions.append(peer.ipaddr4)
-
-            # Get all known sessions for this AS on the given IX
-            known_sessions = InternetExchangePeeringSession.objects.filter(
-                autonomous_system=self, ip_address__in=peering_sessions
+        for affiliated in AutonomousSystem.objects.filter(affiliated=True):
+            # Get common IX networks between us and this AS
+            common = PeeringDB().get_common_ix_networks_for_asns(
+                self.asn, affiliated.asn
             )
-            # Check if peer IP addresses are known sessions
-            for peering_session in peering_sessions:
-                # Consider the session as not existing at first
-                exists = False
-                for known_session in known_sessions:
-                    if peering_session == known_session.ip_address:
-                        # If the IP is found, stop looking for the info and mark it
-                        # as the peering session as existing
-                        exists = True
-                        break
 
-                if not exists:
-                    # If the IP address is not used in any peering sessions append it,
-                    # keep an eye on it
-                    potential_ix_peering_sessions.append(peering_session)
+            # For each common networks take a look at it
+            for us, peer in common:
+                potential_ix_peering_sessions[affiliated.asn] = []
+
+                if peer.ipaddr6:
+                    potential_ix_peering_sessions[affiliated.asn].append(peer.ipaddr6)
+                if peer.ipaddr4:
+                    potential_ix_peering_sessions[affiliated.asn].append(peer.ipaddr4)
+
+                # Get all known sessions for this AS on the given IX
+                known_sessions = InternetExchangePeeringSession.objects.filter(
+                    autonomous_system=self,
+                    ip_address__in=potential_ix_peering_sessions[affiliated.asn],
+                )
+                # Check if peer IP addresses are known sessions
+                for peering_session in potential_ix_peering_sessions[affiliated.asn]:
+                    # Consider the session as not existing at first
+                    exists = False
+                    for known_session in known_sessions:
+                        if peering_session == known_session.ip_address:
+                            # If the IP is found, stop looking for the info and mark
+                            # it as the peering session as existing
+                            exists = True
+                            break
+
+                        if not exists:
+                            # If the IP address is not used in any peering sessions
+                            # append it, keep an eye on it
+                            potential_ix_peering_sessions[affiliated.asn].append(
+                                str(peering_session)
+                            )
 
         # Only save the new potential IX peering session list if it has changed
         if (
@@ -220,7 +229,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             self.potential_internet_exchange_peering_sessions = (
                 potential_ix_peering_sessions
             )
-            self.save()
+        self.save()
 
     def has_potential_ix_peering_sessions(self, internet_exchange=None):
         """
@@ -232,7 +241,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             # Fill in the potential IX sessions if it isn't initialized
             self.find_potential_ix_peering_sessions()
         if not internet_exchange:
-            return len(self.potential_internet_exchange_peering_sessions) > 0
+            return self.potential_internet_exchange_peering_sessions
 
         for session in self.potential_internet_exchange_peering_sessions:
             for prefix in internet_exchange.get_prefixes():
@@ -241,7 +250,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         return False
 
-    def get_common_internet_exchanges_and_sessions(self):
+    def get_common_internet_exchanges_and_sessions(self, affiliated):
         """
         Returns a list of dictionaries, each containing an `InternetExchange` object
         and lists of IP addresses. These addresses are the ones with which peering
@@ -249,7 +258,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         """
         ix_and_sessions = []
 
-        for internet_exchange in self.get_common_internet_exchanges():
+        for internet_exchange in self.get_common_internet_exchanges(affiliated):
             missing_sessions = {"ipv6": [], "ipv4": []}
             for session in self.potential_internet_exchange_peering_sessions:
                 for prefix in internet_exchange.get_prefixes():
@@ -412,9 +421,11 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         return addresses
 
-    def get_email_context(self):
+    def get_email_context(self, user):
         return {
-            "my_asn": settings.MY_ASN,
+            "my_as": [
+                a.to_dict() for a in AutonomousSystem.objects.filter(affiliated=True)
+            ],
             "autonomous_system": self,
             "internet_exchanges": self.get_common_internet_exchanges_and_sessions(),
             "direct_peering_sessions": [
@@ -542,7 +553,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
     Abstract class used to define common caracteristics of BGP sessions.
 
     A BGP session is always defined with the following fields:
-      * an AS, or autonomous system, it can also be called a peer
+      * an autonomous system, it can also be called a peer
       * an IP address used to establish the session
       * a plain text password
       * an encrypted version of the password if the user asked for encryption
@@ -718,7 +729,12 @@ class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
 
 
 class DirectPeeringSession(BGPSession):
-    local_asn = ASNField(default=0)
+    local_autonomous_system = models.ForeignKey(
+        "AutonomousSystem",
+        on_delete=models.CASCADE,
+        related_name="%(class)s_local_autonomous_system",
+        null=True,
+    )
     local_ip_address = InetAddressField(
         store_prefix_length=False, blank=True, null=True
     )
@@ -739,7 +755,7 @@ class DirectPeeringSession(BGPSession):
     )
 
     class Meta:
-        ordering = ["autonomous_system", "ip_address"]
+        ordering = ["local_autonomous_system", "autonomous_system", "ip_address"]
 
     def get_absolute_url(self):
         return reverse("peering:directpeeringsession_details", kwargs={"pk": self.pk})
@@ -752,7 +768,7 @@ class DirectPeeringSession(BGPSession):
         elif not self.router.can_napalm_get_bgp_neighbors_detail():
             log = log.format(
                 self.name.lower(),
-                "router with unsupported platform {}".format(self.router.platform),
+                f"router with unsupported platform {self.router.platform}",
             )
         elif self.bgp_group and not self.bgp_group.check_bgp_session_states:
             log = log.format(self.name.lower(), "check disabled")
@@ -794,19 +810,18 @@ class DirectPeeringSession(BGPSession):
             badge_type = "badge-secondary"
 
         return mark_safe(
-            '<span class="badge {}">{}</span>'.format(
-                badge_type, self.get_relationship_display()
-            )
+            f'<span class="badge {badge_type}">{self.get_relationship_display()}</span>'
         )
 
     def __str__(self):
-        return "{} - AS{} - IP {}".format(
-            self.get_relationship_display(), self.autonomous_system.asn, self.ip_address
-        )
+        return f"{self.get_relationship_display()} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
 
 
 class InternetExchange(AbstractGroup):
     peeringdb_id = models.PositiveIntegerField(blank=True, default=0)
+    local_autonomous_system = models.ForeignKey(
+        "AutonomousSystem", on_delete=models.CASCADE, null=True
+    )
     ipv6_address = InetAddressField(
         store_prefix_length=False,
         blank=True,
@@ -825,6 +840,9 @@ class InternetExchange(AbstractGroup):
 
     objects = NetManager()
     logger = logging.getLogger("peering.manager.peering")
+
+    class Meta(AbstractGroup.Meta):
+        ordering = ["local_autonomous_system", "name", "slug"]
 
     def get_absolute_url(self):
         return reverse("peering:internetexchange_details", kwargs={"slug": self.slug})
@@ -881,7 +899,10 @@ class InternetExchange(AbstractGroup):
         """
         return PeeringDB().get_prefixes_for_ix_network(self.peeringdb_id)
 
-    def get_available_peers(self):
+    def get_available_peers(self, other):
+        """
+        Finds available peers between this AS and another one.
+        """
         # Not linked to PeeringDB, cannot determine peers
         if not self.peeringdb_id:
             return None
@@ -908,7 +929,7 @@ class InternetExchange(AbstractGroup):
         return (
             PeerRecord.objects.filter(
                 Q(network_ixlan__ixlan_id=network_ixlan.ixlan_id)
-                & ~Q(network__asn=settings.MY_ASN)
+                & ~Q(network__asn=other.asn)
                 & (
                     ~Q(network_ixlan__ipaddr6__in=ipv6_sessions)
                     | ~Q(network_ixlan__ipaddr4__in=ipv4_sessions)
@@ -1308,11 +1329,14 @@ class InternetExchangePeeringSession(BGPSession):
         """
         Returns True if a PeerRecord exists for this session's IP.
         """
-        lookup = {
-            f"network_ixlan__ipaddr{self.ip_address.version}": str(self.ip_address)
-        }
+        if isinstance(self.ip_address, str):
+            ip_version = ipaddress.ip_address(self.ip_address).version
+        else:
+            ip_version = self.ip_address.version
         try:
-            PeerRecord.objects.get(**lookup)
+            PeerRecord.objects.get(
+                **{f"network_ixlan__ipaddr{ip_version}": str(self.ip_address)}
+            )
             return True
         except PeerRecord.DoesNotExist:
             pass
@@ -1345,6 +1369,11 @@ class InternetExchangePeeringSession(BGPSession):
 
 
 class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
+    local_autonomous_system = models.ForeignKey(
+        "AutonomousSystem",
+        on_delete=models.CASCADE,
+        null=True,
+    )
     name = models.CharField(max_length=128)
     hostname = models.CharField(max_length=256)
     platform = models.CharField(
@@ -1377,7 +1406,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
     logger = logging.getLogger("peering.manager.napalm")
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["local_autonomous_system", "name"]
         permissions = [
             ("view_router_configuration", "Can view router's configuration"),
             ("deploy_router_configuration", "Can deploy router's configuration"),
@@ -1490,19 +1519,20 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     def get_configuration_context(self):
         context = {
-            "my_asn": settings.MY_ASN,
+            "my_as": [
+                a.to_dict() for a in AutonomousSystem.objects.filter(affiliated=True)
+            ],
+            "autonomous_systems": [],
             "bgp_groups": self.get_bgp_groups(),
             "internet_exchanges": self.get_internet_exchanges(),
             "routing_policies": [p.to_dict() for p in RoutingPolicy.objects.all()],
             "communities": [c.to_dict() for c in Community.objects.all()],
         }
 
-        autonomous_systems = []
         for group in context["bgp_groups"] + context["internet_exchanges"]:
             for session in group["sessions"][6] + group["sessions"][4]:
-                if session["autonomous_system"] not in autonomous_systems:
-                    autonomous_systems.append(session["autonomous_system"])
-        context.update({"autonomous_systems": autonomous_systems})
+                if session["autonomous_system"] not in context["autonomous_systems"]:
+                    context["autonomous_systems"].append(session["autonomous_system"])
 
         return context
 
@@ -2113,6 +2143,13 @@ class Configuration(Template):
         variables = None
 
         # Variables for template preview
+        my_as = AutonomousSystem(
+            asn=64500,
+            name="My AS",
+            ipv6_max_prefixes=50,
+            ipv4_max_prefixes=100,
+            affiliated=True,
+        )
         a_s = AutonomousSystem(
             asn=64501, name="ACME", ipv6_max_prefixes=50, ipv4_max_prefixes=100
         )
@@ -2127,14 +2164,14 @@ class Configuration(Template):
         group = BGPGroup(name="Transit Providers", slug="transit")
         group.tags = ["foo", "bar"]
         dps6 = DirectPeeringSession(
-            local_asn=settings.MY_ASN,
+            local_autonomous_system=my_as,
             autonomous_system=a_s,
             ip_address="2001:db8::1",
             relationship=BGPRelationship.TRANSIT_PROVIDER,
         )
         dps6.tags = ["foo", "bar"]
         dps4 = DirectPeeringSession(
-            local_asn=settings.MY_ASN,
+            local_autonomous_system=my_as,
             autonomous_system=a_s,
             ip_address="192.0.2.1",
             relationship=BGPRelationship.PRIVATE_PEERING,
@@ -2153,7 +2190,7 @@ class Configuration(Template):
 
         return self.render(
             {
-                "my_asn": settings.MY_ASN,
+                "my_as": [my_as],
                 "bgp_groups": [group],
                 "internet_exchanges": [i_x],
                 "routing_policies": [
@@ -2212,6 +2249,13 @@ class Email(Template):
         variables = None
 
         # Variables for template preview
+        my_as = AutonomousSystem(
+            asn=64500,
+            name="My AS",
+            ipv6_max_prefixes=50,
+            ipv4_max_prefixes=100,
+            affiliated=True,
+        )
         a_s = AutonomousSystem(
             asn=64501, name="ACME", ipv6_max_prefixes=50, ipv4_max_prefixes=100
         )
@@ -2226,14 +2270,14 @@ class Email(Template):
         group = BGPGroup(name="Transit Providers", slug="transit")
         group.tags = ["foo", "bar"]
         dps6 = DirectPeeringSession(
-            local_asn=settings.MY_ASN,
+            local_autonomous_system=my_as,
             autonomous_system=a_s,
             ip_address="2001:db8::1",
             relationship=BGPRelationship.TRANSIT_PROVIDER,
         )
         dps6.tags = ["foo", "bar"]
         dps4 = DirectPeeringSession(
-            local_asn=settings.MY_ASN,
+            local_autonomous_system=my_as,
             autonomous_system=a_s,
             ip_address="192.0.2.1",
             relationship=BGPRelationship.PRIVATE_PEERING,
@@ -2250,7 +2294,7 @@ class Email(Template):
 
         return self.render(
             {
-                "my_asn": settings.MY_ASN,
+                "my_as": [my_as],
                 "autonomous_system": a_s,
                 "internet_exchanges": [
                     {

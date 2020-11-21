@@ -84,15 +84,25 @@ class AutonomousSystemViewSet(ModelViewSet):
 
     @action(detail=True, methods=["get"], url_path="common-internet-exchanges")
     def common_internet_exchanges(self, request, pk=None):
-        return Response(
-            {
-                "common-internet-exchanges": InternetExchangeNestedSerializer(
-                    self.get_object().get_common_internet_exchanges(),
-                    many=True,
-                    context={"request": request},
-                ).data
-            }
-        )
+        try:
+            affiliated = AutonomousSystem.objects.get(
+                pk=request.user.preferences.get("context.asn")
+            )
+        except AutonomousSystem.DoesNotExist:
+            affiliated = None
+
+        if affiliated:
+            return Response(
+                {
+                    "common-internet-exchanges": InternetExchangeNestedSerializer(
+                        self.get_object().get_common_internet_exchanges(affiliated),
+                        many=True,
+                        context={"request": request},
+                    ).data
+                }
+            )
+
+        raise ServiceUnavailable("User did not choose an affiliated AS.")
 
     @action(
         detail=True,
@@ -181,7 +191,9 @@ class InternetExchangeViewSet(ModelViewSet):
 
     @action(detail=True, methods=["get"], url_path="available-peers")
     def available_peers(self, request, pk=None):
-        available_peers = self.get_object().get_available_peers()
+        available_peers = self.get_object().get_available_peers(
+            self.get_object().local_autonomous_system
+        )
         if not available_peers:
             raise ServiceUnavailable("No peers found.")
 

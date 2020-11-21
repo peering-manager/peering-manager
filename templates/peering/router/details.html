@@ -59,6 +59,10 @@
                   {% endif %}
                 </td>
               </tr>
+              <tr>
+                <td>Local AS</td>
+                <td>{{ router.local_autonomous_system|as_link }}</td>
+              </tr>
               {% if settings.NETBOX_API %}
               <tr>
                 <td>Source</td>

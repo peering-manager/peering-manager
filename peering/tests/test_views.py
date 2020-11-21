@@ -51,8 +51,8 @@ class AutonomousSystemTestCase(StandardTestCases.Views):
             "ipv6_max_prefixes_peeringdb_sync": False,
             "irr_as_set": None,
             "irr_as_set_peeringdb_sync": False,
-            "potential_internet_exchange_peering_sessions": None,
             "comments": "",
+            "affiliated": False,
             "tags": "",
         }
 
@@ -136,24 +136,27 @@ class DirectPeeringSessionTestCase(StandardTestCases.Views):
 
     @classmethod
     def setUpTestData(cls):
-        cls.a_s = AutonomousSystem.objects.create(asn=64501, name="Autonomous System 1")
+        local_as = AutonomousSystem.objects.create(
+            asn=64501, name="Autonomous System 1", affiliated=True
+        )
+        a_s = AutonomousSystem.objects.create(asn=64502, name="Autonomous System 2")
         DirectPeeringSession.objects.bulk_create(
             [
                 DirectPeeringSession(
-                    local_asn=64500,
-                    autonomous_system=cls.a_s,
+                    local_autonomous_system=local_as,
+                    autonomous_system=a_s,
                     ip_address="192.0.2.1",
                     relationship=BGPRelationship.PRIVATE_PEERING,
                 ),
                 DirectPeeringSession(
-                    local_asn=64500,
-                    autonomous_system=cls.a_s,
+                    local_autonomous_system=local_as,
+                    autonomous_system=a_s,
                     ip_address="192.0.2.2",
                     relationship=BGPRelationship.PRIVATE_PEERING,
                 ),
                 DirectPeeringSession(
-                    local_asn=64500,
-                    autonomous_system=cls.a_s,
+                    local_autonomous_system=local_as,
+                    autonomous_system=a_s,
                     ip_address="192.0.2.3",
                     relationship=BGPRelationship.PRIVATE_PEERING,
                 ),
@@ -161,9 +164,9 @@ class DirectPeeringSessionTestCase(StandardTestCases.Views):
         )
 
         cls.form_data = {
-            "local_asn": 64500,
+            "local_autonomous_system": local_as.pk,
             "local_ip_address": None,
-            "autonomous_system": cls.a_s.pk,
+            "autonomous_system": a_s.pk,
             "ip_address": ipaddress.ip_address("2001:db8::4"),
             "multihop_ttl": 1,
             "relationship": BGPRelationship.PRIVATE_PEERING,
@@ -225,17 +228,33 @@ class InternetExchangeTestCase(StandardTestCases.Views):
 
     @classmethod
     def setUpTestData(cls):
+        local_as = AutonomousSystem.objects.create(
+            asn=64501, name="Autonomous System 1", affiliated=True
+        )
         InternetExchange.objects.bulk_create(
             [
-                InternetExchange(name="Internet Exchange 1", slug="ix-1"),
-                InternetExchange(name="Internet Exchange 2", slug="ix-2"),
-                InternetExchange(name="Internet Exchange 3", slug="ix-3"),
+                InternetExchange(
+                    name="Internet Exchange 1",
+                    slug="ix-1",
+                    local_autonomous_system=local_as,
+                ),
+                InternetExchange(
+                    name="Internet Exchange 2",
+                    slug="ix-2",
+                    local_autonomous_system=local_as,
+                ),
+                InternetExchange(
+                    name="Internet Exchange 3",
+                    slug="ix-3",
+                    local_autonomous_system=local_as,
+                ),
             ]
         )
 
         cls.form_data = {
             "name": "Internet Exchange 4",
             "slug": "ix-4",
+            "local_autonomous_system": local_as.pk,
             "ipv4_address": None,
             "ipv6_address": None,
             "router": None,
@@ -256,9 +275,12 @@ class InternetExchangePeeringSessionTestCase(StandardTestCases.Views):
 
     @classmethod
     def setUpTestData(cls):
-        cls.a_s = AutonomousSystem.objects.create(asn=64501, name="Autonomous System 1")
+        local_as = AutonomousSystem.objects.create(
+            asn=64501, name="Autonomous System 1", affiliated=True
+        )
+        cls.a_s = AutonomousSystem.objects.create(asn=64502, name="Autonomous System 2")
         cls.ix = InternetExchange.objects.create(
-            name="Internet Exchange 1", slug="ix-1"
+            name="Internet Exchange 1", slug="ix-1", local_autonomous_system=local_as
         )
         InternetExchangePeeringSession.objects.bulk_create(
             [
@@ -310,11 +332,28 @@ class RouterTestCase(StandardTestCases.Views):
 
     @classmethod
     def setUpTestData(cls):
+        cls.local_as = AutonomousSystem.objects.create(
+            asn=64500,
+            name="Autonomous System",
+            affiliated=True,
+        )
         Router.objects.bulk_create(
             [
-                Router(name="Router 1", hostname="router1.example.net"),
-                Router(name="Router 2", hostname="router2.example.net"),
-                Router(name="Router 3", hostname="router3.example.net"),
+                Router(
+                    name="Router 1",
+                    hostname="router1.example.net",
+                    local_autonomous_system=cls.local_as,
+                ),
+                Router(
+                    name="Router 2",
+                    hostname="router2.example.net",
+                    local_autonomous_system=cls.local_as,
+                ),
+                Router(
+                    name="Router 3",
+                    hostname="router3.example.net",
+                    local_autonomous_system=cls.local_as,
+                ),
             ]
         )
 
@@ -322,6 +361,7 @@ class RouterTestCase(StandardTestCases.Views):
             "name": "Router 4",
             "hostname": "router4.example.net",
             "configuration_template": None,
+            "local_autonomous_system": cls.local_as.pk,
             "last_deployment_id": None,
             "encrypt_passwords": False,
             "platform": Platform.JUNOS,

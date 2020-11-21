@@ -26,7 +26,14 @@ class AutonomousSystemFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = AutonomousSystem
-        fields = ["asn", "name", "irr_as_set", "ipv6_max_prefixes", "ipv4_max_prefixes"]
+        fields = [
+            "asn",
+            "name",
+            "irr_as_set",
+            "ipv6_max_prefixes",
+            "ipv4_max_prefixes",
+            "affiliated",
+        ]
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -101,6 +108,12 @@ class ConfigurationFilterSet(django_filters.FilterSet):
 
 class DirectPeeringSessionFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
+    local_autonomous_system = django_filters.ModelMultipleChoiceFilter(
+        field_name="local_autonomous_system__id",
+        queryset=AutonomousSystem.objects.all(),
+        to_field_name="id",
+        label="Local AS",
+    )
     address_family = django_filters.NumberFilter(method="address_family_search")
     relationship = django_filters.MultipleChoiceFilter(
         choices=BGPRelationship.choices, null_value=None
@@ -115,7 +128,7 @@ class DirectPeeringSessionFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = DirectPeeringSession
-        fields = ["local_asn", "multihop_ttl", "enabled"]
+        fields = ["multihop_ttl", "enabled"]
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -124,10 +137,6 @@ class DirectPeeringSessionFilterSet(django_filters.FilterSet):
         try:
             ip = ipaddress.ip_interface(value.strip())
             qs_filter |= Q(ip_address__host=str(ip)) | Q(local_ip_address__host=str(ip))
-        except ValueError:
-            pass
-        try:
-            qs_filter |= Q(local_asn=int(value.strip()))
         except ValueError:
             pass
         return queryset.filter(qs_filter)
@@ -160,6 +169,12 @@ class EmailFilterSet(django_filters.FilterSet):
 
 class InternetExchangeFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
+    local_autonomous_system = django_filters.ModelMultipleChoiceFilter(
+        field_name="local_autonomous_system__id",
+        queryset=AutonomousSystem.objects.all(),
+        to_field_name="id",
+        label="Local AS",
+    )
     router = django_filters.ModelMultipleChoiceFilter(
         field_name="router__id",
         queryset=Router.objects.all(),
@@ -170,12 +185,26 @@ class InternetExchangeFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = InternetExchange
-        fields = ["name", "slug"]
+        fields = [
+            "name",
+            "slug",
+            "local_autonomous_system__asn",
+            "local_autonomous_system__id",
+            "local_autonomous_system__name",
+        ]
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        qs_filter = Q(name__icontains=value) | Q(comments__icontains=value)
+        qs_filter = (
+            Q(name__icontains=value)
+            | Q(comments__icontains=value)
+            | Q(autonomous_system__name__icontains=value)
+        )
+        try:
+            qs_filter |= Q(local_autonomous_system__asn=int(value.strip()))
+        except ValueError:
+            pass
         try:
             ip = ipaddress.ip_interface(value.strip())
             qs_filter |= Q(ipv6_address__host=str(value))
@@ -187,12 +216,12 @@ class InternetExchangeFilterSet(django_filters.FilterSet):
 
 class InternetExchangePeeringSessionFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
-    autonomous_system__id = django_filters.ModelMultipleChoiceFilter(
+    autonomous_system = django_filters.ModelMultipleChoiceFilter(
         field_name="autonomous_system__id",
         queryset=AutonomousSystem.objects.all(),
         to_field_name="id",
     )
-    internet_exchange__id = django_filters.ModelMultipleChoiceFilter(
+    internet_exchange = django_filters.ModelMultipleChoiceFilter(
         field_name="internet_exchange__id",
         queryset=InternetExchange.objects.all(),
         to_field_name="id",
@@ -243,6 +272,12 @@ class RouterFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     platform = django_filters.MultipleChoiceFilter(
         choices=Platform.choices, null_value=None
+    )
+    local_autonomous_system = django_filters.ModelMultipleChoiceFilter(
+        field_name="local_autonomous_system__id",
+        queryset=AutonomousSystem.objects.all(),
+        to_field_name="id",
+        label="Local AS",
     )
     tag = TagFilter()
 

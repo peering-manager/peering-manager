@@ -256,21 +256,3 @@ class PeeringDBHTTPTestCase(TestCase):
 
         for ix_prefix in api.get_prefixes_for_ix_network(ix_network_id):
             self.assertIn(ix_prefix, known_prefixes)
-
-    def test_get_peers_for_ix(self):
-        api = PeeringDB()
-
-        with patch(
-            "peeringdb.http.requests.get", return_value=MockedResponse(status_code=404)
-        ):
-            # Must not be found
-            self.assertIsNone(api.get_peers_for_ix(0))
-
-        with patch(
-            "peeringdb.http.requests.get",
-            return_value=MockedResponse(
-                fixture="peeringdb/tests/fixtures/netixlan_by_ix_id.json"
-            ),
-        ):
-            # Must have some peers
-            self.assertEqual(len(api.get_peers_for_ix(1)), 2)
