@@ -395,7 +395,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "netfields",
     "taggit",
-    "taggit_serializer",
     "peering",
     "peeringdb",
     "users",
