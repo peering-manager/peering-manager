@@ -1,7 +1,10 @@
 import hashlib
 import hmac
+import json
 
+from django.core.serializers import serialize
 from django_rq import get_queue, job
+from taggit.managers import _TaggableManager
 
 
 def call_function(name, instance=None, **params):
@@ -21,6 +24,14 @@ def call_function(name, instance=None, **params):
         return getattr(".".join(components[:-1]), components[-1])(**params)
     else:
         return getattr(instance, name)(**params)
+
+
+# Shamlessly stolen from django.utils.functional (<3.0)
+def curry(_curried_func, *args, **kwargs):
+    def _curried(*moreargs, **morekwargs):
+        return _curried_func(*args, *moreargs, **{**kwargs, **morekwargs})
+
+    return _curried
 
 
 def enqueue_background_task(function_name, instance=None, **params):
@@ -65,3 +76,43 @@ def get_serializer_for_model(model, prefix="", suffix=""):
         raise Exception(
             f"Could not determine serializer for {app_name}.{model_name} with prefix '{prefix}' and suffix '{suffix}'"
         )
+
+
+def is_taggable(instance):
+    """
+    Returns `True` if the instance can have tags, `False` otherwise.
+    """
+    if hasattr(instance, "tags"):
+        if issubclass(instance.tags.__class__, _TaggableManager):
+            return True
+    return False
+
+
+def serialize_object(instance, extra=None, exclude=None):
+    """
+    Return a generic JSON representation of an object using Django's built-in
+    serializer (not the REST API). Private fields (prefixed with a _) are always
+    excluded. Other fields can be excluded to by using the `exclude` list/dictionary.
+    """
+    json_string = serialize("json", [instance])
+    data = json.loads(json_string)[0]["fields"]
+
+    if is_taggable(instance):
+        tags = getattr(instance, "_tags", instance.tags.all())
+        data["tags"] = [tag.name for tag in tags]
+
+    # Append any extra data
+    if extra is not None:
+        data.update(extra)
+
+    # Copy keys to list to avoid changing dict size exception
+    for key in list(data):
+        # Private fields shouldn't be logged in the object change
+        if isinstance(key, str) and key.startswith("_"):
+            data.pop(key)
+
+        # Explicitly excluded keys
+        if isinstance(exclude, (list, tuple)) and key in exclude:
+            data.pop(key)
+
+    return data

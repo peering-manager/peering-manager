@@ -23,7 +23,10 @@ class ObjectChangeTestCase(StandardTestCases.Filters):
         for i in range(1, 4):
             uid = uuid.uuid4()
             cls.uuids.append(uid)
-            tag.log_change(user, uid, ObjectChangeAction.UPDATE)
+            change = tag.get_change(ObjectChangeAction.UPDATE)
+            change.user = user
+            change.request_id = uid
+            change.save()
 
     def test_q(self):
         params = {"q": ""}

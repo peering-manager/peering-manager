@@ -23,7 +23,11 @@ class ObjectChangeTestCase(StandardTestCases.Views):
 
         user = User.objects.create_user(username="testuser2")
         for i in range(1, 4):
-            tag.log_change(user, uuid.uuid4(), ObjectChangeAction.UPDATE)
+            uid = uuid.uuid4()
+            change = tag.get_change(ObjectChangeAction.UPDATE)
+            change.user = user
+            change.request_id = uid
+            change.save()
 
 
 class TagTestCase(StandardTestCases.Views):

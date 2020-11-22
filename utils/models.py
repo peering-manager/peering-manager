@@ -13,6 +13,7 @@ from taggit.models import GenericTaggedItemBase, TagBase
 
 from .enums import ObjectChangeAction
 from .fields import ColorField
+from .functions import serialize_object
 from .templatetags.helpers import title_with_uppers
 
 
@@ -27,23 +28,16 @@ class ChangeLoggedModel(models.Model):
     class Meta:
         abstract = True
 
-    def serialize(self):
+    def get_change(self, action):
         """
-        Returns a JSON representation of an object using Django's built-in serializer.
+        Returns a new ObjectChange representing a change made to this object.
         """
-        return json.loads(serialize("json", [self]))[0]["fields"]
-
-    def log_change(self, user, request_id, action):
-        """
-        Creates a new ObjectChange representing a change made to this object.
-        """
-        ObjectChange(
-            user=user,
-            request_id=request_id,
+        return ObjectChange(
             changed_object=self,
             action=action,
-            object_data=self.serialize(),
-        ).save()
+            object_repr=str(self),
+            object_data=serialize_object(self),
+        )
 
 
 class ObjectChange(models.Model):
