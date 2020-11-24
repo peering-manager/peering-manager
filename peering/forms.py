@@ -514,7 +514,14 @@ class InternetExchangePeeringDBForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = InternetExchange
-        fields = ("peeringdb_id", "name", "slug", "ipv6_address", "ipv4_address")
+        fields = (
+            "peeringdb_id",
+            "local_autonomous_system",
+            "name",
+            "slug",
+            "ipv6_address",
+            "ipv4_address",
+        )
         labels = {"ipv6_address": "IPv6 Address", "ipv4_address": "IPv4 Address"}
         help_texts = {
             "name": "Full name of the Internet Exchange point",

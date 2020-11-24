@@ -286,10 +286,10 @@ class AutonomousSystemInternetExchangesPeeringSessions(
         # which we want to get the peering sessions.
         if "asn" in kwargs:
             autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
-            queryset = (
-                autonomous_system.internetexchangepeeringsession_set.prefetch_related(
-                    "internet_exchange"
-                ).order_by("internet_exchange", "ip_address")
+            queryset = autonomous_system.internetexchangepeeringsession_set.prefetch_related(
+                "internet_exchange"
+            ).order_by(
+                "internet_exchange", "ip_address"
             )
 
         return queryset
@@ -713,10 +713,10 @@ class InternetExchangePeeringDBImport(PermissionRequiredMixin, TableImportView):
             if ix.peeringdb_id:
                 known_objects.append(ix.peeringdb_id)
 
-        ix_networks = (
-            api.get_ix_networks_for_asn(request.user.preferences.get("context.asn"))
-            or []
+        autonomous_system = AutonomousSystem.objects.get(
+            pk=request.user.preferences.get("context.asn")
         )
+        ix_networks = api.get_ix_networks_for_asn(autonomous_system.asn) or []
         slugs_occurences = {}
 
         for ix_network in ix_networks:
@@ -732,6 +732,7 @@ class InternetExchangePeeringDBImport(PermissionRequiredMixin, TableImportView):
                 objects.append(
                     {
                         "peeringdb_id": ix_network.id,
+                        "local_autonomous_system": autonomous_system,
                         "name": ix_network.name,
                         "slug": slug,
                         "ipv6_address": ix_network.ipaddr6,
@@ -807,10 +808,10 @@ class InternetExchangePeeringSessions(PermissionRequiredMixin, ModelListView):
         # which we want to get the peering sessions.
         if "slug" in kwargs:
             internet_exchange = get_object_or_404(InternetExchange, slug=kwargs["slug"])
-            queryset = (
-                internet_exchange.internetexchangepeeringsession_set.prefetch_related(
-                    "autonomous_system"
-                ).order_by("autonomous_system", "ip_address")
+            queryset = internet_exchange.internetexchangepeeringsession_set.prefetch_related(
+                "autonomous_system"
+            ).order_by(
+                "autonomous_system", "ip_address"
             )
 
         return queryset
