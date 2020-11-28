@@ -14,4 +14,4 @@ class Command(BaseCommand):
 
         for affiliated in AutonomousSystem.objects.filter(affiliated=True):
             for autonomous_system in AutonomousSystem.objects.exclude(pk=affiliated.pk):
-                autonomous_system.find_potential_ix_peering_sessions(affiliated)
+                autonomous_system.find_potential_ix_peering_sessions()

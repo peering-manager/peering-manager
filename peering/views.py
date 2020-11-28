@@ -131,13 +131,13 @@ class ASDetails(PermissionRequiredMixin, View):
             autonomous_system.asn
         )
         common_ix_and_sessions = []
-        if affiliated:
+        if affiliated and autonomous_system != affiliated:
             for ix in autonomous_system.get_common_internet_exchanges(affiliated):
                 common_ix_and_sessions.append(
                     {
                         "internet_exchange": ix,
                         "has_potential_ix_peering_sessions": autonomous_system.has_potential_ix_peering_sessions(
-                            ix
+                            affiliated, ix
                         ),
                     }
                 )
@@ -314,12 +314,19 @@ class AutonomousSystemPeers(PermissionRequiredMixin, ModelListView):
     template = "peering/as/peers.html"
 
     def build_queryset(self, request, kwargs):
+        try:
+            affiliated = AutonomousSystem.objects.get(
+                pk=request.user.preferences.get("context.asn")
+            )
+        except AutonomousSystem.DoesNotExist:
+            affiliated = None
+
         # The queryset needs to be composed of PeerRecord objects but they are linked
         # to an IX. So first of all we need to retrieve the IX on which we want to get
         # the peering sessions.
-        if "asn" in kwargs:
+        if "asn" in kwargs and affiliated:
             autonomous_system = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
-            queryset = autonomous_system.get_available_sessions()
+            queryset = autonomous_system.get_available_sessions(affiliated)
 
         return queryset
 

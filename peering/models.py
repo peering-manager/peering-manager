@@ -163,10 +163,16 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         """
         Return all IX this AS has with the other one.
         """
-        # Get common IX networks between us and this AS
+        if self == other:
+            # Both AS are the same, so obviously they have common IXPs
+            # Return an empty queryset because they are not point to have another
+            # result
+            return InternetExchange.objects.empty()
+
+        # Get common IX networks between us and the other AS
         common = PeeringDB().get_common_ix_networks_for_asns(self.asn, other.asn)
         return InternetExchange.objects.filter(
-            peeringdb_id__in=[us.id for us, _ in common]
+            peeringdb_id__in=[us.ix_id for us, _ in common]
         ).order_by("name", "slug")
 
     def find_potential_ix_peering_sessions(self):
@@ -179,6 +185,10 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         potential_ix_peering_sessions = {}
 
         for affiliated in AutonomousSystem.objects.filter(affiliated=True):
+            # Don't search for sessions between the same AS
+            if self == affiliated:
+                continue
+
             # Get common IX networks between us and this AS
             common = PeeringDB().get_common_ix_networks_for_asns(
                 self.asn, affiliated.asn
@@ -189,9 +199,13 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
                 potential_ix_peering_sessions[affiliated.asn] = []
 
                 if peer.ipaddr6:
-                    potential_ix_peering_sessions[affiliated.asn].append(peer.ipaddr6)
+                    potential_ix_peering_sessions[affiliated.asn].append(
+                        str(peer.ipaddr6)
+                    )
                 if peer.ipaddr4:
-                    potential_ix_peering_sessions[affiliated.asn].append(peer.ipaddr4)
+                    potential_ix_peering_sessions[affiliated.asn].append(
+                        str(peer.ipaddr4)
+                    )
 
                 # Get all known sessions for this AS on the given IX
                 known_sessions = InternetExchangePeeringSession.objects.filter(
@@ -226,21 +240,32 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             )
         self.save()
 
-    def has_potential_ix_peering_sessions(self, internet_exchange=None):
+    def has_potential_ix_peering_sessions(
+        self, autonomous_system, internet_exchange=None
+    ):
         """
         Returns True if there are potential `InternetExchangePeeringSession` for this
         `AutonomousSystem`. If the `internet_exchange` parameter is given, it will
         only check for potential sessions in the given `InternetExchange`.
         """
-        if self.potential_internet_exchange_peering_sessions is None:
+        if self == autonomous_system:
+            return False
+
+        if (
+            self.potential_internet_exchange_peering_sessions is None
+            or autonomous_system.asn
+            not in self.potential_internet_exchange_peering_sessions
+        ):
             # Fill in the potential IX sessions if it isn't initialized
             self.find_potential_ix_peering_sessions()
         if not internet_exchange:
             return self.potential_internet_exchange_peering_sessions
 
-        for session in self.potential_internet_exchange_peering_sessions:
+        for session in self.potential_internet_exchange_peering_sessions[
+            autonomous_system.asn
+        ]:
             for prefix in internet_exchange.get_prefixes():
-                if session in ipaddress.ip_network(prefix):
+                if ipaddress.ip_address(session) in ipaddress.ip_network(prefix):
                     return True
 
         return False
@@ -252,6 +277,9 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         sessions have not been configured yet on the `InternetExchange`.
         """
         ix_and_sessions = []
+
+        if self == affiliated:
+            return ix_and_sessions
 
         for internet_exchange in self.get_common_internet_exchanges(affiliated):
             missing_sessions = {"ipv6": [], "ipv4": []}
@@ -279,11 +307,15 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         return ix_and_sessions
 
-    def get_available_sessions(self):
+    def get_available_sessions(self, affiliated):
+        if self == affiliated:
+            PeerRecord.objects.empty()
         if self.potential_internet_exchange_peering_sessions is None:
             # Fill in the potential IX sessions if it isn't initialized
             self.find_potential_ix_peering_sessions()
-        missing_sessions = self.potential_internet_exchange_peering_sessions
+        missing_sessions = self.potential_internet_exchange_peering_sessions[
+            affiliated.asn
+        ]
 
         return (
             PeerRecord.objects.filter(
@@ -667,15 +699,11 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
                     self.encrypted_password = encrypt(
                         cisco_decrypt(self.encrypted_password)
                     )
-            elif (
-                platform
-                in [
-                    Platform.IOS,
-                    Platform.IOSXR,
-                    Platform.NXOS,
-                ]
-                and not cisco_is_encrypted(self.encrypted_password)
-            ):
+            elif platform in [
+                Platform.IOS,
+                Platform.IOSXR,
+                Platform.NXOS,
+            ] and not cisco_is_encrypted(self.encrypted_password):
                 if junos_is_encrypted(self.encrypted_password):
                     self.encrypted_password = encrypt(
                         junos_decrypt(self.encrypted_password)
@@ -1003,8 +1031,8 @@ class InternetExchange(AbstractGroup):
                                     "as%s not present importing from peeringdb",
                                     remote_asn,
                                 )
-                                autonomous_system = (
-                                    AutonomousSystem.create_from_peeringdb(remote_asn)
+                                autonomous_system = AutonomousSystem.create_from_peeringdb(
+                                    remote_asn
                                 )
 
                                 # Do not count the AS if it does not have a
@@ -1124,10 +1152,8 @@ class InternetExchange(AbstractGroup):
 
                         # Check if the BGP session is on this IX
                         try:
-                            peering_session = (
-                                InternetExchangePeeringSession.objects.get(
-                                    internet_exchange=self, ip_address=ip_address
-                                )
+                            peering_session = InternetExchangePeeringSession.objects.get(
+                                internet_exchange=self, ip_address=ip_address
                             )
                             # Get the BGP state for the session
                             state = session["connection_state"].lower()
@@ -1365,9 +1391,7 @@ class InternetExchangePeeringSession(BGPSession):
 
 class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
     local_autonomous_system = models.ForeignKey(
-        "AutonomousSystem",
-        on_delete=models.CASCADE,
-        null=True,
+        "AutonomousSystem", on_delete=models.CASCADE, null=True
     )
     name = models.CharField(max_length=128)
     hostname = models.CharField(max_length=256)
