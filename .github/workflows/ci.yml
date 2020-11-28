@@ -48,6 +48,7 @@ jobs:
           - py36
           - py37
           - py38
+          - py39
         include:
           - toxenv: py36
             python-version: 3.6
@@ -55,6 +56,8 @@ jobs:
             python-version: 3.7
           - toxenv: py38
             python-version: 3.8
+          - toxenv: py39
+            python-version: 3.9
     services:
       postgres:
         image: postgres:9.6
