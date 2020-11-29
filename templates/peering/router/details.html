@@ -79,6 +79,7 @@
               </tr>
             </table>
           </div>
+          {% if request.user.is_authenticated %}
           {% if router.napalm_username or router.napalm_password or router.napalm_timeout or router.napalm_args %}
           <div class="card">
             <div class="card-header"><strong>NAPALM</strong></div>
@@ -116,6 +117,7 @@
               {% endif %}
             </table>
           </div>
+          {% endif %}
           {% endif %}
         </div>
         <div class="col-md-6">

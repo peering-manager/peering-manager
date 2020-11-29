@@ -132,7 +132,7 @@ METRICS_ENABLED = getattr(configuration, "METRICS_ENABLED", False)
 
 try:
     with open("/etc/timezone", "r") as f:
-        BASE_TZ = f.readline().strip()
+        BASE_TZ = f.readline()
 
     # For some reasons, Django does not seem to be happy about this particular value
     if "Etc/UTC" in BASE_TZ:
@@ -140,7 +140,7 @@ try:
 except (IOError, Exception):
     BASE_TZ = "UTC"
 
-TIME_ZONE = getattr(configuration, "TIME_ZONE", BASE_TZ)
+TIME_ZONE = getattr(configuration, "TIME_ZONE", BASE_TZ).rstrip()
 EMAIL = getattr(configuration, "EMAIL", {})
 BGPQ3_PATH = getattr(configuration, "BGPQ3_PATH", "bgpq3")
 BGPQ3_HOST = getattr(configuration, "BGPQ3_HOST", "rr.ntt.net")
