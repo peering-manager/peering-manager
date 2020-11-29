@@ -14,7 +14,7 @@
           <div class="card mb-2">
             <div class="card-header">
               <strong>Router Details</strong>
-              {% if router.platform %}
+              {% if instance.platform %}
               <div class="float-right">
                 <button class="btn btn-xs btn-primary" id="router-ping" title="Check if the router is usable.">
                   <i class="fa fa-plug"></i> Ping
@@ -25,16 +25,16 @@
             <table class="card-body table table-hover attr-table mb-0">
               <tr>
                 <td>Name</td>
-                <td>{{ router.name }}</td>
+                <td>{{ instance.name }}</td>
               </tr>
               <tr>
                 <td>Hostname</td>
-                <td>{{ router.hostname }}</td>
+                <td>{{ instance.hostname }}</td>
               </tr>
               <tr>
                 <td>Platform</td>
-                {% if router.platform %}
-                <td>{{ router.get_platform_display }}</td>
+                {% if instance.platform %}
+                <td>{{ instance.get_platform_display }}</td>
                 {% else %}
                 <td>Other</td>
                 {% endif %}
@@ -42,7 +42,7 @@
               <tr>
                 <td>Encrypt Passwords</td>
                 <td>
-                  {% if router.encrypt_passwords %}
+                  {% if instance.encrypt_passwords %}
                   <i class="fas fa-check text-success"></i>
                   {% else %}
                   <i class="fas fa-times text-danger"></i>
@@ -52,8 +52,8 @@
               <tr>
                 <td>Configuration</td>
                 <td>
-                  {% if router.configuration_template %}
-                  {{ router.configuration_template|as_link }}
+                  {% if instance.configuration_template %}
+                  {{ instance.configuration_template|as_link }}
                   {% else %}
                   <span class="text-muted">&mdash;</span>
                   {% endif %}
@@ -61,12 +61,12 @@
               </tr>
               <tr>
                 <td>Local AS</td>
-                <td>{{ router.local_autonomous_system|as_link }}</td>
+                <td>{{ instance.local_autonomous_system|as_link }}</td>
               </tr>
               {% if settings.NETBOX_API %}
               <tr>
                 <td>Source</td>
-                {% if router.is_netbox_device %}
+                {% if instance.is_netbox_device %}
                 <td>NetBox</td>
                 {% else %}
                 <td>Local</td>
@@ -80,22 +80,22 @@
             </table>
           </div>
           {% if request.user.is_authenticated %}
-          {% if router.napalm_username or router.napalm_password or router.napalm_timeout or router.napalm_args %}
+          {% if instance.napalm_username or instance.napalm_password or instance.napalm_timeout or instance.napalm_args %}
           <div class="card">
             <div class="card-header"><strong>NAPALM</strong></div>
             <table class="card-body table table-hover attr-table mb-0">
-              {% if router.napalm_username %}
+              {% if instance.napalm_username %}
               <tr>
                 <td>Username</td>
-                <td>{{ router.napalm_username }}</td>
+                <td>{{ instance.napalm_username }}</td>
               </tr>
               {% endif %}
-              {% if router.napalm_password %}
+              {% if instance.napalm_password %}
               <tr>
                 <td>Password</td>
                 <td>
                   <div class="input-group">
-                    <input type="password" class="form-control" id="id_password" value="{{ router.napalm_password }}" disabled>
+                    <input type="password" class="form-control" id="id_password" value="{{ instance.napalm_password }}" disabled>
                     <div class="input-group-append">
                       <button type="button" class="btn btn-secondary" id="id_password_reveal"><i class="fas fa-eye"></i> Show</button>
                     </div>
@@ -103,16 +103,16 @@
                 </td>
               </tr>
               {% endif %}
-              {% if router.napalm_timeout %}
+              {% if instance.napalm_timeout %}
               <tr>
                 <td>Timeout</td>
-                <td>{{ router.napalm_timeout }} seconds</td>
+                <td>{{ instance.napalm_timeout }} seconds</td>
               </tr>
               {% endif %}
-              {% if router.napalm_args %}
+              {% if instance.napalm_args %}
               <tr>
                 <td>Optional Arguments</td>
-                <td><pre>{{ router.napalm_args }}</pre></td>
+                <td><pre>{{ instance.napalm_args }}</pre></td>
               </tr>
               {% endif %}
             </table>
@@ -124,8 +124,8 @@
           <div class="card">
             <div class="card-header"><strong>Comments</strong></div>
             <div class="card-body">
-              {% if router.comments %}
-              {{ router.comments|markdown }}
+              {% if instance.comments %}
+              {{ instance.comments|markdown }}
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}
@@ -146,7 +146,7 @@
         $.ajax({
           // Call for a ping
           method: "get",
-          url: "{% url 'peering-api:router-test-napalm-connection' pk=router.pk %}",
+          url: "{% url 'peering-api:router-test-napalm-connection' pk=instance.pk %}",
           beforeSend: function() {
             $('#router-ping').attr('disabled', 'disabled').removeClass('btn-primary').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
           },

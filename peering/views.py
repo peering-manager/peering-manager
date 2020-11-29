@@ -1030,7 +1030,7 @@ class RouterDetails(PermissionRequiredMixin, View):
     def get(self, request, pk):
         router = get_object_or_404(Router, pk=pk)
         internet_exchanges = InternetExchange.objects.filter(router=router)
-        context = {"router": router, "internet_exchanges": internet_exchanges}
+        context = {"instance": router, "internet_exchanges": internet_exchanges}
         return render(request, "peering/router/details.html", context)
 
 
@@ -1104,7 +1104,7 @@ class RouterDirectPeeringSessions(PermissionRequiredMixin, ModelListView):
         # for it
         if "pk" in kwargs:
             router = get_object_or_404(Router, pk=kwargs["pk"])
-            extra_context.update({"router": router, "router_id": router.pk})
+            extra_context.update({"router": router.pk, "instance": router})
         return extra_context
 
 

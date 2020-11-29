@@ -2,7 +2,7 @@
 {% block subcontent %}
       <div class="row">
         <div class="col-md-2">
-          {% if perms.peering.deploy_router_configuration_router and router.platform %}
+          {% if perms.peering.deploy_router_configuration_router and instance.platform %}
           <div class="custom-control custom-switch btn-block">
             <input type="checkbox" class="custom-control-input" id="compare-switch" checked>
             <label class="custom-control-label" for="compare-switch">Compare before commit</label>
@@ -20,7 +20,7 @@
         </div>
         <pre class="col-md-10 pre-scrollable"><code>{{ router_configuration }}</code></pre>
       </div>
-      {% if perms.peering.deploy_router_configuration_router and router.platform %}
+      {% if perms.peering.deploy_router_configuration_router and instance.platform %}
       <div class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
           <div class="modal-content">
@@ -39,7 +39,7 @@
       </div>
       {% endif %}
 {% endblock %}
-{% if perms.peering.deploy_router_configuration_router and router.platform %}
+{% if perms.peering.deploy_router_configuration_router and instance.platform %}
 {% block javascript %}
     <script>
       // When the modal is closed, reset the button back to its defaults
