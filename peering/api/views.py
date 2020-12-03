@@ -191,9 +191,7 @@ class InternetExchangeViewSet(ModelViewSet):
 
     @action(detail=True, methods=["get"], url_path="available-peers")
     def available_peers(self, request, pk=None):
-        available_peers = self.get_object().get_available_peers(
-            self.get_object().local_autonomous_system
-        )
+        available_peers = self.get_object().get_available_peers()
         if not available_peers:
             raise ServiceUnavailable("No peers found.")
 

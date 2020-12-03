@@ -308,8 +308,11 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         return ix_and_sessions
 
     def get_available_sessions(self, affiliated):
-        if self == affiliated:
-            PeerRecord.objects.empty()
+        if (
+            self == affiliated
+            or affiliated.asn not in self.potential_internet_exchange_peering_sessions
+        ):
+            return PeerRecord.objects.none()
         if self.potential_internet_exchange_peering_sessions is None:
             # Fill in the potential IX sessions if it isn't initialized
             self.find_potential_ix_peering_sessions()
