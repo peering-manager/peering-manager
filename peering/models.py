@@ -926,9 +926,9 @@ class InternetExchange(AbstractGroup):
         """
         return PeeringDB().get_prefixes_for_ix_network(self.peeringdb_id)
 
-    def get_available_peers(self, other):
+    def get_available_peers(self):
         """
-        Finds available peers between this AS and another one.
+        Finds available peers between this AS and the one connected to the IX.
         """
         # Not linked to PeeringDB, cannot determine peers
         if not self.peeringdb_id:
@@ -956,7 +956,7 @@ class InternetExchange(AbstractGroup):
         return (
             PeerRecord.objects.filter(
                 Q(network_ixlan__ixlan_id=network_ixlan.ixlan_id)
-                & ~Q(network__asn=other.asn)
+                & ~Q(network__asn=self.local_autonomous_system.asn)
                 & (
                     ~Q(network_ixlan__ipaddr6__in=ipv6_sessions)
                     | ~Q(network_ixlan__ipaddr4__in=ipv4_sessions)
