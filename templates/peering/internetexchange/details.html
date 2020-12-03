@@ -1,4 +1,4 @@
-{% extends 'peering/ix/_base.html' %}
+{% extends 'peering/internetexchange/_base.html' %}
 {% load helpers %}
 {% block subcontent %}
       <div class="row">
@@ -10,13 +10,13 @@
             <table class="card-body table table-hover attr-table mb-0">
               <tr>
                 <td>Name</td>
-                <td>{{ internet_exchange.name }}</td>
+                <td>{{ instance.name }}</td>
               </tr>
               <tr>
                 <td>IPv6 Address</td>
                 <td>
-                  {% if internet_exchange.ipv6_address %}
-                  {{ internet_exchange.ipv6_address }}
+                  {% if instance.ipv6_address %}
+                  {{ instance.ipv6_address }}
                   {% else %}
                   <span class="text-muted">&mdash;</span>
                   {% endif %}
@@ -25,8 +25,8 @@
               <tr>
                 <td>IPv4 Address</td>
                 <td>
-                  {% if internet_exchange.ipv4_address %}
-                  {{ internet_exchange.ipv4_address }}
+                  {% if instance.ipv4_address %}
+                  {{ instance.ipv4_address }}
                   {% else %}
                   <span class="text-muted">&mdash;</span>
                   {% endif %}
@@ -34,19 +34,19 @@
               </tr>
               <tr>
                 <td>Local AS</td>
-                <td>{{ internet_exchange.local_autonomous_system|as_link }}</td>
+                <td>{{ instance.local_autonomous_system|as_link }}</td>
               </tr>
-              {% if internet_exchange.router %}
+              {% if instance.router %}
               <tr>
                 <td>Router</td>
-                <td>{{ internet_exchange.router|as_link }}</td>
+                <td>{{ instance.router|as_link }}</td>
               </tr>
               {% endif %}
-              {% if internet_exchange.router and internet_exchange.router.can_napalm_get_bgp_neighbors_detail %}
+              {% if instance.router and instance.router.can_napalm_get_bgp_neighbors_detail %}
               <tr>
                 <td>Poll Session States</td>
                 <td>
-                  {% if internet_exchange.check_bgp_session_states %}
+                  {% if instance.check_bgp_session_states %}
                   <i class="fas fa-check text-success"></i>
                   {% else %}
                   <i class="fas fa-times text-danger"></i>
@@ -56,19 +56,19 @@
               {% endif %}
             </table>
           </div>
-          {% if internet_exchange.peeringdb_id %}
+          {% if instance.peeringdb_id %}
           <div class="card mb-2">
             <div class="card-header">
               <strong>IX Prefixes</strong>
             </div>
             <ul class="list-group list-group-flush">
-              {% for prefix in internet_exchange.get_prefixes %}
+              {% for prefix in instance.get_prefixes %}
               <li class="list-group-item">{{ prefix }}</li>
               {% endfor %}
             </ul>
             <div class="card-footer">
               <small><sup>1)</sup> These are the prefixes used to connect to the IX.
-              {% if internet_exchange.router and internet_exchange.router.platform %}<br /><sup>2)</sup> They can be used to discover peering sessions already setup on the router.{% endif %}</small>
+              {% if instance.router and instance.router.platform %}<br /><sup>2)</sup> They can be used to discover peering sessions already setup on the router.{% endif %}</small>
             </div>
           </div>
           {% endif %}
@@ -78,9 +78,9 @@
             <div class="card-header">
               <strong>BGP Communities</strong>
             </div>
-            {% if internet_exchange.communities.all.count > 0 %}
+            {% if instance.communities.all.count > 0 %}
             <ul class="list-group list-group-flush">
-            {% for community in internet_exchange.communities.all %}
+            {% for community in instance.communities.all %}
               <li class="list-group-item">
                 {{ community|as_link }} <span class="float-right">{{ community.get_type_html }}</span>
               </li>
@@ -96,14 +96,14 @@
             <div class="card-header">
               <strong>Routing Policies</strong>
             </div>
-            {% if internet_exchange.export_routing_policies.all.count > 0 or internet_exchange.import_routing_policies.all.count > 0 %}
+            {% if instance.export_routing_policies.all.count > 0 or instance.import_routing_policies.all.count > 0 %}
             <ul class="list-group list-group-flush">
-            {% for routing_policy in internet_exchange.export_routing_policies.all %}
+            {% for routing_policy in instance.export_routing_policies.all %}
               <li class="list-group-item">
                 {{ routing_policy|as_link }} <span class="float-right">{{ routing_policy.get_type_html }}</span>
               </li>
             {% endfor %}
-            {% for routing_policy in internet_exchange.import_routing_policies.all %}
+            {% for routing_policy in instance.import_routing_policies.all %}
               <li class="list-group-item">
                 {{ routing_policy|as_link }} <span class="float-right">{{ routing_policy.get_type_html }}</span>
               </li>
@@ -122,14 +122,14 @@
               <strong>Comments</strong>
             </div>
             <div class="card-body">
-              {% if internet_exchange.comments %}
-              {{ internet_exchange.comments|markdown }}
+              {% if instance.comments %}
+              {{ instance.comments|markdown }}
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}
             </div>
           </div>
-          {% include 'utils/includes/tags_card.html' with tags=internet_exchange.tags.all url='peering:internetexchange_list' %}
+          {% include 'utils/includes/tags_card.html' with tags=instance.tags.all url='peering:internetexchange_list' %}
         </div>
       </div>
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends 'peering/ix/_base.html' %}
+{% extends 'peering/internetexchange/_base.html' %}
 {% block subcontent %}
       <div class="row">
         <div class="col-md-9">
@@ -12,7 +12,7 @@
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Import Peering Sessions from {{ internet_exchange.router }}</h5>
+              <h5 class="modal-title">Import Peering Sessions from {{ instance.router }}</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="id_close_import_01"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
@@ -20,9 +20,9 @@
                 <button type="button" class="close" aria-label="Close"><span>&times;</span></button>
                 <span id="id_import_operation_text"></span>
               </div>
-              <p>Do you want to import all peering sessions found on <strong>{{ internet_exchange.router }}</strong> matching the following prefixes?</p>
+              <p>Do you want to import all peering sessions found on <strong>{{ instance.router }}</strong> matching the following prefixes?</p>
               <ul>
-                {% for ix_prefix in internet_exchange.get_prefixes %}
+                {% for ix_prefix in instance.get_prefixes %}
                 <li>{{ ix_prefix }}</li>
                 {% endfor %}
               </ul>
@@ -42,13 +42,13 @@
         $(this).closest('.alert').slideUp();
       });
 
-      {% if perms.peering.add_internetexchangepeeringsession and internet_exchange.router and internet_exchange.router.platform %}
+      {% if perms.peering.add_internetexchangepeeringsession and instance.router and instance.router.platform %}
       $('#id_import_from_router').click(function() {
         $.ajax({
           method: "post",
           data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
           dataType: "json",
-          url: "{% url 'peering-api:internetexchange-import-peering-sessions' pk=internet_exchange.pk %}",
+          url: "{% url 'peering-api:internetexchange-import-peering-sessions' pk=instance.pk %}",
           beforeSend: function() {
             $('#id_close_import_01').attr('disabled', 'disabled');
             $('#id_close_import_02').attr('disabled', 'disabled');
@@ -78,13 +78,13 @@
         });
       });
       {% endif %}
-      {% if internet_exchange.check_bgp_session_states and internet_exchange.router and internet_exchange.router.can_napalm_get_bgp_neighbors_detail %}
+      {% if instance.check_bgp_session_states and instance.router and instance.router.can_napalm_get_bgp_neighbors_detail %}
       $('#id_poll_session_states').click(function() {
         $.ajax({
           method: "post",
           data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
           dataType: "json",
-          url: "{% url 'peering-api:internetexchange-poll-peering-sessions' pk=internet_exchange.pk %}",
+          url: "{% url 'peering-api:internetexchange-poll-peering-sessions' pk=instance.pk %}",
           beforeSend: function() {
             $('#id_poll_session_states').attr('disabled', 'disabled').removeClass('btn-success').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
           },

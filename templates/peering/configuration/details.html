@@ -2,19 +2,19 @@
 {% load helpers %}
 {% block actions %}
 {% if perms.peering.change_configuration %}
-<a href="{% url 'peering:configuration_edit' pk=configuration.pk %}" class="btn btn-warning">
+<a href="{% url 'peering:configuration_edit' pk=instance.pk %}" class="btn btn-warning">
   <i class="fas fa-edit"></i> Edit
 </a>
 {% endif %}
 {% if perms.peering.delete_configuration %}
-<a href="{% url 'peering:configuration_delete' pk=configuration.pk %}" class="btn btn-danger">
+<a href="{% url 'peering:configuration_delete' pk=instance.pk %}" class="btn btn-danger">
   <i class="fas fa-trash"></i> Delete
 </a>
 {% endif %}
 {% endblock %}
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'peering:configuration_list' %}">Configurations</a></li>
-<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ configuration }}{% endblock %}</li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
       <div class="row">
@@ -26,11 +26,11 @@
             <table class="card-body table table-hover attr-table mb-0">
               <tr>
                 <td>Name</td>
-                <td>{{ configuration.name }}</td>
+                <td>{{ instance.name }}</td>
               </tr>
               <tr>
                 <td>Last update</td>
-                <td>{{ configuration.updated }}</td>
+                <td>{{ instance.updated }}</td>
               </tr>
               <tr>
                 <td>Utilization</td>
@@ -45,14 +45,14 @@
               <strong>Comments</strong>
             </div>
             <div class="card-body">
-              {% if configuration.comments %}
-              {{ configuration.comments|markdown }}
+              {% if instance.comments %}
+              {{ instance.comments|markdown }}
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}
             </div>
           </div>
-          {% include 'utils/includes/tags_card.html' with tags=configuration.tags.all url='peering:configuration_list' %}
+          {% include 'utils/includes/tags_card.html' with tags=instance.tags.all url='peering:configuration_list' %}
         </div>
       </div>
       <div class="row">
@@ -66,7 +66,7 @@
                 </button>
               </div>
             </div>
-            <pre class="pre-scrollable">{{ configuration.template }}</pre>
+            <pre class="pre-scrollable">{{ instance.template }}</pre>
             <div class="card-footer">
               <i class="fa fa-info-circle"></i>
               <a href="https://peering-manager.readthedocs.io/en/latest/templates/" target="_blank">Jinja2 template</a> syntax
@@ -95,7 +95,7 @@
       $('#preview').click(function() {
         $.ajax({
           method: 'get',
-          url: "{% url 'peering-api:configuration-render-preview' pk=configuration.pk %}",
+          url: "{% url 'peering-api:configuration-render-preview' pk=instance.pk %}",
           data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
           beforeSend: function() {
             $('#preview').attr('disabled', 'disabled')

@@ -2,19 +2,19 @@
 {% load helpers %}
 {% block actions %}
 {% if perms.peering.change_community %}
-<a href="{% url 'peering:community_edit' pk=community.pk %}" class="btn btn-warning">
+<a href="{% url 'peering:community_edit' pk=instance.pk %}" class="btn btn-warning">
   <i class="fas fa-edit"></i> Edit
 </a>
 {% endif %}
 {% if perms.peering.delete_community %}
-<a href="{% url 'peering:community_delete' pk=community.pk %}" class="btn btn-danger">
+<a href="{% url 'peering:community_delete' pk=instance.pk %}" class="btn btn-danger">
   <i class="fas fa-trash"></i> Delete
 </a>
 {% endif %}
 {% endblock %}
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'peering:community_list' %}">Communities</a></li>
-<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ community }}{% endblock %}</li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
       <div class="row">
@@ -26,20 +26,20 @@
             <table class="card-body table table-hover attr-table mb-0">
               <tr>
                 <td>Name</td>
-                <td>{{ community.name }}</td>
+                <td>{{ instance.name }}</td>
               </tr>
               <tr>
                 <tr>
                   <td>Slug</td>
-                  <td>{{ community.slug }}</td>
+                  <td>{{ instance.slug }}</td>
                 </tr>
                 <tr>
                 <td>Value</td>
-                <td><code>{{ community.value }}</code></td>
+                <td><code>{{ instance.value }}</code></td>
               </tr>
               <tr>
                 <td>Type</td>
-                <td>{{ community.get_type_html }}</td>
+                <td>{{ instance.get_type_html }}</td>
               </tr>
             </table>
           </div>
@@ -50,14 +50,14 @@
               <strong>Comments</strong>
             </div>
             <div class="card-body">
-              {% if community.comments %}
-              {{ community.comments|markdown }}
+              {% if instance.comments %}
+              {{ instance.comments|markdown }}
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}
             </div>
           </div>
-          {% include 'utils/includes/tags_card.html' with tags=community.tags.all url='peering:community_list' %}
+          {% include 'utils/includes/tags_card.html' with tags=instance.tags.all url='peering:community_list' %}
         </div>
       </div>
 {% endblock %}

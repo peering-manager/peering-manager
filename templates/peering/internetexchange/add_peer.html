@@ -9,7 +9,7 @@
             {{ field }}
             {% endfor %}
             <div class="card my-2">
-              <div class="card-header">{% block title %}Add AS{{ network.asn }} as peer on {{ internet_exchange }}{% endblock %}</div>
+              <div class="card-header">{% block title %}Add AS{{ network.asn }} as peer on {{ instance }}{% endblock %}</div>
               <div class="card-body">
                 {% if not known_autonomous_system %}
                 <p>The AS{{ network.asn }} defined by the following details will be recorded as a known AS.<p>
@@ -45,7 +45,7 @@
                 {% endif %}
                 <div class="text-right">
                   <button type="submit" class="btn btn-primary">Add Peer</button>
-                  <a class="btn btn-secondary" href="{{ internet_exchange.get_peer_list_url }}">Cancel</a>
+                  <a class="btn btn-secondary" href="{{ instance.get_peer_list_url }}">Cancel</a>
                 </div>
               </div>
             </div>

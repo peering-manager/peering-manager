@@ -1,4 +1,4 @@
-{% extends 'peering/as/_base.html' %}
+{% extends 'peering/autonomoussystem/_base.html' %}
 {% load helpers %}
 {% load form_helpers %}
 {% block subcontent %}
@@ -42,7 +42,7 @@
       $("#id_email").on("select2:select", function(e) {
         $.ajax({
           method: "post",
-          url: "{% url 'peering-api:autonomoussystem-generate-email' pk=autonomous_system.pk %}",
+          url: "{% url 'peering-api:autonomoussystem-generate-email' pk=instance.pk %}",
           data: {
             csrfmiddlewaretoken: "{{ csrf_token }}",
             email: e.params.data["id"],

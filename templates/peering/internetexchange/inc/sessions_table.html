@@ -1,17 +1,17 @@
 {% extends 'utils/object_list.html' %}
 {% block extra_buttons %}
-{% if perms.peering.change_internetexchangepeeringsession and internet_exchange.check_bgp_session_states and internet_exchange.router and internet_exchange.router.can_napalm_get_bgp_neighbors_detail %}
+{% if perms.peering.change_internetexchangepeeringsession and instance.check_bgp_session_states and instance.router and instance.router.can_napalm_get_bgp_neighbors_detail %}
 <button type="button" class="btn btn-sm btn-success" id="id_poll_session_states">
   <i class="fas fa-sync"></i> Poll States
 </button>
 {% endif %}
 {% if perms.peering.add_internetexchangepeeringsession %}
-{% if internet_exchange.router and internet_exchange.router.platform %}
+{% if instance.router and instance.router.platform %}
 <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#import_from_router">
   <i class="fas fa-upload"></i> Import from Router
 </button>
 {% endif %}
-<a href="{% url 'peering:internetexchangepeeringsession_add' %}?internet_exchange={{ internet_exchange.pk }}&return_url={{ internet_exchange.get_peering_sessions_list_url }}" class="btn btn-sm btn-primary">
+<a href="{% url 'peering:internetexchangepeeringsession_add' %}?instance={{ instance.pk }}&return_url={{ instance.get_peering_sessions_list_url }}" class="btn btn-sm btn-primary">
   <i class="fas fa-plus"></i> Add
 </a>
 {% endif %}

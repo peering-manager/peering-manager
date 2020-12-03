@@ -81,6 +81,40 @@ class ReturnURLMixin(object):
         return reverse("home")
 
 
+class DetailsView(PermissionRequiredMixin, View):
+    """
+    Generic view to display a single object.
+    """
+
+    queryset = None
+
+    def get_template_name(self):
+        """
+        Tries to find a default template if none is given.
+        """
+        if hasattr(self, "template_name"):
+            return self.template_name
+
+        model_meta = self.queryset.model._meta
+        return f"{model_meta.app_label}/{model_meta.model_name}/details.html"
+
+    def get_context(self, request, **kwargs):
+        """
+        Returns the view's context. When overriding this function, make sure to return
+        a dictionary with at least a `instance` key with the value passed in
+        parameter.
+        """
+        return {"instance": get_object_or_404(self.queryset, **kwargs)}
+
+    def get(self, request, *args, **kwargs):
+        """
+        Generic GET handler looking for an object by PK.
+        """
+        return render(
+            request, self.get_template_name(), self.get_context(request, **kwargs)
+        )
+
+
 class AddOrEditView(ReturnURLMixin, View):
     model = None
     form = None

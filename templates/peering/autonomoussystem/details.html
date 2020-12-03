@@ -1,4 +1,4 @@
-{% extends 'peering/as/_base.html' %}
+{% extends 'peering/autonomoussystem/_base.html' %}
 {% load helpers %}
 {% block subcontent %}
       <div class="row">
@@ -7,7 +7,7 @@
             <div class="card-header">
               <strong>AS Details</strong>
               <div class="float-right">
-                <a class="btn btn-xs btn-primary" href="{{ settings.PEERINGDB }}{{ autonomous_system.asn }}" target="_blank">
+                <a class="btn btn-xs btn-primary" href="{{ settings.PEERINGDB }}{{ instance.asn }}" target="_blank">
                   <i class="fas fa-external-link-alt"></i> PeeringDB
                 </a>
                 {% if perms.peering.change_autonomoussystem %}
@@ -20,27 +20,27 @@
             <table class="card-body table table-hover attr-table mb-0">
               <tr>
                 <td>ASN</td>
-                <td>{{ autonomous_system.asn }}</td>
+                <td>{{ instance.asn }}</td>
               </tr>
               <tr>
                 <td>Name</td>
-                <td>{{ autonomous_system.name }}</td>
+                <td>{{ instance.name }}</td>
               </tr>
-              <tr{% if autonomous_system.irr_as_set_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
+              <tr{% if instance.irr_as_set_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
                 <td>IRR AS-SET</td>
-                <td id="id_irr_as_set">{{ autonomous_system.irr_as_set }}</td>
+                <td id="id_irr_as_set">{{ instance.irr_as_set }}</td>
               </tr>
-              <tr{% if autonomous_system.ipv6_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
+              <tr{% if instance.ipv6_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
                 <td>IPv6 Max Prefixes</td>
-                <td id="id_ipv6_max_prefixes">{{ autonomous_system.ipv6_max_prefixes }}</td>
+                <td id="id_ipv6_max_prefixes">{{ instance.ipv6_max_prefixes }}</td>
               </tr>
-              <tr{% if autonomous_system.ipv4_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
+              <tr{% if instance.ipv4_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
                 <td>IPv4 Max Prefixes</td>
-                <td id="id_ipv4_max_prefixes">{{ autonomous_system.ipv4_max_prefixes }}</td>
+                <td id="id_ipv4_max_prefixes">{{ instance.ipv4_max_prefixes }}</td>
               </tr>
               <tr>
                 <td>Affiliated</td>
-                <td>{{ autonomous_system.affiliated|boolean_as_icon }}</td>
+                <td>{{ instance.affiliated|boolean_as_icon }}</td>
               </tr>
             </table>
           </div>
@@ -50,8 +50,8 @@
               <tr>
                 <td>Contact Name</td>
                 <td>
-                  {% if autonomous_system.contact_name %}
-                  {{ autonomous_system.contact_name }}
+                  {% if instance.contact_name %}
+                  {{ instance.contact_name }}
                   {% else %}
                   <span class="text-muted">&mdash;</span>
                   {% endif %}
@@ -60,8 +60,8 @@
               <tr>
                 <td>Contact Phone</td>
                 <td>
-                  {% if autonomous_system.contact_phone %}
-                  <a href="tel:{{ autonomous_system.contact_phone }}">{{ autonomous_system.contact_phone }}</a>
+                  {% if instance.contact_phone %}
+                  <a href="tel:{{ instance.contact_phone }}">{{ instance.contact_phone }}</a>
                   {% else %}
                   <span class="text-muted">&mdash;</span>
                   {% endif %}
@@ -70,8 +70,8 @@
               <tr>
                 <td>Contact E-Mail</td>
                 <td>
-                  {% if autonomous_system.contact_email %}
-                  <a href="mailto:{{ autonomous_system.contact_email }}">{{ autonomous_system.contact_email }}</a>
+                  {% if instance.contact_email %}
+                  <a href="mailto:{{ instance.contact_email }}">{{ instance.contact_email }}</a>
                   {% else %}
                   <span class="text-muted">&mdash;</span>
                   {% endif %}
@@ -87,7 +87,7 @@
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <a href="{{ internetexchange_details.internet_exchange.get_absolute_url }}">{{ internetexchange_details.internet_exchange }}</a>
                 {% if internetexchange_details.has_potential_ix_peering_sessions %}
-                <a href="{% url 'peering:internetexchange_peers' slug=internetexchange_details.internet_exchange.slug %}?q=&network__asn={{ autonomous_system.asn }}" class="text-warning" data-toggle="tooltip" data-placement="left" title="Potential Peering Sessions"><i class="fas fa-exclamation-circle"></i></a>
+                <a href="{% url 'peering:internetexchange_peers' slug=internetexchange_details.internet_exchange.slug %}?q=&network__asn={{ instance.asn }}" class="text-warning" data-toggle="tooltip" data-placement="left" title="Potential Peering Sessions"><i class="fas fa-exclamation-circle"></i></a>
                 {% endif %}
               </li>
               {% endfor %}
@@ -100,14 +100,14 @@
             <div class="card-header">
               <strong>Routing Policies</strong>
             </div>
-            {% if autonomous_system.export_routing_policies.all.count > 0 or autonomous_system.import_routing_policies.all.count > 0 %}
+            {% if instance.export_routing_policies.all.count > 0 or instance.import_routing_policies.all.count > 0 %}
             <ul class="list-group list-group-flush">
-            {% for routing_policy in autonomous_system.export_routing_policies.all %}
+            {% for routing_policy in instance.export_routing_policies.all %}
               <li class="list-group-item">
                 {{ routing_policy|as_link }} <span class="float-right">{{ routing_policy.get_type_html }}</span>
               </li>
             {% endfor %}
-            {% for routing_policy in autonomous_system.import_routing_policies.all %}
+            {% for routing_policy in instance.import_routing_policies.all %}
               <li class="list-group-item">
                 {{ routing_policy|as_link }} <span class="float-right">{{ routing_policy.get_type_html }}</span>
               </li>
@@ -124,14 +124,14 @@
               <strong>Comments</strong>
             </div>
             <div class="card-body">
-              {% if autonomous_system.comments %}
-              {{ autonomous_system.comments|markdown }}
+              {% if instance.comments %}
+              {{ instance.comments|markdown }}
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}
             </div>
           </div>
-          {% include 'utils/includes/tags_card.html' with tags=autonomous_system.tags.all url='peering:autonomoussystem_list' %}
+          {% include 'utils/includes/tags_card.html' with tags=instance.tags.all url='peering:autonomoussystem_list' %}
         </div>
       </div>
 {% endblock %}
@@ -147,7 +147,7 @@
         $.ajax({
           method: "post",
           data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
-          url: "{% url 'peering-api:autonomoussystem-synchronize-with-peeringdb' pk=autonomous_system.pk %}",
+          url: "{% url 'peering-api:autonomoussystem-synchronize-with-peeringdb' pk=instance.pk %}",
           beforeSend: function() {
             $('#synchronize-with-peeringdb').attr('disabled', 'disabled').removeClass('btn-primary').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
           },
@@ -157,7 +157,7 @@
         }).done(function() {
           $.ajax({
             method: "get",
-            url: "{% url 'peering-api:autonomoussystem-detail' pk=autonomous_system.pk %}",
+            url: "{% url 'peering-api:autonomoussystem-detail' pk=instance.pk %}",
           }).done(function(response) {
             var changedFields = [];
             if (response['irr_as_set_peeringdb_sync']) {
