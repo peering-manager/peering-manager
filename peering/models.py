@@ -56,13 +56,13 @@ class AbstractGroup(ChangeLoggedModel, TaggableModel, TemplateModel):
         ordering = ["name", "slug"]
 
     def get_peering_sessions_list_url(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def get_peering_sessions(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def poll_peering_sessions(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
@@ -99,11 +99,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     @property
     def can_receive_email(self):
-        if self.contact_email:
-            return True
-        if self.get_peeringdb_contacts():
-            return True
-        return False
+        return "" != self.contact_email or self.get_peeringdb_contacts()
 
     @staticmethod
     def create_from_peeringdb(asn):

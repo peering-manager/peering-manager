@@ -3,7 +3,7 @@ from json import dumps as json_dumps
 
 from django import template
 from django.conf import settings
-from django.utils.html import strip_tags
+from django.utils.html import escape, strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown as md
 
@@ -21,7 +21,7 @@ def boolean_as_icon(value):
 
 @register.filter()
 def as_link(value):
-    return mark_safe('<a href="{}">{}</a>'.format(value.get_absolute_url(), value))
+    return mark_safe(f'<a href="{value.get_absolute_url()}">{value}</a>')
 
 
 @register.filter()
@@ -40,7 +40,7 @@ def markdown(value):
     """
     # Strip HTML tags and render Markdown
     html = md(strip_tags(value), extensions=["fenced_code", "tables"])
-    return mark_safe(html)
+    return mark_safe(escape(html))
 
 
 @register.filter()
