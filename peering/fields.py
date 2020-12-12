@@ -6,7 +6,14 @@ from .constants import ASN_MAX, ASN_MIN
 
 class ASNField(models.BigIntegerField):
     description = "32-bit ASN field"
-    default_validators = [MinValueValidator(ASN_MIN), MaxValueValidator(ASN_MAX)]
+
+    def __init__(self, *args, **kwargs):
+        allow_zero = kwargs.pop("allow_zero", False)
+        self.default_validators = [
+            MinValueValidator(ASN_MIN if not allow_zero else 0),
+            MaxValueValidator(ASN_MAX),
+        ]
+        super().__init__(*args, **kwargs)
 
     def formfield(self, **kwargs):
         defaults = {"min_value": ASN_MIN, "max_value": ASN_MAX}
