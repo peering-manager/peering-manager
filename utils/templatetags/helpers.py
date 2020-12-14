@@ -33,16 +33,6 @@ def contains(value, arg):
     return any(s in value for s in arg.split(","))
 
 
-@register.filter(is_safe=True)
-def markdown(value):
-    """
-    Render text as Markdown.
-    """
-    # Strip HTML tags and render Markdown
-    html = md(strip_tags(value), extensions=["fenced_code", "tables"])
-    return mark_safe(escape(html))
-
-
 @register.filter()
 def notcontains(value, arg):
     """
@@ -53,6 +43,18 @@ def notcontains(value, arg):
         if s in value:
             return False
     return True
+
+
+@register.filter(is_safe=True)
+def markdown(value, escape_html=False):
+    """
+    Render text as Markdown.
+    """
+    # Strip HTML tags and render Markdown
+    html = md(strip_tags(value), extensions=["fenced_code", "tables"])
+    if escape_html:
+        html = escape(html)
+    return mark_safe(html)
 
 
 @register.simple_tag()
