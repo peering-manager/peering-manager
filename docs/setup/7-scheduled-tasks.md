@@ -7,8 +7,9 @@ Python virtual environment if you have one for Peering Manager (you should).
 
 Since it is based on the [PeeringDB](https://www.peeringdb.com) API, querying
 these API can take quite a lot of time depending of the data that is needed to
-be retrieved. To avoid such time loss, Peering Manager is able to cached some
-of this data in its local database.
+be retrieved. To avoid such time loss, Peering Manager is able to cache some of
+this data in its local database. This is required if you want to use PeeringDB
+data inside Peering Manager.
 
 ## Caching in the Local Database
 
@@ -57,16 +58,6 @@ have to be set in a reachable router.
 # python3 manage.py poll_peering_sessions --all # can be -a (--all),
                                                 # -g (--bgp-groups) or
                                                 # -i (--internet-exchanges)
-```
-
-## Check for available IX Peering Sessions
-
-For each Internet exchange configured, Peering Manager will identify a list of
-peering sessions that are available based on the peering sessions that are
-already configured.
-
-```no-highlight
-# python3 manage.py check_for_ix_peering_sessions
 ```
 
 ## Storing IRR AS-SET Prefixes

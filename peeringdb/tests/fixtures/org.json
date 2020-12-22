@@ -1,0 +1,62 @@
+{
+  "data": [{
+    "id": 376,
+    "name": "BCE",
+    "website": "",
+    "notes": "",
+    "address1": "",
+    "address2": "",
+    "city": "",
+    "country": "",
+    "state": "",
+    "zipcode": "",
+    "created": "2010-07-29T00:00:00Z",
+    "updated": "2016-03-14T21:55:27Z",
+    "status": "ok"
+  }, {
+    "id": 625,
+    "name": "LU-CIX Management G.I.E.",
+    "website": "http://www.lu-cix.lu",
+    "notes": "",
+    "address1": "4, rue A. Graham Bell",
+    "address2": "",
+    "city": "Bettembourg",
+    "country": "LU",
+    "state": "",
+    "zipcode": "L-3235",
+    "created": "2010-07-29T00:00:00Z",
+    "updated": "2019-07-04T09:30:12Z",
+    "status": "ok"
+  }, {
+    "id": 2930,
+    "name": "LuxConnect",
+    "website": "https://www.luxconnect.lu",
+    "notes": "",
+    "address1": "4, rue A. Graham Bell",
+    "address2": "",
+    "city": "Bettembourg",
+    "country": "LU",
+    "state": "",
+    "zipcode": "L-3235",
+    "created": "2010-10-08T00:00:00Z",
+    "updated": "2017-03-28T12:36:58Z",
+    "status": "ok"
+  }, {
+    "id": 6428,
+    "name": "Fondation RESTENA",
+    "website": "",
+    "notes": "",
+    "address1": "",
+    "address2": "",
+    "city": "",
+    "country": "",
+    "state": "",
+    "zipcode": "",
+    "created": "2012-06-22T07:30:48Z",
+    "updated": "2016-03-14T20:58:57Z",
+    "status": "ok"
+  }],
+  "meta": {
+    "generated": 1608388871.484
+  }
+}

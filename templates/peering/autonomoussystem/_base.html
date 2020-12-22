@@ -35,14 +35,15 @@
           </a>
         </li>
         {% endif %}
-        {% if instance.potential_internet_exchange_peering_sessions|length > 0 %}
+        {% missing_sessions instance as has_missing_sessions %}
+        {% if has_missing_sessions %}
         <li class="nav-item">
           <a class="nav-link{% if request.path|contains:'/peers/' %} active{% endif %}" href="{% url 'peering:autonomoussystem_peers' asn=instance.asn %}">
             <i class="fas fa-link"></i> Available Sessions
           </a>
         </li>
         {% endif %}
-        {% if instance.get_peeringdb_contacts|length > 0 %}
+        {% if instance.peeringdb_contacts|length > 0 %}
         <li class="nav-item">
           <a class="nav-link{% if request.path|contains:'/contacts/' %} active{% endif %}" href="{% url 'peering:autonomoussystem_contacts' asn=instance.asn %}">
             <i class="fas fa-address-book"></i> PeeringDB Contacts

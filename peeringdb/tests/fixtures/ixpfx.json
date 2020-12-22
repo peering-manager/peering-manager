@@ -1,23 +1,24 @@
 {
-  "meta": {},
-  "data": [
-    {
-      "id": 1,
-      "ixlan_id": 1,
-      "protocol": "IPv6",
-      "prefix": "2001:db8:1337::/64",
-      "created": "2011-04-19T00:00:00Z",
-      "updated": "2016-03-14T21:55:43Z",
-      "status": "ok"
-    },
-    {
-      "id": 2,
-      "ixlan_id": 1,
-      "protocol": "IPv4",
-      "prefix": "203.0.113.0/24",
-      "created": "2014-10-16T00:00:00Z",
-      "updated": "2016-03-14T21:33:56Z",
-      "status": "ok"
-    }
-  ]
+  "data": [{
+    "id": 932,
+    "ixlan_id": 297,
+    "protocol": "IPv4",
+    "prefix": "188.93.170.0/23",
+    "in_dfz": true,
+    "created": "2016-10-23T14:19:48Z",
+    "updated": "2020-08-26T05:23:09Z",
+    "status": "ok"
+  }, {
+    "id": 933,
+    "ixlan_id": 297,
+    "protocol": "IPv6",
+    "prefix": "2001:7f8:4c::/64",
+    "in_dfz": true,
+    "created": "2016-10-23T14:20:07Z",
+    "updated": "2020-08-26T05:23:09Z",
+    "status": "ok"
+  }],
+  "meta": {
+    "generated": 1608389831.406
+  }
 }

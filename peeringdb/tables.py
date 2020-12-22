@@ -1,11 +1,12 @@
 import django_tables2 as tables
 
-from utils.tables import BaseTable, SelectColumn
+from utils.tables import ActionsColumn, BaseTable, BooleanColumn, SelectColumn
+from utils.templatetags.helpers import speed_for_human
 
-from .models import Contact, PeerRecord
+from .models import NetworkContact, NetworkIXLan
 
 
-class ContactTable(BaseTable):
+class NetworkContactTable(BaseTable):
     """
     Table for Contact lists
     """
@@ -15,101 +16,69 @@ class ContactTable(BaseTable):
     url = tables.Column(verbose_name="URL")
 
     class Meta(BaseTable.Meta):
-        model = Contact
+        model = NetworkContact
         fields = ("role", "name", "phone", "email", "url")
         default_columns = ("role", "name", "phone", "email")
 
 
-class PeerRecordTable(BaseTable):
+class NetworkIXLanTable(BaseTable):
     """
-    Table for PeerRecord lists
+    Table for Network IX LAN lists
     """
 
-    empty_text = "No available peers found."
+    empty_text = "No peers found."
     pk = SelectColumn()
-    asn = tables.Column(verbose_name="ASN", accessor="network__asn")
-    name = tables.Column(verbose_name="AS Name", accessor="network__name")
-    irr_as_set = tables.Column(
-        verbose_name="IRR AS-SET", accessor="network__irr_as_set", orderable=False
+    name = tables.Column(verbose_name="AS Name", accessor="net__name")
+    internet_exchange = tables.Column(
+        verbose_name="IX Name", accessor="ixlan__ix__name"
     )
-    ipv6_max_prefixes = tables.Column(
-        verbose_name="IPv6", accessor="network__info_prefixes6"
+    ipaddr6 = tables.Column("IPv6", accessor="ipaddr6__ip")
+    ipaddr4 = tables.Column("IPv4", accessor="ipaddr4__ip")
+    irr_as_set = tables.Column(verbose_name="IRR AS-SET", accessor="net__irr_as_set")
+    ipv6_max_prefix = tables.Column(
+        verbose_name="IPv6 Max Prefix", accessor="net__info_prefixes6"
     )
-    ipv4_max_prefixes = tables.Column(
-        verbose_name="IPv4", accessor="network__info_prefixes4"
+    ipv4_max_prefix = tables.Column(
+        verbose_name="IPv4 Max Prefix", accessor="net__info_prefixes4"
     )
-    ipv6_address = tables.Column(
-        verbose_name="IPv6 Address", accessor="network_ixlan__ipaddr6"
+    name = tables.Column(verbose_name="AS Name", accessor="net__name")
+    is_rs_peer = BooleanColumn(
+        verbose_name="On RS",
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
-    ipv4_address = tables.Column(
-        verbose_name="IPv4 Address", accessor="network_ixlan__ipaddr4"
+    operational = BooleanColumn(
+        verbose_name="Operational",
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
+    policy = tables.Column(verbose_name="Policy", accessor="net__policy_general")
 
     class Meta(BaseTable.Meta):
-        model = PeerRecord
+        model = NetworkIXLan
         fields = (
             "pk",
             "asn",
             "name",
+            "internet_exchange",
+            "ipaddr6",
+            "ipaddr4",
             "irr_as_set",
-            "ipv6_max_prefixes",
-            "ipv4_max_prefixes",
-            "ipv6_address",
-            "ipv4_address",
+            "ipv6_max_prefix",
+            "ipv4_max_prefix",
+            "is_rs_peer",
+            "speed",
+            "operational",
+            "policy",
         )
         default_columns = (
             "pk",
             "asn",
             "name",
-            "irr_as_set",
-            "ipv6_max_prefixes",
-            "ipv4_max_prefixes",
-            "ipv6_address",
-            "ipv4_address",
+            "internet_exchange",
+            "ipaddr6",
+            "ipaddr4",
+            "is_rs_peer",
+            "speed",
         )
 
-
-class ASPeerRecordTable(BaseTable):
-    """
-    Table for AS PeerRecord lists
-    """
-
-    empty_text = "No available peers found."
-    pk = SelectColumn()
-    ix = tables.Column(verbose_name="Internet Exchange", accessor="network_ixlan__name")
-    irr_as_set = tables.Column(
-        verbose_name="IRR AS-SET", accessor="network__irr_as_set", orderable=False
-    )
-    ipv6_max_prefixes = tables.Column(
-        verbose_name="IPv6", accessor="network__info_prefixes6"
-    )
-    ipv4_max_prefixes = tables.Column(
-        verbose_name="IPv4", accessor="network__info_prefixes4"
-    )
-    ipv6_address = tables.Column(
-        verbose_name="IPv6 Address", accessor="network_ixlan__ipaddr6"
-    )
-    ipv4_address = tables.Column(
-        verbose_name="IPv4 Address", accessor="network_ixlan__ipaddr4"
-    )
-
-    class Meta(BaseTable.Meta):
-        model = PeerRecord
-        fields = (
-            "pk",
-            "ix",
-            "irr_as_set",
-            "ipv6_max_prefixes",
-            "ipv4_max_prefixes",
-            "ipv6_address",
-            "ipv4_address",
-        )
-        default_columns = (
-            "pk",
-            "ix",
-            "irr_as_set",
-            "ipv6_max_prefixes",
-            "ipv4_max_prefixes",
-            "ipv6_address",
-            "ipv4_address",
-        )
+    def render_speed(self, value):
+        return speed_for_human(value)

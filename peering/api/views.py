@@ -28,7 +28,7 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from peeringdb.api.serializers import PeerRecordSerializer
+from peeringdb.api.serializers import NetworkIXLanSerializer
 from utils.api import ModelViewSet, ServiceUnavailable, StaticChoicesViewSet
 from utils.functions import enqueue_background_task
 
@@ -73,7 +73,7 @@ class AutonomousSystemViewSet(ModelViewSet):
             Response({"status": "synchronized"})
             if success
             else Response(
-                {"error": "peeringdb record not found"},
+                {"status": "error", "error": "peeringdb network not found"},
                 status=status.HTTP_404_NOT_FOUND,
             )
         )
@@ -82,11 +82,11 @@ class AutonomousSystemViewSet(ModelViewSet):
     def get_irr_as_set_prefixes(self, request, pk=None):
         return Response({"prefixes": self.get_object().get_irr_as_set_prefixes()})
 
-    @action(detail=True, methods=["get"], url_path="common-internet-exchanges")
-    def common_internet_exchanges(self, request, pk=None):
+    @action(detail=True, methods=["get"], url_path="shared-internet-exchanges")
+    def shared_internet_exchanges(self, request, pk=None):
         try:
             affiliated = AutonomousSystem.objects.get(
-                pk=request.user.preferences.get("context.asn")
+                pk=request.user.preferences.get("context.as")
             )
         except AutonomousSystem.DoesNotExist:
             affiliated = None
@@ -94,8 +94,8 @@ class AutonomousSystemViewSet(ModelViewSet):
         if affiliated:
             return Response(
                 {
-                    "common-internet-exchanges": InternetExchangeNestedSerializer(
-                        self.get_object().get_common_internet_exchanges(affiliated),
+                    "shared-internet-exchanges": InternetExchangeNestedSerializer(
+                        self.get_object().get_shared_internet_exchanges(affiliated),
                         many=True,
                         context={"request": request},
                     ).data
@@ -103,15 +103,6 @@ class AutonomousSystemViewSet(ModelViewSet):
             )
 
         raise ServiceUnavailable("User did not choose an affiliated AS.")
-
-    @action(
-        detail=True,
-        methods=["post", "put", "patch"],
-        url_path="find-potential-ix-peering-sessions",
-    )
-    def find_potential_ix_peering_sessions(self, request, pk=None):
-        self.get_object().find_potential_ix_peering_sessions()
-        return Response({"status": "done"})
 
     @action(detail=True, methods=["post"], url_path="generate-email")
     def generate_email(self, request, pk=None):
@@ -189,6 +180,14 @@ class InternetExchangeViewSet(ModelViewSet):
     serializer_class = InternetExchangeSerializer
     filterset_class = InternetExchangeFilterSet
 
+    @action(detail=True, methods=["patch"], url_path="link-to-peeringdb")
+    def link_to_peeringdb(self, request, pk=None):
+        netixlan, ix = self.get_object().link_to_peeringdb()
+        if not netixlan and not ix:
+            raise ServiceUnavailable("Unable to link to PeeringDB.")
+
+        return Response({"sucess": True})
+
     @action(detail=True, methods=["get"], url_path="available-peers")
     def available_peers(self, request, pk=None):
         available_peers = self.get_object().get_available_peers()
@@ -196,7 +195,7 @@ class InternetExchangeViewSet(ModelViewSet):
             raise ServiceUnavailable("No peers found.")
 
         return Response(
-            {"available-peers": PeerRecordSerializer(available_peers, many=True).data}
+            {"available-peers": NetworkIXLanSerializer(available_peers, many=True).data}
         )
 
     @action(detail=True, methods=["post"], url_path="import-peering-sessions")

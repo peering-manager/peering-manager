@@ -23,14 +23,14 @@ class UserViewSet(ModelViewSet):
     serializer_class = UserSerializer
     filterset_class = UserFilterSet
 
-    @action(detail=True, methods=["patch"], url_path="set-context-asn")
-    def set_context_asn(self, request, pk=None):
+    @action(detail=True, methods=["patch"], url_path="set-context-as")
+    def set_context_as(self, request, pk=None):
         preferences = self.get_object().preferences
         try:
             autonomous_system = AutonomousSystem.objects.get(
                 pk=int(request.data["as_id"]), affiliated=True
             )
-            preferences.set("context.asn", autonomous_system.pk, commit=True)
+            preferences.set("context.as", autonomous_system.pk, commit=True)
         except AutonomousSystem.DoesNotExist:
             return Response(
                 {

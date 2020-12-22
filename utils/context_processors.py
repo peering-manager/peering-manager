@@ -6,16 +6,16 @@ from peering.models import AutonomousSystem
 def affiliated_autonomous_systems(request):
     if request.user.is_authenticated:
         try:
-            context_asn = AutonomousSystem.objects.get(
-                pk=request.user.preferences.get("context.asn")
+            context_as = AutonomousSystem.objects.get(
+                pk=request.user.preferences.get("context.as")
             )
         except AutonomousSystem.DoesNotExist:
-            context_asn = None
+            context_as = None
         return {
             "affiliated_autonomous_systems": AutonomousSystem.objects.filter(
                 affiliated=True
             ),
-            "context_asn": context_asn,
+            "context_as": context_as,
         }
     return {}
 

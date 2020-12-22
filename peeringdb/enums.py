@@ -1,0 +1,120 @@
+from django.db import models
+
+
+class Media(models.TextChoices):
+    ETHERNET = "Ethernet"
+    ATM = "ATM"
+    MULTIPLE = "Multiple"
+
+
+class POCRole(models.TextChoices):
+    ABUSE = "Abuse"
+    MAINTENANCE = "Maintenance"
+    POLICY = "Policy"
+    TECHNICAL = "Technical"
+    NOC = "NOC", "NOC"
+    PUBLIC_RELATIONS = "Public Relations"
+    SALES = "Sales"
+
+
+class GeneralPolicy(models.TextChoices):
+    OPEN = "Open"
+    SELECTIVE = "Selective"
+    RESTRICTIVE = "Restrictive"
+    NO = "No"
+
+
+class LocationsPolicy(models.TextChoices):
+    NOT_REQUIRED = "Not Required"
+    PREFERRED = "Preferred"
+    REQUIRED_US = "Required - US"
+    REQUIRED_EU = "Required - EU"
+    REQUIRED_INT = "Required - International"
+
+
+class ContractsPolicy(models.TextChoices):
+    NOT_REQUIRED = "Not Required"
+    PRIVATE_ONLY = "Private Only"
+    REQUIRED = "Required"
+
+
+class Protocol(models.TextChoices):
+    IPV4 = "IPv4"
+    IPV6 = "IPv6"
+
+
+class Ratio(models.TextChoices):
+    NOT_DISCLOSED = "", "Not Disclosed"
+    NOT_DISCLOSED_BIS = "Not Disclosed"
+    HEAVY_OUTBOUND = "Heavy Outbound"
+    MOSTLY_OUTBOUND = "Mostly Outbound"
+    BALANCED = "Balanced"
+    MOSTLY_INBOUND = "Mostly Inbound"
+    HEAVY_INBOUND = "Heavy Inbound"
+
+
+class Region(models.TextChoices):
+    NORTH_AMERICA = "North America"
+    ASIA_PACIFIC = "Asia Pacific"
+    EUROPE = "Europe"
+    SOUTH_AMERICA = "South America"
+    AFRICA = "Africa"
+    AUSTRALIA = "Australia"
+    MIDDLE_EAST = "Middle East"
+
+
+class Scope(models.TextChoices):
+    NOT_DISCLOSED = "", "Not Disclosed"
+    NOT_DISCLOSED_BIS = "Not Disclosed"
+    REGIONAL = "Regional"
+    NORTH_AMERICA = "North America"
+    ASIA_PACIFIC = "Asia Pacific"
+    EUROPE = "Europe"
+    SOUTH_AMERICA = "South America"
+    AFRICA = "Africa"
+    AUSTRALIA = "Australia"
+    MIDDLE_EAST = "Middle East"
+    GLOBAL = "Global"
+
+
+class Traffic(models.TextChoices):
+    NOT_DISCLOSED = "", "Not Disclosed"
+    MBPS_20 = "0-20Mbps"
+    MBPS_100 = "20-100Mbps"
+    GBPS_1 = "100-1000Mbps"
+    GBPS_5 = "1-5Gbps"
+    GBPS_10 = "5-10Gbps"
+    GBPS_20 = "10-20Gbps"
+    GBPS_50 = "20-50Gbps"
+    GBPS_100 = "50-100Gbps"
+    GBPS_200 = "100-200Gbps"
+    GBPS_300 = "200-300Gbps"
+    GBPS_500 = "300-500Gbps"
+    TBPS_1 = "500-1000Gbps"
+    TBPS_5 = "1-5Tbps"
+    TBPS_10 = "5-10Tbps"
+    TBPS_20 = "10-20Tbps"
+    TBPS_50 = "20-50Tbps"
+    TBPS_100 = "50-100Tbps"
+    TBPS_100_PLUS = "100+Tbps"
+
+
+class NetType(models.TextChoices):
+    NOT_DISCLOSED = "", "Not Disclosed"
+    NOT_DISCLOSED_BIS = "Not Disclosed"
+    NSP = "NSP"
+    CONTENT = "Content"
+    CABLE_DSL_ISP = "Cable/DSL/ISP"
+    ENTREPRISE = "Enterprise"
+    EDUCATIONAL_RESEARCH = "Educational/Research"
+    NON_PROFIT = "Non-Profit"
+    ROUTE_SERVER = "Route Server"
+    NETWORK_SERVICES = "Network Services"
+    ROUTE_COLLECTOR = "Route Collector"
+    GOVERNMENT = "Government"
+
+
+class Visibility(models.TextChoices):
+    PRIVATE = "Private"
+    USERS = "Users"
+    PUBLIC = "Public"

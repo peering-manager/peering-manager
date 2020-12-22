@@ -1,0 +1,36 @@
+{
+  "data": [{
+    "id": 4840,
+    "org_id": 6428,
+    "name": "Fondation RESTENA",
+    "aka": "RESTENA",
+    "website": "https://www.restena.lu",
+    "asn": 2602,
+    "looking_glass": "https://lg.restena.lu/",
+    "route_server": "",
+    "irr_as_set": "AS-RESTENA",
+    "info_type": "Educational/Research",
+    "info_prefixes4": 10,
+    "info_prefixes6": 5,
+    "info_traffic": "10-20Gbps",
+    "info_ratio": "Mostly Inbound",
+    "info_scope": "Europe",
+    "info_unicast": true,
+    "info_multicast": false,
+    "info_ipv6": true,
+    "info_never_via_route_servers": false,
+    "notes": "",
+    "policy_url": "",
+    "policy_general": "Open",
+    "policy_locations": "Not Required",
+    "policy_ratio": false,
+    "policy_contracts": "Not Required",
+    "allow_ixp_update": false,
+    "created": "2012-06-22T07:30:48Z",
+    "updated": "2019-11-14T09:42:09Z",
+    "status": "ok"
+  }],
+  "meta": {
+    "generated": 1608389774.163
+  }
+}

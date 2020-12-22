@@ -56,18 +56,18 @@
               {% endif %}
             </table>
           </div>
-          {% if instance.peeringdb_id %}
+          {% if instance.linked_to_peeringdb %}
           <div class="card mb-2">
             <div class="card-header">
               <strong>IX Prefixes</strong>
             </div>
             <ul class="list-group list-group-flush">
-              {% for prefix in instance.get_prefixes %}
-              <li class="list-group-item">{{ prefix }}</li>
+              {% for ixlan_prefix in instance.get_prefixes %}
+              <li class="list-group-item">{{ ixlan_prefix.prefix }}</li>
               {% endfor %}
             </ul>
             <div class="card-footer">
-              <small><sup>1)</sup> These are the prefixes used to connect to the IX.
+              <small><sup>1)</sup> These are the prefixes used to connect to the IX network.
               {% if instance.router and instance.router.platform %}<br /><sup>2)</sup> They can be used to discover peering sessions already setup on the router.{% endif %}</small>
             </div>
           </div>

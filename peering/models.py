@@ -14,8 +14,8 @@ from jinja2 import Environment, TemplateSyntaxError
 from netfields import InetAddressField, NetManager
 
 from netbox.api import NetBox
-from peeringdb.http import PeeringDB
-from peeringdb.models import Network, NetworkIXLAN, PeerRecord
+from peeringdb.functions import get_ixlan_prefixes, get_shared_internet_exchanges
+from peeringdb.models import Network, NetworkContact, NetworkIXLan
 from utils.crypto.cisco import decrypt as cisco_decrypt
 from utils.crypto.cisco import encrypt as cisco_encrypt
 from utils.crypto.cisco import is_encrypted as cisco_is_encrypted
@@ -85,9 +85,6 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
     export_routing_policies = models.ManyToManyField(
         "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
     )
-    potential_internet_exchange_peering_sessions = models.JSONField(
-        blank=True, null=True, editable=False
-    )
     prefixes = models.JSONField(blank=True, null=True, editable=False)
     affiliated = models.BooleanField(default=False)
 
@@ -101,36 +98,41 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
     def can_receive_email(self):
         return "" != self.contact_email or self.get_peeringdb_contacts()
 
-    @staticmethod
-    def create_from_peeringdb(asn):
-        peeringdb_network = PeeringDB().get_autonomous_system(asn)
-
-        if not peeringdb_network:
-            return None
-
-        try:
-            return AutonomousSystem.objects.get(asn=peeringdb_network.asn)
-        except AutonomousSystem.DoesNotExist:
-            values = {
-                "asn": peeringdb_network.asn,
-                "name": peeringdb_network.name,
-                "irr_as_set": peeringdb_network.irr_as_set,
-                "ipv6_max_prefixes": peeringdb_network.info_prefixes6,
-                "ipv4_max_prefixes": peeringdb_network.info_prefixes4,
-            }
-            autonomous_system = AutonomousSystem(**values)
-            autonomous_system.save()
-
-        return autonomous_system
-
-    def get_absolute_url(self):
-        return reverse("peering:autonomoussystem_details", kwargs={"asn": self.asn})
-
-    def get_peeringdb_network(self):
+    @property
+    def peeringdb_network(self):
         try:
             return Network.objects.get(asn=self.asn)
         except Network.DoesNotExist:
             return None
+
+    @property
+    def peeringdb_contacts(self):
+        if self.peeringdb_network:
+            return NetworkContact.objects.filter(net=self.peeringdb_network)
+        return []
+
+    @staticmethod
+    def create_from_peeringdb(asn):
+        try:
+            network = Network.objects.get(asn=asn)
+        except Network.DoesNotExist:
+            return None
+
+        try:
+            return AutonomousSystem.objects.get(asn=network.asn)
+        except AutonomousSystem.DoesNotExist:
+            return AutonomousSystem.objects.create(
+                **{
+                    "asn": network.asn,
+                    "name": network.name,
+                    "irr_as_set": network.irr_as_set,
+                    "ipv6_max_prefixes": network.info_prefixes6,
+                    "ipv4_max_prefixes": network.info_prefixes4,
+                }
+            )
+
+    def get_absolute_url(self):
+        return reverse("peering:autonomoussystem_details", kwargs={"asn": self.asn})
 
     def get_internet_exchange_peering_sessions_list_url(self):
         return reverse(
@@ -155,138 +157,73 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         return internet_exchanges
 
-    def get_common_internet_exchanges(self, other):
+    def get_shared_internet_exchanges(self, other):
         """
-        Return all IX this AS has with the other one.
+        Returns all IX this AS has with the other one.
+        """
+        return InternetExchange.objects.filter(
+            peeringdb_ix__in=get_shared_internet_exchanges(self, other),
+            local_autonomous_system=other,
+        )
+
+    def get_missing_peering_sessions(self, other, internet_exchange=None):
+        """
+        Returns all missing peering sessions between this AS and the other one on a
+        given Internet Exchange. As we are relying on PeeringDB to discover sessions
+        there are no points in doing so if the IX is not linked to a PeeringDB record.
+
+        If the Internet Exchange is not specified then missing peering sessions will
+        be returned for all shared Internet Exchanges between this and the other AS.
         """
         if self == other:
-            # Both AS are the same, so obviously they have common IXPs
-            # Return an empty queryset because they are not point to have another
-            # result
-            return InternetExchange.objects.empty()
+            return NetworkIXLan.objects.none()
 
-        # Get common IX networks between us and the other AS
-        common = PeeringDB().get_common_ix_networks_for_asns(self.asn, other.asn)
-        return InternetExchange.objects.filter(
-            peeringdb_id__in=[us.ix_id for us, _ in common]
-        ).order_by("name", "slug")
+        filter = {"autonomous_system": self}
+        if internet_exchange:
+            filter["internet_exchange"] = internet_exchange
+        ip_sessions = [
+            str(s.ip_address)
+            for s in InternetExchangePeeringSession.objects.filter(**filter)
+        ]
 
-    def find_potential_ix_peering_sessions(self):
-        """
-        Saves an IP address list. Each IP address of the list is the address of a
-        potential peering session between this AS and the other on an Internet
-        Exchange.
-        """
-        # Potential IX peering sessions
-        potential_ix_peering_sessions = {}
-
-        for affiliated in AutonomousSystem.objects.filter(affiliated=True):
-            # Don't search for sessions between the same AS
-            if self == affiliated:
-                continue
-
-            # Get common IX networks between us and this AS
-            common = PeeringDB().get_common_ix_networks_for_asns(
-                self.asn, affiliated.asn
+        qs_filter = Q(asn=self.asn) & (
+            ~Q(ipaddr6__in=ip_sessions) | ~Q(ipaddr4__in=ip_sessions)
+        )
+        if internet_exchange:
+            qs_filter &= Q(ixlan=internet_exchange.peeringdb_netixlan.ixlan)
+        else:
+            qs_filter &= Q(
+                ixlan__in=[
+                    ix.peeringdb_netixlan.ixlan
+                    for ix in self.get_shared_internet_exchanges(other)
+                ]
             )
+        return NetworkIXLan.objects.filter(qs_filter)
 
-            # For each common networks take a look at it
-            for us, peer in common:
-                potential_ix_peering_sessions[affiliated.asn] = []
-
-                if peer.ipaddr6:
-                    potential_ix_peering_sessions[affiliated.asn].append(
-                        str(peer.ipaddr6)
-                    )
-                if peer.ipaddr4:
-                    potential_ix_peering_sessions[affiliated.asn].append(
-                        str(peer.ipaddr4)
-                    )
-
-                # Get all known sessions for this AS on the given IX
-                known_sessions = InternetExchangePeeringSession.objects.filter(
-                    autonomous_system=self,
-                    ip_address__in=potential_ix_peering_sessions[affiliated.asn],
-                )
-                # Check if peer IP addresses are known sessions
-                for peering_session in potential_ix_peering_sessions[affiliated.asn]:
-                    # Consider the session as not existing at first
-                    exists = False
-                    for known_session in known_sessions:
-                        if peering_session == known_session.ip_address:
-                            # If the IP is found, stop looking for the info and mark
-                            # it as the peering session as existing
-                            exists = True
-                            break
-
-                        if not exists:
-                            # If the IP address is not used in any peering sessions
-                            # append it, keep an eye on it
-                            potential_ix_peering_sessions[affiliated.asn].append(
-                                str(peering_session)
-                            )
-
-        # Only save the new potential IX peering session list if it has changed
-        if (
-            potential_ix_peering_sessions
-            != self.potential_internet_exchange_peering_sessions
-        ):
-            self.potential_internet_exchange_peering_sessions = (
-                potential_ix_peering_sessions
-            )
-        self.save()
-
-    def has_potential_ix_peering_sessions(
-        self, autonomous_system, internet_exchange=None
-    ):
-        """
-        Returns True if there are potential `InternetExchangePeeringSession` for this
-        `AutonomousSystem`. If the `internet_exchange` parameter is given, it will
-        only check for potential sessions in the given `InternetExchange`.
-        """
-        if self == autonomous_system:
-            return False
-
-        if (
-            self.potential_internet_exchange_peering_sessions is None
-            or autonomous_system.asn
-            not in self.potential_internet_exchange_peering_sessions
-        ):
-            # Fill in the potential IX sessions if it isn't initialized
-            self.find_potential_ix_peering_sessions()
-        if not internet_exchange:
-            return self.potential_internet_exchange_peering_sessions
-
-        for session in self.potential_internet_exchange_peering_sessions[
-            autonomous_system.asn
-        ]:
-            for prefix in internet_exchange.get_prefixes():
-                if ipaddress.ip_address(session) in ipaddress.ip_network(prefix):
-                    return True
-
-        return False
-
-    def get_common_internet_exchanges_and_sessions(self, affiliated):
+    def get_missing_peering_sessions_on_shared_internet_exchanges(self, other):
         """
         Returns a list of dictionaries, each containing an `InternetExchange` object
         and lists of IP addresses. These addresses are the ones with which peering
-        sessions have not been configured yet on the `InternetExchange`.
+        sessions have *not* been configured yet on the IX.
         """
         ix_and_sessions = []
 
-        if self == affiliated:
+        if self == other:
             return ix_and_sessions
 
-        for internet_exchange in self.get_common_internet_exchanges(affiliated):
+        for internet_exchange in self.get_shared_internet_exchanges(other):
             missing_sessions = {"ipv6": [], "ipv4": []}
-            for session in self.potential_internet_exchange_peering_sessions:
-                for prefix in internet_exchange.get_prefixes():
-                    if (
-                        session not in missing_sessions["ipv6"]
-                        and session not in missing_sessions["ipv4"]
+            for netixlan in self.get_missing_peering_sessions(other, internet_exchange):
+                # Check the NetIXLan's IP addresses for each version to see if a
+                # sessions already matches
+                for version in [6, 4]:
+                    ipaddr = getattr(netixlan, f"ipaddr{version}", None)
+                    if ipaddr and not InternetExchangePeeringSession.objects.filter(
+                        autonomous_system=self,
+                        internet_exchange=internet_exchange,
+                        ip_address=ipaddr,
                     ):
-                        if session in ipaddress.ip_network(prefix):
-                            missing_sessions[f"ipv{session.version}"].append(session)
+                        missing_sessions[f"ipv{version}"].append(ipaddr)
 
             ix_and_sessions.append(
                 {
@@ -303,59 +240,33 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         return ix_and_sessions
 
-    def get_available_sessions(self, affiliated):
-        if (
-            self == affiliated
-            or affiliated.asn not in self.potential_internet_exchange_peering_sessions
-        ):
-            return PeerRecord.objects.none()
-        if self.potential_internet_exchange_peering_sessions is None:
-            # Fill in the potential IX sessions if it isn't initialized
-            self.find_potential_ix_peering_sessions()
-        missing_sessions = self.potential_internet_exchange_peering_sessions[
-            affiliated.asn
-        ]
-
-        return (
-            PeerRecord.objects.filter(
-                (
-                    Q(network_ixlan__ipaddr6__in=missing_sessions)
-                    | Q(network_ixlan__ipaddr4__in=missing_sessions)
-                )
-            )
-            .prefetch_related("network")
-            .prefetch_related("network_ixlan")
-            .order_by("network_ixlan__name", "network_ixlan__ipaddr6")
-        )
-
     def synchronize_with_peeringdb(self):
         """
-        Synchronize AS properties with those found in PeeringDB.
+        Synchronizes AS properties with those found in PeeringDB.
         """
-        peeringdb_info = PeeringDB().get_autonomous_system(self.asn)
-
-        # No record found, nothing to sync
-        if not peeringdb_info:
+        network = self.peeringdb_network
+        if not network:
             return False
 
         if self.name_peeringdb_sync:
-            self.name = peeringdb_info.name
+            self.name = network.name
         if self.irr_as_set_peeringdb_sync:
-            self.irr_as_set = peeringdb_info.irr_as_set
+            self.irr_as_set = network.irr_as_set
         if self.ipv6_max_prefixes_peeringdb_sync:
-            self.ipv6_max_prefixes = peeringdb_info.info_prefixes6
+            self.ipv6_max_prefixes = network.info_prefixes6
         if self.ipv4_max_prefixes_peeringdb_sync:
-            self.ipv4_max_prefixes = peeringdb_info.info_prefixes4
+            self.ipv4_max_prefixes = network.info_prefixes4
 
-        # Save the new AS
-        self.save()
-
-        return True
+        try:
+            self.save()
+            return True
+        except Exception:
+            return False
 
     def retrieve_irr_as_set_prefixes(self):
         """
-        Return a prefix list for this AS' IRR AS-SET. If none is provided the function
-        will try to look for a prefix list based on the AS number.
+        Returns a prefix list for this AS' IRR AS-SET. If none is provided the
+        function will try to look for a prefix list based on the AS number.
 
         This function will actually retrieve prefixes from IRR online sources. It is
         expected to be slow due to network operations and depending on the size of the
@@ -380,7 +291,9 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         # If fallback is triggered or no prefixes found, try prefix lookup by ASN
         if fallback or not prefixes["ipv6"] and not prefixes["ipv4"]:
-            self.logger.debug("falling back to AS number lookup")
+            self.logger.debug(
+                f"falling back to AS number lookup to search for {self.asn} prefixes"
+            )
             prefixes["ipv6"].extend(
                 call_irr_as_set_resolver(f"AS{self.asn}", address_family=6)
             )
@@ -392,7 +305,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     def get_irr_as_set_prefixes(self, address_family=0):
         """
-        Return a prefix list for this AS' IRR AS-SET. If none is provided the list
+        Returns a prefix list for this AS' IRR AS-SET. If none is provided the list
         will be empty.
 
         If specified, only a list of the prefixes for the given address family will be
@@ -410,9 +323,6 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             return prefixes["ipv4"]
         else:
             return prefixes
-
-    def get_peeringdb_contacts(self):
-        return PeeringDB().get_autonomous_system_contacts(self.asn)
 
     def get_contact_email_addresses(self):
         """
@@ -434,7 +344,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         # Append the contacts found in PeeringDB, avoid re-adding a contact if the
         # email address is the same as the one set by the user manually
-        for contact in self.get_peeringdb_contacts():
+        for contact in self.peeringdb_contacts:
             if contact.email and contact.email not in [a[0] for a in addresses]:
                 addresses.append(
                     (
@@ -447,13 +357,13 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         return addresses
 
-    def get_email_context(self, user):
+    def get_email_context(self):
         return {
             "my_as": [
                 a.to_dict() for a in AutonomousSystem.objects.filter(affiliated=True)
             ],
             "autonomous_system": self,
-            "internet_exchanges": self.get_common_internet_exchanges_and_sessions(),
+            "internet_exchanges": self.get_missing_peering_sessions_on_shared_internet_exchanges(),
             "direct_peering_sessions": [
                 s.to_dict()
                 for s in DirectPeeringSession.objects.filter(autonomous_system=self)
@@ -844,7 +754,12 @@ class DirectPeeringSession(BGPSession):
 
 
 class InternetExchange(AbstractGroup):
-    peeringdb_id = models.PositiveIntegerField(blank=True, default=0)
+    peeringdb_netixlan = models.ForeignKey(
+        "peeringdb.NetworkIXLan", on_delete=models.SET_NULL, blank=True, null=True
+    )
+    peeringdb_ix = models.ForeignKey(
+        "peeringdb.InternetExchange", on_delete=models.SET_NULL, blank=True, null=True
+    )
     local_autonomous_system = models.ForeignKey(
         "AutonomousSystem", on_delete=models.CASCADE, null=True
     )
@@ -870,6 +785,19 @@ class InternetExchange(AbstractGroup):
     class Meta(AbstractGroup.Meta):
         ordering = ["local_autonomous_system", "name", "slug"]
 
+    @property
+    def linked_to_peeringdb(self):
+        """
+        Tells if the PeeringDB objects for this IX are still valid.
+
+        This function will return `True` if the PeeringDB records for this IX are
+        valid or if this IX does not have both Peering DB records set. In any other
+        cases, the return value will be `False`.
+
+        Note that both the `netixlan` and `ix` must be valid.
+        """
+        return self.peeringdb_netixlan is not None and self.peeringdb_ix is not None
+
     def get_absolute_url(self):
         return reverse("peering:internetexchange_details", kwargs={"slug": self.slug})
 
@@ -893,54 +821,47 @@ class InternetExchange(AbstractGroup):
 
         return autonomous_systems
 
-    def is_peeringdb_valid(self):
+    def link_to_peeringdb(self):
         """
-        Tells if the PeeringDB ID for this IX is still valid. This function
-        will return true if the PeeringDB record for this IX is valid or if
-        this IX does not have a Peering DB ID set. In any other cases, the
-        return value will be false.
+        Retrieves the PeeringDB IDs for this IX based on the IP addresses that have
+        been recorded. The PeeringDB records will be returned on success. In any other
+        cases `None` will be returned. The values will also be saved in the
+        corresponding fields or the model.
         """
-        if self.peeringdb_id:
-            peeringdb_record = PeeringDB().get_ix_network(self.peeringdb_id)
-            if not peeringdb_record:
-                return False
+        try:
+            netixlan = NetworkIXLan.objects.get(
+                ipaddr6=self.ipv6_address, ipaddr4=self.ipv4_address
+            )
+        except NetworkIXLan.DoesNotExist:
+            return None, None
 
-        return True
+        # Set field values for future use
+        self.peeringdb_netixlan = netixlan
+        self.peeringdb_ix = netixlan.ixlan.ix
+        self.save()
 
-    def get_peeringdb_id(self):
-        """
-        Retrieves the PeeringDB ID for this IX based on the IP addresses that
-        have been recorded. The ID of the PeeringDB record will be returned on
-        success. In any other cases 0 will be returned.
-        """
-        network_ixlan = PeeringDB().get_ix_network_by_ip_address(
-            ipv6_address=self.ipv6_address, ipv4_address=self.ipv4_address
-        )
-
-        return network_ixlan.id if network_ixlan else 0
+        return netixlan, netixlan.ixlan.ix
 
     def get_prefixes(self):
         """
         Returns a list of prefixes found in PeeringDB for this IX.
         """
-        return PeeringDB().get_prefixes_for_ix_network(self.peeringdb_id)
+        if self.peeringdb_netixlan:
+            return get_ixlan_prefixes(self.peeringdb_netixlan.ixlan)
+        return []
 
     def get_available_peers(self):
         """
-        Finds available peers between this AS and the one connected to the IX.
+        Finds available peers for the AS connected to this IX.
         """
         # Not linked to PeeringDB, cannot determine peers
-        if not self.peeringdb_id:
-            return None
-
-        # Get the IX LAN we are belonging to
-        api = PeeringDB()
-        network_ixlan = api.get_ix_network(self.peeringdb_id)
+        if not self.linked_to_peeringdb:
+            return []
 
         # Get all peering sessions currently existing
         existing_sessions = self.get_peering_sessions()
-        ipv4_sessions = []
         ipv6_sessions = []
+        ipv4_sessions = []
         for session in existing_sessions:
             ip = ipaddress.ip_address(session.ip_address)
             if ip.version == 6:
@@ -948,23 +869,13 @@ class InternetExchange(AbstractGroup):
             elif ip.version == 4:
                 ipv4_sessions.append(str(ip))
             else:
-                self.logger.debug("peering session with strange ip: %s", ip)
+                self.logger.debug(f"peering session with strange ip: {ip}")
 
-        # Find all peers belonging to the same IX and order them by ASN
-        # Exclude our own ASN and already existing sessions
-        return (
-            PeerRecord.objects.filter(
-                Q(network_ixlan__ixlan_id=network_ixlan.ixlan_id)
-                & ~Q(network__asn=self.local_autonomous_system.asn)
-                & (
-                    ~Q(network_ixlan__ipaddr6__in=ipv6_sessions)
-                    | ~Q(network_ixlan__ipaddr4__in=ipv4_sessions)
-                )
-            )
-            .prefetch_related("network")
-            .prefetch_related("network_ixlan")
-            .order_by("network__asn")
-        )
+        return NetworkIXLan.objects.filter(
+            ~Q(asn=self.local_autonomous_system.asn)
+            & Q(ixlan=self.peeringdb_netixlan.ixlan)
+            & (~Q(ipaddr6__in=ipv6_sessions) | ~Q(ipaddr4__in=ipv4_sessions))
+        ).order_by("asn")
 
     def _import_peering_sessions(self, sessions=[], prefixes=[]):
         # No sessions or no prefixes, can't work with that
@@ -1210,7 +1121,7 @@ class InternetExchangePeeringSession(BGPSession):
         ordering = ["autonomous_system", "ip_address"]
 
     @staticmethod
-    def get_ix_list_for_peer_record(peer_record):
+    def get_ix_list_for_peer_record(netixlan):
         ix_list = []
         # Find the Internet exchange given a NetworkIXLAN ID
         for ix in InternetExchange.objects.exclude(peeringdb_id__isnull=True).exclude(
@@ -1220,10 +1131,10 @@ class InternetExchangePeeringSession(BGPSession):
             try:
                 ixlan = NetworkIXLAN.objects.get(id=ix.peeringdb_id)
             except NetworkIXLAN.DoesNotExist:
-                InternetExchangePeeringSession.logger.debug(
-                    "NetworkIXLAN with ID {} not found, ignoring IX {}".format(
-                        ix.peeringdb_id, ix.name
-                    )
+                self.logger.debug(
+                    "NetworkIXLAN with ID %s not found, ignoring IX %s",
+                    ix.peeringdb_id,
+                    ix.name,
                 )
                 continue
 
@@ -1238,74 +1149,37 @@ class InternetExchangePeeringSession(BGPSession):
         return ix_list
 
     @staticmethod
-    def create_from_peeringdb(peer_record, ip_version, internet_exchange=None):
-        found_internet_exchange = None
-        peer_ixlan = None
+    def create_from_peeringdb(affiliated, netixlan):
+        results = []
 
-        # If no peer record, no ASN or no IP address have been given, we
-        # cannot do anything
-        if not peer_record or not peer_record.network.asn:
-            return (None, False)
+        if not netixlan:
+            return results
 
-        # If the IX is given to us there is no point to try guessing which one it is
-        # If the IX is not given try guessing which one to use
-        if internet_exchange:
-            found_internet_exchange = internet_exchange
-        else:
-            ix_list = InternetExchangePeeringSession.get_ix_list_for_peer_record(
-                peer_record
-            )
-            found_internet_exchange = ix_list[0]
-
-        # Unable to find the Internet exchange, no point of going further
-        if not found_internet_exchange:
-            return (None, False)
-
-        # Get the AS, create it if necessary
-        autonomous_system = AutonomousSystem.create_from_peeringdb(
-            peer_record.network.asn
+        internet_exchanges = InternetExchange.objects.filter(
+            peeringdb_ix=netixlan.ixlan.ix, local_autonomous_system=affiliated
         )
+        for internet_exchange in internet_exchanges:
+            for version in [6, 4]:
+                ip_address = getattr(netixlan, f"ipaddr{version}", None)
+                if not ip_address:
+                    continue
 
-        if ip_version == 6:
-            try:
-                ipaddress.IPv6Address(peer_record.network_ixlan.ipaddr6)
-            except ipaddress.AddressValueError:
-                # IPv6 parsing failed, ignore the session
-                return (None, False)
-        elif ip_version == 4:
-            try:
-                ipaddress.IPv4Address(peer_record.network_ixlan.ipaddr4)
-            except ipaddress.AddressValueError:
-                # IPv4 parsing failed, ignore the session
-                return (None, False)
-        else:
-            # Not a valid IP protocol version
-            return (None, False)
+                params = {
+                    # Create the AS, create it if necessary
+                    "autonomous_system": AutonomousSystem.create_from_peeringdb(
+                        netixlan.asn
+                    ),
+                    "internet_exchange": internet_exchange,
+                    "ip_address": ip_address.ip,
+                }
 
-        # Assume we are always using IPv6 unless told otherwise
-        ip_address = (
-            peer_record.network_ixlan.ipaddr4
-            if ip_version == 4
-            else peer_record.network_ixlan.ipaddr6
-        )
+                try:
+                    # Try to get the session, in case it already exists
+                    InternetExchangePeeringSession.objects.get(**params)
+                except InternetExchangePeeringSession.DoesNotExist:
+                    results.append(InternetExchangePeeringSession(**params))
 
-        # Try to get the session, in case it already exists
-        try:
-            session = InternetExchangePeeringSession.objects.get(
-                autonomous_system=autonomous_system,
-                internet_exchange=internet_exchange,
-                ip_address=ip_address,
-            )
-            # Session exists, nothing to do
-            return (session, False)
-        except InternetExchangePeeringSession.DoesNotExist:
-            # Create the session but do not save it
-            session = InternetExchangePeeringSession(
-                autonomous_system=autonomous_system,
-                internet_exchange=internet_exchange,
-                ip_address=ip_address,
-            )
-            return (session, True)
+        return results
 
     def get_absolute_url(self):
         return reverse(
@@ -1353,18 +1227,16 @@ class InternetExchangePeeringSession(BGPSession):
 
     def exists_in_peeringdb(self):
         """
-        Returns True if a PeerRecord exists for this session's IP.
+        Returns `True` if a NetworkIXLan exists for this session's IP.
         """
         if isinstance(self.ip_address, str):
             ip_version = ipaddress.ip_address(self.ip_address).version
         else:
             ip_version = self.ip_address.version
         try:
-            PeerRecord.objects.get(
-                **{f"network_ixlan__ipaddr{ip_version}": str(self.ip_address)}
-            )
+            NetworkIXLan.objects.get(**{f"ipaddr{ip_version}": str(self.ip_address)})
             return True
-        except PeerRecord.DoesNotExist:
+        except NetworkIXLan.DoesNotExist:
             pass
         return False
 
@@ -1381,9 +1253,9 @@ class InternetExchangePeeringSession(BGPSession):
           * The BGP state for the session is not idle or active
         """
         if (
-            not self.internet_exchange.peeringdb_id
+            not self.internet_exchange.linked_to_peeringdb
             or not self.internet_exchange.check_bgp_session_states
-            or not self.autonomous_system.get_peeringdb_network()
+            or not self.autonomous_system.peeringdb_network
             or self.exists_in_peeringdb()
             or self.bgp_state not in [BGPState.IDLE, BGPState.ACTIVE]
         ):
@@ -1543,9 +1415,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     def get_configuration_context(self):
         context = {
-            "my_as": [
-                a.to_dict() for a in AutonomousSystem.objects.filter(affiliated=True)
-            ],
+            "my_as": self.local_autonomous_system.to_dict(),
             "autonomous_systems": [],
             "bgp_groups": self.get_bgp_groups(),
             "internet_exchanges": self.get_internet_exchanges(),
@@ -1662,7 +1532,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         This method returns True only if the connection opening and closing are
         both successful.
         """
-        opened = alive = closed = False
+        opened, alive, closed = False, False, False
         device = self.get_napalm_device()
 
         # Open and close the test_napalm_connection
@@ -1692,7 +1562,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         know if the changes must be commited or discarded. The default value is
         False which means that the changes will be discarded.
         """
-        error = changes = None
+        error, changes = None, None
 
         # Make sure there actually a configuration to merge
         if config is None or not isinstance(config, str) or not config.strip():

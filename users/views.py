@@ -86,7 +86,7 @@ class PreferencesView(View, LoginRequiredMixin):
         data = preferences.all()
 
         if "as_id" in request.POST:
-            preferences.set("context.asn", request.POST.get("as_id"), commit=True)
+            preferences.set("context.as", request.POST.get("as_id"), commit=True)
             return redirect("home")
 
         # Delete selected preferences

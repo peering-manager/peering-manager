@@ -268,10 +268,10 @@ class BulkAddFromDependencyView(ReturnURLMixin, View):
 
             if new_objects:
                 # Notify user of successful import
-                message = "Imported {} {}".format(
-                    len(new_objects), new_objects[0]._meta.verbose_name_plural
+                messages.success(
+                    request,
+                    f"Imported {len(new_objects)} {new_objects[0]._meta.verbose_name_plural}",
                 )
-                messages.success(request, message)
 
             return redirect(self.get_return_url(request))
 

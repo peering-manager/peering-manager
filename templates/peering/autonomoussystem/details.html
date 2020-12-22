@@ -79,15 +79,15 @@
               </tr>
             </table>
           </div>
-          {% if common_ix_and_sessions %}
+          {% if shared_internet_exchanges %}
           <div class="card">
-            <div class="card-header"><strong>Common Internet Exchanges</strong></div>
+            <div class="card-header"><strong>Shared Internet Exchanges</strong></div>
             <ul class="list-group list-group-flush">
-              {% for internetexchange_details in common_ix_and_sessions %}
+              {% for ix, missing_sessions in shared_internet_exchanges.items %}
               <li class="list-group-item d-flex justify-content-between align-items-center">
-                <a href="{{ internetexchange_details.internet_exchange.get_absolute_url }}">{{ internetexchange_details.internet_exchange }}</a>
-                {% if internetexchange_details.has_potential_ix_peering_sessions %}
-                <a href="{% url 'peering:internetexchange_peers' slug=internetexchange_details.internet_exchange.slug %}?q=&network__asn={{ instance.asn }}" class="text-warning" data-toggle="tooltip" data-placement="left" title="Potential Peering Sessions"><i class="fas fa-exclamation-circle"></i></a>
+                {{ ix|as_link }}
+                {% if missing_sessions %}
+                <a href="{% url 'peering:internetexchange_peers' slug=ix.slug %}?asn={{ instance.asn }}" class="text-warning" data-toggle="tooltip" title="Missing Peering Sessions"><i class="fas fa-exclamation-circle"></i></a>
                 {% endif %}
               </li>
               {% endfor %}

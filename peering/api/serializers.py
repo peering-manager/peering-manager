@@ -21,7 +21,6 @@ from .nested_serializers import *
 class AutonomousSystemSerializer(TaggedObjectSerializer, WriteEnabledNestedSerializer):
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
-    potential_internet_exchange_peering_sessions = InetAddressArrayField(read_only=True)
 
     class Meta:
         model = AutonomousSystem
@@ -41,7 +40,6 @@ class AutonomousSystemSerializer(TaggedObjectSerializer, WriteEnabledNestedSeria
             "ipv4_max_prefixes_peeringdb_sync",
             "import_routing_policies",
             "export_routing_policies",
-            "potential_internet_exchange_peering_sessions",
             "prefixes",
             "affiliated",
             "tags",
@@ -185,7 +183,8 @@ class InternetExchangeSerializer(TaggedObjectSerializer, WriteEnabledNestedSeria
         model = InternetExchange
         fields = [
             "id",
-            "peeringdb_id",
+            "peeringdb_netixlan",
+            "peeringdb_ix",
             "local_autonomous_system",
             "name",
             "slug",

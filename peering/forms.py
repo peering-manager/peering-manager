@@ -436,7 +436,6 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InternetExchange
         fields = (
-            "peeringdb_id",
             "name",
             "slug",
             "local_autonomous_system",
@@ -451,13 +450,11 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "tags",
         )
         labels = {
-            "peeringdb_id": "PeeringDB ID",
             "ipv6_address": "IPv6 Address",
             "ipv4_address": "IPv4 Address",
             "check_bgp_session_states": "Poll Peering Session States",
         }
         help_texts = {
-            "peeringdb_id": "The PeeringDB ID for the IX connection (can be left empty)",
             "name": "Full name of the Internet Exchange point",
             "ipv6_address": "IPv6 Address used to peer",
             "ipv4_address": "IPv4 Address used to peer",
@@ -510,12 +507,14 @@ class InternetExchangePeeringDBForm(BootstrapMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("label_suffix", "")
         super().__init__(*args, **kwargs)
-        self.fields["peeringdb_id"].widget = forms.HiddenInput()
+        self.fields["peeringdb_netixlan"].widget = forms.HiddenInput()
+        self.fields["peeringdb_ix"].widget = forms.HiddenInput()
 
     class Meta:
         model = InternetExchange
         fields = (
-            "peeringdb_id",
+            "peeringdb_netixlan",
+            "peeringdb_ix",
             "local_autonomous_system",
             "name",
             "slug",

@@ -1,5 +1,5 @@
 ```no-highlight
-router bgp {{ my_asn[0].asn }}
+router bgp {{ my_as.asn }}
 {%- for internet_exchange in internet_exchanges %}
 {%- for address_family, sessions in internet_exchange.sessions.items() %}
 {%- if sessions|length > 0 %}

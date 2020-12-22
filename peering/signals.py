@@ -18,19 +18,6 @@ def alter_direct_peering_session(instance, **kwargs):
 
 @receiver(pre_save, sender=InternetExchangePeeringSession)
 def alter_internet_exchange_peering_session(instance, **kwargs):
-    # Remove the IP address of this session from potential sessions for the AS
-    # if it is in the list
-    if (
-        instance.autonomous_system.potential_internet_exchange_peering_sessions
-        is not None
-        and instance.ip_address
-        in instance.autonomous_system.potential_internet_exchange_peering_sessions
-    ):
-        instance.autonomous_system.potential_internet_exchange_peering_sessions.remove(
-            instance.ip_address
-        )
-        instance.autonomous_system.save()
-
     # Change encrypted password
     if (
         instance.internet_exchange.router

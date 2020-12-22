@@ -18,9 +18,8 @@ will take care of everything else.
 The following variables are provided to generate a configuration based on a
 template:
 
-  * `my_as` exposing the
-    [AutonomousSystem](../models/peering/autonomoussystem.md) objects, marked
-    as affiliated, as a list
+  * `my_as` exposing the currently selected and affiliated
+    [AutonomousSystem](../models/peering/autonomoussystem.md)
   * `autonomous_systems` exposing the list of
     [AutonomousSystem](../models/peering/autonomoussystem.md) that can be found in the
     [BGPGroup](../models/peering/bgpgroup.md) or

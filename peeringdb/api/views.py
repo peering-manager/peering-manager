@@ -3,20 +3,34 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 
-from peeringdb.filters import (
-    ContactFilterSet,
-    NetworkFilterSet,
-    PeerRecordFilterSet,
-    SynchronizationFilterSet,
+from peeringdb.filters import SynchronizationFilterSet
+from peeringdb.models import (
+    Facility,
+    InternetExchange,
+    InternetExchangeFacility,
+    IXLan,
+    IXLanPrefix,
+    Network,
+    NetworkContact,
+    NetworkFacility,
+    NetworkIXLan,
+    Organization,
+    Synchronization,
 )
-from peeringdb.http import PeeringDB
-from peeringdb.models import Contact, Network, NetworkIXLAN, PeerRecord, Synchronization
+from peeringdb.sync import PeeringDB
 from utils.api import ModelViewSet
 
 from .serializers import (
-    ContactSerializer,
+    FacilitySerializer,
+    InternetExchangeFacilitySerializer,
+    InternetExchangeSerializer,
+    IXLanPrefixSerializer,
+    IXLanSerializer,
+    NetworkContactSerializer,
+    NetworkFacilitySerializer,
+    NetworkIXLanSerializer,
     NetworkSerializer,
-    PeerRecordSerializer,
+    OrganizationSerializer,
     SynchronizationSerializer,
 )
 
@@ -31,10 +45,17 @@ class CacheViewSet(ViewSet):
     def statistics(self, request):
         return Response(
             {
-                "contact-count": Contact.objects.count(),
-                "network-count": Network.objects.count(),
-                "network-ixlan-count": NetworkIXLAN.objects.count(),
-                "peer-record-count": PeerRecord.objects.count(),
+                "fac-count": Facility.objects.count(),
+                "ix-count": InternetExchange.objects.count(),
+                "ixfac-count": InternetExchangeFacility.objects.count(),
+                "ixlan-count": IXLan.objects.count(),
+                "ixlanpfx-count": IXLanPrefix.objects.count(),
+                "net-count": Network.objects.count(),
+                "poc-count": NetworkContact.objects.count(),
+                "netfac-count": NetworkFacility.objects.count(),
+                "netixlan-count": NetworkIXLan.objects.count(),
+                "org-count": Organization.objects.count(),
+                "sync-count": Synchronization.objects.count(),
             }
         )
 
@@ -42,7 +63,6 @@ class CacheViewSet(ViewSet):
     def update_local(self, request):
         api = PeeringDB()
         synchronization = api.update_local_database(api.get_last_sync_time())
-
         return Response(
             {"synchronization": SynchronizationSerializer(synchronization).data}
         )
@@ -52,31 +72,55 @@ class CacheViewSet(ViewSet):
         PeeringDB().clear_local_database()
         return Response({"status": "success"})
 
-    @action(
-        detail=False, methods=["post", "put", "patch"], url_path="index-peer-records"
-    )
-    def index_peer_records(self, request):
-        return Response(
-            {"peer-record-count": PeeringDB().force_peer_records_discovery()}
-        )
+
+class FacilityViewSet(ReadOnlyModelViewSet):
+    queryset = Facility.objects.all()
+    serializer_class = FacilitySerializer
 
 
-class ContactsViewSet(ReadOnlyModelViewSet):
-    queryset = Contact.objects.all()
-    serializer_class = ContactSerializer
-    filterset_class = ContactFilterSet
+class InternetExchangeViewSet(ReadOnlyModelViewSet):
+    queryset = InternetExchange.objects.all()
+    serializer_class = InternetExchangeSerializer
 
 
-class NetworksViewSet(ReadOnlyModelViewSet):
+class InternetExchangeFacilityViewSet(ReadOnlyModelViewSet):
+    queryset = InternetExchangeFacility.objects.all()
+    serializer_class = InternetExchangeFacilitySerializer
+
+
+class IXLanViewSet(ReadOnlyModelViewSet):
+    queryset = IXLan.objects.all()
+    serializer_class = IXLanSerializer
+
+
+class IXLanPrefixViewSet(ReadOnlyModelViewSet):
+    queryset = IXLanPrefix.objects.all()
+    serializer_class = IXLanPrefixSerializer
+
+
+class NetworkViewSet(ReadOnlyModelViewSet):
     queryset = Network.objects.all()
     serializer_class = NetworkSerializer
-    filterset_class = NetworkFilterSet
 
 
-class PeerRecordViewSet(ModelViewSet):
-    queryset = PeerRecord.objects.all()
-    serializer_class = PeerRecordSerializer
-    filterset_class = PeerRecordFilterSet
+class NetworkContactViewSet(ReadOnlyModelViewSet):
+    queryset = NetworkContact.objects.all()
+    serializer_class = NetworkContactSerializer
+
+
+class NetworkFacilityViewSet(ReadOnlyModelViewSet):
+    queryset = NetworkFacility.objects.all()
+    serializer_class = NetworkFacilitySerializer
+
+
+class NetworkIXLanViewSet(ReadOnlyModelViewSet):
+    queryset = NetworkIXLan.objects.all()
+    serializer_class = NetworkIXLanSerializer
+
+
+class OrganizationViewSet(ReadOnlyModelViewSet):
+    queryset = Organization.objects.all()
+    serializer_class = OrganizationSerializer
 
 
 class SynchronizationViewSet(ReadOnlyModelViewSet):

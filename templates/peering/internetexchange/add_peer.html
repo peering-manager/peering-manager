@@ -32,14 +32,14 @@
                   </tr>
                 </table>
                 {% endif %}
-                {% if network_ixlan.ipaddr6 or network_ixlan.ipaddr4 %}
-                <p>{% if network_ixlan.ipaddr6 and network_ixlan.ipaddr4 %}New peering sessions{% else %}A new peering session{% endif %} will be recorded with:</p>
+                {% if netixlan.ipaddr6 or netixlan.ipaddr4 %}
+                <p>{% if netixlan.ipaddr6 and netixlan.ipaddr4 %}New peering sessions{% else %}A new peering session{% endif %} will be recorded with:</p>
                 <ul>
-                  {% if network_ixlan.ipaddr6 %}
-                  <li>{{ network_ixlan.ipaddr6 }}</li>
+                  {% if netixlan.ipaddr6 %}
+                  <li>{{ netixlan.ipaddr6 }}</li>
                   {% endif %}
-                  {% if network_ixlan.ipaddr4 %}
-                  <li>{{ network_ixlan.ipaddr4 }}</li>
+                  {% if netixlan.ipaddr4 %}
+                  <li>{{ netixlan.ipaddr4 }}</li>
                   {% endif %}
                 </ul>
                 {% endif %}

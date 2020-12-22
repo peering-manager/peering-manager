@@ -17,7 +17,8 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from peering.tests.mocked_data import *
+from peering.tests.mocked_data import load_peeringdb_data, mocked_subprocess_popen
+from peeringdb.models import Network, Organization
 from utils.testing import APITestCase, StandardAPITestCases
 
 
@@ -62,6 +63,7 @@ class AutonomousSystemTest(StandardAPITestCases.View):
         cls.autonomous_system = AutonomousSystem.objects.create(
             asn=65536, name="Test", irr_as_set="AS-MOCKED"
         )
+        load_peeringdb_data()
 
     def test_create_autonomous_system_with_nested(self):
         routing_policy = RoutingPolicy.objects.create(
@@ -127,30 +129,18 @@ class AutonomousSystemTest(StandardAPITestCases.View):
             self.assertEqual(len(response.data["prefixes"]["ipv6"]), 1)
             self.assertEqual(len(response.data["prefixes"]["ipv4"]), 1)
 
-    def test_common_internet_exchanges(self):
+    def test_shared_internet_exchanges(self):
         local_as = AutonomousSystem.objects.create(
             asn=65535, name="Local", irr_as_set="AS-LOCAL", affiliated=True
         )
-        self.user.preferences.set("context.asn", local_as.pk, commit=True)
+        self.user.preferences.set("context.as", local_as.pk, commit=True)
         url = reverse(
-            "peering-api:autonomoussystem-common-internet-exchanges",
+            "peering-api:autonomoussystem-shared-internet-exchanges",
             kwargs={"pk": self.autonomous_system.pk},
         )
         response = self.client.get(url, format="json", **self.header)
         self.assertStatus(response, status.HTTP_200_OK)
-        self.assertEqual(response.data["common-internet-exchanges"], [])
-
-    def test_find_potential_ix_peering_sessions(self):
-        local_as = AutonomousSystem.objects.create(
-            asn=65535, name="Local", irr_as_set="AS-LOCAL", affiliated=True
-        )
-        self.user.preferences.set("context.asn", local_as.pk, commit=True)
-        url = reverse(
-            "peering-api:autonomoussystem-find-potential-ix-peering-sessions",
-            kwargs={"pk": self.autonomous_system.pk},
-        )
-        response = self.client.patch(url, format="json", **self.header)
-        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data["shared-internet-exchanges"], [])
 
 
 class BGPGroupTest(StandardAPITestCases.View):

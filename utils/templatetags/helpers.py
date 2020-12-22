@@ -103,7 +103,8 @@ def tag(tag, url_name=None):
 @register.filter()
 def foreground_color(value):
     """
-    Return black (#000000) or white (#ffffff) given a background color in RRGGBB format.
+    Return black (#000000) or white (#ffffff) given a background color in RRGGBB
+    format.
     """
     value = value.lower().strip("#")
     if not re.match("^[0-9a-f]{6}$", value):
@@ -134,5 +135,26 @@ def get_docs(model):
 
 
 @register.filter()
-def user_context_asn(request):
-    return request.user.preferences.get("context.asn")
+def speed_for_human(speed):
+    """
+    Returns a string showing human readable speeds given in Mbps.
+    """
+    if not speed:
+        return ""
+    elif speed >= 1000000 and speed % 1000000 == 0:
+        return f"{int(speed / 1000000)} Tbps"
+    elif speed >= 1000 and speed % 1000 == 0:
+        return f"{int(speed / 1000)} Gbps"
+    else:
+        return f"{speed} Mbps"
+
+
+@register.simple_tag(takes_context=True)
+def missing_sessions(context, autonomous_system):
+    from peering.models import AutonomousSystem
+
+    ix = autonomous_system.get_shared_internet_exchanges(context["context_as"])
+    for i in ix:
+        if autonomous_system.get_missing_peering_sessions(context["context_as"], i):
+            return True
+    return False

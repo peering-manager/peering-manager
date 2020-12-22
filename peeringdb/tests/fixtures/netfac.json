@@ -1,0 +1,28 @@
+{
+  "data": [{
+    "id": 10060,
+    "name": "BCE Colocation Luxembourg",
+    "city": "Luxembourg",
+    "country": "LU",
+    "net_id": 4840,
+    "fac_id": 220,
+    "local_asn": 2602,
+    "created": "2012-06-26T00:00:00Z",
+    "updated": "2016-03-14T21:14:35Z",
+    "status": "ok"
+  }, {
+    "id": 10061,
+    "name": "LuxConnect - Bettembourg campus",
+    "city": "Bettembourg",
+    "country": "LU",
+    "net_id": 4840,
+    "fac_id": 909,
+    "local_asn": 2602,
+    "created": "2012-06-26T00:00:00Z",
+    "updated": "2016-03-14T21:14:36Z",
+    "status": "ok"
+  }],
+  "meta": {
+    "generated": 1608389833.045
+  }
+}

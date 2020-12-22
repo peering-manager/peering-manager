@@ -17,19 +17,13 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from peering.tests.mocked_data import *
+from peering.tests.mocked_data import load_peeringdb_data, mocked_subprocess_popen
+from peeringdb.models import Network, Organization
 from utils.crypto.cisco import decrypt as cisco_decrypt
 from utils.crypto.cisco import is_encrypted as cisco_is_encrypted
 from utils.crypto.junos import decrypt as junos_decrypt
 from utils.crypto.junos import is_encrypted as junos_is_encrypted
-from utils.testing import MockedResponse, json_file_to_python_type
-
-
-def mocked_peeringdb(*args, **kwargs):
-    if "asn" in kwargs["params"] and kwargs["params"]["asn"] == 65536:
-        return MockedResponse(fixture="peeringdb/tests/fixtures/as65536.json")
-
-    return MockedResponse(status_code=404)
+from utils.testing import json_file_to_python_type
 
 
 class AutonomousSystemTest(TestCase):
@@ -38,10 +32,10 @@ class AutonomousSystemTest(TestCase):
         cls.autonomous_system = AutonomousSystem.objects.create(
             asn=65537, name="Test", irr_as_set="AS-MOCKED"
         )
+        load_peeringdb_data()
 
-    @patch("peeringdb.http.requests.get", side_effect=mocked_peeringdb)
     def test_create_from_peeringdb(self, *_):
-        asn = 65536
+        asn = 201281
 
         # Illegal ASN
         self.assertIsNone(AutonomousSystem.create_from_peeringdb(64500))
@@ -73,10 +67,9 @@ class AutonomousSystemTest(TestCase):
             exists = False
         self.assertTrue(exists)
 
-    @patch("peeringdb.http.requests.get", side_effect=mocked_peeringdb)
     def test_synchronize_with_peeringdb(self, *_):
         # Create legal AS to sync with PeeringDB
-        asn = 65536
+        asn = 201281
         a_s = AutonomousSystem.create_from_peeringdb(asn)
         self.assertEqual(asn, a_s.asn)
         self.assertTrue(a_s.synchronize_with_peeringdb())
@@ -111,8 +104,8 @@ class AutonomousSystemTest(TestCase):
         self.assertEqual(self.autonomous_system.prefixes["ipv6"], prefixes["ipv6"])
         self.assertEqual(self.autonomous_system.prefixes["ipv4"], prefixes["ipv4"])
 
-    def test_get_peeringdb_network(self):
-        self.assertIsNone(self.autonomous_system.get_peeringdb_network())
+    def test_peeringdb_network(self):
+        self.assertIsNone(self.autonomous_system.peeringdb_network)
 
     def test__str__(self):
         self.assertEqual(
@@ -264,50 +257,13 @@ class EmailTest(TestCase):
 class InternetExchangeTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.internet_exchange = InternetExchange.objects.create(
-            name="Test", slug="test"
+        cls.autonomous_system = AutonomousSystem.objects.create(
+            asn=65537, name="Test", irr_as_set="AS-MOCKED"
         )
-
-    def test_is_peeringdb_valid(self):
-        # Not linked with PeeringDB but considered as valid
-        self.assertTrue(self.internet_exchange.is_peeringdb_valid())
-
-        # Set invalid ID, must result in false
-        self.internet_exchange.peeringdb_id = 14658
-        self.internet_exchange.save()
-        self.assertFalse(self.internet_exchange.is_peeringdb_valid())
-
-        # Set valid ID, must result in true
-        self.internet_exchange.peeringdb_id = 29146
-        self.internet_exchange.save()
-        self.assertTrue(self.internet_exchange.is_peeringdb_valid())
-
-    def test_get_peeringdb_id(self):
-        # Expected results
-        expected = [0, 0, 0, 0, 29146, 29146, 29146]
-
-        # Test data
-        data = [
-            {
-                # No IP addresses
-            },
-            {"ipv6_address": "2001:db8::1"},
-            {"ipv4_address": "198.51.100.1"},
-            {"ipv6_address": "2001:db8::1", "ipv4_address": "198.51.100.1"},
-            {"ipv6_address": "2001:7f8:1::a502:9467:1"},
-            {"ipv4_address": "80.249.210.208"},
-            {
-                "ipv6_address": "2001:7f8:1::a502:9467:1",
-                "ipv4_address": "80.249.210.208",
-            },
-        ]
-
-        # Run test cases
-        for i in range(len(expected)):
-            ixp = InternetExchange.objects.create(
-                name="Test {}".format(i), slug="test_{}".format(i), **data[i]
-            )
-            self.assertEqual(expected[i], ixp.get_peeringdb_id())
+        cls.internet_exchange = InternetExchange.objects.create(
+            local_autonomous_system=cls.autonomous_system, name="Test", slug="test"
+        )
+        load_peeringdb_data()
 
     def test_import_peering_sessions(self):
         # Expected results
@@ -327,8 +283,8 @@ class InternetExchangeTest(TestCase):
             [{"ip_address": ipaddress.ip_address("2001:db8::1"), "remote_asn": 201281}],
             # Second case, one new session with one known AS
             [{"ip_address": ipaddress.ip_address("192.0.2.1"), "remote_asn": 201281}],
-            # Third case, new IPv4 session on another IX but with an IP that
-            # has already been used
+            # Third case, new IPv4 session on another IX but with an IP that has
+            # already been used
             [{"ip_address": ipaddress.ip_address("192.0.2.1"), "remote_asn": 201281}],
             # Fourth case, new IPv4 session with IPv6 prefix
             [{"ip_address": ipaddress.ip_address("203.0.113.1"), "remote_asn": 201281}],
@@ -348,7 +304,9 @@ class InternetExchangeTest(TestCase):
         # Run test cases
         for i in range(len(expected)):
             ixp = InternetExchange.objects.create(
-                name="Test {}".format(i), slug="test_{}".format(i)
+                local_autonomous_system=self.autonomous_system,
+                name=f"Test {i}",
+                slug=f"test_{i}",
             )
             self.assertEqual(
                 expected[i],
@@ -530,7 +488,7 @@ class RouterTest(TestCase):
 
         # Generate expected result
         expected = {
-            "my_as": [self.local_as.to_dict()],
+            "my_as": self.local_as.to_dict(),
             "autonomous_systems": [
                 autonomous_system.to_dict()
                 for autonomous_system in AutonomousSystem.objects.exclude(

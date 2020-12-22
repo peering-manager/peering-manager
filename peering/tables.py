@@ -28,13 +28,6 @@ AUTONOMOUS_SYSTEM_ACTIONS = """
 <a href="{% url 'peering:autonomoussystem_edit' asn=record.asn %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
 {% endif %}
 """
-AUTONOMOUS_SYSTEM_HAS_POTENTIAL_IX_PEERING_SESSIONS = """
-{% if record.has_potential_ix_peering_sessions %}
-<span class="text-right" data-toggle="tooltip" data-placement="left" title="Potential Peering Sessions">
-  <i class="fas fa-exclamation-circle text-warning"></i>
-</span>
-{% endif %}
-"""
 BGP_GROUP_ACTIONS = """
 {% if perms.peering.change_bgpgroup %}
 <a href="{% url 'peering:bgpgroup_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
@@ -148,11 +141,6 @@ class AutonomousSystemTable(BaseTable):
         verbose_name="IX Sessions",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
-    has_potential_ix_peering_sessions = tables.TemplateColumn(
-        verbose_name="",
-        orderable=False,
-        template_code=AUTONOMOUS_SYSTEM_HAS_POTENTIAL_IX_PEERING_SESSIONS,
-    )
     affiliated = BooleanColumn(
         verbose_name="Affiliated",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
@@ -173,7 +161,6 @@ class AutonomousSystemTable(BaseTable):
             "export_routing_policies",
             "directpeeringsession_count",
             "internetexchangepeeringsession_count",
-            "has_potential_ix_peering_sessions",
             "affiliated",
             "tags",
             "actions",
@@ -185,7 +172,6 @@ class AutonomousSystemTable(BaseTable):
             "irr_as_set",
             "directpeeringsession_count",
             "internetexchangepeeringsession_count",
-            "has_potential_ix_peering_sessions",
             "actions",
         )
 

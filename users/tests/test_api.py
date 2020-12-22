@@ -44,7 +44,7 @@ class UserTest(StandardAPITestCases.View):
         User.objects.create(username="User_1")
         User.objects.bulk_create([User(username="User_2"), User(username="User_3")])
 
-    def test_set_context_asn(self):
+    def test_set_context_as(self):
         affiliated = AutonomousSystem.objects.create(
             asn=201281, name="Guillaume Mazoyer", affiliated=True
         )
@@ -52,16 +52,16 @@ class UserTest(StandardAPITestCases.View):
         user = User.objects.get(username="User_1")
 
         url = reverse(
-            "users-api:user-set-context-asn",
+            "users-api:user-set-context-as",
             kwargs={"pk": user.pk},
         )
 
         data = {"as_id": affiliated.pk}
         response = self.client.patch(url, data, format="json", **self.header)
         self.assertStatus(response, status.HTTP_200_OK)
-        self.assertEqual(user.preferences.get("context.asn"), affiliated.pk)
+        self.assertEqual(user.preferences.get("context.as"), affiliated.pk)
 
         data = {"as_id": a_s.pk}
         response = self.client.patch(url, data, format="json", **self.header)
         self.assertStatus(response, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(user.preferences.get("context.asn"), affiliated.pk)
+        self.assertEqual(user.preferences.get("context.as"), affiliated.pk)

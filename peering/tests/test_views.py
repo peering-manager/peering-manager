@@ -251,6 +251,8 @@ class InternetExchangeTestCase(StandardTestCases.Views):
         )
 
         cls.form_data = {
+            "peeringdb_netixlan": None,
+            "peeringdb_ix": None,
             "name": "Internet Exchange 4",
             "slug": "ix-4",
             "local_autonomous_system": local_as.pk,
@@ -262,7 +264,6 @@ class InternetExchangeTestCase(StandardTestCases.Views):
             "import_routing_policies": [],
             "bgp_session_states_update": None,
             "check_bgp_session_states": False,
-            "peeringdb_id": 0,
             "comments": "",
             "tags": "",
         }

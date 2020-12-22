@@ -62,7 +62,7 @@
       $('#deploy').click(function() {
         $.ajax({
           method: $('#compare-switch').is(':checked') ? 'get' : 'post',
-          url: "{% url 'peering-api:router-configure' pk=router.pk %}",
+          url: "{% url 'peering-api:router-configure' pk=instance.pk %}",
           data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
           beforeSend: function() {
             $('#deploy').attr('disabled', 'disabled')
@@ -99,7 +99,7 @@
       $('#commit').click(function() {
         $.ajax({
           method: 'post',
-          url: "{% url 'peering-api:router-configure' pk=router.pk %}",
+          url: "{% url 'peering-api:router-configure' pk=instance.pk %}",
           data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
           beforeSend: function() {
             $('#commit').attr('disabled', 'disabled')

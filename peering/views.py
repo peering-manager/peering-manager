@@ -7,11 +7,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import slugify
 from django.views.generic import View
 
-from peeringdb.filters import PeerRecordFilterSet
-from peeringdb.forms import PeerRecordFilterForm
-from peeringdb.http import PeeringDB
-from peeringdb.models import PeerRecord
-from peeringdb.tables import ASPeerRecordTable, ContactTable, PeerRecordTable
+from peeringdb.filters import NetworkIXLanFilterSet
+from peeringdb.forms import NetworkIXLanFilterForm
+from peeringdb.models import NetworkIXLan
+from peeringdb.tables import NetworkContactTable, NetworkIXLanTable
 from utils.views import (
     AddOrEditView,
     BulkAddFromDependencyView,
@@ -125,27 +124,20 @@ class ASDetails(DetailsView):
         instance = get_object_or_404(self.queryset, **kwargs)
         try:
             affiliated = AutonomousSystem.objects.get(
-                pk=request.user.preferences.get("context.asn")
+                pk=request.user.preferences.get("context.as")
             )
         except AutonomousSystem.DoesNotExist:
             affiliated = None
-        peeringdb_contacts = PeeringDB().get_autonomous_system_contacts(instance.asn)
-        common_ix_and_sessions = []
-        if affiliated and instance != affiliated:
-            for ix in instance.get_common_internet_exchanges(affiliated):
-                common_ix_and_sessions.append(
-                    {
-                        "internet_exchange": ix,
-                        "has_potential_ix_peering_sessions": instance.has_potential_ix_peering_sessions(
-                            affiliated, ix
-                        ),
-                    }
-                )
+
+        shared_internet_exchanges = {}
+        for ix in instance.get_shared_internet_exchanges(affiliated):
+            shared_internet_exchanges[ix] = instance.get_missing_peering_sessions(
+                affiliated, ix
+            )
 
         return {
             "instance": instance,
-            "peeringdb_contacts": peeringdb_contacts,
-            "common_ix_and_sessions": common_ix_and_sessions,
+            "shared_internet_exchanges": shared_internet_exchanges,
         }
 
 
@@ -212,25 +204,22 @@ class ASBulkDelete(PermissionRequiredMixin, BulkDeleteView):
 
 class AutonomousSystemContacts(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_autonomoussystem"
-    table = ContactTable
+    table = NetworkContactTable
     template = "peering/autonomoussystem/contacts.html"
 
     def build_queryset(self, request, kwargs):
         queryset = None
-        # The queryset needs to be composed of Contact objects related to the AS we
-        # are looking at.
         if "asn" in kwargs:
             instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
-            queryset = PeeringDB().get_autonomous_system_contacts(instance.asn)
+            queryset = instance.peeringdb_contacts
         return queryset
 
     def extra_context(self, kwargs):
         extra_context = {}
-        # Since we are in the context of an AS we need to keep the reference
-        # for it
         if "asn" in kwargs:
-            instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
-            extra_context.update({"instance": instance})
+            extra_context.update(
+                {"instance": get_object_or_404(AutonomousSystem, asn=kwargs["asn"])}
+            )
         return extra_context
 
 
@@ -299,30 +288,26 @@ class AutonomousSystemInternetExchangesPeeringSessions(
 
 class AutonomousSystemPeers(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_autonomoussystem"
-    table = ASPeerRecordTable
+    table = NetworkIXLanTable
     template = "peering/autonomoussystem/peers.html"
 
     def build_queryset(self, request, kwargs):
+        queryset = NetworkIXLan.objects.none()
         try:
             affiliated = AutonomousSystem.objects.get(
-                pk=request.user.preferences.get("context.asn")
+                pk=request.user.preferences.get("context.as")
             )
         except AutonomousSystem.DoesNotExist:
             affiliated = None
 
-        # The queryset needs to be composed of PeerRecord objects but they are linked
-        # to an IX. So first of all we need to retrieve the IX on which we want to get
-        # the peering sessions.
         if "asn" in kwargs and affiliated:
             instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
-            queryset = instance.get_available_sessions(affiliated)
+            queryset = instance.get_missing_peering_sessions(affiliated)
 
         return queryset
 
     def extra_context(self, kwargs):
         extra_context = {}
-        # Since we are in the context of an AS we need to keep the reference
-        # for it
         if "asn" in kwargs:
             instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
             extra_context.update({"instance": instance})
@@ -334,29 +319,21 @@ class AutonomousSystemAddFromPeeringDB(
 ):
     permission_required = "peering.add_internetexchangepeeringsession"
     model = InternetExchangePeeringSession
-    dependency_model = PeerRecord
+    dependency_model = NetworkIXLan
     form_model = InternetExchangePeeringSessionForm
-    template = "peering/session/internet_exchange/add_from_peeringdb.html"
+    template = "peering/internetexchangepeeringsession/add_from_peeringdb.html"
 
     def process_dependency_object(self, request, dependency):
-        return_value = []
-
-        for ix in InternetExchangePeeringSession.get_ix_list_for_peer_record(
-            dependency
-        ):
-            (session6, created6) = InternetExchangePeeringSession.create_from_peeringdb(
-                dependency, 6, internet_exchange=ix
+        try:
+            affiliated = AutonomousSystem.objects.get(
+                pk=request.user.preferences.get("context.as")
             )
-            (session4, created4) = InternetExchangePeeringSession.create_from_peeringdb(
-                dependency, 4, internet_exchange=ix
-            )
+        except AutonomousSystem.DoesNotExist:
+            return []
 
-            if session6 and created6:
-                return_value.append(session6)
-            if session4 and created4:
-                return_value.append(session4)
-
-        return return_value
+        return InternetExchangePeeringSession.create_from_peeringdb(
+            affiliated, dependency
+        )
 
     def sort_objects(self, object_list):
         objects = []
@@ -689,39 +666,45 @@ class InternetExchangePeeringDBImport(PermissionRequiredMixin, TableImportView):
 
     def get_objects(self, request):
         objects = []
-        known_objects = []
-        api = PeeringDB()
-
-        for ix in InternetExchange.objects.all():
-            if ix.peeringdb_id:
-                known_objects.append(ix.peeringdb_id)
-
-        autonomous_system = AutonomousSystem.objects.get(
-            pk=request.user.preferences.get("context.asn")
+        affiliated = AutonomousSystem.objects.get(
+            pk=request.user.preferences.get("context.as")
         )
-        ix_networks = api.get_ix_networks_for_asn(autonomous_system.asn) or []
+
+        # No context ASN choosen, don't look for known IXPs
+        if not affiliated:
+            return objects
+
+        # Get a list of already known IXPs
+        known_objects = [
+            ix.peeringdb_netixlan.pk
+            for ix in InternetExchange.objects.all()
+            if ix.peeringdb_netixlan
+        ]
+        # Get network IX LANs for the affiliated AS excluding known ones
+        netixlans = NetworkIXLan.objects.filter(asn=affiliated.asn).exclude(
+            pk__in=known_objects
+        )
         slugs_occurences = {}
 
-        for ix_network in ix_networks:
-            if ix_network.id not in known_objects:
-                slug = slugify(ix_network.name)
+        for netixlan in netixlans:
+            slug = slugify(netixlan.ixlan.ix.name)
+            if slug in slugs_occurences:
+                slugs_occurences[slug] += 1
+                slug = f"{slug}-{slugs_occurences[slug]}"
+            else:
+                slugs_occurences[slug] = 1
 
-                if slug in slugs_occurences:
-                    slugs_occurences[slug] += 1
-                    slug = "{}-{}".format(slug, slugs_occurences[slug])
-                else:
-                    slugs_occurences[slug] = 0
-
-                objects.append(
-                    {
-                        "peeringdb_id": ix_network.id,
-                        "local_autonomous_system": autonomous_system,
-                        "name": ix_network.name,
-                        "slug": slug,
-                        "ipv6_address": ix_network.ipaddr6,
-                        "ipv4_address": ix_network.ipaddr4,
-                    }
-                )
+            objects.append(
+                {
+                    "peeringdb_netixlan": netixlan,
+                    "peeringdb_ix": netixlan.ixlan.ix,
+                    "local_autonomous_system": affiliated,
+                    "name": netixlan.ixlan.ix.name,
+                    "slug": slug,
+                    "ipv6_address": netixlan.ipaddr6.ip,
+                    "ipv4_address": netixlan.ipaddr4.ip,
+                }
+            )
 
         return objects
 
@@ -733,16 +716,13 @@ class InternetExchangeDetails(DetailsView):
     def get_context(self, request, **kwargs):
         instance = get_object_or_404(self.queryset, **kwargs)
 
-        # Check if the PeeringDB ID is valid
-        if not instance.is_peeringdb_valid():
-            # If not, try to fix it automatically
-            peeringdb_id = instance.get_peeringdb_id()
-            if peeringdb_id != 0:
-                instance.peeringdb_id = peeringdb_id
-                instance.save()
+        if not instance.linked_to_peeringdb:
+            # Try fixing the PeeringDB record references if possible
+            netixlan, ix = instance.link_to_peeringdb()
+            if netixlan and ix:
                 messages.info(
                     request,
-                    "The PeeringDB record reference for this IX was invalid, it has been fixed.",
+                    "PeeringDB records for this IX were invalid, they have been fixed.",
                 )
 
         return {"instance": instance}
@@ -815,16 +795,14 @@ class InternetExchangePeeringSessions(PermissionRequiredMixin, ModelListView):
 
 class InternetExchangePeers(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_internetexchange"
-    filter = PeerRecordFilterSet
-    filter_form = PeerRecordFilterForm
-    table = PeerRecordTable
+    filter = NetworkIXLanFilterSet
+    filter_form = NetworkIXLanFilterForm
+    table = NetworkIXLanTable
     template = "peering/internetexchange/peers.html"
 
     def build_queryset(self, request, kwargs):
         queryset = None
-        # The queryset needs to be composed of PeerRecord objects but they are linked
-        # to an IX. So first of all we need to retrieve the IX on which we want to get
-        # the peering sessions.
+
         if "slug" in kwargs:
             instance = get_object_or_404(InternetExchange, slug=kwargs["slug"])
             queryset = instance.get_available_peers()
@@ -833,8 +811,7 @@ class InternetExchangePeers(PermissionRequiredMixin, ModelListView):
 
     def extra_context(self, kwargs):
         extra_context = {}
-        # Since we are in the context of an IX we need to keep the reference for it
-        # Keep track of its ID as well to be able to find the IX when adding sessions
+
         if "slug" in kwargs:
             instance = get_object_or_404(InternetExchange, slug=kwargs["slug"])
             extra_context.update(instance=instance, internet_exchange_id=instance.pk)
@@ -897,21 +874,16 @@ class InternetExchangePeeringSessionAddFromPeeringDB(
 ):
     permission_required = "peering.add_internetexchangepeeringsession"
     model = InternetExchangePeeringSession
-    dependency_model = PeerRecord
+    dependency_model = NetworkIXLan
     form_model = InternetExchangePeeringSessionForm
     template = "peering/internetexchangepeeringsession/add_from_peeringdb.html"
 
     def process_dependency_object(self, request, dependency):
-        ix_id = request.POST.get("internet_exchange_id", 0)
-        if not ix_id:
-            ix = None
-        else:
-            ix = InternetExchange.objects.get(pk=ix_id)
         (session6, created6) = InternetExchangePeeringSession.create_from_peeringdb(
-            dependency, 6, internet_exchange=ix
+            dependency, 6
         )
         (session4, created4) = InternetExchangePeeringSession.create_from_peeringdb(
-            dependency, 4, internet_exchange=ix
+            dependency, 4
         )
         return_value = []
 
@@ -1011,7 +983,7 @@ class RouterConfiguration(PermissionRequiredMixin, View):
     def get(self, request, pk):
         router = get_object_or_404(Router, pk=pk)
         context = {
-            "router": router,
+            "instance": router,
             "router_configuration": router.generate_configuration(),
         }
 
@@ -1089,8 +1061,8 @@ class RouterInternetExchangesPeeringSessions(PermissionRequiredMixin, ModelListV
 
     def build_queryset(self, request, kwargs):
         queryset = None
-        # The queryset needs to be composed of InternetExchangePeeringSession objects but they
-        # are linked to an AS. So first of all we need to retrieve the AS for
+        # The queryset needs to be composed of InternetExchangePeeringSession objects
+        # but they are linked to an AS. So first of all we need to retrieve the AS for
         # which we want to get the peering sessions.
         if "pk" in kwargs:
             queryset = InternetExchangePeeringSession.objects.filter(
@@ -1104,8 +1076,9 @@ class RouterInternetExchangesPeeringSessions(PermissionRequiredMixin, ModelListV
         # Since we are in the context of a Router we need to keep the reference
         # for it
         if "pk" in kwargs:
-            router = get_object_or_404(Router, pk=kwargs["pk"])
-            extra_context.update({"router": router, "router_id": router.pk})
+            extra_context.update(
+                {"instance": get_object_or_404(Router, pk=kwargs["pk"])}
+            )
 
         return extra_context
 
