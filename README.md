@@ -7,7 +7,9 @@ to document Internet Exchanges points and peering sessions, its goal is now to
 provide a source of truth and configuration management for external BGP
 sessions of all kind (transit, customers, peering, …).
 
-Questions? Comments? Join us in the `#peering-manager` Slack channel on
+Questions? Comments? Start a
+[discussion](https://github.com/peering-manager/peering-manager/discussions) on
+GitHub or join us in the `#peering-manager` Slack channel on
 [NetworkToCode](https://networktocode.slack.com/).
 
 ## Requirements
