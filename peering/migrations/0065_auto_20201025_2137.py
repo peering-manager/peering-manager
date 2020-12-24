@@ -11,7 +11,6 @@ class Migration(migrations.Migration):
         ("peering", "0064_auto_20201016_2113"),
     ]
 
-    @transaction.atomic()
     def set_local_autonomous_system(apps, schema_editor):
         db_alias = schema_editor.connection.alias
 
