@@ -14,5 +14,6 @@ class Migration(migrations.Migration):
         apps.get_model("peeringdb", "Network").objects.all().delete()
         apps.get_model("peeringdb", "NetworkIXLAN").objects.all().delete()
         apps.get_model("peeringdb", "PeerRecord").objects.all().delete()
+        apps.get_model("peeringdb", "Synchronization").objects.all().delete()
 
     operations = [migrations.RunPython(flush_peeringdb_tables)]
