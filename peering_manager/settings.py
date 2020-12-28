@@ -5,17 +5,17 @@
 # every code releases.
 
 
-import os
 import platform
 import socket
+from pathlib import Path
 
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
 from django.core.validators import URLValidator
 
 HOSTNAME = platform.node()
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DOCS_DIR = os.path.join(BASE_DIR, "docs")
+BASE_DIR = Path(__file__).resolve().parent.parent
+DOCS_DIR = BASE_DIR / "docs"
 
 VERSION = "v1.3.1-dev"
 
@@ -439,7 +439,7 @@ ROOT_URLCONF = "peering_manager.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR + "/templates/"],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -485,9 +485,9 @@ MESSAGE_TAGS = {messages.ERROR: "danger"}
 
 
 # Static files (CSS, JavaScript, Images)
-STATIC_ROOT = BASE_DIR + "/static/"
+STATIC_ROOT = BASE_DIR / "static"
 STATIC_URL = f"/{BASE_PATH}static/"
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "project-static"),)
+STATICFILES_DIRS = (BASE_DIR / "project-static",)
 
 # Django debug toolbar
 INTERNAL_IPS = ["127.0.0.1", "::1"]
