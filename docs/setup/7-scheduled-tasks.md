@@ -27,6 +27,13 @@ The first cache synchronization can take a lot of time due to the amount of
 data to be stored. Later runs will be faster because only the differences with
 the previous synchronization will be retrieved.
 
+This command can be called with the `--flush` option to remove synchronized
+items.
+
+```no-highlight
+# python3 manage.py peeringdb_sync --flush
+```
+
 ## Automatic Configuration Deployment
 
 If Peering Manager is used to generate configuration stanzas and push them to
