@@ -14,23 +14,11 @@
         </tr>
         <tr>
           <td>IPv6 Address</td>
-          <td>
-            {% if instance.ipv6_address %}
-            {{ instance.ipv6_address }}
-            {% else %}
-            <span class="text-muted">&mdash;</span>
-            {% endif %}
-          </td>
+          <td>{{ instance.ipv6_address|render_none }}</td>
         </tr>
         <tr>
           <td>IPv4 Address</td>
-          <td>
-            {% if instance.ipv4_address %}
-            {{ instance.ipv4_address }}
-            {% else %}
-            <span class="text-muted">&mdash;</span>
-            {% endif %}
-          </td>
+          <td>{{ instance.ipv4_address|render_none }}</td>
         </tr>
         <tr>
           <td>Local AS</td>

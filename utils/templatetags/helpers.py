@@ -21,7 +21,16 @@ def boolean_as_icon(value):
 
 @register.filter()
 def as_link(value):
+    if not hasattr(value, "get_absolute_url"):
+        return value
     return mark_safe(f'<a href="{value.get_absolute_url()}">{value}</a>')
+
+
+@register.filter()
+def render_none(value):
+    if not value:
+        return mark_safe('<span class="text-muted">&mdash;</span>')
+    return as_link(value)
 
 
 @register.filter()

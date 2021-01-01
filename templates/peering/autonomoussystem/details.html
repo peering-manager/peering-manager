@@ -49,13 +49,7 @@
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
           <td>Contact Name</td>
-          <td>
-            {% if instance.contact_name %}
-            {{ instance.contact_name }}
-            {% else %}
-            <span class="text-muted">&mdash;</span>
-            {% endif %}
-          </td>
+          <td>{{ instance.contact_name|render_none }}</td>
         </tr>
         <tr>
           <td>Contact Phone</td>

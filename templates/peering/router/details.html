@@ -51,13 +51,7 @@
         </tr>
         <tr>
           <td>Configuration</td>
-          <td>
-            {% if instance.configuration_template %}
-            {{ instance.configuration_template|as_link }}
-            {% else %}
-            <span class="text-muted">&mdash;</span>
-            {% endif %}
-          </td>
+          <td>{{ instance.configuration_template|render_none }}</td>
         </tr>
         <tr>
           <td>Local AS</td>
