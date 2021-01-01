@@ -138,6 +138,7 @@ class ASDetails(DetailsView):
         return {
             "instance": instance,
             "shared_internet_exchanges": shared_internet_exchanges,
+            "active_tab": "main",
         }
 
 
@@ -162,7 +163,7 @@ class ASEmail(PermissionRequiredMixin, View):
         return render(
             request,
             "peering/autonomoussystem/email.html",
-            {"instance": instance, "form": form},
+            {"instance": instance, "form": form, "active_tab": "email"},
         )
 
     def post(self, request, *args, **kwargs):
@@ -215,7 +216,7 @@ class AutonomousSystemContacts(PermissionRequiredMixin, ModelListView):
         return queryset
 
     def extra_context(self, kwargs):
-        extra_context = {}
+        extra_context = {"active_tab": "contacts"}
         if "asn" in kwargs:
             extra_context.update(
                 {"instance": get_object_or_404(AutonomousSystem, asn=kwargs["asn"])}
@@ -242,7 +243,7 @@ class AutonomousSystemDirectPeeringSessions(PermissionRequiredMixin, ModelListVi
         return queryset
 
     def extra_context(self, kwargs):
-        extra_context = {}
+        extra_context = {"active_tab": "directsessions"}
         # Since we are in the context of an AS we need to keep the reference
         # for it
         if "asn" in kwargs:
@@ -275,7 +276,7 @@ class AutonomousSystemInternetExchangesPeeringSessions(
         return queryset
 
     def extra_context(self, kwargs):
-        extra_context = {}
+        extra_context = {"active_tab": "ixsessions"}
 
         # Since we are in the context of an AS we need to keep the reference
         # for it
@@ -307,7 +308,7 @@ class AutonomousSystemPeers(PermissionRequiredMixin, ModelListView):
         return queryset
 
     def extra_context(self, kwargs):
-        extra_context = {}
+        extra_context = {"active_tab": "peers"}
         if "asn" in kwargs:
             instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
             extra_context.update({"instance": instance})
@@ -365,6 +366,12 @@ class BGPGroupDetails(DetailsView):
     permission_required = "peering.view_bgpgroup"
     queryset = BGPGroup.objects.all()
 
+    def get_context(self, request, **kwargs):
+        return {
+            "instance": get_object_or_404(self.queryset, **kwargs),
+            "active_tab": "main",
+        }
+
 
 class BGPGroupAdd(PermissionRequiredMixin, AddOrEditView):
     permission_required = "peering.add_bgpgroup"
@@ -420,7 +427,7 @@ class BGPGroupPeeringSessions(PermissionRequiredMixin, ModelListView):
         return queryset
 
     def extra_context(self, kwargs):
-        extra_context = {}
+        extra_context = {"active_tab": "directsessions"}
         if "slug" in kwargs:
             extra_context.update(
                 {"instance": get_object_or_404(BGPGroup, slug=kwargs["slug"])}
@@ -448,6 +455,12 @@ class CommunityAdd(PermissionRequiredMixin, AddOrEditView):
 class CommunityDetails(DetailsView):
     permission_required = "peering.view_community"
     queryset = Community.objects.all()
+
+    def get_context(self, request, **kwargs):
+        return {
+            "instance": get_object_or_404(self.queryset, **kwargs),
+            "active_tab": "main",
+        }
 
 
 class CommunityEdit(PermissionRequiredMixin, AddOrEditView):
@@ -504,6 +517,7 @@ class ConfigurationDetails(DetailsView):
         return {
             "instance": instance,
             "routers": Router.objects.filter(configuration_template=instance),
+            "active_tab": "main",
         }
 
 
@@ -613,6 +627,12 @@ class EmailAdd(PermissionRequiredMixin, AddOrEditView):
 class EmailDetails(DetailsView):
     permission_required = "peering.view_email"
     queryset = Email.objects.all()
+
+    def get_context(self, request, **kwargs):
+        return {
+            "instance": get_object_or_404(self.queryset, **kwargs),
+            "active_tab": "main",
+        }
 
 
 class EmailEdit(PermissionRequiredMixin, AddOrEditView):
@@ -725,7 +745,7 @@ class InternetExchangeDetails(DetailsView):
                     "PeeringDB records for this IX were invalid, they have been fixed.",
                 )
 
-        return {"instance": instance}
+        return {"instance": instance, "active_tab": "main"}
 
 
 class InternetExchangeEdit(PermissionRequiredMixin, AddOrEditView):
@@ -787,6 +807,7 @@ class InternetExchangePeeringSessions(PermissionRequiredMixin, ModelListView):
                         InternetExchange, slug=kwargs["slug"]
                     ),
                     "instance_slug": kwargs["slug"],
+                    "active_tab": "sessions",
                 }
             )
 
@@ -810,7 +831,7 @@ class InternetExchangePeers(PermissionRequiredMixin, ModelListView):
         return queryset
 
     def extra_context(self, kwargs):
-        extra_context = {}
+        extra_context = {"active_tab": "peers"}
 
         if "slug" in kwargs:
             instance = get_object_or_404(InternetExchange, slug=kwargs["slug"])
@@ -974,6 +995,7 @@ class RouterDetails(DetailsView):
         return {
             "instance": instance,
             "internet_exchanges": InternetExchange.objects.filter(router=instance),
+            "active_tab": "main",
         }
 
 
@@ -985,6 +1007,7 @@ class RouterConfiguration(PermissionRequiredMixin, View):
         context = {
             "instance": router,
             "router_configuration": router.generate_configuration(),
+            "active_tab": "configuration",
         }
 
         # Asked for raw output
@@ -1042,7 +1065,7 @@ class RouterDirectPeeringSessions(PermissionRequiredMixin, ModelListView):
         return queryset
 
     def extra_context(self, kwargs):
-        extra_context = {}
+        extra_context = {"active_tab": "directsessions"}
         # Since we are in the context of a Router we need to keep the reference
         # for it
         if "pk" in kwargs:
@@ -1072,7 +1095,7 @@ class RouterInternetExchangesPeeringSessions(PermissionRequiredMixin, ModelListV
         return queryset
 
     def extra_context(self, kwargs):
-        extra_context = {}
+        extra_context = {"active_tab": "ixsessions"}
         # Since we are in the context of a Router we need to keep the reference
         # for it
         if "pk" in kwargs:
@@ -1103,6 +1126,12 @@ class RoutingPolicyAdd(PermissionRequiredMixin, AddOrEditView):
 class RoutingPolicyDetails(DetailsView):
     permission_required = "peering.view_routingpolicy"
     queryset = RoutingPolicy.objects.all()
+
+    def get_context(self, request, **kwargs):
+        return {
+            "instance": get_object_or_404(RoutingPolicy, **kwargs),
+            "active_tab": "main",
+        }
 
 
 class RoutingPolicyEdit(PermissionRequiredMixin, AddOrEditView):

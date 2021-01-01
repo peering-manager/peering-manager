@@ -1,6 +1,8 @@
 from django.urls import path
 
-from . import views
+from utils.views import ObjectChangeLog
+
+from . import models, views
 
 app_name = "peering"
 
@@ -27,6 +29,12 @@ urlpatterns = [
         "autonomous-systems/<int:asn>/email/",
         views.ASEmail.as_view(),
         name="autonomoussystem_email",
+    ),
+    path(
+        "autonomous-systems/<int:asn>/changelog/",
+        ObjectChangeLog.as_view(),
+        name="autonomoussystem_changelog",
+        kwargs={"model": models.AutonomousSystem},
     ),
     path(
         "autonomous-systems/<int:asn>/delete/",
@@ -80,6 +88,12 @@ urlpatterns = [
         name="bgpgroup_edit",
     ),
     path(
+        "bgp-groups/<slug:slug>/changelog/",
+        ObjectChangeLog.as_view(),
+        name="bgpgroup_changelog",
+        kwargs={"model": models.BGPGroup},
+    ),
+    path(
         "bgp-groups/<slug:slug>/delete/",
         views.BGPGroupDelete.as_view(),
         name="bgpgroup_delete",
@@ -101,6 +115,12 @@ urlpatterns = [
         "communities/<int:pk>/edit/",
         views.CommunityEdit.as_view(),
         name="community_edit",
+    ),
+    path(
+        "communities/<int:pk>/changelog/",
+        ObjectChangeLog.as_view(),
+        name="community_changelog",
+        kwargs={"model": models.Community},
     ),
     path(
         "communities/<int:pk>/delete/",
@@ -135,6 +155,12 @@ urlpatterns = [
         "configurations/<int:pk>/edit/",
         views.ConfigurationEdit.as_view(),
         name="configuration_edit",
+    ),
+    path(
+        "configurations/<int:pk>/changelog/",
+        ObjectChangeLog.as_view(),
+        name="configuration_changelog",
+        kwargs={"model": models.Configuration},
     ),
     path(
         "configurations/<int:pk>/delete/",
@@ -178,6 +204,12 @@ urlpatterns = [
         name="directpeeringsession_edit",
     ),
     path(
+        "direct-peering-sessions/<int:pk>/changelog/",
+        ObjectChangeLog.as_view(),
+        name="directpeeringsession_changelog",
+        kwargs={"model": models.DirectPeeringSession},
+    ),
+    path(
         "direct-peering-sessions/<int:pk>/delete/",
         views.DirectPeeringSessionDelete.as_view(),
         name="directpeeringsession_delete",
@@ -187,6 +219,12 @@ urlpatterns = [
     path("emails/add/", views.EmailAdd.as_view(), name="email_add"),
     path("emails/<int:pk>/", views.EmailDetails.as_view(), name="email_details"),
     path("emails/<int:pk>/edit/", views.EmailEdit.as_view(), name="email_edit"),
+    path(
+        "emails/<int:pk>/changelog/",
+        ObjectChangeLog.as_view(),
+        name="email_changelog",
+        kwargs={"model": models.Email},
+    ),
     path("emails/<int:pk>/delete/", views.EmailDelete.as_view(), name="email_delete"),
     path("emails/delete/", views.EmailBulkDelete.as_view(), name="email_bulk_delete"),
     # Internet Exchanges
@@ -204,6 +242,12 @@ urlpatterns = [
         "internet-exchanges/peeringdb-import/",
         views.InternetExchangePeeringDBImport.as_view(),
         name="internetexchange_peeringdb_import",
+    ),
+    path(
+        "internet-exchanges/<slug:slug>/changelog/",
+        ObjectChangeLog.as_view(),
+        name="internetexchange_changelog",
+        kwargs={"model": models.InternetExchange},
     ),
     path(
         "internet-exchanges/delete/",
@@ -262,6 +306,12 @@ urlpatterns = [
         name="internetexchangepeeringsession_edit",
     ),
     path(
+        "internet-exchange-peering-sessions/<int:pk>/changelog/",
+        ObjectChangeLog.as_view(),
+        name="internetexchangepeeringsession_changelog",
+        kwargs={"model": models.InternetExchangePeeringSession},
+    ),
+    path(
         "internet-exchange-peering-sessions/<int:pk>/delete/",
         views.InternetExchangePeeringSessionDelete.as_view(),
         name="internetexchangepeeringsession_delete",
@@ -302,6 +352,12 @@ urlpatterns = [
     ),
     path("routers/<int:pk>/edit/", views.RouterEdit.as_view(), name="router_edit"),
     path(
+        "routers/<int:pk>/changelog/",
+        ObjectChangeLog.as_view(),
+        name="router_changelog",
+        kwargs={"model": models.Router},
+    ),
+    path(
         "routers/<int:pk>/delete/", views.RouterDelete.as_view(), name="router_delete"
     ),
     path(
@@ -328,6 +384,12 @@ urlpatterns = [
         "routing-policies/<int:pk>/edit/",
         views.RoutingPolicyEdit.as_view(),
         name="routingpolicy_edit",
+    ),
+    path(
+        "routing-policies/<int:pk>/changelog/",
+        ObjectChangeLog.as_view(),
+        name="routingpolicy_changelog",
+        kwargs={"model": models.RoutingPolicy},
     ),
     path(
         "routing-policies/<int:pk>/delete/",

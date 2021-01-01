@@ -10,6 +10,7 @@ from utils.testing import StandardTestCases
 class ObjectChangeTestCase(StandardTestCases.Views):
     model = ObjectChange
 
+    test_changelog_object = None
     test_create_object = None
     test_edit_object = None
     test_delete_object = None
@@ -32,6 +33,8 @@ class ObjectChangeTestCase(StandardTestCases.Views):
 
 class TagTestCase(StandardTestCases.Views):
     model = Tag
+
+    test_changelog_object = None
 
     @classmethod
     def setUpTestData(cls):

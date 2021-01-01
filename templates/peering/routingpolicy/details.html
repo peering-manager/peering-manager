@@ -1,62 +1,46 @@
-{% extends '_base.html' %}
+{% extends 'peering/routingpolicy/_base.html' %}
 {% load helpers %}
-{% block actions %}
-{% if perms.peering.change_routingpolicy %}
-<a href="{% url 'peering:routingpolicy_edit' pk=instance.pk %}" class="btn btn-warning">
-  <i class="fas fa-edit"></i> Edit
-</a>
-{% endif %}
-{% if perms.peering.delete_routingpolicy %}
-<a href="{% url 'peering:routingpolicy_delete' pk=instance.pk %}" class="btn btn-danger">
-  <i class="fas fa-trash"></i> Delete
-</a>
-{% endif %}
-{% endblock %}
-{% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'peering:routingpolicy_list' %}">Routing Policies</a></li>
-<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
-{% endblock %}
-{% block content %}
-      <div class="row">
-        <div class="col-md-6">
-          <div class="card">
-            <div class="card-header">
-              <strong>Routing Policy Details</strong>
-            </div>
-            <table class="card-body table table-hover attr-table mb-0">
-              <tr>
-                <td>Name</td>
-                <td>{{ instance.name }}</td>
-              </tr>
-              <tr>
-                <td>Type</td>
-                <td>{{ instance.get_type_display }}</td>
-              </tr>
-              <tr>
-                <td>Weight</td>
-                <td>{{ instance.weight }}</td>
-              </tr>
-              <tr>
-                <td>Address Family</td>
-                <td>{{ instance.get_address_family_display }}</td>
-              </tr>
-            </table>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="card">
-            <div class="card-header">
-              <strong>Comments</strong>
-            </div>
-            <div class="card-body">
-              {% if instance.comments %}
-              {{ instance.comments|markdown }}
-              {% else %}
-              <span class="text-muted">None</span>
-              {% endif %}
-            </div>
-          </div>
-          {% include 'utils/includes/tags_card.html' with tags=instance.tags.all url='peering:routingpolicy_list' %}
-        </div>
+{% block subcontent %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <strong>Routing Policy Details</strong>
       </div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Name</td>
+          <td>{{ instance.name }}</td>
+        </tr>
+        <tr>
+          <td>Type</td>
+          <td>{{ instance.get_type_display }}</td>
+        </tr>
+        <tr>
+          <td>Weight</td>
+          <td>{{ instance.weight }}</td>
+        </tr>
+        <tr>
+          <td>Address Family</td>
+          <td>{{ instance.get_address_family_display }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <strong>Comments</strong>
+      </div>
+      <div class="card-body">
+        {% if instance.comments %}
+        {{ instance.comments|markdown }}
+        {% else %}
+        <span class="text-muted">None</span>
+        {% endif %}
+      </div>
+    </div>
+    {% include 'utils/includes/tags_card.html' with tags=instance.tags.all url='peering:routingpolicy_list' %}
+  </div>
+</div>
 {% endblock %}

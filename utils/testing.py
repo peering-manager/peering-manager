@@ -224,8 +224,7 @@ class StandardTestCases(object):
 
             if action in ("list", "add", "bulk_edit", "bulk_delete"):
                 return reverse(url_format.format(action))
-
-            elif action in ("details", "edit", "delete"):
+            elif action in ("details", "edit", "delete", "changelog"):
                 if instance is None:
                     raise Exception(
                         f"Resolving {action} URL requires specifying an instance"
@@ -247,7 +246,6 @@ class StandardTestCases(object):
                     except NoReverseMatch:
                         pass
                 return reverse(url_format.format(action), kwargs={"pk": instance.pk})
-
             else:
                 raise Exception(f"Invalid action for URL resolution: {action}")
 
@@ -277,6 +275,21 @@ class StandardTestCases(object):
                 f"{self.model._meta.app_label}.view_{self.model._meta.model_name}"
             )
             response = self.client.get(instance.get_absolute_url())
+            self.assertStatus(response, status.HTTP_200_OK)
+
+        def test_changelog_object(self):
+            instance = self.model.objects.first()
+
+            # Attempt to make the request without required permissions
+            self.assertStatus(
+                self.client.get(instance.get_absolute_url()), status.HTTP_403_FORBIDDEN
+            )
+
+            # Assign the required permission and submit again
+            self.add_permissions(
+                f"{self.model._meta.app_label}.view_{self.model._meta.model_name}"
+            )
+            response = self.client.get(self._get_url("changelog", instance=instance))
             self.assertStatus(response, status.HTTP_200_OK)
 
         def test_create_object(self):

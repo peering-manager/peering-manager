@@ -17,49 +17,54 @@
 <li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
-      <ul class="nav nav-tabs">
-        <li class="nav-item">
-          <a class="nav-link{% if request.path|notcontains:'/direct-peering-sessions/,/ix-peering-sessions/,/contacts/,/email/,/peers/' %} active{% endif %}" href="{% url 'peering:autonomoussystem_details' asn=instance.asn %}">
-            <i class="fas fa-info-circle"></i> Details
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link{% if request.path|contains:'/direct-peering-sessions/' %} active{% endif %}" href="{% url 'peering:autonomoussystem_direct_peering_sessions' asn=instance.asn %}">
-            <i class="fas fa-ethernet"></i> Direct Peering Sessions
-          </a>
-        </li>
-        {% if instance.get_peering_sessions|length > 0 %}
-        <li class="nav-item">
-          <a class="nav-link{% if request.path|contains:'/ix-peering-sessions/' %} active{% endif %}" href="{% url 'peering:autonomoussystem_internet_exchange_peering_sessions' asn=instance.asn %}">
-            <i class="fas fa-network-wired"></i> IX Peering Sessions
-          </a>
-        </li>
-        {% endif %}
-        {% missing_sessions instance as has_missing_sessions %}
-        {% if has_missing_sessions %}
-        <li class="nav-item">
-          <a class="nav-link{% if request.path|contains:'/peers/' %} active{% endif %}" href="{% url 'peering:autonomoussystem_peers' asn=instance.asn %}">
-            <i class="fas fa-link"></i> Available Sessions
-          </a>
-        </li>
-        {% endif %}
-        {% if instance.peeringdb_contacts|length > 0 %}
-        <li class="nav-item">
-          <a class="nav-link{% if request.path|contains:'/contacts/' %} active{% endif %}" href="{% url 'peering:autonomoussystem_contacts' asn=instance.asn %}">
-            <i class="fas fa-address-book"></i> PeeringDB Contacts
-          </a>
-        </li>
-        {% endif %}
-        {% if perms.peering.send_email and instance.can_receive_email %}
-        <li class="nav-item">
-          <a class="nav-link{% if request.path|contains:'/email/' %} active{% endif %}" href="{% url 'peering:autonomoussystem_email' asn=instance.asn %}">
-            <i class="fas fa-envelope-open-text"></i> Send E-mail
-          </a>
-        </li>
-        {% endif %}
-        <li class="nav-item">
-          <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Last updated: {{ instance.updated }}</a>
-        </li>
-      </ul>
-      {% block subcontent %}{% endblock %}
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'main' %} active{% endif %}" href="{% url 'peering:autonomoussystem_details' asn=instance.asn %}">
+      <i class="fas fa-info-circle"></i> Details
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'directsessions' %} active{% endif %}" href="{% url 'peering:autonomoussystem_direct_peering_sessions' asn=instance.asn %}">
+      <i class="fas fa-ethernet"></i> Direct Peering Sessions
+    </a>
+  </li>
+  {% if instance.get_peering_sessions|length > 0 %}
+  <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'ixsessions' %} active{% endif %}" href="{% url 'peering:autonomoussystem_internet_exchange_peering_sessions' asn=instance.asn %}">
+      <i class="fas fa-network-wired"></i> IX Peering Sessions
+    </a>
+  </li>
+  {% endif %}
+  {% missing_sessions instance as has_missing_sessions %}
+  {% if has_missing_sessions %}
+  <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'peers' %} active{% endif %}" href="{% url 'peering:autonomoussystem_peers' asn=instance.asn %}">
+      <i class="fas fa-link"></i> Available Sessions
+    </a>
+  </li>
+  {% endif %}
+  {% if instance.peeringdb_contacts|length > 0 %}
+  <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'contacts' %} active{% endif %}" href="{% url 'peering:autonomoussystem_contacts' asn=instance.asn %}">
+      <i class="fas fa-address-book"></i> PeeringDB Contacts
+    </a>
+  </li>
+  {% endif %}
+  {% if perms.peering.send_email and instance.can_receive_email %}
+  <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'email' %} active{% endif %}" href="{% url 'peering:autonomoussystem_email' asn=instance.asn %}">
+      <i class="fas fa-envelope-open-text"></i> Send E-mail
+    </a>
+  </li>
+  {% endif %}
+  <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'changelog' %} active{% endif %}" href="{% url 'peering:autonomoussystem_changelog' asn=instance.asn %}">
+      <i class="fas fa-history"></i> Changelog
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Last updated: {{ instance.updated }}</a>
+  </li>
+</ul>
+{% block subcontent %}{% endblock %}
 {% endblock %}

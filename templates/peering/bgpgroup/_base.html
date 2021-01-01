@@ -17,26 +17,31 @@
 <li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
-      <ul class="nav nav-tabs">
-        <li class="nav-item">
-          <a class="nav-link{% if request.path|notcontains:'/peering-sessions/' %} active{% endif %}" href="{% url 'peering:bgpgroup_details' slug=instance.slug %}">
-            <i class="fas fa-info-circle"></i> Info
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link{% if request.path|contains:'/peering-sessions/' %} active{% endif %}" href="{% url 'peering:bgpgroup_peering_sessions' slug=instance.slug %}">
-            <i class="fas fa-ethernet"></i> Direct Peering Sessions
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">
-            {% if instance.bgp_session_states_update %}
-            Sessions last updated: {{ instance.bgp_session_states_update }}
-            {% else %}
-            Last updated: {{ instance.updated }}
-            {% endif %}
-          </a>
-        </li>
-      </ul>
-      {% block subcontent %}{% endblock %}
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'main' %} active{% endif %}" href="{% url 'peering:bgpgroup_details' slug=instance.slug %}">
+      <i class="fas fa-info-circle"></i> Info
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'directsessions' %} active{% endif %}" href="{% url 'peering:bgpgroup_peering_sessions' slug=instance.slug %}">
+      <i class="fas fa-ethernet"></i> Direct Peering Sessions
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'changelog' %} active{% endif %}" href="{% url 'peering:bgpgroup_changelog' slug=instance.slug %}">
+      <i class="fas fa-history"></i> Changelog
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">
+      {% if instance.bgp_session_states_update %}
+      Sessions last updated: {{ instance.bgp_session_states_update }}
+      {% else %}
+      Last updated: {{ instance.updated }}
+      {% endif %}
+    </a>
+  </li>
+</ul>
+{% block subcontent %}{% endblock %}
 {% endblock %}

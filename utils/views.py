@@ -1,13 +1,15 @@
 import sys
 
+from django import template
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import (
     PermissionRequiredMixin as _PermissionRequiredMixin,
 )
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import transaction
-from django.db.models import Count, ManyToManyField, ProtectedError
+from django.db.models import Count, ManyToManyField, ProtectedError, Q
 from django.db.models.query import QuerySet
 from django.forms import CharField, MultipleHiddenInput
 from django.forms.formsets import formset_factory
@@ -772,6 +774,47 @@ class ObjectChangeList(PermissionRequiredMixin, ModelListView):
     filter_form = ObjectChangeFilterForm
     table = ObjectChangeTable
     template = "utils/object_change/list.html"
+
+
+class ObjectChangeLog(View):
+    def get(self, request, model, **kwargs):
+        # Get object by model and kwargs (like asn=64500)
+        obj = get_object_or_404(model, **kwargs)
+
+        # Gather all changes for this object (and its related objects)
+        content_type = ContentType.objects.get_for_model(model)
+        objectchanges = ObjectChange.objects.select_related(
+            "user", "changed_object_type"
+        ).filter(
+            Q(changed_object_type=content_type, changed_object_id=obj.pk)
+            | Q(related_object_type=content_type, related_object_id=obj.pk)
+        )
+        objectchanges_table = ObjectChangeTable(data=objectchanges, orderable=False)
+
+        # Apply the request context
+        paginate = {
+            "paginator_class": EnhancedPaginator,
+            "per_page": get_paginate_count(request),
+        }
+        RequestConfig(request, paginate).configure(objectchanges_table)
+
+        # Check whether a header template exists for this model
+        base_template = f"{model._meta.app_label}/{model._meta.model_name}/_base.html"
+        try:
+            template.loader.get_template(base_template)
+        except template.TemplateDoesNotExist:
+            base_template = "_base.html"
+
+        return render(
+            request,
+            "utils/object_change/log.html",
+            {
+                "instance": obj,
+                "table": objectchanges_table,
+                "base_template": base_template,
+                "active_tab": "changelog",
+            },
+        )
 
 
 class ObjectChangeDetails(PermissionRequiredMixin, View):

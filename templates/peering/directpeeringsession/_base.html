@@ -1,0 +1,40 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block actions %}
+{% if perms.peering.change_directpeeringsession %}
+<button type="button" class="btn btn-danger{% if not instance.enabled %} d-none{% endif %}" id="id_session_disable">
+  <i class="fas fa-toggle-off"></i> Disable
+</button>
+<button type="button" class="btn btn-success{% if instance.enabled %} d-none{% endif %}" id="id_session_enable">
+  <i class="fas fa-toggle-on"></i> Enable
+</button>
+<a href="{% url 'peering:directpeeringsession_edit' pk=instance.pk %}" class="btn btn-warning">
+  <i class="fas fa-edit"></i> Edit
+</a>
+{% endif %}
+{% if perms.peering.delete_directpeeringsession %}
+<a href="{% url 'peering:directpeeringsession_delete' pk=instance.pk %}" class="btn btn-danger">
+  <i class="fas fa-trash"></i> Delete
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'peering:autonomoussystem_details' asn=instance.autonomous_system.asn %}">{{ instance.autonomous_system }}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'peering:autonomoussystem_direct_peering_sessions' asn=instance.autonomous_system.asn %}">Direct Peering Sessions</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
+{% endblock %}
+{% block content %}
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'main' %} active{% endif %}" href="{% url 'peering:directpeeringsession_details' pk=instance.pk %}">
+      <i class="fas fa-info-circle"></i> Info
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'changelog' %} active{% endif %}" href="{% url 'peering:directpeeringsession_changelog' pk=instance.pk %}">
+      <i class="fas fa-history"></i> Changelog
+    </a>
+  </li>
+</ul>
+{% block subcontent %}{% endblock %}
+{% endblock %}

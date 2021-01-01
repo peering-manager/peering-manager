@@ -19,22 +19,27 @@
 {% block content %}
 <ul class="nav nav-tabs">
   <li class="nav-item">
-    <a class="nav-link{% if request.path|notcontains:'/peering-sessions/,/peers/,/configuration/' %} active{% endif %}" href="{% url 'peering:internetexchange_details' slug=instance.slug %}">
+    <a class="nav-link{% if active_tab == 'main' %} active{% endif %}" href="{% url 'peering:internetexchange_details' slug=instance.slug %}">
       <i class="fas fa-info-circle"></i> Info
     </a>
   </li>
   <li class="nav-item">
-    <a class="nav-link{% if request.path|contains:'/peering-sessions/' %} active{% endif %}" href="{% url 'peering:internetexchange_peering_sessions' slug=instance.slug %}">
+    <a class="nav-link{% if active_tab == 'sessions' %} active{% endif %}" href="{% url 'peering:internetexchange_peering_sessions' slug=instance.slug %}">
       <i class="fas fa-network-wired"></i> Peering Sessions
     </a>
   </li>
   {% if instance.peeringdb_netixlan and instance.peeringdb_ix %}
   <li class="nav-item">
-    <a class="nav-link{% if request.path|contains:'/peers/' %} active{% endif %}" href="{% url 'peering:internetexchange_peers' slug=instance.slug %}">
+    <a class="nav-link{% if active_tab == 'peers' %} active{% endif %}" href="{% url 'peering:internetexchange_peers' slug=instance.slug %}">
       <i class="fas fa-link"></i> Available Peers
     </a>
   </li>
   {% endif %}
+  <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'changelog' %} active{% endif %}" href="{% url 'peering:internetexchange_changelog' slug=instance.slug %}">
+      <i class="fas fa-history"></i> Changelog
+    </a>
+  </li>
   <li class="nav-item">
     <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">
       {% if instance.bgp_session_states_update %}

@@ -1,24 +1,24 @@
 {% extends 'utils/object_add_edit.html' %}
 {% load form_helpers %}
 {% block form %}
-            <div class="card my-2">
-              <div class="card-header"><strong>E-mail</strong></div>
-              <div class="card-body">
-                {% render_field form.name %}
-                {% render_field form.subject %}
-                {% render_field form.template %}
-              </div>
-            </div>
-            <div class="card my-2">
-              <div class="card-header"><strong>Tags</strong></div>
-              <div class="card-body">
-                {% render_field form.tags %}
-              </div>
-            </div>
-            <div class="card my-2">
-              <div class="card-header"><strong>Comments</strong></div>
-              <div class="card-body">
-                {% render_field form.comments %}
-              </div>
-            </div>
+<div class="card my-2">
+  <div class="card-header"><strong>E-mail</strong></div>
+  <div class="card-body">
+    {% render_field form.name %}
+    {% render_field form.subject %}
+    {% render_field form.template %}
+  </div>
+</div>
+<div class="card my-2">
+  <div class="card-header"><strong>Tags</strong></div>
+  <div class="card-body">
+    {% render_field form.tags %}
+  </div>
+</div>
+<div class="card my-2">
+  <div class="card-header"><strong>Comments</strong></div>
+  <div class="card-body">
+    {% render_field form.comments %}
+  </div>
+</div>
 {% endblock %}

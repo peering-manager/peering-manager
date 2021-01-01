@@ -2,54 +2,54 @@
 {% load helpers %}
 {% load form_helpers %}
 {% block content %}
-      <form method="post">
-        {% csrf_token %}
-        {% for field in form.hidden_fields %}
-        {{ field }}
+<form method="post">
+  {% csrf_token %}
+  {% for field in form.hidden_fields %}
+  {{ field }}
+  {% endfor %}
+  {{ formset.management_form }}
+  {% if return_url %}
+  <input type="hidden" name="return_url" value="{{ return_url }}" />
+  {% endif %}
+  <div class="row justify-content-center">
+    <div class="col-8">
+      <h3>{% block title %}{{ obj_type|title_with_uppers }} Import{% endblock %}</h3>
+      {% for error in formset.non_form_errors %}
+      <div class="alert alert-danger alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
+        <i class="fa fa-exclamation-triangle"></i> {{ error }}
+      </div>
+      {% endfor %}
+      {% for form in formset %}
+      {% if form.non_field_errors %}
+      <div class="card card-danger">
+        <div class="card-header"><strong>Errors</strong></div>
+        <div class="card-body">
+          {{ form.non_field_errors }}
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+      {% for form in formset %}
+      <div class="card my-2">
+        {% for hidden in form.hidden_fields %}
+        {{ hidden }}
         {% endfor %}
-        {{ formset.management_form }}
-        {% if return_url %}
-        <input type="hidden" name="return_url" value="{{ return_url }}" />
-        {% endif %}
-        <div class="row justify-content-center">
-          <div class="col-8">
-            <h3>{% block title %}{{ obj_type|title_with_uppers }} Import{% endblock %}</h3>
-            {% for error in formset.non_form_errors %}
-            <div class="alert alert-danger alert-dismissible" role="alert">
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
-              <i class="fa fa-exclamation-triangle"></i> {{ error }}
-            </div>
-            {% endfor %}
-            {% for form in formset %}
-            {% if form.non_field_errors %}
-            <div class="card card-danger">
-              <div class="card-header"><strong>Errors</strong></div>
-              <div class="card-body">
-                {{ form.non_field_errors }}
-              </div>
-            </div>
-            {% endif %}
-            {% endfor %}
-            {% for form in formset %}
-            <div class="card my-2">
-              {% for hidden in form.hidden_fields %}
-              {{ hidden }}
-              {% endfor %}
-              <div class="card-header"><strong>Peering Session</strong></div>
-              <div class="card-body">
-                {% for field in form.visible_fields %}
-                {% render_field field %}
-                {% endfor %}
-              </div>
-            </div>
-            {% endfor %}
-          </div>
+        <div class="card-header"><strong>Peering Session</strong></div>
+        <div class="card-body">
+          {% for field in form.visible_fields %}
+          {% render_field field %}
+          {% endfor %}
         </div>
-        <div class="row justify-content-center">
-          <div class="col-8 text-right">
-            <button type="submit" class="btn btn-primary">Import</button>
-            <a class="btn btn-secondary" href="{{ return_url }}">Cancel</a>
-          </div>
-        </div>
-      </form>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="row justify-content-center">
+    <div class="col-8 text-right">
+      <button type="submit" class="btn btn-primary">Import</button>
+      <a class="btn btn-secondary" href="{{ return_url }}">Cancel</a>
+    </div>
+  </div>
+</form>
 {% endblock %}

@@ -2,55 +2,54 @@
 {% load helpers %}
 {% load form_helpers %}
 {% block subcontent %}
-      <form method="post">
-        {% csrf_token %}
-        {% for field in form.hidden_fields %}
-        {{ field }}
-        {% endfor %}
-        <div class="row justify-content-center">
-          <div class="col-8">
-            {% if form.non_field_errors %}
-            <div class="card bg-danger text-white my-2">
-              <div class="card-header"><strong>Errors</strong></div>
-              <div class="card-body">
-                {{ form.non_field_errors }}
-              </div>
-            </div>
-            {% endif %}
-            {% block form %}
-            <div class="card my-2">
-              <div class="card-header"><strong>E-mail</strong></div>
-              <div class="card-body">
-                {% render_field form.email %}
-                {% render_field form.recipient %}
-                {% render_field form.subject %}
-                {% render_field form.body %}
-              </div>
-            </div>
-            {% endblock %}
-          </div>
+<form method="post">
+  {% csrf_token %}
+  {% for field in form.hidden_fields %}
+  {{ field }}
+  {% endfor %}
+  <div class="row justify-content-center">
+    <div class="col-8">
+      {% if form.non_field_errors %}
+      <div class="card bg-danger text-white my-2">
+        <div class="card-header"><strong>Errors</strong></div>
+        <div class="card-body">
+          {{ form.non_field_errors }}
         </div>
-        <div class="row justify-content-center">
-          <div class="col-8 text-right">
-            <button type="submit" class="btn btn-primary">Send</button>
-          </div>
+      </div>
+      {% endif %}
+      {% block form %}
+      <div class="card my-2">
+        <div class="card-header"><strong>E-mail</strong></div>
+        <div class="card-body">
+          {% render_field form.email %}
+          {% render_field form.recipient %}
+          {% render_field form.subject %}
+          {% render_field form.body %}
         </div>
-      </form>
+      </div>
+      {% endblock %}
+    </div>
+  </div>
+  <div class="row justify-content-center">
+    <div class="col-8 text-right">
+      <button type="submit" class="btn btn-primary">Send</button>
+    </div>
+  </div>
+</form>
 {% endblock %}
 {% block javascript %}
-    <script>
-      $("#id_email").on("select2:select", function(e) {
-        $.ajax({
-          method: "post",
-          url: "{% url 'peering-api:autonomoussystem-generate-email' pk=instance.pk %}",
-          data: {
-            csrfmiddlewaretoken: "{{ csrf_token }}",
-            email: e.params.data["id"],
-          },
-        }).done(function(response) {
-          $("#id_subject").val(response["email"][0]);
-          $("#id_body").val(response["email"][1]);
-        });
-      });
-    </script>
+<script>
+  $("#id_email").on("select2:select", function(e) {
+    $.ajax({
+      method: "post",
+      url: "{% url 'peering-api:autonomoussystem-generate-email' pk=instance.pk %}",
+      data: {
+        csrfmiddlewaretoken: "{{ csrf_token }}", email: e.params.data["id"]
+      },
+    }).done(function(response) {
+      $("#id_subject").val(response["email"][0]);
+      $("#id_body").val(response["email"][1]);
+    });
+  });
+</script>
 {% endblock %}

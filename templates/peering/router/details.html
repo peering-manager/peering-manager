@@ -1,163 +1,163 @@
 {% extends 'peering/router/_base.html' %}
 {% load helpers %}
 {% block subcontent %}
-      <div class="alert alert-success alert-dismissible" role="alert" id="message-can-ping">
-        <button type="button" class="close" aria-label="Close"><span>&times;</span></button>
-        Successfully connected to the router.
+<div class="alert alert-success alert-dismissible" role="alert" id="message-can-ping">
+  <button type="button" class="close" aria-label="Close"><span>&times;</span></button>
+  Successfully connected to the router.
+</div>
+<div class="alert alert-danger alert-dismissible" role="alert" id="message-cannot-ping">
+  <button type="button" class="close" aria-label="Close"><span>&times;</span></button>
+  Unable to connect to the router.
+</div>
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header">
+        <strong>Router Details</strong>
+        {% if instance.platform %}
+        <div class="float-right">
+          <button class="btn btn-xs btn-primary" id="router-ping" title="Check if the router is usable.">
+            <i class="fa fa-plug"></i> Ping
+          </button>
+        </div>
+        {% endif %}
       </div>
-      <div class="alert alert-danger alert-dismissible" role="alert" id="message-cannot-ping">
-        <button type="button" class="close" aria-label="Close"><span>&times;</span></button>
-        Unable to connect to the router.
-      </div>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="card mb-2">
-            <div class="card-header">
-              <strong>Router Details</strong>
-              {% if instance.platform %}
-              <div class="float-right">
-                <button class="btn btn-xs btn-primary" id="router-ping" title="Check if the router is usable.">
-                  <i class="fa fa-plug"></i> Ping
-                </button>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Name</td>
+          <td>{{ instance.name }}</td>
+        </tr>
+        <tr>
+          <td>Hostname</td>
+          <td>{{ instance.hostname }}</td>
+        </tr>
+        <tr>
+          <td>Platform</td>
+          {% if instance.platform %}
+          <td>{{ instance.get_platform_display }}</td>
+          {% else %}
+          <td>Other</td>
+          {% endif %}
+        </tr>
+        <tr>
+          <td>Encrypt Passwords</td>
+          <td>
+            {% if instance.encrypt_passwords %}
+            <i class="fas fa-check text-success"></i>
+            {% else %}
+            <i class="fas fa-times text-danger"></i>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td>Configuration</td>
+          <td>
+            {% if instance.configuration_template %}
+            {{ instance.configuration_template|as_link }}
+            {% else %}
+            <span class="text-muted">&mdash;</span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td>Local AS</td>
+          <td>{{ instance.local_autonomous_system|as_link }}</td>
+        </tr>
+        {% if settings.NETBOX_API %}
+        <tr>
+          <td>Source</td>
+          {% if instance.is_netbox_device %}
+          <td>NetBox</td>
+          {% else %}
+          <td>Local</td>
+          {% endif %}
+        </tr>
+        {% endif %}
+        <tr>
+          <td>Utilization</td>
+          <td>Connected to {% if internet_exchanges|length == 1 %}1 Internet exchange{% else %}{{ internet_exchanges|length }} Internet exchanges{% endif %}</td>
+        </tr>
+      </table>
+    </div>
+    {% if request.user.is_authenticated %}
+    {% if instance.napalm_username or instance.napalm_password or instance.napalm_timeout or instance.napalm_args %}
+    <div class="card">
+      <div class="card-header"><strong>NAPALM</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        {% if instance.napalm_username %}
+        <tr>
+          <td>Username</td>
+          <td>{{ instance.napalm_username }}</td>
+        </tr>
+        {% endif %}
+        {% if instance.napalm_password %}
+        <tr>
+          <td>Password</td>
+          <td>
+            <div class="input-group">
+              <input type="password" class="form-control" id="id_password" value="{{ instance.napalm_password }}" disabled>
+              <div class="input-group-append">
+                <button type="button" class="btn btn-secondary" id="id_password_reveal"><i class="fas fa-eye"></i> Show</button>
               </div>
-              {% endif %}
             </div>
-            <table class="card-body table table-hover attr-table mb-0">
-              <tr>
-                <td>Name</td>
-                <td>{{ instance.name }}</td>
-              </tr>
-              <tr>
-                <td>Hostname</td>
-                <td>{{ instance.hostname }}</td>
-              </tr>
-              <tr>
-                <td>Platform</td>
-                {% if instance.platform %}
-                <td>{{ instance.get_platform_display }}</td>
-                {% else %}
-                <td>Other</td>
-                {% endif %}
-              </tr>
-              <tr>
-                <td>Encrypt Passwords</td>
-                <td>
-                  {% if instance.encrypt_passwords %}
-                  <i class="fas fa-check text-success"></i>
-                  {% else %}
-                  <i class="fas fa-times text-danger"></i>
-                  {% endif %}
-                </td>
-              </tr>
-              <tr>
-                <td>Configuration</td>
-                <td>
-                  {% if instance.configuration_template %}
-                  {{ instance.configuration_template|as_link }}
-                  {% else %}
-                  <span class="text-muted">&mdash;</span>
-                  {% endif %}
-                </td>
-              </tr>
-              <tr>
-                <td>Local AS</td>
-                <td>{{ instance.local_autonomous_system|as_link }}</td>
-              </tr>
-              {% if settings.NETBOX_API %}
-              <tr>
-                <td>Source</td>
-                {% if instance.is_netbox_device %}
-                <td>NetBox</td>
-                {% else %}
-                <td>Local</td>
-                {% endif %}
-              </tr>
-              {% endif %}
-              <tr>
-                <td>Utilization</td>
-                <td>Connected to {% if internet_exchanges|length == 1 %}1 Internet exchange{% else %}{{ internet_exchanges|length }} Internet exchanges{% endif %}</td>
-              </tr>
-            </table>
-          </div>
-          {% if request.user.is_authenticated %}
-          {% if instance.napalm_username or instance.napalm_password or instance.napalm_timeout or instance.napalm_args %}
-          <div class="card">
-            <div class="card-header"><strong>NAPALM</strong></div>
-            <table class="card-body table table-hover attr-table mb-0">
-              {% if instance.napalm_username %}
-              <tr>
-                <td>Username</td>
-                <td>{{ instance.napalm_username }}</td>
-              </tr>
-              {% endif %}
-              {% if instance.napalm_password %}
-              <tr>
-                <td>Password</td>
-                <td>
-                  <div class="input-group">
-                    <input type="password" class="form-control" id="id_password" value="{{ instance.napalm_password }}" disabled>
-                    <div class="input-group-append">
-                      <button type="button" class="btn btn-secondary" id="id_password_reveal"><i class="fas fa-eye"></i> Show</button>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              {% endif %}
-              {% if instance.napalm_timeout %}
-              <tr>
-                <td>Timeout</td>
-                <td>{{ instance.napalm_timeout }} seconds</td>
-              </tr>
-              {% endif %}
-              {% if instance.napalm_args %}
-              <tr>
-                <td>Optional Arguments</td>
-                <td><pre>{{ instance.napalm_args }}</pre></td>
-              </tr>
-              {% endif %}
-            </table>
-          </div>
-          {% endif %}
-          {% endif %}
-        </div>
-        <div class="col-md-6">
-          <div class="card">
-            <div class="card-header"><strong>Comments</strong></div>
-            <div class="card-body">
-              {% if instance.comments %}
-              {{ instance.comments|markdown }}
-              {% else %}
-              <span class="text-muted">None</span>
-              {% endif %}
-            </div>
-          </div>
-          {% include 'utils/includes/tags_card.html' with tags=router.tags.all url='peering:router_list' %}
-        </div>
+          </td>
+        </tr>
+        {% endif %}
+        {% if instance.napalm_timeout %}
+        <tr>
+          <td>Timeout</td>
+          <td>{{ instance.napalm_timeout }} seconds</td>
+        </tr>
+        {% endif %}
+        {% if instance.napalm_args %}
+        <tr>
+          <td>Optional Arguments</td>
+          <td><pre>{{ instance.napalm_args }}</pre></td>
+        </tr>
+        {% endif %}
+      </table>
+    </div>
+    {% endif %}
+    {% endif %}
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header"><strong>Comments</strong></div>
+      <div class="card-body">
+        {% if instance.comments %}
+        {{ instance.comments|markdown }}
+        {% else %}
+        <span class="text-muted">None</span>
+        {% endif %}
       </div>
+    </div>
+    {% include 'utils/includes/tags_card.html' with tags=router.tags.all url='peering:router_list' %}
+  </div>
+</div>
 {% endblock %}
 {% block javascript %}
-    <script>
-      $('.alert').hide();
-      $('.alert').on('click', '.close', function() {
-        $(this).closest('.alert').slideUp();
-      });
+<script>
+  $('.alert').hide();
+  $('.alert').on('click', '.close', function() {
+    $(this).closest('.alert').slideUp();
+  });
 
-      $("#router-ping").click(function() {
-        $.ajax({
-          // Call for a ping
-          method: "get",
-          url: "{% url 'peering-api:router-test-napalm-connection' pk=instance.pk %}",
-          beforeSend: function() {
-            $('#router-ping').attr('disabled', 'disabled').removeClass('btn-primary').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
-          },
-          complete: function() {
-            $('#router-ping').removeClass('btn-warning').addClass('btn-primary').removeAttr('disabled').html('<i class="fas fa-plug"></i> Ping');
-          }
-        }).done(function() {
-          $('#message-can-ping').slideDown();
-        }).fail(function() {
-          $('#message-cannot-ping').slideDown();
-        });
-      });
-    </script>
+  $("#router-ping").click(function() {
+    $.ajax({
+      // Call for a ping
+      method: "get",
+      url: "{% url 'peering-api:router-test-napalm-connection' pk=instance.pk %}",
+      beforeSend: function() {
+        $('#router-ping').attr('disabled', 'disabled').removeClass('btn-primary').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+      },
+      complete: function() {
+        $('#router-ping').removeClass('btn-warning').addClass('btn-primary').removeAttr('disabled').html('<i class="fas fa-plug"></i> Ping');
+      }
+    }).done(function() {
+      $('#message-can-ping').slideDown();
+    }).fail(function() {
+      $('#message-cannot-ping').slideDown();
+    });
+  });
+</script>
 {% endblock %}

@@ -19,29 +19,34 @@
 {% block content %}
       <ul class="nav nav-tabs">
         <li class="nav-item">
-          <a class="nav-link{% if request.path|notcontains:'/configuration/,/direct-peering-sessions/,/ix-peering-sessions/' %} active{% endif %}" href="{% url 'peering:router_details' pk=instance.pk %}">
+          <a class="nav-link{% if active_tab == 'main' %} active{% endif %}" href="{% url 'peering:router_details' pk=instance.pk %}">
             <i class="fas fa-info-circle"></i> Info
           </a>
         </li>
         {% if perms.peering.view_router_configuration_router and instance.configuration_template %}
         <li class="nav-item">
-          <a class="nav-link{% if request.path|contains:'/configuration/' %} active{% endif %}" href="{% url 'peering:router_configuration' pk=instance.pk %}">
+          <a class="nav-link{% if active_tab == 'configuration' %} active{% endif %}" href="{% url 'peering:router_configuration' pk=instance.pk %}">
             <i class="fas fa-terminal"></i> Configuration
           </a>
         </li>
         {% endif %}
         <li class="nav-item">
-          <a class="nav-link{% if request.path|contains:'/direct-peering-sessions/' %} active{% endif %}" href="{% url 'peering:router_direct_peering_sessions' pk=instance.pk %}">
+          <a class="nav-link{% if active_tab == 'directsessions' %} active{% endif %}" href="{% url 'peering:router_direct_peering_sessions' pk=instance.pk %}">
             <i class="fas fa-ethernet"></i> Direct Peering Sessions
           </a>
         </li>
         {% if instance.get_peering_sessions|length > 0 %}
         <li class="nav-item">
-          <a class="nav-link{% if request.path|contains:'/ix-peering-sessions/' %} active{% endif %}" href="{% url 'peering:router_internet_exchange_peering_sessions' pk=instance.pk %}">
+          <a class="nav-link{% if active_tab == 'ixsessions' %} active{% endif %}" href="{% url 'peering:router_internet_exchange_peering_sessions' pk=instance.pk %}">
             <i class="fas fa-network-wired"></i> IX Peering Sessions
           </a>
         </li>
         {% endif %}
+        <li class="nav-item">
+          <a class="nav-link{% if active_tab == 'changelog' %} active{% endif %}" href="{% url 'peering:router_changelog' pk=instance.pk %}">
+            <i class="fas fa-history"></i> Changelog
+          </a>
+        </li>
       </ul>
       {% block subcontent %}{% endblock %}
 {% endblock %}

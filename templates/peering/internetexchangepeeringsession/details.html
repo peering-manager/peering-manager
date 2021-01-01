@@ -1,176 +1,152 @@
-{% extends '_base.html' %}
+{% extends 'peering/internetexchangepeeringsession/_base.html' %}
 {% load helpers %}
-{% block actions %}
-{% if perms.peering.change_internetexchangepeeringsession %}
-<button type="button" class="btn btn-danger{% if not instance.enabled %} d-none{% endif %}" id="id_session_disable">
-  <i class="fas fa-toggle-off"></i> Disable
-</button>
-<button type="button" class="btn btn-success{% if instance.enabled %} d-none{% endif %}" id="id_session_enable">
-  <i class="fas fa-toggle-on"></i> Enable
-</button>
-<a href="{% url 'peering:internetexchangepeeringsession_edit' pk=instance.pk %}" class="btn btn-warning">
-  <i class="fas fa-edit"></i> Edit
-</a>
-{% endif %}
-{% if perms.peering.delete_internetexchangepeeringsession %}
-<a href="{% url 'peering:internetexchangepeeringsession_delete' pk=instance.pk %}" class="btn btn-danger">
-  <i class="fas fa-trash"></i> Delete
-</a>
-{% endif %}
-{% endblock %}
-{% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'peering:internetexchange_list' %}">Internet Exchanges</a></li>
-<li class="breadcrumb-item"><a href="{% url 'peering:internetexchange_details' slug=instance.internet_exchange.slug %}">{{ instance.internet_exchange }}</a></li>
-<li class="breadcrumb-item"><a href="{% url 'peering:internetexchange_peering_sessions' slug=instance.internet_exchange.slug %}">Peering Sessions</a></li>
-<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
-{% endblock %}
-{% block content %}
-      <div class="row">
-        <div class="col-md-6">
-          <div class="card mb-2">
-            <div class="card-header"><strong>Peering Session Details</strong></div>
-            <table class="card-body table table-hover attr-table mb-0">
-              <tr>
-                <td>Internet Exchange</td>
-                <td>
-                  {{ instance.internet_exchange|as_link }}
-                  {% if instance.internet_exchange.comments %}
-                  <span class="float-right badge badge-info popover-hover" data-toggle="popover" data-html="true" data-content="{{ instance.internet_exchange.comments | markdown:True }}"><i class="fas fa-comment"></i></span>
-                  {% endif %}
-                </td>
-              </tr>
-              <tr>
-                <td>AS</td>
-                <td>
-                  {{ instance.autonomous_system|as_link }}
-                  {% if instance.autonomous_system.comments %}
-                  <span class="float-right badge badge-info popover-hover" data-toggle="popover" data-html="true" data-content="{{ instance.autonomous_system.comments | markdown:True }}"><i class="fas fa-comment"></i></span>
-                  {% endif %}
-                </td>
-              </tr>
-              <tr>
-                <td>IP Address</td>
-                <td>{{ instance.ip_address }}</td>
-              </tr>
-              <tr>
-                <td>Route Server</td>
-                <td>{{ instance.is_route_server|boolean_as_icon }}</td>
-              </tr>
-              {% if request.user.is_authenticated and instance.password %}
-              <tr>
-                <td>Password</td>
-                <td>
-                  <div class="input-group">
-                    <input type="password" class="form-control" id="id_password" value="{{ instance.password }}" disabled>
-                    <div class="input-group-append">
-                      <button type="button" class="btn btn-secondary" id="id_password_reveal"><i class="fas fa-eye"></i> Show</button>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              {% endif %}
-              {% if instance.multihop_ttl > 1 %}
-              <tr>
-                <td>Multihop TTL</td>
-                <td>{{ instance.multihop_ttl }}</td>
-              </tr>
-              {% endif %}
-            </table>
-          </div>
-          <div class="card">
-            <div class="card-header"><strong>Comments</strong></div>
-            <div class="card-body">
-              {% if instance.comments %}
-              {{ instance.comments|markdown }}
-              {% else %}
-              <span class="text-muted">None</span>
-              {% endif %}
-            </div>
-          </div>
-          {% include 'utils/includes/tags_card.html' with tags=instance.tags.all url='peering:internetexchangepeeringsession_list' %}
-        </div>
-        <div class="col-md-6">
-          {% if instance.bgp_state != None %}
-          <div class="card mb-2">
-            <div class="card-header"><strong>Peering Session State</strong></div>
-            <table class="card-body table table-hover attr-table mb-0">
-              {% if is_abandoned %}<tr class="bg-warning">It looks like this peering session may be bandoned</tr>{% endif %}
-              <tr>
-                <td>Enabled</td>
-                <td>{{ instance.enabled|boolean_as_icon }}</td>
-              </tr>
-              <tr>
-                <td>State</td>
-                <td>{{ instance.get_bgp_state_html }}</td>
-              </tr>
-              <tr>
-                <td>Last Established</td>
-                <td>{{ instance.last_established_state }}</td>
-              </tr>
-              <tr>
-                <td>Received Prefix Count</td>
-                <td><span class="badge badge-pill badge-primary">{{ instance.received_prefix_count }}</span></td>
-              </tr>
-              <tr>
-                <td>Advertised Prefix Count</td>
-                <td><span class="badge badge-pill badge-primary">{{ instance.advertised_prefix_count }}</span></td>
-              </tr>
-            </table>
-          </div>
-          {% endif %}
-          <div class="card">
-            <div class="card-header"><strong>Routing Policies</strong></div>
-            {% if instance.export_routing_policies.all.count > 0 or instance.import_routing_policies.all.count > 0 %}
-            <ul class="list-group list-group-flush">
-            {% for routing_policy in instance.export_routing_policies.all %}
-              <li class="list-group-item">
-                {{ routing_policy }} <span class="float-right"><code>{{ routing_policy.slug }}</code>&nbsp;{{ routing_policy.get_type_html }}</span>
-              </li>
-            {% endfor %}
-            {% for routing_policy in instance.import_routing_policies.all %}
-              <li class="list-group-item">
-                {{ routing_policy }} <span class="float-right"><code>{{ routing_policy.slug }}</code>&nbsp;{{ routing_policy.get_type_html }}</span>
-              </li>
-            {% endfor %}
-            </ul>
-            {% else %}
-            <div class="card-body">
-              <span class="text-muted">None</span>
-            </div>
+{% block subcontent %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header"><strong>Peering Session Details</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Internet Exchange</td>
+          <td>
+            {{ instance.internet_exchange|as_link }}
+            {% if instance.internet_exchange.comments %}
+            <span class="float-right badge badge-info popover-hover" data-toggle="popover" data-html="true" data-content="{{ instance.internet_exchange.comments | markdown:True }}"><i class="fas fa-comment"></i></span>
             {% endif %}
-          </div>
-        </div>
+          </td>
+        </tr>
+        <tr>
+          <td>AS</td>
+          <td>
+            {{ instance.autonomous_system|as_link }}
+            {% if instance.autonomous_system.comments %}
+            <span class="float-right badge badge-info popover-hover" data-toggle="popover" data-html="true" data-content="{{ instance.autonomous_system.comments | markdown:True }}"><i class="fas fa-comment"></i></span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td>IP Address</td>
+          <td>{{ instance.ip_address }}</td>
+        </tr>
+        <tr>
+          <td>Route Server</td>
+          <td>{{ instance.is_route_server|boolean_as_icon }}</td>
+        </tr>
+        {% if request.user.is_authenticated and instance.password %}
+        <tr>
+          <td>Password</td>
+          <td>
+            <div class="input-group">
+              <input type="password" class="form-control" id="id_password" value="{{ instance.password }}" disabled>
+              <div class="input-group-append">
+                <button type="button" class="btn btn-secondary" id="id_password_reveal"><i class="fas fa-eye"></i> Show</button>
+              </div>
+            </div>
+          </td>
+        </tr>
+        {% endif %}
+        {% if instance.multihop_ttl > 1 %}
+        <tr>
+          <td>Multihop TTL</td>
+          <td>{{ instance.multihop_ttl }}</td>
+        </tr>
+        {% endif %}
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-header"><strong>Comments</strong></div>
+      <div class="card-body">
+        {% if instance.comments %}
+        {{ instance.comments|markdown }}
+        {% else %}
+        <span class="text-muted">None</span>
+        {% endif %}
       </div>
+    </div>
+    {% include 'utils/includes/tags_card.html' with tags=instance.tags.all url='peering:internetexchangepeeringsession_list' %}
+  </div>
+  <div class="col-md-6">
+    {% if instance.bgp_state != None %}
+    <div class="card mb-2">
+      <div class="card-header"><strong>Peering Session State</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        {% if is_abandoned %}<tr class="bg-warning">It looks like this peering session may be bandoned</tr>{% endif %}
+        <tr>
+          <td>Enabled</td>
+          <td>{{ instance.enabled|boolean_as_icon }}</td>
+        </tr>
+        <tr>
+          <td>State</td>
+          <td>{{ instance.get_bgp_state_html }}</td>
+        </tr>
+        <tr>
+          <td>Last Established</td>
+          <td>{{ instance.last_established_state }}</td>
+        </tr>
+        <tr>
+          <td>Received Prefix Count</td>
+          <td><span class="badge badge-pill badge-primary">{{ instance.received_prefix_count }}</span></td>
+        </tr>
+        <tr>
+          <td>Advertised Prefix Count</td>
+          <td><span class="badge badge-pill badge-primary">{{ instance.advertised_prefix_count }}</span></td>
+        </tr>
+      </table>
+    </div>
+    {% endif %}
+    <div class="card">
+      <div class="card-header"><strong>Routing Policies</strong></div>
+      {% if instance.export_routing_policies.all.count > 0 or instance.import_routing_policies.all.count > 0 %}
+      <ul class="list-group list-group-flush">
+      {% for routing_policy in instance.export_routing_policies.all %}
+        <li class="list-group-item">
+          {{ routing_policy }} <span class="float-right"><code>{{ routing_policy.slug }}</code>&nbsp;{{ routing_policy.get_type_html }}</span>
+        </li>
+      {% endfor %}
+      {% for routing_policy in instance.import_routing_policies.all %}
+        <li class="list-group-item">
+          {{ routing_policy }} <span class="float-right"><code>{{ routing_policy.slug }}</code>&nbsp;{{ routing_policy.get_type_html }}</span>
+        </li>
+      {% endfor %}
+      </ul>
+      {% else %}
+      <div class="card-body">
+        <span class="text-muted">None</span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
 {% endblock %}
 {% block javascript %}
-    <script>
-      $("#id_session_disable").click(function() {
-        $.ajax({
-          method: "patch",
-          url: "{% url 'peering-api:internetexchangepeeringsession-detail' pk=instance.pk %}",
-          headers: { "X-CSRFTOKEN": "{{ csrf_token }}" },
-          data: {
-            "id": {{ instance.pk }},
-            "enabled": false,
-            "bgp_state": "idle",
-            "received_prefix_count": 0,
-            "advertised_prefix_count": 0
-          }
-        }).done(function() {
-          $("#id_session_enable").removeClass("d-none");
-          $("#id_session_disable").addClass("d-none");
-        });
-      });
-      $("#id_session_enable").click(function() {
-        $.ajax({
-          method: "patch",
-          url: "{% url 'peering-api:internetexchangepeeringsession-detail' pk=instance.pk %}",
-          headers: { "X-CSRFTOKEN": "{{ csrf_token }}" },
-          data: { "id": {{ instance.pk }}, "enabled": true }
-        }).done(function() {
-          $("#id_session_enable").addClass("d-none");
-          $("#id_session_disable").removeClass("d-none");
-        });
-      });
-    </script>
+<script>
+  $("#id_session_disable").click(function() {
+    $.ajax({
+      method: "patch",
+      url: "{% url 'peering-api:internetexchangepeeringsession-detail' pk=instance.pk %}",
+      headers: { "X-CSRFTOKEN": "{{ csrf_token }}" },
+      data: {
+        "id": {{ instance.pk }},
+        "enabled": false,
+        "bgp_state": "idle",
+        "received_prefix_count": 0,
+        "advertised_prefix_count": 0
+      }
+    }).done(function() {
+      $("#id_session_enable").removeClass("d-none");
+      $("#id_session_disable").addClass("d-none");
+    });
+  });
+  $("#id_session_enable").click(function() {
+    $.ajax({
+      method: "patch",
+      url: "{% url 'peering-api:internetexchangepeeringsession-detail' pk=instance.pk %}",
+      headers: { "X-CSRFTOKEN": "{{ csrf_token }}" },
+      data: { "id": {{ instance.pk }}, "enabled": true }
+    }).done(function() {
+      $("#id_session_enable").addClass("d-none");
+      $("#id_session_disable").removeClass("d-none");
+    });
+  });
+</script>
 {% endblock %}

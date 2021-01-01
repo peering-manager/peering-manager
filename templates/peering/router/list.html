@@ -11,68 +11,68 @@
 <li class="breadcrumb-item active" aria-current="page">{% block title %}Routers{% endblock %}</li>
 {% endblock %}
 {% block content %}
-      <div class="row">
-        <div class="col-md-9">
-          {% include 'peering/router/inc/routers_table.html' with bulk_edit_url='peering:router_bulk_edit' bulk_delete_url='peering:router_bulk_delete' %}
-        </div>
-        <div class="col-md-3">
-          {% include 'utils/search_form.html' %}
-        </div>
-      </div>
-      <div class="modal fade" id="deployment-confirmation" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Deployment</h5></div>
-            <div class="modal-body">
-              <div class="p-3 mb-2 bg-danger text-white">
-                <i class="fas fa-exclamation"></i> Be careful using this.<br><br>
-                No syntax check will be done nor confirmation will be asked. The configuration for each router will be deployed as it is.<br><br>
-                Do you really want to deploy the configuration for the selected routers?
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" id="confirm-deployment">Confirm</button>
-            </div>
-          </div>
+<div class="row">
+  <div class="col-md-9">
+    {% include 'peering/router/inc/routers_table.html' with bulk_edit_url='peering:router_bulk_edit' bulk_delete_url='peering:router_bulk_delete' %}
+  </div>
+  <div class="col-md-3">
+    {% include 'utils/search_form.html' %}
+  </div>
+</div>
+<div class="modal fade" id="deployment-confirmation" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Deployment</h5></div>
+      <div class="modal-body">
+        <div class="p-3 mb-2 bg-danger text-white">
+          <i class="fas fa-exclamation"></i> Be careful using this.<br><br>
+          No syntax check will be done nor confirmation will be asked. The configuration for each router will be deployed as it is.<br><br>
+          Do you really want to deploy the configuration for the selected routers?
         </div>
       </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="confirm-deployment">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 {% block javascript %}
-    <script>
-      var routerIDs;
-      $("#deploy-on-selected").click(function() {
-        routerIDs = [];
-        $.each($("input[name='pk']:checked"), function() {
-          routerIDs.push($(this).val());
-        });
-        if (routerIDs.length > 0) {
-          $("#deployment-confirmation").modal();
-        }
+<script>
+  var routerIDs;
+  $("#deploy-on-selected").click(function() {
+    routerIDs = [];
+    $.each($("input[name='pk']:checked"), function() {
+      routerIDs.push($(this).val());
+    });
+    if (routerIDs.length > 0) {
+      $("#deployment-confirmation").modal();
+    }
+  });
+  $("#confirm-deployment").click(function() {
+    $(this).attr("disabled", "disabled")
+           .removeClass("btn-primary").addClass("btn-warning")
+           .html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+    routerIDs.forEach(function(id) {
+      $.ajax({
+        method: "post",
+        url: "{% url 'peering-api:router-configure-task' pk=999999 %}".replace(/999999/, id),
+        data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
+      }).done(function(response) {
+        queuedTasks++;
+      }).fail(function(response) {
+        failedTasks++;
       });
-      $("#confirm-deployment").click(function() {
-        $(this).attr("disabled", "disabled")
-               .removeClass("btn-primary").addClass("btn-warning")
-               .html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
-        routerIDs.forEach(function(id) {
-          $.ajax({
-            method: "post",
-            url: "{% url 'peering-api:router-configure-task' pk=999999 %}".replace(/999999/, id),
-            data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
-          }).done(function(response) {
-            queuedTasks++;
-          }).fail(function(response) {
-            failedTasks++;
-          });
-        });
-        $(this).removeClass("btn-warning").addClass("btn-success")
-               .html("Deployments Scheduled");
-      });
-      $("#deployment-confirmation").on("hidden.bs.modal", function(e) {
-        $("#confirm-deployment").removeAttr("disabled")
-                                .removeClass("btn-warning")
-                                .removeClass("btn-success")
-                                .addClass("btn-primary").html("Confirm");
-      });
-    </script>
+    });
+    $(this).removeClass("btn-warning").addClass("btn-success")
+           .html("Deployments Scheduled");
+  });
+  $("#deployment-confirmation").on("hidden.bs.modal", function(e) {
+    $("#confirm-deployment").removeAttr("disabled")
+                            .removeClass("btn-warning")
+                            .removeClass("btn-success")
+                            .addClass("btn-primary").html("Confirm");
+  });
+</script>
 {% endblock %}

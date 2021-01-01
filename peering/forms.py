@@ -196,6 +196,11 @@ class BGPGroupFilterForm(BootstrapMixin, forms.Form):
 
 class CommunityForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField(max_length=255)
+    type = forms.ChoiceField(
+        choices=add_blank_choice(CommunityType.choices),
+        widget=StaticSelect,
+        help_text="Ingress to tag received routes or Egress to tag advertised routes",
+    )
     comments = CommentField()
     tags = TagField(required=False)
 
@@ -204,8 +209,7 @@ class CommunityForm(BootstrapMixin, forms.ModelForm):
 
         fields = ("name", "value", "slug", "type", "comments", "tags")
         help_texts = {
-            "value": 'Community (<a target="_blank" href="https://tools.ietf.org/html/rfc1997">RFC1997</a>), Extended Communit (<a target="_blank" href="https://tools.ietf.org/html/rfc4360">RFC4360</a>) or Large Community (<a target="_blank" href="https://tools.ietf.org/html/rfc8092">RFC8092</a>)',
-            "type": "Ingress to tag received routes or Egress to tag advertised routes",
+            "value": 'Community (<a target="_blank" href="https://tools.ietf.org/html/rfc1997">RFC1997</a>), Extended Communit (<a target="_blank" href="https://tools.ietf.org/html/rfc4360">RFC4360</a>) or Large Community (<a target="_blank" href="https://tools.ietf.org/html/rfc8092">RFC8092</a>)'
         }
 
 

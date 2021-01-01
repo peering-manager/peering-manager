@@ -1,125 +1,125 @@
 {% extends 'peering/router/_base.html' %}
 {% block subcontent %}
-      <div class="row">
-        <div class="col-md-2">
-          {% if perms.peering.deploy_router_configuration_router and instance.platform %}
-          <div class="custom-control custom-switch btn-block">
-            <input type="checkbox" class="custom-control-input" id="compare-switch" checked>
-            <label class="custom-control-label" for="compare-switch">Compare before commit</label>
-          </div>
-          <button type="button" class="btn btn-primary btn-block" id="deploy">
-            <i class="fa fa-cogs"></i> Deploy
-          </button>
-          {% endif %}
-          <button type="button" class="btn btn-secondary btn-block" id="copy-config">
-            <i class="fa fa-clipboard"></i> Copy
-          </button>
-          <a href=".?raw" class="btn btn-dark btn-block">
-            <i class="fas fa-file-alt"></i> Raw Output
-          </a>
-        </div>
-        <pre class="col-md-10 pre-scrollable"><code>{{ router_configuration }}</code></pre>
+<div class="row">
+  <div class="col-md-2">
+    {% if perms.peering.deploy_router_configuration_router and instance.platform %}
+    <div class="custom-control custom-switch btn-block">
+      <input type="checkbox" class="custom-control-input" id="compare-switch" checked>
+      <label class="custom-control-label" for="compare-switch">Compare before commit</label>
+    </div>
+    <button type="button" class="btn btn-primary btn-block" id="deploy">
+      <i class="fa fa-cogs"></i> Deploy
+    </button>
+    {% endif %}
+    <button type="button" class="btn btn-secondary btn-block" id="copy-config">
+      <i class="fa fa-clipboard"></i> Copy
+    </button>
+    <a href=".?raw" class="btn btn-dark btn-block">
+      <i class="fas fa-file-alt"></i> Raw Output
+    </a>
+  </div>
+  <pre class="col-md-10 pre-scrollable"><code>{{ router_configuration }}</code></pre>
+</div>
+{% if perms.peering.deploy_router_configuration_router and instance.platform %}
+<div class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Configuration Differences</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
       </div>
-      {% if perms.peering.deploy_router_configuration_router and instance.platform %}
-      <div class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Configuration Differences</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
-            </div>
-            <div class="modal-body">
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" id="commit">Commit changes</button>
-            </div>
-          </div>
-        </div>
+      <div class="modal-body">
       </div>
-      {% endif %}
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="commit">Commit changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
 {% endblock %}
 {% if perms.peering.deploy_router_configuration_router and instance.platform %}
 {% block javascript %}
-    <script>
-      // When the modal is closed, reset the button back to its defaults
-      $('.modal').on('hidden.bs.modal', function(e) {
-        $('#commit').removeAttr('disabled')
-                    .removeClass('btn-warning', 'btn-danger', 'btn-success')
-                    .addClass('btn-primary')
-                    .html('Commit changes').show();
-      });
+<script>
+  // When the modal is closed, reset the button back to its defaults
+  $('.modal').on('hidden.bs.modal', function(e) {
+    $('#commit').removeAttr('disabled')
+                .removeClass('btn-warning', 'btn-danger', 'btn-success')
+                .addClass('btn-primary')
+                .html('Commit changes').show();
+  });
 
-      // Bind copy to clipboard function to the button
-      $('#copy-config').click(function() {
-        var $temp = $('<textarea>');
-        $('body').append($temp);
-        $temp.val($('.pre-scrollable').text()).select();
-        document.execCommand('copy');
-        $temp.remove();
-      });
+  // Bind copy to clipboard function to the button
+  $('#copy-config').click(function() {
+    var $temp = $('<textarea>');
+    $('body').append($temp);
+    $temp.val($('.pre-scrollable').text()).select();
+    document.execCommand('copy');
+    $temp.remove();
+  });
 
-      $('#deploy').click(function() {
-        $.ajax({
-          method: $('#compare-switch').is(':checked') ? 'get' : 'post',
-          url: "{% url 'peering-api:router-configure' pk=instance.pk %}",
-          data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
-          beforeSend: function() {
-            $('#deploy').attr('disabled', 'disabled')
-                        .removeClass('btn-primary').addClass('btn-warning')
-                        .html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
-          },
-        }).done(function(response) {
-          if (response['error']) {
-            $('.modal-body').html('<p>An error occured while trying to check for changes.</p><p>The router may be unreachable, the configuration may be locked by another user or the configuration may be invalid.</p><p>You can find more details in the <code>logs/napalm.log</code> logs file or below.</p><pre class="pre-scrollable">' + response['error'] + '</pre>');
-            $('#commit').hide();
-            $('.modal').modal('show');
-          } else {
-            if (response['changed'] && response['changes'].trim()) {
-              $('.modal-body').html('<pre class="pre-scrollable">' + response['changes'] + '</pre>');
-              if (!$('#compare-switch').is(':checked')) {
-                $('#commit').attr('disabled', 'disabled')
-                            .removeClass('btn-primary').addClass('btn-success')
-                            .html('<i class="fas fa-check"></i> Configuration saved');
-              }
-              $('.modal').modal('show');
-            } else {
-              $('.modal-body').html('<p>No configuration differences found.</p>');
-              $('#commit').hide();
-              $('.modal').modal('show');
-            }
-          }
-        }).always(function() {
-          $('#deploy').removeAttr('disabled')
-                      .removeClass('btn-warning').addClass('btn-primary')
-                      .html('<i class="fas fa-cogs"></i> Deploy');
-        });
-      });
-
-      $('#commit').click(function() {
-        $.ajax({
-          method: 'post',
-          url: "{% url 'peering-api:router-configure' pk=instance.pk %}",
-          data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
-          beforeSend: function() {
+  $('#deploy').click(function() {
+    $.ajax({
+      method: $('#compare-switch').is(':checked') ? 'get' : 'post',
+      url: "{% url 'peering-api:router-configure' pk=instance.pk %}",
+      data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+      beforeSend: function() {
+        $('#deploy').attr('disabled', 'disabled')
+                    .removeClass('btn-primary').addClass('btn-warning')
+                    .html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+      },
+    }).done(function(response) {
+      if (response['error']) {
+        $('.modal-body').html('<p>An error occured while trying to check for changes.</p><p>The router may be unreachable, the configuration may be locked by another user or the configuration may be invalid.</p><p>You can find more details in the <code>logs/napalm.log</code> logs file or below.</p><pre class="pre-scrollable">' + response['error'] + '</pre>');
+        $('#commit').hide();
+        $('.modal').modal('show');
+      } else {
+        if (response['changed'] && response['changes'].trim()) {
+          $('.modal-body').html('<pre class="pre-scrollable">' + response['changes'] + '</pre>');
+          if (!$('#compare-switch').is(':checked')) {
             $('#commit').attr('disabled', 'disabled')
-                        .removeClass('btn-primary').addClass('btn-warning')
-                        .html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+                        .removeClass('btn-primary').addClass('btn-success')
+                        .html('<i class="fas fa-check"></i> Configuration saved');
           }
-        }).done(function(response) {
-          // Consider failure
-          var btn_class = 'btn-danger';
-          var btn_code = '<i class="fas fa-times"></i> Configuration not saved';
+          $('.modal').modal('show');
+        } else {
+          $('.modal-body').html('<p>No configuration differences found.</p>');
+          $('#commit').hide();
+          $('.modal').modal('show');
+        }
+      }
+    }).always(function() {
+      $('#deploy').removeAttr('disabled')
+                  .removeClass('btn-warning').addClass('btn-primary')
+                  .html('<i class="fas fa-cogs"></i> Deploy');
+    });
+  });
 
-          // If successful change button code and color
-          if (!response['error']) {
-            btn_class = 'btn-success';
-            btn_code = '<i class="fas fa-check"></i> Configuration saved';
-          }
+  $('#commit').click(function() {
+    $.ajax({
+      method: 'post',
+      url: "{% url 'peering-api:router-configure' pk=instance.pk %}",
+      data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+      beforeSend: function() {
+        $('#commit').attr('disabled', 'disabled')
+                    .removeClass('btn-primary').addClass('btn-warning')
+                    .html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+      }
+    }).done(function(response) {
+      // Consider failure
+      var btn_class = 'btn-danger';
+      var btn_code = '<i class="fas fa-times"></i> Configuration not saved';
 
-          $('#commit').removeClass('btn-warning').addClass(btn_class).html(btn_code);
-        });
-      });
-    </script>
+      // If successful change button code and color
+      if (!response['error']) {
+        btn_class = 'btn-success';
+        btn_code = '<i class="fas fa-check"></i> Configuration saved';
+      }
+
+      $('#commit').removeClass('btn-warning').addClass(btn_class).html(btn_code);
+    });
+  });
+</script>
 {% endblock %}
 {% endif %}

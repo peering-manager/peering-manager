@@ -1,35 +1,35 @@
 {% extends 'utils/object_add_edit.html' %}
 {% load form_helpers %}
 {% block form %}
-            <div class="card my-2">
-              <div class="card-header"><strong>Peering Session</strong></div>
-              <div class="card-body">
-                {% render_field form.autonomous_system %}
-                {% render_field form.internet_exchange %}
-                {% render_field form.ip_address %}
-                {% render_field form.password %}
-                {% render_field form.multihop_ttl %}
-                {% render_field form.is_route_server %}
-                {% render_field form.enabled %}
-              </div>
-            </div>
-            <div class="card my-2">
-              <div class="card-header"><strong>Routing Policies</strong></div>
-              <div class="card-body">
-                {% render_field form.import_routing_policies %}
-                {% render_field form.export_routing_policies %}
-              </div>
-            </div>
-            <div class="card my-2">
-              <div class="card-header"><strong>Tags</strong></div>
-              <div class="card-body">
-                {% render_field form.tags %}
-              </div>
-            </div>
-            <div class="card my-2">
-              <div class="card-header"><strong>Comments</strong></div>
-              <div class="card-body">
-                {% render_field form.comments %}
-              </div>
-            </div>
+<div class="card my-2">
+  <div class="card-header"><strong>Peering Session</strong></div>
+  <div class="card-body">
+    {% render_field form.autonomous_system %}
+    {% render_field form.internet_exchange %}
+    {% render_field form.ip_address %}
+    {% render_field form.password %}
+    {% render_field form.multihop_ttl %}
+    {% render_field form.is_route_server %}
+    {% render_field form.enabled %}
+  </div>
+</div>
+<div class="card my-2">
+  <div class="card-header"><strong>Routing Policies</strong></div>
+  <div class="card-body">
+    {% render_field form.import_routing_policies %}
+    {% render_field form.export_routing_policies %}
+  </div>
+</div>
+<div class="card my-2">
+  <div class="card-header"><strong>Tags</strong></div>
+  <div class="card-body">
+    {% render_field form.tags %}
+  </div>
+</div>
+<div class="card my-2">
+  <div class="card-header"><strong>Comments</strong></div>
+  <div class="card-body">
+    {% render_field form.comments %}
+  </div>
+</div>
 {% endblock %}
