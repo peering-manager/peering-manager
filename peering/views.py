@@ -588,6 +588,12 @@ class DirectPeeringSessionDetails(DetailsView):
     permission_required = "peering.view_directpeeringsession"
     queryset = DirectPeeringSession.objects.all()
 
+    def get_context(self, request, **kwargs):
+        return {
+            "instance": get_object_or_404(self.queryset, **kwargs),
+            "active_tab": "main",
+        }
+
 
 class DirectPeeringSessionEdit(PermissionRequiredMixin, AddOrEditView):
     permission_required = "peering.change_directpeeringsession"
@@ -875,7 +881,11 @@ class InternetExchangePeeringSessionDetails(DetailsView):
 
     def get_context(self, request, **kwargs):
         instance = get_object_or_404(self.queryset, **kwargs)
-        return {"instance": instance, "is_abandoned": instance.is_abandoned()}
+        return {
+            "instance": instance,
+            "is_abandoned": instance.is_abandoned(),
+            "active_tab": "main",
+        }
 
 
 class InternetExchangePeeringSessionEdit(PermissionRequiredMixin, AddOrEditView):
