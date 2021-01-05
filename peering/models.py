@@ -1007,7 +1007,7 @@ class InternetExchange(AbstractGroup):
             return False
 
         # Build a list based on prefixes based on PeeringDB records
-        prefixes = self.get_prefixes()
+        prefixes = [p.prefix for p in self.get_prefixes()]
         # No prefixes found
         if not prefixes:
             self.logger.debug("no prefixes found for %s", self.name.lower())

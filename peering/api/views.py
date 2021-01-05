@@ -214,7 +214,7 @@ class InternetExchangeViewSet(ModelViewSet):
     @action(detail=True, methods=["get"], url_path="prefixes")
     def prefixes(self, request, pk=None):
         return Response(
-            {"prefixes": [str(p) for p in self.get_object().get_prefixes()]}
+            {"prefixes": [str(p.prefix) for p in self.get_object().get_prefixes()]}
         )
 
     @action(

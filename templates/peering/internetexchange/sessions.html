@@ -23,7 +23,7 @@
         <p>Do you want to import all peering sessions found on <strong>{{ instance.router }}</strong> matching the following prefixes?</p>
         <ul>
           {% for ix_prefix in instance.get_prefixes %}
-          <li>{{ ix_prefix }}</li>
+          <li>{{ ix_prefix.prefix }}</li>
           {% endfor %}
         </ul>
       </div>
