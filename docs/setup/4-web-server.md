@@ -72,8 +72,6 @@ the pythonpath variable if needed. Note that some tasks such as importing
 existing peering sessions or generating prefix lists can take a lot of time to
 complete so setting a timeout greater than 30 seconds can be helpful.
 ```no-highlight
-command = '/usr/local/bin/gunicorn'
-pythonpath = '/opt/peering-manager'
 bind = '127.0.0.1:8001'
 workers = 5
 threads = 3
@@ -86,7 +84,7 @@ user = 'peering-manager'
 We can test if the configuration is correct by running (note the _ instead of -
 in the WSGI name):
 ```no-highlight
-(venv) # ./venv/bin/gunicorn -c /opt/peering-manager/gunicorn_config.py peering_manager.wsgi
+(venv) # ./venv/bin/gunicorn -c /opt/peering-manager/gunicorn.py peering_manager.wsgi
 [2017-09-27 22:49:02 +0200] [7214] [INFO] Starting gunicorn 19.7.1
 [2017-09-27 22:49:02 +0200] [7214] [INFO] Listening at: http://127.0.0.1:8001 (7214)
 [2017-09-27 22:49:02 +0200] [7214] [INFO] Using worker: sync
