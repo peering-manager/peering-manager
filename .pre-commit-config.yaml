@@ -9,12 +9,3 @@ repos:
     hooks:
     - id: black
       language_version: python3.9
-
--   repo: local
-    hooks:
-    - id: django-migrations
-      name: check for missing migrations
-      entry: ./manage.py makemigrations --check
-      language: system
-      types: [python]
-      pass_filenames: false
