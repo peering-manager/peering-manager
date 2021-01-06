@@ -199,7 +199,7 @@ class InternetExchangeFilterSet(django_filters.FilterSet):
         qs_filter = (
             Q(name__icontains=value)
             | Q(comments__icontains=value)
-            | Q(autonomous_system__name__icontains=value)
+            | Q(local_autonomous_system__name__icontains=value)
         )
         try:
             qs_filter |= Q(local_autonomous_system__asn=int(value.strip()))
