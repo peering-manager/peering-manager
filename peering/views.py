@@ -910,20 +910,16 @@ class InternetExchangePeeringSessionAddFromPeeringDB(
     template = "peering/internetexchangepeeringsession/add_from_peeringdb.html"
 
     def process_dependency_object(self, request, dependency):
-        (session6, created6) = InternetExchangePeeringSession.create_from_peeringdb(
-            dependency, 6
-        )
-        (session4, created4) = InternetExchangePeeringSession.create_from_peeringdb(
-            dependency, 4
-        )
-        return_value = []
+        try:
+            affiliated = AutonomousSystem.objects.get(
+                pk=request.user.preferences.get("context.as")
+            )
+        except AutonomousSystem.DoesNotExist:
+            return []
 
-        if session6 and created6:
-            return_value.append(session6)
-        if session4 and created4:
-            return_value.append(session4)
-
-        return return_value
+        return InternetExchangePeeringSession.create_from_peeringdb(
+            affiliated, dependency
+        )
 
     def sort_objects(self, object_list):
         objects = []
