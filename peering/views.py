@@ -688,7 +688,7 @@ class InternetExchangePeeringDBImport(PermissionRequiredMixin, TableImportView):
     permission_required = "peering.add_internetexchange"
     custom_formset = InternetExchangePeeringDBFormSet
     form_model = InternetExchangePeeringDBForm
-    return_url = "peering:internetexchange_list"
+    default_return_url = "peering:internetexchange_list"
 
     def get_objects(self, request):
         objects = []
@@ -720,17 +720,18 @@ class InternetExchangePeeringDBImport(PermissionRequiredMixin, TableImportView):
             else:
                 slugs_occurences[slug] = 1
 
-            objects.append(
-                {
-                    "peeringdb_netixlan": netixlan,
-                    "peeringdb_ix": netixlan.ixlan.ix,
-                    "local_autonomous_system": affiliated,
-                    "name": netixlan.ixlan.ix.name,
-                    "slug": slug,
-                    "ipv6_address": netixlan.ipaddr6.ip,
-                    "ipv4_address": netixlan.ipaddr4.ip,
-                }
-            )
+            ix_properties = {
+                "peeringdb_netixlan": netixlan,
+                "peeringdb_ix": netixlan.ixlan.ix,
+                "local_autonomous_system": affiliated,
+                "name": netixlan.ixlan.ix.name,
+                "slug": slug,
+            }
+            if netixlan.ipaddr6:
+                ix_properties["ipv6_address"] = netixlan.ipaddr6.ip
+            if netixlan.ipaddr4:
+                ix_properties["ipv4_address"] = netixlan.ipaddr4.ip
+            objects.append(ix_properties)
 
         return objects
 
