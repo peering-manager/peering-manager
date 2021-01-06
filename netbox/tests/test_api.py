@@ -15,7 +15,7 @@ class NetBoxTestCase(TestCase):
         self.netbox.api = pynetbox.api("http://netbox.example.net", token="test")
 
     @patch(
-        "pynetbox.core.query.requests.sessions.Session.get",
+        "requests.sessions.Session.get",
         return_value=MockedResponse(fixture="netbox/tests/fixtures/devices.json"),
     )
     def test_get_devices(self, *_):
@@ -35,7 +35,7 @@ class NetBoxTestCase(TestCase):
     )
     def test_napalm(self, *_):
         with patch(
-            "pynetbox.core.query.requests.sessions.Session.get",
+            "requests.sessions.Session.get",
             return_value=MockedResponse(fixture="netbox/tests/fixtures/device.json"),
         ):
             facts = self.netbox.napalm(1, "get_facts")
