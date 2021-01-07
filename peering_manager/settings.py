@@ -113,7 +113,7 @@ DATABASE = getattr(configuration, "DATABASE")
 SECRET_KEY = getattr(configuration, "SECRET_KEY")
 
 # Deprecated, to be removed in 2.0.0
-MY_ASN = getattr(configuration, "MY_ASN")
+MY_ASN = getattr(configuration, "MY_ASN", None)
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
