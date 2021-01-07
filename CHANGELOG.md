@@ -1,5 +1,28 @@
 # Changelog
 
+## Version 1.3.1 | MARK I (Bug fixes release) | 2021-01-07
+
+### Enhancements
+
+  * Make sure multi-AS migration is passed before PeeringDB's
+  * Remove PeeringDB synchronization records when upgrading to make sure a full synchronization will be performed next time
+  * Use `pathlib` in settings instead of `os.join()` to load settings
+  * [#316](https://github.com/peering-manager/peering-manager/issues/316) Add a tab to see an object changelog when viewing its properties
+  * [#317](https://github.com/peering-manager/peering-manager/issues/317) Expose changelogs on the REST API
+
+### Bug Fixes
+
+  * Fix router filter when using config and password encryption as parameters
+  * Fix default columns for changelog table which appeared to be empty
+  * Fix router search when using platform as a parameter
+  * [#335](https://github.com/peering-manager/peering-manager/issues/335) Keep using `MY_ASN`, the setting, will be removed after 2.0.0, to create automatically the first affiliated AS using the previously configured ASN
+  * [#339](https://github.com/peering-manager/peering-manager/issues/339) Fix crash when a user has invalid table columns in his/her tables preferences
+  * [#342](https://github.com/peering-manager/peering-manager/issues/342) Fix BGP sessions import failures due to IP in prefix check issues
+  * Fix importing IX peering sessions from known PeeringDB peers
+  * [#344](https://github.com/peering-manager/peering-manager/issues/344) Fix IX search when using local AS name as criteria
+  * [#345](https://github.com/peering-manager/peering-manager/issues/345) Fix adding IX peering sessions from a PeeringDB peer if the record misses on IP address (IPv4 or IPv6)
+
+
 ## Version 1.3.0 | MARK I (Features release) | 2020-12-22
 
 Take this release as little early Christmas gift. There will be some rough edges to be fixed in bug fixes releases. Please take some time to read the changelog, breaking changes are there.
