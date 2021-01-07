@@ -112,6 +112,9 @@ ALLOWED_HOSTS = getattr(configuration, "ALLOWED_HOSTS")
 DATABASE = getattr(configuration, "DATABASE")
 SECRET_KEY = getattr(configuration, "SECRET_KEY")
 
+# Deprecated, to be removed in 2.0.0
+MY_ASN = getattr(configuration, "MY_ASN")
+
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
 BASE_PATH = getattr(configuration, "BASE_PATH", "")
