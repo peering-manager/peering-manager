@@ -113,7 +113,6 @@ class Migration(migrations.Migration):
                 ],
             },
         ),
-        migrations.RunPython(set_local_autonomous_system),
         migrations.RemoveField(
             model_name="directpeeringsession",
             name="local_asn",
@@ -127,4 +126,5 @@ class Migration(migrations.Migration):
             name="potential_internet_exchange_peering_sessions",
             field=models.JSONField(blank=True, editable=False, null=True),
         ),
+        migrations.RunPython(set_local_autonomous_system, atomic=False),
     ]
