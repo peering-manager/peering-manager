@@ -22,7 +22,6 @@
   * [#344](https://github.com/peering-manager/peering-manager/issues/344) Fix IX search when using local AS name as criteria
   * [#345](https://github.com/peering-manager/peering-manager/issues/345) Fix adding IX peering sessions from a PeeringDB peer if the record misses on IP address (IPv4 or IPv6)
 
-
 ## Version 1.3.0 | MARK I (Features release) | 2020-12-22
 
 Take this release as little early Christmas gift. There will be some rough edges to be fixed in bug fixes releases. Please take some time to read the changelog, breaking changes are there.
