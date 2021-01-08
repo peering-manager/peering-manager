@@ -545,7 +545,7 @@ class DirectPeeringSessionAdd(PermissionRequiredMixin, AddOrEditView):
     permission_required = "peering.add_directpeeringsession"
     model = DirectPeeringSession
     form = DirectPeeringSessionForm
-    template = "peering/session/direct/add_edit.html"
+    template = "peering/directpeeringsession/add_edit.html"
 
 
 class DirectPeeringSessionBulkDelete(PermissionRequiredMixin, BulkDeleteView):
