@@ -692,12 +692,12 @@ class InternetExchangePeeringDBImport(PermissionRequiredMixin, TableImportView):
 
     def get_objects(self, request):
         objects = []
-        affiliated = AutonomousSystem.objects.get(
-            pk=request.user.preferences.get("context.as")
-        )
-
-        # No context ASN choosen, don't look for known IXPs
-        if not affiliated:
+        try:
+            affiliated = AutonomousSystem.objects.get(
+                pk=request.user.preferences.get("context.as")
+            )
+        except AutonomousSystem.DoesNotExist:
+            # No context ASN choosen, don't look for known IXPs
             return objects
 
         # Get a list of already known IXPs
