@@ -1,6 +1,7 @@
 from django.conf import settings as django_settings
 
 from peering.models import AutonomousSystem
+from peeringdb.sync import PeeringDB
 
 
 def affiliated_autonomous_systems(request):
@@ -18,6 +19,10 @@ def affiliated_autonomous_systems(request):
             "context_as": context_as,
         }
     return {}
+
+
+def peeringdb(request):
+    return {"peeringdb_last_synchronization": PeeringDB().get_last_synchronization()}
 
 
 def settings(request):
