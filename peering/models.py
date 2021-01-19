@@ -376,7 +376,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
                 as_dict[
                     "internet_exchanges"
                 ] = self.get_missing_peering_sessions_on_shared_internet_exchanges(a)
-                context["my_as"].append(a)
+                context["my_as"].append(as_dict)
         else:
             # This is kept for retrocompatibility
             context["my_as"] = affiliated.first().to_dict()
