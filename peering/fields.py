@@ -22,7 +22,7 @@ class ASNField(models.BigIntegerField):
 
 
 class CommunityField(models.CharField):
-    description = "Community, Extended Community, or BGP Large Community field"
+    description = "Community, Extended Community, or Large Community field"
     # TODO: make validators that actually match real community values
     # default_validators = [
     #     RegexValidator(r"^(\d{1,5}:\d{1,5})|(\d{1,10}:\d{1,10}:\d{1,10}:\d{1,10})$")

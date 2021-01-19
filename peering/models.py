@@ -358,17 +358,35 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         return addresses
 
     def get_email_context(self):
-        return {
-            "my_as": [
-                a.to_dict() for a in AutonomousSystem.objects.filter(affiliated=True)
-            ],
-            "autonomous_system": self,
-            "internet_exchanges": self.get_missing_peering_sessions_on_shared_internet_exchanges(),
+        context = {
+            "autonomous_system": self.to_dict(),
             "direct_peering_sessions": [
                 s.to_dict()
                 for s in DirectPeeringSession.objects.filter(autonomous_system=self)
             ],
         }
+        affiliated = AutonomousSystem.objects.filter(affiliated=True)
+
+        if affiliated.count() > 1:
+            # If there are more than one affiliated AS, add IX and missing sessions as
+            # part of the AS dict
+            context["my_as"] = []
+            for a in affiliated:
+                as_dict = a.to_dict()
+                as_dict[
+                    "internet_exchanges"
+                ] = self.get_missing_peering_sessions_on_shared_internet_exchanges(a)
+                context["my_as"].append(a)
+        else:
+            # This is kept for retrocompatibility
+            context["my_as"] = affiliated.first().to_dict()
+            context[
+                "internet_exchanges"
+            ] = self.get_missing_peering_sessions_on_shared_internet_exchanges(
+                affiliated.first()
+            )
+
+        return context
 
     def generate_email(self, email):
         return email.render(self.get_email_context())
@@ -2188,7 +2206,7 @@ class Email(Template):
 
         return self.render(
             {
-                "my_as": [my_as],
+                "my_as": my_as,
                 "autonomous_system": a_s,
                 "internet_exchanges": [
                     {
