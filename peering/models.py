@@ -95,10 +95,6 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         permissions = [("send_email", "Can send e-mails to AS contact")]
 
     @property
-    def can_receive_email(self):
-        return "" != self.contact_email or self.get_peeringdb_contacts()
-
-    @property
     def peeringdb_network(self):
         try:
             return Network.objects.get(asn=self.asn)
@@ -110,6 +106,10 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         if self.peeringdb_network:
             return NetworkContact.objects.filter(net=self.peeringdb_network)
         return []
+
+    @property
+    def can_receive_email(self):
+        return "" != self.contact_email or self.peeringdb_contacts
 
     @staticmethod
     def create_from_peeringdb(asn):

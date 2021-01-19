@@ -10,7 +10,7 @@
           <a class="btn btn-xs btn-primary" href="{{ settings.PEERINGDB }}{{ instance.asn }}" target="_blank">
             <i class="fas fa-external-link-alt"></i> PeeringDB
           </a>
-          {% if perms.peering.change_autonomoussystem %}
+          {% if perms.peering.change_autonomoussystem and instance.peeringdb_network %}
           <button class="btn btn-xs btn-success" id="synchronize-with-peeringdb">
             <i class="fas fa-sync"></i> Synchronize
           </button>
