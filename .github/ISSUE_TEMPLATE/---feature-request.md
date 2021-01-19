@@ -11,7 +11,7 @@ about: Propose a new feature or enhancement
 -->
 ### Environment
 * Python version:  <!-- Example: 3.7.6 -->
-* Peering Manager version:  <!-- Example: 1.0, 2.0, …, master -->
+* Peering Manager version:  <!-- Example: 1.0, 2.0, …, main -->
 
 <!--
     Describe in detail the new functionality you are proposing. Include any

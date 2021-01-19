@@ -14,7 +14,7 @@ about: Report a reproducible bug in the current release
 -->
 ### Environment
 * Python version:  <!-- Example: 3.7.6 -->
-* Peering Manager version:  <!-- Example: 1.1.0, …, master -->
+* Peering Manager version:  <!-- Example: 1.1.0, …, main -->
 
 <!--
     Describe in detail the steps for someone else to reproduce this bug using
