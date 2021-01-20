@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 1.3.2 | MARK I (Bug fixes release) | 2021-01-20
+
+### Enhancements
+
+  * Hide PeeringDB related buttons if data are not locally synchronized
+
+### Bug Fixes
+
+  * Set local autonomous system on migration in another DB transaction (in another migration file) to fix migration failures
+  * Fix Internet Exchange import when no affiliated autonomous system is used
+  * Fix email tab when AS has no contact properties defined but has PeeringDB contacts
+  * [#346](https://github.com/peering-manager/peering-manager/issues/346) Fix direct session creation from AS view
+  * [#349](https://github.com/peering-manager/peering-manager/issues/349) Fix e-mail rendering failure, templates may need minor changes
+
 ## Version 1.3.1 | MARK I (Bug fixes release) | 2021-01-07
 
 ### Enhancements
