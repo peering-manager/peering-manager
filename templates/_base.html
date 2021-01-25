@@ -129,7 +129,7 @@
       </nav>
       <main role="main" class="ml-sm-auto col-md-9 col-lg-10" style="padding-left: 0; padding-right: 0;">
         <div class="justify-content-between flex-wrap flex-md-nowrap align-items-center">
-          {% if not context_as %}
+          {% if request.user.is_authenticated and not context_as %}
           <div class="alert alert-warning text-center" role="alert">
             <i class="fas fa-exclamation-triangle"></i> No preferred affiliated autonomous system selected.
           </div>
