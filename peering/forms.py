@@ -109,7 +109,6 @@ class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
     model = AutonomousSystem
     q = forms.CharField(required=False, label="Search")
     asn = forms.IntegerField(required=False, label="ASN")
-    irr_as_set = forms.CharField(required=False, label="IRR AS-SET")
     ipv6_max_prefixes = forms.IntegerField(required=False, label="IPv6 Max Prefixes")
     ipv4_max_prefixes = forms.IntegerField(required=False, label="IPv4 Max Prefixes")
     affiliated = forms.NullBooleanField(required=False, widget=CustomNullBooleanSelect)

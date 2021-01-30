@@ -1,7 +1,7 @@
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models
 
-from .constants import ASN_MAX, ASN_MIN
+from .constants import ASN_MAX, ASN_MIN, TTL_MAX, TTL_MIN
 
 
 class ASNField(models.BigIntegerField):
@@ -31,4 +31,9 @@ class CommunityField(models.CharField):
 
 class TTLField(models.PositiveSmallIntegerField):
     description = "TTL field allowing value from 1 to 255"
-    default_validators = [MinValueValidator(1), MaxValueValidator(255)]
+    default_validators = [MinValueValidator(TTL_MIN), MaxValueValidator(TTL_MAX)]
+
+    def formfield(self, **kwargs):
+        defaults = {"min_value": TTL_MIN, "max_value": TTL_MAX}
+        defaults.update(**kwargs)
+        return super().formfield(**defaults)
