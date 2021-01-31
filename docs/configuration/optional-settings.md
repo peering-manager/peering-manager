@@ -144,7 +144,7 @@ to change this setting.
 
 ## BGPQ3_HOST
 
-Default: `rr.ntt.net`
+Default: `whois.radb.net`
 
 The host that will be used by BGPQ3 to look for IRR objects.
 
