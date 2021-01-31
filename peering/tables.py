@@ -474,6 +474,7 @@ class RouterTable(BaseTable):
             "last_deployment_id",
             "directpeeringsession_count",
             "internetexchangepeeringsession_count",
+            "device_state",
             "tags",
             "actions",
         )
@@ -486,6 +487,7 @@ class RouterTable(BaseTable):
             "configuration_template",
             "directpeeringsession_count",
             "internetexchangepeeringsession_count",
+            "device_state",
             "actions",
         )
 

@@ -50,6 +50,10 @@
           </td>
         </tr>
         <tr>
+          <td>Device State</td>
+          <td>{{ instance.get_device_state_display }}</td>
+        </tr>
+        <tr>
           <td>Configuration</td>
           <td>{{ instance.configuration_template|render_none }}</td>
         </tr>

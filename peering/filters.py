@@ -5,7 +5,7 @@ from django.db.models import Q
 
 from utils.filters import TagFilter
 
-from .enums import BGPRelationship, Platform, RoutingPolicyType
+from .enums import BGPRelationship, Platform, DeviceState, RoutingPolicyType
 from .models import (
     AutonomousSystem,
     BGPGroup,
@@ -278,6 +278,9 @@ class RouterFilterSet(django_filters.FilterSet):
         queryset=AutonomousSystem.objects.all(),
         to_field_name="id",
         label="Local AS",
+    )
+    device_state = django_filters.MultipleChoiceFilter(
+        choices=DeviceState.choices, null_value=None
     )
     tag = TagFilter()
 

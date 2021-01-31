@@ -306,6 +306,10 @@ class RouterViewSet(ModelViewSet):
     def configure_task(self, request, pk=None):
         router = self.get_object()
 
+        # Ensure device is not in a maintenance or disabled state
+        if router.device_state != "enabled":
+            raise ServiceUnavailable("Device is not currently in an enabled state") 
+
         # Check if the router runs on a supported platform
         if not router.platform:
             raise ServiceUnavailable("Unsupported router platform.")
