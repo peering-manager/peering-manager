@@ -95,6 +95,5 @@ run in a cron task.
 30 2 * * * user cd /opt/peering-manager && python3 manage.py peeringdb_sync
 55 * * * * user cd /opt/peering-manager && python3 manage.py configure_routers
 0  * * * * user cd /opt/peering-manager && python3 manage.py poll_peering_sessions --all
-0  0 * * * user cd /opt/peering-manager && python3 manage.py check_for_ix_peering_sessions
 30 4 * * * user cd /opt/peering-manager && python3 manage.py grab_prefixes
 ```
