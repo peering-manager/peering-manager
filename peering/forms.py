@@ -358,13 +358,20 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEd
 class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
     model = DirectPeeringSession
     q = forms.CharField(required=False, label="Search")
-    local_autonomous_system = DynamicModelChoiceField(
+    local_autonomous_system_id = DynamicModelChoiceField(
+        required=False,
         queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
         to_field_name="pk",
         label="Local Autonomous System",
     )
-    bgp_group = DynamicModelMultipleChoiceField(
+    autonomous_system_id = DynamicModelChoiceField(
+        required=False,
+        queryset=AutonomousSystem.objects.all(),
+        to_field_name="pk",
+        label="Autonomous System",
+    )
+    bgp_group_id = DynamicModelMultipleChoiceField(
         required=False,
         queryset=BGPGroup.objects.all(),
         to_field_name="pk",
@@ -380,7 +387,7 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
     relationship = forms.MultipleChoiceField(
         required=False, choices=BGPRelationship.choices, widget=StaticSelectMultiple
     )
-    router = DynamicModelMultipleChoiceField(
+    router_id = DynamicModelMultipleChoiceField(
         required=False,
         queryset=Router.objects.all(),
         to_field_name="pk",
@@ -555,7 +562,7 @@ class InternetExchangePeeringDBFormSet(forms.BaseFormSet):
 class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
     model = InternetExchange
     q = forms.CharField(required=False, label="Search")
-    local_autonomous_system = DynamicModelChoiceField(
+    local_autonomous_system_id = DynamicModelChoiceField(
         required=False,
         queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
@@ -575,7 +582,7 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
         null_option="None",
         query_params={"type": "export-policy"},
     )
-    router = DynamicModelMultipleChoiceField(
+    router_id = DynamicModelMultipleChoiceField(
         required=False,
         queryset=Router.objects.all(),
         to_field_name="pk",
@@ -663,13 +670,13 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
 class InternetExchangePeeringSessionFilterForm(BootstrapMixin, forms.Form):
     model = InternetExchangePeeringSession
     q = forms.CharField(required=False, label="Search")
-    autonomous_system__id = DynamicModelMultipleChoiceField(
+    autonomous_system_id = DynamicModelMultipleChoiceField(
         required=False,
         queryset=AutonomousSystem.objects.all(),
         to_field_name="pk",
         label="Autonomous System",
     )
-    internet_exchange__id = DynamicModelMultipleChoiceField(
+    internet_exchange_id = DynamicModelMultipleChoiceField(
         required=False,
         queryset=InternetExchange.objects.all(),
         to_field_name="pk",
@@ -792,7 +799,7 @@ class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
 class RouterFilterForm(BootstrapMixin, forms.Form):
     model = Router
     q = forms.CharField(required=False, label="Search")
-    local_autonomous_system = DynamicModelChoiceField(
+    local_autonomous_system_id = DynamicModelChoiceField(
         required=False,
         queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
