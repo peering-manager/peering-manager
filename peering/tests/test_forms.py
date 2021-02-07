@@ -1,7 +1,13 @@
 from django.test import TestCase
 
 from peering.constants import *
-from peering.enums import BGPRelationship, CommunityType, Platform, RoutingPolicyType
+from peering.enums import (
+    BGPRelationship,
+    CommunityType,
+    Platform,
+    DeviceState,
+    RoutingPolicyType,
+)
 from peering.forms import (
     AutonomousSystemEmailForm,
     AutonomousSystemForm,
@@ -146,6 +152,7 @@ class RouterTest(TestCase):
                 "name": "test",
                 "hostname": "test.example.com",
                 "platform": Platform.JUNOS,
+                "device_state": DeviceState.ENABLED,
                 "local_autonomous_system": AutonomousSystem.objects.create(
                     asn=64501,
                     name="Autonomous System 1",

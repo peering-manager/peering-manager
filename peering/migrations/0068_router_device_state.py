@@ -6,13 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('peering', '0067_auto_20210112_1318'),
+        ("peering", "0067_auto_20210112_1318"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='router',
-            name='device_state',
-            field=models.CharField(blank=True, choices=[('enabled', 'Enabled'), ('disabled', 'Disabled'), ('maintenance', 'Maintenance')], help_text='State of the device for configuration pushes', max_length=20),
+            model_name="router",
+            name="device_state",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("enabled", "Enabled"),
+                    ("disabled", "Disabled"),
+                    ("maintenance", "Maintenance"),
+                ],
+                help_text="State of the device for configuration pushes",
+                max_length=20,
+            ),
         ),
     ]

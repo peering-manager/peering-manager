@@ -25,9 +25,9 @@ class Command(BaseCommand):
             # Only apply configuration if the device is in an enabled state
             if router.device_state != "enabled":
                 self.logger.info(
-                                "%s is in a %s state, not applying configuration", 
-                                router.hostname, 
-                                router.device_state
+                    "%s is in a %s state, not applying configuration",
+                    router.hostname,
+                    router.device_state,
                 )
                 continue
 

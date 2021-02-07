@@ -4,7 +4,13 @@ from unittest.mock import patch
 from django.conf import settings
 from django.test import TestCase
 
-from peering.enums import BGPRelationship, CommunityType, Platform, RoutingPolicyType
+from peering.enums import (
+    BGPRelationship,
+    CommunityType,
+    Platform,
+    DeviceState,
+    RoutingPolicyType,
+)
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -411,6 +417,7 @@ class RouterTest(TestCase):
         cls.router = Router.objects.create(
             name="Test",
             hostname="test.example.com",
+            device_state=DeviceState.ENABLED,
             platform=Platform.JUNOS,
             local_autonomous_system=cls.local_as,
         )
@@ -543,6 +550,7 @@ class RouterTest(TestCase):
             name="test",
             hostname="test.example.com",
             platform=Platform.JUNOS,
+            device_state=DeviceState.ENABLED,
             local_autonomous_system=AutonomousSystem.objects.create(
                 asn=64510,
                 name="Autonomous System",

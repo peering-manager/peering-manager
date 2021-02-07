@@ -22,7 +22,14 @@ from utils.forms import (
 )
 
 from .constants import ASN_MAX, ASN_MIN
-from .enums import BGPRelationship, CommunityType, IPFamily, Platform, DeviceState, RoutingPolicyType
+from .enums import (
+    BGPRelationship,
+    CommunityType,
+    IPFamily,
+    Platform,
+    DeviceState,
+    RoutingPolicyType,
+)
 from .models import (
     AutonomousSystem,
     BGPGroup,
@@ -717,7 +724,9 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
         widget=SmallTextarea,
     )
     device_state = forms.ChoiceField(
-        initial="Enabled", choices=add_blank_choice(DeviceState.choices), widget=StaticSelect
+        initial="Enabled",
+        choices=add_blank_choice(DeviceState.choices),
+        widget=StaticSelect,
     )
     comments = CommentField()
     tags = TagField(required=False)
@@ -788,7 +797,10 @@ class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         required=False, queryset=Configuration.objects.all()
     )
     device_state = forms.ChoiceField(
-        initial="Enabled", choices=add_blank_choice(DeviceState.choices), widget=StaticSelect
+        required=False,
+        initial="Enabled",
+        choices=add_blank_choice(DeviceState.choices),
+        widget=StaticSelect,
     )
     comments = CommentField(widget=SmallTextarea)
 
