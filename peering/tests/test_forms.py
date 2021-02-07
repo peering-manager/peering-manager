@@ -125,11 +125,12 @@ class InternetExchangePeeringSessionTest(TestCase):
     def setUp(self):
         super().setUp()
 
-        self.autonomous_system = AutonomousSystem.objects.create(
-            asn=201281, name="Guillaume Mazoyer"
+        local_autonomous_system = AutonomousSystem.objects.create(
+            asn=201281, name="Guillaume Mazoyer", affiliated=True
         )
+        self.autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Test")
         self.internet_exchange = InternetExchange.objects.create(
-            name="Test", slug="test"
+            local_autonomous_system=local_autonomous_system, name="Test", slug="test"
         )
 
     def test_internet_exchange_peering_session_form(self):

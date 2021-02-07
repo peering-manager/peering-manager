@@ -5,6 +5,33 @@ from django.db import models
 from .enums import Color
 
 
+def multivalue_field_factory(field_class):
+    """
+    Transforms a form field into one that accepts multiple values.
+
+    This is used to apply `or` logic when multiple filter values are given while
+    maintaining the field's built-in validation.
+
+    Example: /api/peering/autonomous-systems/?asn=64500&asn=64501
+    """
+
+    class MultiValueField(field_class):
+        widget = forms.SelectMultiple
+
+        def to_python(self, value):
+            if not value:
+                return []
+
+            # Only ignore `None` and `False`, `0` makes sense
+            return [
+                super(field_class, self).to_python(v)
+                for v in value
+                if v is not None and v is not False
+            ]
+
+    return type(f"MultiValue{field_class.__name__}", (MultiValueField,), dict())
+
+
 class TextareaField(forms.CharField):
     """
     A textarea field. Exists mostly just to set it an non-required by default.
@@ -62,7 +89,7 @@ class CommentField(TextareaField):
             label="Comments",
             help_text='Styling with <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank"><i class="fab fa-markdown"></i> Markdown</a> is supported',
             *args,
-            **kwargs
+            **kwargs,
         )
 
 

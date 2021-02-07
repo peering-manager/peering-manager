@@ -238,7 +238,10 @@ class DynamicModelChoiceField(DynamicModelChoiceMixin, forms.ModelChoiceField):
     Choices are populated on-demand via the APISelect widget.
     """
 
-    pass
+    def clean(self, value):
+        if self.null_option is not None and value == "null":
+            return None
+        return super().clean(value)
 
 
 class DynamicModelMultipleChoiceField(
@@ -270,10 +273,11 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
         choices=ObjectChangeAction.choices,
         widget=StaticSelectMultiple,
     )
-    user = DynamicModelMultipleChoiceField(
+    user_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,
         display_field="username",
+        label="User",
         widget=APISelectMultiple(api_url="/api/users/users/"),
     )
 
