@@ -123,7 +123,10 @@ class AutonomousSystemEmailForm(BootstrapMixin, forms.Form):
 
 
 class BGPGroupForm(BootstrapMixin, forms.ModelForm):
-    slug = SlugField(max_length=255)
+    slug = SlugField(
+        max_length=255,
+        help_text="Friendly unique shorthand used for URL and config. Change Warning: May result in change of Operational State on a Router if being used in config generation",
+    )
     comments = CommentField()
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
@@ -416,7 +419,10 @@ class EmailFilterForm(BootstrapMixin, forms.Form):
 
 
 class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
-    slug = SlugField(max_length=255)
+    slug = SlugField(
+        max_length=255,
+        help_text="Friendly unique shorthand used for URL and config. Change Warning: May result in change of Operational State on a Router if being used in config generation",
+    )
     local_autonomous_system = DynamicModelChoiceField(
         queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
