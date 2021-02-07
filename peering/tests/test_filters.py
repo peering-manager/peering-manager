@@ -67,20 +67,26 @@ class AutonomousSystemTestCase(StandardTestCases.Filters):
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
     def test_asn(self):
-        params = {"asn": 64501}
+        params = {"asn": [64501]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        params = {"asn": [64501, 64502]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
 
     def test_ipv6_max_prefixes(self):
-        params = {"ipv6_max_prefixes": 1}
+        params = {"ipv6_max_prefixes": [1]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
-        params = {"ipv6_max_prefixes": 0}
+        params = {"ipv6_max_prefixes": [0]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {"ipv6_max_prefixes": [0, 1]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
 
     def test_ipv4_max_prefixes(self):
-        params = {"ipv4_max_prefixes": 1}
+        params = {"ipv4_max_prefixes": [1]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
-        params = {"ipv4_max_prefixes": 0}
+        params = {"ipv4_max_prefixes": [0]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {"ipv4_max_prefixes": [0, 1]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
 
     def test_affiliated(self):
         params = {"affiliated": False}
@@ -136,11 +142,13 @@ class CommunityTestCase(StandardTestCases.Filters):
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
     def test_type(self):
-        params = {"type": CommunityType.INGRESS}
+        params = {"type": [CommunityType.INGRESS]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {"type": [CommunityType.EGRESS]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
     def test_value(self):
-        params = {"value": "64500:1"}
+        params = {"value": ["64500:1"]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
 
@@ -230,9 +238,9 @@ class DirectPeeringSessionTestCase(StandardTestCases.Filters):
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
 
     def test_multihop_ttl(self):
-        params = {"multihop_ttl": 1}
+        params = {"multihop_ttl": [1]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
-        params = {"multihop_ttl": 2}
+        params = {"multihop_ttl": [2]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
     def test_enabled(self):
@@ -360,9 +368,9 @@ class InternetExchangePeeringSessionTestCase(StandardTestCases.Filters):
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 0)
 
     def test_multihop_ttl(self):
-        params = {"multihop_ttl": 1}
+        params = {"multihop_ttl": [1]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
-        params = {"multihop_ttl": 2}
+        params = {"multihop_ttl": [2]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
     def test_enabled(self):
@@ -463,12 +471,24 @@ class RouterTestCase(StandardTestCases.Filters):
         params = {"encrypt_passwords": False}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
-    def test_configuration_template(self):
-        params = {"configuration_template": self.configuration.pk}
+    def test_configuration_template_id(self):
+        params = {"configuration_template_id": [self.configuration.pk]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
+    def test_configuration_template(self):
+        params = {"configuration_template": [self.configuration.name]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+
+    def test_local_autonomous_system_id(self):
+        params = {"local_autonomous_system_id": [self.local_as.pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+
+    def test_local_autonomous_system_asn(self):
+        params = {"local_autonomous_system_asn": [self.local_as.asn]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+
     def test_local_autonomous_system(self):
-        params = {"local_autonomous_system": [self.local_as]}
+        params = {"local_autonomous_system": [self.local_as.name]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
 
 
@@ -517,9 +537,9 @@ class RoutingPolicyTestCase(StandardTestCases.Filters):
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
     def test_weight(self):
-        params = {"weight": 0}
+        params = {"weight": [0]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
-        params = {"weight": 10}
+        params = {"weight": [10]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
     def test_address_family(self):

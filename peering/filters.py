@@ -3,9 +3,14 @@ import ipaddress
 import django_filters
 from django.db.models import Q
 
-from utils.filters import CreatedUpdatedFilterSet, NameSlugSearchFilterSet, TagFilter
+from utils.filters import (
+    BaseFilterSet,
+    CreatedUpdatedFilterSet,
+    NameSlugSearchFilterSet,
+    TagFilter,
+)
 
-from .enums import BGPRelationship, Platform, RoutingPolicyType
+from .enums import BGPRelationship, CommunityType, Platform, RoutingPolicyType
 from .models import (
     AutonomousSystem,
     BGPGroup,
@@ -20,7 +25,7 @@ from .models import (
 )
 
 
-class AutonomousSystemFilterSet(CreatedUpdatedFilterSet):
+class AutonomousSystemFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     tag = TagFilter()
 
@@ -36,7 +41,9 @@ class AutonomousSystemFilterSet(CreatedUpdatedFilterSet):
         )
 
 
-class BGPGroupFilterSet(CreatedUpdatedFilterSet, NameSlugSearchFilterSet):
+class BGPGroupFilterSet(
+    BaseFilterSet, CreatedUpdatedFilterSet, NameSlugSearchFilterSet
+):
     q = django_filters.CharFilter(method="search", label="Search")
     tag = TagFilter()
 
@@ -45,7 +52,12 @@ class BGPGroupFilterSet(CreatedUpdatedFilterSet, NameSlugSearchFilterSet):
         fields = ["id"]
 
 
-class CommunityFilterSet(CreatedUpdatedFilterSet, NameSlugSearchFilterSet):
+class CommunityFilterSet(
+    BaseFilterSet, CreatedUpdatedFilterSet, NameSlugSearchFilterSet
+):
+    type = django_filters.MultipleChoiceFilter(
+        choices=CommunityType.choices, null_value=None
+    )
     tag = TagFilter()
 
     class Meta:
@@ -53,7 +65,7 @@ class CommunityFilterSet(CreatedUpdatedFilterSet, NameSlugSearchFilterSet):
         fields = ["id", "value", "type"]
 
 
-class ConfigurationFilterSet(CreatedUpdatedFilterSet):
+class ConfigurationFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     tag = TagFilter()
 
@@ -67,7 +79,7 @@ class ConfigurationFilterSet(CreatedUpdatedFilterSet):
         return queryset.filter(Q(name__icontains=value) | Q(template__icontains=value))
 
 
-class DirectPeeringSessionFilterSet(CreatedUpdatedFilterSet):
+class DirectPeeringSessionFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     local_autonomous_system_id = django_filters.ModelMultipleChoiceFilter(
         queryset=AutonomousSystem.objects.all(),
@@ -157,7 +169,7 @@ class DirectPeeringSessionFilterSet(CreatedUpdatedFilterSet):
         return queryset
 
 
-class EmailFilterSet(CreatedUpdatedFilterSet):
+class EmailFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     tag = TagFilter()
 
@@ -175,7 +187,7 @@ class EmailFilterSet(CreatedUpdatedFilterSet):
         )
 
 
-class InternetExchangeFilterSet(CreatedUpdatedFilterSet):
+class InternetExchangeFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     local_autonomous_system_id = django_filters.ModelMultipleChoiceFilter(
         queryset=AutonomousSystem.objects.all(), label="Local AS (ID)"
@@ -234,7 +246,7 @@ class InternetExchangeFilterSet(CreatedUpdatedFilterSet):
         return queryset.filter(qs_filter)
 
 
-class InternetExchangePeeringSessionFilterSet(CreatedUpdatedFilterSet):
+class InternetExchangePeeringSessionFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     autonomous_system_id = django_filters.ModelMultipleChoiceFilter(
         queryset=AutonomousSystem.objects.all(), label="Remote AS (ID)"
@@ -290,7 +302,7 @@ class InternetExchangePeeringSessionFilterSet(CreatedUpdatedFilterSet):
         return queryset
 
 
-class RouterFilterSet(CreatedUpdatedFilterSet):
+class RouterFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     platform = django_filters.MultipleChoiceFilter(
         choices=Platform.choices, null_value=None
@@ -310,6 +322,15 @@ class RouterFilterSet(CreatedUpdatedFilterSet):
         to_field_name="name",
         label="Local AS (Name)",
     )
+    configuration_template_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Configuration.objects.all(), label="Configuration (ID)"
+    )
+    configuration_template = django_filters.ModelMultipleChoiceFilter(
+        field_name="configuration_template__name",
+        queryset=Configuration.objects.all(),
+        to_field_name="name",
+        label="Configuration (Name)",
+    )
     tag = TagFilter()
 
     class Meta:
@@ -319,7 +340,6 @@ class RouterFilterSet(CreatedUpdatedFilterSet):
             "name",
             "hostname",
             "encrypt_passwords",
-            "configuration_template",
             "last_deployment_id",
         ]
 
@@ -333,7 +353,9 @@ class RouterFilterSet(CreatedUpdatedFilterSet):
         )
 
 
-class RoutingPolicyFilterSet(CreatedUpdatedFilterSet, NameSlugSearchFilterSet):
+class RoutingPolicyFilterSet(
+    BaseFilterSet, CreatedUpdatedFilterSet, NameSlugSearchFilterSet
+):
     type = django_filters.MultipleChoiceFilter(
         method="type_search", choices=RoutingPolicyType.choices, null_value=None
     )
@@ -344,9 +366,6 @@ class RoutingPolicyFilterSet(CreatedUpdatedFilterSet, NameSlugSearchFilterSet):
         fields = ["id", "weight", "address_family"]
 
     def type_search(self, queryset, name, value):
-        """
-        Return routing policies based on
-        """
         qs_filter = Q(type=RoutingPolicyType.IMPORT_EXPORT)
         for v in value:
             qs_filter |= Q(type=v)

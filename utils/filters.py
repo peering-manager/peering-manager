@@ -1,34 +1,49 @@
-import django_filters
-from django.contrib.auth.models import User
-from django.db.models import Q
+from copy import deepcopy
 
+import django_filters
+from django import forms
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.db import models
+from django.db.models import Q
+from django_filters.utils import get_model_field, resolve_field
+
+from .constants import *
 from .enums import ObjectChangeAction
+from .fields import multivalue_field_factory
 from .models import ObjectChange, Tag
 
 
-class ObjectChangeFilterSet(django_filters.FilterSet):
-    q = django_filters.CharFilter(method="search", label="Search")
-    time = django_filters.DateTimeFromToRangeFilter()
-    action = django_filters.MultipleChoiceFilter(
-        choices=ObjectChangeAction.choices, null_value=None
-    )
-    user = django_filters.ModelMultipleChoiceFilter(
-        field_name="user__id",
-        queryset=User.objects.all(),
-        to_field_name="id",
-        label="User",
-    )
+class MultiValueCharFilter(django_filters.MultipleChoiceFilter):
+    field_class = multivalue_field_factory(forms.CharField)
 
-    class Meta:
-        model = ObjectChange
-        fields = ["user_name", "request_id", "changed_object_type", "object_repr"]
 
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(
-            Q(user_name__icontains=value) | Q(object_repr__icontains=value)
-        )
+class MultiValueDateFilter(django_filters.MultipleChoiceFilter):
+    field_class = multivalue_field_factory(forms.DateField)
+
+
+class MultiValueDateTimeFilter(django_filters.MultipleChoiceFilter):
+    field_class = multivalue_field_factory(forms.DateTimeField)
+
+
+class MultiValueNumberFilter(django_filters.MultipleChoiceFilter):
+    field_class = multivalue_field_factory(forms.IntegerField)
+
+
+class MultiValueTimeFilter(django_filters.MultipleChoiceFilter):
+    field_class = multivalue_field_factory(forms.TimeField)
+
+
+class NullableCharFieldFilter(django_filters.CharFilter):
+    """
+    Allows matching on null field values by passing a special string meaning NULL.
+    """
+
+    def filter(self, qs, value):
+        if value != settings.FILTERS_NULL_CHOICE_VALUE:
+            return super().filter(qs, value)
+        qs = self.get_method(qs)(**{f"{self.field_name}__isnull": True})
+        return qs.distinct() if self.distinct else qs
 
 
 class TagFilter(django_filters.ModelMultipleChoiceFilter):
@@ -45,6 +60,32 @@ class TagFilter(django_filters.ModelMultipleChoiceFilter):
         kwargs.setdefault("queryset", Tag.objects.all())
 
         super().__init__(*args, **kwargs)
+
+
+class BaseFilterSet(django_filters.FilterSet):
+    """
+    Base filterset providing common behaviours to all filtersets.
+    """
+
+    FILTER_DEFAULTS = deepcopy(django_filters.filterset.FILTER_FOR_DBFIELD_DEFAULTS)
+    FILTER_DEFAULTS.update(
+        {
+            models.AutoField: {"filter_class": MultiValueNumberFilter},
+            models.CharField: {"filter_class": MultiValueCharFilter},
+            models.DateField: {"filter_class": MultiValueDateFilter},
+            models.DateTimeField: {"filter_class": MultiValueDateTimeFilter},
+            models.DecimalField: {"filter_class": MultiValueNumberFilter},
+            models.EmailField: {"filter_class": MultiValueCharFilter},
+            models.FloatField: {"filter_class": MultiValueNumberFilter},
+            models.IntegerField: {"filter_class": MultiValueNumberFilter},
+            models.PositiveIntegerField: {"filter_class": MultiValueNumberFilter},
+            models.PositiveSmallIntegerField: {"filter_class": MultiValueNumberFilter},
+            models.SlugField: {"filter_class": MultiValueCharFilter},
+            models.SmallIntegerField: {"filter_class": MultiValueNumberFilter},
+            models.TimeField: {"filter_class": MultiValueTimeFilter},
+            models.URLField: {"filter_class": MultiValueCharFilter},
+        }
+    )
 
 
 class CreatedUpdatedFilterSet(django_filters.FilterSet):
