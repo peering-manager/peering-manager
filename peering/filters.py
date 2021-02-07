@@ -17,7 +17,6 @@ from .enums import (
     Platform,
     RoutingPolicyType,
 )
-
 from .models import (
     AutonomousSystem,
     BGPGroup,
