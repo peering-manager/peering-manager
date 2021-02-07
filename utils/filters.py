@@ -8,7 +8,6 @@ from django.db import models
 from django.db.models import Q
 from django_filters.utils import get_model_field, resolve_field
 
-from .constants import *
 from .enums import ObjectChangeAction
 from .fields import multivalue_field_factory
 from .models import ObjectChange, Tag
