@@ -5,7 +5,7 @@ from django.db.models import Q
 
 from utils.filters import TagFilter
 
-from .enums import BGPRelationship, Platform, DeviceState, RoutingPolicyType
+from .enums import BGPRelationship, DeviceState, Platform, RoutingPolicyType
 from .models import (
     AutonomousSystem,
     BGPGroup,

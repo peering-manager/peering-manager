@@ -25,9 +25,9 @@ from .constants import ASN_MAX, ASN_MIN
 from .enums import (
     BGPRelationship,
     CommunityType,
+    DeviceState,
     IPFamily,
     Platform,
-    DeviceState,
     RoutingPolicyType,
 )
 from .models import (

@@ -7,8 +7,8 @@ from django.test import TestCase
 from peering.enums import (
     BGPRelationship,
     CommunityType,
-    Platform,
     DeviceState,
+    Platform,
     RoutingPolicyType,
 )
 from peering.models import (

@@ -30,9 +30,9 @@ from .enums import (
     BGPRelationship,
     BGPState,
     CommunityType,
+    DeviceState,
     IPFamily,
     Platform,
-    DeviceState,
     RoutingPolicyType,
 )
 from .fields import ASNField, CommunityField, TTLField
