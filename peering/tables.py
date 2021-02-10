@@ -3,9 +3,9 @@ from django.utils.safestring import mark_safe
 
 from peering_manager import settings
 from utils.tables import (
-    ActionsColumn,
     BaseTable,
     BooleanColumn,
+    ButtonsColumn,
     SelectColumn,
     TagColumn,
 )
@@ -23,75 +23,8 @@ from .models import (
     RoutingPolicy,
 )
 
-AUTONOMOUS_SYSTEM_ACTIONS = """
-{% if perms.peering.change_autonomoussystem %}
-<a href="{% url 'peering:autonomoussystem_edit' asn=record.asn %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
-{% endif %}
-"""
-BGP_GROUP_ACTIONS = """
-{% if perms.peering.change_bgpgroup %}
-<a href="{% url 'peering:bgpgroup_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
-{% endif %}
-"""
 BGP_RELATIONSHIP = "{{ record.get_relationship_html }}"
-COMMUNITY_ACTIONS = """
-{% if perms.peering.change_community %}
-<a href="{% url 'peering:community_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
-{% endif %}
-"""
 COMMUNITY_TYPE = "{{ record.get_type_html }}"
-CONFIGURATION_ACTIONS = """
-{% if perms.peering.change_configuration %}
-<a href="{% url 'peering:configuration_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
-{% endif %}
-"""
-DIRECT_PEERING_SESSION_ACTIONS = """
-{% load helpers %}
-{% if record.comments %}
-<button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Peering Session Comments" data-content="{{ record.comments | markdown:True }}"><i class="fas fa-comment"></i></button>
-{% endif %}
-{% if record.autonomous_system.comments %}
-<button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Autonomous System Comments" data-content="{{ record.autonomous_system.comments | markdown:True }}"><i class="fas fa-comments"></i></button>
-{% endif %}
-{% if perms.peering.change_directpeeringsession %}
-<a href="{% url 'peering:directpeeringsession_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
-{% endif %}
-"""
-EMAIL_ACTIONS = """
-{% if perms.peering.change_email %}
-<a href="{% url 'peering:email_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
-{% endif %}
-"""
-INTERNET_EXCHANGE_ACTIONS = """
-{% if perms.peering.change_internetexchange %}
-<a href="{% url 'peering:internetexchange_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
-{% endif %}
-"""
-INTERNET_EXCHANGE_PEERING_SESSION_ACTIONS = """
-{% load helpers %}
-{% if record.comments %}
-<button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Peering Session Comments" data-content="{{ record.comments | markdown:True }}"><i class="fas fa-comment"></i></button>
-{% endif %}
-{% if record.autonomous_system.comments %}
-<button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Autonomous System Comments" data-content="{{ record.autonomous_system.comments | markdown:True }}"><i class="fas fa-comments"></i></button>
-{% endif %}
-{% if record.internet_exchange.comments %}
-<button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Internet Exchange Comments" data-content="{{ record.internet_exchange.comments | markdown:True }}"><i class="fas fa-comment-dots"></i></button>
-{% endif %}
-{% if perms.peering.change_internetexchangepeeringsession %}
-<a href="{% url 'peering:internetexchangepeeringsession_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
-{% endif %}
-"""
-ROUTER_ACTIONS = """
-{% if perms.peering.change_router %}
-<a href="{% url 'peering:router_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
-{% endif %}
-"""
-ROUTING_POLICY_ACTIONS = """
-{% if perms.peering.change_routingpolicy %}
-<a href="{% url 'peering:routingpolicy_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
-{% endif %}
-"""
 ROUTING_POLICY_TYPE = "{{ record.get_type_html }}"
 
 
@@ -146,7 +79,7 @@ class AutonomousSystemTable(BaseTable):
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     tags = TagColumn(url_name="peering:autonomoussystem_list")
-    actions = ActionsColumn(template_code=AUTONOMOUS_SYSTEM_ACTIONS)
+    buttons = ButtonsColumn(AutonomousSystem, pk_field="asn")
 
     class Meta(BaseTable.Meta):
         model = AutonomousSystem
@@ -163,7 +96,7 @@ class AutonomousSystemTable(BaseTable):
             "internetexchangepeeringsession_count",
             "affiliated",
             "tags",
-            "actions",
+            "buttons",
         )
         default_columns = (
             "pk",
@@ -172,7 +105,7 @@ class AutonomousSystemTable(BaseTable):
             "irr_as_set",
             "directpeeringsession_count",
             "internetexchangepeeringsession_count",
-            "actions",
+            "buttons",
         )
 
 
@@ -194,7 +127,7 @@ class BGPGroupTable(BaseTable):
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     tags = TagColumn(url_name="peering:bgpgroup_list")
-    actions = ActionsColumn(template_code=BGP_GROUP_ACTIONS)
+    buttons = ButtonsColumn(BGPGroup, pk_field="slug")
 
     class Meta(BaseTable.Meta):
         model = BGPGroup
@@ -207,14 +140,14 @@ class BGPGroupTable(BaseTable):
             "export_routing_policies",
             "directpeeringsession_count",
             "tags",
-            "actions",
+            "buttons",
         )
         default_columns = (
             "pk",
             "name",
             "check_bgp_session_states",
             "directpeeringsession_count",
-            "actions",
+            "buttons",
         )
 
 
@@ -227,12 +160,12 @@ class CommunityTable(BaseTable):
     name = tables.Column(linkify=True)
     type = tables.TemplateColumn(template_code=COMMUNITY_TYPE)
     tags = TagColumn(url_name="peering:community_list")
-    actions = ActionsColumn(template_code=COMMUNITY_ACTIONS)
+    buttons = ButtonsColumn(Community)
 
     class Meta(BaseTable.Meta):
         model = Community
-        fields = ("pk", "name", "slug", "value", "type", "tags", "actions")
-        default_columns = ("pk", "name", "value", "type", "actions")
+        fields = ("pk", "name", "slug", "value", "type", "tags", "buttons")
+        default_columns = ("pk", "name", "value", "type", "buttons")
 
 
 class ConfigurationTable(BaseTable):
@@ -243,17 +176,30 @@ class ConfigurationTable(BaseTable):
     pk = SelectColumn()
     name = tables.Column(linkify=True)
     tags = TagColumn(url_name="peering:configuration_list")
-    actions = ActionsColumn(template_code=CONFIGURATION_ACTIONS)
+    buttons = ButtonsColumn(Configuration)
 
     class Meta(BaseTable.Meta):
         model = Configuration
-        fields = ("pk", "name", "updated", "tags", "actions")
-        default_columns = ("pk", "name", "updated", "actions")
+        fields = ("pk", "name", "updated", "tags", "buttons")
+        default_columns = ("pk", "name", "updated", "buttons")
 
 
 class DirectPeeringSessionTable(BaseTable):
     """
     Table for DirectPeeringSession lists
+    """
+
+    append_template = """
+    {% load helpers %}
+    {% if record.comments %}
+    <button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Peering Session Comments" data-content="{{ record.comments | markdown:True }}"><i class="fas fa-comment"></i></button>
+    {% endif %}
+    {% if record.autonomous_system.comments %}
+    <button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Autonomous System Comments" data-content="{{ record.autonomous_system.comments | markdown:True }}"><i class="fas fa-comments"></i></button>
+    {% endif %}
+    {% if perms.peering.change_directpeeringsession %}
+    <a href="{% url 'peering:directpeeringsession_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
+    {% endif %}
     """
 
     pk = SelectColumn()
@@ -275,7 +221,7 @@ class DirectPeeringSessionTable(BaseTable):
     state = BGPSessionStateColumn(accessor="bgp_state")
     router = tables.Column(verbose_name="Router", accessor="router", linkify=True)
     tags = TagColumn(url_name="peering:directpeeringsession_list")
-    actions = ActionsColumn(template_code=DIRECT_PEERING_SESSION_ACTIONS)
+    actions = ButtonsColumn(DirectPeeringSession, append_template=append_template)
 
     class Meta(BaseTable.Meta):
         model = DirectPeeringSession
@@ -295,7 +241,7 @@ class DirectPeeringSessionTable(BaseTable):
             "advertised_prefix_count",
             "router",
             "tags",
-            "actions",
+            "buttons",
         )
         default_columns = (
             "pk",
@@ -306,7 +252,7 @@ class DirectPeeringSessionTable(BaseTable):
             "relationship",
             "enabled",
             "router",
-            "actions",
+            "buttons",
         )
 
 
@@ -318,12 +264,12 @@ class EmailTable(BaseTable):
     pk = SelectColumn()
     name = tables.Column(linkify=True)
     tags = TagColumn(url_name="peering:configuration_list")
-    actions = ActionsColumn(template_code=EMAIL_ACTIONS)
+    buttons = ButtonsColumn(Email)
 
     class Meta(BaseTable.Meta):
         model = Email
-        fields = ("pk", "name", "subject", "updated", "tags", "actions")
-        default_columns = ("pk", "name", "updated", "actions")
+        fields = ("pk", "name", "subject", "updated", "tags", "buttons")
+        default_columns = ("pk", "name", "updated", "buttons")
 
 
 class InternetExchangeTable(BaseTable):
@@ -349,7 +295,7 @@ class InternetExchangeTable(BaseTable):
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     tags = TagColumn(url_name="peering:internetexchange_list")
-    actions = ActionsColumn(template_code=INTERNET_EXCHANGE_ACTIONS)
+    buttons = ButtonsColumn(InternetExchange, pk_field="slug")
 
     class Meta(BaseTable.Meta):
         model = InternetExchange
@@ -367,7 +313,7 @@ class InternetExchangeTable(BaseTable):
             "bgp_session_states_update",
             "internetexchangepeeringsession_count",
             "tags",
-            "actions",
+            "buttons",
         )
         default_columns = (
             "pk",
@@ -376,13 +322,29 @@ class InternetExchangeTable(BaseTable):
             "ipv4_address",
             "router",
             "internetexchangepeeringsession_count",
-            "actions",
+            "buttons",
         )
 
 
 class InternetExchangePeeringSessionTable(BaseTable):
     """
     Table for InternetExchangePeeringSession lists
+    """
+
+    append_template = """
+    {% load helpers %}
+    {% if record.comments %}
+    <button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Peering Session Comments" data-content="{{ record.comments | markdown:True }}"><i class="fas fa-comment"></i></button>
+    {% endif %}
+    {% if record.autonomous_system.comments %}
+    <button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Autonomous System Comments" data-content="{{ record.autonomous_system.comments | markdown:True }}"><i class="fas fa-comments"></i></button>
+    {% endif %}
+    {% if record.internet_exchange.comments %}
+    <button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Internet Exchange Comments" data-content="{{ record.internet_exchange.comments | markdown:True }}"><i class="fas fa-comment-dots"></i></button>
+    {% endif %}
+    {% if perms.peering.change_internetexchangepeeringsession %}
+    <a href="{% url 'peering:internetexchangepeeringsession_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
+    {% endif %}
     """
 
     pk = SelectColumn()
@@ -405,7 +367,9 @@ class InternetExchangePeeringSessionTable(BaseTable):
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     state = BGPSessionStateColumn(accessor="bgp_state")
     tags = TagColumn(url_name="peering:internetexchangepeeringsession_list")
-    actions = ActionsColumn(template_code=INTERNET_EXCHANGE_PEERING_SESSION_ACTIONS)
+    buttons = ButtonsColumn(
+        InternetExchangePeeringSession, append_template=append_template
+    )
 
     class Meta(BaseTable.Meta):
         model = InternetExchangePeeringSession
@@ -423,7 +387,7 @@ class InternetExchangePeeringSessionTable(BaseTable):
             "received_prefix_count",
             "advertised_prefix_count",
             "tags",
-            "actions",
+            "buttons",
         )
         default_columns = (
             "pk",
@@ -433,7 +397,7 @@ class InternetExchangePeeringSessionTable(BaseTable):
             "is_route_server",
             "enabled",
             "enabled",
-            "actions",
+            "buttons",
         )
 
 
@@ -459,7 +423,7 @@ class RouterTable(BaseTable):
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     tags = TagColumn(url_name="peering:router_list")
-    actions = ActionsColumn(template_code=ROUTER_ACTIONS)
+    buttons = ButtonsColumn(Router)
 
     class Meta(BaseTable.Meta):
         model = Router
@@ -475,7 +439,7 @@ class RouterTable(BaseTable):
             "directpeeringsession_count",
             "internetexchangepeeringsession_count",
             "tags",
-            "actions",
+            "buttons",
         )
         default_columns = (
             "pk",
@@ -486,7 +450,7 @@ class RouterTable(BaseTable):
             "configuration_template",
             "directpeeringsession_count",
             "internetexchangepeeringsession_count",
-            "actions",
+            "buttons",
         )
 
 
@@ -499,9 +463,9 @@ class RoutingPolicyTable(BaseTable):
     name = tables.Column(linkify=True)
     type = tables.TemplateColumn(template_code=ROUTING_POLICY_TYPE)
     tags = TagColumn(url_name="peering:routingpolicy_list")
-    actions = ActionsColumn(template_code=ROUTING_POLICY_ACTIONS)
+    buttons = ButtonsColumn(RoutingPolicy)
 
     class Meta(BaseTable.Meta):
         model = RoutingPolicy
-        fields = ("pk", "name", "type", "weight", "address_family", "tags", "actions")
-        default_columns = ("pk", "name", "type", "weight", "address_family", "actions")
+        fields = ("pk", "name", "type", "weight", "address_family", "tags", "buttons")
+        default_columns = ("pk", "name", "type", "weight", "address_family", "buttons")

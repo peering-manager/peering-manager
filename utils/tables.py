@@ -29,31 +29,9 @@ OBJECT_CHANGE_OBJECT = """
 {% endif %}
 """
 
-TAG_ACTIONS = """
-{% if perms.utils.change_tag %}
-<a href="{% url 'utils:tag_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
-{% endif %}
-"""
-
 OBJECT_CHANGE_REQUEST_ID = """
 <a href="{% url 'utils:objectchange_list' %}?request_id={{ value }}">{{ value }}</a>
 """
-
-
-class ActionsColumn(tables.TemplateColumn):
-    def __init__(self, *args, **kwargs):
-        attrs = kwargs.pop("attrs", {"td": {"class": "text-right"}})
-        default = kwargs.pop("default", "")
-        orderable = kwargs.pop("orderable", False)
-        verbose_name = kwargs.pop("verbose_name", "")
-        super().__init__(
-            *args,
-            attrs=attrs,
-            default=default,
-            orderable=orderable,
-            verbose_name=verbose_name,
-            **kwargs,
-        )
 
 
 class BaseTable(tables.Table):
@@ -148,16 +126,73 @@ class BooleanColumn(tables.BooleanColumn):
         return mark_safe(html)
 
 
-class ColorColumn(tables.Column):
+class ButtonsColumn(tables.TemplateColumn):
     """
-    Display a colored block.
+    Renders buttons for an object, in a row of a table.
+    """
+
+    attrs = {"td": {"class": "text-right text-nowrap"}}
+    # Note that braces are escaped to allow for string formatting prior to template rendering
+    template_code = """
+    {{% if "changelog" in buttons %}}
+    <a href="{{% url '{app_label}:{model_name}_changelog' {pk_field}=record.{pk_field} %}}" class="btn btn-xs btn-secondary" title="Change log">
+      <i class="fas fa-history"></i>
+    </a>
+    {{% endif %}}
+    {{% if "edit" in buttons and perms.{app_label}.change_{model_name} %}}
+    <a href="{{% url '{app_label}:{model_name}_edit' {pk_field}=record.{pk_field} %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-xs btn-warning" title="Edit">
+      <i class="fas fa-edit"></i>
+    </a>
+    {{% endif %}}
+    {{% if "delete" in buttons and perms.{app_label}.delete_{model_name} %}}
+    <a href="{{% url '{app_label}:{model_name}_delete' {pk_field}=record.{pk_field} %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-xs btn-danger" title="Delete">
+      <i class="fas fa-trash-alt"></i>
+    </a>
+    {{% endif %}}
+    """
+
+    def __init__(
+        self,
+        model,
+        *args,
+        pk_field="pk",
+        buttons=("changelog", "edit", "delete"),
+        prepend_template=None,
+        append_template=None,
+        return_url_extra="",
+        **kwargs,
+    ):
+        if prepend_template:
+            prepend_template = prepend_template.replace("{", "{{").replace("}", "}}")
+            self.template_code = prepend_template + self.template_code
+        if append_template:
+            append_template = append_template.replace("{", "{{").replace("}", "}}")
+            self.template_code = self.template_code + append_template
+
+        template_code = self.template_code.format(
+            app_label=model._meta.app_label,
+            model_name=model._meta.model_name,
+            pk_field=pk_field,
+            buttons=buttons,
+        )
+        super().__init__(template_code=template_code, *args, **kwargs)
+
+        self.extra_context.update(
+            {"buttons": buttons, "return_url_extra": return_url_extra}
+        )
+
+    def header(self):
+        return ""
+
+
+class ColourColumn(tables.Column):
+    """
+    Displays a coloured block.
     """
 
     def render(self, value):
         return mark_safe(
-            '<span class="label color-block" style="background-color: #{}">&nbsp;</span>'.format(
-                value
-            )
+            f'<span class="label color-block" style="background-color: #{value}">&nbsp;</span>'
         )
 
 
@@ -209,9 +244,9 @@ class TagColumn(tables.TemplateColumn):
 
     template_code = """
     {% for tag in value.all %}
-        {% include 'utils/templatetags/tag.html' %}
+    {% include 'utils/templatetags/tag.html' %}
     {% empty %}
-        <span class="text-muted">&mdash;</span>
+    <span class="text-muted">&mdash;</span>
     {% endfor %}
     """
 
@@ -224,10 +259,10 @@ class TagColumn(tables.TemplateColumn):
 class TagTable(BaseTable):
     pk = SelectColumn()
     name = tables.LinkColumn()
-    color = ColorColumn()
-    actions = ActionsColumn(template_code=TAG_ACTIONS, verbose_name="")
+    color = ColourColumn()
+    buttons = ButtonsColumn(Tag, buttons=("edit", "delete"), pk_field="slug")
 
     class Meta(BaseTable.Meta):
         model = Tag
-        fields = ("pk", "name", "slug", "color", "items", "actions")
-        default_columns = ("pk", "name", "color", "items", "actions")
+        fields = ("pk", "name", "slug", "color", "items", "buttons")
+        default_columns = ("pk", "name", "color", "items", "buttons")
