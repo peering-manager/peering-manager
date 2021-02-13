@@ -132,7 +132,8 @@ class ButtonsColumn(tables.TemplateColumn):
     """
 
     attrs = {"td": {"class": "text-right text-nowrap"}}
-    # Note that braces are escaped to allow for string formatting prior to template rendering
+    # Note that braces are escaped to allow string formatting prior to template
+    # rendering
     template_code = """
     {{% if "changelog" in buttons %}}
     <a href="{{% url '{app_label}:{model_name}_changelog' {pk_field}=record.{pk_field} %}}" class="btn btn-xs btn-secondary" title="Change log">
