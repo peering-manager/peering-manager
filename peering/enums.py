@@ -39,7 +39,7 @@ class Platform(models.TextChoices):
 class DeviceState(models.TextChoices):
     ENABLED = "enabled", "Enabled"
     DISABLED = "disabled", "Disabled"
-    MAINT = "maintenance", "Maintenance"
+    MAINTENANCE = "maintenance", "Maintenance"
 
 
 class RoutingPolicyType(models.TextChoices):

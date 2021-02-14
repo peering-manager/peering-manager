@@ -1590,7 +1590,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         error, changes = None, None
 
         # Ensure device is enabled, we allow Maint mode to force a config push
-        if self.device_state == "disabled":
+        if self.device_state == DeviceState.DISABLED:
             self.logger.debug(f"device: {self.name} is disabled, exiting config push")
             return "device is disabled, cannot deploy config", changes
 

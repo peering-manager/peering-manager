@@ -737,7 +737,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
         widget=SmallTextarea,
     )
     device_state = forms.ChoiceField(
-        initial="Enabled",
+        initial=DeviceState.ENABLED,
         choices=add_blank_choice(DeviceState.choices),
         widget=StaticSelect,
     )
@@ -811,7 +811,7 @@ class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     )
     device_state = forms.ChoiceField(
         required=False,
-        initial="Enabled",
+        initial=DeviceState.ENABLED,
         choices=add_blank_choice(DeviceState.choices),
         widget=StaticSelect,
     )

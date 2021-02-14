@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 
+from peering.enums import DeviceState
 from peering.filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
@@ -307,7 +308,7 @@ class RouterViewSet(ModelViewSet):
         router = self.get_object()
 
         # Ensure device is not in a maintenance or disabled state
-        if router.device_state != "enabled":
+        if router.device_state != DeviceState.ENABLED:
             raise ServiceUnavailable("Device is not currently in an enabled state")
 
         # Check if the router runs on a supported platform

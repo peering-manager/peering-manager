@@ -3,6 +3,7 @@ import logging
 from django.core.management.base import BaseCommand
 from django.template.defaultfilters import pluralize
 
+from peering.enums import DeviceState
 from peering.models import Router
 
 
@@ -23,7 +24,7 @@ class Command(BaseCommand):
 
         for router in Router.objects.all():
             # Only apply configuration if the device is in an enabled state
-            if router.device_state != "enabled":
+            if router.device_state != DeviceState.ENABLED:
                 self.logger.info(
                     "%s is in a %s state, not applying configuration",
                     router.hostname,
