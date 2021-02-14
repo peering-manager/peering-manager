@@ -1,6 +1,6 @@
 import django_tables2 as tables
 
-from utils.tables import ActionsColumn, BaseTable, BooleanColumn, SelectColumn
+from utils.tables import BaseTable, BooleanColumn, SelectColumn
 from utils.templatetags.helpers import speed_for_human
 
 from .models import NetworkContact, NetworkIXLan

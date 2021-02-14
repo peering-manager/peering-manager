@@ -133,6 +133,12 @@ NAPALM_ARGS = getattr(configuration, "NAPALM_ARGS", {})
 PAGINATE_COUNT = getattr(configuration, "PAGINATE_COUNT", 20)
 METRICS_ENABLED = getattr(configuration, "METRICS_ENABLED", False)
 
+DATE_FORMAT = getattr(configuration, "DATE_FORMAT", "jS F, Y")
+DATETIME_FORMAT = getattr(configuration, "DATETIME_FORMAT", "jS F, Y G:i")
+SHORT_DATE_FORMAT = getattr(configuration, "SHORT_DATE_FORMAT", "Y-m-d")
+SHORT_DATETIME_FORMAT = getattr(configuration, "SHORT_DATETIME_FORMAT", "Y-m-d H:i")
+SHORT_TIME_FORMAT = getattr(configuration, "SHORT_TIME_FORMAT", "H:i:s")
+TIME_FORMAT = getattr(configuration, "TIME_FORMAT", "G:i")
 try:
     with open("/etc/timezone", "r") as f:
         BASE_TZ = f.readline()
