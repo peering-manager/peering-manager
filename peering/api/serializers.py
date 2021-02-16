@@ -104,6 +104,7 @@ class RouterSerializer(TaggedObjectSerializer, WriteEnabledNestedSerializer):
             "local_autonomous_system",
             "last_deployment_id",
             "netbox_device_id",
+            "device_state",
             "use_netbox",
             "napalm_username",
             "napalm_password",

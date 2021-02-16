@@ -10,7 +10,13 @@ from utils.filters import (
     TagFilter,
 )
 
-from .enums import BGPRelationship, CommunityType, Platform, RoutingPolicyType
+from .enums import (
+    BGPRelationship,
+    CommunityType,
+    DeviceState,
+    Platform,
+    RoutingPolicyType,
+)
 from .models import (
     AutonomousSystem,
     BGPGroup,
@@ -330,6 +336,9 @@ class RouterFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
         queryset=Configuration.objects.all(),
         to_field_name="name",
         label="Configuration (Name)",
+    )
+    device_state = django_filters.MultipleChoiceFilter(
+        choices=DeviceState.choices, null_value=None
     )
     tag = TagFilter()
 

@@ -30,6 +30,7 @@ from .enums import (
     BGPRelationship,
     BGPState,
     CommunityType,
+    DeviceState,
     IPFamily,
     Platform,
     RoutingPolicyType,
@@ -1304,6 +1305,12 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
     configuration_template = models.ForeignKey(
         "Configuration", blank=True, null=True, on_delete=models.SET_NULL
     )
+    device_state = models.CharField(
+        max_length=20,
+        choices=DeviceState.choices,
+        blank=True,
+        help_text="State of the device for configuration pushes",
+    )
     last_deployment_id = models.CharField(max_length=64, blank=True, null=True)
     netbox_device_id = models.PositiveIntegerField(blank=True, default=0)
     use_netbox = models.BooleanField(
@@ -1581,6 +1588,11 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         False which means that the changes will be discarded.
         """
         error, changes = None, None
+
+        # Ensure device is enabled, we allow Maint mode to force a config push
+        if self.device_state == DeviceState.DISABLED:
+            self.logger.debug(f"device: {self.name} is disabled, exiting config push")
+            return "device is disabled, cannot deploy config", changes
 
         # Make sure there actually a configuration to merge
         if config is None or not isinstance(config, str) or not config.strip():

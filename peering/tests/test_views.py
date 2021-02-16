@@ -4,7 +4,13 @@ from django.core import mail
 from django.db import transaction
 from django.urls.exceptions import NoReverseMatch
 
-from peering.enums import BGPRelationship, CommunityType, Platform, RoutingPolicyType
+from peering.enums import (
+    BGPRelationship,
+    CommunityType,
+    DeviceState,
+    Platform,
+    RoutingPolicyType,
+)
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -342,16 +348,19 @@ class RouterTestCase(StandardTestCases.Views):
                 Router(
                     name="Router 1",
                     hostname="router1.example.net",
+                    device_state=DeviceState.ENABLED,
                     local_autonomous_system=cls.local_as,
                 ),
                 Router(
                     name="Router 2",
                     hostname="router2.example.net",
+                    device_state=DeviceState.ENABLED,
                     local_autonomous_system=cls.local_as,
                 ),
                 Router(
                     name="Router 3",
                     hostname="router3.example.net",
+                    device_state=DeviceState.ENABLED,
                     local_autonomous_system=cls.local_as,
                 ),
             ]
@@ -365,6 +374,7 @@ class RouterTestCase(StandardTestCases.Views):
             "last_deployment_id": None,
             "encrypt_passwords": False,
             "platform": Platform.JUNOS,
+            "device_state": DeviceState.ENABLED,
             "netbox_device_id": 0,
             "use_netbox": False,
             "comments": "",

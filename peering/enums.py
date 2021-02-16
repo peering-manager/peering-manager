@@ -36,6 +36,12 @@ class Platform(models.TextChoices):
     NONE = "", "Other"
 
 
+class DeviceState(models.TextChoices):
+    ENABLED = "enabled", "Enabled"
+    DISABLED = "disabled", "Disabled"
+    MAINTENANCE = "maintenance", "Maintenance"
+
+
 class RoutingPolicyType(models.TextChoices):
     EXPORT = "export-policy", "Export"
     IMPORT = "import-policy", "Import"

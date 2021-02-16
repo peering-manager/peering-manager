@@ -4,7 +4,13 @@ from django.urls import reverse
 from rest_framework import status
 
 from peering.constants import *
-from peering.enums import BGPRelationship, CommunityType, Platform, RoutingPolicyType
+from peering.enums import (
+    BGPRelationship,
+    CommunityType,
+    DeviceState,
+    Platform,
+    RoutingPolicyType,
+)
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -527,6 +533,7 @@ class RouterTest(APITestCase):
         cls.router = Router.objects.create(
             name="Test",
             hostname="test.example.com",
+            device_state=DeviceState.ENABLED,
             platform=Platform.JUNOS,
             configuration_template=cls.template,
             local_autonomous_system=cls.local_autonomous_system,
@@ -547,6 +554,7 @@ class RouterTest(APITestCase):
             "name": "Other",
             "hostname": "other.example.com",
             "platform": Platform.JUNOS,
+            "device_state": DeviceState.ENABLED,
             "local_autonomous_system": self.local_autonomous_system.pk,
         }
 
@@ -563,6 +571,7 @@ class RouterTest(APITestCase):
             "name": "Other",
             "hostname": "other.example.com",
             "platform": Platform.JUNOS,
+            "device_state": DeviceState.ENABLED,
             "configuration_template": self.template.pk,
             "local_autonomous_system": self.local_autonomous_system.pk,
         }
@@ -581,12 +590,14 @@ class RouterTest(APITestCase):
                 "name": "Test1",
                 "hostname": "test1.example.com",
                 "platform": Platform.JUNOS,
+                "device_state": DeviceState.ENABLED,
                 "local_autonomous_system": self.local_autonomous_system.pk,
             },
             {
                 "name": "Test2",
                 "hostname": "test2.example.com",
                 "platform": Platform.JUNOS,
+                "device_state": DeviceState.ENABLED,
                 "local_autonomous_system": self.local_autonomous_system.pk,
             },
         ]
@@ -604,6 +615,7 @@ class RouterTest(APITestCase):
             "name": "Test",
             "hostname": "test.example.com",
             "platform": Platform.IOSXR,
+            "device_state": DeviceState.ENABLED,
             "local_autonomous_system": self.local_autonomous_system.pk,
         }
 
@@ -620,6 +632,7 @@ class RouterTest(APITestCase):
             "name": "Test",
             "hostname": "test.example.com",
             "platform": Platform.IOSXR,
+            "device_state": DeviceState.ENABLED,
             "configuration_template": self.template.pk,
             "local_autonomous_system": self.local_autonomous_system.pk,
         }

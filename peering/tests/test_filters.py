@@ -1,5 +1,11 @@
 from peering.constants import *
-from peering.enums import BGPRelationship, CommunityType, Platform, RoutingPolicyType
+from peering.enums import (
+    BGPRelationship,
+    CommunityType,
+    DeviceState,
+    Platform,
+    RoutingPolicyType,
+)
 from peering.filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
@@ -434,6 +440,7 @@ class RouterTestCase(StandardTestCases.Filters):
                     name="Router 1",
                     hostname="router1.example.net",
                     platform=Platform.JUNOS,
+                    device_state=DeviceState.ENABLED,
                     encrypt_passwords=True,
                     local_autonomous_system=cls.local_as,
                 ),
@@ -441,12 +448,14 @@ class RouterTestCase(StandardTestCases.Filters):
                     name="Router 2",
                     hostname="router2.example.net",
                     platform=Platform.IOSXR,
+                    device_state=DeviceState.DISABLED,
                     encrypt_passwords=True,
                     local_autonomous_system=cls.local_as,
                 ),
                 Router(
                     name="Router 3",
                     hostname="router3.example.net",
+                    device_state=DeviceState.ENABLED,
                     configuration_template=cls.configuration,
                     local_autonomous_system=cls.local_as,
                 ),
@@ -490,6 +499,12 @@ class RouterTestCase(StandardTestCases.Filters):
     def test_local_autonomous_system(self):
         params = {"local_autonomous_system": [self.local_as.name]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+
+    def test_device_state(self):
+        params = {"device_state": [DeviceState.ENABLED]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {"device_state": [DeviceState.DISABLED]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
 
 class RoutingPolicyTestCase(StandardTestCases.Filters):

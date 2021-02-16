@@ -22,7 +22,14 @@ from utils.forms import (
 )
 
 from .constants import ASN_MAX, ASN_MIN
-from .enums import BGPRelationship, CommunityType, IPFamily, Platform, RoutingPolicyType
+from .enums import (
+    BGPRelationship,
+    CommunityType,
+    DeviceState,
+    IPFamily,
+    Platform,
+    RoutingPolicyType,
+)
 from .models import (
     AutonomousSystem,
     BGPGroup,
@@ -729,6 +736,11 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
         help_text="See NAPALM's <a href='http://napalm.readthedocs.io/en/latest/support/#optional-arguments'>documentation</a> for a complete list of optional arguments",
         widget=SmallTextarea,
     )
+    device_state = forms.ChoiceField(
+        initial=DeviceState.ENABLED,
+        choices=add_blank_choice(DeviceState.choices),
+        widget=StaticSelect,
+    )
     comments = CommentField()
     tags = TagField(required=False)
 
@@ -764,6 +776,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
             "hostname",
             "platform",
             "encrypt_passwords",
+            "device_state",
             "configuration_template",
             "local_autonomous_system",
             "napalm_username",
@@ -796,6 +809,12 @@ class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     configuration_template = DynamicModelChoiceField(
         required=False, queryset=Configuration.objects.all()
     )
+    device_state = forms.ChoiceField(
+        required=False,
+        initial=DeviceState.ENABLED,
+        choices=add_blank_choice(DeviceState.choices),
+        widget=StaticSelect,
+    )
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
@@ -813,6 +832,9 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
     )
     platform = forms.MultipleChoiceField(
         required=False, choices=Platform.choices, widget=StaticSelectMultiple
+    )
+    device_state = forms.MultipleChoiceField(
+        required=False, choices=DeviceState.choices, widget=StaticSelect
     )
     encrypt_passwords = forms.NullBooleanField(
         required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
