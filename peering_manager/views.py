@@ -66,6 +66,12 @@ class APIRootView(APIView):
             OrderedDict(
                 (
                     (
+                        "devices",
+                        rest_reverse(
+                            "devices-api:api-root", request=request, format=format
+                        ),
+                    ),
+                    (
                         "peering",
                         rest_reverse(
                             "peering-api:api-root", request=request, format=format
