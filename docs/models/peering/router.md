@@ -34,7 +34,8 @@ can be configured (n.b. some are optional):
     the router. It overrides the `NAPALM_TIMEOUT` global setting.
   * `NAPALM Optional Arguments`: optional arguments for Peering Manager to use
     for connecting to the router. It overrides the `NAPALM_ARGS` global
-    setting.
+    setting. If you see connection issues with some routers, try setting
+    `{"fast_cli": false}` as value for these args.
   * `Comments`: text to record some notes about the router. Can use Markdown
     formatting.
   * `Tags`: a list of tags to help identifying and searching for a router.
