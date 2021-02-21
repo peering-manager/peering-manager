@@ -409,6 +409,7 @@ class RouterTable(BaseTable):
     pk = SelectColumn()
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     name = tables.Column(linkify=True)
+    platform = tables.Column(linkify=True)
     encrypt_passwords = BooleanColumn(
         verbose_name="Encrypt Password",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},

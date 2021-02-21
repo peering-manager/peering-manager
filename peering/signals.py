@@ -12,20 +12,12 @@ from .models import (
 
 @receiver(pre_save, sender=DirectPeeringSession)
 def alter_direct_peering_session(instance, **kwargs):
-    if instance.router and instance.router.encrypt_passwords:
-        instance.encrypt_password(instance.router.platform, commit=False)
+    instance.encrypt_password(commit=False)
 
 
 @receiver(pre_save, sender=InternetExchangePeeringSession)
 def alter_internet_exchange_peering_session(instance, **kwargs):
-    # Change encrypted password
-    if (
-        instance.internet_exchange.router
-        and instance.internet_exchange.router.encrypt_passwords
-    ):
-        instance.encrypt_password(
-            instance.internet_exchange.router.platform, commit=False
-        )
+    instance.encrypt_password(commit=False)
 
 
 @receiver(post_save, sender=Router)

@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.postgres.forms.jsonb import JSONField
 from taggit.forms import TagField
 
+from devices.models import Platform
 from netbox.api import NetBox
 from utils.fields import CommentField, PasswordField, SlugField, TextareaField
 from utils.forms import (
@@ -27,7 +28,6 @@ from .enums import (
     CommunityType,
     DeviceState,
     IPFamily,
-    Platform,
     RoutingPolicyType,
 )
 from .models import (
@@ -709,9 +709,7 @@ class InternetExchangePeeringSessionFilterForm(BootstrapMixin, forms.Form):
 
 class RouterForm(BootstrapMixin, forms.ModelForm):
     netbox_device_id = forms.IntegerField(label="NetBox Device", initial=0)
-    platform = forms.ChoiceField(
-        required=False, choices=add_blank_choice(Platform.choices), widget=StaticSelect
-    )
+    platform = DynamicModelChoiceField(required=False, queryset=Platform.objects.all())
     configuration_template = DynamicModelChoiceField(
         required=False,
         queryset=Configuration.objects.all(),
@@ -800,9 +798,7 @@ class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         query_params={"affiliated": True},
         label="Local Autonomous System",
     )
-    platform = forms.ChoiceField(
-        required=False, choices=add_blank_choice(Platform.choices), widget=StaticSelect
-    )
+    platform = DynamicModelChoiceField(required=False, queryset=Platform.objects.all())
     encrypt_passwords = forms.NullBooleanField(
         required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
     )
@@ -830,8 +826,11 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
         query_params={"affiliated": True},
         label="Local Autonomous System",
     )
-    platform = forms.MultipleChoiceField(
-        required=False, choices=Platform.choices, widget=StaticSelectMultiple
+    platform = DynamicModelMultipleChoiceField(
+        required=False,
+        queryset=Platform.objects.all(),
+        to_field_name="pk",
+        null_option="None",
     )
     device_state = forms.MultipleChoiceField(
         required=False, choices=DeviceState.choices, widget=StaticSelect

@@ -4,13 +4,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from peering.constants import *
-from peering.enums import (
-    BGPRelationship,
-    CommunityType,
-    DeviceState,
-    Platform,
-    RoutingPolicyType,
-)
+from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -35,17 +29,10 @@ class AppTest(APITestCase):
 
 
 class StaticChoiceTest(APITestCase):
-    def test_get_static_choice(self):
-        url = reverse(
-            "peering-api:field-choice-detail", kwargs={"pk": "router:platform"}
-        )
-        response = self.client.get(url, **self.header)
-        self.assertEqual(len(response.data), len(Platform.choices))
-
     def test_list_static_choices(self):
         url = reverse("peering-api:field-choice-list")
         response = self.client.get(url, **self.header)
-        self.assertEqual(len(response.data), 6)
+        self.assertEqual(len(response.data), 5)
 
 
 class AutonomousSystemTest(StandardAPITestCases.View):
@@ -300,18 +287,6 @@ class DirectPeeringSessionTest(StandardAPITestCases.View):
             },
         ]
 
-    def test_encrypt_password(self):
-        url = reverse(
-            "peering-api:directpeeringsession-encrypt-password",
-            kwargs={"pk": self.direct_peering_session.pk},
-        )
-        response = self.client.post(
-            url, {"platform": Platform.JUNOS}, format="json", **self.header
-        )
-
-        self.assertIsNotNone(response.data["encrypted_password"])
-        self.assertNotEqual(response.data["encrypted_password"], "")
-
 
 class EmailTest(StandardAPITestCases.View):
     model = Email
@@ -368,9 +343,7 @@ class InternetExchangeTest(StandardAPITestCases.View):
         community = Community.objects.create(
             name="Test", slug="test", value="64500:1", type=CommunityType.EGRESS
         )
-        router = Router.objects.create(
-            name="Test", hostname="test.example.com", platform=Platform.JUNOS
-        )
+        router = Router.objects.create(name="Test", hostname="test.example.com")
         data = {
             "name": "Other",
             "slug": "other",
@@ -396,9 +369,7 @@ class InternetExchangeTest(StandardAPITestCases.View):
         community = Community.objects.create(
             name="Test", slug="test", value="64500:1", type=CommunityType.EGRESS
         )
-        router = Router.objects.create(
-            name="Test", hostname="test.example.com", platform=Platform.JUNOS
-        )
+        router = Router.objects.create(name="Test", hostname="test.example.com")
         data = {
             "name": "Test",
             "slug": "test",
@@ -509,17 +480,6 @@ class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
             },
         ]
 
-    def test_encrypt_password(self):
-        url = reverse(
-            "peering-api:internetexchangepeeringsession-encrypt-password",
-            kwargs={"pk": self.internet_exchange_peering_session.pk},
-        )
-        response = self.client.post(
-            url, {"platform": Platform.JUNOS}, format="json", **self.header
-        )
-        self.assertIsNotNone(response.data["encrypted_password"])
-        self.assertNotEqual(response.data["encrypted_password"], "")
-
 
 class RouterTest(APITestCase):
     @classmethod
@@ -534,7 +494,6 @@ class RouterTest(APITestCase):
             name="Test",
             hostname="test.example.com",
             device_state=DeviceState.ENABLED,
-            platform=Platform.JUNOS,
             configuration_template=cls.template,
             local_autonomous_system=cls.local_autonomous_system,
         )
@@ -553,7 +512,6 @@ class RouterTest(APITestCase):
         data = {
             "name": "Other",
             "hostname": "other.example.com",
-            "platform": Platform.JUNOS,
             "device_state": DeviceState.ENABLED,
             "local_autonomous_system": self.local_autonomous_system.pk,
         }
@@ -570,7 +528,6 @@ class RouterTest(APITestCase):
         data = {
             "name": "Other",
             "hostname": "other.example.com",
-            "platform": Platform.JUNOS,
             "device_state": DeviceState.ENABLED,
             "configuration_template": self.template.pk,
             "local_autonomous_system": self.local_autonomous_system.pk,
@@ -589,14 +546,12 @@ class RouterTest(APITestCase):
             {
                 "name": "Test1",
                 "hostname": "test1.example.com",
-                "platform": Platform.JUNOS,
                 "device_state": DeviceState.ENABLED,
                 "local_autonomous_system": self.local_autonomous_system.pk,
             },
             {
                 "name": "Test2",
                 "hostname": "test2.example.com",
-                "platform": Platform.JUNOS,
                 "device_state": DeviceState.ENABLED,
                 "local_autonomous_system": self.local_autonomous_system.pk,
             },
@@ -614,9 +569,9 @@ class RouterTest(APITestCase):
         data = {
             "name": "Test",
             "hostname": "test.example.com",
-            "platform": Platform.IOSXR,
             "device_state": DeviceState.ENABLED,
             "local_autonomous_system": self.local_autonomous_system.pk,
+            "comments": "Test",
         }
 
         url = reverse("peering-api:router-detail", kwargs={"pk": self.router.pk})
@@ -631,10 +586,10 @@ class RouterTest(APITestCase):
         data = {
             "name": "Test",
             "hostname": "test.example.com",
-            "platform": Platform.IOSXR,
             "device_state": DeviceState.ENABLED,
             "configuration_template": self.template.pk,
             "local_autonomous_system": self.local_autonomous_system.pk,
+            "comments": "Test",
         }
 
         url = reverse("peering-api:router-detail", kwargs={"pk": self.router.pk})
