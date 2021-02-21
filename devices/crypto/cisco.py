@@ -112,4 +112,4 @@ def encrypt(value):
         if salt == 51:
             salt = 0
 
-    return "{}{}".format(MAGIC, encrypted.upper())
+    return f"{MAGIC}{encrypted.upper()}"

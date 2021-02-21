@@ -23,5 +23,6 @@ class PlatformTestCase(StandardTestCases.Views):
             "slug": "cisco-ios-xr",
             "napalm_driver": "iosxr",
             "napalm_args": {},
+            "password_algorithm": "",
             "description": "",
         }

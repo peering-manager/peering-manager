@@ -23,6 +23,7 @@ class PlatformTable(BaseTable):
             "slug",
             "napalm_driver",
             "napalm_args",
+            "password_algorithm",
             "description",
             "buttons",
         )
@@ -31,6 +32,7 @@ class PlatformTable(BaseTable):
             "name",
             "router_count",
             "napalm_driver",
+            "password_algorithm",
             "description",
             "buttons",
         )

@@ -8,4 +8,12 @@ from .nested_serializers import *
 class PlatformSerializer(ModelSerializer):
     class Meta:
         model = Platform
-        fields = ["id", "name", "slug", "napalm_driver", "napalm_args", "description"]
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "napalm_driver",
+            "napalm_args",
+            "password_algorithm",
+            "description",
+        ]

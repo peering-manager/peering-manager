@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 (
                     "slug",
                     models.SlugField(
-                        help_text="Friendly unique shorthand used for URL and config.",
+                        help_text="Friendly unique shorthand used for URL and config",
                         max_length=100,
                         unique=True,
                     ),
@@ -49,6 +49,18 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("description", models.CharField(blank=True, max_length=200)),
+                (
+                    "password_algorithm",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("cisco-type7", "Cisco Type 7"),
+                            ("juniper-type9", "Juniper Type 9"),
+                        ],
+                        help_text="Algorithm to cipher password in configuration",
+                        max_length=16,
+                    ),
+                ),
             ],
             options={
                 "ordering": ["name"],
