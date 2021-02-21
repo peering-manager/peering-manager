@@ -1,11 +1,5 @@
 from peering.constants import *
-from peering.enums import (
-    BGPRelationship,
-    CommunityType,
-    CommunityType,
-    DeviceState,
-    RoutingPolicyType,
-)
+from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
 from peering.filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
