@@ -23,11 +23,7 @@ def multivalue_field_factory(field_class):
                 return []
 
             # Only ignore `None` and `False`, `0` makes sense
-            return [
-                super(field_class, self).to_python(v)
-                for v in value
-                if v is not None and v is not False
-            ]
+            return [super(field_class, self).to_python(v) for v in value if v or v == 0]
 
     return type(f"MultiValue{field_class.__name__}", (MultiValueField,), dict())
 
