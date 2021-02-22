@@ -6,6 +6,44 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     initial = True
 
+    def add_default_napalm_platforms(apps, schema_editor):
+        db_alias = schema_editor.connection.alias
+        Platform = apps.get_model("devices", "Platform")
+
+        platforms = [
+            Platform(
+                name="Arista EOS",
+                slug="arista-eos",
+                napalm_driver="eos",
+                password_algorithm="cisco-type7",
+            ),
+            Platform(
+                name="Juniper Junos",
+                slug="juniper-junos",
+                napalm_driver="junos",
+                password_algorithm="juniper-type9",
+            ),
+            Platform(
+                name="Cisco IOS-XR",
+                slug="cisco-iosxr",
+                napalm_driver="iosxr",
+                password_algorithm="cisco-type7",
+            ),
+            Platform(
+                name="Cisco NX-OS",
+                slug="cisco-nxos",
+                napalm_driver="nxos",
+                password_algorithm="cisco-type7",
+            ),
+            Platform(
+                name="Cisco IOS",
+                slug="cisco-ios",
+                napalm_driver="ios",
+                password_algorithm="cisco-type7",
+            ),
+        ]
+        Platform.objects.using(db_alias).bulk_create(platforms)
+
     operations = [
         migrations.CreateModel(
             name="Platform",
@@ -66,4 +104,5 @@ class Migration(migrations.Migration):
                 "ordering": ["name"],
             },
         ),
+        migrations.RunPython(add_default_napalm_platforms),
     ]
