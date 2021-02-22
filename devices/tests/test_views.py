@@ -12,16 +12,15 @@ class PlatformTestCase(StandardTestCases.Views):
     def setUpTestData(cls):
         Platform.objects.bulk_create(
             [
-                Platform(name="Juniper Junos", slug="juniper-junos"),
-                Platform(name="Cisco IOS", slug="cisco-ios"),
-                Platform(name="Arista EOS", slug="arista-eos"),
+                Platform(name="Some OS", slug="someos"),
+                Platform(name="Test OS", slug="testos"),
             ]
         )
 
         cls.form_data = {
-            "name": "Cisco IOS-XR",
-            "slug": "cisco-ios-xr",
-            "napalm_driver": "iosxr",
+            "name": "Bugs OS",
+            "slug": "bugsos",
+            "napalm_driver": "bugsos",
             "napalm_args": {},
             "password_algorithm": "",
             "description": "",

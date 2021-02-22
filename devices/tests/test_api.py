@@ -17,18 +17,10 @@ class PlatformTest(StandardAPITestCases.View):
     model = Platform
     brief_fields = ["id", "url", "name", "slug"]
     create_data = [
-        {"name": "Cisco IOS", "slug": "cisco-ios"},
-        {"name": "Arista EOS", "slug": "arista-eos", "napalm_driver": "eos"},
-        {
-            "name": "Cisco IOS-XR",
-            "slug": "cisco-ios-xr",
-            "napalm_driver": "iosxr",
-            "description": "Nice try Cisco...",
-        },
+        {"name": "Test OS", "slug": "test-os"},
+        {"name": "Bugs OS", "slug": "bugsos", "description": "Nice try one..."},
     ]
 
     @classmethod
     def setUpTestData(cls):
-        Platform.objects.create(
-            name="Juniper Junos", slug="juniper-junos", napalm_driver="junos"
-        )
+        Platform.objects.create(name="No Bugs OS", slug="nobugsos")

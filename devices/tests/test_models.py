@@ -10,16 +10,16 @@ class PlatformTest(TestCase):
     def setUpTestData(cls):
         cls.platforms = [
             Platform(
-                name="Juniper Junos",
-                slug="juniper-junos",
+                name="Mercuros",
+                slug="mercuros",
                 password_algorithm=PasswordAlgorithm.JUNIPER_TYPE9,
             ),
             Platform(
-                name="Cisco IOS",
-                slug="cisco-ios",
+                name="Test OS",
+                slug="test-os",
                 password_algorithm=PasswordAlgorithm.CISCO_TYPE7,
             ),
-            Platform(name="Arista EOS", slug="arista-eos"),
+            Platform(name="Wrong OS", slug="wrong-os"),
         ]
         Platform.objects.bulk_create(cls.platforms)
 
@@ -43,9 +43,9 @@ class PlatformTest(TestCase):
             clear_text_password, cisco.decrypt_password(encrypted_password)
         )
 
-        arista = Platform.objects.filter(password_algorithm="").first()
-        encrypted_password = arista.encrypt_password(clear_text_password)
+        wrong = Platform.objects.filter(password_algorithm="").first()
+        encrypted_password = wrong.encrypt_password(clear_text_password)
         self.assertEqual(clear_text_password, encrypted_password)
         self.assertEqual(
-            clear_text_password, arista.decrypt_password(encrypted_password)
+            clear_text_password, wrong.decrypt_password(encrypted_password)
         )

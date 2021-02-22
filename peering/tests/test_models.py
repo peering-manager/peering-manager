@@ -169,9 +169,7 @@ class DirectPeeringSessionTest(TestCase):
                 name="Autonomous System",
                 affiliated=True,
             ),
-            platform=Platform.objects.create(
-                name="Juniper Junos", slug="juniper-junos", napalm_driver="junos"
-            ),
+            platform=Platform.objects.get(name="Juniper Junos"),
         )
         cls.session = DirectPeeringSession.objects.create(
             autonomous_system=cls.autonomous_system,
@@ -282,9 +280,7 @@ class InternetExchangePeeringSessionTest(TestCase):
                 name="Autonomous System",
                 affiliated=True,
             ),
-            platform=Platform.objects.create(
-                name="Juniper Junos", slug="juniper-junos", napalm_driver="junos"
-            ),
+            platform=Platform.objects.get(name="Juniper Junos"),
         )
         cls.ix = InternetExchange.objects.create(
             name="Test Group",
@@ -327,12 +323,7 @@ class InternetExchangePeeringSessionTest(TestCase):
         self.assertIsNotNone(self.session.encrypted_password)
 
         # Change router platform and re-encrypt
-        self.router.platform = Platform.objects.create(
-            name="Cisco IOS",
-            slug="cisco-ios",
-            napalm_driver="ios",
-            password_algorithm=PasswordAlgorithm.CISCO_TYPE7,
-        )
+        self.router.platform = Platform.objects.get(name="Cisco IOS")
         self.router.save()
         old_encrypted_password = self.session.encrypted_password
         self.session.encrypt_password()
