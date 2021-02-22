@@ -50,7 +50,7 @@ class Platform(ChangeLoggedModel):
         return self.name
 
     def get_absolute_url(self):
-        return f"{reverse('peering:router_list')}?platform={self.slug}"
+        return f"{reverse('peering:router_list')}?platform={self.pk}"
 
     def encrypt_password(self, password):
         """

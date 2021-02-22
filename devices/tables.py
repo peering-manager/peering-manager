@@ -12,7 +12,7 @@ class PlatformTable(BaseTable):
         verbose_name="Routers",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
-    actions = ButtonsColumn(Platform)
+    buttons = ButtonsColumn(Platform, pk_field="slug")
 
     class Meta(BaseTable.Meta):
         model = Platform
