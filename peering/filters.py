@@ -3,6 +3,7 @@ import ipaddress
 import django_filters
 from django.db.models import Q
 
+from devices.models import Platform
 from utils.filters import (
     BaseFilterSet,
     CreatedUpdatedFilterSet,
@@ -10,13 +11,7 @@ from utils.filters import (
     TagFilter,
 )
 
-from .enums import (
-    BGPRelationship,
-    CommunityType,
-    DeviceState,
-    Platform,
-    RoutingPolicyType,
-)
+from .enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
 from .models import (
     AutonomousSystem,
     BGPGroup,
@@ -310,9 +305,6 @@ class InternetExchangePeeringSessionFilterSet(BaseFilterSet, CreatedUpdatedFilte
 
 class RouterFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
-    platform = django_filters.MultipleChoiceFilter(
-        choices=Platform.choices, null_value=None
-    )
     local_autonomous_system_id = django_filters.ModelMultipleChoiceFilter(
         queryset=AutonomousSystem.objects.all(), label="Local AS (ID)"
     )
@@ -327,6 +319,15 @@ class RouterFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
         queryset=AutonomousSystem.objects.all(),
         to_field_name="name",
         label="Local AS (Name)",
+    )
+    platform_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Platform.objects.all(), label="Platform (ID)"
+    )
+    platform = django_filters.ModelMultipleChoiceFilter(
+        field_name="platform__name",
+        queryset=Platform.objects.all(),
+        to_field_name="name",
+        label="Platform (Name)",
     )
     configuration_template_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Configuration.objects.all(), label="Configuration (ID)"
@@ -358,7 +359,7 @@ class RouterFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
         return queryset.filter(
             Q(name__icontains=value)
             | Q(hostname__icontains=value)
-            | Q(platform__icontains=value)
+            | Q(platform__name__icontains=value)
         )
 
 

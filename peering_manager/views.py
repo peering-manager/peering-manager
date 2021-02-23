@@ -66,6 +66,12 @@ class APIRootView(APIView):
             OrderedDict(
                 (
                     (
+                        "devices",
+                        rest_reverse(
+                            "devices-api:api-root", request=request, format=format
+                        ),
+                    ),
+                    (
                         "peering",
                         rest_reverse(
                             "peering-api:api-root", request=request, format=format
@@ -99,13 +105,13 @@ class Home(View):
         statistics = {
             "autonomous_systems_count": AutonomousSystem.objects.count(),
             "bgp_groups_count": BGPGroup.objects.count(),
-            "internet_exchanges_count": InternetExchange.objects.count(),
             "communities_count": Community.objects.count(),
             "configurations_count": Configuration.objects.count(),
-            "emails_count": Email.objects.count(),
-            "routers_count": Router.objects.count(),
             "direct_peering_sessions_count": DirectPeeringSession.objects.count(),
+            "emails_count": Email.objects.count(),
+            "internet_exchanges_count": InternetExchange.objects.count(),
             "internet_exchange_peering_sessions_count": InternetExchangePeeringSession.objects.count(),
+            "routers_count": Router.objects.count(),
             "routing_policies_count": RoutingPolicy.objects.count(),
         }
 

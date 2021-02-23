@@ -38,9 +38,7 @@ def __nibble(cref, length):
     rest = cref[length:]
 
     if len(nib) != length:
-        raise Exception(
-            "Ran out of characters: hit '{}', expecting {} chars".format(nib, length)
-        )
+        raise Exception(f"Ran out of characters: hit '{nib}', expecting {length} chars")
 
     return nib, rest
 

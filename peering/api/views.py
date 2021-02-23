@@ -53,7 +53,6 @@ class PeeringFieldChoicesViewSet(StaticChoicesViewSet):
         (DirectPeeringSession, ["relationship", "bgp_state"]),
         (Community, ["type"]),
         (InternetExchangePeeringSession, ["bgp_state"]),
-        (Router, ["platform"]),
         (RoutingPolicy, ["type"]),
     ]
 

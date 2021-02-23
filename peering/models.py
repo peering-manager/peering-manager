@@ -16,12 +16,6 @@ from netfields import InetAddressField, NetManager
 from netbox.api import NetBox
 from peeringdb.functions import get_ixlan_prefixes, get_shared_internet_exchanges
 from peeringdb.models import Network, NetworkContact, NetworkIXLan
-from utils.crypto.cisco import decrypt as cisco_decrypt
-from utils.crypto.cisco import encrypt as cisco_encrypt
-from utils.crypto.cisco import is_encrypted as cisco_is_encrypted
-from utils.crypto.junos import decrypt as junos_decrypt
-from utils.crypto.junos import encrypt as junos_encrypt
-from utils.crypto.junos import is_encrypted as junos_is_encrypted
 from utils.models import ChangeLoggedModel, TaggableModel, TemplateModel
 from utils.validators import AddressFamilyValidator
 
@@ -32,7 +26,6 @@ from .enums import (
     CommunityType,
     DeviceState,
     IPFamily,
-    Platform,
     RoutingPolicyType,
 )
 from .fields import ASNField, CommunityField, TTLField
@@ -430,14 +423,6 @@ class BGPGroup(AbstractGroup):
         # Get BGP neighbors details from router, but only get them once
         bgp_neighbors_detail = {}
         for session in peering_sessions:
-            if not session.router.can_napalm_get_bgp_neighbors_detail():
-                self.logger.debug(
-                    'ignoring session states on %s, reason: "router with unsupported platform %s"',
-                    self.name.lower(),
-                    session.router.platform,
-                )
-                continue
-
             if session.router not in bgp_neighbors_detail:
                 detail = session.router.get_bgp_neighbors_detail()
                 bgp_neighbors_detail.update(
@@ -551,6 +536,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
     comments = models.TextField(blank=True)
 
     objects = NetManager()
+    logger = logging.getLogger("peering.manager.peering")
 
     class Meta:
         abstract = True
@@ -584,70 +570,52 @@ class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         return mark_safe(text)
 
-    def encrypt_password(self, platform, commit=True):
+    def encrypt_password(self, commit=True):
         """
-        Set the `encrypted_password` field if a crypto module is found for the given
+        Sets the `encrypted_password` field if a crypto module is found for the given
         platform. The field will be set to `None` otherwise.
 
-        If no crypto module can be found for the router platform, the returned string
-        will be the same as the one passed as argument to this function.
+        Returns `True` if the encrypted password has been changed, `False` otherwise.
         """
-        # Make sure encrypted_password is not set if there is no password or if the
-        # platform is not supported
-        if not self.password or platform not in [
-            Platform.JUNOS,
-            Platform.IOS,
-            Platform.IOSXR,
-            Platform.NXOS,
-        ]:
-            # Reset password
-            if self.encrypted_password:
-                self.encrypted_password = None
-                if commit:
-                    self.save()
-            return
+        try:
+            router = getattr(self, "router")
+        except AttributeError:
+            try:
+                router = getattr(self.internet_exchange, "router")
+            except AttributeError:
+                pass
 
-        # Choose encryption/decryption method
-        encrypt = junos_encrypt
-        decrypt = junos_decrypt
-        if platform != Platform.JUNOS:
-            encrypt = cisco_encrypt
-            decrypt = cisco_decrypt
+        if not router or not router.platform or not router.encrypt_passwords:
+            return False
+
+        if not self.password and self.encrypted_password:
+            self.encrypted_password = ""
+            if commit:
+                self.save()
+            return True
 
         if not self.encrypted_password:
             # If the password is not encrypted yet, do it
-            self.encrypted_password = encrypt(self.password)
+            self.encrypted_password = router.platform.encrypt_password(self.password)
         else:
-            # Check if the platform has changed and if so, decrypt the current
-            # password and then re-encrypt it
-            if platform == Platform.JUNOS and not junos_is_encrypted(
+            # Try to re-encrypt the encrypted password, if the resulting string is the
+            # same it means the password matches the router platform algorithm
+            is_up_to_date = self.encrypted_password == router.platform.encrypt_password(
                 self.encrypted_password
-            ):
-                if cisco_is_encrypted(self.encrypted_password):
-                    self.encrypted_password = encrypt(
-                        cisco_decrypt(self.encrypted_password)
-                    )
-            elif (
-                platform
-                in [
-                    Platform.IOS,
-                    Platform.IOSXR,
-                    Platform.NXOS,
-                ]
-                and not cisco_is_encrypted(self.encrypted_password)
-            ):
-                if junos_is_encrypted(self.encrypted_password):
-                    self.encrypted_password = encrypt(
-                        junos_decrypt(self.encrypted_password)
-                    )
+            )
+            if not is_up_to_date:
+                self.encrypted_password = router.platform.encrypt_password(
+                    self.password
+                )
 
         # Check if the encrypted password matches the clear one
-        # Force encryption if there a difference
-        if self.password != decrypt(self.encrypted_password):
-            self.encrypted_password = encrypt(self.password)
+        # Force re-encryption if there a difference
+        if self.password != router.platform.decrypt_password(self.encrypted_password):
+            self.encrypted_password = router.platform.encrypt_password(self.password)
 
         if commit:
             self.save()
+        return True
 
 
 class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
@@ -718,13 +686,8 @@ class DirectPeeringSession(BGPSession):
     def poll(self):
         # Check if we are able to get BGP details
         log = 'ignoring session states on {}, reason: "{}"'
-        if not self.router:
-            log = log.format(self.name.lower(), "no router attached")
-        elif not self.router.can_napalm_get_bgp_neighbors_detail():
-            log = log.format(
-                self.name.lower(),
-                f"router with unsupported platform {self.router.platform}",
-            )
+        if not self.router or not self.router.platform:
+            log = log.format(str(self.ip_address).lower(), "no usable router attached")
         elif self.bgp_group and not self.bgp_group.check_bgp_session_states:
             log = log.format(self.name.lower(), "check disabled")
         else:
@@ -1047,13 +1010,8 @@ class InternetExchange(AbstractGroup):
     def poll_peering_sessions(self):
         # Check if we are able to get BGP details
         log = 'ignoring session states on {}, reason: "{}"'
-        if not self.router:
-            log = log.format(self.name.lower(), "no router attached")
-        elif not self.router.can_napalm_get_bgp_neighbors_detail():
-            log = log.format(
-                self.name.lower(),
-                "router with unsupported platform {}".format(self.router.platform),
-            )
+        if not self.router or not self.router.platform:
+            log = log.format(self.name.lower(), "no usable router attached")
         elif not self.check_bgp_session_states:
             log = log.format(self.name.lower(), "check disabled")
         else:
@@ -1134,8 +1092,6 @@ class InternetExchangePeeringSession(BGPSession):
     internet_exchange = models.ForeignKey("InternetExchange", on_delete=models.CASCADE)
     is_route_server = models.BooleanField(blank=True, default=False)
 
-    logger = logging.getLogger("peering.manager.peeringdb")
-
     class Meta:
         ordering = ["autonomous_system", "ip_address"]
 
@@ -1208,13 +1164,11 @@ class InternetExchangePeeringSession(BGPSession):
     def poll(self):
         # Check if we are able to get BGP details
         log = 'ignoring session states on {}, reason: "{}"'
-        if not self.internet_exchange.router:
-            log = log.format(self.name.lower(), "no router attached")
-        elif not self.internet_exchange.router.can_napalm_get_bgp_neighbors_detail():
-            log = log.format(
-                self.name.lower(),
-                "router with unsupported platform {}".format(self.router.platform),
-            )
+        if (
+            not self.internet_exchange.router
+            or not self.internet_exchange.router.platform
+        ):
+            log = log.format(str(self.ip_address).lower(), "no usable router attached")
         elif not self.internet_exchange.check_bgp_session_states:
             log = log.format(self.name.lower(), "check disabled")
         else:
@@ -1291,10 +1245,11 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
     )
     name = models.CharField(max_length=128)
     hostname = models.CharField(max_length=256)
-    platform = models.CharField(
-        max_length=50,
-        choices=Platform.choices,
+    platform = models.ForeignKey(
+        "devices.Platform",
+        on_delete=models.PROTECT,
         blank=True,
+        null=True,
         help_text="The router platform, used to interact with it",
     )
     encrypt_passwords = models.BooleanField(
@@ -1472,26 +1427,30 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
             self.logger.info("cached configuration for %s", self.hostname)
         return config
 
-    def can_napalm_get_bgp_neighbors_detail(self):
-        return (
-            False
-            if not self.platform
-            else self.platform
-            in [Platform.EOS, Platform.IOS, Platform.IOSXR, Platform.JUNOS]
-        )
-
     def get_napalm_device(self):
-        self.logger.debug('looking for napalm driver "%s"', self.platform)
+        if not self.platform or not self.platform.napalm_driver:
+            self.logger.debug("no napalm driver defined")
+            return None
+
+        self.logger.debug('looking for napalm driver "%s"', self.platform.napalm_driver)
         try:
             # Driver found, instanciate it
-            driver = napalm.get_network_driver(self.platform)
-            self.logger.debug('found napalm driver "%s"', self.platform)
+            driver = napalm.get_network_driver(self.platform.napalm_driver)
+            self.logger.debug('found napalm driver "%s"', self.platform.napalm_driver)
+
+            # Merge NAPALM args: first global, then platform's, finish with router's
+            args = settings.NAPALM_ARGS
+            if self.platform.napalm_args:
+                args.update(self.platform.napalm_args)
+            if self.napalm_args:
+                args.update(self.napalm_args)
+
             return driver(
                 hostname=self.hostname,
                 username=self.napalm_username or settings.NAPALM_USERNAME,
                 password=self.napalm_password or settings.NAPALM_PASSWORD,
                 timeout=self.napalm_timeout or settings.NAPALM_TIMEOUT,
-                optional_args=self.napalm_args or settings.NAPALM_ARGS,
+                optional_args=args,
             )
         except napalm.base.exceptions.ModuleImportError:
             # Unable to import proper driver from napalm

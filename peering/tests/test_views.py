@@ -4,13 +4,7 @@ from django.core import mail
 from django.db import transaction
 from django.urls.exceptions import NoReverseMatch
 
-from peering.enums import (
-    BGPRelationship,
-    CommunityType,
-    DeviceState,
-    Platform,
-    RoutingPolicyType,
-)
+from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -338,30 +332,31 @@ class RouterTestCase(StandardTestCases.Views):
 
     @classmethod
     def setUpTestData(cls):
-        cls.local_as = AutonomousSystem.objects.create(
+        local_as = AutonomousSystem.objects.create(
             asn=64500,
             name="Autonomous System",
             affiliated=True,
         )
+
         Router.objects.bulk_create(
             [
                 Router(
                     name="Router 1",
                     hostname="router1.example.net",
+                    local_autonomous_system=local_as,
                     device_state=DeviceState.ENABLED,
-                    local_autonomous_system=cls.local_as,
                 ),
                 Router(
                     name="Router 2",
                     hostname="router2.example.net",
+                    local_autonomous_system=local_as,
                     device_state=DeviceState.ENABLED,
-                    local_autonomous_system=cls.local_as,
                 ),
                 Router(
                     name="Router 3",
                     hostname="router3.example.net",
+                    local_autonomous_system=local_as,
                     device_state=DeviceState.ENABLED,
-                    local_autonomous_system=cls.local_as,
                 ),
             ]
         )
@@ -370,10 +365,10 @@ class RouterTestCase(StandardTestCases.Views):
             "name": "Router 4",
             "hostname": "router4.example.net",
             "configuration_template": None,
-            "local_autonomous_system": cls.local_as.pk,
+            "local_autonomous_system": local_as.pk,
             "last_deployment_id": None,
             "encrypt_passwords": False,
-            "platform": Platform.JUNOS,
+            "platform": None,
             "device_state": DeviceState.ENABLED,
             "netbox_device_id": 0,
             "use_netbox": False,
@@ -384,7 +379,7 @@ class RouterTestCase(StandardTestCases.Views):
             "napalm_timeout": 30,
             "napalm_username": "",
         }
-        cls.bulk_edit_data = {"platform": Platform.JUNOS, "comments": "New comments"}
+        cls.bulk_edit_data = {"comments": "New comments"}
 
 
 class RoutingPolicyTestCase(StandardTestCases.Views):

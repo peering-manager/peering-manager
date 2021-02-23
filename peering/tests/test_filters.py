@@ -1,11 +1,5 @@
 from peering.constants import *
-from peering.enums import (
-    BGPRelationship,
-    CommunityType,
-    DeviceState,
-    Platform,
-    RoutingPolicyType,
-)
+from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
 from peering.filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
@@ -439,7 +433,6 @@ class RouterTestCase(StandardTestCases.Filters):
                 Router(
                     name="Router 1",
                     hostname="router1.example.net",
-                    platform=Platform.JUNOS,
                     device_state=DeviceState.ENABLED,
                     encrypt_passwords=True,
                     local_autonomous_system=cls.local_as,
@@ -447,7 +440,6 @@ class RouterTestCase(StandardTestCases.Filters):
                 Router(
                     name="Router 2",
                     hostname="router2.example.net",
-                    platform=Platform.IOSXR,
                     device_state=DeviceState.DISABLED,
                     encrypt_passwords=True,
                     local_autonomous_system=cls.local_as,
@@ -461,12 +453,6 @@ class RouterTestCase(StandardTestCases.Filters):
                 ),
             ]
         )
-
-    def test_platform(self):
-        params = {"platform": [Platform.JUNOS]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
-        params = {"platform": [Platform.JUNOS, Platform.IOSXR]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
 
     def test_q(self):
         params = {"q": "Router 1"}

@@ -33,11 +33,7 @@
         </tr>
         <tr>
           <td>Platform</td>
-          {% if instance.platform %}
-          <td>{{ instance.get_platform_display }}</td>
-          {% else %}
-          <td>Other</td>
-          {% endif %}
+          <td>{{ instance.platform|as_link|render_none }}</td>
         </tr>
         <tr>
           <td>Encrypt Passwords</td>
