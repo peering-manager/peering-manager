@@ -735,7 +735,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
         widget=SmallTextarea,
     )
     device_state = forms.ChoiceField(
-        initial=DeviceState.ENABLED,
+        required=False,
         choices=add_blank_choice(DeviceState.choices),
         widget=StaticSelect,
     )
@@ -826,30 +826,27 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
         query_params={"affiliated": True},
         label="Local Autonomous System",
     )
-    platform = DynamicModelMultipleChoiceField(
+    platform_id = DynamicModelMultipleChoiceField(
         required=False,
         queryset=Platform.objects.all(),
         to_field_name="pk",
         null_option="None",
+        label="Platform",
     )
     device_state = forms.MultipleChoiceField(
-        required=False, choices=DeviceState.choices, widget=StaticSelect
+        required=False,
+        choices=add_blank_choice(DeviceState.choices),
+        widget=StaticSelect,
     )
     encrypt_passwords = forms.NullBooleanField(
         required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
     )
-    configuration_template = DynamicModelMultipleChoiceField(
+    configuration_template_id = DynamicModelMultipleChoiceField(
         required=False,
         queryset=Configuration.objects.all(),
         to_field_name="pk",
         null_option="None",
-    )
-    local_autonomous_system = DynamicModelMultipleChoiceField(
-        required=False,
-        queryset=AutonomousSystem.objects.all(),
-        query_params={"affiliated": True},
-        to_field_name="pk",
-        null_option="None",
+        label="Configuration",
     )
     tag = TagFilterField(model)
 
