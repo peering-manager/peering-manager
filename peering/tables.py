@@ -197,9 +197,6 @@ class DirectPeeringSessionTable(BaseTable):
     {% if record.autonomous_system.comments %}
     <button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Autonomous System Comments" data-content="{{ record.autonomous_system.comments | markdown:True }}"><i class="fas fa-comments"></i></button>
     {% endif %}
-    {% if perms.peering.change_directpeeringsession %}
-    <a href="{% url 'peering:directpeeringsession_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
-    {% endif %}
     """
 
     pk = SelectColumn()
@@ -221,7 +218,7 @@ class DirectPeeringSessionTable(BaseTable):
     state = BGPSessionStateColumn(accessor="bgp_state")
     router = tables.Column(verbose_name="Router", accessor="router", linkify=True)
     tags = TagColumn(url_name="peering:directpeeringsession_list")
-    actions = ButtonsColumn(DirectPeeringSession, append_template=append_template)
+    buttons = ButtonsColumn(DirectPeeringSession, append_template=append_template)
 
     class Meta(BaseTable.Meta):
         model = DirectPeeringSession
@@ -341,9 +338,6 @@ class InternetExchangePeeringSessionTable(BaseTable):
     {% endif %}
     {% if record.internet_exchange.comments %}
     <button type="button" class="btn btn-xs btn-info popover-hover" data-toggle="popover" data-html="true" title="Internet Exchange Comments" data-content="{{ record.internet_exchange.comments | markdown:True }}"><i class="fas fa-comment-dots"></i></button>
-    {% endif %}
-    {% if perms.peering.change_internetexchangepeeringsession %}
-    <a href="{% url 'peering:internetexchangepeeringsession_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
     {% endif %}
     """
 
