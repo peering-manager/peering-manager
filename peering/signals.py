@@ -1,3 +1,5 @@
+import logging
+
 from cacheops import CacheMiss, cache
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
@@ -8,6 +10,8 @@ from .models import (
     Router,
     Template,
 )
+
+logger = logging.getLogger("peering.manager.peering.signals")
 
 
 @receiver(pre_save, sender=DirectPeeringSession)
@@ -28,7 +32,7 @@ def invalidate_router_cached_configuration(instance, **kwargs):
         cache.get(cached_config_name)
         cache.delete(cached_config_name)
     except CacheMiss:
-        pass
+        logger.debug(f"unable to find cached config '{cached_config_name}'")
 
 
 @receiver(post_save, sender=Template)
@@ -41,4 +45,4 @@ def invalidate_cached_configuration_by_template(instance, **kwargs):
             cache.get(cached_config_name)
             cache.delete(cached_config_name)
         except CacheMiss:
-            pass
+            logger.debug(f"unable to find cached config '{cached_config_name}'")
