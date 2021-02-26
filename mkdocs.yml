@@ -32,6 +32,7 @@ nav:
     - E-mail: 'models/peering/email.md'
     - Internet Exchange: 'models/peering/internetexchange.md'
     - Internet Exchange Peering Session: 'models/peering/internetexchangepeeringsession.md'
+    - Platform: 'models/devices/platform.md'
     - Router: 'models/peering/router.md'
     - Routing Policy: 'models/peering/routingpolicy.md'
     - Token: 'models/users/token.md'
