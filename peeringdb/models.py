@@ -26,7 +26,7 @@ from .enums import (
 #
 # https://github.com/peeringdb/django-peeringdb/
 #
-# It has been modified to suit the Peering Manager code base and avoid to depend on
+# It has been modified to suit Peering Manager's code base and avoid to depend on
 # other libraries.
 
 
@@ -45,6 +45,8 @@ class Address(models.Model):
     state = models.CharField(max_length=255, blank=True)
     zipcode = models.CharField(max_length=48, blank=True)
     country = models.CharField(max_length=7, blank=True)
+    suite = models.CharField(max_length=255, blank=True)
+    floor = models.CharField(max_length=255, blank=True)
     latitude = models.DecimalField(
         decimal_places=6, max_digits=9, blank=True, null=True
     )
