@@ -1167,3 +1167,23 @@ class RoutingPolicyBulkEdit(PermissionRequiredMixin, BulkEditView):
     filter = RoutingPolicyFilterSet
     table = RoutingPolicyTable
     form = RoutingPolicyBulkEditForm
+
+
+class ProvisioningAllAvailableIXPeers(PermissionRequiredMixin, ModelListView):
+    permission_required = "peering.view_internetexchange"
+    filter = NetworkIXLanFilterSet
+    filter_form = NetworkIXLanFilterForm
+    table = NetworkIXLanTable
+    template = "peering/provisioning/peers.html"
+
+    def build_queryset(self, request, kwargs):
+        queryset = None
+
+        for ix in InternetExchangeList.queryset:
+            instance = get_object_or_404(InternetExchange, slug=ix.slug)
+            if queryset is None:
+                queryset = instance.get_available_peers()
+            else:
+                queryset = queryset | instance.get_available_peers()
+
+        return queryset
