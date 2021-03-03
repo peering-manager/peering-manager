@@ -43,6 +43,14 @@ give some ideas for future development, open issues if you found any and
 contribute to the code with pull requests and patches. You can also support the
 development of this project by donating some coins.
 
+## Sponsors
+
+<p align="center">
+  <a href="https://www.de-cix.net/" target="_blank" rel="nofollow noopener">
+    <img src="project-static/img/sponsors/logo_decix.svg" alt="DE-CIX"/>
+  </a>
+</p>
+
 ### Spreading The Word
 
   * [RIPE76 Peering Manager - Easing Peering Sessions Management](https://ripe76.ripe.net/archives/video/13/) by Guillaume Mazoyer (English)
