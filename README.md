@@ -47,7 +47,7 @@ development of this project by donating some coins.
 
 <p align="center">
   <a href="https://www.de-cix.net/" target="_blank" rel="nofollow noopener">
-    <img src="project-static/img/sponsors/logo_decix.svg" alt="DE-CIX"/>
+    <img src="project-static/img/sponsors/logo_decix.svg" height="180" alt="DE-CIX"/>
   </a>
 </p>
 
