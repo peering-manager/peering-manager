@@ -3,7 +3,7 @@ import hmac
 import json
 
 from django.core.serializers import serialize
-from django_rq import get_queue, job
+from django_rq import get_queue
 from taggit.managers import _TaggableManager
 
 

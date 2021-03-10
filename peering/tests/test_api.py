@@ -32,7 +32,7 @@ class StaticChoiceTest(APITestCase):
     def test_list_static_choices(self):
         url = reverse("peering-api:field-choice-list")
         response = self.client.get(url, **self.header)
-        self.assertEqual(len(response.data), 5)
+        self.assertEqual(len(response.data), 6)
 
 
 class AutonomousSystemTest(StandardAPITestCases.View):

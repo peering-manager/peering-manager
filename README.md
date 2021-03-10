@@ -10,7 +10,7 @@ sessions of all kind (transit, customers, peering, …).
 Questions? Comments? Start a
 [discussion](https://github.com/peering-manager/peering-manager/discussions) on
 GitHub or join us in the `#peering-manager` Slack channel on
-[NetworkToCode](https://networktocode.slack.com/).
+[NetDev Community](https://join.slack.com/t/netdev-community/shared_invite/zt-mtts8g0n-Sm6Wutn62q_M4OdsaIycrQ).
 
 ## Requirements
 

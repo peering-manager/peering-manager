@@ -54,6 +54,7 @@ class PeeringFieldChoicesViewSet(StaticChoicesViewSet):
         (Community, ["type"]),
         (InternetExchangePeeringSession, ["bgp_state"]),
         (RoutingPolicy, ["type"]),
+        (Router, ["device_state"]),
     ]
 
 
