@@ -366,7 +366,6 @@ class RouterTestCase(StandardTestCases.Views):
             "hostname": "router4.example.net",
             "configuration_template": None,
             "local_autonomous_system": local_as.pk,
-            "last_deployment_id": None,
             "encrypt_passwords": False,
             "platform": None,
             "device_state": DeviceState.ENABLED,

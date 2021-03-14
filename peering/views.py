@@ -1007,7 +1007,7 @@ class RouterDetails(DetailsView):
 
 
 class RouterConfiguration(PermissionRequiredMixin, View):
-    permission_required = "peering.view_configuration_router"
+    permission_required = "peering.view_router_configuration"
 
     def get(self, request, pk):
         router = get_object_or_404(Router, pk=pk)

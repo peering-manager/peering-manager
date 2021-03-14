@@ -1266,7 +1266,6 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         blank=True,
         help_text="State of the device for configuration pushes",
     )
-    last_deployment_id = models.CharField(max_length=64, blank=True, null=True)
     netbox_device_id = models.PositiveIntegerField(blank=True, default=0)
     use_netbox = models.BooleanField(
         blank=True,
@@ -1520,7 +1519,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         device = self.get_napalm_device()
 
         # Open and close the test_napalm_connection
-        self.logger.debug("testing connection with %s", self.hostname)
+        self.logger.debug(f"testing connection with {self.hostname}")
         opened = self.open_napalm_device(device)
         if opened:
             alive = device.is_alive()
@@ -1530,7 +1529,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         # Issue while opening or closing the connection
         if not opened or not closed or not alive:
             self.logger.error(
-                "cannot connect to %s, napalm functions won't work", self.hostname
+                f"cannot connect to {self.hostname}, napalm functions won't work"
             )
 
         return opened and closed and alive
@@ -1548,15 +1547,15 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         """
         error, changes = None, None
 
-        # Ensure device is enabled, we allow Maint mode to force a config push
+        # Ensure device is enabled, we allow maintenance mode to force a config push
         if self.device_state == DeviceState.DISABLED:
             self.logger.debug(f"device: {self.name} is disabled, exiting config push")
             return "device is disabled, cannot deploy config", changes
 
         # Make sure there actually a configuration to merge
         if config is None or not isinstance(config, str) or not config.strip():
-            self.logger.debug("no configuration to merge: %s", config)
-            error = f"no configuration found to be merged"
+            self.logger.debug(f"no configuration to merge: {config}")
+            error = "no configuration found to be merged"
             return error, changes
 
         device = self.get_napalm_device()
@@ -1565,23 +1564,23 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         if opened:
             try:
                 # Load the config
-                self.logger.debug("merging configuration on %s", self.hostname)
+                self.logger.debug(f"merging configuration on {self.hostname}")
                 device.load_merge_candidate(config=config)
-                self.logger.debug("merged configuration\n%s", config)
+                self.logger.debug(f"merged configuration\n{config}")
 
                 # Get the config diff
                 self.logger.debug(
-                    "checking for configuration changes on %s", self.hostname
+                    f"checking for configuration changes on {self.hostname}"
                 )
                 changes = device.compare_config()
-                self.logger.debug("raw napalm output\n%s", changes)
+                self.logger.debug(f"raw napalm output\n{changes}")
 
                 # Commit the config if required
                 if commit:
-                    self.logger.debug("commiting configuration on %s", self.hostname)
+                    self.logger.debug(f"commiting configuration on {self.hostname}")
                     device.commit_config()
                 else:
-                    self.logger.debug("discarding configuration on %s", self.hostname)
+                    self.logger.debug(f"discarding configuration on {self.hostname}")
                     device.discard_config()
             except napalm.base.exceptions.MergeConfigException as e:
                 error = f'unable to merge configuration on {self.hostname} reason "{e}"'
@@ -1593,16 +1592,16 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
                 self.logger.debug(error)
             else:
                 self.logger.debug(
-                    "successfully merged configuration on %s", self.hostname
+                    f"successfully merged configuration on {self.hostname}"
                 )
             finally:
                 closed = self.close_napalm_device(device)
                 if not closed:
                     self.logger.debug(
-                        "error while closing connection with %s", self.hostname
+                        f"error while closing connection with {self.hostname}"
                     )
         else:
-            error = f"Unable to connect to {self.hostname}"
+            error = f"unable to connect to {self.hostname}"
 
         return error, changes
 

@@ -102,7 +102,6 @@ class RouterSerializer(TaggedObjectSerializer, WriteEnabledNestedSerializer):
             "encrypt_passwords",
             "configuration_template",
             "local_autonomous_system",
-            "last_deployment_id",
             "netbox_device_id",
             "device_state",
             "use_netbox",
