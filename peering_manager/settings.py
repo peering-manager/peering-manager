@@ -405,6 +405,7 @@ INSTALLED_APPS = [
     "netfields",
     "taggit",
     "devices",
+    "extras",
     "peering",
     "peeringdb",
     "users",

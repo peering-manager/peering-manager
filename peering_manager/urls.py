@@ -17,6 +17,7 @@ __patterns = [
     path("logout/", LogoutView.as_view(), name="logout"),
     # Apps
     path("", include("devices.urls")),
+    path("", include("extras.urls")),
     path("", include("peering.urls")),
     path("", include("peeringdb.urls")),
     path("", include("utils.urls")),
@@ -24,6 +25,7 @@ __patterns = [
     # API
     path("api/", views.APIRootView.as_view(), name="api-root"),
     path("api/devices/", include("devices.api.urls")),
+    path("api/extras/", include("extras.api.urls")),
     path("api/peering/", include("peering.api.urls")),
     path("api/peeringdb/", include("peeringdb.api.urls")),
     path("api/users/", include("users.api.urls")),
