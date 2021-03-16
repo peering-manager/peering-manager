@@ -66,6 +66,17 @@ class JobResult(models.Model):
         )
 
     @property
+    def output(self):
+        if not self.data or not self.data["output"]:
+            return ""
+
+        lines = []
+        for line in self.data["output"]["log"]:
+            lines.append(line[-1])
+
+        return "\n".join(lines)
+
+    @property
     def duration(self):
         if not self.completed:
             return ""
