@@ -618,7 +618,7 @@ class RouterTest(APITestCase):
             "peering-api:router-test-napalm-connection", kwargs={"pk": self.router.pk}
         )
         response = self.client.get(url, **self.header)
-        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertStatus(response, status.HTTP_202_ACCEPTED)
 
 
 class RoutingPolicyTest(StandardAPITestCases.View):

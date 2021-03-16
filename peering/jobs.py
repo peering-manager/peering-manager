@@ -1,0 +1,68 @@
+import logging
+
+from django_rq import job
+
+from extras.enums import JobResultStatus
+
+from .enums import DeviceState
+
+logger = logging.getLogger("peering.manager.peering.jobs")
+
+
+@job("default")
+def test_napalm_connection(router, job_result):
+    if not router.is_usable_for_task(job_result=job_result, logger=logger):
+        return False
+
+    job_result.mark_running("Trying to connect...", obj=router, logger=logger)
+    job_result.save()
+
+    success = router.test_napalm_connection()
+
+    if success:
+        job_result.mark_completed("Connection successful.", obj=router, logger=logger)
+    else:
+        job_result.mark_failed("Connection failure.", obj=router, logger=logger)
+
+    job_result.save()
+    return success
+
+
+@job("default")
+def set_napalm_configuration(router, commit, job_result):
+    if not router.is_usable_for_task(job_result=job_result, logger=logger):
+        return False
+
+    job_result.mark_running(
+        "Trying to install configuration.", obj=router, logger=logger
+    )
+    job_result.save()
+
+    error, changes = router.set_napalm_configuration(
+        router.generate_configuration(), commit=commit
+    )
+
+    if error:
+        job_result.set_output(error)
+        job_result.mark_failed(
+            "Failed to install configuration.", obj=router, logger=logger
+        )
+        job_result.save()
+        return False
+
+    job_result.set_output(changes)
+    if not changes:
+        job_result.mark_completed(
+            "No configuration to install.", obj=router, logger=logger
+        )
+    else:
+        job_result.mark_completed(
+            "Configuration installed."
+            if commit
+            else "Configuration differences found.",
+            obj=router,
+            logger=logger,
+        )
+
+    job_result.save()
+    return success

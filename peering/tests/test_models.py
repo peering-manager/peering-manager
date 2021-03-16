@@ -379,6 +379,9 @@ class RouterTest(TestCase):
             local_autonomous_system=cls.local_as,
         )
 
+    def test_is_usable_for_task(self):
+        self.assertFalse(self.router.is_usable_for_task())
+
     def test_get_configuration_context(self):
         for i in range(1, 6):
             AutonomousSystem.objects.create(asn=i, name=f"Test {i}")

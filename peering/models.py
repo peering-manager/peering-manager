@@ -1096,34 +1096,6 @@ class InternetExchangePeeringSession(BGPSession):
         ordering = ["autonomous_system", "ip_address"]
 
     @staticmethod
-    def get_ix_list_for_peer_record(netixlan):
-        ix_list = []
-        # Find the Internet exchange given a NetworkIXLAN ID
-        for ix in InternetExchange.objects.exclude(peeringdb_id__isnull=True).exclude(
-            peeringdb_id=0
-        ):
-            # Get the IXLAN corresponding to our network
-            try:
-                ixlan = NetworkIXLAN.objects.get(id=ix.peeringdb_id)
-            except NetworkIXLAN.DoesNotExist:
-                self.logger.debug(
-                    "NetworkIXLAN with ID %s not found, ignoring IX %s",
-                    ix.peeringdb_id,
-                    ix.name,
-                )
-                continue
-
-            # Get a potentially matching IXLAN
-            peer_ixlan = NetworkIXLAN.objects.filter(
-                id=peer_record.network_ixlan.id, ix_id=ixlan.ix_id
-            )
-
-            # IXLAN found lets get out
-            if peer_ixlan:
-                ix_list.append(ix)
-        return ix_list
-
-    @staticmethod
     def create_from_peeringdb(affiliated, netixlan):
         results = []
 
@@ -1295,6 +1267,41 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     def is_netbox_device(self):
         return self.netbox_device_id != 0
+
+    def is_usable_for_task(self, job_result=None, logger=None):
+        """
+        Performs pre-flight checks to understand if a router is suited for background
+        task processing.
+        """
+        if logger is None:
+            logger = self.logger
+
+        # Ensure device is not in disabled state
+        if self.device_state == DeviceState.DISABLED:
+            if job_result:
+                job_result.mark_errored(
+                    "Router is not enabled.", obj=self, logger=logger
+                )
+                job_result.save()
+            return False
+
+        # Check if the router runs on a supported platform
+        if not self.platform:
+            if job_result:
+                job_result.mark_errored(
+                    "Router has no assigned platform.", obj=router, logger=logger
+                )
+                job_result.save()
+            return False
+        if not self.platform.napalm_driver:
+            if job_result:
+                job_result.mark_errored(
+                    "Router's platform has no NAPALM driver.", obj=router, logger=logger
+                )
+                job_result.save()
+            return False
+
+        return True
 
     def get_bgp_groups(self):
         """
