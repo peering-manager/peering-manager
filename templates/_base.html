@@ -168,22 +168,18 @@
     <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
     <script src="{% static 'bootstrap-4.5.3-dist/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'select2-4.0.13/js/select2.full.min.js' %}"></script>
-    <script src="{% static 'js/base.js' %}?{{ settings.VERSION }}"></script>
-    <script src="{% static 'js/forms.js' %}?{{ settings.VERSION }}"></script>
     <script type="text/javascript">
       var our_api_path = "/{{ settings.BASE_PATH }}api/";
-
-      $('.context-as').click(function() {
-        asID = $(this).attr("data-as-id");
+      $('.context-as').click(function () {
         $.ajax({
           method: 'post',
           url: "{% url 'users:preferences' %}",
-          data: { csrfmiddlewaretoken: '{{ csrf_token }}', as_id: asID }
-        }).done(function() {
-          location.reload();
-        });
+          data: { csrfmiddlewaretoken: '{{ csrf_token }}', as_id: $(this).attr("data-as-id") }
+        }).done(function () { location.reload(); });
       });
     </script>
+    <script src="{% static 'js/base.js' %}?{{ settings.VERSION }}"></script>
+    <script src="{% static 'js/forms.js' %}?{{ settings.VERSION }}"></script>
     {% block javascript %}{% endblock %}
   </body>
   </html>

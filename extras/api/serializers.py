@@ -25,4 +25,5 @@ class JobResultSerializer(serializers.ModelSerializer):
             "user",
             "data",
             "job_id",
+            "output",
         ]
