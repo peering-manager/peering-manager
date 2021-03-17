@@ -10,22 +10,21 @@ logger = logging.getLogger("peering.manager.peering.jobs")
 
 
 @job("default")
-def test_napalm_connection(router, job_result):
-    if not router.is_usable_for_task(job_result=job_result, logger=logger):
-        return False
-
-    job_result.mark_running("Trying to connect...", obj=router, logger=logger)
+def generate_configuration(router, job_result):
+    job_result.mark_running(
+        "Generating router configuration.", obj=router, logger=logger
+    )
     job_result.save()
 
-    success = router.test_napalm_connection()
+    config = router.generate_configuration()
 
-    if success:
-        job_result.mark_completed("Connection successful.", obj=router, logger=logger)
-    else:
-        job_result.mark_failed("Connection failure.", obj=router, logger=logger)
+    if config:
+        job_result.set_output(config)
 
+    job_result.mark_completed(
+        "Router configuration generated.", obj=router, logger=logger
+    )
     job_result.save()
-    return success
 
 
 @job("default")
@@ -63,6 +62,25 @@ def set_napalm_configuration(router, commit, job_result):
             obj=router,
             logger=logger,
         )
+
+    job_result.save()
+    return success
+
+
+@job("default")
+def test_napalm_connection(router, job_result):
+    if not router.is_usable_for_task(job_result=job_result, logger=logger):
+        return False
+
+    job_result.mark_running("Trying to connect...", obj=router, logger=logger)
+    job_result.save()
+
+    success = router.test_napalm_connection()
+
+    if success:
+        job_result.mark_completed("Connection successful.", obj=router, logger=logger)
+    else:
+        job_result.mark_failed("Connection failure.", obj=router, logger=logger)
 
     job_result.save()
     return success

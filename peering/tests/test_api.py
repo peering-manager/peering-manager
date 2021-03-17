@@ -610,8 +610,7 @@ class RouterTest(APITestCase):
     def test_configuration(self):
         url = reverse("peering-api:router-configuration", kwargs={"pk": self.router.pk})
         response = self.client.get(url, **self.header)
-        self.assertStatus(response, status.HTTP_200_OK)
-        self.assertEqual("Nothing useful", response.data["configuration"])
+        self.assertStatus(response, status.HTTP_202_ACCEPTED)
 
     def test_test_napalm_connection(self):
         url = reverse(

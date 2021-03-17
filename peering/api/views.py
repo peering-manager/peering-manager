@@ -17,7 +17,11 @@ from peering.filters import (
     RouterFilterSet,
     RoutingPolicyFilterSet,
 )
-from peering.jobs import set_napalm_configuration, test_napalm_connection
+from peering.jobs import (
+    generate_configuration,
+    set_napalm_configuration,
+    test_napalm_connection,
+)
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -284,7 +288,19 @@ class RouterViewSet(ModelViewSet):
         # Check user permission first
         if not request.user.has_perm("peering.view_router_configuration"):
             return Response(None, status=status.HTTP_403_FORBIDDEN)
-        return Response({"configuration": self.get_object().generate_configuration()})
+
+        job_result = JobResult.enqueue_job(
+            generate_configuration,
+            "peering.router.generate_configuration",
+            Router,
+            request.user,
+            self.get_object(),
+        )
+        serializer = get_serializer_for_model(JobResult)
+        return Response(
+            serializer(instance=job_result, context={"request": request}).data,
+            status=status.HTTP_202_ACCEPTED,
+        )
 
     @action(detail=False, methods=["get", "post"], url_path="configure")
     def configure(self, request):

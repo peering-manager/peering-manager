@@ -20,15 +20,9 @@ var PeeringManager = {
     button.addClass('btn-primary').html('Confirm');
   },
   pollJobResult: function (jobResult, doneHandler, failHandler = undefined) {
-    var jqXHR = $.ajax({
+    $.ajax({
       method: 'get', url: jobResult['url']
-    });
-    if (doneHandler) {
-      jqXHR.done(doneHandler);
-    }
-    if (failHandler) {
-      jqXHR.fail(failHandler);
-    }
+    }).done(doneHandler).fail(failHandler);
   }
 };
 

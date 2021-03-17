@@ -18,7 +18,7 @@
       <i class="fas fa-file-alt"></i> Raw Output
     </a>
   </div>
-  <pre class="col-md-10 pre-scrollable"><code>{{ router_configuration }}</code></pre>
+  <div class="col" id="configuration"></div>
 </div>
 {% if perms.peering.deploy_router_configuration and instance.platform %}
 <div class="modal fade" id="main-modal" tabindex="-1" role="dialog">
@@ -95,6 +95,44 @@
         break;
     }
   }
+  function configDoneHandler(r) {
+    switch (r['status']) {
+      case 'pending':
+      case 'running':
+        setTimeout(function() {
+          PeeringManager.pollJobResult(r, configDoneHandler);
+        }, 2000);
+        break;
+      case 'completed':
+        var formatted;
+        var config = r['output'];
+        console.log(config);
+        if (config == "") {
+          formatted = '<p>Configuration is empty.</p>';
+        } else {
+          formatted = '<pre class="pre-scrollable"><code>' + config + '</code></pre>';
+        }
+        $('#configuration').html(formatted);
+        break;
+      case 'errored':
+      case 'failed':
+      default:
+        $('#configuration').html('<p>An error occured while generating the configuration.</p>');
+        break;
+    }
+  }
+
+  $(document).ready(function () {
+    $.ajax({
+      method: 'get',
+      url: "{% url 'peering-api:router-configuration' pk=instance.pk %}"
+    }).done(function(r) {
+      $('#configuration').html('<div class="text-center" style="font-size: 2rem;"><i class="fas fa-sync fa-spin fa-fw"></i> Working</div>');
+      PeeringManager.pollJobResult(r, configDoneHandler);
+    }).fail(function(r) {
+      $('#configuration').html('<p>Unable to generate router configuration.</p>');
+    });
+  });
 
   // When the modal is closed, reset the button back to its defaults
   $('#main-modal').on('hidden.bs.modal', function (e) {

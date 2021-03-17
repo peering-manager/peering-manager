@@ -1417,21 +1417,11 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         return context
 
     def generate_configuration(self):
-        cached_config_name = f"configuration_router_{self.pk}"
-        try:
-            return cache.get(cached_config_name)
-        except CacheMiss:
-            self.logger.info("no cached configuration for %s", self.hostname)
-
-        config = (
+        return (
             self.configuration_template.render(self.get_configuration_context())
             if self.configuration_template
             else ""
         )
-        if settings.REDIS and settings.CACHE_TIMEOUT:
-            cache.set(cached_config_name, config, settings.CACHE_TIMEOUT)
-            self.logger.info("cached configuration for %s", self.hostname)
-        return config
 
     def get_napalm_device(self):
         if not self.platform or not self.platform.napalm_driver:
