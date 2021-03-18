@@ -62,7 +62,7 @@
 <div class="row">
   <div class="col">
     {% if instance.data %}
-    <div class="card mb-2">
+    <div class="card">
       <div class="card-header"><strong>Logs</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         <thead>
@@ -74,6 +74,16 @@
           </tr>
         </thead>
         <tbody>
+          {% if instance.output %}
+          <tr>
+            <th colspan="4" class="text-monospace">
+              <a name="output" href="#output" data-toggle="collapse" aria-expanded="false" aria-controls="output">output</a>
+            </th>
+          </tr>
+          <tr class="collapse" id="output">
+            <td colspan="4"><pre class="pre-scrollable">{{ instance.output }}</pre></td>
+          </tr>
+          {% endif %}
           {% for grouping, data in instance.data.items %}
           {% if grouping != "total" and grouping != "output" %}
           <tr>
