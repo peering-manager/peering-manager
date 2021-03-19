@@ -67,7 +67,7 @@ class JobResult(models.Model):
 
     @property
     def output(self):
-        if not self.data or not self.data["output"]:
+        if not self.data or "output" not in self.data or not self.data["output"]:
             return ""
 
         lines = []
