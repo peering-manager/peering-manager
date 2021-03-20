@@ -28,6 +28,70 @@ def generate_configuration(router, job_result):
 
 
 @job("default")
+def import_peering_sessions_from_router(internet_exchange, job_result):
+    job_result.mark_running(
+        "Trying to import peering sessions.", obj=internet_exchange, logger=logger
+    )
+    job_result.save()
+
+    log = 'Ignoring peering sessions, reason: "{}"'
+    if not internet_exchange.router:
+        log = log.format(internet_exchange.name.lower(), "no router attached.")
+    elif not internet_exchange.router.platform:
+        log = log.format(
+            internet_exchange.name.lower(), "router with unsupported platform."
+        )
+    else:
+        log = None
+
+    # No point of discovering from router if platform is none or is not supported
+    if log:
+        job_result.mark_completed(log, obj=internet_exchange, logger=logger)
+        job_result.save()
+        return False
+
+    # Build a list based on prefixes based on PeeringDB records
+    prefixes = [p.prefix for p in internet_exchange.get_prefixes()]
+    # No prefixes found
+    if not prefixes:
+        job_result.mark_failed(
+            "No prefixes found.", obj=internet_exchange, logger=logger
+        )
+        job_result.save()
+        return False
+
+    log = "Found {} prefixes ({})".format(
+        len(prefixes), ", ".join([str(prefix) for prefix in prefixes])
+    )
+    job_result.log(
+        log, obj=internet_exchange, level_choice=LogLevel.INFO, logger=logger
+    )
+    job_result.save()
+
+    sessions = internet_exchange.router.get_bgp_neighbors()
+    (
+        as_number,
+        session_number,
+        ignored_as_number,
+    ) = internet_exchange.import_peering_sessions(bgp_sessions, prefixes)
+
+    job_result.log(
+        "Ignored {ignored_as_number} autonomous systems.",
+        obj=internet_exchange,
+        level_choice=LogLevel.INFO,
+        logger=logger,
+    )
+    job_result.mark_completed(
+        "Imported {session_number} sessions for {as_number} autonomous systems.",
+        obj=internet_exchange,
+        logger=logger,
+    )
+    job_result.save()
+
+    return True
+
+
+@job("default")
 def set_napalm_configuration(router, commit, job_result):
     if not router.is_usable_for_task(job_result=job_result, logger=logger):
         return False

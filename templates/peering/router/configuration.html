@@ -43,8 +43,7 @@
 {% block javascript %}
 <script>
   function deployFailHandler() {
-    $('#commit').removeClass('btn-warning').addClass('btn-danger')
-                .html('<i class="fas fa-times"></i> Error occurred');
+    PeeringManager.setFailedButton($('#commit'), 'An error occurred'));
   }
   function deployDoneHandler(r) {
     switch (r['status']) {
@@ -55,14 +54,12 @@
         }, 2000);
         break;
       case 'completed':
-        $('#commit').removeClass('btn-warning').addClass('btn-success')
-                    .html('<i class="fas fa-check"></i> Configuration saved');
+        PeeringManager.setSuccessButton($('#commit'), 'Configuration saved'));
         break;
       case 'errored':
       case 'failed':
       default:
-        $('#commit').removeClass('btn-warning').addClass('btn-danger')
-                    .html('<i class="fas fa-times"></i> Configuration not saved');
+        PeeringManager.setFailedButton($('#commit'), 'Configuration not saved'));
         break;
     }
   }
@@ -125,10 +122,10 @@
     $.ajax({
       method: 'get',
       url: "{% url 'peering-api:router-configuration' pk=instance.pk %}"
-    }).done(function(r) {
+    }).done(function (r) {
       $('#configuration').html('<div class="text-center" style="font-size: 2rem;"><i class="fas fa-sync fa-spin fa-fw"></i> Working</div>');
-      PeeringManager.pollJobResult(r, configDoneHandler);
-    }).fail(function(r) {
+      configDoneHandler(r);
+    }).fail(function (r) {
       $('#configuration').html('<p>Unable to generate router configuration.</p>');
     });
   });
@@ -156,11 +153,11 @@
       method: $('#compare-switch').is(':checked') || router_in_maintenance ? 'get' : 'post',
       url: "{% url 'peering-api:router-configure' %}",
       data: { csrfmiddlewaretoken: '{{ csrf_token }}', routers: [{{ instance.pk }}] },
-    }).done(function(r) {
+    }).done(function (r) {
       $('#main-body').html('<div class="text-center" style="font-size: 2rem;"><i class="fas fa-sync fa-spin fa-fw"></i> Working</div>');
       $('#main-modal').modal('show');
-      PeeringManager.pollJobResult(r[0], checkDoneHandler);
-    }).fail(function(r) {
+      checkDoneHandler(r[0]);
+    }).fail(function (r) {
       $('#main-body').html('<p>Unable to schedule configuration deployment.</p><pre class="pre-scrollable">' + r + '</pre>');
       $('#main-modal').modal('show');
     });
@@ -172,7 +169,7 @@
       data: { csrfmiddlewaretoken: '{{ csrf_token }}', routers: [{{ instance.pk }}] },
     }).done(function (r) {
       PeeringManager.setWorkingButton($('#commit'));
-      PeeringManager.pollJobResult(r[0], deployDoneHandler, deployFailHandler);
+      deployDoneHandler(r[0]);
     });
   });
 </script>

@@ -859,7 +859,7 @@ class InternetExchange(AbstractGroup):
             & (~Q(ipaddr6__in=ipv6_sessions) | ~Q(ipaddr4__in=ipv4_sessions))
         ).order_by("asn")
 
-    def _import_peering_sessions(self, sessions=[], prefixes=[]):
+    def import_peering_sessions(self, sessions=[], prefixes=[]):
         # No sessions or no prefixes, can't work with that
         if not sessions or not prefixes:
             return None
@@ -972,40 +972,6 @@ class InternetExchange(AbstractGroup):
             number_of_peering_sessions,
             ignored_autonomous_systems,
         )
-
-    def import_peering_sessions_from_router(self):
-        log = 'ignoring peering session on {}, reason: "{}"'
-        if not self.router:
-            log = log.format(self.name.lower(), "no router attached")
-        elif not self.router.platform:
-            log = log.format(self.name.lower(), "router with unsupported platform")
-        else:
-            log = None
-
-        # No point of discovering from router if platform is none or is not
-        # supported.
-        if log:
-            self.logger.debug(log)
-            return False
-
-        # Build a list based on prefixes based on PeeringDB records
-        prefixes = [p.prefix for p in self.get_prefixes()]
-        # No prefixes found
-        if not prefixes:
-            self.logger.debug("no prefixes found for %s", self.name.lower())
-            return None
-        else:
-            self.logger.debug(
-                "found %s prefixes (%s) for %s",
-                len(prefixes),
-                ", ".join([str(prefix) for prefix in prefixes]),
-                self.name.lower(),
-            )
-
-        # Gather all existing BGP sessions from the router connected to the IX
-        bgp_sessions = self.router.get_bgp_neighbors()
-
-        return self._import_peering_sessions(bgp_sessions, prefixes)
 
     def poll_peering_sessions(self):
         # Check if we are able to get BGP details

@@ -19,6 +19,7 @@ from peering.filters import (
 )
 from peering.jobs import (
     generate_configuration,
+    import_peering_sessions_from_router,
     set_napalm_configuration,
     test_napalm_connection,
 )
@@ -206,15 +207,20 @@ class InternetExchangeViewSet(ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="import-peering-sessions")
     def import_peering_sessions(self, request, pk=None):
-        result = self.get_object().import_peering_sessions_from_router()
-        if not result:
-            raise ServiceUnavailable("Cannot import peering sessions from router.")
+        if not request.user.has_perm("peering.add_internetexchangepeeringsession"):
+            return Response(None, status=status.HTTP_403_FORBIDDEN)
+
+        job_result = JobResult.enqueue_job(
+            import_peering_sessions_from_router,
+            "peering.internet_exchange.import_peering_sessions_from_router",
+            InternetExchange,
+            request.user,
+            self.get_object(),
+        )
+        serializer = get_serializer_for_model(JobResult)
         return Response(
-            {
-                "autonomous-system-count": result[0],
-                "peering-session-count": result[1],
-                "ignored-autonomous-systems": result[2],
-            }
+            serializer(instance=job_result, context={"request": request}).data,
+            status=status.HTTP_202_ACCEPTED,
         )
 
     @action(detail=True, methods=["get"], url_path="prefixes")
@@ -222,27 +228,6 @@ class InternetExchangeViewSet(ModelViewSet):
         return Response(
             {"prefixes": [str(p.prefix) for p in self.get_object().get_prefixes()]}
         )
-
-    @action(
-        detail=True,
-        methods=["get", "post", "put", "patch"],
-        url_path="configure-router",
-    )
-    def configure_router(self, request, pk=None):
-        internet_exchange = self.get_object()
-        if not internet_exchange.router:
-            raise ServiceUnavailable("No router available.")
-
-        # Check user permission first
-        if not request.user.has_perm("peering.deploy_configuration_internetexchange"):
-            return Response(None, status=status.HTTP_403_FORBIDDEN)
-
-        # Commit changes only if not using a GET request
-        error, changes = internet_exchange.router.set_napalm_configuration(
-            internet_exchange.generate_configuration(),
-            commit=(request.method not in SAFE_METHODS),
-        )
-        return Response({"changed": not error, "changes": changes, "error": error})
 
     @action(
         detail=True, methods=["post", "put", "patch"], url_path="poll-peering-sessions"

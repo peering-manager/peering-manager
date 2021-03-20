@@ -263,7 +263,7 @@ class InternetExchangeTest(TestCase):
             )
             self.assertEqual(
                 expected[i],
-                ixp._import_peering_sessions(session_lists[i], prefix_lists[i]),
+                ixp.import_peering_sessions(session_lists[i], prefix_lists[i]),
             )
             self.assertEqual(expected[i][1], len(ixp.get_peering_sessions()))
 

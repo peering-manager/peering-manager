@@ -1,8 +1,18 @@
 var PeeringManager = {
-  setWorkingButton: function (button) {
+  setWorkingButton: function (button, text="Working") {
     button.attr('disabled', 'disabled');
     button.removeClass('btn-primary').addClass('btn-warning');
-    button.html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+    button.html('<i class="fas fa-sync fa-spin fa-fw"></i> ' + text);
+  },
+  setFailedButton: function (button, text="Failed") {
+    button.attr('disabled', 'disabled');
+    button.removeClass('btn-primary').addClass('btn-danger');
+    button.html('<i class="fas fa-times fa-fw"></i> ' + text);
+  },
+  setSuccessButton: function (button, text="Successful") {
+    button.attr('disabled', 'disabled');
+    button.removeClass('btn-warning').addClass('btn-success');
+    button.html('<i class="fas fa-check"></i> ' + text);
   },
   resetPingButton: function (button) {
     button.removeAttr('disabled');

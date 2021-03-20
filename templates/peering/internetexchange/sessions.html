@@ -8,28 +8,30 @@
     {% include 'utils/search_form.html' %}
   </div>
 </div>
-<div class="modal fade" id="import_from_router" tabindex="-1" role="dialog">
+<div class="modal fade" id="import_from_router_modal" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Import Peering Sessions from {{ instance.router }}</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="id_close_import_01"><span aria-hidden="true">&times;</span></button>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       <div class="modal-body">
-        <div class="alert alert-dismissible" role="alert" id="id_import_operation">
-          <button type="button" class="close" aria-label="Close"><span>&times;</span></button>
-          <span id="id_import_operation_text"></span>
-        </div>
+        {% if not instance.get_prefixes %}
+        <p>Unable to find prefixes for this Internet Exchange. You cannot import peering sessions unless you use PeeringDB data.</p>
+        {% else %}
         <p>Do you want to import all peering sessions found on <strong>{{ instance.router }}</strong> matching the following prefixes?</p>
         <ul>
           {% for ix_prefix in instance.get_prefixes %}
           <li>{{ ix_prefix.prefix }}</li>
           {% endfor %}
         </ul>
+        {% endif %}
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="id_close_import_02">Close</button>
-        <button type="button" class="btn btn-primary" id="id_import_from_router">Import</button>
+        {% if instance.get_prefixes %}
+        <button type="button" class="btn btn-primary" id="import_from_router">Import</button>
+        {% endif %}
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
@@ -37,60 +39,49 @@
 {% endblock %}
 {% block javascript %}
 <script>
-  $('.alert').hide();
-  $('.alert').on('click', '.close', function() {
-    $(this).closest('.alert').slideUp();
-  });
-
   {% if perms.peering.add_internetexchangepeeringsession and instance.router and instance.router.platform %}
-  $('#id_import_from_router').click(function() {
+  function importFailHandler() {
+    PeeringManager.setFailedButton($('#import_from_router'));
+  }
+  function importDoneHandler(r) {
+    switch (r['status']) {
+      case 'pending':
+      case 'running':
+        setTimeout(function () {
+          PeeringManager.pollJobResult(r, importDoneHandler, importFailHandler);
+        }, 2000);
+        break;
+      case 'completed':
+        PeeringManager.setSuccessButton($('#import_from_router'), 'Configuration saved');
+        break;
+      case 'errored':
+      case 'failed':
+      default:
+        PeeringManager.setFailedButton($('#import_from_router'), 'Configuration not saved');
+        break;
+    }
+  }
+  $('#import_from_router').click(function () {
     $.ajax({
-      method: "post",
+      method: 'post',
       data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
-      dataType: "json",
       url: "{% url 'peering-api:internetexchange-import-peering-sessions' pk=instance.pk %}",
-      beforeSend: function() {
-        $('#id_close_import_01').attr('disabled', 'disabled');
-        $('#id_close_import_02').attr('disabled', 'disabled');
-        $('#id_import_from_router').attr('disabled', 'disabled').removeClass('btn-primary').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
-      },
-      complete: function() {
-        $('#id_close_import_01').removeAttr('disabled');
-        $('#id_close_import_02').removeAttr('disabled');
-      },
-    }).done(function(response) {
-      var message;
-      if (response['peering-session-count'] > 0) {
-        message = response['peering-session-count'] + ' sessions imported';
-      } else {
-        message = 'No sessions to import'
-      }
-      $('#id_import_from_router').removeClass('btn-warning').addClass('btn-success').html('<i class="fas fa-check"></i> ' + message);
-    }).fail(function(response) {
-      $("#id_import_operation").removeClass(
-        function(index, className) {
-          return (className.match(/(^|\s)alert-\S+/g) || []).join(' ');
-        }
-      ).addClass('alert-danger');
-      $('#id_import_operation_text').text(response.responseJSON['detail']);
-      $("#id_import_operation").slideDown();
-      $('#id_import_from_router').removeClass('btn-warning').addClass('btn-primary').removeAttr('disabled').html('Import');
-    });
+    }).done(function (r) {
+      PeeringManager.setWorkingButton($('#import_from_router');
+      importDoneHandler(r);
+    }).fail(importFailHandler);
   });
   {% endif %}
-  {% if instance.check_bgp_session_states and instance.router and instance.router.can_napalm_get_bgp_neighbors_detail %}
-  $('#id_poll_session_states').click(function() {
+  {% if instance.check_bgp_session_states and instance.router and instance.router.platform %}
+  $('#poll_session_states').click(function () {
     $.ajax({
-      method: "post",
+      method: 'post',
       data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
-      dataType: "json",
       url: "{% url 'peering-api:internetexchange-poll-peering-sessions' pk=instance.pk %}",
       beforeSend: function() {
-        $('#id_poll_session_states').attr('disabled', 'disabled').removeClass('btn-success').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+        PeeringManager.setWorkingButton($('#poll_session_states'));
       },
-    }).done(function(response) {
-      location.reload();
-    });
+    }).done(function () { location.reload(); });
   });
   {% endif %}
 </script>
