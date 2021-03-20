@@ -859,7 +859,7 @@ class InternetExchange(AbstractGroup):
             & (~Q(ipaddr6__in=ipv6_sessions) | ~Q(ipaddr4__in=ipv4_sessions))
         ).order_by("asn")
 
-    def _import_peering_sessions(self, sessions=[], prefixes=[]):
+    def import_peering_sessions(self, sessions=[], prefixes=[]):
         # No sessions or no prefixes, can't work with that
         if not sessions or not prefixes:
             return None
@@ -973,40 +973,6 @@ class InternetExchange(AbstractGroup):
             ignored_autonomous_systems,
         )
 
-    def import_peering_sessions_from_router(self):
-        log = 'ignoring peering session on {}, reason: "{}"'
-        if not self.router:
-            log = log.format(self.name.lower(), "no router attached")
-        elif not self.router.platform:
-            log = log.format(self.name.lower(), "router with unsupported platform")
-        else:
-            log = None
-
-        # No point of discovering from router if platform is none or is not
-        # supported.
-        if log:
-            self.logger.debug(log)
-            return False
-
-        # Build a list based on prefixes based on PeeringDB records
-        prefixes = [p.prefix for p in self.get_prefixes()]
-        # No prefixes found
-        if not prefixes:
-            self.logger.debug("no prefixes found for %s", self.name.lower())
-            return None
-        else:
-            self.logger.debug(
-                "found %s prefixes (%s) for %s",
-                len(prefixes),
-                ", ".join([str(prefix) for prefix in prefixes]),
-                self.name.lower(),
-            )
-
-        # Gather all existing BGP sessions from the router connected to the IX
-        bgp_sessions = self.router.get_bgp_neighbors()
-
-        return self._import_peering_sessions(bgp_sessions, prefixes)
-
     def poll_peering_sessions(self):
         # Check if we are able to get BGP details
         log = 'ignoring session states on {}, reason: "{}"'
@@ -1094,34 +1060,6 @@ class InternetExchangePeeringSession(BGPSession):
 
     class Meta:
         ordering = ["autonomous_system", "ip_address"]
-
-    @staticmethod
-    def get_ix_list_for_peer_record(netixlan):
-        ix_list = []
-        # Find the Internet exchange given a NetworkIXLAN ID
-        for ix in InternetExchange.objects.exclude(peeringdb_id__isnull=True).exclude(
-            peeringdb_id=0
-        ):
-            # Get the IXLAN corresponding to our network
-            try:
-                ixlan = NetworkIXLAN.objects.get(id=ix.peeringdb_id)
-            except NetworkIXLAN.DoesNotExist:
-                self.logger.debug(
-                    "NetworkIXLAN with ID %s not found, ignoring IX %s",
-                    ix.peeringdb_id,
-                    ix.name,
-                )
-                continue
-
-            # Get a potentially matching IXLAN
-            peer_ixlan = NetworkIXLAN.objects.filter(
-                id=peer_record.network_ixlan.id, ix_id=ixlan.ix_id
-            )
-
-            # IXLAN found lets get out
-            if peer_ixlan:
-                ix_list.append(ix)
-        return ix_list
 
     @staticmethod
     def create_from_peeringdb(affiliated, netixlan):
@@ -1266,7 +1204,6 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         blank=True,
         help_text="State of the device for configuration pushes",
     )
-    last_deployment_id = models.CharField(max_length=64, blank=True, null=True)
     netbox_device_id = models.PositiveIntegerField(blank=True, default=0)
     use_netbox = models.BooleanField(
         blank=True,
@@ -1296,6 +1233,41 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     def is_netbox_device(self):
         return self.netbox_device_id != 0
+
+    def is_usable_for_task(self, job_result=None, logger=None):
+        """
+        Performs pre-flight checks to understand if a router is suited for background
+        task processing.
+        """
+        if logger is None:
+            logger = self.logger
+
+        # Ensure device is not in disabled state
+        if self.device_state == DeviceState.DISABLED:
+            if job_result:
+                job_result.mark_errored(
+                    "Router is not enabled.", obj=self, logger=logger
+                )
+                job_result.save()
+            return False
+
+        # Check if the router runs on a supported platform
+        if not self.platform:
+            if job_result:
+                job_result.mark_errored(
+                    "Router has no assigned platform.", obj=router, logger=logger
+                )
+                job_result.save()
+            return False
+        if not self.platform.napalm_driver:
+            if job_result:
+                job_result.mark_errored(
+                    "Router's platform has no NAPALM driver.", obj=router, logger=logger
+                )
+                job_result.save()
+            return False
+
+        return True
 
     def get_bgp_groups(self):
         """
@@ -1411,21 +1383,11 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         return context
 
     def generate_configuration(self):
-        cached_config_name = f"configuration_router_{self.pk}"
-        try:
-            return cache.get(cached_config_name)
-        except CacheMiss:
-            self.logger.info("no cached configuration for %s", self.hostname)
-
-        config = (
+        return (
             self.configuration_template.render(self.get_configuration_context())
             if self.configuration_template
             else ""
         )
-        if settings.REDIS and settings.CACHE_TIMEOUT:
-            cache.set(cached_config_name, config, settings.CACHE_TIMEOUT)
-            self.logger.info("cached configuration for %s", self.hostname)
-        return config
 
     def get_napalm_device(self):
         if not self.platform or not self.platform.napalm_driver:
@@ -1520,7 +1482,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         device = self.get_napalm_device()
 
         # Open and close the test_napalm_connection
-        self.logger.debug("testing connection with %s", self.hostname)
+        self.logger.debug(f"testing connection with {self.hostname}")
         opened = self.open_napalm_device(device)
         if opened:
             alive = device.is_alive()
@@ -1530,7 +1492,7 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         # Issue while opening or closing the connection
         if not opened or not closed or not alive:
             self.logger.error(
-                "cannot connect to %s, napalm functions won't work", self.hostname
+                f"cannot connect to {self.hostname}, napalm functions won't work"
             )
 
         return opened and closed and alive
@@ -1548,15 +1510,15 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         """
         error, changes = None, None
 
-        # Ensure device is enabled, we allow Maint mode to force a config push
+        # Ensure device is enabled, we allow maintenance mode to force a config push
         if self.device_state == DeviceState.DISABLED:
             self.logger.debug(f"device: {self.name} is disabled, exiting config push")
             return "device is disabled, cannot deploy config", changes
 
         # Make sure there actually a configuration to merge
         if config is None or not isinstance(config, str) or not config.strip():
-            self.logger.debug("no configuration to merge: %s", config)
-            error = f"no configuration found to be merged"
+            self.logger.debug(f"no configuration to merge: {config}")
+            error = "no configuration found to be merged"
             return error, changes
 
         device = self.get_napalm_device()
@@ -1565,23 +1527,23 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
         if opened:
             try:
                 # Load the config
-                self.logger.debug("merging configuration on %s", self.hostname)
+                self.logger.debug(f"merging configuration on {self.hostname}")
                 device.load_merge_candidate(config=config)
-                self.logger.debug("merged configuration\n%s", config)
+                self.logger.debug(f"merged configuration\n{config}")
 
                 # Get the config diff
                 self.logger.debug(
-                    "checking for configuration changes on %s", self.hostname
+                    f"checking for configuration changes on {self.hostname}"
                 )
                 changes = device.compare_config()
-                self.logger.debug("raw napalm output\n%s", changes)
+                self.logger.debug(f"raw napalm output\n{changes}")
 
                 # Commit the config if required
                 if commit:
-                    self.logger.debug("commiting configuration on %s", self.hostname)
+                    self.logger.debug(f"commiting configuration on {self.hostname}")
                     device.commit_config()
                 else:
-                    self.logger.debug("discarding configuration on %s", self.hostname)
+                    self.logger.debug(f"discarding configuration on {self.hostname}")
                     device.discard_config()
             except napalm.base.exceptions.MergeConfigException as e:
                 error = f'unable to merge configuration on {self.hostname} reason "{e}"'
@@ -1593,16 +1555,16 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
                 self.logger.debug(error)
             else:
                 self.logger.debug(
-                    "successfully merged configuration on %s", self.hostname
+                    f"successfully merged configuration on {self.hostname}"
                 )
             finally:
                 closed = self.close_napalm_device(device)
                 if not closed:
                     self.logger.debug(
-                        "error while closing connection with %s", self.hostname
+                        f"error while closing connection with {self.hostname}"
                     )
         else:
-            error = f"Unable to connect to {self.hostname}"
+            error = f"unable to connect to {self.hostname}"
 
         return error, changes
 

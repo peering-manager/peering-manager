@@ -345,13 +345,7 @@ class RouterFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
 
     class Meta:
         model = Router
-        fields = [
-            "id",
-            "name",
-            "hostname",
-            "encrypt_passwords",
-            "last_deployment_id",
-        ]
+        fields = ["id", "name", "hostname", "encrypt_passwords"]
 
     def search(self, queryset, name, value):
         if not value.strip():

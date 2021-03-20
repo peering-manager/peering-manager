@@ -6,11 +6,52 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
+from django_filters.constants import EMPTY_VALUES
 from django_filters.utils import get_model_field, resolve_field
 
 from .enums import ObjectChangeAction
 from .fields import multivalue_field_factory
 from .models import ObjectChange, Tag
+
+
+class ContentTypeFilter(django_filters.CharFilter):
+    """
+    Allows giving a ContentType by <app_label>.<model> like "peering.router".
+    """
+
+    def filter(self, qs, value):
+        if value in EMPTY_VALUES:
+            return qs
+
+        try:
+            app_label, model = value.lower().split(".")
+        except ValueError:
+            return qs.none()
+        return qs.filter(
+            **{
+                f"{self.field_name}__app_label": app_label,
+                f"{self.field_name}__model": model,
+            }
+        )
+
+
+class ContentTypeMultipleChoiceFilter(django_filters.MultipleChoiceFilter):
+    """
+    Allows multiple-choice ContentType filtering by <app_label>.<model>.
+
+    By default, it joins multiple options with "AND".
+    Use `conjoined=False` to override this behavior to join with "OR" instead.
+    """
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("conjoined", True)
+        super().__init__(*args, **kwargs)
+
+    def filter(self, qs, value):
+        for v in value:
+            qs = ContentTypeFilter.filter(self, qs, v)
+
+        return qs
 
 
 class MultiValueCharFilter(django_filters.MultipleChoiceFilter):

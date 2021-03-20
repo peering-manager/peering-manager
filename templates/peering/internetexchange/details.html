@@ -30,7 +30,7 @@
           <td>{{ instance.router|as_link }}</td>
         </tr>
         {% endif %}
-        {% if instance.router and instance.router.can_napalm_get_bgp_neighbors_detail %}
+        {% if instance.router %}
         <tr>
           <td>Poll Session States</td>
           <td>

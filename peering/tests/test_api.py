@@ -201,7 +201,7 @@ class BGPGroupTest(StandardAPITestCases.View):
             kwargs={"pk": self.bgp_group.pk},
         )
         response = self.client.post(url, **self.header)
-        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertStatus(response, status.HTTP_202_ACCEPTED)
 
 
 class CommunityTest(StandardAPITestCases.View):
@@ -405,7 +405,7 @@ class InternetExchangeTest(StandardAPITestCases.View):
             kwargs={"pk": self.internet_exchange.pk},
         )
         response = self.client.post(url, **self.header)
-        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertStatus(response, status.HTTP_202_ACCEPTED)
 
     def test_prefixes(self):
         url = reverse(
@@ -417,23 +417,13 @@ class InternetExchangeTest(StandardAPITestCases.View):
         self.assertStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data["prefixes"], [])
 
-    def test_configure_router(self):
-        url = reverse(
-            "peering-api:internetexchange-configure-router",
-            kwargs={"pk": self.internet_exchange.pk},
-        )
-        response = self.client.get(url, **self.header)
-        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
-        response = self.client.post(url, **self.header)
-        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
-
     def test_poll_peering_sessions(self):
         url = reverse(
             "peering-api:internetexchange-poll-peering-sessions",
             kwargs={"pk": self.internet_exchange.pk},
         )
         response = self.client.post(url, **self.header)
-        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertStatus(response, status.HTTP_202_ACCEPTED)
 
 
 class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
@@ -610,15 +600,14 @@ class RouterTest(APITestCase):
     def test_configuration(self):
         url = reverse("peering-api:router-configuration", kwargs={"pk": self.router.pk})
         response = self.client.get(url, **self.header)
-        self.assertStatus(response, status.HTTP_200_OK)
-        self.assertEqual("Nothing useful", response.data["configuration"])
+        self.assertStatus(response, status.HTTP_202_ACCEPTED)
 
     def test_test_napalm_connection(self):
         url = reverse(
             "peering-api:router-test-napalm-connection", kwargs={"pk": self.router.pk}
         )
         response = self.client.get(url, **self.header)
-        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertStatus(response, status.HTTP_202_ACCEPTED)
 
 
 class RoutingPolicyTest(StandardAPITestCases.View):

@@ -7,15 +7,9 @@
       <input type="checkbox" class="custom-control-input" id="compare-switch" checked>
       <label class="custom-control-label" for="compare-switch">Compare before commit</label>
     </div>
-    {% if instance.device_state == "maintenance" %}
-    <button type="button" class="btn btn-primary btn-block" id="deploy-maint">
+    <button type="button" class="btn btn-primary btn-block" id="deploy"{% if instance.device_state == "disabled" %} disabled{% endif %}>
       <i class="fa fa-cogs"></i> Deploy
     </button>
-    {% else %}
-    <button type="button" class="btn btn-primary btn-block" id="deploy">
-      <i class="fa fa-cogs"></i> Deploy
-    </button>
-    {% endif %}
     {% endif %}
     <button type="button" class="btn btn-secondary btn-block" id="copy-config">
       <i class="fa fa-clipboard"></i> Copy
@@ -24,49 +18,120 @@
       <i class="fas fa-file-alt"></i> Raw Output
     </a>
   </div>
-  <pre class="col-md-10 pre-scrollable"><code>{{ router_configuration }}</code></pre>
+  <div class="col" id="configuration"></div>
 </div>
 {% if perms.peering.deploy_router_configuration and instance.platform %}
 <div class="modal fade" id="main-modal" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-lg" id="main-dialog" role="document">
     <div class="modal-content" id="main-content">
       <div class="modal-header" id="main-header">
-        <h5 class="modal-title" id="main-title">Configuration Differences</h5>
+        <h5 class="modal-title" id="main-title">Configuration Deployment</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
       </div>
       <div class="modal-body" id="main-body">
       </div>
       <div class="modal-footer" id="main-footer">
+        <button type="button" class="btn btn-primary invisible" id="commit">Commit changes</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="commit">Commit changes</button>
       </div>
     </div>
   </div>
 </div>
 {% endif %}
-<div class="modal fade" id="confirm-modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-lg" id="confirm-dialog" role="document">
-    <div class="modal-content" id="confirm-content">
-      <div class="modal-header" id="confirm-header">
-        <h5 class="modal-title" id="confirm-title">Are you sure?</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
-      </div>
-      <div class="modal-body" id="confirm-body">
-        <p>This Router is currently in a Maintenance state, are you sure you wish to continue?</p>
-      </div>
-      <div class="modal-footer" id="confirm-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" id="confirm">Continue</button>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}
 {% if perms.peering.deploy_router_configuration and instance.platform %}
 {% block javascript %}
 <script>
+  function deployFailHandler() {
+    PeeringManager.setFailedButton($('#commit'), 'An error occurred'));
+  }
+  function deployDoneHandler(r) {
+    switch (r['status']) {
+      case 'pending':
+      case 'running':
+        setTimeout(function () {
+          PeeringManager.pollJobResult(r, deployDoneHandler, deployFailHandler);
+        }, 2000);
+        break;
+      case 'completed':
+        PeeringManager.setSuccessButton($('#commit'), 'Configuration saved'));
+        break;
+      case 'errored':
+      case 'failed':
+      default:
+        PeeringManager.setFailedButton($('#commit'), 'Configuration not saved'));
+        break;
+    }
+  }
+  function checkDoneHandler(r) {
+    switch (r['status']) {
+      case 'pending':
+      case 'running':
+        setTimeout(function() {
+          PeeringManager.pollJobResult(r, checkDoneHandler);
+        }, 2000);
+        break;
+      case 'completed':
+        var modal_text;
+        var output = r['output'];
+        if (output == "") {
+          modal_text = '<p>No configuration differences found.</p>';
+        } else {
+          modal_text = '<p>Configuration differences:</p><pre class="pre-scrollable">' + output + '</pre>';
+          if (router_in_maintenance) {
+            modal_text = '<div class="alert alert-warning" role="alert">This router is in maintenance, proceed with care!</div>' + modal_text;
+          }
+          $('#commit').removeClass('invisible');
+        }
+        $('#main-body').html(modal_text);
+        break;
+      case 'errored':
+      case 'failed':
+      default:
+        $('#main-body').html('<p>An error occured while trying to check for changes.</p><p>The router may be unreachable, the configuration may be locked by another user or the configuration may be invalid.</p><p>You can find more details in the <code>logs/napalm.log</code> logs file or below.</p><pre class="pre-scrollable">' + r['data']['output']['log'][0][4] + '</pre>');
+        break;
+    }
+  }
+  function configDoneHandler(r) {
+    switch (r['status']) {
+      case 'pending':
+      case 'running':
+        setTimeout(function() {
+          PeeringManager.pollJobResult(r, configDoneHandler);
+        }, 2000);
+        break;
+      case 'completed':
+        var formatted;
+        var config = r['output'];
+        if (config == "") {
+          formatted = '<p>Configuration is empty.</p>';
+        } else {
+          formatted = '<pre class="pre-scrollable"><code>' + config + '</code></pre>';
+        }
+        $('#configuration').html(formatted);
+        break;
+      case 'errored':
+      case 'failed':
+      default:
+        $('#configuration').html('<p>An error occured while generating the configuration.</p>');
+        break;
+    }
+  }
+
+  $(document).ready(function () {
+    $.ajax({
+      method: 'get',
+      url: "{% url 'peering-api:router-configuration' pk=instance.pk %}"
+    }).done(function (r) {
+      $('#configuration').html('<div class="text-center" style="font-size: 2rem;"><i class="fas fa-sync fa-spin fa-fw"></i> Working</div>');
+      configDoneHandler(r);
+    }).fail(function (r) {
+      $('#configuration').html('<p>Unable to generate router configuration.</p>');
+    });
+  });
+
   // When the modal is closed, reset the button back to its defaults
-  $('#main-modal').on('hidden.bs.modal', function(e) {
+  $('#main-modal').on('hidden.bs.modal', function (e) {
     $('#commit').removeAttr('disabled')
                 .removeClass('btn-warning', 'btn-danger', 'btn-success')
                 .addClass('btn-primary')
@@ -74,7 +139,7 @@
   });
 
   // Bind copy to clipboard function to the button
-  $('#copy-config').click(function() {
+  $('#copy-config').click(function () {
     var $temp = $('<textarea>');
     $('body').append($temp);
     $temp.val($('.pre-scrollable').text()).select();
@@ -82,115 +147,31 @@
     $temp.remove();
   });
 
-  $('#deploy').click(function() {
+  var router_in_maintenance = {% if instance.device_state == 'maintenance' %}true{% else %}false{% endif %};
+  $('#deploy').click(function () {
     $.ajax({
-      method: $('#compare-switch').is(':checked') ? 'get' : 'post',
-      url: "{% url 'peering-api:router-configure' pk=instance.pk %}",
-      data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
-      beforeSend: function() {
-        $('#deploy').attr('disabled', 'disabled')
-                    .removeClass('btn-primary').addClass('btn-warning')
-                    .html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
-      },
-    }).done(function(response) {
-      if (response['error']) {
-        $('#main-body').html('<p>An error occured while trying to check for changes.</p><p>The router may be unreachable, the configuration may be locked by another user or the configuration may be invalid.</p><p>You can find more details in the <code>logs/napalm.log</code> logs file or below.</p><pre class="pre-scrollable">' + response['error'] + '</pre>');
-        $('#commit').hide();
-        $('#main-modal').modal('show');
-      } else {
-        if (response['changed'] && response['changes'].trim()) {
-          $('#main-body').html('<pre class="pre-scrollable">' + response['changes'] + '</pre>');
-          if (!$('#compare-switch').is(':checked')) {
-            $('#commit').attr('disabled', 'disabled')
-                        .removeClass('btn-primary').addClass('btn-success')
-                        .html('<i class="fas fa-check"></i> Configuration saved');
-          }
-          $('#main-modal').modal('show');
-        } else {
-          $('#main-body').html('<p>No configuration differences found.</p>');
-          $('#commit').hide();
-          $('#main-modal').modal('show');
-        }
-      }
-    }).always(function() {
-      $('#deploy').removeAttr('disabled')
-                  .removeClass('btn-warning').addClass('btn-primary')
-                  .html('<i class="fas fa-cogs"></i> Deploy');
+      method: $('#compare-switch').is(':checked') || router_in_maintenance ? 'get' : 'post',
+      url: "{% url 'peering-api:router-configure' %}",
+      data: { csrfmiddlewaretoken: '{{ csrf_token }}', routers: [{{ instance.pk }}] },
+    }).done(function (r) {
+      $('#main-body').html('<div class="text-center" style="font-size: 2rem;"><i class="fas fa-sync fa-spin fa-fw"></i> Working</div>');
+      $('#main-modal').modal('show');
+      checkDoneHandler(r[0]);
+    }).fail(function (r) {
+      $('#main-body').html('<p>Unable to schedule configuration deployment.</p><pre class="pre-scrollable">' + r + '</pre>');
+      $('#main-modal').modal('show');
     });
   });
-
-  $('#deploy-maint').click(function() {
-    $('#confirm-modal').modal('show');
-  });
-
-  $('#confirm').click(function() {
-    $('#confirm-modal').modal('toggle');
-    $.ajax({
-      method: $('#compare-switch').is(':checked') ? 'get' : 'post',
-      url: "{% url 'peering-api:router-configure' pk=instance.pk %}",
-      data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
-      beforeSend: function() {
-        $('#deploy-maint').attr('disabled', 'disabled')
-                    .removeClass('btn-primary').addClass('btn-warning')
-                    .html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
-      },
-    }).done(function(response) {
-      if (response['error']) {
-        $('#main-body').html('<p>An error occured while trying to check for changes.</p><p>The router may be unreachable, the configuration may be locked by another user or the configuration may be invalid.</p><p>You can find more details in the <code>logs/napalm.log</code> logs file or below.</p><pre class="pre-scrollable">' + response['error'] + '</pre>');
-        $('#commit').hide();
-        $('#main-modal').modal('show');
-      } else {
-        if (response['changed'] && response['changes'].trim()) {
-          $('#main-body').html('<pre class="pre-scrollable">' + response['changes'] + '</pre>');
-          if (!$('#compare-switch').is(':checked')) {
-            $('#commit').attr('disabled', 'disabled')
-                        .removeClass('btn-primary').addClass('btn-success')
-                        .html('<i class="fas fa-check"></i> Configuration saved');
-          }
-          $('#main-modal').modal('show');
-        } else {
-          $('#main-body').html('<p>No configuration differences found.</p>');
-          $('#commit').hide();
-          $('#main-modal').modal('show');
-        }
-      }
-    }).always(function() {
-      $('#deploy-maint').removeAttr('disabled')
-                  .removeClass('btn-warning').addClass('btn-primary')
-                  .html('<i class="fas fa-cogs"></i> Deploy');
-    });
-  });
-
-  $('#commit').click(function() {
+  $('#commit').click(function () {
     $.ajax({
       method: 'post',
-      url: "{% url 'peering-api:router-configure' pk=instance.pk %}",
-      data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
-      beforeSend: function() {
-        $('#commit').attr('disabled', 'disabled')
-                    .removeClass('btn-primary').addClass('btn-warning')
-                    .html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
-      }
-    }).done(function(response) {
-      // Consider failure
-      var btn_class = 'btn-danger';
-      var btn_code = '<i class="fas fa-times"></i> Configuration not saved';
-
-      // If successful change button code and color
-      if (!response['error']) {
-        btn_class = 'btn-success';
-        btn_code = '<i class="fas fa-check"></i> Configuration saved';
-      }
-
-      $('#commit').removeClass('btn-warning').addClass(btn_class).html(btn_code);
+      url: "{% url 'peering-api:router-configure' %}",
+      data: { csrfmiddlewaretoken: '{{ csrf_token }}', routers: [{{ instance.pk }}] },
+    }).done(function (r) {
+      PeeringManager.setWorkingButton($('#commit'));
+      deployDoneHandler(r[0]);
     });
   });
 </script>
-{% if instance.device_state == "disabled" %}
-<script>
-  // Disable deploy button if the router has been disabled
-  $('#deploy').attr('disabled','disabled');
-</script>
-{% endif %}
 {% endblock %}
 {% endif %}

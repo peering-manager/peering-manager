@@ -1007,22 +1007,22 @@ class RouterDetails(DetailsView):
 
 
 class RouterConfiguration(PermissionRequiredMixin, View):
-    permission_required = "peering.view_configuration_router"
+    permission_required = "peering.view_router_configuration"
 
     def get(self, request, pk):
-        router = get_object_or_404(Router, pk=pk)
-        context = {
-            "instance": router,
-            "router_configuration": router.generate_configuration(),
-            "active_tab": "configuration",
-        }
-
         # Asked for raw output
         if "raw" in request.GET:
             return HttpResponse(
                 context["router_configuration"], content_type="text/plain"
             )
-        return render(request, "peering/router/configuration.html", context)
+        return render(
+            request,
+            "peering/router/configuration.html",
+            {
+                "instance": get_object_or_404(Router, pk=pk),
+                "active_tab": "configuration",
+            },
+        )
 
 
 class RouterEdit(PermissionRequiredMixin, AddOrEditView):

@@ -263,7 +263,7 @@ class InternetExchangeTest(TestCase):
             )
             self.assertEqual(
                 expected[i],
-                ixp._import_peering_sessions(session_lists[i], prefix_lists[i]),
+                ixp.import_peering_sessions(session_lists[i], prefix_lists[i]),
             )
             self.assertEqual(expected[i][1], len(ixp.get_peering_sessions()))
 
@@ -378,6 +378,9 @@ class RouterTest(TestCase):
             device_state=DeviceState.ENABLED,
             local_autonomous_system=cls.local_as,
         )
+
+    def test_is_usable_for_task(self):
+        self.assertFalse(self.router.is_usable_for_task())
 
     def test_get_configuration_context(self):
         for i in range(1, 6):

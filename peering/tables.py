@@ -430,7 +430,6 @@ class RouterTable(BaseTable):
             "platform",
             "encrypt_passwords",
             "configuration_template",
-            "last_deployment_id",
             "directpeeringsession_count",
             "internetexchangepeeringsession_count",
             "device_state",
