@@ -201,7 +201,7 @@ class BGPGroupTest(StandardAPITestCases.View):
             kwargs={"pk": self.bgp_group.pk},
         )
         response = self.client.post(url, **self.header)
-        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertStatus(response, status.HTTP_202_ACCEPTED)
 
 
 class CommunityTest(StandardAPITestCases.View):
@@ -423,7 +423,7 @@ class InternetExchangeTest(StandardAPITestCases.View):
             kwargs={"pk": self.internet_exchange.pk},
         )
         response = self.client.post(url, **self.header)
-        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertStatus(response, status.HTTP_202_ACCEPTED)
 
 
 class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
