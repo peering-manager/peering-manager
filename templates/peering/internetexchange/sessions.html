@@ -61,13 +61,30 @@
         break;
     }
   }
+  function pollDoneHandler(r) {
+    switch (r['status']) {
+      case 'pending':
+      case 'running':
+        setTimeout(function () {
+          PeeringManager.pollJobResult(r, pollDoneHandler);
+        }, 2000);
+        break;
+      case 'completed':
+      case 'errored':
+      case 'failed':
+      default:
+        location.reload();
+        break;
+    }
+  }
+
   $('#import_from_router').click(function () {
     $.ajax({
       method: 'post',
       data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
       url: "{% url 'peering-api:internetexchange-import-peering-sessions' pk=instance.pk %}",
     }).done(function (r) {
-      PeeringManager.setWorkingButton($('#import_from_router');
+      PeeringManager.setWorkingButton($('#import_from_router'));
       importDoneHandler(r);
     }).fail(importFailHandler);
   });
@@ -81,7 +98,10 @@
       beforeSend: function() {
         PeeringManager.setWorkingButton($('#poll_session_states'));
       },
-    }).done(function () { location.reload(); });
+    }).done(function (r) {
+      PeeringManager.setWorkingButton($('#poll_session_states'));
+      pollDoneHandler(r);
+    });
   });
   {% endif %}
 </script>

@@ -20,6 +20,7 @@ from peering.filters import (
 from peering.jobs import (
     generate_configuration,
     import_peering_sessions_from_router,
+    poll_peering_sessions,
     set_napalm_configuration,
     test_napalm_connection,
 )
@@ -126,10 +127,22 @@ class BGPGroupViewSet(ModelViewSet):
         detail=True, methods=["post", "put", "patch"], url_path="poll-peering-sessions"
     )
     def poll_peering_sessions(self, request, pk=None):
-        success = self.get_object().poll_peering_sessions()
-        if not success:
-            raise ServiceUnavailable("Cannot update peering session states.")
-        return Response({"status": "success"})
+        # Check user permission first
+        if not request.user.has_perm("peering.change_directpeeringsession"):
+            return Response(None, status=status.HTTP_403_FORBIDDEN)
+
+        job_result = JobResult.enqueue_job(
+            poll_peering_sessions,
+            "peering.bgpgroup.poll_peering_sessions",
+            BGPGroup,
+            request.user,
+            self.get_object(),
+        )
+        serializer = get_serializer_for_model(JobResult)
+        return Response(
+            serializer(instance=job_result, context={"request": request}).data,
+            status=status.HTTP_202_ACCEPTED,
+        )
 
 
 class CommunityViewSet(ModelViewSet):
@@ -233,10 +246,22 @@ class InternetExchangeViewSet(ModelViewSet):
         detail=True, methods=["post", "put", "patch"], url_path="poll-peering-sessions"
     )
     def poll_peering_sessions(self, request, pk=None):
-        success = self.get_object().poll_peering_sessions()
-        if not success:
-            raise ServiceUnavailable("Cannot update peering session states.")
-        return Response({"status": "success"})
+        # Check user permission first
+        if not request.user.has_perm("peering.change_directpeeringsession"):
+            return Response(None, status=status.HTTP_403_FORBIDDEN)
+
+        job_result = JobResult.enqueue_job(
+            poll_peering_sessions,
+            "peering.bgpgroup.poll_peering_sessions",
+            BGPGroup,
+            request.user,
+            self.get_object(),
+        )
+        serializer = get_serializer_for_model(JobResult)
+        return Response(
+            serializer(instance=job_result, context={"request": request}).data,
+            status=status.HTTP_202_ACCEPTED,
+        )
 
 
 class InternetExchangePeeringSessionViewSet(ModelViewSet):

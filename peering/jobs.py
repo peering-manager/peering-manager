@@ -92,6 +92,28 @@ def import_peering_sessions_from_router(internet_exchange, job_result):
 
 
 @job("default")
+def poll_peering_sessions(group, job_result):
+    job_result.mark_running("Polling peering session states.", obj=group, logger=logger)
+    job_result.save()
+
+    success = group.poll_peering_sessions()
+
+    if success:
+        job_result.mark_completed(
+            "Successfully polled peering session states.", obj=group, logger=logger
+        )
+    else:
+        job_result.mark_failed(
+            "Error while polling peering session states.", obj=group, logger=logger
+        )
+        job_result.save()
+        return False
+
+    job_result.save()
+    return True
+
+
+@job("default")
 def set_napalm_configuration(router, commit, job_result):
     if not router.is_usable_for_task(job_result=job_result, logger=logger):
         return False
