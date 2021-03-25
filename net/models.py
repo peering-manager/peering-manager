@@ -1,6 +1,7 @@
 import logging
 
 from django.db import models
+from django.urls import reverse
 from netfields import InetAddressField, NetManager
 
 from utils.models import ChangeLoggedModel, TaggableModel, TemplateModel

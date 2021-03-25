@@ -1,0 +1,50 @@
+{% extends 'net/connection/_base.html' %}
+{% load helpers %}
+{% block subcontent %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header"><strong>Details</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>VLAN</td>
+          <td>{{ instance.vlan|render_none }}</td>
+        </tr>
+        <tr>
+          <td>IPv6 address</td>
+          <td>{{ instance.ipv6_address|render_none }}</td>
+        </tr>
+        <tr>
+          <td>IPv4 address</td>
+          <td>{{ instance.ipv4_address|render_none }}</td>
+        </tr>
+        <tr>
+          <td>IXP</td>
+          <td>{{ instance.internet_exchange_point|as_link }}</td>
+        </tr>
+        <tr>
+          <td>Router</td>
+          <td>{{ instance.router|as_link }}</td>
+        </tr>
+        <tr>
+          <td>Description</td>
+          <td>{{ instance.description|render_none }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header"><strong>Comments</strong></div>
+      <div class="card-body">
+        {% if instance.comments %}
+        {{ instance.comments|markdown }}
+        {% else %}
+        <span class="text-muted">None</span>
+        {% endif %}
+      </div>
+    </div>
+    {% include 'utils/includes/tags_card.html' with tags=instance.tags.all url='net:connection_list' %}
+  </div>
+</div>
+{% endblock %}

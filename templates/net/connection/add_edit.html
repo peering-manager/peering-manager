@@ -1,0 +1,27 @@
+{% extends 'utils/object_add_edit.html' %}
+{% load form_helpers %}
+{% block form %}
+<div class="card my-2">
+  <div class="card-header"><strong>Connection</strong></div>
+  <div class="card-body">
+    {% render_field form.vlan %}
+    {% render_field form.ipv6_address %}
+    {% render_field form.ipv4_address %}
+    {% render_field form.internet_exchange_point %}
+    {% render_field form.router %}
+    {% render_field form.description %}
+  </div>
+</div>
+<div class="card my-2">
+  <div class="card-header"><strong>Tags</strong></div>
+  <div class="card-body">
+    {% render_field form.tags %}
+  </div>
+</div>
+<div class="card my-2">
+  <div class="card-header"><strong>Comments</strong></div>
+  <div class="card-body">
+    {% render_field form.comments %}
+  </div>
+</div>
+{% endblock %}

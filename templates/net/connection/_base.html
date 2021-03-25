@@ -1,0 +1,32 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block actions %}
+{% if perms.net.change_connection %}
+<a href="{% url 'net:connection_edit' pk=instance.pk %}" class="btn btn-warning">
+  <i class="fas fa-edit"></i> Edit
+</a>
+{% endif %}
+{% if perms.net.delete_connection %}
+<a href="{% url 'net:connection_delete' pk=instance.pk %}" class="btn btn-danger">
+  <i class="fas fa-trash"></i> Delete
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
+{% endblock %}
+{% block content %}
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'main' %} active{% endif %}" href="{% url 'net:connection_details' pk=instance.pk %}">
+      <i class="fas fa-info-circle"></i> Info
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'changelog' %} active{% endif %}" href="{% url 'net:connection_changelog' pk=instance.pk %}">
+      <i class="fas fa-history"></i> Changelog
+    </a>
+  </li>
+</ul>
+{% block subcontent %}{% endblock %}
+{% endblock %}
