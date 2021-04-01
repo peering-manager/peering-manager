@@ -10,7 +10,5 @@ body {
 }
 .form-login {
   width: 100%;
-  max-width: 360px;
-  padding: 15px;
   margin: auto;
 }
