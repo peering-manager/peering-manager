@@ -4,6 +4,7 @@ from django.db import models
 from django.urls import reverse
 from netfields import InetAddressField, NetManager
 
+from peeringdb.models import NetworkIXLan
 from utils.models import ChangeLoggedModel, TaggableModel, TemplateModel
 from utils.validators import AddressFamilyValidator
 
@@ -48,7 +49,7 @@ class Connection(ChangeLoggedModel, TaggableModel, TemplateModel):
         return self.peeringdb_netixlan is not None
 
     def __str__(self):
-        return f"Connection #{self.pk}"
+        return self.description if self.description else f"Connection #{self.pk}"
 
     def get_absolute_url(self):
         return reverse("net:connection_details", kwargs={"pk": self.pk})
