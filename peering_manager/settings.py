@@ -407,6 +407,7 @@ INSTALLED_APPS = [
     "taggit",
     "devices",
     "extras",
+    "net",
     "peering",
     "peeringdb",
     "users",
