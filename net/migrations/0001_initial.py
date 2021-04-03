@@ -15,7 +15,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("peeringdb", "0015_auto_20210227_1258"),
-        ("peering", "0071_auto_20210321_1843"),
         ("utils", "0007_auto_20200805_2322"),
     ]
 
