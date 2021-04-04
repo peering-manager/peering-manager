@@ -8,6 +8,7 @@ from peeringdb.models import NetworkIXLan
 from utils.models import ChangeLoggedModel, TaggableModel, TemplateModel
 from utils.validators import AddressFamilyValidator
 
+from .enums import ConnectionState
 from .fields import VLANField
 
 logger = logging.getLogger("peering.manager.net")
@@ -16,6 +17,9 @@ logger = logging.getLogger("peering.manager.net")
 class Connection(ChangeLoggedModel, TaggableModel, TemplateModel):
     peeringdb_netixlan = models.ForeignKey(
         "peeringdb.NetworkIXLan", on_delete=models.SET_NULL, blank=True, null=True
+    )
+    state = models.CharField(
+        max_length=20, choices=ConnectionState.choices, default=ConnectionState.ENABLED
     )
     vlan = VLANField(verbose_name="VLAN", blank=True, null=True)
     ipv6_address = InetAddressField(

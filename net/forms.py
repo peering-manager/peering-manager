@@ -7,13 +7,19 @@ from utils.forms import (
     BootstrapMixin,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
+    StaticSelect,
     TagFilterField,
+    add_blank_choice,
 )
 
+from .enums import ConnectionState
 from .models import Connection
 
 
 class ConnectionForm(BootstrapMixin, forms.ModelForm):
+    state = forms.MultipleChoiceField(
+        choices=ConnectionState.choices, widget=StaticSelect
+    )
     internet_exchange_point = DynamicModelChoiceField(
         required=False,
         queryset=InternetExchange.objects.all(),
@@ -49,6 +55,11 @@ class ConnectionForm(BootstrapMixin, forms.ModelForm):
 class ConnectionFilterForm(BootstrapMixin, forms.Form):
     model = Connection
     q = forms.CharField(required=False, label="Search")
+    state = forms.MultipleChoiceField(
+        required=False,
+        choices=add_blank_choice(ConnectionState.choices),
+        widget=StaticSelect,
+    )
     internet_exchange_point_id = DynamicModelMultipleChoiceField(
         required=False,
         queryset=InternetExchange.objects.all(),

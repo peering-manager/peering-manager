@@ -19,6 +19,7 @@ class ConnectionSerializer(TaggedObjectSerializer, ModelSerializer):
         fields = [
             "id",
             "peeringdb_netixlan",
+            "state",
             "vlan",
             "ipv6_address",
             "ipv4_address",

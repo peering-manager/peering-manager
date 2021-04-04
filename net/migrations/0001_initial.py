@@ -34,6 +34,14 @@ class Migration(migrations.Migration):
                 ("created", models.DateTimeField(auto_now_add=True, null=True)),
                 ("updated", models.DateTimeField(auto_now=True, null=True)),
                 (
+                    "state",
+                    models.CharField(
+                        choices=[("enabled", "Enabled"), ("disabled", "Disabled")],
+                        default="enabled",
+                        max_length=20,
+                    ),
+                ),
+                (
                     "vlan",
                     net.fields.VLANField(blank=True, null=True, verbose_name="VLAN"),
                 ),
