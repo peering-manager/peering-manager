@@ -1,5 +1,6 @@
 from django.test import TestCase
 
+from net.enums import ConnectionState
 from net.models import Connection
 from peering.enums import DeviceState
 from peering.models import AutonomousSystem, InternetExchange, Router
@@ -21,6 +22,7 @@ class ConnectionTest(TestCase):
             local_autonomous_system=local_autonomous_system,
         )
         cls.connection = Connection(
+            state=ConnectionState.ENABLED,
             vlan=2001,
             ipv6_address="2001:db8:10::1",
             internet_exchange_point=internet_exchange_point,

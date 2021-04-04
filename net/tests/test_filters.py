@@ -1,3 +1,4 @@
+from net.enums import ConnectionState
 from net.filters import ConnectionFilterSet
 from net.models import Connection
 from peering.enums import DeviceState
@@ -26,18 +27,21 @@ class ConnectionTestCase(StandardTestCases.Filters):
         Connection.objects.bulk_create(
             [
                 Connection(
+                    state=ConnectionState.ENABLED,
                     vlan=2001,
                     ipv6_address="2001:db8:10::1",
                     internet_exchange_point=internet_exchange_point,
                     router=router,
                 ),
                 Connection(
+                    state=ConnectionState.ENABLED,
                     vlan=2002,
                     ipv4_address="192.0.2.2",
                     internet_exchange_point=internet_exchange_point,
                     router=router,
                 ),
                 Connection(
+                    state=ConnectionState.DISABLED,
                     ipv6_address="2001:db8:10::3",
                     ipv4_address="192.0.2.3",
                     internet_exchange_point=internet_exchange_point,
@@ -51,6 +55,14 @@ class ConnectionTestCase(StandardTestCases.Filters):
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
         params = {"q": "192.0.2.2"}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+
+    def test_state(self):
+        params = {"state": [ConnectionState.ENABLED]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {"state": [ConnectionState.DISABLED]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        params = {"state": [""]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
 
     def test_vlan(self):
         params = {"vlan": [2001]}

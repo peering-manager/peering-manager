@@ -3,6 +3,7 @@ from ipaddress import IPv6Address
 from django.db import transaction
 from django.urls.exceptions import NoReverseMatch
 
+from net.enums import ConnectionState
 from net.models import Connection
 from peering.enums import DeviceState
 from peering.models import AutonomousSystem, InternetExchange, Router
@@ -35,18 +36,21 @@ class ConnectionTestCase(StandardTestCases.Views):
         Connection.objects.bulk_create(
             [
                 Connection(
+                    state=ConnectionState.ENABLED,
                     vlan=2001,
                     ipv6_address="2001:db8::1",
                     internet_exchange_point=internet_exchange_point,
                     router=router,
                 ),
                 Connection(
+                    state=ConnectionState.ENABLED,
                     vlan=2002,
                     ipv6_address="2001:db8::2",
                     internet_exchange_point=internet_exchange_point,
                     router=router,
                 ),
                 Connection(
+                    state=ConnectionState.DISABLED,
                     vlan=2003,
                     ipv6_address="2001:db8::3",
                     internet_exchange_point=internet_exchange_point,
@@ -57,6 +61,7 @@ class ConnectionTestCase(StandardTestCases.Views):
 
         cls.form_data = {
             "peeringdb_netixlan": None,
+            "state": ConnectionState.ENABLED,
             "vlan": 2004,
             "ipv6_address": IPv6Address("2001:db8::4"),
             "ipv4_address": None,

@@ -17,9 +17,7 @@ from .models import Connection
 
 
 class ConnectionForm(BootstrapMixin, forms.ModelForm):
-    state = forms.MultipleChoiceField(
-        choices=ConnectionState.choices, widget=StaticSelect
-    )
+    state = forms.ChoiceField(choices=ConnectionState.choices, widget=StaticSelect)
     internet_exchange_point = DynamicModelChoiceField(
         required=False,
         queryset=InternetExchange.objects.all(),
