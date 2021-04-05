@@ -46,6 +46,10 @@ class Connection(ChangeLoggedModel, TaggableModel, TemplateModel):
     objects = NetManager()
 
     @property
+    def name(self):
+        return str(self)
+
+    @property
     def linked_to_peeringdb(self):
         """
         Tells if the PeeringDB object for this connection still exists.

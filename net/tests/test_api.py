@@ -16,7 +16,7 @@ class AppTest(APITestCase):
 
 class ConnectionTest(StandardAPITestCases.View):
     model = Connection
-    brief_fields = ["id", "url", "ipv6_address", "ipv4_address"]
+    brief_fields = ["id", "url", "name", "ipv6_address", "ipv4_address"]
 
     @classmethod
     def setUpTestData(cls):
