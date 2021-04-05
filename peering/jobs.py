@@ -2,7 +2,7 @@ import logging
 
 from django_rq import job
 
-from extras.enums import JobResultStatus
+from extras.enums import JobResultStatus, LogLevel
 
 from .enums import DeviceState
 
@@ -73,7 +73,7 @@ def import_peering_sessions_from_router(internet_exchange, job_result):
         as_number,
         session_number,
         ignored_as_number,
-    ) = internet_exchange.import_peering_sessions(bgp_sessions, prefixes)
+    ) = internet_exchange.import_peering_sessions(sessions, prefixes)
 
     job_result.log(
         "Ignored {ignored_as_number} autonomous systems.",
