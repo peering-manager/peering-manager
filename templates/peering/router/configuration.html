@@ -43,7 +43,7 @@
 {% block javascript %}
 <script>
   function deployFailHandler() {
-    PeeringManager.setFailedButton($('#commit'), 'An error occurred'));
+    PeeringManager.setFailedButton($('#commit'), 'An error occurred');
   }
   function deployDoneHandler(r) {
     switch (r['status']) {
@@ -54,12 +54,12 @@
         }, 2000);
         break;
       case 'completed':
-        PeeringManager.setSuccessButton($('#commit'), 'Configuration saved'));
+        PeeringManager.setSuccessButton($('#commit'), 'Configuration saved');
         break;
       case 'errored':
       case 'failed':
       default:
-        PeeringManager.setFailedButton($('#commit'), 'Configuration not saved'));
+        PeeringManager.setFailedButton($('#commit'), 'Configuration not saved');
         break;
     }
   }
