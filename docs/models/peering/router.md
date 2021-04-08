@@ -39,3 +39,12 @@ can be configured (n.b. some are optional):
   * `Comments`: text to record some notes about the router. Can use Markdown
     formatting.
   * `Tags`: a list of tags to help identifying and searching for a router.
+
+### Router with SSH access
+To configure a router with *ssh* access Peering Manager needs read-access to your private key file - please be aware that this might be a security issue.
+
+Put the full pathname of the file into `NAPALM Optional Arguments` in the following form:
+    {"key_file": "/home/myuser/.ssh/id_rsa"}
+
+## Connecting to your router
+Peering Manager uses [NAPALM](https://napalm.readthedocs.io) to connect to devices. The *Ping* button at the top checks if NAPALM can access your router. If you run into problems try connecting to your router from the command line using NAPALM.
