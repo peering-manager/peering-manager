@@ -3,6 +3,7 @@ from unittest.mock import patch
 from django.urls import reverse
 from rest_framework import status
 
+from net.models import Connection
 from peering.constants import *
 from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
 from peering.models import (
@@ -441,13 +442,17 @@ class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
             asn=201281, name="Guillaume Mazoyer", affiliated=True
         )
         autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Dummy")
-        internet_exchange = InternetExchange.objects.create(
+        ixp = InternetExchange.objects.create(
             name="Test", slug="test", local_autonomous_system=local_autonomous_system
         )
+        ixp_connection = Connection.objects.create(
+            vlan=2000, internet_exchange_point=ixp
+        )
+
         cls.internet_exchange_peering_session = (
             InternetExchangePeeringSession.objects.create(
                 autonomous_system=autonomous_system,
-                internet_exchange=internet_exchange,
+                ixp_connection=ixp_connection,
                 ip_address="2001:db8::1",
                 password="mypassword",
             )
@@ -455,17 +460,17 @@ class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
         cls.create_data = [
             {
                 "autonomous_system": autonomous_system.pk,
-                "internet_exchange": internet_exchange.pk,
+                "ixp_connection": ixp_connection.pk,
                 "ip_address": "198.51.100.1",
             },
             {
                 "autonomous_system": autonomous_system.pk,
-                "internet_exchange": internet_exchange.pk,
+                "ixp_connection": ixp_connection.pk,
                 "ip_address": "198.51.100.2",
             },
             {
                 "autonomous_system": autonomous_system.pk,
-                "internet_exchange": internet_exchange.pk,
+                "ixp_connection": ixp_connection.pk,
                 "ip_address": "198.51.100.3",
             },
         ]

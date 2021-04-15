@@ -7,6 +7,10 @@
       <div class="card-header"><strong>Details</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
+          <td>State</td>
+          <td>{{ instance.get_state_display }}</td>
+        </tr>
+        <tr>
           <td>VLAN</td>
           <td>{{ instance.vlan|render_none }}</td>
         </tr>
@@ -20,11 +24,11 @@
         </tr>
         <tr>
           <td>IXP</td>
-          <td>{{ instance.internet_exchange_point|as_link }}</td>
+          <td>{{ instance.internet_exchange_point|as_link|render_none }}</td>
         </tr>
         <tr>
           <td>Router</td>
-          <td>{{ instance.router|as_link }}</td>
+          <td>{{ instance.router|as_link|render_none }}</td>
         </tr>
         <tr>
           <td>Description</td>

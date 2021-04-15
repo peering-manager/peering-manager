@@ -30,7 +30,7 @@ class PlatformAdd(PermissionRequiredMixin, AddOrEditView):
     permission_required = "devices.add_platform"
     model = Platform
     form = PlatformForm
-    return_url = "peering:platform_list"
+    return_url = "devices:platform_list"
     template = "devices/platform/add_edit.html"
 
 

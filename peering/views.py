@@ -1,16 +1,20 @@
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import send_mail
+from django.db import transaction
 from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.defaultfilters import slugify
+from django.template.defaultfilters import pluralize
+from django.utils.text import slugify
 from django.views.generic import View
 
+from net.models import Connection
 from peeringdb.filters import NetworkIXLanFilterSet
 from peeringdb.forms import NetworkIXLanFilterForm
 from peeringdb.models import NetworkIXLan
 from peeringdb.tables import NetworkContactTable, NetworkIXLanTable
+from utils.forms import ConfirmationForm
 from utils.views import (
     AddOrEditView,
     BulkAddFromDependencyView,
@@ -20,7 +24,7 @@ from utils.views import (
     DetailsView,
     ModelListView,
     PermissionRequiredMixin,
-    TableImportView,
+    ReturnURLMixin,
 )
 
 from .filters import (
@@ -87,6 +91,7 @@ from .tables import (
     ConfigurationTable,
     DirectPeeringSessionTable,
     EmailTable,
+    InternetExchangeConnectionTable,
     InternetExchangePeeringSessionTable,
     InternetExchangeTable,
     RouterTable,
@@ -663,12 +668,8 @@ class EmailBulkDelete(PermissionRequiredMixin, BulkDeleteView):
 
 class InternetExchangeList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_internetexchange"
-    queryset = (
-        InternetExchange.objects.annotate(
-            internetexchangepeeringsession_count=Count("internetexchangepeeringsession")
-        )
-        .prefetch_related("router")
-        .order_by("local_autonomous_system", "name", "slug")
+    queryset = InternetExchange.objects.all().order_by(
+        "local_autonomous_system", "name", "slug"
     )
     table = InternetExchangeTable
     filter = InternetExchangeFilterSet
@@ -684,56 +685,115 @@ class InternetExchangeAdd(PermissionRequiredMixin, AddOrEditView):
     template = "peering/internetexchange/add_edit.html"
 
 
-class InternetExchangePeeringDBImport(PermissionRequiredMixin, TableImportView):
+class InternetExchangePeeringDBImport(PermissionRequiredMixin, ReturnURLMixin, View):
     permission_required = "peering.add_internetexchange"
-    custom_formset = InternetExchangePeeringDBFormSet
-    form_model = InternetExchangePeeringDBForm
     default_return_url = "peering:internetexchange_list"
 
-    def get_objects(self, request):
-        objects = []
+    def get_missing_ixps(self, request):
         try:
             affiliated = AutonomousSystem.objects.get(
                 pk=request.user.preferences.get("context.as")
             )
         except AutonomousSystem.DoesNotExist:
-            # No context ASN choosen, don't look for known IXPs
-            return objects
+            messages.error(
+                request, "Unable to import IXPs and connections without affiliated AS."
+            )
+            return redirect(self.get_return_url(request))
 
-        # Get a list of already known IXPs
-        known_objects = [
-            ix.peeringdb_netixlan.pk
-            for ix in InternetExchange.objects.all()
-            if ix.peeringdb_netixlan
+        # Get known IXPs and their connections
+        netixlans = [
+            c.peeringdb_netixlan.pk
+            for c in Connection.objects.filter(peeringdb_netixlan__isnull=False)
         ]
-        # Get network IX LANs for the affiliated AS excluding known ones
-        netixlans = NetworkIXLan.objects.filter(asn=affiliated.asn).exclude(
-            pk__in=known_objects
+        ixlans = [
+            i.peeringdb_ixlan.pk
+            for i in InternetExchange.objects.filter(peeringdb_ixlan__isnull=False)
+        ]
+
+        # Find missing connections
+        missing_netixlans = NetworkIXLan.objects.filter(asn=affiliated.asn).exclude(
+            pk__in=netixlans
         )
-        slugs_occurences = {}
 
-        for netixlan in netixlans:
-            slug = slugify(netixlan.ixlan.ix.name)
-            if slug in slugs_occurences:
-                slugs_occurences[slug] += 1
-                slug = f"{slug}-{slugs_occurences[slug]}"
+        # Map missing IXPs based on missing connections
+        missing_ixps = {}
+        for netixlan in missing_netixlans:
+            ixlan = missing_ixps.setdefault(netixlan.ixlan, [])
+            ixlan.append(netixlan)
+
+        return affiliated, missing_ixps
+
+    @transaction.atomic
+    def import_ixps(self, local_as, missing_ixps):
+        """
+        Imports IXPs and connections in a single database transaction.
+        """
+        imported_ixps, imported_connections = 0, 0
+
+        if not missing_ixps:
+            return imported_ixps, imported_connections
+
+        for ixp, connections in missing_ixps.items():
+            i, created = InternetExchange.objects.get_or_create(
+                slug=slugify(f"{ixp.ix.name} {ixp.ix.pk}"),
+                defaults={
+                    "peeringdb_ixlan": ixp,
+                    "local_autonomous_system": local_as,
+                    "name": ixp.ix.name,
+                },
+            )
+
+            for connection in connections:
+                Connection.objects.create(
+                    peeringdb_netixlan=connection,
+                    internet_exchange_point=i,
+                    ipv4_address=connection.ipaddr4,
+                    ipv6_address=connection.ipaddr6,
+                )
+                imported_connections += 1
+
+            if created:
+                imported_ixps += 1
+
+        return imported_ixps, imported_connections
+
+    def get(self, request):
+        _, missing_ixps = self.get_missing_ixps(request)
+
+        if not missing_ixps:
+            messages.warning(request, "No IXPs nor connections to import.")
+            return redirect(self.get_return_url(request))
+
+        return render(
+            request,
+            "peering/internetexchange/import.html",
+            {
+                "form": ConfirmationForm(initial=request.GET),
+                "missing_ixps": missing_ixps,
+                "return_url": self.get_return_url(request),
+            },
+        )
+
+    def post(self, request):
+        local_as, missing_ixps = self.get_missing_ixps(request)
+        form = ConfirmationForm(request.POST)
+
+        if form.is_valid():
+            ixp_number, connection_number = self.import_ixps(local_as, missing_ixps)
+
+            if ixp_number == 0 and connection_number == 0:
+                messages.warning(request, "No IXPs imported.")
             else:
-                slugs_occurences[slug] = 1
+                message = ["Imported"]
+                if ixp_number > 0:
+                    message.append(f"{ixp_number} IXP{pluralize(ixp_number)}")
+                if connection_number > 0:
+                    message.append(
+                        f"{connection_number} connection{pluralize(connection_number)}"
+                    )
+                messages.success(request, f"{' '.join(message)}.")
 
-            ix_properties = {
-                "peeringdb_netixlan": netixlan,
-                "peeringdb_ix": netixlan.ixlan.ix,
-                "local_autonomous_system": affiliated,
-                "name": netixlan.ixlan.ix.name,
-                "slug": slug,
-            }
-            if netixlan.ipaddr6:
-                ix_properties["ipv6_address"] = netixlan.ipaddr6.ip
-            if netixlan.ipaddr4:
-                ix_properties["ipv4_address"] = netixlan.ipaddr4.ip
-            objects.append(ix_properties)
-
-        return objects
+        return redirect(self.get_return_url(request))
 
 
 class InternetExchangeDetails(DetailsView):
@@ -745,11 +805,11 @@ class InternetExchangeDetails(DetailsView):
 
         if not instance.linked_to_peeringdb:
             # Try fixing the PeeringDB record references if possible
-            netixlan, ix = instance.link_to_peeringdb()
-            if netixlan and ix:
+            ix = instance.link_to_peeringdb()
+            if ix:
                 messages.info(
                     request,
-                    "PeeringDB records for this IX were invalid, they have been fixed.",
+                    "PeeringDB record for this IX was invalid, it's been fixed.",
                 )
 
         return {"instance": instance, "active_tab": "main"}
@@ -783,6 +843,25 @@ class InternetExchangeBulkEdit(PermissionRequiredMixin, BulkEditView):
     form = InternetExchangeBulkEditForm
 
 
+class InternetExchangeConnections(PermissionRequiredMixin, ModelListView):
+    permission_required = ("net.view_connection", "peering.view_internetexchange")
+    table = InternetExchangeConnectionTable
+    template = "peering/internetexchange/connections.html"
+
+    def build_queryset(self, request, kwargs):
+        return Connection.objects.filter(
+            internet_exchange_point=get_object_or_404(
+                InternetExchange, slug=kwargs["slug"]
+            )
+        )
+
+    def extra_context(self, kwargs):
+        return {
+            "instance": get_object_or_404(InternetExchange, slug=kwargs["slug"]),
+            "active_tab": "connections",
+        }
+
+
 class InternetExchangePeeringSessions(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_internetexchange"
     filter = InternetExchangePeeringSessionFilterSet
@@ -792,33 +871,14 @@ class InternetExchangePeeringSessions(PermissionRequiredMixin, ModelListView):
     hidden_filters = ["internet_exchange__id"]
 
     def build_queryset(self, request, kwargs):
-        queryset = None
-        # The queryset needs to be composed of InternetExchangePeeringSession objects
-        # but they are linked to an IX. So first of all we need to retrieve the IX on
-        # which we want to get the peering sessions.
-        if "slug" in kwargs:
-            instance = get_object_or_404(InternetExchange, slug=kwargs["slug"])
-            queryset = instance.internetexchangepeeringsession_set.prefetch_related(
-                "autonomous_system"
-            ).order_by("autonomous_system", "ip_address")
-
-        return queryset
+        instance = get_object_or_404(InternetExchange, slug=kwargs["slug"])
+        return instance.get_peering_sessions()
 
     def extra_context(self, kwargs):
-        extra_context = {}
-        # Since we are in the context of an IX we need to keep the reference for it
-        if "slug" in kwargs:
-            extra_context.update(
-                {
-                    "instance": get_object_or_404(
-                        InternetExchange, slug=kwargs["slug"]
-                    ),
-                    "instance_slug": kwargs["slug"],
-                    "active_tab": "sessions",
-                }
-            )
-
-        return extra_context
+        return {
+            "instance": get_object_or_404(InternetExchange, slug=kwargs["slug"]),
+            "active_tab": "sessions",
+        }
 
 
 class InternetExchangePeers(PermissionRequiredMixin, ModelListView):
@@ -829,22 +889,16 @@ class InternetExchangePeers(PermissionRequiredMixin, ModelListView):
     template = "peering/internetexchange/peers.html"
 
     def build_queryset(self, request, kwargs):
-        queryset = None
-
-        if "slug" in kwargs:
-            instance = get_object_or_404(InternetExchange, slug=kwargs["slug"])
-            queryset = instance.get_available_peers()
-
-        return queryset
+        instance = get_object_or_404(InternetExchange, slug=kwargs["slug"])
+        return instance.get_available_peers()
 
     def extra_context(self, kwargs):
-        extra_context = {"active_tab": "peers"}
-
-        if "slug" in kwargs:
-            instance = get_object_or_404(InternetExchange, slug=kwargs["slug"])
-            extra_context.update(instance=instance, internet_exchange_id=instance.pk)
-
-        return extra_context
+        instance = get_object_or_404(InternetExchange, slug=kwargs["slug"])
+        return {
+            "active_tab": "peers",
+            "instance": instance,
+            "internet_exchange_id": instance.pk,
+        }
 
 
 class InternetExchangePeeringSessionList(PermissionRequiredMixin, ModelListView):
@@ -971,9 +1025,6 @@ class RouterList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_router"
     queryset = (
         Router.objects.annotate(
-            internetexchangepeeringsession_count=Count(
-                "internetexchange__internetexchangepeeringsession", distinct=True
-            ),
             directpeeringsession_count=Count("directpeeringsession", distinct=True),
         )
         .prefetch_related("configuration_template")
@@ -999,11 +1050,7 @@ class RouterDetails(DetailsView):
 
     def get_context(self, request, **kwargs):
         instance = get_object_or_404(Router, **kwargs)
-        return {
-            "instance": instance,
-            "internet_exchanges": InternetExchange.objects.filter(router=instance),
-            "active_tab": "main",
-        }
+        return {"instance": instance, "active_tab": "main"}
 
 
 class RouterConfiguration(PermissionRequiredMixin, View):
@@ -1012,6 +1059,7 @@ class RouterConfiguration(PermissionRequiredMixin, View):
     def get(self, request, pk):
         # Asked for raw output
         if "raw" in request.GET:
+            # TODO: remove this
             return HttpResponse(
                 context["router_configuration"], content_type="text/plain"
             )

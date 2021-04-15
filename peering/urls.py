@@ -244,6 +244,11 @@ urlpatterns = [
         name="internetexchange_peeringdb_import",
     ),
     path(
+        "internet-exchanges/<slug:slug>/connections/",
+        views.InternetExchangeConnections.as_view(),
+        name="internetexchange_connections",
+    ),
+    path(
         "internet-exchanges/<slug:slug>/changelog/",
         ObjectChangeLog.as_view(),
         name="internetexchange_changelog",

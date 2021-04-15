@@ -143,11 +143,14 @@ class TemplateModel(models.Model):
     class Meta:
         abstract = True
 
-    def to_dict(self):
+    def to_dict(self, ignore=[]):
         data = {}
 
         # Iterate over croncrete and many-to-many fields
         for field in self._meta.concrete_fields + self._meta.many_to_many:
+            if field.name in ignore:
+                continue
+
             value = None
 
             # If the value of the field is another model, fetch an instance of it
@@ -164,12 +167,12 @@ class TemplateModel(models.Model):
 
             # If the instance of a model as a to_dict() function, call it
             if isinstance(value, TemplateModel):
-                data[field.name] = value.to_dict()
+                data[field.name] = value.to_dict(ignore=ignore)
             elif isinstance(value, list):
                 data[field.name] = []
                 for element in value:
                     if isinstance(element, TemplateModel):
-                        data[field.name].append(element.to_dict())
+                        data[field.name].append(element.to_dict(ignore=ignore))
                     else:
                         data[field.name].append(str(element))
             else:

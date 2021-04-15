@@ -1,3 +1,4 @@
+from net.models import Connection
 from peering.constants import *
 from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
 from peering.filters import (
@@ -285,11 +286,6 @@ class InternetExchangeTestCase(StandardTestCases.Filters):
         cls.local_as = AutonomousSystem.objects.create(
             asn=64501, name="Autonomous System 1", affiliated=True
         )
-        cls.router = Router.objects.create(
-            name="Router 1",
-            hostname="router1.example.net",
-            local_autonomous_system=cls.local_as,
-        )
         InternetExchange.objects.bulk_create(
             [
                 InternetExchange(name="Internet Exchange 1", slug="ix-1"),
@@ -298,7 +294,6 @@ class InternetExchangeTestCase(StandardTestCases.Filters):
                     local_autonomous_system=cls.local_as,
                     name="Internet Exchange 3",
                     slug="ix-3",
-                    router=cls.router,
                 ),
             ]
         )
@@ -313,10 +308,6 @@ class InternetExchangeTestCase(StandardTestCases.Filters):
         params = {"local_autonomous_system_id": [self.local_as.pk]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
-    def test_router_id(self):
-        params = {"router_id": [self.router.pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
-
 
 class InternetExchangePeeringSessionTestCase(StandardTestCases.Filters):
     model = InternetExchangePeeringSession
@@ -328,33 +319,36 @@ class InternetExchangePeeringSessionTestCase(StandardTestCases.Filters):
             asn=64500, name="Autonomous System 1", affiliated=True
         )
         cls.a_s = AutonomousSystem.objects.create(asn=64501, name="Autonomous System 1")
-        cls.ix = InternetExchange.objects.create(
+        cls.ixp = InternetExchange.objects.create(
             local_autonomous_system=cls.local_as,
             name="Internet Exchange 1",
             slug="ix-1",
         )
-        cls.useless_ix = InternetExchange.objects.create(
+        cls.useless_ixp = InternetExchange.objects.create(
             local_autonomous_system=cls.local_as,
             name="Internet Exchange 2",
             slug="ix-2",
+        )
+        cls.ixp_connection = Connection.objects.create(
+            vlan=2000, internet_exchange_point=cls.ixp
         )
         InternetExchangePeeringSession.objects.bulk_create(
             [
                 InternetExchangePeeringSession(
                     autonomous_system=cls.a_s,
-                    internet_exchange=cls.ix,
+                    ixp_connection=cls.ixp_connection,
                     ip_address="192.0.2.1",
                     multihop_ttl=2,
                 ),
                 InternetExchangePeeringSession(
                     autonomous_system=cls.a_s,
-                    internet_exchange=cls.ix,
+                    ixp_connection=cls.ixp_connection,
                     ip_address="192.0.2.2",
                     enabled=False,
                 ),
                 InternetExchangePeeringSession(
                     autonomous_system=cls.a_s,
-                    internet_exchange=cls.ix,
+                    ixp_connection=cls.ixp_connection,
                     ip_address="192.0.2.3",
                     is_route_server=True,
                 ),
@@ -404,16 +398,20 @@ class InternetExchangePeeringSessionTestCase(StandardTestCases.Filters):
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
 
     def test_internet_exchange_id(self):
-        params = {"internet_exchange_id": [self.ix.pk]}
+        params = {"internet_exchange_id": [self.ixp.pk]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
-        params = {"internet_exchange_id": [self.useless_ix.pk]}
+        params = {"internet_exchange_id": [self.useless_ixp.pk]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 0)
 
     def test_internet_exchange(self):
-        params = {"internet_exchange": [self.ix.name]}
+        params = {"internet_exchange": [self.ixp.name]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
-        params = {"internet_exchange": [self.useless_ix.name]}
+        params = {"internet_exchange": [self.useless_ixp.name]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 0)
+
+    def test_connection_id(self):
+        params = {"connection_id": [self.ixp_connection.pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
 
 
 class RouterTestCase(StandardTestCases.Filters):

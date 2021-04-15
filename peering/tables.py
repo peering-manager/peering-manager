@@ -1,6 +1,7 @@
 import django_tables2 as tables
 from django.utils.safestring import mark_safe
 
+from net.models import Connection
 from peering_manager import settings
 from utils.tables import (
     BaseTable,
@@ -54,10 +55,6 @@ class RoutingPolicyColumn(tables.ManyToManyColumn):
 
 
 class AutonomousSystemTable(BaseTable):
-    """
-    Table for AutonomousSystem lists
-    """
-
     pk = SelectColumn()
     asn = tables.Column(verbose_name="ASN")
     name = tables.Column(linkify=True)
@@ -110,10 +107,6 @@ class AutonomousSystemTable(BaseTable):
 
 
 class BGPGroupTable(BaseTable):
-    """
-    Table for BGPGroup lists
-    """
-
     pk = SelectColumn()
     name = tables.Column(linkify=True)
     check_bgp_session_states = BooleanColumn(
@@ -152,10 +145,6 @@ class BGPGroupTable(BaseTable):
 
 
 class CommunityTable(BaseTable):
-    """
-    Table for Community lists
-    """
-
     pk = SelectColumn()
     name = tables.Column(linkify=True)
     type = tables.TemplateColumn(template_code=COMMUNITY_TYPE)
@@ -169,10 +158,6 @@ class CommunityTable(BaseTable):
 
 
 class ConfigurationTable(BaseTable):
-    """
-    Table for Configuration lists
-    """
-
     pk = SelectColumn()
     name = tables.Column(linkify=True)
     tags = TagColumn(url_name="peering:configuration_list")
@@ -185,10 +170,6 @@ class ConfigurationTable(BaseTable):
 
 
 class DirectPeeringSessionTable(BaseTable):
-    """
-    Table for DirectPeeringSession lists
-    """
-
     append_template = """
     {% load helpers %}
     {% if record.comments %}
@@ -254,10 +235,6 @@ class DirectPeeringSessionTable(BaseTable):
 
 
 class EmailTable(BaseTable):
-    """
-    Table for Email lists
-    """
-
     pk = SelectColumn()
     name = tables.Column(linkify=True)
     tags = TagColumn(url_name="peering:configuration_list")
@@ -270,16 +247,9 @@ class EmailTable(BaseTable):
 
 
 class InternetExchangeTable(BaseTable):
-    """
-    Table for InternetExchange lists
-    """
-
     pk = SelectColumn()
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     name = tables.Column(linkify=True)
-    ipv6_address = tables.Column(verbose_name="IPv6 Address")
-    ipv4_address = tables.Column(verbose_name="IPv4 Address")
-    router = tables.Column(verbose_name="Router", accessor="router", linkify=True)
     check_bgp_session_states = BooleanColumn(
         verbose_name="Check Sessions",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
@@ -301,11 +271,8 @@ class InternetExchangeTable(BaseTable):
             "local_autonomous_system",
             "name",
             "slug",
-            "ipv6_address",
-            "ipv4_address",
             "import_routing_policies",
             "export_routing_policies",
-            "router",
             "check_bgp_session_states",
             "bgp_session_states_update",
             "internetexchangepeeringsession_count",
@@ -315,19 +282,42 @@ class InternetExchangeTable(BaseTable):
         default_columns = (
             "pk",
             "name",
-            "ipv6_address",
-            "ipv4_address",
-            "router",
             "internetexchangepeeringsession_count",
             "buttons",
         )
 
 
-class InternetExchangePeeringSessionTable(BaseTable):
-    """
-    Table for InternetExchangePeeringSession lists
-    """
+class InternetExchangeConnectionTable(BaseTable):
+    pk = SelectColumn()
+    ipv6_address = tables.Column(verbose_name="IPv6")
+    ipv4_address = tables.Column(verbose_name="IPv4")
+    router = tables.LinkColumn()
+    buttons = ButtonsColumn(Connection)
 
+    class Meta(BaseTable.Meta):
+        model = Connection
+        fields = (
+            "pk",
+            "state",
+            "vlan",
+            "ipv6_address",
+            "ipv4_address",
+            "router",
+            "buttons",
+        )
+        default_columns = (
+            "pk",
+            "state",
+            "vlan",
+            "ipv6_address",
+            "ipv4_address",
+            "router",
+            "buttons",
+        )
+        empty_text = "None"
+
+
+class InternetExchangePeeringSessionTable(BaseTable):
     append_template = """
     {% load helpers %}
     {% if record.comments %}
@@ -345,9 +335,12 @@ class InternetExchangePeeringSessionTable(BaseTable):
     autonomous_system = tables.Column(
         verbose_name="AS", accessor="autonomous_system", linkify=True
     )
-    internet_exchange = tables.Column(
-        verbose_name="IX", accessor="internet_exchange", linkify=True
+    internet_exchange_point = tables.Column(
+        verbose_name="IXP",
+        accessor="ixp_connection__internet_exchange_point",
+        linkify=True,
     )
+    ixp_connection = tables.Column(verbose_name="Connection", linkify=True)
     ip_address = tables.Column(verbose_name="IP Address", linkify=True)
     is_route_server = BooleanColumn(
         verbose_name="Route Server",
@@ -370,7 +363,8 @@ class InternetExchangePeeringSessionTable(BaseTable):
         fields = (
             "pk",
             "autonomous_system",
-            "internet_exchange",
+            "ixp_connection",
+            "internet_exchange_point",
             "ip_address",
             "is_route_server",
             "enabled",
@@ -386,20 +380,15 @@ class InternetExchangePeeringSessionTable(BaseTable):
         default_columns = (
             "pk",
             "autonomous_system",
-            "internet_exchange",
+            "ixp_connection",
             "ip_address",
             "is_route_server",
-            "enabled",
             "enabled",
             "buttons",
         )
 
 
 class RouterTable(BaseTable):
-    """
-    Table for Router lists
-    """
-
     pk = SelectColumn()
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     name = tables.Column(linkify=True)
@@ -451,10 +440,6 @@ class RouterTable(BaseTable):
 
 
 class RoutingPolicyTable(BaseTable):
-    """
-    Table for RoutingPolicy lists
-    """
-
     pk = SelectColumn()
     name = tables.Column(linkify=True)
     type = tables.TemplateColumn(template_code=ROUTING_POLICY_TYPE)

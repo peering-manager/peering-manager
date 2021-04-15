@@ -4,6 +4,7 @@ import django_filters
 from django.db.models import Q
 
 from devices.models import Platform
+from net.models import Connection
 from utils.filters import (
     BaseFilterSet,
     CreatedUpdatedFilterSet,
@@ -205,21 +206,6 @@ class InternetExchangeFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
         to_field_name="name",
         label="Local AS (Name)",
     )
-    router_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Router.objects.all(), label="Router (ID)"
-    )
-    router_name = django_filters.ModelMultipleChoiceFilter(
-        field_name="router__name",
-        queryset=Router.objects.all(),
-        to_field_name="name",
-        label="Router (Name)",
-    )
-    router = django_filters.ModelMultipleChoiceFilter(
-        field_name="router__hostname",
-        queryset=Router.objects.all(),
-        to_field_name="hostname",
-        label="Router (Hostname)",
-    )
     tag = TagFilter()
 
     class Meta:
@@ -236,12 +222,6 @@ class InternetExchangeFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
         )
         try:
             qs_filter |= Q(local_autonomous_system__asn=int(value.strip()))
-        except ValueError:
-            pass
-        try:
-            ip = ipaddress.ip_interface(value.strip())
-            qs_filter |= Q(ipv6_address__host=str(value))
-            qs_filter |= Q(ipv4_address__host=str(value))
         except ValueError:
             pass
         return queryset.filter(qs_filter)
@@ -264,11 +244,16 @@ class InternetExchangePeeringSessionFilterSet(BaseFilterSet, CreatedUpdatedFilte
         to_field_name="name",
         label="Remote AS (Name)",
     )
+    ixp_connection_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Connection.objects.all(), label="IXP Connection (ID)"
+    )
     internet_exchange_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=InternetExchange.objects.all(), label="IX (ID)"
+        field_name="ixp_connection__internet_exchange_point",
+        queryset=InternetExchange.objects.all(),
+        label="IX (ID)",
     )
     internet_exchange = django_filters.ModelMultipleChoiceFilter(
-        field_name="internet_exchange__name",
+        field_name="ixp_connection__internet_exchange_point__name",
         queryset=InternetExchange.objects.all(),
         to_field_name="name",
         label="IX (Name)",
