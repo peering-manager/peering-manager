@@ -7,8 +7,8 @@
 {% endif %}
 {% if perms.peering.add_internetexchangepeeringsession %}
 {% if instance.has_connected_routers %}
-<button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#import_from_router_modal">
-  <i class="fas fa-upload"></i> Import from Router
+<button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#import_sessions_modal">
+  <i class="fas fa-upload"></i> Import Sessions
 </button>
 {% endif %}
 <a href="{% url 'peering:internetexchangepeeringsession_add' %}?instance={{ instance.pk }}&return_url={{ instance.get_peering_sessions_list_url }}" class="btn btn-sm btn-primary">

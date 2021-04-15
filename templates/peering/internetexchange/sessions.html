@@ -8,18 +8,18 @@
     {% include 'utils/search_form.html' %}
   </div>
 </div>
-<div class="modal fade" id="import_from_router_modal" tabindex="-1" role="dialog">
+<div class="modal fade" id="import_sessions_modal" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Import Peering Sessions from {{ instance.router }}</h5>
+        <h5 class="modal-title">Import Peering Sessions</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       <div class="modal-body">
         {% if not instance.get_prefixes %}
         <p>Unable to find prefixes for this Internet Exchange. You cannot import peering sessions unless you use PeeringDB data.</p>
         {% else %}
-        <p>Do you want to import all peering sessions found on <strong>{{ instance.router }}</strong> matching the following prefixes?</p>
+        <p>Do you want to import all peering sessions found on connected routers matching the following prefixes?</p>
         <ul>
           {% for ix_prefix in instance.get_prefixes %}
           <li>{{ ix_prefix.prefix }}</li>
@@ -29,7 +29,7 @@
       </div>
       <div class="modal-footer">
         {% if instance.get_prefixes %}
-        <button type="button" class="btn btn-primary" id="import_from_router">Import</button>
+        <button type="button" class="btn btn-primary" id="import_sessions">Import</button>
         {% endif %}
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
@@ -39,9 +39,9 @@
 {% endblock %}
 {% block javascript %}
 <script>
-  {% if perms.peering.add_internetexchangepeeringsession and instance.router and instance.router.platform %}
+  {% if perms.peering.add_internetexchangepeeringsession %}
   function importFailHandler() {
-    PeeringManager.setFailedButton($('#import_from_router'));
+    PeeringManager.setFailedButton($('#import_sessions'));
   }
   function importDoneHandler(r) {
     switch (r['status']) {
@@ -52,12 +52,12 @@
         }, 2000);
         break;
       case 'completed':
-        PeeringManager.setSuccessButton($('#import_from_router'), 'Configuration saved');
+        PeeringManager.setSuccessButton($('#import_sessions'), 'Sessions imported');
         break;
       case 'errored':
       case 'failed':
       default:
-        PeeringManager.setFailedButton($('#import_from_router'), 'Configuration not saved');
+        PeeringManager.setFailedButton($('#import_sessions'), 'Failure importing sessions');
         break;
     }
   }
@@ -78,13 +78,13 @@
     }
   }
 
-  $('#import_from_router').click(function () {
+  $('#import_sessions').click(function () {
     $.ajax({
       method: 'post',
       data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
-      url: "{% url 'peering-api:internetexchange-import-peering-sessions' pk=instance.pk %}",
+      url: "{% url 'peering-api:internetexchange-import-sessions' pk=instance.pk %}",
     }).done(function (r) {
-      PeeringManager.setWorkingButton($('#import_from_router'));
+      PeeringManager.setWorkingButton($('#import_sessions'));
       importDoneHandler(r);
     }).fail(importFailHandler);
   });

@@ -2,7 +2,7 @@ import logging
 
 from django_rq import job
 
-from extras.enums import JobResultStatus
+from extras.enums import JobResultStatus, LogLevel
 from net.models import Connection
 
 from .enums import DeviceState
@@ -29,7 +29,7 @@ def generate_configuration(router, job_result):
 
 
 @job("default")
-def import_peering_sessions_from_router(internet_exchange, job_result):
+def import_sessions_to_internet_exchange(internet_exchange, job_result):
     job_result.mark_running(
         "Trying to import peering sessions.", obj=internet_exchange, logger=logger
     )

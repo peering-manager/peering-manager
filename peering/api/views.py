@@ -19,7 +19,7 @@ from peering.filters import (
 )
 from peering.jobs import (
     generate_configuration,
-    import_peering_sessions_from_router,
+    import_sessions_to_internet_exchange,
     poll_peering_sessions,
     set_napalm_configuration,
     test_napalm_connection,
@@ -218,14 +218,14 @@ class InternetExchangeViewSet(ModelViewSet):
             {"available-peers": NetworkIXLanSerializer(available_peers, many=True).data}
         )
 
-    @action(detail=True, methods=["post"], url_path="import-peering-sessions")
-    def import_peering_sessions(self, request, pk=None):
+    @action(detail=True, methods=["post"], url_path="import-sessions")
+    def import_sessions(self, request, pk=None):
         if not request.user.has_perm("peering.add_internetexchangepeeringsession"):
             return Response(None, status=status.HTTP_403_FORBIDDEN)
 
         job_result = JobResult.enqueue_job(
-            import_peering_sessions_from_router,
-            "peering.internet_exchange.import_peering_sessions_from_router",
+            import_sessions_to_internet_exchange,
+            "peering.internet_exchange.import_sessions",
             InternetExchange,
             request.user,
             self.get_object(),

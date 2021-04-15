@@ -938,8 +938,8 @@ class InternetExchange(AbstractGroup):
         session_number, asn_number = 0, 0
         ignored_asn = []
 
-        allowed_prefixes = self.internet_exchange_point.get_prefixes()
-        sessions = self.router.get_bgp_neighbors()
+        allowed_prefixes = self.get_prefixes()
+        sessions = connection.router.get_bgp_neighbors()
 
         def is_valid(ip_address):
             for p in allowed_prefixes:
@@ -961,7 +961,7 @@ class InternetExchange(AbstractGroup):
 
             try:
                 InternetExchangePeeringSession.objects.get(
-                    ixp_connection=self, ip_address=ip
+                    ixp_connection=connection, ip_address=ip
                 )
                 self.logger.debug(
                     f"ixp session {str(ip)} with as{remote_asn} already exists"
@@ -990,7 +990,7 @@ class InternetExchange(AbstractGroup):
                 self.logger.debug(f"creating session {str(ip)}")
                 InternetExchangePeeringSession.objects.create(
                     autonomous_system=autonomous_system,
-                    ixp_connection=self,
+                    ixp_connection=connection,
                     ip_address=ip,
                 )
                 session_number += 1
