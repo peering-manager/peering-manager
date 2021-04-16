@@ -1232,11 +1232,10 @@ class ProvisioningAllAvailableIXPeers(PermissionRequiredMixin, ModelListView):
     def build_queryset(self, request, kwargs):
         queryset = None
 
-        for ix in InternetExchangeList.queryset:
-            instance = get_object_or_404(InternetExchange, slug=ix.slug)
+        for ixp in InternetExchange.objects.all():
             if queryset is None:
-                queryset = instance.get_available_peers()
+                queryset = ixp.get_available_peers()
             else:
-                queryset = queryset | instance.get_available_peers()
+                queryset = queryset | ixp.get_available_peers()
 
         return queryset

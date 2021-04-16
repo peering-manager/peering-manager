@@ -832,7 +832,7 @@ class InternetExchange(AbstractGroup):
         """
         # Not linked to PeeringDB, cannot determine peers
         if not self.linked_to_peeringdb:
-            return []
+            return NetworkIXLan.objects.none()
 
         # Get all peering sessions currently existing
         existing_sessions = self.get_peering_sessions()
