@@ -39,7 +39,7 @@
 {% endblock %}
 {% block javascript %}
 <script>
-  {% if perms.peering.add_internetexchangepeeringsession %}
+  {% if perms.peering.add_internetexchangepeeringsession and instance.has_connected_routers %}
   function importFailHandler() {
     PeeringManager.setFailedButton($('#import_sessions'));
   }
