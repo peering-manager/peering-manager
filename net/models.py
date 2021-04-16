@@ -41,6 +41,7 @@ class Connection(ChangeLoggedModel, TaggableModel, TemplateModel):
     router = models.ForeignKey(
         "peering.Router", blank=True, null=True, on_delete=models.SET_NULL
     )
+    interface = models.CharField(max_length=200, blank=True)
     description = models.CharField(max_length=200, blank=True)
     comments = models.TextField(blank=True)
 
@@ -58,7 +59,20 @@ class Connection(ChangeLoggedModel, TaggableModel, TemplateModel):
         return self.peeringdb_netixlan is not None
 
     def __str__(self):
-        return self.description if self.description else f"Connection #{self.pk}"
+        s = ""
+
+        if self.internet_exchange_point:
+            s += str(self.internet_exchange_point)
+
+        if self.router:
+            if s:
+                s += " on "
+            s += str(self.router)
+
+            if self.interface:
+                s += f" {self.interface}"
+
+        return s or f"Connection #{self.pk}"
 
     def get_absolute_url(self):
         return reverse("net:connection_details", kwargs={"pk": self.pk})

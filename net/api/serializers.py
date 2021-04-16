@@ -26,6 +26,7 @@ class ConnectionSerializer(TaggedObjectSerializer, ModelSerializer):
             "ipv4_address",
             "internet_exchange_point",
             "router",
+            "interface",
             "description",
             "comments",
             "tags",

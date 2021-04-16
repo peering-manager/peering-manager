@@ -32,6 +32,7 @@ class ConnectionTestCase(StandardTestCases.Filters):
                     ipv6_address="2001:db8:10::1",
                     internet_exchange_point=internet_exchange_point,
                     router=router,
+                    interface="eth-0/0/0",
                 ),
                 Connection(
                     state=ConnectionState.ENABLED,
@@ -54,6 +55,10 @@ class ConnectionTestCase(StandardTestCases.Filters):
         params = {"q": "2001:db8:10::1"}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
         params = {"q": "192.0.2.2"}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        params = {"q": "eth-0/0/0"}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        params = {"q": "eth"}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
     def test_state(self):

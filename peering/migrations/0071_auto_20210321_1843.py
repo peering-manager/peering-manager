@@ -38,7 +38,6 @@ class Migration(migrations.Migration):
             model_name="internetexchangepeeringsession",
             name="ixp_connection",
             field=models.ForeignKey(
-                default=None,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 to="net.connection",

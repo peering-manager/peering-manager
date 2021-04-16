@@ -39,6 +39,7 @@ class ConnectionForm(BootstrapMixin, forms.ModelForm):
             "ipv4_address",
             "internet_exchange_point",
             "router",
+            "interface",
             "description",
             "comments",
             "tags",

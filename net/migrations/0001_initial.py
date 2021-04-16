@@ -64,6 +64,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("description", models.CharField(blank=True, max_length=200)),
+                ("interface", models.CharField(blank=True, max_length=200)),
                 ("comments", models.TextField(blank=True)),
                 (
                     "internet_exchange_point",

@@ -15,6 +15,7 @@ class ConnectionTest(TestCase):
                 "ipv4_address": "",
                 "internet_exchange_point": None,
                 "router": None,
+                "interface": "",
                 "description": "",
             }
         )
@@ -29,6 +30,7 @@ class ConnectionTest(TestCase):
                 "ipv4_address": "192.0.2.1",
                 "internet_exchange_point": None,
                 "router": None,
+                "interface": "",
                 "description": "",
             }
         )
@@ -43,6 +45,7 @@ class ConnectionTest(TestCase):
                 "ipv4_address": "192.0.2.1",
                 "internet_exchange_point": None,
                 "router": None,
+                "interface": "",
                 "description": "",
             }
         )

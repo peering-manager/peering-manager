@@ -289,8 +289,8 @@ class InternetExchangeTable(BaseTable):
 
 class InternetExchangeConnectionTable(BaseTable):
     pk = SelectColumn()
-    ipv6_address = tables.Column(verbose_name="IPv6")
-    ipv4_address = tables.Column(verbose_name="IPv4")
+    ipv6_address = tables.Column(linkify=True, verbose_name="IPv6")
+    ipv4_address = tables.Column(linkify=True, verbose_name="IPv4")
     router = tables.LinkColumn()
     buttons = ButtonsColumn(Connection)
 
@@ -303,6 +303,7 @@ class InternetExchangeConnectionTable(BaseTable):
             "ipv6_address",
             "ipv4_address",
             "router",
+            "interface",
             "buttons",
         )
         default_columns = (

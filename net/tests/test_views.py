@@ -68,6 +68,7 @@ class ConnectionTestCase(StandardTestCases.Views):
             "internet_exchange_point": internet_exchange_point.pk,
             "router": router.pk,
             "description": "",
+            "interface": "",
             "comments": "",
             "tags": "",
         }
