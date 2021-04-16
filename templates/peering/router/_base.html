@@ -31,6 +31,11 @@
         </li>
         {% endif %}
         <li class="nav-item">
+          <a class="nav-link{% if active_tab == 'connections' %} active{% endif %}" href="{% url 'peering:router_connections' pk=instance.pk %}">
+            <i class="fas fa-sitemap"></i> Connections
+          </a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link{% if active_tab == 'directsessions' %} active{% endif %}" href="{% url 'peering:router_direct_peering_sessions' pk=instance.pk %}">
             <i class="fas fa-ethernet"></i> Direct Peering Sessions
           </a>

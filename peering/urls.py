@@ -341,6 +341,11 @@ urlpatterns = [
     path("routers/add/", views.RouterAdd.as_view(), name="router_add"),
     path("routers/<int:pk>/", views.RouterDetails.as_view(), name="router_details"),
     path(
+        "routers/<int:pk>/connections/",
+        views.RouterConnections.as_view(),
+        name="router_connections",
+    ),
+    path(
         "routers/<int:pk>/direct-peering-sessions/",
         views.RouterDirectPeeringSessions.as_view(),
         name="router_direct_peering_sessions",

@@ -389,6 +389,37 @@ class InternetExchangePeeringSessionTable(BaseTable):
         )
 
 
+class RouterConnectionTable(BaseTable):
+    pk = SelectColumn()
+    ipv6_address = tables.Column(linkify=True, verbose_name="IPv6")
+    ipv4_address = tables.Column(linkify=True, verbose_name="IPv4")
+    internet_exchange_point = tables.LinkColumn()
+    buttons = ButtonsColumn(Connection)
+
+    class Meta(BaseTable.Meta):
+        model = Connection
+        fields = (
+            "pk",
+            "state",
+            "vlan",
+            "ipv6_address",
+            "ipv4_address",
+            "internet_exchange_point",
+            "interface",
+            "buttons",
+        )
+        default_columns = (
+            "pk",
+            "state",
+            "vlan",
+            "ipv6_address",
+            "ipv4_address",
+            "internet_exchange_point",
+            "buttons",
+        )
+        empty_text = "None"
+
+
 class RouterTable(BaseTable):
     pk = SelectColumn()
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)

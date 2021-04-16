@@ -94,6 +94,7 @@ from .tables import (
     InternetExchangeConnectionTable,
     InternetExchangePeeringSessionTable,
     InternetExchangeTable,
+    RouterConnectionTable,
     RouterTable,
     RoutingPolicyTable,
 )
@@ -1104,6 +1105,22 @@ class RouterBulkDelete(PermissionRequiredMixin, BulkDeleteView):
     model = Router
     filter = RouterFilterSet
     table = RouterTable
+
+
+class RouterConnections(PermissionRequiredMixin, ModelListView):
+    permission_required = ("peering.view_router", "net.view_connection")
+    table = RouterConnectionTable
+    template = "peering/router/connections.html"
+
+    def build_queryset(self, request, kwargs):
+        instance = get_object_or_404(Router, pk=kwargs["pk"])
+        return Connection.objects.filter(router=instance)
+
+    def extra_context(self, kwargs):
+        return {
+            "instance": get_object_or_404(Router, pk=kwargs["pk"]),
+            "active_tab": "connections",
+        }
 
 
 class RouterDirectPeeringSessions(PermissionRequiredMixin, ModelListView):
