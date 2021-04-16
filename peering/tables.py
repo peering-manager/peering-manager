@@ -399,6 +399,10 @@ class RouterTable(BaseTable):
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     configuration_template = tables.Column(linkify=True, verbose_name="Configuration")
+    connection_count = tables.Column(
+        verbose_name="Connections",
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
+    )
     directpeeringsession_count = tables.Column(
         verbose_name="Direct Sessions",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
@@ -420,6 +424,7 @@ class RouterTable(BaseTable):
             "platform",
             "encrypt_passwords",
             "configuration_template",
+            "connection_count",
             "directpeeringsession_count",
             "internetexchangepeeringsession_count",
             "device_state",
@@ -433,8 +438,7 @@ class RouterTable(BaseTable):
             "platform",
             "encrypt_passwords",
             "configuration_template",
-            "directpeeringsession_count",
-            "internetexchangepeeringsession_count",
+            "connection_count",
             "device_state",
             "buttons",
         )

@@ -69,7 +69,7 @@
         {% endif %}
         <tr>
           <td>Utilization</td>
-          <td>Connected to {% if internet_exchanges|length == 1 %}1 Internet exchange{% else %}{{ internet_exchanges|length }} Internet exchanges{% endif %}</td>
+          <td>Has {{ connections|length }} connection{{ connections|length|pluralize }}</td>
         </tr>
       </table>
     </div>

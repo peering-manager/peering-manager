@@ -1025,6 +1025,7 @@ class RouterList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_router"
     queryset = (
         Router.objects.annotate(
+            connection_count=Count("connection", distinct=True),
             directpeeringsession_count=Count("directpeeringsession", distinct=True),
         )
         .prefetch_related("configuration_template")
@@ -1050,7 +1051,11 @@ class RouterDetails(DetailsView):
 
     def get_context(self, request, **kwargs):
         instance = get_object_or_404(Router, **kwargs)
-        return {"instance": instance, "active_tab": "main"}
+        return {
+            "instance": instance,
+            "connections": Connection.objects.filter(router=instance),
+            "active_tab": "main",
+        }
 
 
 class RouterConfiguration(PermissionRequiredMixin, View):
