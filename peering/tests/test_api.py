@@ -400,9 +400,9 @@ class InternetExchangeTest(StandardAPITestCases.View):
         response = self.client.get(url, **self.header)
         self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
 
-    def test_import_peering_sessions(self):
+    def test_import_sessions(self):
         url = reverse(
-            "peering-api:internetexchange-import-peering-sessions",
+            "peering-api:internetexchange-import-sessions",
             kwargs={"pk": self.internet_exchange.pk},
         )
         response = self.client.post(url, **self.header)
