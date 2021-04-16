@@ -1115,6 +1115,8 @@ class InternetExchangePeeringSession(BGPSession):
         return True
 
     def __str__(self):
+        if not self.ixp_connection:
+            return f"AS{self.autonomous_system.asn} - IP {self.ip_address}"
         return f"{self.ixp_connection.internet_exchange_point.name} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
 
 

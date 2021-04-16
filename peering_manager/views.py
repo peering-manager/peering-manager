@@ -112,7 +112,7 @@ class Home(View):
             "statistics": statistics,
             "changelog": ObjectChange.objects.select_related(
                 "user", "changed_object_type"
-            )[:50],
+            )[:15],
             "synchronizations": Synchronization.objects.all()[:5],
             "new_release": new_release,
         }
