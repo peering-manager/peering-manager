@@ -133,3 +133,9 @@ class TaggableModel(models.Model):
 
     class Meta:
         abstract = True
+
+    def tag_iterator(self):
+        """
+        Returns an iteratable to loop over tags.
+        """
+        return self.tags.all()
