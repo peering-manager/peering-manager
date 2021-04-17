@@ -2,26 +2,18 @@ import ipaddress
 import logging
 
 import napalm
-from cacheops import CacheMiss, cache
 from django.conf import settings
-from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from jinja2 import Environment, TemplateSyntaxError
-from netfields import InetAddressField, NetManager
+from netfields import InetAddressField
 
 from net.models import Connection
 from netbox.api import NetBox
-from peeringdb.functions import get_ixlan_prefixes, get_shared_internet_exchanges
-from peeringdb.models import IXLanPrefix, Network, NetworkContact, NetworkIXLan
-from utils.models import ChangeLoggedModel, TaggableModel, TemplateModel
-from utils.validators import AddressFamilyValidator
-
-from . import call_irr_as_set_resolver, parse_irr_as_set
-from .enums import (
+from peering import call_irr_as_set_resolver, parse_irr_as_set
+from peering.enums import (
     BGPRelationship,
     BGPState,
     CommunityType,
@@ -29,38 +21,17 @@ from .enums import (
     IPFamily,
     RoutingPolicyType,
 )
-from .fields import ASNField, CommunityField, TTLField
+from peering.fields import ASNField, CommunityField
+from peeringdb.functions import get_ixlan_prefixes, get_shared_internet_exchanges
+from peeringdb.models import IXLanPrefix, Network, NetworkContact, NetworkIXLan
+from utils.models import ChangeLoggedModel, TaggableModel
+from utils.validators import AddressFamilyValidator
+
+from .abstracts import AbstractGroup, BGPSession, Template
+from .mixins import PolicyMixin
 
 
-class AbstractGroup(ChangeLoggedModel, TaggableModel, TemplateModel):
-    name = models.CharField(max_length=128)
-    slug = models.SlugField(unique=True, max_length=255)
-    comments = models.TextField(blank=True)
-    import_routing_policies = models.ManyToManyField(
-        "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
-    )
-    export_routing_policies = models.ManyToManyField(
-        "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
-    )
-    communities = models.ManyToManyField("Community", blank=True)
-    check_bgp_session_states = models.BooleanField(default=False)
-    bgp_session_states_update = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        abstract = True
-        ordering = ["name", "slug"]
-
-    def get_peering_sessions_list_url(self):
-        raise NotImplementedError()
-
-    def get_peering_sessions(self):
-        raise NotImplementedError()
-
-    def poll_peering_sessions(self):
-        raise NotImplementedError()
-
-
-class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
+class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
     asn = ASNField(unique=True)
     name = models.CharField(max_length=128)
     name_peeringdb_sync = models.BooleanField(default=True)
@@ -124,6 +95,15 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
         )
 
         return autonomous_system
+
+    def __str__(self):
+        return f"AS{self.asn} - {self.name}"
+
+    def export_policies(self):
+        return self.export_routing_policies.all()
+
+    def import_policies(self):
+        return self.import_routing_policies.all()
 
     def get_absolute_url(self):
         return reverse("peering:autonomoussystem_details", kwargs={"asn": self.asn})
@@ -221,13 +201,10 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
             ix_and_sessions.append(
                 {
-                    "internet_exchange": internet_exchange.to_dict(),
-                    "sessions": [
-                        s.to_dict(ignore=["ixp_connection", "internet_exchange_point"])
-                        for s in InternetExchangePeeringSession.objects.filter(
-                            autonomous_system=self, internet_exchange=internet_exchange
-                        )
-                    ],
+                    "internet_exchange": internet_exchange,
+                    "sessions": InternetExchangePeeringSession.objects.filter(
+                        autonomous_system=self, internet_exchange=internet_exchange
+                    ),
                     "missing_sessions": missing_sessions,
                 }
             )
@@ -353,11 +330,10 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
 
     def get_email_context(self):
         context = {
-            "autonomous_system": self.to_dict(),
-            "direct_peering_sessions": [
-                s.to_dict()
-                for s in DirectPeeringSession.objects.filter(autonomous_system=self)
-            ],
+            "autonomous_system": self,
+            "direct_peering_sessions": DirectPeeringSession.objects.filter(
+                autonomous_system=self
+            ),
         }
         affiliated = AutonomousSystem.objects.filter(affiliated=True)
 
@@ -366,35 +342,34 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, TemplateModel):
             # part of the AS dict
             context["my_as"] = []
             for a in affiliated:
-                as_dict = a.to_dict()
-                as_dict[
-                    "internet_exchanges"
-                ] = self.get_missing_peering_sessions_on_shared_internet_exchanges(a)
-                context["my_as"].append(as_dict)
+                # as_dict[
+                #    "internet_exchanges"
+                # ] = self.get_missing_peering_sessions_on_shared_internet_exchanges(a)
+                context["my_as"].append(a)
         else:
             # This is kept for retrocompatibility
-            context["my_as"] = affiliated.first().to_dict()
-            context[
-                "internet_exchanges"
-            ] = self.get_missing_peering_sessions_on_shared_internet_exchanges(
-                affiliated.first()
-            )
+            context["my_as"] = affiliated.first()
+            # context[
+            #    "internet_exchanges"
+            # ] = self.get_missing_peering_sessions_on_shared_internet_exchanges(
+            #    affiliated.first()
+            # )
 
         return context
 
     def generate_email(self, email):
         return email.render(self.get_email_context())
 
-    def __str__(self):
-        return f"AS{self.asn} - {self.name}"
-
 
 class BGPGroup(AbstractGroup):
     logger = logging.getLogger("peering.manager.peering")
 
-    class Meta:
+    class Meta(AbstractGroup.Meta):
         ordering = ["name", "slug"]
         verbose_name = "BGP group"
+
+    def __str__(self):
+        return self.name
 
     def get_absolute_url(self):
         return reverse("peering:bgpgroup_details", kwargs={"slug": self.slug})
@@ -484,138 +459,8 @@ class BGPGroup(AbstractGroup):
 
         return True
 
-    def __str__(self):
-        return self.name
 
-
-class BGPSession(ChangeLoggedModel, TaggableModel, TemplateModel):
-    """
-    Abstract class used to define common caracteristics of BGP sessions.
-
-    A BGP session is always defined with the following fields:
-      * an autonomous system, it can also be called a peer
-      * an IP address used to establish the session
-      * a plain text password
-      * an encrypted version of the password if the user asked for encryption
-      * a TTL for multihoping
-      * an enabled or disabled status telling if the session should be
-        administratively up or down
-      * import routing policies to apply to prefixes sent by the remote device
-      * export routing policies to apply to prefixed sent to the remote device
-      * a BGP state giving the current operational state of session (it will
-        remain to unkown if the is disabled)
-      * a received prefix count (it will stay none if polling is disabled)
-      * a advertised prefix count (it will stay none if polling is disabled)
-      * a date and time record of the last established state of the session
-      * comments that consist of plain text that can use the markdown format
-    """
-
-    autonomous_system = models.ForeignKey("AutonomousSystem", on_delete=models.CASCADE)
-    ip_address = InetAddressField(store_prefix_length=False)
-    password = models.CharField(max_length=255, blank=True, null=True)
-    encrypted_password = models.CharField(max_length=255, blank=True, null=True)
-    multihop_ttl = TTLField(
-        blank=True,
-        default=1,
-        verbose_name="Multihop TTL",
-        help_text="Use a value greater than 1 for BGP multihop sessions",
-    )
-    enabled = models.BooleanField(default=True)
-    import_routing_policies = models.ManyToManyField(
-        "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
-    )
-    export_routing_policies = models.ManyToManyField(
-        "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
-    )
-    bgp_state = models.CharField(
-        max_length=50, choices=BGPState.choices, blank=True, null=True
-    )
-    received_prefix_count = models.PositiveIntegerField(blank=True, default=0)
-    advertised_prefix_count = models.PositiveIntegerField(blank=True, default=0)
-    last_established_state = models.DateTimeField(blank=True, null=True)
-    comments = models.TextField(blank=True)
-
-    objects = NetManager()
-    logger = logging.getLogger("peering.manager.peering")
-
-    class Meta:
-        abstract = True
-        ordering = ["autonomous_system", "ip_address"]
-
-    def poll(self):
-        raise NotImplementedError
-
-    @property
-    def ip_address_version(self):
-        return ipaddress.ip_address(self.ip_address).version
-
-    def get_bgp_state_html(self):
-        """
-        Return an HTML element based on the BGP state.
-        """
-        if self.bgp_state == BGPState.IDLE:
-            badge = "danger"
-        elif self.bgp_state in [BGPState.CONNECT, BGPState.ACTIVE]:
-            badge = "warning"
-        elif self.bgp_state in [BGPState.OPENSENT, BGPState.OPENCONFIRM]:
-            badge = "info"
-        elif self.bgp_state == BGPState.ESTABLISHED:
-            badge = "success"
-        else:
-            badge = "secondary"
-
-        text = '<span class="badge badge-{}">{}</span>'.format(
-            badge, self.get_bgp_state_display() or "Unknown"
-        )
-
-        return mark_safe(text)
-
-    def encrypt_password(self, commit=True):
-        """
-        Sets the `encrypted_password` field if a crypto module is found for the given
-        platform. The field will be set to `None` otherwise.
-
-        Returns `True` if the encrypted password has been changed, `False` otherwise.
-        """
-        try:
-            router = getattr(self, "router")
-        except AttributeError:
-            router = getattr(self.ixp_connection, "router", None)
-
-        if not router or not router.platform or not router.encrypt_passwords:
-            return False
-
-        if not self.password and self.encrypted_password:
-            self.encrypted_password = ""
-            if commit:
-                self.save()
-            return True
-
-        if not self.encrypted_password:
-            # If the password is not encrypted yet, do it
-            self.encrypted_password = router.platform.encrypt_password(self.password)
-        else:
-            # Try to re-encrypt the encrypted password, if the resulting string is the
-            # same it means the password matches the router platform algorithm
-            is_up_to_date = self.encrypted_password == router.platform.encrypt_password(
-                self.encrypted_password
-            )
-            if not is_up_to_date:
-                self.encrypted_password = router.platform.encrypt_password(
-                    self.password
-                )
-
-        # Check if the encrypted password matches the clear one
-        # Force re-encryption if there a difference
-        if self.password != router.platform.decrypt_password(self.encrypted_password):
-            self.encrypted_password = router.platform.encrypt_password(self.password)
-
-        if commit:
-            self.save()
-        return True
-
-
-class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
+class Community(ChangeLoggedModel, TaggableModel):
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, max_length=255)
     value = CommunityField(max_length=50)
@@ -627,6 +472,9 @@ class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
     class Meta:
         verbose_name_plural = "communities"
         ordering = ["value", "name"]
+
+    def __str__(self):
+        return self.name
 
     def get_absolute_url(self):
         return reverse("peering:community_details", kwargs={"pk": self.pk})
@@ -643,9 +491,6 @@ class Community(ChangeLoggedModel, TaggableModel, TemplateModel):
             text = "Unknown"
 
         return mark_safe(f'<span class="badge {badge_type}">{text}</span>')
-
-    def __str__(self):
-        return self.name
 
 
 class DirectPeeringSession(BGPSession):
@@ -674,8 +519,11 @@ class DirectPeeringSession(BGPSession):
         "Router", blank=True, null=True, on_delete=models.SET_NULL
     )
 
-    class Meta:
+    class Meta(BGPSession.Meta):
         ordering = ["local_autonomous_system", "autonomous_system", "ip_address"]
+
+    def __str__(self):
+        return f"{self.get_relationship_display()} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
 
     def get_absolute_url(self):
         return reverse("peering:directpeeringsession_details", kwargs={"pk": self.pk})
@@ -728,9 +576,6 @@ class DirectPeeringSession(BGPSession):
             f'<span class="badge {badge_type}">{self.get_relationship_display()}</span>'
         )
 
-    def __str__(self):
-        return f"{self.get_relationship_display()} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
-
 
 class InternetExchange(AbstractGroup):
     peeringdb_ixlan = models.ForeignKey(
@@ -760,6 +605,9 @@ class InternetExchange(AbstractGroup):
             ).count()
             > 0
         )
+
+    def __str__(self):
+        return self.name
 
     def get_absolute_url(self):
         return reverse("peering:internetexchange_details", kwargs={"slug": self.slug})
@@ -813,6 +661,14 @@ class InternetExchange(AbstractGroup):
         return InternetExchangePeeringSession.objects.filter(
             ixp_connection__in=Connection.objects.filter(internet_exchange_point=self)
         )
+
+    def sessions(self):
+        """
+        TO BE REMOVED: added for retrocompatibility until #356 is fixed
+        https://github.com/peering-manager/peering-manager/issues/356
+        """
+        yield 4, self.get_peering_sessions().filter(ip_address__family=4)
+        yield 6, self.get_peering_sessions().filter(ip_address__family=6)
 
     def get_autonomous_systems(self):
         """
@@ -998,9 +854,6 @@ class InternetExchange(AbstractGroup):
 
         return session_number, asn_number
 
-    def __str__(self):
-        return self.name
-
 
 class InternetExchangePeeringSession(BGPSession):
     ixp_connection = models.ForeignKey(
@@ -1008,7 +861,7 @@ class InternetExchangePeeringSession(BGPSession):
     )
     is_route_server = models.BooleanField(blank=True, default=False)
 
-    class Meta:
+    class Meta(BGPSession.Meta):
         ordering = ["autonomous_system", "ixp_connection", "ip_address"]
 
     @staticmethod
@@ -1039,6 +892,11 @@ class InternetExchangePeeringSession(BGPSession):
                     results.append(InternetExchangePeeringSession(**params))
 
         return results
+
+    def __str__(self):
+        if not self.ixp_connection:
+            return f"AS{self.autonomous_system.asn} - IP {self.ip_address}"
+        return f"{self.ixp_connection.internet_exchange_point.name} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
 
     def get_absolute_url(self):
         return reverse(
@@ -1114,13 +972,8 @@ class InternetExchangePeeringSession(BGPSession):
             return False
         return True
 
-    def __str__(self):
-        if not self.ixp_connection:
-            return f"AS{self.autonomous_system.asn} - IP {self.ip_address}"
-        return f"{self.ixp_connection.internet_exchange_point.name} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
 
-
-class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
+class Router(ChangeLoggedModel, TaggableModel):
     local_autonomous_system = models.ForeignKey(
         "AutonomousSystem", on_delete=models.CASCADE, null=True
     )
@@ -1167,6 +1020,9 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
             ("view_router_configuration", "Can view router's configuration"),
             ("deploy_router_configuration", "Can deploy router's configuration"),
         ]
+
+    def __str__(self):
+        return self.name
 
     def get_absolute_url(self):
         return reverse("peering:router_details", kwargs={"pk": self.pk})
@@ -1747,11 +1603,8 @@ class Router(ChangeLoggedModel, TaggableModel, TemplateModel):
 
         return None
 
-    def __str__(self):
-        return self.name
 
-
-class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel):
+class RoutingPolicy(ChangeLoggedModel, TaggableModel):
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, max_length=255)
     type = models.CharField(
@@ -1770,6 +1623,9 @@ class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel):
     class Meta:
         verbose_name_plural = "routing policies"
         ordering = ["-weight", "name"]
+
+    def __str__(self):
+        return self.name
 
     def get_absolute_url(self):
         return reverse("peering:routingpolicy_details", kwargs={"pk": self.pk})
@@ -1792,250 +1648,3 @@ class RoutingPolicy(ChangeLoggedModel, TaggableModel, TemplateModel):
             text = self.name
 
         return mark_safe(f'<span class="badge {badge_type}">{text}</span>')
-
-    def __str__(self):
-        return self.name
-
-
-class Template(ChangeLoggedModel, TaggableModel):
-    name = models.CharField(max_length=128)
-    template = models.TextField()
-    comments = models.TextField(blank=True)
-
-    class Meta:
-        abstract = True
-        ordering = ["name"]
-
-    def render(self, variables):
-        raise NotImplementedError()
-
-    def render_preview(self):
-        raise NotImplementedError()
-
-    def __str__(self):
-        return self.name
-
-
-class Configuration(Template):
-    def get_absolute_url(self):
-        return reverse("peering:configuration_details", kwargs={"pk": self.pk})
-
-    def render(self, variables):
-        """
-        Render the template using Jinja2.
-        """
-        environment = Environment()
-
-        def prefix_list(asn, address_family=0):
-            """
-            Return the prefixes for the given AS.
-            """
-            if not asn:
-                return []
-            autonomous_system = AutonomousSystem.objects.get(asn=asn)
-            return autonomous_system.get_irr_as_set_prefixes(address_family)
-
-        def cisco_password(password):
-            from utils.crypto.cisco import MAGIC as CISCO_MAGIC
-
-            if password.startswith(CISCO_MAGIC):
-                return password[2:]
-            return password
-
-        # Add custom filters to our environment
-        environment.filters["prefix_list"] = prefix_list
-        environment.filters["cisco_password"] = cisco_password
-
-        # Try rendering the template, return a message about syntax issues if there
-        # are any
-        try:
-            jinja2_template = environment.from_string(self.template)
-            return jinja2_template.render(variables)
-        except TemplateSyntaxError as e:
-            return f"Syntax error in template at line {e.lineno}: {e.message}"
-        except Exception as e:
-            return str(e)
-
-    def render_preview(self):
-        """
-        Render the template using Jinja2 for previewing it.
-        """
-        variables = None
-
-        # Variables for template preview
-        my_as = AutonomousSystem(
-            asn=64500,
-            name="My AS",
-            ipv6_max_prefixes=50,
-            ipv4_max_prefixes=100,
-            affiliated=True,
-        )
-        a_s = AutonomousSystem(
-            asn=64501, name="ACME", ipv6_max_prefixes=50, ipv4_max_prefixes=100
-        )
-        a_s.tags = ["foo", "bar"]
-        i_x = InternetExchange(
-            name="Wakanda-IX",
-            slug="wakanda-ix",
-        )
-        i_x.tags = ["foo", "bar"]
-        connection = Connection(
-            ipv6_address="2001:db8:a::ffff",
-            ipv4_address="192.0.2.128",
-            internet_exchange_point=i_x,
-        )
-        group = BGPGroup(name="Transit Providers", slug="transit")
-        group.tags = ["foo", "bar"]
-        dps6 = DirectPeeringSession(
-            local_autonomous_system=my_as,
-            autonomous_system=a_s,
-            ip_address="2001:db8::1",
-            relationship=BGPRelationship.TRANSIT_PROVIDER,
-        )
-        dps6.tags = ["foo", "bar"]
-        dps4 = DirectPeeringSession(
-            local_autonomous_system=my_as,
-            autonomous_system=a_s,
-            ip_address="192.0.2.1",
-            relationship=BGPRelationship.PRIVATE_PEERING,
-        )
-        dps4.tags = ["foo", "bar"]
-        ixps6 = InternetExchangePeeringSession(
-            autonomous_system=a_s,
-            ixp_connection=connection,
-            ip_address="2001:db8:a::aaaa",
-        )
-        ixps6.tags = ["foo", "bar"]
-        ixps4 = InternetExchangePeeringSession(
-            autonomous_system=a_s, ixp_connection=connection, ip_address="192.0.2.64"
-        )
-        ixps4.tags = ["foo", "bar"]
-        group.sessions = {6: [dps6], 4: [dps4]}
-        i_x.sessions = {6: [ixps6], 4: [ixps4]}
-
-        return self.render(
-            {
-                "my_as": [my_as],
-                "bgp_groups": [group],
-                "internet_exchanges": [i_x],
-                "routing_policies": [
-                    RoutingPolicy(
-                        name="Export/Import None",
-                        slug="none",
-                        type=RoutingPolicyType.IMPORT_EXPORT,
-                    )
-                ],
-                "communities": [Community(name="Community Transit", value="64500:1")],
-            }
-        )
-
-
-class Email(Template):
-    # While a line length should not exceed 78 characters (as per RFC2822), we allow
-    # user more characters for templating and let the user to decide what he wants to
-    # with this recommended limit, including not respecting it
-    subject = models.CharField(max_length=512)
-
-    def get_absolute_url(self):
-        return reverse("peering:email_details", kwargs={"pk": self.pk})
-
-    def render(self, variables):
-        """
-        Render the template using Jinja2.
-        """
-        subject = ""
-        body = ""
-        environment = Environment()
-
-        try:
-            jinja2_template = environment.from_string(self.subject)
-            subject = jinja2_template.render(variables)
-        except TemplateSyntaxError as e:
-            subject = (
-                f"Syntax error in subject template at line {e.lineno}: {e.message}"
-            )
-        except Exception as e:
-            subject = str(e)
-
-        try:
-            jinja2_template = environment.from_string(self.template)
-            body = jinja2_template.render(variables)
-        except TemplateSyntaxError as e:
-            body = f"Syntax error in body template at line {e.lineno}: {e.message}"
-        except Exception as e:
-            body = str(e)
-
-        return subject, body
-
-    def render_preview(self):
-        """
-        Render the template using Jinja2 for previewing it.
-        """
-        variables = None
-
-        # Variables for template preview
-        my_as = AutonomousSystem(
-            asn=64500,
-            name="My AS",
-            ipv6_max_prefixes=50,
-            ipv4_max_prefixes=100,
-            affiliated=True,
-        )
-        a_s = AutonomousSystem(
-            asn=64501, name="ACME", ipv6_max_prefixes=50, ipv4_max_prefixes=100
-        )
-        a_s.tags = ["foo", "bar"]
-        i_x = InternetExchange(
-            name="Wakanda-IX",
-            slug="wakanda-ix",
-        )
-        i_x.tags = ["foo", "bar"]
-        connection = Connection(
-            ipv6_address="2001:db8:a::ffff",
-            ipv4_address="192.0.2.128",
-            internet_exchange_point=i_x,
-        )
-        group = BGPGroup(name="Transit Providers", slug="transit")
-        group.tags = ["foo", "bar"]
-        dps6 = DirectPeeringSession(
-            local_autonomous_system=my_as,
-            autonomous_system=a_s,
-            ip_address="2001:db8::1",
-            relationship=BGPRelationship.TRANSIT_PROVIDER,
-        )
-        dps6.tags = ["foo", "bar"]
-        dps4 = DirectPeeringSession(
-            local_autonomous_system=my_as,
-            autonomous_system=a_s,
-            ip_address="192.0.2.1",
-            relationship=BGPRelationship.PRIVATE_PEERING,
-        )
-        dps4.tags = ["foo", "bar"]
-        ixps6 = InternetExchangePeeringSession(
-            autonomous_system=a_s,
-            ixp_connection=connection,
-            ip_address="2001:db8:a::aaaa",
-        )
-        ixps6.tags = ["foo", "bar"]
-        ixps4 = InternetExchangePeeringSession(
-            autonomous_system=a_s, ixp_connection=connection, ip_address="192.0.2.64"
-        )
-        ixps4.tags = ["foo", "bar"]
-
-        return self.render(
-            {
-                "my_as": my_as,
-                "autonomous_system": a_s,
-                "internet_exchanges": [
-                    {
-                        "internet_exchange": i_x,
-                        "sessions": [],
-                        "missing_sessions": {
-                            "ipv6": ["2001:db8:a::aaaa"],
-                            "ipv4": ["192.0.2.64"],
-                        },
-                    }
-                ],
-                "direct_peering_sessions": [dps6, dps4],
-            }
-        )
