@@ -1,5 +1,5 @@
 ```no-highlight
-{#- With several affiliated autonomous systems `my_as` is be a list -#}
+{#- With several affiliated autonomous systems `my_as` is a list -#}
 {%- set my_asn = my_as.asn -%}
 Dear {{ autonomous_system.name }},
 
