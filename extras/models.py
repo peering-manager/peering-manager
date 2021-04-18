@@ -100,7 +100,7 @@ class JobResult(models.Model):
     def get_absolute_url(self):
         return reverse("extras:jobresult_details", kwargs={"pk": self.pk})
 
-    def set_status(self, status):
+    def set_status(self, status, save=True):
         """
         Helper method to change the status of the job result. If the target status is
         terminal, the completion time is also set.
@@ -112,6 +112,8 @@ class JobResult(models.Model):
             JobResultStatus.FAILED,
         ]:
             self.completed = timezone.now()
+        if save:
+            self.save()
 
     def log(
         self,
