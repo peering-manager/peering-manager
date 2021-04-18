@@ -100,7 +100,7 @@ class JobResult(models.Model):
     def get_absolute_url(self):
         return reverse("extras:jobresult_details", kwargs={"pk": self.pk})
 
-    def set_status(self, status, save=True):
+    def set_status(self, status):
         """
         Helper method to change the status of the job result. If the target status is
         terminal, the completion time is also set.
@@ -112,8 +112,6 @@ class JobResult(models.Model):
             JobResultStatus.FAILED,
         ]:
             self.completed = timezone.now()
-        if save:
-            self.save()
 
     def log(
         self,
@@ -175,20 +173,20 @@ class JobResult(models.Model):
             self.save()
 
     def mark_completed(self, log_message, obj=None, logger=None):
-        self.log(log_message, obj=obj, level_choice=LogLevel.SUCCESS, logger=logger)
         self.set_status(JobResultStatus.COMPLETED)
+        self.log(log_message, obj=obj, level_choice=LogLevel.SUCCESS, logger=logger)
 
     def mark_errored(self, log_message, obj=None, logger=None):
-        self.log(log_message, obj=obj, level_choice=LogLevel.FAILURE, logger=logger)
         self.set_status(JobResultStatus.ERRORED)
+        self.log(log_message, obj=obj, level_choice=LogLevel.FAILURE, logger=logger)
 
     def mark_failed(self, log_message, obj=None, logger=None):
-        self.log(log_message, obj=obj, level_choice=LogLevel.FAILURE, logger=logger)
         self.set_status(JobResultStatus.FAILED)
+        self.log(log_message, obj=obj, level_choice=LogLevel.FAILURE, logger=logger)
 
     def mark_running(self, log_message, obj=None, logger=None):
-        self.log(log_message, obj=obj, level_choice=LogLevel.INFO, logger=logger)
         self.set_status(JobResultStatus.RUNNING)
+        self.log(log_message, obj=obj, level_choice=LogLevel.INFO, logger=logger)
 
     def set_output(self, output, obj=None):
         self.log(
