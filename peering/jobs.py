@@ -15,7 +15,6 @@ def generate_configuration(router, job_result):
     job_result.mark_running(
         "Generating router configuration.", obj=router, logger=logger
     )
-    job_result.save()
 
     config = router.generate_configuration()
 
@@ -25,7 +24,6 @@ def generate_configuration(router, job_result):
     job_result.mark_completed(
         "Router configuration generated.", obj=router, logger=logger
     )
-    job_result.save()
 
 
 @job("default")
@@ -33,7 +31,6 @@ def import_sessions_to_internet_exchange(internet_exchange, job_result):
     job_result.mark_running(
         "Trying to import peering sessions.", obj=internet_exchange, logger=logger
     )
-    job_result.save()
 
     connections = Connection.objects.filter(
         internet_exchange_point=internet_exchange, router__isnull=False
@@ -42,7 +39,6 @@ def import_sessions_to_internet_exchange(internet_exchange, job_result):
         job_result.mark_completed(
             "No usable connections.", obj=internet_exchange, logger=logger
         )
-        job_result.save()
         return False
 
     job_result.log(
@@ -51,7 +47,6 @@ def import_sessions_to_internet_exchange(internet_exchange, job_result):
         level_choice=LogLevel.INFO,
         logger=logger,
     )
-    job_result.save()
 
     for connection in connections:
         if not connection.router or not connection.router.is_usable_for_task():
@@ -61,7 +56,6 @@ def import_sessions_to_internet_exchange(internet_exchange, job_result):
                 level_choice=LogLevel.INFO,
                 logger=logger,
             )
-            job_result.save()
             continue
 
         session_number, asn_number = internet_exchange.import_sessions(connection)
@@ -71,10 +65,8 @@ def import_sessions_to_internet_exchange(internet_exchange, job_result):
             level_choice=LogLevel.INFO,
             logger=logger,
         )
-        job_result.save()
 
     job_result.mark_completed("Import completed.", obj=internet_exchange, logger=logger)
-    job_result.save()
 
     return True
 
@@ -82,7 +74,6 @@ def import_sessions_to_internet_exchange(internet_exchange, job_result):
 @job("default")
 def poll_peering_sessions(group, job_result):
     job_result.mark_running("Polling peering session states.", obj=group, logger=logger)
-    job_result.save()
 
     success = group.poll_peering_sessions()
 
@@ -90,15 +81,12 @@ def poll_peering_sessions(group, job_result):
         job_result.mark_completed(
             "Successfully polled peering session states.", obj=group, logger=logger
         )
+        return True
     else:
         job_result.mark_failed(
             "Error while polling peering session states.", obj=group, logger=logger
         )
-        job_result.save()
         return False
-
-    job_result.save()
-    return True
 
 
 @job("default")
@@ -109,7 +97,6 @@ def set_napalm_configuration(router, commit, job_result):
     job_result.mark_running(
         "Trying to install configuration.", obj=router, logger=logger
     )
-    job_result.save()
 
     error, changes = router.set_napalm_configuration(
         router.generate_configuration(), commit=commit
@@ -120,7 +107,6 @@ def set_napalm_configuration(router, commit, job_result):
         job_result.mark_failed(
             "Failed to install configuration.", obj=router, logger=logger
         )
-        job_result.save()
         return False
 
     if not changes:
@@ -137,7 +123,6 @@ def set_napalm_configuration(router, commit, job_result):
             logger=logger,
         )
 
-    job_result.save()
     return True
 
 
@@ -147,7 +132,6 @@ def test_napalm_connection(router, job_result):
         return False
 
     job_result.mark_running("Trying to connect...", obj=router, logger=logger)
-    job_result.save()
 
     success = router.test_napalm_connection()
 
@@ -156,5 +140,4 @@ def test_napalm_connection(router, job_result):
     else:
         job_result.mark_failed("Connection failure.", obj=router, logger=logger)
 
-    job_result.save()
     return success

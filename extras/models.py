@@ -120,6 +120,7 @@ class JobResult(models.Model):
         level_choice=LogLevel.DEFAULT,
         grouping="main",
         logger=None,
+        save=True,
     ):
         """
         Stores log messages in a JobResult's `data` field.
@@ -168,6 +169,9 @@ class JobResult(models.Model):
                 log_level = logging.INFO
             logger.log(log_level, str(message))
 
+        if save:
+            self.save()
+
     def mark_completed(self, log_message, obj=None, logger=None):
         self.log(log_message, obj=obj, level_choice=LogLevel.SUCCESS, logger=logger)
         self.set_status(JobResultStatus.COMPLETED)
@@ -185,4 +189,10 @@ class JobResult(models.Model):
         self.set_status(JobResultStatus.RUNNING)
 
     def set_output(self, output, obj=None):
-        self.log(output, obj=obj, level_choice=LogLevel.DEFAULT, grouping="output")
+        self.log(
+            output,
+            obj=obj,
+            level_choice=LogLevel.DEFAULT,
+            grouping="output",
+            save=False,
+        )
