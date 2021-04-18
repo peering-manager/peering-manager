@@ -709,6 +709,7 @@ class InternetExchange(AbstractGroup):
             & (~Q(ipaddr6__in=ipv6_sessions) | ~Q(ipaddr4__in=ipv4_sessions))
         ).order_by("asn")
 
+    @transaction.atomic
     def poll_peering_sessions(self):
         # Check if we are able to get BGP details
         log = 'ignoring session states on {}, reason: "{}"'
@@ -731,54 +732,44 @@ class InternetExchange(AbstractGroup):
         if not bgp_neighbors_detail:
             return False
 
-        with transaction.atomic():
-            for vrf, as_details in bgp_neighbors_detail.items():
-                for asn, sessions in as_details.items():
-                    # Check BGP sessions found
-                    for session in sessions:
-                        ip_address = session["remote_address"]
+        for vrf, as_details in bgp_neighbors_detail.items():
+            for asn, sessions in as_details.items():
+                # Check BGP sessions found
+                for session in sessions:
+                    ip_address = session["remote_address"]
+                    self.logger.debug(
+                        f"looking for session {ip_address} in {self.name.lower()}"
+                    )
+
+                    # Check if the BGP session is on this IX
+                    try:
+                        peering_session = InternetExchangePeeringSession.objects.get(
+                            internet_exchange=self, ip_address=ip_address
+                        )
+                        # Get the BGP state for the session
+                        state = session["connection_state"].lower()
+                        received = session["received_prefix_count"]
+                        advertised = session["advertised_prefix_count"]
                         self.logger.debug(
-                            "looking for session %s in %s",
-                            ip_address,
-                            self.name.lower(),
+                            f"found session {ip_address} in {self.name.lower()} with state {state}"
                         )
 
-                        # Check if the BGP session is on this IX
-                        try:
-                            peering_session = (
-                                InternetExchangePeeringSession.objects.get(
-                                    internet_exchange=self, ip_address=ip_address
-                                )
-                            )
-                            # Get the BGP state for the session
-                            state = session["connection_state"].lower()
-                            received = session["received_prefix_count"]
-                            advertised = session["advertised_prefix_count"]
-                            self.logger.debug(
-                                "found session %s in %s with state %s",
-                                ip_address,
-                                self.name.lower(),
-                                state,
-                            )
-
-                            # Update fields
-                            peering_session.bgp_state = state
-                            peering_session.received_prefix_count = (
-                                received if received > 0 else 0
-                            )
-                            peering_session.advertised_prefix_count = (
-                                advertised if advertised > 0 else 0
-                            )
-                            # Update the BGP state of the session
-                            if peering_session.bgp_state == BGPState.ESTABLISHED:
-                                peering_session.last_established_state = timezone.now()
-                            peering_session.save()
-                        except InternetExchangePeeringSession.DoesNotExist:
-                            self.logger.debug(
-                                "session %s in %s not found",
-                                ip_address,
-                                self.name.lower(),
-                            )
+                        # Update fields
+                        peering_session.bgp_state = state
+                        peering_session.received_prefix_count = (
+                            received if received > 0 else 0
+                        )
+                        peering_session.advertised_prefix_count = (
+                            advertised if advertised > 0 else 0
+                        )
+                        # Update the BGP state of the session
+                        if peering_session.bgp_state == BGPState.ESTABLISHED:
+                            peering_session.last_established_state = timezone.now()
+                        peering_session.save()
+                    except InternetExchangePeeringSession.DoesNotExist:
+                        self.logger.debug(
+                            f"session {ip_address} in {self.name.lower()} not found"
+                        )
 
             # Save last session states update
             self.bgp_session_states_update = timezone.now()

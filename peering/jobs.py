@@ -123,12 +123,12 @@ def set_napalm_configuration(router, commit, job_result):
         job_result.save()
         return False
 
-    job_result.set_output(changes)
     if not changes:
         job_result.mark_completed(
             "No configuration to install.", obj=router, logger=logger
         )
     else:
+        job_result.set_output(changes)
         job_result.mark_completed(
             "Configuration installed."
             if commit
@@ -138,7 +138,7 @@ def set_napalm_configuration(router, commit, job_result):
         )
 
     job_result.save()
-    return success
+    return True
 
 
 @job("default")
