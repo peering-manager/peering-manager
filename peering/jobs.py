@@ -20,6 +20,13 @@ def generate_configuration(router, job_result):
 
     if config:
         job_result.set_output(config)
+    else:
+        job_result.log(
+            f"No configuration (or empty) generated.",
+            obj=router,
+            level_choice=LogLevel.INFO,
+            logger=logger,
+        )
 
     job_result.mark_completed(
         "Router configuration generated.", obj=router, logger=logger
