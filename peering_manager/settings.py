@@ -13,6 +13,7 @@ from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
 from django.core.validators import URLValidator
 
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 HOSTNAME = platform.node()
 BASE_DIR = Path(__file__).resolve().parent.parent
 DOCS_DIR = BASE_DIR / "docs"
