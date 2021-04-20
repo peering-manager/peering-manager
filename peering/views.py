@@ -1063,12 +1063,6 @@ class RouterConfiguration(PermissionRequiredMixin, View):
     permission_required = "peering.view_router_configuration"
 
     def get(self, request, pk):
-        # Asked for raw output
-        if "raw" in request.GET:
-            # TODO: remove this
-            return HttpResponse(
-                context["router_configuration"], content_type="text/plain"
-            )
         return render(
             request,
             "peering/router/configuration.html",
