@@ -244,6 +244,11 @@ urlpatterns = [
         name="internetexchange_peeringdb_import",
     ),
     path(
+        "internet-exchanges/<slug:slug>/connections/",
+        views.InternetExchangeConnections.as_view(),
+        name="internetexchange_connections",
+    ),
+    path(
         "internet-exchanges/<slug:slug>/changelog/",
         ObjectChangeLog.as_view(),
         name="internetexchange_changelog",
@@ -335,6 +340,11 @@ urlpatterns = [
     path("routers/", views.RouterList.as_view(), name="router_list"),
     path("routers/add/", views.RouterAdd.as_view(), name="router_add"),
     path("routers/<int:pk>/", views.RouterDetails.as_view(), name="router_details"),
+    path(
+        "routers/<int:pk>/connections/",
+        views.RouterConnections.as_view(),
+        name="router_connections",
+    ),
     path(
         "routers/<int:pk>/direct-peering-sessions/",
         views.RouterDirectPeeringSessions.as_view(),

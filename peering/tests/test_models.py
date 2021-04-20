@@ -5,6 +5,7 @@ from django.conf import settings
 from django.test import TestCase
 
 from devices.models import PasswordAlgorithm, Platform
+from net.models import Connection
 from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
 from peering.models import (
     AutonomousSystem,
@@ -218,55 +219,6 @@ class InternetExchangeTest(TestCase):
         )
         load_peeringdb_data()
 
-    def test_import_peering_sessions(self):
-        # Expected results
-        expected = [
-            # First case
-            (1, 1, []),
-            # Second case
-            (0, 1, []),
-            # Third case
-            (0, 1, []),
-            # Fourth case
-            (0, 0, []),
-        ]
-
-        session_lists = [
-            # First case, one new session with one new AS
-            [{"ip_address": ipaddress.ip_address("2001:db8::1"), "remote_asn": 201281}],
-            # Second case, one new session with one known AS
-            [{"ip_address": ipaddress.ip_address("192.0.2.1"), "remote_asn": 201281}],
-            # Third case, new IPv4 session on another IX but with an IP that has
-            # already been used
-            [{"ip_address": ipaddress.ip_address("192.0.2.1"), "remote_asn": 201281}],
-            # Fourth case, new IPv4 session with IPv6 prefix
-            [{"ip_address": ipaddress.ip_address("203.0.113.1"), "remote_asn": 201281}],
-        ]
-
-        prefix_lists = [
-            # First case
-            [ipaddress.ip_network("2001:db8::/64")],
-            # Second case
-            [ipaddress.ip_network("192.0.2.0/24")],
-            # Third case
-            [ipaddress.ip_network("192.0.2.0/24")],
-            # Fourth case
-            [ipaddress.ip_network("2001:db8::/64")],
-        ]
-
-        # Run test cases
-        for i in range(len(expected)):
-            ixp = InternetExchange.objects.create(
-                local_autonomous_system=self.autonomous_system,
-                name=f"Test {i}",
-                slug=f"test_{i}",
-            )
-            self.assertEqual(
-                expected[i],
-                ixp.import_peering_sessions(session_lists[i], prefix_lists[i]),
-            )
-            self.assertEqual(expected[i][1], len(ixp.get_peering_sessions()))
-
 
 class InternetExchangePeeringSessionTest(TestCase):
     @classmethod
@@ -282,17 +234,15 @@ class InternetExchangePeeringSessionTest(TestCase):
             ),
             platform=Platform.objects.get(name="Juniper Junos"),
         )
-        cls.ix = InternetExchange.objects.create(
-            name="Test Group",
-            slug="testgroup",
-            ipv6_address="2001:db8::1337",
-            ipv4_address="192.0.2.64",
-            router=cls.router,
-            check_bgp_session_states=True,
+        cls.ixp = InternetExchange.objects.create(
+            name="Test Group", slug="testgroup", check_bgp_session_states=True
+        )
+        cls.ixp_connection = Connection.objects.create(
+            vlan=2000, internet_exchange_point=cls.ixp, router=cls.router
         )
         cls.session = InternetExchangePeeringSession.objects.create(
             autonomous_system=cls.a_s,
-            internet_exchange=cls.ix,
+            ixp_connection=cls.ixp_connection,
             ip_address="2001:db8::1",
             password="mypassword",
         )
@@ -383,6 +333,7 @@ class RouterTest(TestCase):
         self.assertFalse(self.router.is_usable_for_task())
 
     def test_get_configuration_context(self):
+        # self.maxDiff = None
         for i in range(1, 6):
             AutonomousSystem.objects.create(asn=i, name=f"Test {i}")
         bgp_group = BGPGroup.objects.create(name="Test Group", slug="testgroup")
@@ -396,80 +347,37 @@ class RouterTest(TestCase):
                 enabled=bool(i % 2),
                 router=self.router,
             )
-        internet_exchange = InternetExchange.objects.create(
-            name="Test IX", slug="testix", router=self.router
+        ixp = InternetExchange.objects.create(name="Test IX", slug="test-ix")
+        ixp_connection = Connection.objects.create(
+            vlan=2000, internet_exchange_point=ixp, router=self.router
         )
         for i in range(1, 6):
             InternetExchangePeeringSession.objects.create(
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
-                internet_exchange=internet_exchange,
+                ixp_connection=ixp_connection,
                 ip_address=f"2001:db8::{i}",
                 enabled=bool(i % 2),
             )
             InternetExchangePeeringSession.objects.create(
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
-                internet_exchange=internet_exchange,
+                ixp_connection=ixp_connection,
                 ip_address=f"192.0.2.{i}",
                 enabled=bool(i % 2),
             )
 
-        # Convert to dict and merge values
-        bgp_group_dict = bgp_group.to_dict()
-        bgp_group_dict.update(
-            {
-                "sessions": {
-                    6: [
-                        session.to_dict()
-                        for session in DirectPeeringSession.objects.filter(
-                            ip_address__family=6
-                        )
-                    ],
-                    4: [
-                        session.to_dict()
-                        for session in DirectPeeringSession.objects.filter(
-                            ip_address__family=4
-                        )
-                    ],
-                }
-            }
-        )
-        internet_exchange_dict = internet_exchange.to_dict()
-        internet_exchange_dict.update(
-            {
-                "sessions": {
-                    6: [
-                        session.to_dict()
-                        for session in InternetExchangePeeringSession.objects.filter(
-                            ip_address__family=6
-                        )
-                    ],
-                    4: [
-                        session.to_dict()
-                        for session in InternetExchangePeeringSession.objects.filter(
-                            ip_address__family=4
-                        )
-                    ],
-                }
-            }
-        )
-
         # Generate expected result
         expected = {
-            "my_as": self.local_as.to_dict(),
-            "autonomous_systems": [
-                autonomous_system.to_dict()
-                for autonomous_system in AutonomousSystem.objects.exclude(
-                    pk=self.local_as.pk
-                )
-            ],
-            "bgp_groups": [bgp_group_dict],
-            "internet_exchanges": [internet_exchange_dict],
-            "routing_policies": [],
-            "communities": [],
+            "my_as": self.local_as,
+            "autonomous_systems": AutonomousSystem.objects.exclude(pk=self.local_as.pk),
+            "bgp_groups": BGPGroup.objects.all(),
+            "internet_exchanges": InternetExchange.objects.all(),
+            "routing_policies": RoutingPolicy.objects.none(),
+            "communities": Community.objects.none(),
         }
 
-        result = self.router.get_configuration_context()
-        self.assertEqual(result, expected)
+        self.assertEqual(
+            sorted(self.router.get_configuration_context()), sorted(expected)
+        )
 
     def test_napalm_bgp_neighbors_to_peer_list(self):
         # Expected results

@@ -1,5 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 
+from net.api.serializers import ConnectionNestedSerializer
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -177,24 +178,19 @@ class InternetExchangeSerializer(TaggedObjectSerializer, WriteEnabledNestedSeria
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     communities = CommunityNestedSerializer(many=True, required=False)
-    router = RouterNestedSerializer(required=False)
 
     class Meta:
         model = InternetExchange
         fields = [
             "id",
-            "peeringdb_netixlan",
-            "peeringdb_ix",
+            "peeringdb_ixlan",
             "local_autonomous_system",
             "name",
             "slug",
-            "ipv6_address",
-            "ipv4_address",
             "comments",
             "import_routing_policies",
             "export_routing_policies",
             "communities",
-            "router",
             "check_bgp_session_states",
             "bgp_session_states_update",
             "tags",
@@ -203,7 +199,6 @@ class InternetExchangeSerializer(TaggedObjectSerializer, WriteEnabledNestedSeria
             "import_routing_policies",
             "export_routing_policies",
             "communities",
-            "router",
         ]
 
 
@@ -211,7 +206,7 @@ class InternetExchangePeeringSessionSerializer(
     TaggedObjectSerializer, WriteEnabledNestedSerializer
 ):
     autonomous_system = AutonomousSystemNestedSerializer()
-    internet_exchange = InternetExchangeNestedSerializer()
+    ixp_connection = ConnectionNestedSerializer()
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
 
@@ -220,7 +215,7 @@ class InternetExchangePeeringSessionSerializer(
         fields = [
             "id",
             "autonomous_system",
-            "internet_exchange",
+            "ixp_connection",
             "ip_address",
             "password",
             "encrypted_password",

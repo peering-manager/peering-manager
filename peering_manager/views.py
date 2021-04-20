@@ -58,6 +58,13 @@ class APIRootView(APIView):
     _ignore_model_permissions = True
     exclude_from_schema = True
 
+    @staticmethod
+    def get_namespace(name, request, format):
+        return (
+            name,
+            rest_reverse(f"{name}-api:api-root", request=request, format=format),
+        )
+
     def get_view_name(self):
         return "API Root"
 
@@ -65,42 +72,13 @@ class APIRootView(APIView):
         return Response(
             OrderedDict(
                 (
-                    (
-                        "devices",
-                        rest_reverse(
-                            "devices-api:api-root", request=request, format=format
-                        ),
-                    ),
-                    (
-                        "extras",
-                        rest_reverse(
-                            "extras-api:api-root", request=request, format=format
-                        ),
-                    ),
-                    (
-                        "peering",
-                        rest_reverse(
-                            "peering-api:api-root", request=request, format=format
-                        ),
-                    ),
-                    (
-                        "peeringdb",
-                        rest_reverse(
-                            "peeringdb-api:api-root", request=request, format=format
-                        ),
-                    ),
-                    (
-                        "users",
-                        rest_reverse(
-                            "users-api:api-root", request=request, format=format
-                        ),
-                    ),
-                    (
-                        "utils",
-                        rest_reverse(
-                            "utils-api:api-root", request=request, format=format
-                        ),
-                    ),
+                    APIRootView.get_namespace("devices", request, format),
+                    APIRootView.get_namespace("extras", request, format),
+                    APIRootView.get_namespace("net", request, format),
+                    APIRootView.get_namespace("peering", request, format),
+                    APIRootView.get_namespace("peeringdb", request, format),
+                    APIRootView.get_namespace("users", request, format),
+                    APIRootView.get_namespace("utils", request, format),
                 )
             )
         )
@@ -134,7 +112,7 @@ class Home(View):
             "statistics": statistics,
             "changelog": ObjectChange.objects.select_related(
                 "user", "changed_object_type"
-            )[:50],
+            )[:15],
             "synchronizations": Synchronization.objects.all()[:5],
             "new_release": new_release,
         }

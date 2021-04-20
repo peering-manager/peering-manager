@@ -4,6 +4,7 @@ from django.core import mail
 from django.db import transaction
 from django.urls.exceptions import NoReverseMatch
 
+from net.models import Connection
 from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
 from peering.models import (
     AutonomousSystem,
@@ -251,14 +252,10 @@ class InternetExchangeTestCase(StandardTestCases.Views):
         )
 
         cls.form_data = {
-            "peeringdb_netixlan": None,
-            "peeringdb_ix": None,
+            "peeringdb_ixlan": None,
             "name": "Internet Exchange 4",
             "slug": "ix-4",
             "local_autonomous_system": local_as.pk,
-            "ipv4_address": None,
-            "ipv6_address": None,
-            "router": None,
             "communities": [],
             "export_routing_policies": [],
             "import_routing_policies": [],
@@ -279,24 +276,27 @@ class InternetExchangePeeringSessionTestCase(StandardTestCases.Views):
             asn=64501, name="Autonomous System 1", affiliated=True
         )
         cls.a_s = AutonomousSystem.objects.create(asn=64502, name="Autonomous System 2")
-        cls.ix = InternetExchange.objects.create(
+        cls.ixp = InternetExchange.objects.create(
             name="Internet Exchange 1", slug="ix-1", local_autonomous_system=local_as
+        )
+        cls.ixp_connection = Connection.objects.create(
+            vlan=2000, internet_exchange_point=cls.ixp
         )
         InternetExchangePeeringSession.objects.bulk_create(
             [
                 InternetExchangePeeringSession(
                     autonomous_system=cls.a_s,
-                    internet_exchange=cls.ix,
+                    ixp_connection=cls.ixp_connection,
                     ip_address="192.0.2.1",
                 ),
                 InternetExchangePeeringSession(
                     autonomous_system=cls.a_s,
-                    internet_exchange=cls.ix,
+                    ixp_connection=cls.ixp_connection,
                     ip_address="192.0.2.2",
                 ),
                 InternetExchangePeeringSession(
                     autonomous_system=cls.a_s,
-                    internet_exchange=cls.ix,
+                    ixp_connection=cls.ixp_connection,
                     ip_address="192.0.2.3",
                 ),
             ]
@@ -304,7 +304,7 @@ class InternetExchangePeeringSessionTestCase(StandardTestCases.Views):
 
         cls.form_data = {
             "autonomous_system": cls.a_s.pk,
-            "internet_exchange": cls.ix.pk,
+            "ixp_connection": cls.ixp_connection.pk,
             "ip_address": ipaddress.ip_address("2001:db8::4"),
             "multihop_ttl": 1,
             "password": None,

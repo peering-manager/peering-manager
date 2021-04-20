@@ -1,7 +1,7 @@
 ```no-highlight
 router bgp {{ my_as.asn }}
         {%- for internet_exchange in internet_exchanges %}
-        {%- for address_family, sessions in internet_exchange.sessions.items() %}
+        {%- for address_family, sessions in internet_exchange.sessions() %}
         {%- if sessions|length > 0 %}
    neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }} peer-group
    neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }} next-hop-self
@@ -13,13 +13,13 @@ router bgp {{ my_as.asn }}
       {%- if address_family == 6 %}
    address-family ipv6
       {%- endif %}
-      {%- if internet_exchange.import_routing_policies %}
-      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }} route-map {% for import_policy in internet_exchange.import_routing_policies %}{%- if import_policy.address_family == address_family %}{{ import_policy.slug }} {% endif %}{% endfor %}in
+      {%- if internet_exchange.import_policies() %}
+      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }} route-map {% for import_policy in internet_exchange.import_policies() %}{%- if import_policy.address_family == address_family %}{{ import_policy.slug }} {% endif %}{% endfor %}in
       {%- else %}
       neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }} route-map block-all in
       {%- endif %}
-      {%- if internet_exchange.export_routing_policies %}
-      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }} route-map {% for export_policy in internet_exchange.export_routing_policies %}{%- if export_policy.address_family == address_family %}{{ export_policy.slug }} {% endif %}{% endfor %}out
+      {%- if internet_exchange.export_policies() %}
+      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }} route-map {% for export_policy in internet_exchange.export_policies() %}{%- if export_policy.address_family == address_family %}{{ export_policy.slug }} {% endif %}{% endfor %}out
       {%- else %}
       neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }} route-map block-all out
       {%- endif %}
@@ -53,14 +53,14 @@ router bgp {{ my_as.asn }}
     {%- else %}
     no neighbor {{ session.ip_address }} shutdown
     {%- endif %}
-    {%- if session.import_routing_policies %}
+    {%- if session.import_policies() %}
     {%- if address_family == 6 %}
     address-family ipv6
     {%- endif %}
-       neighbor {{ session.ip_address }} route-map {% for import_policy in session.import_routing_policies %}{%- if (import_policy.address_family == address_family or export_policy.address_family == 0) %}{{ import_policy.slug }} {% endif %}{% endfor %}in
+       neighbor {{ session.ip_address }} route-map {% for import_policy in session.import_policies() %}{%- if (import_policy.address_family == address_family or export_policy.address_family == 0) %}{{ import_policy.slug }} {% endif %}{% endfor %}in
     {%- endif %}
-    {%- if session.export_routing_policies %}
-       neighbor {{ session.ip_address }} route-map {% for export_policy in session.export_routing_policies %}{%- if (export_policy.address_family == address_family or export_policy.address_family == 0) %}{{ export_policy.slug }} {% endif %}{% endfor %}out
+    {%- if session.export_policies() %}
+       neighbor {{ session.ip_address }} route-map {% for export_policy in session.export_policies() %}{%- if (export_policy.address_family == address_family or export_policy.address_family == 0) %}{{ export_policy.slug }} {% endif %}{% endfor %}out
     {%- endif %}
     !
 {%- endfor %}

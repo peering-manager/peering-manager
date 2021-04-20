@@ -1,0 +1,40 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% load form_helpers %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'peering:internetexchange_list' %}">Internet Exchanges</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}Import IXPs and Connections{% endblock %}</li>
+{% endblock %}
+{% block content %}
+{% for ixp, connections in missing_ixps.items %}
+<div>
+  <p class="h5">{{ ixp.ix.name }}</p>
+  {% for connection in connections %}
+  <div class="form-row align-items-center">
+    <div class="col-2">
+      <input type="text" readonly class="form-control-plaintext mb-2" value="Connection #{{ forloop.counter }} - {{ connection.speed|render_bandwidth_speed }}" disabled>
+    </div>
+    <div class="col">
+      <label class="sr-only" for="ipv4_address">IPv4 address</label>
+      <input type="text" class="form-control mb-2" id="ipv4_address" value="{{ connection.ipaddr4.ip|render_none }}" disabled>
+    </div>
+    <div class="col">
+      <label class="sr-only" for="ipv6_address">IPv6 address</label>
+      <input type="text" class="form-control mb-2" id="ipv6_address" value="{{ connection.ipaddr6.ip|render_none }}" disabled>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endfor %}
+<form method="post" class="form">
+  {% csrf_token %}
+  {% for field in form.hidden_fields %}
+  {{ field }}
+  {% endfor %}
+  <input type="hidden" name="return_url" value="{{ return_url }}" />
+  <div class="text-right">
+    <button type="submit" class="btn btn-primary">Import</button>
+    <a href="{{ return_url }}" class="btn btn-secondary">Cancel</a>
+  </div>
+</form>
+{% endblock %}

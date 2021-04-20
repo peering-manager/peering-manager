@@ -1,9 +1,9 @@
 from django import forms
 from django.conf import settings
-from django.contrib.postgres.forms.jsonb import JSONField
 from taggit.forms import TagField
 
 from devices.models import Platform
+from net.models import Connection
 from netbox.api import NetBox
 from utils.fields import CommentField, PasswordField, SlugField, TextareaField
 from utils.forms import (
@@ -448,11 +448,6 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     communities = DynamicModelMultipleChoiceField(
         required=False, queryset=Community.objects.all()
     )
-    router = DynamicModelChoiceField(
-        required=False,
-        queryset=Router.objects.all(),
-        help_text="Router connected to the Internet Exchange point",
-    )
     comments = CommentField()
     tags = TagField(required=False)
 
@@ -462,25 +457,16 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "name",
             "slug",
             "local_autonomous_system",
-            "ipv6_address",
-            "ipv4_address",
             "communities",
             "import_routing_policies",
             "export_routing_policies",
-            "router",
             "check_bgp_session_states",
             "comments",
             "tags",
         )
-        labels = {
-            "ipv6_address": "IPv6 Address",
-            "ipv4_address": "IPv4 Address",
-            "check_bgp_session_states": "Poll Peering Session States",
-        }
+        labels = {"check_bgp_session_states": "Poll Peering Session States"}
         help_texts = {
             "name": "Full name of the Internet Exchange point",
-            "ipv6_address": "IPv6 Address used to peer",
-            "ipv4_address": "IPv4 Address used to peer",
             "check_bgp_session_states": "If enabled, with a usable router, the state of peering sessions will be polled.",
         }
 
@@ -511,7 +497,6 @@ class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFo
     check_bgp_session_states = forms.NullBooleanField(
         required=False, label="Poll BGP State", widget=CustomNullBooleanSelect
     )
-    router = DynamicModelChoiceField(required=False, queryset=Router.objects.all())
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
@@ -519,7 +504,6 @@ class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFo
             "import_routing_policies",
             "export_routing_policies",
             "communities",
-            "router",
             "comments",
         ]
 
@@ -530,26 +514,17 @@ class InternetExchangePeeringDBForm(BootstrapMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("label_suffix", "")
         super().__init__(*args, **kwargs)
-        self.fields["peeringdb_netixlan"].widget = forms.HiddenInput()
-        self.fields["peeringdb_ix"].widget = forms.HiddenInput()
+        self.fields["peeringdb_ixlan"].widget = forms.HiddenInput()
 
     class Meta:
         model = InternetExchange
         fields = (
-            "peeringdb_netixlan",
-            "peeringdb_ix",
+            "peeringdb_ixlan",
             "local_autonomous_system",
             "name",
             "slug",
-            "ipv6_address",
-            "ipv4_address",
         )
-        labels = {"ipv6_address": "IPv6 Address", "ipv4_address": "IPv4 Address"}
-        help_texts = {
-            "name": "Full name of the Internet Exchange point",
-            "ipv6_address": "IPv6 Address used to peer",
-            "ipv4_address": "IPv4 Address used to peer",
-        }
+        help_texts = {"name": "Full name of the Internet Exchange point"}
 
 
 class InternetExchangePeeringDBFormSet(forms.BaseFormSet):
@@ -595,12 +570,6 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
         null_option="None",
         query_params={"type": "export-policy"},
     )
-    router_id = DynamicModelMultipleChoiceField(
-        required=False,
-        queryset=Router.objects.all(),
-        to_field_name="pk",
-        null_option="None",
-    )
     tag = TagFilterField(model)
 
 
@@ -641,8 +610,9 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
     autonomous_system = DynamicModelChoiceField(
         queryset=AutonomousSystem.objects.all(), label="Autonomous System"
     )
-    internet_exchange = DynamicModelChoiceField(
-        queryset=InternetExchange.objects.all(), label="Internet Exchange"
+    ixp_connection = DynamicModelChoiceField(
+        queryset=Connection.objects.all(),
+        label="IXP Connection",
     )
     password = PasswordField(required=False, render_value=True)
     import_routing_policies = DynamicModelMultipleChoiceField(
@@ -662,7 +632,7 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
         model = InternetExchangePeeringSession
         fields = (
             "autonomous_system",
-            "internet_exchange",
+            "ixp_connection",
             "ip_address",
             "password",
             "multihop_ttl",
@@ -689,11 +659,11 @@ class InternetExchangePeeringSessionFilterForm(BootstrapMixin, forms.Form):
         to_field_name="pk",
         label="Autonomous System",
     )
-    internet_exchange_id = DynamicModelMultipleChoiceField(
+    ixp_connection_id = DynamicModelMultipleChoiceField(
         required=False,
-        queryset=InternetExchange.objects.all(),
+        queryset=Connection.objects.all(),
         to_field_name="pk",
-        label="Internet Exchange",
+        label="IXP Connection",
     )
     address_family = forms.ChoiceField(
         required=False, choices=IPFamily.choices, widget=StaticSelect
@@ -728,7 +698,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
         label="Timeout",
         help_text="The maximum time to wait for a connection in seconds",
     )
-    napalm_args = JSONField(
+    napalm_args = forms.JSONField(
         required=False,
         label="Optional Arguments",
         help_text="See NAPALM's <a href='http://napalm.readthedocs.io/en/latest/support/#optional-arguments'>documentation</a> for a complete list of optional arguments",

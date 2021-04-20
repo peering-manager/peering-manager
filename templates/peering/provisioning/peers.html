@@ -1,5 +1,9 @@
-{% extends 'peering/provisioning/_base.html' %}
-{% block subcontent %}
+{% extends '_base.html' %}
+{% load helpers %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">{% block title %}IXP Peering Provisioning{% endblock %}</li>
+{% endblock %}
+{% block content %}
 <div class="row">
   <div class="col-md-9">
     {% include 'utils/object_list.html' with bulk_add_url='peering:internetexchangepeeringsession_add_from_peeringdb' %}
