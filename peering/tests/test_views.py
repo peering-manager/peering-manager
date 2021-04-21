@@ -53,7 +53,7 @@ class AutonomousSystemTestCase(StandardTestCases.Views):
             "irr_as_set_peeringdb_sync": False,
             "comments": "",
             "affiliated": False,
-            "tags": "",
+            "tags": [],
         }
 
 
@@ -79,7 +79,7 @@ class BGPGroupTestCase(StandardTestCases.Views):
             "export_routing_policies": [],
             "import_routing_policies": [],
             "comments": "",
-            "tags": "",
+            "tags": [],
         }
         cls.bulk_edit_data = {"comments": "New comments"}
 
@@ -103,7 +103,7 @@ class CommunityTestCase(StandardTestCases.Views):
             "value": "64500:4",
             "type": CommunityType.INGRESS,
             "comments": "",
-            "tags": "",
+            "tags": [],
         }
         cls.bulk_edit_data = {"comments": "New comments"}
 
@@ -127,7 +127,7 @@ class ConfigurationTestCase(StandardTestCases.Views):
             "name": "Configuration 4",
             "template": "Configuration 4",
             "comments": "",
-            "tags": "",
+            "tags": [],
         }
 
 
@@ -182,7 +182,7 @@ class DirectPeeringSessionTestCase(StandardTestCases.Views):
             "advertised_prefix_count": 0,
             "received_prefix_count": 0,
             "comments": "",
-            "tags": "",
+            "tags": [],
         }
         cls.bulk_edit_data = {"enabled": False, "comments": "New comments"}
 
@@ -219,7 +219,7 @@ class EmailTestCase(StandardTestCases.Views):
             "subject": "E-mail subject 4",
             "template": "E-mail template 4",
             "comments": "",
-            "tags": "",
+            "tags": [],
         }
 
 
@@ -262,7 +262,7 @@ class InternetExchangeTestCase(StandardTestCases.Views):
             "bgp_session_states_update": None,
             "check_bgp_session_states": False,
             "comments": "",
-            "tags": "",
+            "tags": [],
         }
         cls.bulk_edit_data = {"comments": "New comments"}
 
@@ -318,7 +318,7 @@ class InternetExchangePeeringSessionTestCase(StandardTestCases.Views):
             "advertised_prefix_count": 0,
             "received_prefix_count": 0,
             "comments": "",
-            "tags": "",
+            "tags": [],
         }
         cls.bulk_edit_data = {
             "is_route_server": True,
@@ -372,7 +372,7 @@ class RouterTestCase(StandardTestCases.Views):
             "netbox_device_id": 0,
             "use_netbox": False,
             "comments": "",
-            "tags": "",
+            "tags": [],
             "napalm_args": None,
             "napalm_password": None,
             "napalm_timeout": 30,
@@ -416,6 +416,6 @@ class RoutingPolicyTestCase(StandardTestCases.Views):
             "address_family": 6,
             "weight": 1,
             "comments": "",
-            "tags": "",
+            "tags": [],
         }
         cls.bulk_edit_data = {"weight": 10, "comments": "New comments"}

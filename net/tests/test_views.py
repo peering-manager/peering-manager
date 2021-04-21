@@ -70,5 +70,5 @@ class ConnectionTestCase(StandardTestCases.Views):
             "description": "",
             "interface": "",
             "comments": "",
-            "tags": "",
+            "tags": [],
         }
