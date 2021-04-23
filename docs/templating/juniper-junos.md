@@ -1,30 +1,28 @@
 ```no-highlight
 protocols {
     bgp {
-        {%- for internet_exchange in internet_exchanges %}
-        {%- for address_family, sessions in internet_exchange.sessions() %}
-        {%- if sessions|length > 0 %}
-        replace: group ipv{{ address_family }}-{{ internet_exchange.slug }} {
+        {%- for ixp in internet_exchanges %}
+        {%- for family, sessions in ixp.sessions() %}
+        replace: group ipv{{ family }}-{{ ixp.slug }} {
             type external;
             multipath;
             advertise-inactive;
-            {%- if internet_exchange.import_policies() %}
-            import [ {{ internet_exchange.import_policies() | map(attribute='slug') | join(' ') }} ];
-            {%- else %}
-            import import-all;
+            {%- if ixp.import_policies() %}
+            import [ {{ ixp | iter_import_policies('slug') | join(' ') }} ];
             {%- endif %}
-            family {% if address_family == 6 %}inet6{% else %}inet{% endif %} {
+            family inet{% if family == 6 %}6{% endif %} {
                 unicast;
             }
-            {%- if internet_exchange.export_policies() %}
-            export [ {{ internet_exchange.export_policies() | map(attribute='slug') | join(' ') }} ];
-            {%- else %}
-            export export-all;
+            {%- if ixp.export_policies() %}
+            export [ {{ ixp | iter_export_policies('slug') | join(' ') }} ];
             {%- endif %}
             {%- for session in sessions %}
-            {% if not session.enabled %}inactive: {% endif %}neighbor {{ session.ip_address }} {
+            neighbor {{ session.ip_address }} {
+                {%- if not session.enabled %}
+                disable;
+                {%- endif %}
                 description "Peering: AS{{ session.autonomous_system.asn }} - {{ session.autonomous_system.name }}";
-                {%- if address_family == 6 and session.autonomous_system.ipv6_max_prefixes > 0 %}
+                {%- if family == 6 and session.autonomous_system.ipv6_max_prefixes > 0 %}
                 family inet6 {
                     unicast {
                         prefix-limit {
@@ -33,7 +31,7 @@ protocols {
                     }
                 }
                 {%- endif %}
-                {%- if address_family == 4 and session.autonomous_system.ipv4_max_prefixes > 0 %}
+                {%- if family == 4 and session.autonomous_system.ipv4_max_prefixes > 0 %}
                 family inet {
                     unicast {
                         prefix-limit {
@@ -43,10 +41,10 @@ protocols {
                 }
                 {%- endif %}
                 {%- if session.import_policies() %}
-                import [ {{ session.import_policies() | map(attribute='slug') | join(' ') }} ];
+                import [ {{ session | iter_import_policies('slug') | join(' ') }} ];
                 {%- endif %}
                 {%- if session.export_policies() %}
-                export [ {{ session.export_policies() | map(attribute='slug') | join(' ') }} ];
+                export [ {{ session | iter_export_policies('slug') | join(' ') }} ];
                 {%- endif %}
                 {%- if session.password %}
                 {%- if session.encrypted_password %}
@@ -59,34 +57,31 @@ protocols {
             }
             {%- endfor %}
         }
-        {%- endif %}
         {%- endfor %}
         {%- endfor %}
 
-        {%- for bgp_group in bgp_groups %}
-        {%- for address_family, sessions in bgp_group.sessions() %}
-        {%- if sessions|length > 0 %}
-        replace: group ipv{{ address_family }}-{{ bgp_group.slug }} {
+        {%- for group in bgp_groups %}
+        {%- for family, sessions in group.sessions() %}
+        replace: group ipv{{ family }}-{{ group.slug }} {
             type external;
             multipath;
             advertise-inactive;
-            {%- if bgp_group.import_policies() %}
-            import [ {{ bgp_group.import_policies() | map(attribute='slug') | join(' ') }} ];
-            {%- else %}
-            import import-all;
+            {%- if group.import_policies() %}
+            import [ {{ group | iter_import_policies('slug') | join(' ') }} ];
             {%- endif %}
-            family {% if address_family == 6 %}inet6{% else %}inet{% endif %} {
+            family inet{% if family == 6 %}6{% endif %} {
                 unicast;
             }
-            {%- if bgp_group.export_policies() %}
-            export [ {{ bgp_group.export_policies() | map(attribute='slug') | join(' ') }} ];
-            {%- else %}
-            export export-all;
+            {%- if group.export_policies() %}
+            export [ {{ group | iter_export_policies('slug') | join(' ') }} ];
             {%- endif %}
             {%- for session in sessions %}
-            {% if not session.enabled %}inactive: {% endif %}neighbor {{ session.ip_address }} {
+            neighbor {{ session.ip_address }} {
+                {%- if not session.enabled %}
+                disable;
+                {%- endif %}
                 description "Peering: AS{{ session.autonomous_system.asn }} - {{ session.autonomous_system.name }}";
-                {%- if address_family == 6 and session.autonomous_system.ipv6_max_prefixes > 0 %}
+                {%- if family == 6 and session.autonomous_system.ipv6_max_prefixes > 0 %}
                 family inet6 {
                     unicast {
                         prefix-limit {
@@ -95,7 +90,7 @@ protocols {
                     }
                 }
                 {%- endif %}
-                {%- if address_family == 4 and session.autonomous_system.ipv4_max_prefixes > 0 %}
+                {%- if family == 4 and session.autonomous_system.ipv4_max_prefixes > 0 %}
                 family inet {
                     unicast {
                         prefix-limit {
@@ -104,11 +99,11 @@ protocols {
                     }
                 }
                 {%- endif %}
-                {%- if session.import_policies() %}
-                import [ {{ session.import_policies() | map(attribute='slug') | join(' ') }} ];
+                {%- if session.import_routing_policies %}
+                import [ {{ session | iter_import_policies('slug') | join(' ') }} ];
                 {%- endif %}
-                {%- if session.export_policies() %}
-                export [ {{ session.export_policies() | map(attribute='slug') | join(' ') }} ];
+                {%- if session.export_routing_policies %}
+                export [ {{ session | iter_export_policies('slug') | join(' ') }} ];
                 {%- endif %}
                 {%- if session.password %}
                 {%- if session.encrypted_password %}
@@ -121,14 +116,13 @@ protocols {
             }
             {%- endfor %}
         }
-        {%- endif %}
         {%- endfor %}
         {%- endfor %}
     }
 }
 policy-options {
-    {%- for community in communities %}
-    community {{ community.name }} members {{ community.value }};
+    {%- for c in communities %}
+    community {{ c.name }} members {{ c.value }};
     {%- endfor %}
 }
 ```

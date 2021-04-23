@@ -12,28 +12,34 @@ def cisco_password(password):
     return password
 
 
-def iter_export_policies(value, field=None):
+def iter_export_policies(value, field=""):
     """
     Returns a list of policies to apply on export.
     """
     if not hasattr(value, "export_policies"):
-        raise AttributeError("value has not export policies")
+        raise AttributeError("{value} has not export policies")
 
-    if type(field) is str and not hasattr(value, field):
-        raise AttributeError(f"value has not field '{field}")
+    if type(field) is not str:
+        raise AttributeError(f"field must be a string'")
+
+    if field:
+        return [getattr(rp, field) for rp in value.export_policies()]
 
     return list(value.export_policies())
 
 
-def iter_import_policies(value, field=None):
+def iter_import_policies(value, field=""):
     """
     Returns a list of policies to apply on import.
     """
     if not hasattr(value, "import_policies"):
-        raise AttributeError("value has not import policies")
+        raise AttributeError("{value} has not import policies")
 
-    if type(field) is str and not hasattr(value, field):
-        raise AttributeError(f"value has not field '{field}")
+    if type(field) is not str:
+        raise AttributeError(f"field must be a string'")
+
+    if field:
+        return [getattr(rp, field) for rp in value.import_policies()]
 
     return list(value.import_policies())
 
