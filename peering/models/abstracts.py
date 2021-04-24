@@ -119,20 +119,18 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
         """
         if self.bgp_state == BGPState.IDLE:
             badge = "danger"
-        elif self.bgp_state in [BGPState.CONNECT, BGPState.ACTIVE]:
+        elif self.bgp_state in (BGPState.CONNECT, BGPState.ACTIVE):
             badge = "warning"
-        elif self.bgp_state in [BGPState.OPENSENT, BGPState.OPENCONFIRM]:
+        elif self.bgp_state in (BGPState.OPENSENT, BGPState.OPENCONFIRM):
             badge = "info"
         elif self.bgp_state == BGPState.ESTABLISHED:
             badge = "success"
         else:
             badge = "secondary"
 
-        text = '<span class="badge badge-{}">{}</span>'.format(
-            badge, self.get_bgp_state_display() or "Unknown"
+        return mark_safe(
+            f'<span class="badge badge-{badge}">{self.get_bgp_state_display() or "Unknown"}</span>'
         )
-
-        return mark_safe(text)
 
     def encrypt_password(self, commit=True):
         """

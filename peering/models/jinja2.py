@@ -44,6 +44,30 @@ def iter_import_policies(value, field=""):
     return list(value.import_policies())
 
 
+def merge_export_policies(value, order=""):
+    """
+    Merges and returns policy list for export.
+
+    If duplicates are found, only the most specific one will be kept.
+    """
+    if not hasattr(value, "merged_export_policies"):
+        raise AttributeError("{value} has not merged export policies")
+
+    return value.merged_export_policies(order == "reverse")
+
+
+def merge_import_policies(value, order=""):
+    """
+    Merges and returns policy list for import.
+
+    If duplicates are found, only the most specific one will be kept.
+    """
+    if not hasattr(value, "merged_import_policies"):
+        raise AttributeError("{value} has not merged import policies")
+
+    return value.merged_import_policies(order == "reverse")
+
+
 def iter_sessions(value):
     """
     Yields a session and its address family at each call.
@@ -78,16 +102,21 @@ def prefix_list(asn, address_family=0):
         raise ValueError("value must be an autonomous system number")
 
 
-def tags(obj):
-    if not isinstance(obj, TaggableModel):
+def tags(value):
+    """
+    Returns an iterable containing tags if the object as any.
+    """
+    if not isinstance(value, TaggableModel):
         raise AttributeError("object has not tags")
-    return obj.tags.all()
+    return value.tags.all()
 
 
 FILTER_DICT = {
     "cisco_password": cisco_password,
     "iter_export_policies": iter_export_policies,
     "iter_import_policies": iter_import_policies,
+    "merge_export_policies": merge_export_policies,
+    "merge_import_policies": merge_import_policies,
     "iter_sessions": iter_sessions,
     "iter_all_sessions": iter_all_sessions,
     "prefix_list": prefix_list,
