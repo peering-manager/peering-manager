@@ -20,9 +20,8 @@ class Command(BaseCommand):
         self.logger.info("Getting prefixes for AS with IRR AS-SETs")
 
         for autonomous_system in AutonomousSystem.objects.all():
-            prefixes = autonomous_system.retrieve_irr_as_set_prefixes()
-
             try:
+                prefixes = autonomous_system.retrieve_irr_as_set_prefixes()
                 if (
                     "limit" in options
                     and options["limit"] is not None
@@ -44,8 +43,11 @@ class Command(BaseCommand):
                             options["limit"],
                         )
                         prefixes["ipv4"] = []
-            except ValueError:
-                pass
+            except ValueError as e:
+                self.logger.warn(
+                    "Error fetching prefixes for as%s: %s", autonomous_system.asn, e
+                )
+                prefixes = dict(ipv6=[], ipv4=[])
 
             autonomous_system.prefixes = prefixes
             autonomous_system.save()
