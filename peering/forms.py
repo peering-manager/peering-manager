@@ -15,6 +15,7 @@ from utils.forms import (
     CustomNullBooleanSelect,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
+    JSONField,
     SmallTextarea,
     StaticSelect,
     StaticSelectMultiple,
@@ -96,14 +97,10 @@ class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
             "tags",
         )
         labels = {
-            "asn": "ASN",
-            "irr_as_set": "IRR AS-SET",
-            "ipv6_max_prefixes": "IPv6 Max Prefixes",
-            "ipv4_max_prefixes": "IPv4 Max Prefixes",
             "name_peeringdb_sync": "Name",
             "irr_as_set_peeringdb_sync": "IRR AS-SET",
-            "ipv6_max_prefixes_peeringdb_sync": "IPv6 Max Prefixes",
-            "ipv4_max_prefixes_peeringdb_sync": "IPv4 Max Prefixes",
+            "ipv6_max_prefixes_peeringdb_sync": "IPv6 max prefixes",
+            "ipv4_max_prefixes_peeringdb_sync": "IPv4 max prefixes",
         }
         help_texts = {
             "asn": "BGP autonomous system number (32-bit capable)",
@@ -116,17 +113,17 @@ class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
     model = AutonomousSystem
     q = forms.CharField(required=False, label="Search")
     asn = forms.IntegerField(required=False, label="ASN")
-    ipv6_max_prefixes = forms.IntegerField(required=False, label="IPv6 Max Prefixes")
-    ipv4_max_prefixes = forms.IntegerField(required=False, label="IPv4 Max Prefixes")
+    ipv6_max_prefixes = forms.IntegerField(required=False, label="IPv6 max prefixes")
+    ipv4_max_prefixes = forms.IntegerField(required=False, label="IPv4 max prefixes")
     affiliated = forms.NullBooleanField(required=False, widget=CustomNullBooleanSelect)
     tag = TagFilterField(model)
 
 
 class AutonomousSystemEmailForm(BootstrapMixin, forms.Form):
     email = DynamicModelChoiceField(required=False, queryset=Email.objects.all())
-    recipient = forms.ChoiceField(widget=StaticSelect, label="E-mail Recipient")
-    subject = forms.CharField(label="E-mail Subject")
-    body = TextareaField(label="E-mail Body")
+    recipient = forms.ChoiceField(widget=StaticSelect, label="E-mail recipient")
+    subject = forms.CharField(label="E-mail subject")
+    body = TextareaField(label="E-mail body")
 
 
 class BGPGroupForm(BootstrapMixin, forms.ModelForm):
@@ -162,7 +159,7 @@ class BGPGroupForm(BootstrapMixin, forms.ModelForm):
             "check_bgp_session_states",
             "tags",
         )
-        labels = {"check_bgp_session_states": "Poll Peering Session States"}
+        labels = {"check_bgp_session_states": "Poll peering session states"}
         help_texts = {
             "name": "Full name of the BGP group",
             "check_bgp_session_states": "If enabled, the state of peering sessions will be polled.",
@@ -266,11 +263,8 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     local_autonomous_system = DynamicModelChoiceField(
         queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
-        label="Local Autonomous System",
     )
-    autonomous_system = DynamicModelChoiceField(
-        queryset=AutonomousSystem.objects.all(), label="Autonomous System"
-    )
+    autonomous_system = DynamicModelChoiceField(queryset=AutonomousSystem.objects.all())
     bgp_group = DynamicModelChoiceField(
         required=False, queryset=BGPGroup.objects.all(), label="BGP Group"
     )
@@ -330,7 +324,6 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEd
         required=False,
         queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
-        label="Local Autonomous System",
     )
     enabled = forms.NullBooleanField(
         required=False, label="Enable", widget=CustomNullBooleanSelect
@@ -341,7 +334,7 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEd
         widget=StaticSelect,
     )
     bgp_group = DynamicModelChoiceField(
-        required=False, queryset=BGPGroup.objects.all(), label="BGP Group"
+        required=False, queryset=BGPGroup.objects.all(), label="BGP group"
     )
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
@@ -373,27 +366,25 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
         queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
         to_field_name="pk",
-        label="Local Autonomous System",
+        label="Local autonomous system",
     )
     autonomous_system_id = DynamicModelChoiceField(
         required=False,
         queryset=AutonomousSystem.objects.all(),
         to_field_name="pk",
-        label="Autonomous System",
+        label="Autonomous system",
     )
     bgp_group_id = DynamicModelMultipleChoiceField(
         required=False,
         queryset=BGPGroup.objects.all(),
         to_field_name="pk",
-        label="BGP Group",
         null_option="None",
+        label="BGP group",
     )
     address_family = forms.ChoiceField(
         required=False, choices=IPFamily.choices, widget=StaticSelect
     )
-    enabled = forms.NullBooleanField(
-        required=False, label="Enabled", widget=CustomNullBooleanSelect
-    )
+    enabled = forms.NullBooleanField(required=False, widget=CustomNullBooleanSelect)
     relationship = forms.MultipleChoiceField(
         required=False, choices=BGPRelationship.choices, widget=StaticSelectMultiple
     )
@@ -433,7 +424,6 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     local_autonomous_system = DynamicModelChoiceField(
         queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
-        label="Local Autonomous System",
     )
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
@@ -464,7 +454,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "comments",
             "tags",
         )
-        labels = {"check_bgp_session_states": "Poll Peering Session States"}
+        labels = {"check_bgp_session_states": "Poll peering session states"}
         help_texts = {
             "name": "Full name of the Internet Exchange point",
             "check_bgp_session_states": "If enabled, with a usable router, the state of peering sessions will be polled.",
@@ -479,7 +469,6 @@ class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFo
         required=False,
         queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
-        label="Local Autonomous System",
     )
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
@@ -495,7 +484,9 @@ class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFo
         required=False, queryset=Community.objects.all()
     )
     check_bgp_session_states = forms.NullBooleanField(
-        required=False, label="Poll BGP State", widget=CustomNullBooleanSelect
+        required=False,
+        label="Poll peering session states",
+        widget=CustomNullBooleanSelect,
     )
     comments = CommentField(widget=SmallTextarea)
 
@@ -527,26 +518,6 @@ class InternetExchangePeeringDBForm(BootstrapMixin, forms.ModelForm):
         help_texts = {"name": "Full name of the Internet Exchange point"}
 
 
-class InternetExchangePeeringDBFormSet(forms.BaseFormSet):
-    def clean(self):
-        """
-        Check if slugs are uniques accross forms.
-        """
-        if any(self.errors):
-            # Don't bother validating the formset unless each form is valid on
-            # its own
-            return
-
-        slugs = []
-        for form in self.forms:
-            slug = form.cleaned_data["slug"]
-            if slug in slugs:
-                raise forms.ValidationError(
-                    "Internet Exchanges must have distinct slugs."
-                )
-            slugs.append(slug)
-
-
 class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
     model = InternetExchange
     q = forms.CharField(required=False, label="Search")
@@ -554,7 +525,6 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
         required=False,
         queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
-        label="Local Autonomous System",
     )
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
@@ -581,11 +551,9 @@ class InternetExchangePeeringSessionBulkEditForm(
         widget=forms.MultipleHiddenInput,
     )
     is_route_server = forms.NullBooleanField(
-        required=False, label="Route Server", widget=CustomNullBooleanSelect
+        required=False, label="Route server", widget=CustomNullBooleanSelect
     )
-    enabled = forms.NullBooleanField(
-        required=False, label="Enable", widget=CustomNullBooleanSelect
-    )
+    enabled = forms.NullBooleanField(required=False, widget=CustomNullBooleanSelect)
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
@@ -607,12 +575,10 @@ class InternetExchangePeeringSessionBulkEditForm(
 
 
 class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
-    autonomous_system = DynamicModelChoiceField(
-        queryset=AutonomousSystem.objects.all(), label="Autonomous System"
-    )
+    autonomous_system = DynamicModelChoiceField(queryset=AutonomousSystem.objects.all())
     ixp_connection = DynamicModelChoiceField(
         queryset=Connection.objects.all(),
-        label="IXP Connection",
+        label="IXP connection",
     )
     password = PasswordField(required=False, render_value=True)
     import_routing_policies = DynamicModelMultipleChoiceField(
@@ -643,7 +609,6 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "comments",
             "tags",
         )
-        labels = {"ip_address": "IP Address", "is_route_server": "Route Server"}
         help_texts = {
             "ip_address": "IPv6 or IPv4 address",
             "is_route_server": "Define if this session is with a route server",
@@ -657,28 +622,26 @@ class InternetExchangePeeringSessionFilterForm(BootstrapMixin, forms.Form):
         required=False,
         queryset=AutonomousSystem.objects.all(),
         to_field_name="pk",
-        label="Autonomous System",
+        label="Autonomous system",
     )
     ixp_connection_id = DynamicModelMultipleChoiceField(
         required=False,
         queryset=Connection.objects.all(),
         to_field_name="pk",
-        label="IXP Connection",
+        label="IXP connection",
     )
     address_family = forms.ChoiceField(
         required=False, choices=IPFamily.choices, widget=StaticSelect
     )
     is_route_server = forms.NullBooleanField(
-        required=False, label="Route Server", widget=CustomNullBooleanSelect
+        required=False, label="Route server", widget=CustomNullBooleanSelect
     )
-    enabled = forms.NullBooleanField(
-        required=False, label="Enabled", widget=CustomNullBooleanSelect
-    )
+    enabled = forms.NullBooleanField(required=False, widget=CustomNullBooleanSelect)
     tag = TagFilterField(model)
 
 
 class RouterForm(BootstrapMixin, forms.ModelForm):
-    netbox_device_id = forms.IntegerField(label="NetBox Device", initial=0)
+    netbox_device_id = forms.IntegerField(label="NetBox device", initial=0)
     platform = DynamicModelChoiceField(required=False, queryset=Platform.objects.all())
     configuration_template = DynamicModelChoiceField(
         required=False,
@@ -689,7 +652,6 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
     local_autonomous_system = DynamicModelChoiceField(
         queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
-        label="Local Autonomous System",
     )
     napalm_username = forms.CharField(required=False, label="Username")
     napalm_password = PasswordField(required=False, render_value=True, label="Password")
@@ -698,9 +660,9 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
         label="Timeout",
         help_text="The maximum time to wait for a connection in seconds",
     )
-    napalm_args = forms.JSONField(
+    napalm_args = JSONField(
         required=False,
-        label="Optional Arguments",
+        label="Optional arguments",
         help_text="See NAPALM's <a href='http://napalm.readthedocs.io/en/latest/support/#optional-arguments'>documentation</a> for a complete list of optional arguments",
         widget=SmallTextarea,
     )
@@ -717,7 +679,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
 
         if settings.NETBOX_API:
             self.fields["netbox_device_id"] = forms.ChoiceField(
-                label="NetBox Device",
+                label="NetBox device",
                 choices=[(0, "---------")]
                 + [
                     (device.id, device.display_name)
@@ -754,7 +716,6 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
             "comments",
             "tags",
         )
-        labels = {"use_netbox": "Use NetBox"}
         help_texts = {"hostname": "Router hostname (must be resolvable) or IP address"}
 
 
@@ -766,11 +727,10 @@ class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         required=False,
         queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
-        label="Local Autonomous System",
     )
     platform = DynamicModelChoiceField(required=False, queryset=Platform.objects.all())
     encrypt_passwords = forms.NullBooleanField(
-        required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
+        required=False, widget=CustomNullBooleanSelect
     )
     configuration_template = DynamicModelChoiceField(
         required=False, queryset=Configuration.objects.all()
@@ -794,7 +754,7 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
         required=False,
         queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
-        label="Local Autonomous System",
+        label="Local autonomous system",
     )
     platform_id = DynamicModelMultipleChoiceField(
         required=False,
@@ -809,7 +769,7 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
         widget=StaticSelect,
     )
     encrypt_passwords = forms.NullBooleanField(
-        required=False, label="Encrypt Passwords", widget=CustomNullBooleanSelect
+        required=False, widget=CustomNullBooleanSelect
     )
     configuration_template_id = DynamicModelMultipleChoiceField(
         required=False,

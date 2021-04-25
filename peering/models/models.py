@@ -32,18 +32,24 @@ from .mixins import PolicyMixin
 
 
 class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
-    asn = ASNField(unique=True)
+    asn = ASNField(unique=True, verbose_name="ASN")
     name = models.CharField(max_length=128)
     name_peeringdb_sync = models.BooleanField(default=True)
     contact_name = models.CharField(max_length=50, blank=True)
     contact_phone = models.CharField(max_length=20, blank=True)
-    contact_email = models.EmailField(blank=True, verbose_name="Contact E-mail")
+    contact_email = models.EmailField(blank=True, verbose_name="Contact e-mail")
     comments = models.TextField(blank=True)
-    irr_as_set = models.CharField(max_length=255, blank=True, null=True)
+    irr_as_set = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="IRR AS-SET"
+    )
     irr_as_set_peeringdb_sync = models.BooleanField(default=True)
-    ipv6_max_prefixes = models.PositiveIntegerField(blank=True, default=0)
+    ipv6_max_prefixes = models.PositiveIntegerField(
+        blank=True, default=0, verbose_name="IPv6 max prefix"
+    )
     ipv6_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
-    ipv4_max_prefixes = models.PositiveIntegerField(blank=True, default=0)
+    ipv4_max_prefixes = models.PositiveIntegerField(
+        blank=True, default=0, verbose_name="IPv4 max prefix"
+    )
     ipv4_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
     import_routing_policies = models.ManyToManyField(
         "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
@@ -501,14 +507,17 @@ class DirectPeeringSession(BGPSession):
         null=True,
     )
     local_ip_address = InetAddressField(
-        store_prefix_length=False, blank=True, null=True
+        store_prefix_length=False,
+        blank=True,
+        null=True,
+        verbose_name="Local IP address",
     )
     bgp_group = models.ForeignKey(
         "BGPGroup",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
-        verbose_name="BGP Group",
+        verbose_name="BGP group",
     )
     relationship = models.CharField(
         max_length=50,
@@ -848,9 +857,14 @@ class InternetExchange(AbstractGroup):
 
 class InternetExchangePeeringSession(BGPSession):
     ixp_connection = models.ForeignKey(
-        "net.Connection", on_delete=models.CASCADE, null=True
+        "net.Connection",
+        on_delete=models.CASCADE,
+        null=True,
+        verbose_name="IXP connection",
     )
-    is_route_server = models.BooleanField(blank=True, default=False)
+    is_route_server = models.BooleanField(
+        blank=True, default=False, verbose_name="Route server"
+    )
 
     class Meta(BGPSession.Meta):
         ordering = ["autonomous_system", "ixp_connection", "ip_address"]
@@ -991,7 +1005,9 @@ class Router(ChangeLoggedModel, TaggableModel):
         blank=True,
         help_text="State of the device for configuration pushes",
     )
-    netbox_device_id = models.PositiveIntegerField(blank=True, default=0)
+    netbox_device_id = models.PositiveIntegerField(
+        blank=True, default=0, verbose_name="NetBox device"
+    )
     use_netbox = models.BooleanField(
         blank=True,
         default=False,

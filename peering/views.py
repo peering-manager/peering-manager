@@ -60,7 +60,6 @@ from .forms import (
     InternetExchangeFilterForm,
     InternetExchangeForm,
     InternetExchangePeeringDBForm,
-    InternetExchangePeeringDBFormSet,
     InternetExchangePeeringSessionBulkEditForm,
     InternetExchangePeeringSessionFilterForm,
     InternetExchangePeeringSessionForm,

@@ -69,7 +69,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
     """
 
     autonomous_system = models.ForeignKey("AutonomousSystem", on_delete=models.CASCADE)
-    ip_address = InetAddressField(store_prefix_length=False)
+    ip_address = InetAddressField(store_prefix_length=False, verbose_name="IP address")
     password = models.CharField(max_length=255, blank=True, null=True)
     encrypted_password = models.CharField(max_length=255, blank=True, null=True)
     multihop_ttl = TTLField(

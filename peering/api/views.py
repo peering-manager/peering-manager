@@ -38,7 +38,7 @@ from peering.models import (
 )
 from peeringdb.api.serializers import NetworkIXLanSerializer
 from utils.api import ModelViewSet, ServiceUnavailable, StaticChoicesViewSet
-from utils.functions import enqueue_background_task, get_serializer_for_model
+from utils.functions import get_serializer_for_model
 
 from .serializers import (
     AutonomousSystemSerializer,

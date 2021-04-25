@@ -6,6 +6,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Count
 from django.forms import BoundField
+from django.forms.fields import InvalidJSONInput
+from django.forms.fields import JSONField as _JSONField
 from django.urls import reverse
 from taggit.forms import TagField
 
@@ -93,6 +95,27 @@ class SmallTextarea(forms.Textarea):
     """
 
     pass
+
+
+class JSONField(_JSONField):
+    """
+    Overrides Django's built-in JSONField to avoid presenting "null" as the default text.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.help_text:
+            self.help_text = (
+                'Enter data in <a href="https://json.org/">JSON</a> format.'
+            )
+            self.widget.attrs["placeholder"] = ""
+
+    def prepare_value(self, value):
+        if isinstance(value, InvalidJSONInput):
+            return value
+        if value is None:
+            return ""
+        return json.dumps(value, sort_keys=True, indent=4)
 
 
 class APISelect(forms.Select):
