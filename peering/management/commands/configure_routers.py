@@ -17,43 +17,46 @@ class Command(BaseCommand):
             action="store_true",
             help="Do not check for configuration changes before commiting them.",
         )
+        parser.add_argument(
+            "--limit",
+            nargs="?",
+            help="Limit the configuration to the given set of routers (comma separated).",
+        )
 
     def handle(self, *args, **options):
+        routers = Router.objects.all()
+        if options["limit"]:
+            routers = routers.filter(hostname__in=options["limit"].split(","))
+
         configured = []
         self.logger.info("Deploying configurations...")
 
-        for router in Router.objects.all():
+        for r in routers:
             # Only apply configuration if the device is in an enabled state
-            if router.device_state != DeviceState.ENABLED:
+            if r.device_state != DeviceState.ENABLED:
                 self.logger.info(
-                    "%s is in a %s state, not applying configuration",
-                    router.hostname,
-                    router.device_state,
+                    f"{r.hostname} is in a {r.device_state} state, not applying configuration"
                 )
                 continue
 
             # Configuration can be applied only if there is a template and the router
             # is running on a supported platform
-            if router.configuration_template and router.platform:
-                self.logger.info("Configuring %s", router.hostname)
+            if r.configuration_template and r.platform:
+                self.logger.info(f"Configuring {r.hostname}")
                 # Generate configuration and apply it something has changed
-                configuration = router.generate_configuration()
-                error, changes = router.set_napalm_configuration(
+                configuration = r.generate_configuration()
+                error, changes = r.set_napalm_configuration(
                     configuration, commit=options["no_commit_check"]
                 )
                 if not options["no_commit_check"] and not error and changes:
-                    router.set_napalm_configuration(configuration, commit=True)
-                    configured.append(router)
+                    r.set_napalm_configuration(configuration, commit=True)
+                    configured.append(r)
             else:
-                self.logger.info(
-                    "Ignoring %s, no configuration to apply", router.hostname
-                )
+                self.logger.info(f"Ignoring {r.hostname}, no configuration to apply")
 
         if configured:
             self.logger.info(
-                "Configurations deployed on %s router%s",
-                len(configured),
-                pluralize(len(configured)),
+                f"Configurations deployed on {len(configured)} router{pluralize(len(configured))}"
             )
         else:
             self.logger.info("No configuration changes to apply")

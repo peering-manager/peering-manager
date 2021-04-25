@@ -52,6 +52,10 @@ If the `--no-commit-check` flag is set, the command will try to push the
 configuration on the router without checking if there are any changes to be
 deployed.
 
+If the `--limit` flag is set, it expects a list of router hostnames on which
+the new configuration must be installed. The router hostnames must be
+separated by commas without spaces.
+
 If no configuration template is attached to a given router, it will be ignored
 during the execution of the task.
 
