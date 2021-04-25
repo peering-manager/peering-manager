@@ -63,6 +63,8 @@ class Address(models.Model):
 
 class Organization(Address):
     name = models.CharField(max_length=255, unique=True)
+    name_long = models.CharField(max_length=255, blank=True)
+    aka = models.CharField(max_length=255, blank=True, verbose_name="Also Known As")
     website = URLField(blank=True)
     notes = models.TextField(blank=True)
 
@@ -72,6 +74,8 @@ class Organization(Address):
 
 class Facility(Address):
     name = models.CharField(max_length=255, unique=True)
+    name_long = models.CharField(max_length=255, blank=True)
+    aka = models.CharField(max_length=255, blank=True, verbose_name="Also Known As")
     website = URLField(blank=True)
     clli = models.CharField(max_length=18, blank=True)
     rencode = models.CharField(max_length=18, blank=True)
@@ -98,6 +102,7 @@ class Facility(Address):
 class Network(models.Model):
     asn = ASNField(unique=True, verbose_name="ASN")
     name = models.CharField(max_length=255, unique=True)
+    name_long = models.CharField(max_length=255, blank=True)
     aka = models.CharField(max_length=255, blank=True, verbose_name="Also Known As")
     irr_as_set = models.CharField(
         max_length=255,
@@ -174,7 +179,8 @@ class Network(models.Model):
 
 class InternetExchange(models.Model):
     name = models.CharField(max_length=64, unique=True)
-    name_long = models.CharField(max_length=254, blank=True)
+    name_long = models.CharField(max_length=255, blank=True)
+    aka = models.CharField(max_length=255, blank=True, verbose_name="Also Known As")
     city = models.CharField(max_length=192)
     country = models.CharField(max_length=7, blank=True)
     notes = models.TextField(blank=True)
