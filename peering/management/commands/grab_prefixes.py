@@ -55,7 +55,7 @@ class Command(BaseCommand):
                     )
                     prefixes = dict(ipv6=[], ipv4=[])
                 else:
-                    raise(e)
+                    raise (e)
 
             autonomous_system.prefixes = prefixes
             autonomous_system.save()
