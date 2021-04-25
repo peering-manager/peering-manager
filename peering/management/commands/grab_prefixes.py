@@ -15,6 +15,11 @@ class Command(BaseCommand):
             type=int,
             help="Limit the number of prefixes to store. If the prefix count is over the given value, prefixes will be ignored.",
         )
+        parser.add_argument(
+            "--ignore-errors",
+            action="store_true",
+            help="Ignore errors and continue processing all ASNs",
+        )
 
     def handle(self, *args, **options):
         self.logger.info("Getting prefixes for AS with IRR AS-SETs")
@@ -44,10 +49,13 @@ class Command(BaseCommand):
                         )
                         prefixes["ipv4"] = []
             except ValueError as e:
-                self.logger.warn(
-                    "Error fetching prefixes for as%s: %s", autonomous_system.asn, e
-                )
-                prefixes = dict(ipv6=[], ipv4=[])
+                if options.get("ignore-errors", False):
+                    self.logger.warn(
+                        "Error fetching prefixes for as%s: %s", autonomous_system.asn, e
+                    )
+                    prefixes = dict(ipv6=[], ipv4=[])
+                else:
+                    raise(e)
 
             autonomous_system.prefixes = prefixes
             autonomous_system.save()
