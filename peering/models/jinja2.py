@@ -1,3 +1,5 @@
+from django.db.models.query import QuerySet
+
 from devices.crypto.cisco import MAGIC as CISCO_MAGIC
 from peering.models import AutonomousSystem
 from utils.models import TaggableModel
@@ -10,6 +12,15 @@ def cisco_password(password):
     if password.startswith(CISCO_MAGIC):
         return password[2:]
     return password
+
+
+def filter(queryset, **kwargs):
+    """
+    Returns a filtered queryset based on provided criteria.
+    """
+    if type(v) is not QuerySet:
+        raise TypeError("cannot filter data not in the database")
+    return queryset.filter(**kwargs)
 
 
 def iter_export_policies(value, field=""):
@@ -42,6 +53,15 @@ def iter_import_policies(value, field=""):
         return [getattr(rp, field) for rp in value.import_policies()]
 
     return list(value.import_policies())
+
+
+def length(queryset):
+    """
+    Returns the number of objects in a queryset.
+    """
+    if type(queryset) is not QuerySet:
+        return 0
+    return queryset.count()
 
 
 def merge_export_policies(value, order=""):
@@ -112,6 +132,12 @@ def tags(value):
 
 
 FILTER_DICT = {
+    # Length filter and synonyms
+    "length": length,
+    "len": length,
+    "count": length,
+    # Filtering
+    "filter": filter,
     "cisco_password": cisco_password,
     "iter_export_policies": iter_export_policies,
     "iter_import_policies": iter_import_policies,
