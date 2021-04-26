@@ -142,25 +142,29 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
         Returns all IX this AS has with the other one.
         """
         return InternetExchange.objects.filter(
-            peeringdb_ixlan__in=get_shared_internet_exchanges(self, other),
+            peeringdb_ixlan__id__in=get_shared_internet_exchanges(
+                self, other
+            ).values_list("id", flat=True),
             local_autonomous_system=other,
         )
 
-    def get_missing_peering_sessions(self, other, internet_exchange=None):
+    def get_missing_peering_sessions(self, other, internet_exchange_point=None):
         """
         Returns all missing peering sessions between this AS and the other one on a
-        given Internet Exchange. As we are relying on PeeringDB to discover sessions
-        there are no points in doing so if the IX is not linked to a PeeringDB record.
+        given IXP. As we are relying on PeeringDB to discover sessions there are no
+        points in doing so if the IXP is not linked to a PeeringDB record.
 
-        If the Internet Exchange is not specified then missing peering sessions will
-        be returned for all shared Internet Exchanges between this and the other AS.
+        If the IXP is not specified then missing peering sessions will be returned for
+        all shared IXPs between this and the other AS.
         """
         if self == other:
             return NetworkIXLan.objects.none()
 
         filter = {"autonomous_system": self}
-        if internet_exchange:
-            filter["internet_exchange"] = internet_exchange
+        if internet_exchange_point:
+            filter["ixp_connection__id__in"] = Connection.objects.filter(
+                internet_exchange_point=internet_exchange_point
+            ).values_list("id", flat=True)
         ip_sessions = [
             str(s.ip_address)
             for s in InternetExchangePeeringSession.objects.filter(**filter)
@@ -169,12 +173,12 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
         qs_filter = Q(asn=self.asn) & (
             ~Q(ipaddr6__in=ip_sessions) | ~Q(ipaddr4__in=ip_sessions)
         )
-        if internet_exchange:
-            qs_filter &= Q(ixlan=internet_exchange.peeringdb_netixlan.ixlan)
+        if internet_exchange_point:
+            qs_filter &= Q(ixlan=internet_exchange_point.peeringdb_ixlan)
         else:
             qs_filter &= Q(
                 ixlan__in=[
-                    ix.peeringdb_netixlan.ixlan
+                    ix.peeringdb_ixlan
                     for ix in self.get_shared_internet_exchanges(other)
                 ]
             )
@@ -714,7 +718,7 @@ class InternetExchange(AbstractGroup):
 
         return NetworkIXLan.objects.filter(
             ~Q(asn=self.local_autonomous_system.asn)
-            & Q(ixlan=self.peeringdb_netixlan.ixlan)
+            & Q(ixlan=self.peeringdb_ixlan)
             & (~Q(ipaddr6__in=ipv6_sessions) | ~Q(ipaddr4__in=ipv4_sessions))
         ).order_by("asn")
 
