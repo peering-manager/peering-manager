@@ -710,9 +710,9 @@ class InternetExchange(AbstractGroup):
         for session in existing_sessions:
             ip = ipaddress.ip_address(session.ip_address)
             if ip.version == 6:
-                ipv6_sessions.append(str(ip))
+                ipv6_sessions.append(ip)
             elif ip.version == 4:
-                ipv4_sessions.append(str(ip))
+                ipv4_sessions.append(ip)
             else:
                 self.logger.debug(f"peering session with strange ip: {ip}")
 
@@ -877,10 +877,17 @@ class InternetExchangePeeringSession(BGPSession):
     def create_from_peeringdb(affiliated, netixlan):
         results = []
 
+        print(netixlan)
+
         if not netixlan:
             return results
 
-        for connection in Connection.objects.filter(peeringdb_netixlan=netixlan):
+        available_ixp = InternetExchange.objects.get(peeringdb_ixlan=netixlan.ixlan)
+        available_connections = Connection.objects.filter(
+            internet_exchange_point=available_ixp
+        )
+
+        for connection in available_connections:
             for version in [6, 4]:
                 ip_address = getattr(netixlan, f"ipaddr{version}", None)
                 if not ip_address:
