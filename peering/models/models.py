@@ -877,8 +877,6 @@ class InternetExchangePeeringSession(BGPSession):
     def create_from_peeringdb(affiliated, netixlan):
         results = []
 
-        print(netixlan)
-
         if not netixlan:
             return results
 
