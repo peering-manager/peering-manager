@@ -1,8 +1,30 @@
+import ipaddress
+
 from django.db.models.query import QuerySet
 
 from devices.crypto.cisco import MAGIC as CISCO_MAGIC
-from peering.models import AutonomousSystem
+from peering.models import AutonomousSystem, InternetExchange
 from utils.models import TaggableModel
+
+
+def ipv4(value):
+    """
+    Parses the value as an IPv4 address and returns it.
+    """
+    try:
+        return ipaddress.IPv4Address(value)
+    except ValueError:
+        return None
+
+
+def ipv6(value):
+    """
+    Parses the value as an IPv6 address and returns it.
+    """
+    try:
+        return ipaddress.IPv6Address(value)
+    except ValueError:
+        return None
 
 
 def cisco_password(password):
@@ -55,13 +77,17 @@ def iter_import_policies(value, field=""):
     return list(value.import_policies())
 
 
-def length(queryset):
+def length(value):
     """
-    Returns the number of objects in a queryset.
+    Returns the number of items in a queryset, list or dict.
     """
-    if type(queryset) is not QuerySet:
-        return 0
-    return queryset.count()
+    if type(value) in [dict, list, tuple]:
+        return len(value)
+
+    if type(value) is QuerySet:
+        return value.count()
+
+    return 0
 
 
 def merge_export_policies(value, order=""):
@@ -88,38 +114,53 @@ def merge_import_policies(value, order=""):
     return value.merged_import_policies(order == "reverse")
 
 
-def iter_sessions(value):
+def sessions(value, family=0):
     """
-    Yields a session and its address family at each call.
+    Returns a queryset of peering sessions.
+
+    If family is set to 4 or 6, only the sessions matching the IP address
+    family will be returned. If family is not set all sessions matching all
+    address families will be returned.
     """
-    for session in value.get_peering_sessions():
-        yield session.ip_address.version, session
+    if not hasattr(value, "get_peering_sessions"):
+        raise AttributeError(f"{value} has no peering sessions")
+
+    if family not in (4, 6):
+        return value.get_peering_sessions()
+    else:
+        return value.get_peering_sessions().filter(ip_address__family=family)
 
 
-def iter_all_sessions(value):
+def sessions_attr(value, field, family=0):
     """
-    Yields a session, its group and its address family at each call.
+    Returns a list of values for a given field for all peering sessions.
     """
-    try:
-        iter(value)
-
-        for group in value:
-            for session in group.get_peering_sessions():
-                yield group, session.ip_address.version, session
-    except TypeError:
-        pass
+    return sessions(value, family=family).value_list(field, flat=True)
 
 
-def prefix_list(asn, address_family=0):
+def route_server(value, field=""):
+    """
+    Returns a list of all route server sessions for an IXP.
+
+    If field is set, only the field will be returned.
+    """
+    if type(value) is not InternetExchange:
+        raise ValueError("value is not an internet exchange")
+
+    if field:
+        return sessions(value).filter(is_route_server=True).value_list(field, flat=True)
+    else:
+        return sessions(value).filter(is_route_server=True)
+
+
+def prefix_list(value, family=0):
     """
     Returns the prefixes for the given AS.
     """
-    try:
-        int(asn)
-        autonomous_system = AutonomousSystem.objects.get(asn=asn)
-        return autonomous_system.get_irr_as_set_prefixes(address_family)
-    except ValueError:
-        raise ValueError("value must be an autonomous system number")
+    if type(value) is not AutonomousSystem:
+        raise ValueError("value is not an autonomous system")
+
+    return value.get_irr_as_set_prefixes(family)
 
 
 def tags(value):
@@ -132,21 +173,27 @@ def tags(value):
 
 
 FILTER_DICT = {
+    # IP address utilities
+    "ipv4": ipv4,
+    "ipv6": ipv6,
     # Length filter and synonyms
     "length": length,
     "len": length,
     "count": length,
     # Filtering
     "filter": filter,
-    "cisco_password": cisco_password,
+    # BGP sessions
+    "sessions": sessions,
+    "sessions_attr": sessions_attr,
+    "route_server": route_server,
+    # Routing policies
     "iter_export_policies": iter_export_policies,
     "iter_import_policies": iter_import_policies,
     "merge_export_policies": merge_export_policies,
     "merge_import_policies": merge_import_policies,
-    "iter_sessions": iter_sessions,
-    "iter_all_sessions": iter_all_sessions,
     "prefix_list": prefix_list,
     "tags": tags,
+    "cisco_password": cisco_password,
 }
 
 __all__ = ["FILTER_DICT"]

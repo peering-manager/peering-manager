@@ -388,7 +388,7 @@ class BGPGroup(AbstractGroup):
         return reverse("peering:bgpgroup_peering_sessions", kwargs={"slug": self.slug})
 
     def get_peering_sessions(self):
-        return self.directepeeringsession_set.all()
+        return DirectPeeringSession.objects.filter(bgp_group=self)
 
     def poll_peering_sessions(self):
         if not self.check_bgp_session_states:
@@ -710,14 +710,6 @@ class InternetExchange(AbstractGroup):
         return InternetExchangePeeringSession.objects.filter(
             ixp_connection__in=Connection.objects.filter(internet_exchange_point=self)
         )
-
-    def sessions(self):
-        """
-        TO BE REMOVED: added for retrocompatibility until #356 is fixed
-        https://github.com/peering-manager/peering-manager/issues/356
-        """
-        yield 4, self.get_peering_sessions().filter(ip_address__family=4)
-        yield 6, self.get_peering_sessions().filter(ip_address__family=6)
 
     def get_autonomous_systems(self):
         """
