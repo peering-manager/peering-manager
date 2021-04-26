@@ -1,5 +1,6 @@
 import ipaddress
 import logging
+import uuid
 
 import napalm
 from django.conf import settings
@@ -500,6 +501,14 @@ class Community(ChangeLoggedModel, TaggableModel):
 
 
 class DirectPeeringSession(BGPSession):
+    def generate_service_ref():
+        """
+
+        """
+        affiliated = AutonomousSystem.objects.filter(affiliated=True)
+        return '{0}-D{1}S'.format(affiliated.first().asn, uuid.uuid4().hex[:6].upper())
+
+    service_reference = models.CharField(max_length=255, unique=True, default=generate_service_ref)
     local_autonomous_system = models.ForeignKey(
         "AutonomousSystem",
         on_delete=models.CASCADE,
@@ -529,7 +538,7 @@ class DirectPeeringSession(BGPSession):
     )
 
     class Meta(BGPSession.Meta):
-        ordering = ["local_autonomous_system", "autonomous_system", "ip_address"]
+        ordering = ["service_reference", "local_autonomous_system", "autonomous_system", "ip_address"]
 
     def __str__(self):
         return f"{self.get_relationship_display()} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
@@ -856,6 +865,13 @@ class InternetExchange(AbstractGroup):
 
 
 class InternetExchangePeeringSession(BGPSession):
+    def generate_service_ref():
+        """
+
+        """
+        affiliated = AutonomousSystem.objects.filter(affiliated=True)
+        return '{0}-I{1}S'.format(affiliated.first().asn, uuid.uuid4().hex[:6].upper())
+
     ixp_connection = models.ForeignKey(
         "net.Connection",
         on_delete=models.CASCADE,
@@ -866,8 +882,10 @@ class InternetExchangePeeringSession(BGPSession):
         blank=True, default=False, verbose_name="Route server"
     )
 
+    service_reference = models.CharField(max_length=255, unique=True, default=generate_service_ref)
+
     class Meta(BGPSession.Meta):
-        ordering = ["autonomous_system", "ixp_connection", "ip_address"]
+        ordering = ["service_reference", "autonomous_system", "ixp_connection", "ip_address"]
 
     @staticmethod
     def create_from_peeringdb(affiliated, netixlan):
