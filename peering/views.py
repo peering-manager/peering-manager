@@ -984,7 +984,7 @@ class InternetExchangePeeringSessionAddFromPeeringDB(
                     objects.append(
                         {
                             "autonomous_system": object.autonomous_system,
-                            "internet_exchange": object.internet_exchange,
+                            "ixp_connection": object.ixp_connection,
                             "ip_address": object.ip_address,
                         }
                     )

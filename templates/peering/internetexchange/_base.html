@@ -33,7 +33,7 @@
       <i class="fas fa-network-wired"></i> Peering Sessions
     </a>
   </li>
-  {% if instance.peeringdb_netixlan and instance.peeringdb_ix %}
+  {% if instance.peeringdb_ixlan %}
   <li class="nav-item">
     <a class="nav-link{% if active_tab == 'peers' %} active{% endif %}" href="{% url 'peering:internetexchange_peers' slug=instance.slug %}">
       <i class="fas fa-link"></i> Available Peers
