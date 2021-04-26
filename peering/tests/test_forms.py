@@ -1,7 +1,8 @@
 from django.test import TestCase
 
+from net.models import Connection
 from peering.constants import *
-from peering.enums import BGPRelationship, CommunityType, Platform, RoutingPolicyType
+from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
 from peering.forms import (
     AutonomousSystemEmailForm,
     AutonomousSystemForm,
@@ -119,18 +120,22 @@ class InternetExchangePeeringSessionTest(TestCase):
     def setUp(self):
         super().setUp()
 
-        self.autonomous_system = AutonomousSystem.objects.create(
-            asn=201281, name="Guillaume Mazoyer"
+        local_autonomous_system = AutonomousSystem.objects.create(
+            asn=201281, name="Guillaume Mazoyer", affiliated=True
         )
-        self.internet_exchange = InternetExchange.objects.create(
-            name="Test", slug="test"
+        self.autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Test")
+        self.ixp = InternetExchange.objects.create(
+            local_autonomous_system=local_autonomous_system, name="Test", slug="test"
+        )
+        self.ixp_connection = Connection.objects.create(
+            vlan=2000, internet_exchange_point=self.ixp
         )
 
     def test_internet_exchange_peering_session_form(self):
         test = InternetExchangePeeringSessionForm(
             data={
                 "autonomous_system": self.autonomous_system.pk,
-                "internet_exchange": self.internet_exchange.pk,
+                "ixp_connection": self.ixp_connection.pk,
                 "ip_address": "2001:db8::1",
             }
         )
@@ -145,7 +150,7 @@ class RouterTest(TestCase):
                 "netbox_device_id": 0,
                 "name": "test",
                 "hostname": "test.example.com",
-                "platform": Platform.JUNOS,
+                "device_state": DeviceState.ENABLED,
                 "local_autonomous_system": AutonomousSystem.objects.create(
                     asn=64501,
                     name="Autonomous System 1",

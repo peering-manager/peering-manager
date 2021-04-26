@@ -24,10 +24,10 @@
     <div class="modal-content">
       <div class="modal-header"><h5 class="modal-title">Deployment</h5></div>
       <div class="modal-body">
-        <div class="p-3 mb-2 bg-danger text-white">
-          <i class="fas fa-exclamation"></i> Be careful using this.<br><br>
-          No syntax check will be done nor confirmation will be asked. The configuration for each router will be deployed as it is.<br><br>
-          Do you really want to deploy the configuration for the selected routers?
+        <div class="p-3 mb-2">
+          <div class="alert alert-danger" role="alert"><i class="fas fa-exclamation-triangle"></i> Dangerous action</div>
+          No syntax check will be performed. Configurations will be deployed without confirmations.<br>
+          Do you want to install the configurations for the selected routers?
         </div>
       </div>
       <div class="modal-footer">
@@ -41,38 +41,31 @@
 {% block javascript %}
 <script>
   var routerIDs;
-  $("#deploy-on-selected").click(function() {
+  $('#deploy-on-selected').click(function () {
     routerIDs = [];
-    $.each($("input[name='pk']:checked"), function() {
+    $.each($("input[name='pk']:checked"), function () {
       routerIDs.push($(this).val());
     });
     if (routerIDs.length > 0) {
-      $("#deployment-confirmation").modal();
+      $('#deployment-confirmation').modal();
     }
   });
-  $("#confirm-deployment").click(function() {
-    $(this).attr("disabled", "disabled")
-           .removeClass("btn-primary").addClass("btn-warning")
-           .html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
-    routerIDs.forEach(function(id) {
-      $.ajax({
-        method: "post",
-        url: "{% url 'peering-api:router-configure-task' pk=999999 %}".replace(/999999/, id),
-        data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
-      }).done(function(response) {
-        queuedTasks++;
-      }).fail(function(response) {
-        failedTasks++;
-      });
+  $('#confirm-deployment').click(function () {
+    PeeringManager.setWorkingButton($(this));
+    $.ajax({
+      method: 'post',
+      url: "{% url 'peering-api:router-configure' %}",
+      data: { csrfmiddlewaretoken: '{{ csrf_token }}', routers: routerIDs },
+    }).done(function () {
+      $(this).removeClass('btn-warning').addClass('btn-success')
+             .html('Deployment Scheduled');
+    }).fail(function () {
+      $(this).removeClass('btn-warning').addClass('btn-danger')
+             .html('Deployment Failure');
     });
-    $(this).removeClass("btn-warning").addClass("btn-success")
-           .html("Deployments Scheduled");
   });
-  $("#deployment-confirmation").on("hidden.bs.modal", function(e) {
-    $("#confirm-deployment").removeAttr("disabled")
-                            .removeClass("btn-warning")
-                            .removeClass("btn-success")
-                            .addClass("btn-primary").html("Confirm");
+  $('#deployment-confirmation').on('hidden.bs.modal', function (e) {
+    PeeringManager.resetConfirmButton($('#confirm-deployment'));
   });
 </script>
 {% endblock %}

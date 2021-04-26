@@ -27,6 +27,23 @@ def as_link(value):
 
 
 @register.filter()
+def render_bandwidth_speed(speed):
+    """
+    Renders speeds given in Mbps.
+    """
+    if not speed:
+        return ""
+    if speed >= 1000000 and speed % 1000000 == 0:
+        return f"{int(speed / 1000000)} Tbps"
+    elif speed >= 1000 and speed % 1000 == 0:
+        return f"{int(speed / 1000)} Gbps"
+    elif speed >= 1000:
+        return f"{float(speed) / 1000} Gbps"
+    else:
+        return f"{speed} Mbps"
+
+
+@register.filter()
 def render_none(value):
     if not value:
         return mark_safe('<span class="text-muted">&mdash;</span>')

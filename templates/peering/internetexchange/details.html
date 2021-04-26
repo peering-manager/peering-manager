@@ -13,35 +13,9 @@
           <td>{{ instance.name }}</td>
         </tr>
         <tr>
-          <td>IPv6 Address</td>
-          <td>{{ instance.ipv6_address|render_none }}</td>
-        </tr>
-        <tr>
-          <td>IPv4 Address</td>
-          <td>{{ instance.ipv4_address|render_none }}</td>
-        </tr>
-        <tr>
           <td>Local AS</td>
           <td>{{ instance.local_autonomous_system|as_link }}</td>
         </tr>
-        {% if instance.router %}
-        <tr>
-          <td>Router</td>
-          <td>{{ instance.router|as_link }}</td>
-        </tr>
-        {% endif %}
-        {% if instance.router and instance.router.can_napalm_get_bgp_neighbors_detail %}
-        <tr>
-          <td>Poll Session States</td>
-          <td>
-            {% if instance.check_bgp_session_states %}
-            <i class="fas fa-check text-success"></i>
-            {% else %}
-            <i class="fas fa-times text-danger"></i>
-            {% endif %}
-          </td>
-        </tr>
-        {% endif %}
       </table>
     </div>
     {% if instance.linked_to_peeringdb %}
@@ -60,6 +34,19 @@
       </div>
     </div>
     {% endif %}
+    <div class="card">
+      <div class="card-header">
+        <strong>Comments</strong>
+      </div>
+      <div class="card-body">
+        {% if instance.comments %}
+        {{ instance.comments|markdown }}
+        {% else %}
+        <span class="text-muted">None</span>
+        {% endif %}
+      </div>
+    </div>
+    {% include 'utils/includes/tags_card.html' with tags=instance.tags.all url='peering:internetexchange_list' %}
   </div>
   <div class="col-md-6">
     <div class="card mb-2">
@@ -103,21 +90,6 @@
       </div>
       {% endif %}
     </div>
-  </div>
-  <div class="col-md-6">
-    <div class="card">
-      <div class="card-header">
-        <strong>Comments</strong>
-      </div>
-      <div class="card-body">
-        {% if instance.comments %}
-        {{ instance.comments|markdown }}
-        {% else %}
-        <span class="text-muted">None</span>
-        {% endif %}
-      </div>
-    </div>
-    {% include 'utils/includes/tags_card.html' with tags=instance.tags.all url='peering:internetexchange_list' %}
   </div>
 </div>
 {% endblock %}

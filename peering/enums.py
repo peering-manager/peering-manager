@@ -21,19 +21,16 @@ class CommunityType(models.TextChoices):
     INGRESS = "ingress"
 
 
+class DeviceState(models.TextChoices):
+    ENABLED = "enabled", "Enabled"
+    DISABLED = "disabled", "Disabled"
+    MAINTENANCE = "maintenance", "Maintenance"
+
+
 class IPFamily(models.IntegerChoices):
     ALL = 0, "All"
     IPV4 = 4, "IPv4"
     IPV6 = 6, "IPv6"
-
-
-class Platform(models.TextChoices):
-    JUNOS = "junos", "Juniper JUNOS"
-    IOSXR = "iosxr", "Cisco IOS-XR"
-    IOS = "ios", "Cisco IOS"
-    NXOS = "nxos", "Cisco NX-OS"
-    EOS = "eos", "Arista EOS"
-    NONE = "", "Other"
 
 
 class RoutingPolicyType(models.TextChoices):

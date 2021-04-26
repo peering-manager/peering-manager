@@ -9,9 +9,9 @@
         <tr>
           <td>Internet Exchange</td>
           <td>
-            {{ instance.internet_exchange|as_link }}
-            {% if instance.internet_exchange.comments %}
-            <span class="float-right badge badge-info popover-hover" data-toggle="popover" data-html="true" data-content="{{ instance.internet_exchange.comments | markdown:True }}"><i class="fas fa-comment"></i></span>
+            {{ instance.ixp_connection.internet_exchange_point|as_link }} - {{ instance.ixp_connection|as_link }}
+            {% if instance.ixp_connection.internet_exchange_point.comments %}
+            <span class="float-right badge badge-info popover-hover" data-toggle="popover" data-html="true" data-content="{{ instance.ixp_connection.internet_exchange_point.comments | markdown:True }}"><i class="fas fa-comment"></i></span>
             {% endif %}
           </td>
         </tr>

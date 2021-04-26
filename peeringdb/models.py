@@ -26,7 +26,7 @@ from .enums import (
 #
 # https://github.com/peeringdb/django-peeringdb/
 #
-# It has been modified to suit the Peering Manager code base and avoid to depend on
+# It has been modified to suit Peering Manager's code base and avoid to depend on
 # other libraries.
 
 
@@ -45,6 +45,8 @@ class Address(models.Model):
     state = models.CharField(max_length=255, blank=True)
     zipcode = models.CharField(max_length=48, blank=True)
     country = models.CharField(max_length=7, blank=True)
+    suite = models.CharField(max_length=255, blank=True)
+    floor = models.CharField(max_length=255, blank=True)
     latitude = models.DecimalField(
         decimal_places=6, max_digits=9, blank=True, null=True
     )
@@ -61,6 +63,8 @@ class Address(models.Model):
 
 class Organization(Address):
     name = models.CharField(max_length=255, unique=True)
+    name_long = models.CharField(max_length=255, blank=True)
+    aka = models.CharField(max_length=255, blank=True, verbose_name="Also Known As")
     website = URLField(blank=True)
     notes = models.TextField(blank=True)
 
@@ -70,6 +74,8 @@ class Organization(Address):
 
 class Facility(Address):
     name = models.CharField(max_length=255, unique=True)
+    name_long = models.CharField(max_length=255, blank=True)
+    aka = models.CharField(max_length=255, blank=True, verbose_name="Also Known As")
     website = URLField(blank=True)
     clli = models.CharField(max_length=18, blank=True)
     rencode = models.CharField(max_length=18, blank=True)
@@ -96,6 +102,7 @@ class Facility(Address):
 class Network(models.Model):
     asn = ASNField(unique=True, verbose_name="ASN")
     name = models.CharField(max_length=255, unique=True)
+    name_long = models.CharField(max_length=255, blank=True)
     aka = models.CharField(max_length=255, blank=True, verbose_name="Also Known As")
     irr_as_set = models.CharField(
         max_length=255,
@@ -172,7 +179,8 @@ class Network(models.Model):
 
 class InternetExchange(models.Model):
     name = models.CharField(max_length=64, unique=True)
-    name_long = models.CharField(max_length=254, blank=True)
+    name_long = models.CharField(max_length=255, blank=True)
+    aka = models.CharField(max_length=255, blank=True, verbose_name="Also Known As")
     city = models.CharField(max_length=192)
     country = models.CharField(max_length=7, blank=True)
     notes = models.TextField(blank=True)

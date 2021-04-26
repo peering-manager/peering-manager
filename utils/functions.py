@@ -3,27 +3,7 @@ import hmac
 import json
 
 from django.core.serializers import serialize
-from django_rq import get_queue, job
 from taggit.managers import _TaggableManager
-
-
-def call_function(name, instance=None, **params):
-    """
-    Makes a call to a function or a method of an instance. The name of the
-    function/method to call must be provided, named parameters can also be provided.
-
-    The name of the function to call must contain the full path to its module:
-
-      call_function("foo.bar.baz", param1=1, param2="str")
-
-    The previous example will make a call to the function named "baz" from the
-    "foo.bar" module passing two named parameters to the function.
-    """
-    if instance is None:
-        components = name.split(".")
-        return getattr(".".join(components[:-1]), components[-1])(**params)
-    else:
-        return getattr(instance, name)(**params)
 
 
 # Shamlessly stolen from django.utils.functional (<3.0)
@@ -32,18 +12,6 @@ def curry(_curried_func, *args, **kwargs):
         return _curried_func(*args, *moreargs, **{**kwargs, **morekwargs})
 
     return _curried
-
-
-def enqueue_background_task(function_name, instance=None, **params):
-    queue = get_queue("default")
-    return queue.enqueue(
-        "utils.functions.call_function", function_name, instance=instance, **params
-    )
-
-
-def get_background_task(job_id):
-    queue = get_queue("default")
-    return queue.fetch_job(job_id)
 
 
 def generate_signature(data, secret):

@@ -3,8 +3,9 @@ from unittest.mock import patch
 from django.urls import reverse
 from rest_framework import status
 
+from net.models import Connection
 from peering.constants import *
-from peering.enums import BGPRelationship, CommunityType, Platform, RoutingPolicyType
+from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -29,13 +30,6 @@ class AppTest(APITestCase):
 
 
 class StaticChoiceTest(APITestCase):
-    def test_get_static_choice(self):
-        url = reverse(
-            "peering-api:field-choice-detail", kwargs={"pk": "router:platform"}
-        )
-        response = self.client.get(url, **self.header)
-        self.assertEqual(len(response.data), len(Platform.choices))
-
     def test_list_static_choices(self):
         url = reverse("peering-api:field-choice-list")
         response = self.client.get(url, **self.header)
@@ -208,7 +202,7 @@ class BGPGroupTest(StandardAPITestCases.View):
             kwargs={"pk": self.bgp_group.pk},
         )
         response = self.client.post(url, **self.header)
-        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertStatus(response, status.HTTP_202_ACCEPTED)
 
 
 class CommunityTest(StandardAPITestCases.View):
@@ -294,18 +288,6 @@ class DirectPeeringSessionTest(StandardAPITestCases.View):
             },
         ]
 
-    def test_encrypt_password(self):
-        url = reverse(
-            "peering-api:directpeeringsession-encrypt-password",
-            kwargs={"pk": self.direct_peering_session.pk},
-        )
-        response = self.client.post(
-            url, {"platform": Platform.JUNOS}, format="json", **self.header
-        )
-
-        self.assertIsNotNone(response.data["encrypted_password"])
-        self.assertNotEqual(response.data["encrypted_password"], "")
-
 
 class EmailTest(StandardAPITestCases.View):
     model = Email
@@ -362,9 +344,7 @@ class InternetExchangeTest(StandardAPITestCases.View):
         community = Community.objects.create(
             name="Test", slug="test", value="64500:1", type=CommunityType.EGRESS
         )
-        router = Router.objects.create(
-            name="Test", hostname="test.example.com", platform=Platform.JUNOS
-        )
+        router = Router.objects.create(name="Test", hostname="test.example.com")
         data = {
             "name": "Other",
             "slug": "other",
@@ -390,9 +370,7 @@ class InternetExchangeTest(StandardAPITestCases.View):
         community = Community.objects.create(
             name="Test", slug="test", value="64500:1", type=CommunityType.EGRESS
         )
-        router = Router.objects.create(
-            name="Test", hostname="test.example.com", platform=Platform.JUNOS
-        )
+        router = Router.objects.create(name="Test", hostname="test.example.com")
         data = {
             "name": "Test",
             "slug": "test",
@@ -422,13 +400,13 @@ class InternetExchangeTest(StandardAPITestCases.View):
         response = self.client.get(url, **self.header)
         self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
 
-    def test_import_peering_sessions(self):
+    def test_import_sessions(self):
         url = reverse(
-            "peering-api:internetexchange-import-peering-sessions",
+            "peering-api:internetexchange-import-sessions",
             kwargs={"pk": self.internet_exchange.pk},
         )
         response = self.client.post(url, **self.header)
-        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertStatus(response, status.HTTP_202_ACCEPTED)
 
     def test_prefixes(self):
         url = reverse(
@@ -440,23 +418,13 @@ class InternetExchangeTest(StandardAPITestCases.View):
         self.assertStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data["prefixes"], [])
 
-    def test_configure_router(self):
-        url = reverse(
-            "peering-api:internetexchange-configure-router",
-            kwargs={"pk": self.internet_exchange.pk},
-        )
-        response = self.client.get(url, **self.header)
-        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
-        response = self.client.post(url, **self.header)
-        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
-
     def test_poll_peering_sessions(self):
         url = reverse(
             "peering-api:internetexchange-poll-peering-sessions",
             kwargs={"pk": self.internet_exchange.pk},
         )
         response = self.client.post(url, **self.header)
-        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertStatus(response, status.HTTP_202_ACCEPTED)
 
 
 class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
@@ -474,13 +442,17 @@ class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
             asn=201281, name="Guillaume Mazoyer", affiliated=True
         )
         autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Dummy")
-        internet_exchange = InternetExchange.objects.create(
+        ixp = InternetExchange.objects.create(
             name="Test", slug="test", local_autonomous_system=local_autonomous_system
         )
+        ixp_connection = Connection.objects.create(
+            vlan=2000, internet_exchange_point=ixp
+        )
+
         cls.internet_exchange_peering_session = (
             InternetExchangePeeringSession.objects.create(
                 autonomous_system=autonomous_system,
-                internet_exchange=internet_exchange,
+                ixp_connection=ixp_connection,
                 ip_address="2001:db8::1",
                 password="mypassword",
             )
@@ -488,31 +460,20 @@ class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
         cls.create_data = [
             {
                 "autonomous_system": autonomous_system.pk,
-                "internet_exchange": internet_exchange.pk,
+                "ixp_connection": ixp_connection.pk,
                 "ip_address": "198.51.100.1",
             },
             {
                 "autonomous_system": autonomous_system.pk,
-                "internet_exchange": internet_exchange.pk,
+                "ixp_connection": ixp_connection.pk,
                 "ip_address": "198.51.100.2",
             },
             {
                 "autonomous_system": autonomous_system.pk,
-                "internet_exchange": internet_exchange.pk,
+                "ixp_connection": ixp_connection.pk,
                 "ip_address": "198.51.100.3",
             },
         ]
-
-    def test_encrypt_password(self):
-        url = reverse(
-            "peering-api:internetexchangepeeringsession-encrypt-password",
-            kwargs={"pk": self.internet_exchange_peering_session.pk},
-        )
-        response = self.client.post(
-            url, {"platform": Platform.JUNOS}, format="json", **self.header
-        )
-        self.assertIsNotNone(response.data["encrypted_password"])
-        self.assertNotEqual(response.data["encrypted_password"], "")
 
 
 class RouterTest(APITestCase):
@@ -527,7 +488,7 @@ class RouterTest(APITestCase):
         cls.router = Router.objects.create(
             name="Test",
             hostname="test.example.com",
-            platform=Platform.JUNOS,
+            device_state=DeviceState.ENABLED,
             configuration_template=cls.template,
             local_autonomous_system=cls.local_autonomous_system,
         )
@@ -546,7 +507,7 @@ class RouterTest(APITestCase):
         data = {
             "name": "Other",
             "hostname": "other.example.com",
-            "platform": Platform.JUNOS,
+            "device_state": DeviceState.ENABLED,
             "local_autonomous_system": self.local_autonomous_system.pk,
         }
 
@@ -562,7 +523,7 @@ class RouterTest(APITestCase):
         data = {
             "name": "Other",
             "hostname": "other.example.com",
-            "platform": Platform.JUNOS,
+            "device_state": DeviceState.ENABLED,
             "configuration_template": self.template.pk,
             "local_autonomous_system": self.local_autonomous_system.pk,
         }
@@ -580,13 +541,13 @@ class RouterTest(APITestCase):
             {
                 "name": "Test1",
                 "hostname": "test1.example.com",
-                "platform": Platform.JUNOS,
+                "device_state": DeviceState.ENABLED,
                 "local_autonomous_system": self.local_autonomous_system.pk,
             },
             {
                 "name": "Test2",
                 "hostname": "test2.example.com",
-                "platform": Platform.JUNOS,
+                "device_state": DeviceState.ENABLED,
                 "local_autonomous_system": self.local_autonomous_system.pk,
             },
         ]
@@ -603,8 +564,9 @@ class RouterTest(APITestCase):
         data = {
             "name": "Test",
             "hostname": "test.example.com",
-            "platform": Platform.IOSXR,
+            "device_state": DeviceState.ENABLED,
             "local_autonomous_system": self.local_autonomous_system.pk,
+            "comments": "Test",
         }
 
         url = reverse("peering-api:router-detail", kwargs={"pk": self.router.pk})
@@ -619,9 +581,10 @@ class RouterTest(APITestCase):
         data = {
             "name": "Test",
             "hostname": "test.example.com",
-            "platform": Platform.IOSXR,
+            "device_state": DeviceState.ENABLED,
             "configuration_template": self.template.pk,
             "local_autonomous_system": self.local_autonomous_system.pk,
+            "comments": "Test",
         }
 
         url = reverse("peering-api:router-detail", kwargs={"pk": self.router.pk})
@@ -642,15 +605,14 @@ class RouterTest(APITestCase):
     def test_configuration(self):
         url = reverse("peering-api:router-configuration", kwargs={"pk": self.router.pk})
         response = self.client.get(url, **self.header)
-        self.assertStatus(response, status.HTTP_200_OK)
-        self.assertEqual("Nothing useful", response.data["configuration"])
+        self.assertStatus(response, status.HTTP_202_ACCEPTED)
 
     def test_test_napalm_connection(self):
         url = reverse(
             "peering-api:router-test-napalm-connection", kwargs={"pk": self.router.pk}
         )
         response = self.client.get(url, **self.header)
-        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertStatus(response, status.HTTP_202_ACCEPTED)
 
 
 class RoutingPolicyTest(StandardAPITestCases.View):

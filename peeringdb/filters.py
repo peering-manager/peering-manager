@@ -9,13 +9,13 @@ from .models import Network, NetworkContact, NetworkIXLan, Synchronization
 class NetworkFilterSet(django_filters.FilterSet):
     class Meta:
         model = Network
-        fields = ["asn", "name"]
+        fields = ["id", "asn", "name"]
 
 
 class NetworkContactFilterSet(django_filters.FilterSet):
     class Meta:
         model = NetworkContact
-        fields = ["role", "name", "email", "net_id"]
+        fields = ["id", "role", "name", "email", "net_id"]
 
 
 class NetworkIXLanFilterSet(django_filters.FilterSet):
@@ -23,7 +23,7 @@ class NetworkIXLanFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = NetworkIXLan
-        fields = ["asn"]
+        fields = ["id", "asn"]
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -39,4 +39,4 @@ class NetworkIXLanFilterSet(django_filters.FilterSet):
 class SynchronizationFilterSet(django_filters.FilterSet):
     class Meta:
         model = Synchronization
-        fields = ["time", "created", "updated", "deleted"]
+        fields = ["id", "time", "created", "updated", "deleted"]

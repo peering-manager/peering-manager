@@ -1,0 +1,8 @@
+{% extends 'utils/object_list.html' %}
+{% block extra_buttons %}
+{% if perms.peering.change_internetexchange and perms.net.add_connection %}
+<a href="{% url 'net:connection_add' %}?internet_exchange_point={{ instance.pk }}&return_url={% url 'peering:internetexchange_connections' slug=instance.slug %}" class="btn btn-sm btn-primary">
+  <i class="fas fa-plus"></i> Add
+</a>
+{% endif %}
+{% endblock %}

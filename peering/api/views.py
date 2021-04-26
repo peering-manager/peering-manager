@@ -1,9 +1,10 @@
-from django.http import HttpResponseForbidden
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 
+from extras.models import JobResult
+from peering.enums import DeviceState
 from peering.filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
@@ -15,6 +16,13 @@ from peering.filters import (
     InternetExchangePeeringSessionFilterSet,
     RouterFilterSet,
     RoutingPolicyFilterSet,
+)
+from peering.jobs import (
+    generate_configuration,
+    import_sessions_to_internet_exchange,
+    poll_peering_sessions,
+    set_napalm_configuration,
+    test_napalm_connection,
 )
 from peering.models import (
     AutonomousSystem,
@@ -30,7 +38,7 @@ from peering.models import (
 )
 from peeringdb.api.serializers import NetworkIXLanSerializer
 from utils.api import ModelViewSet, ServiceUnavailable, StaticChoicesViewSet
-from utils.functions import enqueue_background_task
+from utils.functions import get_serializer_for_model
 
 from .serializers import (
     AutonomousSystemSerializer,
@@ -52,8 +60,8 @@ class PeeringFieldChoicesViewSet(StaticChoicesViewSet):
         (DirectPeeringSession, ["relationship", "bgp_state"]),
         (Community, ["type"]),
         (InternetExchangePeeringSession, ["bgp_state"]),
-        (Router, ["platform"]),
         (RoutingPolicy, ["type"]),
+        (Router, ["device_state"]),
     ]
 
 
@@ -119,10 +127,22 @@ class BGPGroupViewSet(ModelViewSet):
         detail=True, methods=["post", "put", "patch"], url_path="poll-peering-sessions"
     )
     def poll_peering_sessions(self, request, pk=None):
-        success = self.get_object().poll_peering_sessions()
-        if not success:
-            raise ServiceUnavailable("Cannot update peering session states.")
-        return Response({"status": "success"})
+        # Check user permission first
+        if not request.user.has_perm("peering.change_directpeeringsession"):
+            return Response(None, status=status.HTTP_403_FORBIDDEN)
+
+        job_result = JobResult.enqueue_job(
+            poll_peering_sessions,
+            "peering.bgpgroup.poll_peering_sessions",
+            BGPGroup,
+            request.user,
+            self.get_object(),
+        )
+        serializer = get_serializer_for_model(JobResult)
+        return Response(
+            serializer(instance=job_result, context={"request": request}).data,
+            status=status.HTTP_202_ACCEPTED,
+        )
 
 
 class CommunityViewSet(ModelViewSet):
@@ -198,17 +218,22 @@ class InternetExchangeViewSet(ModelViewSet):
             {"available-peers": NetworkIXLanSerializer(available_peers, many=True).data}
         )
 
-    @action(detail=True, methods=["post"], url_path="import-peering-sessions")
-    def import_peering_sessions(self, request, pk=None):
-        result = self.get_object().import_peering_sessions_from_router()
-        if not result:
-            raise ServiceUnavailable("Cannot import peering sessions from router.")
+    @action(detail=True, methods=["post"], url_path="import-sessions")
+    def import_sessions(self, request, pk=None):
+        if not request.user.has_perm("peering.add_internetexchangepeeringsession"):
+            return Response(None, status=status.HTTP_403_FORBIDDEN)
+
+        job_result = JobResult.enqueue_job(
+            import_sessions_to_internet_exchange,
+            "peering.internet_exchange.import_sessions",
+            InternetExchange,
+            request.user,
+            self.get_object(),
+        )
+        serializer = get_serializer_for_model(JobResult)
         return Response(
-            {
-                "autonomous-system-count": result[0],
-                "peering-session-count": result[1],
-                "ignored-autonomous-systems": result[2],
-            }
+            serializer(instance=job_result, context={"request": request}).data,
+            status=status.HTTP_202_ACCEPTED,
         )
 
     @action(detail=True, methods=["get"], url_path="prefixes")
@@ -218,34 +243,25 @@ class InternetExchangeViewSet(ModelViewSet):
         )
 
     @action(
-        detail=True,
-        methods=["get", "post", "put", "patch"],
-        url_path="configure-router",
-    )
-    def configure_router(self, request, pk=None):
-        internet_exchange = self.get_object()
-        if not internet_exchange.router:
-            raise ServiceUnavailable("No router available.")
-
-        # Check user permission first
-        if not request.user.has_perm("peering.deploy_configuration_internetexchange"):
-            return HttpResponseForbidden()
-
-        # Commit changes only if not using a GET request
-        error, changes = internet_exchange.router.set_napalm_configuration(
-            internet_exchange.generate_configuration(),
-            commit=(request.method not in SAFE_METHODS),
-        )
-        return Response({"changed": not error, "changes": changes, "error": error})
-
-    @action(
         detail=True, methods=["post", "put", "patch"], url_path="poll-peering-sessions"
     )
     def poll_peering_sessions(self, request, pk=None):
-        success = self.get_object().poll_peering_sessions()
-        if not success:
-            raise ServiceUnavailable("Cannot update peering session states.")
-        return Response({"status": "success"})
+        # Check user permission first
+        if not request.user.has_perm("peering.change_directpeeringsession"):
+            return Response(None, status=status.HTTP_403_FORBIDDEN)
+
+        job_result = JobResult.enqueue_job(
+            poll_peering_sessions,
+            "peering.bgpgroup.poll_peering_sessions",
+            BGPGroup,
+            request.user,
+            self.get_object(),
+        )
+        serializer = get_serializer_for_model(JobResult)
+        return Response(
+            serializer(instance=job_result, context={"request": request}).data,
+            status=status.HTTP_202_ACCEPTED,
+        )
 
 
 class InternetExchangePeeringSessionViewSet(ModelViewSet):
@@ -280,59 +296,73 @@ class RouterViewSet(ModelViewSet):
     @action(detail=True, methods=["get"], url_path="configuration")
     def configuration(self, request, pk=None):
         # Check user permission first
-        if not request.user.has_perm("peering.view_configuration_router"):
-            return HttpResponseForbidden()
-        return Response({"configuration": self.get_object().generate_configuration()})
+        if not request.user.has_perm("peering.view_router_configuration"):
+            return Response(None, status=status.HTTP_403_FORBIDDEN)
 
-    @action(detail=True, methods=["get", "post", "put", "patch"], url_path="configure")
-    def configure(self, request, pk=None):
-        router = self.get_object()
-
-        # Check if the router runs on a supported platform
-        if not router.platform:
-            raise ServiceUnavailable("Unsupported router platform.")
-
-        # Check user permission first
-        if not request.user.has_perm("peering.deploy_configuration_router"):
-            return HttpResponseForbidden()
-
-        # Commit changes only if not using a GET request
-        error, changes = router.set_napalm_configuration(
-            router.generate_configuration(), commit=(request.method not in SAFE_METHODS)
+        job_result = JobResult.enqueue_job(
+            generate_configuration,
+            "peering.router.generate_configuration",
+            Router,
+            request.user,
+            self.get_object(),
         )
-        return Response({"changed": not error, "changes": changes, "error": error})
-
-    @action(detail=True, methods=["post"], url_path="configure-task")
-    def configure_task(self, request, pk=None):
-        router = self.get_object()
-
-        # Check if the router runs on a supported platform
-        if not router.platform:
-            raise ServiceUnavailable("Unsupported router platform.")
-
-        # Check user permission first
-        if not request.user.has_perm("peering.deploy_configuration_router"):
-            return HttpResponseForbidden()
-
-        # Enqueue a task and record the job ID in the router instance
-        job = enqueue_background_task(
-            "set_napalm_configuration",
-            router,
-            config=router.generate_configuration(),
-            commit=True,
+        serializer = get_serializer_for_model(JobResult)
+        return Response(
+            serializer(instance=job_result, context={"request": request}).data,
+            status=status.HTTP_202_ACCEPTED,
         )
-        if job:
-            router.last_deployment_id = job.id
-            router.save()
 
-        return Response({"status": "success"})
+    @action(detail=False, methods=["get", "post"], url_path="configure")
+    def configure(self, request):
+        # Check user permission first
+        if not request.user.has_perm("peering.deploy_router_configuration"):
+            return Response(None, status=status.HTTP_403_FORBIDDEN)
+
+        router_ids = (
+            request.data.get("routers[]", [])
+            if request.method != "GET"
+            else request.query_params.getlist("routers[]")
+        )
+
+        # No router IDs, nothing to configure
+        if len(router_ids) < 1:
+            raise ServiceUnavailable("No routers to configure.")
+
+        routers = Router.objects.filter(pk__in=router_ids)
+        commit = request.method not in SAFE_METHODS
+        job_results = []
+
+        for router in routers:
+            job_result = JobResult.enqueue_job(
+                set_napalm_configuration,
+                "peering.router.set_napalm_configuration",
+                Router,
+                request.user,
+                router,
+                commit,
+            )
+            job_results.append(job_result)
+
+        serializer = get_serializer_for_model(JobResult)
+        return Response(
+            serializer(job_results, many=True, context={"request": request}).data,
+            status=status.HTTP_202_ACCEPTED,
+        )
 
     @action(detail=True, methods=["get"], url_path="test-napalm-connection")
     def test_napalm_connection(self, request, pk=None):
-        success = self.get_object().test_napalm_connection()
-        if not success:
-            raise ServiceUnavailable("Cannot connect to router using NAPALM.")
-        return Response({"status": "success"})
+        job_result = JobResult.enqueue_job(
+            test_napalm_connection,
+            "peering.router.test_napalm_connection",
+            Router,
+            request.user,
+            self.get_object(),
+        )
+        serializer = get_serializer_for_model(JobResult)
+        return Response(
+            serializer(instance=job_result, context={"request": request}).data,
+            status=status.HTTP_202_ACCEPTED,
+        )
 
 
 class RoutingPolicyViewSet(ModelViewSet):

@@ -1,7 +1,7 @@
 ```no-highlight
 router bgp {{ my_as.asn }}
 {%- for internet_exchange in internet_exchanges %}
-{%- for address_family, sessions in internet_exchange.sessions.items() %}
+{%- for address_family, sessions in internet_exchange.sessions() %}
 {%- if sessions|length > 0 %}
 {%- for session in sessions %}
 {% if session.enabled %}
@@ -25,11 +25,11 @@ router bgp {{ my_as.asn }}
       use neighbor-group ng{{ address_family }}-PEERING
       {%- endif %}
       address-family ipv{{ address_family }} unicast
-      {%- if session.import_routing_policies %}
-        route-policy {{ session.import_routing_policies | map(attribute='name') | join(' ') }} in
+      {%- if session.import_policies() %}
+        route-policy {{ session.import_policies() | map(attribute='name') | join(' ') }} in
       {%- endif %}
-      {%- if session.export_routing_policies %}
-        route-policy {{ session.import_routing_policies | map(attribute='name') | join(' ') }} out
+      {%- if session.export_policies() %}
+        route-policy {{ session.export_policies() | map(attribute='name') | join(' ') }} out
       {%- endif %}
       {%- if address_family == 4 and session.autonomous_system.ipv4_max_prefixes > 0 %}
         maximum-prefix {{ session.autonomous_system.ipv4_max_prefixes }} 95 restart 15

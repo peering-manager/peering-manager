@@ -4,7 +4,8 @@ from django.core import mail
 from django.db import transaction
 from django.urls.exceptions import NoReverseMatch
 
-from peering.enums import BGPRelationship, CommunityType, Platform, RoutingPolicyType
+from net.models import Connection
+from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -52,7 +53,7 @@ class AutonomousSystemTestCase(StandardTestCases.Views):
             "irr_as_set_peeringdb_sync": False,
             "comments": "",
             "affiliated": False,
-            "tags": "",
+            "tags": [],
         }
 
 
@@ -78,7 +79,7 @@ class BGPGroupTestCase(StandardTestCases.Views):
             "export_routing_policies": [],
             "import_routing_policies": [],
             "comments": "",
-            "tags": "",
+            "tags": [],
         }
         cls.bulk_edit_data = {"comments": "New comments"}
 
@@ -102,7 +103,7 @@ class CommunityTestCase(StandardTestCases.Views):
             "value": "64500:4",
             "type": CommunityType.INGRESS,
             "comments": "",
-            "tags": "",
+            "tags": [],
         }
         cls.bulk_edit_data = {"comments": "New comments"}
 
@@ -126,7 +127,7 @@ class ConfigurationTestCase(StandardTestCases.Views):
             "name": "Configuration 4",
             "template": "Configuration 4",
             "comments": "",
-            "tags": "",
+            "tags": [],
         }
 
 
@@ -181,7 +182,7 @@ class DirectPeeringSessionTestCase(StandardTestCases.Views):
             "advertised_prefix_count": 0,
             "received_prefix_count": 0,
             "comments": "",
-            "tags": "",
+            "tags": [],
         }
         cls.bulk_edit_data = {"enabled": False, "comments": "New comments"}
 
@@ -218,7 +219,7 @@ class EmailTestCase(StandardTestCases.Views):
             "subject": "E-mail subject 4",
             "template": "E-mail template 4",
             "comments": "",
-            "tags": "",
+            "tags": [],
         }
 
 
@@ -251,21 +252,17 @@ class InternetExchangeTestCase(StandardTestCases.Views):
         )
 
         cls.form_data = {
-            "peeringdb_netixlan": None,
-            "peeringdb_ix": None,
+            "peeringdb_ixlan": None,
             "name": "Internet Exchange 4",
             "slug": "ix-4",
             "local_autonomous_system": local_as.pk,
-            "ipv4_address": None,
-            "ipv6_address": None,
-            "router": None,
             "communities": [],
             "export_routing_policies": [],
             "import_routing_policies": [],
             "bgp_session_states_update": None,
             "check_bgp_session_states": False,
             "comments": "",
-            "tags": "",
+            "tags": [],
         }
         cls.bulk_edit_data = {"comments": "New comments"}
 
@@ -279,24 +276,27 @@ class InternetExchangePeeringSessionTestCase(StandardTestCases.Views):
             asn=64501, name="Autonomous System 1", affiliated=True
         )
         cls.a_s = AutonomousSystem.objects.create(asn=64502, name="Autonomous System 2")
-        cls.ix = InternetExchange.objects.create(
+        cls.ixp = InternetExchange.objects.create(
             name="Internet Exchange 1", slug="ix-1", local_autonomous_system=local_as
+        )
+        cls.ixp_connection = Connection.objects.create(
+            vlan=2000, internet_exchange_point=cls.ixp
         )
         InternetExchangePeeringSession.objects.bulk_create(
             [
                 InternetExchangePeeringSession(
                     autonomous_system=cls.a_s,
-                    internet_exchange=cls.ix,
+                    ixp_connection=cls.ixp_connection,
                     ip_address="192.0.2.1",
                 ),
                 InternetExchangePeeringSession(
                     autonomous_system=cls.a_s,
-                    internet_exchange=cls.ix,
+                    ixp_connection=cls.ixp_connection,
                     ip_address="192.0.2.2",
                 ),
                 InternetExchangePeeringSession(
                     autonomous_system=cls.a_s,
-                    internet_exchange=cls.ix,
+                    ixp_connection=cls.ixp_connection,
                     ip_address="192.0.2.3",
                 ),
             ]
@@ -304,7 +304,7 @@ class InternetExchangePeeringSessionTestCase(StandardTestCases.Views):
 
         cls.form_data = {
             "autonomous_system": cls.a_s.pk,
-            "internet_exchange": cls.ix.pk,
+            "ixp_connection": cls.ixp_connection.pk,
             "ip_address": ipaddress.ip_address("2001:db8::4"),
             "multihop_ttl": 1,
             "password": None,
@@ -318,7 +318,7 @@ class InternetExchangePeeringSessionTestCase(StandardTestCases.Views):
             "advertised_prefix_count": 0,
             "received_prefix_count": 0,
             "comments": "",
-            "tags": "",
+            "tags": [],
         }
         cls.bulk_edit_data = {
             "is_route_server": True,
@@ -332,27 +332,31 @@ class RouterTestCase(StandardTestCases.Views):
 
     @classmethod
     def setUpTestData(cls):
-        cls.local_as = AutonomousSystem.objects.create(
+        local_as = AutonomousSystem.objects.create(
             asn=64500,
             name="Autonomous System",
             affiliated=True,
         )
+
         Router.objects.bulk_create(
             [
                 Router(
                     name="Router 1",
                     hostname="router1.example.net",
-                    local_autonomous_system=cls.local_as,
+                    local_autonomous_system=local_as,
+                    device_state=DeviceState.ENABLED,
                 ),
                 Router(
                     name="Router 2",
                     hostname="router2.example.net",
-                    local_autonomous_system=cls.local_as,
+                    local_autonomous_system=local_as,
+                    device_state=DeviceState.ENABLED,
                 ),
                 Router(
                     name="Router 3",
                     hostname="router3.example.net",
-                    local_autonomous_system=cls.local_as,
+                    local_autonomous_system=local_as,
+                    device_state=DeviceState.ENABLED,
                 ),
             ]
         )
@@ -361,20 +365,20 @@ class RouterTestCase(StandardTestCases.Views):
             "name": "Router 4",
             "hostname": "router4.example.net",
             "configuration_template": None,
-            "local_autonomous_system": cls.local_as.pk,
-            "last_deployment_id": None,
+            "local_autonomous_system": local_as.pk,
             "encrypt_passwords": False,
-            "platform": Platform.JUNOS,
+            "platform": None,
+            "device_state": DeviceState.ENABLED,
             "netbox_device_id": 0,
             "use_netbox": False,
             "comments": "",
-            "tags": "",
+            "tags": [],
             "napalm_args": None,
             "napalm_password": None,
             "napalm_timeout": 30,
             "napalm_username": "",
         }
-        cls.bulk_edit_data = {"platform": Platform.JUNOS, "comments": "New comments"}
+        cls.bulk_edit_data = {"comments": "New comments"}
 
 
 class RoutingPolicyTestCase(StandardTestCases.Views):
@@ -412,6 +416,6 @@ class RoutingPolicyTestCase(StandardTestCases.Views):
             "address_family": 6,
             "weight": 1,
             "comments": "",
-            "tags": "",
+            "tags": [],
         }
         cls.bulk_edit_data = {"weight": 10, "comments": "New comments"}

@@ -3,8 +3,9 @@ from .models import IXLan, IXLanPrefix, NetworkIXLan
 
 def get_shared_internet_exchanges(as1, as2):
     """
-    Returns shared Internet Exchanges between two autonomous systems based on
-    PeeringDB data.
+    Returns shared IXPs between two autonomous systems based on PeeringDB data.
+
+    TODO: rewrite this using QuerySet.intersection()
     """
     # If both AS are the same, no point in sharing IXPs
     if as1 == as2 or as1 is None or as2 is None:
@@ -23,7 +24,7 @@ def get_shared_internet_exchanges(as1, as2):
 
 def get_ixlan_prefixes(ixlan):
     """
-    Returns all prefixes used on an Internet Exchange LAN.
+    Returns all prefixes used on an IXP LAN.
     """
     if not ixlan or not isinstance(ixlan, IXLan):
         return []

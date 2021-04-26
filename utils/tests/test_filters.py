@@ -38,12 +38,12 @@ class ObjectChangeTestCase(StandardTestCases.Filters):
         params = {"action": ObjectChangeAction.UPDATE}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
 
-    def test_user(self):
-        params = {"user": User.objects.get(username="testuser2").id}
+    def test_user_id(self):
+        params = {"user_id": User.objects.get(username="testuser2").id}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
 
     def test_user_name(self):
-        params = {"user_name": "testuser2"}
+        params = {"user": "testuser2"}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
 
     def test_request_id(self):
@@ -69,12 +69,4 @@ class TagTestCase(StandardTestCases.Filters):
         params = {"q": ""}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
         params = {"q": "tag-1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
-
-    def test_name(self):
-        params = {"name": "Tag 1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
-
-    def test_slug(self):
-        params = {"slug": "tag-1"}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)

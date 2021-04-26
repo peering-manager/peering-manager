@@ -13,6 +13,7 @@ from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
 from django.core.validators import URLValidator
 
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 HOSTNAME = platform.node()
 BASE_DIR = Path(__file__).resolve().parent.parent
 DOCS_DIR = BASE_DIR / "docs"
@@ -126,6 +127,7 @@ REDIS = getattr(configuration, "REDIS", {})
 CACHE_TIMEOUT = getattr(configuration, "CACHE_TIMEOUT", 0)
 CHANGELOG_RETENTION = getattr(configuration, "CHANGELOG_RETENTION", 90)
 LOGIN_REQUIRED = getattr(configuration, "LOGIN_REQUIRED", False)
+BANNER_LOGIN = getattr(configuration, "BANNER_LOGIN", "")
 NAPALM_USERNAME = getattr(configuration, "NAPALM_USERNAME", "")
 NAPALM_PASSWORD = getattr(configuration, "NAPALM_PASSWORD", "")
 NAPALM_TIMEOUT = getattr(configuration, "NAPALM_TIMEOUT", 30)
@@ -133,6 +135,12 @@ NAPALM_ARGS = getattr(configuration, "NAPALM_ARGS", {})
 PAGINATE_COUNT = getattr(configuration, "PAGINATE_COUNT", 20)
 METRICS_ENABLED = getattr(configuration, "METRICS_ENABLED", False)
 
+DATE_FORMAT = getattr(configuration, "DATE_FORMAT", "jS F, Y")
+DATETIME_FORMAT = getattr(configuration, "DATETIME_FORMAT", "jS F, Y G:i")
+SHORT_DATE_FORMAT = getattr(configuration, "SHORT_DATE_FORMAT", "Y-m-d")
+SHORT_DATETIME_FORMAT = getattr(configuration, "SHORT_DATETIME_FORMAT", "Y-m-d H:i")
+SHORT_TIME_FORMAT = getattr(configuration, "SHORT_TIME_FORMAT", "H:i:s")
+TIME_FORMAT = getattr(configuration, "TIME_FORMAT", "G:i")
 try:
     with open("/etc/timezone", "r") as f:
         BASE_TZ = f.readline()
@@ -146,7 +154,7 @@ except (IOError, Exception):
 TIME_ZONE = getattr(configuration, "TIME_ZONE", BASE_TZ).rstrip()
 EMAIL = getattr(configuration, "EMAIL", {})
 BGPQ3_PATH = getattr(configuration, "BGPQ3_PATH", "bgpq3")
-BGPQ3_HOST = getattr(configuration, "BGPQ3_HOST", "rr.ntt.net")
+BGPQ3_HOST = getattr(configuration, "BGPQ3_HOST", "whois.radb.net")
 BGPQ3_SOURCES = getattr(
     configuration,
     "BGPQ3_SOURCES",
@@ -340,6 +348,7 @@ CACHEOPS = {
     "auth.user": {"ops": "get", "timeout": 900},
     "auth.*": {"ops": ("fetch", "get")},
     "auth.permission": {"ops": "all"},
+    "devices.*": {"ops": "all"},
     "peering.*": {"ops": "all"},
     "peeringdb.*": {"ops": "all"},
     "users.*": {"ops": "all"},
@@ -397,6 +406,9 @@ INSTALLED_APPS = [
     "rest_framework",
     "netfields",
     "taggit",
+    "devices",
+    "extras",
+    "net",
     "peering",
     "peeringdb",
     "users",

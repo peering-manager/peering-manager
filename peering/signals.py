@@ -1,3 +1,5 @@
+import logging
+
 from cacheops import CacheMiss, cache
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
@@ -9,23 +11,17 @@ from .models import (
     Template,
 )
 
+logger = logging.getLogger("peering.manager.peering.signals")
+
 
 @receiver(pre_save, sender=DirectPeeringSession)
 def alter_direct_peering_session(instance, **kwargs):
-    if instance.router and instance.router.encrypt_passwords:
-        instance.encrypt_password(instance.router.platform, commit=False)
+    instance.encrypt_password(commit=False)
 
 
 @receiver(pre_save, sender=InternetExchangePeeringSession)
 def alter_internet_exchange_peering_session(instance, **kwargs):
-    # Change encrypted password
-    if (
-        instance.internet_exchange.router
-        and instance.internet_exchange.router.encrypt_passwords
-    ):
-        instance.encrypt_password(
-            instance.internet_exchange.router.platform, commit=False
-        )
+    instance.encrypt_password(commit=False)
 
 
 @receiver(post_save, sender=Router)
@@ -36,7 +32,7 @@ def invalidate_router_cached_configuration(instance, **kwargs):
         cache.get(cached_config_name)
         cache.delete(cached_config_name)
     except CacheMiss:
-        pass
+        logger.debug(f"unable to find cached config '{cached_config_name}'")
 
 
 @receiver(post_save, sender=Template)
@@ -49,4 +45,4 @@ def invalidate_cached_configuration_by_template(instance, **kwargs):
             cache.get(cached_config_name)
             cache.delete(cached_config_name)
         except CacheMiss:
-            pass
+            logger.debug(f"unable to find cached config '{cached_config_name}'")

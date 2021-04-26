@@ -3,12 +3,14 @@ import json
 
 from django.contrib.auth.models import Permission, User
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import ManyToManyField
 from django.forms.models import model_to_dict as _model_to_dict
 from django.test import Client
 from django.test import TestCase as _TestCase
 from django.urls import NoReverseMatch, reverse
 from rest_framework import status
 from rest_framework.test import APIClient
+from taggit.managers import TaggableManager
 
 from users.models import Token
 
@@ -19,31 +21,33 @@ def json_file_to_python_type(filename):
     return None
 
 
-def model_to_dict(instance, fields=None, exclude=None):
+def model_to_dict(instance, fields, api=False):
     """
-    Customized wrapper for Django's built-in model_to_dict(). Does the following:
-      - Excludes the instance ID field
-      - Exclude any fields prepended with an underscore
-      - Convert any assigned tags to a comma-separated string
+    Returns a dictionary representation of an instance.
     """
-    _exclude = ["id"]
-    if exclude is not None:
-        _exclude += exclude
+    model_dict = _model_to_dict(instance, fields=fields)
 
-    model_dict = _model_to_dict(instance, fields=fields, exclude=_exclude)
+    # Map any additional (non-field) instance attributes that were specified
+    for attr in fields:
+        if hasattr(instance, attr) and attr not in model_dict:
+            model_dict[attr] = getattr(instance, attr)
 
-    for key in list(model_dict.keys()):
-        if key.startswith("_"):
-            del model_dict[key]
-        elif key == "tags":
-            model_dict[key] = ",".join(sorted([tag.name for tag in model_dict["tags"]]))
-        # Convert ManyToManyField to list of instance PKs
-        elif (
-            model_dict[key]
-            and type(model_dict[key]) in (list, tuple)
-            and hasattr(model_dict[key][0], "pk")
+    for key, value in list(model_dict.items()):
+        try:
+            field = instance._meta.get_field(key)
+        except FieldDoesNotExist:
+            continue
+
+        if value and type(field) in (ManyToManyField, TaggableManager):
+            model_dict[key] = sorted([o.pk for o in value])
+
+        if api and type(value) in (
+            ipaddress.IPv4Address,
+            ipaddress.IPv6Address,
+            ipaddress.IPv4Interface,
+            ipaddress.IPv6Interface,
         ):
-            model_dict[key] = [obj.pk for obj in model_dict[key]]
+            model_dict[key] = str(value)
 
     return model_dict
 
@@ -58,7 +62,12 @@ def post_data(data):
         if value is None:
             r[key] = ""
         elif type(value) in (list, tuple):
-            r[key] = value
+            if value and hasattr(value[0], "pk"):
+                r[key] = [v.pk for v in value]
+            else:
+                r[key] = value
+        elif hasattr(value, "pk"):
+            r[key] = value.pk
         else:
             r[key] = str(value)
 
@@ -121,6 +130,20 @@ class TestCase(_TestCase):
             )
             self.user.user_permissions.remove(perm)
 
+    def assertInstanceEqual(self, instance, data, exclude=None, api=False):
+        if exclude is None:
+            exclude = []
+
+        fields = [k for k in data.keys() if k not in exclude]
+        model_dict = model_to_dict(instance, fields=fields, api=api)
+
+        # Omit any dictionary keys which are not instance attributes or have been excluded
+        relevant_data = {
+            k: v for k, v in data.items() if hasattr(instance, k) and k not in exclude
+        }
+
+        self.assertDictEqual(model_dict, relevant_data)
+
     def assertStatus(self, response, expected_status):
         """
         Provide detail when receiving an unexpected HTTP response.
@@ -158,24 +181,6 @@ class APITestCase(TestCase):
     def _get_list_url(self):
         viewname = f"{self._get_view_namespace()}:{self.model._meta.model_name}-list"
         return reverse(viewname)
-
-    def assertInstanceEqual(self, instance, data, api=False):
-        model_dict = model_to_dict(instance, fields=data.keys())
-        relevant_data = {}
-        for k, v in data.items():
-            # Omit any dictionary keys which are not instance attributes
-            if hasattr(instance, k):
-                # Transform IP address strings to IP address instances
-                if isinstance(v, str):
-                    try:
-                        v = ipaddress.IPv6Address(v)
-                    except ValueError:
-                        try:
-                            v = ipaddress.IPv4Address(v)
-                        except ValueError:
-                            pass
-                relevant_data[k] = v
-        self.assertDictEqual(model_dict, relevant_data)
 
 
 class StandardTestCases(object):
@@ -312,7 +317,7 @@ class StandardTestCases(object):
 
             self.assertEqual(initial_count + 1, self.model.objects.count())
             instance = self.model.objects.order_by("-pk").first()
-            self.assertDictEqual(model_to_dict(instance), self.form_data)
+            self.assertInstanceEqual(instance, self.form_data)
 
         def test_edit_object(self):
             instance = self.model.objects.first()
@@ -334,7 +339,7 @@ class StandardTestCases(object):
             self.assertStatus(response, status.HTTP_302_FOUND)
 
             instance = self.model.objects.get(pk=instance.pk)
-            self.assertDictEqual(model_to_dict(instance), self.form_data)
+            self.assertInstanceEqual(instance, self.form_data)
 
         def test_delete_object(self):
             instance = self.model.objects.first()
@@ -380,13 +385,8 @@ class StandardTestCases(object):
             response = self.client.post(**request)
             self.assertStatus(response, status.HTTP_302_FOUND)
 
-            bulk_edit_fields = self.bulk_edit_data.keys()
             for i, instance in enumerate(self.model.objects.filter(pk__in=pk_list)):
-                self.assertDictEqual(
-                    model_to_dict(instance, fields=bulk_edit_fields),
-                    self.bulk_edit_data,
-                    msg=f"Instance {i} failed to validate after bulk edit: {instance}",
-                )
+                self.assertInstanceEqual(instance, self.bulk_edit_data)
 
         def test_bulk_delete_objects(self):
             pk_list = self.model.objects.values_list("pk", flat=True)

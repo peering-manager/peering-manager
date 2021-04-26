@@ -4,7 +4,9 @@ from unittest.mock import patch
 from django.conf import settings
 from django.test import TestCase
 
-from peering.enums import BGPRelationship, CommunityType, Platform, RoutingPolicyType
+from devices.models import PasswordAlgorithm, Platform
+from net.models import Connection
+from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -19,10 +21,6 @@ from peering.models import (
 )
 from peering.tests.mocked_data import load_peeringdb_data, mocked_subprocess_popen
 from peeringdb.models import Network, Organization
-from utils.crypto.cisco import decrypt as cisco_decrypt
-from utils.crypto.cisco import is_encrypted as cisco_is_encrypted
-from utils.crypto.junos import decrypt as junos_decrypt
-from utils.crypto.junos import is_encrypted as junos_is_encrypted
 from utils.testing import json_file_to_python_type
 
 
@@ -167,12 +165,12 @@ class DirectPeeringSessionTest(TestCase):
         cls.router = Router.objects.create(
             name="Test",
             hostname="test.example.com",
-            platform=Platform.JUNOS,
             local_autonomous_system=AutonomousSystem.objects.create(
                 asn=64500,
                 name="Autonomous System",
                 affiliated=True,
             ),
+            platform=Platform.objects.get(name="Juniper Junos"),
         )
         cls.session = DirectPeeringSession.objects.create(
             autonomous_system=cls.autonomous_system,
@@ -180,50 +178,6 @@ class DirectPeeringSessionTest(TestCase):
             ip_address="2001:db8::1",
             password="mypassword",
             router=cls.router,
-        )
-
-    def test_encrypt_password(self):
-        self.assertIsNotNone(self.session.password)
-        self.assertIsNone(self.session.encrypted_password)
-
-        # Encrypt the password
-        self.session.encrypt_password(self.router.platform)
-        self.assertIsNotNone(self.session.encrypted_password)
-        self.assertTrue(junos_is_encrypted(self.session.encrypted_password))
-        self.assertEqual(
-            self.session.password, junos_decrypt(self.session.encrypted_password)
-        )
-
-        # Change router platform and re-encrypt
-        self.router.platform = Platform.IOSXR
-        self.session.encrypt_password(self.router.platform)
-        self.assertIsNotNone(self.session.encrypted_password)
-        self.assertTrue(cisco_is_encrypted(self.session.encrypted_password))
-        self.assertEqual(
-            self.session.password, cisco_decrypt(self.session.encrypted_password)
-        )
-
-        # Change router platform to an unsupported one
-        self.router.platform = Platform.NONE
-        self.session.encrypt_password(self.router.platform)
-        self.assertIsNone(self.session.encrypted_password)
-
-        # Change password to None
-        self.session.password = None
-        self.router.platform = Platform.JUNOS
-        self.session.encrypt_password(self.router.platform)
-        self.assertIsNone(self.session.encrypted_password)
-
-        # Change the password to a new one and make sure it changes the encrypted one
-        self.session.password = "mypassword1"
-        self.session.encrypt_password(self.router.platform)
-        self.assertEqual(
-            self.session.password, junos_decrypt(self.session.encrypted_password)
-        )
-        self.session.password = "mypassword2"
-        self.session.encrypt_password(self.router.platform)
-        self.assertEqual(
-            self.session.password, junos_decrypt(self.session.encrypted_password)
         )
 
     def test_poll(self):
@@ -265,55 +219,6 @@ class InternetExchangeTest(TestCase):
         )
         load_peeringdb_data()
 
-    def test_import_peering_sessions(self):
-        # Expected results
-        expected = [
-            # First case
-            (1, 1, []),
-            # Second case
-            (0, 1, []),
-            # Third case
-            (0, 1, []),
-            # Fourth case
-            (0, 0, []),
-        ]
-
-        session_lists = [
-            # First case, one new session with one new AS
-            [{"ip_address": ipaddress.ip_address("2001:db8::1"), "remote_asn": 201281}],
-            # Second case, one new session with one known AS
-            [{"ip_address": ipaddress.ip_address("192.0.2.1"), "remote_asn": 201281}],
-            # Third case, new IPv4 session on another IX but with an IP that has
-            # already been used
-            [{"ip_address": ipaddress.ip_address("192.0.2.1"), "remote_asn": 201281}],
-            # Fourth case, new IPv4 session with IPv6 prefix
-            [{"ip_address": ipaddress.ip_address("203.0.113.1"), "remote_asn": 201281}],
-        ]
-
-        prefix_lists = [
-            # First case
-            [ipaddress.ip_network("2001:db8::/64")],
-            # Second case
-            [ipaddress.ip_network("192.0.2.0/24")],
-            # Third case
-            [ipaddress.ip_network("192.0.2.0/24")],
-            # Fourth case
-            [ipaddress.ip_network("2001:db8::/64")],
-        ]
-
-        # Run test cases
-        for i in range(len(expected)):
-            ixp = InternetExchange.objects.create(
-                local_autonomous_system=self.autonomous_system,
-                name=f"Test {i}",
-                slug=f"test_{i}",
-            )
-            self.assertEqual(
-                expected[i],
-                ixp._import_peering_sessions(session_lists[i], prefix_lists[i]),
-            )
-            self.assertEqual(expected[i][1], len(ixp.get_peering_sessions()))
-
 
 class InternetExchangePeeringSessionTest(TestCase):
     @classmethod
@@ -322,24 +227,22 @@ class InternetExchangePeeringSessionTest(TestCase):
         cls.router = Router.objects.create(
             name="Test",
             hostname="test.example.com",
-            platform=Platform.JUNOS,
             local_autonomous_system=AutonomousSystem.objects.create(
                 asn=64500,
                 name="Autonomous System",
                 affiliated=True,
             ),
+            platform=Platform.objects.get(name="Juniper Junos"),
         )
-        cls.ix = InternetExchange.objects.create(
-            name="Test Group",
-            slug="testgroup",
-            ipv6_address="2001:db8::1337",
-            ipv4_address="192.0.2.64",
-            router=cls.router,
-            check_bgp_session_states=True,
+        cls.ixp = InternetExchange.objects.create(
+            name="Test Group", slug="testgroup", check_bgp_session_states=True
+        )
+        cls.ixp_connection = Connection.objects.create(
+            vlan=2000, internet_exchange_point=cls.ixp, router=cls.router
         )
         cls.session = InternetExchangePeeringSession.objects.create(
             autonomous_system=cls.a_s,
-            internet_exchange=cls.ix,
+            ixp_connection=cls.ixp_connection,
             ip_address="2001:db8::1",
             password="mypassword",
         )
@@ -349,32 +252,43 @@ class InternetExchangePeeringSessionTest(TestCase):
         self.assertIsNotNone(self.session.password)
         self.assertIsNone(self.session.encrypted_password)
 
-        # Encrypt the password
-        self.session.encrypt_password(self.router.platform)
-        self.assertIsNotNone(self.session.encrypted_password)
-        self.assertTrue(junos_is_encrypted(self.session.encrypted_password))
-        self.assertEqual(
-            self.session.password, junos_decrypt(self.session.encrypted_password)
-        )
-
-        # Change router platform and re-encrypt
-        self.router.platform = Platform.IOSXR
-        self.session.encrypt_password(self.router.platform)
-        self.assertIsNotNone(self.session.encrypted_password)
-        self.assertTrue(cisco_is_encrypted(self.session.encrypted_password))
-        self.assertEqual(
-            self.session.password, cisco_decrypt(self.session.encrypted_password)
-        )
-
-        # Change router platform to an unsupported one
-        self.router.platform = Platform.NONE
-        self.session.encrypt_password(self.router.platform)
+        # Try encrypting but without password algorithm for the platform
+        self.session.encrypt_password()
         self.assertIsNone(self.session.encrypted_password)
 
-        # Change password to None and
+        # Set password algorithm
+        self.router.platform.password_algorithm = PasswordAlgorithm.JUNIPER_TYPE9
+        self.router.platform.save()
+
+        # Encrypt the password but router is not configured for it
+        self.session.encrypt_password()
+        self.assertIsNone(self.session.encrypted_password)
+
+        # Enable password encryption for router
+        self.router.encrypt_passwords = True
+        self.router.save()
+
+        # Encrypt the password
+        self.session.encrypt_password()
+        self.assertIsNotNone(self.session.encrypted_password)
+
+        # Change router platform and re-encrypt
+        self.router.platform = Platform.objects.get(name="Cisco IOS")
+        self.router.save()
+        old_encrypted_password = self.session.encrypted_password
+        self.session.encrypt_password()
+        self.assertNotEqual(old_encrypted_password, self.session.encrypted_password)
+
+        # Change router platform to one without encryption support
+        self.router.platform = Platform.objects.create(name="Huge OS", slug="huge-os")
+        self.router.save()
+        self.session.encrypt_password()
+        self.assertNotEqual("", self.session.encrypted_password)
+
+        # Change password to `None`
         self.session.password = None
-        self.router.platform = Platform.JUNOS
-        self.session.encrypt_password(self.router.platform)
+        self.session.encrypt_password()
+        self.assertIsNone(self.session.password)
         self.assertIsNone(self.session.encrypted_password)
 
     def test_exists_in_peeringdb(self):
@@ -411,11 +325,15 @@ class RouterTest(TestCase):
         cls.router = Router.objects.create(
             name="Test",
             hostname="test.example.com",
-            platform=Platform.JUNOS,
+            device_state=DeviceState.ENABLED,
             local_autonomous_system=cls.local_as,
         )
 
+    def test_is_usable_for_task(self):
+        self.assertFalse(self.router.is_usable_for_task())
+
     def test_get_configuration_context(self):
+        # self.maxDiff = None
         for i in range(1, 6):
             AutonomousSystem.objects.create(asn=i, name=f"Test {i}")
         bgp_group = BGPGroup.objects.create(name="Test Group", slug="testgroup")
@@ -429,80 +347,37 @@ class RouterTest(TestCase):
                 enabled=bool(i % 2),
                 router=self.router,
             )
-        internet_exchange = InternetExchange.objects.create(
-            name="Test IX", slug="testix", router=self.router
+        ixp = InternetExchange.objects.create(name="Test IX", slug="test-ix")
+        ixp_connection = Connection.objects.create(
+            vlan=2000, internet_exchange_point=ixp, router=self.router
         )
         for i in range(1, 6):
             InternetExchangePeeringSession.objects.create(
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
-                internet_exchange=internet_exchange,
+                ixp_connection=ixp_connection,
                 ip_address=f"2001:db8::{i}",
                 enabled=bool(i % 2),
             )
             InternetExchangePeeringSession.objects.create(
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
-                internet_exchange=internet_exchange,
+                ixp_connection=ixp_connection,
                 ip_address=f"192.0.2.{i}",
                 enabled=bool(i % 2),
             )
 
-        # Convert to dict and merge values
-        bgp_group_dict = bgp_group.to_dict()
-        bgp_group_dict.update(
-            {
-                "sessions": {
-                    6: [
-                        session.to_dict()
-                        for session in DirectPeeringSession.objects.filter(
-                            ip_address__family=6
-                        )
-                    ],
-                    4: [
-                        session.to_dict()
-                        for session in DirectPeeringSession.objects.filter(
-                            ip_address__family=4
-                        )
-                    ],
-                }
-            }
-        )
-        internet_exchange_dict = internet_exchange.to_dict()
-        internet_exchange_dict.update(
-            {
-                "sessions": {
-                    6: [
-                        session.to_dict()
-                        for session in InternetExchangePeeringSession.objects.filter(
-                            ip_address__family=6
-                        )
-                    ],
-                    4: [
-                        session.to_dict()
-                        for session in InternetExchangePeeringSession.objects.filter(
-                            ip_address__family=4
-                        )
-                    ],
-                }
-            }
-        )
-
         # Generate expected result
         expected = {
-            "my_as": self.local_as.to_dict(),
-            "autonomous_systems": [
-                autonomous_system.to_dict()
-                for autonomous_system in AutonomousSystem.objects.exclude(
-                    pk=self.local_as.pk
-                )
-            ],
-            "bgp_groups": [bgp_group_dict],
-            "internet_exchanges": [internet_exchange_dict],
-            "routing_policies": [],
-            "communities": [],
+            "my_as": self.local_as,
+            "autonomous_systems": AutonomousSystem.objects.exclude(pk=self.local_as.pk),
+            "bgp_groups": BGPGroup.objects.all(),
+            "internet_exchanges": InternetExchange.objects.all(),
+            "routing_policies": RoutingPolicy.objects.none(),
+            "communities": Community.objects.none(),
         }
 
-        result = self.router.get_configuration_context()
-        self.assertEqual(result, expected)
+        self.assertEqual(
+            sorted(self.router.get_configuration_context()), sorted(expected)
+        )
 
     def test_napalm_bgp_neighbors_to_peer_list(self):
         # Expected results
@@ -542,7 +417,7 @@ class RouterTest(TestCase):
         router = Router.objects.create(
             name="test",
             hostname="test.example.com",
-            platform=Platform.JUNOS,
+            device_state=DeviceState.ENABLED,
             local_autonomous_system=AutonomousSystem.objects.create(
                 asn=64510,
                 name="Autonomous System",

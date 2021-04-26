@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils.http import is_safe_url
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import View
 
 from utils.forms import ConfirmationForm
@@ -41,7 +41,9 @@ class LoginView(View):
         if form.is_valid():
             # Check where should the user be redirected
             next_redirect = request.POST.get("next", "")
-            if not is_safe_url(url=next_redirect, allowed_hosts=[request.get_host()]):
+            if not url_has_allowed_host_and_scheme(
+                url=next_redirect, allowed_hosts=[request.get_host()]
+            ):
                 next_redirect = reverse("home")
 
             auth_login(request, form.get_user())

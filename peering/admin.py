@@ -11,7 +11,6 @@ from .models import (
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
-    Template,
 )
 
 admin_site.register(AutonomousSystem)

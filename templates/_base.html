@@ -81,6 +81,17 @@
             <a href="{% url 'peering:internetexchange_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/internet-exchanges/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">Internet Exchanges</div>
             </a>
+            <a href="#provisioning_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/all-available-ix-peers/' %} active{% endif %}">
+              <div class="d-flex w-100 justify-content-start align-items-center">
+                <span class="menu-collapsed">Provisioning</span>
+                <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
+              </div>
+            </a>
+            <div id="provisioning_menu_id" class="collapse sidebar-submenu">
+              <a href="{% url 'peering:provisioning_allixpeers' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/all-available-ix-peers/' %} active{% endif %}">
+                <span class="menu-collapsed">All Available IX Peers</span>
+              </a>
+            </div>
             <a href="#policy_options_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/communities/,/routing-policies/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
                 <span class="menu-collapsed">Policy Options</span>
@@ -95,13 +106,16 @@
                 <span class="menu-collapsed">Routing Policies</span>
               </a>
             </div>
-            <a href="#deployment_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/configurations/,/emails/,/routers/' %} active{% endif %}">
+            <a href="#deployment_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/configurations/,/emails/,/platforms/,/routers/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
                 <span class="menu-collapsed">Deployment</span>
                 <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
               </div>
             </a>
             <div id="deployment_menu_id" class="collapse sidebar-submenu">
+              <a href="{% url 'devices:platform_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/platforms/' %} active{% endif %}">
+                <span class="menu-collapsed">Platforms</span>
+              </a>
               <a href="{% url 'peering:router_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/routers/' %} active{% endif %}">
                 <span class="menu-collapsed">Routers</span>
               </a>
@@ -112,9 +126,23 @@
                 <span class="menu-collapsed">E-mails</span>
               </a>
             </div>
-            <a href="{% url 'utils:tag_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/tags/' %} active{% endif %}">
-              <div class="d-flex w-100 justify-content-start align-items-center">Tags</div>
+            <a href="#other_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/job-results/,/tags/,/changelog/' %} active{% endif %}">
+              <div class="d-flex w-100 justify-content-start align-items-center">
+                <span class="menu-collapsed">Other</span>
+                <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
+              </div>
             </a>
+            <div id="other_menu_id" class="collapse sidebar-submenu">
+              <a href="{% url 'extras:jobresult_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/job-results/' %} active{% endif %}">
+                <span class="menu-collapsed">Job Results</span>
+              </a>
+              <a href="{% url 'utils:tag_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/tags/' %} active{% endif %}">
+                <div class="menu-collapsed">Tags</div>
+              </a>
+              <a href="{% url 'utils:objectchange_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/changelog/' %} active{% endif %}">
+                <span class="menu-collapsed">Change Log</span>
+              </a>
+            </div>
           </ul>
           <div class="footer">
             <p>{{ settings.HOSTNAME }} ({{ settings.VERSION }})</p>
@@ -151,22 +179,18 @@
     <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
     <script src="{% static 'bootstrap-4.5.3-dist/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'select2-4.0.13/js/select2.full.min.js' %}"></script>
-    <script src="{% static 'js/base.js' %}?{{ settings.VERSION }}"></script>
-    <script src="{% static 'js/forms.js' %}?{{ settings.VERSION }}"></script>
     <script type="text/javascript">
       var our_api_path = "/{{ settings.BASE_PATH }}api/";
-
-      $('.context-as').click(function() {
-        asID = $(this).attr("data-as-id");
+      $('.context-as').click(function () {
         $.ajax({
           method: 'post',
           url: "{% url 'users:preferences' %}",
-          data: { csrfmiddlewaretoken: '{{ csrf_token }}', as_id: asID }
-        }).done(function() {
-          location.reload();
-        });
+          data: { csrfmiddlewaretoken: '{{ csrf_token }}', as_id: $(this).attr("data-as-id") }
+        }).done(function () { location.reload(); });
       });
     </script>
+    <script src="{% static 'js/base.js' %}?{{ settings.VERSION }}"></script>
+    <script src="{% static 'js/forms.js' %}?{{ settings.VERSION }}"></script>
     {% block javascript %}{% endblock %}
   </body>
   </html>

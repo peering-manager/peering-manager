@@ -24,6 +24,11 @@
     </a>
   </li>
   <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'connections' %} active{% endif %}" href="{% url 'peering:internetexchange_connections' slug=instance.slug %}">
+      <i class="fas fa-sitemap"></i> Connections
+    </a>
+  </li>
+  <li class="nav-item">
     <a class="nav-link{% if active_tab == 'sessions' %} active{% endif %}" href="{% url 'peering:internetexchange_peering_sessions' slug=instance.slug %}">
       <i class="fas fa-network-wired"></i> Peering Sessions
     </a>

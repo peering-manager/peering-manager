@@ -33,11 +33,7 @@
         </tr>
         <tr>
           <td>Platform</td>
-          {% if instance.platform %}
-          <td>{{ instance.get_platform_display }}</td>
-          {% else %}
-          <td>Other</td>
-          {% endif %}
+          <td>{{ instance.platform|as_link|render_none }}</td>
         </tr>
         <tr>
           <td>Encrypt Passwords</td>
@@ -48,6 +44,10 @@
             <i class="fas fa-times text-danger"></i>
             {% endif %}
           </td>
+        </tr>
+        <tr>
+          <td>Device State</td>
+          <td>{{ instance.get_device_state_display }}</td>
         </tr>
         <tr>
           <td>Configuration</td>
@@ -69,7 +69,7 @@
         {% endif %}
         <tr>
           <td>Utilization</td>
-          <td>Connected to {% if internet_exchanges|length == 1 %}1 Internet exchange{% else %}{{ internet_exchanges|length }} Internet exchanges{% endif %}</td>
+          <td>Has {{ connections|length }} connection{{ connections|length|pluralize }}</td>
         </tr>
       </table>
     </div>
@@ -132,25 +132,41 @@
 {% block javascript %}
 <script>
   $('.alert').hide();
-  $('.alert').on('click', '.close', function() {
+  $('.alert').on('click', '.close', function () {
     $(this).closest('.alert').slideUp();
   });
 
-  $("#router-ping").click(function() {
+  function pingFailHandler() {
+    PeeringManager.resetPingButton($('#router-ping'));
+  }
+  function pingDoneHandler(r) {
+    switch (r['status']) {
+      case 'pending':
+      case 'running':
+        setTimeout(function () {
+          PeeringManager.pollJobResult(r, pingDoneHandler, pingFailHandler);
+        }, 2000);
+        break;
+      case 'completed':
+        $('#message-can-ping').slideDown();
+        PeeringManager.resetPingButton($('#router-ping'));
+        break;
+      case 'errored':
+      case 'failed':
+      default:
+        $('#message-cannot-ping').slideDown();
+        PeeringManager.resetPingButton($('#router-ping'));
+        break;
+    }
+  }
+
+  $("#router-ping").click(function () {
     $.ajax({
-      // Call for a ping
       method: "get",
       url: "{% url 'peering-api:router-test-napalm-connection' pk=instance.pk %}",
-      beforeSend: function() {
-        $('#router-ping').attr('disabled', 'disabled').removeClass('btn-primary').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
-      },
-      complete: function() {
-        $('#router-ping').removeClass('btn-warning').addClass('btn-primary').removeAttr('disabled').html('<i class="fas fa-plug"></i> Ping');
-      }
-    }).done(function() {
-      $('#message-can-ping').slideDown();
-    }).fail(function() {
-      $('#message-cannot-ping').slideDown();
+    }).done(function(r) {
+      PeeringManager.setWorkingButton($('#router-ping'));
+      PeeringManager.pollJobResult(r, pingDoneHandler, pingFailHandler);
     });
   });
 </script>

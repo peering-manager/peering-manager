@@ -1,0 +1,118 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'extras:jobresult_list' %}">Job Results</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header"><strong>Details</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Job ID</td>
+          <td><code>{{ instance.job_id }}</code></td>
+        </tr>
+        <tr>
+          <td>Name</td>
+          <td><code>{{ instance.name }}</code></td>
+        </tr>
+        <tr>
+          <td>Created</td>
+          <td>{{ instance.created }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header"><strong>Summary</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Status</td>
+          <td>
+            {% if instance.status == 'failed' %}
+            <span class="badge badge-danger">Failed</span>
+            {% elif instance.status == 'errored' %}
+            <span class="badge badge-danger">Errored</span>
+            {% elif instance.status == 'pending' %}
+            <span class="badge badge-primary">Pending</span>
+            {% elif instance.status == 'running' %}
+            <span class="badge badge-warning">Running</span>
+            {% elif instance.status == 'completed' %}
+            <span class="badge badge-success">Completed</span>
+            {% else %}
+            <span class="badge badge-secondary">Unknown</span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td>Duration</td>
+          <td>{{ instance.duration|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Completed</td>
+          <td>{{ instance.completed|render_none }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    {% if instance.data %}
+    <div class="card">
+      <div class="card-header"><strong>Logs</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <thead>
+          <tr class="table-headings">
+            <th>Time</th>
+            <th>Level</th>
+            <th>Object</th>
+            <th>Message</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if instance.output %}
+          <tr>
+            <th colspan="4" class="text-monospace">
+              <a name="output" href="#output" data-toggle="collapse" aria-expanded="false" aria-controls="output">output</a>
+            </th>
+          </tr>
+          <tr class="collapse" id="output">
+            <td colspan="4"><pre class="pre-scrollable">{{ instance.output }}</pre></td>
+          </tr>
+          {% endif %}
+          {% for grouping, data in instance.data.items %}
+          {% if grouping != "total" and grouping != "output" %}
+          <tr>
+            <th colspan="3" class="text-monospace">
+              <a name="{{ grouping }}"></a>{{ grouping }}
+            </th>
+            <td class="text-right text-monospace">
+              <span class="badge badge-success">{{ data.success }}</span>
+              <span class="badge badge-info">{{ data.info }}</span>
+              <span class="badge badge-warning">{{ data.warning }}</span>
+              <span class="badge badge-danger">{{ data.failure }}</span>
+            </td>
+          </tr>
+          {% for time, level, obj, url, message in data.log %}
+          <tr class="table-{% if level == 'failure' %}danger{% elif level %}{{ level }}{% endif %}">
+            <td>{{ time }}</td>
+            <td>{{ level|upper }}</td>
+            <td>
+              {% if obj and url %}<a href="{{ url }}">{{ obj }}</a>{% elif obj %}{{ obj }}{% endif %}
+            </td>
+            <td class="rendered-markdown">{{ message|markdown }}</td>
+          </tr>
+          {% endfor %}
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
