@@ -4,6 +4,7 @@ from django.db.models.query import QuerySet
 
 from devices.crypto.cisco import MAGIC as CISCO_MAGIC
 from peering.models import AutonomousSystem, InternetExchange
+from peering.models.abstracts import BGPSession
 from utils.models import TaggableModel
 
 
@@ -25,6 +26,29 @@ def ipv6(value):
         return ipaddress.IPv6Address(value)
     except ValueError:
         return None
+
+
+def ip_version(value):
+    """
+    Returns the IP version of a BGP session.
+    """
+    if not isinstance(value, BGPSession):
+        raise ValueError("value is not a bgp session")
+
+    return 6 if ipv6(value.ip_address) else 4
+
+
+def max_prefix(value):
+    """
+    Returns the max prefix value for a BGP session.
+    """
+    if not isinstance(value, BGPSession):
+        raise ValueError("value is not a bgp session")
+
+    if ipv6(value.ip_address):
+        return value.autonomous_system.ipv6_max_prefixes
+    else:
+        return value.autonomous_system.ipv4_max_prefixes
 
 
 def cisco_password(password):
@@ -186,6 +210,8 @@ FILTER_DICT = {
     "sessions": sessions,
     "sessions_attr": sessions_attr,
     "route_server": route_server,
+    "ip_version": ip_version,
+    "max_prefix": max_prefix,
     # Routing policies
     "iter_export_policies": iter_export_policies,
     "iter_import_policies": iter_import_policies,
