@@ -367,12 +367,13 @@ class RouterTest(TestCase):
 
         # Generate expected result
         expected = {
-            "my_as": self.local_as,
             "autonomous_systems": AutonomousSystem.objects.exclude(pk=self.local_as.pk),
             "bgp_groups": BGPGroup.objects.all(),
             "internet_exchanges": InternetExchange.objects.all(),
+            "local_as": self.local_as,
             "routing_policies": RoutingPolicy.objects.none(),
             "communities": Community.objects.none(),
+            "router": self.router,
         }
 
         self.assertEqual(

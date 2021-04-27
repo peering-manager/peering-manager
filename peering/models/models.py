@@ -669,6 +669,18 @@ class InternetExchange(AbstractGroup):
     def get_peer_list_url(self):
         return reverse("peering:internet_exchange_peers", kwargs={"slug": self.slug})
 
+    def merged_export_policies(self, reverse=False):
+        # Get own policies
+        policies = [p for p in self.export_policies()]
+
+        return list(reversed(policies)) if reverse else policies
+
+    def merged_import_policies(self, reverse=False):
+        # Get own policies
+        policies = [p for p in self.import_policies()]
+
+        return list(reversed(policies)) if reverse else policies
+
     def link_to_peeringdb(self):
         """
         Retrieves the PeeringDB IDs for this IX based on connections.
@@ -1184,12 +1196,13 @@ class Router(ChangeLoggedModel, TaggableModel):
 
     def get_configuration_context(self):
         return {
-            "my_as": self.local_autonomous_system,
             "autonomous_systems": self.get_autonomous_systems(),
             "bgp_groups": self.get_bgp_groups(),
-            "internet_exchanges": self.get_internet_exchanges(),
-            "routing_policies": RoutingPolicy.objects.all(),
             "communities": Community.objects.all(),
+            "internet_exchanges": self.get_internet_exchanges(),
+            "local_as": self.local_autonomous_system,
+            "routing_policies": RoutingPolicy.objects.all(),
+            "router": self,
         }
 
     def generate_configuration(self):
