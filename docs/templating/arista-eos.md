@@ -1,71 +1,52 @@
 ```no-highlight
-router bgp {{ my_as.asn }}
-        {%- for internet_exchange in internet_exchanges %}
-        {%- for address_family, sessions in internet_exchange.sessions() %}
-        {%- if sessions|length > 0 %}
-   neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }} peer-group
-   neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }} next-hop-self
-   {% if address_family == 6 -%}
-   neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }} maximum-routes 10
-   {%- else -%}
-   neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }} maximum-routes 100
-   {%- endif -%}
-      {%- if address_family == 6 %}
-   address-family ipv6
-      {%- endif %}
-      {%- if internet_exchange.import_policies() %}
-      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }} route-map {% for import_policy in internet_exchange.import_policies() %}{%- if import_policy.address_family == address_family %}{{ import_policy.slug }} {% endif %}{% endfor %}in
-      {%- else %}
-      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }} route-map block-all in
-      {%- endif %}
-      {%- if internet_exchange.export_policies() %}
-      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }} route-map {% for export_policy in internet_exchange.export_policies() %}{%- if export_policy.address_family == address_family %}{{ export_policy.slug }} {% endif %}{% endfor %}out
-      {%- else %}
-      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }} route-map block-all out
-      {%- endif %}
-      {%- if address_family == 6 %}
-      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }} activate
-      {%- endif %}
-   !
-   {%- for session in sessions %}
-    neighbor {{ session.ip_address }} peer-group peer-ixp-{{ internet_exchange.slug }}-v{{ address_family }}
-    neighbor {{ session.ip_address }} remote-as {{ session.autonomous_system.asn }}
-    neighbor {{ session.ip_address }} description "{{ session.autonomous_system.name }}"
-    {%- if address_family == 6 and session.autonomous_system.ipv6_max_prefixes > 0 %}
-    neighbor {{ session.ip_address }} maximum-routes {{ session.autonomous_system.ipv6_max_prefixes }}
-    {%- endif %}
-    {%- if address_family == 4 and session.autonomous_system.ipv4_max_prefixes > 0 %}
-    neighbor {{ session.ip_address }} maximum-routes {{ session.autonomous_system.ipv4_max_prefixes }}
-    {%- endif %}
-
-    {%- if session.is_route_server %}
-    no neighbor {{ session.ip_address }} enforce-first-as
-    {%- endif %}
-    {%- if session.password %}
-    {%- if session.encrypted_password %}
-    neighbor {{ session.ip_address }} password 7 {{ session.encrypted_password }}
+router bgp {{ local_as.asn }}
+{%- for internet_exchange in internet_exchanges %}
+  {%- for family in (6, 4) %}
+   neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ family }} peer-group
+   neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ family }} next-hop-self
+   address-family ipv{{ family }}
+    {%- if internet_exchange | merge_import_policies %}
+      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ family }} route-map {{ session | merge_import_policies }} in
     {%- else %}
-    neighbor {{ session.ip_address }} password 0 {{ session.password }}
+      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ family }} route-map reject-all in
     {%- endif %}
+    {%- if internet_exchange | merge_export_policies %}
+      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ family }} route-map {{ session | merge_export_policies }} out
+    {%- else %}
+      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ family }} route-map reject-all out
+    {%- endif %}
+      neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ family }} activate
+   !
+  {%- endfor %}
+  {%- for session in internet_exchange | sessions %}
+   neighbor {{ session.ip_address }} peer-group peer-ixp-{{ internet_exchange.slug }}-v{{ session | ip_version }}
+   neighbor {{ session.ip_address }} remote-as {{ session.autonomous_system.asn }}
+   neighbor {{ session.ip_address }} description "Peering: AS{{ session.autonomous_system.asn }} - {{ session.autonomous_system.name }}"
+    {%- if session | max_prefix %}
+   neighbor {{ session.ip_address }} maximum-routes {{ session | max_prefix }}
+    {%- endif %}
+    {%- if session.is_route_server %}
+   no neighbor {{ session.ip_address }} enforce-first-as
+    {%- endif %}
+    {%- if session.encrypted_password %}
+   neighbor {{ session.ip_address }} password {{ session.encrypted_password }}
+    {%- elif session.password %}
+   neighbor {{ session.ip_address }} password 0 {{ session.password }}
     {%- endif %}
     {%- if not session.enabled %}
-    neighbor {{ session.ip_address }} shutdown
+   neighbor {{ session.ip_address }} shutdown
     {%- else %}
-    no neighbor {{ session.ip_address }} shutdown
+   no neighbor {{ session.ip_address }} shutdown
     {%- endif %}
-    {%- if session.import_policies() %}
-    {%- if address_family == 6 %}
-    address-family ipv6
+   address-family ipv{{ session | ip_version }}
+    {%- if session | merge_import_policies %}
+      neighbor {{ session.ip_address }} route-map {{ session | merge_import_policies }} in
     {%- endif %}
-       neighbor {{ session.ip_address }} route-map {% for import_policy in session.import_policies() %}{%- if (import_policy.address_family == address_family or export_policy.address_family == 0) %}{{ import_policy.slug }} {% endif %}{% endfor %}in
+    {%- if session | merge_export_policies %}
+      neighbor {{ session.ip_address }} route-map {{ session | merge_export_policies }} out
     {%- endif %}
-    {%- if session.export_policies() %}
-       neighbor {{ session.ip_address }} route-map {% for export_policy in session.export_policies() %}{%- if (export_policy.address_family == address_family or export_policy.address_family == 0) %}{{ export_policy.slug }} {% endif %}{% endfor %}out
-    {%- endif %}
-    !
+   !
+  {%- endfor %}
 {%- endfor %}
-        {%- endif %}
-        {%- endfor %}
-        {%- endfor %}
 exit
 ```
