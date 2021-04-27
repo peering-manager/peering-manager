@@ -505,14 +505,6 @@ class Community(ChangeLoggedModel, TaggableModel):
 
 
 class DirectPeeringSession(BGPSession):
-    def generate_service_ref():
-        """
-
-        """
-        affiliated = AutonomousSystem.objects.filter(affiliated=True)
-        return '{0}-D{1}S'.format(affiliated.first().asn, uuid.uuid4().hex[:6].upper())
-
-    service_reference = models.CharField(max_length=255, unique=True, default=generate_service_ref)
     local_autonomous_system = models.ForeignKey(
         "AutonomousSystem",
         on_delete=models.CASCADE,
@@ -539,6 +531,13 @@ class DirectPeeringSession(BGPSession):
     )
     router = models.ForeignKey(
         "Router", blank=True, null=True, on_delete=models.SET_NULL
+    )
+    service_reference = models.CharField(
+        max_length=255,
+        unique=True,
+        blank=True,
+        null=True,
+        help_text="Optional: Internal Service Reference (will auto generate if left blank)",
     )
 
     class Meta(BGPSession.Meta):
@@ -597,6 +596,27 @@ class DirectPeeringSession(BGPSession):
         return mark_safe(
             f'<span class="badge {badge_type}">{self.get_relationship_display()}</span>'
         )
+    
+    def generate_service_ref(self) -> str:
+        """
+        Generate a Unique Service Reference for an Direct BGP Session
+        from Local ASN with 6 digit hex UUID. Example: 9268-DE2E162S
+
+        Return:
+            str: Service Reference
+        """
+        asn = self.local_autonomous_system.asn
+        return 'D{0}-{1}S'.format(asn, uuid.uuid4().hex[:6].upper())
+    
+    def save(self, *args, **kwargs):
+        """
+        Overwrite Model Save to generate a Unique Service Reference
+        if left blank on Save/Update
+        """
+        if self.service_reference is None:
+            self.service_reference = self.generate_service_ref()
+
+        return super().save(*args, **kwargs)
 
 
 class InternetExchange(AbstractGroup):
@@ -869,13 +889,6 @@ class InternetExchange(AbstractGroup):
 
 
 class InternetExchangePeeringSession(BGPSession):
-    def generate_service_ref():
-        """
-
-        """
-        affiliated = AutonomousSystem.objects.filter(affiliated=True)
-        return '{0}-I{1}S'.format(affiliated.first().asn, uuid.uuid4().hex[:6].upper())
-
     ixp_connection = models.ForeignKey(
         "net.Connection",
         on_delete=models.CASCADE,
@@ -885,8 +898,13 @@ class InternetExchangePeeringSession(BGPSession):
     is_route_server = models.BooleanField(
         blank=True, default=False, verbose_name="Route server"
     )
-
-    service_reference = models.CharField(max_length=255, unique=True, default=generate_service_ref)
+    service_reference = models.CharField(
+        max_length=255,
+        unique=True,
+        blank=True,
+        null=True,
+        help_text="Optional: Unique Internal Service Reference (will auto generate if left blank)",
+    )
 
     class Meta(BGPSession.Meta):
         ordering = ["service_reference", "autonomous_system", "ixp_connection", "ip_address"]
@@ -1003,6 +1021,27 @@ class InternetExchangePeeringSession(BGPSession):
         ):
             return False
         return True
+    
+    def generate_service_ref(self) -> str:
+        """
+        Generate a Unique Service Reference for an IX Session
+        from Local ASN with 6 digit hex UUID. Example: 9268-IFD130FS
+
+        Return:
+            str: Service Reference
+        """
+        asn = self.ixp_connection.internet_exchange_point.local_autonomous_system.asn
+        return 'I{0}-{1}S'.format(asn, uuid.uuid4().hex[:6].upper())
+    
+    def save(self, *args, **kwargs):
+        """
+        Overwrite Model Save to generate a Unique Service Reference
+        if left blank on Save/Update
+        """
+        if self.service_reference is None:
+            self.service_reference = self.generate_service_ref()
+
+        return super().save(*args, **kwargs)
 
 
 class Router(ChangeLoggedModel, TaggableModel):
