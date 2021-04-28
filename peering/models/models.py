@@ -600,7 +600,7 @@ class DirectPeeringSession(BGPSession):
     def generate_service_ref(self) -> str:
         """
         Generate a Unique Service Reference for an Direct BGP Session
-        from Local ASN with 6 digit hex UUID. Example: 9268-DE2E162S
+        from Local ASN with 6 digit hex UUID. Example: D9268-E2E162S/D<asn>-<hex>S
 
         Return:
             str: Service Reference
@@ -1025,13 +1025,13 @@ class InternetExchangePeeringSession(BGPSession):
     def generate_service_ref(self) -> str:
         """
         Generate a Unique Service Reference for an IX Session
-        from Local ASN with 6 digit hex UUID. Example: 9268-IFD130FS
+        from Local ASN with 6 digit hex UUID. Example: IX9268-FD130FS/I<asn>-<hex>S
 
         Return:
             str: Service Reference
         """
         asn = self.ixp_connection.internet_exchange_point.local_autonomous_system.asn
-        return 'I{0}-{1}S'.format(asn, uuid.uuid4().hex[:6].upper())
+        return 'IX{0}-{1}S'.format(asn, uuid.uuid4().hex[:6].upper())
     
     def save(self, *args, **kwargs):
         """
