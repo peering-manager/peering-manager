@@ -35,7 +35,12 @@ def ip_version(value):
     if not isinstance(value, BGPSession):
         raise ValueError("value is not a bgp session")
 
-    return 6 if ipv6(value.ip_address) else 4
+    if ipv6(value.ip_address):
+        return 6
+    if ipv4(value.ip_address):
+        return 4
+
+    raise ValueError("ip address for session is invalid")
 
 
 def max_prefix(value):
@@ -64,9 +69,19 @@ def filter(queryset, **kwargs):
     """
     Returns a filtered queryset based on provided criteria.
     """
-    if type(v) is not QuerySet:
+    if type(queryset) is not QuerySet:
         raise TypeError("cannot filter data not in the database")
     return queryset.filter(**kwargs)
+
+
+def iterate(value, field):
+    """
+    Yields the value of a given field of an item in an iteratable.
+
+    If the item does not have the field, it will simply yield a null value.
+    """
+    for item in value:
+        yield getattr(item, field, None)
 
 
 def iter_export_policies(value, field=""):
@@ -206,6 +221,7 @@ FILTER_DICT = {
     "count": length,
     # Filtering
     "filter": filter,
+    "iterate": iterate,
     # BGP sessions
     "sessions": sessions,
     "sessions_attr": sessions_attr,
