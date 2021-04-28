@@ -14,6 +14,9 @@ BGP sessions established with remote peers and that are using Internet exchange
 LANs. For each Internet exchange peering session that you create, the following
 properties can be configured (n.b. some are optional):
 
+  * `Service Reference`: Internal Service reference that can be used as a unique
+    field to identify a session. If one is not provided, one will be generated 
+    for you in the format of `IX{local_as}-{6_digit_hex}S`.
   * `Autonomous System`: autonomous system of the remote peer.
   * `Internet Exchange`: Internet exchange providing a LAN and IP addresses
     for autonomous systems to peer.
