@@ -4,25 +4,28 @@ import uuid
 
 from django.db import migrations
 
+
 def gen_service_ref(apps, schema_editor):
-    model = apps.get_model('peering', 'InternetExchangePeeringSession')
+    model = apps.get_model("peering", "InternetExchangePeeringSession")
     for row in model.objects.all():
         if row.ixp_connection.internet_exchange_point is not None:
             asn = row.ixp_connection.internet_exchange_point.local_autonomous_system.asn
-            row.service_reference = 'IX{0}-{1}S'.format(asn, uuid.uuid4().hex[:6].upper())
-            row.save(update_fields=['service_reference'])
+            row.service_reference = "IX{0}-{1}S".format(
+                asn, uuid.uuid4().hex[:6].upper()
+            )
+            row.save(update_fields=["service_reference"])
 
-    model = apps.get_model('peering', 'DirectPeeringSession')
+    model = apps.get_model("peering", "DirectPeeringSession")
     for row in model.objects.all():
         asn = row.local_autonomous_system.asn
-        row.service_reference = 'D{0}-{1}S'.format(asn, uuid.uuid4().hex[:6].upper())
-        row.save(update_fields=['service_reference'])
+        row.service_reference = "D{0}-{1}S".format(asn, uuid.uuid4().hex[:6].upper())
+        row.save(update_fields=["service_reference"])
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('peering', '0074_auto_20210426_1943'),
+        ("peering", "0074_auto_20210426_1943"),
     ]
 
     operations = [

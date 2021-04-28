@@ -541,7 +541,12 @@ class DirectPeeringSession(BGPSession):
     )
 
     class Meta(BGPSession.Meta):
-        ordering = ["service_reference", "local_autonomous_system", "autonomous_system", "ip_address"]
+        ordering = [
+            "service_reference",
+            "local_autonomous_system",
+            "autonomous_system",
+            "ip_address",
+        ]
 
     def __str__(self):
         return f"{self.get_relationship_display()} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
@@ -596,7 +601,7 @@ class DirectPeeringSession(BGPSession):
         return mark_safe(
             f'<span class="badge {badge_type}">{self.get_relationship_display()}</span>'
         )
-    
+
     def generate_service_ref(self) -> str:
         """
         Generate a Unique Service Reference for an Direct BGP Session
@@ -606,8 +611,8 @@ class DirectPeeringSession(BGPSession):
             str: Service Reference
         """
         asn = self.local_autonomous_system.asn
-        return 'D{0}-{1}S'.format(asn, uuid.uuid4().hex[:6].upper())
-    
+        return "D{0}-{1}S".format(asn, uuid.uuid4().hex[:6].upper())
+
     def save(self, *args, **kwargs):
         """
         Overwrite Model Save to generate a Unique Service Reference
@@ -907,7 +912,12 @@ class InternetExchangePeeringSession(BGPSession):
     )
 
     class Meta(BGPSession.Meta):
-        ordering = ["service_reference", "autonomous_system", "ixp_connection", "ip_address"]
+        ordering = [
+            "service_reference",
+            "autonomous_system",
+            "ixp_connection",
+            "ip_address",
+        ]
 
     @staticmethod
     def create_from_peeringdb(affiliated, netixlan):
@@ -1021,7 +1031,7 @@ class InternetExchangePeeringSession(BGPSession):
         ):
             return False
         return True
-    
+
     def generate_service_ref(self) -> str:
         """
         Generate a Unique Service Reference for an IX Session
@@ -1031,8 +1041,8 @@ class InternetExchangePeeringSession(BGPSession):
             str: Service Reference
         """
         asn = self.ixp_connection.internet_exchange_point.local_autonomous_system.asn
-        return 'IX{0}-{1}S'.format(asn, uuid.uuid4().hex[:6].upper())
-    
+        return "IX{0}-{1}S".format(asn, uuid.uuid4().hex[:6].upper())
+
     def save(self, *args, **kwargs):
         """
         Overwrite Model Save to generate a Unique Service Reference

@@ -6,18 +6,30 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('peering', '0075_backfill_service_ref'),
+        ("peering", "0075_backfill_service_ref"),
     ]
 
     operations = [
-	migrations.AlterField(
-            model_name='directpeeringsession',
-            name='service_reference',
-            field=models.CharField(blank=True, help_text='Optional: Internal Service Reference (will auto generate if left blank)', max_length=255, null=True, unique=True),
+        migrations.AlterField(
+            model_name="directpeeringsession",
+            name="service_reference",
+            field=models.CharField(
+                blank=True,
+                help_text="Optional: Internal Service Reference (will auto generate if left blank)",
+                max_length=255,
+                null=True,
+                unique=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='internetexchangepeeringsession',
-            name='service_reference',
-            field=models.CharField(blank=True, help_text='Optional: Unique Internal Service Reference (will auto generate if left blank)', max_length=255, null=True, unique=True),
+            model_name="internetexchangepeeringsession",
+            name="service_reference",
+            field=models.CharField(
+                blank=True,
+                help_text="Optional: Unique Internal Service Reference (will auto generate if left blank)",
+                max_length=255,
+                null=True,
+                unique=True,
+            ),
         ),
     ]
