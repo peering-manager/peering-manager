@@ -170,26 +170,14 @@ def sessions(value, family=0):
         return value.get_peering_sessions().filter(ip_address__family=family)
 
 
-def sessions_attr(value, field, family=0):
-    """
-    Returns a list of values for a given field for all peering sessions.
-    """
-    return sessions(value, family=family).value_list(field, flat=True)
-
-
-def route_server(value, field=""):
+def route_server(value):
     """
     Returns a list of all route server sessions for an IXP.
-
-    If field is set, only the field will be returned.
     """
     if type(value) is not InternetExchange:
         raise ValueError("value is not an internet exchange")
 
-    if field:
-        return sessions(value).filter(is_route_server=True).value_list(field, flat=True)
-    else:
-        return sessions(value).filter(is_route_server=True)
+    return sessions(value).filter(is_route_server=True)
 
 
 def prefix_list(value, family=0):
@@ -224,7 +212,6 @@ FILTER_DICT = {
     "iterate": iterate,
     # BGP sessions
     "sessions": sessions,
-    "sessions_attr": sessions_attr,
     "route_server": route_server,
     "ip_version": ip_version,
     "max_prefix": max_prefix,
