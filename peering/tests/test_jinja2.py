@@ -32,6 +32,7 @@ class Jinja2FilterTestCase(TestCase):
             RoutingPolicy(name="Export Deaggregated", slug="export-deaggregated"),
         ]
         RoutingPolicy.objects.bulk_create(cls.routing_policies)
+        AutonomousSystem.objects.create(asn=64520, name="Useless")
         cls.a_s = AutonomousSystem.objects.create(
             asn=64510, name="Test", ipv6_max_prefixes=100
         )
@@ -176,6 +177,13 @@ class Jinja2FilterTestCase(TestCase):
 
     def test_route_server(self):
         self.assertEquals(2, FILTER_DICT["route_server"](self.ixp).count())
+
+    def direct_peers(self):
+        self.assertEquals(0, FILTER_DICT["direct_peers"](self.router).count())
+
+    def ixp_peers(self):
+        self.assertEquals(1, FILTER_DICT["ixp_peers"](self.router).count())
+        self.assertEquals(1, FILTER_DICT["ixp_peers"](self.router, "test-ixp").count())
 
     def test_prefix_list(self):
         pass

@@ -3,8 +3,8 @@ import ipaddress
 from django.db.models.query import QuerySet
 
 from devices.crypto.cisco import MAGIC as CISCO_MAGIC
-from peering.models import AutonomousSystem, InternetExchange
 from peering.models.abstracts import BGPSession
+from peering.models.models import AutonomousSystem, BGPGroup, InternetExchange, Router
 from utils.models import TaggableModel
 
 
@@ -172,12 +172,46 @@ def sessions(value, family=0):
 
 def route_server(value):
     """
-    Returns a list of all route server sessions for an IXP.
+    Returns a queryset listing all route server sessions for an IXP.
     """
     if type(value) is not InternetExchange:
         raise ValueError("value is not an internet exchange")
 
     return sessions(value).filter(is_route_server=True)
+
+
+def direct_peers(value, group=""):
+    """
+    Returns a queryset of all autonomous systems peering directly with a router.
+
+    An optional group can be used for filtering, always as a slug.
+    """
+    if type(value) is not Router:
+        raise ValueError("value is not a router")
+
+    if group:
+        try:
+            g = BGPGroup.objects.get(slug=group)
+        except BGPGroup.DoesNotExist:
+            g = None
+
+    return value.get_direct_autonomous_systems(bgp_group=g)
+
+
+def ixp_peers(value, ixp=""):
+    """
+    Returns a queryset of all autonomous systems peering over IXPs with a router.
+    """
+    if type(value) is not Router:
+        raise ValueError("value is not a router")
+
+    if ixp:
+        try:
+            i = InternetExchange.objects.get(slug=group)
+        except InternetExchange.DoesNotExist:
+            i = None
+
+    return value.get_ixp_autonomous_systems(internet_exchange_point=i)
 
 
 def prefix_list(value, family=0):
@@ -215,6 +249,9 @@ FILTER_DICT = {
     "route_server": route_server,
     "ip_version": ip_version,
     "max_prefix": max_prefix,
+    # Routers
+    "direct_peers": direct_peers,
+    "ixp_peers": ixp_peers,
     # Routing policies
     "iter_export_policies": iter_export_policies,
     "iter_import_policies": iter_import_policies,

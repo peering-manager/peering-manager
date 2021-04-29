@@ -1171,6 +1171,17 @@ class Router(ChangeLoggedModel, TaggableModel):
             )
         )
 
+    def get_connections(self, internet_exchange_point=None):
+        """
+        Returns connections attached to this router.
+        """
+        if internet_exchange_point:
+            return Connection.objects.filter(
+                internet_exchange_point=internet_exchange_point, router=self
+            )
+        else:
+            return Connection.objects.filter(router=self)
+
     def get_internet_exchanges(self):
         """
         Returns IXPs that this router is connected to.
@@ -1181,18 +1192,39 @@ class Router(ChangeLoggedModel, TaggableModel):
             )
         )
 
+    def get_direct_autonomous_systems(self, bgp_group=None):
+        """
+        Returns autonomous systems with which this router peers directly.
+        """
+        if bgp_group:
+            sessions = DirectPeeringSession.objects.filter(
+                bgp_group=bgp_group, router=self
+            ).values_list("autonomous_system", flat=True)
+        else:
+            sessions = DirectPeeringSession.objects.filter(router=self).values_list(
+                "autonomous_system", flat=True
+            )
+        return AutonomousSystem.objects.filter(pk__in=sessions)
+
+    def get_ixp_autonomous_systems(self, internet_exchange_point=None):
+        """
+        Returns autonomous systems with which this router peers over IXPs.
+        """
+        return AutonomousSystem.objects.filter(
+            pk__in=InternetExchangePeeringSession.objects.filter(
+                ixp_connection__in=self.get_connections(
+                    internet_exchange_point=internet_exchange_point
+                )
+            ).values_list("autonomous_system", flat=True)
+        )
+
     def get_autonomous_systems(self):
         """
-        Returns all autonomous systems with setup peering sessions over this IXP.
+        Returns all autonomous systems with with which this router peers.
         """
-        as_list_1 = DirectPeeringSession.objects.filter(router=self).values_list(
-            "autonomous_system", flat=True
+        return self.get_direct_autonomous_systems().union(
+            self.get_ixp_autonomous_systems()
         )
-        as_list_2 = InternetExchangePeeringSession.objects.filter(
-            ixp_connection__in=Connection.objects.filter(router=self)
-        ).values_list("autonomous_system", flat=True)
-
-        return AutonomousSystem.objects.filter(pk__in=list(as_list_1) + list(as_list_2))
 
     def get_configuration_context(self):
         return {
