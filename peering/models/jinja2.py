@@ -1,4 +1,5 @@
 import ipaddress
+import unicodedata
 
 from django.db.models.query import QuerySet
 
@@ -189,11 +190,12 @@ def direct_peers(value, group=""):
     if type(value) is not Router:
         raise ValueError("value is not a router")
 
+    g = None
     if group:
         try:
             g = BGPGroup.objects.get(slug=group)
         except BGPGroup.DoesNotExist:
-            g = None
+            pass
 
     return value.get_direct_autonomous_systems(bgp_group=g)
 
@@ -205,11 +207,12 @@ def ixp_peers(value, ixp=""):
     if type(value) is not Router:
         raise ValueError("value is not a router")
 
+    i = None
     if ixp:
         try:
-            i = InternetExchange.objects.get(slug=group)
+            i = InternetExchange.objects.get(slug=ixp)
         except InternetExchange.DoesNotExist:
-            i = None
+            pass
 
     return value.get_ixp_autonomous_systems(internet_exchange_point=i)
 
@@ -222,6 +225,13 @@ def prefix_list(value, family=0):
         raise ValueError("value is not an autonomous system")
 
     return value.get_irr_as_set_prefixes(family)
+
+
+def safe_string(value):
+    """
+    Returns a safe string (retaining only ASCII characters).
+    """
+    return unicodedata.normalize("NFKD", value).encode("ASCII", "ignore").decode()
 
 
 def tags(value):
@@ -244,11 +254,14 @@ FILTER_DICT = {
     # Filtering
     "filter": filter,
     "iterate": iterate,
+    # Autonomous system
+    "prefix_list": prefix_list,
     # BGP sessions
     "sessions": sessions,
     "route_server": route_server,
     "ip_version": ip_version,
     "max_prefix": max_prefix,
+    "cisco_password": cisco_password,
     # Routers
     "direct_peers": direct_peers,
     "ixp_peers": ixp_peers,
@@ -257,9 +270,9 @@ FILTER_DICT = {
     "iter_import_policies": iter_import_policies,
     "merge_export_policies": merge_export_policies,
     "merge_import_policies": merge_import_policies,
-    "prefix_list": prefix_list,
+    # Generics
+    "safe_string": safe_string,
     "tags": tags,
-    "cisco_password": cisco_password,
 }
 
 __all__ = ["FILTER_DICT"]

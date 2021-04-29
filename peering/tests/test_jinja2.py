@@ -7,6 +7,7 @@ from peering.models import (
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
+    Router,
     RoutingPolicy,
 )
 from peering.models.jinja2 import FILTER_DICT
@@ -43,6 +44,7 @@ class Jinja2FilterTestCase(TestCase):
             RoutingPolicy.objects.get(slug="export-supernets")
         )
         cls.a_s.tags.add(*cls.tags)
+        cls.router = Router.objects.create(name="test", hostname="test.example.com")
         cls.ixp = InternetExchange.objects.create(
             local_autonomous_system=AutonomousSystem.objects.create(
                 asn=64500,
@@ -63,6 +65,7 @@ class Jinja2FilterTestCase(TestCase):
             internet_exchange_point=cls.ixp,
             ipv4_address="192.0.2.10",
             ipv6_address="2001:db8::a",
+            router=cls.router,
         )
         cls.session6 = InternetExchangePeeringSession.objects.create(
             autonomous_system=cls.a_s,
@@ -178,15 +181,18 @@ class Jinja2FilterTestCase(TestCase):
     def test_route_server(self):
         self.assertEquals(2, FILTER_DICT["route_server"](self.ixp).count())
 
-    def direct_peers(self):
+    def test_direct_peers(self):
         self.assertEquals(0, FILTER_DICT["direct_peers"](self.router).count())
 
-    def ixp_peers(self):
+    def test_ixp_peers(self):
         self.assertEquals(1, FILTER_DICT["ixp_peers"](self.router).count())
         self.assertEquals(1, FILTER_DICT["ixp_peers"](self.router, "test-ixp").count())
 
     def test_prefix_list(self):
         pass
+
+    def test_safe_string(self):
+        self.assertEquals("Tele_a_ciu", FILTER_DICT["safe_string"]("Téle_à_çiu"))
 
     def test_tags(self):
         self.assertEquals(3, FILTER_DICT["tags"](self.a_s).count())
