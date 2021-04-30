@@ -129,9 +129,11 @@ class Email(Template):
         """
         Render the template using Jinja2.
         """
-        subject = ""
-        body = ""
+        subject, body = "", ""
         environment = Environment()
+
+        # Add custom filters to our environment
+        environment.filters.update(FILTER_DICT)
 
         try:
             jinja2_template = environment.from_string(self.subject)
