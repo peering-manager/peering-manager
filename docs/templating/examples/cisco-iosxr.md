@@ -1,47 +1,34 @@
 ```no-highlight
-router bgp {{ my_as.asn }}
-{%- for internet_exchange in internet_exchanges %}
-{%- for address_family, sessions in internet_exchange.sessions() %}
-{%- if sessions|length > 0 %}
-{%- for session in sessions %}
-{% if session.enabled %}
-    neighbor {{ session.ip_address }}
-      remote-as {{ session.autonomous_system.asn }}
-      {%- if session.autonomous_system.irr_as_set %}
-      description {{ session.autonomous_system.name }} ({{ session.autonomous_system.irr_as_set }})
-      {%- else %}
-      description {{ session.autonomous_system.name }}
-      {%- endif %}
-      {%- if session.password %}
+router bgp {{ local_as.asn }}
+{%- for ixp in internet_exchanges %}
+  {%- for session in ixp | sessions %}}
+    {%- if session.enabled %}
+   neighbor {{ session.ip_address }}
+   remote-as {{ session.autonomous_system.asn }}
+   description {{ session.autonomous_system.name | safe_string }}
       {%- if session.encrypted_password %}
-      password encrypted {{ session.encrypted_password|replace("7 ","") }}
-      {%- else %}
-      password clear {{ session.password }}
-      {%- endif %}
+   password encrypted {{ session.encrypted_password | cisco_password }}
+      {%- elif session.password %}
+   password clear {{ session.password }}
       {%- endif %}
       {%- if session.is_route_server %}
-      use neighbor-group ng{{ address_family }}-ROUTESRV
+   use neighbor-group ng{{ session | ip_version }}-ROUTESRV
       {%- else %}
-      use neighbor-group ng{{ address_family }}-PEERING
+   use neighbor-group ng{{ session | ip_version }}-PEERING
       {%- endif %}
-      address-family ipv{{ address_family }} unicast
-      {%- if session.import_policies() %}
-        route-policy {{ session.import_policies() | map(attribute='name') | join(' ') }} in
+   address-family ipv{{ session | ip_version }} unicast
+      {%- if session | iter_import_policies %}
+   route-policy {{ session | iter_import_policies('slug') | join(' ') }} in
       {%- endif %}
-      {%- if session.export_policies() %}
-        route-policy {{ session.export_policies() | map(attribute='name') | join(' ') }} out
+      {%- if session | iter_export_policies %}
+   route-policy {{ session | iter_export_policies('slug') | join(' ') }} out
       {%- endif %}
-      {%- if address_family == 4 and session.autonomous_system.ipv4_max_prefixes > 0 %}
-        maximum-prefix {{ session.autonomous_system.ipv4_max_prefixes }} 95 restart 15
+      {%- if session | max_prefix %}
+   maximum-prefix {{ session | max_prefix }} 95 restart 15
       {%- endif %}
-      {%- if address_family == 6 and session.autonomous_system.ipv6_max_prefixes > 0 %}
-        maximum-prefix {{ session.autonomous_system.ipv6_max_prefixes }} 95 restart 15
-      {%- endif %}
-{%- else %}
-    no neighbor {{ session.ip_address }}
-{%- endif %}
-{%- endfor %}
-{%- endif %}
-{%- endfor %}
+    {%- else %}
+   no neighbor {{ session.ip_address }}
+    {%- endif %}
+  {%- endfor %}
 {%- endfor %}
 ```

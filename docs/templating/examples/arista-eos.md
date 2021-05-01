@@ -33,10 +33,10 @@ router bgp {{ local_as.asn }}
     {%- elif session.password %}
    neighbor {{ session.ip_address }} password 0 {{ session.password }}
     {%- endif %}
-    {%- if not session.enabled %}
-   neighbor {{ session.ip_address }} shutdown
-    {%- else %}
+    {%- if session.enabled %}
    no neighbor {{ session.ip_address }} shutdown
+    {%- else %}
+   neighbor {{ session.ip_address }} shutdown
     {%- endif %}
    address-family ipv{{ session | ip_version }}
     {%- if session | merge_import_policies %}
