@@ -7,6 +7,10 @@
       <div class="card-header"><strong>Peering Session Details</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
+          <td>Service ID</td>
+          <td>{{ instance.service_reference|as_link }}</td>
+        </tr>
+        <tr>
           <td>Internet Exchange</td>
           <td>
             {{ instance.ixp_connection.internet_exchange_point|as_link }} - {{ instance.ixp_connection|as_link }}
@@ -51,10 +55,6 @@
           <td>{{ instance.multihop_ttl }}</td>
         </tr>
         {% endif %}
-        <tr>
-          <td>Service ID</td>
-          <td>{{ instance.service_reference|as_link }}</td>
-        </tr>
       </table>
     </div>
     <div class="card">
