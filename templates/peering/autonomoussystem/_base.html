@@ -28,13 +28,11 @@
       <i class="fas fa-ethernet"></i> Direct Peering Sessions
     </a>
   </li>
-  {% if instance.get_peering_sessions|length > 0 %}
   <li class="nav-item">
     <a class="nav-link{% if active_tab == 'ixsessions' %} active{% endif %}" href="{% url 'peering:autonomoussystem_internet_exchange_peering_sessions' asn=instance.asn %}">
       <i class="fas fa-network-wired"></i> IX Peering Sessions
     </a>
   </li>
-  {% endif %}
   {% missing_sessions instance as has_missing_sessions %}
   {% if has_missing_sessions %}
   <li class="nav-item">

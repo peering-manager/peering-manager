@@ -237,24 +237,18 @@ class AutonomousSystemDirectPeeringSessions(PermissionRequiredMixin, ModelListVi
     template = "peering/autonomoussystem/direct_peering_sessions.html"
 
     def build_queryset(self, request, kwargs):
-        queryset = None
-        # The queryset needs to be composed of DirectPeeringSession objects
-        # related to the AS we are looking at.
-        if "asn" in kwargs:
-            instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
-            queryset = instance.directpeeringsession_set.order_by(
-                "relationship", "ip_address"
-            )
-        return queryset
+        instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+        return (
+            instance.get_direct_peering_sessions()
+            .prefetch_related("bgp_group")
+            .order_by("bgp_group", "relationship", "ip_address")
+        )
 
     def extra_context(self, kwargs):
-        extra_context = {"active_tab": "directsessions"}
-        # Since we are in the context of an AS we need to keep the reference
-        # for it
-        if "asn" in kwargs:
-            instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
-            extra_context.update({"instance": instance, "asn": instance.asn})
-        return extra_context
+        return {
+            "instance": get_object_or_404(AutonomousSystem, asn=kwargs["asn"]),
+            "active_tab": "directsessions",
+        }
 
 
 class AutonomousSystemInternetExchangesPeeringSessions(
@@ -268,28 +262,20 @@ class AutonomousSystemInternetExchangesPeeringSessions(
     hidden_filters = ["autonomous_system__id"]
 
     def build_queryset(self, request, kwargs):
-        queryset = None
-        # The queryset needs to be composed of InternetExchangePeeringSession objects but they
-        # are linked to an AS. So first of all we need to retrieve the AS for
-        # which we want to get the peering sessions.
-        if "asn" in kwargs:
-            instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
-            queryset = instance.internetexchangepeeringsession_set.prefetch_related(
-                "internet_exchange"
-            ).order_by("internet_exchange", "ip_address")
+        instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+        return (
+            instance.get_ixp_peering_sessions()
+            .prefetch_related("ixp_connection")
+            .order_by("ixp_connection", "ip_address")
+        )
 
         return queryset
 
     def extra_context(self, kwargs):
-        extra_context = {"active_tab": "ixsessions"}
-
-        # Since we are in the context of an AS we need to keep the reference
-        # for it
-        if "asn" in kwargs:
-            instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
-            extra_context.update({"instance": instance, "asn": instance.asn})
-
-        return extra_context
+        return {
+            "instance": get_object_or_404(AutonomousSystem, asn=kwargs["asn"]),
+            "active_tab": "ixsessions",
+        }
 
 
 class AutonomousSystemPeers(PermissionRequiredMixin, ModelListView):

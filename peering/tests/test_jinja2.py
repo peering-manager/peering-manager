@@ -110,12 +110,12 @@ class Jinja2FilterTestCase(TestCase):
         self.assertFalse(FILTER_DICT["ipv6"]("notanip"))
 
     def test_ip_version(self):
-        self.assertEquals(6, FILTER_DICT["ip_version"](self.session6))
-        self.assertEquals(4, FILTER_DICT["ip_version"](self.session4))
+        self.assertEqual(6, FILTER_DICT["ip_version"](self.session6))
+        self.assertEqual(4, FILTER_DICT["ip_version"](self.session4))
 
     def test_max_prefix(self):
-        self.assertEquals(100, FILTER_DICT["max_prefix"](self.session6))
-        self.assertEquals(0, FILTER_DICT["max_prefix"](self.session4))
+        self.assertEqual(100, FILTER_DICT["max_prefix"](self.session6))
+        self.assertEqual(0, FILTER_DICT["max_prefix"](self.session4))
 
     def test_cisco_password(self):
         pass
@@ -123,8 +123,8 @@ class Jinja2FilterTestCase(TestCase):
     def test_filter(self):
         sessions = InternetExchangePeeringSession.objects.all()
         filtered = FILTER_DICT["filter"](sessions, ip_address__family=6)
-        self.assertEquals(4, FILTER_DICT["length"](sessions))
-        self.assertEquals(2, FILTER_DICT["length"](filtered))
+        self.assertEqual(4, FILTER_DICT["length"](sessions))
+        self.assertEqual(2, FILTER_DICT["length"](filtered))
 
     def test_iterate(self):
         routing_policies = RoutingPolicy.objects.all()
@@ -132,8 +132,8 @@ class Jinja2FilterTestCase(TestCase):
         self.assertListEqual([rp.slug for rp in routing_policies], slugs)
 
     def test_length(self):
-        self.assertEquals(5, FILTER_DICT["length"](RoutingPolicy.objects.all()))
-        self.assertEquals(0, FILTER_DICT["length"](RoutingPolicy.objects.none()))
+        self.assertEqual(5, FILTER_DICT["length"](RoutingPolicy.objects.all()))
+        self.assertEqual(0, FILTER_DICT["length"](RoutingPolicy.objects.none()))
 
     def test_cisco_password(self):
         pass
@@ -174,26 +174,26 @@ class Jinja2FilterTestCase(TestCase):
         )
 
     def test_sessions(self):
-        self.assertEquals(4, FILTER_DICT["sessions"](self.ixp).count())
-        self.assertEquals(2, FILTER_DICT["sessions"](self.ixp, family=6).count())
-        self.assertEquals(2, FILTER_DICT["sessions"](self.ixp, family=4).count())
+        self.assertEqual(4, FILTER_DICT["sessions"](self.ixp).count())
+        self.assertEqual(2, FILTER_DICT["sessions"](self.ixp, family=6).count())
+        self.assertEqual(2, FILTER_DICT["sessions"](self.ixp, family=4).count())
 
     def test_route_server(self):
-        self.assertEquals(2, FILTER_DICT["route_server"](self.ixp).count())
+        self.assertEqual(2, FILTER_DICT["route_server"](self.ixp).count())
 
     def test_direct_peers(self):
-        self.assertEquals(0, FILTER_DICT["direct_peers"](self.router).count())
+        self.assertEqual(0, FILTER_DICT["direct_peers"](self.router).count())
 
     def test_ixp_peers(self):
-        self.assertEquals(1, FILTER_DICT["ixp_peers"](self.router).count())
-        self.assertEquals(1, FILTER_DICT["ixp_peers"](self.router, "test-ixp").count())
+        self.assertEqual(1, FILTER_DICT["ixp_peers"](self.router).count())
+        self.assertEqual(1, FILTER_DICT["ixp_peers"](self.router, "test-ixp").count())
 
     def test_prefix_list(self):
         pass
 
     def test_safe_string(self):
-        self.assertEquals("Tele_a_ciu", FILTER_DICT["safe_string"]("Téle_à_çiu"))
+        self.assertEqual("Tele_a_ciu", FILTER_DICT["safe_string"]("Téle_à_çiu"))
 
     def test_tags(self):
-        self.assertEquals(3, FILTER_DICT["tags"](self.a_s).count())
-        self.assertEquals(0, FILTER_DICT["tags"](self.ixp).count())
+        self.assertEqual(3, FILTER_DICT["tags"](self.a_s).count())
+        self.assertEqual(0, FILTER_DICT["tags"](self.ixp).count())
