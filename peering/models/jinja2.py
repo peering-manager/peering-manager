@@ -63,7 +63,8 @@ def cisco_password(password):
     """
     if password.startswith(CISCO_MAGIC):
         return password[2:]
-    return password
+    else:
+        return password
 
 
 def filter(queryset, **kwargs):
@@ -244,6 +245,9 @@ def tags(value):
 
 
 FILTER_DICT = {
+    # Generics
+    "safe_string": safe_string,
+    "tags": tags,
     # IP address utilities
     "ipv4": ipv4,
     "ipv6": ipv6,
@@ -270,9 +274,6 @@ FILTER_DICT = {
     "iter_import_policies": iter_import_policies,
     "merge_export_policies": merge_export_policies,
     "merge_import_policies": merge_import_policies,
-    # Generics
-    "safe_string": safe_string,
-    "tags": tags,
 }
 
 __all__ = ["FILTER_DICT"]

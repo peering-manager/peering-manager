@@ -125,10 +125,28 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
             "peering:autonomoussystem_direct_peering_sessions", kwargs={"asn": self.asn}
         )
 
+    def get_direct_peering_sessions(self):
+        """
+        Returns all direct peering sessions with this AS.
+        """
+        return DirectPeeringSession.objects.filter(autonomous_system=self)
+
+    def get_ixp_peering_sessions(self):
+        """
+        Returns all IXP peering sessions with this AS.
+        """
+        return InternetExchangePeeringSession.objects.filter(autonomous_system=self)
+
     def get_peering_sessions(self):
-        return self.internetexchangepeeringsession_set.all()
+        """
+        Returns all peering sessions with this AS.
+        """
+        return self.get_direct_peering_sessions().union(self.get_ixp_peering_sessions())
 
     def get_internet_exchanges(self):
+        """
+        Returns all IXPs this AS is peering on (with us).
+        """
         internet_exchanges = []
 
         for session in self.internetexchangepeeringsession_set.all():
@@ -139,7 +157,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
 
     def get_shared_internet_exchanges(self, other):
         """
-        Returns all IX this AS has with the other one.
+        Returns all IXPs this AS has with the other one.
         """
         return InternetExchange.objects.filter(
             peeringdb_ixlan__id__in=get_shared_internet_exchanges(
