@@ -189,8 +189,5 @@ class Template(ChangeLoggedModel, TaggableModel):
     def render(self, variables):
         raise NotImplementedError()
 
-    def render_preview(self):
-        raise NotImplementedError()
-
     def __str__(self):
         return self.name
