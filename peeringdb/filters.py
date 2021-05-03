@@ -23,15 +23,16 @@ class NetworkIXLanFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = NetworkIXLan
-        fields = ["id", "asn"]
+        fields = ["id", "asn", "net__policy_general"]
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
+        qs_filter = Q(net__name__icontains=value)
         try:
-            qs_filter = Q(asn=int(value.strip()))
+            qs_filter |= Q(asn=int(value.strip()))
         except ValueError:
-            return queryset
+            pass
 
         return queryset.filter(qs_filter)
 
