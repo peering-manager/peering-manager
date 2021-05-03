@@ -363,7 +363,7 @@ class RouterTest(TestCase):
         expected = {
             "autonomous_systems": AutonomousSystem.objects.exclude(pk=self.local_as.pk),
             "bgp_groups": BGPGroup.objects.all(),
-            "internet_exchanges": InternetExchange.objects.all(),
+            "internet_exchange_points": InternetExchange.objects.all(),
             "local_as": self.local_as,
             "routing_policies": RoutingPolicy.objects.none(),
             "communities": Community.objects.none(),

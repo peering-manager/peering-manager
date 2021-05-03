@@ -37,8 +37,9 @@ expose objects linked to the router either directly or not.
   filters like `iterate` to walk through the list.
 * `communities`: holds **all** recorded communities in a list-like object. You
   can use filters like `iterate` to walk through the list.
-* `internet_exchanges`: holds IXPs connected on the router in a list-like
-  object. You can use filters like `iterate` to walk through the list.
+* `internet_exchange_points`: holds IXPs connected on the router in a
+  list-like object. You can use filters like `iterate` to walk through the
+  list.
 * `local_as`: holds local autonomous system details that the router is
   belonging to. A router is always attached to an affiliated AS. This variable
   is an object and data can be fetch using the variable name and a field name

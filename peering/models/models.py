@@ -143,17 +143,17 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
         """
         return self.get_direct_peering_sessions().union(self.get_ixp_peering_sessions())
 
-    def get_internet_exchanges(self):
+    def get_internet_exchange_points(self):
         """
         Returns all IXPs this AS is peering on (with us).
         """
-        internet_exchanges = []
-
-        for session in self.internetexchangepeeringsession_set.all():
-            if session.internet_exchange not in internet_exchanges:
-                internet_exchanges.append(session.internet_exchange)
-
-        return internet_exchanges
+        return InternetExchange.objects.filter(
+            pk__in=Connection.objects.filter(
+                pk__in=self.get_ixp_peering_sessions().values_list(
+                    "ixp_connection", flat=True
+                )
+            ).values_list("internet_exchange_point", flat=True)
+        )
 
     def get_shared_internet_exchanges(self, other):
         """
@@ -386,6 +386,9 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
         return context
 
     def generate_email(self, email):
+        """
+        Renders an e-mail from a template.
+        """
         return email.render(self.get_email_context())
 
 
@@ -1200,7 +1203,7 @@ class Router(ChangeLoggedModel, TaggableModel):
         else:
             return Connection.objects.filter(router=self)
 
-    def get_internet_exchanges(self):
+    def get_internet_exchange_points(self):
         """
         Returns IXPs that this router is connected to.
         """
@@ -1253,7 +1256,7 @@ class Router(ChangeLoggedModel, TaggableModel):
             "autonomous_systems": self.get_autonomous_systems(),
             "bgp_groups": self.get_bgp_groups(),
             "communities": Community.objects.all(),
-            "internet_exchanges": self.get_internet_exchanges(),
+            "internet_exchange_points": self.get_internet_exchange_points(),
             "local_as": self.local_autonomous_system,
             "routing_policies": RoutingPolicy.objects.all(),
             "router": self,
