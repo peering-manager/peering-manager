@@ -1205,7 +1205,7 @@ class Router(ChangeLoggedModel, TaggableModel):
         Returns IXPs that this router is connected to.
         """
         return InternetExchange.objects.filter(
-            pk__in=Connection.objects.filter(router=self).values_list(
+            pk__in=self.get_connections().values_list(
                 "internet_exchange_point", flat=True
             )
         )
@@ -1238,13 +1238,17 @@ class Router(ChangeLoggedModel, TaggableModel):
 
     def get_autonomous_systems(self):
         """
-        Returns all autonomous systems with with which this router peers.
+        Returns all autonomous systems with which this router peers.
         """
         return self.get_direct_autonomous_systems().union(
             self.get_ixp_autonomous_systems()
         )
 
     def get_configuration_context(self):
+        """
+        Returns a dict, to be used in a Jinja2 environment, that holds enough data to
+        help in creating a configuration from a template.
+        """
         return {
             "autonomous_systems": self.get_autonomous_systems(),
             "bgp_groups": self.get_bgp_groups(),
@@ -1256,22 +1260,30 @@ class Router(ChangeLoggedModel, TaggableModel):
         }
 
     def generate_configuration(self):
-        return (
-            self.configuration_template.render(self.get_configuration_context())
-            if self.configuration_template
-            else ""
-        )
+        """
+        Returns the configuration of a router according to the template in use.
+
+        If no template is used, an empty string is returned.
+        """
+        if self.configuration_template:
+            context = self.get_configuration_context()
+            return self.configuration_template.render(context)
+        else:
+            return ""
 
     def get_napalm_device(self):
+        """
+        Returns an instance of the NAPALM driver to connect to a router.
+        """
         if not self.platform or not self.platform.napalm_driver:
             self.logger.debug("no napalm driver defined")
             return None
 
-        self.logger.debug(f'looking for napalm driver "{self.platform.napalm_driver}"')
+        self.logger.debug(f"looking for napalm driver '{self.platform.napalm_driver}'")
         try:
             # Driver found, instanciate it
             driver = napalm.get_network_driver(self.platform.napalm_driver)
-            self.logger.debug(f'found napalm driver "{self.platform.napalm_driver}"')
+            self.logger.debug(f"found napalm driver '{self.platform.napalm_driver}'")
 
             # Merge NAPALM args: first global, then platform's, finish with router's
             args = settings.NAPALM_ARGS
@@ -1291,7 +1303,7 @@ class Router(ChangeLoggedModel, TaggableModel):
             # Unable to import proper driver from napalm
             # Most probably due to a broken install
             self.logger.error(
-                f'no napalm driver "{self.platform}" found (not installed or does not exist)'
+                f"no napalm driver '{self.platform}' found (not installed or does not exist)"
             )
             return None
 

@@ -120,15 +120,13 @@ def iter_import_policies(value, field=""):
 
 def length(value):
     """
-    Returns the number of items in a queryset, list or dict.
+    Returns the number of items in a queryset or an iterable.
     """
-    if type(value) in [dict, list, tuple]:
-        return len(value)
-
     if type(value) is QuerySet:
         return value.count()
 
-    return 0
+    # Fallback to python's len()
+    return len(value)
 
 
 def merge_export_policies(value, order=""):
