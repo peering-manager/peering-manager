@@ -5,8 +5,11 @@ from utils.forms import (
     BulkEditForm,
     CustomNullBooleanSelect,
     DynamicModelMultipleChoiceField,
+    StaticSelectMultiple,
+    add_blank_choice,
 )
 
+from .enums import GeneralPolicy
 from .models import NetworkIXLan
 
 
@@ -14,3 +17,9 @@ class NetworkIXLanFilterForm(BootstrapMixin, forms.Form):
     model = NetworkIXLan
     q = forms.CharField(required=False, label="Search")
     asn = forms.IntegerField(required=False, label="ASN")
+    net__policy_general = forms.ChoiceField(
+        label="Peering Policy",
+        required=False,
+        choices=add_blank_choice(GeneralPolicy.choices),
+        widget=StaticSelectMultiple,
+    )
