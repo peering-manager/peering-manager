@@ -106,7 +106,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
     class Meta:
         abstract = True
         ordering = ["autonomous_system", "ip_address"]
-    
+
     def __str__(self):
         return self.service_reference
 
