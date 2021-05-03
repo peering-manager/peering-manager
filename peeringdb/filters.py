@@ -28,12 +28,11 @@ class NetworkIXLanFilterSet(django_filters.FilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
+        qs_filter = Q(net__name__icontains=value)
         try:
-            qs_filter = Q(asn__icontains=int(value.strip())) | Q(
-                net__name__icontains=value
-            )
+            qs_filter |= Q(asn=int(value.strip()))
         except ValueError:
-            qs_filter = Q(net__name__icontains=value)
+            pass
 
         return queryset.filter(qs_filter)
 
