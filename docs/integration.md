@@ -18,6 +18,10 @@ To speed things up, a local PeeringDB cache can be built and kept up-to-date
 inside the Peering Manager's database. You can found how to do that in the
 _Setup > Scheduled Tasks_ documentation.
 
+If a valid `PEERINGDB_USERNAME` and `PEERINGDB_PASSWORD` is configured, Peering Manager
+will sync Email Contacts from Networks in PeeringDB to be used in the builtin Email
+functionality.
+
 ## Working with NAPALM
 
 NAPALM is a framework which can be used to interact with compatible network
