@@ -344,13 +344,13 @@ class AutonomousSystemAddFromPeeringDB(
     def sort_objects(self, object_list):
         objects = []
         for object_couple in object_list:
-            for obj in object_couple:
-                if obj:
+            for o in object_couple:
+                if o:
                     objects.append(
                         {
-                            "autonomous_system": obj.autonomous_system,
-                            "internet_exchange": obj.internet_exchange,
-                            "ip_address": obj.ip_address,
+                            "autonomous_system": o.autonomous_system,
+                            "ixp_connection": o.ixp_connection,
+                            "ip_address": o.ip_address,
                         }
                     )
         return objects
@@ -979,13 +979,13 @@ class InternetExchangePeeringSessionAddFromPeeringDB(
     def sort_objects(self, object_list):
         objects = []
         for object_couple in object_list:
-            for object in object_couple:
-                if object:
+            for o in object_couple:
+                if o:
                     objects.append(
                         {
-                            "autonomous_system": object.autonomous_system,
-                            "ixp_connection": object.ixp_connection,
-                            "ip_address": object.ip_address,
+                            "autonomous_system": o.autonomous_system,
+                            "ixp_connection": o.ixp_connection,
+                            "ip_address": o.ip_address,
                         }
                     )
         return objects
