@@ -135,7 +135,7 @@ class ASDetails(DetailsView):
             affiliated = None
 
         shared_internet_exchanges = {}
-        for ix in instance.get_shared_internet_exchanges(affiliated):
+        for ix in instance.get_shared_internet_exchange_points(affiliated):
             shared_internet_exchanges[ix] = instance.get_missing_peering_sessions(
                 affiliated, ix
             )

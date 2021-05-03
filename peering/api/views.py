@@ -103,7 +103,9 @@ class AutonomousSystemViewSet(ModelViewSet):
             return Response(
                 {
                     "shared-internet-exchanges": InternetExchangeNestedSerializer(
-                        self.get_object().get_shared_internet_exchanges(affiliated),
+                        self.get_object().get_shared_internet_exchange_points(
+                            affiliated
+                        ),
                         many=True,
                         context={"request": request},
                     ).data

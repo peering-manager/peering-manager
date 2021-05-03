@@ -155,7 +155,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
             ).values_list("internet_exchange_point", flat=True)
         )
 
-    def get_shared_internet_exchanges(self, other):
+    def get_shared_internet_exchange_points(self, other):
         """
         Returns all IXPs this AS has with the other one.
         """
@@ -183,10 +183,9 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
             filter["ixp_connection__id__in"] = Connection.objects.filter(
                 internet_exchange_point=internet_exchange_point
             ).values_list("id", flat=True)
-        ip_sessions = [
-            str(s.ip_address)
-            for s in InternetExchangePeeringSession.objects.filter(**filter)
-        ]
+        ip_sessions = InternetExchangePeeringSession.objects.filter(
+            **filter
+        ).values_list("ip_address", flat=True)
 
         qs_filter = Q(asn=self.asn) & (
             ~Q(ipaddr6__in=ip_sessions) | ~Q(ipaddr4__in=ip_sessions)
@@ -195,49 +194,11 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
             qs_filter &= Q(ixlan=internet_exchange_point.peeringdb_ixlan)
         else:
             qs_filter &= Q(
-                ixlan__in=[
-                    ix.peeringdb_ixlan
-                    for ix in self.get_shared_internet_exchanges(other)
-                ]
+                ixlan__in=self.get_shared_internet_exchange_points(other).values_list(
+                    "peeringdb_ixlan", flat=True
+                )
             )
         return NetworkIXLan.objects.filter(qs_filter)
-
-    def get_missing_peering_sessions_on_shared_internet_exchanges(self, other):
-        """
-        Returns a list of dictionaries, each containing an `InternetExchange` object
-        and lists of IP addresses. These addresses are the ones with which peering
-        sessions have *not* been configured yet on the IX.
-        """
-        ix_and_sessions = []
-
-        if self == other:
-            return ix_and_sessions
-
-        for internet_exchange in self.get_shared_internet_exchanges(other):
-            missing_sessions = {"ipv6": [], "ipv4": []}
-            for netixlan in self.get_missing_peering_sessions(other, internet_exchange):
-                # Check the NetIXLan's IP addresses for each version to see if a
-                # sessions already matches
-                for version in [6, 4]:
-                    ipaddr = getattr(netixlan, f"ipaddr{version}", None)
-                    if ipaddr and not InternetExchangePeeringSession.objects.filter(
-                        autonomous_system=self,
-                        internet_exchange=internet_exchange,
-                        ip_address=ipaddr,
-                    ):
-                        missing_sessions[f"ipv{version}"].append(ipaddr)
-
-            ix_and_sessions.append(
-                {
-                    "internet_exchange": internet_exchange,
-                    "sessions": InternetExchangePeeringSession.objects.filter(
-                        autonomous_system=self, internet_exchange=internet_exchange
-                    ),
-                    "missing_sessions": missing_sessions,
-                }
-            )
-
-        return ix_and_sessions
 
     def synchronize_with_peeringdb(self):
         """
