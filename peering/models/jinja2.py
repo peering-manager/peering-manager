@@ -216,6 +216,20 @@ def ixp_peers(value, ixp=""):
     return value.get_ixp_autonomous_systems(internet_exchange_point=i)
 
 
+def ixps(value, other):
+    """
+    Returns all IXPs on which both AS are peering together.
+    """
+    return value.get_internet_exchange_points(other)
+
+
+def shared_ixps(value, other):
+    """
+    Returns all IXPs on which both AS could peering together.
+    """
+    return value.get_shared_internet_exchange_points(other)
+
+
 def prefix_list(value, family=0):
     """
     Returns the prefixes for the given AS.
@@ -257,6 +271,8 @@ FILTER_DICT = {
     "filter": filter,
     "iterate": iterate,
     # Autonomous system
+    "ixps": ixps,
+    "shared_ixps": shared_ixps,
     "prefix_list": prefix_list,
     # BGP sessions
     "sessions": sessions,

@@ -66,6 +66,31 @@ Example:
 ASNs: {{ autonomous_systems | iterate('asn') }}
 ```
 
+### `ixps`
+
+On an autonomous system, it will return all IXPs on which a local (affiliated)
+AS is peering with the remote AS. The second `local_as` parameter is mandatory
+to use this filter.
+
+Example:
+```
+{% for ixp in autonomous_system | ixps(local_as) %}
+```
+
+### `shared_ixps`
+
+On an autonomous system, it will return all IXPs on which a local (affiliated)
+AS could peer with the remote AS. The second `local_as` parameter is mandatory
+to use this filter.
+
+This filter is different from `ixps` as it will give back all IXPs the two AS
+are peering on in addition to the ones they do not peer on yet.
+
+Example:
+```
+{% for ixp in autonomous_system | shared_ixps(local_as) %}
+```
+
 ### `prefix_list`
 
 Fetches all the prefixes of an autonomous system and returns them as a JSON

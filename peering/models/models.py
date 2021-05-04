@@ -143,7 +143,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
         """
         return self.get_direct_peering_sessions().union(self.get_ixp_peering_sessions())
 
-    def get_internet_exchange_points(self):
+    def get_internet_exchange_points(self, other):
         """
         Returns all IXPs this AS is peering on (with us).
         """
@@ -152,7 +152,8 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
                 pk__in=self.get_ixp_peering_sessions().values_list(
                     "ixp_connection", flat=True
                 )
-            ).values_list("internet_exchange_point", flat=True)
+            ).values_list("internet_exchange_point", flat=True),
+            local_autonomous_system=other,
         )
 
     def get_shared_internet_exchange_points(self, other):
@@ -318,33 +319,18 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
         return addresses
 
     def get_email_context(self):
-        context = {
-            "autonomous_system": self,
-            "direct_peering_sessions": DirectPeeringSession.objects.filter(
-                autonomous_system=self
-            ),
-        }
+        """
+        Returns a dict, to be used in a Jinja2 environment, that holds enough data to
+        help in creating an e-mail from a template.
+        """
         affiliated = AutonomousSystem.objects.filter(affiliated=True)
 
-        if affiliated.count() > 1:
-            # If there are more than one affiliated AS, add IX and missing sessions as
-            # part of the AS dict
-            context["my_as"] = []
-            for a in affiliated:
-                # as_dict[
-                #    "internet_exchanges"
-                # ] = self.get_missing_peering_sessions_on_shared_internet_exchanges(a)
-                context["my_as"].append(a)
-        else:
-            # This is kept for retrocompatibility
-            context["my_as"] = affiliated.first()
-            # context[
-            #    "internet_exchanges"
-            # ] = self.get_missing_peering_sessions_on_shared_internet_exchanges(
-            #    affiliated.first()
-            # )
-
-        return context
+        return {
+            "affiliated_autonomous_systems": affiliated,
+            "autonomous_system": self,
+            "direct_peering_sessions": self.get_direct_peering_sessions(),
+            "ixp_peering_sessions": self.get_ixp_peering_sessions(),
+        }
 
     def generate_email(self, email):
         """
