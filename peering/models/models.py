@@ -324,13 +324,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
         help in creating an e-mail from a template.
         """
         affiliated = AutonomousSystem.objects.filter(affiliated=True)
-
-        return {
-            "affiliated_autonomous_systems": affiliated,
-            "autonomous_system": self,
-            "direct_peering_sessions": self.get_direct_peering_sessions(),
-            "ixp_peering_sessions": self.get_ixp_peering_sessions(),
-        }
+        return {"affiliated_autonomous_systems": affiliated, "autonomous_system": self}
 
     def generate_email(self, email):
         """

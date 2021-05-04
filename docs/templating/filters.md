@@ -109,6 +109,29 @@ group or on the IXP will be returned as an iterable object. `route_server`
 works similarly but will only give back sessions setup with route servers on
 an IXP.
 
+When used on an autonomous system, the `sessions` filter will return all BGP
+sessions setup with the AS (direct and IXP sessions).
+
+Examples:
+```
+{% for session in ixp | sessions %}
+{% for session in autonomous_system | sessions %}
+{% for session in ixp | route_server(6) %}
+```
+
+### `direct_sessions` / `ixp_sessions`
+
+When used on an autonomous system, it will return direct peering sessions or
+respectively IXP peering sessions setup with the AS. If `4` or `6` is passed
+as extra parameter, only the sessions with a IP version matching will be
+returned.
+
+Examples:
+```
+{% for session in autonomous_system | direct_sessions %}
+{% for session in autonomous_system | ixp_sessions(6) %}
+```
+
 ### `ip_version`
 
 For a BGP session, it will return the IP version of the session given the IP

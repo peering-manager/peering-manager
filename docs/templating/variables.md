@@ -48,3 +48,20 @@ expose objects linked to the router either directly or not.
   object. You can use filters like `iterate` to walk through the list.
 
 ## Email
+
+As for configuration, when parsing the template of an e-mail, Peering Manager
+will provide a bunch of variables to help you write meaningful e-mails. Both
+the subject and the body will inherit from the same variables.
+
+An e-mail is always generated based on a remote autonomous system. This means
+that you can see IXPs, BGP sessions and more for this specific AS. Available
+variables for e-mail templating are much more straight forward as they heavily
+depend on autonomous systems.
+
+* `affiliated_autonomous_systems`: holds all autonomous systems marked as
+  affiliated. It can be useful to iterate over this list-like object to find,
+  for instance, all BGP sessions missing for all affiliated AS with another
+  one.
+* `autonomous_system`: holds current remote autonomous system details. This
+  variable is an object and data can be fetch using the variable name and a
+  field name separated by a dot like `{{ autonomous_system.asn }}`.

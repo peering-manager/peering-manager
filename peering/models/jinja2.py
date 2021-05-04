@@ -153,6 +153,40 @@ def merge_import_policies(value, order=""):
     return value.merged_import_policies(order == "reverse")
 
 
+def direct_sessions(value, family=0):
+    """
+    Returns a queryset of direct peering sessions.
+
+    If family is set to 4 or 6, only the sessions matching the IP address
+    family will be returned. If family is not set all sessions matching all
+    address families will be returned.
+    """
+    if not hasattr(value, "get_direct_peering_sessions"):
+        raise AttributeError(f"{value} has no direct peering sessions")
+
+    if family not in (4, 6):
+        return value.get_direct_peering_sessions()
+    else:
+        return value.get_direct_peering_sessions().filter(ip_address__family=family)
+
+
+def ixp_sessions(value, family=0):
+    """
+    Returns a queryset of IXP peering sessions.
+
+    If family is set to 4 or 6, only the sessions matching the IP address
+    family will be returned. If family is not set all sessions matching all
+    address families will be returned.
+    """
+    if not hasattr(value, "get_ixp_peering_sessions"):
+        raise AttributeError(f"{value} has no direct peering sessions")
+
+    if family not in (4, 6):
+        return value.get_ixp_peering_sessions()
+    else:
+        return value.get_ixp_peering_sessions().filter(ip_address__family=family)
+
+
 def sessions(value, family=0):
     """
     Returns a queryset of peering sessions.
@@ -274,6 +308,8 @@ FILTER_DICT = {
     "ixps": ixps,
     "shared_ixps": shared_ixps,
     "prefix_list": prefix_list,
+    "direct_sessions": direct_sessions,
+    "ixp_sessions": ixp_sessions,
     # BGP sessions
     "sessions": sessions,
     "route_server": route_server,
