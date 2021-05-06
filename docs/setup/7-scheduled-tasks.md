@@ -17,7 +17,7 @@ Assuming that Peering Manager is installed at `/opt/peering-manager` the
 following command will retrieve data from PeeringDB and store it locally.
 
 ```no-highlight
-# python3 manage.py peeringdb_sync
+# venv/bin/python3 manage.py peeringdb_sync
 ```
 
 Note: `PEERINGDB_USERNAME` & `PEERINGDB_PASSWORD` must be set in configuration if you
@@ -34,7 +34,7 @@ This command can be called with the `--flush` option to remove synchronized
 items.
 
 ```no-highlight
-# python3 manage.py peeringdb_sync --flush
+# venv/bin/python3 manage.py peeringdb_sync --flush
 ```
 
 ## Automatic Configuration Deployment
@@ -43,7 +43,7 @@ If Peering Manager is used to generate configuration stanzas and push them to
 routers, this task can be automated using the given command.
 
 ```no-highlight
-# python3 manage.py configure_routers --no-commit-check
+# venv/bin/python3 manage.py configure_routers --no-commit-check
 ```
 
 This will generate the configuration for each router and push it. If there are
@@ -69,9 +69,9 @@ must be in a BGP group or an Internet Exchange for them to be polled. They also
 have to be set in a reachable router.
 
 ```no-highlight
-# python3 manage.py poll_peering_sessions --all # can be -a (--all),
-                                                # -g (--bgp-groups) or
-                                                # -i (--internet-exchanges)
+# venv/bin/python3 manage.py poll_peering_sessions --all # can be -a (--all),
+                                                         # -g (--bgp-groups) or
+                                                         # -i (--internet-exchanges)
 ```
 
 ## Storing IRR AS-SET Prefixes
@@ -85,7 +85,7 @@ invalidations of the prefixes found in the database, so make sure to run this
 command at regular intervals to keep data up-to-date.
 
 ```no-highlight
-# python3 manage.py grab_prefixes --limit 100
+# venv/bin/python3 manage.py grab_prefixes --limit 100
 ```
 
 If the `--limit 100` flag is set, the command will not store prefixes for an IP
@@ -93,14 +93,24 @@ family if the number of prefixes is greater than 100. This can help to avoid
 storing large number of prefixes for a single autonomous system, preventing out
 of memory errors for future database lookups.
 
-## CRON
+## Automatic execution
 
 To avoid executing these commands by hand (which could be annoying) they can be
-run in a cron task.
+run automatically.
+
+### systemd
+
+Beside the systemd units for the main application and worker, the 
+[contrib-Repository](https://github.com/peering-manager/contrib/tree/main/systemd)
+also contains units to run the previously metioned tasks.
+After copying the files, you have to enable the timer units you want to use by
+running `systemctl enable peering-manager_peeringdb-sync.timer --now`.
+
+### CRON
 
 ```no-highlight
-30 2 * * * user cd /opt/peering-manager && python3 manage.py peeringdb_sync
-55 * * * * user cd /opt/peering-manager && python3 manage.py configure_routers
-0  * * * * user cd /opt/peering-manager && python3 manage.py poll_peering_sessions --all
-30 4 * * * user cd /opt/peering-manager && python3 manage.py grab_prefixes
+30 2 * * * user cd /opt/peering-manager && venv/bin/python3 manage.py peeringdb_sync
+55 * * * * user cd /opt/peering-manager && venv/bin/python3 manage.py configure_routers
+0  * * * * user cd /opt/peering-manager && venv/bin/python3 manage.py poll_peering_sessions --all
+30 4 * * * user cd /opt/peering-manager && venv/bin/python3 manage.py grab_prefixes
 ```
