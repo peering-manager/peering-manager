@@ -93,10 +93,20 @@ family if the number of prefixes is greater than 100. This can help to avoid
 storing large number of prefixes for a single autonomous system, preventing out
 of memory errors for future database lookups.
 
-## CRON
+## Automatic execution
 
 To avoid executing these commands by hand (which could be annoying) they can be
-run in a cron task.
+run automatically.
+
+### systemd
+
+Beside the systemd units for the main application and worker, the 
+[contrib-Repository](https://github.com/peering-manager/contrib/tree/main/systemd)
+also contains units to run the previously metioned tasks.
+After copying the files, you have to enable the timer units you want to use by
+running `systemctl enable peering-manager_peeringdb-sync.timer --now`.
+
+### CRON
 
 ```no-highlight
 30 2 * * * user cd /opt/peering-manager && venv/bin/python3 manage.py peeringdb_sync
