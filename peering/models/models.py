@@ -1070,14 +1070,14 @@ class Router(ChangeLoggedModel, TaggableModel):
         if not self.platform:
             if job_result:
                 job_result.mark_errored(
-                    "Router has no assigned platform.", obj=router, logger=logger
+                    "Router has no assigned platform.", obj=self, logger=logger
                 )
                 job_result.save()
             return False
         if not self.platform.napalm_driver:
             if job_result:
                 job_result.mark_errored(
-                    "Router's platform has no NAPALM driver.", obj=router, logger=logger
+                    "Router's platform has no NAPALM driver.", obj=self, logger=logger
                 )
                 job_result.save()
             return False
