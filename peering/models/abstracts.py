@@ -209,7 +209,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
         else:
             asn = str(self.local_autonomous_system.asn)
             prefix = "D"
-        
+
         return f"{prefix}{asn}-{uuid.uuid4().hex[:6].upper()}S"
 
     def save(self, *args, **kwargs):

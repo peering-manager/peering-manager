@@ -29,5 +29,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(generate_service_reference, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            generate_service_reference, reverse_code=migrations.RunPython.noop
+        ),
     ]
