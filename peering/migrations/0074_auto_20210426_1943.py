@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
             name="service_reference",
             field=models.CharField(
                 blank=True,
-                help_text="Optional: Internal Service Reference (will auto generate if left blank)",
+                help_text="Optional internal service reference (auto-generated if left blank)",
                 max_length=255,
                 null=True,
             ),
@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
             name="service_reference",
             field=models.CharField(
                 blank=True,
-                help_text="Optional: Unique Internal Service Reference (will auto generate if left blank)",
+                help_text="Optional internal service reference (auto-generated if left blank)",
                 max_length=255,
                 null=True,
             ),

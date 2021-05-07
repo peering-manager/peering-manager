@@ -93,7 +93,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
         max_length=255,
         unique=True,
         blank=True,
-        help_text="Optional: Internal Service Reference (will auto generate if left blank)",
+        help_text="Optional internal service reference (auto-generated if left blank)",
     )
     received_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     advertised_prefix_count = models.PositiveIntegerField(blank=True, default=0)
@@ -108,7 +108,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
         ordering = ["autonomous_system", "ip_address"]
 
     def __str__(self):
-        return str(self.service_reference)
+        return self.service_reference
 
     @property
     def ip_address_version(self):
@@ -188,44 +188,36 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
             self.save()
         return True
 
-    @property
-    def session_type(self):
+    def generate_service_reference(self):
         """
-        Determine what type of BGPSession this class has
-        been inherited into
-
-        Return:
-            str: ixp or direct
-        """
-        return "ixp" if hasattr(self, "ixp_connection") else "direct"
-
-    def generate_service_ref(self):
-        """
-        Generate a Unique Service Reference for an IX/Direct
-        session from Local ASN with 6 digit hex UUID.
+        Generate a unique service reference for a session from local ASN with 6 digit
+        hex UUID.
 
         Example: IX9268-FD130FS/IX<asn>-<hex>S
         Example: D9268-4CD335S/D<asn>-<hex>S
 
-        Return:
-            str: Service Reference
         """
-        if self.session_type == "ixp":
-            asn = (
+
+        asn, prefix = "", ""
+
+        # Find out ASN and prefix for the service ID based on the type of session
+        if hasattr(self, "ixp_connection"):
+            asn = str(
                 self.ixp_connection.internet_exchange_point.local_autonomous_system.asn
             )
-            return "IX{0}-{1}S".format(asn, uuid.uuid4().hex[:6].upper())
+            prefix = "IX"
         else:
-            asn = self.local_autonomous_system.asn
-            return "D{0}-{1}S".format(asn, uuid.uuid4().hex[:6].upper())
+            asn = str(self.local_autonomous_system.asn)
+            prefix = "D"
+        
+        return f"{prefix}{asn}-{uuid.uuid4().hex[:6].upper()}S"
 
     def save(self, *args, **kwargs):
         """
-        Overwrite Model Save to generate a Unique Service Reference
-        if left blank on Save/Update
+        Overrides default `save()` to set the service reference if left blank.
         """
         if not self.service_reference:
-            self.service_reference = self.generate_service_ref()
+            self.service_reference = self.generate_service_reference()
 
         return super().save(*args, **kwargs)
 

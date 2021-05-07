@@ -5,7 +5,7 @@ import uuid
 from django.db import migrations
 
 
-def gen_service_ref(apps, schema_editor):
+def generate_service_reference(apps, schema_editor):
     model = apps.get_model("peering", "InternetExchangePeeringSession")
     for row in model.objects.all():
         if row.ixp_connection.internet_exchange_point is not None:
@@ -29,5 +29,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(gen_service_ref, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(generate_service_reference, reverse_code=migrations.RunPython.noop),
     ]
