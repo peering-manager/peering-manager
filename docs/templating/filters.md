@@ -18,8 +18,7 @@ description "Peering: AS{{ a_s.asn }} {{ a_s.name | safe_string }}"
 
 ### `tags`
 
-For any objects having tags, it will give back only tags in an iterable
-structure.
+Returns an iterable structure for all tags assigned to an object.
 
 Example:
 ```
@@ -174,11 +173,11 @@ password clear {{ session.password }}
 
 For a router, fetches all peers connected to it. When using `direct_peers`
 only peers with at least one direct peering session will be fetched while
-`ixp_peers` will fetch perrs with at least on peering session setup on an IXP
+`ixp_peers` will fetch peers with at least on peering session setup on an IXP
 connected to the router.
 
-Both filters take as option a slug value (as a string) to fetch sessions
-belonging to a specific BGP group or IXP.
+Both filters can optionally take a slug value (as a string) to fetch sessions
+from a specific BGP group or IXP.
 
 Example:
 ```
@@ -189,9 +188,9 @@ Example:
 
 ### `iter_export_policies` / `iter_import_policies`
 
-Fetches routing policies apply on export or on import of an object. Note that
-these filters will not traverse relationships, therefore, they will not fetch
-AS policies for a session (for instance).
+Fetches routing policies applied on export or on import of an object. Note
+that these filters will not traverse relationships, therefore, they will not
+fetch AS policies for a session (for instance).
 
 You can use a string as an option to these filters to select only a specific
 field of the policies.
@@ -204,9 +203,9 @@ import [ {{ session | iter_import_policies('slug') | join(' ') }} ];
 
 ### `merge_export_policies` / `merge_import_policies`
 
-Applies all export or import routing policies of an object and merge them
-into a single list. Policies will be sorted based on their origin
-(AS/IXP/session) and their weight.
+Merges all import or export routing policies from an object into a single
+list. Policies are sorted based on their origin (AS/IXP/Session) and their
+weight.
 
 Note that a IXP policy is less preferred than an AS policy. Session policies
 are the preferred ones. If a policy is referenced more than one time in the

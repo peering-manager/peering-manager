@@ -1,18 +1,19 @@
 # Variables
 
 Peering Manager provides a set of pre-defined variables depending on the type
-of the template that you are writing. These variables holds data that
+of the template that you are writing. These variables hold data that
 represents what is inside the database. As such, some variables are exposed as
 SQL query results packed into Python objects allowing easy data processing and
 consumption.
 
-It is important to understand that most of the data in these variables is
+It is important to understand that most of the data in these variables are
 **not** plain text and sometimes requires processing. Please refer to the
 provided [Jinja2 filters](filters.md) to know what logics are already
 available to you.
 
-If you have troubles fetching or parsing data, even by using additional Jinja2
-filters, please share them in an issue so they can be addressed.
+If you experience issues with fetching and or parsing data while using
+additional Jinja2 filters, please ensure these are reported via an issue so
+they can be addressed correctly.
 
 ## Configuration
 

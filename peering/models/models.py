@@ -1156,7 +1156,7 @@ class Router(ChangeLoggedModel, TaggableModel):
 
     def get_direct_autonomous_systems(self, bgp_group=None):
         """
-        Returns autonomous systems with which this router peers directly.
+        Returns autonomous systems that are directly peered with this router.
         """
         if bgp_group:
             sessions = DirectPeeringSession.objects.filter(

@@ -259,7 +259,7 @@ def ixps(value, other):
 
 def shared_ixps(value, other):
     """
-    Returns all IXPs on which both AS could peering together.
+    Returns shared IXPs where both ASNs are present without a bilateral session.
     """
     return value.get_shared_internet_exchange_points(other)
 
@@ -283,7 +283,7 @@ def safe_string(value):
 
 def tags(value):
     """
-    Returns an iterable containing tags if the object as any.
+    Returns an iterable containing tags associated with an object."
     """
     if not isinstance(value, TaggableModel):
         raise AttributeError("object has not tags")
