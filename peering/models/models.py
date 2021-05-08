@@ -503,42 +503,6 @@ class DirectPeeringSession(BGPSession):
     def get_absolute_url(self):
         return reverse("peering:directpeeringsession_details", kwargs={"pk": self.pk})
 
-    def merged_export_policies(self):
-        # Get own policies
-        merged = [p for p in self.export_policies()]
-
-        # Merge policies from nested objects (first AS, then BGP group)
-        for policy in self.autonomous_system.export_policies():
-            if policy in merged:
-                continue
-            merged.append(policy)
-
-        if self.bgp_group:
-            for policy in self.bgp_group.export_policies():
-                if policy in merged:
-                    continue
-                merged.append(policy)
-
-        return merged
-
-    def merged_import_policies(self):
-        # Get own policies
-        merged = [p for p in self.import_policies()]
-
-        # Merge policies from nested objects (first AS, then BGP group)
-        for policy in self.autonomous_system.import_policies():
-            if policy in merged:
-                continue
-            merged.append(policy)
-
-        if self.bgp_group:
-            for policy in self.bgp_group.import_policies():
-                if policy in merged:
-                    continue
-                merged.append(policy)
-
-        return merged
-
     def poll(self):
         # Check if we are able to get BGP details
         log = 'ignoring session states on {}, reason: "{}"'
@@ -918,40 +882,6 @@ class InternetExchangePeeringSession(BGPSession):
         return reverse(
             "peering:internetexchangepeeringsession_details", kwargs={"pk": self.pk}
         )
-
-    def merged_export_policies(self, reverse=False):
-        # Get own policies
-        merged = [p for p in self.export_policies()]
-
-        # Merge policies from nested objects (first AS, then BGP group)
-        for policy in self.autonomous_system.export_policies():
-            if policy in merged:
-                continue
-            merged.append(policy)
-
-        for policy in self.ixp_connection.internet_exchange_point.export_policies():
-            if policy in merged:
-                continue
-            merged.append(policy)
-
-        return list(reversed(merged)) if reverse else merged
-
-    def merged_import_policies(self, reverse=False):
-        # Get own policies
-        merged = [p for p in self.import_policies()]
-
-        # Merge policies from nested objects (first AS, then BGP group)
-        for policy in self.autonomous_system.import_policies():
-            if policy in merged:
-                continue
-            merged.append(policy)
-
-        for policy in self.ixp_connection.internet_exchange_point.import_policies():
-            if policy in merged:
-                continue
-            merged.append(policy)
-
-        return list(reversed(merged)) if reverse else merged
 
     def poll(self):
         # Check if we are able to get BGP details

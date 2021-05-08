@@ -107,8 +107,55 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
     def export_policies(self):
         return self.export_routing_policies.all()
 
+    def merged_export_policies(self, reverse=False):
+        merged = [p for p in self.export_policies()]
+
+        # Merge policies from nested objects (first AS, then BGP group)
+        for policy in self.autonomous_system.export_policies():
+            if policy in merged:
+                continue
+            merged.append(policy)
+
+        group = None
+        if hasattr(self, "ixp_connection"):
+            group = self.ixp_connection.internet_exchange_point
+        else:
+            group = self.bgp_group
+
+        if group:
+            for policy in group.export_policies():
+                if policy in merged:
+                    continue
+                merged.append(policy)
+
+        return list(reversed(merged)) if reverse else merged
+
     def import_policies(self):
         return self.import_routing_policies.all()
+
+    def merged_import_policies(self, reverse=False):
+        # Get own policies
+        merged = [p for p in self.import_policies()]
+
+        # Merge policies from nested objects (first AS, then BGP group)
+        for policy in self.autonomous_system.import_policies():
+            if policy in merged:
+                continue
+            merged.append(policy)
+
+        group = None
+        if hasattr(self, "ixp_connection"):
+            group = self.ixp_connection.internet_exchange_point
+        else:
+            group = self.bgp_group
+
+        if group:
+            for policy in group.import_policies():
+                if policy in merged:
+                    continue
+                merged.append(policy)
+
+        return list(reversed(merged)) if reverse else merged
 
     def poll(self):
         raise NotImplementedError
