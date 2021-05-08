@@ -1,5 +1,6 @@
 import ipaddress
 import logging
+import uuid
 
 from django.db import models
 from django.utils.safestring import mark_safe
@@ -88,6 +89,12 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
     bgp_state = models.CharField(
         max_length=50, choices=BGPState.choices, blank=True, null=True
     )
+    service_reference = models.CharField(
+        max_length=255,
+        unique=True,
+        blank=True,
+        help_text="Optional internal service reference (auto-generated if left blank)",
+    )
     received_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     advertised_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     last_established_state = models.DateTimeField(blank=True, null=True)
@@ -99,6 +106,9 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
     class Meta:
         abstract = True
         ordering = ["autonomous_system", "ip_address"]
+
+    def __str__(self):
+        return self.service_reference
 
     @property
     def ip_address_version(self):
@@ -177,6 +187,39 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
         if commit:
             self.save()
         return True
+
+    def generate_service_reference(self):
+        """
+        Generate a unique service reference for a session from local ASN with 6 digit
+        hex UUID.
+
+        Example: IX9268-FD130FS/IX<asn>-<hex>S
+        Example: D9268-4CD335S/D<asn>-<hex>S
+
+        """
+
+        asn, prefix = "", ""
+
+        # Find out ASN and prefix for the service ID based on the type of session
+        if hasattr(self, "ixp_connection"):
+            asn = str(
+                self.ixp_connection.internet_exchange_point.local_autonomous_system.asn
+            )
+            prefix = "IX"
+        else:
+            asn = str(self.local_autonomous_system.asn)
+            prefix = "D"
+
+        return f"{prefix}{asn}-{uuid.uuid4().hex[:6].upper()}S"
+
+    def save(self, *args, **kwargs):
+        """
+        Overrides default `save()` to set the service reference if left blank.
+        """
+        if not self.service_reference:
+            self.service_reference = self.generate_service_reference()
+
+        return super().save(*args, **kwargs)
 
 
 class Template(ChangeLoggedModel, TaggableModel):

@@ -194,6 +194,7 @@ class DirectPeeringSessionTable(BaseTable):
         verbose_name="Status",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
+    service_reference = tables.Column(verbose_name="Service ID", linkify=True)
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     state = BGPSessionStateColumn(accessor="bgp_state")
@@ -205,6 +206,7 @@ class DirectPeeringSessionTable(BaseTable):
         model = DirectPeeringSession
         fields = (
             "pk",
+            "service_reference",
             "local_autonomous_system",
             "autonomous_system",
             "ip_address",
@@ -343,6 +345,7 @@ class InternetExchangePeeringSessionTable(BaseTable):
     )
     ixp_connection = tables.Column(verbose_name="Connection", linkify=True)
     ip_address = tables.Column(verbose_name="IP Address", linkify=True)
+    service_reference = tables.Column(verbose_name="Service ID", linkify=True)
     is_route_server = BooleanColumn(
         verbose_name="Route Server",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
@@ -363,6 +366,7 @@ class InternetExchangePeeringSessionTable(BaseTable):
         model = InternetExchangePeeringSession
         fields = (
             "pk",
+            "service_reference",
             "autonomous_system",
             "ixp_connection",
             "internet_exchange_point",

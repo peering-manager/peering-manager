@@ -533,7 +533,12 @@ class DirectPeeringSession(BGPSession):
     )
 
     class Meta(BGPSession.Meta):
-        ordering = ["local_autonomous_system", "autonomous_system", "ip_address"]
+        ordering = [
+            "service_reference",
+            "local_autonomous_system",
+            "autonomous_system",
+            "ip_address",
+        ]
 
     def __str__(self):
         return f"{self.get_relationship_display()} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
@@ -871,7 +876,12 @@ class InternetExchangePeeringSession(BGPSession):
     )
 
     class Meta(BGPSession.Meta):
-        ordering = ["autonomous_system", "ixp_connection", "ip_address"]
+        ordering = [
+            "service_reference",
+            "autonomous_system",
+            "ixp_connection",
+            "ip_address",
+        ]
 
     @staticmethod
     def create_from_peeringdb(affiliated, netixlan):
