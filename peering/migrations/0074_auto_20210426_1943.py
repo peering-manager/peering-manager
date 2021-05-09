@@ -40,6 +40,7 @@ class Migration(migrations.Migration):
                 help_text="Optional internal service reference (auto-generated if left blank)",
                 max_length=255,
                 null=True,
+                default=None,
             ),
         ),
         migrations.AddField(
@@ -50,6 +51,7 @@ class Migration(migrations.Migration):
                 help_text="Optional internal service reference (auto-generated if left blank)",
                 max_length=255,
                 null=True,
+                default=None,
             ),
         ),
     ]

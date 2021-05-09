@@ -158,21 +158,23 @@ class ConfigurationTest(TestCase):
 class DirectPeeringSessionTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        cls.local_as = AutonomousSystem.objects.create(
+            asn=64500,
+            name="Local Test",
+            affiliated=True,
+        )
         cls.autonomous_system = AutonomousSystem.objects.create(asn=64501, name="Test")
         cls.group = BGPGroup.objects.create(
             name="Test Group", slug="testgroup", check_bgp_session_states=True
         )
         cls.router = Router.objects.create(
+            local_autonomous_system=cls.local_as,
             name="Test",
             hostname="test.example.com",
-            local_autonomous_system=AutonomousSystem.objects.create(
-                asn=64500,
-                name="Autonomous System",
-                affiliated=True,
-            ),
             platform=Platform.objects.get(name="Juniper Junos"),
         )
         cls.session = DirectPeeringSession.objects.create(
+            local_autonomous_system=cls.local_as,
             autonomous_system=cls.autonomous_system,
             bgp_group=cls.group,
             ip_address="2001:db8::1",
@@ -223,19 +225,23 @@ class InternetExchangeTest(TestCase):
 class InternetExchangePeeringSessionTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        cls.local_as = AutonomousSystem.objects.create(
+            asn=64500,
+            name="Local Test",
+            affiliated=True,
+        )
         cls.a_s = AutonomousSystem.objects.create(asn=64510, name="Test")
         cls.router = Router.objects.create(
+            local_autonomous_system=cls.local_as,
             name="Test",
             hostname="test.example.com",
-            local_autonomous_system=AutonomousSystem.objects.create(
-                asn=64500,
-                name="Autonomous System",
-                affiliated=True,
-            ),
             platform=Platform.objects.get(name="Juniper Junos"),
         )
         cls.ixp = InternetExchange.objects.create(
-            name="Test Group", slug="testgroup", check_bgp_session_states=True
+            local_autonomous_system=cls.local_as,
+            name="Test Group",
+            slug="testgroup",
+            check_bgp_session_states=True,
         )
         cls.ixp_connection = Connection.objects.create(
             vlan=2000, internet_exchange_point=cls.ixp, router=cls.router
@@ -323,10 +329,10 @@ class RouterTest(TestCase):
             "peering/tests/fixtures/get_bgp_neighbors_detail.json"
         )
         cls.router = Router.objects.create(
+            local_autonomous_system=cls.local_as,
             name="Test",
             hostname="test.example.com",
             device_state=DeviceState.ENABLED,
-            local_autonomous_system=cls.local_as,
         )
 
     def test_is_usable_for_task(self):
@@ -339,6 +345,7 @@ class RouterTest(TestCase):
         bgp_group = BGPGroup.objects.create(name="Test Group", slug="testgroup")
         for i in range(1, 6):
             DirectPeeringSession.objects.create(
+                local_autonomous_system=self.local_as,
                 local_ip_address="192.0.2.1",
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
                 bgp_group=bgp_group,
@@ -347,7 +354,9 @@ class RouterTest(TestCase):
                 enabled=bool(i % 2),
                 router=self.router,
             )
-        ixp = InternetExchange.objects.create(name="Test IX", slug="test-ix")
+        ixp = InternetExchange.objects.create(
+            local_autonomous_system=self.local_as, name="Test IX", slug="test-ix"
+        )
         ixp_connection = Connection.objects.create(
             vlan=2000, internet_exchange_point=ixp, router=self.router
         )

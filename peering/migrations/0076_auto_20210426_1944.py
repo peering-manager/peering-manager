@@ -19,6 +19,7 @@ class Migration(migrations.Migration):
                 max_length=255,
                 null=True,
                 unique=True,
+                default=None,
             ),
         ),
         migrations.AlterField(
@@ -30,6 +31,7 @@ class Migration(migrations.Migration):
                 max_length=255,
                 null=True,
                 unique=True,
+                default=None,
             ),
         ),
     ]

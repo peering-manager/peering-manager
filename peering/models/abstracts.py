@@ -93,6 +93,8 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
         max_length=255,
         unique=True,
         blank=True,
+        null=True,
+        default=None,
         help_text="Optional internal service reference (auto-generated if left blank)",
     )
     received_prefix_count = models.PositiveIntegerField(blank=True, default=0)
@@ -190,27 +192,27 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
 
     def generate_service_reference(self):
         """
-        Generate a unique service reference for a session from local ASN with 6 digit
+        Generates a unique service reference for a session from local ASN with 6 digit
         hex UUID.
 
-        Example: IX9268-FD130FS/IX<asn>-<hex>S
-        Example: D9268-4CD335S/D<asn>-<hex>S
-
+        Examples:
+          * I9268-FD130FS/I<local_asn>-<hex>S
+          * D9268-4CD335S/D<local_asn>-<hex>S
         """
-
-        asn, prefix = "", ""
+        local_as = None
+        prefix = ""
 
         # Find out ASN and prefix for the service ID based on the type of session
         if hasattr(self, "ixp_connection"):
-            asn = str(
-                self.ixp_connection.internet_exchange_point.local_autonomous_system.asn
+            local_as = (
+                self.ixp_connection.internet_exchange_point.local_autonomous_system
             )
-            prefix = "IX"
+            prefix = "I"
         else:
-            asn = str(self.local_autonomous_system.asn)
+            local_as = self.local_autonomous_system
             prefix = "D"
 
-        return f"{prefix}{asn}-{uuid.uuid4().hex[:6].upper()}S"
+        return f"{prefix}{local_as.asn}-{uuid.uuid4().hex[:6].upper()}S"
 
     def save(self, *args, **kwargs):
         """
