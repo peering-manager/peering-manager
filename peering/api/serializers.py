@@ -145,6 +145,7 @@ class DirectPeeringSessionSerializer(
         model = DirectPeeringSession
         fields = [
             "id",
+            "service_reference",
             "local_autonomous_system",
             "local_ip_address",
             "autonomous_system",
@@ -214,6 +215,7 @@ class InternetExchangePeeringSessionSerializer(
         model = InternetExchangePeeringSession
         fields = [
             "id",
+            "service_reference",
             "autonomous_system",
             "ixp_connection",
             "ip_address",
