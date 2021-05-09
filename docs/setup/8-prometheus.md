@@ -1,16 +1,8 @@
 This guide explains how to implement Prometheus metrics.
 
-# Requirements
-
-## Install django-prometheus
-
-```
-# pip3 install -r requirements_prometheus.txt
-```
-
 # Configuration
 
-Add `METRICS_ENABLED=True` to your `configuration.py`.
+Add `METRICS_ENABLED=True` to your `configuration.py` and restart Peering Manager.
 
 ## Prometheus Configuration
 

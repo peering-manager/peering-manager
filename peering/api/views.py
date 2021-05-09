@@ -319,7 +319,7 @@ class RouterViewSet(ModelViewSet):
             return Response(None, status=status.HTTP_403_FORBIDDEN)
 
         router_ids = (
-            request.data.get("routers[]", [])
+            request.data.getlist("routers[]", [])
             if request.method != "GET"
             else request.query_params.getlist("routers[]")
         )

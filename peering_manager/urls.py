@@ -33,8 +33,8 @@ __patterns = [
     path("api/users/", include("users.api.urls")),
     path("api/utils/", include("utils.api.urls")),
     # Admin
-    path("admin/", admin_site.urls),
     path("admin/background-tasks/", include("django_rq.urls")),
+    path("admin/", admin_site.urls),
     # Error triggering
     path("error500/", views.trigger_500),
 ]
