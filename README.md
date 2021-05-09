@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="project-static/img/peering-manager.svg" alt="Peering Manager logo"/>
+  <img src="project-static/img/peering-manager.svg" height="480" alt="Peering Manager"/>
 </p>
 
 Peering Manager is a BGP session management tool. Initially conceived as a way
@@ -7,17 +7,24 @@ to document Internet Exchanges points and peering sessions, its goal is now to
 provide a source of truth and configuration management for external BGP
 sessions of all kind (transit, customers, peering, …).
 
-Questions? Comments? Start a
-[discussion](https://github.com/peering-manager/peering-manager/discussions) on
-GitHub or join us in the `#peering-manager` Slack channel on
-[NetDev Community](https://join.slack.com/t/netdev-community/shared_invite/zt-mtts8g0n-Sm6Wutn62q_M4OdsaIycrQ).
+The complete documentation for Peering Manager can be found at
+[Read the Docs](https://peering-manager.readthedocs.io/). A public demo
+instance is available at https://demo.peering-manager.net/.
+
+### Discussion
+
+* [GitHub Discussions](https://github.com/peering-manager/peering-manager/discussions) -
+  Discussion forum hosted by GitHub; ideal for Q&A and other structured discussions
+* [Slack](https://slack.netbox.dev/) - Real-time chat hosted by the NetDev
+  Community in channel `#peering-manager`; best for unstructured discussion or
+  just hanging out
 
 ## Requirements
 
-This tool is written with the
-[Django framework](https://www.djangoproject.com/) with a
-[PostgreSQL](https://www.postgresql.org) database and requires Python 3 with
-some dependencies to run. For a complete list of requirements, see
+Peering Manager is written with the [Django](https://www.djangoproject.com/)
+with a [PostgreSQL](https://www.postgresql.org) database,
+[Redis](https://redis.io/) for caching/task processing and requires Python 3
+with some dependencies to run. For a complete list of requirements, see
 `requirements.txt`.
 
 Tested Python versions are 3.6, 3.7, 3.8 and 3.9.
@@ -29,12 +36,6 @@ The best way to start setting up this tool is to use **pip** within a
 [![Coverage Status](https://coveralls.io/repos/github/peering-manager/peering-manager/badge.svg?branch=main)](https://coveralls.io/github/peering-manager/peering-manager?branch=main)
 [![Documentation Status](https://readthedocs.org/projects/peering-manager/badge/?version=latest)](https://peering-manager.readthedocs.io/en/latest/?badge=latest)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
-
-
-## Installation
-
-Please see the [documentation](https://peering-manager.readthedocs.io/) for
-instructions on installing Peering Manager.
 
 ## Helping
 

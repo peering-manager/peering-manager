@@ -103,7 +103,9 @@ class AutonomousSystemViewSet(ModelViewSet):
             return Response(
                 {
                     "shared-internet-exchanges": InternetExchangeNestedSerializer(
-                        self.get_object().get_shared_internet_exchanges(affiliated),
+                        self.get_object().get_shared_internet_exchange_points(
+                            affiliated
+                        ),
                         many=True,
                         context={"request": request},
                     ).data
@@ -156,10 +158,6 @@ class ConfigurationViewSet(ModelViewSet):
     serializer_class = ConfigurationSerializer
     filterset_class = ConfigurationFilterSet
 
-    @action(detail=True, methods=["get"], url_path="render-preview")
-    def render_preview(self, request, pk=None):
-        return Response({"preview": self.get_object().render_preview()})
-
 
 class DirectPeeringSessionViewSet(ModelViewSet):
     queryset = DirectPeeringSession.objects.all()
@@ -189,10 +187,6 @@ class EmailViewSet(ModelViewSet):
     queryset = Email.objects.all()
     serializer_class = EmailSerializer
     filterset_class = EmailFilterSet
-
-    @action(detail=True, methods=["get"], url_path="render-preview")
-    def render_preview(self, request, pk=None):
-        return Response({"preview": self.get_object().render_preview()})
 
 
 class InternetExchangeViewSet(ModelViewSet):

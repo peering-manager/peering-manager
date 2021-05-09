@@ -125,21 +125,40 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
             "peering:autonomoussystem_direct_peering_sessions", kwargs={"asn": self.asn}
         )
 
-    def get_peering_sessions(self):
-        return self.internetexchangepeeringsession_set.all()
-
-    def get_internet_exchanges(self):
-        internet_exchanges = []
-
-        for session in self.internetexchangepeeringsession_set.all():
-            if session.internet_exchange not in internet_exchanges:
-                internet_exchanges.append(session.internet_exchange)
-
-        return internet_exchanges
-
-    def get_shared_internet_exchanges(self, other):
+    def get_direct_peering_sessions(self):
         """
-        Returns all IX this AS has with the other one.
+        Returns all direct peering sessions with this AS.
+        """
+        return DirectPeeringSession.objects.filter(autonomous_system=self)
+
+    def get_ixp_peering_sessions(self):
+        """
+        Returns all IXP peering sessions with this AS.
+        """
+        return InternetExchangePeeringSession.objects.filter(autonomous_system=self)
+
+    def get_peering_sessions(self):
+        """
+        Returns all peering sessions with this AS.
+        """
+        return self.get_direct_peering_sessions().union(self.get_ixp_peering_sessions())
+
+    def get_internet_exchange_points(self, other):
+        """
+        Returns all IXPs this AS is peering on (with us).
+        """
+        return InternetExchange.objects.filter(
+            pk__in=Connection.objects.filter(
+                pk__in=self.get_ixp_peering_sessions().values_list(
+                    "ixp_connection", flat=True
+                )
+            ).values_list("internet_exchange_point", flat=True),
+            local_autonomous_system=other,
+        )
+
+    def get_shared_internet_exchange_points(self, other):
+        """
+        Returns all IXPs this AS has with the other one.
         """
         return InternetExchange.objects.filter(
             peeringdb_ixlan__id__in=get_shared_internet_exchanges(
@@ -165,10 +184,9 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
             filter["ixp_connection__id__in"] = Connection.objects.filter(
                 internet_exchange_point=internet_exchange_point
             ).values_list("id", flat=True)
-        ip_sessions = [
-            str(s.ip_address)
-            for s in InternetExchangePeeringSession.objects.filter(**filter)
-        ]
+        ip_sessions = InternetExchangePeeringSession.objects.filter(
+            **filter
+        ).values_list("ip_address", flat=True)
 
         qs_filter = Q(asn=self.asn) & (
             ~Q(ipaddr6__in=ip_sessions) | ~Q(ipaddr4__in=ip_sessions)
@@ -177,49 +195,11 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
             qs_filter &= Q(ixlan=internet_exchange_point.peeringdb_ixlan)
         else:
             qs_filter &= Q(
-                ixlan__in=[
-                    ix.peeringdb_ixlan
-                    for ix in self.get_shared_internet_exchanges(other)
-                ]
+                ixlan__in=self.get_shared_internet_exchange_points(other).values_list(
+                    "peeringdb_ixlan", flat=True
+                )
             )
         return NetworkIXLan.objects.filter(qs_filter)
-
-    def get_missing_peering_sessions_on_shared_internet_exchanges(self, other):
-        """
-        Returns a list of dictionaries, each containing an `InternetExchange` object
-        and lists of IP addresses. These addresses are the ones with which peering
-        sessions have *not* been configured yet on the IX.
-        """
-        ix_and_sessions = []
-
-        if self == other:
-            return ix_and_sessions
-
-        for internet_exchange in self.get_shared_internet_exchanges(other):
-            missing_sessions = {"ipv6": [], "ipv4": []}
-            for netixlan in self.get_missing_peering_sessions(other, internet_exchange):
-                # Check the NetIXLan's IP addresses for each version to see if a
-                # sessions already matches
-                for version in [6, 4]:
-                    ipaddr = getattr(netixlan, f"ipaddr{version}", None)
-                    if ipaddr and not InternetExchangePeeringSession.objects.filter(
-                        autonomous_system=self,
-                        internet_exchange=internet_exchange,
-                        ip_address=ipaddr,
-                    ):
-                        missing_sessions[f"ipv{version}"].append(ipaddr)
-
-            ix_and_sessions.append(
-                {
-                    "internet_exchange": internet_exchange,
-                    "sessions": InternetExchangePeeringSession.objects.filter(
-                        autonomous_system=self, internet_exchange=internet_exchange
-                    ),
-                    "missing_sessions": missing_sessions,
-                }
-            )
-
-        return ix_and_sessions
 
     def synchronize_with_peeringdb(self):
         """
@@ -339,35 +319,17 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
         return addresses
 
     def get_email_context(self):
-        context = {
-            "autonomous_system": self,
-            "direct_peering_sessions": DirectPeeringSession.objects.filter(
-                autonomous_system=self
-            ),
-        }
+        """
+        Returns a dict, to be used in a Jinja2 environment, that holds enough data to
+        help in creating an e-mail from a template.
+        """
         affiliated = AutonomousSystem.objects.filter(affiliated=True)
-
-        if affiliated.count() > 1:
-            # If there are more than one affiliated AS, add IX and missing sessions as
-            # part of the AS dict
-            context["my_as"] = []
-            for a in affiliated:
-                # as_dict[
-                #    "internet_exchanges"
-                # ] = self.get_missing_peering_sessions_on_shared_internet_exchanges(a)
-                context["my_as"].append(a)
-        else:
-            # This is kept for retrocompatibility
-            context["my_as"] = affiliated.first()
-            # context[
-            #    "internet_exchanges"
-            # ] = self.get_missing_peering_sessions_on_shared_internet_exchanges(
-            #    affiliated.first()
-            # )
-
-        return context
+        return {"affiliated_autonomous_systems": affiliated, "autonomous_system": self}
 
     def generate_email(self, email):
+        """
+        Renders an e-mail from a template.
+        """
         return email.render(self.get_email_context())
 
 
@@ -388,7 +350,7 @@ class BGPGroup(AbstractGroup):
         return reverse("peering:bgpgroup_peering_sessions", kwargs={"slug": self.slug})
 
     def get_peering_sessions(self):
-        return self.directepeeringsession_set.all()
+        return DirectPeeringSession.objects.filter(bgp_group=self)
 
     def poll_peering_sessions(self):
         if not self.check_bgp_session_states:
@@ -638,6 +600,18 @@ class InternetExchange(AbstractGroup):
     def get_peer_list_url(self):
         return reverse("peering:internet_exchange_peers", kwargs={"slug": self.slug})
 
+    def merged_export_policies(self, reverse=False):
+        # Get own policies
+        policies = [p for p in self.export_policies()]
+
+        return list(reversed(policies)) if reverse else policies
+
+    def merged_import_policies(self, reverse=False):
+        # Get own policies
+        policies = [p for p in self.import_policies()]
+
+        return list(reversed(policies)) if reverse else policies
+
     def link_to_peeringdb(self):
         """
         Retrieves the PeeringDB IDs for this IX based on connections.
@@ -679,14 +653,6 @@ class InternetExchange(AbstractGroup):
         return InternetExchangePeeringSession.objects.filter(
             ixp_connection__in=Connection.objects.filter(internet_exchange_point=self)
         )
-
-    def sessions(self):
-        """
-        TO BE REMOVED: added for retrocompatibility until #356 is fixed
-        https://github.com/peering-manager/peering-manager/issues/356
-        """
-        yield 4, self.get_peering_sessions().filter(ip_address__family=4)
-        yield 6, self.get_peering_sessions().filter(ip_address__family=6)
 
     def get_autonomous_systems(self):
         """
@@ -1107,56 +1073,101 @@ class Router(ChangeLoggedModel, TaggableModel):
             )
         )
 
-    def get_internet_exchanges(self):
+    def get_connections(self, internet_exchange_point=None):
+        """
+        Returns connections attached to this router.
+        """
+        if internet_exchange_point:
+            return Connection.objects.filter(
+                internet_exchange_point=internet_exchange_point, router=self
+            )
+        else:
+            return Connection.objects.filter(router=self)
+
+    def get_internet_exchange_points(self):
         """
         Returns IXPs that this router is connected to.
         """
         return InternetExchange.objects.filter(
-            pk__in=Connection.objects.filter(router=self).values_list(
+            pk__in=self.get_connections().values_list(
                 "internet_exchange_point", flat=True
             )
         )
 
+    def get_direct_autonomous_systems(self, bgp_group=None):
+        """
+        Returns autonomous systems that are directly peered with this router.
+        """
+        if bgp_group:
+            sessions = DirectPeeringSession.objects.filter(
+                bgp_group=bgp_group, router=self
+            ).values_list("autonomous_system", flat=True)
+        else:
+            sessions = DirectPeeringSession.objects.filter(router=self).values_list(
+                "autonomous_system", flat=True
+            )
+        return AutonomousSystem.objects.filter(pk__in=sessions)
+
+    def get_ixp_autonomous_systems(self, internet_exchange_point=None):
+        """
+        Returns autonomous systems with which this router peers over IXPs.
+        """
+        return AutonomousSystem.objects.filter(
+            pk__in=InternetExchangePeeringSession.objects.filter(
+                ixp_connection__in=self.get_connections(
+                    internet_exchange_point=internet_exchange_point
+                )
+            ).values_list("autonomous_system", flat=True)
+        )
+
     def get_autonomous_systems(self):
         """
-        Returns all autonomous systems with setup peering sessions over this IXP.
+        Returns all autonomous systems with which this router peers.
         """
-        as_list_1 = DirectPeeringSession.objects.filter(router=self).values_list(
-            "autonomous_system", flat=True
+        return self.get_direct_autonomous_systems().union(
+            self.get_ixp_autonomous_systems()
         )
-        as_list_2 = InternetExchangePeeringSession.objects.filter(
-            ixp_connection__in=Connection.objects.filter(router=self)
-        ).values_list("autonomous_system", flat=True)
-
-        return AutonomousSystem.objects.filter(pk__in=list(as_list_1) + list(as_list_2))
 
     def get_configuration_context(self):
+        """
+        Returns a dict, to be used in a Jinja2 environment, that holds enough data to
+        help in creating a configuration from a template.
+        """
         return {
-            "my_as": self.local_autonomous_system,
             "autonomous_systems": self.get_autonomous_systems(),
             "bgp_groups": self.get_bgp_groups(),
-            "internet_exchanges": self.get_internet_exchanges(),
-            "routing_policies": RoutingPolicy.objects.all(),
             "communities": Community.objects.all(),
+            "internet_exchange_points": self.get_internet_exchange_points(),
+            "local_as": self.local_autonomous_system,
+            "routing_policies": RoutingPolicy.objects.all(),
+            "router": self,
         }
 
     def generate_configuration(self):
-        return (
-            self.configuration_template.render(self.get_configuration_context())
-            if self.configuration_template
-            else ""
-        )
+        """
+        Returns the configuration of a router according to the template in use.
+
+        If no template is used, an empty string is returned.
+        """
+        if self.configuration_template:
+            context = self.get_configuration_context()
+            return self.configuration_template.render(context)
+        else:
+            return ""
 
     def get_napalm_device(self):
+        """
+        Returns an instance of the NAPALM driver to connect to a router.
+        """
         if not self.platform or not self.platform.napalm_driver:
             self.logger.debug("no napalm driver defined")
             return None
 
-        self.logger.debug(f'looking for napalm driver "{self.platform.napalm_driver}"')
+        self.logger.debug(f"looking for napalm driver '{self.platform.napalm_driver}'")
         try:
             # Driver found, instanciate it
             driver = napalm.get_network_driver(self.platform.napalm_driver)
-            self.logger.debug(f'found napalm driver "{self.platform.napalm_driver}"')
+            self.logger.debug(f"found napalm driver '{self.platform.napalm_driver}'")
 
             # Merge NAPALM args: first global, then platform's, finish with router's
             args = settings.NAPALM_ARGS
@@ -1176,7 +1187,7 @@ class Router(ChangeLoggedModel, TaggableModel):
             # Unable to import proper driver from napalm
             # Most probably due to a broken install
             self.logger.error(
-                f'no napalm driver "{self.platform}" found (not installed or does not exist)'
+                f"no napalm driver '{self.platform}' found (not installed or does not exist)"
             )
             return None
 

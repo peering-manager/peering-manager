@@ -13,9 +13,23 @@ class PolicyMixin(object):
         """
         raise NotImplementedError()
 
+    def merged_export_policies(self, reverse=False):
+        """
+        Returns a list of all routing policies to evaluate on export including
+        policies from nested objects.
+        """
+        raise NotImplementedError()
+
     def import_policies(self):
         """
         Returns a QuerySet of all routing policies to evaluate on import.
+        """
+        raise NotImplementedError()
+
+    def merged_import_policies(self, reverse=False):
+        """
+        Returns a list of all routing policies to evaluate on import including
+        policies from nested objects.
         """
         raise NotImplementedError()
 

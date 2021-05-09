@@ -151,9 +151,6 @@ class ConfigurationTest(TestCase):
     def test_render(self):
         self.assertEqual(self.template.render({"test": "test"}), "test")
 
-    def test_render_preview(self):
-        self.assertEqual(self.template.render_preview(), "")
-
 
 class DirectPeeringSessionTest(TestCase):
     @classmethod
@@ -205,9 +202,6 @@ class EmailTest(TestCase):
 
     def test_render(self):
         self.assertEqual(self.email.render({"test": "test"}), ("test", "test"))
-
-    def test_render_preview(self):
-        self.assertEqual(self.email.render_preview(), ("", ""))
 
 
 class InternetExchangeTest(TestCase):
@@ -376,12 +370,13 @@ class RouterTest(TestCase):
 
         # Generate expected result
         expected = {
-            "my_as": self.local_as,
             "autonomous_systems": AutonomousSystem.objects.exclude(pk=self.local_as.pk),
             "bgp_groups": BGPGroup.objects.all(),
-            "internet_exchanges": InternetExchange.objects.all(),
+            "internet_exchange_points": InternetExchange.objects.all(),
+            "local_as": self.local_as,
             "routing_policies": RoutingPolicy.objects.none(),
             "communities": Community.objects.none(),
+            "router": self.router,
         }
 
         self.assertEqual(
