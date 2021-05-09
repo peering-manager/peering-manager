@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
         ).update(local_autonomous_system=my_asn)
 
         # Same thing for IXPs
-        InternetExchange = apps.get_model("peering", "DirectPeeringSession")
+        InternetExchange = apps.get_model("peering", "InternetExchange")
         InternetExchange.objects.using(db_alias).filter(
             local_autonomous_system=None
         ).update(local_autonomous_system=my_asn)
