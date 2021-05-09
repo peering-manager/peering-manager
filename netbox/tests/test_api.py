@@ -22,8 +22,8 @@ class NetBoxTestCase(TestCase):
         devices = self.netbox.get_devices()
 
         self.assertEqual(2, len(devices))
-        self.assertEqual("router02.example.net", devices.pop().name)
-        self.assertEqual("router01.example.net", devices.pop().name)
+        self.assertEqual("router01.example.net", next(devices).name)
+        self.assertEqual("router02.example.net", next(devices).name)
 
     @patch(
         "pynetbox.core.endpoint.RODetailEndpoint.list",
