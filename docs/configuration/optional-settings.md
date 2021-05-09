@@ -86,7 +86,16 @@ Note that `USE_TLS`/`USE_SSL` are mutually exclusive, so only set one of those s
 
 ---
 
+## PEERINGDB_API_KEY
+
+PeeringDB API Key used to authenticate against PeeringDB allowing Peering Manager to sync
+Email contacts.
+
+---
+
 ## PEERINGDB_USERNAME / PEERINGDB_PASSWORD
+
+WARNING: DEPRECATED, PLEASE USE `PEERINGDB_API_KEY` INSTEAD.
 
 These settings are being used to authenticate to PeeringDB.
 
