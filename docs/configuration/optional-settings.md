@@ -61,8 +61,8 @@ impact on its performances)
 Default: `False`
 
 Setting this to `True` will permit only authenticated users to access Peering
-Manager. By default, anonymous users are permitted to access Peering Manager as
-read-only.
+Manager. By default, anonymous users are permitted to access Peering Manager
+as read-only.
 
 ---
 
@@ -82,14 +82,16 @@ following items can be defined within the `EMAIL` setting:
   * `USE_SSL` - Use implicit TLS connections, usually on port 465
   * `USE_TLS` - Use explicit TLS connections, usually on port 587
 
-Note that `USE_TLS`/`USE_SSL` are mutually exclusive, so only set one of those settings to True.
+Note that `USE_TLS`/`USE_SSL` are mutually exclusive, so only set one of those
+settings to True.
 
 ---
 
 ## PEERINGDB_API_KEY
 
-PeeringDB API Key used to authenticate against PeeringDB allowing Peering Manager to sync
-Email contacts.
+PeeringDB API key used to authenticate against PeeringDB allowing Peering
+Manager to synchronize data not accessible without authentication (such as
+e-mail contacts).
 
 ---
 
