@@ -20,7 +20,7 @@ following command will retrieve data from PeeringDB and store it locally.
 # venv/bin/python3 manage.py peeringdb_sync
 ```
 
-Note: `PEERINGDB_USERNAME` & `PEERINGDB_PASSWORD` must be set in configuration if you
+Note: `PEERINGDB_API_KEY` must be set in configuration if you
 wish to sync Email Contacts from PeeringDB.
 
 This command does not need to be run very often. For example, running it every

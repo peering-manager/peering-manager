@@ -56,9 +56,16 @@ class PeeringDB(object):
         if "depth" not in search:
             search["depth"] = 1
 
-        # Authenticate with a basic auth method if the user provided some credentials
+        # Authenticate with API Key if present
         q = {"params": search}
-        if settings.PEERINGDB_USERNAME:
+
+        if settings.PEERINGDB_API_KEY:
+            q["headers"] = {"AUTHORIZATION": f"Api-Key {settings.PEERINGDB_API_KEY}"}
+        # To be removed in v2.0
+        elif settings.PEERINGDB_USERNAME:
+            self.logger.warning(
+                "PeeringDB Authentication with User & Password is set to be depreciated! Please use an API key"
+            )
             q["auth"] = (settings.PEERINGDB_USERNAME, settings.PEERINGDB_PASSWORD)
 
         # Make the request
