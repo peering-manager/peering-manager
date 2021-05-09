@@ -95,7 +95,7 @@ Email contacts.
 
 ## PEERINGDB_USERNAME / PEERINGDB_PASSWORD
 
-WARNING: DEPRECIATED, PLEASE USE `PEERINGDB_API_KEY` instead.
+WARNING: DEPRECATED, PLEASE USE `PEERINGDB_API_KEY` INSTEAD.
 
 These settings are being used to authenticate to PeeringDB.
 
