@@ -64,7 +64,7 @@ class PeeringDB(object):
         # To be removed in v2.0
         elif settings.PEERINGDB_USERNAME:
             self.logger.warning(
-                "PeeringDB Authentication with User & Password is set to be depreciated! Please use an API key"
+                "PeeringDB Authentication with User & Password is set to be deprecated! Please use an API key"
             )
             q["auth"] = (settings.PEERINGDB_USERNAME, settings.PEERINGDB_PASSWORD)
 
