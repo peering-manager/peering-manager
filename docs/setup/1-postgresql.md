@@ -72,26 +72,3 @@ postgres=# \q
 $ psql -f peering_manager.sql -d peering_manager
 ```
 
-# Migrating From SQLite
-
-Early Peering Manager adopters are used to the old SQLite database backend.
-Moving from SQLite to PostgreSQL can be tricky and requires to follow several
-steps carefully. If you are still using the SQLite database backend and want to
-move to the PostgreSQL one, apply the following process.
-
-  1. Open a terminal into the Peering Manager directory
-  2. `$ git fetch`
-  3. `$ git checkout 44dfa7c0f7c35e8f312047ab653f22739901a030`
-  4. `$ ./scripts/upgrade.sh`
-  5. Open another terminal into the Peering Manager directory
-  6. `$ wget https://raw.githubusercontent.com/peering-manager/peering-manager/master/scripts/migrate-from-sqlite.sh`
-  7. `$ chmod a+x migrate-from-sqlite.sh`
-  8. In the second terminal run the `$ ./migrate-from-sqlite.sh` when the
-     script pauses, switch back to the first terminal
-  9. `$ git checkout ab2b145c2259fc690029859f2fda3f04bc3bdbe7`
-  10. Edit the `$ peering_manager/configuration.py` to suit your need
-  11. `$ pip install -r requirements.txt -U`
-  12. Switch back to the other terminal and press enter to unpause the script
-  13. Once the script is completed, close the terminal you are in
-  14. Back in the first terminal, `$ git checkout origin/HEAD`
-  15. `$ ./scripts/upgrade.sh`
