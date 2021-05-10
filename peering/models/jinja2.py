@@ -204,14 +204,14 @@ def sessions(value, family=0):
         return value.get_peering_sessions().filter(ip_address__family=family)
 
 
-def route_server(value):
+def route_server(value, family=0):
     """
     Returns a queryset listing all route server sessions for an IXP.
     """
     if type(value) is not InternetExchange:
         raise ValueError("value is not an internet exchange")
 
-    return sessions(value).filter(is_route_server=True)
+    return sessions(value, family=family).filter(is_route_server=True)
 
 
 def direct_peers(value, group=""):
