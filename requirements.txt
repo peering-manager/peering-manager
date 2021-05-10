@@ -1,5 +1,5 @@
 Django>=3.2,<3.3
-django-cacheops==5.1
+django-cacheops==6.0
 djangorestframework==3.12.4
 django-filter==2.4.0
 django-netfields==1.2.2
