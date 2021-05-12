@@ -7,9 +7,12 @@ We will use Git to get the code, and Python to run it.
 Peering Manager is mostly tested with Python version 3 so we will setup the
 machine with this version.
 
-```no-highlight
-# apt install python3 python3-dev python3-setuputils python3-pip git vim
-```
+=== "Debian"
+	```no-highlight
+	# apt install python3 python3-dev python3-setuputils python3-pip git vim
+	```
+
+=== "CentOS"
 
 Select a base directory for the peering-manager installation.  ie: `/opt`
 
@@ -210,3 +213,111 @@ Django version 1.11.5, using settings 'peering_manager.settings'
 Starting development server at http://0.0.0.0:8000/
 Quit the server with CONTROL-C.
 ```
+
+## Set up application server
+Before we can deliver Peering Manager with our web server of choice, we have to set up the application server.
+
+=== "gunicorn"
+	Install **gunicorn** using **pip** inside the Python virtual environment.
+	```no-highlight
+	(venv) # pip3 install gunicorn
+	```
+
+	Save the following configuration in the root of the Peering Manager
+	installation path as `gunicorn.py`. Be sure to verify the location of the
+	**gunicorn** executable on your server (e.g. `which gunicorn`) and to update
+	the pythonpath variable if needed. Note that some tasks such as importing
+	existing peering sessions or generating prefix lists can take a lot of time to
+	complete so setting a timeout greater than 30 seconds can be helpful.
+	```no-highlight
+	bind = '127.0.0.1:8001'
+	workers = 5
+	threads = 3
+	timeout = 300
+	max_requests = 5000
+	max_requests_jitter = 500
+	user = 'peering-manager'
+	```
+
+	We can test if the configuration is correct by running (note the _ instead of -
+	in the WSGI name):
+	```no-highlight
+	(venv) # ./venv/bin/gunicorn -c /opt/peering-manager/gunicorn.py peering_manager.wsgi
+	[2017-09-27 22:49:02 +0200] [7214] [INFO] Starting gunicorn 19.7.1
+	[2017-09-27 22:49:02 +0200] [7214] [INFO] Listening at: http://127.0.0.1:8001 (7214)
+	[2017-09-27 22:49:02 +0200] [7214] [INFO] Using worker: sync
+	[2017-09-27 22:49:02 +0200] [7217] [INFO] Booting worker with pid: 7217
+	[2017-09-27 22:49:02 +0200] [7219] [INFO] Booting worker with pid: 7219
+	[2017-09-27 22:49:02 +0200] [7220] [INFO] Booting worker with pid: 7220
+	[2017-09-27 22:49:03 +0200] [7222] [INFO] Booting worker with pid: 7222
+	```
+
+	Create a service file `/etc/systemd/system/peering-manager.service` and
+	set its content.
+	```no-highlight
+	[Unit]
+	Description=Peering Manager WSGI Service
+	Documentation=https://peering-manager.readthedocs.io/
+	After=network-online.target
+	Wants=network-online.target
+	
+	[Service]
+	Type=simple
+	
+	User=peering-manager
+	Group=peering-manager
+	PIDFile=/var/tmp/peering-manager.pid
+	WorkingDirectory=/opt/peering-manager
+	
+	ExecStart=/opt/peering-manager/venv/bin/gunicorn --pid /var/tmp/peering-manager.pid --pythonpath /opt/peering-manager --config /opt/peering-manager/gunicorn.py peering_manager.wsgi
+	
+	Restart=on-failure
+	RestartSec=30
+	PrivateTmp=true
+	
+	[Install]
+	WantedBy=multi-user.target
+	```
+	
+	Create another service file `/etc/systemd/system/peering-manager-rq.service`
+	and set its content.
+	```no-highlight
+	[Unit]
+	Description=Peering Manager Request Queue Worker
+	Documentation=https://peering-manager.readthedocs.io/
+	After=network-online.target
+	Wants=network-online.target
+	
+	[Service]
+	Type=simple
+	
+	User=peering-manager
+	Group=peering-manager
+	WorkingDirectory=/opt/peering-manager
+	
+	ExecStart=/opt/peering-manager/venv/bin/python3 /opt/peering-manager/manage.py rqworker
+	
+	Restart=on-failure
+	RestartSec=30
+	PrivateTmp=true
+	
+	[Install]
+	WantedBy=multi-user.target
+	```
+
+	Reload **systemd** to load the services, start them and enable them at boot
+	time.
+	```no-highlight
+	# systemctl daemon-reload
+	# systemctl start peering-manager
+	# systemctl enable peering-manager
+	# systemctl start peering-manager-rq
+	# systemctl enable peering-manager-rq
+	```
+	
+	You can use the `systemctl status peering-manager` and
+	`systemctl status peering-manager-rq` to verify that the WSGI service and the
+	request queue worker service are respectively running.
+
+
+=== "uWSGI"
