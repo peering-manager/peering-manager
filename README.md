@@ -12,9 +12,11 @@ The complete documentation for Peering Manager can be found at
 instance is available at https://demo.peering-manager.net/.
 
 <div align="center">
-  <a href="https://peering-manager.net/#sponsors" title="Sponsors">
-    <h4>Thanks to our sponsors for believing in this project!</h4>
-  </a>
+  <h4>
+    <a href="https://peering-manager.net/#sponsors" title="Sponsors">
+      Thanks to our sponsors for believing in this project!
+    </a>
+  </h4>
 </div>
 
 ### Discussion
