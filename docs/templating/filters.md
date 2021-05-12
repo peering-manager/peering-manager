@@ -118,6 +118,19 @@ Examples:
 {% for session in ixp | route_server(6) %}
 ```
 
+### `local_ips`
+
+Applied on a session, the filter will fetch the local IP used to establish the
+session. If applied on an IXP or a BGP group, it will return IP addresses (v4
+and v6) configured for the IXP/BGP group. In any other case, it will give
+back a null value.
+
+Examples:
+```
+Local IPs: {{ session | local_ips }}
+Local IPs: {{ ixp | local_ips }}
+```
+
 ### `direct_sessions` / `ixp_sessions`
 
 When used on an autonomous system, it will return direct peering sessions or

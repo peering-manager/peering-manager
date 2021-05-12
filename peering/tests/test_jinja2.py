@@ -113,6 +113,30 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(6, FILTER_DICT["ip_version"](self.session6))
         self.assertEqual(4, FILTER_DICT["ip_version"](self.session4))
 
+    def test_local_ips(self):
+        self.assertEqual(
+            Connection.objects.get(pk=self.ixp_connection.pk).ipv4_address,
+            FILTER_DICT["local_ips"](
+                InternetExchangePeeringSession.objects.get(pk=self.session4.pk)
+            ),
+        )
+        self.assertEqual(
+            Connection.objects.get(pk=self.ixp_connection.pk).ipv6_address,
+            FILTER_DICT["local_ips"](
+                InternetExchangePeeringSession.objects.get(pk=self.session6.pk)
+            ),
+        )
+        self.assertListEqual(
+            [
+                Connection.objects.get(pk=self.ixp_connection.pk).ipv4_address,
+                Connection.objects.get(pk=self.ixp_connection.pk).ipv6_address,
+            ],
+            FILTER_DICT["local_ips"](InternetExchange.objects.get(pk=self.ixp.pk)),
+        )
+        self.assertIsNone(
+            FILTER_DICT["local_ips"](Connection.objects.get(pk=self.ixp_connection.pk)),
+        )
+
     def test_max_prefix(self):
         self.assertEqual(100, FILTER_DICT["max_prefix"](self.session6))
         self.assertEqual(0, FILTER_DICT["max_prefix"](self.session4))

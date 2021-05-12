@@ -4,8 +4,16 @@ import unicodedata
 from django.db.models.query import QuerySet
 
 from devices.crypto.cisco import MAGIC as CISCO_MAGIC
+from net.models import Connection
 from peering.models.abstracts import BGPSession
-from peering.models.models import AutonomousSystem, BGPGroup, InternetExchange, Router
+from peering.models.models import (
+    AutonomousSystem,
+    BGPGroup,
+    DirectPeeringSession,
+    InternetExchange,
+    InternetExchangePeeringSession,
+    Router,
+)
 from utils.models import TaggableModel
 
 
@@ -170,6 +178,31 @@ def direct_sessions(value, family=0):
         return value.get_direct_peering_sessions().filter(ip_address__family=family)
 
 
+def local_ips(value, family=0):
+    """
+    Returns local IP addresses for a BGP session or an IXP.
+    """
+    if isinstance(value, DirectPeeringSession):
+        return value.local_ip_address
+
+    if isinstance(value, InternetExchangePeeringSession):
+        if value.ip_address.version == 6:
+            return value.ixp_connection.ipv6_address
+        else:
+            return value.ixp_connection.ipv4_address
+
+    if isinstance(value, InternetExchange):
+        ips = []
+        for c in Connection.objects.filter(internet_exchange_point=value):
+            if c.ipv4_address:
+                ips.append(c.ipv4_address)
+            if c.ipv6_address:
+                ips.append(c.ipv6_address)
+        return ips
+
+    return None
+
+
 def ixp_sessions(value, family=0):
     """
     Returns a queryset of IXP peering sessions.
@@ -309,7 +342,9 @@ FILTER_DICT = {
     "shared_ixps": shared_ixps,
     "prefix_list": prefix_list,
     "direct_sessions": direct_sessions,
-    "ixp_sessions": ixp_sessions,
+    "local_ips": local_ips,
+    # BGP groups
+    "local_ips": local_ips,
     # BGP sessions
     "sessions": sessions,
     "route_server": route_server,
