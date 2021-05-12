@@ -655,6 +655,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
         queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
     )
+    config_context = JSONField(required=False, label="Context", widget=SmallTextarea)
     napalm_username = forms.CharField(required=False, label="Username")
     napalm_password = PasswordField(required=False, render_value=True, label="Password")
     napalm_timeout = forms.IntegerField(
@@ -711,6 +712,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
             "device_state",
             "configuration_template",
             "local_autonomous_system",
+            "config_context",
             "napalm_username",
             "napalm_password",
             "napalm_timeout",
@@ -787,6 +789,7 @@ class RoutingPolicyForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField(max_length=255)
     type = forms.ChoiceField(choices=RoutingPolicyType.choices, widget=StaticSelect)
     address_family = forms.ChoiceField(choices=IPFamily.choices, widget=StaticSelect)
+    config_context = JSONField(required=False, label="Context", widget=SmallTextarea)
     comments = CommentField()
     tags = TagField(required=False)
 
@@ -799,6 +802,7 @@ class RoutingPolicyForm(BootstrapMixin, forms.ModelForm):
             "type",
             "weight",
             "address_family",
+            "config_context",
             "comments",
             "tags",
         )
