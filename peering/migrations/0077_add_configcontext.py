@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('peering', '0076_auto_20210426_1944'),
+        ("peering", "0076_auto_20210426_1944"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='router',
-            name='config_context',
+            model_name="router",
+            name="config_context",
             field=models.JSONField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='routingpolicy',
-            name='config_context',
+            model_name="routingpolicy",
+            name="config_context",
             field=models.JSONField(blank=True, null=True),
         ),
     ]
