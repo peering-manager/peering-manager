@@ -11,6 +11,12 @@ The complete documentation for Peering Manager can be found at
 [Read the Docs](https://peering-manager.readthedocs.io/). A public demo
 instance is available at https://demo.peering-manager.net/.
 
+<div align="center">
+  <a href="https://peering-manager.net/#sponsors" title="Sponsors">
+    <h4>Thanks to our sponsors for believing in this project!</h4>
+  </a>
+</div>
+
 ### Discussion
 
 * [GitHub Discussions](https://github.com/peering-manager/peering-manager/discussions) -
@@ -43,14 +49,6 @@ You can help this project in many ways. Of course you can ask for features,
 give some ideas for future development, open issues if you found any and
 contribute to the code with pull requests and patches. You can also support the
 development of this project by donating some coins.
-
-## Sponsors
-
-<p align="center">
-  <a href="https://www.de-cix.net/" target="_blank" rel="nofollow noopener">
-    <img src="project-static/img/sponsors/logo_decix.svg" height="180" alt="DE-CIX"/>
-  </a>
-</p>
 
 ### Spreading The Word
 
