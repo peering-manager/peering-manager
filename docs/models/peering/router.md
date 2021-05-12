@@ -22,6 +22,8 @@ can be configured (n.b. some are optional):
     encrypted password if it can.
   * `Configuration Template`: a template used generate the configuration of the
     router.
+  * `Configuration Context`: a snippet of JSON that contains additional 
+    context for e.g. tooling that accesses Peering-Manager programmatically.
   * `NetBox Device`: an valid ID inside a NetBox instance where the router is
     also referenced.
   * `Use NetBox`: an option to use NetBox NAPALM capabilities to reach the
