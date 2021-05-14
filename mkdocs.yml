@@ -52,6 +52,7 @@ nav:
         - Router: "models/peering/router.md"
         - Routing Policy: "models/peering/routingpolicy.md"
         - Config Contexts: "models/peering/configcontexts.md"
+        - Connection: "models/net/connection.md"
         - Token: "models/users/token.md"
         - Tag: "models/utils/tag.md"
         - Webhook: "models/webhooks/webhook.md"
@@ -59,4 +60,9 @@ nav:
         - Writing Templates: "templating/index.md"
         - Jinja Filters: "templating/filters.md"
         - Exposed Variables: "templating/variables.md"
+        - Examples:
+            - Arista EOS: "templating/examples/arista-eos.md"
+            - Cisco IOS XR: "templating/examples/cisco-iosxr.md"
+            - Juniper Junos OS: "templating/examples/juniper-junos.md"
+            - Peering Request E-Mail: "templating/examples/peering-request-email.md"
     - Integration: "integration.md"
