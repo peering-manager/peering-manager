@@ -22,7 +22,7 @@ following properties can be configured (n.b. some are optional):
   * `Address Family`: the IP address family the policy can be used for. It can
     be IPv6, IPv4 or both.
   * `Configuration Context`: a snippet of JSON that contains additional
-    context for e.g. tooling that accesses Peering-Manager programmatically.
+    context for e.g. tooling that accesses Peering Manager programmatically.
   * `Comments`: text to explain what the routing policy is for. Can use
     Markdown formatting.
   * `Tags`: a list of tags to help identifying and searching for a routing
