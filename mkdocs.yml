@@ -36,6 +36,7 @@ nav:
       - Platform: "models/devices/platform.md"
       - Router: "models/peering/router.md"
       - Routing Policy: "models/peering/routingpolicy.md"
+      - Config Contexts: "models/peering/configcontexts.md"
       - Token: "models/users/token.md"
       - Tag: "models/utils/tag.md"
       - Webhook: "models/webhooks/webhook.md"

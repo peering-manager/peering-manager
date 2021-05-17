@@ -998,6 +998,7 @@ class Router(ChangeLoggedModel, TaggableModel):
         default=False,
         help_text="Use NetBox to communicate instead of NAPALM",
     )
+    config_context = models.JSONField(blank=True, null=True)
     napalm_username = models.CharField(blank=True, null=True, max_length=256)
     napalm_password = models.CharField(blank=True, null=True, max_length=256)
     napalm_timeout = models.PositiveIntegerField(blank=True, default=0)
@@ -1655,6 +1656,7 @@ class RoutingPolicy(ChangeLoggedModel, TaggableModel):
     address_family = models.PositiveSmallIntegerField(
         default=IPFamily.ALL, choices=IPFamily.choices
     )
+    config_context = models.JSONField(blank=True, null=True)
     comments = models.TextField(blank=True)
 
     class Meta:

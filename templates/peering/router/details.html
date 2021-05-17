@@ -116,6 +116,16 @@
   </div>
   <div class="col-md-6">
     <div class="card">
+      <div class="card-header"><strong>Config Context</strong></div>
+      <div class="card-body">
+        {% if instance.config_context %}
+        <pre class="pre-scrollable"><code>{{ instance.config_context | render_json }}</code></pre>
+        {% else %}
+        <span class="text-muted">None</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="card">
       <div class="card-header"><strong>Comments</strong></div>
       <div class="card-body">
         {% if instance.comments %}
