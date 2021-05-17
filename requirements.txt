@@ -7,7 +7,7 @@ django-prometheus==2.1.0
 django-rq==2.4.1
 django-tables2==2.4.0
 django-taggit==1.4.0
-Jinja2==2.11.3
+Jinja2==3.0.0
 Markdown==3.3.4
 napalm==3.3.0
 packaging==20.9
