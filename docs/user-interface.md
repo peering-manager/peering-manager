@@ -20,6 +20,19 @@ Each item of a list can be clicked (on the highlighted value) so you can see
 specific details about the it. If an item has a relationship with another one,
 you should also be able to click of the relationship to get the related item.
 
+The navigation bar, located at the top of the screen, shows the page that you
+are seeing and also displays breadcrumbs which give you the path to get to the
+page and help you navigating back. To the left of the user menu, another menu
+is used to select the affiliated AS you are working with.
+
+![Local AS Selection](media/ui/local-as-menu.png "Local AS Selection")
+
+The navigation bar also holds all the buttons to create (if you are on a
+list) an object, edit and delete the object that you are reviewing. Clicking
+on these buttons will get you to a form, which can sometimes be pre-filled.
+
+![Navigation Bar](media/ui/navbar.png "Navigation Bar")
+
 ## User Profile
 
 To get to the user profile, you can click on the far right of the navigation
