@@ -8,8 +8,10 @@ python:
 
 theme:
     name: material
+    logo: media/peering-manager.svg
 markdown_extensions:
     - admonition
+    - pymdownx.emoji
     - pymdownx.tabbed
 
 nav:
