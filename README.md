@@ -42,7 +42,7 @@ The best way to start setting up this tool is to use **pip** within a
 
 ![Build Status](https://github.com/peering-manager/peering-manager/workflows/CI/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/peering-manager/peering-manager/badge.svg?branch=main)](https://coveralls.io/github/peering-manager/peering-manager?branch=main)
-[![Documentation Status](https://readthedocs.org/projects/peering-manager/stable/?version=stable)](https://peering-manager.readthedocs.io/en/stable/)
+[![Documentation Status](https://readthedocs.org/projects/peering-manager/badge/?version=stable)](https://peering-manager.readthedocs.io/en/stable/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 ## Helping
