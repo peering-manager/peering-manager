@@ -1,4 +1,4 @@
-![Peering Manager](peering-manager.svg "Peering Manager logo")
+![Peering Manager](media/peering-manager.svg "Peering Manager logo")
 
 # What is Peering Manager?
 
