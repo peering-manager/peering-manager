@@ -14,6 +14,8 @@ displaying lists of objects. Most of these lists can be sorted and their
 columns can also be organized as the users feel. Note that column setup and
 pagination count are individual of a user.
 
+![Table Config](media/ui/table-config.png "Table Configuration")
+
 Each item of a list can be clicked (on the highlighted value) so you can see
 specific details about the it. If an item has a relationship with another one,
 you should also be able to click of the relationship to get the related item.
@@ -23,12 +25,18 @@ you should also be able to click of the relationship to get the related item.
 To get to the user profile, you can click on the far right of the navigation
 bar. A menu will open and you'll be able to click on the __Profile__ item.
 
-![Peering Manager](media/ui/user-menu.png "User Menu")
+![User Menu](media/ui/user-menu.png "User Menu")
 
 Clicking the item will get you to a page with four tabs in which you'll be
 able to review your account's details, your preferences, change your password
 (if you are using the built-in authentication) and manage your API tokens.
 
 ## Working With Objects
+
+### Creating, Updating And Deleting
+
+### Filtering
+
+### Change Logging And Job Results
 
 ## API Browser
