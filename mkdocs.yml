@@ -2,6 +2,7 @@
 site_name: Peering Manager
 site_url: https://peering-manager.readthedocs.io/
 repo_url: https://github.com/peering-manager/peering-manager
+edit_uri: ""
 python:
     install:
         - requirements: docs/requirements.txt
@@ -12,7 +13,9 @@ theme:
     favicon: media/peering-manager.svg
 markdown_extensions:
     - admonition
-    - pymdownx.emoji
+    - pymdownx.emoji:
+        emoji_index: !!python/name:materialx.emoji.twemoji
+        emoji_generator: !!python/name:materialx.emoji.to_svg
     - pymdownx.tabbed
 
 nav:
