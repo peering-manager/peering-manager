@@ -52,4 +52,25 @@ able to review your account's details, your preferences, change your password
 
 ### Change Logging And Job Results
 
+Peering Manager tracks changes that happen for almost all objects. Change
+logging is performed when a user creates, updates or deletes one or more
+objects. Object properties will be recorded so they can be reviewed later,
+timestamp and author are also kept for helping people who did what and when,
+therefore allowing to understand issues that might have happen.
+
+The same kind of idea is applied to background jobs as well. Peering Manager
+makes an extensive use of jobs that are run asynchronously to perform tasks
+which may need several seconds or minutes to complete. You can still navigate
+the user interface while tasks are running as well as scheduling more of them.
+A job result namespace is available for you to track all background tasks,
+their states and their results.
+
 ## API Browser
+
+All data in Peering Manager are also exposed via a REST API. API is meant to
+be used by developers so they can read and write data from other tools. While
+you can do everything in the user interface, some tasks, such as importing a
+batch of initial data, are more suitable for an API.
+
+A web interface to interact wth the API is under the `/api` location of your
+Peering Manager instance.
