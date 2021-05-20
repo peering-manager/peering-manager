@@ -90,6 +90,20 @@ Example:
 {% for ixp in autonomous_system | shared_ixps(local_as) %}
 ```
 
+### `missing_sessions`
+
+On an autonomous system, it will return all sessions that can be configured
+between two autonomous systems. You must provide a second AS, providing an IXP
+is optional.
+
+Example:
+```
+{% for missing in autonomous_system | missing_sessions(local_as) %}
+IPv4: {{ missing.ipaddr4 }}
+IPv6: {{ missing.ipaddr6 }}
+{% endfor %}
+```
+
 ### `prefix_list`
 
 Fetches all the prefixes of an autonomous system and returns them as a JSON

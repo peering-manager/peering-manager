@@ -297,6 +297,13 @@ def shared_ixps(value, other):
     return value.get_shared_internet_exchange_points(other)
 
 
+def missing_sessions(value, other, ixp=None):
+    """
+    Returns all missing sessions between two ASNs, optionally on an IXP.
+    """
+    return value.get_missing_peering_sessions(other, internet_exchange_point=ixp)
+
+
 def prefix_list(value, family=0):
     """
     Returns the prefixes for the given AS.
@@ -340,6 +347,7 @@ FILTER_DICT = {
     # Autonomous system
     "ixps": ixps,
     "shared_ixps": shared_ixps,
+    "missing_sessions": missing_sessions,
     "prefix_list": prefix_list,
     "direct_sessions": direct_sessions,
     "local_ips": local_ips,
