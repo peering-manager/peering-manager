@@ -55,6 +55,17 @@ Example:
 {% for autonomous_system in autonomous_systems | filter(ipv6_max_prefixes__gt=100) %}
 ```
 
+### `get`
+
+Allows to pass a Django filter expression to allow filtering on a SQL result
+and return a single object. If more than one object match the filter, this
+filter will behave in the exact same way as `filter`.
+
+Example:
+```
+My AS is {{ affiliated_autonomous_systems | get(asn=64500) }}
+```
+
 ### `iterate`
 
 Allows to select and to return the value of a single field for each object in

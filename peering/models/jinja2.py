@@ -84,6 +84,19 @@ def filter(queryset, **kwargs):
     return queryset.filter(**kwargs)
 
 
+def get(queryset, **kwargs):
+    """
+    Returns a single object from a queryset and a filter. If more than one
+    object matches the filterm a queryset will be return.
+    """
+    q = filter(queryset, **kwargs)
+
+    if q.count() == 1:
+        return q.get()
+    else:
+        return q
+
+
 def iterate(value, field):
     """
     Yields the value of a given field of an item in an iteratable.
@@ -343,6 +356,7 @@ FILTER_DICT = {
     "count": length,
     # Filtering
     "filter": filter,
+    "get": get,
     "iterate": iterate,
     # Autonomous system
     "ixps": ixps,
