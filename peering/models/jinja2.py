@@ -364,7 +364,6 @@ FILTER_DICT = {
     "missing_sessions": missing_sessions,
     "prefix_list": prefix_list,
     "direct_sessions": direct_sessions,
-    "local_ips": local_ips,
     # BGP groups
     "local_ips": local_ips,
     # BGP sessions

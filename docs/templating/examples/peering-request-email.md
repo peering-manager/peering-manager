@@ -8,8 +8,8 @@ We found that we could peer at the following IXPs:
 {%- for ixp in autonomous_system | shared_ixps(local_as) %}
   - IX Name: {{ ixp.name }}
     AS{{ local_as.asn }} details:
-      IPv6: {{ ixp | local_ips | ipv6 | join(", ") }}
-      IPv4: {{ ixp | local_ips | ipv4 | join(", ") }}
+      IPv6: {{ ixp | local_ips(6) | join(", ") }}
+      IPv4: {{ ixp | local_ips(4) | join(", ") }}
 
     AS{{ autonomous_system.asn }} details:
     {%- for s in autonomous_system | missing_sessions(local_as, ixp) %}
