@@ -1,31 +1,28 @@
 ```no-highlight
-{#- With several affiliated autonomous systems `my_as` is a list -#}
-{%- set my_asn = my_as.asn -%}
+{%- set local_as = affiliated_autonomous_systems | get(asn=64500) %}
 Dear {{ autonomous_system.name }},
 
-We are AS{{ my_asn }}.
+We are AS {{ local_as.asn }} peering team,
 
 We found that we could peer at the following IXPs:
-{%- for ix in internet_exchanges %}
-  - IX Name: {{ ix.internet_exchange.name }}
-    AS{{ my_asn }} details:
-    {%- if ix.internet_exchange.ipv6_address %}
-      IPv6: {{ ix.internet_exchange.ipv6_address }}
-    {%- endif %}
-    {%- if ix.internet_exchange.ipv4_address %}
-      IPv4: {{ ix.internet_exchange.ipv4_address }}
-    {%- endif %}
+{%- for ixp in autonomous_system | shared_ixps(local_as) %}
+  - IX Name: {{ ixp.name }}
+    AS{{ local_as.asn }} details:
+      IPv6: {{ ixp | local_ips | ipv6 | join(", ") }}
+      IPv4: {{ ixp | local_ips | ipv4 | join(", ") }}
+
     AS{{ autonomous_system.asn }} details:
-    {%- if ix.missing_sessions.ipv6 %}
-      IPv6: {{ ix.missing_sessions.ipv6|join(", ") }}
-    {%- endif %}
-    {%- if ix.missing_sessions.ipv4 %}
-      IPv4: {{ ix.missing_sessions.ipv4|join(", ") }}
-    {%- endif %}
+    {%- for s in autonomous_system | missing_sessions(local_as, ixp) %}
+      * {{ s.ipaddr4 }}
+      * {{ s.ipaddr6 }}
+    {%- endfor %}
 {%- endfor %}
 
-If you want to peer with us, you can configure the sessions and reply to this email.
-We will configure them as well if you agree to do so.
+If you want to peer with us, you can configure the sessions and reply to this
+email. We will configure them as well if you agree to do so.
 
 Kind regards,
+
+--
+Your awwesome peering team
 ```
