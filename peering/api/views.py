@@ -169,15 +169,6 @@ class DirectPeeringSessionViewSet(ModelViewSet):
         self.get_object().encrypt_password(request.data["platform"])
         return Response({"encrypted_password": self.get_object().encrypted_password})
 
-    @action(detail=True, methods=["get"], url_path="clear")
-    def clear(self, request, pk=None):
-        router = self.get_object().router
-        if not router:
-            raise ServiceUnavailable("No router available to clear session")
-
-        result = router.clear_bgp_session(self.get_object())
-        return Response({"result": result})
-
     @action(detail=True, methods=["post", "patch"], url_path="poll")
     def poll(self, request, pk=None):
         return Response({"success": self.get_object().poll()})
@@ -267,15 +258,6 @@ class InternetExchangePeeringSessionViewSet(ModelViewSet):
     def encrypt_password(self, request, pk=None):
         self.get_object().encrypt_password(request.data["platform"])
         return Response({"encrypted_password": self.get_object().encrypted_password})
-
-    @action(detail=True, methods=["get"], url_path="clear")
-    def clear(self, request, pk=None):
-        router = self.get_object().internet_exchange.router
-        if not router:
-            raise ServiceUnavailable("No router available to clear session")
-
-        result = router.clear_bgp_session(self.get_object())
-        return Response({"result": result})
 
     @action(detail=True, methods=["post", "patch"], url_path="poll")
     def poll(self, request, pk=None):
