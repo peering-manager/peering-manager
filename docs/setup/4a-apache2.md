@@ -1,6 +1,6 @@
 # Apache 2
 
-Install the Apache 2 package and enable mod proxy.
+## Installation
 
 === "Debian"
 	```no-highlight
@@ -10,11 +10,24 @@ Install the Apache 2 package and enable mod proxy.
 	# a2enmod proxy_http
 	```
 
-=== "CentOS"
+=== "CentOS 7"
+	```no-highlight
+	# yum install httpd
+	```
+
+=== "CentOS 8"
+
+!!! attention
+	CentOS users have to adjust their SELinux rules or disable it completly.
+	Run `setenforce 0` to disable it immediatly and set `SELINUX` to `disabled`
+	in `/etc/selinux/config`.
+
+## Configuration
 
 Now we will add a new virtual host that will be used to setup the proxy to the
-application server. We will create and edit the following file
-`/etc/apache2/sites-available/peering-manager.conf`.
+application server. On Debian, the configuration goes to
+`/etc/apache2/sites-available/peering-manager.conf`, on CentOS to
+`/etc/httpd/conf.d/peering-manager.conf`.
 
 The content of the file can be something like this.
 ```no-highlight
@@ -40,20 +53,21 @@ The content of the file can be something like this.
 ```
 
 Remove the default virtual host and enable the new one.
-```no-highlight
-# a2dissite 000-default.conf
-# a2ensite peering-manager.conf
-```
+
+=== "Debian"
+	```no-highlight
+	# a2dissite 000-default.conf
+	# a2ensite peering-manager.conf
+	```
+
+=== "CentOS"
+	```no-highlight
+	# rm /etc/httpd/conf.d/welcome.conf
+	```
 
 Restart Apache 2 to eanble our new configuration and mods.
 ```no-highlight
 # systemctl restart apache2
-```
-
-To avoid any issues with read/write permission, set the Apache 2 user as owner
-of the Peering Manager directory.
-```no-highlight
-# chown -R www-data:www-data /opt/peering-manager
 ```
 
 At this point, you should be able to connect to the Apache 2 HTTP service at

@@ -9,13 +9,25 @@ can provide a compatible version.
 
 # Installation
 
-```no-highlight
-# apt-get install redis-server
-```
+=== "Debian"
+	```no-highlight
+	# apt-get install redis-server
+	```
+
+=== "CentOS 7"
+	```no-highlight
+	# yum install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+	# yum --enablerepo=remi install redis
+	```
+
+=== "CentOS 8"
+
 
 You may wish to modify the Redis configuration at `/etc/redis.conf` or
 `/etc/redis/redis.conf`, however in most cases the default configuration is
 sufficient.
+
+Then enable the redis service by running `systemctl enable redis.service --now`.
 
 # Verify Service Status
 

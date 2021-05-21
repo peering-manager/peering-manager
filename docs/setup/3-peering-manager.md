@@ -13,6 +13,9 @@ machine with this version.
 	```
 
 === "CentOS"
+	```no-highlight
+	# yum install python3 git
+	```
 
 Select a base directory for the peering-manager installation.  ie: `/opt`
 
@@ -66,6 +69,13 @@ drwxr-xr-x  17 user  staff    544  3 Feb 16:27 utils
 #
 ```
 
+You can see all releases by running `git tag`, then check out the release by
+running `git checkout versionWanted`.
+
+!!! info "Development version"
+        If you are feeling adventurous, you can skip this step and stay on main,
+        the bleeding edge of development. But beware, things may break.
+
 ## Create the Peering Manager User
 
 Create a system user account named `peering-manager`. It'll be used by the WSGI
@@ -93,6 +103,7 @@ Activate the virtual environment and install the required Python packages.
 
 ```no-highlight
 # source venv/bin/activate
+(venv) # pip3 install --upgrade pip
 (venv) # pip3 install -r requirements.txt
 ...
 Installing collected packages: ...
@@ -309,10 +320,8 @@ Before we can deliver Peering Manager with our web server of choice, we have to 
 	time.
 	```no-highlight
 	# systemctl daemon-reload
-	# systemctl start peering-manager
-	# systemctl enable peering-manager
-	# systemctl start peering-manager-rq
-	# systemctl enable peering-manager-rq
+	# systemctl enable peering-manager --now
+	# systemctl enable peering-manager-rq --now
 	```
 	
 	You can use the `systemctl status peering-manager` and
