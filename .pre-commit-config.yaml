@@ -1,3 +1,4 @@
+---
 repos:
 -   repo: https://github.com/pre-commit/mirrors-isort
     rev: v5.8.0

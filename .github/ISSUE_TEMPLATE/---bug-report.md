@@ -1,7 +1,6 @@
 ---
 name: "\U0001F41B Bug Report"
 about: Report a reproducible bug in the current release
-
 ---
 
 <!--
@@ -12,7 +11,9 @@ about: Report a reproducible bug in the current release
     Please describe the environment in which you are running Peering Manager.
     Be sure that you are running an unmodified instance before submitting a bug report.
 -->
+
 ### Environment
+
 * Python version:  <!-- Example: 3.7.6 -->
 * Peering Manager version:  <!-- Example: 1.1.0, …, main -->
 
@@ -20,12 +21,11 @@ about: Report a reproducible bug in the current release
     Describe in detail the steps for someone else to reproduce this bug using
     the current release of Peering Manager.
 -->
-### Steps to Reproduce
 
+### Steps to Reproduce
 
 <!-- What did you expect to happen? -->
 ### Expected Behavior
-
 
 <!-- What happened instead? -->
 ### Observed Behavior
