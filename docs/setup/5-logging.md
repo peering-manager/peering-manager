@@ -7,10 +7,10 @@ example is provided below.
 Loggers are points where logs are send to for latter processing. The following
 loggers are provided:
 
-  * `peering.manager.peering`: used to log Peering Manager actions
-  * `peering.manager.peeringdb`: used to log actions related to PeeringDB
-  * `peering.manager.napalm`: used to log actions done by NAPALM
-  * `peering.manager.netbox`: used to log actions related to NetBox
+* `peering.manager.peering`: used to log Peering Manager actions
+* `peering.manager.peeringdb`: used to log actions related to PeeringDB
+* `peering.manager.napalm`: used to log actions done by NAPALM
+* `peering.manager.netbox`: used to log actions related to NetBox
 
 To adjust the logging configuration to your needs, you probably want to read
 [Django's documentation](https://docs.djangoproject.com/en/2.1/topics/logging/)

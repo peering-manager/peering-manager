@@ -14,10 +14,10 @@ Examples of configuration are provided in the Peering Manager's
 For each configuration that you create, the following properties can be
 configured (n.b. some are optional):
 
-  * `Name`: human-readable name attached to a template.
-  * `Slug`: unique configuration and URL friendly name; usually it is
-    automatically generated from the configuration's name.
-  * `Template`: the template itself, formatted using Jinja2 syntax.
-  * `Comments`: text to explain what the template is for. Can use Markdown
-    formatting.
-  * `Tags`: list of tags to help identifying and searching for a template.
+* `Name`: human-readable name attached to a template.
+* `Slug`: unique configuration and URL friendly name; usually it is
+  automatically generated from the configuration's name.
+* `Template`: the template itself, formatted using Jinja2 syntax.
+* `Comments`: text to explain what the template is for. Can use Markdown
+  formatting.
+* `Tags`: list of tags to help identifying and searching for a template.

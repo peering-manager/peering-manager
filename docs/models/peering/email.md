@@ -14,11 +14,11 @@ Examples of e-mails are provided in the Peering Manager's
 For each e-mail that you create, the following properties can be configured
 (n.b. some are optional):
 
-  * `Name`: human-readable name attached to a template.
-  * `Slug`: unique configuration and URL friendly name; most of the time it
-    is automatically generated from the template's name.
-  * `Subject`: subject's template, formatted using Jinja2 syntax.
-  * `Template`: body's template, formatted using Jinja2 syntax.
-  * `Comments`: text to explain what the template is for. Can use Markdown
-    formatting.
-  * `Tags`: list of tags to help identifying and searching for a template.
+* `Name`: human-readable name attached to a template.
+* `Slug`: unique configuration and URL friendly name; most of the time it
+  is automatically generated from the template's name.
+* `Subject`: subject's template, formatted using Jinja2 syntax.
+* `Template`: body's template, formatted using Jinja2 syntax.
+* `Comments`: text to explain what the template is for. Can use Markdown
+  formatting.
+* `Tags`: list of tags to help identifying and searching for a template.

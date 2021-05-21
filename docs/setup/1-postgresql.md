@@ -60,7 +60,7 @@ need to migrate it. To convert the database you'll need to drop it and
 re-create it. It's not mandatory but you may face some issues if the encoding
 of your database is not set to UTF-8.
 
-```
+```no-highlight
 $ pg_dump --encoding utf8 peering_manager -f peering_manager.sql
 postgres=# DROP DATABASE peering_manager;
 DROP DATABASE
@@ -71,4 +71,3 @@ GRANT
 postgres=# \q
 $ psql -f peering_manager.sql -d peering_manager
 ```
-

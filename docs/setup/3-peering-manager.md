@@ -67,6 +67,7 @@ drwxr-xr-x  17 user  staff    544  3 Feb 16:27 utils
 
 Create a system user account named `peering-manager`. It'll be used by the WSGI
 and HTTP services to run under this account.
+
 ```no-highlight
 # groupadd --system peering-manager
 # adduser --system --gid peering-manager peering-manager
@@ -99,11 +100,13 @@ Installing collected packages: ...
 After completing requirements installation we can now setup Peering Manager.
 A configuration file is needed and can be copied from the included example
 file.
+
 ```no-highlight
 # cp peering_manager/configuration.example.py peering_manager/configuration.py
 ```
 
 Modify `configuration.py` according to your requirements.
+
 ```no-highlight
 # allow any hosts
 ALLOWED_HOSTS = ['*']
@@ -150,6 +153,7 @@ REDIS = {
 ## Database Migrations
 
 Before Peering Manager can run, we need to install the database schema.
+
 ```no-highlight
 (venv) # python3 manage.py migrate
 Operations to perform:
@@ -174,6 +178,7 @@ Running migrations:
 
 A superuser is required to log into Peering Manager and start its
 administration (eg. creating other user accounts).
+
 ```no-highlight
 (venv) # python3 manage.py createsuperuser
 Username (leave blank to use 'root'): admin
@@ -194,6 +199,7 @@ Superuser created successfully.
 ## Test the Application
 
 And now we can start testing the setup.
+
 ```no-highlight
 (venv) # python3 manage.py runserver 0.0.0.0:8000 --insecure
 Performing system checks...

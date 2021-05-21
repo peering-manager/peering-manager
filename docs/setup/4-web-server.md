@@ -7,6 +7,7 @@ whatever combination of tool that you want.
 ## Apache 2
 
 Install the Apache 2 package and enable mod proxy.
+
 ```no-highlight
 # apt install apache2
 # a2enmod headers
@@ -19,6 +20,7 @@ gunicorn server. We will create and edit the following file
 `/etc/apache2/sites-available/peering-manager.conf`.
 
 The content of the file can be something like this.
+
 ```no-highlight
 <VirtualHost *:80>
   ProxyPreserveHost On
@@ -42,18 +44,21 @@ The content of the file can be something like this.
 ```
 
 Remove the default virtual host and enable the new one.
+
 ```no-highlight
 # a2dissite 000-default.conf
 # a2ensite peering-manager.conf
 ```
 
 Restart Apache 2 to eanble our new configuration and mods.
+
 ```no-highlight
 # systemctl restart apache2
 ```
 
 To avoid any issues with read/write permission, set the Apache 2 user as owner
 of the Peering Manager directory.
+
 ```no-highlight
 # chown -R www-data:www-data /opt/peering-manager
 ```
@@ -61,6 +66,7 @@ of the Peering Manager directory.
 ## gunicorn
 
 Install **gunicorn** using **pip** inside the Python virtual environment.
+
 ```no-highlight
 (venv) # pip3 install gunicorn
 ```
@@ -71,6 +77,7 @@ installation path as `gunicorn.py`. Be sure to verify the location of the
 the pythonpath variable if needed. Note that some tasks such as importing
 existing peering sessions or generating prefix lists can take a lot of time to
 complete so setting a timeout greater than 30 seconds can be helpful.
+
 ```no-highlight
 bind = '127.0.0.1:8001'
 workers = 5
@@ -83,6 +90,7 @@ user = 'peering-manager'
 
 We can test if the configuration is correct by running (note the _ instead of -
 in the WSGI name):
+
 ```no-highlight
 (venv) # ./venv/bin/gunicorn -c /opt/peering-manager/gunicorn.py peering_manager.wsgi
 [2017-09-27 22:49:02 +0200] [7214] [INFO] Starting gunicorn 19.7.1
@@ -98,6 +106,7 @@ in the WSGI name):
 
 Create a service file `/etc/systemd/system/peering-manager.service` and
 set its content.
+
 ```no-highlight
 [Unit]
 Description=Peering Manager WSGI Service
@@ -125,6 +134,7 @@ WantedBy=multi-user.target
 
 Create another service file `/etc/systemd/system/peering-manager-rq.service`
 and set its content.
+
 ```no-highlight
 [Unit]
 Description=Peering Manager Request Queue Worker
@@ -151,6 +161,7 @@ WantedBy=multi-user.target
 
 Reload **systemd** to load the services, start them and enable them at boot
 time.
+
 ```no-highlight
 # systemctl daemon-reload
 # systemctl start peering-manager

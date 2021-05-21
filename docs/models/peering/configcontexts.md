@@ -15,7 +15,7 @@ properties, such as communities associated with the router.
 For example, the simple JSON snippet below would designate the `bgp_region`
 of the router.
 
-```
+```json
 {
     "bgp_region": "eu-frankfurt",
 }
@@ -24,7 +24,7 @@ of the router.
 This example config context is exposed in the API within the router item, in
 the following manner:
 
-```
+```json
 {
     ...
     "results": [
@@ -45,7 +45,7 @@ Routing policies can be sometimes more tricky than just applying a policy, or
 not, to a given BGP session(s). In the case presented below, a few prefixes
 are depreferenced in the associated BGP session(s).
 
-```
+```json
 {
     "depreference_prefixes": [
         "192.0.2.0/24",
@@ -58,7 +58,7 @@ Config contexts also allow the easy injection of arbitrary variables into
 your tooling, saving you from having to associate each routing policy 
 with an action to perform or preference to save.
 
-```
+```json
 {
     "aspath_filter_in": "AS64500:JUST-THE-GOOD-PARTS"
 }
@@ -68,4 +68,3 @@ with an action to perform or preference to save.
     "allow_private_as": true
 }
 ```
-

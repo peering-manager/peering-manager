@@ -14,26 +14,26 @@ BGP sessions established with remote peers and that are using Internet exchange
 LANs. For each Internet exchange peering session that you create, the following
 properties can be configured (n.b. some are optional):
 
-  * `Service Reference`: Internal service reference that can be used as a unique
-    field to identify a session. If one is not provided, one will be generated 
-    for you in the format of `IX{local_asn}-{6_digit_hex}S`.
-  * `Autonomous System`: autonomous system of the remote peer.
-  * `Internet Exchange`: Internet exchange providing a LAN and IP addresses
-    for autonomous systems to peer.
-  * `Password`: a password to secure a BGP session; it can be a clear text
-    password or an encrypted one. In the latter case, make sure that the router
-    will not try to encrypt the password again.
-  * `Multihop TTL`: a value to set the time to leave interval for IP packets
-    used for the BGP control traffic. It defaults to 1 for external BGP
-    sessions but can be set to a higher value to establish sessions that have
-    to cross a network composed of more than one router in the transit path of
-    the packets.
-  * `Enabled`: a value that tells if the session must be configured and
-    enabled.
-  * `Import Routing Policies`: a list of routing policies to apply when
-     receiving prefixes though the BGP session.
-  * `Export Routing Policies`: a list of routing policies to apply when
-     advertising prefixes though the BGP session.
-  * `Comments`: text to explain the purposes of the BGP session. Can use
-    Markdown formatting.
-  * `Tags`: a list of tags to help identifying and searching for a BGP session.
+* `Service Reference`: Internal service reference that can be used as a unique
+  field to identify a session. If one is not provided, one will be generated
+  for you in the format of `IX{local_asn}-{6_digit_hex}S`.
+* `Autonomous System`: autonomous system of the remote peer.
+* `Internet Exchange`: Internet exchange providing a LAN and IP addresses
+  for autonomous systems to peer.
+* `Password`: a password to secure a BGP session; it can be a clear text
+  password or an encrypted one. In the latter case, make sure that the router
+  will not try to encrypt the password again.
+* `Multihop TTL`: a value to set the time to leave interval for IP packets
+  used for the BGP control traffic. It defaults to 1 for external BGP
+  sessions but can be set to a higher value to establish sessions that have
+  to cross a network composed of more than one router in the transit path of
+  the packets.
+* `Enabled`: a value that tells if the session must be configured and
+  enabled.
+* `Import Routing Policies`: a list of routing policies to apply when
+   receiving prefixes though the BGP session.
+* `Export Routing Policies`: a list of routing policies to apply when
+   advertising prefixes though the BGP session.
+* `Comments`: text to explain the purposes of the BGP session. Can use
+  Markdown formatting.
+* `Tags`: a list of tags to help identifying and searching for a BGP session.

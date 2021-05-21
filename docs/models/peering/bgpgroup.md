@@ -16,18 +16,18 @@ private peering sessions. You can create as many groups as you want depending
 on how you want to manage BGP sessions in your network. For each group that you
 create, the following properties can be configured (n.b. some are optional):
 
-  * `Name`: human-readable name attached to a group.
-  * `Slug`: unique configuration and URL friendly name; usually it is
-     automatically generated from the group's name.
-  * `Comments`: text to explain what the group is for. Can use Markdown
-    formatting.
-  * `Check BGP Session States`: defines if Peering Manager should poll the
-    status of sessions within this group. 
-  * `Import Routing Policies`: a list of routing policies to apply when
-     receiving prefixes though BGP sessions in the group.
-  * `Export Routing Policies`: a list of routing policies to apply when
-     advertising prefixes though BGP sessions in the group.
-  * `Tags`: a list of tags to help identifying and searching for a group.
+* `Name`: human-readable name attached to a group.
+* `Slug`: unique configuration and URL friendly name; usually it is
+   automatically generated from the group's name.
+* `Comments`: text to explain what the group is for. Can use Markdown
+  formatting.
+* `Check BGP Session States`: defines if Peering Manager should poll the
+  status of sessions within this group. 
+* `Import Routing Policies`: a list of routing policies to apply when
+   receiving prefixes though BGP sessions in the group.
+* `Export Routing Policies`: a list of routing policies to apply when
+   advertising prefixes though BGP sessions in the group.
+* `Tags`: a list of tags to help identifying and searching for a group.
 
 Please note that an Internet Exchange is a kind of BGP group with more specific
 properties aimed to match the purpose of an Internet Exchange network. However

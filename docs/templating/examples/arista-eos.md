@@ -1,3 +1,5 @@
+# Arista EOS
+
 ```no-highlight
 router bgp {{ local_as.asn }}
 {%- for internet_exchange in internet_exchanges %}

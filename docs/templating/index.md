@@ -17,7 +17,7 @@ the following example templates. Please note these may not be ready to use for
 you as they are maintained by the community. However, feel free to use them
 and to change them at your convenience.
 
-  * [Juniper Junos](examples/juniper-junos.md)
-  * [Cisco IOS-XR](examples/cisco-iosxr.md)
-  * [Arista EOS](examples/arista-eos.md)
-  * [Peering Request E-mail](examples/peering-request-email.md)
+* [Juniper Junos](examples/juniper-junos.md)
+* [Cisco IOS-XR](examples/cisco-iosxr.md)
+* [Arista EOS](examples/arista-eos.md)
+* [Peering Request E-mail](examples/peering-request-email.md)

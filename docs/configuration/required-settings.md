@@ -22,13 +22,13 @@ Peering Manager requires access to a PostgreSQL database service to store data.
 This service can run locally or on a remote system. The following parameters
 must be defined within the `DATABASE` dictionary:
 
-  * NAME - Database name
-  * USER - PostgreSQL username
-  * PASSWORD - PostgreSQL password
-  * HOST - Name or IP address of the database server (use `localhost` if
-    running locally)
-  * PORT - TCP port of the PostgreSQL service; leave blank for default port
-    (5432)
+* NAME - Database name
+* USER - PostgreSQL username
+* PASSWORD - PostgreSQL password
+* HOST - Name or IP address of the database server (use `localhost` if
+  running locally)
+* PORT - TCP port of the PostgreSQL service; leave blank for default port
+  (5432)
 
 Example:
 
@@ -63,7 +63,7 @@ For each instance the following settings must be defined:
 
 Example:
 
-```
+```no-highlight
 REDIS = {
     'tasks': {
         'HOST': 'localhost',
