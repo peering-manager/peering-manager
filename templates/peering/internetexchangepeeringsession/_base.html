@@ -20,8 +20,8 @@
 {% endblock %}
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'peering:internetexchange_list' %}">Internet Exchanges</a></li>
-<li class="breadcrumb-item"><a href="{% url 'peering:internetexchange_details' slug=instance.ixp_connection.internet_exchange_point.slug %}">{{ instance.ixp_connection.internet_exchange_point }}</a></li>
-<li class="breadcrumb-item"><a href="{% url 'peering:internetexchange_peering_sessions' slug=instance.ixp_connection.internet_exchange_point.slug %}">Peering Sessions</a></li>
+<li class="breadcrumb-item"><a href="{% url 'peering:internetexchange_details' pk=instance.ixp_connection.internet_exchange_point.pk %}">{{ instance.ixp_connection.internet_exchange_point }}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'peering:internetexchange_peering_sessions' pk=instance.ixp_connection.internet_exchange_point.pk %}">Peering Sessions</a></li>
 <li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
 {% endblock %}
 {% block content %}

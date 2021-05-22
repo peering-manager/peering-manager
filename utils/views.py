@@ -123,14 +123,6 @@ class AddOrEditView(ReturnURLMixin, View):
     template = "utils/object_add_edit.html"
 
     def get_object(self, kwargs):
-        if "asn" in kwargs:
-            # Lookup object by ASN
-            return get_object_or_404(self.model, asn=kwargs["asn"])
-
-        if "slug" in kwargs:
-            # Lookup object by slug
-            return get_object_or_404(self.model, slug=kwargs["slug"])
-
         if "pk" in kwargs:
             # Lookup object by PK
             return get_object_or_404(self.model, pk=kwargs["pk"])
@@ -522,14 +514,6 @@ class DeleteView(ReturnURLMixin, View):
     template = "utils/object_delete.html"
 
     def get_object(self, kwargs):
-        if "asn" in kwargs:
-            # Lookup object by ASN
-            return get_object_or_404(self.model, asn=kwargs["asn"])
-
-        if "slug" in kwargs:
-            # Lookup object by slug
-            return get_object_or_404(self.model, slug=kwargs["slug"])
-
         if "pk" in kwargs:
             # Lookup object by PK
             return get_object_or_404(self.model, pk=kwargs["pk"])
@@ -804,8 +788,8 @@ class TagAdd(PermissionRequiredMixin, AddOrEditView):
 class TagDetails(PermissionRequiredMixin, View):
     permission_required = "utils.view_tag"
 
-    def get(self, request, slug):
-        tag = get_object_or_404(Tag, slug=slug)
+    def get(self, request, pk):
+        tag = get_object_or_404(Tag, pk=pk)
         tagged_items = TaggedItem.objects.filter(tag=tag).count()
 
         return render(

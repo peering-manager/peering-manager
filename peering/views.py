@@ -410,8 +410,8 @@ class BGPGroupPeeringSessions(PermissionRequiredMixin, ModelListView):
 
     def build_queryset(self, request, kwargs):
         queryset = None
-        if "slug" in kwargs:
-            instance = get_object_or_404(BGPGroup, slug=kwargs["slug"])
+        if "pk" in kwargs:
+            instance = get_object_or_404(BGPGroup, pk=kwargs["pk"])
             queryset = instance.directpeeringsession_set.prefetch_related(
                 "autonomous_system", "router"
             ).order_by("autonomous_system", "ip_address")
@@ -419,9 +419,9 @@ class BGPGroupPeeringSessions(PermissionRequiredMixin, ModelListView):
 
     def extra_context(self, kwargs):
         extra_context = {"active_tab": "directsessions"}
-        if "slug" in kwargs:
+        if "pk" in kwargs:
             extra_context.update(
-                {"instance": get_object_or_404(BGPGroup, slug=kwargs["slug"])}
+                {"instance": get_object_or_404(BGPGroup, pk=kwargs["pk"])}
             )
         return extra_context
 
@@ -836,14 +836,12 @@ class InternetExchangeConnections(PermissionRequiredMixin, ModelListView):
 
     def build_queryset(self, request, kwargs):
         return Connection.objects.filter(
-            internet_exchange_point=get_object_or_404(
-                InternetExchange, slug=kwargs["slug"]
-            )
+            internet_exchange_point=get_object_or_404(InternetExchange, pk=kwargs["pk"])
         )
 
     def extra_context(self, kwargs):
         return {
-            "instance": get_object_or_404(InternetExchange, slug=kwargs["slug"]),
+            "instance": get_object_or_404(InternetExchange, pk=kwargs["pk"]),
             "active_tab": "connections",
         }
 
@@ -857,12 +855,12 @@ class InternetExchangePeeringSessions(PermissionRequiredMixin, ModelListView):
     hidden_filters = ["internet_exchange__id"]
 
     def build_queryset(self, request, kwargs):
-        instance = get_object_or_404(InternetExchange, slug=kwargs["slug"])
+        instance = get_object_or_404(InternetExchange, pk=kwargs["pk"])
         return instance.get_peering_sessions()
 
     def extra_context(self, kwargs):
         return {
-            "instance": get_object_or_404(InternetExchange, slug=kwargs["slug"]),
+            "instance": get_object_or_404(InternetExchange, pk=kwargs["pk"]),
             "active_tab": "sessions",
         }
 
@@ -875,11 +873,11 @@ class InternetExchangePeers(PermissionRequiredMixin, ModelListView):
     template = "peering/internetexchange/peers.html"
 
     def build_queryset(self, request, kwargs):
-        instance = get_object_or_404(InternetExchange, slug=kwargs["slug"])
+        instance = get_object_or_404(InternetExchange, pk=kwargs["pk"])
         return instance.get_available_peers()
 
     def extra_context(self, kwargs):
-        instance = get_object_or_404(InternetExchange, slug=kwargs["slug"])
+        instance = get_object_or_404(InternetExchange, pk=kwargs["pk"])
         return {
             "active_tab": "peers",
             "instance": instance,
@@ -986,10 +984,10 @@ class InternetExchangePeeringSessionBulkDelete(PermissionRequiredMixin, BulkDele
     def filter_by_extra_context(self, queryset, request, kwargs):
         # If we are on an Internet exchange context, filter the session with
         # the given IX
-        if "internet_exchange_slug" in request.POST:
-            internet_exchange_slug = request.POST.get("internet_exchange_slug")
+        if "internet_exchange_id" in request.POST:
+            internet_exchange_id = request.POST.get("internet_exchange_id")
             internet_exchange = get_object_or_404(
-                InternetExchange, slug=internet_exchange_slug
+                InternetExchange, pk=internet_exchange_id
             )
             return queryset.filter(internet_exchange=internet_exchange)
         # If we are on an AutonomousSystem context, filter the session with

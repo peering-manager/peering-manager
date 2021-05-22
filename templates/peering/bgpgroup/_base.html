@@ -2,12 +2,12 @@
 {% load helpers %}
 {% block actions %}
 {% if perms.peering.change_bgpgroup %}
-<a href="{% url 'peering:bgpgroup_edit' slug=instance.slug %}" class="btn btn-warning">
+<a href="{% url 'peering:bgpgroup_edit' pk=instance.pk %}" class="btn btn-warning">
   <i class="fas fa-edit"></i> Edit
 </a>
 {% endif %}
 {% if perms.peering.delete_bgpgroup %}
-<a href="{% url 'peering:bgpgroup_delete' slug=instance.slug %}" class="btn btn-danger">
+<a href="{% url 'peering:bgpgroup_delete' pk=instance.pk %}" class="btn btn-danger">
   <i class="fas fa-trash"></i> Delete
 </a>
 {% endif %}
@@ -19,17 +19,17 @@
 {% block content %}
 <ul class="nav nav-tabs">
   <li class="nav-item">
-    <a class="nav-link{% if active_tab == 'main' %} active{% endif %}" href="{% url 'peering:bgpgroup_details' slug=instance.slug %}">
+    <a class="nav-link{% if active_tab == 'main' %} active{% endif %}" href="{% url 'peering:bgpgroup_details' pk=instance.pk %}">
       <i class="fas fa-info-circle"></i> Info
     </a>
   </li>
   <li class="nav-item">
-    <a class="nav-link{% if active_tab == 'directsessions' %} active{% endif %}" href="{% url 'peering:bgpgroup_peering_sessions' slug=instance.slug %}">
+    <a class="nav-link{% if active_tab == 'directsessions' %} active{% endif %}" href="{% url 'peering:bgpgroup_peering_sessions' pk=instance.pk %}">
       <i class="fas fa-ethernet"></i> Direct Peering Sessions
     </a>
   </li>
   <li class="nav-item">
-    <a class="nav-link{% if active_tab == 'changelog' %} active{% endif %}" href="{% url 'peering:bgpgroup_changelog' slug=instance.slug %}">
+    <a class="nav-link{% if active_tab == 'changelog' %} active{% endif %}" href="{% url 'peering:bgpgroup_changelog' pk=instance.pk %}">
       <i class="fas fa-history"></i> Changelog
     </a>
   </li>

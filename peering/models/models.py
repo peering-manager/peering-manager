@@ -112,17 +112,17 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
         return self.import_routing_policies.all()
 
     def get_absolute_url(self):
-        return reverse("peering:autonomoussystem_details", kwargs={"asn": self.asn})
+        return reverse("peering:autonomoussystem_details", kwargs={"pk": self.pk})
 
     def get_internet_exchange_peering_sessions_list_url(self):
         return reverse(
             "peering:autonomoussystem_internet_exchange_peering_sessions",
-            kwargs={"asn": self.asn},
+            kwargs={"pk": self.pk},
         )
 
     def get_direct_peering_sessions_list_url(self):
         return reverse(
-            "peering:autonomoussystem_direct_peering_sessions", kwargs={"asn": self.asn}
+            "peering:autonomoussystem_direct_peering_sessions", kwargs={"pk": self.pk}
         )
 
     def get_direct_peering_sessions(self):
@@ -344,10 +344,10 @@ class BGPGroup(AbstractGroup):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("peering:bgpgroup_details", kwargs={"slug": self.slug})
+        return reverse("peering:bgpgroup_details", kwargs={"pk": self.pk})
 
     def get_peering_sessions_list_url(self):
-        return reverse("peering:bgpgroup_peering_sessions", kwargs={"slug": self.slug})
+        return reverse("peering:bgpgroup_peering_sessions", kwargs={"pk": self.pk})
 
     def get_peering_sessions(self):
         return DirectPeeringSession.objects.filter(bgp_group=self)
@@ -590,15 +590,15 @@ class InternetExchange(AbstractGroup):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("peering:internetexchange_details", kwargs={"slug": self.slug})
+        return reverse("peering:internetexchange_details", kwargs={"pk": self.pk})
 
     def get_peering_sessions_list_url(self):
         return reverse(
-            "peering:internetexchange_peering_sessions", kwargs={"slug": self.slug}
+            "peering:internetexchange_peering_sessions", kwargs={"pk": self.pk}
         )
 
     def get_peer_list_url(self):
-        return reverse("peering:internet_exchange_peers", kwargs={"slug": self.slug})
+        return reverse("peering:internet_exchange_peers", kwargs={"pk": self.pk})
 
     def merged_export_policies(self, reverse=False):
         # Get own policies

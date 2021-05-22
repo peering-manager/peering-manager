@@ -81,7 +81,7 @@
         <li class="list-group-item d-flex justify-content-between align-items-center">
           {{ ix|as_link }}
           {% if missing_sessions %}
-          <a href="{% url 'peering:internetexchange_peers' slug=ix.slug %}?asn={{ instance.asn }}" class="text-warning" data-toggle="tooltip" title="Missing Peering Sessions"><i class="fas fa-exclamation-circle"></i></a>
+          <a href="{% url 'peering:internetexchange_peers' pk=ix.pk %}?asn={{ instance.asn }}" class="text-warning" data-toggle="tooltip" title="Missing Peering Sessions"><i class="fas fa-exclamation-circle"></i></a>
           {% endif %}
         </li>
         {% endfor %}

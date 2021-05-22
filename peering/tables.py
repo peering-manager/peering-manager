@@ -76,7 +76,7 @@ class AutonomousSystemTable(BaseTable):
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     tags = TagColumn(url_name="peering:autonomoussystem_list")
-    buttons = ButtonsColumn(AutonomousSystem, pk_field="asn")
+    buttons = ButtonsColumn(AutonomousSystem)
 
     class Meta(BaseTable.Meta):
         model = AutonomousSystem
@@ -120,7 +120,7 @@ class BGPGroupTable(BaseTable):
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     tags = TagColumn(url_name="peering:bgpgroup_list")
-    buttons = ButtonsColumn(BGPGroup, pk_field="slug")
+    buttons = ButtonsColumn(BGPGroup)
 
     class Meta(BaseTable.Meta):
         model = BGPGroup
@@ -264,7 +264,7 @@ class InternetExchangeTable(BaseTable):
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     tags = TagColumn(url_name="peering:internetexchange_list")
-    buttons = ButtonsColumn(InternetExchange, pk_field="slug")
+    buttons = ButtonsColumn(InternetExchange)
 
     class Meta(BaseTable.Meta):
         model = InternetExchange
