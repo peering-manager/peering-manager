@@ -48,7 +48,31 @@ able to review your account's details, your preferences, change your password
 
 ### Creating, Updating And Deleting
 
+All objects have actions, with corresponding buttons, to update or delete
+them. In object list views, you will find a button to create objects fitting
+in the displayed lists. In some cases, objects can also be edited and deleted
+in batch to avoid repeating the same workflow over and over again. This is
+useful, for instance, to disabled several peering sessions at once. For this,
+you'll have to select the objects to change or delete in the list view and
+then click the appropriate button at the bottom of the table.
+
+When an object have one to one or one to many relationships with other
+objects, before creating the main object, all its relationships must be
+present. In the same way, depending on the relationship type, if you delete a
+dependency to an object, the corresponding field will either be set to a null
+value or the object will get deleted. As an example, if you delete an IXP's
+connection, all peering sessions depending of this connection will
+automatically get deleted in the process.
+
 ### Filtering
+
+With every object list, a form to filter said list is provided allowing you to
+see only objects of your interest. A form filter is based on the fields of
+objects. A generic "search" field can be used to look for a text in all
+(almost) text fields of an object. When combining more than of field
+filtering, a logical `and` operation will be performed in the database, thus
+returning objects matching **all** filters. Filtering is also available in the
+API.
 
 ### Change Logging And Job Results
 
