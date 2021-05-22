@@ -1,3 +1,5 @@
+![Peering Manager](media/peering-manager.svg "Peering Manager logo")
+
 # What is Peering Manager?
 
 Peering Manager is an open source web application designed to help manager and

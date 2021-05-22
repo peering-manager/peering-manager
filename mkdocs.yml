@@ -2,46 +2,58 @@
 site_name: Peering Manager
 site_url: https://peering-manager.readthedocs.io/
 repo_url: https://github.com/peering-manager/peering-manager
+edit_uri: ""
+python:
+    install:
+        - requirements: docs/requirements.txt
 
-theme: readthedocs
+theme:
+    name: material
+    logo: media/peering-manager.svg
+    favicon: media/peering-manager.svg
 markdown_extensions:
-  - admonition:
+    - admonition
+    - pymdownx.emoji:
+        emoji_index: !!python/name:materialx.emoji.twemoji
+        emoji_generator: !!python/name:materialx.emoji.to_svg
+    - pymdownx.tabbed
 
 nav:
-  - Introduction: "index.md"
-  - Setup:
-      - 1. PostgreSQL: "setup/1-postgresql.md"
-      - 2. Redis: "setup/2-redis.md"
-      - 3. Peering Manager: "setup/3-peering-manager.md"
-      - 4. Web Server: "setup/4-web-server.md"
-      - 5. Logging (Optional): "setup/5-logging.md"
-      - 6. LDAP (Optional): "setup/6-ldap.md"
-      - 7. Scheduled Tasks (Optional): "setup/7-scheduled-tasks.md"
-      - 8. Prometheus (Optional): "setup/8-prometheus.md"
-      - Upgrading: "setup/upgrading.md"
-      - Migrate to systemd: "setup/migrate-to-systemd.md"
-  - Configuration:
-      - Configuring: "configuration/index.md"
-      - Required Settings: "configuration/required-settings.md"
-      - Optional Settings: "configuration/optional-settings.md"
-  - User Manual:
-      - Autonomous System: "models/peering/autonomoussystem.md"
-      - BGP Group: "models/peering/bgpgroup.md"
-      - Community: "models/peering/community.md"
-      - Configuration: "models/peering/configuration.md"
-      - Direct Peering Session: "models/peering/directpeeringsession.md"
-      - E-mail: "models/peering/email.md"
-      - Internet Exchange: "models/peering/internetexchange.md"
-      - Internet Exchange Peering Session: "models/peering/internetexchangepeeringsession.md"
-      - Platform: "models/devices/platform.md"
-      - Router: "models/peering/router.md"
-      - Routing Policy: "models/peering/routingpolicy.md"
-      - Config Contexts: "models/peering/configcontexts.md"
-      - Token: "models/users/token.md"
-      - Tag: "models/utils/tag.md"
-      - Webhook: "models/webhooks/webhook.md"
-  - Templating:
-      - Writing Templates: "templating/index.md"
-      - Jinja Filters: "templating/filters.md"
-      - Exposed Variables: "templating/variables.md"
-  - Integration: "integration.md"
+    - Introduction: "index.md"
+    - Setup:
+        - 1. PostgreSQL: "setup/1-postgresql.md"
+        - 2. Redis: "setup/2-redis.md"
+        - 3. Peering Manager: "setup/3-peering-manager.md"
+        - 4. Web Server: "setup/4-web-server.md"
+        - 5. Logging (Optional): "setup/5-logging.md"
+        - 6. LDAP (Optional): "setup/6-ldap.md"
+        - 7. Scheduled Tasks (Optional): "setup/7-scheduled-tasks.md"
+        - 8. Prometheus (Optional): "setup/8-prometheus.md"
+        - Upgrading: "setup/upgrading.md"
+        - Migrate to systemd: "setup/migrate-to-systemd.md"
+    - Configuration:
+        - Configuring: "configuration/index.md"
+        - Required Settings: "configuration/required-settings.md"
+        - Optional Settings: "configuration/optional-settings.md"
+    - User Interface: "user-interface.md"
+    - User Manual:
+        - Autonomous System: "models/peering/autonomoussystem.md"
+        - BGP Group: "models/peering/bgpgroup.md"
+        - Community: "models/peering/community.md"
+        - Configuration: "models/peering/configuration.md"
+        - Direct Peering Session: "models/peering/directpeeringsession.md"
+        - E-mail: "models/peering/email.md"
+        - Internet Exchange: "models/peering/internetexchange.md"
+        - Internet Exchange Peering Session: "models/peering/internetexchangepeeringsession.md"
+        - Platform: "models/devices/platform.md"
+        - Router: "models/peering/router.md"
+        - Routing Policy: "models/peering/routingpolicy.md"
+        - Config Contexts: "models/peering/configcontexts.md"
+        - Token: "models/users/token.md"
+        - Tag: "models/utils/tag.md"
+        - Webhook: "models/webhooks/webhook.md"
+    - Templating:
+        - Writing Templates: "templating/index.md"
+        - Jinja Filters: "templating/filters.md"
+        - Exposed Variables: "templating/variables.md"
+    - Integration: "integration.md"
