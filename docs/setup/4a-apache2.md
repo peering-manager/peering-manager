@@ -10,12 +10,10 @@
 	# a2enmod proxy_http
 	```
 
-=== "CentOS 7"
+=== "CentOS"
 	```no-highlight
 	# yum install httpd
 	```
-
-=== "CentOS 8"
 
 !!! attention
 	CentOS users have to adjust their SELinux rules or disable it completly.

@@ -14,6 +14,11 @@ Install the nginx package.
 	# yum install nginx
 	```
 
+=== "CentOS 8"
+	```no-highlight
+	# yum install nginx
+	```
+
 To serve the application, a new configuration file has to be created at
 `/etc/nginx/conf.d/peering-manager.conf` containing the following:
 

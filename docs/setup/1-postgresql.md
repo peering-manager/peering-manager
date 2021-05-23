@@ -21,6 +21,11 @@ PostgreSQL.
 	```
 
 === "CentOS 8"
+	```no-highlight
+	# yum install postgresql-server
+	# postgresql-setup --initdb --unit postgresql
+	# systemctl enable postgresql --now
+	```
 
 !!! attention
 	Depending on your distribution, you may have to edit your PostgreSQL
