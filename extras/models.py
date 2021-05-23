@@ -98,7 +98,7 @@ class JobResult(models.Model):
         return f"Result for job {self.job_id}"
 
     def get_absolute_url(self):
-        return reverse("extras:jobresult_details", kwargs={"pk": self.pk})
+        return reverse("extras:jobresult_details", args=[self.pk])
 
     def set_status(self, status):
         """

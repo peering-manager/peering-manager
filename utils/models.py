@@ -87,7 +87,7 @@ class ObjectChange(models.Model):
         return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("utils:objectchange_details", kwargs={"pk": self.pk})
+        return reverse("utils:objectchange_details", args=[self.pk])
 
     def get_html_icon(self):
         if self.action == ObjectChangeAction.CREATE:
@@ -112,7 +112,7 @@ class Tag(TagBase, ChangeLoggedModel):
     comments = models.TextField(blank=True, default="")
 
     def get_absolute_url(self):
-        return reverse("utils:tag_details", kwargs={"pk": self.pk})
+        return reverse("utils:tag_details", args=[self.pk])
 
 
 class TaggedItem(GenericTaggedItemBase):
