@@ -91,13 +91,15 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
     bgp_state = models.CharField(
         max_length=50, choices=BGPState.choices, blank=True, null=True
     )
-    service_reference = models.OneToOneField("extras.ServiceReference", null=True, blank=True, on_delete=models.CASCADE)
+    service_reference = models.OneToOneField(
+        "extras.ServiceReference", null=True, blank=True, on_delete=models.CASCADE
+    )
     reference = models.CharField(
         max_length=255,
         unique=True,
         blank=True,
         null=True,
-        #default=None,
+        # default=None,
         help_text="Optional internal service reference (auto-generated if left blank)",
     )
     received_prefix_count = models.PositiveIntegerField(blank=True, default=0)
@@ -268,7 +270,6 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
                 owner_id=self.id,
             )
 
-
     def save(self, *args, **kwargs):
         """
         Overrides default `save()` to set the service reference if left blank.
@@ -276,17 +277,17 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
         print(self.reference)
         super().save(*args, **kwargs)
         if not self.service_reference:
-            print('Im not service_ref')
+            print("Im not service_ref")
             self.service_reference = self.generate_service_reference()
             self.reference = self.service_reference.identifier
             print(self.reference)
-        
+
         if not self.reference:
-            print('not self.reference')
+            print("not self.reference")
             self.reference = self.service_reference.set_original
             super().save(*args, **kwargs)
             print(self.reference)
-        
+
         if self.service_reference.identifier != self.reference:
             self.service_reference.identifier = self.reference
             self.service_reference.save()

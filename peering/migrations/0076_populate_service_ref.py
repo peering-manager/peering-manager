@@ -8,22 +8,22 @@ from peering.models import InternetExchangePeeringSession, DirectPeeringSession
 def generate_service_reference(apps, schema_editor):
     for row in InternetExchangePeeringSession.objects.all():
         row.service_reference = ServiceReference.objects.create(
-                prefix="IX",
-                suffix="S",
-                identifier=None,
-                owner_type=ContentType.objects.get_for_model(row),
-                owner_id=row.id,
+            prefix="IX",
+            suffix="S",
+            identifier=None,
+            owner_type=ContentType.objects.get_for_model(row),
+            owner_id=row.id,
         )
         row.reference = row.service_reference.identifier
         row.save(update_fields=["service_reference", "reference"])
-    
+
     for row in DirectPeeringSession.objects.all():
         row.service_reference = ServiceReference.objects.create(
-                prefix="D",
-                suffix="S",
-                identifier=None,
-                owner_type=ContentType.objects.get_for_model(row),
-                owner_id=row.id,
+            prefix="D",
+            suffix="S",
+            identifier=None,
+            owner_type=ContentType.objects.get_for_model(row),
+            owner_id=row.id,
         )
         row.reference = row.service_reference.identifier
         row.save(update_fields=["service_reference", "reference"])

@@ -7,37 +7,75 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0003_servicereference'),
-        ('peering', '0074_add_configcontext'),
+        ("extras", "0003_servicereference"),
+        ("peering", "0074_add_configcontext"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='directpeeringsession',
-            options={'ordering': ['service_reference', 'local_autonomous_system', 'autonomous_system', 'ip_address']},
+            name="directpeeringsession",
+            options={
+                "ordering": [
+                    "service_reference",
+                    "local_autonomous_system",
+                    "autonomous_system",
+                    "ip_address",
+                ]
+            },
         ),
         migrations.AlterModelOptions(
-            name='internetexchangepeeringsession',
-            options={'ordering': ['service_reference', 'autonomous_system', 'ixp_connection', 'ip_address']},
+            name="internetexchangepeeringsession",
+            options={
+                "ordering": [
+                    "service_reference",
+                    "autonomous_system",
+                    "ixp_connection",
+                    "ip_address",
+                ]
+            },
         ),
         migrations.AddField(
-            model_name='directpeeringsession',
-            name='reference',
-            field=models.CharField(blank=True, help_text='Optional internal service reference (auto-generated if left blank)', max_length=255, null=True, default=None, unique=True),
+            model_name="directpeeringsession",
+            name="reference",
+            field=models.CharField(
+                blank=True,
+                help_text="Optional internal service reference (auto-generated if left blank)",
+                max_length=255,
+                null=True,
+                default=None,
+                unique=True,
+            ),
         ),
         migrations.AddField(
-            model_name='directpeeringsession',
-            name='service_reference',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='extras.servicereference'),
+            model_name="directpeeringsession",
+            name="service_reference",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="extras.servicereference",
+            ),
         ),
         migrations.AddField(
-            model_name='internetexchangepeeringsession',
-            name='reference',
-            field=models.CharField(blank=True, help_text='Optional internal service reference (auto-generated if left blank)', max_length=255, null=True, default=None, unique=True),
+            model_name="internetexchangepeeringsession",
+            name="reference",
+            field=models.CharField(
+                blank=True,
+                help_text="Optional internal service reference (auto-generated if left blank)",
+                max_length=255,
+                null=True,
+                default=None,
+                unique=True,
+            ),
         ),
         migrations.AddField(
-            model_name='internetexchangepeeringsession',
-            name='service_reference',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='extras.servicereference'),
+            model_name="internetexchangepeeringsession",
+            name="service_reference",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="extras.servicereference",
+            ),
         ),
     ]

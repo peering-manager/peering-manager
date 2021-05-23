@@ -504,7 +504,7 @@ class DirectPeeringSession(BGPSession):
 
     def __str__(self):
         return f"{self.get_relationship_display()} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
-    
+
     @property
     def service_reference_value(self):
         return self.local_autonomous_system.asn
