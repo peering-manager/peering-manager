@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 
-from net.api.serializers import ConnectionNestedSerializer
 from extras.api.serializers import ServiceReferenceNestedSerializer
+from net.api.serializers import ConnectionNestedSerializer
 from peering.models import (
     AutonomousSystem,
     BGPGroup,

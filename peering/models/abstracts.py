@@ -2,15 +2,15 @@ import ipaddress
 import logging
 import uuid
 
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.safestring import mark_safe
-from django.contrib.contenttypes.models import ContentType
 from netfields import InetAddressField, NetManager
 
+from extras.models import ServiceReference
 from peering.enums import BGPState
 from peering.fields import TTLField
 from utils.models import ChangeLoggedModel, TaggableModel
-from extras.models import ServiceReference
 
 from .mixins import PolicyMixin
 

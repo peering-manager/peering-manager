@@ -1,8 +1,8 @@
-from django.db import migrations
 from django.contrib.contenttypes.models import ContentType
+from django.db import migrations
 
 from extras.models import ServiceReference
-from peering.models import InternetExchangePeeringSession, DirectPeeringSession
+from peering.models import DirectPeeringSession, InternetExchangePeeringSession
 
 
 def generate_service_reference(apps, schema_editor):
