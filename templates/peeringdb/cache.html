@@ -17,38 +17,42 @@
       </div>
       <ul class="list-group list-group-flush">
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          Facilities <span class="badge badge-primary badge-pill" id="id_peeringdb_fac_count">{{ fac_count }}</span>
+          Facilities <span class="badge badge-primary badge-pill">{{ fac_count }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          Internet Exchanges <span class="badge badge-primary badge-pill" id="id_peeringdb_ix_count">{{ ix_count }}</span>
+          Internet Exchanges <span class="badge badge-primary badge-pill">{{ ix_count }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          Internet Exchange Facilities <span class="badge badge-primary badge-pill" id="id_peeringdb_ixfac_count">{{ ixfac_count }}</span>
+          Internet Exchange Facilities <span class="badge badge-primary badge-pill">{{ ixfac_count }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          Internet Exchange LANs <span class="badge badge-primary badge-pill" id="id_peeringdb_ixlan_count">{{ ixlan_count }}</span>
+          Internet Exchange LANs <span class="badge badge-primary badge-pill">{{ ixlan_count }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          Internet Exchange LAN Prefixes <span class="badge badge-primary badge-pill" id="id_peeringdb_ixlanpfx_count">{{ ixlanpfx_count }}</span>
+          Internet Exchange LAN Prefixes <span class="badge badge-primary badge-pill">{{ ixlanpfx_count }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          Networks <span class="badge badge-primary badge-pill" id="id_peeringdb_net_count">{{ net_count }}</span>
+          Networks <span class="badge badge-primary badge-pill">{{ net_count }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          Network Contacts <span class="badge badge-primary badge-pill" id="id_peeringdb_poc_count">{{ poc_count }}</span>
+          Network Contacts <span class="badge badge-primary badge-pill">{{ poc_count }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          Network Facilities <span class="badge badge-primary badge-pill" id="id_peeringdb_netfac_count">{{ netfac_count }}</span>
+          Network Facilities <span class="badge badge-primary badge-pill">{{ netfac_count }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          Network Internet Exchange LANs <span class="badge badge-primary badge-pill" id="id_peeringdb_netixlan_count">{{ netixlan_count }}</span>
+          Network Internet Exchange LANs <span class="badge badge-primary badge-pill">{{ netixlan_count }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          Organizations <span class="badge badge-primary badge-pill" id="id_peeringdb_org_count">{{ org_count }}</span>
+          Organizations <span class="badge badge-primary badge-pill">{{ org_count }}</span>
         </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            <button type="button" class="btn btn-primary" id="id_update_cache"><i class="fas fa-sync"></i> Update Cache</button>
-            <button type="button" class="btn btn-danger" id="id_clear_cache"><i class="fas fa-broom"></i> Clear Cache</button>
+            <button type="button" class="btn btn-primary" id="update_cache">
+              <i class="fas fa-sync"></i> Update Cache
+            </button>
+            <button type="button" class="btn btn-danger" id="clear_cache">
+              <i class="fas fa-broom"></i> Clear Cache
+            </button>
           </li>
       </ul>
     </div>
@@ -57,6 +61,17 @@
 {% endblock %}
 {% block javascript %}
     <script>
+      function resetSyncButton(button) {
+        button.removeAttr('disabled');
+        button.removeClass('btn-warning', 'btn-danger', 'btn-success');
+        button.addClass('btn-primary').html('<i class="fas fa-sync"></i> Update Cache');
+      }
+      function resetClearButton(button) {
+        button.removeAttr('disabled');
+        button.removeClass('btn-warning', 'btn-primary', 'btn-success');
+        button.addClass('btn-danger').html('<i class="fas fa-broom"></i> Clear Cache');
+      }
+
       $('.alert').hide();
       $('.alert').on('click', '.close', function() {
         $(this).closest('.alert').slideUp();
@@ -68,50 +83,33 @@
         $('#id_cache_operation').slideDown();
       }
 
-      $('#id_update_cache').click(function() {
+      $('#update_cache').click(function () {
         $.ajax({
           method: "post",
           data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
           url: "{% url 'peeringdb-api:cache-update-local' %}",
-          beforeSend: function() {
-            $('#id_update_cache').attr('disabled', 'disabled').removeClass('btn-danger').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+          beforeSend: function () {
+            PeeringManager.setWorkingButton($('#update_cache'));
           },
-          complete: function() {
-            $('#id_update_cache').removeClass('btn-warning').addClass('btn-primary').removeAttr('disabled').html('<i class="fas fa-sync"></i> Update Cache');
+          complete: function () {
+            resetSyncButton($('#update_cache'));
           },
-        }).done(function(response) {
-          $.ajax({
-            method: "get",
-            url: "{% url 'peeringdb-api:cache-statistics' %}",
-          }).done(function(response) {
-            $('#id_peeringdb_fac_count').text(response['fac-count']);
-            $('#id_peeringdb_ix_count').text(response['ix-count']);
-            $('#id_peeringdb_ixfac_count').text(response['ixfac-count']);
-            $('#id_peeringdb_ixlan_count').text(response['ixlan-count']);
-            $('#id_peeringdb_ixlanpfx_count').text(response['ixlanpfx-count']);
-            $('#id_peeringdb_net_count').text(response['net-count']);
-            $('#id_peeringdb_poc_count').text(response['poc-count']);
-            $('#id_peeringdb_net_count').text(response['net-count']);
-            $('#id_peeringdb_netfac_count').text(response['netfac-count']);
-            $('#id_peeringdb_netixlan_count').text(response['netixlan-count']);
-            $('#id_peeringdb_org_count').text(response['org-count']);
-          });
-          showSuccessAlert('Cache successfully updated.');
+        }).done(function () {
+          showSuccessAlert('Cache update requested.');
         });
       });
-      $('#id_clear_cache').click(function() {
+      $('#clear_cache').click(function () {
         $.ajax({
           method: "post",
           data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
           url: "{% url 'peeringdb-api:cache-clear-local' %}",
-          beforeSend: function() {
-            $('#id_clear_cache').attr('disabled', 'disabled').removeClass('btn-danger').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+          beforeSend: function () {
+            PeeringManager.setWorkingButton($('#clear_cache'));
           },
-          complete: function() {
-            $('#id_clear_cache').removeClass('btn-warning').addClass('btn-danger').removeAttr('disabled').html('<i class="fas fa-broom"></i> Clear Cache');
+          complete: function () {
+            resetClearButton($('#clear_cache'));
           },
-        }).done(function(response) {
-          $("span[id^='id_peeringdb_']").val('0');
+        }).done(function () {
           showSuccessAlert('Cache successfully cleared.');
         });
       });
