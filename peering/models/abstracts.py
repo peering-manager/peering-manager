@@ -4,11 +4,13 @@ import uuid
 
 from django.db import models
 from django.utils.safestring import mark_safe
+from django.contrib.contenttypes.models import ContentType
 from netfields import InetAddressField, NetManager
 
 from peering.enums import BGPState
 from peering.fields import TTLField
 from utils.models import ChangeLoggedModel, TaggableModel
+from extras.models import ServiceReference
 
 from .mixins import PolicyMixin
 
@@ -89,12 +91,13 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
     bgp_state = models.CharField(
         max_length=50, choices=BGPState.choices, blank=True, null=True
     )
-    service_reference = models.CharField(
+    service_reference = models.OneToOneField("extras.ServiceReference", null=True, blank=True, on_delete=models.CASCADE)
+    reference = models.CharField(
         max_length=255,
         unique=True,
         blank=True,
         null=True,
-        default=None,
+        #default=None,
         help_text="Optional internal service reference (auto-generated if left blank)",
     )
     received_prefix_count = models.PositiveIntegerField(blank=True, default=0)
@@ -249,22 +252,44 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
 
         # Find out ASN and prefix for the service ID based on the type of session
         if hasattr(self, "ixp_connection"):
-            local_as = (
-                self.ixp_connection.internet_exchange_point.local_autonomous_system
+            return ServiceReference.objects.create(
+                prefix="IX",
+                suffix="S",
+                identifier=self.reference,
+                owner_type=ContentType.objects.get_for_model(self),
+                owner_id=self.id,
             )
-            prefix = "I"
         else:
-            local_as = self.local_autonomous_system
-            prefix = "D"
+            return ServiceReference.objects.create(
+                prefix="D",
+                suffix="S",
+                identifier=self.reference,
+                owner_type=ContentType.objects.get_for_model(self),
+                owner_id=self.id,
+            )
 
-        return f"{prefix}{local_as.asn}-{uuid.uuid4().hex[:6].upper()}S"
 
     def save(self, *args, **kwargs):
         """
         Overrides default `save()` to set the service reference if left blank.
         """
+        print(self.reference)
+        super().save(*args, **kwargs)
         if not self.service_reference:
+            print('Im not service_ref')
             self.service_reference = self.generate_service_reference()
+            self.reference = self.service_reference.identifier
+            print(self.reference)
+        
+        if not self.reference:
+            print('not self.reference')
+            self.reference = self.service_reference.set_original
+            super().save(*args, **kwargs)
+            print(self.reference)
+        
+        if self.service_reference.identifier != self.reference:
+            self.service_reference.identifier = self.reference
+            self.service_reference.save()
 
         return super().save(*args, **kwargs)
 

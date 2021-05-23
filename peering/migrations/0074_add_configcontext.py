@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("peering", "0076_auto_20210426_1944"),
+        ("peering", "0073_auto_20210425_1303"),
     ]
 
     operations = [

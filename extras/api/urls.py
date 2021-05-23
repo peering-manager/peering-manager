@@ -18,6 +18,7 @@ router.APIRootView = ExtrasRootView
 router.register("_choices", views.ExtrasFieldChoicesViewSet, basename="field-choice")
 
 router.register("job-results", views.JobResultViewSet)
+router.register("service-reference", views.ServiceReferenceViewSet)
 
 app_name = "extras-api"
 urlpatterns = router.urls

@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.urls import reverse
@@ -196,3 +197,42 @@ class JobResult(models.Model):
             grouping="output",
             save=False,
         )
+
+
+class ServiceReference(models.Model):
+    owner_type = models.ForeignKey(
+        to=ContentType, on_delete=models.PROTECT, related_name="+"
+    )
+    owner_id = models.PositiveIntegerField()
+    owner = GenericForeignKey(ct_field="owner_type", fk_field="owner_id")
+    prefix = models.CharField(max_length=15, null=True, blank=True)
+    suffix = models.CharField(max_length=15, null=True, blank=True)
+    identifier = models.CharField(
+        max_length=127, null=True, blank=True, db_index=True, unique=True
+    )
+
+    @property
+    def pid(self):
+        return self.id + 100000
+    
+    @property
+    def original(self):
+        return self.__get_reference()
+    
+    @property
+    def set_original(self):
+        self.identifier = self.original
+        self.save()
+        return self.original
+
+    def __str__(self):
+        return self.identifier or ""
+
+    def __get_reference(self):
+        return f"{self.prefix}{self.owner.service_reference_value}-{self.pid}{self.suffix}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.identifier:
+            self.identifier = self.__get_reference()
+            self.save()

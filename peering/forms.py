@@ -293,7 +293,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = DirectPeeringSession
         fields = (
-            "service_reference",
+            "reference",
             "local_autonomous_system",
             "local_ip_address",
             "autonomous_system",
@@ -598,7 +598,7 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InternetExchangePeeringSession
         fields = (
-            "service_reference",
+            "reference",
             "autonomous_system",
             "ixp_connection",
             "ip_address",

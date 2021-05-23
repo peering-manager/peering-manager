@@ -504,6 +504,10 @@ class DirectPeeringSession(BGPSession):
 
     def __str__(self):
         return f"{self.get_relationship_display()} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
+    
+    @property
+    def service_reference_value(self):
+        return self.local_autonomous_system.asn
 
     def get_absolute_url(self):
         return reverse("peering:directpeeringsession_details", kwargs={"pk": self.pk})
@@ -887,6 +891,10 @@ class InternetExchangePeeringSession(BGPSession):
         if not self.ixp_connection:
             return f"AS{self.autonomous_system.asn} - IP {self.ip_address}"
         return f"{self.ixp_connection.internet_exchange_point.name} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
+
+    @property
+    def service_reference_value(self):
+        return self.ixp_connection.internet_exchange_point.local_autonomous_system.asn
 
     def get_absolute_url(self):
         return reverse(

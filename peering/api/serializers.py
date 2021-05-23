@@ -1,6 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 
 from net.api.serializers import ConnectionNestedSerializer
+from extras.api.serializers import ServiceReferenceNestedSerializer
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -142,6 +143,7 @@ class DirectPeeringSessionSerializer(
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     router = RouterNestedSerializer(required=False)
+    service_reference = ServiceReferenceNestedSerializer()
 
     class Meta:
         model = DirectPeeringSession
@@ -212,6 +214,7 @@ class InternetExchangePeeringSessionSerializer(
     ixp_connection = ConnectionNestedSerializer()
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
+    service_reference = ServiceReferenceNestedSerializer()
 
     class Meta:
         model = InternetExchangePeeringSession
