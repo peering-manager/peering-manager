@@ -112,17 +112,17 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
         return self.import_routing_policies.all()
 
     def get_absolute_url(self):
-        return reverse("peering:autonomoussystem_details", kwargs={"asn": self.asn})
+        return reverse("peering:autonomoussystem_details", kwargs={"pk": self.pk})
 
     def get_internet_exchange_peering_sessions_list_url(self):
         return reverse(
             "peering:autonomoussystem_internet_exchange_peering_sessions",
-            kwargs={"asn": self.asn},
+            kwargs={"pk": self.pk},
         )
 
     def get_direct_peering_sessions_list_url(self):
         return reverse(
-            "peering:autonomoussystem_direct_peering_sessions", kwargs={"asn": self.asn}
+            "peering:autonomoussystem_direct_peering_sessions", kwargs={"pk": self.pk}
         )
 
     def get_direct_peering_sessions(self):
@@ -344,10 +344,10 @@ class BGPGroup(AbstractGroup):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("peering:bgpgroup_details", kwargs={"slug": self.slug})
+        return reverse("peering:bgpgroup_details", kwargs={"pk": self.pk})
 
     def get_peering_sessions_list_url(self):
-        return reverse("peering:bgpgroup_peering_sessions", kwargs={"slug": self.slug})
+        return reverse("peering:bgpgroup_peering_sessions", kwargs={"pk": self.pk})
 
     def get_peering_sessions(self):
         return DirectPeeringSession.objects.filter(bgp_group=self)
@@ -590,15 +590,15 @@ class InternetExchange(AbstractGroup):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("peering:internetexchange_details", kwargs={"slug": self.slug})
+        return reverse("peering:internetexchange_details", kwargs={"pk": self.pk})
 
     def get_peering_sessions_list_url(self):
         return reverse(
-            "peering:internetexchange_peering_sessions", kwargs={"slug": self.slug}
+            "peering:internetexchange_peering_sessions", kwargs={"pk": self.pk}
         )
 
     def get_peer_list_url(self):
-        return reverse("peering:internet_exchange_peers", kwargs={"slug": self.slug})
+        return reverse("peering:internet_exchange_peers", kwargs={"pk": self.pk})
 
     def merged_export_policies(self, reverse=False):
         # Get own policies
@@ -767,7 +767,7 @@ class InternetExchange(AbstractGroup):
         Imports sessions setup on a connected router.
         """
         session_number, asn_number = 0, 0
-        ignored_asn = []
+        ignored_autonomous_systems = []
 
         allowed_prefixes = self.get_prefixes()
         sessions = connection.router.get_bgp_neighbors()
@@ -782,7 +782,7 @@ class InternetExchange(AbstractGroup):
         for session in sessions:
             ip = ipaddress.ip_address(session["ip_address"])
             if not is_valid(ip):
-                logger.debug(
+                self.logger.debug(
                     f"ignoring ixp session, {str(ip)} does not fit in any prefixes"
                 )
                 continue
@@ -811,7 +811,7 @@ class InternetExchange(AbstractGroup):
                 asn_number += 1
             else:
                 if remote_asn not in ignored_autonomous_systems:
-                    ignored_asn.append(remote_asn)
+                    ignored_autonomous_systems.append(remote_asn)
                     self.logger.debug(
                         f"could not create as{remote_asn}, session {str(ip)} ignored"
                     )
@@ -998,6 +998,7 @@ class Router(ChangeLoggedModel, TaggableModel):
         default=False,
         help_text="Use NetBox to communicate instead of NAPALM",
     )
+    config_context = models.JSONField(blank=True, null=True)
     napalm_username = models.CharField(blank=True, null=True, max_length=256)
     napalm_password = models.CharField(blank=True, null=True, max_length=256)
     napalm_timeout = models.PositiveIntegerField(blank=True, default=0)
@@ -1587,59 +1588,6 @@ class Router(ChangeLoggedModel, TaggableModel):
 
         return flattened
 
-    def clear_bgp_neighbor_command(self, address_family=6):
-        """
-        Returns a command to clear a BGP neighbor based on the router's platform and
-        the address family.
-        """
-        if address_family not in [6, 4]:
-            return None
-
-        if self.platform == Platform.JUNOS:
-            return "clear bgp neighbor"
-        if self.platform in [Platform.EOS, Platform.IOS]:
-            if address_family == 6:
-                return "clear ipv6 bgp"
-            else:
-                return "clear ip bgp"
-        if self.platform == Platform.IOSXR:
-            return "clear bgp"
-
-        return None
-
-    def clear_bgp_session(self, bgp_session):
-        if not bgp_session or not isinstance(bgp_session, BGPSession):
-            self.logger.debug("no bgp session to clear")
-            return None
-        if not self.clear_bgp_neighbor_command:
-            self.logger.debug("no command found to clear bgp session")
-            return None
-
-        device = self.get_napalm_device()
-        opened = self.open_napalm_device(device)
-
-        if opened:
-            # Send command to clear the BGP neighbor
-            address = ipaddress.ip_address(bgp_session.ip_address)
-            command = "{} {}".format(
-                self.clear_bgp_neighbor_command(address_family=address.version),
-                str(address),
-            )
-            self.logger.debug("clearing bgp neighbor %s", str(address))
-            result = device.cli([command])
-            self.logger.debug("raw napalm output %s", result)
-
-            # Close connection to the device
-            closed = self.close_napalm_device(device)
-            if not closed:
-                self.logger.debug(
-                    "error while closing connection with %s", self.hostname
-                )
-
-            return result[command]
-
-        return None
-
 
 class RoutingPolicy(ChangeLoggedModel, TaggableModel):
     name = models.CharField(max_length=128)
@@ -1655,6 +1603,7 @@ class RoutingPolicy(ChangeLoggedModel, TaggableModel):
     address_family = models.PositiveSmallIntegerField(
         default=IPFamily.ALL, choices=IPFamily.choices
     )
+    config_context = models.JSONField(blank=True, null=True)
     comments = models.TextField(blank=True)
 
     class Meta:

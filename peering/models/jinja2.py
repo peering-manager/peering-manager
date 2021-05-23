@@ -4,8 +4,16 @@ import unicodedata
 from django.db.models.query import QuerySet
 
 from devices.crypto.cisco import MAGIC as CISCO_MAGIC
+from net.models import Connection
 from peering.models.abstracts import BGPSession
-from peering.models.models import AutonomousSystem, BGPGroup, InternetExchange, Router
+from peering.models.models import (
+    AutonomousSystem,
+    BGPGroup,
+    DirectPeeringSession,
+    InternetExchange,
+    InternetExchangePeeringSession,
+    Router,
+)
 from utils.models import TaggableModel
 
 
@@ -74,6 +82,19 @@ def filter(queryset, **kwargs):
     if type(queryset) is not QuerySet:
         raise TypeError("cannot filter data not in the database")
     return queryset.filter(**kwargs)
+
+
+def get(queryset, **kwargs):
+    """
+    Returns a single object from a queryset and a filter. If more than one
+    object matches the filterm a queryset will be return.
+    """
+    q = filter(queryset, **kwargs)
+
+    if q.count() == 1:
+        return q.get()
+    else:
+        return q
 
 
 def iterate(value, field):
@@ -170,6 +191,31 @@ def direct_sessions(value, family=0):
         return value.get_direct_peering_sessions().filter(ip_address__family=family)
 
 
+def local_ips(value, family=0):
+    """
+    Returns local IP addresses for a BGP session or an IXP.
+    """
+    if isinstance(value, DirectPeeringSession):
+        return value.local_ip_address
+
+    if isinstance(value, InternetExchangePeeringSession):
+        if value.ip_address.version == 6:
+            return value.ixp_connection.ipv6_address
+        else:
+            return value.ixp_connection.ipv4_address
+
+    if isinstance(value, InternetExchange):
+        ips = []
+        for c in Connection.objects.filter(internet_exchange_point=value):
+            if c.ipv4_address:
+                ips.append(c.ipv4_address)
+            if c.ipv6_address:
+                ips.append(c.ipv6_address)
+        return ips
+
+    return None
+
+
 def ixp_sessions(value, family=0):
     """
     Returns a queryset of IXP peering sessions.
@@ -204,14 +250,14 @@ def sessions(value, family=0):
         return value.get_peering_sessions().filter(ip_address__family=family)
 
 
-def route_server(value):
+def route_server(value, family=0):
     """
     Returns a queryset listing all route server sessions for an IXP.
     """
     if type(value) is not InternetExchange:
         raise ValueError("value is not an internet exchange")
 
-    return sessions(value).filter(is_route_server=True)
+    return sessions(value, family=family).filter(is_route_server=True)
 
 
 def direct_peers(value, group=""):
@@ -264,6 +310,13 @@ def shared_ixps(value, other):
     return value.get_shared_internet_exchange_points(other)
 
 
+def missing_sessions(value, other, ixp=None):
+    """
+    Returns all missing sessions between two ASNs, optionally on an IXP.
+    """
+    return value.get_missing_peering_sessions(other, internet_exchange_point=ixp)
+
+
 def prefix_list(value, family=0):
     """
     Returns the prefixes for the given AS.
@@ -303,13 +356,16 @@ FILTER_DICT = {
     "count": length,
     # Filtering
     "filter": filter,
+    "get": get,
     "iterate": iterate,
     # Autonomous system
     "ixps": ixps,
     "shared_ixps": shared_ixps,
+    "missing_sessions": missing_sessions,
     "prefix_list": prefix_list,
     "direct_sessions": direct_sessions,
-    "ixp_sessions": ixp_sessions,
+    # BGP groups
+    "local_ips": local_ips,
     # BGP sessions
     "sessions": sessions,
     "route_server": route_server,

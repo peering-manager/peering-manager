@@ -13,6 +13,7 @@ This document contains instructions to migrate from
 
 Create a system user account named `peering-manager`. It'll be used by the WSGI
 and HTTP services to run under this account.
+
 ```no-highlight
 # groupadd --system peering-manager
 # adduser --system --gid peering-manager peering-manager
@@ -23,6 +24,7 @@ and HTTP services to run under this account.
 
 Create a service file `/etc/systemd/system/peering-manager.service` and
 set its content.
+
 ```no-highlight
 [[Unit]
 Description=Peering Manager WSGI Service
@@ -50,6 +52,7 @@ WantedBy=multi-user.target
 
 Reload **systemd** to load the service, start the `peering-manager` service and
 enable it at boot time.
+
 ```no-highlight
 # systemctl daemon-reload
 # systemctl start peering-manager

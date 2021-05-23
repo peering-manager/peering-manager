@@ -50,6 +50,7 @@ NAPALM_PASSWORD = 'letsfindabetterpassword'
 ```
 
 There are two more optional configuration lines which are:
+
 ```no-highlight
 NAPALM_TIMEOUT = 30 # Timeout which defaults to 30 seconds
 NAPALM_ARGS    = {} # Python dictionary of supported NAPALM arguments

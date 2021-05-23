@@ -106,6 +106,7 @@ class RouterSerializer(TaggedObjectSerializer, WriteEnabledNestedSerializer):
             "netbox_device_id",
             "device_state",
             "use_netbox",
+            "config_context",
             "napalm_username",
             "napalm_password",
             "napalm_timeout",
@@ -126,6 +127,7 @@ class RoutingPolicySerializer(TaggedObjectSerializer, ModelSerializer):
             "type",
             "weight",
             "address_family",
+            "config_context",
             "comments",
             "tags",
         ]

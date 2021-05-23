@@ -2,12 +2,12 @@
 {% load helpers %}
 {% block actions %}
 {% if perms.peering.change_internetexchange %}
-<a href="{% url 'peering:internetexchange_edit' slug=instance.slug %}" class="btn btn-warning">
+<a href="{% url 'peering:internetexchange_edit' pk=instance.pk %}" class="btn btn-warning">
   <i class="fas fa-edit"></i> Edit
 </a>
 {% endif %}
 {% if perms.peering.delete_internetexchange %}
-<a href="{% url 'peering:internetexchange_delete' slug=instance.slug %}" class="btn btn-danger">
+<a href="{% url 'peering:internetexchange_delete' pk=instance.pk %}" class="btn btn-danger">
   <i class="fas fa-trash"></i> Delete
 </a>
 {% endif %}
@@ -19,29 +19,29 @@
 {% block content %}
 <ul class="nav nav-tabs">
   <li class="nav-item">
-    <a class="nav-link{% if active_tab == 'main' %} active{% endif %}" href="{% url 'peering:internetexchange_details' slug=instance.slug %}">
+    <a class="nav-link{% if active_tab == 'main' %} active{% endif %}" href="{% url 'peering:internetexchange_details' pk=instance.pk %}">
       <i class="fas fa-info-circle"></i> Info
     </a>
   </li>
   <li class="nav-item">
-    <a class="nav-link{% if active_tab == 'connections' %} active{% endif %}" href="{% url 'peering:internetexchange_connections' slug=instance.slug %}">
+    <a class="nav-link{% if active_tab == 'connections' %} active{% endif %}" href="{% url 'peering:internetexchange_connections' pk=instance.pk %}">
       <i class="fas fa-sitemap"></i> Connections
     </a>
   </li>
   <li class="nav-item">
-    <a class="nav-link{% if active_tab == 'sessions' %} active{% endif %}" href="{% url 'peering:internetexchange_peering_sessions' slug=instance.slug %}">
+    <a class="nav-link{% if active_tab == 'sessions' %} active{% endif %}" href="{% url 'peering:internetexchange_peering_sessions' pk=instance.pk %}">
       <i class="fas fa-network-wired"></i> Peering Sessions
     </a>
   </li>
   {% if instance.peeringdb_ixlan %}
   <li class="nav-item">
-    <a class="nav-link{% if active_tab == 'peers' %} active{% endif %}" href="{% url 'peering:internetexchange_peers' slug=instance.slug %}">
+    <a class="nav-link{% if active_tab == 'peers' %} active{% endif %}" href="{% url 'peering:internetexchange_peers' pk=instance.pk %}">
       <i class="fas fa-link"></i> Available Peers
     </a>
   </li>
   {% endif %}
   <li class="nav-item">
-    <a class="nav-link{% if active_tab == 'changelog' %} active{% endif %}" href="{% url 'peering:internetexchange_changelog' slug=instance.slug %}">
+    <a class="nav-link{% if active_tab == 'changelog' %} active{% endif %}" href="{% url 'peering:internetexchange_changelog' pk=instance.pk %}">
       <i class="fas fa-history"></i> Changelog
     </a>
   </li>

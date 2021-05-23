@@ -5,7 +5,7 @@
 Default: None
 
 The base URL path to use when accessing Peering Manager. Do not include the
-cheme or domain name. For example, if installed at http://example.com/peering/,
+cheme or domain name. For example, if installed at [http://example.com/peering/],
 set:
 
 ```no-highlight
@@ -71,16 +71,16 @@ as read-only.
 In order to send email, Peering Manager needs an email server configured. The
 following items can be defined within the `EMAIL` setting:
 
-  * `SERVER` - Host name or IP address of the email server (use `localhost` if
-    running locally)
-  * `PORT` - TCP port to use for the connection (default: 25)
-  * `USERNAME` - Username with which to authenticate
-  * `PASSSWORD` - Password with which to authenticate
-  * `TIMEOUT` - Time to wait for a connection (in seconds)
-  * `FROM_ADDRESS` - Sender address for emails sent by Peering Manager
-  * `SUBJECT_PREFIX` - Prefix of the subject for outgoing emails
-  * `USE_SSL` - Use implicit TLS connections, usually on port 465
-  * `USE_TLS` - Use explicit TLS connections, usually on port 587
+* `SERVER` - Host name or IP address of the email server (use `localhost` if
+  running locally)
+* `PORT` - TCP port to use for the connection (default: 25)
+* `USERNAME` - Username with which to authenticate
+* `PASSSWORD` - Password with which to authenticate
+* `TIMEOUT` - Time to wait for a connection (in seconds)
+* `FROM_ADDRESS` - Sender address for emails sent by Peering Manager
+* `SUBJECT_PREFIX` - Prefix of the subject for outgoing emails
+* `USE_SSL` - Use implicit TLS connections, usually on port 465
+* `USE_TLS` - Use explicit TLS connections, usually on port 587
 
 Note that `USE_TLS`/`USE_SSL` are mutually exclusive, so only set one of those
 settings to True.

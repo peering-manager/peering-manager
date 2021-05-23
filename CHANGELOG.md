@@ -4,37 +4,37 @@
 
 ### Enhancements
 
-  * Hide PeeringDB related buttons if data are not locally synchronized
+* Hide PeeringDB related buttons if data are not locally synchronized
 
 ### Bug Fixes
 
-  * Set local autonomous system on migration in another DB transaction (in another migration file) to fix migration failures
-  * Fix Internet Exchange import when no affiliated autonomous system is used
-  * Fix email tab when AS has no contact properties defined but has PeeringDB contacts
-  * [#346](https://github.com/peering-manager/peering-manager/issues/346) Fix direct session creation from AS view
-  * [#349](https://github.com/peering-manager/peering-manager/issues/349) Fix e-mail rendering failure, templates may need minor changes
+* Set local autonomous system on migration in another DB transaction (in another migration file) to fix migration failures
+* Fix Internet Exchange import when no affiliated autonomous system is used
+* Fix email tab when AS has no contact properties defined but has PeeringDB contacts
+* [#346](https://github.com/peering-manager/peering-manager/issues/346) Fix direct session creation from AS view
+* [#349](https://github.com/peering-manager/peering-manager/issues/349) Fix e-mail rendering failure, templates may need minor changes
 
 ## Version 1.3.1 | MARK I (Bug fixes release) | 2021-01-07
 
 ### Enhancements
 
-  * Make sure multi-AS migration is passed before PeeringDB's
-  * Remove PeeringDB synchronization records when upgrading to make sure a full synchronization will be performed next time
-  * Use `pathlib` in settings instead of `os.join()` to load settings
-  * [#316](https://github.com/peering-manager/peering-manager/issues/316) Add a tab to see an object changelog when viewing its properties
-  * [#317](https://github.com/peering-manager/peering-manager/issues/317) Expose changelogs on the REST API
+* Make sure multi-AS migration is passed before PeeringDB's
+* Remove PeeringDB synchronization records when upgrading to make sure a full synchronization will be performed next time
+* Use `pathlib` in settings instead of `os.join()` to load settings
+* [#316](https://github.com/peering-manager/peering-manager/issues/316) Add a tab to see an object changelog when viewing its properties
+* [#317](https://github.com/peering-manager/peering-manager/issues/317) Expose changelogs on the REST API
 
 ### Bug Fixes
 
-  * Fix router filter when using config and password encryption as parameters
-  * Fix default columns for changelog table which appeared to be empty
-  * Fix router search when using platform as a parameter
-  * [#335](https://github.com/peering-manager/peering-manager/issues/335) Keep using `MY_ASN`, the setting, will be removed after 2.0.0, to create automatically the first affiliated AS using the previously configured ASN
-  * [#339](https://github.com/peering-manager/peering-manager/issues/339) Fix crash when a user has invalid table columns in his/her tables preferences
-  * [#342](https://github.com/peering-manager/peering-manager/issues/342) Fix BGP sessions import failures due to IP in prefix check issues
-  * Fix importing IX peering sessions from known PeeringDB peers
-  * [#344](https://github.com/peering-manager/peering-manager/issues/344) Fix IX search when using local AS name as criteria
-  * [#345](https://github.com/peering-manager/peering-manager/issues/345) Fix adding IX peering sessions from a PeeringDB peer if the record misses on IP address (IPv4 or IPv6)
+* Fix router filter when using config and password encryption as parameters
+* Fix default columns for changelog table which appeared to be empty
+* Fix router search when using platform as a parameter
+* [#335](https://github.com/peering-manager/peering-manager/issues/335) Keep using `MY_ASN`, the setting, will be removed after 2.0.0, to create automatically the first affiliated AS using the previously configured ASN
+* [#339](https://github.com/peering-manager/peering-manager/issues/339) Fix crash when a user has invalid table columns in his/her tables preferences
+* [#342](https://github.com/peering-manager/peering-manager/issues/342) Fix BGP sessions import failures due to IP in prefix check issues
+* Fix importing IX peering sessions from known PeeringDB peers
+* [#344](https://github.com/peering-manager/peering-manager/issues/344) Fix IX search when using local AS name as criteria
+* [#345](https://github.com/peering-manager/peering-manager/issues/345) Fix adding IX peering sessions from a PeeringDB peer if the record misses on IP address (IPv4 or IPv6)
 
 ## Version 1.3.0 | MARK I (Features release) | 2020-12-22
 
@@ -66,43 +66,43 @@ This first big refactoring of the codebase does not bring a lot of new features,
 
 ### Enhancements
 
-  * Make sure that Peering Manager can be used with the Python version (3.6 to 3.9)
-  * Allow sending e-mails using SSL/TLS (by @jpbede)
-  * Add gunicorn to requirements (by @altf4arnold)
-  * Remove django-taggit-serializer dependency
-  * Move changelog logic to signals
-  * Re-design the login view
-  * Rewrite object details views using generic code
-  * [#286](https://github.com/peering-manager/peering-manager/issues/286) Expose Prometheus metrics [see docs](docs/setup/8-prometheus.md) (by @dgjustice)
+* Make sure that Peering Manager can be used with the Python version (3.6 to 3.9)
+* Allow sending e-mails using SSL/TLS (by @jpbede)
+* Add gunicorn to requirements (by @altf4arnold)
+* Remove django-taggit-serializer dependency
+* Move changelog logic to signals
+* Re-design the login view
+* Rewrite object details views using generic code
+* [#286](https://github.com/peering-manager/peering-manager/issues/286) Expose Prometheus metrics [see docs](docs/setup/8-prometheus.md) (by @dgjustice)
 
 ### Bug Fixes
 
-  * [#320](https://github.com/peering-manager/peering-manager/issues/320) Hide NAPALM creds for anonymous users
-  * [#294](https://github.com/peering-manager/peering-manager/issues/294) Fix bulk direct sessions edit from router view
-  * [#327](https://github.com/peering-manager/peering-manager/issues/327) Fix error when displaying peers view
-  * [#315](https://github.com/peering-manager/peering-manager/issues/315) Escape HTML characters when rendering markdown
+* [#320](https://github.com/peering-manager/peering-manager/issues/320) Hide NAPALM creds for anonymous users
+* [#294](https://github.com/peering-manager/peering-manager/issues/294) Fix bulk direct sessions edit from router view
+* [#327](https://github.com/peering-manager/peering-manager/issues/327) Fix error when displaying peers view
+* [#315](https://github.com/peering-manager/peering-manager/issues/315) Escape HTML characters when rendering markdown
 
 ## Version 1.2.1 | MARK I (Bug fixes release) | 2020-09-10
 
 ### Enhancements
 
-  * Improve code readability by using enumerations instead of constant lists
-  * Add brief output to API by using `?brief=1`
-  * Show Python and Peering Manager versions in error 500
-  * Expose users and groups API endpoint …
-  * Rework API based widget to offload complexity to the mixin class as much as possible
-  * [#276](https://github.com/peering-manager/peering-manager/issues/276) Add threading (`NETBOX_API_THREADING`) and SSL/TLS certification verification (`NETBOX_API_VERIFY_SSL`) when using NetBox API
-  * Show BGP states a prefix counts in peering session views
-  * [#279](https://github.com/peering-manager/peering-manager/issues/279) Improve documentation about the `DEBUG` optional setting
-  * Cleanup unused code
+* Improve code readability by using enumerations instead of constant lists
+* Add brief output to API by using `?brief=1`
+* Show Python and Peering Manager versions in error 500
+* Expose users and groups API endpoint …
+* Rework API based widget to offload complexity to the mixin class as much as possible
+* [#276](https://github.com/peering-manager/peering-manager/issues/276) Add threading (`NETBOX_API_THREADING`) and SSL/TLS certification verification (`NETBOX_API_VERIFY_SSL`) when using NetBox API
+* Show BGP states a prefix counts in peering session views
+* [#279](https://github.com/peering-manager/peering-manager/issues/279) Improve documentation about the `DEBUG` optional setting
+* Cleanup unused code
 
 ### Bug Fixes
 
-  * Fix router filter when using config and password encryption as parameters
-  * Fix default columns for changelog table which appeared to be empty
-  * Fix router search when using platform as a parameter
-  * [#275](https://github.com/peering-manager/peering-manager/issues/275) Make BGP group an optional parameter when searching direct peering sessions
-  * [#277](https://github.com/peering-manager/peering-manager/issues/277) Fix documentation compilation (by @mngan)
+* Fix router filter when using config and password encryption as parameters
+* Fix default columns for changelog table which appeared to be empty
+* Fix router search when using platform as a parameter
+* [#275](https://github.com/peering-manager/peering-manager/issues/275) Make BGP group an optional parameter when searching direct peering sessions
+* [#277](https://github.com/peering-manager/peering-manager/issues/277) Fix documentation compilation (by @mngan)
 
 ## Version 1.2.0 | MARK I (Features release) | 2020-08-08
 
@@ -151,19 +151,17 @@ REDIS = {
 
 Introduce a model for storing per-user preferences. This feature is now used to keep pagination and table columns preferences. Users can delete recorded preferences using the dedicated tab inside their profiles.
 
-
 #### [#211](https://github.com/peering-manager/peering-manager/issues/211) Table Columns Preferences
 
 Add user interface elements to toggle and reorder table columns for list views. Each column order is stored as a JSON value in user's preferences. Default columns have been assigned to tables.
 
 The peering session state column has been split into 3 different columns:
 
-  * actual state,
-  * received routes value, and,
-  * advertised routes value.
+* actual state,
+* received routes value, and,
+* advertised routes value.
 
 This helps to sort sessions based on route metrics and state.
-
 
 ### Configuration And E-mail Refactoring
 
@@ -173,51 +171,50 @@ Leveraging the new `Email` object, the `subject` field has been added to allow u
 
 ### Enhancements
 
-  * Add a brand new logo
-  * Use Django 3.1
-  * Make sure that Peering Manager can be used with the Python version (3.6 to 3.8)
-  * Improve unit testing time using mocking techniques
-  * Prevent LDAP users from changing their passwords
-  * [#145](https://github.com/peering-manager/peering-manager/issues/145) Notify privileged users when a new version of Peering Manager is available
-  * [#92](https://github.com/peering-manager/peering-manager/issues/92) Allow user to hide available peers at IXPs; peers can still be displayed using the filter form
-  * [#197](https://github.com/peering-manager/peering-manager/issues/197) The `grab_prefixes` command can be used to cache prefix list for each AS in the database; a `--limit <0-n>` option [#209](https://github.com/peering-manager/peering-manager/issues/209) is available to avoid caching prefix list exceeding a given number of entries
-  * Try to guess if a BGP session has been abandoned; if a session, with an AS, on an IXP, both having PeeringDB records, is down, the session will be considered as abandoned
-  * Add an API call to poll a single BGP session
-  * Automatically set the local peer ASN for direct peering session
-  * Set the boundaries of `ASNField` to what AS number can actually be
-  * Enforce *view* permission to see details about some objects if the `LOGIN_REQUIRED` setting is enabled
-  * Try guessing the default timezone and defaults to `UTC` in case of failure if the `TIME_ZONE` setting is not set (by @mxhob1)
-  * [#206](https://github.com/peering-manager/peering-manager/issues/206) Allow configuration to be installed on routers without having to check for differences
-  * Make sure there are configuration differences to install before connecting to a router
-  * Remove `py-gfm` requirement as it is no longer maintained
-  * Only preload selected option for API based select widget; it avoids having to load huge chunks of data by leveraging the API
-  * Improve template generation time (by @mngan)
-  * [#244](https://github.com/peering-manager/peering-manager/issues/244) Allow entities to be filtered by tags; when several tags are given, a logical *and* operation will be performed, thus matching entities having all tags requested
-  * Add peering session lists from router and Internet exchange points of view (by @mngan)
-  * Improve peering sessions sorting (by @mngan)
-  * [#181](https://github.com/peering-manager/peering-manager/issues/181) Add fields to allow per-router NAPALM credentials and options (feature based on the idea of @smaxx1337)
-  * [#253](https://github.com/peering-manager/peering-manager/issues/253) Replace *supervisor* with *systemd* in the documentation
-  * Use signals to update session passwords to improve reliability of their encrypted versions
-  * Install configurations on several routers using background tasks; a confirmation is asked to the user but no syntax checks are performed
-  * Add `slug` field to `Community`; field is meant to be used as a configuration friendly value
-  * Turn-off validators on community value field as they can be expressed differently depending on
-router softwares
-  * [#259](https://github.com/peering-manager/peering-manager/issues/259) Documentation for each type of object is now available in the user interface when creating/editing an object; a small button help button is available in the top bar
+* Add a brand new logo
+* Use Django 3.1
+* Make sure that Peering Manager can be used with the Python version (3.6 to 3.8)
+* Improve unit testing time using mocking techniques
+* Prevent LDAP users from changing their passwords
+* [#145](https://github.com/peering-manager/peering-manager/issues/145) Notify privileged users when a new version of Peering Manager is available
+* [#92](https://github.com/peering-manager/peering-manager/issues/92) Allow user to hide available peers at IXPs; peers can still be displayed using the filter form
+* [#197](https://github.com/peering-manager/peering-manager/issues/197) The `grab_prefixes` command can be used to cache prefix list for each AS in the database; a `--limit <0-n>` option [#209](https://github.com/peering-manager/peering-manager/issues/209) is available to avoid caching prefix list exceeding a given number of entries
+* Try to guess if a BGP session has been abandoned; if a session, with an AS, on an IXP, both having PeeringDB records, is down, the session will be considered as abandoned
+* Add an API call to poll a single BGP session
+* Automatically set the local peer ASN for direct peering session
+* Set the boundaries of `ASNField` to what AS number can actually be
+* Enforce *view* permission to see details about some objects if the `LOGIN_REQUIRED` setting is enabled
+* Try guessing the default timezone and defaults to `UTC` in case of failure if the `TIME_ZONE` setting is not set (by @mxhob1)
+* [#206](https://github.com/peering-manager/peering-manager/issues/206) Allow configuration to be installed on routers without having to check for differences
+* Make sure there are configuration differences to install before connecting to a router
+* Remove `py-gfm` requirement as it is no longer maintained
+* Only preload selected option for API based select widget; it avoids having to load huge chunks of data by leveraging the API
+* Improve template generation time (by @mngan)
+* [#244](https://github.com/peering-manager/peering-manager/issues/244) Allow entities to be filtered by tags; when several tags are given, a logical *and* operation will be performed, thus matching entities having all tags requested
+* Add peering session lists from router and Internet exchange points of view (by @mngan)
+* Improve peering sessions sorting (by @mngan)
+* [#181](https://github.com/peering-manager/peering-manager/issues/181) Add fields to allow per-router NAPALM credentials and options (feature based on the idea of @smaxx1337)
+* [#253](https://github.com/peering-manager/peering-manager/issues/253) Replace *supervisor* with *systemd* in the documentation
+* Use signals to update session passwords to improve reliability of their encrypted versions
+* Install configurations on several routers using background tasks; a confirmation is asked to the user but no syntax checks are performed
+* Add `slug` field to `Community`; field is meant to be used as a configuration friendly value
+* Turn-off validators on community value field as they can be expressed differently depending on router softwares
+* [#259](https://github.com/peering-manager/peering-manager/issues/259) Documentation for each type of object is now available in the user interface when creating/editing an object; a small button help button is available in the top bar
 
 ### Bug Fixes
 
-  * [#196](https://github.com/peering-manager/peering-manager/issues/196) Sort missing peering sessions using their IP families. They are exposed in templates like: `{{ missing_sessions.ipv6 }}` and `{{ missing_sessions.ipv4 }}`
-  * [#208](https://github.com/peering-manager/peering-manager/issues/208) Fix creating a new BGP session using PeeringDB; if a session is already created for a PeeringDB record, do not fail add the other one attached to the same record
-  * [#212](https://github.com/peering-manager/peering-manager/issues/212) Default to "any" IP family match when searching for routing policies
-  * [#217](https://github.com/peering-manager/peering-manager/issues/217) If bgpq3 exits with a non-zero status code when looking for an AS-SET try to perform the same lookup with the AS object instead
-  * [#215](https://github.com/peering-manager/peering-manager/issues/215) Update encrypted passwords when clear ones change
-  * [#221](https://github.com/peering-manager/peering-manager/issues/221) Remove duplicates from missing peering sessions in templates
-  * [#190](https://github.com/peering-manager/peering-manager/issues/190) Add the possibility to ignore the name of an AS during PeeringDB synchronizations
-  * [#235](https://github.com/peering-manager/peering-manager/issues/235) Add documentation to move the PostgreSQL database to UTF-8 encoding
-  * [#214](https://github.com/peering-manager/peering-manager/issues/214) Fix router tags usage in templates
-  * [#251](https://github.com/peering-manager/peering-manager/issues/251) Add routing policies columns for eligible model lists
-  * [#265](https://github.com/peering-manager/peering-manager/issues/265) Fix broken bulk edit of BGP sessions in a group
-  * [#268](https://github.com/peering-manager/peering-manager/issues/268) Fix broken view permissions for guests when `LOGIN_REQUIRED` is not set
+* [#196](https://github.com/peering-manager/peering-manager/issues/196) Sort missing peering sessions using their IP families. They are exposedin templates like: `{{ missing_sessions.ipv6 }}` and `{{ missing_sessions.ipv4 }}`
+* [#208](https://github.com/peering-manager/peering-manager/issues/208) Fix creating a new BGP session using PeeringDB; if a session is alreadycreated for a PeeringDB record, do not fail add the other one attached to the same record
+* [#212](https://github.com/peering-manager/peering-manager/issues/212) Default to "any" IP family match when searching for routing policies
+* [#217](https://github.com/peering-manager/peering-manager/issues/217) If bgpq3 exits with a non-zero status code when looking for an AS-SETtry to perform the same lookup with the AS object instead
+* [#215](https://github.com/peering-manager/peering-manager/issues/215) Update encrypted passwords when clear ones change
+* [#221](https://github.com/peering-manager/peering-manager/issues/221) Remove duplicates from missing peering sessions in templates
+* [#190](https://github.com/peering-manager/peering-manager/issues/190) Add the possibility to ignore the name of an AS during PeeringDBsynchronizations
+* [#235](https://github.com/peering-manager/peering-manager/issues/235) Add documentation to move the PostgreSQL database to UTF-8 encoding
+* [#214](https://github.com/peering-manager/peering-manager/issues/214) Fix router tags usage in templates
+* [#251](https://github.com/peering-manager/peering-manager/issues/251) Add routing policies columns for eligible model lists
+* [#265](https://github.com/peering-manager/peering-manager/issues/265) Fix broken bulk edit of BGP sessions in a group
+* [#268](https://github.com/peering-manager/peering-manager/issues/268) Fix broken view permissions for guests when `LOGIN_REQUIRED` is not set
 
 ## Version 1.1.0 | MARK I (Features release) | 2019-12-08
 
@@ -231,18 +228,18 @@ When a contact is available for an Autonomous System a `Send E-mail` tab will be
 
 ### Enhancements
 
-  * [#191](https://github.com/peering-manager/peering-manager/issues/191) - Bulk edit, bulk delete Internet Exchange peering sessions from Autonomous System view
-  * Code testing against Python 3.8
-  * [#187](https://github.com/peering-manager/peering-manager/issues/187) - Mock external APIs, softwares and e-mails for unit tests
-  * Add configuration options `PEERINGDB_USERNAME` and `PEERINGDB_PASSWORD` for PeeringDB credentials
-  * Update Bootstreap CSS to v4.4.1
-  * Update Select2 to v4.0.12
+* [#191](https://github.com/peering-manager/peering-manager/issues/191) - Bulk edit, bulk delete Internet Exchange peering sessions fromAutonomous System view
+* Code testing against Python 3.8
+* [#187](https://github.com/peering-manager/peering-manager/issues/187) - Mock external APIs, softwares and e-mails for unit tests
+* Add configuration options `PEERINGDB_USERNAME` and `PEERINGDB_PASSWORD` for PeeringDB credentials
+* Update Bootstreap CSS to v4.4.1
+* Update Select2 to v4.0.12
 
 ### Bug Fixes
 
-  * [#185](https://github.com/peering-manager/peering-manager/issues/185) - Fix adding the same peering sessions on more than one Internet Exchange
-  * Fix version string in the user interface
+* [#185](https://github.com/peering-manager/peering-manager/issues/185) - Fix adding the same peering sessions on more than one Internet Exchange
+* Fix version string in the user interface
 
 ## Version 1.0.0 | MARK I (First release) | 2019-11-13
 
-  * First release of Peering Manager
+* First release of Peering Manager

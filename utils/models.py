@@ -112,7 +112,7 @@ class Tag(TagBase, ChangeLoggedModel):
     comments = models.TextField(blank=True, default="")
 
     def get_absolute_url(self):
-        return reverse("utils:tag_details", kwargs={"slug": self.slug})
+        return reverse("utils:tag_details", kwargs={"pk": self.pk})
 
 
 class TaggedItem(GenericTaggedItemBase):

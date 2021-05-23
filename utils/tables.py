@@ -261,7 +261,7 @@ class TagTable(BaseTable):
     pk = SelectColumn()
     name = tables.LinkColumn()
     color = ColourColumn()
-    buttons = ButtonsColumn(Tag, buttons=("edit", "delete"), pk_field="slug")
+    buttons = ButtonsColumn(Tag, buttons=("edit", "delete"))
 
     class Meta(BaseTable.Meta):
         model = Tag

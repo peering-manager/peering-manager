@@ -5,13 +5,13 @@ will fall back to built-in Django users in the event of a failure.
 
 ## Install Required Packages
 
-```
+```no-highlight
 # apt install -y python3-dev libldap2-dev libsasl2-dev libssl-dev
 ```
 
 ## Install django-auth-ldap
 
-```
+```no-highlight
 # pip3 install -r requirements_ldap.txt
 ```
 
@@ -68,6 +68,7 @@ AUTH_LDAP_USER_ATTR_MAP = {
 ```
 
 # User Groups for Permissions
+
 When using Microsoft Active Directory, Support for nested Groups can be
 activated by using `GroupOfNamesType()` instead of `NestedGroupOfNamesType()`
 for `AUTH_LDAP_GROUP_TYPE`.

@@ -2,7 +2,7 @@ import ipaddress
 import json
 
 from django.contrib.auth.models import Permission, User
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist
 from django.db.models import ManyToManyField
 from django.forms.models import model_to_dict as _model_to_dict
 from django.test import Client
@@ -234,22 +234,6 @@ class StandardTestCases(object):
                     raise Exception(
                         f"Resolving {action} URL requires specifying an instance"
                     )
-                # Attempt to resolve using slug first
-                if hasattr(self.model, "slug"):
-                    try:
-                        return reverse(
-                            url_format.format(action), kwargs={"slug": instance.slug}
-                        )
-                    except NoReverseMatch:
-                        pass
-                # Attempt to resolve using asn
-                if hasattr(self.model, "asn"):
-                    try:
-                        return reverse(
-                            url_format.format(action), kwargs={"asn": instance.asn}
-                        )
-                    except NoReverseMatch:
-                        pass
                 return reverse(url_format.format(action), kwargs={"pk": instance.pk})
             else:
                 raise Exception(f"Invalid action for URL resolution: {action}")

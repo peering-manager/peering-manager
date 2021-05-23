@@ -19,8 +19,8 @@
 {% endif %}
 {% endblock %}
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'peering:autonomoussystem_details' asn=instance.autonomous_system.asn %}">{{ instance.autonomous_system }}</a></li>
-<li class="breadcrumb-item"><a href="{% url 'peering:autonomoussystem_direct_peering_sessions' asn=instance.autonomous_system.asn %}">Direct Peering Sessions</a></li>
+<li class="breadcrumb-item"><a href="{% url 'peering:autonomoussystem_details' pk=instance.autonomous_system.pk %}">{{ instance.autonomous_system }}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'peering:autonomoussystem_direct_peering_sessions' pk=instance.autonomous_system.pk %}">Direct Peering Sessions</a></li>
 <li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
 {% endblock %}
 {% block content %}

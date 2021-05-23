@@ -2,12 +2,12 @@
 {% load helpers %}
 {% block actions %}
 {% if perms.utils.change_tag %}
-<a href="{% url 'utils:tag_edit' slug=tag.slug %}" class="btn btn-warning">
+<a href="{% url 'utils:tag_edit' pk=tag.pk %}" class="btn btn-warning">
   <i class="fas fa-edit"></i> Edit
 </a>
 {% endif %}
 {% if perms.utils.delete_tag %}
-<a href="{% url 'utils:tag_delete' slug=tag.slug %}" class="btn btn-danger">
+<a href="{% url 'utils:tag_delete' pk=tag.pk %}" class="btn btn-danger">
   <i class="fas fa-trash"></i> Delete
 </a>
 {% endif %}
