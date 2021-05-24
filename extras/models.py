@@ -219,7 +219,6 @@ class ServiceReference(models.Model):
     def original(self):
         return self.__get_reference()
     
-    @property
     def set_original(self):
         self.identifier = self.original
         self.save()
