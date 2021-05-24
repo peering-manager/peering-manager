@@ -158,7 +158,7 @@ class ASEmail(PermissionRequiredMixin, View):
     permission_required = "peering.send_email"
 
     def get(self, request, *args, **kwargs):
-        instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+        instance = get_object_or_404(AutonomousSystem, pk=kwargs["pk"])
 
         if not instance.can_receive_email:
             return redirect(instance.get_absolute_url())
@@ -172,7 +172,7 @@ class ASEmail(PermissionRequiredMixin, View):
         )
 
     def post(self, request, *args, **kwargs):
-        instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+        instance = get_object_or_404(AutonomousSystem, pk=kwargs["pk"])
 
         if not instance.can_receive_email:
             redirect(instance.get_absolute_url())
@@ -214,19 +214,14 @@ class AutonomousSystemContacts(PermissionRequiredMixin, ModelListView):
     template = "peering/autonomoussystem/contacts.html"
 
     def build_queryset(self, request, kwargs):
-        queryset = None
-        if "asn" in kwargs:
-            instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
-            queryset = instance.peeringdb_contacts
-        return queryset
+        instance = get_object_or_404(AutonomousSystem, pk=kwargs["pk"])
+        return instance.peeringdb_contacts
 
     def extra_context(self, kwargs):
-        extra_context = {"active_tab": "contacts"}
-        if "asn" in kwargs:
-            extra_context.update(
-                {"instance": get_object_or_404(AutonomousSystem, asn=kwargs["asn"])}
-            )
-        return extra_context
+        return {
+            "instance": get_object_or_404(AutonomousSystem, pk=kwargs["pk"]),
+            "active_tab": "contacts",
+        }
 
 
 class AutonomousSystemDirectPeeringSessions(PermissionRequiredMixin, ModelListView):
@@ -237,7 +232,7 @@ class AutonomousSystemDirectPeeringSessions(PermissionRequiredMixin, ModelListVi
     template = "peering/autonomoussystem/direct_peering_sessions.html"
 
     def build_queryset(self, request, kwargs):
-        instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+        instance = get_object_or_404(AutonomousSystem, pk=kwargs["pk"])
         return (
             instance.get_direct_peering_sessions()
             .prefetch_related("bgp_group")
@@ -246,7 +241,7 @@ class AutonomousSystemDirectPeeringSessions(PermissionRequiredMixin, ModelListVi
 
     def extra_context(self, kwargs):
         return {
-            "instance": get_object_or_404(AutonomousSystem, asn=kwargs["asn"]),
+            "instance": get_object_or_404(AutonomousSystem, pk=kwargs["pk"]),
             "active_tab": "directsessions",
         }
 
@@ -262,7 +257,7 @@ class AutonomousSystemInternetExchangesPeeringSessions(
     hidden_filters = ["autonomous_system__id"]
 
     def build_queryset(self, request, kwargs):
-        instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
+        instance = get_object_or_404(AutonomousSystem, pk=kwargs["pk"])
         return (
             instance.get_ixp_peering_sessions()
             .prefetch_related("ixp_connection")
@@ -273,7 +268,7 @@ class AutonomousSystemInternetExchangesPeeringSessions(
 
     def extra_context(self, kwargs):
         return {
-            "instance": get_object_or_404(AutonomousSystem, asn=kwargs["asn"]),
+            "instance": get_object_or_404(AutonomousSystem, pk=kwargs["pk"]),
             "active_tab": "ixsessions",
         }
 
@@ -292,18 +287,14 @@ class AutonomousSystemPeers(PermissionRequiredMixin, ModelListView):
         except AutonomousSystem.DoesNotExist:
             affiliated = None
 
-        if "asn" in kwargs and affiliated:
-            instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
-            queryset = instance.get_missing_peering_sessions(affiliated)
-
-        return queryset
+        instance = get_object_or_404(AutonomousSystem, pk=kwargs["pk"])
+        return instance.get_missing_peering_sessions(affiliated)
 
     def extra_context(self, kwargs):
-        extra_context = {"active_tab": "peers"}
-        if "asn" in kwargs:
-            instance = get_object_or_404(AutonomousSystem, asn=kwargs["asn"])
-            extra_context.update({"instance": instance})
-        return extra_context
+        return {
+            "instance": get_object_or_404(AutonomousSystem, pk=kwargs["pk"]),
+            "active_tab": "peers",
+        }
 
 
 class AutonomousSystemAddFromPeeringDB(
