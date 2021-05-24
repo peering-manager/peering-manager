@@ -274,19 +274,14 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
         """
         Overrides default `save()` to set the service reference if left blank.
         """
-        print(self.reference)
         super().save(*args, **kwargs)
         if not self.service_reference:
-            print("Im not service_ref")
             self.service_reference = self.generate_service_reference()
             self.reference = self.service_reference.identifier
-            print(self.reference)
 
         if not self.reference:
-            print("not self.reference")
-            self.reference = self.service_reference.set_original
+            self.reference = self.service_reference.set_original()
             super().save(*args, **kwargs)
-            print(self.reference)
 
         if self.service_reference.identifier != self.reference:
             self.service_reference.identifier = self.reference
