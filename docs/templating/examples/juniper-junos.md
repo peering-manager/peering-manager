@@ -75,7 +75,7 @@ protocols {
     {%- if group | iter_export_policies %}
             export [ {{ group | iter_export_policies('slug') | join(' ') }} ];
     {%- endif %}
-    {%- for session in sessions %}
+    {%- for session in group | sessions(family) %}
             neighbor {{ session.ip_address }} {
       {%- if not session.enabled %}
                 disable;
