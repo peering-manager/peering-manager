@@ -1,9 +1,12 @@
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 
+from extras.models import JobResult
 from peeringdb.filters import SynchronizationFilterSet
+from peeringdb.jobs import synchronize
 from peeringdb.models import (
     Facility,
     InternetExchange,
@@ -18,7 +21,7 @@ from peeringdb.models import (
     Synchronization,
 )
 from peeringdb.sync import PeeringDB
-from utils.api import ModelViewSet
+from utils.functions import get_serializer_for_model
 
 from .serializers import (
     FacilitySerializer,
@@ -59,12 +62,16 @@ class CacheViewSet(ViewSet):
             }
         )
 
-    @action(detail=False, methods=["post", "put", "patch"], url_path="update-local")
+    @action(detail=False, methods=["post"], url_path="update-local")
     def update_local(self, request):
-        api = PeeringDB()
-        synchronization = api.update_local_database(api.get_last_sync_time())
+        job_result = JobResult.enqueue_job(
+            synchronize, "peeringdb.synchronize", Synchronization, request.user
+        )
+        serializer = get_serializer_for_model(JobResult)
+
         return Response(
-            {"synchronization": SynchronizationSerializer(synchronization).data}
+            serializer(instance=job_result, context={"request": request}).data,
+            status=status.HTTP_202_ACCEPTED,
         )
 
     @action(detail=False, methods=["post"], url_path="clear-local")

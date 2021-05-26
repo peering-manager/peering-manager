@@ -19,7 +19,6 @@ from peering.models import (
     RoutingPolicy,
 )
 from peering.tests.mocked_data import load_peeringdb_data, mocked_subprocess_popen
-from peeringdb.models import Network, Organization
 from utils.testing import APITestCase, StandardAPITestCases
 
 

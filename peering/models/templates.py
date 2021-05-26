@@ -8,7 +8,7 @@ from .jinja2 import FILTER_DICT
 
 class Configuration(Template):
     def get_absolute_url(self):
-        return reverse("peering:configuration_details", kwargs={"pk": self.pk})
+        return reverse("peering:configuration_details", args=[self.pk])
 
     def render(self, variables):
         """
@@ -37,7 +37,7 @@ class Email(Template):
     subject = models.CharField(max_length=512)
 
     def get_absolute_url(self):
-        return reverse("peering:email_details", kwargs={"pk": self.pk})
+        return reverse("peering:email_details", args=[self.pk])
 
     def render(self, variables):
         """

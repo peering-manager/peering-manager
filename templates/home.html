@@ -11,127 +11,143 @@
       {% endif %}
 {% endblock %}
 {% block content %}
-      <div class="card-columns">
-        <div class="card">
-          <div class="card-header"><strong>Policy Options</strong></div>
-          <div class="list-group list-group-flush">
-            <div class="list-group-item">
-              <span class="badge badge-pill badge-secondary float-right">{{ statistics.routing_policies_count }}</span>
-              <h4 class="list-group-item-heading">
-                <a href="{% url 'peering:routingpolicy_list' %}">Routing Policies</a>
-              </h4>
-              <p class="list-group-item-textn text-muted">Routing policies used for routes filtering<p>
-            </div>
-            <div class="list-group-item">
-              <span class="badge badge-pill badge-secondary float-right">{{ statistics.communities_count }}</span>
-              <h4 class="list-group-item-heading">
-                <a href="{% url 'peering:community_list' %}">Communities</a>
-              </h4>
-              <p class="list-group-item-textn text-muted">Communities used to tag routes from or to Internet exchanges<p>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><strong>Deployment</strong></div>
-          <div class="list-group list-group-flush">
-            <div class="list-group-item">
-              <span class="badge badge-pill badge-secondary float-right">{{ statistics.configurations_count }}</span>
-              <h4 class="list-group-item-heading">
-                <a href="{% url 'peering:configuration_list' %}">Configurations</a>
-              </h4>
-              <p class="list-group-item-textn text-muted">Templates used to generate router configurations<p>
-            </div>
-            <div class="list-group-item">
-              <span class="badge badge-pill badge-secondary float-right">{{ statistics.emails_count }}</span>
-              <h4 class="list-group-item-heading">
-                <a href="{% url 'peering:email_list' %}">E-mails</a>
-              </h4>
-              <p class="list-group-item-textn text-muted">Templates used to generate e-mails<p>
-            </div>
-            <div class="list-group-item">
-              <span class="badge badge-pill badge-secondary float-right">{{ statistics.routers_count }}</span>
-              <h4 class="list-group-item-heading">
-                <a href="{% url 'peering:router_list' %}">Routers</a>
-              </h4>
-              <p class="list-group-item-textn text-muted">Network devices connected to Internet exchanges, generated configuration can be applied to these devices if they are running on a supported platform<p>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+            <h4 class="card-header">Peering Data</h4>
+            <div class="list-group list-group-flush">
+              <div class="list-group-item">
+                <h1 class="display-4 float-right">{{ statistics.autonomous_systems_count }}</h1>
+                <h5 class="list-group-item-heading">
+                  <a href="{% url 'peering:autonomoussystem_list' %}">Autonomous Systems</a>
+                </h5>
+                <p class="list-group-item-textn text-muted">Networks to peer with</p>
+              </div>
+              <div class="list-group-item">
+                <h1 class="display-4 float-right">{{ statistics.bgp_groups_count }}</h1>
+                <h5 class="list-group-item-heading">
+                  <a href="{% url 'peering:bgpgroup_list' %}">BGP Groups</a>
+                </h5>
+                <p class="list-group-item-textn text-muted">Groups of BGP sessions</p>
+              </div>
+              <div class="list-group-item">
+                <h1 class="display-4 float-right">{{ statistics.internet_exchanges_count }}</h1>
+                <h5 class="list-group-item-heading">
+                  <a href="{% url 'peering:internetexchange_list' %}">Internet Exchange Points</a>
+                </h5>
+                <p class="list-group-item-textn text-muted">Infrastructures allowing peering</p>
+              </div>
+              <div class="list-group-item">
+                <h1 class="display-4 float-right">{{ statistics.direct_peering_sessions_count }}</h1>
+                <h5 class="list-group-item-heading">
+                  <a href="{% url 'peering:directpeeringsession_list' %}">Direct Peering Sessions</a>
+                </h5>
+                <p class="list-group-item-textn text-muted">BGP sessions for transit, PNIs, etc.</p>
+              </div>
+              <div class="list-group-item">
+                <h1 class="display-4 float-right">{{ statistics.internet_exchange_peering_sessions_count }}</h1>
+                <h5 class="list-group-item-heading">
+                  <a href="{% url 'peering:internetexchangepeeringsession_list' %}">IXP Peering Sessions</a>
+                </h5>
+                <p class="list-group-item-textn text-muted">BGP sessions setup over IXPs</p>
+              </div>
             </div>
           </div>
         </div>
-        <div class="card">
-          <div class="card-header"><strong>Peering Data</strong></div>
-          <div class="list-group list-group-flush">
-            <div class="list-group-item">
-              <span class="badge badge-pill badge-secondary float-right">{{ statistics.autonomous_systems_count }}</span>
-              <h4 class="list-group-item-heading">
-                <a href="{% url 'peering:autonomoussystem_list' %}">Autonomous Systems</a>
-              </h4>
-              <p class="list-group-item-textn text-muted">Autonomous systems peering with the local AS<p>
-            </div>
-            <div class="list-group-item">
-              <span class="badge badge-pill badge-secondary float-right">{{ statistics.bgp_groups_count }}</span>
-              <h4 class="list-group-item-heading">
-                <a href="{% url 'peering:bgpgroup_list' %}">BGP Groups</a>
-              </h4>
-              <p class="list-group-item-textn text-muted">Groups of BGP sessions<p>
-            </div>
-            <div class="list-group-item">
-              <span class="badge badge-pill badge-secondary float-right">{{ statistics.internet_exchanges_count }}</span>
-              <h4 class="list-group-item-heading">
-                <a href="{% url 'peering:internetexchange_list' %}">Internet Exchanges</a>
-              </h4>
-              <p class="list-group-item-textn text-muted">Internet exchanges that local AS is connected to<p>
-            </div>
-            <div class="list-group-item">
-              <h4 class="list-group-item-heading">Peering Sessions</h4>
-              <span class="badge badge-pill badge-secondary float-right">{{ statistics.direct_peering_sessions_count }}</span>
-              <p style="padding-left: 20px;"><a href="{% url 'peering:directpeeringsession_list' %}">Direct</a></p>
-              <span class="badge badge-pill badge-secondary float-right">{{ statistics.internet_exchange_peering_sessions_count }}</span>
-              <p style="padding-left: 20px;"><a href="{% url 'peering:internetexchangepeeringsession_list' %}">Internet Exchange</a></p>
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+            <h4 class="card-header">Deployment</h4>
+            <div class="list-group list-group-flush">
+              <div class="list-group-item">
+                <h1 class="display-4 float-right">{{ statistics.configurations_count }}</h1>
+                <h5 class="list-group-item-heading">
+                  <a href="{% url 'peering:configuration_list' %}">Configurations</a>
+                </h5>
+                <p class="list-group-item-textn text-muted">Templates to build router configurations</p>
+              </div>
+              <div class="list-group-item">
+                <h1 class="display-4 float-right">{{ statistics.emails_count }}</h1>
+                <h5 class="list-group-item-heading">
+                  <a href="{% url 'peering:email_list' %}">E-mails</a>
+                </h5>
+                <p class="list-group-item-textn text-muted">Templates to build e-mails</p>
+              </div>
+              <div class="list-group-item">
+                <h1 class="display-4 float-right">{{ statistics.routers_count }}</h1>
+                <h5 class="list-group-item-heading">
+                  <a href="{% url 'peering:router_list' %}">Routers</a>
+                </h5>
+                <p class="list-group-item-textn text-muted">Network devices running BGP</p>
+              </div>
             </div>
           </div>
         </div>
-        <div class="card">
-          <div class="card-header">
-            <strong>Changelog</strong>
-            <a class="float-right" href="{% url 'utils:objectchange_list' %}" title="View full changelog"><i class="fas fa-bars"></i></a>
-          </div>
-          <div class="list-group list-group-flush fixed-size-list-group">
-            {% for change in changelog %}
-            <div class="list-group-item">
-              {{ change.get_html_icon }}
-              {{ change.changed_object_type.name | title_with_uppers }}
-              {% if change.changed_object.get_absolute_url %}
-                <a href="{{ change.changed_object.get_absolute_url }}">{{ change.changed_object }}</a>
-              {% else %}
-                {{ change.changed_object | default:change.object_repr }}
-              {% endif %}
-              <br />
-              <small>
-                <span class="text-muted">{{ change.user | default:change.user_name }} -</span>
-                <a href="{{ change.get_absolute_url }}" class="text-muted">{{ change.time | date:'SHORT_DATETIME_FORMAT' }}</a>
-              </small>
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+            <h4 class="card-header">Policy Options</h4>
+            <div class="list-group list-group-flush">
+              <div class="list-group-item">
+                <h1 class="display-4 float-right">{{ statistics.routing_policies_count }}</h1>
+                <h5 class="list-group-item-heading">
+                  <a href="{% url 'peering:routingpolicy_list' %}">Routing Policies</a>
+                </h5>
+                <p class="list-group-item-textn text-muted">Policies filtering adverised/received routes</p>
+              </div>
+              <div class="list-group-item">
+                <h1 class="display-4 float-right">{{ statistics.communities_count }}</h1>
+                <h5 class="list-group-item-heading">
+                  <a href="{% url 'peering:community_list' %}">Communities</a>
+                </h5>
+                <p class="list-group-item-textn text-muted">Tags for traffic engineering</p>
+              </div>
             </div>
-            {% empty %}
-            <div class="list-group-item">
-              <span class="text-muted">No changes found</span>
-            </div>
-            {% endfor %}
           </div>
         </div>
-        {% if synchronizations %}
-        <div class="card">
-          <div class="card-header">
-            <strong>PeeringDB Synchronizations</strong>
-          </div>
-          <div class="list-group list-group-flush fixed-size-list-group">
-            {% for synchronization in synchronizations %}
-            <div class="list-group-item">
-              <i class="fa fa-sync"></i> Added {{ synchronization.created }}, updated {{ synchronization.updated }} and deleted {{ synchronization.deleted }} objects<br />
-              <small class="text-muted">{{ synchronization.time|date:'SHORT_DATETIME_FORMAT' }}</small>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-        {% endif %}
       </div>
+      {% if changelog and perms.utils.view_objectchange %}
+      <div class="row flex-grow-1">
+        <div class="col">
+          <div class="card">
+            <h4 class="card-header">Changelog</h4>
+            <table class="card-body table align-middle table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">User</th>
+                  <th scope="col">Action</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Object</th>
+                  <th scope="col">Time</th>
+                  <th scope="col" align="right"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for change in changelog %}
+                <tr class="table-{% get_status change.get_action_display %}">
+                  <th scope="row">{{ change.user | default:change.user_name }}</th>
+                  <td>{{ change.get_action_display | title_with_uppers }}</td>
+                  <td>{{ change.changed_object_type.name | title_with_uppers }}</td>
+                  <td>
+                    {% if change.changed_object.get_absolute_url %}
+                    <a href="{{ change.changed_object.get_absolute_url }}" class="text-body">{{ change.changed_object }}</a>
+                    {% else %}
+                    {{ change.changed_object | default:change.object_repr }}
+                    {% endif %}
+                  </td>
+                  <td>{{ change.time | date:settings.SHORT_DATETIME_FORMAT }}</td>
+                  <td>
+                    <a role="button" class="text-body" href="{{ change.get_absolute_url }}">
+                      <i class="fas fa-ellipsis-h" data-toggle="tooltip" data-placement="left" title="View Change Details"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+{% endblock %}
+{% block javascript %}
+<script>$(function() { $('[data-toggle="tooltip"]').tooltip(); });</script>
 {% endblock %}

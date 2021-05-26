@@ -18,6 +18,8 @@ from .enums import (
     Ratio,
     Region,
     Scope,
+    ServiceLevels,
+    Terms,
     Traffic,
     Visibility,
 )
@@ -197,6 +199,15 @@ class InternetExchange(models.Model):
     policy_phone = models.CharField(max_length=192, blank=True)
     ixf_net_count = models.IntegerField(default=0)
     ixf_last_import = models.DateTimeField(null=True, blank=True)
+    service_level = models.CharField(
+        max_length=60,
+        blank=True,
+        choices=ServiceLevels.choices,
+        default=ServiceLevels.NOT_DISCLOSED,
+    )
+    terms = models.CharField(
+        max_length=60, blank=True, choices=Terms.choices, default=Terms.NOT_DISCLOSED
+    )
     org = models.ForeignKey(
         Organization,
         related_name="ix_set",

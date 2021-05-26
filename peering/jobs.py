@@ -2,10 +2,8 @@ import logging
 
 from django_rq import job
 
-from extras.enums import JobResultStatus, LogLevel
+from extras.enums import LogLevel
 from net.models import Connection
-
-from .enums import DeviceState
 
 logger = logging.getLogger("peering.manager.peering.jobs")
 

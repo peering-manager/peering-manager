@@ -1,12 +1,9 @@
-from unittest.mock import patch
-
 from django.urls import reverse
 from django.utils import timezone
+from rest_framework import status
 
 from peeringdb.models import Synchronization
 from utils.testing import APITestCase
-
-from .test_sync import mocked_synchronization
 
 
 class CacheTest(APITestCase):
@@ -25,12 +22,10 @@ class CacheTest(APITestCase):
         self.assertEqual(response.data["org-count"], 0)
         self.assertEqual(response.data["sync-count"], 0)
 
-    @patch("peeringdb.sync.requests.get", side_effect=mocked_synchronization)
-    def test_update_local(self, *_):
+    def test_update_local(self):
         url = reverse("peeringdb-api:cache-update-local")
         response = self.client.post(url, **self.header)
-        self.assertIsNotNone(response.data["synchronization"])
-        self.assertEqual(16, response.data["synchronization"]["created"])
+        self.assertStatus(response, status.HTTP_202_ACCEPTED)
 
     def test_clear_local(self):
         url = reverse("peeringdb-api:cache-clear-local")
@@ -48,9 +43,9 @@ class SynchronizationTest(APITestCase):
             )
 
     def test_get_synchronization(self):
-        url = reverse("peeringdb-api:synchronization-detail", kwargs={"pk": 10})
+        url = reverse("peeringdb-api:synchronization-detail", kwargs={"pk": 1})
         response = self.client.get(url, **self.header)
-        self.assertEqual(response.data["created"], 9)
+        self.assertEqual(response.data["created"], 1)
 
     def test_list_synchronizations(self):
         url = reverse("peeringdb-api:synchronization-list")

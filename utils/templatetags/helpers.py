@@ -19,6 +19,19 @@ def boolean_as_icon(value):
     return mark_safe(html)
 
 
+@register.simple_tag
+def get_status(text):
+    text = text.lower()
+
+    if text in ("delete", "deleted", "remove", "removed"):
+        return "danger"
+    if text in ("change", "changed", "update", "updated"):
+        return "warning"
+    if text in ("add", "added", "create", "created"):
+        return "success"
+    return "info"
+
+
 @register.filter()
 def as_link(value):
     if not hasattr(value, "get_absolute_url"):

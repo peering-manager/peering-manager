@@ -63,6 +63,14 @@ class Region(models.TextChoices):
     MIDDLE_EAST = "Middle East"
 
 
+class ServiceLevels(models.TextChoices):
+    NOT_DISCLOSED = "", "Not Disclosed"
+    NOT_DISCLOSED_BIS = "Not Disclosed"
+    BEST_EFFORT = "Best Effort (no SLA)"
+    NORMAL_BUSINESS_HOURS = "Normal Business Hours"
+    SUPPORT_24_7 = "24/7 Support"
+
+
 class Scope(models.TextChoices):
     NOT_DISCLOSED = "", "Not Disclosed"
     NOT_DISCLOSED_BIS = "Not Disclosed"
@@ -75,6 +83,15 @@ class Scope(models.TextChoices):
     AUSTRALIA = "Australia"
     MIDDLE_EAST = "Middle East"
     GLOBAL = "Global"
+
+
+class Terms(models.TextChoices):
+    NOT_DISCLOSED = "", "Not Disclosed"
+    NOT_DISCLOSED_BIS = "Not Disclosed"
+    NO_COMMERCIAL_TERMS = "No Commercial Terms"
+    BUNDLED_WITH_OTHER_SERVICES = "Bundled With Other Services"
+    NON_RECURRING_FEES_ONLY = "Non-recurring Fees Only"
+    RECURRING_FEES = "Recurring Fees"
 
 
 class Traffic(models.TextChoices):

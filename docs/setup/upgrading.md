@@ -4,7 +4,7 @@ As with the initial installation, you can upgrade Peering Manager by pulling
 the latest changes from the Git repository.
 
 Assuming that Peering Manager is installed at `/opt/peering-manager`. Pull down
-the most recent changes of the master branch with:
+the most recent changes of the main branch with:
 
 ```no-highlight
 # cd /opt/peering-manager

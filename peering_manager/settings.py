@@ -10,7 +10,7 @@ import socket
 from pathlib import Path
 
 from django.contrib.messages import constants as messages
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

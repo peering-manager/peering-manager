@@ -112,17 +112,17 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
         return self.import_routing_policies.all()
 
     def get_absolute_url(self):
-        return reverse("peering:autonomoussystem_details", kwargs={"pk": self.pk})
+        return reverse("peering:autonomoussystem_details", args=[self.pk])
 
     def get_internet_exchange_peering_sessions_list_url(self):
         return reverse(
             "peering:autonomoussystem_internet_exchange_peering_sessions",
-            kwargs={"pk": self.pk},
+            args=[self.pk],
         )
 
     def get_direct_peering_sessions_list_url(self):
         return reverse(
-            "peering:autonomoussystem_direct_peering_sessions", kwargs={"pk": self.pk}
+            "peering:autonomoussystem_direct_peering_sessions", args=[self.pk]
         )
 
     def get_direct_peering_sessions(self):
@@ -344,10 +344,10 @@ class BGPGroup(AbstractGroup):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("peering:bgpgroup_details", kwargs={"pk": self.pk})
+        return reverse("peering:bgpgroup_details", args=[self.pk])
 
     def get_peering_sessions_list_url(self):
-        return reverse("peering:bgpgroup_peering_sessions", kwargs={"pk": self.pk})
+        return reverse("peering:bgpgroup_peering_sessions", args=[self.pk])
 
     def get_peering_sessions(self):
         return DirectPeeringSession.objects.filter(bgp_group=self)
@@ -449,7 +449,7 @@ class Community(ChangeLoggedModel, TaggableModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("peering:community_details", kwargs={"pk": self.pk})
+        return reverse("peering:community_details", args=[self.pk])
 
     def get_type_html(self):
         if self.type == CommunityType.EGRESS:
@@ -506,7 +506,7 @@ class DirectPeeringSession(BGPSession):
         return f"{self.get_relationship_display()} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
 
     def get_absolute_url(self):
-        return reverse("peering:directpeeringsession_details", kwargs={"pk": self.pk})
+        return reverse("peering:directpeeringsession_details", args=[self.pk])
 
     def poll(self):
         # Check if we are able to get BGP details
@@ -590,15 +590,13 @@ class InternetExchange(AbstractGroup):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("peering:internetexchange_details", kwargs={"pk": self.pk})
+        return reverse("peering:internetexchange_details", args=[self.pk])
 
     def get_peering_sessions_list_url(self):
-        return reverse(
-            "peering:internetexchange_peering_sessions", kwargs={"pk": self.pk}
-        )
+        return reverse("peering:internetexchange_peering_sessions", args=[self.pk])
 
     def get_peer_list_url(self):
-        return reverse("peering:internet_exchange_peers", kwargs={"pk": self.pk})
+        return reverse("peering:internet_exchange_peers", args=[self.pk])
 
     def merged_export_policies(self, reverse=False):
         # Get own policies
@@ -889,9 +887,7 @@ class InternetExchangePeeringSession(BGPSession):
         return f"{self.ixp_connection.internet_exchange_point.name} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
 
     def get_absolute_url(self):
-        return reverse(
-            "peering:internetexchangepeeringsession_details", kwargs={"pk": self.pk}
-        )
+        return reverse("peering:internetexchangepeeringsession_details", args=[self.pk])
 
     def poll(self):
         # Check if we are able to get BGP details
@@ -1018,10 +1014,10 @@ class Router(ChangeLoggedModel, TaggableModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("peering:router_details", kwargs={"pk": self.pk})
+        return reverse("peering:router_details", args=[self.pk])
 
     def get_direct_peering_sessions_list_url(self):
-        return reverse("peering:router_direct_peering_sessions", kwargs={"pk": self.pk})
+        return reverse("peering:router_direct_peering_sessions", args=[self.pk])
 
     def is_netbox_device(self):
         return self.netbox_device_id != 0
@@ -1614,7 +1610,7 @@ class RoutingPolicy(ChangeLoggedModel, TaggableModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("peering:routingpolicy_details", kwargs={"pk": self.pk})
+        return reverse("peering:routingpolicy_details", args=[self.pk])
 
     def get_type_html(self, display_name=False):
         if self.type == RoutingPolicyType.EXPORT:

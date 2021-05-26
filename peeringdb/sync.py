@@ -1,5 +1,4 @@
 import logging
-from decimal import Decimal
 
 import requests
 from django.conf import settings
