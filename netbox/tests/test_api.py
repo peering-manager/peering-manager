@@ -22,7 +22,7 @@ class NetBoxTestCase(TestCase):
         devices = self.netbox.get_devices()
 
         self.assertEqual(2, len(devices))
-        
+
         dev = iter(devices)
         self.assertEqual("router01.example.net", next(dev).name)
         self.assertEqual("router02.example.net", next(dev).name)
