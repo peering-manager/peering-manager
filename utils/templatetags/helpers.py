@@ -195,3 +195,11 @@ def missing_sessions(context, autonomous_system):
         if autonomous_system.get_missing_peering_sessions(context["context_as"], i):
             return True
     return False
+
+
+@register.filter
+def doc_version(version):
+    if "-dev" in version:
+        return "latest"
+    else:
+        return version

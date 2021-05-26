@@ -55,7 +55,7 @@ class TemplateField(TextareaField):
         label = kwargs.pop("label", "Template")
         super().__init__(
             label=label,
-            help_text='<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/templates/" target="_blank">Jinja2 template</a> syntax is supported',
+            help_text='<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/templating/" target="_blank">Jinja2 template</a> syntax is supported',
             *args,
             **kwargs,
         )
@@ -400,7 +400,7 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
 
 class EmailForm(BootstrapMixin, forms.ModelForm):
     subject = forms.CharField(
-        help_text='<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/templates/" target="_blank">Jinja2 template</a> syntax is supported'
+        help_text='<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/templating/" target="_blank">Jinja2 template</a> syntax is supported'
     )
     template = TemplateField(label="Body")
     comments = CommentField()
