@@ -1,15 +1,16 @@
+# PostgreSQL
+
 Peering Manager requires a PostgreSQL (>= 9.6) database to store data. This can be
 hosted locally or on a remote server. Please note that Peering Manager does not
 support any other database backends as it uses some specific features of
 PostgreSQL.
 
-# Installation
+## Installation
 
-=== "Debian"
+=== "Debian 10"
 	```no-highlight
 	# apt-get update
 	# apt-get install -y postgresql libpq-dev
-	# systemctl enable postgresql-9.6 --now
 	```
 
 === "CentOS 7"
@@ -39,7 +40,7 @@ PostgreSQL.
 	for more information.
 
 
-# Database Creation
+## Database Creation
 
 At a minimum, we need to create a database for Peering Manager and assign it a
 username and password for authentication.
@@ -58,6 +59,12 @@ GRANT
 postgres=# \q
 ```
 
+!!! attention
+	When creating the database on Debian fails with the message
+	`ERROR:  invalid locale name: "en_US.UTF-8"`, you are missing the locale.
+	Run `dpkg-reconfigure locales` and select `en_US.UTF-8` to generate it.
+	Then restart the database server by running `systemctl restart postgresql.service`.
+
 You can test that authentication works with the following command. (Replace
 `localhost` with your database server if using a remote database.)
 
@@ -67,7 +74,7 @@ You can test that authentication works with the following command. (Replace
 
 If successful, you will enter a `peering_manager` prompt. Type `\q` to exit.
 
-# Migrating encoding to UTF-8
+## Migrating encoding to UTF-8
 
 If your database was created with regular another encoding than UTF-8, you will
 need to migrate it. To convert the database you'll need to drop it and

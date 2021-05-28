@@ -1,3 +1,5 @@
+# Redis
+
 [Redis](https://redis.io/) is an in-memory key-value store used by Peering
 Manager for caching and queuing.
 
@@ -7,9 +9,9 @@ servce. If you already have a Redis service in place, you can skip this step.
 Redis version 4.0+ is required so you may wish to check that your distribution
 can provide a compatible version.
 
-# Installation
+## Installation
 
-=== "Debian"
+=== "Debian 10"
 	```no-highlight
 	# apt-get install redis-server
 	```
@@ -31,7 +33,7 @@ sufficient.
 
 Then enable the redis service by running `systemctl enable redis.service --now`.
 
-# Verify Service Status
+## Verify Service Status
 
 Use the `redis-cli` utility to ensure the Redis service is operational:
 

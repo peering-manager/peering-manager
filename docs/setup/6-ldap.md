@@ -5,7 +5,7 @@ will fall back to built-in Django users in the event of a failure.
 
 ## Install Required Packages
 
-=== "Debian"
+=== "Debian 10"
 	```
 	# apt install -y python3-dev libldap2-dev libsasl2-dev libssl-dev
 	```

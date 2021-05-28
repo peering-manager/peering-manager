@@ -2,7 +2,7 @@
 
 ## Installation
 
-=== "Debian"
+=== "Debian 10"
 	```no-highlight
 	# apt install apache2
 	# a2enmod headers
@@ -10,7 +10,7 @@
 	# a2enmod proxy_http
 	```
 
-=== "CentOS"
+=== "CentOS 7 & 8"
 	```no-highlight
 	# yum install httpd
 	```
@@ -52,13 +52,13 @@ The content of the file can be something like this.
 
 Remove the default virtual host and enable the new one.
 
-=== "Debian"
+=== "Debian 10"
 	```no-highlight
 	# a2dissite 000-default.conf
 	# a2ensite peering-manager.conf
 	```
 
-=== "CentOS"
+=== "CentOS 7 & 8"
 	```no-highlight
 	# rm /etc/httpd/conf.d/welcome.conf
 	```

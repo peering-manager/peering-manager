@@ -7,12 +7,12 @@ We will use Git to get the code, and Python to run it.
 Peering Manager is mostly tested with Python version 3 so we will setup the
 machine with this version.
 
-=== "Debian"
+=== "Debian 10"
 	```no-highlight
-	# apt install python3 python3-dev python3-setuputils python3-pip git vim
+	# apt install python3 python3-dev python3-venv python3-pip git vim
 	```
 
-=== "CentOS"
+=== "CentOS 7 & 8"
 	```no-highlight
 	# yum install python3 git
 	```
@@ -83,7 +83,7 @@ and HTTP services to run under this account.
 
 ```no-highlight
 # groupadd --system peering-manager
-# adduser --system --gid peering-manager peering-manager
+# useradd --system --gid peering-manager peering-manager
 # chown --recursive peering-manager /opt/peering-manager
 ```
 
