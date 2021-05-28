@@ -10,12 +10,10 @@ will fall back to built-in Django users in the event of a failure.
 	# apt install -y python3-dev libldap2-dev libsasl2-dev libssl-dev
 	```
 
-=== "CentOS 7"
+=== "CentOS 7 & 8"
 	```
-	# yum install python3-devel openldap-devel
+	# yum install python3-devel openldap-devel gcc
 	```
-
-=== "CentOS 8"
 
 ## Install django-auth-ldap
 
