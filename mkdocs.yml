@@ -21,7 +21,7 @@ markdown_extensions:
 
 nav:
     - Introduction: "index.md"
-    - Setup:
+    - Manual installation:
         - 1. PostgreSQL: "setup/1-postgresql.md"
         - 2. Redis: "setup/2-redis.md"
         - 3. Peering Manager: "setup/3-peering-manager.md"
@@ -34,6 +34,8 @@ nav:
         - 8. Prometheus (Optional): "setup/8-prometheus.md"
         - Upgrading: "setup/upgrading.md"
         - Migrate to systemd: "setup/migrate-to-systemd.md"
+    - Container Installation: "container.md"
+    - Ansible Installation: "ansible.md"
     - Configuration:
         - Configuring: "configuration/index.md"
         - Required Settings: "configuration/required-settings.md"

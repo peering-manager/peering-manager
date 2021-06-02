@@ -1,5 +1,4 @@
 # PostgreSQL
-
 Peering Manager requires a PostgreSQL (>= 9.6) database to store data. This can be
 hosted locally or on a remote server. Please note that Peering Manager does not
 support any other database backends as it uses some specific features of
