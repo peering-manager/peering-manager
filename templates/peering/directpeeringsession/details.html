@@ -6,10 +6,12 @@
     <div class="card mb-2">
       <div class="card-header"><strong>Peering Session Details</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
+        {% if instance.service_reference %}
         <tr>
           <td>Service ID</td>
           <td>{{ instance.service_reference }}</td>
         </tr>
+        {% endif %}
         <tr>
           <td>Relationship</td>
           <td>{{ instance.get_relationship_display }}</td>

@@ -189,6 +189,7 @@ class DirectPeeringSessionTestCase(StandardTestCases.Filters):
         DirectPeeringSession.objects.bulk_create(
             [
                 DirectPeeringSession(
+                    service_reference="TRANSIT-0001",
                     local_autonomous_system=cls.local_as,
                     autonomous_system=cls.a_s,
                     ip_address="192.0.2.1",
@@ -211,6 +212,10 @@ class DirectPeeringSessionTestCase(StandardTestCases.Filters):
                 ),
             ]
         )
+
+    def test_q(self):
+        params = {"q": "TRANSIT-0001"}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
     def test_address_family(self):
         params = {"address_family": 4}
@@ -335,6 +340,7 @@ class InternetExchangePeeringSessionTestCase(StandardTestCases.Filters):
         InternetExchangePeeringSession.objects.bulk_create(
             [
                 InternetExchangePeeringSession(
+                    service_reference="IXP-0001",
                     autonomous_system=cls.a_s,
                     ixp_connection=cls.ixp_connection,
                     ip_address="192.0.2.1",
@@ -354,6 +360,10 @@ class InternetExchangePeeringSessionTestCase(StandardTestCases.Filters):
                 ),
             ]
         )
+
+    def test_q(self):
+        params = {"q": "IXP-0001"}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
 
     def test_address_family(self):
         params = {"address_family": 4}

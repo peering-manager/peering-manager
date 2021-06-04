@@ -52,6 +52,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
     Abstract class used to define common caracteristics of BGP sessions.
 
     A BGP session is always defined with the following fields:
+      * a unique service reference, blank or user defined
       * an autonomous system, it can also be called a peer
       * an IP address used to establish the session
       * a plain text password
@@ -69,6 +70,13 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
       * comments that consist of plain text that can use the markdown format
     """
 
+    service_reference = models.CharField(
+        max_length=255,
+        unique=True,
+        blank=True,
+        null=True,
+        help_text="Optional internal service reference",
+    )
     autonomous_system = models.ForeignKey("AutonomousSystem", on_delete=models.CASCADE)
     ip_address = InetAddressField(store_prefix_length=False, verbose_name="IP address")
     password = models.CharField(max_length=255, blank=True, null=True)
@@ -89,14 +97,6 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
     bgp_state = models.CharField(
         max_length=50, choices=BGPState.choices, blank=True, null=True
     )
-    service_reference = models.CharField(
-        max_length=255,
-        unique=True,
-        blank=True,
-        null=True,
-        default=None,
-        help_text="Optional internal service reference (auto-generated if left blank)",
-    )
     received_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     advertised_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     last_established_state = models.DateTimeField(blank=True, null=True)
@@ -107,10 +107,13 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
 
     class Meta:
         abstract = True
-        ordering = ["autonomous_system", "ip_address"]
+        ordering = ["service_reference", "autonomous_system", "ip_address"]
 
     def __str__(self):
-        return self.service_reference
+        return (
+            self.service_reference
+            or f"AS{self.autonomous_system.asn} - {self.ip_address}"
+        )
 
     @property
     def ip_address_version(self):
@@ -234,39 +237,6 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
         if commit:
             self.save()
         return True
-
-    def generate_service_reference(self):
-        """
-        Generates a unique service reference for a session from local ASN with 6 digit
-        hex UUID.
-
-        Examples:
-          * I9268-FD130FS/I<local_asn>-<hex>S
-          * D9268-4CD335S/D<local_asn>-<hex>S
-        """
-        local_as = None
-        prefix = ""
-
-        # Find out ASN and prefix for the service ID based on the type of session
-        if hasattr(self, "ixp_connection"):
-            local_as = (
-                self.ixp_connection.internet_exchange_point.local_autonomous_system
-            )
-            prefix = "I"
-        else:
-            local_as = self.local_autonomous_system
-            prefix = "D"
-
-        return f"{prefix}{local_as.asn}-{uuid.uuid4().hex[:6].upper()}S"
-
-    def save(self, *args, **kwargs):
-        """
-        Overrides default `save()` to set the service reference if left blank.
-        """
-        if not self.service_reference:
-            self.service_reference = self.generate_service_reference()
-
-        return super().save(*args, **kwargs)
 
 
 class Template(ChangeLoggedModel, TaggableModel):
