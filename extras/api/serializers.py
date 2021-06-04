@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from extras.models import JobResult
+from extras.models import JobResult, ServiceReference
 from users.api.nested_serializers import UserNestedSerializer
 from utils.api.fields import ContentTypeField
 
@@ -26,4 +26,19 @@ class JobResultSerializer(serializers.ModelSerializer):
             "data",
             "job_id",
             "output",
+        ]
+
+
+class ServiceReferenceSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name="extras-api:servicereference-detail")
+    owner_type = ContentTypeField(read_only=True)
+
+    class Meta:
+        model = ServiceReference
+        fields = [
+            "id",
+            "url",
+            "identifier",
+            "owner_id",
+            "owner_type"
         ]
