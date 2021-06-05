@@ -36,7 +36,10 @@ class AutonomousSystemTest(TestCase):
             }
         )
         test.fields["recipient"].choices = [("test@example.net", "My Email")]
-        test.fields["cc"].choices = [("test@example.com", "Contact #1"), ("null@example.org", "Contact #2")]
+        test.fields["cc"].choices = [
+            ("test@example.com", "Contact #1"),
+            ("null@example.org", "Contact #2"),
+        ]
         self.assertTrue(test.is_valid())
 
 
