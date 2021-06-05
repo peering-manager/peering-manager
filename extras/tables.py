@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.conf import settings
 
 from utils.tables import BaseTable, SelectColumn
 
@@ -8,7 +9,7 @@ from .models import JobResult
 class JobResultTable(BaseTable):
     pk = SelectColumn()
     obj_type = tables.Column(verbose_name="Object Type", accessor="obj_type__name")
-    created = tables.DateTimeColumn(linkify=True)
+    created = tables.DateTimeColumn(linkify=True, format=settings.SHORT_DATETIME_FORMAT)
     status = tables.TemplateColumn(
         """
         {% if record.status == 'failed' %}
