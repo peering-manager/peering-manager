@@ -29,12 +29,14 @@ class AutonomousSystemTest(TestCase):
         test = AutonomousSystemEmailForm(
             data={
                 "email": email.pk,
-                "recipient": "test@example.net",
+                "recipient": ["test@example.net"],
+                "cc": ["test@example.com", "null@example.org"],
                 "subject": "Hello",
                 "body": "World",
             }
         )
-        test.fields["recipient"].choices = [("test@example.net", "Hello")]
+        test.fields["recipient"].choices = [("test@example.net", "My Email")]
+        test.fields["cc"].choices = [("test@example.com", "Contact #1"), ("null@example.org", "Contact #2")]
         self.assertTrue(test.is_valid())
 
 
