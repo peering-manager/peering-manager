@@ -315,7 +315,30 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
                         else contact.email,
                     )
                 )
+        return addresses
 
+    def get_cc_email_contacts(self):
+        """
+        Returns a list of user defined CC contacts from settings
+        """
+        addresses = []
+
+        # Extract user defined addresses
+        for email in settings.EMAIL_CC_CONTACTS:
+            if isinstance(email, tuple):
+                addresses.append(
+                    (
+                        email[0],
+                        f"{email[1]} - {email[0]}" if len(email) > 1 else email[0],
+                    )
+                )
+            else:
+                addresses.append(
+                    (
+                        email,
+                        email,
+                    )
+                )
         return addresses
 
     def get_email_context(self):
