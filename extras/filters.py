@@ -4,8 +4,8 @@ from django.db.models import Q
 
 from utils.filters import BaseFilterSet, ContentTypeFilter
 
-from .enums import JobResultStatus
-from .models import JobResult
+from .enums import HttpMethod, JobResultStatus
+from .models import JobResult, Webhook
 
 
 class JobResultFilterSet(BaseFilterSet):
@@ -40,3 +40,23 @@ class JobResultFilterSet(BaseFilterSet):
         return queryset.filter(
             Q(name__icontains=value) | Q(user__username__icontains=value)
         )
+
+
+class WebhookFilterSet(BaseFilterSet):
+    http_method = django_filters.MultipleChoiceFilter(choices=HttpMethod.choices)
+
+    class Meta:
+        model = Webhook
+        fields = [
+            "id",
+            "name",
+            "type_create",
+            "type_update",
+            "type_delete",
+            "enabled",
+            "http_method",
+            "http_content_type",
+            "secret",
+            "ssl_verification",
+            "ca_file_path",
+        ]

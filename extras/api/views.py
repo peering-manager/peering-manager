@@ -1,8 +1,8 @@
-from extras.filters import JobResultFilterSet
-from extras.models import JobResult
-from utils.api import ReadOnlyModelViewSet, StaticChoicesViewSet
+from extras.filters import JobResultFilterSet, WebhookFilterSet
+from extras.models import JobResult, Webhook
+from utils.api import ModelViewSet, ReadOnlyModelViewSet, StaticChoicesViewSet
 
-from .serializers import JobResultSerializer
+from .serializers import JobResultSerializer, WebhookSerializer
 
 
 class ExtrasFieldChoicesViewSet(StaticChoicesViewSet):
@@ -13,3 +13,9 @@ class JobResultViewSet(ReadOnlyModelViewSet):
     queryset = JobResult.objects.all()
     serializer_class = JobResultSerializer
     filterset_class = JobResultFilterSet
+
+
+class WebhookViewSet(ModelViewSet):
+    queryset = Webhook.objects.all()
+    serializer_class = WebhookSerializer
+    filterset_class = WebhookFilterSet
