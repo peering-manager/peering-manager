@@ -6,7 +6,6 @@
 
 
 import platform
-import socket
 from pathlib import Path
 
 from django.contrib.messages import constants as messages
@@ -18,81 +17,12 @@ HOSTNAME = platform.node()
 BASE_DIR = Path(__file__).resolve().parent.parent
 DOCS_DIR = BASE_DIR / "docs"
 
-VERSION = "v1.3.3-dev"
+VERSION = "v1.4.0-dev"
 
 if platform.python_version_tuple() < ("3", "6"):
     raise RuntimeError(
         f"Peering Manager requires Python 3.6 or higher (current: Python {platform.python_version()})"
     )
-
-DEFAULT_LOGGING = {
-    "version": 1,
-    "formatters": {
-        "simple": {
-            "format": "%(asctime)s | %(levelname)s | %(message)s",
-            "datefmt": "%Y-%m-%d %H:%M:%S",
-        }
-    },
-    "handlers": {
-        "console": {"class": "logging.StreamHandler", "formatter": "simple"},
-        "file": {
-            "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "logs/peering-manager.log",
-            "when": "midnight",
-            "interval": 1,
-            "backupCount": 5,
-            "formatter": "simple",
-        },
-        "napalm_file": {
-            "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "logs/napalm.log",
-            "when": "midnight",
-            "interval": 1,
-            "backupCount": 5,
-            "formatter": "simple",
-        },
-        "netbox_file": {
-            "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "logs/netbox.log",
-            "when": "midnight",
-            "interval": 1,
-            "backupCount": 5,
-            "formatter": "simple",
-        },
-        "peeringdb_file": {
-            "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "logs/peeringdb.log",
-            "when": "midnight",
-            "interval": 1,
-            "backupCount": 5,
-            "formatter": "simple",
-        },
-        "releases_file": {
-            "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "logs/releases.log",
-            "when": "midnight",
-            "interval": 1,
-            "backupCount": 5,
-            "formatter": "simple",
-        },
-        "webhooks_file": {
-            "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "logs/webhooks.log",
-            "when": "midnight",
-            "interval": 1,
-            "backupCount": 5,
-            "formatter": "simple",
-        },
-    },
-    "loggers": {
-        "peering.manager.napalm": {"handlers": ["napalm_file"], "level": "DEBUG"},
-        "peering.manager.netbox": {"handlers": ["netbox_file"], "level": "DEBUG"},
-        "peering.manager.peering": {"handlers": ["file"], "level": "DEBUG"},
-        "peering.manager.peeringdb": {"handlers": ["peeringdb_file"], "level": "DEBUG"},
-        "peering.manager.releases": {"handlers": ["releases_file"], "level": "DEBUG"},
-        "peering.manager.webhooks": {"handlers": ["webhooks_file"], "level": "DEBUG"},
-    },
-}
 
 try:
     from peering_manager import configuration
@@ -122,7 +52,7 @@ BASE_PATH = getattr(configuration, "BASE_PATH", "")
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip("/") + "/"  # Enforce trailing slash only
 DEBUG = getattr(configuration, "DEBUG", False)
-LOGGING = getattr(configuration, "LOGGING", DEFAULT_LOGGING)
+LOGGING = getattr(configuration, "LOGGING", {})
 REDIS = getattr(configuration, "REDIS", {})
 CACHE_TIMEOUT = getattr(configuration, "CACHE_TIMEOUT", 0)
 CHANGELOG_RETENTION = getattr(configuration, "CHANGELOG_RETENTION", 90)
@@ -351,6 +281,7 @@ CACHEOPS = {
     "auth.*": {"ops": ("fetch", "get")},
     "auth.permission": {"ops": "all"},
     "devices.*": {"ops": "all"},
+    "net.*": {"ops": "all"},
     "peering.*": {"ops": "all"},
     "peeringdb.*": {"ops": "all"},
     "users.*": {"ops": "all"},
