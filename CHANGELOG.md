@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 1.4.1 | MARK I (Bug fixes release) | 2021-06-11
+
+### Enhancements
+
+* Flush PeeringDB cache data more aggressively when using `--flush` flag
+* Set PeeringDB synchronisation job timeout to one hour
+* Automatically link IXPs and connections to PeeringDB after a successful synchonisation
+
+### Bug fixes
+
+* Redirect user with an error message if "Add selected" is clicked without any selection
+* Fix HTML code injection on IXP import
+
 ## Version 1.4.0 | MARK I (Features release) | 2021-06-09
 
 This release is the first one with @jamesditrapani as one of the maintainers of Peering Manager.
