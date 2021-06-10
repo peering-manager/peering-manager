@@ -57,7 +57,7 @@ For each instance the following settings must be defined:
 * `HOST` - Name or IP address of the Redis server (use `localhost` if running locally)
 * `PORT` - TCP port of the Redis service; leave blank for default port (6379)
 * `PASSWORD` - Redis password (if set)
-* `CACHE_DATABASE` - Numeric database ID for caching
+* `DATABASE` - Numeric database ID
 * `DEFAULT_TIMEOUT` - Connection timeout in seconds
 * `SSL` - Use SSL connection to Redis
 
@@ -69,7 +69,7 @@ REDIS = {
         'HOST': 'localhost',
         'PORT': 6379,
         'PASSWORD': '',
-        'CACHE_DATABASE': 0,
+        'DATABASE': 0,
         'DEFAULT_TIMEOUT': 300,
         'SSL': False,
     },
@@ -77,7 +77,7 @@ REDIS = {
         'HOST': 'localhost',
         'PORT': 6379,
         'PASSWORD': '',
-        'CACHE_DATABASE': 1,
+        'DATABASE': 1,
         'DEFAULT_TIMEOUT': 300,
         'SSL': False,
     }
