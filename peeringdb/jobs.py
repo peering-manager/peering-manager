@@ -1,5 +1,4 @@
 import logging
-from socket import timeout
 
 from django_rq import job
 
