@@ -4,17 +4,23 @@ example is provided below.
 
 # Available Loggers
 
-Loggers are points where logs are send to for latter processing. The following
+Loggers are points where logs are sent for latter processing. The following
 loggers are provided:
 
-* `peering.manager.peering`: used to log Peering Manager actions
-* `peering.manager.peeringdb`: used to log actions related to PeeringDB
-* `peering.manager.napalm`: used to log actions done by NAPALM
-* `peering.manager.netbox`: used to log actions related to NetBox
+* `peering.manager.devices`: logging internal models and views
+* `peering.manager.extras`: logging webhooks and other
+* `peering.manager.napalm`: logging actions done by NAPALM
+* `peering.manager.net`: logging internal models and views
+* `peering.manager.netbox`: logging actions related to NetBox
+* `peering.manager.peering`: logging internal models and views
+* `peering.manager.peeringdb`: logging actions related to PeeringDB
+* `peering.manager.releases`: logging new release monitoring
 
 To adjust the logging configuration to your needs, you probably want to read
-[Django's documentation](https://docs.djangoproject.com/en/2.1/topics/logging/)
-about it. Apply any required `LOGGING` modifications to
+[Django's documentation](https://docs.djangoproject.com/en/stable/topics/logging/)
+about it. Have a look at
+[Python logging dictionary schema](https://docs.python.org/3/library/logging.config.html#logging-config-dictschema)
+as well. Apply any required `LOGGING` modifications to
 `peering_manager/configuration.py`.
 
 # Example
@@ -22,6 +28,10 @@ about it. Apply any required `LOGGING` modifications to
 This example will format logs using the `simple` formatter defined below and
 will separate logs in files depending of the loggers. Each file will contain a
 day of logs, 5 days will be kept.
+
+With this configuration, logs about releases will be displayed in the console
+while logs about PeeringDB will be stored in the
+`/opt/peering-manager/logs/peeringdb.log` file.
 
 ```no-highlight
 LOGGING = {
@@ -34,33 +44,9 @@ LOGGING = {
     },
     "handlers": {
         "console": {"class": "logging.StreamHandler", "formatter": "simple"},
-        "file": {
-            "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "logs/peering-manager.log",
-            "when": "midnight",
-            "interval": 1,
-            "backupCount": 5,
-            "formatter": "simple",
-        },
         "peeringdb_file": {
             "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "logs/peeringdb.log",
-            "when": "midnight",
-            "interval": 1,
-            "backupCount": 5,
-            "formatter": "simple",
-        },
-        "napalm_file": {
-            "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "logs/napalm.log",
-            "when": "midnight",
-            "interval": 1,
-            "backupCount": 5,
-            "formatter": "simple",
-        },
-        "netbox_file": {
-            "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "logs/netbox.log",
+            "filename": "/opt/peering-manager/logs/peeringdb.log",
             "when": "midnight",
             "interval": 1,
             "backupCount": 5,
@@ -68,10 +54,8 @@ LOGGING = {
         },
     },
     "loggers": {
-        "peering.manager.peering": {"handlers": ["file"], "level": "DEBUG"},
         "peering.manager.peeringdb": {"handlers": ["peeringdb_file"], "level": "DEBUG"},
-        "peering.manager.napalm": {"handlers": ["napalm_file"], "level": "DEBUG"},
-        "peering.manager.netbox": {"handlers": ["netbox_file"], "level": "DEBUG"},
+        "peering.manager.releases": {"handlers": ["console"], "level": "DEBUG"},
     },
 }
 ```

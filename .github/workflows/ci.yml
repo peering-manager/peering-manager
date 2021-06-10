@@ -89,4 +89,3 @@ jobs:
         env:
           TOXENV: ${{ matrix.toxenv }}
           GITHUB_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-

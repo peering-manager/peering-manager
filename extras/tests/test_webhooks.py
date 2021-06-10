@@ -8,11 +8,11 @@ from django.urls import reverse
 from requests import Session
 from rest_framework import status
 
+from extras.models import Webhook
+from extras.workers import enqueue_webhooks, generate_signature, process_webhook
 from peering.models import AutonomousSystem
 from utils.enums import ObjectChangeAction
 from utils.testing import APITestCase
-from webhooks.models import Webhook
-from webhooks.workers import enqueue_webhooks, generate_signature, process_webhook
 
 
 class WebhookTest(APITestCase):

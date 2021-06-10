@@ -1,5 +1,76 @@
 # Changelog
 
+## Version 1.4.0 | MARK I (Features release) | 2021-06-09
+
+This release is the first one with @jamesditrapani as one of the maintainers of Peering Manager.
+
+Big thanks [DE-CIX](http://www.de-cix.net) and [Virtual Technologies and Solutions](https://www.vts.bf/) for sponsoring this release.
+
+### New Features
+
+#### `or` logic for API filters ([#293](https://github.com/peering-manager/peering-manager/issues/293))
+
+Several values can be used with a filter to look for more than one objects of the same type. Queries such as `?asn=64500&asn=64501` will return 2 objects matching either one or the other condition. To perform such lookup we generate new filter fields accepting multiple values while still maintaining the original field validation method to keep filtering single values.
+
+#### State field to routers ([#291](https://github.com/peering-manager/peering-manager/issues/291))
+
+A router can now be set in different states to avoid deploying configurations on it. While being enabled a router will continue to receive config updates as usual. In maintenance, configurations can also be installed but a confirmation will be asked. When disabled, no configurations will be sent to the router.
+
+#### Platforms ([#347](https://github.com/peering-manager/peering-manager/issues/347))
+
+A platform is a model used to define network operating systems. A router can have a platform set, allowing Peering Manager to interact with it, as long as a NAPALM driver is available. New platforms can be created by users, which can use community-driven NAPALM drivers. Users are not limited to default platforms anymore. Existing routers and platforms will be migrated on upgrade.
+
+#### Background tasks and results
+
+Code that take a long time to run as always been problematic inside Peering Manager. Moreover a lot of this kind of code is required to provide new features and better control over current operations.
+
+A new job results view is provided to ensure that a task is queued and to also hold info about the task itself, such as its status, logs, ID in the Redis queue, … Several jobs have been moved as background tasks to improve performances and workflows.
+
+* Router configuration rendering
+* Installation of configurations on devices
+* BGP sessions import from router
+* Poll of session states
+* PeeringDB cache filling
+
+Be aware that API endpoints corresponding to these tasks now returns a serialized job result to help your keep track of the tasks asynchronously.
+
+#### Connections ([246](https://github.com/peering-manager/peering-manager/issues/246))
+
+A Connection is an object that connect a local autonomous system to an Internet exchange point. It holds details about router, IP addresses and connectivity to the IXP itself. As a consequence an Internet exchange object no longer holds these properties. It is now used as a way to group connections thus allowing multiple connections to the same IXP without having to duplicate objects.
+
+During the upgrade, connections will be created and affected to IXPs automatically. To avoid messing with user's data, all IXPs will be kept, one (and only one) connection will be created for each IXP. Users can then decide to link a connection to another IXP object, eventually leading to the removal of the duplicate IXPs.
+
+#### Jinja2 filters([#356](https://github.com/peering-manager/peering-manager/issues/356))
+
+New Jinja2 filters are available to help writing templates (configurations and e-mails). These filters come with a lot of refactoring templates and their associated variables. Be sure to review the documentation before upgrading in order adjust existing templates.
+
+### Enhancements
+
+* Remove affiliated autonomous system warning for non-authenticated users
+* Validate TTL minimum and maximum values
+* [#281](https://github.com/peering-manager/peering-manager/issues/281) Use RADB as default IRR for `bgpq3` lookup
+* Use `q` filter field for characters/strings based filtering (affecting API)
+* [#233](https://github.com/peering-manager/peering-manager/issues/233) Add help text to slug fields warning users about editing them
+* Use ISO8601 format for date and time by default
+* Add `LOGIN_BANNER` setting to show a banner on the login page
+* [#64](https://github.com/peering-manager/peering-manager/issues/64) Add a provisionning view listing all potential sessions on all IXPs
+* Use database 64-bit IDs
+* [#377](https://github.com/peering-manager/peering-manager/issues/377) Allow filtering on AS Name and Peering Policy
+* [#367](https://github.com/peering-manager/peering-manager/issues/367) Add unique service reference fields to BGP sessions (empty by default)
+* [#407](https://github.com/peering-manager/peering-manager/issues/407) Add `PEERINGDB_API_KEY` setting to authenticate with PeeringDB, username and password authentication will be dropped in version 2.0.0.
+* [#287](https://github.com/peering-manager/peering-manager/issues/287) Add configuration context field (JSON format) to routers and routing policies (by @ggidofalvy-tc)
+* [#426](https://github.com/peering-manager/peering-manager/issues/426) Use IDs for URL routing everywhere dropping slugs and ASN, you may need to change links to Peering Manager in your other tools
+* Remove default logging configuration, users must now setup the logging configuration following Django and Python documentation
+
+### Bug Fixes
+
+* [#388](https://github.com/peering-manager/peering-manager/issues/388) Remove raw configuration output (not compatible with asynchronous job)
+* Fix prefix fetching to log a warning on exceptions, to avoid crash and attempt to fill in all the ASNs, to ignore errors with `--ignore-errors` flag (by @mngan)
+* [#372](https://github.com/peering-manager/peering-manager/issues/372) Add `--limit` flag to `configure_routers` command
+* [#195](https://github.com/peering-manager/peering-manager/issues/195) Add missing documentation around PeeringDB
+* Remove legacy clear BGP session API call as it was not used by most users
+* Use correct documentation link, with versioning (by @Paktosan)
+
 ## Version 1.3.2 | MARK I (Bug fixes release) | 2021-01-20
 
 ### Enhancements
@@ -224,6 +295,7 @@ Leveraging the new `Email` object, the `subject` field has been added to allow u
 
 Autonomous System contacts can be synchronized from PeeringDB to use them as recipients for e-mails. Some PeeringDB contacts are hidden and cannot be synchronized if the `PEERINGDB_USERNAME` and `PEERINGDB_PASSWORD` are not set in the configuration. For all contacts to be synchronized, clearing the cache then re-synchronizing with PeeringDB is required.
 
+[//]: # (The links in the next line are broken.)
 When a contact is available for an Autonomous System a `Send E-mail` tab will be available from the AS view. An e-mail template has to be selected along with a contact to send the e-mail to. E-mail templates can be written following [this section](https://peering-manager.readthedocs.io/en/latest/templates/#e-mail) of the documentation. An example is also [available](https://peering-manager.readthedocs.io/en/latest/templates/peering-request-email/).
 
 ### Enhancements

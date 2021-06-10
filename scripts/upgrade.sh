@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 echo "▶️  $0 $*"
 
@@ -15,7 +15,7 @@ if [ "${1}" == "--help" ] || [ "${1}" == "-h" ]; then
   exit 0
 fi
 
-cd $(dirname $(dirname $(realpath $0)))
+cd "$(dirname "$(dirname "$(realpath "$0")")")"
 VIRTUALENV="$(pwd -P)/venv"
 
 # Enabling dry-run mode
@@ -29,14 +29,14 @@ fi
 # Check for a venv and remove it if it exists
 if [ -d "$VIRTUALENV" ]; then
   echo "📦 Removing old virtual environment..."
-  $DRY rm -rf $VIRTUALENV
+  $DRY rm -rf "$VIRTUALENV"
 else
   WARN_MISSING_VENV=1
 fi
 
 # Create a new venv
 echo "📦 Creating a new virtual environment at ${VIRTUALENV}"
-$DRY /usr/bin/python3 -m venv $VIRTUALENV || {
+$DRY /usr/bin/python3 -m venv "$VIRTUALENV" || {
   echo "--------------------------------------------------------------------"
   echo "🚨 Failed to create the virtual environment."
   echo "Check that you have the required system packages installed and the"

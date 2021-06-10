@@ -8,7 +8,7 @@ from django.utils import timezone
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 from prometheus_client import Counter
 
-from webhooks.workers import enqueue_webhooks
+from extras.workers import enqueue_webhooks
 
 from .enums import ObjectChangeAction
 from .models import ObjectChange

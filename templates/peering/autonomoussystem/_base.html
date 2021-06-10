@@ -61,7 +61,7 @@
     </a>
   </li>
   <li class="nav-item">
-    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Last updated: {{ instance.updated }}</a>
+    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Last updated: {{ instance.updated | date_span }}</a>
   </li>
 </ul>
 {% block subcontent %}{% endblock %}

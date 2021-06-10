@@ -12,7 +12,7 @@
       <div class="card-header">
         <strong>PeeringDB Cache</strong>
         {% if last_sync_time is not 0 %}
-        <small class="text-muted float-right">Last updated: {{ last_sync_time }}</small>
+        <small class="text-muted float-right">Last updated: {{ last_sync_time | date_span }}</small>
         {% endif %}
       </div>
       <ul class="list-group list-group-flush">

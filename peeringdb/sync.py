@@ -4,6 +4,7 @@ import requests
 from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import transaction
+from django.db.utils import DEFAULT_DB_ALIAS
 from django.utils import timezone
 
 from utils.enums import ObjectChangeAction
@@ -36,13 +37,13 @@ NAMESPACES = {
     "poc": NetworkContact,
 }
 
+logger = logging.getLogger("peering.manager.peeringdb")
+
 
 class PeeringDB(object):
     """
     Class used to interact with the PeeringDB API.
     """
-
-    logger = logging.getLogger("peering.manager.peeringdb")
 
     def lookup(self, namespace, search):
         """
@@ -62,13 +63,13 @@ class PeeringDB(object):
             q["headers"] = {"AUTHORIZATION": f"Api-Key {settings.PEERINGDB_API_KEY}"}
         # To be removed in v2.0
         elif settings.PEERINGDB_USERNAME:
-            self.logger.warning(
-                "PeeringDB authentication with username/password is deprecatedand will be removed in v2.0. Please use an API key instead."
+            logger.warning(
+                "PeeringDB authentication with username/password is deprecated and will be removed in v2.0. Please use an API key instead."
             )
             q["auth"] = (settings.PEERINGDB_USERNAME, settings.PEERINGDB_PASSWORD)
 
         # Make the request
-        self.logger.debug("calling api: %s | %s", api_url, search)
+        logger.debug(f"calling api: {api_url} | {search}")
         response = requests.get(api_url, **q)
 
         return response.json() if response.status_code == 200 else None
@@ -93,9 +94,7 @@ class PeeringDB(object):
             last_sync = Synchronization(**values)
             last_sync.save()
 
-            self.logger.debug(
-                f"synchronized {changes_number} objects at {last_sync.time}"
-            )
+            logger.debug(f"synchronized {changes_number} objects at {last_sync.time}")
 
         return last_sync
 
@@ -157,7 +156,7 @@ class PeeringDB(object):
 
             setattr(obj, name, value)
         except FieldDoesNotExist:
-            self.logger.error(
+            logger.error(
                 f"field: {name} not in model: {model._meta.verbose_name.lower()}"
             )
 
@@ -177,7 +176,7 @@ class PeeringDB(object):
 
             # Object marked as deleted so remove it locally too
             if action == ObjectChangeAction.DELETE:
-                self.logger.debug(
+                logger.debug(
                     f"deleted {model._meta.verbose_name.lower()} #{local_object.pk} from local database"
                 )
                 local_object.delete()
@@ -232,7 +231,7 @@ class PeeringDB(object):
                     local_object.full_clean()
                     local_object.save()
             except ValidationError as e:
-                self.logger.error(
+                logger.error(
                     f"error validating id: {local_object.id} for model: {model._meta.verbose_name.lower()}\n{e}"
                 )
                 continue
@@ -240,12 +239,12 @@ class PeeringDB(object):
             # Update counters
             if action == ObjectChangeAction.CREATE:
                 created += 1
-                self.logger.debug(
+                logger.debug(
                     f"created {model._meta.verbose_name.lower()} #{local_object.pk} from peeringdb"
                 )
             elif action == ObjectChangeAction.UPDATE:
                 updated += 1
-                self.logger.debug(
+                logger.debug(
                     f"updated {model._meta.verbose_name.lower()} #{local_object.pk} from peeringdb"
                 )
             else:
@@ -284,6 +283,7 @@ class PeeringDB(object):
         Deletes all data related to the local database. This can be used to get a
         fresh start.
         """
-        for model in NAMESPACES.values():
-            model.objects.all().delete()
-        Synchronization.objects.all().delete()
+        # The use of reversed is important to avoid fk issues
+        for model in reversed(list(NAMESPACES.values())):
+            model.objects.all()._raw_delete(using=DEFAULT_DB_ALIAS)
+        Synchronization.objects.all()._raw_delete(using=DEFAULT_DB_ALIAS)

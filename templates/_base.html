@@ -149,7 +149,7 @@
             <p>{% now 'Y-m-d H:i:s T' %}</p>
             <p>
               <i class="fas fa-fw fa-cloud"></i> <a href="{% url 'api-root' %}">API</a> &middot;
-              <i class="fas fa-fw fa-book"></i> <a href="http://peering-manager.readthedocs.io/">Docs</a> &middot;
+              <i class="fas fa-fw fa-book"></i> <a href="http://peering-manager.readthedocs.io/en/{{ settings.VERSION | doc_version }}">Docs</a> &middot;
               <i class="fab fa-fw fa-github"></i> <a href="https://github.com/peering-manager/peering-manager">GitHub</a>
             </p>
         </div>

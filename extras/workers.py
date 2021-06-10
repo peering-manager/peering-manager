@@ -10,7 +10,7 @@ from utils.models import ObjectChange
 
 from .models import Webhook
 
-logger = logging.getLogger("peering.manager.webhooks")
+logger = logging.getLogger("peering.manager.extras")
 
 
 @job("default")

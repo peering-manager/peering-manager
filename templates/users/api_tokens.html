@@ -23,12 +23,12 @@
       <div class="card-body">
         <div class="row">
           <div class="col-4">
-            <span title="{{ token.created }}">{{ token.created|date }}</span><br />
+            {{ token.created | date_span }}<br />
             <small class="text-muted">Created</small>
           </div>
           <div class="col-4">
             {% if token.expires %}
-            <span title="{{ token.expires }}">{{ token.expires|date }}</span><br />
+            {{ token.expires | date_span }}<br />
             {% else %}
             <span>Never</span><br />
             {% endif %}

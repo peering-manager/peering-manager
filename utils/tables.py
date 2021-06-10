@@ -1,13 +1,10 @@
 import django_tables2 as tables
+from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models import ForeignKey
 from django.utils.safestring import mark_safe
 
 from .models import ObjectChange, Tag
-
-OBJECT_CHANGE_TIME = """
-<a href="{{ record.get_absolute_url }}">{{ value | date:"SHORT_DATETIME_FORMAT" }}</a>
-"""
 
 OBJECT_CHANGE_ACTION = """
 {% if record.action == 1 %}
@@ -198,7 +195,7 @@ class ColourColumn(tables.Column):
 
 
 class ObjectChangeTable(BaseTable):
-    time = tables.TemplateColumn(template_code=OBJECT_CHANGE_TIME)
+    time = tables.DateTimeColumn(linkify=True, format=settings.SHORT_DATETIME_FORMAT)
     action = tables.TemplateColumn(template_code=OBJECT_CHANGE_ACTION)
     changed_object_type = tables.Column(verbose_name="Type")
     object_repr = tables.TemplateColumn(

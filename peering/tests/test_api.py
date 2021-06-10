@@ -268,6 +268,7 @@ class DirectPeeringSessionTest(StandardAPITestCases.View):
         )
         cls.create_data = [
             {
+                "service_reference": "PNI-0001",
                 "local_autonomous_system": local_autonomous_system.pk,
                 "autonomous_system": autonomous_system.pk,
                 "relationship": BGPRelationship.PRIVATE_PEERING,
@@ -458,6 +459,7 @@ class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
         )
         cls.create_data = [
             {
+                "service_reference": "IXP-0001",
                 "autonomous_system": autonomous_system.pk,
                 "ixp_connection": ixp_connection.pk,
                 "ip_address": "198.51.100.1",

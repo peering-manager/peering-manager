@@ -226,6 +226,10 @@ class BulkAddFromDependencyView(ReturnURLMixin, View):
         ):
             self.return_url = posted_return_url
 
+        if not request.POST.getlist("pk"):
+            messages.error(request, "No objects selected.")
+            return redirect(self.get_return_url(request))
+
         # Prepare the form
         if not self.custom_formset:
             ObjectFormSet = formset_factory(self.form_model, extra=0)

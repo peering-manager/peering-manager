@@ -9,7 +9,8 @@ from .sync import PeeringDB
 logger = logging.getLogger("peering.manager.peeringdb.jobs")
 
 
-@job("default")
+# One hour timeout as this process can take long depending on the host properties
+@job("default", timeout=3600)
 def synchronize(job_result):
     job_result.mark_running("Synchronising PeeringDB local data.", logger=logger)
 

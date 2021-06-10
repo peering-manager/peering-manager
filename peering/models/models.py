@@ -772,8 +772,8 @@ class InternetExchange(AbstractGroup):
 
         def is_valid(ip_address):
             for p in allowed_prefixes:
-                if p.version == ip_address.version:
-                    if ip_address in p:
+                if p.prefix.version == ip_address.version:
+                    if ip_address in p.prefix:
                         return True
             return False
 
@@ -795,6 +795,7 @@ class InternetExchange(AbstractGroup):
                 self.logger.debug(
                     f"ixp session {str(ip)} with as{remote_asn} already exists"
                 )
+                continue
             except InternetExchangePeeringSession.DoesNotExist:
                 self.logger.debug(
                     f"ixp session {str(ip)} with as{remote_asn} does not exist"

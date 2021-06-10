@@ -1,8 +1,10 @@
+import datetime
 import re
 from json import dumps as json_dumps
 
 from django import template
 from django.conf import settings
+from django.template.defaultfilters import date
 from django.utils.html import escape, strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown as md
@@ -173,6 +175,28 @@ def get_docs(model):
     return mark_safe(markdown(content))
 
 
+@register.filter(expects_localtime=True)
+def date_span(date_value):
+    """
+    Returns the date in a HTML span formatted as short date with a long date format as
+    the title.
+    """
+    if not date_value:
+        return ""
+
+    if type(date_value) is str:
+        date_value = datetime.datetime.strptime(date_value, "%Y-%m-%d").date()
+
+    if type(date_value) is datetime.date:
+        long = date(date_value, settings.DATE_FORMAT)
+        short = date(date_value, settings.SHORT_DATE_FORMAT)
+    else:
+        long = date(date_value, settings.DATETIME_FORMAT)
+        short = date(date_value, settings.SHORT_DATETIME_FORMAT)
+
+    return mark_safe(f'<span title="{long}">{short}</span>')
+
+
 @register.filter()
 def speed_for_human(speed):
     """
@@ -195,3 +219,11 @@ def missing_sessions(context, autonomous_system):
         if autonomous_system.get_missing_peering_sessions(context["context_as"], i):
             return True
     return False
+
+
+@register.filter
+def doc_version(version):
+    if "-dev" in version:
+        return "latest"
+    else:
+        return version

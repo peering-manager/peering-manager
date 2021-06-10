@@ -152,7 +152,8 @@ class DirectPeeringSessionFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
         if not value.strip():
             return queryset
         qs_filter = (
-            Q(autonomous_system__name__icontains=value)
+            Q(service_reference__icontains=value)
+            | Q(autonomous_system__name__icontains=value)
             | Q(bgp_group__name__icontains=value)
             | Q(bgp_group__slug__icontains=value)
             | Q(router__name__icontains=value)
@@ -269,11 +270,12 @@ class InternetExchangePeeringSessionFilterSet(BaseFilterSet, CreatedUpdatedFilte
         if not value.strip():
             return queryset
         qs_filter = (
-            Q(autonomous_system__name__icontains=value)
-            | Q(internet_exchange__name__icontains=value)
-            | Q(internet_exchange__slug__icontains=value)
-            | Q(internet_exchange__router__name__icontains=value)
-            | Q(internet_exchange__router__hostname__icontains=value)
+            Q(service_reference__icontains=value)
+            | Q(autonomous_system__name__icontains=value)
+            | Q(ixp_connection__router__name__icontains=value)
+            | Q(ixp_connection__router__hostname__icontains=value)
+            | Q(ixp_connection__internet_exchange_point__name__icontains=value)
+            | Q(ixp_connection__internet_exchange_point__slug__icontains=value)
         )
         try:
             ip = ipaddress.ip_interface(value.strip())

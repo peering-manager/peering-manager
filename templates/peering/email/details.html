@@ -12,7 +12,7 @@
         </tr>
         <tr>
           <td>Last update</td>
-          <td>{{ instance.updated }}</td>
+          <td>{{ instance.updated | date_span }}</td>
         </tr>
       </table>
     </div>
@@ -21,7 +21,7 @@
       <pre class="pre-scrollable">{{ instance.subject }}</pre>
       <div class="card-footer">
         <i class="fa fa-info-circle"></i>
-        <a href="https://peering-manager.readthedocs.io/en/latest/templates/" target="_blank">Jinja2 template</a> syntax
+        <a href="https://peering-manager.readthedocs.io/en/{{ settings.VERSION | doc_version }}/templating/" target="_blank">Jinja2 template</a> syntax
       </div>
     </div>
   </div>
@@ -46,7 +46,7 @@
       <pre class="pre-scrollable">{{ instance.template }}</pre>
       <div class="card-footer">
         <i class="fa fa-info-circle"></i>
-        <a href="https://peering-manager.readthedocs.io/en/latest/templates/" target="_blank">Jinja2 template</a> syntax
+        <a href="https://peering-manager.readthedocs.io/en/{{ settings.VERSION | doc_version }}/templating/" target="_blank">Jinja2 template</a> syntax
       </div>
     </div>
   </div>
