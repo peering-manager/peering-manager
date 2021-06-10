@@ -284,6 +284,6 @@ class PeeringDB(object):
         fresh start.
         """
         # The use of reversed is important to avoid fk issues
-        for model in reversed(NAMESPACES.values()):
+        for model in reversed(list(NAMESPACES.values())):
             model.objects.all()._raw_delete(using=DEFAULT_DB_ALIAS)
         Synchronization.objects.all()._raw_delete(using=DEFAULT_DB_ALIAS)
