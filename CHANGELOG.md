@@ -6,7 +6,7 @@
 
 * Flush PeeringDB cache data more aggressively when using `--flush` flag
 * Set PeeringDB synchronisation job timeout to one hour
-* Automatically link IXPs and connections to PeeringDB after a successful synchonisation
+* Automatically link IXPs and connections to PeeringDB after a successful synchronisation
 
 ### Bug fixes
 
