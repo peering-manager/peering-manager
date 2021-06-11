@@ -644,12 +644,23 @@ class InternetExchange(AbstractGroup):
 
         return IXLanPrefix.objects.filter(ixlan=self.peeringdb_ixlan)
 
+    def get_connections(self):
+        """
+        Returns all connections to this IXP.
+        """
+        return Connection.objects.filter(internet_exchange_point=self)
+
+    def get_routers(self):
+        return Router.objects.filter(
+            pk__in=self.get_connections().values_list("router", flat=True)
+        )
+
     def get_peering_sessions(self):
         """
         Returns all peering sessions setup over this IXP.
         """
         return InternetExchangePeeringSession.objects.filter(
-            ixp_connection__in=Connection.objects.filter(internet_exchange_point=self)
+            ixp_connection__in=self.get_connections()
         )
 
     def get_autonomous_systems(self):
@@ -657,11 +668,9 @@ class InternetExchange(AbstractGroup):
         Returns all autonomous systems with setup peering sessions over this IXP.
         """
         return AutonomousSystem.objects.filter(
-            pk__in=InternetExchangePeeringSession.objects.filter(
-                ixp_connection__in=Connection.objects.filter(
-                    internet_exchange_point=self
-                )
-            ).values_list("autonomous_system", flat=True)
+            pk__in=self.get_peering_sessions().values_list(
+                "autonomous_system", flat=True
+            )
         )
 
     def get_available_peers(self):
@@ -693,10 +702,13 @@ class InternetExchange(AbstractGroup):
 
     @transaction.atomic
     def poll_peering_sessions(self):
+        # Get connected routers to this IXP
+        connected_routers = self.get_routers()
+
         # Check if we are able to get BGP details
         log = 'ignoring session states on {}, reason: "{}"'
-        if not self.router or not self.router.platform:
-            log = log.format(self.name.lower(), "no usable router attached")
+        if connected_routers.count() < 0:
+            log = log.format(self.name.lower(), "no routers connected")
         elif not self.check_bgp_session_states:
             log = log.format(self.name.lower(), "check disabled")
         else:
@@ -707,55 +719,65 @@ class InternetExchange(AbstractGroup):
             self.logger.debug(log)
             return False
 
-        # Get all BGP sessions detail
-        bgp_neighbors_detail = self.router.get_bgp_neighbors_detail()
+        # Get connected routers to this IXP
+        connected_routers = Router.object.filter(
+            pk__in=self.get_connections()
+            .filter(router__isnull=False)
+            .values_list("router", flat=True)
+        )
 
-        # An error occured, probably
-        if not bgp_neighbors_detail:
-            return False
+        for router in connected_routers:
+            # Get all BGP sessions detail
+            bgp_neighbors_detail = router.get_bgp_neighbors_detail()
 
-        for vrf, as_details in bgp_neighbors_detail.items():
-            for asn, sessions in as_details.items():
-                # Check BGP sessions found
-                for session in sessions:
-                    ip_address = session["remote_address"]
-                    self.logger.debug(
-                        f"looking for session {ip_address} in {self.name.lower()}"
-                    )
+            # An error occured, probably
+            if not bgp_neighbors_detail:
+                return False
 
-                    # Check if the BGP session is on this IX
-                    try:
-                        peering_session = InternetExchangePeeringSession.objects.get(
-                            internet_exchange=self, ip_address=ip_address
-                        )
-                        # Get the BGP state for the session
-                        state = session["connection_state"].lower()
-                        received = session["received_prefix_count"]
-                        advertised = session["advertised_prefix_count"]
+            for _, as_details in bgp_neighbors_detail.items():
+                for _, sessions in as_details.items():
+                    # Check BGP sessions found
+                    for session in sessions:
+                        ip_address = session["remote_address"]
                         self.logger.debug(
-                            f"found session {ip_address} in {self.name.lower()} with state {state}"
+                            f"looking for session {ip_address} in {self.name.lower()}"
                         )
 
-                        # Update fields
-                        peering_session.bgp_state = state
-                        peering_session.received_prefix_count = (
-                            received if received > 0 else 0
-                        )
-                        peering_session.advertised_prefix_count = (
-                            advertised if advertised > 0 else 0
-                        )
-                        # Update the BGP state of the session
-                        if peering_session.bgp_state == BGPState.ESTABLISHED:
-                            peering_session.last_established_state = timezone.now()
-                        peering_session.save()
-                    except InternetExchangePeeringSession.DoesNotExist:
-                        self.logger.debug(
-                            f"session {ip_address} in {self.name.lower()} not found"
-                        )
+                        # Check if the BGP session is on this IX
+                        try:
+                            peering_session = (
+                                InternetExchangePeeringSession.objects.get(
+                                    internet_exchange=self, ip_address=ip_address
+                                )
+                            )
+                            # Get the BGP state for the session
+                            state = session["connection_state"].lower()
+                            received = session["received_prefix_count"]
+                            advertised = session["advertised_prefix_count"]
+                            self.logger.debug(
+                                f"found session {ip_address} in {self.name.lower()} with state {state}"
+                            )
 
-            # Save last session states update
-            self.bgp_session_states_update = timezone.now()
-            self.save()
+                            # Update fields
+                            peering_session.bgp_state = state
+                            peering_session.received_prefix_count = (
+                                received if received > 0 else 0
+                            )
+                            peering_session.advertised_prefix_count = (
+                                advertised if advertised > 0 else 0
+                            )
+                            # Update the BGP state of the session
+                            if peering_session.bgp_state == BGPState.ESTABLISHED:
+                                peering_session.last_established_state = timezone.now()
+                            peering_session.save()
+                        except InternetExchangePeeringSession.DoesNotExist:
+                            self.logger.debug(
+                                f"session {ip_address} in {self.name.lower()} not found"
+                            )
+
+                # Save last session states update
+                self.bgp_session_states_update = timezone.now()
+                self.save()
 
         return True
 
