@@ -719,13 +719,6 @@ class InternetExchange(AbstractGroup):
             self.logger.debug(log)
             return False
 
-        # Get connected routers to this IXP
-        connected_routers = Router.object.filter(
-            pk__in=self.get_connections()
-            .filter(router__isnull=False)
-            .values_list("router", flat=True)
-        )
-
         for router in connected_routers:
             # Get all BGP sessions detail
             bgp_neighbors_detail = router.get_bgp_neighbors_detail()
