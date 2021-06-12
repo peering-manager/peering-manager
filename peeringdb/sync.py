@@ -7,6 +7,8 @@ from django.db import transaction
 from django.db.utils import DEFAULT_DB_ALIAS
 from django.utils import timezone
 
+from net.models import Connection
+from peering.models import InternetExchange as IXP
 from utils.enums import ObjectChangeAction
 
 from .models import (
@@ -198,6 +200,16 @@ class PeeringDB(object):
 
         return local_object, action
 
+    def _fix_related_objects(self):
+        """
+        Fixes main connections and IXPs objects linking them with PeeringDB's if
+        possible.
+        """
+        for c in Connection.objects.all():
+            c.link_to_peeringdb()
+        for i in IXP.objects.all():
+            i.link_to_peeringdb()
+
     def synchronize_objects(self, last_sync, namespace, model):
         """
         Synchronizes all the objects of a namespace of the PeeringDB to the
@@ -250,6 +262,8 @@ class PeeringDB(object):
             else:
                 deleted += 1
 
+        self._fix_related_objects()
+
         return (created, updated, deleted)
 
     def update_local_database(self, last_sync):
@@ -283,6 +297,12 @@ class PeeringDB(object):
         Deletes all data related to the local database. This can be used to get a
         fresh start.
         """
+        # Unlink main objects from PeeringDB's before emptying the local database
+        Connection.objects.filter(peeringdb_netixlan__isnull=False).update(
+            peeringdb_netixlan=None
+        )
+        IXP.objects.filter(peeringdb_ixlan__isnull=False).update(peeringdb_ixlan=None)
+
         # The use of reversed is important to avoid fk issues
         for model in reversed(list(NAMESPACES.values())):
             model.objects.all()._raw_delete(using=DEFAULT_DB_ALIAS)
