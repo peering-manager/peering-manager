@@ -43,6 +43,7 @@ class ConnectionForm(BootstrapMixin, forms.ModelForm):
             "description",
             "comments",
             "tags",
+            "state",
         )
         labels = {
             "vlan": "VLAN",
