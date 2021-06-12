@@ -34,6 +34,7 @@ class ConnectionForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Connection
         fields = (
+            "state",
             "vlan",
             "ipv6_address",
             "ipv4_address",
