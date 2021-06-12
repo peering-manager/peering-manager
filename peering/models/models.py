@@ -740,7 +740,7 @@ class InternetExchange(AbstractGroup):
                         try:
                             peering_session = (
                                 InternetExchangePeeringSession.objects.get(
-                                    internet_exchange=self, ip_address=ip_address
+                                    ixp_connection_id=self.id, ip_address=ip_address
                                 )
                             )
                             # Get the BGP state for the session
