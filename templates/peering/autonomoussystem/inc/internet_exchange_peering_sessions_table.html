@@ -1,3 +1,6 @@
 {% extends 'utils/object_list.html' %}
 {% block extra_buttons %}
+<a href="{% url 'peering:internetexchangepeeringsession_add' %}?autonomous_system={{ instance.pk }}&return_url={{ instance.get_internet_exchange_peering_sessions_list_url }}" class="btn btn-sm btn-primary">
+    <i class="fas fa-plus"></i> Add a Peering Session
+  </a>
 {% endblock %}
