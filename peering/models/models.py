@@ -738,10 +738,8 @@ class InternetExchange(AbstractGroup):
 
                         # Check if the BGP session is on this IX
                         try:
-                            peering_session = (
-                                InternetExchangePeeringSession.objects.get(
-                                    internet_exchange=self, ip_address=ip_address
-                                )
+                            ixp_session = InternetExchangePeeringSession.objects.get(
+                                ip_address=ip_address
                             )
                             # Get the BGP state for the session
                             state = session["connection_state"].lower()
@@ -752,17 +750,13 @@ class InternetExchange(AbstractGroup):
                             )
 
                             # Update fields
-                            peering_session.bgp_state = state
-                            peering_session.received_prefix_count = (
-                                received if received > 0 else 0
-                            )
-                            peering_session.advertised_prefix_count = (
-                                advertised if advertised > 0 else 0
-                            )
+                            ixp_session.bgp_state = state
+                            ixp_session.received_prefix_count = received or 0
+                            ixp_session.advertised_prefix_count = advertised or 0
                             # Update the BGP state of the session
-                            if peering_session.bgp_state == BGPState.ESTABLISHED:
-                                peering_session.last_established_state = timezone.now()
-                            peering_session.save()
+                            if ixp_session.bgp_state == BGPState.ESTABLISHED:
+                                ixp_session.last_established_state = timezone.now()
+                            ixp_session.save()
                         except InternetExchangePeeringSession.DoesNotExist:
                             self.logger.debug(
                                 f"session {ip_address} in {self.name.lower()} not found"
