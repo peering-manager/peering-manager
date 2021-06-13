@@ -23,6 +23,8 @@ some are optional):
   number of IPv6 prefixes to receive from the AS.
 * `IPv4 Max Prefixes`: a zero or positive integer which defines the maximum
   number of IPv4 prefixes to receive from the AS.
+* `General Policy`: the General Peering Policy of an Autonomous System. This
+  is auto synced from PeeringDB and is not user changeable.
 * `Contact Name`: contact person/team in charge of BGP/peering operations.
 * `Contact Phone`: phone number to get in touch with the contact.
 * `Contact E-mail`: e-mail address to get in touch with the contact.
