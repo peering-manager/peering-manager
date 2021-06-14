@@ -52,13 +52,6 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
         blank=True, default=0, verbose_name="IPv4 max prefix"
     )
     ipv4_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
-    general_policy = models.CharField(
-        max_length=50,
-        choices=GeneralPolicy.choices,
-        verbose_name="General Peering Policy",
-        blank=True,
-        null=True,
-    )
     import_routing_policies = models.ManyToManyField(
         "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
     )
@@ -79,6 +72,13 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
         try:
             return Network.objects.get(asn=self.asn)
         except Network.DoesNotExist:
+            return None
+
+    @property
+    def general_policy(self):
+        if self.peeringdb_network:
+            return self.peeringdb_network.policy_general
+        else:
             return None
 
     @property
@@ -105,7 +105,6 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
                 "irr_as_set": network.irr_as_set,
                 "ipv6_max_prefixes": network.info_prefixes6,
                 "ipv4_max_prefixes": network.info_prefixes4,
-                "general_policy": network.policy_general,
             },
         )
 
@@ -217,9 +216,6 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
         network = self.peeringdb_network
         if not network:
             return False
-
-        # Always sync policy if present
-        self.general_policy = network.policy_general
 
         if self.name_peeringdb_sync:
             self.name = network.name
