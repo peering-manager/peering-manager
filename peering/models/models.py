@@ -74,6 +74,13 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
             return None
 
     @property
+    def general_policy(self):
+        if self.peeringdb_network:
+            return self.peeringdb_network.policy_general
+        else:
+            return None
+
+    @property
     def peeringdb_contacts(self):
         if self.peeringdb_network:
             return NetworkContact.objects.filter(net=self.peeringdb_network)

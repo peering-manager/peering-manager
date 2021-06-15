@@ -38,6 +38,12 @@
           <td>IPv4 Max Prefixes</td>
           <td id="id_ipv4_max_prefixes">{{ instance.ipv4_max_prefixes }}</td>
         </tr>
+        {% if instance.general_policy %}
+        <tr data-toggle="tooltip" data-placement="right" title="From PeeringDB">
+          <td>General Policy</td>
+          <td id="peering_policy">{{ instance.general_policy }}</td>
+        </tr>
+        {% endif %}
         <tr>
           <td>Affiliated</td>
           <td>{{ instance.affiliated|boolean_as_icon }}</td>
