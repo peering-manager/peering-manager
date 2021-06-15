@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 1.4.2 | MARK I (Bug fixes release) | 2021-06-15
+
+### Enhancements
+
+* [#400](https://github.com/peering-manager/peering-manager/issues/400) Add command `import_all_ix_sessions` to import all IXP sessions from routers
+* [#319](https://github.com/peering-manager/peering-manager/issues/319) Add IXP session from AS view
+* Expose general peering policy from PeeringDB in AS list and AS details views
+
+### Bug Fixes
+
+* Fix Redis databases documentation
+* Fix IXP sessions polling using `poll_peering_sessions` command
+* Fix connection state update
+* Fix "Add selected" button (broken in 1.4.1)
+
 ## Version 1.4.1 | MARK I (Bug fixes release) | 2021-06-11
 
 ### Enhancements
