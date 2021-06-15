@@ -22,7 +22,6 @@ from peering.enums import (
     RoutingPolicyType,
 )
 from peering.fields import ASNField, CommunityField
-from peeringdb.enums import GeneralPolicy
 from peeringdb.functions import get_ixlan_prefixes, get_shared_internet_exchanges
 from peeringdb.models import IXLanPrefix, Network, NetworkContact, NetworkIXLan
 from utils.models import ChangeLoggedModel, TaggableModel
