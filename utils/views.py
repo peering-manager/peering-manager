@@ -10,8 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import transaction
 from django.db.models import Count, ManyToManyField, ProtectedError, Q
-from django.db.models.query import QuerySet
-from django.forms import CharField, MultipleHiddenInput
+from django.forms import MultipleHiddenInput
 from django.forms.formsets import formset_factory
 from django.http import HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
@@ -226,7 +225,7 @@ class BulkAddFromDependencyView(ReturnURLMixin, View):
         ):
             self.return_url = posted_return_url
 
-        if not request.POST.getlist("pk"):
+        if "_add" in request.POST and not request.POST.getlist("pk"):
             messages.error(request, "No objects selected.")
             return redirect(self.get_return_url(request))
 
