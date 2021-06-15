@@ -87,6 +87,7 @@ class AutonomousSystemTable(BaseTable):
             "irr_as_set",
             "ipv6_max_prefixes",
             "ipv4_max_prefixes",
+            "general_policy",
             "import_routing_policies",
             "export_routing_policies",
             "directpeeringsession_count",
