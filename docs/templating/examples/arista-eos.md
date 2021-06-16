@@ -2,7 +2,7 @@
 
 ```no-highlight
 router bgp {{ local_as.asn }}
-{%- for internet_exchange in internet_exchanges %}
+{%- for internet_exchange in internet_exchange_points %}
   {%- for family in (6, 4) %}
    neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ family }} peer-group
    neighbor peer-ixp-{{ internet_exchange.slug }}-v{{ family }} next-hop-self

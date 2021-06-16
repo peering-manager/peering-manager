@@ -2,7 +2,7 @@
 
 ```no-highlight
 router bgp {{ local_as.asn }}
-{%- for ixp in internet_exchanges %}
+{%- for ixp in internet_exchange_points %}
   {%- for session in ixp | sessions %}}
     {%- if session.enabled %}
    neighbor {{ session.ip_address }}

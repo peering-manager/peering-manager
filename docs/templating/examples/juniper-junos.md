@@ -3,7 +3,7 @@
 ```no-highlight
 protocols {
     bgp {
-{%- for ixp in internet_exchanges %}
+{%- for ixp in internet_exchange_points %}
   {%- for family in (6, 4) %}
         replace: group ipv{{ family }}-{{ ixp.slug }} {
             type external;
