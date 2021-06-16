@@ -1033,13 +1033,17 @@ class RouterConfiguration(PermissionRequiredMixin, View):
     permission_required = "peering.view_router_configuration"
 
     def get(self, request, pk):
+        instance = get_object_or_404(Router, pk=pk)
+
+        if "raw" in request.GET:
+            return HttpResponse(
+                instance.generate_configuration(), content_type="text/plain"
+            )
+
         return render(
             request,
             "peering/router/configuration.html",
-            {
-                "instance": get_object_or_404(Router, pk=pk),
-                "active_tab": "configuration",
-            },
+            {"instance": instance, "active_tab": "configuration"},
         )
 
 
