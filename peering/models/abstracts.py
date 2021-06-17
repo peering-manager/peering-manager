@@ -6,7 +6,7 @@ from django.db import models
 from django.utils.safestring import mark_safe
 from netfields import InetAddressField, NetManager
 
-from peering.enums import BGPState
+from peering.enums import BGPState, IPFamily
 from peering.fields import TTLField
 from utils.models import ChangeLoggedModel, TaggableModel
 
@@ -127,7 +127,10 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
 
         # Merge policies from nested objects (first AS, then BGP group)
         for policy in self.autonomous_system.export_policies():
-            if policy in merged:
+            if policy in merged or policy.address_family not in (
+                IPFamily.ALL,
+                self.ip_address_version,
+            ):
                 continue
             merged.append(policy)
 
@@ -139,7 +142,10 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
 
         if group:
             for policy in group.export_policies():
-                if policy in merged:
+                if policy in merged or policy.address_family not in (
+                    IPFamily.ALL,
+                    self.ip_address_version,
+                ):
                     continue
                 merged.append(policy)
 
@@ -154,7 +160,10 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
 
         # Merge policies from nested objects (first AS, then BGP group)
         for policy in self.autonomous_system.import_policies():
-            if policy in merged:
+            if policy in merged or policy.address_family not in (
+                IPFamily.ALL,
+                self.ip_address_version,
+            ):
                 continue
             merged.append(policy)
 
@@ -166,7 +175,10 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
 
         if group:
             for policy in group.import_policies():
-                if policy in merged:
+                if policy in merged or policy.address_family not in (
+                    IPFamily.ALL,
+                    self.ip_address_version,
+                ):
                     continue
                 merged.append(policy)
 
