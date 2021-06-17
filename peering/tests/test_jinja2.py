@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from net.models import Connection
+from peering.enums import IPFamily
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -30,7 +31,16 @@ class Jinja2FilterTestCase(TestCase):
                 name="Import Known Prefixes", slug="import-known-prefixes", weight=128
             ),
             RoutingPolicy(name="Export Supernets", slug="export-supernets", weight=64),
-            RoutingPolicy(name="Export Deaggregated", slug="export-deaggregated"),
+            RoutingPolicy(
+                name="Export Deaggregated v4",
+                slug="export-deaggregated-v4",
+                address_family=IPFamily.IPV4,
+            ),
+            RoutingPolicy(
+                name="Export Deaggregated v6",
+                slug="export-deaggregated-v6",
+                address_family=IPFamily.IPV6,
+            ),
         ]
         RoutingPolicy.objects.bulk_create(cls.routing_policies)
         AutonomousSystem.objects.create(asn=64520, name="Useless")
@@ -41,7 +51,9 @@ class Jinja2FilterTestCase(TestCase):
             RoutingPolicy.objects.get(slug="import-known-prefixes")
         )
         cls.a_s.export_routing_policies.add(
-            RoutingPolicy.objects.get(slug="export-supernets")
+            RoutingPolicy.objects.get(slug="export-supernets"),
+            RoutingPolicy.objects.get(slug="export-deaggregated-v4"),
+            RoutingPolicy.objects.get(slug="export-deaggregated-v6"),
         )
         cls.a_s.tags.add(*cls.tags)
         cls.router = Router.objects.create(name="test", hostname="test.example.com")
@@ -156,7 +168,7 @@ class Jinja2FilterTestCase(TestCase):
         self.assertListEqual([rp.slug for rp in routing_policies], slugs)
 
     def test_length(self):
-        self.assertEqual(5, FILTER_DICT["length"](RoutingPolicy.objects.all()))
+        self.assertEqual(6, FILTER_DICT["length"](RoutingPolicy.objects.all()))
         self.assertEqual(0, FILTER_DICT["length"](RoutingPolicy.objects.none()))
 
     def test_cisco_password(self):
@@ -182,6 +194,7 @@ class Jinja2FilterTestCase(TestCase):
             [
                 RoutingPolicy.objects.get(slug="accept-all"),
                 RoutingPolicy.objects.get(slug="export-supernets"),
+                RoutingPolicy.objects.get(slug="export-deaggregated-v6"),
                 RoutingPolicy.objects.get(slug="reject-all"),
             ],
             FILTER_DICT["merge_export_policies"](self.session6),
