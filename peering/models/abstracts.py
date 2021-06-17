@@ -6,7 +6,7 @@ from django.db import models
 from django.utils.safestring import mark_safe
 from netfields import InetAddressField, NetManager
 
-from peering.enums import BGPState
+from peering.enums import BGPState, IPFamily
 from peering.fields import TTLField
 from utils.models import ChangeLoggedModel, TaggableModel
 
@@ -122,14 +122,25 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
     def export_policies(self):
         return self.export_routing_policies.all()
 
+    def _merge_policies(self, merged_policies, new_policies):
+        for policy in new_policies:
+            if policy in merged_policies:
+                continue
+            # Only merge universal policies
+            # or policies the same IP Family
+            if (
+                policy.address_family != IPFamily.ALL
+                and policy.address_family != self.ip_address_version
+            ):
+                continue
+            merged_policies.append(policy)
+        return merged_policies
+
     def merged_export_policies(self, reverse=False):
         merged = [p for p in self.export_policies()]
 
         # Merge policies from nested objects (first AS, then BGP group)
-        for policy in self.autonomous_system.export_policies():
-            if policy in merged:
-                continue
-            merged.append(policy)
+        self._merge_policies(merged, self.autonomous_system.export_policies())
 
         group = None
         if hasattr(self, "ixp_connection"):
@@ -138,10 +149,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
             group = self.bgp_group
 
         if group:
-            for policy in group.export_policies():
-                if policy in merged:
-                    continue
-                merged.append(policy)
+            self._merge_policies(merged, group.export_policies())
 
         return list(reversed(merged)) if reverse else merged
 
@@ -153,10 +161,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
         merged = [p for p in self.import_policies()]
 
         # Merge policies from nested objects (first AS, then BGP group)
-        for policy in self.autonomous_system.import_policies():
-            if policy in merged:
-                continue
-            merged.append(policy)
+        self._merge_policies(merged, self.autonomous_system.import_policies())
 
         group = None
         if hasattr(self, "ixp_connection"):
@@ -165,10 +170,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
             group = self.bgp_group
 
         if group:
-            for policy in group.import_policies():
-                if policy in merged:
-                    continue
-                merged.append(policy)
+            self._merge_policies(merged, group.import_policies())
 
         return list(reversed(merged)) if reverse else merged
 
