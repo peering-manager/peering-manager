@@ -119,22 +119,19 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
     def ip_address_version(self):
         return ipaddress.ip_address(self.ip_address).version
 
-    def export_policies(self):
-        return self.export_routing_policies.all()
-
     def _merge_policies(self, merged_policies, new_policies):
         for policy in new_policies:
-            if policy in merged_policies:
-                continue
-            # Only merge universal policies
-            # or policies the same IP Family
-            if (
-                policy.address_family != IPFamily.ALL
-                and policy.address_family != self.ip_address_version
+            # Only merge universal policies or policies of same IP family
+            if policy in merged_policies or policy.address_family not in (
+                IPFamily.ALL,
+                self.ip_address_version,
             ):
                 continue
             merged_policies.append(policy)
         return merged_policies
+
+    def export_policies(self):
+        return self.export_routing_policies.all()
 
     def merged_export_policies(self, reverse=False):
         merged = [p for p in self.export_policies()]
