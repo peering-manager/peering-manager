@@ -418,10 +418,10 @@ class BGPGroup(AbstractGroup):
                         # Update fields
                         peering_session.bgp_state = state
                         peering_session.received_prefix_count = (
-                            received if received > 0 else 0
+                            0 if received < 0 else received
                         )
                         peering_session.advertised_prefix_count = (
-                            advertised if advertised > 0 else 0
+                            0 if advertised < 0 else advertised
                         )
                         # Update the BGP state of the session
                         if peering_session.bgp_state == BGPState.ESTABLISHED:
@@ -758,8 +758,12 @@ class InternetExchange(AbstractGroup):
 
                             # Update fields
                             ixp_session.bgp_state = state
-                            ixp_session.received_prefix_count = received or 0
-                            ixp_session.advertised_prefix_count = advertised or 0
+                            ixp_session.received_prefix_count = (
+                                0 if received < 0 else received
+                            )
+                            ixp_session.advertised_prefix_count = (
+                                0 if advertised < 0 else advertised
+                            )
                             # Update the BGP state of the session
                             if ixp_session.bgp_state == BGPState.ESTABLISHED:
                                 ixp_session.last_established_state = timezone.now()
