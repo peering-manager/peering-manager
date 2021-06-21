@@ -998,6 +998,9 @@ class RouterList(PermissionRequiredMixin, ModelListView):
         Router.objects.annotate(
             connection_count=Count("connection", distinct=True),
             directpeeringsession_count=Count("directpeeringsession", distinct=True),
+            internetexchangepeeringsession_count=Count(
+                "connection__internetexchangepeeringsession", distinct=True
+            ),
         )
         .prefetch_related("configuration_template")
         .order_by("local_autonomous_system", "name")
