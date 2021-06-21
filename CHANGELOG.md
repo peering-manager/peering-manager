@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 1.4.3 | MARK I (Bug fixes release) | 2021-06-21
+
+### Enhancements
+
+* [#447](https://github.com/peering-manager/peering-manager/issues/447) Bring back `raw` configuration button
+
+### Bug Fixes
+
+* [#448](https://github.com/peering-manager/peering-manager/issues/448) Filter out policies that don't match the session IP family
+* [#455](https://github.com/peering-manager/peering-manager/issues/455) Fix IXP session count in router list
+* [#456](https://github.com/peering-manager/peering-manager/issues/456) Don't fail when polling down BGP sessions
+
+
 ## Version 1.4.2 | MARK I (Bug fixes release) | 2021-06-15
 
 ### Enhancements
