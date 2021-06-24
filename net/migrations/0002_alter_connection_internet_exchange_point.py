@@ -33,5 +33,5 @@ class Migration(migrations.Migration):
                 to="peering.internetexchange",
             ),
         ),
-       migrations.RunPython(deleted_orphaned_connections),
+        migrations.RunPython(deleted_orphaned_connections),
     ]
