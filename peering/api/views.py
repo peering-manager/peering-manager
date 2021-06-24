@@ -66,7 +66,7 @@ class PeeringFieldChoicesViewSet(StaticChoicesViewSet):
 
 
 class AutonomousSystemViewSet(ModelViewSet):
-    queryset = AutonomousSystem.objects.all()
+    queryset = AutonomousSystem.objects.defer("prefixes")
     serializer_class = AutonomousSystemSerializer
     filterset_class = AutonomousSystemFilterSet
 

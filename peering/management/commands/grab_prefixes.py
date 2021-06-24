@@ -24,7 +24,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.logger.info("Getting prefixes for AS with IRR AS-SETs")
 
-        for autonomous_system in AutonomousSystem.objects.all():
+        for autonomous_system in AutonomousSystem.objects.defer("prefixes"):
             try:
                 prefixes = autonomous_system.retrieve_irr_as_set_prefixes()
                 if (

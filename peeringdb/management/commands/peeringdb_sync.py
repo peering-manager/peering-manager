@@ -28,6 +28,6 @@ class Command(BaseCommand):
 
         self.logger.info("Updating AS details...")
 
-        autonomous_systems = AutonomousSystem.objects.all()
+        autonomous_systems = AutonomousSystem.objects.defer("prefixes")
         for autonomous_system in autonomous_systems:
             autonomous_system.synchronize_with_peeringdb()

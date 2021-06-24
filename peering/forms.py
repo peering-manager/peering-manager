@@ -261,10 +261,12 @@ class ConfigurationFilterForm(BootstrapMixin, forms.Form):
 
 class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     local_autonomous_system = DynamicModelChoiceField(
-        queryset=AutonomousSystem.objects.all(),
+        queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
     )
-    autonomous_system = DynamicModelChoiceField(queryset=AutonomousSystem.objects.all())
+    autonomous_system = DynamicModelChoiceField(
+        queryset=AutonomousSystem.objects.defer("prefixes")
+    )
     bgp_group = DynamicModelChoiceField(
         required=False, queryset=BGPGroup.objects.all(), label="BGP Group"
     )
@@ -323,7 +325,7 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEd
     )
     local_autonomous_system = DynamicModelChoiceField(
         required=False,
-        queryset=AutonomousSystem.objects.all(),
+        queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
     )
     enabled = forms.NullBooleanField(
@@ -364,14 +366,14 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
     q = forms.CharField(required=False, label="Search")
     local_autonomous_system_id = DynamicModelChoiceField(
         required=False,
-        queryset=AutonomousSystem.objects.all(),
+        queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
         to_field_name="pk",
         label="Local autonomous system",
     )
     autonomous_system_id = DynamicModelChoiceField(
         required=False,
-        queryset=AutonomousSystem.objects.all(),
+        queryset=AutonomousSystem.objects.defer("prefixes"),
         to_field_name="pk",
         label="Autonomous system",
     )
@@ -423,7 +425,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
         help_text="Friendly unique shorthand used for URL and config. Change Warning: May result in change of Operational State on a Router if being used in config generation",
     )
     local_autonomous_system = DynamicModelChoiceField(
-        queryset=AutonomousSystem.objects.all(),
+        queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
     )
     import_routing_policies = DynamicModelMultipleChoiceField(
@@ -468,7 +470,7 @@ class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFo
     )
     local_autonomous_system = DynamicModelChoiceField(
         required=False,
-        queryset=AutonomousSystem.objects.all(),
+        queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
     )
     import_routing_policies = DynamicModelMultipleChoiceField(
@@ -524,7 +526,7 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
     q = forms.CharField(required=False, label="Search")
     local_autonomous_system_id = DynamicModelChoiceField(
         required=False,
-        queryset=AutonomousSystem.objects.all(),
+        queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
     )
     import_routing_policies = DynamicModelMultipleChoiceField(
@@ -576,7 +578,9 @@ class InternetExchangePeeringSessionBulkEditForm(
 
 
 class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
-    autonomous_system = DynamicModelChoiceField(queryset=AutonomousSystem.objects.all())
+    autonomous_system = DynamicModelChoiceField(
+        queryset=AutonomousSystem.objects.defer("prefixes")
+    )
     ixp_connection = DynamicModelChoiceField(
         queryset=Connection.objects.all(),
         label="IXP connection",
@@ -622,7 +626,7 @@ class InternetExchangePeeringSessionFilterForm(BootstrapMixin, forms.Form):
     q = forms.CharField(required=False, label="Search")
     autonomous_system_id = DynamicModelMultipleChoiceField(
         required=False,
-        queryset=AutonomousSystem.objects.all(),
+        queryset=AutonomousSystem.objects.defer("prefixes"),
         to_field_name="pk",
         label="Autonomous system",
     )
@@ -652,7 +656,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
         help_text="Template used to generate device configuration",
     )
     local_autonomous_system = DynamicModelChoiceField(
-        queryset=AutonomousSystem.objects.all(),
+        queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
     )
     config_context = JSONField(
@@ -731,7 +735,7 @@ class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     )
     local_autonomous_system = DynamicModelChoiceField(
         required=False,
-        queryset=AutonomousSystem.objects.all(),
+        queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
     )
     platform = DynamicModelChoiceField(required=False, queryset=Platform.objects.all())
@@ -758,7 +762,7 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
     q = forms.CharField(required=False, label="Search")
     local_autonomous_system_id = DynamicModelChoiceField(
         required=False,
-        queryset=AutonomousSystem.objects.all(),
+        queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
         label="Local autonomous system",
     )

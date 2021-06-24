@@ -101,12 +101,16 @@ from .tables import (
 
 class ASList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_autonomoussystem"
-    queryset = AutonomousSystem.objects.annotate(
-        directpeeringsession_count=Count("directpeeringsession", distinct=True),
-        internetexchangepeeringsession_count=Count(
-            "internetexchangepeeringsession", distinct=True
-        ),
-    ).order_by("affiliated", "asn")
+    queryset = (
+        AutonomousSystem.objects.defer("prefixes")
+        .annotate(
+            directpeeringsession_count=Count("directpeeringsession", distinct=True),
+            internetexchangepeeringsession_count=Count(
+                "internetexchangepeeringsession", distinct=True
+            ),
+        )
+        .order_by("affiliated", "asn")
+    )
     filter = AutonomousSystemFilterSet
     filter_form = AutonomousSystemFilterForm
     table = AutonomousSystemTable
@@ -123,7 +127,7 @@ class ASAdd(PermissionRequiredMixin, AddOrEditView):
 
 class ASDetails(DetailsView):
     permission_required = "peering.view_autonomoussystem"
-    queryset = AutonomousSystem.objects.all()
+    queryset = AutonomousSystem.objects.defer("prefixes")
 
     def get_context(self, request, **kwargs):
         instance = get_object_or_404(self.queryset, **kwargs)
