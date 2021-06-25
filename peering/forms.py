@@ -396,6 +396,7 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
         queryset=Router.objects.all(),
         to_field_name="pk",
         null_option="None",
+        label="Router",
     )
     tag = TagFilterField(model)
 
@@ -528,6 +529,7 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
         required=False,
         queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
+        label="Local autonomous system",
     )
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
