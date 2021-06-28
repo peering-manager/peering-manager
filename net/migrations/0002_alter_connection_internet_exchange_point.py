@@ -13,15 +13,14 @@ class Migration(migrations.Migration):
 
     def deleted_orphaned_connections(apps, schema_editor):
         Connection = apps.get_model("net.Connection")
-        for connection in Connection.objects.filter(
-            internet_exchange_point__isnull=True
-        ):
+        connections = Connection.objects.filter(internet_exchange_point__isnull=True)
+
+        for c in connections:
             print(
-                f"Deleting Orphaned Connection: {connection} - {connection.ipv4_address}/{connection.ipv6_address}"
+                f"Deleting orphaned connection: {c} - {c.ipv4_address}/{c.ipv6_address}"
             )
 
-        # use to reduce the number of DB calls
-        Connection.objects.filter(internet_exchange_point__isnull=True).delete()
+        connections.delete()
 
     operations = [
         migrations.AlterField(
