@@ -36,7 +36,7 @@ class Connection(ChangeLoggedModel, TaggableModel):
         validators=[AddressFamilyValidator(4)],
     )
     internet_exchange_point = models.ForeignKey(
-        "peering.InternetExchange", blank=True, null=True, on_delete=models.SET_NULL
+        "peering.InternetExchange", blank=True, null=True, on_delete=models.CASCADE
     )
     router = models.ForeignKey(
         "peering.Router", blank=True, null=True, on_delete=models.SET_NULL

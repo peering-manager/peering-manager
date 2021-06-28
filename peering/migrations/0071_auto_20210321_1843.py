@@ -6,7 +6,10 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [("peering", "0070_remove_router_last_deployment_id")]
+    dependencies = [
+        ("net", "0001_initial"),
+        ("peering", "0070_remove_router_last_deployment_id"),
+    ]
 
     def create_ixp_connections(apps, schema_editor):
         db_alias = schema_editor.connection.alias
