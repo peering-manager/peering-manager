@@ -3,8 +3,6 @@
 import django.db.models.deletion
 from django.db import migrations, models
 
-from net.models import Connection
-
 
 class Migration(migrations.Migration):
 
@@ -14,13 +12,16 @@ class Migration(migrations.Migration):
     ]
 
     def deleted_orphaned_connections(apps, schema_editor):
-        connections = Connection.objects.all()
-        for connection in connections:
-            if not connection.internet_exchange_point:
-                print(
-                    f"Deleting Orphaned Connection: {connection} - {connection.ipv4_address}/{connection.ipv6_address}"
-                )
-                connection.delete()
+        Connection = apps.get_model("net.Connection")
+        for connection in Connection.objects.filter(
+            internet_exchange_point__isnull=True
+        ):
+            print(
+                f"Deleting Orphaned Connection: {connection} - {connection.ipv4_address}/{connection.ipv6_address}"
+            )
+
+        # use to reduce the number of DB calls
+        Connection.objects.filter(internet_exchange_point__isnull=True).delete()
 
     operations = [
         migrations.AlterField(
