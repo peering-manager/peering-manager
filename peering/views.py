@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.db import transaction
 from django.db.models import Count
 from django.http import HttpResponse
@@ -169,6 +169,7 @@ class ASEmail(PermissionRequiredMixin, View):
 
         form = AutonomousSystemEmailForm()
         form.fields["recipient"].choices = instance.get_contact_email_addresses()
+        form.fields["cc"].choices = instance.get_cc_email_contacts()
         return render(
             request,
             "peering/autonomoussystem/email.html",
@@ -183,14 +184,17 @@ class ASEmail(PermissionRequiredMixin, View):
 
         form = AutonomousSystemEmailForm(request.POST)
         form.fields["recipient"].choices = instance.get_contact_email_addresses()
+        form.fields["cc"].choices = instance.get_cc_email_contacts()
 
         if form.is_valid():
-            sent = send_mail(
-                form.cleaned_data["subject"],
-                form.cleaned_data["body"],
-                settings.SERVER_EMAIL,
-                [form.cleaned_data["recipient"]],
+            mail = EmailMessage(
+                subject=form.cleaned_data["subject"],
+                body=form.cleaned_data["body"],
+                from_email=settings.SERVER_EMAIL,
+                to=form.cleaned_data["recipient"],
+                cc=form.cleaned_data["cc"],
             )
+            sent = mail.send()
             if sent == 1:
                 messages.success(request, "Email sent.")
             else:

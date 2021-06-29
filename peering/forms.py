@@ -121,7 +121,12 @@ class AutonomousSystemFilterForm(BootstrapMixin, forms.Form):
 
 class AutonomousSystemEmailForm(BootstrapMixin, forms.Form):
     email = DynamicModelChoiceField(required=False, queryset=Email.objects.all())
-    recipient = forms.ChoiceField(widget=StaticSelect, label="E-mail recipient")
+    recipient = forms.MultipleChoiceField(
+        widget=StaticSelectMultiple, label="E-mail recipient"
+    )
+    cc = forms.MultipleChoiceField(
+        widget=StaticSelectMultiple, label="E-mail CC", required=False
+    )
     subject = forms.CharField(label="E-mail subject")
     body = TextareaField(label="E-mail body")
 
