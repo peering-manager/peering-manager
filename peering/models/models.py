@@ -1028,6 +1028,7 @@ class Router(ChangeLoggedModel, TaggableModel):
     device_state = models.CharField(
         max_length=20,
         choices=DeviceState.choices,
+        default=DeviceState.ENABLED,
         blank=True,
         help_text="State of the device for configuration pushes",
     )
