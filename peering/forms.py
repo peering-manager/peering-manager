@@ -330,7 +330,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         cleaned_data = super().clean()
 
         # Make sure that both local and remote IP addresses are from the same family
-        if (
+        if cleaned_data["local_ip_address"] and (
             cleaned_data["local_ip_address"].version
             != cleaned_data["ip_address"].version
         ):
@@ -345,7 +345,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         ):
             if (
                 policy.address_family != IPFamily.ALL
-                and policy.address_family != cleaned_data["local_ip_address"].version
+                and policy.address_family != cleaned_data["ip_address"].version
             ):
                 raise ValidationError(
                     f"Routing policy '{policy.name}' cannot be used for this session, address families mismatch."
