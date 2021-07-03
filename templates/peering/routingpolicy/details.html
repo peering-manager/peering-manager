@@ -4,9 +4,7 @@
 <div class="row">
   <div class="col-md-6">
     <div class="card">
-      <div class="card-header">
-        <strong>Routing Policy Details</strong>
-      </div>
+      <div class="card-header"><strong>Routing Policy Details</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
           <td>Name</td>
@@ -28,10 +26,8 @@
     </div>
   </div>
   <div class="col-md-6">
-    <div class="card">
-      <div class="card-header">
-        <strong>Config Context</strong>
-      </div>
+    <div class="card mb-2">
+      <div class="card-header"><strong>Config Context</strong></div>
       <div class="card-body">
         {% if instance.config_context %}
         <pre class="pre-scrollable"><code>{{ instance.config_context | render_json }}</code></pre>
@@ -41,9 +37,7 @@
       </div>
     </div>
     <div class="card">
-      <div class="card-header">
-        <strong>Comments</strong>
-      </div>
+      <div class="card-header"><strong>Comments</strong></div>
       <div class="card-body">
         {% if instance.comments %}
         {{ instance.comments|markdown }}
