@@ -1,5 +1,6 @@
 from django import forms
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
 from devices.models import Platform
@@ -337,6 +338,20 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
                 "Local and remote IP addresses must belong to the same address family."
             )
 
+        # Make sure that routing policies are compatible (address family)
+        for policy in (
+            cleaned_data["import_routing_policies"]
+            | cleaned_data["export_routing_policies"]
+        ):
+            if (
+                policy.address_family != IPFamily.ALL
+                and policy.address_family != cleaned_data["local_ip_address"].version
+            ):
+                raise ValidationError(
+                    f"Routing policy '{policy.name}' cannot be used for this session, address families mismatch."
+                )
+
+
 class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = DynamicModelMultipleChoiceField(
         queryset=DirectPeeringSession.objects.all(), widget=forms.MultipleHiddenInput
@@ -639,6 +654,22 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "ip_address": "IPv6 or IPv4 address",
             "is_route_server": "Define if this session is with a route server",
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Make sure that routing policies are compatible (address family)
+        for policy in (
+            cleaned_data["import_routing_policies"]
+            | cleaned_data["export_routing_policies"]
+        ):
+            if (
+                policy.address_family != IPFamily.ALL
+                and policy.address_family != cleaned_data["ip_address"].version
+            ):
+                raise ValidationError(
+                    f"Routing policy '{policy.name}' cannot be used for this session, address families mismatch."
+                )
 
 
 class InternetExchangePeeringSessionFilterForm(BootstrapMixin, forms.Form):
