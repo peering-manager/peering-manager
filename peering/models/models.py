@@ -57,6 +57,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
     export_routing_policies = models.ManyToManyField(
         "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
     )
+    communities = models.ManyToManyField("Community", blank=True)
     prefixes = models.JSONField(blank=True, null=True, editable=False)
     affiliated = models.BooleanField(default=False)
 

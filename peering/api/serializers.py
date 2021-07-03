@@ -22,6 +22,7 @@ from .nested_serializers import *
 class AutonomousSystemSerializer(TaggedObjectSerializer, WriteEnabledNestedSerializer):
     import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
     export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
+    communities = CommunityNestedSerializer(many=True, required=False)
 
     class Meta:
         model = AutonomousSystem
@@ -41,11 +42,16 @@ class AutonomousSystemSerializer(TaggedObjectSerializer, WriteEnabledNestedSeria
             "ipv4_max_prefixes_peeringdb_sync",
             "import_routing_policies",
             "export_routing_policies",
+            "communities",
             "prefixes",
             "affiliated",
             "tags",
         ]
-        nested_fields = ["import_routing_policies", "export_routing_policies"]
+        nested_fields = [
+            "import_routing_policies",
+            "export_routing_policies",
+            "communities",
+        ]
 
 
 class BGPGroupSerializer(TaggedObjectSerializer, WriteEnabledNestedSerializer):

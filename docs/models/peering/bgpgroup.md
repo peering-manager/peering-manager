@@ -27,6 +27,8 @@ create, the following properties can be configured (n.b. some are optional):
    receiving prefixes though BGP sessions in the group.
 * `Export Routing Policies`: a list of routing policies to apply when
    advertising prefixes though BGP sessions in the group.
+* `Communities`: a list of communities to apply on prefixes handled by
+  sessions in this group.
 * `Tags`: a list of tags to help identifying and searching for a group.
 
 Please note that an Internet Exchange is a kind of BGP group with more specific

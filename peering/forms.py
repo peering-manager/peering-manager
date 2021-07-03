@@ -72,6 +72,9 @@ class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
         queryset=RoutingPolicy.objects.all(),
         query_params={"type": "export-policy"},
     )
+    communities = DynamicModelMultipleChoiceField(
+        required=False, queryset=Community.objects.all()
+    )
     comments = CommentField()
     tags = TagField(required=False)
 
@@ -92,6 +95,7 @@ class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
             "ipv4_max_prefixes_peeringdb_sync",
             "import_routing_policies",
             "export_routing_policies",
+            "communities",
             "comments",
             "affiliated",
             "tags",
@@ -220,7 +224,7 @@ class CommunityForm(BootstrapMixin, forms.ModelForm):
 
         fields = ("name", "value", "slug", "type", "comments", "tags")
         help_texts = {
-            "value": 'Community (<a target="_blank" href="https://tools.ietf.org/html/rfc1997">RFC1997</a>), Extended Communit (<a target="_blank" href="https://tools.ietf.org/html/rfc4360">RFC4360</a>) or Large Community (<a target="_blank" href="https://tools.ietf.org/html/rfc8092">RFC8092</a>)'
+            "value": 'Community (<a target="_blank" href="https://tools.ietf.org/html/rfc1997">RFC1997</a>), Extended Community (<a target="_blank" href="https://tools.ietf.org/html/rfc4360">RFC4360</a>) or Large Community (<a target="_blank" href="https://tools.ietf.org/html/rfc8092">RFC8092</a>)'
         }
 
 
