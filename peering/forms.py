@@ -8,8 +8,6 @@ from netbox.api import NetBox
 from utils.fields import CommentField, PasswordField, SlugField, TextareaField
 from utils.forms import (
     AddRemoveTagsForm,
-    APISelect,
-    APISelectMultiple,
     BootstrapMixin,
     BulkEditForm,
     CustomNullBooleanSelect,
@@ -327,6 +325,17 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "enabled": "Should this session be enabled?",
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Make sure that both local and remote IP addresses are from the same family
+        if (
+            cleaned_data["local_ip_address"].version
+            != cleaned_data["ip_address"].version
+        ):
+            raise ValidationError(
+                "Local and remote IP addresses must belong to the same address family."
+            )
 
 class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = DynamicModelMultipleChoiceField(
