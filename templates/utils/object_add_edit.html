@@ -5,13 +5,13 @@
 <li class="breadcrumb-item active" aria-current="page">
   {% block title %}
   {% if object.pk %}Editing {{ object }}{% else %}Add a new {{ object_type|title_with_uppers }}{% endif %}
+  {% endblock %}
   {% if settings.DOCS_DIR %}
   &nbsp;
   <button class="btn btn-link btn-xs text-white" type="button" data-toggle="modal" data-target="#docs_modal" title="Help">
     <i class="fas fa-question-circle"></i>
   </button>
   {% endif %}
-  {% endblock %}
 </li>
 {% endblock %}
 {% block content %}
