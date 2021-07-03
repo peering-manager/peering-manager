@@ -54,10 +54,11 @@ Example:
 
 Allows to pass a Django filter expression to allow filtering on a SQL result.
 
-Example:
+Examples:
 
 ```no-highlight
 {% for autonomous_system in autonomous_systems | filter(ipv6_max_prefixes__gt=100) %}
+{% for session in bgpgroup | session | filter(router=router) %}
 ```
 
 ## `get`
