@@ -339,9 +339,8 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
             )
 
         # Make sure that routing policies are compatible (address family)
-        for policy in (
-            cleaned_data["import_routing_policies"]
-            | cleaned_data["export_routing_policies"]
+        for policy in cleaned_data["import_routing_policies"].union(
+            cleaned_data["export_routing_policies"]
         ):
             if (
                 policy.address_family != IPFamily.ALL
