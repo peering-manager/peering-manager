@@ -102,7 +102,7 @@ def enqueue_webhooks(instance, user, request_id, action):
         webhook_queue = get_queue("default")
         for webhook in webhooks:
             webhook_queue.enqueue(
-                "webhooks.workers.process_webhook",
+                "extras.workers.process_webhook",
                 webhook,
                 serializer.data,
                 instance._meta.model_name,
