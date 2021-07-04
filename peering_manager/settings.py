@@ -361,8 +361,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "utils.middleware.RequireLoginMiddleware",
     "utils.middleware.ExceptionCatchingMiddleware",
+    "utils.middleware.RequireLoginMiddleware",
     "utils.middleware.ObjectChangeMiddleware",
     "users.middleware.LastSearchMiddleware",
 ]

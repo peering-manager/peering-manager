@@ -1,6 +1,7 @@
 import logging
 
 import requests
+from django.contrib.admin.models import LogEntry
 from django.utils import timezone
 from django_rq import get_queue, job
 
@@ -80,7 +81,7 @@ def enqueue_webhooks(instance, user, request_id, action):
     Enqueues webhooks so they can be processed.
     """
     # Ignore object changes as a webhook is about informing of a change
-    if isinstance(instance, ObjectChange):
+    if isinstance(instance, ObjectChange) or isinstance(instance, LogEntry):
         return
 
     # Finds usable webhooks
