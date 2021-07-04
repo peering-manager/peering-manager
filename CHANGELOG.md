@@ -1,5 +1,23 @@
 # Changelog
 
+## Version 1.4.4 | MARK I (Bug fixes release) | 2021-07-04
+
+### Enhancements
+
+* Limit RAM usage by deferring prefixes loading for autonomous systems (except in the API)
+* Delete connections to an IXP when said IXP is deleted, thus deleting peering sessions too
+* [#371](https://github.com/peering-manager/peering-manager/issues/371) Add CC field to e-mails based on CC_CONTACTS setting
+* [#457](https://github.com/peering-manager/peering-manager/issues/457) Add communities objects to autonomous systems
+
+### Bug Fixes
+
+* Fix a bunch of form filter labels
+* Fix initial data when creating a direct peering session for a group
+* Set default state of router to enabled
+* Remove icon HTML code from page title
+* Make sure that local and remote IP addresses are from the same IP families when creating a direct peering session
+* Validate that routing policies address family matches the session address family when assigning them
+
 ## Version 1.4.3 | MARK I (Bug fixes release) | 2021-06-21
 
 ### Enhancements
