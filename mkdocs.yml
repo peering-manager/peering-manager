@@ -32,6 +32,7 @@ nav:
         - 6. LDAP (Optional): "setup/6-ldap.md"
         - 7. Scheduled Tasks (Optional): "setup/7-scheduled-tasks.md"
         - 8. Prometheus (Optional): "setup/8-prometheus.md"
+        - uWSGI: "setup/uwsgi.md"
         - Upgrading: "setup/upgrading.md"
         - Migrate to systemd: "setup/migrate-to-systemd.md"
     - Container Installation: "container.md"
