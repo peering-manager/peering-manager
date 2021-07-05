@@ -10,7 +10,7 @@ django-taggit==1.4.0
 Jinja2==3.0.1
 Markdown==3.3.4
 napalm==3.3.1
-packaging==20.9
+packaging==21.0
 psycopg2-binary==2.9.1
 pynetbox==6.1.2
 requests==2.25.1
