@@ -57,3 +57,7 @@ nav:
         - Jinja Filters: "templating/filters.md"
         - Exposed Variables: "templating/variables.md"
     - Integration: "integration.md"
+    - Development:
+        - Getting Started: "development/getting-started.md"
+        - Style Guide: "development/style-guide.md"
+        - Release Engineering: "development/release-engineering.md"

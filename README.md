@@ -58,4 +58,4 @@ development of this project by donating some coins.
 * [FRnOG32 Peering Automation and Documentation](https://www.dailymotion.com/video/x756n1e?playlist=x6c4hk) by Guillaume Mazoyer (French)
 * [LUNOG2 A better Internet thanks to peering and automation](https://drive.mazoyer.eu/index.php/s/3RiyrPQd3Tdwc96) by Guillaume Mazoyer (English)
 * [NetLdn16 Peering Manager - Your BGP Source Of Truth](https://drive.mazoyer.eu/s/EHj3pH87Pe55Rfa) by Guillaume Mazoyer (English)
-* [DE-CIX Tech Meeting 2021 - Keeping track your BGP configuration](https://youtu.be/MoPr9ttIMwE) by Guillaume Mazoyer (English)
+* [DE-CIX Tech Meeting 2021 - Keeping track of your BGP configuration](https://youtu.be/MoPr9ttIMwE) by Guillaume Mazoyer (English)
