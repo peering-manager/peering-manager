@@ -4,7 +4,8 @@ daysUntilClose: 7
 
 onlyLabels:
   - "status: wontfix"
-exemptLabels: []
+exemptLabels:
+  - "status: accepted"
 staleLabel: "status: wontfix"
 
 markComment: >
