@@ -21,8 +21,9 @@ framework. It runs as a WSGI service behind your choice of HTTP server.
 
 ## Getting Started
 
-See the [setup guide](setup/1-postgresql.md) for help getting Peering Manager
-up and running.
+For a quickstart, you can use [Containers](container.md) or [Ansible](ansible.md).
+For a more traditional setup, see the [setup guide](setup/1-postgresql.md)
+on how to get started.
 
 ## Helping
 

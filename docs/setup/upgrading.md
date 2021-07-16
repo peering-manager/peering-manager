@@ -8,8 +8,8 @@ the most recent changes of the main branch with:
 
 ```no-highlight
 # cd /opt/peering-manager
-# git pull
-...
+# git fetch
+# git checkout versionWanted
 ```
 
 ## Run the Upgrade Script
@@ -20,7 +20,6 @@ are still correct after running the script.
 
 ```no-highlight
 # ./scripts/upgrade.sh
-...
 ```
 
 What does this script do?

@@ -1,26 +1,39 @@
+# LDAP Setup
+
 This guide explains how to implement LDAP authentication. User authentication
 will fall back to built-in Django users in the event of a failure.
 
-# Requirements
+## Verified compatibility
+| LDAP Provider            | Does it work?      |
+|--------------------------|--------------------|
+| Azure AD Domain Services | :white_check_mark: |
 
-## Install Required Packages
+## Requirements
 
-```no-highlight
-# apt install -y python3-dev libldap2-dev libsasl2-dev libssl-dev
-```
+### Install Required Packages
 
-## Install django-auth-ldap
+=== "Debian 10"
+	```
+	# apt install -y python3-dev libldap2-dev libsasl2-dev libssl-dev
+	```
+
+=== "CentOS 7 & 8"
+	```
+	# yum install python3-devel openldap-devel gcc
+	```
+
+### Install django-auth-ldap
 
 ```no-highlight
 # pip3 install -r requirements_ldap.txt
 ```
 
-# Configuration
+## Configuration
 
 Create a file in the same directory as `configuration.py` (typically
 `peering_manager/`) named `ldap_config.py`. Define everything in this file.
 
-## General Server Configuration
+### General Server Configuration
 
 When using Windows Server 2012 you may need to specify a port on
 `AUTH_LDAP_SERVER_URI`.
@@ -41,7 +54,7 @@ AUTH_LDAP_BIND_DN = "CN=Peering,OU=Service Accounts,DC=example,DC=com"
 AUTH_LDAP_BIND_PASSWORD = "thisisnotasecurepassword"
 ```
 
-## User Authentication
+### User Authentication
 
 When using Windows Server 2012, `AUTH_LDAP_USER_DN_TEMPLATE` should be set to
 `None`.

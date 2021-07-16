@@ -17,20 +17,26 @@ markdown_extensions:
         emoji_index: !!python/name:materialx.emoji.twemoji
         emoji_generator: !!python/name:materialx.emoji.to_svg
     - pymdownx.tabbed
+    - pymdownx.superfences
 
 nav:
     - Introduction: "index.md"
-    - Setup:
+    - Manual installation:
         - 1. PostgreSQL: "setup/1-postgresql.md"
         - 2. Redis: "setup/2-redis.md"
         - 3. Peering Manager: "setup/3-peering-manager.md"
-        - 4. Web Server: "setup/4-web-server.md"
+        - 4. Web Server:
+            - a. Apache 2: "setup/4a-apache2.md"
+            - b. nginx: "setup/4b-nginx.md"
         - 5. Logging (Optional): "setup/5-logging.md"
         - 6. LDAP (Optional): "setup/6-ldap.md"
         - 7. Scheduled Tasks (Optional): "setup/7-scheduled-tasks.md"
         - 8. Prometheus (Optional): "setup/8-prometheus.md"
+        - uWSGI: "setup/uwsgi.md"
         - Upgrading: "setup/upgrading.md"
         - Migrate to systemd: "setup/migrate-to-systemd.md"
+    - Container Installation: "container.md"
+    - Ansible Installation: "ansible.md"
     - Configuration:
         - Configuring: "configuration/index.md"
         - Required Settings: "configuration/required-settings.md"
@@ -49,6 +55,7 @@ nav:
         - Router: "models/peering/router.md"
         - Routing Policy: "models/peering/routingpolicy.md"
         - Config Contexts: "models/peering/configcontexts.md"
+        - Connection: "models/net/connection.md"
         - Token: "models/users/token.md"
         - Tag: "models/utils/tag.md"
         - Webhook: "models/webhooks/webhook.md"
@@ -56,6 +63,11 @@ nav:
         - Writing Templates: "templating/index.md"
         - Jinja Filters: "templating/filters.md"
         - Exposed Variables: "templating/variables.md"
+        - Examples:
+            - Arista EOS: "templating/examples/arista-eos.md"
+            - Cisco IOS XR: "templating/examples/cisco-iosxr.md"
+            - Juniper Junos OS: "templating/examples/juniper-junos.md"
+            - Peering Request E-Mail: "templating/examples/peering-request-email.md"
     - Integration: "integration.md"
     - Development:
         - Getting Started: "development/getting-started.md"
