@@ -7,11 +7,11 @@ from django.utils.safestring import mark_safe
 from .models import ObjectChange, Tag
 
 OBJECT_CHANGE_ACTION = """
-{% if record.action == 1 %}
+{% if record.action == "create" %}
 <span class="badge badge-success">Created</span>
-{% elif record.action == 2 %}
+{% elif record.action == "update" %}
 <span class="badge badge-primary">Updated</span>
-{% elif record.action == 3 %}
+{% elif record.action == "delete" %}
 <span class="badge badge-danger">Deleted</span>
 {% endif %}
 """
