@@ -43,7 +43,7 @@ class ObjectChange(models.Model):
     Records a change done to an object and the user who did it.
     """
 
-    time = models.DateTimeField(auto_now_add=True, editable=False)
+    time = models.DateTimeField(auto_now_add=True, editable=False, db_index=True)
     user = models.ForeignKey(
         to=User,
         on_delete=models.SET_NULL,
@@ -53,7 +53,7 @@ class ObjectChange(models.Model):
     )
     user_name = models.CharField(max_length=150, editable=False)
     request_id = models.UUIDField(editable=False)
-    action = models.PositiveSmallIntegerField(choices=ObjectChangeAction.choices)
+    action = models.CharField(max_length=50, choices=ObjectChangeAction.choices)
     changed_object_type = models.ForeignKey(
         to=ContentType, on_delete=models.PROTECT, related_name="+"
     )

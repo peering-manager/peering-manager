@@ -31,7 +31,7 @@ class Color(models.TextChoices):
     WHITE = "ffffff", "White"
 
 
-class ObjectChangeAction(models.IntegerChoices):
-    CREATE = 1, "Created"
-    UPDATE = 2, "Updated"
-    DELETE = 3, "Deleted"
+class ObjectChangeAction(models.TextChoices):
+    CREATE = "create", "Created"
+    UPDATE = "update", "Updated"
+    DELETE = "delete", "Deleted"

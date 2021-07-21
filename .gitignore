@@ -158,10 +158,7 @@ Temporary Items
 .apdisk
 
 ### Project specifics ###
-backup
 gunicorn*.py
 static
 logs/*
 !logs/.gitkeep
-scripts/development/postgresql
-scripts/development/redis
