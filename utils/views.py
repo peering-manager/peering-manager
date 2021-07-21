@@ -122,12 +122,18 @@ class AddOrEditView(ReturnURLMixin, View):
     template = "utils/object_add_edit.html"
 
     def get_object(self, kwargs):
-        if "pk" in kwargs:
-            # Lookup object by PK
-            return get_object_or_404(self.model, pk=kwargs["pk"])
+        if "pk" not in kwargs:
+            # New object
+            return self.model()
 
-        # New object
-        return self.model()
+        # Lookup object by PK
+        obj = get_object_or_404(self.model, pk=kwargs["pk"])
+
+        # Take a snapshot of change-logged models
+        if hasattr(obj, "snapshot"):
+            obj.snapshot()
+
+        return obj
 
     def alter_object(self, obj, request, args, kwargs):
         return obj

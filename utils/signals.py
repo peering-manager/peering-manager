@@ -18,6 +18,10 @@ def _handle_changed_object(request, sender, instance, **kwargs):
     """
     Fires when an object is created or updated.
     """
+    # Ignore object without the right method
+    if not hasattr(instance, "to_objectchange"):
+        return
+
     # Queue the object for processing once the request completes
     if kwargs.get("created"):
         action = ObjectChangeAction.CREATE
@@ -29,12 +33,11 @@ def _handle_changed_object(request, sender, instance, **kwargs):
     else:
         return
 
-    # Record an ObjectChange if applicable
-    if hasattr(instance, "get_change"):
-        change = instance.get_change(action)
-        change.user = request.user
-        change.request_id = request.id
-        change.save()
+    # Record an object change
+    change = instance.to_objectchange(action)
+    change.user = request.user
+    change.request_id = request.id
+    change.save()
 
     # Enqueue webhooks
     enqueue_webhooks(instance, request.user, request.id, action)
@@ -57,12 +60,15 @@ def _handle_deleted_object(request, sender, instance, **kwargs):
     """
     Fires when an object is deleted.
     """
-    # Record an ObjectChange if applicable
-    if hasattr(instance, "get_change"):
-        change = instance.get_change(ObjectChangeAction.DELETE)
-        change.user = request.user
-        change.request_id = request.id
-        change.save()
+    # Ignore object without the right method
+    if not hasattr(instance, "to_objectchange"):
+        return
+
+    # Record an object change
+    change = instance.to_objectchange(ObjectChangeAction.DELETE)
+    change.user = request.user
+    change.request_id = request.id
+    change.save()
 
     # Enqueue webhooks
     enqueue_webhooks(instance, request.user, request.id, ObjectChangeAction.DELETE)
