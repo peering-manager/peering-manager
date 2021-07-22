@@ -12,7 +12,6 @@ from taggit.models import GenericTaggedItemBase, TagBase
 from .enums import ObjectChangeAction
 from .fields import ColorField
 from .functions import serialize_object
-from .templatetags.helpers import title_with_uppers
 
 
 class ChangeLoggedModel(models.Model):
@@ -94,7 +93,7 @@ class ObjectChange(models.Model):
 
     def __str__(self):
         return "{} {} {} by {}".format(
-            title_with_uppers(self.changed_object_type),
+            self.changed_object_type,
             self.object_repr,
             self.get_action_display().lower(),
             self.user_name,

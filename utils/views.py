@@ -35,6 +35,7 @@ from .forms import (
     TagFilterForm,
     TagForm,
 )
+from .functions import shallow_compare_dict
 from .models import ObjectChange, Tag, TaggedItem
 from .paginators import EnhancedPaginator, get_paginate_count
 from .tables import ObjectChangeTable, TagTable
@@ -737,22 +738,63 @@ class ObjectChangeDetails(PermissionRequiredMixin, View):
     permission_required = "utils.view_objectchange"
 
     def get(self, request, pk):
-        object_change = get_object_or_404(ObjectChange, pk=pk)
+        instance = get_object_or_404(ObjectChange, pk=pk)
 
         related_changes = ObjectChange.objects.filter(
-            request_id=object_change.request_id
-        ).exclude(pk=object_change.pk)
+            request_id=instance.request_id
+        ).exclude(pk=instance.pk)
         related_changes_table = ObjectChangeTable(
             data=related_changes[:50], orderable=False
         )
+
+        object_changes = ObjectChange.objects.filter(
+            changed_object_type=instance.changed_object_type,
+            changed_object_id=instance.changed_object_id,
+        )
+
+        next_change = (
+            object_changes.filter(time__gt=instance.time).order_by("time").first()
+        )
+        previous_change = (
+            object_changes.filter(time__lt=instance.time).order_by("-time").first()
+        )
+
+        if (
+            not instance.prechange_data
+            and instance.action in ["update", "delete"]
+            and previous_change
+        ):
+            non_atomic_change = True
+            prechange_data = previous_change.postchange_data
+        else:
+            non_atomic_change = False
+            prechange_data = instance.prechange_data
+
+        if prechange_data and instance.postchange_data:
+            diff_added = shallow_compare_dict(
+                prechange_data or dict(),
+                instance.postchange_data or dict(),
+                exclude=["updated"],
+            )
+            diff_removed = (
+                {x: prechange_data.get(x) for x in diff_added} if prechange_data else {}
+            )
+        else:
+            diff_added = None
+            diff_removed = None
 
         return render(
             request,
             "utils/object_change/details.html",
             {
-                "object_change": object_change,
+                "instance": instance,
+                "diff_added": diff_added,
+                "diff_removed": diff_removed,
+                "next_change": next_change,
+                "previous_change": previous_change,
                 "related_changes_table": related_changes_table,
                 "related_changes_count": related_changes.count(),
+                "non_atomic_change": non_atomic_change,
             },
         )
 

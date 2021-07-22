@@ -1,6 +1,16 @@
 {% extends '_base.html' %}
 {% load helpers %}
-{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ object_change }}{% endblock %}</li>{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'utils:objectchange_list' %}">Change Log</a></li>
+{% if instance.related_object.get_absolute_url %}
+<li class="breadcrumb-item"><a href="{{ instance.related_object.get_absolute_url }}changelog/">{{ instance.related_object }}</a></li>
+{% elif instance.changed_object.get_absolute_url %}
+<li class="breadcrumb-item"><a href="{{ instance.changed_object.get_absolute_url }}changelog/">{{ instance.changed_object }}</a></li>
+{% elif instance.changed_object %}
+<li class="breadcrumb-item">{{ instance.changed_object }}</li>
+{% endif %}
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
+{% endblock %}
 {% block content %}
       <div class="row">
         <div class="col-md-5">
@@ -9,42 +19,97 @@
             <table class="card-body table table-hover attr-table mb-0">
               <tr>
                 <td>Time</td>
-                <td>{{ object_change.time | date_span }}</td>
+                <td>{{ instance.time | date_span }}</td>
               </tr>
               <tr>
                 <td>User</td>
-                <td>{{ object_change.user | default:object_change.user_name }}</td>
+                <td>{{ instance.user | default:instance.user_name }}</td>
               </tr>
               <tr>
                 <td>Action</td>
-                <td>{{ object_change.get_action_display }}</td>
+                <td>{{ instance.get_action_display }}</td>
               </tr>
               <tr>
                 <td>Object Type</td>
-                <td>{{ object_change.changed_object_type }}</td>
+                <td>{{ instance.changed_object_type }}</td>
               </tr>
               <tr>
                 <td>Object</td>
                 <td>
-                  {% if object_change.changed_object.get_absolute_url %}
-                  <a href="{{ object_change.changed_object.get_absolute_url }}">{{ object_change.changed_object }}</a>
+                  {% if instance.changed_object.get_absolute_url %}
+                  <a href="{{ instance.changed_object.get_absolute_url }}">{{ instance.changed_object }}</a>
                   {% else %}
-                  {{ object_change.object_repr }}
+                  {{ instance.object_repr }}
                   {% endif %}
                 </td>
               </tr>
               <tr>
                 <td>Request ID</td>
-                <td><code>{{ object_change.request_id }}</code></td>
+                <td><code>{{ instance.request_id }}</code></td>
               </tr>
             </table>
           </div>
         </div>
         <div class="col-md-7">
           <div class="card">
-            <div class="card-header"><strong>Object Data</strong></div>
+            <div class="card-header">
+              <strong>Difference</strong>
+              <div class="btn-group float-right" role="group" aria-label="Change Navigation">
+                <a {% if previous_change %}href="{% url 'utils:objectchange_details' pk=previous_change.pk %}"{% endif %} class="btn btn-xs btn-secondary{% if not previous_change %} disabled{% endif %}">
+                  <i class="fas fa-chevron-left"></i> Previous
+                </a>
+                <a {% if next_change %}href="{% url 'utils:objectchange_details' pk=next_change.pk %}"{% endif %} class="btn btn-xs btn-secondary{% if not next_change %} disabled{% endif %}">
+                  Next <i class="fas fa-chevron-right"></i>
+                </a>
+              </div>
+            </div>
             <div class="card-body">
-                <pre class="pre-scrollable"><code>{{ object_change.object_data | render_json }}</code></pre>
+              {% if diff_added == diff_removed %}
+              {% if instance.action == 'create' %}
+              Object created
+              {% elif instance.action == 'delete' %}
+              Object deleted
+              {% else %}
+              No changes
+              {% endif %}
+              {% else %}
+              <pre class="pre-diff pre-diff-added">{{ diff_removed | render_json }}</pre>
+              <pre class="pre-diff pre-diff-removed">{{ diff_added | render_json }}</pre>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-2">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header"><strong>Pre-Change Data</strong></div>
+            <div class="card-body">
+              {% if instance.prechange_data %}
+              <pre class="pre-diff">{% for k, v in instance.prechange_data.items %}{% spaceless %}
+                <span{% if k in diff_removed %} style="background-color: #ffdce0"{% endif %}>{{ k }}: {{ v | render_json }}</span>
+                {% endspaceless %}
+{% endfor %}</pre>
+              {% elif non_atomic_change %}
+              Warning: Comparing non-atomic change to previous change record (<a href="{% url 'utils:objectchange_details' pk=previous_change.pk %}">{{ previous_change.pk }}</a>)
+              {% else %}
+              <span class="text-muted">None</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header"><strong>Post-Change Data</strong></div>
+            <div class="card-body">
+              {% if instance.postchange_data %}
+              <pre class="pre-diff">{% for k, v in instance.postchange_data.items %}{% spaceless %}
+                <span{% if k in diff_added %} style="background-color: #cdffd8"{% endif %}>{{ k }}: {{ v | render_json }}</span>
+                {% endspaceless %}
+{% endfor %}</pre>
+              {% else %}
+              <span class="text-muted">None</span>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -54,7 +119,7 @@
           {% include 'utils/card_table.html' with table=related_changes_table header='Related Changes' %}
           {% if related_changes_count > related_changes_table.rows|length %}
           <div class="float-right mt-2">
-            <a href="{% url 'utils:objectchange_list' %}?request_id={{ object_change.request_id }}" class="btn btn-primary">See all {{ related_changes_count|add:"1" }} changes</a>
+            <a href="{% url 'utils:objectchange_list' %}?request_id={{ instance.request_id }}" class="btn btn-primary">See all {{ related_changes_count | add:"1" }} changes</a>
           </div>
           {% endif %}
         </div>
