@@ -84,3 +84,21 @@ def serialize_object(instance, extra=None, exclude=None):
             data.pop(key)
 
     return data
+
+
+def shallow_compare_dict(first_dict, second_dict, exclude=None):
+    """
+    Return a new dictionary with the different key/value pairs found between the first
+    and the second dicts. Only the equality of the first layer of keys/values is
+    checked. `exclude` is a list or tuple of keys to be ignored. The values from the
+    second dict are used in the return value.
+    """
+    difference = {}
+
+    for key in second_dict:
+        if first_dict.get(key) != second_dict[key]:
+            if isinstance(exclude, (list, tuple)) and key in exclude:
+                continue
+            difference[key] = second_dict[key]
+
+    return difference

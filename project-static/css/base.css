@@ -97,6 +97,23 @@ ul.nav-tabs, ul.nav-pills {
   padding: 1% 1% 1% 1%;
   margin-bottom: 0%;
 }
+.pre-diff {
+  display: block;
+  padding: 9.5px;
+  margin: 0 0 10px;
+  color: #333;
+  word-break: break-all;
+  word-wrap: break-word;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.pre-diff-added {
+  background-color: #ffdce0;
+}
+.pre-diff-removed {
+  background-color: #cdffd8;
+}
 nav ul.pagination {
   margin-top: 0;
   margin-bottom: 8px !important;
