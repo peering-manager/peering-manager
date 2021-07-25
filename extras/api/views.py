@@ -1,6 +1,10 @@
 from extras.filters import JobResultFilterSet, WebhookFilterSet
 from extras.models import JobResult, Webhook
-from utils.api import ModelViewSet, ReadOnlyModelViewSet, StaticChoicesViewSet
+from peering_manager.api.views import (
+    ModelViewSet,
+    ReadOnlyModelViewSet,
+    StaticChoicesViewSet,
+)
 
 from .serializers import JobResultSerializer, WebhookSerializer
 

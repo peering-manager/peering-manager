@@ -1,6 +1,6 @@
 from net.filters import ConnectionFilterSet
 from net.models import Connection
-from utils.api import ModelViewSet
+from peering_manager.api.views import ModelViewSet
 
 from .serializers import ConnectionSerializer
 

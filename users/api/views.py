@@ -6,8 +6,8 @@ from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 
 from peering.models import AutonomousSystem
+from peering_manager.api.views import ModelViewSet
 from users.filters import GroupFilterSet, UserFilterSet
-from utils.api import ModelViewSet
 
 from .serializers import GroupSerializer, UserSerializer
 

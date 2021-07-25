@@ -36,8 +36,9 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
+from peering_manager.api.exceptions import ServiceUnavailable
+from peering_manager.api.views import ModelViewSet, StaticChoicesViewSet
 from peeringdb.api.serializers import NetworkIXLanSerializer
-from utils.api import ModelViewSet, ServiceUnavailable, StaticChoicesViewSet
 from utils.functions import get_serializer_for_model
 
 from .serializers import (
@@ -47,9 +48,9 @@ from .serializers import (
     ConfigurationSerializer,
     DirectPeeringSessionSerializer,
     EmailSerializer,
-    InternetExchangeNestedSerializer,
     InternetExchangePeeringSessionSerializer,
     InternetExchangeSerializer,
+    NestedInternetExchangeSerializer,
     RouterSerializer,
     RoutingPolicySerializer,
 )
@@ -102,7 +103,7 @@ class AutonomousSystemViewSet(ModelViewSet):
         if affiliated:
             return Response(
                 {
-                    "shared-internet-exchanges": InternetExchangeNestedSerializer(
+                    "shared-internet-exchanges": NestedInternetExchangeSerializer(
                         self.get_object().get_shared_internet_exchange_points(
                             affiliated
                         ),

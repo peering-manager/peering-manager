@@ -117,9 +117,11 @@ REST_FRAMEWORK = {
     "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.AcceptHeaderVersioning",
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
-        "peering_manager.api.TokenAuthentication",
+        "peering_manager.api.authentication.TokenAuthentication",
     ],
-    "DEFAULT_PERMISSION_CLASSES": ["peering_manager.api.TokenPermissions"],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "peering_manager.api.authentication.TokenPermissions"
+    ],
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": PAGINATE_COUNT,

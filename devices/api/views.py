@@ -1,6 +1,6 @@
 from devices.filters import PlatformFilterSet
 from devices.models import Platform
-from utils.api import ModelViewSet
+from peering_manager.api.views import ModelViewSet
 
 from .serializers import PlatformSerializer
 

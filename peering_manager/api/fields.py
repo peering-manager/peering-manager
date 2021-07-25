@@ -3,7 +3,8 @@ from collections import OrderedDict
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.relations import RelatedField
+from rest_framework.fields import ListField
+from rest_framework.relations import PrimaryKeyRelatedField, RelatedField
 
 
 class ChoiceField(serializers.Field):
@@ -106,3 +107,20 @@ class ContentTypeField(RelatedField):
 
     def to_representation(self, obj):
         return f"{obj.app_label}.{obj.model}"
+
+
+class SerializedPKRelatedField(PrimaryKeyRelatedField):
+    """
+    Extends DRF's `PrimaryKeyRelatedField` to return a serialized object on read.
+    This is used for representing related objects in a `ManyToManyField` while still
+    allowing a set of primary keys to be written.
+    """
+
+    def __init__(self, serializer, **kwargs):
+        self.serializer = serializer
+        self.pk_field = kwargs.pop("pk_field", None)
+
+        super().__init__(**kwargs)
+
+    def to_representation(self, value):
+        return self.serializer(value, context={"request": self.context["request"]}).data

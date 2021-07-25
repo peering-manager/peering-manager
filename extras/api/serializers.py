@@ -1,15 +1,22 @@
 from rest_framework import serializers
 
 from extras.models import JobResult, Webhook
-from users.api.nested_serializers import UserNestedSerializer
-from utils.api.fields import ContentTypeField
+from peering_manager.api.fields import ContentTypeField
+from users.api.nested_serializers import NestedUserSerializer
 
 from .nested_serializers import *
+
+__all__ = [
+    "JobResultSerializer",
+    "WebhookSerializer",
+    "NestedJobResultSerializer",
+    "NestedWebhookSerializer",
+]
 
 
 class JobResultSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="extras-api:jobresult-detail")
-    user = UserNestedSerializer(read_only=True)
+    user = NestedUserSerializer(read_only=True)
     obj_type = ContentTypeField(read_only=True)
 
     class Meta:

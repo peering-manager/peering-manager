@@ -1,6 +1,4 @@
-from rest_framework.serializers import ModelSerializer
-
-from net.api.serializers import ConnectionNestedSerializer
+from net.api.serializers import NestedConnectionSerializer
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -13,16 +11,54 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from utils.api import InetAddressArrayField, WriteEnabledNestedSerializer
-from utils.api.serializers import TaggedObjectSerializer
+from peering_manager.api.fields import SerializedPKRelatedField
+from peering_manager.api.serializers import PrimaryModelSerializer
 
 from .nested_serializers import *
 
+__all__ = [
+    "AutonomousSystemSerializer",
+    "BGPGroupSerializer",
+    "CommunitySerializer",
+    "ConfigurationSerializer",
+    "DirectPeeringSessionSerializer",
+    "EmailSerializer",
+    "InternetExchangeSerializer",
+    "InternetExchangePeeringSessionSerializer",
+    "RouterSerializer",
+    "RoutingPolicySerializer",
+    "NestedAutonomousSystemSerializer",
+    "NestedBGPGroupSerializer",
+    "NestedCommunitySerializer",
+    "NestedConfigurationSerializer",
+    "NestedDirectPeeringSessionSerializer",
+    "NestedEmailSerializer",
+    "NestedInternetExchangeSerializer",
+    "NestedInternetExchangePeeringSessionSerializer",
+    "NestedRouterSerializer",
+    "NestedRoutingPolicySerializer",
+]
 
-class AutonomousSystemSerializer(TaggedObjectSerializer, WriteEnabledNestedSerializer):
-    import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
-    export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
-    communities = CommunityNestedSerializer(many=True, required=False)
+
+class AutonomousSystemSerializer(PrimaryModelSerializer):
+    import_routing_policies = SerializedPKRelatedField(
+        queryset=RoutingPolicy.objects.all(),
+        serializer=NestedRoutingPolicySerializer,
+        required=False,
+        many=True,
+    )
+    export_routing_policies = SerializedPKRelatedField(
+        queryset=RoutingPolicy.objects.all(),
+        serializer=NestedRoutingPolicySerializer,
+        required=False,
+        many=True,
+    )
+    communities = SerializedPKRelatedField(
+        queryset=Community.objects.all(),
+        serializer=NestedCommunitySerializer,
+        required=False,
+        many=True,
+    )
 
     class Meta:
         model = AutonomousSystem
@@ -54,10 +90,25 @@ class AutonomousSystemSerializer(TaggedObjectSerializer, WriteEnabledNestedSeria
         ]
 
 
-class BGPGroupSerializer(TaggedObjectSerializer, WriteEnabledNestedSerializer):
-    import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
-    export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
-    communities = CommunityNestedSerializer(many=True, required=False)
+class BGPGroupSerializer(PrimaryModelSerializer):
+    import_routing_policies = SerializedPKRelatedField(
+        queryset=RoutingPolicy.objects.all(),
+        serializer=NestedRoutingPolicySerializer,
+        required=False,
+        many=True,
+    )
+    export_routing_policies = SerializedPKRelatedField(
+        queryset=RoutingPolicy.objects.all(),
+        serializer=NestedRoutingPolicySerializer,
+        required=False,
+        many=True,
+    )
+    communities = SerializedPKRelatedField(
+        queryset=Community.objects.all(),
+        serializer=NestedCommunitySerializer,
+        required=False,
+        many=True,
+    )
 
     class Meta:
         model = BGPGroup
@@ -77,13 +128,13 @@ class BGPGroupSerializer(TaggedObjectSerializer, WriteEnabledNestedSerializer):
         ]
 
 
-class CommunitySerializer(TaggedObjectSerializer, ModelSerializer):
+class CommunitySerializer(PrimaryModelSerializer):
     class Meta:
         model = Community
         fields = ["id", "name", "slug", "value", "type", "comments", "tags"]
 
 
-class ConfigurationSerializer(TaggedObjectSerializer, ModelSerializer):
+class ConfigurationSerializer(PrimaryModelSerializer):
     class Meta:
         model = Configuration
         fields = [
@@ -97,74 +148,23 @@ class ConfigurationSerializer(TaggedObjectSerializer, ModelSerializer):
         ]
 
 
-class EmailSerializer(TaggedObjectSerializer, ModelSerializer):
-    class Meta:
-        model = Email
-        fields = [
-            "id",
-            "name",
-            "subject",
-            "template",
-            "jinja2_trim",
-            "jinja2_lstrip",
-            "comments",
-            "tags",
-        ]
-
-
-class RouterSerializer(TaggedObjectSerializer, WriteEnabledNestedSerializer):
-    configuration_template = ConfigurationNestedSerializer(required=False)
-    local_autonomous_system = AutonomousSystemNestedSerializer()
-
-    class Meta:
-        model = Router
-        fields = [
-            "id",
-            "name",
-            "hostname",
-            "platform",
-            "encrypt_passwords",
-            "configuration_template",
-            "local_autonomous_system",
-            "netbox_device_id",
-            "device_state",
-            "use_netbox",
-            "config_context",
-            "napalm_username",
-            "napalm_password",
-            "napalm_timeout",
-            "napalm_args",
-            "comments",
-            "tags",
-        ]
-        nested_fields = ["configuration_template"]
-
-
-class RoutingPolicySerializer(TaggedObjectSerializer, ModelSerializer):
-    class Meta:
-        model = RoutingPolicy
-        fields = [
-            "id",
-            "name",
-            "slug",
-            "type",
-            "weight",
-            "address_family",
-            "config_context",
-            "comments",
-            "tags",
-        ]
-
-
-class DirectPeeringSessionSerializer(
-    TaggedObjectSerializer, WriteEnabledNestedSerializer
-):
-    local_autonomous_system = AutonomousSystemNestedSerializer()
-    autonomous_system = AutonomousSystemNestedSerializer()
-    bgp_group = BGPGroupNestedSerializer(required=False)
-    import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
-    export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
-    router = RouterNestedSerializer(required=False)
+class DirectPeeringSessionSerializer(PrimaryModelSerializer):
+    local_autonomous_system = NestedAutonomousSystemSerializer()
+    autonomous_system = NestedAutonomousSystemSerializer()
+    bgp_group = NestedBGPGroupSerializer(required=False)
+    import_routing_policies = SerializedPKRelatedField(
+        queryset=RoutingPolicy.objects.all(),
+        serializer=NestedRoutingPolicySerializer,
+        required=False,
+        many=True,
+    )
+    export_routing_policies = SerializedPKRelatedField(
+        queryset=RoutingPolicy.objects.all(),
+        serializer=NestedRoutingPolicySerializer,
+        required=False,
+        many=True,
+    )
+    router = NestedRouterSerializer(required=False)
 
     class Meta:
         model = DirectPeeringSession
@@ -199,11 +199,32 @@ class DirectPeeringSessionSerializer(
         ]
 
 
-class InternetExchangeSerializer(TaggedObjectSerializer, WriteEnabledNestedSerializer):
-    local_autonomous_system = AutonomousSystemNestedSerializer()
-    import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
-    export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
-    communities = CommunityNestedSerializer(many=True, required=False)
+class EmailSerializer(PrimaryModelSerializer):
+    class Meta:
+        model = Email
+        fields = ["id", "name", "subject", "template", "comments", "tags"]
+
+
+class InternetExchangeSerializer(PrimaryModelSerializer):
+    local_autonomous_system = NestedAutonomousSystemSerializer()
+    import_routing_policies = SerializedPKRelatedField(
+        queryset=RoutingPolicy.objects.all(),
+        serializer=NestedRoutingPolicySerializer,
+        required=False,
+        many=True,
+    )
+    export_routing_policies = SerializedPKRelatedField(
+        queryset=RoutingPolicy.objects.all(),
+        serializer=NestedRoutingPolicySerializer,
+        required=False,
+        many=True,
+    )
+    communities = SerializedPKRelatedField(
+        queryset=Community.objects.all(),
+        serializer=NestedCommunitySerializer,
+        required=False,
+        many=True,
+    )
 
     class Meta:
         model = InternetExchange
@@ -228,13 +249,21 @@ class InternetExchangeSerializer(TaggedObjectSerializer, WriteEnabledNestedSeria
         ]
 
 
-class InternetExchangePeeringSessionSerializer(
-    TaggedObjectSerializer, WriteEnabledNestedSerializer
-):
-    autonomous_system = AutonomousSystemNestedSerializer()
-    ixp_connection = ConnectionNestedSerializer()
-    import_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
-    export_routing_policies = RoutingPolicyNestedSerializer(many=True, required=False)
+class InternetExchangePeeringSessionSerializer(PrimaryModelSerializer):
+    autonomous_system = NestedAutonomousSystemSerializer()
+    ixp_connection = NestedConnectionSerializer()
+    import_routing_policies = SerializedPKRelatedField(
+        queryset=RoutingPolicy.objects.all(),
+        serializer=NestedRoutingPolicySerializer,
+        required=False,
+        many=True,
+    )
+    export_routing_policies = SerializedPKRelatedField(
+        queryset=RoutingPolicy.objects.all(),
+        serializer=NestedRoutingPolicySerializer,
+        required=False,
+        many=True,
+    )
 
     class Meta:
         model = InternetExchangePeeringSession
@@ -259,3 +288,47 @@ class InternetExchangePeeringSessionSerializer(
             "tags",
         ]
         nested_fields = ["import_routing_policies", "export_routing_policies"]
+
+
+class RouterSerializer(PrimaryModelSerializer):
+    configuration_template = NestedConfigurationSerializer(required=False)
+    local_autonomous_system = NestedAutonomousSystemSerializer()
+
+    class Meta:
+        model = Router
+        fields = [
+            "id",
+            "name",
+            "hostname",
+            "platform",
+            "encrypt_passwords",
+            "configuration_template",
+            "local_autonomous_system",
+            "netbox_device_id",
+            "device_state",
+            "use_netbox",
+            "config_context",
+            "napalm_username",
+            "napalm_password",
+            "napalm_timeout",
+            "napalm_args",
+            "comments",
+            "tags",
+        ]
+        nested_fields = ["configuration_template"]
+
+
+class RoutingPolicySerializer(PrimaryModelSerializer):
+    class Meta:
+        model = RoutingPolicy
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "type",
+            "weight",
+            "address_family",
+            "config_context",
+            "comments",
+            "tags",
+        ]

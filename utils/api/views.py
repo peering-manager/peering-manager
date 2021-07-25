@@ -1,9 +1,9 @@
 from django.db.models import Count
 
+from peering_manager.api.views import ModelViewSet
 from utils.filters import ObjectChangeFilterSet, TagFilterSet
 from utils.models import ObjectChange, Tag
 
-from . import ModelViewSet
 from .serializers import ObjectChangeSerializer, TagSerializer
 
 

@@ -14,6 +14,23 @@ def curry(_curried_func, *args, **kwargs):
     return _curried
 
 
+def dict_to_filter_params(d, prefix=""):
+    """
+    Flattens a dictionary of attributes to a set of parameters suitable for filtering
+    a `QuerySet` that uses `__` as separator.
+    """
+    params = {}
+
+    for key, val in d.items():
+        k = prefix + key
+        if isinstance(val, dict):
+            params.update(dict_to_filter_params(val, k + "__"))
+        else:
+            params[k] = val
+
+    return params
+
+
 def generate_signature(data, secret):
     """
     Returns a signature that can be used to verify that the webhook data were not

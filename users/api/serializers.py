@@ -1,12 +1,19 @@
 from django.contrib.auth.models import Group, User
 from rest_framework import serializers
 
-from .nested_serializers import GroupNestedSerializer, UserNestedSerializer
+from .nested_serializers import *
+
+__all__ = [
+    "GroupSerializer",
+    "UserSerializer",
+    "NestedGroupSerializer",
+    "NestedUserSerializer",
+]
 
 
 class UserSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="users-api:user-detail")
-    groups = GroupNestedSerializer(many=True, required=False)
+    groups = NestedGroupSerializer(many=True, required=False)
 
     class Meta:
         model = User
