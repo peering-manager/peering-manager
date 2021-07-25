@@ -6,7 +6,7 @@ from utils.enums import ObjectChangeAction
 from utils.functions import get_serializer_for_model
 from utils.models import ObjectChange, Tag
 
-__all__ = ["ObjectChangeSerializer", "TagSerializer", "NestedTagSerializer"]
+__all__ = ("ObjectChangeSerializer", "TagSerializer", "NestedTagSerializer")
 
 
 class ObjectChangeSerializer(serializers.ModelSerializer):

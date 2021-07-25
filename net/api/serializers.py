@@ -7,7 +7,7 @@ from peering_manager.api.serializers import PrimaryModelSerializer
 
 from .nested_serializers import *
 
-__all__ = ["ConnectionSerializer", "NestedConnectionSerializer"]
+__all__ = ("ConnectionSerializer", "NestedConnectionSerializer")
 
 
 class ConnectionSerializer(PrimaryModelSerializer):

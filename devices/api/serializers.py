@@ -3,7 +3,7 @@ from peering_manager.api.serializers import PrimaryModelSerializer
 
 from .nested_serializers import *
 
-__all__ = ["NestedPlatformSerializer", "PlatformSerializer"]
+__all__ = ("NestedPlatformSerializer", "PlatformSerializer")
 
 
 class PlatformSerializer(PrimaryModelSerializer):

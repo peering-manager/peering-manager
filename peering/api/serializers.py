@@ -16,7 +16,7 @@ from peering_manager.api.serializers import PrimaryModelSerializer
 
 from .nested_serializers import *
 
-__all__ = [
+__all__ = (
     "AutonomousSystemSerializer",
     "BGPGroupSerializer",
     "CommunitySerializer",
@@ -37,7 +37,7 @@ __all__ = [
     "NestedInternetExchangePeeringSessionSerializer",
     "NestedRouterSerializer",
     "NestedRoutingPolicySerializer",
-]
+)
 
 
 class AutonomousSystemSerializer(PrimaryModelSerializer):

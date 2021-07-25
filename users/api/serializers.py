@@ -3,12 +3,12 @@ from rest_framework import serializers
 
 from .nested_serializers import *
 
-__all__ = [
+__all__ = (
     "GroupSerializer",
     "UserSerializer",
     "NestedGroupSerializer",
     "NestedUserSerializer",
-]
+)
 
 
 class UserSerializer(serializers.ModelSerializer):

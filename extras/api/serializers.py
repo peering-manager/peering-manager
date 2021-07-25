@@ -6,12 +6,12 @@ from users.api.nested_serializers import NestedUserSerializer
 
 from .nested_serializers import *
 
-__all__ = [
+__all__ = (
     "JobResultSerializer",
     "WebhookSerializer",
     "NestedJobResultSerializer",
     "NestedWebhookSerializer",
-]
+)
 
 
 class JobResultSerializer(serializers.ModelSerializer):
