@@ -1,15 +1,9 @@
-from rest_framework import routers
+from peering_manager.api import OrderedDefaultRouter
 
 from . import views
 
-
-class NetRootView(routers.APIRootView):
-    def get_view_name(self):
-        return "Net"
-
-
-router = routers.DefaultRouter()
-router.APIRootView = NetRootView
+router = OrderedDefaultRouter()
+router.APIRootView = views.NetRootView
 
 router.register("connections", views.ConnectionViewSet)
 

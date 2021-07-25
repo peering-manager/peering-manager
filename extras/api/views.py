@@ -1,3 +1,5 @@
+from rest_framework.routers import APIRootView
+
 from extras.filters import JobResultFilterSet, WebhookFilterSet
 from extras.models import JobResult, Webhook
 from peering_manager.api.views import (
@@ -7,6 +9,11 @@ from peering_manager.api.views import (
 )
 
 from .serializers import JobResultSerializer, WebhookSerializer
+
+
+class ExtrasRootView(APIRootView):
+    def get_view_name(self):
+        return "Extras"
 
 
 class ExtrasFieldChoicesViewSet(StaticChoicesViewSet):

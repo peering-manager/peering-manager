@@ -2,9 +2,9 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
+from rest_framework.routers import APIRootView
 
 from extras.models import JobResult
-from peering.enums import DeviceState
 from peering.filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
@@ -54,6 +54,11 @@ from .serializers import (
     RouterSerializer,
     RoutingPolicySerializer,
 )
+
+
+class PeeringRootView(APIRootView):
+    def get_view_name(self):
+        return "Peering"
 
 
 class PeeringFieldChoicesViewSet(StaticChoicesViewSet):

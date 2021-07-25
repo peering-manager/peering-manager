@@ -12,6 +12,11 @@ from users.filters import GroupFilterSet, UserFilterSet
 from .serializers import GroupSerializer, UserSerializer
 
 
+class UsersRootView(APIRootView):
+    def get_view_name(self):
+        return "Users"
+
+
 class GroupViewSet(ModelViewSet):
     queryset = Group.objects.all().annotate(user_count=Count("user")).order_by("name")
     serializer_class = GroupSerializer

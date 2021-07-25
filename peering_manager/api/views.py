@@ -3,11 +3,43 @@ from collections import OrderedDict
 from django.http import Http404
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet as __ModelViewSet
 from rest_framework.viewsets import ReadOnlyModelViewSet as __ReadOnlyModelViewSet
 from rest_framework.viewsets import ViewSet
 
 from utils.functions import get_serializer_for_model
+
+
+class APIRootView(APIView):
+    _ignore_model_permissions = True
+    exclude_from_schema = True
+
+    @staticmethod
+    def get_namespace(name, request, format):
+        return (
+            name,
+            reverse(f"{name}-api:api-root", request=request, format=format),
+        )
+
+    def get_view_name(self):
+        return "API Root"
+
+    def get(self, request, format=None):
+        return Response(
+            OrderedDict(
+                (
+                    APIRootView.get_namespace("devices", request, format),
+                    APIRootView.get_namespace("extras", request, format),
+                    APIRootView.get_namespace("net", request, format),
+                    APIRootView.get_namespace("peering", request, format),
+                    APIRootView.get_namespace("peeringdb", request, format),
+                    APIRootView.get_namespace("users", request, format),
+                    APIRootView.get_namespace("utils", request, format),
+                )
+            )
+        )
 
 
 class ModelViewSet(__ModelViewSet):

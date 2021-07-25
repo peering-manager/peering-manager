@@ -1,19 +1,9 @@
-from rest_framework import routers
+from peering_manager.api import OrderedDefaultRouter
 
 from . import views
 
-
-class PeeringDBRootView(routers.APIRootView):
-    """
-    PeeringDB API root view
-    """
-
-    def get_view_name(self):
-        return "PeeringDB"
-
-
-router = routers.DefaultRouter()
-router.APIRootView = PeeringDBRootView
+router = OrderedDefaultRouter()
+router.APIRootView = views.PeeringDBRootView
 
 router.register("cache", views.CacheViewSet, basename="cache")
 router.register("facilities", views.FacilityViewSet)

@@ -1,19 +1,9 @@
-from rest_framework import routers
+from peering_manager.api import OrderedDefaultRouter
 
 from . import views
 
-
-class ExtrasRootView(routers.APIRootView):
-    """
-    Extras API root view
-    """
-
-    def get_view_name(self):
-        return "Extras"
-
-
-router = routers.DefaultRouter()
-router.APIRootView = ExtrasRootView
+router = OrderedDefaultRouter()
+router.APIRootView = views.ExtrasRootView
 
 router.register("_choices", views.ExtrasFieldChoicesViewSet, basename="field-choice")
 

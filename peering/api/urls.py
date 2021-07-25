@@ -1,19 +1,9 @@
-from rest_framework import routers
+from peering_manager.api import OrderedDefaultRouter
 
 from . import views
 
-
-class PeeringRootView(routers.APIRootView):
-    """
-    Peering API root view
-    """
-
-    def get_view_name(self):
-        return "Peering"
-
-
-router = routers.DefaultRouter()
-router.APIRootView = PeeringRootView
+router = OrderedDefaultRouter()
+router.APIRootView = views.PeeringRootView
 
 router.register("_choices", views.PeeringFieldChoicesViewSet, basename="field-choice")
 

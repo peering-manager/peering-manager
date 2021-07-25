@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
+from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 
 from extras.models import JobResult
@@ -36,6 +37,11 @@ from .serializers import (
     OrganizationSerializer,
     SynchronizationSerializer,
 )
+
+
+class PeeringDBRootView(APIRootView):
+    def get_view_name(self):
+        return "PeeringDB"
 
 
 class CacheViewSet(ViewSet):

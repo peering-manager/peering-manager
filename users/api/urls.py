@@ -1,19 +1,9 @@
-from rest_framework import routers
+from peering_manager.api import OrderedDefaultRouter
 
 from . import views
 
-
-class UsersRootView(routers.APIRootView):
-    """
-    Peering API root view
-    """
-
-    def get_view_name(self):
-        return "Users"
-
-
-router = routers.DefaultRouter()
-router.APIRootView = UsersRootView
+router = OrderedDefaultRouter()
+router.APIRootView = views.UsersRootView
 
 router.register("groups", views.GroupViewSet)
 router.register("users", views.UserViewSet)

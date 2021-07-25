@@ -2,16 +2,16 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.urls import path
 
+from peering_manager.admin import admin_site
+from peering_manager.api.views import APIRootView
+from peering_manager.views import Home, handle_500, trigger_500
 from users.views import LoginView, LogoutView
 
-from . import views
-from .admin import admin_site
-
-handler500 = views.handle_500
+handler500 = handle_500
 
 __patterns = [
     # Home
-    path("", views.Home.as_view(), name="home"),
+    path("", Home.as_view(), name="home"),
     # Login/Logout
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
@@ -24,7 +24,7 @@ __patterns = [
     path("", include("utils.urls")),
     path("user/", include("users.urls")),
     # API
-    path("api/", views.APIRootView.as_view(), name="api-root"),
+    path("api/", APIRootView.as_view(), name="api-root"),
     path("api/devices/", include("devices.api.urls")),
     path("api/extras/", include("extras.api.urls")),
     path("api/net/", include("net.api.urls")),
@@ -36,7 +36,7 @@ __patterns = [
     path("admin/background-tasks/", include("django_rq.urls")),
     path("admin/", admin_site.urls),
     # Error triggering
-    path("error500/", views.trigger_500),
+    path("error500/", trigger_500),
 ]
 
 # Add debug_toolbar in debug mode
