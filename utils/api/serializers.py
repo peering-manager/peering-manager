@@ -31,7 +31,8 @@ class ObjectChangeSerializer(serializers.ModelSerializer):
             "changed_object_type",
             "changed_object_id",
             "changed_object",
-            "object_data",
+            "prechange_data",
+            "postchange_data",
         ]
 
     def get_changed_object(self, o):
