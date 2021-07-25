@@ -1,6 +1,11 @@
+import platform
 from collections import OrderedDict
 
+from django import __version__ as DJANGO_VERSION
+from django.apps import apps
+from django.conf import settings
 from django.http import Http404
+from django_rq.queues import get_connection
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -8,7 +13,9 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet as __ModelViewSet
 from rest_framework.viewsets import ReadOnlyModelViewSet as __ReadOnlyModelViewSet
 from rest_framework.viewsets import ViewSet
+from rq.worker import Worker
 
+from peering_manager.api.authentication import IsAuthenticatedOrLoginNotRequired
 from utils.functions import get_serializer_for_model
 
 
@@ -39,6 +46,36 @@ class APIRootView(APIView):
                     APIRootView.get_namespace("utils", request, format),
                 )
             )
+        )
+
+
+class StatusView(APIView):
+    """
+    A lightweight read-only endpoint for conveying NetBox's current operational status.
+    """
+
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
+
+    def get(self, request):
+        # Gather the version numbers from all installed Django apps
+        installed_apps = {}
+        for app_config in apps.get_app_configs():
+            app = app_config.module
+            version = getattr(app, "VERSION", getattr(app, "__version__", None))
+            if version:
+                if type(version) is tuple:
+                    version = ".".join(str(n) for n in version)
+                installed_apps[app_config.name] = version
+        installed_apps = {k: v for k, v in sorted(installed_apps.items())}
+
+        return Response(
+            {
+                "django-version": DJANGO_VERSION,
+                "installed-apps": installed_apps,
+                "peering-manager-version": settings.VERSION,
+                "python-version": platform.python_version(),
+                "rq-workers-running": Worker.count(get_connection("default")),
+            }
         )
 
 

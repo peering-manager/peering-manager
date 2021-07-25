@@ -3,7 +3,7 @@ from django.conf.urls import include, url
 from django.urls import path
 
 from peering_manager.admin import admin_site
-from peering_manager.api.views import APIRootView
+from peering_manager.api.views import APIRootView, StatusView
 from peering_manager.views import Home, handle_500, trigger_500
 from users.views import LoginView, LogoutView
 
@@ -32,6 +32,7 @@ __patterns = [
     path("api/peeringdb/", include("peeringdb.api.urls")),
     path("api/users/", include("users.api.urls")),
     path("api/utils/", include("utils.api.urls")),
+    path("api/status/", StatusView.as_view(), name="api-status"),
     # Admin
     path("admin/background-tasks/", include("django_rq.urls")),
     path("admin/", admin_site.urls),
