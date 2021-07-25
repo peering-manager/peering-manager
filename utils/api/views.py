@@ -9,10 +9,6 @@ from .serializers import ObjectChangeSerializer, TagSerializer
 
 
 class UtilsRootView(APIRootView):
-    """
-    Peering API root view
-    """
-
     def get_view_name(self):
         return "Utilities"
 
