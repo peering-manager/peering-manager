@@ -83,11 +83,6 @@ class AutonomousSystemSerializer(PrimaryModelSerializer):
             "affiliated",
             "tags",
         ]
-        nested_fields = [
-            "import_routing_policies",
-            "export_routing_policies",
-            "communities",
-        ]
 
 
 class BGPGroupSerializer(PrimaryModelSerializer):
@@ -120,11 +115,6 @@ class BGPGroupSerializer(PrimaryModelSerializer):
             "export_routing_policies",
             "communities",
             "tags",
-        ]
-        nested_fields = [
-            "import_routing_policies",
-            "export_routing_policies",
-            "communities",
         ]
 
 
@@ -191,12 +181,6 @@ class DirectPeeringSessionSerializer(PrimaryModelSerializer):
             "comments",
             "tags",
         ]
-        nested_fields = [
-            "bgp_group",
-            "import_routing_policies",
-            "export_routing_policies",
-            "router",
-        ]
 
 
 class EmailSerializer(PrimaryModelSerializer):
@@ -242,11 +226,6 @@ class InternetExchangeSerializer(PrimaryModelSerializer):
             "bgp_session_states_update",
             "tags",
         ]
-        nested_fields = [
-            "import_routing_policies",
-            "export_routing_policies",
-            "communities",
-        ]
 
 
 class InternetExchangePeeringSessionSerializer(PrimaryModelSerializer):
@@ -287,7 +266,6 @@ class InternetExchangePeeringSessionSerializer(PrimaryModelSerializer):
             "comments",
             "tags",
         ]
-        nested_fields = ["import_routing_policies", "export_routing_policies"]
 
 
 class RouterSerializer(PrimaryModelSerializer):
@@ -315,7 +293,6 @@ class RouterSerializer(PrimaryModelSerializer):
             "comments",
             "tags",
         ]
-        nested_fields = ["configuration_template"]
 
 
 class RoutingPolicySerializer(PrimaryModelSerializer):
