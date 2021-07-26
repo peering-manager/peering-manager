@@ -22,7 +22,7 @@ from peeringdb.models import (
     Synchronization,
 )
 from peeringdb.sync import PeeringDB
-from utils.functions import get_serializer_for_model
+from utils.api import get_serializer_for_model
 
 from .serializers import (
     FacilitySerializer,

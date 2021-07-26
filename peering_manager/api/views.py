@@ -16,7 +16,7 @@ from rest_framework.viewsets import ViewSet
 from rq.worker import Worker
 
 from peering_manager.api.authentication import IsAuthenticatedOrLoginNotRequired
-from utils.functions import get_serializer_for_model
+from utils.api import get_serializer_for_model
 
 
 class APIRootView(APIView):

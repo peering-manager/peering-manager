@@ -39,7 +39,7 @@ from peering.models import (
 from peering_manager.api.exceptions import ServiceUnavailable
 from peering_manager.api.views import ModelViewSet, StaticChoicesViewSet
 from peeringdb.api.serializers import NetworkIXLanSerializer
-from utils.functions import get_serializer_for_model
+from utils.api import get_serializer_for_model
 
 from .serializers import (
     AutonomousSystemSerializer,

@@ -2,9 +2,9 @@ from rest_framework import serializers
 
 from peering_manager.api.fields import ChoiceField, ContentTypeField
 from users.api.nested_serializers import NestedUserSerializer
+from utils.api import get_serializer_for_model
 from utils.api.nested_serializers import NestedTagSerializer
 from utils.enums import ObjectChangeAction
-from utils.functions import get_serializer_for_model
 from utils.models import ObjectChange, Tag
 
 __all__ = ("ObjectChangeSerializer", "TagSerializer", "NestedTagSerializer")
