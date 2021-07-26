@@ -13,7 +13,7 @@ class AppTest(APITestCase):
 
 class TagTest(StandardAPITestCases.View):
     model = Tag
-    brief_fields = ["id", "name", "slug", "color", "comments", "tagged_items"]
+    brief_fields = ["id", "url", "name", "slug", "color"]
     create_data = [
         {
             "name": "Test 4",
