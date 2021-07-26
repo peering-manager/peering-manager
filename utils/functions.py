@@ -5,6 +5,8 @@ import json
 from django.core.serializers import serialize
 from taggit.managers import _TaggableManager
 
+from peering_manager.api.exceptions import SerializerNotFound
+
 
 # Shamlessly stolen from django.utils.functional (<3.0)
 def curry(_curried_func, *args, **kwargs):
@@ -58,7 +60,7 @@ def get_serializer_for_model(model, prefix="", suffix=""):
             mod = getattr(mod, c)
         return mod
     except AttributeError:
-        raise Exception(
+        raise SerializerNotFound(
             f"Could not determine serializer for {app_name}.{model_name} with prefix '{prefix}' and suffix '{suffix}'"
         )
 
