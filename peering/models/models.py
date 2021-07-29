@@ -2,6 +2,7 @@ import ipaddress
 import logging
 
 import napalm
+from cacheops import cached_as
 from django.conf import settings
 from django.db import models, transaction
 from django.db.models import Q
@@ -341,12 +342,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
                     )
                 )
             else:
-                addresses.append(
-                    (
-                        email,
-                        email,
-                    )
-                )
+                addresses.append((email, email,))
         return addresses
 
     def get_email_context(self):
@@ -1609,10 +1605,15 @@ class Router(ChangeLoggedModel, TaggableModel):
         If an error occurs or no BGP neighbors can be found, the returned list
         will be empty.
         """
-        if self.use_netbox:
-            return self.get_netbox_bgp_neighbors_detail(ip_address=ip_address)
-        else:
-            return self.get_napalm_bgp_neighbors_detail(ip_address=ip_address)
+
+        @cached_as(self, timeout=settings.CACHEOPS_BGP_DETAIL_TIMEOUT)
+        def _get_bgp_neighbors_detail():
+            if self.use_netbox:
+                return self.get_netbox_bgp_neighbors_detail(ip_address=ip_address)
+            else:
+                return self.get_napalm_bgp_neighbors_detail(ip_address=ip_address)
+
+        return _get_bgp_neighbors_detail()
 
     def bgp_neighbors_detail_as_list(self, bgp_neighbors_detail):
         """
