@@ -342,7 +342,12 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
                     )
                 )
             else:
-                addresses.append((email, email,))
+                addresses.append(
+                    (
+                        email,
+                        email,
+                    )
+                )
         return addresses
 
     def get_email_context(self):
