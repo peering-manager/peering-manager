@@ -1,10 +1,19 @@
 import json
+import re
 from ipaddress import IPv4Address, IPv4Interface, IPv6Address, IPv6Interface
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models import ManyToManyField
 from django.forms.models import model_to_dict as _model_to_dict
 from taggit.managers import TaggableManager
+
+
+def extract_form_failures(html):
+    """
+    Given raw HTML content from an HTTP response, returns a list of form errors.
+    """
+    FORM_ERROR_REGEX = r"<!-- FORM-ERROR (.*) -->"
+    return re.findall(FORM_ERROR_REGEX, str(html))
 
 
 def json_file_to_python_type(filename):

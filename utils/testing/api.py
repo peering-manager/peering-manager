@@ -84,7 +84,7 @@ class StandardAPITestCases(object):
                 url, self.create_data[0], format="json", **self.header
             )
 
-            self.assertStatus(response, status.HTTP_201_CREATED)
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
             self.assertEqual(self.model.objects.count(), initial_count + 1)
             self.assertInstanceEqual(
                 self.model.objects.get(pk=response.data["id"]),
@@ -102,7 +102,7 @@ class StandardAPITestCases(object):
                 url, self.create_data, format="json", **self.header
             )
 
-            self.assertStatus(response, status.HTTP_201_CREATED)
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
             self.assertEqual(
                 self.model.objects.count(), initial_count + len(self.create_data)
             )
@@ -119,7 +119,7 @@ class StandardAPITestCases(object):
             update_data = self.update_data or getattr(self, "create_data")[0]
             response = self.client.patch(url, update_data, format="json", **self.header)
 
-            self.assertStatus(response, status.HTTP_200_OK)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
             instance.refresh_from_db()
             self.assertInstanceEqual(instance, self.update_data, api=True)
 
@@ -132,7 +132,7 @@ class StandardAPITestCases(object):
             url = self._get_detail_url(instance)
             response = self.client.delete(url, **self.header)
 
-            self.assertStatus(response, status.HTTP_204_NO_CONTENT)
+            self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
             self.assertFalse(self.model.objects.filter(pk=instance.pk).exists())
 
     class View(

@@ -7,7 +7,7 @@ from django.test import TestCase as _TestCase
 from django.urls import reverse
 from rest_framework import status
 
-from .functions import model_to_dict, post_data
+from .functions import extract_form_failures, model_to_dict, post_data
 
 
 class MockedResponse(object):
@@ -80,16 +80,22 @@ class TestCase(_TestCase):
 
         self.assertDictEqual(model_dict, relevant_data)
 
-    def assertStatus(self, response, expected_status):
+    def assertHttpStatus(self, response, expected_status):
         """
         Provide detail when receiving an unexpected HTTP response.
         """
-        response_data = getattr(response, "data", "No data")
-        self.assertEqual(
-            response.status_code,
-            expected_status,
-            f"Expected HTTP status {expected_status}; received {response.status_code}: {response_data}",
-        )
+        err_message = None
+        # Construct an error message only if the test is going to fail
+        if response.status_code != expected_status:
+            if hasattr(response, "data"):
+                # REST API response; pass the response data through directly
+                err = response.data
+            else:
+                # Try to extract form validation errors from the response HTML
+                form_errors = extract_form_failures(response.content)
+                err = form_errors or response.content or "No data"
+            err_message = f"Expected HTTP status {expected_status}; received {response.status_code}: {err}"
+        self.assertEqual(response.status_code, expected_status, err_message)
 
 
 class StandardTestCases(object):
@@ -149,7 +155,7 @@ class StandardTestCases(object):
 
         def test_list_objects(self):
             # Attempt to make the request without required permissions
-            self.assertStatus(
+            self.assertHttpStatus(
                 self.client.get(self._get_url("list")), status.HTTP_403_FORBIDDEN
             )
 
@@ -158,13 +164,13 @@ class StandardTestCases(object):
                 f"{self.model._meta.app_label}.view_{self.model._meta.model_name}"
             )
             response = self.client.get(self._get_url("list"))
-            self.assertStatus(response, status.HTTP_200_OK)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
 
         def test_get_object(self):
             instance = self.model.objects.first()
 
             # Attempt to make the request without required permissions
-            self.assertStatus(
+            self.assertHttpStatus(
                 self.client.get(instance.get_absolute_url()), status.HTTP_403_FORBIDDEN
             )
 
@@ -173,13 +179,13 @@ class StandardTestCases(object):
                 f"{self.model._meta.app_label}.view_{self.model._meta.model_name}"
             )
             response = self.client.get(instance.get_absolute_url())
-            self.assertStatus(response, status.HTTP_200_OK)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
 
         def test_changelog_object(self):
             instance = self.model.objects.first()
 
             # Attempt to make the request without required permissions
-            self.assertStatus(
+            self.assertHttpStatus(
                 self.client.get(instance.get_absolute_url()), status.HTTP_403_FORBIDDEN
             )
 
@@ -188,7 +194,7 @@ class StandardTestCases(object):
                 f"{self.model._meta.app_label}.view_{self.model._meta.model_name}"
             )
             response = self.client.get(self._get_url("changelog", instance=instance))
-            self.assertStatus(response, status.HTTP_200_OK)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
 
         def test_create_object(self):
             initial_count = self.model.objects.count()
@@ -199,14 +205,16 @@ class StandardTestCases(object):
             }
 
             # Attempt to make the request without required permissions
-            self.assertStatus(self.client.post(**request), status.HTTP_403_FORBIDDEN)
+            self.assertHttpStatus(
+                self.client.post(**request), status.HTTP_403_FORBIDDEN
+            )
 
             # Assign the required permission and submit again
             self.add_permissions(
                 f"{self.model._meta.app_label}.add_{self.model._meta.model_name}"
             )
             response = self.client.post(**request)
-            self.assertStatus(response, status.HTTP_302_FOUND)
+            self.assertHttpStatus(response, status.HTTP_302_FOUND)
 
             self.assertEqual(initial_count + 1, self.model.objects.count())
             instance = self.model.objects.order_by("-pk").first()
@@ -222,14 +230,16 @@ class StandardTestCases(object):
             }
 
             # Attempt to make the request without required permissions
-            self.assertStatus(self.client.post(**request), status.HTTP_403_FORBIDDEN)
+            self.assertHttpStatus(
+                self.client.post(**request), status.HTTP_403_FORBIDDEN
+            )
 
             # Assign the required permission and submit again
             self.add_permissions(
                 f"{self.model._meta.app_label}.change_{self.model._meta.model_name}"
             )
             response = self.client.post(**request)
-            self.assertStatus(response, status.HTTP_302_FOUND)
+            self.assertHttpStatus(response, status.HTTP_302_FOUND)
 
             instance = self.model.objects.get(pk=instance.pk)
             self.assertInstanceEqual(instance, self.form_data)
@@ -244,14 +254,16 @@ class StandardTestCases(object):
             }
 
             # Attempt to make the request without required permissions
-            self.assertStatus(self.client.post(**request), status.HTTP_403_FORBIDDEN)
+            self.assertHttpStatus(
+                self.client.post(**request), status.HTTP_403_FORBIDDEN
+            )
 
             # Assign the required permission and submit again
             self.add_permissions(
                 f"{self.model._meta.app_label}.delete_{self.model._meta.model_name}"
             )
             response = self.client.post(**request)
-            self.assertStatus(response, status.HTTP_302_FOUND)
+            self.assertHttpStatus(response, status.HTTP_302_FOUND)
 
             with self.assertRaises(ObjectDoesNotExist):
                 self.model.objects.get(pk=instance.pk)
@@ -269,14 +281,16 @@ class StandardTestCases(object):
             request["data"].update(post_data(self.bulk_edit_data))
 
             # Attempt to make the request without required permissions
-            self.assertStatus(self.client.post(**request), status.HTTP_403_FORBIDDEN)
+            self.assertHttpStatus(
+                self.client.post(**request), status.HTTP_403_FORBIDDEN
+            )
 
             # Assign the required permission and submit again
             self.add_permissions(
                 f"{self.model._meta.app_label}.change_{self.model._meta.model_name}"
             )
             response = self.client.post(**request)
-            self.assertStatus(response, status.HTTP_302_FOUND)
+            self.assertHttpStatus(response, status.HTTP_302_FOUND)
 
             for i, instance in enumerate(self.model.objects.filter(pk__in=pk_list)):
                 self.assertInstanceEqual(instance, self.bulk_edit_data)
@@ -295,14 +309,16 @@ class StandardTestCases(object):
             }
 
             # Attempt to make the request without required permissions
-            self.assertStatus(self.client.post(**request), status.HTTP_403_FORBIDDEN)
+            self.assertHttpStatus(
+                self.client.post(**request), status.HTTP_403_FORBIDDEN
+            )
 
             # Assign the required permission and submit again
             self.add_permissions(
                 f"{self.model._meta.app_label}.delete_{self.model._meta.model_name}"
             )
             response = self.client.post(**request)
-            self.assertStatus(response, status.HTTP_302_FOUND)
+            self.assertHttpStatus(response, status.HTTP_302_FOUND)
 
             # Check that all objects were deleted
             self.assertEqual(self.model.objects.count(), 0)

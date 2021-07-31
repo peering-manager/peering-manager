@@ -25,7 +25,7 @@ class CacheTest(APITestCase):
     def test_update_local(self):
         url = reverse("peeringdb-api:cache-update-local")
         response = self.client.post(url, **self.header)
-        self.assertStatus(response, status.HTTP_202_ACCEPTED)
+        self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
 
     def test_clear_local(self):
         url = reverse("peeringdb-api:cache-clear-local")

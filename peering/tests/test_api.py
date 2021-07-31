@@ -73,7 +73,7 @@ class AutonomousSystemTest(StandardAPITestCases.View):
         url = reverse("peering-api:autonomoussystem-list")
         response = self.client.post(url, data, format="json", **self.header)
 
-        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(AutonomousSystem.objects.count(), 2)
         autonomous_system = AutonomousSystem.objects.get(pk=response.data["id"])
         self.assertEqual(autonomous_system.asn, data["asn"])
@@ -95,7 +95,7 @@ class AutonomousSystemTest(StandardAPITestCases.View):
         )
         response = self.client.put(url, data, format="json", **self.header)
 
-        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(AutonomousSystem.objects.count(), 1)
         autonomous_system = AutonomousSystem.objects.get(pk=response.data["id"])
         self.assertEqual(autonomous_system.asn, data["asn"])
@@ -109,7 +109,7 @@ class AutonomousSystemTest(StandardAPITestCases.View):
             kwargs={"pk": autonomous_system.pk},
         )
         response = self.client.post(url, format="json", **self.header)
-        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
 
     def test_get_irr_as_set_prefixes(self):
         with patch("peering.subprocess.Popen", side_effect=mocked_subprocess_popen):
@@ -118,7 +118,7 @@ class AutonomousSystemTest(StandardAPITestCases.View):
                 kwargs={"pk": self.autonomous_system.pk},
             )
             response = self.client.get(url, format="json", **self.header)
-            self.assertStatus(response, status.HTTP_200_OK)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
             self.assertEqual(len(response.data["prefixes"]["ipv6"]), 1)
             self.assertEqual(len(response.data["prefixes"]["ipv4"]), 1)
 
@@ -132,7 +132,7 @@ class AutonomousSystemTest(StandardAPITestCases.View):
             kwargs={"pk": self.autonomous_system.pk},
         )
         response = self.client.get(url, format="json", **self.header)
-        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data["shared-internet-exchanges"], [])
 
 
@@ -167,7 +167,7 @@ class BGPGroupTest(StandardAPITestCases.View):
         url = reverse("peering-api:bgpgroup-list")
         response = self.client.post(url, data, format="json", **self.header)
 
-        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(BGPGroup.objects.count(), 2)
         bgp_group = BGPGroup.objects.get(pk=response.data["id"])
         self.assertEqual(bgp_group.slug, data["slug"])
@@ -190,7 +190,7 @@ class BGPGroupTest(StandardAPITestCases.View):
         url = reverse("peering-api:bgpgroup-detail", kwargs={"pk": self.bgp_group.pk})
         response = self.client.put(url, data, format="json", **self.header)
 
-        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(BGPGroup.objects.count(), 1)
         bgp_group = BGPGroup.objects.get(pk=response.data["id"])
         self.assertEqual(bgp_group.name, data["name"])
@@ -201,7 +201,7 @@ class BGPGroupTest(StandardAPITestCases.View):
             kwargs={"pk": self.bgp_group.pk},
         )
         response = self.client.post(url, **self.header)
-        self.assertStatus(response, status.HTTP_202_ACCEPTED)
+        self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
 
 
 class CommunityTest(StandardAPITestCases.View):
@@ -358,7 +358,7 @@ class InternetExchangeTest(StandardAPITestCases.View):
         url = reverse("peering-api:internetexchange-list")
         response = self.client.post(url, data, format="json", **self.header)
 
-        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(InternetExchange.objects.count(), 2)
         internet_exchange = InternetExchange.objects.get(pk=response.data["id"])
         self.assertEqual(internet_exchange.slug, data["slug"])
@@ -387,7 +387,7 @@ class InternetExchangeTest(StandardAPITestCases.View):
         )
         response = self.client.put(url, data, format="json", **self.header)
 
-        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(InternetExchange.objects.count(), 1)
         internet_exchange = InternetExchange.objects.get(pk=response.data["id"])
         self.assertEqual(internet_exchange.slug, data["slug"])
@@ -398,7 +398,7 @@ class InternetExchangeTest(StandardAPITestCases.View):
             kwargs={"pk": self.internet_exchange.pk},
         )
         response = self.client.get(url, **self.header)
-        self.assertStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertHttpStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
 
     def test_import_sessions(self):
         url = reverse(
@@ -406,7 +406,7 @@ class InternetExchangeTest(StandardAPITestCases.View):
             kwargs={"pk": self.internet_exchange.pk},
         )
         response = self.client.post(url, **self.header)
-        self.assertStatus(response, status.HTTP_202_ACCEPTED)
+        self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
 
     def test_prefixes(self):
         url = reverse(
@@ -415,7 +415,7 @@ class InternetExchangeTest(StandardAPITestCases.View):
         )
         response = self.client.get(url, **self.header)
 
-        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data["prefixes"], [])
 
     def test_poll_peering_sessions(self):
@@ -424,7 +424,7 @@ class InternetExchangeTest(StandardAPITestCases.View):
             kwargs={"pk": self.internet_exchange.pk},
         )
         response = self.client.post(url, **self.header)
-        self.assertStatus(response, status.HTTP_202_ACCEPTED)
+        self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
 
 
 class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
@@ -515,7 +515,7 @@ class RouterTest(APITestCase):
         url = reverse("peering-api:router-list")
         response = self.client.post(url, data, format="json", **self.header)
 
-        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Router.objects.count(), 2)
         router = Router.objects.get(pk=response.data["id"])
         self.assertEqual(router.hostname, data["hostname"])
@@ -532,7 +532,7 @@ class RouterTest(APITestCase):
         url = reverse("peering-api:router-list")
         response = self.client.post(url, data, format="json", **self.header)
 
-        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Router.objects.count(), 2)
         router = Router.objects.get(pk=response.data["id"])
         self.assertEqual(router.hostname, data["hostname"])
@@ -556,7 +556,7 @@ class RouterTest(APITestCase):
         url = reverse("peering-api:router-list")
         response = self.client.post(url, data, format="json", **self.header)
 
-        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Router.objects.count(), 3)
         self.assertEqual(response.data[0]["hostname"], data[0]["hostname"])
         self.assertEqual(response.data[1]["hostname"], data[1]["hostname"])
@@ -573,7 +573,7 @@ class RouterTest(APITestCase):
         url = reverse("peering-api:router-detail", kwargs={"pk": self.router.pk})
         response = self.client.put(url, data, format="json", **self.header)
 
-        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Router.objects.count(), 1)
         router = Router.objects.get(pk=response.data["id"])
         self.assertEqual(router.hostname, data["hostname"])
@@ -591,7 +591,7 @@ class RouterTest(APITestCase):
         url = reverse("peering-api:router-detail", kwargs={"pk": self.router.pk})
         response = self.client.put(url, data, format="json", **self.header)
 
-        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Router.objects.count(), 1)
         router = Router.objects.get(pk=response.data["id"])
         self.assertEqual(router.hostname, data["hostname"])
@@ -600,20 +600,20 @@ class RouterTest(APITestCase):
         url = reverse("peering-api:router-detail", kwargs={"pk": self.router.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Router.objects.count(), 0)
 
     def test_configuration(self):
         url = reverse("peering-api:router-configuration", kwargs={"pk": self.router.pk})
         response = self.client.get(url, **self.header)
-        self.assertStatus(response, status.HTTP_202_ACCEPTED)
+        self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
 
     def test_test_napalm_connection(self):
         url = reverse(
             "peering-api:router-test-napalm-connection", kwargs={"pk": self.router.pk}
         )
         response = self.client.get(url, **self.header)
-        self.assertStatus(response, status.HTTP_202_ACCEPTED)
+        self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
 
 
 class RoutingPolicyTest(StandardAPITestCases.View):
