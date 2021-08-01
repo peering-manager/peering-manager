@@ -21,7 +21,7 @@ __all__ = [
 class BaseModelSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField(read_only=True)
 
-    def display(self, instance):
+    def get_display(self, instance):
         return str(instance)
 
 
