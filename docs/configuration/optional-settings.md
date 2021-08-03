@@ -5,7 +5,7 @@
 Default: None
 
 The base URL path to use when accessing Peering Manager. Do not include the
-cheme or domain name. For example, if installed at [http://example.com/peering/],
+theme or domain name. For example, if installed at [http://example.com/peering/],
 set:
 
 ```no-highlight

@@ -96,5 +96,5 @@ be used by developers so they can read and write data from other tools. While
 you can do everything in the user interface, some tasks, such as importing a
 batch of initial data, are more suitable for an API.
 
-A web interface to interact wth the API is under the `/api` location of your
+A web interface to interact with the API is under the `/api` location of your
 Peering Manager instance.

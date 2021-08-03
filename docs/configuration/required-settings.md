@@ -3,7 +3,7 @@
 ## ALLOWED_HOSTS
 
 This is a list of valid fully-qualified domain names (FQDNs) and/or IP
-addresses that is used to reach the Peering Manager service. It can be
+addresses that can be used to reach the Peering Manager service. It can be
 different from the name of the server used as URL (e.g. when using a reverse
 proxy serving the website under a different FQDN than the hostname of the
 Peering Manager server).

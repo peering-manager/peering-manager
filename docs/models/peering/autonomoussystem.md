@@ -32,7 +32,7 @@ some are optional):
    receiving prefixes from the AS.
 * `Export Routing Policies`: a list of routing policies to apply when
    advertising prefixes to the AS.
-* `Communities`: a list of communities to apply on prefixes learnt or
+* `Communities`: a list of communities to apply on prefixes received from or
   advertised by sessions with this AS.
 * `Properties To Synchronize From PeeringDB`: some properties such as the
   name, the IRR AS-SET and prefix limits can be synchronized from the
