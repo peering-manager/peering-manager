@@ -1,3 +1,5 @@
+from django.test import TestCase
+
 from net.models import Connection
 from peering.constants import *
 from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
@@ -25,12 +27,12 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from utils.testing import StandardTestCases
+from utils.testing import BaseFilterSetTests
 
 
-class AutonomousSystemTestCase(StandardTestCases.Filters):
-    model = AutonomousSystem
-    filter = AutonomousSystemFilterSet
+class AutonomousSystemTestCase(TestCase, BaseFilterSetTests):
+    queryset = AutonomousSystem.objects.all()
+    filterset = AutonomousSystemFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -63,42 +65,42 @@ class AutonomousSystemTestCase(StandardTestCases.Filters):
 
     def test_q(self):
         params = {"q": "Autonomous System 1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"q": "AS-SET-1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_asn(self):
         params = {"asn": [64501]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"asn": [64501, 64502]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_ipv6_max_prefixes(self):
         params = {"ipv6_max_prefixes": [1]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"ipv6_max_prefixes": [0]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"ipv6_max_prefixes": [0, 1]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_ipv4_max_prefixes(self):
         params = {"ipv4_max_prefixes": [1]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"ipv4_max_prefixes": [0]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"ipv4_max_prefixes": [0, 1]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_affiliated(self):
         params = {"affiliated": False}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"affiliated": True}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class BGPGroupTestCase(StandardTestCases.Filters):
-    model = BGPGroup
-    filter = BGPGroupFilterSet
+class BGPGroupTestCase(TestCase, BaseFilterSetTests):
+    queryset = BGPGroup.objects.all()
+    filterset = BGPGroupFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -112,14 +114,14 @@ class BGPGroupTestCase(StandardTestCases.Filters):
 
     def test_q(self):
         params = {"q": "BGP Group 1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"q": "bgp-group-1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class CommunityTestCase(StandardTestCases.Filters):
-    model = Community
-    filter = CommunityFilterSet
+class CommunityTestCase(TestCase, BaseFilterSetTests):
+    queryset = Community.objects.all()
+    filterset = CommunityFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -138,24 +140,24 @@ class CommunityTestCase(StandardTestCases.Filters):
 
     def test_q(self):
         params = {"q": "Community 1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"q": "community-1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_type(self):
         params = {"type": [CommunityType.INGRESS]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"type": [CommunityType.EGRESS]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_value(self):
         params = {"value": ["64500:1"]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class ConfigurationTestCase(StandardTestCases.Filters):
-    model = Configuration
-    filter = ConfigurationFilterSet
+class ConfigurationTestCase(TestCase, BaseFilterSetTests):
+    queryset = Configuration.objects.all()
+    filterset = ConfigurationFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -163,17 +165,18 @@ class ConfigurationTestCase(StandardTestCases.Filters):
             [
                 Configuration(name="Configuration 1", template="Configuration 1"),
                 Configuration(name="Configuration 2", template="Configuration 2"),
+                Configuration(name="Configuration 3", template="Configuration 3"),
             ]
         )
 
     def test_name(self):
         params = {"q": "Configuration 1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class DirectPeeringSessionTestCase(StandardTestCases.Filters):
-    model = DirectPeeringSession
-    filter = DirectPeeringSessionFilterSet
+class DirectPeeringSessionTestCase(TestCase, BaseFilterSetTests):
+    queryset = DirectPeeringSession.objects.all()
+    filterset = DirectPeeringSessionFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -215,50 +218,50 @@ class DirectPeeringSessionTestCase(StandardTestCases.Filters):
 
     def test_q(self):
         params = {"q": "TRANSIT-0001"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_address_family(self):
         params = {"address_family": 4}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {"address_family": 6}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_relationship(self):
         params = {"relationship": [BGPRelationship.TRANSIT_PROVIDER]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_router_id(self):
         params = {"router_id": [self.router.pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_local_autonomous_system_id(self):
         params = {"local_autonomous_system_id": [self.local_as.pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {"local_autonomous_system_id": [self.a_s.pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_autonomous_system_id(self):
         params = {"autonomous_system_id": [self.local_as.pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
         params = {"autonomous_system_id": [self.a_s.pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_multihop_ttl(self):
         params = {"multihop_ttl": [1]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"multihop_ttl": [2]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_enabled(self):
         params = {"enabled": True}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"enabled": False}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class EmailTestCase(StandardTestCases.Filters):
-    model = Email
-    filter = EmailFilterSet
+class EmailTestCase(TestCase, BaseFilterSetTests):
+    queryset = Email.objects.all()
+    filterset = EmailFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -274,17 +277,22 @@ class EmailTestCase(StandardTestCases.Filters):
                     subject="E-mail subject 2",
                     template="E-mail template 2",
                 ),
+                Email(
+                    name="E-mail 3",
+                    subject="E-mail subject 3",
+                    template="E-mail template 3",
+                ),
             ]
         )
 
     def test_q(self):
         params = {"q": "E-mail 1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class InternetExchangeTestCase(StandardTestCases.Filters):
-    model = InternetExchange
-    filter = InternetExchangeFilterSet
+class InternetExchangeTestCase(TestCase, BaseFilterSetTests):
+    queryset = InternetExchange.objects.all()
+    filterset = InternetExchangeFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -305,18 +313,18 @@ class InternetExchangeTestCase(StandardTestCases.Filters):
 
     def test_q(self):
         params = {"q": "Internet Exchange 1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"q": "ix-1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_local_autonomous_system_id(self):
         params = {"local_autonomous_system_id": [self.local_as.pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class InternetExchangePeeringSessionTestCase(StandardTestCases.Filters):
-    model = InternetExchangePeeringSession
-    filter = InternetExchangePeeringSessionFilterSet
+class InternetExchangePeeringSessionTestCase(TestCase, BaseFilterSetTests):
+    queryset = InternetExchangePeeringSession.objects.all()
+    filterset = InternetExchangePeeringSessionFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -363,70 +371,70 @@ class InternetExchangePeeringSessionTestCase(StandardTestCases.Filters):
 
     def test_q(self):
         params = {"q": "IXP-0001"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_address_family(self):
         params = {"address_family": 4}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {"address_family": 6}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_multihop_ttl(self):
         params = {"multihop_ttl": [1]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"multihop_ttl": [2]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_enabled(self):
         params = {"enabled": True}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"enabled": False}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_is_route_server(self):
         params = {"is_route_server": False}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"is_route_server": True}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_autonomous_system_asn(self):
         params = {"autonomous_system_asn": [self.a_s.asn]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {"autonomous_system_asn": [self.local_as.asn]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_autonomous_system_id(self):
         params = {"autonomous_system_id": [self.a_s.pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {"autonomous_system_id": [self.local_as.pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_autonomous_system(self):
         params = {"autonomous_system": [self.a_s.name]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {"autonomous_system": [self.local_as.name]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_internet_exchange_id(self):
         params = {"internet_exchange_id": [self.ixp.pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {"internet_exchange_id": [self.useless_ixp.pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_internet_exchange(self):
         params = {"internet_exchange": [self.ixp.name]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {"internet_exchange": [self.useless_ixp.name]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_connection_id(self):
         params = {"connection_id": [self.ixp_connection.pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
-class RouterTestCase(StandardTestCases.Filters):
-    model = Router
-    filter = RouterFilterSet
+class RouterTestCase(TestCase, BaseFilterSetTests):
+    queryset = Router.objects.all()
+    filterset = RouterFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -464,46 +472,46 @@ class RouterTestCase(StandardTestCases.Filters):
 
     def test_q(self):
         params = {"q": "Router 1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"q": "router1.example.net"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_encrypt_passwords(self):
         params = {"encrypt_passwords": True}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"encrypt_passwords": False}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_configuration_template_id(self):
         params = {"configuration_template_id": [self.configuration.pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_configuration_template(self):
         params = {"configuration_template": [self.configuration.name]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_local_autonomous_system_id(self):
         params = {"local_autonomous_system_id": [self.local_as.pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_local_autonomous_system_asn(self):
         params = {"local_autonomous_system_asn": [self.local_as.asn]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_local_autonomous_system(self):
         params = {"local_autonomous_system": [self.local_as.name]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_device_state(self):
         params = {"device_state": [DeviceState.ENABLED]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"device_state": [DeviceState.DISABLED]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class RoutingPolicyTestCase(StandardTestCases.Filters):
-    model = RoutingPolicy
-    filter = RoutingPolicyFilterSet
+class RoutingPolicyTestCase(TestCase, BaseFilterSetTests):
+    queryset = RoutingPolicy.objects.all()
+    filterset = RoutingPolicyFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -533,26 +541,26 @@ class RoutingPolicyTestCase(StandardTestCases.Filters):
 
     def test_q(self):
         params = {"q": "Routing Policy 1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"q": "routing-policy-1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_type(self):
         params = {"type": [RoutingPolicyType.IMPORT]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"type": [RoutingPolicyType.EXPORT]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"type": [RoutingPolicyType.IMPORT_EXPORT]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_weight(self):
         params = {"weight": [0]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"weight": [10]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_address_family(self):
         params = {"address_family": 6}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"address_family": 4}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)

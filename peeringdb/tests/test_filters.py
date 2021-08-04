@@ -1,13 +1,14 @@
+from django.db.models import query
+from django.test import TestCase
 from django.utils import timezone
 
 from peeringdb.filters import SynchronizationFilterSet
 from peeringdb.models import Synchronization
-from utils.testing import StandardTestCases
 
 
-class SynchronizationTestCase(StandardTestCases.Filters):
-    model = Synchronization
-    filter = SynchronizationFilterSet
+class SynchronizationTestCase(TestCase):
+    queryset = Synchronization.objects.all()
+    filterset = SynchronizationFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -22,22 +23,22 @@ class SynchronizationTestCase(StandardTestCases.Filters):
 
     def test_time(self):
         params = {"time": self.times[0]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_created(self):
         params = {"created": 1}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"created": 0}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_updated(self):
         params = {"updated": 1}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"updated": 0}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_deleted(self):
         params = {"deleted": 1}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"deleted": 0}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

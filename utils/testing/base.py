@@ -3,16 +3,15 @@ from ipaddress import IPv4Address, IPv4Interface, IPv6Address, IPv6Interface
 
 from django.contrib.auth.models import Permission, User
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist
+from django.core.exceptions import FieldDoesNotExist
 from django.db.models import ManyToManyField
 from django.forms.models import model_to_dict
 from django.test import Client
 from django.test import TestCase as _TestCase
-from django.urls import reverse
 from rest_framework import status
 from taggit.managers import TaggableManager
 
-from .functions import extract_form_failures, post_data
+from .functions import extract_form_failures
 
 
 class MockedResponse(object):
@@ -186,21 +185,3 @@ class ModelTestCase(TestCase):
         }
 
         self.assertDictEqual(model_dict, relevant_data)
-
-
-# Legacy code to be removed after changing all tests
-
-
-class StandardTestCases(object):
-    class Filters(TestCase):
-        model = None
-        filter = None
-
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            if self.model is None:
-                raise Exception("Test case requires model to be defined")
-            if self.filter is None:
-                raise Exception("Test case requires filter to be defined")
-
-            self.queryset = self.model.objects.all()
