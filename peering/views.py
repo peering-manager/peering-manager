@@ -131,18 +131,20 @@ class ASDetails(DetailsView):
 
     def get_context(self, request, **kwargs):
         instance = get_object_or_404(self.queryset, **kwargs)
-        try:
-            affiliated = AutonomousSystem.objects.get(
-                pk=request.user.preferences.get("context.as")
-            )
-        except AutonomousSystem.DoesNotExist:
-            affiliated = None
-
         shared_internet_exchanges = {}
-        for ix in instance.get_shared_internet_exchange_points(affiliated):
-            shared_internet_exchanges[ix] = instance.get_missing_peering_sessions(
-                affiliated, ix
-            )
+
+        if not request.user.is_anonymous and request.user.preferences.get("context.as"):
+            try:
+                affiliated = AutonomousSystem.objects.get(
+                    pk=request.user.preferences.get("context.as")
+                )
+            except AutonomousSystem.DoesNotExist:
+                affiliated = None
+
+            for ix in instance.get_shared_internet_exchange_points(affiliated):
+                shared_internet_exchanges[ix] = instance.get_missing_peering_sessions(
+                    affiliated, ix
+                )
 
         return {
             "instance": instance,

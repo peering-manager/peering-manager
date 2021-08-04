@@ -31,6 +31,10 @@ class TagTest(StandardAPITestCases.View):
 
     @classmethod
     def setUpTestData(cls):
-        Tag.objects.create(name="Test 1", slug="test-1", color="333333")
-        Tag.objects.create(name="Test 2", slug="test-2", color="333333")
-        Tag.objects.create(name="Test 3", slug="test-3", color="333333")
+        Tag.objects.bulk_create(
+            [
+                Tag(name="Test 1", slug="test-1", color="333333"),
+                Tag(name="Test 2", slug="test-2", color="333333"),
+                Tag(name="Test 3", slug="test-3", color="333333"),
+            ]
+        )

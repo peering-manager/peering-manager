@@ -1,13 +1,18 @@
 import json
+from ipaddress import IPv4Address, IPv4Interface, IPv6Address, IPv6Interface
 
 from django.contrib.auth.models import Permission, User
-from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist
+from django.db.models import ManyToManyField
+from django.forms.models import model_to_dict
 from django.test import Client
 from django.test import TestCase as _TestCase
 from django.urls import reverse
 from rest_framework import status
+from taggit.managers import TaggableManager
 
-from .functions import extract_form_failures, model_to_dict, post_data
+from .functions import extract_form_failures, post_data
 
 
 class MockedResponse(object):
@@ -66,20 +71,6 @@ class TestCase(_TestCase):
             )
             self.user.user_permissions.remove(perm)
 
-    def assertInstanceEqual(self, instance, data, exclude=None, api=False):
-        if exclude is None:
-            exclude = []
-
-        fields = [k for k in data.keys() if k not in exclude]
-        model_dict = model_to_dict(instance, fields=fields, api=api)
-
-        # Omit any dictionary keys which are not instance attributes or have been excluded
-        relevant_data = {
-            k: v for k, v in data.items() if hasattr(instance, k) and k not in exclude
-        }
-
-        self.assertDictEqual(model_dict, relevant_data)
-
     def assertHttpStatus(self, response, expected_status):
         """
         Provide detail when receiving an unexpected HTTP response.
@@ -98,6 +89,108 @@ class TestCase(_TestCase):
         self.assertEqual(response.status_code, expected_status, err_message)
 
 
+class ModelTestCase(TestCase):
+    """
+    Parent class for test cases which deal with models.
+    """
+
+    model = None
+
+    def add_permissions(self, *names):
+        perms = []
+        for name in names:
+            perms.append(
+                f"{self.model._meta.app_label}.{name}_{self.model._meta.model_name}"
+            )
+        super().add_permissions(*perms)
+
+    def remove_permissions(self, *names):
+        perms = []
+        for name in names:
+            perms.append(
+                f"{self.model._meta.app_label}.{name}_{self.model._meta.model_name}"
+            )
+        super().add_permissions(*perms)
+
+    def _get_queryset(self):
+        """
+        Returns a base queryset suitable for use in test methods.
+        """
+        return self.model.objects.all()
+
+    def prepare_instance(self, instance):
+        """
+        Override this method to perform manipulation of an instance prior to its
+        evaluation against test data.
+        """
+        return instance
+
+    def model_to_dict(self, instance, fields, api=False):
+        """
+        Returns a dictionary representation of an instance.
+        """
+        # Prepare the instance and call Django's model_to_dict() to extract all fields
+        model_dict = model_to_dict(self.prepare_instance(instance), fields=fields)
+
+        # Map any additional (non-field) instance attributes that were specified
+        for attr in fields:
+            if hasattr(instance, attr) and attr not in model_dict:
+                model_dict[attr] = getattr(instance, attr)
+
+        for key, value in list(model_dict.items()):
+            try:
+                field = instance._meta.get_field(key)
+            except FieldDoesNotExist:
+                # Attribute is not a model field
+                continue
+
+            # Handle ManyToManyFields
+            if value and type(field) in (ManyToManyField, TaggableManager):
+                if field.related_model is ContentType:
+                    model_dict[key] = sorted(
+                        [f"{ct.app_label}.{ct.model}" for ct in value]
+                    )
+                else:
+                    model_dict[key] = sorted([obj.pk for obj in value])
+
+            if api and type(value) in (
+                IPv4Address,
+                IPv6Address,
+                IPv4Interface,
+                IPv6Interface,
+            ):
+                model_dict[key] = str(value)
+
+            if api:
+                # Replace ContentType numeric IDs with <app_label>.<model>
+                if type(getattr(instance, key)) is ContentType:
+                    ct = ContentType.objects.get(pk=value)
+                    model_dict[key] = f"{ct.app_label}.{ct.model}"
+
+        return model_dict
+
+    def assertInstanceEqual(self, instance, data, exclude=None, api=False):
+        """
+        Compares a model instance to a dictionary, checking that its attribute values
+        match those specified in the dictionary.
+        """
+        if exclude is None:
+            exclude = []
+
+        fields = [k for k in data.keys() if k not in exclude]
+        model_dict = self.model_to_dict(instance, fields=fields, api=api)
+
+        # Omit any dictionary keys which are not instance attributes or have been excluded
+        relevant_data = {
+            k: v for k, v in data.items() if hasattr(instance, k) and k not in exclude
+        }
+
+        self.assertDictEqual(model_dict, relevant_data)
+
+
+# Legacy code to be removed after changing all tests
+
+
 class StandardTestCases(object):
     class Filters(TestCase):
         model = None
@@ -111,214 +204,3 @@ class StandardTestCases(object):
                 raise Exception("Test case requires filter to be defined")
 
             self.queryset = self.model.objects.all()
-
-    class Views(TestCase):
-        """
-        TestCase suitable for testing all standard View functions:
-          - List objects
-          - View single object
-          - Create new object
-          - Modify existing object
-          - Delete existing object
-        """
-
-        model = None
-        # Data to use for creating/editing a single object
-        form_data = {}
-        # Data to use for editing multiple objects
-        bulk_edit_data = {}
-
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            if self.model is None:
-                raise Exception("Test case requires model to be defined")
-
-        def _get_url(self, action, instance=None):
-            """
-            Return the URL name for a specific action.
-            An instance must be specified for get/edit/delete views.
-            """
-            url_format = (
-                f"{self.model._meta.app_label}:{self.model._meta.model_name}_{{}}"
-            )
-
-            if action in ("list", "add", "bulk_edit", "bulk_delete"):
-                return reverse(url_format.format(action))
-            elif action in ("details", "edit", "delete", "changelog"):
-                if instance is None:
-                    raise Exception(
-                        f"Resolving {action} URL requires specifying an instance"
-                    )
-                return reverse(url_format.format(action), kwargs={"pk": instance.pk})
-            else:
-                raise Exception(f"Invalid action for URL resolution: {action}")
-
-        def test_list_objects(self):
-            # Attempt to make the request without required permissions
-            self.assertHttpStatus(
-                self.client.get(self._get_url("list")), status.HTTP_403_FORBIDDEN
-            )
-
-            # Assign the required permission and submit again
-            self.add_permissions(
-                f"{self.model._meta.app_label}.view_{self.model._meta.model_name}"
-            )
-            response = self.client.get(self._get_url("list"))
-            self.assertHttpStatus(response, status.HTTP_200_OK)
-
-        def test_get_object(self):
-            instance = self.model.objects.first()
-
-            # Attempt to make the request without required permissions
-            self.assertHttpStatus(
-                self.client.get(instance.get_absolute_url()), status.HTTP_403_FORBIDDEN
-            )
-
-            # Assign the required permission and submit again
-            self.add_permissions(
-                f"{self.model._meta.app_label}.view_{self.model._meta.model_name}"
-            )
-            response = self.client.get(instance.get_absolute_url())
-            self.assertHttpStatus(response, status.HTTP_200_OK)
-
-        def test_changelog_object(self):
-            instance = self.model.objects.first()
-
-            # Attempt to make the request without required permissions
-            self.assertHttpStatus(
-                self.client.get(instance.get_absolute_url()), status.HTTP_403_FORBIDDEN
-            )
-
-            # Assign the required permission and submit again
-            self.add_permissions(
-                f"{self.model._meta.app_label}.view_{self.model._meta.model_name}"
-            )
-            response = self.client.get(self._get_url("changelog", instance=instance))
-            self.assertHttpStatus(response, status.HTTP_200_OK)
-
-        def test_create_object(self):
-            initial_count = self.model.objects.count()
-            request = {
-                "path": self._get_url("add"),
-                "data": post_data(self.form_data),
-                "follow": False,  # Do not follow 302 redirects
-            }
-
-            # Attempt to make the request without required permissions
-            self.assertHttpStatus(
-                self.client.post(**request), status.HTTP_403_FORBIDDEN
-            )
-
-            # Assign the required permission and submit again
-            self.add_permissions(
-                f"{self.model._meta.app_label}.add_{self.model._meta.model_name}"
-            )
-            response = self.client.post(**request)
-            self.assertHttpStatus(response, status.HTTP_302_FOUND)
-
-            self.assertEqual(initial_count + 1, self.model.objects.count())
-            instance = self.model.objects.order_by("-pk").first()
-            self.assertInstanceEqual(instance, self.form_data)
-
-        def test_edit_object(self):
-            instance = self.model.objects.first()
-
-            request = {
-                "path": self._get_url("edit", instance),
-                "data": post_data(self.form_data),
-                "follow": False,  # Do not follow 302 redirects
-            }
-
-            # Attempt to make the request without required permissions
-            self.assertHttpStatus(
-                self.client.post(**request), status.HTTP_403_FORBIDDEN
-            )
-
-            # Assign the required permission and submit again
-            self.add_permissions(
-                f"{self.model._meta.app_label}.change_{self.model._meta.model_name}"
-            )
-            response = self.client.post(**request)
-            self.assertHttpStatus(response, status.HTTP_302_FOUND)
-
-            instance = self.model.objects.get(pk=instance.pk)
-            self.assertInstanceEqual(instance, self.form_data)
-
-        def test_delete_object(self):
-            instance = self.model.objects.first()
-
-            request = {
-                "path": self._get_url("delete", instance),
-                "data": {"confirm": True},
-                "follow": False,  # Do not follow 302 redirects
-            }
-
-            # Attempt to make the request without required permissions
-            self.assertHttpStatus(
-                self.client.post(**request), status.HTTP_403_FORBIDDEN
-            )
-
-            # Assign the required permission and submit again
-            self.add_permissions(
-                f"{self.model._meta.app_label}.delete_{self.model._meta.model_name}"
-            )
-            response = self.client.post(**request)
-            self.assertHttpStatus(response, status.HTTP_302_FOUND)
-
-            with self.assertRaises(ObjectDoesNotExist):
-                self.model.objects.get(pk=instance.pk)
-
-        def test_bulk_edit_objects(self):
-            pk_list = self.model.objects.values_list("pk", flat=True)
-
-            request = {
-                "path": self._get_url("bulk_edit"),
-                "data": {"pk": pk_list, "_apply": True},  # Form button
-                "follow": False,  # Do not follow 302 redirects
-            }
-
-            # Append the form data to the request
-            request["data"].update(post_data(self.bulk_edit_data))
-
-            # Attempt to make the request without required permissions
-            self.assertHttpStatus(
-                self.client.post(**request), status.HTTP_403_FORBIDDEN
-            )
-
-            # Assign the required permission and submit again
-            self.add_permissions(
-                f"{self.model._meta.app_label}.change_{self.model._meta.model_name}"
-            )
-            response = self.client.post(**request)
-            self.assertHttpStatus(response, status.HTTP_302_FOUND)
-
-            for i, instance in enumerate(self.model.objects.filter(pk__in=pk_list)):
-                self.assertInstanceEqual(instance, self.bulk_edit_data)
-
-        def test_bulk_delete_objects(self):
-            pk_list = self.model.objects.values_list("pk", flat=True)
-
-            request = {
-                "path": self._get_url("bulk_delete"),
-                "data": {
-                    "pk": pk_list,
-                    "confirm": True,
-                    "_confirm": True,  # Form button
-                },
-                "follow": False,  # Do not follow 302 redirects
-            }
-
-            # Attempt to make the request without required permissions
-            self.assertHttpStatus(
-                self.client.post(**request), status.HTTP_403_FORBIDDEN
-            )
-
-            # Assign the required permission and submit again
-            self.add_permissions(
-                f"{self.model._meta.app_label}.delete_{self.model._meta.model_name}"
-            )
-            response = self.client.post(**request)
-            self.assertHttpStatus(response, status.HTTP_302_FOUND)
-
-            # Check that all objects were deleted
-            self.assertEqual(self.model.objects.count(), 0)

@@ -1,11 +1,25 @@
 import json
+import logging
 import re
+from contextlib import contextmanager
 from ipaddress import IPv4Address, IPv4Interface, IPv6Address, IPv6Interface
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models import ManyToManyField
 from django.forms.models import model_to_dict as _model_to_dict
 from taggit.managers import TaggableManager
+
+
+@contextmanager
+def disable_warnings(logger_name):
+    """
+    Suppresses expected warning messages to keep the test output clean.
+    """
+    logger = logging.getLogger(logger_name)
+    current_level = logger.level
+    logger.setLevel(logging.ERROR)
+    yield
+    logger.setLevel(current_level)
 
 
 def extract_form_failures(html):

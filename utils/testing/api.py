@@ -1,16 +1,16 @@
 from django.contrib.auth.models import User
+from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
 from users.models import Token
 
-from .base import TestCase
+from .base import ModelTestCase
 
 
-class APITestCase(TestCase):
+class APITestCase(ModelTestCase):
     client_class = APIClient
-    model = None
     view_namespace = None
 
     def setUp(self):
@@ -37,15 +37,43 @@ class APITestCase(TestCase):
 
 class StandardAPITestCases(object):
     class GetObjectView(APITestCase):
+        @override_settings(LOGIN_REQUIRED=False)
+        def test_get_object_anonymous(self):
+            """
+            GET a single object as an unauthenticated user.
+            """
+            url = self._get_detail_url(self._get_queryset().first())
+            response = self.client.get(url, **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        @override_settings(LOGIN_REQUIRED=True)
         def test_get_object(self):
             """
-            GET a single object identified by its numeric ID.
+            GET a single object as an authenticated user with permission to view the object.
             """
-            instance = self.model.objects.first()
-            url = self._get_detail_url(instance)
-            response = self.client.get(url, **self.header)
+            self.assertGreaterEqual(
+                self._get_queryset().count(),
+                1,
+                f"Test requires the creation of at least one {self.model} instance",
+            )
+            instance = self._get_queryset()[0]
 
-            self.assertEqual(response.data["id"], instance.pk)
+            self.add_permissions("view")
+
+            # Try GET to permitted object
+            url = self._get_detail_url(instance)
+            self.assertHttpStatus(
+                self.client.get(url, **self.header), status.HTTP_200_OK
+            )
+
+        @override_settings(LOGIN_REQUIRED=True)
+        def test_options_object(self):
+            """
+            Make an OPTIONS request for a single object.
+            """
+            url = self._get_detail_url(self._get_queryset().first())
+            response = self.client.options(url, **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
 
     class ListObjectsView(APITestCase):
         brief_fields = []
