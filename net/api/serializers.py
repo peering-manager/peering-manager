@@ -18,6 +18,7 @@ class ConnectionSerializer(PrimaryModelSerializer):
         model = Connection
         fields = [
             "id",
+            "display",
             "name",
             "peeringdb_netixlan",
             "state",

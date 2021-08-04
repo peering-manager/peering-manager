@@ -1,3 +1,4 @@
+from devices.api.nested_serializers import NestedPlatformSerializer
 from net.api.serializers import NestedConnectionSerializer
 from peering.models import (
     AutonomousSystem,
@@ -64,6 +65,7 @@ class AutonomousSystemSerializer(PrimaryModelSerializer):
         model = AutonomousSystem
         fields = [
             "id",
+            "display",
             "asn",
             "name",
             "contact_name",
@@ -109,6 +111,7 @@ class BGPGroupSerializer(PrimaryModelSerializer):
         model = BGPGroup
         fields = [
             "id",
+            "display",
             "name",
             "slug",
             "import_routing_policies",
@@ -121,7 +124,7 @@ class BGPGroupSerializer(PrimaryModelSerializer):
 class CommunitySerializer(PrimaryModelSerializer):
     class Meta:
         model = Community
-        fields = ["id", "name", "slug", "value", "type", "comments", "tags"]
+        fields = ["id", "display", "name", "slug", "value", "type", "comments", "tags"]
 
 
 class ConfigurationSerializer(PrimaryModelSerializer):
@@ -129,6 +132,7 @@ class ConfigurationSerializer(PrimaryModelSerializer):
         model = Configuration
         fields = [
             "id",
+            "display",
             "name",
             "template",
             "jinja2_trim",
@@ -160,6 +164,7 @@ class DirectPeeringSessionSerializer(PrimaryModelSerializer):
         model = DirectPeeringSession
         fields = [
             "id",
+            "display",
             "service_reference",
             "local_autonomous_system",
             "local_ip_address",
@@ -186,7 +191,17 @@ class DirectPeeringSessionSerializer(PrimaryModelSerializer):
 class EmailSerializer(PrimaryModelSerializer):
     class Meta:
         model = Email
-        fields = ["id", "name", "subject", "template", "comments", "tags"]
+        fields = [
+            "id",
+            "display",
+            "name",
+            "subject",
+            "template",
+            "jinja2_trim",
+            "jinja2_lstrip",
+            "comments",
+            "tags",
+        ]
 
 
 class InternetExchangeSerializer(PrimaryModelSerializer):
@@ -214,6 +229,7 @@ class InternetExchangeSerializer(PrimaryModelSerializer):
         model = InternetExchange
         fields = [
             "id",
+            "display",
             "peeringdb_ixlan",
             "local_autonomous_system",
             "name",
@@ -248,6 +264,7 @@ class InternetExchangePeeringSessionSerializer(PrimaryModelSerializer):
         model = InternetExchangePeeringSession
         fields = [
             "id",
+            "display",
             "service_reference",
             "autonomous_system",
             "ixp_connection",
@@ -271,11 +288,13 @@ class InternetExchangePeeringSessionSerializer(PrimaryModelSerializer):
 class RouterSerializer(PrimaryModelSerializer):
     configuration_template = NestedConfigurationSerializer(required=False)
     local_autonomous_system = NestedAutonomousSystemSerializer()
+    platform = NestedPlatformSerializer()
 
     class Meta:
         model = Router
         fields = [
             "id",
+            "display",
             "name",
             "hostname",
             "platform",
@@ -300,6 +319,7 @@ class RoutingPolicySerializer(PrimaryModelSerializer):
         model = RoutingPolicy
         fields = [
             "id",
+            "display",
             "name",
             "slug",
             "type",

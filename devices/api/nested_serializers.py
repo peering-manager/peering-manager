@@ -9,4 +9,4 @@ class NestedPlatformSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Platform
-        fields = ["id", "url", "name", "slug"]
+        fields = ["id", "url", "display", "name", "slug"]

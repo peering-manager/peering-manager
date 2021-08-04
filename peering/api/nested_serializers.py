@@ -22,7 +22,15 @@ class NestedAutonomousSystemSerializer(WritableNestedSerializer):
 
     class Meta:
         model = AutonomousSystem
-        fields = ["id", "url", "asn", "name", "ipv6_max_prefixes", "ipv4_max_prefixes"]
+        fields = [
+            "id",
+            "url",
+            "display",
+            "asn",
+            "name",
+            "ipv6_max_prefixes",
+            "ipv4_max_prefixes",
+        ]
 
 
 class NestedBGPGroupSerializer(WritableNestedSerializer):
@@ -30,7 +38,7 @@ class NestedBGPGroupSerializer(WritableNestedSerializer):
 
     class Meta:
         model = BGPGroup
-        fields = ["id", "url", "name", "slug"]
+        fields = ["id", "url", "display", "name", "slug"]
 
 
 class NestedCommunitySerializer(WritableNestedSerializer):
@@ -38,7 +46,7 @@ class NestedCommunitySerializer(WritableNestedSerializer):
 
     class Meta:
         model = Community
-        fields = ["id", "url", "name", "slug", "value", "type"]
+        fields = ["id", "url", "display", "name", "slug", "value", "type"]
 
 
 class NestedConfigurationSerializer(WritableNestedSerializer):
@@ -48,17 +56,17 @@ class NestedConfigurationSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Configuration
-        fields = ["id", "url", "name"]
+        fields = ["id", "url", "display", "name"]
 
 
 class NestedDirectPeeringSessionSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name="peering-api:directpeeringsession-detail"
+    )
+
     class Meta:
         model = DirectPeeringSession
-        fields = [
-            "id",
-            "ip_address",
-            "enabled",
-        ]
+        fields = ["id", "url", "display", "ip_address", "enabled"]
 
 
 class NestedEmailSerializer(WritableNestedSerializer):
@@ -66,7 +74,7 @@ class NestedEmailSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Email
-        fields = ["id", "url", "name"]
+        fields = ["id", "url", "display", "name"]
 
 
 class NestedInternetExchangeSerializer(WritableNestedSerializer):
@@ -76,14 +84,20 @@ class NestedInternetExchangeSerializer(WritableNestedSerializer):
 
     class Meta:
         model = InternetExchange
-        fields = ["id", "url", "name", "slug"]
+        fields = ["id", "url", "display", "name", "slug"]
 
 
 class NestedInternetExchangePeeringSessionSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name="peering-api:internetexchangepeeringsession-detail"
+    )
+
     class Meta:
         model = InternetExchangePeeringSession
         fields = [
             "id",
+            "url",
+            "display",
             "ip_address",
             "enabled",
             "is_route_server",
@@ -95,7 +109,7 @@ class NestedRouterSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Router
-        fields = ["id", "url", "name", "hostname", "platform"]
+        fields = ["id", "url", "display", "name", "hostname"]
 
 
 class NestedRoutingPolicySerializer(WritableNestedSerializer):
@@ -105,4 +119,4 @@ class NestedRoutingPolicySerializer(WritableNestedSerializer):
 
     class Meta:
         model = RoutingPolicy
-        fields = ["id", "url", "name", "slug", "type"]
+        fields = ["id", "url", "display", "name", "slug", "type"]

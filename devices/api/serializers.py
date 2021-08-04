@@ -11,6 +11,7 @@ class PlatformSerializer(PrimaryModelSerializer):
         model = Platform
         fields = [
             "id",
+            "display",
             "name",
             "slug",
             "napalm_driver",

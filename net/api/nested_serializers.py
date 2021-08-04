@@ -9,4 +9,4 @@ class NestedConnectionSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Connection
-        fields = ["id", "url", "name", "ipv6_address", "ipv4_address"]
+        fields = ["id", "url", "display", "name", "ipv6_address", "ipv4_address"]
