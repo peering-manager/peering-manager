@@ -339,14 +339,42 @@ def tags(value):
     Returns an iterable containing tags associated with an object."
     """
     if not isinstance(value, TaggableModel):
-        raise AttributeError("object has not tags")
+        raise AttributeError("object has no tags")
     return value.tags.all()
+
+
+def has_tag(value, tag):
+    """
+    Returns a boolean indicating if an objects has the given tag.
+    """
+    if not isinstance(value, TaggableModel):
+        raise AttributeError("object has no tags")
+
+    for t in value.tags.all():
+        if t.name == tag or t.slug == tag:
+            return True
+    return False
+
+
+def has_not_tag(value, tag):
+    """
+    Returns a boolean indicating if an objects has the given tag.
+    """
+    if not isinstance(value, TaggableModel):
+        raise AttributeError("object has no tags")
+
+    for t in value.tags.all():
+        if t.name == tag or t.slug == tag:
+            return False
+    return True
 
 
 FILTER_DICT = {
     # Generics
     "safe_string": safe_string,
     "tags": tags,
+    "has_tag": has_tag,
+    "has_not_tag": has_not_tag,
     # IP address utilities
     "ipv4": ipv4,
     "ipv6": ipv6,

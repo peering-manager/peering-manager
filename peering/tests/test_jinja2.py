@@ -234,3 +234,15 @@ class Jinja2FilterTestCase(TestCase):
     def test_tags(self):
         self.assertEqual(3, FILTER_DICT["tags"](self.a_s).count())
         self.assertEqual(0, FILTER_DICT["tags"](self.ixp).count())
+
+    def test_has_tag(self):
+        self.assertEqual(True, FILTER_DICT["has_tag"](self.a_s, "tag-1"))
+        self.assertEqual(True, FILTER_DICT["has_tag"](self.a_s, "Tag 1"))
+        self.assertEqual(False, FILTER_DICT["has_tag"](self.router, "tag-1"))
+        self.assertEqual(False, FILTER_DICT["has_tag"](self.router, "Tag 1"))
+
+    def test_has_not_tag(self):
+        self.assertEqual(False, FILTER_DICT["has_not_tag"](self.a_s, "tag-1"))
+        self.assertEqual(False, FILTER_DICT["has_not_tag"](self.a_s, "Tag 1"))
+        self.assertEqual(True, FILTER_DICT["has_not_tag"](self.router, "tag-1"))
+        self.assertEqual(True, FILTER_DICT["has_not_tag"](self.router, "Tag 1"))

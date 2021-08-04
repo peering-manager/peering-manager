@@ -27,6 +27,17 @@ Example:
 Tags: {{ ixp | tags }}
 ```
 
+## `has_tag` / `has_not_tag`
+
+Returns a boolean telling if a tag is or is not applied to an object.
+
+Example:
+
+```no-highlight
+{% if ixp | has_tag('remote-peering') %}
+{% if ixp | has_not_tag('remote-peering') %}
+```
+
 ## `ipv4` / `ipv6`
 
 Given an argument, this filter will return a value that can be interpreted as
