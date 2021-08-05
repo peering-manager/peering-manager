@@ -93,6 +93,16 @@ class ModelViewSet(__ModelViewSet):
     brief = False
     brief_prefetch_fields = []
 
+    def get_object_with_snapshot(self):
+        """
+        Saves a pre-change snapshot of the object immediately after retrieving it.
+        This snapshot will be used to record the "before" data in the changelog.
+        """
+        o = super().get_object()
+        if hasattr(o, "snapshot"):
+            o.snapshot()
+        return o
+
     def get_serializer(self, *args, **kwargs):
         # A list is given use `many=True`
         if isinstance(kwargs.get("data", {}), list):
@@ -167,6 +177,11 @@ class ModelViewSet(__ModelViewSet):
         except ObjectDoesNotExist:
             raise PermissionDenied()
 
+    def update(self, request, *args, **kwargs):
+        # Hotwire get_object() to ensure we save a pre-change snapshot
+        self.get_object = self.get_object_with_snapshot
+        return super().update(request, *args, **kwargs)
+
     def perform_update(self, serializer):
         try:
             with transaction.atomic():
@@ -174,6 +189,11 @@ class ModelViewSet(__ModelViewSet):
                 self._validate_objects(instance)
         except ObjectDoesNotExist:
             raise PermissionDenied()
+
+    def destroy(self, request, *args, **kwargs):
+        # Hotwire get_object() to ensure we save a pre-change snapshot
+        self.get_object = self.get_object_with_snapshot
+        return super().destroy(request, *args, **kwargs)
 
     def perform_destroy(self, instance):
         return super().perform_destroy(instance)
