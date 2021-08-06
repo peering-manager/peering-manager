@@ -52,6 +52,7 @@ class AutonomousSystemTest(StandardAPITestCases.View):
         {"asn": 64542, "name": "Test 2"},
         {"asn": 64543, "name": "Test 3"},
     ]
+    bulk_update_data = {"comments": "Awesome peer"}
 
     @classmethod
     def setUpTestData(cls):
@@ -113,6 +114,7 @@ class BGPGroupTest(StandardAPITestCases.View):
         {"name": "Test 2", "slug": "test-2"},
         {"name": "Test 3", "slug": "test-3"},
     ]
+    bulk_update_data = {"comments": "Awesome group"}
 
     @classmethod
     def setUpTestData(cls):
@@ -156,6 +158,7 @@ class CommunityTest(StandardAPITestCases.View):
             "type": CommunityType.EGRESS,
         },
     ]
+    bulk_update_data = {"comments": "Awesome community"}
 
     @classmethod
     def setUpTestData(cls):
@@ -191,6 +194,7 @@ class ConfigurationTest(StandardAPITestCases.View):
         {"name": "Test2", "template": "test2_template"},
         {"name": "Test3", "template": "test3_template"},
     ]
+    bulk_update_data = {"template": "{{ router.hostname }}"}
 
     @classmethod
     def setUpTestData(cls):
@@ -206,6 +210,7 @@ class ConfigurationTest(StandardAPITestCases.View):
 class DirectPeeringSessionTest(StandardAPITestCases.View):
     model = DirectPeeringSession
     brief_fields = ["id", "url", "display", "ip_address", "enabled"]
+    bulk_update_data = {"enabled": False}
 
     @classmethod
     def setUpTestData(cls):
@@ -267,6 +272,7 @@ class EmailTest(StandardAPITestCases.View):
         {"name": "Test2", "subject": "test2_subject", "template": "test2_template"},
         {"name": "Test3", "subject": "test3_subject", "template": "test3_template"},
     ]
+    bulk_update_data = {"template": "{{ autonomous_system.asn }}"}
 
     @classmethod
     def setUpTestData(cls):
@@ -282,6 +288,7 @@ class EmailTest(StandardAPITestCases.View):
 class InternetExchangeTest(StandardAPITestCases.View):
     model = InternetExchange
     brief_fields = ["id", "url", "display", "name", "slug"]
+    bulk_update_data = {"comments": "Awesome IXP"}
 
     @classmethod
     def setUpTestData(cls):
@@ -371,6 +378,7 @@ class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
         "enabled",
         "is_route_server",
     ]
+    bulk_update_data = {"enabled": False}
 
     @classmethod
     def setUpTestData(cls):
@@ -428,6 +436,7 @@ class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
 class RouterTest(StandardAPITestCases.View):
     model = Router
     brief_fields = ["id", "url", "display", "name", "hostname"]
+    bulk_update_data = {"device_state": DeviceState.MAINTENANCE}
 
     @classmethod
     def setUpTestData(cls):
@@ -527,6 +536,7 @@ class RoutingPolicyTest(StandardAPITestCases.View):
             "weight": 3,
         },
     ]
+    bulk_update_data = {"comments": "Awesome routing policy"}
 
     @classmethod
     def setUpTestData(cls):

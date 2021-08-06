@@ -117,6 +117,7 @@ class BGPGroupSerializer(PrimaryModelSerializer):
             "import_routing_policies",
             "export_routing_policies",
             "communities",
+            "comments",
             "tags",
         ]
 

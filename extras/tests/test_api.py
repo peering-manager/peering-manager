@@ -45,6 +45,7 @@ class WebhookTest(StandardAPITestCases.View):
         {"name": "Webhook 5", "type_update": True, "url": "http://example.com/?5"},
         {"name": "Webhook 6", "type_delete": True, "url": "http://example.com/?6"},
     ]
+    bulk_update_data = {"ssl_verification": False}
 
     @classmethod
     def setUpTestData(cls):

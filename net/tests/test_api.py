@@ -17,6 +17,7 @@ class AppTest(APITestCase):
 class ConnectionTest(StandardAPITestCases.View):
     model = Connection
     brief_fields = ["id", "url", "display", "name", "ipv6_address", "ipv4_address"]
+    bulk_update_data = {"state": ConnectionState.DISABLED}
 
     @classmethod
     def setUpTestData(cls):
@@ -52,13 +53,6 @@ class ConnectionTest(StandardAPITestCases.View):
                     state=ConnectionState.ENABLED,
                     vlan=2000,
                     ipv6_address="2001:db8:10::ff/64",
-                    internet_exchange_point=internet_exchange_point,
-                    router=router,
-                ),
-                Connection(
-                    state=ConnectionState.ENABLED,
-                    vlan=2000,
-                    ipv6_address="2001:db8:10::fff/64",
                     internet_exchange_point=internet_exchange_point,
                     router=router,
                 ),

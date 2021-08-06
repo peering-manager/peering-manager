@@ -137,6 +137,7 @@ class StandardAPITestCases(object):
 
     class UpdateObjectView(APITestCase):
         update_data = {}
+        bulk_update_data = None
 
         def test_update_object(self):
             """
@@ -150,6 +151,32 @@ class StandardAPITestCases(object):
             self.assertHttpStatus(response, status.HTTP_200_OK)
             instance.refresh_from_db()
             self.assertInstanceEqual(instance, self.update_data, api=True)
+
+        def test_bulk_update_objects(self):
+            """
+            PATCH a set of objects in a single request.
+            """
+            if self.bulk_update_data is None:
+                self.skipTest("Bulk update data not set")
+
+            id_list = self._get_queryset().values_list("id", flat=True)[:3]
+            self.assertEqual(len(id_list), 3, "Not enough objects to test bulk update")
+            data = [{"id": id, **self.bulk_update_data} for id in id_list]
+
+            response = self.client.patch(
+                self._get_list_url(), data, format="json", **self.header
+            )
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+
+            for i, obj in enumerate(response.data):
+                for field in self.bulk_update_data:
+                    self.assertIn(
+                        field,
+                        obj,
+                        f"Bulk update field '{field}' missing from object {i} in response",
+                    )
+            for instance in self._get_queryset().filter(pk__in=id_list):
+                self.assertInstanceEqual(instance, self.bulk_update_data, api=True)
 
     class DeleteObjectView(APITestCase):
         def test_delete_object(self):

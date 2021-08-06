@@ -116,7 +116,62 @@ class BulkDestroyModelMixin:
                 self.perform_destroy(o)
 
 
-class ModelViewSet(BulkDestroyModelMixin, __ModelViewSet):
+class BulkUpdateModelMixin:
+    """
+    Supports bulk modification of objects using the list endpoint.
+    Accepts a PATCH action with a list of one or more JSON objects, each specifying
+    the numeric ID of an object to be updated as well as the attributes to be set.
+    For example:
+    ```
+    PATCH /routers/
+    [
+        {
+            "id": 123,
+            "device_state": "maintenance"
+        },
+        {
+            "id": 456,
+            "device_state": "maintenance"
+        }
+    ]
+    ```
+    """
+
+    def bulk_update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        serializer = BulkOperationSerializer(data=request.data, many=True)
+
+        serializer.is_valid(raise_exception=True)
+        qs = self.get_queryset().filter(pk__in=[o["id"] for o in serializer.data])
+
+        # Map update data by object ID
+        update_data = {o.pop("id"): o for o in request.data}
+
+        data = self.perform_bulk_update(qs, update_data, partial=partial)
+
+        return Response(data, status=status.HTTP_200_OK)
+
+    def perform_bulk_update(self, objects, update_data, partial):
+        with transaction.atomic():
+            data_list = []
+            for obj in objects:
+                data = update_data.get(obj.id)
+                if hasattr(obj, "snapshot"):
+                    obj.snapshot()
+
+                serializer = self.get_serializer(obj, data=data, partial=partial)
+                serializer.is_valid(raise_exception=True)
+                self.perform_update(serializer)
+                data_list.append(serializer.data)
+
+            return data_list
+
+    def bulk_partial_update(self, request, *args, **kwargs):
+        kwargs["partial"] = True
+        return self.bulk_update(request, *args, **kwargs)
+
+
+class ModelViewSet(BulkDestroyModelMixin, BulkUpdateModelMixin, __ModelViewSet):
     """
     Custom `ModelViewSet` capable of handling either a single object or a list of
     objects to create, update or delete.

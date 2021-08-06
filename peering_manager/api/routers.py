@@ -7,8 +7,14 @@ class OrderedDefaultRouter(DefaultRouter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Extend the list view mappings to support the DELETE operation
-        self.routes[0].mapping.update({"delete": "bulk_destroy"})
+        # Extend the list view mappings to support the DELETE/PUT/PATCH operations
+        self.routes[0].mapping.update(
+            {
+                "delete": "bulk_destroy",
+                "put": "bulk_update",
+                "patch": "bulk_partial_update",
+            }
+        )
 
     def get_api_root_view(self, api_urls=None):
         """

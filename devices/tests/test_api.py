@@ -20,6 +20,7 @@ class PlatformTest(StandardAPITestCases.View):
         {"name": "Test OS", "slug": "test-os"},
         {"name": "Bugs OS", "slug": "bugsos", "description": "Nice try one..."},
     ]
+    bulk_update_data = {"description": "Favourite vendor"}
 
     @classmethod
     def setUpTestData(cls):

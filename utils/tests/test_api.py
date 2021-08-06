@@ -28,6 +28,7 @@ class TagTest(StandardAPITestCases.View):
             "slug": "test-6",
         },
     ]
+    bulk_update_data = {"color": "000000"}
 
     @classmethod
     def setUpTestData(cls):
