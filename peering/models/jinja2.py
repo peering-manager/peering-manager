@@ -1,6 +1,7 @@
 import ipaddress
 import unicodedata
 
+from django.db.models import Q
 from django.db.models.query import QuerySet
 
 from devices.crypto.cisco import MAGIC as CISCO_MAGIC
@@ -350,10 +351,7 @@ def has_tag(value, tag):
     if not isinstance(value, TaggableModel):
         raise AttributeError("object has no tags")
 
-    for t in value.tags.all():
-        if t.name == tag or t.slug == tag:
-            return True
-    return False
+    return value.tags.filter(Q(name=tag) | Q(slug=tag)).count() > 0
 
 
 def has_not_tag(value, tag):
@@ -363,10 +361,7 @@ def has_not_tag(value, tag):
     if not isinstance(value, TaggableModel):
         raise AttributeError("object has no tags")
 
-    for t in value.tags.all():
-        if t.name == tag or t.slug == tag:
-            return False
-    return True
+    return value.tags.filter(Q(name=tag) | Q(slug=tag)).count() == 0
 
 
 FILTER_DICT = {
