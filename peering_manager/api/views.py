@@ -21,6 +21,7 @@ from rq.worker import Worker
 
 from peering_manager.api.authentication import IsAuthenticatedOrLoginNotRequired
 from peering_manager.api.exceptions import SerializerNotFound
+from peering_manager.api.serializers import BulkOperationSerializer
 from utils.api import get_serializer_for_model
 
 
@@ -84,7 +85,38 @@ class StatusView(APIView):
         )
 
 
-class ModelViewSet(__ModelViewSet):
+class BulkDestroyModelMixin:
+    """
+    Supports bulk deletion of objects using the list endpoint.
+    Accepts a DELETE action with a list of one or more JSON objects, each specifying
+    the numeric ID of an object to be deleted. For example:
+    ```
+    DELETE /routers/
+    [
+        {"id": 123},
+        {"id": 456}
+    ]
+    ```
+    """
+
+    def bulk_destroy(self, request, *args, **kwargs):
+        serializer = BulkOperationSerializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        qs = self.get_queryset().filter(pk__in=[o["id"] for o in serializer.data])
+        self.perform_bulk_destroy(qs)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def perform_bulk_destroy(self, objects):
+        with transaction.atomic():
+            for o in objects:
+                if hasattr(o, "snapshot"):
+                    o.snapshot()
+                self.perform_destroy(o)
+
+
+class ModelViewSet(BulkDestroyModelMixin, __ModelViewSet):
     """
     Custom `ModelViewSet` capable of handling either a single object or a list of
     objects to create, update or delete.

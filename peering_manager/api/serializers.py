@@ -12,10 +12,15 @@ from utils.models import Tag
 
 __all__ = [
     "BaseModelSerializer",
+    "BulkOperationSerializer",
     "PrimaryModelSerializer",
     "ValidatedModelSerializer",
     "WritableNestedSerializer",
 ]
+
+
+class BulkOperationSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
 
 
 class BaseModelSerializer(serializers.ModelSerializer):

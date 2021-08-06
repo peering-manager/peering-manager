@@ -163,6 +163,26 @@ class StandardAPITestCases(object):
             self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
             self.assertFalse(self.model.objects.filter(pk=instance.pk).exists())
 
+        def test_bulk_delete_objects(self):
+            """
+            DELETE a set of objects in a single request.
+            """
+            # Target the three most recently created objects
+            id_list = (
+                self._get_queryset().order_by("-id").values_list("id", flat=True)[:3]
+            )
+            self.assertEqual(
+                len(id_list), 3, "Not enough objects to test bulk deletion"
+            )
+            data = [{"id": id} for id in id_list]
+
+            initial_count = self._get_queryset().count()
+            response = self.client.delete(
+                self._get_list_url(), data, format="json", **self.header
+            )
+            self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+            self.assertEqual(self._get_queryset().count(), initial_count - 3)
+
     class View(
         GetObjectView,
         ListObjectsView,

@@ -55,9 +55,18 @@ class AutonomousSystemTest(StandardAPITestCases.View):
 
     @classmethod
     def setUpTestData(cls):
-        cls.autonomous_system = AutonomousSystem.objects.create(
-            asn=65536, name="Test1", irr_as_set="AS-MOCKED"
+        AutonomousSystem.objects.bulk_create(
+            [
+                AutonomousSystem(asn=65536, name="Example 1", irr_as_set="AS-MOCKED"),
+                AutonomousSystem(
+                    asn=64496, name="Example 2", irr_as_set="AS-EXAMPLE-2"
+                ),
+                AutonomousSystem(
+                    asn=64497, name="Example 3", irr_as_set="AS-EXAMPLE-3"
+                ),
+            ]
         )
+        cls.autonomous_system = AutonomousSystem.objects.get(asn=65536)
         load_peeringdb_data()
 
     def test_synchronize_with_peeringdb(self):
@@ -107,12 +116,18 @@ class BGPGroupTest(StandardAPITestCases.View):
 
     @classmethod
     def setUpTestData(cls):
-        cls.bgp_group = BGPGroup.objects.create(name="Test1", slug="test1")
+        BGPGroup.objects.bulk_create(
+            [
+                BGPGroup(name="Example 1", slug="example-1"),
+                BGPGroup(name="Example 2", slug="example-2"),
+                BGPGroup(name="Example 3", slug="example-3"),
+            ]
+        )
 
     def test_poll_peering_sessions(self):
         url = reverse(
             "peering-api:bgpgroup-poll-peering-sessions",
-            kwargs={"pk": self.bgp_group.pk},
+            kwargs={"pk": BGPGroup.objects.get(slug="example-1").pk},
         )
         response = self.client.post(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
@@ -144,8 +159,27 @@ class CommunityTest(StandardAPITestCases.View):
 
     @classmethod
     def setUpTestData(cls):
-        Community.objects.create(
-            name="Test", slug="test", value="64500:1", type=CommunityType.EGRESS
+        Community.objects.bulk_create(
+            [
+                Community(
+                    name="Example 1",
+                    slug="example-1",
+                    value="64500:1",
+                    type=CommunityType.EGRESS,
+                ),
+                Community(
+                    name="Example 2",
+                    slug="example-2",
+                    value="64500:2",
+                    type=CommunityType.EGRESS,
+                ),
+                Community(
+                    name="Example 3",
+                    slug="example-3",
+                    value="64500:3",
+                    type=CommunityType.EGRESS,
+                ),
+            ]
         )
 
 
@@ -160,7 +194,13 @@ class ConfigurationTest(StandardAPITestCases.View):
 
     @classmethod
     def setUpTestData(cls):
-        Configuration.objects.create(name="Test", template="test_template")
+        Configuration.objects.bulk_create(
+            [
+                Configuration(name="Example 1", template="example_1"),
+                Configuration(name="Example 2", template="example_2"),
+                Configuration(name="Example 3", template="example_3"),
+            ]
+        )
 
 
 class DirectPeeringSessionTest(StandardAPITestCases.View):
@@ -173,12 +213,28 @@ class DirectPeeringSessionTest(StandardAPITestCases.View):
             asn=201281, name="Guillaume Mazoyer", affiliated=True
         )
         autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Dummy")
-        cls.direct_peering_session = DirectPeeringSession.objects.create(
-            local_autonomous_system=local_autonomous_system,
-            autonomous_system=autonomous_system,
-            relationship=BGPRelationship.PRIVATE_PEERING,
-            ip_address="2001:db8::1",
-            password="mypassword",
+        DirectPeeringSession.objects.bulk_create(
+            [
+                DirectPeeringSession(
+                    local_autonomous_system=local_autonomous_system,
+                    autonomous_system=autonomous_system,
+                    relationship=BGPRelationship.PRIVATE_PEERING,
+                    ip_address="2001:db8::1",
+                    password="mypassword",
+                ),
+                DirectPeeringSession(
+                    local_autonomous_system=local_autonomous_system,
+                    autonomous_system=autonomous_system,
+                    relationship=BGPRelationship.PRIVATE_PEERING,
+                    ip_address="2001:db8::2",
+                ),
+                DirectPeeringSession(
+                    local_autonomous_system=local_autonomous_system,
+                    autonomous_system=autonomous_system,
+                    relationship=BGPRelationship.PRIVATE_PEERING,
+                    ip_address="2001:db8::3",
+                ),
+            ]
         )
         cls.create_data = [
             {
@@ -214,8 +270,12 @@ class EmailTest(StandardAPITestCases.View):
 
     @classmethod
     def setUpTestData(cls):
-        Email.objects.create(
-            name="Test", subject="test_subject", template="test_template"
+        Email.objects.bulk_create(
+            [
+                Email(name="Example 1", subject="Example 1", template="example_1"),
+                Email(name="Example 2", subject="Example 2", template="example_2"),
+                Email(name="Example 3", subject="Example 3", template="example_3"),
+            ]
         )
 
 
@@ -228,11 +288,26 @@ class InternetExchangeTest(StandardAPITestCases.View):
         cls.local_autonomous_system = AutonomousSystem.objects.create(
             asn=201281, name="Guillaume Mazoyer", affiliated=True
         )
-        cls.internet_exchange = InternetExchange.objects.create(
-            name="Test",
-            slug="test",
-            local_autonomous_system=cls.local_autonomous_system,
+        InternetExchange.objects.bulk_create(
+            [
+                InternetExchange(
+                    name="Example 1",
+                    slug="example-1",
+                    local_autonomous_system=cls.local_autonomous_system,
+                ),
+                InternetExchange(
+                    name="Example 2",
+                    slug="example-2",
+                    local_autonomous_system=cls.local_autonomous_system,
+                ),
+                InternetExchange(
+                    name="Example 3",
+                    slug="example-3",
+                    local_autonomous_system=cls.local_autonomous_system,
+                ),
+            ]
         )
+        cls.internet_exchange = InternetExchange.objects.get(slug="example-1")
         cls.create_data = [
             {
                 "name": "Test1",
@@ -310,13 +385,25 @@ class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
             vlan=2000, internet_exchange_point=ixp
         )
 
-        cls.internet_exchange_peering_session = (
-            InternetExchangePeeringSession.objects.create(
-                autonomous_system=autonomous_system,
-                ixp_connection=ixp_connection,
-                ip_address="2001:db8::1",
-                password="mypassword",
-            )
+        InternetExchangePeeringSession.objects.bulk_create(
+            [
+                InternetExchangePeeringSession(
+                    autonomous_system=autonomous_system,
+                    ixp_connection=ixp_connection,
+                    ip_address="2001:db8::1",
+                    password="mypassword",
+                ),
+                InternetExchangePeeringSession(
+                    autonomous_system=autonomous_system,
+                    ixp_connection=ixp_connection,
+                    ip_address="2001:db8::2",
+                ),
+                InternetExchangePeeringSession(
+                    autonomous_system=autonomous_system,
+                    ixp_connection=ixp_connection,
+                    ip_address="2001:db8::3",
+                ),
+            ]
         )
         cls.create_data = [
             {
@@ -351,13 +438,32 @@ class RouterTest(StandardAPITestCases.View):
         cls.template = Configuration.objects.create(
             name="Test", template="Nothing useful"
         )
-        cls.router = Router.objects.create(
-            name="Test",
-            hostname="test.example.com",
-            device_state=DeviceState.ENABLED,
-            configuration_template=cls.template,
-            local_autonomous_system=cls.local_autonomous_system,
+        Router.objects.bulk_create(
+            [
+                Router(
+                    name="Example 1",
+                    hostname="1.example.com",
+                    device_state=DeviceState.ENABLED,
+                    configuration_template=cls.template,
+                    local_autonomous_system=cls.local_autonomous_system,
+                ),
+                Router(
+                    name="Example 2",
+                    hostname="2.example.com",
+                    device_state=DeviceState.ENABLED,
+                    configuration_template=cls.template,
+                    local_autonomous_system=cls.local_autonomous_system,
+                ),
+                Router(
+                    name="Example 3",
+                    hostname="3.example.com",
+                    device_state=DeviceState.ENABLED,
+                    configuration_template=cls.template,
+                    local_autonomous_system=cls.local_autonomous_system,
+                ),
+            ]
         )
+        cls.router = Router.objects.get(hostname="1.example.com")
         cls.create_data = [
             {
                 "name": "Test 1",
@@ -384,84 +490,6 @@ class RouterTest(StandardAPITestCases.View):
                 "platform": cls.platform.pk,
             },
         ]
-
-    def test_get_router(self):
-        url = reverse("peering-api:router-detail", kwargs={"pk": self.router.pk})
-        response = self.client.get(url, **self.header)
-        self.assertEqual(response.data["hostname"], self.router.hostname)
-
-    def test_list_routers(self):
-        url = reverse("peering-api:router-list")
-        response = self.client.get(url, **self.header)
-        self.assertEqual(response.data["count"], 1)
-
-    def test_create_router(self):
-        data = {
-            "name": "Other",
-            "hostname": "other.example.com",
-            "device_state": DeviceState.ENABLED,
-            "local_autonomous_system": self.local_autonomous_system.pk,
-            "platform": self.platform.pk,
-        }
-
-        url = reverse("peering-api:router-list")
-        response = self.client.post(url, data, format="json", **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Router.objects.count(), 2)
-        router = Router.objects.get(pk=response.data["id"])
-        self.assertEqual(router.hostname, data["hostname"])
-
-    def test_create_router_bulk(self):
-        data = [
-            {
-                "name": "Test1",
-                "hostname": "test1.example.com",
-                "device_state": DeviceState.ENABLED,
-                "local_autonomous_system": self.local_autonomous_system.pk,
-                "platform": self.platform.pk,
-            },
-            {
-                "name": "Test2",
-                "hostname": "test2.example.com",
-                "device_state": DeviceState.ENABLED,
-                "local_autonomous_system": self.local_autonomous_system.pk,
-                "platform": self.platform.pk,
-            },
-        ]
-
-        url = reverse("peering-api:router-list")
-        response = self.client.post(url, data, format="json", **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Router.objects.count(), 3)
-        self.assertEqual(response.data[0]["hostname"], data[0]["hostname"])
-        self.assertEqual(response.data[1]["hostname"], data[1]["hostname"])
-
-    def test_update_router(self):
-        data = {
-            "name": "Test",
-            "hostname": "test.example.com",
-            "device_state": DeviceState.ENABLED,
-            "local_autonomous_system": self.local_autonomous_system.pk,
-            "platform": self.platform.pk,
-            "comments": "Test",
-        }
-
-        url = reverse("peering-api:router-detail", kwargs={"pk": self.router.pk})
-        response = self.client.put(url, data, format="json", **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(Router.objects.count(), 1)
-        router = Router.objects.get(pk=response.data["id"])
-        self.assertEqual(router.hostname, data["hostname"])
-
-    def test_delete_router(self):
-        url = reverse("peering-api:router-detail", kwargs={"pk": self.router.pk})
-        response = self.client.delete(url, **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Router.objects.count(), 0)
 
     def test_configuration(self):
         url = reverse("peering-api:router-configuration", kwargs={"pk": self.router.pk})
@@ -502,6 +530,25 @@ class RoutingPolicyTest(StandardAPITestCases.View):
 
     @classmethod
     def setUpTestData(cls):
-        RoutingPolicy.objects.create(
-            name="Test", slug="test", type=RoutingPolicyType.EXPORT, weight=0
+        RoutingPolicy.objects.bulk_create(
+            [
+                RoutingPolicy(
+                    name="Example 1",
+                    slug="example-1",
+                    type=RoutingPolicyType.EXPORT,
+                    weight=0,
+                ),
+                RoutingPolicy(
+                    name="Example 2",
+                    slug="example-2",
+                    type=RoutingPolicyType.IMPORT,
+                    weight=0,
+                ),
+                RoutingPolicy(
+                    name="Example 3",
+                    slug="example-3",
+                    type=RoutingPolicyType.EXPORT,
+                    weight=0,
+                ),
+            ]
         )
