@@ -35,7 +35,7 @@ class ConnectionTest(StandardAPITestCases.View):
         Connection.objects.create(
             state=ConnectionState.ENABLED,
             vlan=2000,
-            ipv6_address="2001:db8:10::",
+            ipv6_address="2001:db8:10::/64",
             internet_exchange_point=internet_exchange_point,
             router=router,
         )
@@ -43,20 +43,20 @@ class ConnectionTest(StandardAPITestCases.View):
             {
                 "state": ConnectionState.ENABLED,
                 "vlan": 2001,
-                "ipv6_address": "2001:db8:10::1",
+                "ipv6_address": "2001:db8:10::1/64",
                 "internet_exchange_point": internet_exchange_point.pk,
                 "router": router.pk,
             },
             {
                 "state": ConnectionState.ENABLED,
                 "vlan": 2002,
-                "ipv4_address": "192.0.2.2",
+                "ipv4_address": "192.0.2.2/24",
                 "internet_exchange_point": internet_exchange_point.pk,
                 "router": router.pk,
             },
             {
                 "state": ConnectionState.DISABLED,
-                "ipv6_address": "2001:db8:10::3",
+                "ipv6_address": "2001:db8:10::3/64",
                 "ipv4_address": "192.0.2.3",
                 "internet_exchange_point": internet_exchange_point.pk,
                 "router": router.pk,

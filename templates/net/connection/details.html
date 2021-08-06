@@ -2,7 +2,7 @@
 {% load helpers %}
 {% block subcontent %}
 <div class="row">
-  <div class="col-md-6">
+  <div class="col-md-6 mb-2">
     <div class="card">
       <div class="card-header"><strong>Details</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
@@ -39,6 +39,18 @@
           <td>{{ instance.description|render_none }}</td>
         </tr>
       </table>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header"><strong>Config Context</strong></div>
+      <div class="card-body">
+        {% if instance.config_context %}
+        <pre class="pre-scrollable"><code>{{ instance.config_context | render_json }}</code></pre>
+        {% else %}
+        <span class="text-muted">None</span>
+        {% endif %}
+      </div>
     </div>
   </div>
   <div class="col-md-6">

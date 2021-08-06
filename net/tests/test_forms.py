@@ -2,7 +2,6 @@ from django.test import TestCase
 
 from net.enums import ConnectionState
 from net.forms import ConnectionForm
-from net.models import Connection
 
 
 class ConnectionTest(TestCase):

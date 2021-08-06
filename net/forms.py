@@ -7,6 +7,8 @@ from utils.forms import (
     BootstrapMixin,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
+    JSONField,
+    SmallTextarea,
     StaticSelect,
     TagFilterField,
     add_blank_choice,
@@ -28,6 +30,9 @@ class ConnectionForm(BootstrapMixin, forms.ModelForm):
         queryset=Router.objects.all(),
         help_text="Router on which this connection is setup",
     )
+    config_context = JSONField(
+        required=False, label="Config context", widget=SmallTextarea
+    )
     comments = CommentField()
     tags = TagField(required=False)
 
@@ -42,6 +47,7 @@ class ConnectionForm(BootstrapMixin, forms.ModelForm):
             "router",
             "interface",
             "description",
+            "config_context",
             "comments",
             "tags",
         )

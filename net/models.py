@@ -24,13 +24,13 @@ class Connection(ChangeLoggedModel, TaggableModel):
     )
     vlan = VLANField(verbose_name="VLAN", blank=True, null=True)
     ipv6_address = InetAddressField(
-        store_prefix_length=False,
+        store_prefix_length=True,
         blank=True,
         null=True,
         validators=[AddressFamilyValidator(6)],
     )
     ipv4_address = InetAddressField(
-        store_prefix_length=False,
+        store_prefix_length=True,
         blank=True,
         null=True,
         validators=[AddressFamilyValidator(4)],
@@ -43,6 +43,7 @@ class Connection(ChangeLoggedModel, TaggableModel):
     )
     interface = models.CharField(max_length=200, blank=True)
     description = models.CharField(max_length=200, blank=True)
+    config_context = models.JSONField(blank=True, null=True)
     comments = models.TextField(blank=True)
 
     objects = NetManager()

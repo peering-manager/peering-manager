@@ -149,6 +149,19 @@ Example:
 {% set prefixes = autonomous_system | prefix_list %}
 ```
 
+## `connections`
+
+On an IXP or a router, it will return all connections attached to it.
+
+Example:
+
+```no-highlight
+{% for connection in router | connections %}
+IPv4: {{ connections.ipv4_address }}
+IPv6: {{ connections.ipv46_address }}
+{% endfor %}
+```
+
 ## `sessions` / `route_server`
 
 When using `sessions` on a BGP group or an IXP, peering sessions setup in the

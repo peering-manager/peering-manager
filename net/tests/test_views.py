@@ -1,7 +1,4 @@
-from ipaddress import IPv6Address
-
-from django.db import transaction
-from django.urls.exceptions import NoReverseMatch
+from ipaddress import IPv6Interface
 
 from net.enums import ConnectionState
 from net.models import Connection
@@ -38,21 +35,21 @@ class ConnectionTestCase(StandardTestCases.Views):
                 Connection(
                     state=ConnectionState.ENABLED,
                     vlan=2001,
-                    ipv6_address="2001:db8::1",
+                    ipv6_address="2001:db8::1/64",
                     internet_exchange_point=internet_exchange_point,
                     router=router,
                 ),
                 Connection(
                     state=ConnectionState.ENABLED,
                     vlan=2002,
-                    ipv6_address="2001:db8::2",
+                    ipv6_address="2001:db8::2/64",
                     internet_exchange_point=internet_exchange_point,
                     router=router,
                 ),
                 Connection(
                     state=ConnectionState.DISABLED,
                     vlan=2003,
-                    ipv6_address="2001:db8::3",
+                    ipv6_address="2001:db8::3/64",
                     internet_exchange_point=internet_exchange_point,
                     router=router,
                 ),
@@ -63,7 +60,7 @@ class ConnectionTestCase(StandardTestCases.Views):
             "peeringdb_netixlan": None,
             "state": ConnectionState.ENABLED,
             "vlan": 2004,
-            "ipv6_address": IPv6Address("2001:db8::4"),
+            "ipv6_address": IPv6Interface("2001:db8::4/64"),
             "ipv4_address": None,
             "internet_exchange_point": internet_exchange_point.pk,
             "router": router.pk,

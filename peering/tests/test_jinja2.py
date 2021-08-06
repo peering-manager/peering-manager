@@ -210,6 +210,11 @@ class Jinja2FilterTestCase(TestCase):
             FILTER_DICT["merge_import_policies"](self.session6),
         )
 
+    def connections(self):
+        self.assertEqual(1, FILTER_DICT["connections"](self.ixp).count())
+        self.assertEqual(1, FILTER_DICT["connections"](self.router).count())
+        self.assertRaises(AttributeError, FILTER_DICT["connections"], self.a_s)
+
     def test_sessions(self):
         self.assertEqual(4, FILTER_DICT["sessions"](self.ixp).count())
         self.assertEqual(2, FILTER_DICT["sessions"](self.ixp, family=6).count())

@@ -22,12 +22,11 @@ from peering.enums import (
     RoutingPolicyType,
 )
 from peering.fields import ASNField, CommunityField
-from peeringdb.functions import get_ixlan_prefixes, get_shared_internet_exchanges
+from peeringdb.functions import get_shared_internet_exchanges
 from peeringdb.models import IXLanPrefix, Network, NetworkContact, NetworkIXLan
 from utils.models import ChangeLoggedModel, TaggableModel
-from utils.validators import AddressFamilyValidator
 
-from .abstracts import AbstractGroup, BGPSession, Template
+from .abstracts import AbstractGroup, BGPSession
 from .mixins import PolicyMixin
 
 

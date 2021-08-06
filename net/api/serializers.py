@@ -28,6 +28,7 @@ class ConnectionSerializer(TaggedObjectSerializer, ModelSerializer):
             "router",
             "interface",
             "description",
+            "config_context",
             "comments",
             "tags",
         ]

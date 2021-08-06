@@ -175,6 +175,12 @@ def merge_import_policies(value, order=""):
     return value.merged_import_policies(order == "reverse")
 
 
+def connections(value):
+    if not hasattr(value, "get_connections"):
+        raise AttributeError(f"{value} has no connections")
+    return value.get_connections()
+
+
 def direct_sessions(value, family=0):
     """
     Returns a queryset of direct peering sessions.
@@ -395,6 +401,8 @@ FILTER_DICT = {
     "ip_version": ip_version,
     "max_prefix": max_prefix,
     "cisco_password": cisco_password,
+    # Connections
+    "connections": connections,
     # Routers
     "direct_peers": direct_peers,
     "ixp_peers": ixp_peers,
