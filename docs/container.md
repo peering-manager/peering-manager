@@ -1,7 +1,7 @@
 # Container Installation
 
 ## Installing a container engine
-You can use any Container engine you want, for example [Podman](https://podman.io/) or 
+You can use any Container engine you want, for example [Podman](https://podman.io/) or
 [Docker](https://www.docker.com/) as long as it understands the Docker file
 format. The following explanations will focus on Docker.
 
@@ -28,7 +28,7 @@ You also need Git since we will clone a repository from GitHub. Install it with
 `apt install git` or `yum install git` depending on your distribution.
 
 ## Getting the Compose file
-We manage our files in a Git repository, clone it with `git clone git@github.com:peering-manager/docker.git`
+We manage our files in a Git repository, clone it with `git clone https://github.com/peering-manager/docker.git`
 to a location you want.
 Then enter the directory with `cd`.
 
