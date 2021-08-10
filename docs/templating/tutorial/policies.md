@@ -1,18 +1,24 @@
 # Policies
-Peering Manager allows _routing policies_ to be defined. These policies can then be applied to:
+Peering Manager allows _routing policies_ to be defined.
+These policies can then be applied to:
+
 * Autonomous Systems,
 * Internet Exchanges and
-  * Internet Exchange Peering Sessions,
+    * Internet Exchange Peering Sessions,
 * BGP Groups and
-  * Direct Peering Sessions
+    * Direct Peering Sessions
 
-First, these policies defined in Peering Manager must be exported via template to the router, then they need to be applied to prefixes received or announced.
+First, these policies defined in Peering Manager must be exported via a template
+to the router, then they need to be applied to prefixes received or announced.
 
-!!!attention
-    How policies are handled by templates shown here is pretty much work in progress. Ideas how your templates handle policies are very much welcome.
+!!! attention
+    How policies are handled by templates shown here is pretty much
+    work in progress.
+    Ideas how your templates handle policies are very much welcome.
 
 === "Cisco IOS XR"
-    We dump simply the content of the policy into a _route-policy_ statement. This makes the whole process completely dependend on the router platform.
+    We dump simply the content of the policy into a _route-policy_ statement.
+    This makes the whole process completely dependend on the router platform.
 
 
     ```
@@ -32,12 +38,15 @@ First, these policies defined in Peering Manager must be exported via template t
     This does not work on IOS.
 
 
-An idea would be to use _tags_ to mark which policies can be applied on which router platform.
+An idea would be to use _tags_ to mark which policies can be applied on which
+router platform.
 
-Alternatively the JSON _Config Context_ of the policy can be used to encode different policies for different platforms:
+Alternatively the JSON _Config Context_ of the policy can be used to encode
+different policies for different platforms:
 
-!!!question Templates welcome
-    No template exists by now to render policies proposed here. Suggestion on encoding are very much welcome.
+!!! question "Templates welcome"
+    No template exists by now to render policies proposed here.
+    Suggestion on encoding are very much welcome.
 
 ```JSON
 {
