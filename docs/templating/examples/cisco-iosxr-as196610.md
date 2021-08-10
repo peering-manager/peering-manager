@@ -1,8 +1,9 @@
 # Cisco IOS XR templated as used by AS196610
 Since a few days [DE-CIX Academy](https://de-cix.net/academy)
 [AS196610](https://peeringdb.com/asn/196610) is using Peering Manager in production
-(well, it is a research network, so not much traffic). This is the template
-being used. At placeholder you can find detailed explanations on the template.
+(well, it is a research network, so not much traffic).
+This is the template being used.
+At placeholder you can find detailed explanations on the template.
 
 ```no-highlight
 {#- Generic Policies for Relationships #}
