@@ -47,7 +47,8 @@ can be configured (n.b. some are optional):
 To configure a router with *ssh* access Peering Manager needs read-access to
 your private key file - please be aware that this might be a security issue.
 
-Put the full pathname of the file into `NAPALM Optional Arguments` in the following form:
+Put the full pathname of the file into `NAPALM Optional Arguments` in the
+following form:
 
 ```json
 {
@@ -55,13 +56,25 @@ Put the full pathname of the file into `NAPALM Optional Arguments` in the follow
 }
 ```
 
-On Cisco IOS you also need to configure a target files system in case NAPALM does not detect it automatically. Also make sure login via ssh and the _scp_ servers are enabled.
+On Cisco IOS you also need to configure a target files system in case NAPALM
+does not detect it automatically. This happens if you have no flash card in your
+router (not recommended). Also make sure login via ssh and the _scp_ servers are
+enabled.
 
 ```json
 {
   "dest_file_system": "nvram:"
 }
 ```
+
+If you get an error which might indicate a timeout occured and if you have a
+slower router, increasing the global timeout might be a solution:
+```json
+{
+  "global_delay_factor": 5
+}
+```
+
 
 ## Connecting to your router
 
