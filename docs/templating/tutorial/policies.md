@@ -33,10 +33,10 @@ including statements for both Cisco IOS and Cisco IOS XR:
 	],
 	"cisco-iosxr": [
 		"if large-community matches-any announce-to-dus-peers or destination in my-networks then",
-		"set med 0",
-		"pass",
+		" set med 0",
+		" pass",
 		"else",
-		"drop",
+		" drop",
 		"endif"
 	]
 }
@@ -57,24 +57,6 @@ How they are transformed to a valid configuration is the job of the template.
     work in progress.
     Ideas how your templates handle policies are very much welcome.
 
-=== "Cisco IOS XR"
-    We dump simply the content of the policy into a _route-policy_ statement.
-    This makes the whole process completely dependend on the router platform.
-
-
-    ```
-    {%- for policy in routing_policies %}
-    !
-    route-policy {{policy.name}}
-      {%- if policy.config_context is iterable %}
-        {%- for statement in policy.config_context %}
-          {#- Simply dump all statements one after another#}
-          {{statement}}
-        {%-endfor%}
-      {%-endif%}
-    end-policy
-    {%-endfor%}
-    ```
 === "Cisco IOS"
     We have to create _route-maps_, for this we merge all policies of a session
     (Peering Manager takes care of this) and then transform the entries into
@@ -151,3 +133,38 @@ How they are transformed to a valid configuration is the job of the template.
     * The values of _set_ are put into set statements. You can have as many set
     statements as you like
     * The numbering of the route-map clauses is done automatically.
+
+=== "Cisco IOS XR"
+    In IOS XR we can generate all policies at once and call them later by name and also _apply_ policies within each other. That makes the template way shorter and less complicated.
+
+    We dump simply the content of the policy into a _route-policy_ statement.
+
+    ```
+    {%- for policy in routing_policies %}
+    !
+    route-policy {{policy.name}}
+    {%- if policy.config_context is iterable %}
+      {%- for part in policy.config_context %}
+        {%- if part == template_type%}
+          {%- for statement in policy.config_context[part] %}
+     {#- Simply dump all statements one after another#}
+     {{statement}}
+          {%-endfor%}
+        {%-endif%}
+      {%-endfor%}
+    {%-endif%}
+    end-policy
+    {%-endfor%}
+    ```
+
+    Result for the same example as above is:
+    ```
+    route-policy peering-rs-dus-out
+     if large-community matches-any announce-to-dus-peers or destination in my-networks then
+      set med 0
+      pass
+     else
+      drop
+     endif
+    end-policy
+    ```
