@@ -32,31 +32,137 @@ Its all up to you.
 This tutorial will give you the building blocks of templates.
 The actual design and build you must do yourself according to your needs.
 
-## Platform specialities
-All platforms are different and some platforms lack certain features. Peering
-Manager itself is platform independent. That does not mean that everything you
-configure inside Peering Manager can be rolled out to every platform.
+We are building the template step by step from the beginning. The following
+syntax is used in this document:
 
-This overview here will focus on the limits of the platforms featured in the
-examples of this tutorial.
+!!! todo
+    This marks tasks you need to do using the web interface of Peering Manager
 
-### Cisco IOS XR
-The 'modern' Cisco platform. Lots of features and nearly everything can be put
-into a template. One issue to be aware of are the handling of _BGP Communities_
-- Peering Manager has only one type of community and you can simply enter a
-Large, Extended or Normal value. Cisco IOS XR handles these three differently,
-so the template must somehow find out the type of a community. At the moment a
-_tag_ in Peering Manager is used for that.
+```
+This goes into your template.
+Don't worry - the complete template we are building will be listed at the end.
+```
 
-For policies, it is possible to _apply_ one policy inside another, so all
-configured policies in Peering Manager can go one-to-one into the template and a
-"session policy" can then call each of them. To check out if the resulting
-policy is ok, you can use ```show rpl route-policy _name_ inline``` command.
 
-### Cisco IOS
-The 'old' Cisco platform - quite limited in features. You can attach only _one_
-route-map to each BGP session. So if you have multiple policies applied to
-various objects, they need to be "flattened" into one route-map. The suggestion
-here is to keep things simple and try not to use too many features. Also be
-aware of the ordering of statements, if in doubt, check the configuration
-produced before you apply it.
+## Building an example template
+Peering Manager should manage your peerings - well, it's in the name. So the
+template suggested here takes care of:
+
+* No conflict with existing configurations on your router(s).
+* Adding new peerings: When a peering request comes in, you only will have to
+select the AS and IXP where to peer. Rest is done automatically, including:
+    * Building and attaching prefix filters (if wanted)
+    * Setting communities incoming (and outgoing)
+    * Building a _route-map_ or _route-policy_ or what ever your platform
+    supports for filtering receiving and announcing prefixes.
+
+To achieve the goal lets set a few variables at the beginning of your template -
+we are prepending every configuration item in our router by a specific string to
+make sure nothing is overwritten what is already there.
+
+```
+{#- To avoid conflict with prefedined elements,
+we prepend everything we define#}
+{%- set p="pm-"%}
+```
+
+We also put the platform of the template into a variable so we can refer to it in the template:
+
+=== "Cisco IOS"
+    ```
+    {#- We define the type of template for reference #}
+    {%- set template_type="cisco-ios"%}
+    ```
+
+=== "Cisco IOS XR"
+    ```
+    {#- We define the type of template for reference #}
+    {%- set template_type="cisco-iosxr"%}
+    ```
+
+
+## Configuration design
+For all configs the following design decisions are applied:
+
+* We distinguish between three types of eBGP sessions:
+    * Customers
+    * Peers
+    * Transit
+* The policy for announcing prefixes is as follows:
+    * Customer prefixes are announced to customers, peers, transit (= all)
+    * Peer prefixes are announced to customers (only)
+    * Transit prefixes are announced to customers (only)
+* When receiving prefixes, _BGP Communities_ are **set** that control where these prefixes are announced
+* When announcing prefixes, existing BGP communities are **checked**, and either announced or not
+
+## BGP Communities
+
+The following communities are used for this example:
+
+| Announce to | Community            |
+|-------------|----------------------|
+| Nobody      | 65500:40000 or empty |
+| Customers   | 65500:41000          |
+| Peers       | 65500:42000          |
+| Transit     | 65500:44000          |
+
+If want to combine them, simply set two or more communities.
+
+!!! question
+    Why these numbers?
+    I have been using them for years and simply copied them from my router.
+    Cisco allows _regular expression parsing_ of communities and the '4' as the
+    first digit in my case means 'control announcement'.
+
+!!! todo
+    Define the communities listed above in Peering Manager. Give them meaningful
+    names like "Announce to Customers" and set their type to **ingress** (as
+    they are _set_ when receiving prefixes).
+
+Now with the communities defined, we need to put code into our template to generate the configuration statements.
+
+=== "Cisco IOS"
+    ```
+    !
+    ! Communitiy Lists
+    !
+    {#- Generate named lists for all communities #}
+    {%- for community in communities %}
+    ip community-list standard {{p}}{{community.slug}}-{{community.type}} permit {{community.value}}
+    {%-endfor%}
+    !
+    ```
+
+    Output for our example looks like:
+    ```
+    !
+    ! Communitiy Lists
+    !
+    ip community-list standard pm-announce-to-nobody-ingress permit 65500:40000
+    ip community-list standard pm-announce-to-customers-ingress permit 65500:41000
+    ip community-list standard pm-announce-to-peers-ingress permit 65500:42000
+    ip community-list standard pm-announce-to-upstream-ingress permit 65500:44000
+    ```
+
+
+=== "Cisco IOS XR"
+    ```
+    !
+    ! Communitiy Lists
+    !
+    {#- Generate named lists for all communities #}
+    {%- for community in communities %}
+    !
+    community-set {{p}}{{community.slug}}-{{community.type}}
+      {{community.value}}
+    end-set
+    {%-endfor%}
+    !
+    ```
+
+!!! remark
+    In practise on a modern router we would use _Large Communities_.
+    But as some old routers still do not support them, we stick with
+    regular communities for this example.
+
+## Routing Policies
