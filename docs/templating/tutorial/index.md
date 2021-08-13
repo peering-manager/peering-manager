@@ -1,6 +1,7 @@
 # Templating Tutorial - Getting Started
 This tutorial will try to enable you to write your own templates or modify
-one of the examples to your needs. On this page we develop a basic template for Peering Manager. If you want to dive in further - see the other parts.
+one of the examples to your needs. On this page we develop a basic template for
+Peering Manager. If you want to dive in further - see the other parts.
 
 Templates are highly individual to each network, so there is no
 "one size fits all".
@@ -314,7 +315,9 @@ to put code for multiple platforms into it.
     ]
     }
     ```
-Using this format allows to put policies for more than one platform into the config context. Of course, if you only have one router platform you can rewrite this to your needs.
+Using this format allows to put policies for more than one platform into the
+config context. Of course, if you only have one router platform you can rewrite
+this to your needs.
 
 We have to do the same for incoming.
 
@@ -343,7 +346,8 @@ Now we define templates for the different platforms.
 
 === "Cisco IOS"
     In IOS we can apply _one_ route-map to each BGP session. So we iterate over
-    all IXPs and all enabled IXP sessions and generate route-maps (one for in, one for out).
+    all IXPs and all enabled IXP sessions and generate route-maps (one for in,
+    one for out).
 
     Peering Managers filter ```merge_import_policies``` does the work of putting
     all the policies (of IXPs, ASes, and sessions) together, see the
@@ -360,7 +364,8 @@ Now we define templates for the different platforms.
     - Then we add all defined policies, one by one:
         - "result" goes into the header of the route-map clause
         - "set" and "match" statements are simply printed out
-        - numbering is done automatically, iteration of the outer loop multiplied by 1000
+        - numbering is done automatically, iteration of the outer loop
+        multiplied by 1000
 
     ```
     {%- for ixp in internet_exchange_points %}
@@ -441,7 +446,5 @@ Now we define templates for the different platforms.
       {%-endfor%}
     {%-endfor%}
     ```
-
-
 
 === "Cisco IOS XR"
