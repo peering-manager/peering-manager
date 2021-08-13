@@ -1,6 +1,6 @@
-# Templating Tutorial
+# Templating Tutorial - Getting Started
 This tutorial will try to enable you to write your own templates or modify
-one of the examples to your needs.
+one of the examples to your needs. On this page we develop a basic template for Peering Manager. If you want to dive in further - see the other parts.
 
 Templates are highly individual to each network, so there is no
 "one size fits all".
@@ -343,7 +343,7 @@ Now we define templates for the different platforms.
 
 === "Cisco IOS"
     In IOS we can apply _one_ route-map to each BGP session. So we iterate over
-    all enabled IXP sessions and generate route-maps (one for in, one for out).
+    all IXPs and all enabled IXP sessions and generate route-maps (one for in, one for out).
 
     Peering Managers filter ```merge_import_policies``` does the work of putting
     all the policies (of IXPs, ASes, and sessions) together, see the
@@ -356,23 +356,25 @@ Now we define templates for the different platforms.
     - For incoming, we first delete all our own communities and use a _continue_
     statement to go on
     - Then we add all IXP communities, and also _continue_
-    - "result" goes into the header of the route-map clause
-    - "set" and "match" statements are simply printed out
-    - numbering is done automatically, iteration of the outer loop multiplied by
-    1000
-    - For the "in" route-map, communities are applied to all "permit" clauses
+        - Unfortunately there is no easy way to add AS communities (yet)
+    - Then we add all defined policies, one by one:
+        - "result" goes into the header of the route-map clause
+        - "set" and "match" statements are simply printed out
+        - numbering is done automatically, iteration of the outer loop multiplied by 1000
 
     ```
     {%- for ixp in internet_exchange_points %}
       {%- for session in ixp |  sessions %}
         {%- if session.enabled %}
     ! Session with AS{{session.autonomous_system.asn}} ID:{{ session.id }} at {{ixp.name}}
-    ! First delete all our own communities incoming
+    ! Put "deny" clause at the end
+    route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-in deny 65535
+    ! Delete all our own communities incoming at the beginning
     route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-in permit 1
       set comm-list {{p}}comm-delete delete
       continue
     !
-    ! then set all required communities for this IXP
+    ! Then set all required communities for this IXP using continue
     route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-in permit 2
           {%-for community in ixp.communities.all() %}
             {%-if community.type == "ingress"%}
@@ -380,48 +382,55 @@ Now we define templates for the different platforms.
             {%-endif%}
           {%-endfor%}
       continue
+    ! Then put all the rest "flattened" into clauses
     ! In: {{session | merge_import_policies |  iterate('slug') | join(',') }}
           {%-for policy in session | merge_import_policies%}
             {%-set outer=loop.index%}
-            ! {{policy.slug}}
             {%- if policy.config_context is iterable %}
               {%- for part in policy.config_context %}
                 {%- if part == template_type%}
                   {%- for statement in policy.config_context[part] %}
-                  route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-in {{statement.result}} {{outer*1000+loop.index}}
+    route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-in {{statement.result}} {{outer*1000+loop.index}}
                     {%-for inner in statement.match%}
-                    match {{inner}}
+      match {{inner}}
                     {%-endfor%}
                     {%-for inner in statement.set%}
-                    set {{inner}}
+      set {{inner}}
                     {%-endfor%}
                   {%-endfor%}
                 {%-endif%}
               {%-endfor%}
             {%-endif%}
           {%-endfor%}
-          route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-out permit 1
+    !
+    ! End of IN
+    !
+    ! Same for Out: "deny" clause at the end
+    route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-out deny 65535
+    ! Set communities at the beginning
+    route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-out permit 1
           {%-for community in ixp.communities.all() %}
             {%-if community.type == "egress"%}
-                set community {{community.value}} additive
+      set community {{community.value}} additive
             {%-endif%}
           {%-endfor%}
-          continue
-          !
+      continue
+    !
           {%-for policy in session | merge_export_policies%}
+    ! And all the export policies
     ! Out: {{session | merge_export_policies |  iterate('slug') | join(',') }}
+
             {%-set outer=loop.index%}
-            ! {{policy.slug}}
             {%- if policy.config_context is iterable %}
               {%- for part in policy.config_context %}
                 {%- if part == template_type%}
                   {%- for statement in policy.config_context[part] %}
-                  route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-out {{statement.result}} {{outer*1000+loop.index}}
+    route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-out {{statement.result}} {{outer*1000+loop.index}}
                     {%-for inner in statement.match%}
-                    match {{inner}}
+      match {{inner}}
                     {%-endfor%}
                     {%-for inner in statement.set%}
-                    set {{inner}}
+      set {{inner}}
                     {%-endfor%}
                   {%-endfor%}
                 {%-endif%}
