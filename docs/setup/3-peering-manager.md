@@ -330,3 +330,4 @@ Before we can deliver Peering Manager with our web server of choice, we have to 
 
 
 === "uWSGI"
+    Please see the extra page for [uWSGI](uwsgi.md) for further details.
