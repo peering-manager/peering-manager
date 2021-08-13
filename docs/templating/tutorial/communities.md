@@ -1,5 +1,5 @@
 # BGP Communities
-Peering Manager allows communities to be applied to the following parts of the 
+Peering Manager allows communities to be applied to the following parts of the
 configuration:
 
 - Autonomous Systems
@@ -12,7 +12,7 @@ What makes life interesting is, that there are three kind of communities which
 router platform often handle differently but which are not (yet) distinguished
 in Peering Manager.
 
-This makes it currently necessary to apply a _tag_ to each community. 
+This makes it currently necessary to apply a _tag_ to each community.
 The following tags are used in this tutorial:
 
 - normal-community
@@ -71,3 +71,4 @@ be applied, we show it here for Autonomous Systems only.
 === "Cisco IOS"
     ```no-highlight
     
+    ```

@@ -57,9 +57,9 @@ select the AS and IXP where to peer. Rest is done automatically, including:
     * Building a _route-map_ or _route-policy_ or what ever your platform
     supports for filtering receiving and announcing prefixes.
 
-To achieve the goal lets set a few variables at the beginning of your template -
-we are prepending every configuration item in our router by a specific string to
-make sure nothing is overwritten what is already there.
+To achieve these goals lets set a few variables at the beginning of your
+template - we are prepending every configuration item in our router by a
+specific string to make sure nothing is overwritten what is already there.
 
 ```
 {#- To avoid conflict with prefedined elements,
@@ -82,6 +82,36 @@ in the template:
     {%- set template_type="cisco-iosxr"%}
     ```
 
+## Platform specialities
+All platforms are different and some platforms lack certain features. Peering
+Manager itself is platform independent. That does not mean that everything you
+configure inside Peering Manager can be rolled out to every platform.
+
+This overview here will focus on the limits of the platforms featured in the
+examples of this tutorial.
+
+### Cisco IOS XR
+The 'modern' Cisco platform. Lots of features and nearly everything can be put
+into a template. One issue to be aware of are the handling of _BGP Communities_
+- Peering Manager has only one type of community and you can simply enter a
+Large, Extended or Normal value. Cisco IOS XR handles these three differently,
+so the template must somehow find out the type of a community. This example uses
+only regular communities, but if you want to use large communities you must be
+aware of this.
+
+For policies, it is possible to _apply_ one policy inside another, so all
+configured policies in Peering Manager can go one-to-one into the template and a
+"session policy" can then call each of them. To check out if the resulting
+policy is ok, you can use ```show rpl route-policy _name_ inline``` command.
+
+### Cisco IOS
+The 'old' Cisco platform - quite limited in features. You can attach only _one_
+route-map to each BGP session. So if you have multiple policies applied to
+various elements, they need to be "flattened" into one route-map. The suggestion
+here is to keep things simple and try not to use too many features. Also be
+aware of the ordering of statements, if in doubt, check the configuration
+produced before you apply it.
+
 
 ## Configuration design
 For all configs the following design decisions are applied:
@@ -98,10 +128,12 @@ For all configs the following design decisions are applied:
 these prefixes are announced
 * When announcing prefixes, existing BGP communities are **checked**, and either
 announced or not
+* The template developed here takes only care of peers, however, you can easily
+extend it to handle transit and customers as well.
 
 ## BGP Communities
 
-The following communities are used for this example:
+The following communities are used in this example:
 
 | Announce to | Community            |
 |-------------|----------------------|
@@ -239,7 +271,7 @@ To enable filtering for a peering AS, we use a _tag_.
 
 === "Cisco IOS XR"
     IOS XR has _prefix sets_ in which you can mix IPv4 and IPv6 prefixes. This
-    makes the template easier. Also, we create a _route-policy_ to check the
+    makes template writing easier. Also, we create a _route-policy_ to check the
     prefixes and if filtering is not wanted we simply do a policy containing
     only a _pass_ statement (allowing all).
 
@@ -281,7 +313,7 @@ To enable filtering for a peering AS, we use a _tag_.
 
 
 ## Routing Policies
-With Communities an Prefix Lists in place, we can now define some routing
+With Communities and Prefix Lists/Sets in place, we can now define some routing
 policies and that part of the template which converts them into router
 configurations.
 
