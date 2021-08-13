@@ -65,7 +65,7 @@ nav:
         - Jinja Filters: "templating/filters.md"
         - Exposed Variables: "templating/variables.md"
         - Templating Tutorial:
-            - About: "templating/tutorial/index.md"
+            - Getting started: "templating/tutorial/index.md"
             - BGP Communities: "templating/tutorial/communities.md"
             - Policies: "templating/tutorial/policies.md"
             - Autonomous Systems: "templating/tutorial/as-template.md"
