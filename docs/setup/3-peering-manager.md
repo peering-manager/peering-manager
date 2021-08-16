@@ -196,7 +196,7 @@ administration (eg. creating other user accounts).
 ```no-highlight
 (venv) # python3 manage.py createsuperuser
 Username (leave blank to use 'root'): admin
-Email address: gmazoyer@gravitons.in
+Email address: somename@example.com
 Password:
 Password (again):
 Superuser created successfully.
