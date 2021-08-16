@@ -207,7 +207,7 @@ Superuser created successfully.
 ```no-highlight
 (venv) # python3 manage.py collectstatic --no-input
 ...
-127 static files copied to '/opt/peering-manager/static'.
+293 static files copied to '/opt/peering-manager/static'.
 ```
 
 ## Test the Application
