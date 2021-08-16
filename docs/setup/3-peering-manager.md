@@ -137,8 +137,8 @@ TIME_ZONE = 'Europe/Paris'
 # PostgreSQL database configuration
 DATABASE = {
     "NAME": "peering_manager",  # Database name
-    "USER": "",  # PostgreSQL username
-    "PASSWORD": "",  # PostgreSQL password
+    "USER": "peering_manager",  # PostgreSQL username
+    "PASSWORD": "DoNotUseMe",  # PostgreSQL password
     "HOST": "localhost",  # Database server
     "PORT": "",  # Database port (leave blank for default)
 }
@@ -271,25 +271,25 @@ Before we can deliver Peering Manager with our web server of choice, we have to 
 	Documentation=https://peering-manager.readthedocs.io/
 	After=network-online.target
 	Wants=network-online.target
-	
+
 	[Service]
 	Type=simple
-	
+
 	User=peering-manager
 	Group=peering-manager
 	PIDFile=/var/tmp/peering-manager.pid
 	WorkingDirectory=/opt/peering-manager
-	
+
 	ExecStart=/opt/peering-manager/venv/bin/gunicorn --pid /var/tmp/peering-manager.pid --pythonpath /opt/peering-manager --config /opt/peering-manager/gunicorn.py peering_manager.wsgi
-	
+
 	Restart=on-failure
 	RestartSec=30
 	PrivateTmp=true
-	
+
 	[Install]
 	WantedBy=multi-user.target
 	```
-	
+
 	Create another service file `/etc/systemd/system/peering-manager-rq.service`
 	and set its content.
 	```no-highlight
@@ -298,20 +298,20 @@ Before we can deliver Peering Manager with our web server of choice, we have to 
 	Documentation=https://peering-manager.readthedocs.io/
 	After=network-online.target
 	Wants=network-online.target
-	
+
 	[Service]
 	Type=simple
-	
+
 	User=peering-manager
 	Group=peering-manager
 	WorkingDirectory=/opt/peering-manager
-	
+
 	ExecStart=/opt/peering-manager/venv/bin/python3 /opt/peering-manager/manage.py rqworker
-	
+
 	Restart=on-failure
 	RestartSec=30
 	PrivateTmp=true
-	
+
 	[Install]
 	WantedBy=multi-user.target
 	```
@@ -323,7 +323,7 @@ Before we can deliver Peering Manager with our web server of choice, we have to 
 	# systemctl enable peering-manager --now
 	# systemctl enable peering-manager-rq --now
 	```
-	
+
 	You can use the `systemctl status peering-manager` and
 	`systemctl status peering-manager-rq` to verify that the WSGI service and the
 	request queue worker service are respectively running.
