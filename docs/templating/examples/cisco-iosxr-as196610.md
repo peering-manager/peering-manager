@@ -3,7 +3,6 @@ Since a few days [DE-CIX Academy](https://de-cix.net/academy)
 [AS196610](https://peeringdb.com/asn/196610) is using Peering Manager in production
 (well, it is a research network, so not much traffic).
 This is the template being used.
-At placeholder you can find detailed explanations on the template.
 
 ```no-highlight
 {#- Generic Policies for Relationships #}
@@ -68,6 +67,32 @@ route-policy transit-provider-out
   endif
 end-policy
 !
+{# All configured communities #}
+{%- for community in communities %}
+  {%- for tag in community.tags.all() %}
+    {%- if tag.slug == "large-community" %}
+large-community-set pm-{{community.slug}}-{{community.type}}
+  {{community.value}}
+end-set
+    {%-endif %}
+  {%-endfor%}
+  {%- for tag in community.tags.all() %}
+    {%- if tag.slug == "extended-community" %}
+extcommunity-set rt pm-{{community.slug}}-{{community.type}}
+  {{community.value}}
+end-set
+    {%-endif %}
+  {%-endfor%}
+  {%- for tag in community.tags.all() %}
+    {%- if tag.slug == "normal-community" %}
+community-set pm-{{community.slug}}-{{community.type}}
+  {{community.value}}
+end-set
+    {%-endif %}
+  {%-endfor%}
+{%-endfor%}
+!
+
 {# All configured policies #}
 {%- for policy in routing_policies %}
 !
@@ -204,6 +229,13 @@ route-policy as-{{as.asn}}-in
   set large-community large-communities-as{{ as.asn }}-in additive
   set extcommunity rt ext-communities-as{{ as.asn }}-in additive
   set community reg-communities-as{{ as.asn }}-in additive
+  {%-for community in as.communities.all()%}
+  {#- wait until the tag-filter is available
+    {%- if community.type == "ingress" and commnity | has_tag("large-community")%}
+      set large-community pm-{{community.slug}}-{{community.type}} additive
+    {%-endif%}
+  #}
+  {%-endfor%}
 end-policy
 !
 route-policy as-{{as.asn}}-out
@@ -389,6 +421,11 @@ router bgp {{ local_as.asn }}
       {%- if session | max_prefix %}
       maximum-prefix {{ session | max_prefix }} 95
       {%- endif %}
+      {%- for tag in session.tags.all() %}
+        {%- if tag.slug == "soft-reconfiguration" %}
+      soft-reconfiguration inbound always
+        {%- endif %}
+      {%endfor%}
     {%- else %}
    no neighbor {{ session.ip_address }}
     {%-endif%}
@@ -406,10 +443,10 @@ start of this file are used
 route-policy session-as{{session.autonomous_system.asn}}-id{{session.id}}-in
   # {{session.autonomous_system.name}}
   apply unwanted-routes
+  apply as-{{session.autonomous_system.asn}}-in
   apply {{session.relationship}}-in
   {%- for policy in session | iter_import_policies()%}
   apply {{policy.name}}
-  apply as-{{session.autonomous_system.asn}}-in
   {%-endfor%}
 end-policy
 !
@@ -441,11 +478,9 @@ router bgp {{ local_as.asn }}
       {%- elif session.password %}
      password clear {{ session.password }}
       {%- endif %}
-      {%-if session.is_route_server %}
-     no enforce-first-as
-      {%-else%}
-     enforce-first-as
-      {%-endif%}
+      {% for tag in session.tags.all() %}
+  	    {%- if tag.slug == "no-enforce-first-as" %}no {%-endif%}
+      {%-endfor%} enforce-first-as
      address-family ipv{{ session | ip_version }} unicast
       route-policy session-as{{session.autonomous_system.asn}}-id{{session.id}}-in in
       route-policy session-as{{session.autonomous_system.asn}}-id{{session.id}}-out out
@@ -455,6 +490,11 @@ router bgp {{ local_as.asn }}
       {%- if session | max_prefix %}
       maximum-prefix {{ session | max_prefix }} 95
       {%- endif %}
+      {%- for tag in session.tags.all() %}
+        {%- if tag.slug == "soft-reconfiguration" %}
+      soft-reconfiguration inbound always
+        {%- endif %}
+      {%- endfor %}
     {%- else %}
    no neighbor {{ session.ip_address }}
     {%-endif%}
