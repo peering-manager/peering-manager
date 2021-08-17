@@ -82,6 +82,13 @@ in the template:
     {%- set template_type="cisco-iosxr"%}
     ```
 
+=== "Juniper"
+    ```
+    {#- We define the type of template for reference #}
+    {%- set template_type="juniper-junos"%}
+    ```
+
+
 ## Platform specialities
 All platforms are different and some platforms lack certain features. Peering
 Manager itself is platform independent. That does not mean that everything you
@@ -205,6 +212,25 @@ can delete them from received prefixes.
     {%-endfor%}
     !
     ```
+
+=== "Juniper"
+    ```
+    #
+    #  Community Lists
+    #
+    {#- Generate named lists for all communities #}
+    policy-options {
+    {%- for community in communities %}
+      community {{p}}{{community.slug}}-{{community.type}} members [ {{community.value}} ];
+    {%-endfor%}
+      community {{p}}comm-delete members [
+    {%- for community in communities %}
+      {{community.value}}
+    {%-endfor%}
+      ];
+    }
+    ```
+
 
 !!! remark
     In practise on a modern router we would use _Large Communities_.
