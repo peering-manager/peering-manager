@@ -64,12 +64,7 @@ nav:
         - Writing Templates: "templating/index.md"
         - Jinja Filters: "templating/filters.md"
         - Exposed Variables: "templating/variables.md"
-        - Templating Tutorial:
-            - Getting started: "templating/tutorial/index.md"
-            - BGP Communities: "templating/tutorial/communities.md"
-            - Policies: "templating/tutorial/policies.md"
-            - Autonomous Systems: "templating/tutorial/as-template.md"
-            - Using Tags: "templating/tutorial/tags.md"
+        - Templating Tutorial: "templating/tutorial/index.md"
         - Examples:
             - Arista EOS: "templating/examples/arista-eos.md"
             - Cisco IOS XR: "templating/examples/cisco-iosxr.md"
