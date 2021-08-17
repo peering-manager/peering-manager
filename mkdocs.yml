@@ -69,6 +69,8 @@ nav:
             - Arista EOS: "templating/examples/arista-eos.md"
             - Cisco IOS XR: "templating/examples/cisco-iosxr.md"
             - Cisco IOS XR as used by AS196610: "templating/examples/cisco-iosxr-as196610.md"
+            - Cisco IOS-XR from tutorial: "templating/examples/tutorial-cisco-iosxr.md"
+            - Cisco IOS from tutorial: "templating/examples/tutorial-cisco-ios.md"
             - Juniper Junos OS: "templating/examples/juniper-junos.md"
             - Peering Request E-Mail: "templating/examples/peering-request-email.md"
     - Integration: "integration.md"

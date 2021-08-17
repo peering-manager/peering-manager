@@ -848,3 +848,8 @@ We again loop over all IXPs and all sessions at this IXP and create peer entries
       maximum-prefix 100 95
 
     ```
+## Complete Examples
+You can find the complete examples built here in the examples section:
+
+* [Cisco IOS-XR from this tutorial](../examples/tutorial-cisco-iosxr.md)
+* [Cisco IOS from this tutorial](../examples/tutorial-cisco-ios.md)
