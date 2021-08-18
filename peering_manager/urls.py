@@ -1,14 +1,15 @@
 from django.conf import settings
 from django.conf.urls import include, url
 from django.urls import path
-from drf_spectacular.views import (
+
+from peering_manager.admin import admin_site
+from peering_manager.api.views import (
+    APIRootView,
     SpectacularAPIView,
     SpectacularRedocView,
     SpectacularSwaggerView,
+    StatusView,
 )
-
-from peering_manager.admin import admin_site
-from peering_manager.api.views import APIRootView, StatusView
 from peering_manager.views import Home, handle_500, trigger_500
 from users.views import LoginView, LogoutView
 
