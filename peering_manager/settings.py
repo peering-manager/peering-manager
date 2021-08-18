@@ -128,7 +128,14 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "PAGE_SIZE": PAGINATE_COUNT,
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Peering Manager",
+    "DESCRIPTION": "BGP sessions management tool",
+    "VERSION": VERSION,
 }
 
 
@@ -360,6 +367,7 @@ INSTALLED_APPS = [
     "utils",
     "webhooks",
     "django_rq",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [

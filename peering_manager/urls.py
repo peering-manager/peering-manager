@@ -1,6 +1,11 @@
 from django.conf import settings
 from django.conf.urls import include, url
 from django.urls import path
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 
 from peering_manager.admin import admin_site
 from peering_manager.api.views import APIRootView, StatusView
@@ -33,6 +38,13 @@ __patterns = [
     path("api/users/", include("users.api.urls")),
     path("api/utils/", include("utils.api.urls")),
     path("api/status/", StatusView.as_view(), name="api-status"),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "api/docs/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
+    path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     # Admin
     path("admin/background-tasks/", include("django_rq.urls")),
     path("admin/", admin_site.urls),
