@@ -214,9 +214,9 @@ def local_ips(value, family=0):
     if isinstance(value, InternetExchange):
         ips = []
         for c in Connection.objects.filter(internet_exchange_point=value):
-            if c.ipv4_address:
+            if c.ipv4_address and family != 6:
                 ips.append(c.ipv4_address)
-            if c.ipv6_address:
+            if c.ipv6_address and family != 4:
                 ips.append(c.ipv6_address)
         return ips
 

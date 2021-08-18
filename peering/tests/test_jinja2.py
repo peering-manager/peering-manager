@@ -145,6 +145,14 @@ class Jinja2FilterTestCase(TestCase):
             ],
             FILTER_DICT["local_ips"](InternetExchange.objects.get(pk=self.ixp.pk)),
         )
+        self.assertListEqual(
+            [Connection.objects.get(pk=self.ixp_connection.pk).ipv6_address],
+            FILTER_DICT["local_ips"](InternetExchange.objects.get(pk=self.ixp.pk), 6),
+        )
+        self.assertListEqual(
+            [Connection.objects.get(pk=self.ixp_connection.pk).ipv4_address],
+            FILTER_DICT["local_ips"](InternetExchange.objects.get(pk=self.ixp.pk), 4),
+        )
         self.assertIsNone(
             FILTER_DICT["local_ips"](Connection.objects.get(pk=self.ixp_connection.pk)),
         )
