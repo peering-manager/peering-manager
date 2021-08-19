@@ -4,6 +4,8 @@ from django.core.exceptions import (
     ObjectDoesNotExist,
 )
 from django.db.models import ManyToManyField
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -26,6 +28,7 @@ class BulkOperationSerializer(serializers.Serializer):
 class BaseModelSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField(read_only=True)
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_display(self, instance):
         return str(instance)
 

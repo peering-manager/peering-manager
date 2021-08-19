@@ -128,7 +128,7 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_SCHEMA_CLASS": "peering_manager.api.inspectors.PeeringManagerAutoSchema",
     "PAGE_SIZE": PAGINATE_COUNT,
 }
 
