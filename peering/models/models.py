@@ -510,11 +510,7 @@ class DirectPeeringSession(BGPSession):
         on_delete=models.SET_NULL,
         verbose_name="BGP group",
     )
-    relationship = models.CharField(
-        max_length=50,
-        choices=BGPRelationship.choices,
-        help_text="Relationship with the remote peer.",
-    )
+    relationship = models.CharField(max_length=50, choices=BGPRelationship.choices)
     router = models.ForeignKey(
         "Router", blank=True, null=True, on_delete=models.SET_NULL
     )
@@ -586,6 +582,14 @@ class InternetExchange(AbstractGroup):
     peeringdb_ixlan = models.ForeignKey(
         "peeringdb.IXLan", on_delete=models.SET_NULL, blank=True, null=True
     )
+    ix_api_endpoint = models.ForeignKey(
+        "extras.IXAPI",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name="IX-API",
+        help_text="URL and authentication details to interact with IX-API",
+    )
     local_autonomous_system = models.ForeignKey(
         "AutonomousSystem", on_delete=models.CASCADE, null=True
     )
@@ -594,6 +598,16 @@ class InternetExchange(AbstractGroup):
 
     class Meta(AbstractGroup.Meta):
         ordering = ["local_autonomous_system", "name", "slug"]
+        permissions = [
+            (
+                "view_internet_exchange_point_ixapi",
+                "Can view IX-API related info (read-only)",
+            ),
+            (
+                "change_internet_exchange_point_ixapi",
+                "Can use IX-API to change info (read-write)",
+            ),
+        ]
 
     @property
     def linked_to_peeringdb(self):

@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
 from devices.models import Platform
+from extras.models.ix_api import IXAPI
 from net.models import Connection
 from netbox.api import NetBox
 from utils.fields import CommentField, PasswordField, SlugField, TextareaField
@@ -489,6 +490,9 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     communities = DynamicModelMultipleChoiceField(
         required=False, queryset=Community.objects.all()
     )
+    ix_api_endpoint = DynamicModelChoiceField(
+        required=False, label="IX-API endpoint", queryset=IXAPI.objects.all()
+    )
     comments = CommentField()
     tags = TagField(required=False)
 
@@ -502,6 +506,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "import_routing_policies",
             "export_routing_policies",
             "check_bgp_session_states",
+            "ix_api_endpoint",
             "comments",
             "tags",
         )
@@ -539,6 +544,9 @@ class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFo
         label="Poll peering session states",
         widget=CustomNullBooleanSelect,
     )
+    ix_api_endpoint = DynamicModelChoiceField(
+        required=False, label="IX-API endpoint", queryset=IXAPI.objects.all()
+    )
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
@@ -546,6 +554,7 @@ class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFo
             "import_routing_policies",
             "export_routing_policies",
             "communities",
+            "ix_api_endpoint",
             "comments",
         ]
 
