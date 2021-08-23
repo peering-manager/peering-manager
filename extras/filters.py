@@ -5,14 +5,28 @@ from django.db.models import Q
 from utils.filters import BaseFilterSet, ContentTypeFilter
 
 from .enums import HttpMethod, JobResultStatus
-from .models import JobResult, Webhook
+from .models import IXAPI, JobResult, Webhook
+
+
+class IXAPIFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(method="search", label="Search")
+
+    class Meta:
+        model = IXAPI
+        fields = ["id", "name", "url", "api_key"]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value)
+            | Q(url__icontains=value)
+            | Q(api_key__icontains=value)
+        )
 
 
 class JobResultFilterSet(BaseFilterSet):
-    q = django_filters.CharFilter(
-        method="search",
-        label="Search",
-    )
+    q = django_filters.CharFilter(method="search", label="Search")
     obj_type = ContentTypeFilter()
     created = django_filters.DateTimeFilter()
     completed = django_filters.DateTimeFilter()

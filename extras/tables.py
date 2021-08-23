@@ -3,7 +3,17 @@ from django.conf import settings
 
 from utils.tables import BaseTable, SelectColumn
 
-from .models import JobResult
+from .models import IXAPI, JobResult
+
+
+class IXAPITable(BaseTable):
+    name = tables.Column(linkify=True)
+    url = tables.URLColumn()
+
+    class Meta(BaseTable.Meta):
+        model = IXAPI
+        fields = ("name", "url", "api_key")
+        default_columns = ("name", "url", "api_key")
 
 
 class JobResultTable(BaseTable):
