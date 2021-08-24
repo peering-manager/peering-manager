@@ -1,6 +1,6 @@
-from django.contrib.contenttypes.models import ContentType
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404
 
+from peering.models.models import InternetExchange
 from utils.views import (
     AddOrEditView,
     BulkDeleteView,
@@ -28,6 +28,16 @@ class IXAPIListView(PermissionRequiredMixin, ModelListView):
 class IXAPIView(DetailsView):
     permission_required = "extras.view_ixapi"
     queryset = IXAPI.objects.all()
+
+    def get_context(self, request, **kwargs):
+        instance = get_object_or_404(IXAPI, **kwargs)
+        return {
+            "instance": instance,
+            "internet_exchange_points": InternetExchange.objects.filter(
+                ix_api_endpoint=instance
+            ),
+            "active_tab": "main",
+        }
 
 
 class IXAPIAddView(PermissionRequiredMixin, AddOrEditView):

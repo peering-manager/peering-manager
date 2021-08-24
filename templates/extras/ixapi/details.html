@@ -42,6 +42,10 @@
           <td>Created</td>
           <td>{{ instance.created | date_span }}</td>
         </tr>
+        <tr>
+          <td>Used by</td>
+          <td>{{ internet_exchange_points|length }} Internet Exchange point{{ internet_exchange_points|length|pluralize }}</td>
+        </tr>
       </table>
     </div>
   </div>
