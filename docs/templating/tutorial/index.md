@@ -1,7 +1,8 @@
 # Templating Tutorial - Getting Started
 This tutorial will try to enable you to write your own templates or modify
-one of the examples to your needs. On this page we develop a basic template for
-Peering Manager. If you want to dive in further - see the other parts.
+one of the examples to your needs.
+On this page we develop a basic template for Peering Manager.
+If you want to dive in further - see the other parts.
 
 Templates are highly individual to each network, so there is no
 "one size fits all".
@@ -46,12 +47,13 @@ Don't worry - the complete template we are building will be listed at the end.
 
 
 ## Building an example template
-Peering Manager should manage your peerings - well, it's in the name. So the
-template suggested here takes care of:
+Peering Manager should manage your peerings - well, it's in the name.
+So the template suggested here takes care of:
 
 * No conflict with existing configurations on your router(s).
 * Adding new peerings: When a peering request comes in, you only will have to
-select the AS and IXP where to peer. Rest is done automatically, including:
+select the AS and IXP where to peer.
+Rest is done automatically, including:
     * Building and attaching prefix filters (if wanted)
     * Setting communities incoming (and outgoing)
     * Building a _route-map_ or _route-policy_ or what ever your platform
@@ -90,34 +92,40 @@ in the template:
 
 
 ## Platform specialities
-All platforms are different and some platforms lack certain features. Peering
-Manager itself is platform independent. That does not mean that everything you
-configure inside Peering Manager can be rolled out to every platform.
+All platforms are different and some platforms lack certain features.
+Peering Manager itself is platform independent.
+That does not mean that everything you configure inside Peering Manager can be 
+rolled out to every platform.
 
 This overview here will focus on the limits of the platforms featured in the
 examples of this tutorial.
 
 ### Cisco IOS XR
-The 'modern' Cisco platform. Lots of features and nearly everything can be put
-into a template. One issue to be aware of are the handling of _BGP Communities_
+The 'modern' Cisco platform.
+Lots of features and nearly everything can be put into a template.
+One issue to be aware of are the handling of _BGP Communities_
 - Peering Manager has only one type of community and you can simply enter a
-Large, Extended or Normal value. Cisco IOS XR handles these three differently,
-so the template must somehow find out the type of a community. This example uses
-only regular communities, but if you want to use large communities you must be
-aware of this.
+Large, Extended or Normal value.
+Cisco IOS XR handles these three differently, so the template must somehow
+find out the type of a community.
+This example uses only regular communities, but if you want to use large
+communities you must be aware of this.
 
 For policies, it is possible to _apply_ one policy inside another, so all
 configured policies in Peering Manager can go one-to-one into the template and a
-"session policy" can then call each of them. To check out if the resulting
-policy is ok, you can use ```show rpl route-policy _name_ inline``` command.
+"session policy" can then call each of them.
+To check out if the resulting policy is ok, you can use
+```show rpl route-policy _name_ inline``` command.
 
 ### Cisco IOS
-The 'old' Cisco platform - quite limited in features. You can attach only _one_
-route-map to each BGP session. So if you have multiple policies applied to
-various elements, they need to be "flattened" into one route-map. The suggestion
-here is to keep things simple and try not to use too many features. Also be
-aware of the ordering of statements, if in doubt, check the configuration
-produced before you apply it.
+The 'old' Cisco platform - quite limited in features.
+You can attach only _one_ route-map to each BGP session.
+So if you have multiple policies applied to various elements,
+they need to be "flattened" into one route-map.
+The suggestion here is to keep things simple and try not to use
+too many features.
+Also be aware of the ordering of statements, if in doubt,
+check the configuration produced before you apply it.
 
 
 ## Configuration design
@@ -158,9 +166,9 @@ If want to combine them, simply set two or more communities.
     first digit in my case means 'control announcement'.
 
 !!! todo
-    Define the communities listed above in Peering Manager. Give them meaningful
-    names like "Announce to Customers" and set their type to **ingress** (as
-    they are _set_ when receiving prefixes).
+    Define the communities listed above in Peering Manager.
+    Give them meaningful names like "Announce to Customers"
+    and set their type to **ingress** (as they are _set_ when receiving prefixes).
 
 Now with the communities defined, we need to put code into our template to
 generate the configuration statements.
@@ -237,8 +245,8 @@ can delete them from received prefixes.
     But as some old routers still do not support them, we stick with
     regular communities for this example.
 
-With the communities defined, we now need to apply them to ASes or IXPs. If you
-only peer at an IXP (have no transit or cusomer relationships) you can only
+With the communities defined, we now need to apply them to ASes or IXPs.
+If you only peer at an IXP (have no transit or cusomer relationships) you can only
 apply them to the IXP, no need to also apply them to every AS.
 
 !!! todo
@@ -247,7 +255,8 @@ apply them to the IXP, no need to also apply them to every AS.
 
 ## Prefix filtering
 Peering Manager uses [bgpq3](http://snar.spb.ru/prog/bgpq3/) to build prefix
-filters. You might not want that for every peer, especially if you peer with a
+filters.
+You might not want that for every peer, especially if you peer with a
 route server who, like the DE-CIX route servers, [already
 filter](https://www.de-cix.net/en/locations/frankfurt/route-server-guide).
 
@@ -257,9 +266,10 @@ To enable filtering for a peering AS, we use a _tag_.
     Create a _tag_ in peering manager and give it a name like "Filter Prefixes"
 
 === "Cisco IOS"
-    In IOS we have to handle IPv4 and IPv6 separately. We create two _prefix
-    lists_ which we later attach to the peering session(s) for tagged ASes. In
-    case we do not want to filter we also create a prefix list allowing
+    In IOS we have to handle IPv4 and IPv6 separately.
+    We create two _prefix lists_ which we later attach to the
+    peering session(s) for tagged ASes.
+    In case we do not want to filter we also create a prefix list allowing
     everything - this makes the templating for the BGP session easier.
 
     ```
@@ -296,9 +306,10 @@ To enable filtering for a peering AS, we use a _tag_.
     ```
 
 === "Cisco IOS XR"
-    IOS XR has _prefix sets_ in which you can mix IPv4 and IPv6 prefixes. This
-    makes template writing easier. Also, we create a _route-policy_ to check the
-    prefixes and if filtering is not wanted we simply do a policy containing
+    IOS XR has _prefix sets_ in which you can mix IPv4 and IPv6 prefixes.
+    This makes template writing easier.
+    Also, we create a _route-policy_ to check the prefixes and if filtering is
+    not wanted we simply do a policy containing
     only a _pass_ statement (allowing all).
 
     ```
@@ -343,9 +354,9 @@ With Communities and Prefix Lists/Sets in place, we can now define some routing
 policies and that part of the template which converts them into router
 configurations.
 
-Here we really have to be very platform specific. In some platforms like IOS XR
-the template looks very short and easy to understand, while for others like old
-Cisco IOS we have to make some compromises.
+Here we really have to be very platform specific.
+In some platforms like IOS XR the template looks very short and easy to
+understand, while for others like old Cisco IOS we have to make some compromises.
 
 Inside Peering Manager a policy is simply a piece of JSON - but that allows us
 to put code for multiple platforms into it.
@@ -374,8 +385,9 @@ to put code for multiple platforms into it.
     }
     ```
 Using this format allows to put policies for more than one platform into the
-config context. Of course, if you only have one router platform you can rewrite
-this to your needs.
+config context.
+Of course, if you only have one router platform you can rewrite this to your
+needs.
 
 We have to do the same for incoming.
 
@@ -403,9 +415,9 @@ We have to do the same for incoming.
 Now we define templates for the different platforms.
 
 === "Cisco IOS"
-    In IOS we can apply _one_ route-map to each BGP session. So we iterate over
-    all IXPs and all enabled IXP sessions and generate route-maps (one for in,
-    one for out).
+    In IOS we can apply _one_ route-map to each BGP session.
+    So we iterate over all IXPs and all enabled IXP sessions and generate
+    route-maps (one for in, one for out).
 
     Peering Managers filter ```merge_import_policies``` does the work of putting
     all the policies (of IXPs, ASes, and sessions) together, see the
@@ -506,13 +518,17 @@ Now we define templates for the different platforms.
     ```
 
 === "Cisco IOS XR"
-    IOS XR allows that route-policies can be _applied_ (called, like a subroutine) inside policies. That allows us to generate separate policies for all elements:
+    IOS XR allows that route-policies can be _applied_
+    (called, like a subroutine) inside policies.
+    That allows us to generate separate policies for all elements:
 
     - Export routing policies defined in Peering Manager
     - Create ingress and egress policies for ASes
     - Create ingress and egress policies for IXPs
-    - Create ingress and egress policies for IXP sessions. These also call all other ones and will be attached to the BGP session.
-    - In this example we will skip direct sessions and BGP Groups, but policies can be created here as well.
+    - Create ingress and egress policies for IXP sessions.
+    These also call all other ones and will be attached to the BGP session.
+    - In this example we will skip direct sessions and BGP Groups,
+    but policies can be created here as well.
 
     The IOS XR template to create all configured policies looks like this:
 
@@ -537,7 +553,11 @@ Now we define templates for the different platforms.
     {%-endfor%}
     ```
 
-    For AS policies we also apply communities if there are any configured for an AS. This has to be done last, so it is not removed by the applied policies. Also, the policy which checks the incoming prefixes (or lets every prefix in) is applied.
+    For AS policies we also apply communities if there are any configured for
+    an AS.
+    This has to be done last, so it is not removed by the applied policies.
+    Also, the policy which checks the incoming prefixes
+    (or lets every prefix in) is applied.
 
     ```
     !
@@ -626,7 +646,10 @@ Now we define templates for the different platforms.
     {%-endfor%}
     ```
 
-    None of them will be directly attached to any BGP session. As policies can also defined on a per-session basis, we generate session-policies which then will apply all the previously generated:
+    None of them will be directly attached to any BGP session.
+    As policies can also defined on a per-session basis,
+    we generate session-policies which then will apply all the
+    previously generated:
     ```
     !
     ! IXP Session Policies
@@ -662,13 +685,15 @@ Now we define templates for the different platforms.
     {%-endfor%}
     ```
 
-    Please note the order in which policies are applied (this is open for dicussion, feel free to change in your template):
+    Please note the order in which policies are applied
+    (this is open for dicussion, feel free to change in your template):
 
     1. IXP policy
     2. AS policy
     3. Session policy
 
-    An exported session policy looks like (in this case there is no session policy applied):
+    An exported session policy looks like
+    (in this case there is no session policy applied):
     ```
     ! Session with AS61438 ID:54 at DE-CIX Frankfurt
     route-policy pm-session-as61438-id54-in
@@ -685,7 +710,11 @@ Now we define templates for the different platforms.
     !
     ```
 
-    You now might ask where the actual checking of what is announced takes place as you do not want to flood your peers. For this, Cisco IOS XR has a command ```show rpl route-policy <name> inline```, applied to the policy above it shows:
+    You now might ask where the actual checking of what is announced
+    takes place as you do not want to flood your peers.
+    For this, Cisco IOS XR has a command
+    ```show rpl route-policy <name> inline```,
+    applied to the policy above it shows:
 
     ```
     route-policy pm-session-as61438-id54-out
@@ -707,15 +736,22 @@ Now we define templates for the different platforms.
       # end-apply pm-ix-de-cix-frankfurt-out
     end-policy
     ```
-    So if the community for exporting to peers (65500:42000) is not set, policy _pm-peering-out_ takes care that the announcement is dropped.
+    So if the community for exporting to peers (65500:42000) is not set,
+    policy _pm-peering-out_ takes care that the announcement is dropped.
 
 ## BGP Sessions
-At last we now create the template for the IXP BGP sessions (direct sessions are not hanled in this tutorial).
+At last we now create the template for the IXP BGP sessions
+(direct sessions are not hanled in this tutorial).
 
-We again loop over all IXPs and all sessions at this IXP and create peer entries for both IPv4 and IPv6.
+We again loop over all IXPs and all sessions at this IXP and create
+peer entries for both IPv4 and IPv6.
 
 === "Cisco IOS"
-    Compared to creating the policies this looks rather simple. We add route-maps we have generated above in and out. The prefix-list is also applied. In case the session is disabled the neighbor is removed (alternatively the session can be shut, this is up to you to code).
+    Compared to creating the policies this looks rather simple.
+    We add route-maps we have generated above in and out.
+    The prefix-list is also applied.
+    In case the session is disabled the neighbor is removed
+    (alternatively the session can be shut, this is up to you to code).
 
     ```
     router bgp {{ local_as.asn }}
@@ -778,13 +814,19 @@ We again loop over all IXPs and all sessions at this IXP and create peer entries
     ```
 
 === "Cisco IOS XR"
-    Compared to creating the policies this looks rather simple. We add route-maps we have generated above in and out.  In case the session is disabled the neighbor is removed (alternatively the session can be shut, this is up to you to code).
+    Compared to creating the policies this looks rather simple.
+    We add route-maps we have generated above in and out.
+    In case the session is disabled the neighbor is removed
+    (alternatively the session can be shut, this is up to you to code).
 
     A few things to note here:
 
-    - If you peer with route servers you have to disable _enforce-first-as_ globaly, the template makes sure it is re-enabled for non route server sessions
+    - If you peer with route servers you have to disable
+    _enforce-first-as_ globaly, the template makes sure it is re-enabled
+    for non route server sessions
     - The prefix filter is already applied in the route-policy
-    - If a session is diabled, we remove it. Alternatively you can shut it down (coding is up to you).
+    - If a session is diabled, we remove it.
+    Alternatively you can shut it down (coding is up to you).
 
     ```
     router bgp {{ local_as.asn }}
