@@ -650,3 +650,143 @@ Now we define templates for the different platforms.
     end-policy
     ```
     So if the community for exporting to peers (65500:42000) is not set, policy _pm-peering-out_ takes care that the announcement is dropped.
+
+## BGP Sessions
+At last we now create the template for the IXP BGP sessions (direct sessions are not hanled in this tutorial).
+
+We again loop over all IXPs and all sessions at this IXP and create peer entries for both IPv4 and IPv6.
+
+=== "Cisco IOS"
+    Compared to creating the policies this looks rather simple. We add route-maps we have generated above in and out. The prefix-list is also applied. In case the session is disabled the neighbor is removed (alternatively the session can be shut, this is up to you to code).
+
+    ```
+    router bgp {{ local_as.asn }}
+      no bgp enforce-first-as
+    {%- for ixp in internet_exchange_points %}
+      {%- for session in ixp |  sessions %}
+        {%- if session.enabled %}
+        ! AS{{ session.autonomous_system.asn }} - {{ session.autonomous_system.name | safe_string }}
+        neighbor {{ session.ip_address }} remote-as {{ session.autonomous_system.asn }}
+        neighbor {{ session.ip_address }} description {{ session.autonomous_system.name | safe_string }}
+        {%- if session.encrypted_password %}
+        neighbor {{ session.ip_address }} password encrypted {{ session.encrypted_password | cisco_password }}
+        {%- elif session.password %}
+        neighbor {{ session.ip_address }} password clear {{ session.password }}
+        {%- endif %}
+        address-family ipv{{ session | ip_version }} unicast
+          neighbor {{ session.ip_address }} activate
+          neighbor {{ session.ip_address }} route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-in in
+          neighbor {{ session.ip_address }} route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-out out
+          neighbor {{ session.ip_address }} prefix-list {{p}}from-as{{session.autonomous_system.asn}} in
+          neighbor {{ session.ip_address }} send-community both
+          neighbor {{ session.ip_address }} remove-private-as
+            {%- if session | max_prefix %}
+          neighbor {{ session.ip_address }} maximum-prefix {{ session | max_prefix }} 95
+            {%- endif %}
+        exit-address-family
+        {%- else %}
+       no neighbor {{ session.ip_address }}
+        {%-endif%}
+      {%-endfor%}
+    {%-endfor%}
+    ```
+
+    Output of one entry looks like this:
+    ```
+    ! AS61438 - ip-it consult GmbH
+    neighbor 80.81.194.176 remote-as 61438
+    neighbor 80.81.194.176 description ip-it consult GmbH
+    address-family ipv4 unicast
+      neighbor 80.81.194.176 activate
+      neighbor 80.81.194.176 route-map pm-session-as61438-id54-in in
+      neighbor 80.81.194.176 route-map pm-session-as61438-id54-out out
+      neighbor 80.81.194.176 prefix-list pm-from-as61438 in
+      neighbor 80.81.194.176 send-community both
+      neighbor 80.81.194.176 remove-private-as
+      neighbor 80.81.194.176 maximum-prefix 100 95
+    exit-address-family
+    ! AS61438 - ip-it consult GmbH
+    neighbor 2001:7f8::effe:0:1 remote-as 61438
+    neighbor 2001:7f8::effe:0:1 description ip-it consult GmbH
+    address-family ipv6 unicast
+      neighbor 2001:7f8::effe:0:1 activate
+      neighbor 2001:7f8::effe:0:1 route-map pm-session-as61438-id53-in in
+      neighbor 2001:7f8::effe:0:1 route-map pm-session-as61438-id53-out out
+      neighbor 2001:7f8::effe:0:1 prefix-list pm-from-as61438 in
+      neighbor 2001:7f8::effe:0:1 send-community both
+      neighbor 2001:7f8::effe:0:1 remove-private-as
+      neighbor 2001:7f8::effe:0:1 maximum-prefix 100 95
+    exit-address-family
+    ```
+
+=== "Cisco IOS XR"
+    Compared to creating the policies this looks rather simple. We add route-maps we have generated above in and out.  In case the session is disabled the neighbor is removed (alternatively the session can be shut, this is up to you to code).
+
+    A few things to note here:
+
+    - If you peer with route servers you have to disable _enforce-first-as_ globaly, the template makes sure it is re-enabled for non route server sessions
+    - The prefix filter is already applied in the route-policy
+    - If a session is diabled, we remove it. Alternatively you can shut it down (coding is up to you).
+
+    ```
+    router bgp {{ local_as.asn }}
+      bgp enforce-first-as disable
+    {%- for ixp in internet_exchange_points %}
+      {%- for session in ixp |  sessions %}
+        {%- if session.enabled %}
+      neighbor {{ session.ip_address }}
+         remote-as {{ session.autonomous_system.asn }}
+         description {{ session.autonomous_system.name | safe_string }}
+          {%- if session.encrypted_password %}
+         password encrypted {{ session.encrypted_password | cisco_password }}
+          {%- elif session.password %}
+         password clear {{ session.password }}
+          {%- endif %}
+          {%-if session.is_route_server %}
+         no enforce-first-as
+          {%-else%}
+         enforce-first-as
+          {%-endif%}
+         address-family ipv{{ session | ip_version }} unicast
+          route-policy {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-in in
+          route-policy {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-out out
+          send-extended-community-ebgp
+          send-community-ebgp
+          remove-private-AS
+          {%- if session | max_prefix %}
+          maximum-prefix {{ session | max_prefix }} 95
+          {%- endif %}
+        {%- else %}
+       no neighbor {{ session.ip_address }}
+        {%-endif%}
+      {%-endfor%}
+    {%-endfor%}
+
+    ```
+
+    Output of one peer looks like:
+    ```
+    neighbor 80.81.194.176
+     remote-as 61438
+     description ip-it consult GmbH
+     enforce-first-as
+     address-family ipv4 unicast
+      route-policy pm-session-as61438-id54-in in
+      route-policy pm-session-as61438-id54-out out
+      send-extended-community-ebgp
+      send-community-ebgp
+      remove-private-AS
+      maximum-prefix 100 95
+    neighbor 2001:7f8::effe:0:1
+     remote-as 61438
+     description ip-it consult GmbH
+     enforce-first-as
+     address-family ipv6 unicast
+      route-policy session-as61438-id53-in in
+      route-policy session-as61438-id53-out out
+      send-extended-community-ebgp
+      send-community-ebgp
+      remove-private-AS
+      maximum-prefix 100 95
+
+    ```
