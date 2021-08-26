@@ -448,3 +448,205 @@ Now we define templates for the different platforms.
     ```
 
 === "Cisco IOS XR"
+    IOS XR allows that route-policies can be _applied_ (called, like a subroutine) inside policies. That allows us to generate separate policies for all elements:
+
+    - Export routing policies defined in Peering Manager
+    - Create ingress and egress policies for ASes
+    - Create ingress and egress policies for IXPs
+    - Create ingress and egress policies for IXP sessions. These also call all other ones and will be attached to the BGP session.
+    - In this example we will skip direct sessions and BGP Groups, but policies can be created here as well.
+
+    The IOS XR template to create all configured policies looks like this:
+
+    ```
+    !
+    ! Configured Policies
+    !
+    {%- for policy in routing_policies %}
+    !
+    route-policy {{p}}{{policy.name}}
+      {%- if policy.config_context is iterable %}
+        {%- for part in policy.config_context %}
+          {%- if part == template_type%}
+            {%- for statement in policy.config_context[part] %}
+     {#- Simply dump all statements one after another#}
+     {{statement}}
+            {%-endfor%}
+          {%-endif%}
+        {%-endfor%}
+      {%-endif%}
+    end-policy
+    {%-endfor%}
+    ```
+
+    For AS policies we also apply communities if there are any configured for an AS. This has to be done last, so it is not removed by the applied policies. Also, the policy which checks the incoming prefixes (or lets every prefix in) is applied.
+
+    ```
+    !
+    ! Route Policies for  AS{{as.asn}}
+    !
+    {#- Here the order of statements is important - adding communities is last so they do not get removed by a policy #}
+    route-policy {{p}}as-{{as.asn}}-in
+      # {{as.name}}
+      apply {{p}}prefixes-from-as{{as.asn}}
+      {%- for policy in as | iter_import_policies()%}
+      apply {{p}}{{policy.name}}
+      {%-endfor%}
+      {%-for community in as.communities.all()%}
+        {%- if community.type == "ingress" %}
+      set community {{p}}{{community.slug}}-{{community.type}} additive
+        {%-endif%}
+      {%-endfor%}
+      pass
+    end-policy
+    !
+    route-policy {{p}}as-{{as.asn}}-out
+      # {{as.name}}
+    {%- for policy in as | iter_export_policies()%}
+      apply {{p}}{{policy.name}}
+    {%-endfor%}
+    {%-for community in as.communities.all()%}
+      {%- if community.type == "egress" %}
+    set community {{p}}{{community.slug}}-{{community.type}} additive
+      {%-endif%}
+    {%-endfor%}
+      pass
+    end-policy
+    !
+    {%- endfor %}
+    ```
+    The output of this part of the template looks like this:
+    ```
+    !
+    ! Route Policies for  AS61438
+    !
+    route-policy pm-as-61438-in
+      # ip-it consult GmbH
+      apply pm-prefixes-from-as61438
+      set community pm-announce-to-customers-ingress additive
+      pass
+    end-policy
+    !
+    route-policy pm-as-61438-out
+      # ip-it consult GmbH
+      pass
+    end-policy
+    !
+    ```
+
+    The next policies exported are IXP policies, again we also add communities:
+    ```
+    !
+    ! Route Policies for IXP {{ixp.name}}
+    !
+    route-policy {{p}}ix-{{ixp.slug}}-in
+     # {{ixp.name}}
+     {%- for policy in ixp | iter_import_policies()%}
+     apply {{p}}{{policy.name}}
+     {%-endfor%}
+     {%-for community in ixp.communities.all()%}
+       {%- if community.type == "ingress" %}
+     set community {{p}}{{community.slug}}-{{community.type}} additive
+       {%-endif%}
+     {%-endfor%}
+     pass
+    end-policy
+    !
+    route-policy {{p}}ix-{{ixp.slug}}-out
+     # {{ixp.name}}
+     {%- for policy in ixp | iter_export_policies()%}
+     apply {{p}}{{policy.name}}
+     {%-endfor%}
+     {%-for community in ixp.communities.all()%}
+      {%- if community.type == "egress" %}
+     set community {{p}}{{community.slug}}-{{community.type}} additive
+      {%-endif%}
+     {%-endfor%}
+     pass
+    end-policy
+    !
+    {%-endfor%}
+    ```
+
+    None of them will be directly attached to any BGP session. As policies can also defined on a per-session basis, we generate session-policies which then will apply all the previously generated:
+    ```
+    !
+    ! IXP Session Policies
+    !
+    {%- for ixp in internet_exchange_points %}
+      {%- for session in ixp | sessions %}
+        {%- if session.enabled %}
+    ! Session with AS{{session.autonomous_system.asn}} ID:{{ session.id }} at {{ixp.name}}
+    route-policy {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-in
+      # {{session.autonomous_system.name}}
+      apply {{p}}ix-{{ixp.slug}}-in
+      apply {{p}}as-{{session.autonomous_system.asn}}-in
+      {%- for policy in session | iter_import_policies()%}
+      apply {{p}}{{policy.name}}
+      {%-endfor%}
+    end-policy
+    !
+    route-policy {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-out
+      # {{session.autonomous_system.name}}
+      apply {{p}}ix-{{ixp.slug}}-out
+      apply {{p}}as-{{session.autonomous_system.asn}}-out
+      {%- for policy in session | iter_export_policies()%}
+      apply {{p}}{{policy.name}}
+      {%-endfor%}
+    end-policy
+    !
+        {%-else%}
+        {#- Session is disabled, remove route policy as well #}
+    no route-policy {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-in
+    no route-policy {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-out
+        {%-endif%}
+      {%-endfor%}
+    {%-endfor%}
+    ```
+
+    Please note the order in which policies are applied (this is open for dicussion, feel free to change in your template):
+
+    1. IXP policy
+    2. AS policy
+    3. Session policy
+
+    An exported session policy looks like (in this case there is no session policy applied):
+    ```
+    ! Session with AS61438 ID:54 at DE-CIX Frankfurt
+    route-policy pm-session-as61438-id54-in
+      # ip-it consult GmbH
+      apply pm-ix-de-cix-frankfurt-in
+      apply pm-as-61438-in
+    end-policy
+    !
+    route-policy pm-session-as61438-id54-out
+      # ip-it consult GmbH
+      apply pm-ix-de-cix-frankfurt-out
+      apply pm-as-61438-out
+    end-policy
+    !
+    ```
+
+    You now might ask where the actual checking of what is announced takes place as you do not want to flood your peers. For this, Cisco IOS XR has a command ```show rpl route-policy <name> inline```, applied to the policy above it shows:
+
+    ```
+    route-policy pm-session-as61438-id54-out
+      # ip-it consult GmbH
+      # apply pm-as-61438-out
+      # ip-it consult GmbH
+      pass
+      # end-apply pm-as-61438-out
+      # apply pm-ix-de-cix-frankfurt-out
+      # DE-CIX Frankfurt
+      # apply pm-peering-out
+      if community matches-any (65500:42000) then
+        pass
+      else
+        drop
+      endif
+      # end-apply pm-peering-out
+      pass
+      # end-apply pm-ix-de-cix-frankfurt-out
+    end-policy
+    ```
+    So if the community for exporting to peers (65500:42000) is not set, policy _pm-peering-out_ takes care that the announcement is dropped.
