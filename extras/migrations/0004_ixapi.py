@@ -31,8 +31,10 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "identity",
-                    models.PositiveBigIntegerField(
-                        help_text="Identity used to interact with the IX-API"
+                    models.CharField(
+                        max_length=256,
+                        help_text="Identity used to interact with the IX-API",
+                        blank=True,
                     ),
                 ),
             ],

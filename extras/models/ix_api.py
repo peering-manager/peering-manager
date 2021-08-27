@@ -244,8 +244,10 @@ class IXAPI(ChangeLoggedModel):
     url = models.CharField(max_length=2000, verbose_name="URL")
     api_key = models.CharField(max_length=2000, verbose_name="API key")
     api_secret = models.CharField(max_length=2000, verbose_name="API secret")
-    identity = models.PositiveBigIntegerField(
-        help_text="Identity used to interact with the IX-API"
+    identity = models.CharField(
+        max_length=256,
+        help_text="Identity used to interact with the IX-API",
+        blank=True,
     )
 
     class Meta:
@@ -302,7 +304,7 @@ class IXAPI(ChangeLoggedModel):
         else:
             return "unhealthy"
 
-    def get_customer(self, id=0):
+    def get_customers(self, id=0):
         """
         Returns our own customer.
 
@@ -325,7 +327,7 @@ class IXAPI(ChangeLoggedModel):
         """
         Returns our own customer instance.
         """
-        return self.get_customer(id=self.identity)
+        return self.get_customers(id=self.identity)
 
     def get_something(self, something):
         client = self.dial()

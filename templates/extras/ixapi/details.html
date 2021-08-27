@@ -34,6 +34,12 @@
           <td>API key</td>
           <td><code>{{ instance.api_key }}</code></td>
         </tr>
+        {% if instance.identity %}
+        <tr>
+          <td>Identity</td>
+          <td>{{ instance.get_identity }} (<code>{{ instance.identity }}</code>)</td>
+        </tr>
+        {% endif %}
         <tr>
           <td>Version</td>
           <td>{{ instance.version }}</td>

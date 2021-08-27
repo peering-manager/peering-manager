@@ -18,6 +18,24 @@ class IXAPIForm(BootstrapMixin, forms.ModelForm):
         model = IXAPI
         fields = ("name", "url", "api_key", "api_secret", "identity")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        instance = kwargs.get("instance", None)
+        if instance.id:
+            self.fields["identity"] = forms.ChoiceField(
+                label="Identity",
+                choices=[("", "---------")]
+                + [(c.id, c.name) for c in instance.get_customers()],
+                widget=StaticSelect,
+            )
+            self.fields["identity"].widget.attrs["class"] = " ".join(
+                [
+                    self.fields["identity"].widget.attrs.get("class", ""),
+                    "form-control",
+                ]
+            ).strip()
+
 
 class IXAPIFilterForm(BootstrapMixin, forms.Form):
     model = IXAPI
