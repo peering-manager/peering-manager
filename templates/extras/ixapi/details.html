@@ -37,7 +37,7 @@
         {% if instance.identity %}
         <tr>
           <td>Identity</td>
-          <td>{{ instance.get_identity }} (<code>{{ instance.identity }}</code>)</td>
+          <td>{{ instance.get_identity.name }} (<code>{{ instance.identity }}</code>)</td>
         </tr>
         {% endif %}
         <tr>
@@ -50,7 +50,7 @@
         </tr>
         <tr>
           <td>Used by</td>
-          <td>{{ internet_exchange_points|length }} Internet Exchange point{{ internet_exchange_points|length|pluralize }}</td>
+          <td>{{ internet_exchange_points | length }} Internet Exchange point{{ internet_exchange_points | length | pluralize }}</td>
         </tr>
       </table>
     </div>

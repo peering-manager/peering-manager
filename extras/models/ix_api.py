@@ -56,45 +56,45 @@ class Client(object):
         else:
             return {"Authorization": f"Bearer {self.access_token}"}
 
-    def create_auth_token(self):
+    def auth(self):
         """
         Creates a new set of tokens to start interacting with the API.
         """
-        _, j = self.post(
+        _, d = self.post(
             "auth/token",
             payload={
                 "api_key": self.ix_api_endpoint.api_key,
                 "api_secret": self.ix_api_endpoint.api_secret,
             },
         )
-        logger.debug(f"api at {self.host} responded {j}")
+        logger.debug(f"api at {self.host} responded {d}")
 
-        if "access_token" not in j or "refresh_token" not in j:
+        if "access_token" not in d or "refresh_token" not in d:
             logger.error(f"malformed response from api at {self.host}")
             return
 
-        self.access_token = j["access_token"]
-        self.refresh_token = j["refresh_token"]
+        self.access_token = d["access_token"]
+        self.refresh_token = d["refresh_token"]
 
-    def refresh_auth_token(self):
+    def refresh_auth(self):
         """
         Refreshes the current session to continue using the same token.
         """
-        _, j = self.post("auth/refresh", payload={"refresh_token": self.refresh_token})
-        logger.debug(f"api at {self.host} responded {j}")
+        _, d = self.post("auth/refresh", payload={"refresh_token": self.refresh_token})
+        logger.debug(f"api at {self.host} responded {d}")
 
-        if "access_token" not in j or "refresh_token" not in j:
+        if "access_token" not in d or "refresh_token" not in d:
             logger.error(f"malformed response from api at {self.host}")
             return
 
-        self.access_token = j["access_token"]
-        self.refresh_token = j["refresh_token"]
+        self.access_token = d["access_token"]
+        self.refresh_token = d["refresh_token"]
 
-    def get(self, resource, query=None):
+    def get(self, resource, params={}):
         u = format_url(self.host, resource)
         logger.debug(f"sending get to api located at {u}")
 
-        r = requests.get(u, query, headers=self.request_headers)
+        r = requests.get(u, params=params, headers=self.request_headers)
         r.raise_for_status()
         return unpack_response(r)
 
@@ -137,101 +137,6 @@ class Client(object):
         r = requests.options(u, headers=self.request_headers)
         r.raise_for_status()
         return unpack_response(r)
-
-
-class Customer(object):
-    def __init__(self, *args, **kwargs):
-        self.id = kwargs.pop("id")
-        self.parent = kwargs.pop("parent", 0)
-        self.external_ref = kwargs.pop("external_ref", "")
-        self.name = kwargs.pop("name")
-        self.state = kwargs.pop("state")
-        self.status = []
-
-    def __str__(self):
-        s = self.name
-
-        if self.external_ref:
-            s += f" {self.external_ref}"
-
-        return s
-
-
-class CustomerAllocated(object):
-    def __init__(self, *args, **kwargs):
-        self.managing_customer_id = kwargs.pop("managing_customer", 0)
-        self.consuming_customer_id = kwargs.pop("consuming_customer", 0)
-
-
-class Contact(CustomerAllocated):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.id = kwargs.pop("id")
-        self.external_ref = kwargs.pop("external_ref", "")
-        self.type = kwargs.pop("type", "")
-        self.legal_company_name = kwargs.pop("legal_company_name", "")
-        self.vat_number = kwargs.pop("vat_number", "")
-        self.address_country = kwargs.pop("address_country", "")
-        self.address_locality = kwargs.pop("address_locality", "")
-        self.address_region = kwargs.pop("address_region", "")
-        self.street_address = kwargs.pop("street_address", "")
-        self.post_office_box_number = kwargs.pop("post_office_box_number", "")
-        self.postal_code = kwargs.pop("postal_code", "")
-        self.name = kwargs.pop("name", "")
-        self.email = kwargs.pop("email", "")
-        self.telephone = kwargs.pop("telephone", "")
-
-
-class IP(CustomerAllocated):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.id = kwargs.pop("id")
-        self.external_ref = kwargs.pop("external_ref", "")
-        self.version = kwargs.pop("version")
-        self.address = kwargs.pop("address")
-        self.prefix_length = kwargs.pop("prefix_length")
-        self.fqdn = kwargs.pop("fqdn", "")
-
-    @property
-    def ip_address(self):
-        ip = f"{self.address}/{self.prefix_length}"
-        if self.version == 6:
-            return ipaddress.IPv6Interface(ip)
-        else:
-            return ipaddress.IPv4Interface(ip)
-
-
-class MAC(CustomerAllocated):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.id = kwargs.pop("id")
-        self.external_ref = kwargs.pop("external_ref", "")
-        self.address = kwargs.pop("address")
-        self.valid_not_before = kwargs.pop("valid_not_before", "")
-        self.valid_not_after = kwargs.pop("valid_not_after", "")
-
-
-class NetworkService(CustomerAllocated):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.id = kwargs.pop("id")
-        self.external_ref = kwargs.pop("external_ref", "")
-        self.type = kwargs.pop("type")
-        self.contacts = kwargs.pop("contacts")
-        self.purchase_order = kwargs.pop("purchase_order")
-        self.contract_ref = kwargs.pop("contract_ref")
-        self.product = kwargs.pop("product")
-        self.required_contact_types = kwargs.pop("required_contact_types")
-        self.network_features = kwargs.pop("network_features")
-        self.name = kwargs.pop("name")
-        self.metro_area = kwargs.pop("metro_area")
-        self.peeringdb_ixid = kwargs.pop("peeringdb_ixid", 0)
-        self.ixfdb_ixid = kwargs.pop("ixfdb_ixid", 0)
-        self.ips = kwargs.pop("ips")
 
 
 class IXAPI(ChangeLoggedModel):
@@ -279,7 +184,7 @@ class IXAPI(ChangeLoggedModel):
         Returns a API client to use for querying.
         """
         c = Client(self)
-        c.create_auth_token()
+        c.auth()
 
         return c
 
@@ -311,17 +216,13 @@ class IXAPI(ChangeLoggedModel):
         In theory the primary customer is us, that said we may be a reseller (thus
         having sub-customers), but we do not need to track this, at least yet.
         """
-        endpoint = "customers"
-        if id:
-            endpoint += f"?id={id}"
-
         c = self.dial()
-        _, data = c.get(endpoint)
+        _, d = c.get("customers", {"id": id} if id else {})
 
         if id:
-            return Customer(**data[0])
-
-        return [Customer(**d) for d in data]
+            return d[0]
+        else:
+            return d
 
     def get_identity(self):
         """
@@ -329,42 +230,38 @@ class IXAPI(ChangeLoggedModel):
         """
         return self.get_customers(id=self.identity)
 
-    def get_something(self, something):
+    def lookup(self, endpoint, params={}):
         client = self.dial()
-        _, data = client.get(something)
+        _, data = client.get(endpoint, params=params)
 
         return data
 
     def get_contacts(self):
-        d = self.get_something(f"contacts?consuming_customer={self.identity}")
-        return [Contact(**data) for data in d]
+        d = self.lookup(f"contacts?consuming_customer={self.identity}")
+        return d
 
     def get_demarcs(self):
-        return self.get_something("demarcs")
+        return self.lookup("demarcs")
 
     def get_connections(self):
-        return self.get_something("connections")
+        return self.lookup("connections", params={"consuming_customer": self.identity})
 
     def get_ips(self):
-        d = self.get_something(f"ips?consuming_customer={self.identity}")
-        return [IP(**data) for data in d]
+        return self.lookup("ips", params={"consuming_customer": self.identity})
 
     def get_macs(self):
-        d = self.get_something("macs?consuming_customer={self.identity}")
-        return [MAC(**data) for data in d]
+        return self.lookup("macs", params={"consuming_customer": self.identity})
 
     def get_network_feature_configs(self):
-        return self.get_something("network-feature-configs")
+        return self.lookup("network-feature-configs")
 
     def get_network_service_configs(self):
-        return self.get_something("network-service-configs")
+        return self.lookup("network-service-configs")
 
     def get_network_services(self):
-        d = self.get_something(f"network-services?consuming_customer={self.identity}")
-        for data in d:
-            if data["peeringdb_ixid"]:
-                print(data)
-        return [NetworkService(**data) for data in d]
+        return self.lookup(
+            "network-services", params={"consuming_customer": self.identity}
+        )
 
     # Figure out what can be achieved with IX-API in the context of an IXP
     # List all connections on an IXP, service IDs, demarcation points, characteristics
