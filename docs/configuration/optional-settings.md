@@ -167,7 +167,7 @@ Default: `RIPE,APNIC,AFRINIC,ARIN,NTTCOM,ALTDB,BBOI,BELL,JPIRR,LEVEL3,RADB,RGNET
 
 A list of comma separated sources from which we will accept IRR objects.
 
-### BGPQ3_ARGS
+## BGPQ3_ARGS
 
 Default: `{"ipv6": ["-r", "16", "-R", "48"], "ipv4": ["-r", "8", "-R", "24"]}`
 
@@ -182,32 +182,32 @@ equal to 24.
 
 ---
 
-### NETBOX_API
+## NETBOX_API
 
 Default: `None`
 
 The NetBox API URL to which the queries must be sent to.
 
-### NETBOX_API_TOKEN
+## NETBOX_API_TOKEN
 
 Default: `None`
 
 The API token registered in the NetBox instance to be used in queries.
 
-### NETBOX_API_THREADING
+## NETBOX_API_THREADING
 
 Default: `False`
 
 Turn on or off threading in some API requests.
 
-### NETBOX_API_VERIFY_SSL
+## NETBOX_API_VERIFY_SSL
 
 Default: `True`
 
 Turn on or off API SSL certificate verification. Turning it off may be useful
 if you use an auto-generated certificate for the NetBox API.
 
-### NETBOX_DEVICE_ROLES
+## NETBOX_DEVICE_ROLES
 
 Default: `["router", "firewall", "switch"]`
 
@@ -215,7 +215,7 @@ The roles that devices must have in the NetBox instance that will be queried.
 
 ---
 
-### RELEASE_CHECK_URL
+## RELEASE_CHECK_URL
 
 Default: "https://api.github.com/repos/peering-manager/peering-manager/releases"
 
@@ -223,7 +223,7 @@ The URL to detect new releases, which are shown on the home page of the web
 interface. You can change this to your own fork, or set it to None to disable
 it. The URL provided must be compatible with the GitHub API.
 
-### RELEASE_CHECK_TIMEOUT
+## RELEASE_CHECK_TIMEOUT
 
 Default: 86400 (24 hours)
 
