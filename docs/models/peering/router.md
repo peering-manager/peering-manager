@@ -22,7 +22,7 @@ can be configured (n.b. some are optional):
   encrypted password if it can.
 * `Configuration Template`: a template used generate the configuration of the
   router.
-* `Configuration Context`: a snippet of JSON that contains additional 
+* `Configuration Context`: a snippet of JSON that contains additional
   context for e.g. tooling that accesses Peering Manager programmatically.
 * `NetBox Device`: an valid ID inside a NetBox instance where the router is
   also referenced.
@@ -47,13 +47,34 @@ can be configured (n.b. some are optional):
 To configure a router with *ssh* access Peering Manager needs read-access to
 your private key file - please be aware that this might be a security issue.
 
-Put the full pathname of the file into `NAPALM Optional Arguments` in the following form:
+Put the full pathname of the file into `NAPALM Optional Arguments` in the
+following form:
 
 ```json
 {
     "key_file": "/home/myuser/.ssh/id_rsa"
 }
 ```
+
+On Cisco IOS you also need to configure a target files system in case NAPALM
+does not detect it automatically. This happens if you have no flash card in your
+router (not recommended). Also make sure login via ssh and the _scp_ servers are
+enabled.
+
+```json
+{
+  "dest_file_system": "nvram:"
+}
+```
+
+If you get an error which might indicate a timeout occured and if you have a
+slower router, increasing the global timeout might be a solution:
+```json
+{
+  "global_delay_factor": 5
+}
+```
+
 
 ## Connecting to your router
 

@@ -18,6 +18,7 @@ markdown_extensions:
         emoji_generator: !!python/name:materialx.emoji.to_svg
     - pymdownx.tabbed
     - pymdownx.superfences
+    - footnotes
 
 nav:
     - Introduction: "index.md"
@@ -63,9 +64,13 @@ nav:
         - Writing Templates: "templating/index.md"
         - Jinja Filters: "templating/filters.md"
         - Exposed Variables: "templating/variables.md"
+        - Templating Tutorial: "templating/tutorial/index.md"
         - Examples:
             - Arista EOS: "templating/examples/arista-eos.md"
             - Cisco IOS XR: "templating/examples/cisco-iosxr.md"
+            - Cisco IOS XR as used by AS196610: "templating/examples/cisco-iosxr-as196610.md"
+            - Cisco IOS-XR from tutorial: "templating/examples/tutorial-cisco-iosxr.md"
+            - Cisco IOS from tutorial: "templating/examples/tutorial-cisco-ios.md"
             - Juniper Junos OS: "templating/examples/juniper-junos.md"
             - Peering Request E-Mail: "templating/examples/peering-request-email.md"
     - Integration: "integration.md"

@@ -71,12 +71,12 @@ You can test that authentication works with the following command. (Replace
 # psql -U peering_manager -W -h localhost peering_manager
 ```
 
-If successful, you will enter a `peering_manager` prompt. Type `\q` to exit.
+If successful, you will see a `peering_manager` prompt. Type `\q` to exit.
 
 ## Migrating encoding to UTF-8
 
-If your database was created with regular another encoding than UTF-8, you will
-need to migrate it. To convert the database you'll need to drop it and
+If your database was created with another encoding than UTF-8, you will
+need to migrate it. To convert the database you have to drop it and
 re-create it. It's not mandatory but you may face some issues if the encoding
 of your database is not set to UTF-8.
 

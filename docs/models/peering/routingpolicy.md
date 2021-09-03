@@ -1,6 +1,6 @@
 # Routing Policy
 
-Routing policies are a set of instructions to apply when advertising or
+Routing policies are a set of instructions to apply when advertising to or
 receiving prefixes from another autonomous system. They are meant to filter
 routes to import or export. Routing policies play an important role in securing
 BGP by rejecting invalid routes. Policies can be chained to achieve complex and

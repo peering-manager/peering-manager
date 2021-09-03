@@ -19,5 +19,8 @@ and to change them at your convenience.
 
 * [Juniper Junos](examples/juniper-junos.md)
 * [Cisco IOS-XR](examples/cisco-iosxr.md)
+* [Cisco IOS-XR as used by AS196610](examples/cisco-iosxr-as196610.md)
+* [Cisco IOS-XR from template tutorial](examples/tutorial-cisco-iosxr.md)
+* [Cisco IOS from template tutorial](examples/tutorial-cisco-ios.md)
 * [Arista EOS](examples/arista-eos.md)
 * [Peering Request E-mail](examples/peering-request-email.md)

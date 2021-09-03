@@ -63,7 +63,7 @@ For uWSGI to work, you also have to adjust your webserver configuration with the
 === "nginx"
 	```no-highlight
 	upstream django {
-		server /run/peering-manager/peering-manager.sock;
+		server unix:///run/peering-manager/peering-manager.sock;
 	}
 	server {
 		location /pm {

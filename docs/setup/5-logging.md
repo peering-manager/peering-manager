@@ -4,7 +4,7 @@ example is provided below.
 
 # Available Loggers
 
-Loggers are points where logs are sent for latter processing. The following
+Loggers are points where logs are sent for processing. The following
 loggers are provided:
 
 * `peering.manager.devices`: logging internal models and views
