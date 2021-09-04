@@ -55,6 +55,7 @@ DEBUG = getattr(configuration, "DEBUG", False)
 LOGGING = getattr(configuration, "LOGGING", {})
 REDIS = getattr(configuration, "REDIS", {})
 CACHE_TIMEOUT = getattr(configuration, "CACHE_TIMEOUT", 0)
+CACHE_BGP_DETAIL_TIMEOUT = getattr(configuration, "CACHE_BGP_DETAIL_TIMEOUT", 900)
 CHANGELOG_RETENTION = getattr(configuration, "CHANGELOG_RETENTION", 90)
 LOGIN_REQUIRED = getattr(configuration, "LOGIN_REQUIRED", False)
 BANNER_LOGIN = getattr(configuration, "BANNER_LOGIN", "")
@@ -289,7 +290,6 @@ CACHEOPS = {
     "webhooks.*": {"ops": "all"},
 }
 CACHEOPS_DEGRADE_ON_FAILURE = True
-CACHEOPS_BGP_DETAIL_TIMEOUT = getattr(configuration, "CACHEOPS_BGP_DETAIL_TIMEOUT", 900)
 
 if TASKS_REDIS_USING_SENTINEL:
     RQ_PARAMS = {

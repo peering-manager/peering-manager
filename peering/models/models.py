@@ -1611,7 +1611,7 @@ class Router(ChangeLoggedModel, TaggableModel):
         will be empty.
         """
 
-        @cached_as(self, timeout=settings.CACHEOPS_BGP_DETAIL_TIMEOUT)
+        @cached_as(self, timeout=settings.CACHE_BGP_DETAIL_TIMEOUT)
         def _get_bgp_neighbors_detail():
             if self.use_netbox:
                 return self.get_netbox_bgp_neighbors_detail(ip_address=ip_address)
