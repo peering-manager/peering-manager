@@ -45,6 +45,17 @@ them. Setting the value to 0 will disable the use of the caching functionality.
 
 ---
 
+## CACHE_BGP_DETAIL_TIMEOUT
+
+Default: 900
+
+The number of seconds to retain cache entries for NAPALM BGP details data
+before automatically invalidating them. It improves the speed of operations
+such as polling session statuses. Setting the value to 0 will disable the use
+of the caching functionality.
+
+---
+
 ## CHANGELOG_RETENTION
 
 Default: `90`
