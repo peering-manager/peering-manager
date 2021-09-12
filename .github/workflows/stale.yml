@@ -15,6 +15,7 @@ jobs:
           days-before-close: 30
           remove-stale-when-updated: false
           exempt-issue-labels: 'status: accepted,status: blocked,status: sponsored'
+          exempt-pr-labels: 'status: accepted,status: blocked,status: sponsored'
           stale-issue-label: 'pending closure'
           stale-pr-label: 'pending closure'
           close-issue-message: >
