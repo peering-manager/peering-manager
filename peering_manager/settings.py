@@ -298,6 +298,7 @@ CACHEOPS = {
     "auth.*": {"ops": ("fetch", "get")},
     "auth.permission": {"ops": "all"},
     "devices.*": {"ops": "all"},
+    "extras.*": {"ops": "all"},
     "net.*": {"ops": "all"},
     "peering.*": {"ops": "all"},
     "peeringdb.*": {"ops": "all"},
