@@ -1,9 +1,10 @@
-import ipaddress
 import json
 import logging
+from datetime import datetime
 
 import requests
-from cacheops import CacheMiss, cache
+from cacheops import cached_as
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 
@@ -33,6 +34,15 @@ def unpack_response(response):
         return (response, j)
     else:
         return (response, {})
+
+
+def parse_datetime(string, format="%Y-%m-%dT%H:%M:%SZ"):
+    """
+    Parses a string into a datetime instance.
+
+    If `format` is not provided, expect format is `2031-08-28T17:52:27Z`.
+    """
+    return datetime.strptime(string, format)
 
 
 class Client(object):
@@ -240,10 +250,11 @@ class IXAPI(ChangeLoggedModel):
         @cached_as(self, extra=params, timeout=settings.CACHE_TIMEOUT)
         def _lookup():
             # Make use of cache to speed up consecutive runs
-        client = self.dial()
-        _, data = client.get(endpoint, params=params)
+            client = self.dial()
+            _, data = client.get(endpoint, params=params)
+            return data
 
-        return data
+        return _lookup()
 
     def get_contacts(self):
         d = self.lookup(f"contacts?consuming_customer={self.identity}")
@@ -255,21 +266,34 @@ class IXAPI(ChangeLoggedModel):
     def get_connections(self):
         return self.lookup("connections", params={"consuming_customer": self.identity})
 
-    def get_ips(self):
-        return self.lookup("ips", params={"consuming_customer": self.identity})
+    def get_ips(self, ids=[]):
+        if ids:
+            return self.lookup("ips", params={"id": ",".join(ids)})
+        else:
+            return self.lookup("ips", params={"consuming_customer": self.identity})
 
     def get_macs(self):
         return self.lookup("macs", params={"consuming_customer": self.identity})
+
+    def get_network_features(self, ids=[]):
+        if ids:
+            return self.lookup("network-features", params={"id": ",".join(ids)})
+        else:
+            return self.lookup("network-features")
 
     def get_network_feature_configs(self):
         return self.lookup("network-feature-configs")
 
     def get_network_service_configs(self):
-        return self.lookup("network-service-configs")
+        return self.lookup(
+            "network-service-configs",
+            params={"consuming_customer": self.identity, "type": "exchange_lan"},
+        )
 
     def get_network_services(self):
         return self.lookup(
-            "network-services", params={"consuming_customer": self.identity}
+            "network-services",
+            params={"consuming_customer": self.identity, "type": "exchange_lan"},
         )
 
     # Figure out what can be achieved with IX-API in the context of an IXP
