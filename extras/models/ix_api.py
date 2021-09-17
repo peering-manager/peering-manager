@@ -194,10 +194,12 @@ class IXAPI(ChangeLoggedModel):
 
         https://tools.ietf.org/id/draft-inadarei-api-health-check-04.html
 
-        This is only available for v2.
+        This is only available for version greater than v1.
         """
         if self.version == 1:
-            raise NotImplementedError("health resource is not available version 1 API")
+            raise NotImplementedError(
+                "health resource is not available on API version 1"
+            )
 
         c = self.dial()
         _, data = c.get("health")
@@ -231,6 +233,13 @@ class IXAPI(ChangeLoggedModel):
         return self.get_customers(id=self.identity)
 
     def lookup(self, endpoint, params={}):
+        """
+        Performs a GET request with given parameters and returns the data as dict.
+        """
+
+        @cached_as(self, extra=params, timeout=settings.CACHE_TIMEOUT)
+        def _lookup():
+            # Make use of cache to speed up consecutive runs
         client = self.dial()
         _, data = client.get(endpoint, params=params)
 
