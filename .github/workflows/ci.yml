@@ -1,6 +1,8 @@
 ---
 name: CI
-on: [push, pull_request]
+on:
+  - push
+  - pull_request
 
 jobs:
   black:
@@ -83,9 +85,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install tox coveralls
       - name: Run tox
-        run: |
-          tox
-          coveralls
+        run: tox
         env:
           TOXENV: ${{ matrix.toxenv }}
+      - name: Run coveralls
+        run: coveralls
+        env:
           GITHUB_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+        continue-on-error: true
