@@ -82,6 +82,8 @@ class DirectPeeringSessionTest(TestCase):
                 "autonomous_system": self.autonomous_system.pk,
                 "relationship": BGPRelationship.PRIVATE_PEERING,
                 "ip_address": "2001:db8::1",
+                "interface": "eth0",
+                "vlan": 1337,
             }
         )
         self.assertTrue(test.is_valid())

@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from netfields import InetAddressField
 
+from net.fields import VLANField
 from net.models import Connection
 from netbox.api import NetBox
 from peering import call_irr_as_set_resolver, parse_irr_as_set
@@ -524,6 +525,8 @@ class DirectPeeringSession(BGPSession):
     router = models.ForeignKey(
         "Router", blank=True, null=True, on_delete=models.SET_NULL
     )
+    interface = models.CharField(max_length=200, blank=True)
+    vlan = VLANField(verbose_name="VLAN", blank=True, null=True)
 
     class Meta(BGPSession.Meta):
         ordering = [

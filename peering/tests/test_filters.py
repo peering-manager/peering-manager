@@ -195,6 +195,8 @@ class DirectPeeringSessionTestCase(StandardTestCases.Filters):
                     ip_address="192.0.2.1",
                     relationship=BGPRelationship.TRANSIT_PROVIDER,
                     router=cls.router,
+                    interface="eth0",
+                    vlan=1337,
                 ),
                 DirectPeeringSession(
                     local_autonomous_system=cls.local_as,
@@ -209,6 +211,7 @@ class DirectPeeringSessionTestCase(StandardTestCases.Filters):
                     ip_address="192.0.2.3",
                     relationship=BGPRelationship.CUSTOMER,
                     enabled=False,
+                    vlan=2511,
                 ),
             ]
         )

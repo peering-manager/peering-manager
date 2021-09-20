@@ -314,6 +314,8 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "multihop_ttl",
             "enabled",
             "router",
+            "interface",
+            "vlan",
             "import_routing_policies",
             "export_routing_policies",
             "comments",

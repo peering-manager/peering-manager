@@ -265,6 +265,8 @@ class DirectPeeringSessionTest(StandardAPITestCases.View):
             relationship=BGPRelationship.PRIVATE_PEERING,
             ip_address="2001:db8::1",
             password="mypassword",
+            interface="eth1",
+            vlan=1337,
         )
         cls.create_data = [
             {
@@ -279,12 +281,14 @@ class DirectPeeringSessionTest(StandardAPITestCases.View):
                 "autonomous_system": autonomous_system.pk,
                 "relationship": BGPRelationship.PRIVATE_PEERING,
                 "ip_address": "198.51.100.2",
+                "interface": "ens123",
             },
             {
                 "local_autonomous_system": local_autonomous_system.pk,
                 "autonomous_system": autonomous_system.pk,
                 "relationship": BGPRelationship.PRIVATE_PEERING,
                 "ip_address": "198.51.100.3",
+                "vlan": 2511,
             },
         ]
 

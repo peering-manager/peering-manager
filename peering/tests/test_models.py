@@ -177,6 +177,8 @@ class DirectPeeringSessionTest(TestCase):
             ip_address="2001:db8::1",
             password="mypassword",
             router=cls.router,
+            interface="eth0",
+            vlan=1337,
         )
 
     def test_poll(self):
@@ -347,6 +349,8 @@ class RouterTest(TestCase):
                 ip_address=f"10.0.0.{i}",
                 enabled=bool(i % 2),
                 router=self.router,
+                interface="eth%d" % i,
+                vlan=(i + 1000),
             )
         ixp = InternetExchange.objects.create(
             local_autonomous_system=self.local_as, name="Test IX", slug="test-ix"

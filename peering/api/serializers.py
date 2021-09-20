@@ -167,6 +167,8 @@ class DirectPeeringSessionSerializer(
             "import_routing_policies",
             "export_routing_policies",
             "router",
+            "interface",
+            "vlan",
             "bgp_state",
             "received_prefix_count",
             "advertised_prefix_count",
