@@ -241,3 +241,19 @@ Default: 86400 (24 hours)
 The number of seconds to retain the latest version that is fetched from the
 GitHub API before fetching it from the API again. This value cannot be set to
 less than 3600 seconds (1 hour).
+
+## USE_X_FORWARDED_HOST
+
+Default: False
+
+Parse X-Forwarded-Host for actual hostname instead of relying on Host header.
+
+## SECURE_PROXY_SSL_HEADER
+
+Default: None
+
+Parse defined header to let Django know that HTTPS is being used. This way
+e.g. generated API URLs will have the corresponding `https://` prefix.
+
+E.g. `SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')` to check
+for `https` value in `X-Forwarded-Proto` header.

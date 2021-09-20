@@ -65,6 +65,8 @@ NAPALM_TIMEOUT = getattr(configuration, "NAPALM_TIMEOUT", 30)
 NAPALM_ARGS = getattr(configuration, "NAPALM_ARGS", {})
 PAGINATE_COUNT = getattr(configuration, "PAGINATE_COUNT", 20)
 METRICS_ENABLED = getattr(configuration, "METRICS_ENABLED", False)
+USE_X_FORWARDED_HOST = getattr(configuration, "USE_X_FORWARDED_HOST", False)
+SECURE_PROXY_SSL_HEADER = getattr(configuration, "SECURE_PROXY_SSL_HEADER", None)
 
 DATE_FORMAT = getattr(configuration, "DATE_FORMAT", "jS F, Y")
 DATETIME_FORMAT = getattr(configuration, "DATETIME_FORMAT", "jS F, Y G:i")
