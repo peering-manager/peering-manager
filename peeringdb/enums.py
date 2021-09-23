@@ -144,8 +144,8 @@ class Property(models.TextChoices):
 
 
 class AvailableVoltage(models.TextChoices):
-    VDC_48 = "48 VDC"
-    VAC_120 = "120 VAC"
-    VAC_208 = "208 VAC"
-    VAC_240 = "240 VAC"
-    VAC_480 = "480 VAC"
+    VDC_48 = "48 VDC", "48 VDC"
+    VAC_120 = "120 VAC", "120 VAC"
+    VAC_208 = "208 VAC", "208 VAC"
+    VAC_240 = "240 VAC", "240 VAC"
+    VAC_480 = "480 VAC", "480 VAC"

@@ -13,11 +13,11 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 blank=True,
                 choices=[
-                    ("48 VDC", "Vdc 48"),
-                    ("120 VAC", "Vac 120"),
-                    ("208 VAC", "Vac 208"),
-                    ("240 VAC", "Vac 240"),
-                    ("480 VAC", "Vac 480"),
+                    ("48 VDC", "48 VDC"),
+                    ("120 VAC", "120 VAC"),
+                    ("208 VAC", "208 VAC"),
+                    ("240 VAC", "240 VAC"),
+                    ("480 VAC", "480 VAC"),
                 ],
                 max_length=255,
                 null=True,
