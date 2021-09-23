@@ -8,12 +8,14 @@ from peering.fields import ASNField
 from utils.validators import AddressFamilyValidator
 
 from .enums import (
+    AvailableVoltage,
     ContractsPolicy,
     GeneralPolicy,
     LocationsPolicy,
     Media,
     NetType,
     POCRole,
+    Property,
     Protocol,
     Ratio,
     Region,
@@ -86,6 +88,13 @@ class Facility(Address):
     tech_phone = models.CharField(max_length=192, blank=True)
     sales_email = models.EmailField(max_length=254, blank=True)
     sales_phone = models.CharField(max_length=192, blank=True)
+    property = models.CharField(
+        max_length=27, null=True, blank=True, choices=Property.choices
+    )
+    diverse_serving_substations = models.BooleanField(null=True, blank=True)
+    available_voltage_services = models.CharField(
+        max_length=255, null=True, blank=True, choices=AvailableVoltage.choices
+    )
     notes = models.TextField(blank=True)
     org = models.ForeignKey(
         Organization,

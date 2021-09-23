@@ -135,3 +135,17 @@ class Visibility(models.TextChoices):
     PRIVATE = "Private"
     USERS = "Users"
     PUBLIC = "Public"
+
+
+class Property(models.TextChoices):
+    NOT_DISCLOSED = "", "Not Disclosed"
+    OWNER = "Owner"
+    LESSEE = "Lessee"
+
+
+class AvailableVoltage(models.TextChoices):
+    VDC_48 = "48 VDC"
+    VAC_120 = "120 VAC"
+    VAC_208 = "208 VAC"
+    VAC_240 = "240 VAC"
+    VAC_480 = "480 VAC"
