@@ -408,7 +408,11 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "peering_manager.wsgi.application"
-
+SECURE_PROXY_SSL_HEADER = getattr(
+    configuration, "SECURE_PROXY_SSL_HEADER", ("HTTP_X_FORWARDED_PROTO", "https")
+)
+USE_X_FORWARDED_HOST = getattr(configuration, "USE_X_FORWARDED_HOST", True)
+X_FRAME_OPTIONS = "SAMEORIGIN"
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
