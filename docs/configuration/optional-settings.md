@@ -14,6 +14,24 @@ BASE_PATH = "peering/"
 
 ---
 
+## USE_X_FORWARDED_HOST
+
+Default: `True`
+
+Parse `X-Forwarded-Host` for actual hostname instead of relying on host header.
+
+## SECURE_PROXY_SSL_HEADER
+
+Default: `("HTTP_X_FORWARDED_PROTO", "https")`
+
+Parse defined header to let Django know that HTTPS is being used. This way
+e.g. generated API URLs will have the corresponding `https://` prefix.
+
+E.g. `SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")` to check
+for `https` value in `X-Forwarded-Proto` header.
+
+---
+
 ## DEBUG
 
 Default: `False`
