@@ -140,6 +140,28 @@ def iter_import_policies(value, field=""):
     return list(value.import_policies())
 
 
+def communities(value, field=""):
+    """
+    Returns a list of communities applied to an AS, a group, an IXP or a session.
+    """
+    c = None
+
+    if type(value) is InternetExchangePeeringSession:
+        c = value.ixp_connection.internet_exchange_point.communities
+    if type(value) is DirectPeeringSession:
+        c = value.bgp_group.communities
+    if hasattr(value, "communities"):
+        c = value.communities
+
+    if c:
+        if field:
+            return [getattr(i, field) for i in c]
+
+        return list(c.all())
+
+    return []
+
+
 def length(value):
     """
     Returns the number of items in a queryset or an iterable.
@@ -406,6 +428,8 @@ FILTER_DICT = {
     # Routers
     "direct_peers": direct_peers,
     "ixp_peers": ixp_peers,
+    # Communities
+    "communities": communities,
     # Routing policies
     "iter_export_policies": iter_export_policies,
     "iter_import_policies": iter_import_policies,

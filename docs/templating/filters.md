@@ -262,7 +262,7 @@ connected to the router.
 Both filters can optionally take a slug value (as a string) to fetch sessions
 from a specific BGP group or IXP.
 
-Example:
+Examples:
 
 ```no-highlight
 {% for session in router | ixp_peers %}
@@ -279,7 +279,7 @@ fetch AS policies for a session (for instance).
 You can use a string as an option to these filters to select only a specific
 field of the policies.
 
-Example:
+Examples:
 
 ```no-highlight
 export [ {{ session | iter_export_policies('slug') | join(' ') }} ];
@@ -299,9 +299,24 @@ policy list, only the most preferred occurence will be kept.
 The keyword (as a string) `reverse` can be used as option to these two filters
 to reverse the order of the list.
 
-Example:
+Examples:
 
 ```no-highlight
 export [ {{ session | merge_export_policies | iterate('slug') | join(' ') }} ];
 import [ {{ session | merge_import_policies('reverse') | iterate('slug') | join(' ') }} ];
+```
+
+## `communities`
+
+Fetches communities applied to an object. Note that this filter will traverse
+relationships, therefore, it will fetch communities for BGP session as well.
+
+You can use a string as an option to these filters to select only a specific
+field of the policies.
+
+Examples:
+
+```no-highlight
+communities [ {{ session | communities('value') | join(' ') }} ];
+communities [ {{ ixp | communities | join(' ') }} ];
 ```

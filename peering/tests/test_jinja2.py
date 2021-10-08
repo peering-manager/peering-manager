@@ -12,6 +12,7 @@ from peering.models import (
     RoutingPolicy,
 )
 from peering.models.jinja2 import FILTER_DICT
+from peering.models.models import Community
 from utils.models import Tag
 
 
@@ -43,6 +44,15 @@ class Jinja2FilterTestCase(TestCase):
             ),
         ]
         RoutingPolicy.objects.bulk_create(cls.routing_policies)
+        cls.communities = [
+            Community(name="Learnt from IXP", slug="learnt-from-ixp", value="123:1"),
+            Community(
+                name="Learnt from direct peer",
+                slug="learnt-from-direct-peer",
+                value="123:2",
+            ),
+        ]
+        Community.objects.bulk_create(cls.communities)
         AutonomousSystem.objects.create(asn=64520, name="Useless")
         cls.a_s = AutonomousSystem.objects.create(
             asn=64510, name="Test", ipv6_max_prefixes=100
@@ -72,6 +82,7 @@ class Jinja2FilterTestCase(TestCase):
         cls.ixp.export_routing_policies.add(
             RoutingPolicy.objects.get(slug="reject-all")
         )
+        cls.ixp.communities.add(Community.objects.get(slug="learnt-from-ixp"))
         cls.ixp_connection = Connection.objects.create(
             vlan=10,
             internet_exchange_point=cls.ixp,
@@ -216,6 +227,16 @@ class Jinja2FilterTestCase(TestCase):
                 RoutingPolicy.objects.get(slug="reject-all"),
             ],
             FILTER_DICT["merge_import_policies"](self.session6),
+        )
+
+    def test_communities(self):
+        self.assertListEqual(
+            [Community.objects.get(slug="learnt-from-ixp")],
+            FILTER_DICT["communities"](self.ixp),
+        )
+        self.assertListEqual(
+            [Community.objects.get(slug="learnt-from-ixp")],
+            FILTER_DICT["communities"](self.session6),
         )
 
     def connections(self):
