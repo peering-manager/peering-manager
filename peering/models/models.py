@@ -893,19 +893,24 @@ class InternetExchangePeeringSession(BGPSession):
         ]
 
     @staticmethod
-    def create_from_peeringdb(affiliated, netixlan):
+    def create_from_peeringdb(affiliated, internet_exchange, netixlan):
         results = []
 
         if not netixlan:
             return results
 
-        available_ixp = InternetExchange.objects.get(peeringdb_ixlan=netixlan.ixlan)
+        # If the IXP is not given, e.g. we are in the provisionning section, try to
+        # guess the IXP from the PeeringDB record
+        if not internet_exchange:
+            internet_exchange = InternetExchange.objects.filter(
+                local_autonomous_system=affiliated, peeringdb_ixlan=netixlan.ixlan
+            ).first()
         available_connections = Connection.objects.filter(
-            internet_exchange_point=available_ixp
+            internet_exchange_point=internet_exchange
         )
 
         for connection in available_connections:
-            for version in [6, 4]:
+            for version in (6, 4):
                 ip_address = getattr(netixlan, f"ipaddr{version}", None)
                 if not ip_address:
                     continue

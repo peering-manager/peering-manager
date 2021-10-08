@@ -951,8 +951,14 @@ class InternetExchangePeeringSessionAddFromPeeringDB(
         except AutonomousSystem.DoesNotExist:
             return []
 
+        ixp = None
+        if "internet_exchange_id" in request.POST:
+            ixp = InternetExchange.objects.get(
+                pk=request.POST.get("internet_exchange_id")
+            )
+
         return InternetExchangePeeringSession.create_from_peeringdb(
-            affiliated, dependency
+            affiliated, ixp, dependency
         )
 
     def sort_objects(self, object_list):
