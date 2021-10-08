@@ -170,6 +170,21 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
 
         return list(reversed(merged)) if reverse else merged
 
+    def merged_communities(self):
+        merged = [c for c in self.autonomous_system.communities.all()]
+
+        group = None
+        if hasattr(self, "ixp_connection"):
+            group = self.ixp_connection.internet_exchange_point
+        else:
+            group = self.bgp_group
+
+        for c in group.communities.all():
+            if c not in merged:
+                merged.append(c)
+
+        return merged
+
     def poll(self):
         raise NotImplementedError
 

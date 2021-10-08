@@ -1235,7 +1235,7 @@ class Router(ChangeLoggedModel, TaggableModel):
             # Unable to import proper driver from napalm
             # Most probably due to a broken install
             self.logger.error(
-                f"No napalm Driver: '{self.platform.napalm_driver}' for Platform: '{self.platform}' found (not installed or does not exist)"
+                f"no napalm driver: '{self.platform.napalm_driver}' for platform: '{self.platform}' found (not installed or does not exist)"
             )
             return None
 

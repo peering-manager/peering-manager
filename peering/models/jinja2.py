@@ -162,6 +162,16 @@ def communities(value, field=""):
     return []
 
 
+def merge_communities(value):
+    """
+    Merges and returns communities.
+    """
+    if not hasattr(value, "merged_communities"):
+        raise AttributeError("{value} has not merged communities")
+
+    return value.merged_communities()
+
+
 def length(value):
     """
     Returns the number of items in a queryset or an iterable.
@@ -430,6 +440,7 @@ FILTER_DICT = {
     "ixp_peers": ixp_peers,
     # Communities
     "communities": communities,
+    "merge_communities": merge_communities,
     # Routing policies
     "iter_export_policies": iter_export_policies,
     "iter_import_policies": iter_import_policies,

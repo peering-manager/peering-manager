@@ -51,6 +51,9 @@ class Jinja2FilterTestCase(TestCase):
                 slug="learnt-from-direct-peer",
                 value="123:2",
             ),
+            Community(
+                name="Learnt from transit", slug="learnt-from-transit", value="123:3"
+            ),
         ]
         Community.objects.bulk_create(cls.communities)
         AutonomousSystem.objects.create(asn=64520, name="Useless")
@@ -65,6 +68,7 @@ class Jinja2FilterTestCase(TestCase):
             RoutingPolicy.objects.get(slug="export-deaggregated-v4"),
             RoutingPolicy.objects.get(slug="export-deaggregated-v6"),
         )
+        cls.a_s.communities.add(Community.objects.get(slug="learnt-from-transit"))
         cls.a_s.tags.add(*cls.tags)
         cls.router = Router.objects.create(name="test", hostname="test.example.com")
         cls.ixp = InternetExchange.objects.create(
@@ -237,6 +241,15 @@ class Jinja2FilterTestCase(TestCase):
         self.assertListEqual(
             [Community.objects.get(slug="learnt-from-ixp")],
             FILTER_DICT["communities"](self.session6),
+        )
+
+    def test_merge_communities(self):
+        self.assertListEqual(
+            [
+                Community.objects.get(slug="learnt-from-transit"),
+                Community.objects.get(slug="learnt-from-ixp"),
+            ],
+            FILTER_DICT["merge_communities"](self.session6),
         )
 
     def connections(self):

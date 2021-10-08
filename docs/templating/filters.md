@@ -320,3 +320,14 @@ Examples:
 communities [ {{ session | communities('value') | join(' ') }} ];
 communities [ {{ ixp | communities | join(' ') }} ];
 ```
+
+## `merge_communities`
+
+Merges all communities from an object into a single list. For BGP session, group's and
+autonomous system's communities will be merged together, avoiding duplicates.
+
+Example:
+
+```no-highlight
+communities [ {{ session | merge_communities | iterate('value') | join(' ') }} ];
+```
