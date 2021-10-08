@@ -185,13 +185,16 @@ Examples:
 Applied on a session, the filter will fetch the local IP used to establish the
 session. If applied on an IXP or a BGP group, it will return IP addresses (v4
 and v6) configured for the IXP/BGP group. In any other case, it will give
-back a null value.
+back a null value. If `4` or `6` is passed as extra parameter, only the IPs
+matching the version will be returned.
 
 Examples:
 
 ```no-highlight
 Local IPs: {{ session | local_ips }}
 Local IPs: {{ ixp | local_ips }}
+Local IPv6: {{ ixp | local_ips(6) }}
+Local IPv4: {{ ixp | local_ips(4) }}
 ```
 
 ## `direct_sessions` / `ixp_sessions`
