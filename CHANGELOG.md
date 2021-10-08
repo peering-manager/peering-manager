@@ -1,5 +1,30 @@
 # Changelog
 
+## Version 1.4.5 | MARK I (Bug fixes release) | 2021-10-06
+
+### Enhancements
+
+* [#310](https://github.com/peering-manager/peering-manager/issues/310) Improve setup documentation (by @Paktosan)
+* [#427](https://github.com/peering-manager/peering-manager/issues/427) Improve change logging with pre-change data
+* [#473](https://github.com/peering-manager/peering-manager/issues/473) Add `has_tag` / `has_not_tag` Jinja filters
+* [#476](https://github.com/peering-manager/peering-manager/issues/476) Allow mask length in connection IPs
+* [#471](https://github.com/peering-manager/peering-manager/issues/471) Add cache time for NAPALM neighbor details with `CACHE_BGP_DETAIL_TIMEOUT` setting (by @mngan)
+* [#489](https://github.com/peering-manager/peering-manager/issues/489) Add `communities` and `merge_communities` Jinja filters
+* Add configuration context field to the `Connection`s
+* Add new `connections` Jinja filter that will return an iterator to loop over the connections of a router or an IXP
+* Add templating tutorial (by @Paktosan)
+* Sync PeeringDB's models with 2.9.0.1
+* Expose HTTPS settings with `USE_X_FORWARDED_HOST` and `SECURE_PROXY_SSL_HEADER`, defaults to try using HTTPS if possible
+
+### Bug Fixes
+
+* Fix webhook enqueuing
+* Prohib Django's LogEntry to fire a webhook
+* Fix error log on missing NAPALM driver
+* Fix broken HTML tag in community detail view
+* Fix `local_ips` IP version filtering
+* [#488](https://github.com/peering-manager/peering-manager/issues/488) Use IXP instance when adding sessions, default to the first matching IXP if IXP is not explicitly used
+
 ## Version 1.4.4 | MARK I (Bug fixes release) | 2021-07-04
 
 ### Enhancements
