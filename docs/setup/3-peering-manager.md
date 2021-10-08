@@ -7,7 +7,7 @@ We will use Git to get the code, and Python to run it.
 Peering Manager is mostly tested with Python version 3 so we will setup the
 machine with this version.
 
-=== "Debian 10"
+=== "Debian 10 / 11"
 	```no-highlight
 	# apt install python3 python3-dev python3-venv python3-pip git vim
 	```

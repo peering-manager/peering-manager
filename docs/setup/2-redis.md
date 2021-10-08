@@ -11,9 +11,9 @@ can provide a compatible version.
 
 ## Installation
 
-=== "Debian 10"
+=== "Debian 10 / 11"
 	```no-highlight
-	# apt-get install redis-server
+	# apt install redis-server
 	```
 
 === "CentOS 7"

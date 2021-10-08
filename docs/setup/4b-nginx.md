@@ -2,7 +2,7 @@
 
 Install the nginx package.
 
-=== "Debian 10"
+=== "Debian 10 / 11"
 	```no-highlight
 	# apt update
 	# apt install nginx

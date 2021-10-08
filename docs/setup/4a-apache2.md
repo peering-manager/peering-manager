@@ -2,7 +2,7 @@
 
 ## Installation
 
-=== "Debian 10"
+=== "Debian 10 / 11"
 	```no-highlight
 	# apt install apache2
 	# a2enmod headers

@@ -6,10 +6,10 @@ PostgreSQL.
 
 ## Installation
 
-=== "Debian 10"
+=== "Debian 10 / 11"
 	```no-highlight
-	# apt-get update
-	# apt-get install -y postgresql libpq-dev
+	# apt update
+	# apt install postgresql libpq-dev
 	```
 
 === "CentOS 7"
