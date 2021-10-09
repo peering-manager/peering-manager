@@ -156,8 +156,7 @@ def communities(value, field=""):
     if c:
         if field:
             return [getattr(i, field) for i in c]
-
-        return list(c.all())
+        return c.all()
 
     return []
 

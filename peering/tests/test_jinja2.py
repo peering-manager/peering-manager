@@ -234,23 +234,12 @@ class Jinja2FilterTestCase(TestCase):
         )
 
     def test_communities(self):
-        self.assertListEqual(
-            [Community.objects.get(slug="learnt-from-ixp")],
-            FILTER_DICT["communities"](self.ixp),
-        )
-        self.assertListEqual(
-            [Community.objects.get(slug="learnt-from-ixp")],
-            FILTER_DICT["communities"](self.session6),
-        )
+        self.assertEqual(1, len(FILTER_DICT["communities"](self.ixp)))
+        self.assertEqual(1, len(FILTER_DICT["communities"](self.session6)))
+        self.assertEqual(0, len(FILTER_DICT["communities"](self.router)))
 
     def test_merge_communities(self):
-        self.assertListEqual(
-            [
-                Community.objects.get(slug="learnt-from-transit"),
-                Community.objects.get(slug="learnt-from-ixp"),
-            ],
-            FILTER_DICT["merge_communities"](self.session6),
-        )
+        self.assertEqual(2, len(FILTER_DICT["merge_communities"](self.session6)))
 
     def connections(self):
         self.assertEqual(1, FILTER_DICT["connections"](self.ixp).count())
