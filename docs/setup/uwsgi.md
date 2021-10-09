@@ -10,7 +10,7 @@ community members.
 	# yum install mod_proxy_uwsgi
 	```
 
-=== "Debian 10"
+=== "Debian 10 / 11"
 	```no-highlight
 	# a2enmod proxy_uwsgi
 	```

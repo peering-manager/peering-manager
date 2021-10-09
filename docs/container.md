@@ -5,7 +5,7 @@ You can use any Container engine you want, for example [Podman](https://podman.i
 [Docker](https://www.docker.com/) as long as it understands the Docker file
 format. The following explanations will focus on Docker.
 
-=== "Debian 10"
+=== "Debian 10 / 11"
 	```no-highlight
 	# apt update
 	# apt install apt-transport-https ca-certificates curl gnupg lsb-release

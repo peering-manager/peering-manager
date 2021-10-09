@@ -52,7 +52,7 @@ The content of the file can be something like this.
 
 Remove the default virtual host and enable the new one.
 
-=== "Debian 10"
+=== "Debian 10 / 11"
 	```no-highlight
 	# a2dissite 000-default.conf
 	# a2ensite peering-manager.conf
