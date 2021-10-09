@@ -1,7 +1,7 @@
-import logging
-
+from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.db import models
+from django.forms import MultipleChoiceField
 from netfields import CidrAddressField, InetAddressField, MACAddressField
 
 from peering.fields import ASNField
@@ -40,6 +40,81 @@ class URLField(models.URLField):
     def __init__(self, *args, **kwargs):
         kwargs["max_length"] = 255
         super().__init__(*args, **kwargs)
+
+
+class MultipleChoiceField(models.CharField):
+    """
+    Field that can take a set of string values and store them in a `CharField` using
+    a delimiter. This needs to be compatible with DRF's multiple choice field.
+    """
+
+    def clean_choices(self, values):
+        for value in values:
+            if not value:
+                continue
+
+            exists = False
+            for choice, _ in self.choices:
+                if choice == value:
+                    exists = True
+                    break
+
+            if not exists and type(value) is not list:
+                raise ValidationError(f"Invalid value: {value}")
+
+    def validate(self, value, model_instance):
+        if not self.editable:
+            # Skip validation for non-editable fields.
+            return
+
+        self.clean_choices(value)
+
+        if value is None and not self.null:
+            raise ValidationError(self.error_messages["null"], code="null")
+
+        if not self.blank and value in self.empty_values:
+            raise ValidationError(self.error_messages["blank"], code="blank")
+
+    def from_db_value(self, value, expression, connection):
+        if value is None:
+            return None
+
+        if not value:
+            return []
+
+        values = value.split(",")
+
+        self.clean_choices(values)
+
+        return values
+
+    def get_prep_value(self, value):
+        if value is None:
+            return ""
+
+        picked = []
+        for choice, _ in self.choices:
+            if choice in value:
+                picked.append(choice)
+        return ",".join(picked)
+
+    def to_python(self, value):
+        if isinstance(value, (list, set, tuple)):
+            return value
+
+        if value is None:
+            return value
+
+        values = value.split(",")
+
+        self.clean_choices(values)
+
+        return values
+
+    def formfield(self, **kwargs):
+        defaults = {"form_class": MultipleChoiceField}
+        defaults.update(**kwargs)
+        return super().formfield(**defaults)
 
 
 class Address(models.Model):
@@ -92,7 +167,7 @@ class Facility(Address):
         max_length=27, null=True, blank=True, choices=Property.choices
     )
     diverse_serving_substations = models.BooleanField(null=True, blank=True)
-    available_voltage_services = models.CharField(
+    available_voltage_services = MultipleChoiceField(
         max_length=255, null=True, blank=True, choices=AvailableVoltage.choices
     )
     notes = models.TextField(blank=True)
