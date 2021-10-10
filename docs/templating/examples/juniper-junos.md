@@ -18,7 +18,7 @@ protocols {
     {%- if ixp | iter_export_policies %}
             export [ {{ ixp | iter_export_policies('slug') | join(' ') }} ];
     {%- endif %}
-    {%- for session in ixp | sessions(family) %}
+    {%- for session in router | ixp_sessions(family=family, ixp=ixp) %}
             neighbor {{ session.ip_address }} {
       {%- if not session.enabled %}
                 disable;
@@ -75,7 +75,7 @@ protocols {
     {%- if group | iter_export_policies %}
             export [ {{ group | iter_export_policies('slug') | join(' ') }} ];
     {%- endif %}
-    {%- for session in group | sessions(family) | filter(router=router) %}
+    {%- for session in router | direct_sessions(family=family, group=group)  %}
             neighbor {{ session.ip_address }} {
       {%- if not session.enabled %}
                 disable;

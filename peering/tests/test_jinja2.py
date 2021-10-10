@@ -246,6 +246,18 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(1, FILTER_DICT["connections"](self.router).count())
         self.assertRaises(AttributeError, FILTER_DICT["connections"], self.a_s)
 
+    def test_direct_sessions(self):
+        self.assertEqual(0, FILTER_DICT["direct_sessions"](self.a_s).count())
+        self.assertEqual(0, FILTER_DICT["direct_sessions"](self.router).count())
+
+    def test_ixp_sessions(self):
+        self.assertEqual(4, FILTER_DICT["ixp_sessions"](self.a_s).count())
+        self.assertEqual(2, FILTER_DICT["ixp_sessions"](self.a_s, family=6).count())
+        self.assertEqual(2, FILTER_DICT["ixp_sessions"](self.a_s, family=4).count())
+        self.assertEqual(
+            4, FILTER_DICT["ixp_sessions"](self.router, ixp=self.ixp).count()
+        )
+
     def test_sessions(self):
         self.assertEqual(4, FILTER_DICT["sessions"](self.ixp).count())
         self.assertEqual(2, FILTER_DICT["sessions"](self.ixp, family=6).count())

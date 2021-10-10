@@ -87,8 +87,8 @@ def filter(queryset, **kwargs):
 
 def get(queryset, **kwargs):
     """
-    Returns a single object from a queryset and a filter. If more than one
-    object matches the filterm a queryset will be return.
+    Returns a single object from a queryset and a filter. If more than one object
+    matches the filterm a queryset will be return.
     """
     q = filter(queryset, **kwargs)
 
@@ -212,23 +212,6 @@ def connections(value):
     return value.get_connections()
 
 
-def direct_sessions(value, family=0):
-    """
-    Returns a queryset of direct peering sessions.
-
-    If family is set to 4 or 6, only the sessions matching the IP address
-    family will be returned. If family is not set all sessions matching all
-    address families will be returned.
-    """
-    if not hasattr(value, "get_direct_peering_sessions"):
-        raise AttributeError(f"{value} has no direct peering sessions")
-
-    if family not in (4, 6):
-        return value.get_direct_peering_sessions()
-    else:
-        return value.get_direct_peering_sessions().filter(ip_address__family=family)
-
-
 def local_ips(value, family=0):
     """
     Returns local IP addresses for a BGP session or an IXP.
@@ -254,33 +237,59 @@ def local_ips(value, family=0):
     return None
 
 
-def ixp_sessions(value, family=0):
+def direct_sessions(value, family=0, group=None):
+    """
+    Returns a queryset of direct peering sessions.
+
+    If family is set to 4 or 6, only the sessions matching the IP address
+    family will be returned. If family is not set all sessions matching all address
+    families will be returned.
+    """
+    if not hasattr(value, "get_direct_peering_sessions"):
+        raise AttributeError(f"{value} has no direct peering sessions, try `sessions`")
+
+    s = value.get_direct_peering_sessions(bgp_group=group)
+
+    if family not in (4, 6):
+        return s
+    else:
+        return s.filter(ip_address__family=family)
+
+
+def ixp_sessions(value, family=0, ixp=None):
     """
     Returns a queryset of IXP peering sessions.
 
     If family is set to 4 or 6, only the sessions matching the IP address
-    family will be returned. If family is not set all sessions matching all
-    address families will be returned.
+    family will be returned. If family is not set all sessions matching all address
+    families will be returned.
+
+    If ixp is set, only sessions for the given IXP will be returned. If ixp is not set
+    all IXP sessions will be returned.
     """
     if not hasattr(value, "get_ixp_peering_sessions"):
-        raise AttributeError(f"{value} has no direct peering sessions")
+        raise AttributeError(f"{value} has no ixp peering sessions, try `sessions`")
+
+    s = value.get_ixp_peering_sessions(internet_exchange_point=ixp)
 
     if family not in (4, 6):
-        return value.get_ixp_peering_sessions()
+        return s
     else:
-        return value.get_ixp_peering_sessions().filter(ip_address__family=family)
+        return s.filter(ip_address__family=family)
 
 
 def sessions(value, family=0):
     """
-    Returns a queryset of peering sessions.
+    Returns a queryset of peering sessions, they can be direct or IXP but not both.
 
-    If family is set to 4 or 6, only the sessions matching the IP address
-    family will be returned. If family is not set all sessions matching all
-    address families will be returned.
+    If family is set to 4 or 6, only the sessions matching the IP address family will
+    be returned. If family is not set all sessions matching all address families will
+    be returned.
     """
     if not hasattr(value, "get_peering_sessions"):
-        raise AttributeError(f"{value} has no peering sessions")
+        raise AttributeError(
+            f"{value} has no generic peering sessions, try `direct_sessions` or `ixp_sessions`"
+        )
 
     if family not in (4, 6):
         return value.get_peering_sessions()
@@ -427,6 +436,8 @@ FILTER_DICT = {
     # BGP groups
     "local_ips": local_ips,
     # BGP sessions
+    "direct_sessions": direct_sessions,
+    "ixp_sessions": ixp_sessions,
     "sessions": sessions,
     "route_server": route_server,
     "ip_version": ip_version,

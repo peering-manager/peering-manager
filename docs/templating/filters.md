@@ -162,24 +162,6 @@ IPv6: {{ connections.ipv46_address }}
 {% endfor %}
 ```
 
-## `sessions` / `route_server`
-
-When using `sessions` on a BGP group or an IXP, peering sessions setup in the
-group or on the IXP will be returned as an iterable object. `route_server`
-works similarly but will only give back sessions setup with route servers on
-an IXP.
-
-When used on an autonomous system, the `sessions` filter will return all BGP
-sessions setup with the AS (direct and IXP sessions).
-
-Examples:
-
-```no-highlight
-{% for session in ixp | sessions %}
-{% for session in autonomous_system | sessions %}
-{% for session in ixp | route_server(6) %}
-```
-
 ## `local_ips`
 
 Applied on a session, the filter will fetch the local IP used to establish the
@@ -197,18 +179,39 @@ Local IPv6: {{ ixp | local_ips(6) }}
 Local IPv4: {{ ixp | local_ips(4) }}
 ```
 
+## `sessions` / `route_server`
+
+When using `sessions` on a BGP group or an IXP, peering sessions setup in the
+group or on the IXP will be returned as an iterable object. `route_server`
+works similarly but will only give back sessions setup with route servers on
+an IXP.
+
+Examples:
+
+```no-highlight
+{% for session in ixp | sessions %}
+{% for session in ixp | route_server(6) %}
+```
+
 ## `direct_sessions` / `ixp_sessions`
 
 When used on an autonomous system, it will return direct peering sessions or
-respectively IXP peering sessions setup with the AS. If `4` or `6` is passed
-as extra parameter, only the sessions with a IP version matching will be
-returned.
+respectively IXP peering sessions setup with the AS.
+
+If family with a value of `4` or `6` is passed as extra parameter, only the sessions
+with a IP version matching will be returned.
+
+* If group is passed as extra parameter for `direct_sessions`, only the sessions
+  contained in given group will be returned.
+* If ixp is passed as extra parameter for `ixp_sessions`, only the sessions contained
+  in given IXP will be returned.
 
 Examples:
 
 ```no-highlight
 {% for session in autonomous_system | direct_sessions %}
-{% for session in autonomous_system | ixp_sessions(6) %}
+{% for session in autonomous_system | ixp_sessions(family=6) %}
+{% for session in router | ixp_sessions(ixp=internet_exchange) %}
 ```
 
 ## `ip_version`
