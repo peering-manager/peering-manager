@@ -1,5 +1,3 @@
-import logging
-
 from django.core.management.base import BaseCommand
 
 from peering.models import AutonomousSystem
@@ -7,7 +5,6 @@ from peering.models import AutonomousSystem
 
 class Command(BaseCommand):
     help = "Get prefixes of Autonomous Systems with IRR AS-SETs and store them in the database"
-    logger = logging.getLogger("peering.manager.peering")
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -22,7 +19,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        self.logger.info("Getting prefixes for AS with IRR AS-SETs")
+        self.stdout.write("[*] Getting prefixes for AS with IRR AS-SETs")
 
         for autonomous_system in AutonomousSystem.objects.defer("prefixes"):
             try:
@@ -33,26 +30,23 @@ class Command(BaseCommand):
                     and int(options["limit"])
                 ):
                     if len(prefixes["ipv6"]) > options["limit"]:
-                        self.logger.debug(
-                            "Too many IPv6 prefixes for as%s: %s > %s, ignoring",
-                            autonomous_system.asn,
-                            len(prefixes["ipv6"]),
-                            options["limit"],
-                        )
+                        if options["verbosity"] >= 2:
+                            self.stdout.write(
+                                f"  - Too many IPv6 prefixes for as{autonomous_system.asn}: {len(prefixes['ipv6'])} > {options['limit']}, ignoring",
+                            )
                         prefixes["ipv6"] = []
                     if len(prefixes["ipv4"]) > options["limit"]:
-                        self.logger.debug(
-                            "Too many IPv4 prefixes for as%s: %s > %s, ignoring",
-                            autonomous_system.asn,
-                            len(prefixes["ipv4"]),
-                            options["limit"],
-                        )
+                        if options["verbosity"] >= 2:
+                            self.stdout.write(
+                                f"  - Too many IPv4 prefixes for as{autonomous_system.asn}: {len(prefixes['ipv4'])} > {options['limit']}, ignoring",
+                            )
                         prefixes["ipv4"] = []
             except ValueError as e:
                 if options.get("ignore-errors", False):
-                    self.logger.warn(
-                        "Error fetching prefixes for as%s: %s", autonomous_system.asn, e
-                    )
+                    if options["verbosity"] >= 2:
+                        self.stdout.write(
+                            f"  - Error fetching prefixes for as{autonomous_system.asn}: {e}"
+                        )
                     prefixes = dict(ipv6=[], ipv4=[])
                 else:
                     raise (e)
