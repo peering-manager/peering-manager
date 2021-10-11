@@ -23,3 +23,6 @@ class NetworkIXLanFilterForm(BootstrapMixin, forms.Form):
         choices=add_blank_choice(GeneralPolicy.choices),
         widget=StaticSelectMultiple,
     )
+    is_rs_peer = forms.NullBooleanField(
+        required=False, label="On Route Server", widget=CustomNullBooleanSelect
+    )
