@@ -337,6 +337,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "debug_toolbar",
     "cacheops",
     "django_filters",
     "django_tables2",
@@ -355,6 +356,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -380,11 +382,6 @@ if METRICS_ENABLED:
     configuration.DATABASE.update(
         {"ENGINE": "django_prometheus.db.backends.postgresql"}
     )
-
-if DEBUG:
-    # Enable debug toolbar only in debugging mode
-    INSTALLED_APPS.append("debug_toolbar")
-    MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
 
 ROOT_URLCONF = "peering_manager.urls"
 

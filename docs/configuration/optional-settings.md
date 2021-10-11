@@ -38,8 +38,7 @@ Default: `False`
 
 This setting enables debugging. This should be done only during development or
 troubleshooting. Never enable debugging on a production system, as it can
-expose sensitive data to users (even unauthenticated). Note that if you enable
-debugging you **must** install requirements found in `requirements_dev.txt`.
+expose sensitive data to users (even unauthenticated).
 
 ---
 

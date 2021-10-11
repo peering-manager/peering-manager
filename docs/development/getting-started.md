@@ -57,7 +57,7 @@ With the virtual environment activated, install the project's required Python
 development packages using the `pip` module:
 
 ```no-highlight
-(peering-manager) $ python -m pip install -r requirements_dev.txt
+(peering-manager) $ python -m pip install -r requirements.txt
 Collecting Django<3.3,>=3.2 (from -r requirements.txt (line 1))
 ...
 ```

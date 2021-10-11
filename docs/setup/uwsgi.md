@@ -19,7 +19,8 @@ In your Peering Manager folder (usually `/opt/peering-manager`), run the
 following command:
 
 ```no-highlight
-# sudo -u peering-manager venv/bin/pip install uwsgi
+# sudo -u peering-manager echo 'uwsgi' >> local_requirements.txt
+# sudo -u peering-manager venv/bin/pip install -r local_requirements.txt
 ```
 
 To validate functionality, you can execute `sudo -u peering-manager venv/bin/uwsgi --http :8001 --module peering_manager.wsgi`

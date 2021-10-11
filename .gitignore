@@ -158,6 +158,7 @@ Temporary Items
 .apdisk
 
 ### Project specifics ###
+local_requirements.txt
 gunicorn*.py
 static
 logs/*

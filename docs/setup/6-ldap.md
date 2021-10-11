@@ -25,7 +25,8 @@ will fall back to built-in Django users in the event of a failure.
 ### Install django-auth-ldap
 
 ```no-highlight
-# pip3 install -r requirements_ldap.txt
+# echo 'django-auth-ldap' >> local_requirements.txt
+# pip3 install -r local_requirements.txt
 ```
 
 ## Configuration

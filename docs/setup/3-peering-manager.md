@@ -2,10 +2,9 @@
 
 ## Operating System Setup
 
-First we need a proper text editor, Git and Python.
-We will use Git to get the code, and Python to run it.
-Peering Manager is mostly tested with Python version 3 so we will setup the
-machine with this version.
+First we need a proper text editor, Git and Python. We will use Git to get the
+code, and Python to run it. Peering Manager is mostly tested with Python
+version 3 so we will setup the machine with this version.
 
 === "Debian 10 / 11"
 	```no-highlight
@@ -108,6 +107,12 @@ Activate the virtual environment and install the required Python packages.
 ...
 Installing collected packages: ...
 ```
+
+Note: If your deployment requires any non-core Python packages (such as
+gunicorn, uwsgi, or django-auth-ldap), list them in a file named
+`local_requirements.txt` in the Peering Manager root directory (alongside
+`requirements.txt`). This will ensure they are detected and re-installed by
+the upgrade script when the Python virtual environment is rebuilt.
 
 ## Peering Manager Initial Configuration
 
@@ -231,7 +236,8 @@ Before we can deliver Peering Manager with our web server of choice, we have to 
 === "gunicorn"
 	Install **gunicorn** using **pip** inside the Python virtual environment.
 	```no-highlight
-	(venv) # pip3 install gunicorn
+	(venv) # echo 'gunicorn' >> local_requirements.txt
+	(venv) # pip3 install -r local_requirements.txt
 	```
 
 	Save the following configuration in the root of the Peering Manager

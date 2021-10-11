@@ -58,6 +58,16 @@ $DRY pip install -U pip wheel || exit 1
 echo "🐍 Installing dependencies"
 $DRY pip install -r requirements.txt || exit 1
 
+# Install optional packages (if any)
+if [ -s "local_requirements.txt" ]; then
+  echo "🐍 Installing local dependencies"
+  $DRY pip install -r local_requirements.txt || exit 1
+elif [ -f "local_requirements.txt" ]; then
+  echo "🐍 Skipping local dependencies (local_requirements.txt is empty)"
+else
+  echo "🐍 Skipping local dependencies (local_requirements.txt not found)"
+fi
+
 # Apply any database migrations
 echo "🔄 Applying database migrations"
 $DRY python manage.py migrate || exit 1

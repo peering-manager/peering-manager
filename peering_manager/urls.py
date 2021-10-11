@@ -46,7 +46,7 @@ if settings.DEBUG:
     __patterns += [path("__debug__/", include(debug_toolbar.urls))]
 
 if settings.METRICS_ENABLED:
-    __patterns += [url("", include("django_prometheus.urls"))]
+    __patterns += [path("", include("django_prometheus.urls"))]
 
 # Prepend BASE_PATH
 urlpatterns = [path(f"{settings.BASE_PATH}", include(__patterns))]
