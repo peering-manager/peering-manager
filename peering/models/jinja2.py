@@ -25,7 +25,14 @@ def ipv4(value):
     try:
         return ipaddress.IPv4Address(value)
     except ValueError:
-        return None
+        pass
+
+    try:
+        return ipaddress.IPv4Interface(value)
+    except ValueError:
+        pass
+
+    return None
 
 
 def ipv6(value):
@@ -35,7 +42,14 @@ def ipv6(value):
     try:
         return ipaddress.IPv6Address(value)
     except ValueError:
-        return None
+        pass
+
+    try:
+        return ipaddress.IPv6Interface(value)
+    except ValueError:
+        pass
+
+    return None
 
 
 def ip_version(value):

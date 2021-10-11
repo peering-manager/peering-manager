@@ -128,12 +128,16 @@ class Jinja2FilterTestCase(TestCase):
 
     def test_ipv4(self):
         self.assertTrue(FILTER_DICT["ipv4"](self.session4.ip_address))
+        self.assertTrue(FILTER_DICT["ipv4"](self.ixp_connection.ipv4_address))
         self.assertFalse(FILTER_DICT["ipv4"](self.session6.ip_address))
+        self.assertFalse(FILTER_DICT["ipv4"](self.ixp_connection.ipv6_address))
         self.assertFalse(FILTER_DICT["ipv4"]("notanip"))
 
     def test_ipv6(self):
         self.assertTrue(FILTER_DICT["ipv6"](self.session6.ip_address))
+        self.assertTrue(FILTER_DICT["ipv6"](self.ixp_connection.ipv6_address))
         self.assertFalse(FILTER_DICT["ipv6"](self.session4.ip_address))
+        self.assertFalse(FILTER_DICT["ipv6"](self.ixp_connection.ipv4_address))
         self.assertFalse(FILTER_DICT["ipv6"]("notanip"))
 
     def test_ip_version(self):
