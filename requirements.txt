@@ -6,7 +6,7 @@ django-filter==21.1
 django-netfields==1.2.4
 django-prometheus==2.1.0
 django-rq==2.4.1
-django-tables2==2.4.0
+django-tables2==2.4.1
 django-taggit==1.5.1
 Jinja2==3.0.1
 Markdown==3.3.4
