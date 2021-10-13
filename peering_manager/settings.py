@@ -20,7 +20,7 @@ DOCS_DIR = BASE_DIR / "docs"
 VERSION = "v1.4.6-dev"
 
 major, minor, _ = platform.python_version_tuple()
-if (major, minor) < (3, 6):
+if (int(major), int(minor)) < (3, 6):
     raise RuntimeError(
         f"Peering Manager requires Python 3.6 or higher (current: Python {platform.python_version()})"
     )
