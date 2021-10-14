@@ -109,7 +109,7 @@ def filter(value, **kwargs):
         valid = True
         for k, v in kwargs.items():
             try:
-                valid = getattr(i, k, None) != v
+                valid = getattr(i, k, None) == v
             except AttributeError:
                 valid = False
 

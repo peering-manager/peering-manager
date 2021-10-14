@@ -686,11 +686,9 @@ class InternetExchangePeeringDBImport(PermissionRequiredMixin, ReturnURLMixin, V
             return redirect(self.get_return_url(request))
 
         # Get known IXPs and their connections
-        netixlans = [
-            c.peeringdb_netixlan.pk
-            for c in Connection.objects.filter(peeringdb_netixlan__isnull=False)
-        ]
-
+        netixlans = Connection.objects.filter(
+            peeringdb_netixlan__isnull=False
+        ).values_list("peeringdb_netixlan", flat=True)
         # Find missing connections
         missing_netixlans = NetworkIXLan.objects.filter(asn=affiliated.asn).exclude(
             pk__in=netixlans

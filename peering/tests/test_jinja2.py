@@ -4,8 +4,6 @@ from net.models import Connection
 from peering.enums import IPFamily
 from peering.models import (
     AutonomousSystem,
-    BGPGroup,
-    DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
@@ -196,7 +194,11 @@ class Jinja2FilterTestCase(TestCase):
         filtered = FILTER_DICT["filter"](policies, address_family=6)
         self.assertEqual(1, FILTER_DICT["length"](filtered))
 
-        FILTER_DICT["filter"](policies)
+        communities = FILTER_DICT["merge_communities"](self.session6)
+        filtered = FILTER_DICT["filter"](communities, type="ingress")
+        self.assertEqual(2, FILTER_DICT["length"](filtered))
+        filtered = FILTER_DICT["filter"](communities, type="egress")
+        self.assertEqual(0, FILTER_DICT["length"](filtered))
 
     def test_iterate(self):
         routing_policies = RoutingPolicy.objects.all()
