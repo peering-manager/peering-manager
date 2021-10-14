@@ -740,10 +740,10 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
             choices = []
             for device in NetBox().get_devices():
                 try:
-                    choices.append(device.id, device.display)
+                    choices.append((device.id, device.display))
                 except AttributeError:
                     # Fallback to hold API attribute
-                    choices.append(device.id, device.display_name)
+                    choices.append((device.id, device.display_name))
 
             self.fields["netbox_device_id"] = forms.ChoiceField(
                 label="NetBox device",
