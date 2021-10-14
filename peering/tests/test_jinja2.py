@@ -189,6 +189,15 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(4, FILTER_DICT["length"](sessions))
         self.assertEqual(2, FILTER_DICT["length"](filtered))
 
+        policies = [
+            RoutingPolicy.objects.get(slug="export-deaggregated-v4"),
+            RoutingPolicy.objects.get(slug="export-deaggregated-v6"),
+        ]
+        filtered = FILTER_DICT["filter"](policies, address_family=6)
+        self.assertEqual(1, FILTER_DICT["length"](filtered))
+
+        FILTER_DICT["filter"](policies)
+
     def test_iterate(self):
         routing_policies = RoutingPolicy.objects.all()
         slugs = [s for s in FILTER_DICT["iterate"](routing_policies, "slug")]

@@ -90,13 +90,36 @@ def cisco_password(password):
         return password
 
 
-def filter(queryset, **kwargs):
+def filter(value, **kwargs):
     """
-    Returns a filtered queryset based on provided criteria.
+    Returns a filtered queryset or iterable based on provided criteria.
     """
-    if type(queryset) is not QuerySet:
-        raise TypeError("cannot filter data not in the database")
-    return queryset.filter(**kwargs)
+    if type(value) is QuerySet:
+        return value.filter(**kwargs)
+
+    try:
+        iter(value)
+    except TypeError:
+        raise ValueError("value cannot be filtered (not iterable)")
+
+    # Build a list with items matching all provided criteria
+    # Fail validation of an item if it does not have one of the attributes
+    filtered = []
+    for i in value:
+        valid = True
+        for k, v in kwargs.items():
+            try:
+                valid = getattr(i, k, None) != v
+            except AttributeError:
+                valid = False
+
+            if not valid:
+                break
+
+        if valid:
+            filtered.append(i)
+
+    return filtered
 
 
 def get(queryset, **kwargs):

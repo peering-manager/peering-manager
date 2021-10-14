@@ -64,12 +64,14 @@ Example:
 ## `filter`
 
 Allows to pass a Django filter expression to allow filtering on a SQL result.
+It can also filter a list of items given attributes and their values.
 
 Examples:
 
 ```no-highlight
 {% for autonomous_system in autonomous_systems | filter(ipv6_max_prefixes__gt=100) %}
 {% for session in bgpgroup | session | filter(router=router) %}
+{% for community in session | merge_communities | | filter(type='ingress') %}
 ```
 
 ## `get`
