@@ -6,7 +6,7 @@
     {
       "id": 1,
       "name": "router01.example.net",
-      "display_name": "router01.example.net",
+      "display": "router01.example.net",
       "device_type": {
         "id": 1,
         "url": "http://netbox.example.net/api/dcim/device-types/1/",
@@ -18,7 +18,7 @@
         },
         "model": "SRX300",
         "slug": "srx300",
-        "display_name": "Juniper SRX300"
+        "display": "Juniper SRX300"
       },
       "device_role": {
         "id": 7,
@@ -50,7 +50,7 @@
         "id": 1,
         "url": "http://netbox.example.net/api/dcim/racks/1/",
         "name": "RACK-001",
-        "display_name": "RACK-001"
+        "display": "RACK-001"
       },
       "position": 9,
       "face": {
@@ -95,7 +95,7 @@
     {
       "id": 14,
       "name": "router02.example.net",
-      "display_name": "router02.example.net",
+      "display": "router02.example.net",
       "device_type": {
         "id": 18,
         "url": "http://netbox.example.net/api/dcim/device-types/18/",
@@ -107,7 +107,7 @@
         },
         "model": "SRX320",
         "slug": "srx320",
-        "display_name": "Juniper SRX320"
+        "display": "Juniper SRX320"
       },
       "device_role": {
         "id": 7,
@@ -139,7 +139,7 @@
         "id": 3,
         "url": "http://netbox.example.net/api/dcim/racks/3/",
         "name": "RACK-002",
-        "display_name": "RACK-002"
+        "display": "RACK-002"
       },
       "position": 13,
       "face": {
