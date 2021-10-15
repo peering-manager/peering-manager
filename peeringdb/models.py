@@ -1,3 +1,5 @@
+import ipaddress
+
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.db import models
@@ -472,6 +474,55 @@ class NetworkIXLan(models.Model):
     class Meta:
         verbose_name = "Public Peering Exchange Point"
         verbose_name_plural = "Public Peering Exchange Points"
+
+    @property
+    def cidr4(self):
+        return self.cidr(address_family=4)
+
+    @property
+    def cidr6(self):
+        return self.cidr(address_family=6)
+
+    def get_ixlan_prefix(self, address_family=0):
+        """
+        Returns matching `CidrAddressField` containing this `NetworkIXLan`'s IP
+        addresses. When `address_family` is set to `4` or `6` only the prefix also
+        matching the address family will be returned.
+        """
+        prefixes = IXLanPrefix.objects.filter(ixlan=self.ixlan)
+        if address_family in (4, 6):
+            prefixes = prefixes.filter(prefix__family=address_family)
+
+        r = []
+        if address_family != 6:
+            for p in prefixes:
+                if self.ipaddr4 in p.prefix:
+                    r.append(p.prefix)
+                    break
+        if address_family != 4:
+            for p in prefixes:
+                if self.ipaddr6 in p.prefix:
+                    r.append(p.prefix)
+                    break
+
+        return r if len(r) != 1 else r[0]
+
+    def cidr(self, address_family=4):
+        """
+        Returns a Python IP interface object with the IP address and prefix length
+        set.
+        """
+        if address_family not in (4, 6):
+            raise ValueError("Address family must be 4 or 6")
+        if address_family is 4 and not self.ipaddr4:
+            raise ValueError("IPv4 address is not set")
+        if address_family is 6 and not self.ipaddr6:
+            raise ValueError("IPv6 address is not set")
+
+        prefix = self.get_ixlan_prefix(address_family=address_family)
+        address = self.ipaddr4 if address_family is 4 else self.ipaddr6
+
+        return ipaddress.ip_interface(f"{address.ip}/{prefix.prefixlen}")
 
 
 class Synchronization(models.Model):

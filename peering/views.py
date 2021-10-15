@@ -726,8 +726,8 @@ class InternetExchangePeeringDBImport(PermissionRequiredMixin, ReturnURLMixin, V
                 Connection.objects.create(
                     peeringdb_netixlan=connection,
                     internet_exchange_point=i,
-                    ipv4_address=connection.ipaddr4,
-                    ipv6_address=connection.ipaddr6,
+                    ipv4_address=connection.cidr4,
+                    ipv6_address=connection.cidr6,
                 )
                 imported_connections += 1
 

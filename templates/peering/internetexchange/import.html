@@ -16,11 +16,11 @@
     </div>
     <div class="col">
       <label class="sr-only" for="ipv4_address">IPv4 address</label>
-      <input type="text" class="form-control mb-2" id="ipv4_address" value="{{ connection.ipaddr4.ip|default:'--' }}" disabled>
+      <input type="text" class="form-control mb-2" id="ipv4_address" value="{{ connection.cidr4|default:'--' }}" disabled>
     </div>
     <div class="col">
       <label class="sr-only" for="ipv6_address">IPv6 address</label>
-      <input type="text" class="form-control mb-2" id="ipv6_address" value="{{ connection.ipaddr6.ip|default:'--' }}" disabled>
+      <input type="text" class="form-control mb-2" id="ipv6_address" value="{{ connection.cidr6|default:'--' }}" disabled>
     </div>
   </div>
   {% endfor %}
