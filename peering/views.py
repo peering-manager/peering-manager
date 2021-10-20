@@ -323,7 +323,7 @@ class AutonomousSystemAddFromPeeringDB(
             return []
 
         return InternetExchangePeeringSession.create_from_peeringdb(
-            affiliated, dependency
+            affiliated, None, dependency
         )
 
     def sort_objects(self, object_list):
