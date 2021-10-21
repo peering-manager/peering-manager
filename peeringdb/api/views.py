@@ -1,3 +1,4 @@
+from django_filters import filterset
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
@@ -5,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 
 from extras.models import JobResult
-from peeringdb.filters import SynchronizationFilterSet
+from peeringdb.filters import NetworkFilterSet, SynchronizationFilterSet
 from peeringdb.jobs import synchronize
 from peeringdb.models import (
     Facility,
@@ -108,6 +109,7 @@ class IXLanPrefixViewSet(ReadOnlyModelViewSet):
 class NetworkViewSet(ReadOnlyModelViewSet):
     queryset = Network.objects.all()
     serializer_class = NetworkSerializer
+    filterset_class = NetworkFilterSet
 
 
 class NetworkContactViewSet(ReadOnlyModelViewSet):

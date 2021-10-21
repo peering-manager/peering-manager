@@ -64,16 +64,20 @@
     $.ajax({
       type: "get",
       dataType: "json",
-      url: "{{ settings.PEERINGDB_API }}net?asn=" + asn,
+      url: "{% url 'peeringdb-api:network-list' %}?asn=" + asn,
       beforeSend: function(xhr) {
         $("#querying_indicator_id").removeClass("d-none");
       },
     }).done(function(response) {
-      var jsonData = response["data"][0];
-      $("#id_name").val(jsonData["name"]);
-      $("#id_irr_as_set").val(jsonData["irr_as_set"]);
-      $("#id_ipv6_max_prefixes").val(jsonData["info_prefixes6"]);
-      $("#id_ipv4_max_prefixes").val(jsonData["info_prefixes4"]);
+      if (!("results" in response) || response["results"].length < 1) {
+        return;
+      }
+
+      var d = response["results"][0];
+      $("#id_name").val(d["name"]);
+      $("#id_irr_as_set").val(d["irr_as_set"]);
+      $("#id_ipv6_max_prefixes").val(d["info_prefixes6"]);
+      $("#id_ipv4_max_prefixes").val(d["info_prefixes4"]);
     }).always(function() {
       $("#querying_indicator_id").addClass("d-none");
     });
