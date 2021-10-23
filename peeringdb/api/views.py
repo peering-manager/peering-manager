@@ -1,4 +1,3 @@
-from django_filters import filterset
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser

@@ -173,6 +173,13 @@ class Facility(Address):
         max_length=255, null=True, blank=True, choices=AvailableVoltage.choices
     )
     notes = models.TextField(blank=True)
+    region_continent = models.CharField(
+        max_length=255,
+        choices=Region.choices,
+        blank=True,
+        null=True,
+        verbose_name="Continental Region",
+    )
     org = models.ForeignKey(
         Organization,
         related_name="fac_set",
@@ -514,13 +521,13 @@ class NetworkIXLan(models.Model):
         """
         if address_family not in (4, 6):
             raise ValueError("Address family must be 4 or 6")
-        if address_family is 4 and not self.ipaddr4:
+        if address_family == 4 and not self.ipaddr4:
             raise ValueError("IPv4 address is not set")
-        if address_family is 6 and not self.ipaddr6:
+        if address_family == 6 and not self.ipaddr6:
             raise ValueError("IPv6 address is not set")
 
         prefix = self.get_ixlan_prefix(address_family=address_family)
-        address = self.ipaddr4 if address_family is 4 else self.ipaddr6
+        address = self.ipaddr4 if address_family == 4 else self.ipaddr6
 
         return ipaddress.ip_interface(f"{address.ip}/{prefix.prefixlen}")
 
