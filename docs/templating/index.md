@@ -10,6 +10,26 @@ therefore templates must follow Jinja2's syntax. To help you writing your
 templates, Peering Manager will expose [variables](variables.md) and
 [filters](filters.md).
 
+## CLI
+
+Tests can be performed via a terminal and the `render_configuration` command.
+This command must be run from Peering Manager's virtual environment and can
+take up to three arguments:
+
+* `--limit [LIMIT]`: limit the configuration to the given set of routers
+  (comma separated).
+* `--input [INPUT]`: file to read the template from (default to stdin)
+* `--output [OUTPUT]`: file to write the configuration to (default to stdout)
+
+For example, to generate the configuration for a device called `router1` from
+the standard input and printing it to the standard output, the command to run
+will be:
+
+```no-highlight
+(venv) # echo '{{ router.hostname }} | python manage.py render_configuration --limit router1
+...
+```
+
 ## Examples
 
 If you need some guidance before writing a template, you can take a look at
