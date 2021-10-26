@@ -161,12 +161,28 @@ class CommunityTable(BaseTable):
 class ConfigurationTable(BaseTable):
     pk = SelectColumn()
     name = tables.Column(linkify=True)
+    jinja2_trim = BooleanColumn(
+        verbose_name="Trim",
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
+    )
+    jinja2_lstrip = BooleanColumn(
+        verbose_name="Lstrip",
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
+    )
     tags = TagColumn(url_name="peering:configuration_list")
     buttons = ButtonsColumn(Configuration)
 
     class Meta(BaseTable.Meta):
         model = Configuration
-        fields = ("pk", "name", "updated", "tags", "buttons")
+        fields = (
+            "pk",
+            "name",
+            "jinja2_trim",
+            "jinja2_lstrip",
+            "updated",
+            "tags",
+            "buttons",
+        )
         default_columns = ("pk", "name", "updated", "buttons")
 
 
@@ -240,12 +256,29 @@ class DirectPeeringSessionTable(BaseTable):
 class EmailTable(BaseTable):
     pk = SelectColumn()
     name = tables.Column(linkify=True)
+    jinja2_trim = BooleanColumn(
+        verbose_name="Trim",
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
+    )
+    jinja2_lstrip = BooleanColumn(
+        verbose_name="Lstrip",
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
+    )
     tags = TagColumn(url_name="peering:configuration_list")
     buttons = ButtonsColumn(Email)
 
     class Meta(BaseTable.Meta):
         model = Email
-        fields = ("pk", "name", "subject", "updated", "tags", "buttons")
+        fields = (
+            "pk",
+            "name",
+            "subject",
+            "jinja2_trim",
+            "jinja2_lstrip",
+            "updated",
+            "tags",
+            "buttons",
+        )
         default_columns = ("pk", "name", "updated", "buttons")
 
 

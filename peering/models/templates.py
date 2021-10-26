@@ -14,7 +14,9 @@ class Configuration(Template):
         """
         Render the template using Jinja2.
         """
-        environment = Environment()
+        environment = Environment(
+            trim_blocks=self.jinja2_trim, lstrip_blocks=self.jinja2_lstrip
+        )
 
         # Add custom filters to our environment
         environment.filters.update(FILTER_DICT)
@@ -44,7 +46,9 @@ class Email(Template):
         Render the template using Jinja2.
         """
         subject, body = "", ""
-        environment = Environment()
+        environment = Environment(
+            trim_blocks=self.jinja2_trim, lstrip_blocks=self.jinja2_lstrip
+        )
 
         # Add custom filters to our environment
         environment.filters.update(FILTER_DICT)

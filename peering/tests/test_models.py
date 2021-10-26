@@ -150,6 +150,10 @@ class ConfigurationTest(TestCase):
 
     def test_render(self):
         self.assertEqual(self.template.render({"test": "test"}), "test")
+        self.template.template = "{% for i in range(5) %}\n{{ i }}\n{% endfor %}"
+        self.assertEqual(self.template.render({}), "\n0\n\n1\n\n2\n\n3\n\n4\n")
+        self.template.jinja2_trim = True
+        self.assertEqual(self.template.render({}), "0\n1\n2\n3\n4\n")
 
 
 class DirectPeeringSessionTest(TestCase):
@@ -202,6 +206,14 @@ class EmailTest(TestCase):
 
     def test_render(self):
         self.assertEqual(self.email.render({"test": "test"}), ("test", "test"))
+        self.email.template = "{% for i in range(5) %}\n{{ i }}\n{% endfor %}"
+        self.assertEqual(
+            self.email.render({"test": "test"}), ("test", "\n0\n\n1\n\n2\n\n3\n\n4\n")
+        )
+        self.email.jinja2_trim = True
+        self.assertEqual(
+            self.email.render({"test": "test"}), ("test", "0\n1\n2\n3\n4\n")
+        )
 
 
 class InternetExchangeTest(TestCase):

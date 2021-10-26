@@ -14,12 +14,14 @@ templates, Peering Manager will expose [variables](variables.md) and
 
 Tests can be performed via a terminal and the `render_configuration` command.
 This command must be run from Peering Manager's virtual environment and can
-take up to three arguments:
+take up to five arguments:
 
 * `--limit [LIMIT]`: limit the configuration to the given set of routers
-  (comma separated).
+  (comma separated)
 * `--input [INPUT]`: file to read the template from (default to stdin)
 * `--output [OUTPUT]`: file to write the configuration to (default to stdout)
+* `--trim`: remove new line after tag (keep them by default)
+* `--lstrip`: strip whitespaces before block (keep them by default)
 
 For example, to generate the configuration for a device called `router1` from
 the standard input and printing it to the standard output, the command to run

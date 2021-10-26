@@ -255,6 +255,12 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
 class Template(ChangeLoggedModel, TaggableModel):
     name = models.CharField(max_length=128)
     template = models.TextField()
+    jinja2_trim = models.BooleanField(
+        default=False, help_text="Removes new line after tag"
+    )
+    jinja2_lstrip = models.BooleanField(
+        default=False, help_text="Strips whitespaces before block"
+    )
     comments = models.TextField(blank=True)
 
     class Meta:

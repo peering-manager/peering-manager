@@ -6,7 +6,9 @@ control statements.
 
 Inside Peering Manager, templates use the
 [Jinja2](https://palletsprojects.com/p/jinja/) syntax which allows for complex
-logic building.
+logic building. By default, a single trailing newline is stripped if present
+other whitespace (spaces, tabs, newlines etc.) is returned unchanged. You can
+tweak this behavior by enabling/disabling the trim and lstrip options.
 
 Examples of e-mails are provided in the Peering Manager's
 [documentation](../../../templating).
@@ -19,6 +21,10 @@ For each e-mail that you create, the following properties can be configured
   is automatically generated from the template's name.
 * `Subject`: subject's template, formatted using Jinja2 syntax.
 * `Template`: body's template, formatted using Jinja2 syntax.
+* `Jinja2 trim`: if enabled, the first newline after a template tag is removed
+  automatically.
+* `Jinja2 lstrip`: if enabled, tabs and spaces from the beginning of a line to
+  the start of a block will be removed.
 * `Comments`: text to explain what the template is for. Can use Markdown
   formatting.
 * `Tags`: list of tags to help identifying and searching for a template.

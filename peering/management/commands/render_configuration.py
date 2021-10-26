@@ -20,20 +20,35 @@ class Command(BaseCommand):
             nargs="?",
             type=FileType("r"),
             default=stdin,
-            help="File to read the template from (default to stdin)",
+            help="File to read the template from (default to stdin).",
         )
         parser.add_argument(
             "--output",
             nargs="?",
             type=FileType("w"),
             default=stdout,
-            help="File to write the configuration to (default to stdout)",
+            help="File to write the configuration to (default to stdout).",
+        )
+        parser.add_argument(
+            "--trim",
+            action="store_true",
+            help="Remove new line after tag (keep them by default).",
+        )
+        parser.add_argument(
+            "--lstrip",
+            action="store_true",
+            help="Strip whitespaces before block (keep them by default).",
         )
 
     def handle(self, *args, **options):
         if options["verbosity"] >= 2:
             self.stdout.write("[*] Loading template")
-        t = Configuration(name="tmp", template=options["input"].read())
+        t = Configuration(
+            name="tmp",
+            template=options["input"].read(),
+            jinja2_trim=options["trim"],
+            jinja2_lstrip=options["lstrip"],
+        )
 
         routers = Router.objects.all()
         if options["limit"]:

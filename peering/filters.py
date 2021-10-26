@@ -73,7 +73,7 @@ class ConfigurationFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
 
     class Meta:
         model = Configuration
-        fields = ["id"]
+        fields = ["id", "jinja2_trim", "jinja2_lstrip"]
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -178,7 +178,7 @@ class EmailFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
 
     class Meta:
         model = Email
-        fields = ["id"]
+        fields = ["id", "jinja2_trim", "jinja2_lstrip"]
 
     def search(self, queryset, name, value):
         if not value.strip():

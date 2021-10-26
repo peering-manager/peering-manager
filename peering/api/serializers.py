@@ -86,13 +86,30 @@ class CommunitySerializer(TaggedObjectSerializer, ModelSerializer):
 class ConfigurationSerializer(TaggedObjectSerializer, ModelSerializer):
     class Meta:
         model = Configuration
-        fields = ["id", "name", "template", "comments", "tags"]
+        fields = [
+            "id",
+            "name",
+            "template",
+            "jinja2_trim",
+            "jinja2_lstrip",
+            "comments",
+            "tags",
+        ]
 
 
 class EmailSerializer(TaggedObjectSerializer, ModelSerializer):
     class Meta:
         model = Email
-        fields = ["id", "name", "subject", "template", "comments", "tags"]
+        fields = [
+            "id",
+            "name",
+            "subject",
+            "template",
+            "jinja2_trim",
+            "jinja2_lstrip",
+            "comments",
+            "tags",
+        ]
 
 
 class RouterSerializer(TaggedObjectSerializer, WriteEnabledNestedSerializer):

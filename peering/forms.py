@@ -258,7 +258,14 @@ class ConfigurationForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Configuration
-        fields = ("name", "template", "comments", "tags")
+        fields = (
+            "name",
+            "template",
+            "jinja2_trim",
+            "jinja2_lstrip",
+            "comments",
+            "tags",
+        )
 
 
 class ConfigurationFilterForm(BootstrapMixin, forms.Form):
@@ -443,7 +450,15 @@ class EmailForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Email
-        fields = ("name", "subject", "template", "comments", "tags")
+        fields = (
+            "name",
+            "subject",
+            "template",
+            "jinja2_trim",
+            "jinja2_lstrip",
+            "comments",
+            "tags",
+        )
 
 
 class EmailFilterForm(BootstrapMixin, forms.Form):
