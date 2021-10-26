@@ -771,18 +771,24 @@ class InternetExchange(AbstractGroup):
                         try:
                             # Get ixp_connection_id if remote ip address is an IP included in the connection subnet address
                             ixp_connection_id = None
-                            ixp_connections = Router.get_connections(router).values()
+                            ixp_connections = Router.get_connections(router)
                             for ixp_connection in ixp_connections:
-                                ixp_connection_network_ipv4 = ixp_connection["ipv4_address"].network
-                                ixp_connection_network_ipv6 = ixp_connection["ipv6_address"].network
-                                remotePeerIp = ipaddress.ip_address(session["remote_address"])
+                                remote_peer = ipaddress.ip_address(
+                                    session["remote_address"]
+                                )
                                 if (
-                                    (type(remotePeerIp) is ipaddress.IPv4Address and remotePeerIp in ixp_connection_network_ipv4)
-                                    or (type(remotePeerIp) is ipaddress.IPv6Address and remotePeerIp in ixp_connection_network_ipv6)
-                                    ):
-                                    ixp_connection_id = ixp_connection["id"]
+                                    type(remote_peer) is ipaddress.IPv4Address
+                                    and remote_peer
+                                    in ixp_connection.ipv4_address.network
+                                ) or (
+                                    type(remote_peer) is ipaddress.IPv6Address
+                                    and remote_peer
+                                    in ixp_connection.ipv4_address.network
+                                ):
+                                    ixp_connection_id = ixp_connection.id
                             ixp_session = InternetExchangePeeringSession.objects.get(
-                                ip_address=ip_address, ixp_connection_id = ixp_connection_id
+                                ip_address=ip_address,
+                                ixp_connection_id=ixp_connection_id,
                             )
                             # Get the BGP state for the session
                             state = session["connection_state"].lower()
