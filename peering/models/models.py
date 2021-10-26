@@ -783,7 +783,7 @@ class InternetExchange(AbstractGroup):
                                 ) or (
                                     type(remote_peer) is ipaddress.IPv6Address
                                     and remote_peer
-                                    in ixp_connection.ipv4_address.network
+                                    in ixp_connection.ipv6_address.network
                                 ):
                                     ixp_connection_id = ixp_connection.id
                             ixp_session = InternetExchangePeeringSession.objects.get(
