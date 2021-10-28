@@ -763,8 +763,22 @@ class InternetExchange(AbstractGroup):
 
                         # Check if the BGP session is on this IX
                         try:
+                            ip = ipaddress.ip_address(ip_address)
+                            lookup = {"ip_address": ip_address}
+                            for connection in router.get_connections():
+                                # Limit scope to address in connection's subnets
+                                if (
+                                    ip.version == 4
+                                    and ip in connection.ipv4_address.network
+                                ) or (
+                                    ip.version == 6
+                                    and ip in connection.ipv6_address.network
+                                ):
+                                    lookup["ixp_connection"] = connection
+                                    break
+
                             ixp_session = InternetExchangePeeringSession.objects.get(
-                                ip_address=ip_address
+                                **lookup
                             )
                             # Get the BGP state for the session
                             state = session["connection_state"].lower()
