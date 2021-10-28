@@ -1,5 +1,30 @@
 # Changelog
 
+## Version 1.4.6 | MARK I (Bug fixes release) | 2021-10-28
+
+Note: as of this release, WSGI servers such as gunicorn or uwsgi are no longer listed as dependencies. You may continue to list them as local dependencies in your setup by creating a `local_requirements.txt` next to `requirements.txt`. This is also true for LDAP and RADIUS authentication packages.
+
+### Enhancements
+
+* Allow extra packages to install to be listed with `local_requirements.txt`
+* Return `QuerySet` for `communities` Jinja2 filter
+* Make commands output to stdout
+* Allow use of `filter` Jinja2 filter on item list with attributes
+* Set proper prefix length on connection import
+* Use cached data to preload AS details
+* Add `render_configuration` command to help users testing templates from the CLI
+* Add Jinja2 trim and lstrip to templates (configuration and e-mail) for better whitespaces control
+* [#492](https://github.com/peering-manager/peering-manager/issues/492) Add RS filter field to available peers
+
+### Bug Fixes
+
+* Fix PeeringDB facility voltage field
+* Fix `ipv4` and `ipv6` Jinja2 filters for CIDR addresses
+* Fix Python version requirement check
+* Fix polling of IXP sessions with the same IPs on different IXP connections
+* [#497](https://github.com/peering-manager/peering-manager/issues/497) Fix NetBox > 3.0 integration
+* [#500](https://github.com/peering-manager/peering-manager/issues/500) Fix sessions import for AS page
+
 ## Version 1.4.5 | MARK I (Bug fixes release) | 2021-10-06
 
 ### Enhancements
