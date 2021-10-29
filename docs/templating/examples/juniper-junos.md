@@ -21,7 +21,7 @@ protocols {
     {%- for session in router | ixp_sessions(family=family, ixp=ixp) %}
             neighbor {{ session.ip_address }} {
       {%- if not session.enabled %}
-                disable;
+                shutdown;
       {%- endif %}
                 description "Peering: AS{{ session.autonomous_system.asn }} - {{ session.autonomous_system.name }}";
       {%- if family == 6 and session.autonomous_system.ipv6_max_prefixes > 0 %}
@@ -78,7 +78,7 @@ protocols {
     {%- for session in router | direct_sessions(family=family, group=group)  %}
             neighbor {{ session.ip_address }} {
       {%- if not session.enabled %}
-                disable;
+                shutdown;
       {%- endif %}
                 description "Peering: AS{{ session.autonomous_system.asn }} - {{ session.autonomous_system.name }}";
       {%- if family == 6 and session.autonomous_system.ipv6_max_prefixes > 0 %}

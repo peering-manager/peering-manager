@@ -32,8 +32,8 @@ give some ideas for future development, open issues if you found any and
 contribute to the code with pull requests and patches.
 
 You can also support the development of this project by
-[sponsoring it](https://github.com/sponsors/respawner). Developing such
-project can be time consuming and it is done on personal time. Giving few
+[sponsoring it](https://github.com/sponsors/gmazoyer). Developing such project
+can be time consuming and it is done on personal time. Giving few
 dollars/euros/pounds/etc... can be a way to say thanks and help to free some
 time to develop this project.
 
