@@ -65,6 +65,7 @@ class APIRootView(APIView):
                     APIRootView.get_namespace("peeringdb", request, format),
                     APIRootView.get_namespace("users", request, format),
                     APIRootView.get_namespace("utils", request, format),
+                    ("status", reverse("api-status", request=request, format=format)),
                 )
             )
         )
@@ -72,7 +73,8 @@ class APIRootView(APIView):
 
 class StatusView(APIView):
     """
-    A lightweight read-only endpoint for conveying NetBox's current operational status.
+    A lightweight read-only endpoint for conveying Peering Manager's current
+    operational status.
     """
 
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
