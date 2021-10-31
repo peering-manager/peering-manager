@@ -37,7 +37,7 @@ from peering.models import (
     RoutingPolicy,
 )
 from peering_manager.api.exceptions import ServiceUnavailable
-from peering_manager.api.views import ModelViewSet, StaticChoicesViewSet
+from peering_manager.api.views import ModelViewSet
 from peeringdb.api.serializers import NetworkIXLanSerializer
 from utils.api import get_serializer_for_model
 
@@ -59,16 +59,6 @@ from .serializers import (
 class PeeringRootView(APIRootView):
     def get_view_name(self):
         return "Peering"
-
-
-class PeeringFieldChoicesViewSet(StaticChoicesViewSet):
-    fields = [
-        (DirectPeeringSession, ["relationship", "bgp_state"]),
-        (Community, ["type"]),
-        (InternetExchangePeeringSession, ["bgp_state"]),
-        (RoutingPolicy, ["type"]),
-        (Router, ["device_state"]),
-    ]
 
 
 class AutonomousSystemViewSet(ModelViewSet):

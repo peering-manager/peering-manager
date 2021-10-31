@@ -5,8 +5,6 @@ from . import views
 router = OrderedDefaultRouter()
 router.APIRootView = views.PeeringRootView
 
-router.register("_choices", views.PeeringFieldChoicesViewSet, basename="field-choice")
-
 router.register("autonomous-systems", views.AutonomousSystemViewSet)
 router.register("bgp-groups", views.BGPGroupViewSet)
 router.register("communities", views.CommunityViewSet)

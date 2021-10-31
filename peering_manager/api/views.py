@@ -7,7 +7,6 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.db.models import ProtectedError
-from django.http import Http404
 from django_rq.queues import get_connection
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -15,13 +14,11 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 from rest_framework import status
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet as __ModelViewSet
 from rest_framework.viewsets import ReadOnlyModelViewSet as __ReadOnlyModelViewSet
-from rest_framework.viewsets import ViewSet
 from rq.worker import Worker
 
 from peering_manager.api.authentication import IsAuthenticatedOrLoginNotRequired
@@ -333,40 +330,3 @@ class ReadOnlyModelViewSet(__ReadOnlyModelViewSet):
             self.brief = True
 
         return super().initialize_request(request, *args, **kwargs)
-
-
-class StaticChoicesViewSet(ViewSet):
-    """
-    Expose values representing static choices for model fields.
-    """
-
-    permission_classes = [AllowAny]
-    fields = []
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._fields = OrderedDict()
-
-        for model, field_list in self.fields:
-            for field_name in field_list:
-                model_name = model._meta.verbose_name.lower().replace(" ", "-")
-                key = ":".join([model_name, field_name])
-                choices = []
-                for k, v in model._meta.get_field(field_name).choices:
-                    if type(v) in [list, tuple]:
-                        for k2, v2 in v:
-                            choices.append({"value": k2, "label": v2})
-                    else:
-                        choices.append({"value": k, "label": v})
-                self._fields[key] = choices
-
-    def list(self, request):
-        return Response(self._fields)
-
-    def retrieve(self, request, pk):
-        if pk not in self._fields:
-            raise Http404
-        return Response(self._fields[pk])
-
-    def get_view_name(self):
-        return "Static Choices"

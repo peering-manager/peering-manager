@@ -5,8 +5,6 @@ from . import views
 router = OrderedDefaultRouter()
 router.APIRootView = views.ExtrasRootView
 
-router.register("_choices", views.ExtrasFieldChoicesViewSet, basename="field-choice")
-
 router.register("job-results", views.JobResultViewSet)
 router.register("webhooks", views.WebhookViewSet)
 
