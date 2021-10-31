@@ -11,6 +11,7 @@ __all__ = ("ConnectionSerializer", "NestedConnectionSerializer")
 
 
 class ConnectionSerializer(PrimaryModelSerializer):
+    name = serializers.CharField(read_only=True)
     internet_exchange_point = NestedInternetExchangeSerializer()
     router = NestedRouterSerializer()
 

@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from peering_manager.api.fields import ChoiceField, ContentTypeField
@@ -41,6 +42,7 @@ class ObjectChangeSerializer(BaseModelSerializer):
             "postchange_data",
         ]
 
+    @extend_schema_field(serializers.DictField)
     def get_changed_object(self, o):
         """
         Serialize a nested representation of the changed object.
