@@ -29,13 +29,6 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class StaticChoiceTest(APITestCase):
-    def test_list_static_choices(self):
-        url = reverse("peering-api:field-choice-list")
-        response = self.client.get(url, **self.header)
-        self.assertEqual(len(response.data), 6)
-
-
 class AutonomousSystemTest(StandardAPITestCases.View):
     model = AutonomousSystem
     brief_fields = [
