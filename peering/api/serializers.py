@@ -1,3 +1,5 @@
+from rest_framework import serializers
+
 from devices.api.nested_serializers import NestedPlatformSerializer
 from net.api.serializers import NestedConnectionSerializer
 from peering.models import (
@@ -313,6 +315,11 @@ class RouterSerializer(PrimaryModelSerializer):
             "comments",
             "tags",
         ]
+
+
+class RouterConfigureSerializer(serializers.Serializer):
+    routers = serializers.ListField(child=serializers.IntegerField())
+    commit = serializers.BooleanField()
 
 
 class RoutingPolicySerializer(PrimaryModelSerializer):

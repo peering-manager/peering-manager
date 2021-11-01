@@ -1,9 +1,12 @@
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import SAFE_METHODS
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 
+from extras.api.serializers import JobResultSerializer
 from extras.models import JobResult
 from peering.filters import (
     AutonomousSystemFilterSet,
@@ -51,6 +54,7 @@ from .serializers import (
     InternetExchangePeeringSessionSerializer,
     InternetExchangeSerializer,
     NestedInternetExchangeSerializer,
+    RouterConfigureSerializer,
     RouterSerializer,
     RoutingPolicySerializer,
 )
@@ -284,24 +288,27 @@ class RouterViewSet(ModelViewSet):
             status=status.HTTP_202_ACCEPTED,
         )
 
-    @action(detail=False, methods=["get", "post"], url_path="configure")
+    @extend_schema(
+        operation_id="peering_routers_configure",
+        request=RouterConfigureSerializer,
+        responses={202: JobResultSerializer(many=True), 400: OpenApiTypes.NONE},
+    )
+    @action(detail=False, methods=["post"], url_path="configure")
     def configure(self, request):
         # Check user permission first
         if not request.user.has_perm("peering.deploy_router_configuration"):
             return Response(None, status=status.HTTP_403_FORBIDDEN)
 
-        router_ids = (
-            request.data.getlist("routers[]", [])
-            if request.method != "GET"
-            else request.query_params.getlist("routers[]")
-        )
+        # Make sure request is valid
+        serializer = RouterConfigureSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        # No router IDs, nothing to configure
+        router_ids = serializer.validated_data.get("routers")
         if len(router_ids) < 1:
-            raise ServiceUnavailable("No routers to configure.")
+            raise ValidationError("routers list must not be empty")
 
         routers = Router.objects.filter(pk__in=router_ids)
-        commit = request.method not in SAFE_METHODS
+        commit = serializer.validated_data.get("commit")
         job_results = []
 
         for router in routers:

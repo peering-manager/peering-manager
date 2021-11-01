@@ -1,5 +1,6 @@
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema
-from rest_framework import serializers, status
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
@@ -55,7 +56,7 @@ class CacheViewSet(ViewSet):
     @extend_schema(
         operation_id="peeringdb_cache_statistics",
         request=None,
-        responses={200: serializers.DictField},
+        responses={200: OpenApiTypes.OBJECT},
     )
     @action(detail=False, methods=["get"], url_path="statistics")
     def statistics(self, request):
@@ -95,7 +96,7 @@ class CacheViewSet(ViewSet):
     @extend_schema(
         operation_id="peeringdb_cache_clear",
         request=None,
-        responses={200: serializers.DictField},
+        responses={200: OpenApiTypes.OBJECT},
     )
     @action(detail=False, methods=["post"], url_path="clear-local")
     def clear_local(self, request):
