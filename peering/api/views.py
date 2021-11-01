@@ -1,5 +1,5 @@
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -45,6 +45,7 @@ from peeringdb.api.serializers import NetworkIXLanSerializer
 from utils.api import get_serializer_for_model
 
 from .serializers import (
+    AutonomousGenerateEmailSerializer,
     AutonomousSystemSerializer,
     BGPGroupSerializer,
     CommunitySerializer,
@@ -70,54 +71,106 @@ class AutonomousSystemViewSet(ModelViewSet):
     serializer_class = AutonomousSystemSerializer
     filterset_class = AutonomousSystemFilterSet
 
-    @action(
-        detail=True,
-        methods=["post", "put", "patch"],
-        url_path="synchronize-with-peeringdb",
+    @extend_schema(
+        operation_id="peering_autonomous_systems_sync_with_peeringdb",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The synchronization has been done.",
+            ),
+            204: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The synchronization cannot be done.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT, description="The AS does not exist."
+            ),
+        },
     )
-    def synchronize_with_peeringdb(self, request, pk=None):
+    @action(detail=True, methods=["post"], url_path="sync-with-peeringdb")
+    def sync_with_peeringdb(self, request, pk=None):
         success = self.get_object().synchronize_with_peeringdb()
-        return (
-            Response({"status": "synchronized"})
-            if success
-            else Response(
-                {"status": "error", "error": "peeringdb network not found"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+        return Response(
+            status=status.HTTP_200_OK if success else status.HTTP_204_NO_CONTENT
         )
 
-    @action(detail=True, methods=["get"], url_path="get-irr-as-set-prefixes")
-    def get_irr_as_set_prefixes(self, request, pk=None):
-        return Response({"prefixes": self.get_object().get_irr_as_set_prefixes()})
+    @extend_schema(
+        operation_id="peering_autonomous_systems_as_set_prefixes",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="Retrieves the prefix list for the AS.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT, description="The AS does not exist."
+            ),
+        },
+    )
+    @action(detail=True, methods=["get"], url_path="as-set-prefixes")
+    def as_set_prefixes(self, request, pk=None):
+        return Response(data=self.get_object().get_irr_as_set_prefixes())
 
-    @action(detail=True, methods=["get"], url_path="shared-internet-exchanges")
-    def shared_internet_exchanges(self, request, pk=None):
+    @extend_schema(
+        operation_id="peering_autonomous_systems_shared_ixps",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=NestedInternetExchangeSerializer(many=True),
+                description="Retrieves the shared IXPs with the AS.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT, description="The AS does not exist."
+            ),
+            503: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The user has no affiliated AS.",
+            ),
+        },
+    )
+    @action(detail=True, methods=["get"], url_path="shared-ixps")
+    def shared_ixps(self, request, pk=None):
         try:
             affiliated = AutonomousSystem.objects.get(
                 pk=request.user.preferences.get("context.as")
             )
         except AutonomousSystem.DoesNotExist:
-            affiliated = None
+            raise ServiceUnavailable("User did not choose an affiliated AS.")
 
-        if affiliated:
             return Response(
-                {
-                    "shared-internet-exchanges": NestedInternetExchangeSerializer(
-                        self.get_object().get_shared_internet_exchange_points(
-                            affiliated
-                        ),
+            data=NestedInternetExchangeSerializer(
+                self.get_object().get_shared_internet_exchange_points(affiliated),
                         many=True,
                         context={"request": request},
                     ).data
-                }
             )
 
-        raise ServiceUnavailable("User did not choose an affiliated AS.")
-
+    @extend_schema(
+        operation_id="peering_autonomous_systems_generate_email",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.OBJECT, description="Renders the e-mail template."
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The AS or e-mail template does not exist.",
+            ),
+        },
+    )
     @action(detail=True, methods=["post"], url_path="generate-email")
     def generate_email(self, request, pk=None):
-        template = Email.objects.get(pk=int(request.data["email"]))
-        return Response({"email": self.get_object().generate_email(template)})
+        # Make sure request is valid
+        serializer = AutonomousGenerateEmailSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            template = Email.objects.get(pk=serializer.validated_data.get("email"))
+            rendered = self.get_object().generate_email(template)
+            return Response({"subject": rendered[0], "body": rendered[1]})
+        except Email.DoesNotExist:
+            raise Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class BGPGroupViewSet(ModelViewSet):

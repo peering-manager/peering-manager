@@ -68,7 +68,7 @@ class AutonomousSystemTest(StandardAPITestCases.View):
             asn=201281, name="Test", irr_as_set="AS-TEST"
         )
         url = reverse(
-            "peering-api:autonomoussystem-synchronize-with-peeringdb",
+            "peering-api:autonomoussystem-sync-with-peeringdb",
             kwargs={"pk": autonomous_system.pk},
         )
         response = self.client.post(url, format="json", **self.header)
@@ -77,13 +77,13 @@ class AutonomousSystemTest(StandardAPITestCases.View):
     def test_get_irr_as_set_prefixes(self):
         with patch("peering.subprocess.Popen", side_effect=mocked_subprocess_popen):
             url = reverse(
-                "peering-api:autonomoussystem-get-irr-as-set-prefixes",
+                "peering-api:autonomoussystem-as-set-prefixes",
                 kwargs={"pk": self.autonomous_system.pk},
             )
             response = self.client.get(url, format="json", **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
-            self.assertEqual(len(response.data["prefixes"]["ipv6"]), 1)
-            self.assertEqual(len(response.data["prefixes"]["ipv4"]), 1)
+            self.assertEqual(len(response.data["ipv6"]), 1)
+            self.assertEqual(len(response.data["ipv4"]), 1)
 
     def test_shared_internet_exchanges(self):
         local_as = AutonomousSystem.objects.create(
@@ -91,12 +91,12 @@ class AutonomousSystemTest(StandardAPITestCases.View):
         )
         self.user.preferences.set("context.as", local_as.pk, commit=True)
         url = reverse(
-            "peering-api:autonomoussystem-shared-internet-exchanges",
+            "peering-api:autonomoussystem-shared-ixps",
             kwargs={"pk": self.autonomous_system.pk},
         )
         response = self.client.get(url, format="json", **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(response.data["shared-internet-exchanges"], [])
+        self.assertEqual(response.data, [])
 
 
 class BGPGroupTest(StandardAPITestCases.View):

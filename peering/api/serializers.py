@@ -89,6 +89,10 @@ class AutonomousSystemSerializer(PrimaryModelSerializer):
         ]
 
 
+class AutonomousGenerateEmailSerializer(serializers.Serializer):
+    email = serializers.IntegerField()
+
+
 class BGPGroupSerializer(PrimaryModelSerializer):
     import_routing_policies = SerializedPKRelatedField(
         queryset=RoutingPolicy.objects.all(),
