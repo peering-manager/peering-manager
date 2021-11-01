@@ -138,13 +138,13 @@ class AutonomousSystemViewSet(ModelViewSet):
         except AutonomousSystem.DoesNotExist:
             raise ServiceUnavailable("User did not choose an affiliated AS.")
 
-            return Response(
+        return Response(
             data=NestedInternetExchangeSerializer(
                 self.get_object().get_shared_internet_exchange_points(affiliated),
-                        many=True,
-                        context={"request": request},
-                    ).data
-            )
+                many=True,
+                context={"request": request},
+            ).data
+        )
 
     @extend_schema(
         operation_id="peering_autonomous_systems_generate_email",
