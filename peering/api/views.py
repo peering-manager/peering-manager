@@ -168,7 +168,7 @@ class AutonomousSystemViewSet(ModelViewSet):
         try:
             template = Email.objects.get(pk=serializer.validated_data.get("email"))
             rendered = self.get_object().generate_email(template)
-            return Response({"subject": rendered[0], "body": rendered[1]})
+            return Response(data={"subject": rendered[0], "body": rendered[1]})
         except Email.DoesNotExist:
             raise Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -178,13 +178,25 @@ class BGPGroupViewSet(ModelViewSet):
     serializer_class = BGPGroupSerializer
     filterset_class = BGPGroupFilterSet
 
-    @action(
-        detail=True, methods=["post", "put", "patch"], url_path="poll-peering-sessions"
+    @extend_schema(
+        operation_id="peering_bgp_groups_poll_session",
+        request=None,
+        responses={
+            202: OpenApiResponse(
+                response=JobResultSerializer,
+                description="Job scheduled to poll sessions.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to poll session status.",
+            ),
+        },
     )
-    def poll_peering_sessions(self, request, pk=None):
+    @action(detail=True, methods=["post"], url_path="poll-sessions")
+    def poll_sessions(self, request, pk=None):
         # Check user permission first
         if not request.user.has_perm("peering.change_directpeeringsession"):
-            return Response(None, status=status.HTTP_403_FORBIDDEN)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         job_result = JobResult.enqueue_job(
             poll_peering_sessions,
@@ -195,7 +207,7 @@ class BGPGroupViewSet(ModelViewSet):
         )
         serializer = get_serializer_for_model(JobResult)
         return Response(
-            serializer(instance=job_result, context={"request": request}).data,
+            data=serializer(instance=job_result, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
