@@ -45,7 +45,7 @@ from peeringdb.api.serializers import NetworkIXLanSerializer
 from utils.api import get_serializer_for_model
 
 from .serializers import (
-    AutonomousGenerateEmailSerializer,
+    AutonomousSystemGenerateEmailSerializer,
     AutonomousSystemSerializer,
     BGPGroupSerializer,
     CommunitySerializer,
@@ -162,7 +162,7 @@ class AutonomousSystemViewSet(ModelViewSet):
     @action(detail=True, methods=["post"], url_path="generate-email")
     def generate_email(self, request, pk=None):
         # Make sure request is valid
-        serializer = AutonomousGenerateEmailSerializer(data=request.data)
+        serializer = AutonomousSystemGenerateEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         try:
@@ -233,14 +233,75 @@ class DirectPeeringSessionViewSet(ModelViewSet):
     serializer_class = DirectPeeringSessionSerializer
     filterset_class = DirectPeeringSessionFilterSet
 
+    @extend_schema(
+        operation_id="peering_direct_peering_sessions_encrypt_password",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The session password has been encrypted.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to encrypt the password.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The direct peering session does not exist.",
+            ),
+            503: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The session has not been encrypted.",
+            ),
+        },
+    )
     @action(detail=True, methods=["post"], url_path="encrypt-password")
     def encrypt_password(self, request, pk=None):
-        self.get_object().encrypt_password(request.data["platform"])
-        return Response({"encrypted_password": self.get_object().encrypted_password})
+        # Check user permission first
+        if not request.user.has_perm("peering.change_directpeeringsession"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
-    @action(detail=True, methods=["post", "patch"], url_path="poll")
+        success = self.get_object().encrypt_password(commit=True)
+        return Response(
+            status=status.HTTP_200_OK
+            if success
+            else status.HTTP_503_SERVICE_UNAVAILABLE
+        )
+
+    @extend_schema(
+        operation_id="peering_direct_peering_sessions_poll",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The session status has been polled.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to poll session status.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The direct peering session does not exist.",
+            ),
+            503: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The session status has not been polled.",
+            ),
+        },
+    )
+    @action(detail=True, methods=["post"], url_path="poll")
     def poll(self, request, pk=None):
-        return Response({"success": self.get_object().poll()})
+        # Check user permission first
+        if not request.user.has_perm("peering.change_directpeeringsession"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        success = self.get_object().poll()
+        return Response(
+            status=status.HTTP_200_OK
+            if success
+            else status.HTTP_503_SERVICE_UNAVAILABLE
+        )
 
 
 class EmailViewSet(ModelViewSet):
