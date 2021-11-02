@@ -121,7 +121,7 @@ class BGPGroupTest(StandardAPITestCases.View):
 
     def test_poll_peering_sessions(self):
         url = reverse(
-            "peering-api:bgpgroup-poll-peering-sessions",
+            "peering-api:bgpgroup-poll-sessions",
             kwargs={"pk": BGPGroup.objects.get(slug="example-1").pk},
         )
         response = self.client.post(url, **self.header)

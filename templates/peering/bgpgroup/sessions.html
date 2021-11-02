@@ -12,21 +12,20 @@
 {% block javascript %}
 <script>
   $('.alert').hide();
-  $('.alert').on('click', '.close', function() {
+  $('.alert').on('click', '.close', function () {
     $(this).closest('.alert').slideUp();
   });
 
   {% if instance.check_bgp_session_states %}
-  $('#id_poll_session_states').click(function() {
+  $('#id_poll_session_states').click(function () {
     $.ajax({
-      method: "post",
-      data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
-      dataType: "json",
-      url: "{% url 'peering-api:bgpgroup-poll-peering-sessions' pk=instance.pk %}",
-      beforeSend: function() {
-        $('#id_poll_session_states').attr('disabled', 'disabled').removeClass('btn-success').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+      method: 'post',
+      url: "{% url 'peering-api:bgpgroup-poll-sessions' pk=instance.pk %}",
+      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+      beforeSend: function () {
+        PeeringManager.setWorkingButton($('#id_poll_session_states'));
       },
-    }).done(function(response) {
+    }).done(function () {
       location.reload();
     });
   });

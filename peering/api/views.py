@@ -179,7 +179,7 @@ class BGPGroupViewSet(ModelViewSet):
     filterset_class = BGPGroupFilterSet
 
     @extend_schema(
-        operation_id="peering_bgp_groups_poll_session",
+        operation_id="peering_bgp_groups_poll_sessions",
         request=None,
         responses={
             202: OpenApiResponse(
@@ -189,6 +189,10 @@ class BGPGroupViewSet(ModelViewSet):
             403: OpenApiResponse(
                 response=OpenApiTypes.NONE,
                 description="The user does not have the permission to poll session status.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The BGP group does not exist.",
             ),
         },
     )
