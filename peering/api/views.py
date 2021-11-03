@@ -567,11 +567,29 @@ class RouterViewSet(ModelViewSet):
     serializer_class = RouterSerializer
     filterset_class = RouterFilterSet
 
+    @extend_schema(
+        operation_id="peering_routers_configuration",
+        request=None,
+        responses={
+            202: OpenApiResponse(
+                response=JobResultSerializer,
+                description="Job scheduled to generate the router configuration.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to generate a configuration.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The router does not exist.",
+            ),
+        },
+    )
     @action(detail=True, methods=["get"], url_path="configuration")
     def configuration(self, request, pk=None):
         # Check user permission first
         if not request.user.has_perm("peering.view_router_configuration"):
-            return Response(None, status=status.HTTP_403_FORBIDDEN)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         job_result = JobResult.enqueue_job(
             generate_configuration,
@@ -580,16 +598,32 @@ class RouterViewSet(ModelViewSet):
             request.user,
             self.get_object(),
         )
-        serializer = get_serializer_for_model(JobResult)
         return Response(
-            serializer(instance=job_result, context={"request": request}).data,
+            JobResultSerializer(instance=job_result, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
     @extend_schema(
         operation_id="peering_routers_configure",
         request=RouterConfigureSerializer,
-        responses={202: JobResultSerializer(many=True), 400: OpenApiTypes.NONE},
+        responses={
+            202: OpenApiResponse(
+                response=JobResultSerializer,
+                description="Job scheduled to generate configure routers.",
+            ),
+            400: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="Invalid list of routers provided.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to configure routers.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The router does not exist.",
+            ),
+        },
     )
     @action(detail=False, methods=["post"], url_path="configure")
     def configure(self, request):
@@ -604,11 +638,13 @@ class RouterViewSet(ModelViewSet):
         router_ids = serializer.validated_data.get("routers")
         if len(router_ids) < 1:
             raise ValidationError("routers list must not be empty")
+        commit = serializer.validated_data.get("commit")
 
         routers = Router.objects.filter(pk__in=router_ids)
-        commit = serializer.validated_data.get("commit")
-        job_results = []
+        if not routers:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
+        job_results = []
         for router in routers:
             job_result = JobResult.enqueue_job(
                 set_napalm_configuration,
@@ -620,12 +656,27 @@ class RouterViewSet(ModelViewSet):
             )
             job_results.append(job_result)
 
-        serializer = get_serializer_for_model(JobResult)
         return Response(
-            serializer(job_results, many=True, context={"request": request}).data,
+            JobResultSerializer(
+                job_results, many=True, context={"request": request}
+            ).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
+    @extend_schema(
+        operation_id="peering_routers_test_napalm_connection",
+        request=RouterConfigureSerializer,
+        responses={
+            202: OpenApiResponse(
+                response=JobResultSerializer,
+                description="Job scheduled to test the router NAPALM connection.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The router does not exist.",
+            ),
+        },
+    )
     @action(detail=True, methods=["get"], url_path="test-napalm-connection")
     def test_napalm_connection(self, request, pk=None):
         job_result = JobResult.enqueue_job(
@@ -635,9 +686,8 @@ class RouterViewSet(ModelViewSet):
             request.user,
             self.get_object(),
         )
-        serializer = get_serializer_for_model(JobResult)
         return Response(
-            serializer(instance=job_result, context={"request": request}).data,
+            JobResultSerializer(instance=job_result, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
