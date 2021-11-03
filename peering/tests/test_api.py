@@ -119,7 +119,7 @@ class BGPGroupTest(StandardAPITestCases.View):
             ]
         )
 
-    def test_poll_peering_sessions(self):
+    def test_poll_sessions(self):
         url = reverse(
             "peering-api:bgpgroup-poll-sessions",
             kwargs={"pk": BGPGroup.objects.get(slug="example-1").pk},
@@ -332,7 +332,7 @@ class InternetExchangeTest(StandardAPITestCases.View):
             kwargs={"pk": self.internet_exchange.pk},
         )
         response = self.client.get(url, **self.header)
-        self.assertHttpStatus(response, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
 
     def test_import_sessions(self):
         url = reverse(
@@ -350,11 +350,11 @@ class InternetExchangeTest(StandardAPITestCases.View):
         response = self.client.get(url, **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(response.data["prefixes"], [])
+        self.assertDictEqual(response.data, {})
 
-    def test_poll_peering_sessions(self):
+    def test_poll_sessions(self):
         url = reverse(
-            "peering-api:internetexchange-poll-peering-sessions",
+            "peering-api:internetexchange-poll-sessions",
             kwargs={"pk": self.internet_exchange.pk},
         )
         response = self.client.post(url, **self.header)

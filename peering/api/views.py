@@ -83,6 +83,10 @@ class AutonomousSystemViewSet(ModelViewSet):
                 response=OpenApiTypes.NONE,
                 description="The synchronization cannot be done.",
             ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission update the AS.",
+            ),
             404: OpenApiResponse(
                 response=OpenApiTypes.OBJECT, description="The AS does not exist."
             ),
@@ -90,6 +94,10 @@ class AutonomousSystemViewSet(ModelViewSet):
     )
     @action(detail=True, methods=["post"], url_path="sync-with-peeringdb")
     def sync_with_peeringdb(self, request, pk=None):
+        # Check user permission first
+        if not request.user.has_perm("peering.change_autonomoussystem"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
         success = self.get_object().synchronize_with_peeringdb()
         return Response(
             status=status.HTTP_200_OK if success else status.HTTP_204_NO_CONTENT
@@ -209,9 +217,10 @@ class BGPGroupViewSet(ModelViewSet):
             request.user,
             self.get_object(),
         )
-        serializer = get_serializer_for_model(JobResult)
         return Response(
-            data=serializer(instance=job_result, context={"request": request}).data,
+            data=JobResultSerializer(
+                instance=job_result, context={"request": request}
+            ).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
@@ -315,28 +324,87 @@ class InternetExchangeViewSet(ModelViewSet):
     serializer_class = InternetExchangeSerializer
     filterset_class = InternetExchangeFilterSet
 
-    @action(detail=True, methods=["patch"], url_path="link-to-peeringdb")
+    @extend_schema(
+        operation_id="peering_internet_exchange_link_to_peeringdb",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The IXP is linked with a PeeringDB record.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to update the IXP.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The IXP does not exist.",
+            ),
+            503: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The IXP is not linked with a PeeringDB record.",
+            ),
+        },
+    )
+    @action(detail=True, methods=["post"], url_path="link-to-peeringdb")
     def link_to_peeringdb(self, request, pk=None):
-        netixlan, ix = self.get_object().link_to_peeringdb()
-        if not netixlan and not ix:
-            raise ServiceUnavailable("Unable to link to PeeringDB.")
+        # Check user permission first
+        if not request.user.has_perm("peering.change_internetexchange"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
-        return Response({"sucess": True})
-
-    @action(detail=True, methods=["get"], url_path="available-peers")
-    def available_peers(self, request, pk=None):
-        available_peers = self.get_object().get_available_peers()
-        if not available_peers:
-            raise ServiceUnavailable("No peers found.")
-
+        ixlan = self.get_object().link_to_peeringdb()
         return Response(
-            {"available-peers": NetworkIXLanSerializer(available_peers, many=True).data}
+            status=status.HTTP_200_OK
+            if ixlan is not None
+            else status.HTTP_503_SERVICE_UNAVAILABLE
         )
 
+    @extend_schema(
+        operation_id="peering_internet_exchange_available_peers",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=NetworkIXLanSerializer(many=True),
+                description="The PeeringDB records of available peers.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The IXP does not exist.",
+            ),
+        },
+    )
+    @action(detail=True, methods=["get"], url_path="available-peers")
+    def available_peers(self, request, pk=None):
+        return Response(
+            data=NetworkIXLanSerializer(
+                self.get_object().get_available_peers(),
+                many=True,
+                context={"request": request},
+            ).data
+        )
+
+    @extend_schema(
+        operation_id="peering_internet_exchanges_import_sessions",
+        request=None,
+        responses={
+            202: OpenApiResponse(
+                response=JobResultSerializer,
+                description="Session import job is scheduled.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to update the IXP sessions.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The IXP does not exist.",
+            ),
+        },
+    )
     @action(detail=True, methods=["post"], url_path="import-sessions")
     def import_sessions(self, request, pk=None):
         if not request.user.has_perm("peering.add_internetexchangepeeringsession"):
-            return Response(None, status=status.HTTP_403_FORBIDDEN)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         job_result = JobResult.enqueue_job(
             import_sessions_to_internet_exchange,
@@ -345,36 +413,75 @@ class InternetExchangeViewSet(ModelViewSet):
             request.user,
             self.get_object(),
         )
-        serializer = get_serializer_for_model(JobResult)
         return Response(
-            serializer(instance=job_result, context={"request": request}).data,
+            data=JobResultSerializer(
+                instance=job_result, context={"request": request}
+            ).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
+    @extend_schema(
+        operation_id="peering_internet_exchanges_prefixes",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The prefixes attached to the IXP sorted by address family.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The IXP does not exist.",
+            ),
+        },
+    )
     @action(detail=True, methods=["get"], url_path="prefixes")
     def prefixes(self, request, pk=None):
-        return Response(
-            {"prefixes": [str(p.prefix) for p in self.get_object().get_prefixes()]}
-        )
+        prefixes = {}
+        for p in self.get_object().get_prefixes():
+            if p.prefix.version == 6:
+                ipv6 = prefixes.setdefault("ipv6", [])
+                ipv6.append(str(p.prefix))
+            if p.prefix.version == 4:
+                ipv4 = prefixes.setdefault("ipv4", [])
+                ipv4.append(str(p.prefix))
 
-    @action(
-        detail=True, methods=["post", "put", "patch"], url_path="poll-peering-sessions"
+        return Response(data=prefixes)
+
+    @extend_schema(
+        operation_id="peering_internet_exchanges_poll_sessions",
+        request=None,
+        responses={
+            202: OpenApiResponse(
+                response=JobResultSerializer,
+                description="Job scheduled to poll sessions.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to poll session status.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The IXP does not exist.",
+            ),
+        },
     )
-    def poll_peering_sessions(self, request, pk=None):
+    @action(detail=True, methods=["post"], url_path="poll-sessions")
+    def poll_sessions(self, request, pk=None):
         # Check user permission first
-        if not request.user.has_perm("peering.change_directpeeringsession"):
-            return Response(None, status=status.HTTP_403_FORBIDDEN)
+        if not request.user.has_perm("peering.change_internetexchangepeeringsession"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         job_result = JobResult.enqueue_job(
             poll_peering_sessions,
-            "peering.bgpgroup.poll_peering_sessions",
-            BGPGroup,
+            "peering.internetexchange.poll_peering_sessions",
+            InternetExchange,
             request.user,
             self.get_object(),
         )
-        serializer = get_serializer_for_model(JobResult)
         return Response(
-            serializer(instance=job_result, context={"request": request}).data,
+            data=JobResultSerializer(
+                instance=job_result, context={"request": request}
+            ).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
