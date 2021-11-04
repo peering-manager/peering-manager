@@ -81,7 +81,7 @@
   $('#import_sessions').click(function () {
     $.ajax({
       method: 'post',
-      data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
       url: "{% url 'peering-api:internetexchange-import-sessions' pk=instance.pk %}",
     }).done(function (r) {
       PeeringManager.setWorkingButton($('#import_sessions'));
@@ -93,9 +93,9 @@
   $('#poll_session_states').click(function () {
     $.ajax({
       method: 'post',
-      data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
-      url: "{% url 'peering-api:internetexchange-poll-peering-sessions' pk=instance.pk %}",
-      beforeSend: function() {
+      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+      url: "{% url 'peering-api:internetexchange-poll-sessions' pk=instance.pk %}",
+      beforeSend: function () {
         PeeringManager.setWorkingButton($('#poll_session_states'));
       },
     }).done(function (r) {

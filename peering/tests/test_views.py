@@ -18,10 +18,10 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from utils.testing import StandardTestCases
+from utils.testing import ViewTestCases
 
 
-class AutonomousSystemTestCase(StandardTestCases.Views):
+class AutonomousSystemTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = AutonomousSystem
 
     test_bulk_edit_objects = None
@@ -57,7 +57,7 @@ class AutonomousSystemTestCase(StandardTestCases.Views):
         }
 
 
-class BGPGroupTestCase(StandardTestCases.Views):
+class BGPGroupTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = BGPGroup
 
     @classmethod
@@ -84,7 +84,7 @@ class BGPGroupTestCase(StandardTestCases.Views):
         cls.bulk_edit_data = {"comments": "New comments"}
 
 
-class CommunityTestCase(StandardTestCases.Views):
+class CommunityTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Community
 
     @classmethod
@@ -108,7 +108,7 @@ class CommunityTestCase(StandardTestCases.Views):
         cls.bulk_edit_data = {"comments": "New comments"}
 
 
-class ConfigurationTestCase(StandardTestCases.Views):
+class ConfigurationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Configuration
 
     test_bulk_edit_objects = None
@@ -131,7 +131,7 @@ class ConfigurationTestCase(StandardTestCases.Views):
         }
 
 
-class DirectPeeringSessionTestCase(StandardTestCases.Views):
+class DirectPeeringSessionTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = DirectPeeringSession
 
     @classmethod
@@ -187,7 +187,7 @@ class DirectPeeringSessionTestCase(StandardTestCases.Views):
         cls.bulk_edit_data = {"enabled": False, "comments": "New comments"}
 
 
-class EmailTestCase(StandardTestCases.Views):
+class EmailTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Email
 
     test_bulk_edit_objects = None
@@ -223,7 +223,7 @@ class EmailTestCase(StandardTestCases.Views):
         }
 
 
-class InternetExchangeTestCase(StandardTestCases.Views):
+class InternetExchangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = InternetExchange
 
     @classmethod
@@ -267,7 +267,7 @@ class InternetExchangeTestCase(StandardTestCases.Views):
         cls.bulk_edit_data = {"comments": "New comments"}
 
 
-class InternetExchangePeeringSessionTestCase(StandardTestCases.Views):
+class InternetExchangePeeringSessionTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = InternetExchangePeeringSession
 
     @classmethod
@@ -327,7 +327,7 @@ class InternetExchangePeeringSessionTestCase(StandardTestCases.Views):
         }
 
 
-class RouterTestCase(StandardTestCases.Views):
+class RouterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Router
 
     @classmethod
@@ -381,7 +381,7 @@ class RouterTestCase(StandardTestCases.Views):
         cls.bulk_edit_data = {"comments": "New comments"}
 
 
-class RoutingPolicyTestCase(StandardTestCases.Views):
+class RoutingPolicyTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = RoutingPolicy
 
     @classmethod

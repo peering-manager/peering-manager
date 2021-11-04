@@ -1,23 +1,25 @@
-from rest_framework.serializers import ModelSerializer
-
 from net.models import Connection
 from peering.api.nested_serializers import (
-    InternetExchangeNestedSerializer,
-    RouterNestedSerializer,
+    NestedInternetExchangeSerializer,
+    NestedRouterSerializer,
 )
-from utils.api.serializers import TaggedObjectSerializer
+from peering_manager.api.serializers import PrimaryModelSerializer
 
 from .nested_serializers import *
 
+__all__ = ("ConnectionSerializer", "NestedConnectionSerializer")
 
-class ConnectionSerializer(TaggedObjectSerializer, ModelSerializer):
-    internet_exchange_point = InternetExchangeNestedSerializer()
-    router = RouterNestedSerializer()
+
+class ConnectionSerializer(PrimaryModelSerializer):
+    name = serializers.CharField(read_only=True)
+    internet_exchange_point = NestedInternetExchangeSerializer()
+    router = NestedRouterSerializer()
 
     class Meta:
         model = Connection
         fields = [
             "id",
+            "display",
             "name",
             "peeringdb_netixlan",
             "state",

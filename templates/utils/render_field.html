@@ -66,6 +66,7 @@
     {% if field.errors %}
     <ul>
       {% for error in field.errors %}
+      <!-- FORM-ERROR {{ field.name }}: {{ error }} -->
       <li class="text-danger">{{ error }}</li>
       {% endfor %}
     </ul>

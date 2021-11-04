@@ -140,19 +140,21 @@
 
   // Bind copy to clipboard function to the button
   $('#copy-config').click(function () {
-    var $temp = $('<textarea>');
-    $('body').append($temp);
-    $temp.val($('.pre-scrollable').text()).select();
+    var temp = $('<textarea>');
+    $('body').append(temp);
+    temp.val($('.pre-scrollable').text()).select();
     document.execCommand('copy');
-    $temp.remove();
+    temp.remove();
   });
 
   var router_in_maintenance = {% if instance.device_state == 'maintenance' %}true{% else %}false{% endif %};
   $('#deploy').click(function () {
+    var commit = $('#compare-switch').is(':checked') || router_in_maintenance;
     $.ajax({
-      method: $('#compare-switch').is(':checked') || router_in_maintenance ? 'get' : 'post',
+      method: 'post',
       url: "{% url 'peering-api:router-configure' %}",
-      data: { csrfmiddlewaretoken: '{{ csrf_token }}', routers: [{{ instance.pk }}] },
+      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+      data: { 'routers': [{{ instance.pk }}], 'commit': commit },
     }).done(function (r) {
       $('#main-body').html('<div class="text-center" style="font-size: 2rem;"><i class="fas fa-sync fa-spin fa-fw"></i> Working</div>');
       $('#main-modal').modal('show');
@@ -166,7 +168,8 @@
     $.ajax({
       method: 'post',
       url: "{% url 'peering-api:router-configure' %}",
-      data: { csrfmiddlewaretoken: '{{ csrf_token }}', routers: [{{ instance.pk }}] },
+      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+      data: { 'routers': [{{ instance.pk }}], 'commit': true },
     }).done(function (r) {
       PeeringManager.setWorkingButton($('#commit'));
       deployDoneHandler(r[0]);

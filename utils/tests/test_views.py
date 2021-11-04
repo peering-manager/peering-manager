@@ -4,10 +4,10 @@ from django.contrib.auth.models import User
 
 from utils.enums import ObjectChangeAction
 from utils.models import ObjectChange, Tag
-from utils.testing import StandardTestCases
+from utils.testing import ViewTestCases
 
 
-class ObjectChangeTestCase(StandardTestCases.Views):
+class ObjectChangeTestCase(ViewTestCases.ReadOnlyObjectViewTestCase):
     model = ObjectChange
 
     test_changelog_object = None
@@ -31,7 +31,7 @@ class ObjectChangeTestCase(StandardTestCases.Views):
             change.save()
 
 
-class TagTestCase(StandardTestCases.Views):
+class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Tag
 
     test_changelog_object = None

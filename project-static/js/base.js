@@ -1,15 +1,15 @@
 var PeeringManager = {
-  setWorkingButton: function (button, text="Working") {
+  setWorkingButton: function (button, text = "Working") {
     button.attr('disabled', 'disabled');
     button.removeClass('btn-primary').addClass('btn-warning');
     button.html('<i class="fas fa-sync fa-spin fa-fw"></i> ' + text);
   },
-  setFailedButton: function (button, text="Failed") {
+  setFailedButton: function (button, text = "Failed") {
     button.attr('disabled', 'disabled');
     button.removeClass('btn-primary').addClass('btn-danger');
     button.html('<i class="fas fa-times fa-fw"></i> ' + text);
   },
-  setSuccessButton: function (button, text="Successful") {
+  setSuccessButton: function (button, text = "Successful") {
     button.attr('disabled', 'disabled');
     button.removeClass('btn-warning').addClass('btn-success');
     button.html('<i class="fas fa-check"></i> ' + text);
@@ -24,6 +24,11 @@ var PeeringManager = {
     button.removeClass('btn-warning', 'btn-danger', 'btn-success');
     button.addClass('btn-primary').html('<i class="fas fa-cogs"></i> Deploy');
   },
+  resetSyncPeeringDBButton: function (button) {
+    button.removeAttr('disabled');
+    button.removeClass('btn-warning', 'btn-danger', 'btn-success');
+    button.addClass('btn-primary').html('<i class="fas fa-sync"></i> Sync with PeeringDB');
+  },
   resetConfirmButton: function (button) {
     button.removeAttr('disabled');
     button.removeClass('btn-warning', 'btn-danger', 'btn-success');
@@ -36,9 +41,13 @@ var PeeringManager = {
   }
 };
 
-$(document).ready(function() {
+$(document).ready(function () {
+  // This is to play nice with DRF, when using false, list will get converted
+  // to varname[] instead of staying as varname
+  $.ajaxSettings.traditional = true;
+
   // Trigger popover on hover
-  $('.popover-hover').popover({trigger: 'hover'});
+  $('.popover-hover').popover({ trigger: 'hover' });
 
   // Toggle icon when a submenu is clicked
   function toggleIcon(e) {

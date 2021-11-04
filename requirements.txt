@@ -8,6 +8,7 @@ django-prometheus==2.1.0
 django-rq==2.4.1
 django-tables2==2.4.1
 django-taggit==1.5.1
+drf-spectacular==0.20.2
 Jinja2==3.0.2
 Markdown==3.3.4
 napalm==3.3.1

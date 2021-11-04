@@ -1,19 +1,25 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from users.api.nested_serializers import UserNestedSerializer
+from peering_manager.api.fields import ChoiceField, ContentTypeField
+from peering_manager.api.serializers import (
+    BaseModelSerializer,
+    ValidatedModelSerializer,
+)
+from users.api.nested_serializers import NestedUserSerializer
+from utils.api import get_serializer_for_model
+from utils.api.nested_serializers import NestedTagSerializer
 from utils.enums import ObjectChangeAction
-from utils.functions import get_serializer_for_model
 from utils.models import ObjectChange, Tag
 
-from .fields import ChoiceField, ContentTypeField
-from .nested_serializers import NestedTagSerializer
+__all__ = ("ObjectChangeSerializer", "TagSerializer", "NestedTagSerializer")
 
 
-class ObjectChangeSerializer(serializers.ModelSerializer):
+class ObjectChangeSerializer(BaseModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="utils-api:objectchange-detail"
     )
-    user = UserNestedSerializer(read_only=True)
+    user = NestedUserSerializer(read_only=True)
     action = ChoiceField(choices=ObjectChangeAction.choices, read_only=True)
     changed_object_type = ContentTypeField(read_only=True)
     changed_object = serializers.SerializerMethodField(read_only=True)
@@ -23,6 +29,7 @@ class ObjectChangeSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "url",
+            "display",
             "time",
             "user",
             "user_name",
@@ -31,9 +38,11 @@ class ObjectChangeSerializer(serializers.ModelSerializer):
             "changed_object_type",
             "changed_object_id",
             "changed_object",
-            "object_data",
+            "prechange_data",
+            "postchange_data",
         ]
 
+    @extend_schema_field(serializers.DictField)
     def get_changed_object(self, o):
         """
         Serialize a nested representation of the changed object.
@@ -52,31 +61,19 @@ class ObjectChangeSerializer(serializers.ModelSerializer):
         return data
 
 
-class TagSerializer(serializers.ModelSerializer):
+class TagSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name="utils-api:tag-detail")
     tagged_items = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Tag
-        fields = ["id", "name", "slug", "color", "comments", "tagged_items"]
-
-
-class TaggedObjectSerializer(serializers.Serializer):
-    tags = NestedTagSerializer(many=True, required=False)
-
-    def _save_tags(self, instance, tags):
-        if tags:
-            instance.tags.set(*[t.name for t in tags])
-
-        return instance
-
-    def create(self, validated_data):
-        tags = validated_data.pop("tags", [])
-        instance = super().create(validated_data)
-
-        return self._save_tags(instance, tags)
-
-    def update(self, instance, validated_data):
-        tags = validated_data.pop("tags", [])
-        instance = super().update(instance, validated_data)
-
-        return self._save_tags(instance, tags)
+        fields = [
+            "id",
+            "url",
+            "display",
+            "name",
+            "slug",
+            "color",
+            "comments",
+            "tagged_items",
+        ]

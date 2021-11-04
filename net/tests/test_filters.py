@@ -1,14 +1,16 @@
+from django.test import TestCase
+
 from net.enums import ConnectionState
 from net.filters import ConnectionFilterSet
 from net.models import Connection
 from peering.enums import DeviceState
 from peering.models import AutonomousSystem, InternetExchange, Router
-from utils.testing import StandardTestCases
+from utils.testing import BaseFilterSetTests
 
 
-class ConnectionTestCase(StandardTestCases.Filters):
-    model = Connection
-    filter = ConnectionFilterSet
+class ConnectionTestCase(TestCase, BaseFilterSetTests):
+    queryset = Connection.objects.all()
+    filterset = ConnectionFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -53,24 +55,24 @@ class ConnectionTestCase(StandardTestCases.Filters):
 
     def test_q(self):
         params = {"q": "2001:db8:10::1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"q": "192.0.2.2"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"q": "eth-0/0/0"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"q": "eth"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_state(self):
         params = {"state": [ConnectionState.ENABLED]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"state": [ConnectionState.DISABLED]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"state": [""]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_vlan(self):
         params = {"vlan": [2001]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"vlan": [2001, 2002]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

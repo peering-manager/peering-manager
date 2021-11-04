@@ -64,6 +64,8 @@ class InternetExchangeSerializer(serializers.ModelSerializer):
             "ixf_last_import",
             "org",
         ]
+        # Avoid conflig with `InternetExchange` in `peering` module
+        ref_name = "PDBInternetExchange"
 
 
 class FacilitySerializer(serializers.ModelSerializer):

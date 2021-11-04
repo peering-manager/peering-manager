@@ -40,16 +40,15 @@
 {% endblock %}
 {% block javascript %}
 <script>
-  $("#id_email").on("select2:select", function(e) {
+  $('#id_email').on('select2:select', function(e) {
     $.ajax({
-      method: "post",
+      method: 'post',
       url: "{% url 'peering-api:autonomoussystem-generate-email' pk=instance.pk %}",
-      data: {
-        csrfmiddlewaretoken: "{{ csrf_token }}", email: e.params.data["id"]
-      },
+      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+      data: { 'email': e.params.data['id'] },
     }).done(function(response) {
-      $("#id_subject").val(response["email"][0]);
-      $("#id_body").val(response["email"][1]);
+      $('#id_subject').val(response['subject']);
+      $('#id_body').val(response['body']);
     });
   });
 </script>

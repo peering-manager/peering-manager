@@ -1,10 +1,13 @@
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import SAFE_METHODS
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from rest_framework.routers import APIRootView
 
+from extras.api.serializers import JobResultSerializer
 from extras.models import JobResult
-from peering.enums import DeviceState
 from peering.filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
@@ -36,33 +39,31 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
+from peering_manager.api.exceptions import ServiceUnavailable
+from peering_manager.api.views import ModelViewSet
 from peeringdb.api.serializers import NetworkIXLanSerializer
-from utils.api import ModelViewSet, ServiceUnavailable, StaticChoicesViewSet
-from utils.functions import get_serializer_for_model
+from utils.api import get_serializer_for_model
 
 from .serializers import (
+    AutonomousSystemGenerateEmailSerializer,
     AutonomousSystemSerializer,
     BGPGroupSerializer,
     CommunitySerializer,
     ConfigurationSerializer,
     DirectPeeringSessionSerializer,
     EmailSerializer,
-    InternetExchangeNestedSerializer,
     InternetExchangePeeringSessionSerializer,
     InternetExchangeSerializer,
+    NestedInternetExchangeSerializer,
+    RouterConfigureSerializer,
     RouterSerializer,
     RoutingPolicySerializer,
 )
 
 
-class PeeringFieldChoicesViewSet(StaticChoicesViewSet):
-    fields = [
-        (DirectPeeringSession, ["relationship", "bgp_state"]),
-        (Community, ["type"]),
-        (InternetExchangePeeringSession, ["bgp_state"]),
-        (RoutingPolicy, ["type"]),
-        (Router, ["device_state"]),
-    ]
+class PeeringRootView(APIRootView):
+    def get_view_name(self):
+        return "Peering"
 
 
 class AutonomousSystemViewSet(ModelViewSet):
@@ -70,54 +71,114 @@ class AutonomousSystemViewSet(ModelViewSet):
     serializer_class = AutonomousSystemSerializer
     filterset_class = AutonomousSystemFilterSet
 
-    @action(
-        detail=True,
-        methods=["post", "put", "patch"],
-        url_path="synchronize-with-peeringdb",
+    @extend_schema(
+        operation_id="peering_autonomous_systems_sync_with_peeringdb",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The synchronization has been done.",
+            ),
+            204: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The synchronization cannot be done.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission update the AS.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT, description="The AS does not exist."
+            ),
+        },
     )
-    def synchronize_with_peeringdb(self, request, pk=None):
+    @action(detail=True, methods=["post"], url_path="sync-with-peeringdb")
+    def sync_with_peeringdb(self, request, pk=None):
+        # Check user permission first
+        if not request.user.has_perm("peering.change_autonomoussystem"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
         success = self.get_object().synchronize_with_peeringdb()
-        return (
-            Response({"status": "synchronized"})
-            if success
-            else Response(
-                {"status": "error", "error": "peeringdb network not found"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+        return Response(
+            status=status.HTTP_200_OK if success else status.HTTP_204_NO_CONTENT
         )
 
-    @action(detail=True, methods=["get"], url_path="get-irr-as-set-prefixes")
-    def get_irr_as_set_prefixes(self, request, pk=None):
-        return Response({"prefixes": self.get_object().get_irr_as_set_prefixes()})
+    @extend_schema(
+        operation_id="peering_autonomous_systems_as_set_prefixes",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="Retrieves the prefix list for the AS.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT, description="The AS does not exist."
+            ),
+        },
+    )
+    @action(detail=True, methods=["get"], url_path="as-set-prefixes")
+    def as_set_prefixes(self, request, pk=None):
+        return Response(data=self.get_object().get_irr_as_set_prefixes())
 
-    @action(detail=True, methods=["get"], url_path="shared-internet-exchanges")
-    def shared_internet_exchanges(self, request, pk=None):
+    @extend_schema(
+        operation_id="peering_autonomous_systems_shared_ixps",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=NestedInternetExchangeSerializer(many=True),
+                description="Retrieves the shared IXPs with the AS.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT, description="The AS does not exist."
+            ),
+            503: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The user has no affiliated AS.",
+            ),
+        },
+    )
+    @action(detail=True, methods=["get"], url_path="shared-ixps")
+    def shared_ixps(self, request, pk=None):
         try:
             affiliated = AutonomousSystem.objects.get(
                 pk=request.user.preferences.get("context.as")
             )
         except AutonomousSystem.DoesNotExist:
-            affiliated = None
+            raise ServiceUnavailable("User did not choose an affiliated AS.")
 
-        if affiliated:
-            return Response(
-                {
-                    "shared-internet-exchanges": InternetExchangeNestedSerializer(
-                        self.get_object().get_shared_internet_exchange_points(
-                            affiliated
-                        ),
-                        many=True,
-                        context={"request": request},
-                    ).data
-                }
-            )
+        return Response(
+            data=NestedInternetExchangeSerializer(
+                self.get_object().get_shared_internet_exchange_points(affiliated),
+                many=True,
+                context={"request": request},
+            ).data
+        )
 
-        raise ServiceUnavailable("User did not choose an affiliated AS.")
-
+    @extend_schema(
+        operation_id="peering_autonomous_systems_generate_email",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.OBJECT, description="Renders the e-mail template."
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The AS or e-mail template does not exist.",
+            ),
+        },
+    )
     @action(detail=True, methods=["post"], url_path="generate-email")
     def generate_email(self, request, pk=None):
-        template = Email.objects.get(pk=int(request.data["email"]))
-        return Response({"email": self.get_object().generate_email(template)})
+        # Make sure request is valid
+        serializer = AutonomousSystemGenerateEmailSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            template = Email.objects.get(pk=serializer.validated_data.get("email"))
+            rendered = self.get_object().generate_email(template)
+            return Response(data={"subject": rendered[0], "body": rendered[1]})
+        except Email.DoesNotExist:
+            raise Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class BGPGroupViewSet(ModelViewSet):
@@ -125,13 +186,29 @@ class BGPGroupViewSet(ModelViewSet):
     serializer_class = BGPGroupSerializer
     filterset_class = BGPGroupFilterSet
 
-    @action(
-        detail=True, methods=["post", "put", "patch"], url_path="poll-peering-sessions"
+    @extend_schema(
+        operation_id="peering_bgp_groups_poll_sessions",
+        request=None,
+        responses={
+            202: OpenApiResponse(
+                response=JobResultSerializer,
+                description="Job scheduled to poll sessions.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to poll session status.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The BGP group does not exist.",
+            ),
+        },
     )
-    def poll_peering_sessions(self, request, pk=None):
+    @action(detail=True, methods=["post"], url_path="poll-sessions")
+    def poll_sessions(self, request, pk=None):
         # Check user permission first
         if not request.user.has_perm("peering.change_directpeeringsession"):
-            return Response(None, status=status.HTTP_403_FORBIDDEN)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         job_result = JobResult.enqueue_job(
             poll_peering_sessions,
@@ -140,9 +217,10 @@ class BGPGroupViewSet(ModelViewSet):
             request.user,
             self.get_object(),
         )
-        serializer = get_serializer_for_model(JobResult)
         return Response(
-            serializer(instance=job_result, context={"request": request}).data,
+            data=JobResultSerializer(
+                instance=job_result, context={"request": request}
+            ).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
@@ -164,14 +242,75 @@ class DirectPeeringSessionViewSet(ModelViewSet):
     serializer_class = DirectPeeringSessionSerializer
     filterset_class = DirectPeeringSessionFilterSet
 
+    @extend_schema(
+        operation_id="peering_direct_peering_sessions_encrypt_password",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The session password has been encrypted.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to encrypt the password.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The direct peering session does not exist.",
+            ),
+            503: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The session has not been encrypted.",
+            ),
+        },
+    )
     @action(detail=True, methods=["post"], url_path="encrypt-password")
     def encrypt_password(self, request, pk=None):
-        self.get_object().encrypt_password(request.data["platform"])
-        return Response({"encrypted_password": self.get_object().encrypted_password})
+        # Check user permission first
+        if not request.user.has_perm("peering.change_directpeeringsession"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
-    @action(detail=True, methods=["post", "patch"], url_path="poll")
+        success = self.get_object().encrypt_password(commit=True)
+        return Response(
+            status=status.HTTP_200_OK
+            if success
+            else status.HTTP_503_SERVICE_UNAVAILABLE
+        )
+
+    @extend_schema(
+        operation_id="peering_direct_peering_sessions_poll",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The session status has been polled.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to poll session status.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The direct peering session does not exist.",
+            ),
+            503: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The session status has not been polled.",
+            ),
+        },
+    )
+    @action(detail=True, methods=["post"], url_path="poll")
     def poll(self, request, pk=None):
-        return Response({"success": self.get_object().poll()})
+        # Check user permission first
+        if not request.user.has_perm("peering.change_directpeeringsession"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        success = self.get_object().poll()
+        return Response(
+            status=status.HTTP_200_OK
+            if success
+            else status.HTTP_503_SERVICE_UNAVAILABLE
+        )
 
 
 class EmailViewSet(ModelViewSet):
@@ -185,28 +324,87 @@ class InternetExchangeViewSet(ModelViewSet):
     serializer_class = InternetExchangeSerializer
     filterset_class = InternetExchangeFilterSet
 
-    @action(detail=True, methods=["patch"], url_path="link-to-peeringdb")
+    @extend_schema(
+        operation_id="peering_internet_exchange_link_to_peeringdb",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The IXP is linked with a PeeringDB record.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to update the IXP.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The IXP does not exist.",
+            ),
+            503: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The IXP is not linked with a PeeringDB record.",
+            ),
+        },
+    )
+    @action(detail=True, methods=["post"], url_path="link-to-peeringdb")
     def link_to_peeringdb(self, request, pk=None):
-        netixlan, ix = self.get_object().link_to_peeringdb()
-        if not netixlan and not ix:
-            raise ServiceUnavailable("Unable to link to PeeringDB.")
+        # Check user permission first
+        if not request.user.has_perm("peering.change_internetexchange"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
-        return Response({"sucess": True})
-
-    @action(detail=True, methods=["get"], url_path="available-peers")
-    def available_peers(self, request, pk=None):
-        available_peers = self.get_object().get_available_peers()
-        if not available_peers:
-            raise ServiceUnavailable("No peers found.")
-
+        ixlan = self.get_object().link_to_peeringdb()
         return Response(
-            {"available-peers": NetworkIXLanSerializer(available_peers, many=True).data}
+            status=status.HTTP_200_OK
+            if ixlan is not None
+            else status.HTTP_503_SERVICE_UNAVAILABLE
         )
 
+    @extend_schema(
+        operation_id="peering_internet_exchange_available_peers",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=NetworkIXLanSerializer(many=True),
+                description="The PeeringDB records of available peers.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The IXP does not exist.",
+            ),
+        },
+    )
+    @action(detail=True, methods=["get"], url_path="available-peers")
+    def available_peers(self, request, pk=None):
+        return Response(
+            data=NetworkIXLanSerializer(
+                self.get_object().get_available_peers(),
+                many=True,
+                context={"request": request},
+            ).data
+        )
+
+    @extend_schema(
+        operation_id="peering_internet_exchanges_import_sessions",
+        request=None,
+        responses={
+            202: OpenApiResponse(
+                response=JobResultSerializer,
+                description="Session import job is scheduled.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to update the IXP sessions.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The IXP does not exist.",
+            ),
+        },
+    )
     @action(detail=True, methods=["post"], url_path="import-sessions")
     def import_sessions(self, request, pk=None):
         if not request.user.has_perm("peering.add_internetexchangepeeringsession"):
-            return Response(None, status=status.HTTP_403_FORBIDDEN)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         job_result = JobResult.enqueue_job(
             import_sessions_to_internet_exchange,
@@ -215,36 +413,75 @@ class InternetExchangeViewSet(ModelViewSet):
             request.user,
             self.get_object(),
         )
-        serializer = get_serializer_for_model(JobResult)
         return Response(
-            serializer(instance=job_result, context={"request": request}).data,
+            data=JobResultSerializer(
+                instance=job_result, context={"request": request}
+            ).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
+    @extend_schema(
+        operation_id="peering_internet_exchanges_prefixes",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The prefixes attached to the IXP sorted by address family.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The IXP does not exist.",
+            ),
+        },
+    )
     @action(detail=True, methods=["get"], url_path="prefixes")
     def prefixes(self, request, pk=None):
-        return Response(
-            {"prefixes": [str(p.prefix) for p in self.get_object().get_prefixes()]}
-        )
+        prefixes = {}
+        for p in self.get_object().get_prefixes():
+            if p.prefix.version == 6:
+                ipv6 = prefixes.setdefault("ipv6", [])
+                ipv6.append(str(p.prefix))
+            if p.prefix.version == 4:
+                ipv4 = prefixes.setdefault("ipv4", [])
+                ipv4.append(str(p.prefix))
 
-    @action(
-        detail=True, methods=["post", "put", "patch"], url_path="poll-peering-sessions"
+        return Response(data=prefixes)
+
+    @extend_schema(
+        operation_id="peering_internet_exchanges_poll_sessions",
+        request=None,
+        responses={
+            202: OpenApiResponse(
+                response=JobResultSerializer,
+                description="Job scheduled to poll sessions.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to poll session status.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The IXP does not exist.",
+            ),
+        },
     )
-    def poll_peering_sessions(self, request, pk=None):
+    @action(detail=True, methods=["post"], url_path="poll-sessions")
+    def poll_sessions(self, request, pk=None):
         # Check user permission first
-        if not request.user.has_perm("peering.change_directpeeringsession"):
-            return Response(None, status=status.HTTP_403_FORBIDDEN)
+        if not request.user.has_perm("peering.change_internetexchangepeeringsession"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         job_result = JobResult.enqueue_job(
             poll_peering_sessions,
-            "peering.bgpgroup.poll_peering_sessions",
-            BGPGroup,
+            "peering.internetexchange.poll_peering_sessions",
+            InternetExchange,
             request.user,
             self.get_object(),
         )
-        serializer = get_serializer_for_model(JobResult)
         return Response(
-            serializer(instance=job_result, context={"request": request}).data,
+            data=JobResultSerializer(
+                instance=job_result, context={"request": request}
+            ).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
@@ -254,14 +491,75 @@ class InternetExchangePeeringSessionViewSet(ModelViewSet):
     serializer_class = InternetExchangePeeringSessionSerializer
     filterset_class = InternetExchangePeeringSessionFilterSet
 
+    @extend_schema(
+        operation_id="peering_internet_exchange_peering_sessions_encrypt_password",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The session password has been encrypted.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to encrypt the password.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The Internet exchange peering session does not exist.",
+            ),
+            503: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The session has not been encrypted.",
+            ),
+        },
+    )
     @action(detail=True, methods=["post"], url_path="encrypt-password")
     def encrypt_password(self, request, pk=None):
-        self.get_object().encrypt_password(request.data["platform"])
-        return Response({"encrypted_password": self.get_object().encrypted_password})
+        # Check user permission first
+        if not request.user.has_perm("peering.change_internetexchangepeeringsession"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
-    @action(detail=True, methods=["post", "patch"], url_path="poll")
+        success = self.get_object().encrypt_password(commit=True)
+        return Response(
+            status=status.HTTP_200_OK
+            if success
+            else status.HTTP_503_SERVICE_UNAVAILABLE
+        )
+
+    @extend_schema(
+        operation_id="peering_internet_exchange_peering_sessions_poll",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The session status has been polled.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to poll session status.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The Internet exchange peering session does not exist.",
+            ),
+            503: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The session status has not been polled.",
+            ),
+        },
+    )
+    @action(detail=True, methods=["post"], url_path="poll")
     def poll(self, request, pk=None):
-        return Response({"success": self.get_object().poll()})
+        # Check user permission first
+        if not request.user.has_perm("peering.change_internetexchangepeeringsession"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        success = self.get_object().poll()
+        return Response(
+            status=status.HTTP_200_OK
+            if success
+            else status.HTTP_503_SERVICE_UNAVAILABLE
+        )
 
 
 class RouterViewSet(ModelViewSet):
@@ -269,11 +567,29 @@ class RouterViewSet(ModelViewSet):
     serializer_class = RouterSerializer
     filterset_class = RouterFilterSet
 
+    @extend_schema(
+        operation_id="peering_routers_configuration",
+        request=None,
+        responses={
+            202: OpenApiResponse(
+                response=JobResultSerializer,
+                description="Job scheduled to generate the router configuration.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to generate a configuration.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The router does not exist.",
+            ),
+        },
+    )
     @action(detail=True, methods=["get"], url_path="configuration")
     def configuration(self, request, pk=None):
         # Check user permission first
         if not request.user.has_perm("peering.view_router_configuration"):
-            return Response(None, status=status.HTTP_403_FORBIDDEN)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         job_result = JobResult.enqueue_job(
             generate_configuration,
@@ -282,32 +598,53 @@ class RouterViewSet(ModelViewSet):
             request.user,
             self.get_object(),
         )
-        serializer = get_serializer_for_model(JobResult)
         return Response(
-            serializer(instance=job_result, context={"request": request}).data,
+            JobResultSerializer(instance=job_result, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
-    @action(detail=False, methods=["get", "post"], url_path="configure")
+    @extend_schema(
+        operation_id="peering_routers_configure",
+        request=RouterConfigureSerializer,
+        responses={
+            202: OpenApiResponse(
+                response=JobResultSerializer,
+                description="Job scheduled to generate configure routers.",
+            ),
+            400: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="Invalid list of routers provided.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to configure routers.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The router does not exist.",
+            ),
+        },
+    )
+    @action(detail=False, methods=["post"], url_path="configure")
     def configure(self, request):
         # Check user permission first
         if not request.user.has_perm("peering.deploy_router_configuration"):
             return Response(None, status=status.HTTP_403_FORBIDDEN)
 
-        router_ids = (
-            request.data.getlist("routers[]", [])
-            if request.method != "GET"
-            else request.query_params.getlist("routers[]")
-        )
+        # Make sure request is valid
+        serializer = RouterConfigureSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        # No router IDs, nothing to configure
+        router_ids = serializer.validated_data.get("routers")
         if len(router_ids) < 1:
-            raise ServiceUnavailable("No routers to configure.")
+            raise ValidationError("routers list must not be empty")
+        commit = serializer.validated_data.get("commit")
 
         routers = Router.objects.filter(pk__in=router_ids)
-        commit = request.method not in SAFE_METHODS
-        job_results = []
+        if not routers:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
+        job_results = []
         for router in routers:
             job_result = JobResult.enqueue_job(
                 set_napalm_configuration,
@@ -319,12 +656,27 @@ class RouterViewSet(ModelViewSet):
             )
             job_results.append(job_result)
 
-        serializer = get_serializer_for_model(JobResult)
         return Response(
-            serializer(job_results, many=True, context={"request": request}).data,
+            JobResultSerializer(
+                job_results, many=True, context={"request": request}
+            ).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
+    @extend_schema(
+        operation_id="peering_routers_test_napalm_connection",
+        request=RouterConfigureSerializer,
+        responses={
+            202: OpenApiResponse(
+                response=JobResultSerializer,
+                description="Job scheduled to test the router NAPALM connection.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The router does not exist.",
+            ),
+        },
+    )
     @action(detail=True, methods=["get"], url_path="test-napalm-connection")
     def test_napalm_connection(self, request, pk=None):
         job_result = JobResult.enqueue_job(
@@ -334,9 +686,8 @@ class RouterViewSet(ModelViewSet):
             request.user,
             self.get_object(),
         )
-        serializer = get_serializer_for_model(JobResult)
         return Response(
-            serializer(instance=job_result, context={"request": request}).data,
+            JobResultSerializer(instance=job_result, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
 

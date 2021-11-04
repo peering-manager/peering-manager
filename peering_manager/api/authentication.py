@@ -1,6 +1,10 @@
 from django.conf import settings
 from rest_framework import authentication, exceptions
-from rest_framework.permissions import SAFE_METHODS, DjangoModelPermissions
+from rest_framework.permissions import (
+    SAFE_METHODS,
+    BasePermission,
+    DjangoModelPermissions,
+)
 
 from users.models import Token
 
@@ -48,3 +52,15 @@ class TokenPermissions(DjangoModelPermissions):
             if not request.auth.write_enabled:
                 return False
         return super().has_permission(request, view)
+
+
+class IsAuthenticatedOrLoginNotRequired(BasePermission):
+    """
+    Returns `True` if the user is authenticated or `LOGIN_REQUIRED` is `False`.
+    """
+
+    def has_permission(self, request, view):
+        if not settings.LOGIN_REQUIRED:
+            return True
+        else:
+            return request.user.is_authenticated

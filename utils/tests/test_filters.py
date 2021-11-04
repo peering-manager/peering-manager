@@ -1,16 +1,17 @@
 import uuid
 
 from django.contrib.auth.models import User
+from django.test import TestCase
 
 from utils.enums import ObjectChangeAction
 from utils.filters import ObjectChangeFilterSet, TagFilterSet
 from utils.models import ObjectChange, Tag
-from utils.testing import StandardTestCases
+from utils.testing.filtersets import BaseFilterSetTests
 
 
-class ObjectChangeTestCase(StandardTestCases.Filters):
-    model = ObjectChange
-    filter = ObjectChangeFilterSet
+class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
+    queryset = ObjectChange.objects.all()
+    filterset = ObjectChangeFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -30,30 +31,30 @@ class ObjectChangeTestCase(StandardTestCases.Filters):
 
     def test_q(self):
         params = {"q": ""}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {"q": "testuser2"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_action(self):
         params = {"action": ObjectChangeAction.UPDATE}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_user_id(self):
         params = {"user_id": User.objects.get(username="testuser2").id}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_user_name(self):
         params = {"user": "testuser2"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_request_id(self):
         params = {"request_id": self.uuids[0]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class TagTestCase(StandardTestCases.Filters):
-    model = Tag
-    filter = TagFilterSet
+class TagTestCase(TestCase, BaseFilterSetTests):
+    queryset = Tag.objects.all()
+    filterset = TagFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -67,6 +68,6 @@ class TagTestCase(StandardTestCases.Filters):
 
     def test_q(self):
         params = {"q": ""}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {"q": "tag-1"}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)

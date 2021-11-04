@@ -4,13 +4,11 @@ from net.enums import ConnectionState
 from net.models import Connection
 from peering.enums import DeviceState
 from peering.models import AutonomousSystem, InternetExchange, Router
-from utils.testing import StandardTestCases
+from utils.testing import ViewTestCases
 
 
-class ConnectionTestCase(StandardTestCases.Views):
+class ConnectionTestCase(ViewTestCases.ContextualObjectViewTestCase):
     model = Connection
-
-    test_list_objects = None
 
     @classmethod
     def setUpTestData(cls):

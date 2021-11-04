@@ -1,7 +1,6 @@
 import ipaddress
 from unittest.mock import patch
 
-from django.conf import settings
 from django.test import TestCase
 
 from devices.models import PasswordAlgorithm, Platform
@@ -20,7 +19,6 @@ from peering.models import (
     RoutingPolicy,
 )
 from peering.tests.mocked_data import load_peeringdb_data, mocked_subprocess_popen
-from peeringdb.models import Network, Organization
 from utils.testing import json_file_to_python_type
 
 

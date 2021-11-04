@@ -1,12 +1,14 @@
 from devices.models import Platform
-from utils.testing import StandardTestCases
+from utils.testing import ViewTestCases
 
 
-class PlatformTestCase(StandardTestCases.Views):
+class PlatformTestCase(
+    ViewTestCases.CreateObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+):
     model = Platform
-
-    test_get_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):

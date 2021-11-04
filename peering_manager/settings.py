@@ -117,12 +117,27 @@ REST_FRAMEWORK = {
     "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.AcceptHeaderVersioning",
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
-        "peering_manager.api.TokenAuthentication",
+        "peering_manager.api.authentication.TokenAuthentication",
     ],
-    "DEFAULT_PERMISSION_CLASSES": ["peering_manager.api.TokenPermissions"],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "peering_manager.api.authentication.TokenPermissions"
+    ],
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
+        "peering_manager.api.renderers.FormlessBrowsableAPIRenderer",
+    ),
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "DEFAULT_METADATA_CLASS": "peering_manager.api.metadata.BulkOperationMetadata",
+    "DEFAULT_SCHEMA_CLASS": "peering_manager.api.inspectors.PeeringManagerAutoSchema",
     "PAGE_SIZE": PAGINATE_COUNT,
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Peering Manager",
+    "DESCRIPTION": "BGP sessions management tool",
+    "VERSION": VERSION,
+    "ENUM_NAME_OVERRIDES": {"VisibleEnum": "peeringdb.enums.Visibility"},
 }
 
 
@@ -354,6 +369,7 @@ INSTALLED_APPS = [
     "utils",
     "webhooks",
     "django_rq",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [

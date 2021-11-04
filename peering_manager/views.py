@@ -1,14 +1,10 @@
 import platform
 import sys
-from collections import OrderedDict
 
 from django.conf import settings
 from django.shortcuts import render
 from django.views.generic import View
 from packaging import version
-from rest_framework.response import Response
-from rest_framework.reverse import reverse as rest_reverse
-from rest_framework.views import APIView
 
 from peering.models import (
     AutonomousSystem,
@@ -52,36 +48,6 @@ def trigger_500(request):
     Method to fake trigger a server error for test reporting.
     """
     raise Exception("Manually triggered error.")
-
-
-class APIRootView(APIView):
-    _ignore_model_permissions = True
-    exclude_from_schema = True
-
-    @staticmethod
-    def get_namespace(name, request, format):
-        return (
-            name,
-            rest_reverse(f"{name}-api:api-root", request=request, format=format),
-        )
-
-    def get_view_name(self):
-        return "API Root"
-
-    def get(self, request, format=None):
-        return Response(
-            OrderedDict(
-                (
-                    APIRootView.get_namespace("devices", request, format),
-                    APIRootView.get_namespace("extras", request, format),
-                    APIRootView.get_namespace("net", request, format),
-                    APIRootView.get_namespace("peering", request, format),
-                    APIRootView.get_namespace("peeringdb", request, format),
-                    APIRootView.get_namespace("users", request, format),
-                    APIRootView.get_namespace("utils", request, format),
-                )
-            )
-        )
 
 
 class Home(View):
