@@ -8,6 +8,8 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.db.models import ProtectedError
 from django_rq.queues import get_connection
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
@@ -79,6 +81,15 @@ class StatusView(APIView):
 
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
 
+    @extend_schema(
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="Details regarding Peering Manager status.",
+            )
+        },
+    )
     def get(self, request):
         # Gather the version numbers from all installed Django apps
         installed_apps = {}
