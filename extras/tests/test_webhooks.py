@@ -55,7 +55,7 @@ class WebhookTest(APITestCase):
         data = {"asn": 201281, "name": "Guillaume Mazoyer"}
         url = reverse("peering-api:autonomoussystem-list")
         response = self.client.post(url, data, format="json", **self.header)
-        self.assertStatus(response, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(AutonomousSystem.objects.count(), 1)
 
         # Verify that a job was queued for the object creation webhook
@@ -71,7 +71,7 @@ class WebhookTest(APITestCase):
         data = {"comments": "Updated the AS"}
         url = reverse("peering-api:autonomoussystem-detail", kwargs={"pk": a_s.pk})
         response = self.client.patch(url, data, format="json", **self.header)
-        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
 
         # Verify that a job was queued for the object update webhook
         self.assertEqual(self.queue.count, 1)
@@ -85,7 +85,7 @@ class WebhookTest(APITestCase):
         a_s = AutonomousSystem.objects.create(asn=201281, name="Guillaume Mazoyer")
         url = reverse("peering-api:autonomoussystem-detail", kwargs={"pk": a_s.pk})
         response = self.client.delete(url, **self.header)
-        self.assertStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
 
         # Verify that a job was queued for the object deletion webhook
         self.assertEqual(self.queue.count, 1)

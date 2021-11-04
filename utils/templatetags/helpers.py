@@ -214,10 +214,14 @@ def speed_for_human(speed):
 
 @register.simple_tag(takes_context=True)
 def missing_sessions(context, autonomous_system):
+    if "context_as" not in context:
+        return False
+
     ix = autonomous_system.get_shared_internet_exchange_points(context["context_as"])
     for i in ix:
         if autonomous_system.get_missing_peering_sessions(context["context_as"], i):
             return True
+
     return False
 
 

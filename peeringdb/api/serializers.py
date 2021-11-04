@@ -68,6 +68,8 @@ class InternetExchangeSerializer(serializers.ModelSerializer):
             "terms",
             "org",
         ]
+        # Avoid conflig with `InternetExchange` in `peering` module
+        ref_name = "PDBInternetExchange"
 
 
 class FacilitySerializer(serializers.ModelSerializer):

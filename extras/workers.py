@@ -5,8 +5,9 @@ from django.contrib.admin.models import LogEntry
 from django.utils import timezone
 from django_rq import get_queue, job
 
+from utils.api import get_serializer_for_model
 from utils.enums import ObjectChangeAction
-from utils.functions import generate_signature, get_serializer_for_model
+from utils.functions import generate_signature
 from utils.models import ObjectChange
 
 from .models import Webhook

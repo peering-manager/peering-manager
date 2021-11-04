@@ -44,24 +44,25 @@
   $('#deploy-on-selected').click(function () {
     routerIDs = [];
     $.each($("input[name='pk']:checked"), function () {
-      routerIDs.push($(this).val());
+      routerIDs.push(parseInt($(this).val()));
     });
     if (routerIDs.length > 0) {
       $('#deployment-confirmation').modal();
     }
   });
   $('#confirm-deployment').click(function () {
-    PeeringManager.setWorkingButton($(this));
+    var button = $(this);
+    PeeringManager.setWorkingButton(button);
+
     $.ajax({
       method: 'post',
       url: "{% url 'peering-api:router-configure' %}",
-      data: { csrfmiddlewaretoken: '{{ csrf_token }}', routers: routerIDs },
+      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+      data: { 'routers': routerIDs, 'commit': true },
     }).done(function () {
-      $(this).removeClass('btn-warning').addClass('btn-success')
-             .html('Deployment Scheduled');
+      PeeringManager.setSuccessButton(button, 'Deployment scheduled');
     }).fail(function () {
-      $(this).removeClass('btn-warning').addClass('btn-danger')
-             .html('Deployment Failure');
+      PeeringManager.setFailedButton(button, 'Deployment failed');
     });
   });
   $('#deployment-confirmation').on('hidden.bs.modal', function (e) {

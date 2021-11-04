@@ -14,13 +14,6 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class StaticChoiceTest(APITestCase):
-    def test_list_static_choices(self):
-        url = reverse("extras-api:field-choice-list")
-        response = self.client.get(url, **self.header)
-        self.assertEqual(len(response.data), 1)
-
-
 class JobResultTest(
     StandardAPITestCases.GetObjectView, StandardAPITestCases.ListObjectsView
 ):
@@ -45,6 +38,7 @@ class WebhookTest(StandardAPITestCases.View):
         {"name": "Webhook 5", "type_update": True, "url": "http://example.com/?5"},
         {"name": "Webhook 6", "type_delete": True, "url": "http://example.com/?6"},
     ]
+    bulk_update_data = {"ssl_verification": False}
 
     @classmethod
     def setUpTestData(cls):

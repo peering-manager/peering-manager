@@ -157,18 +157,18 @@
   // Bind function to button click
   $('#synchronize-with-peeringdb').click(function() {
     $.ajax({
-      method: "post",
+      method: 'post',
       data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
-      url: "{% url 'peering-api:autonomoussystem-synchronize-with-peeringdb' pk=instance.pk %}",
+      url: "{% url 'peering-api:autonomoussystem-sync-with-peeringdb' pk=instance.pk %}",
       beforeSend: function() {
-        $('#synchronize-with-peeringdb').attr('disabled', 'disabled').removeClass('btn-primary').addClass('btn-warning').html('<i class="fas fa-sync fa-spin fa-fw"></i> Working');
+        PeeringManager.setWorkingButton($('#synchronize-with-peeringdb'));
       },
       complete: function() {
-        $('#synchronize-with-peeringdb').removeClass('btn-warning').addClass('btn-primary').removeAttr('disabled').html('<i class="fas fa-sync"></i> Sync with PeeringDB');
+        PeeringManager.resetSyncPeeringDBButton($('#synchronize-with-peeringdb'));
       }
     }).done(function() {
       $.ajax({
-        method: "get",
+        method: 'get',
         url: "{% url 'peering-api:autonomoussystem-detail' pk=instance.pk %}",
       }).done(function(response) {
         var changedFields = [];

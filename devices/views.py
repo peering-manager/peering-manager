@@ -6,7 +6,6 @@ from utils.views import (
     AddOrEditView,
     BulkDeleteView,
     DeleteView,
-    DetailsView,
     ModelListView,
     PermissionRequiredMixin,
 )

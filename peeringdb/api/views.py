@@ -1,9 +1,13 @@
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
+from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 
+from extras.api.serializers import JobResultSerializer
 from extras.models import JobResult
 from peeringdb.filters import NetworkFilterSet, SynchronizationFilterSet
 from peeringdb.jobs import synchronize
@@ -21,7 +25,7 @@ from peeringdb.models import (
     Synchronization,
 )
 from peeringdb.sync import PeeringDB
-from utils.functions import get_serializer_for_model
+from utils.api import get_serializer_for_model
 
 from .serializers import (
     FacilitySerializer,
@@ -38,12 +42,22 @@ from .serializers import (
 )
 
 
+class PeeringDBRootView(APIRootView):
+    def get_view_name(self):
+        return "PeeringDB"
+
+
 class CacheViewSet(ViewSet):
     permission_classes = [IsAdminUser]
 
     def get_view_name(self):
         return "Cache Management"
 
+    @extend_schema(
+        operation_id="peeringdb_cache_statistics",
+        request=None,
+        responses={200: OpenApiTypes.OBJECT},
+    )
     @action(detail=False, methods=["get"], url_path="statistics")
     def statistics(self, request):
         return Response(
@@ -62,6 +76,11 @@ class CacheViewSet(ViewSet):
             }
         )
 
+    @extend_schema(
+        operation_id="peeringdb_cache_update",
+        request=None,
+        responses={202: JobResultSerializer},
+    )
     @action(detail=False, methods=["post"], url_path="update-local")
     def update_local(self, request):
         job_result = JobResult.enqueue_job(
@@ -74,6 +93,11 @@ class CacheViewSet(ViewSet):
             status=status.HTTP_202_ACCEPTED,
         )
 
+    @extend_schema(
+        operation_id="peeringdb_cache_clear",
+        request=None,
+        responses={200: OpenApiTypes.OBJECT},
+    )
     @action(detail=False, methods=["post"], url_path="clear-local")
     def clear_local(self, request):
         PeeringDB().clear_local_database()

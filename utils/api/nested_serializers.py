@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from utils.api import WritableNestedSerializer
+from peering_manager.api.serializers import WritableNestedSerializer
 from utils.models import Tag
 
 

@@ -13,7 +13,7 @@ class AppTest(APITestCase):
 
 class TagTest(StandardAPITestCases.View):
     model = Tag
-    brief_fields = ["id", "name", "slug", "color", "comments", "tagged_items"]
+    brief_fields = ["id", "url", "name", "slug", "color"]
     create_data = [
         {
             "name": "Test 4",
@@ -28,9 +28,14 @@ class TagTest(StandardAPITestCases.View):
             "slug": "test-6",
         },
     ]
+    bulk_update_data = {"color": "000000"}
 
     @classmethod
     def setUpTestData(cls):
-        Tag.objects.create(name="Test 1", slug="test-1", color="333333")
-        Tag.objects.create(name="Test 2", slug="test-2", color="333333")
-        Tag.objects.create(name="Test 3", slug="test-3", color="333333")
+        Tag.objects.bulk_create(
+            [
+                Tag(name="Test 1", slug="test-1", color="333333"),
+                Tag(name="Test 2", slug="test-2", color="333333"),
+                Tag(name="Test 3", slug="test-3", color="333333"),
+            ]
+        )

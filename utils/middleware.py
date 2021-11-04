@@ -5,8 +5,9 @@ from django.db import ProgrammingError
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 
-from .context_managers import change_logging
-from .views import ServerError
+from utils.api import is_api_request, rest_api_server_error
+from utils.context_managers import change_logging
+from utils.views import ServerError
 
 
 class ExceptionCatchingMiddleware(object):
@@ -29,6 +30,10 @@ class ExceptionCatchingMiddleware(object):
         # Lets Django handling 404
         if isinstance(exception, Http404):
             return
+
+        # Handle exceptions that occur from REST API requests
+        if is_api_request(request):
+            return rest_api_server_error(request)
 
         template = None
         if isinstance(exception, ProgrammingError):

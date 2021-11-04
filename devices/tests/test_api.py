@@ -15,11 +15,12 @@ class AppTest(APITestCase):
 
 class PlatformTest(StandardAPITestCases.View):
     model = Platform
-    brief_fields = ["id", "url", "name", "slug"]
+    brief_fields = ["id", "url", "display", "name", "slug"]
     create_data = [
         {"name": "Test OS", "slug": "test-os"},
         {"name": "Bugs OS", "slug": "bugsos", "description": "Nice try one..."},
     ]
+    bulk_update_data = {"description": "Favourite vendor"}
 
     @classmethod
     def setUpTestData(cls):
