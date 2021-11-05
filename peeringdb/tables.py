@@ -32,8 +32,8 @@ class NetworkIXLanTable(BaseTable):
     internet_exchange = tables.Column(
         verbose_name="IX Name", accessor="ixlan__ix__name"
     )
-    ipaddr6 = tables.Column("IPv6", accessor="ipaddr6__ip")
-    ipaddr4 = tables.Column("IPv4", accessor="ipaddr4__ip")
+    ipaddr6 = tables.Column("IPv6", accessor="ipaddr6")
+    ipaddr4 = tables.Column("IPv4", accessor="ipaddr4")
     irr_as_set = tables.Column(verbose_name="IRR AS-SET", accessor="net__irr_as_set")
     ipv6_max_prefix = tables.Column(
         verbose_name="IPv6 Max Prefix", accessor="net__info_prefixes6"
@@ -79,6 +79,12 @@ class NetworkIXLanTable(BaseTable):
             "is_rs_peer",
             "speed",
         )
+
+    def render_ipaddr6(self, value):
+        return value.ip if value else None
+
+    def render_ipaddr4(self, value):
+        return value.ip if value else None
 
     def render_speed(self, value):
         return speed_for_human(value)
