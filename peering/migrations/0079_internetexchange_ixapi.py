@@ -5,10 +5,7 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-    dependencies = [
-        ("extras", "0004_ixapi"),
-        ("peering", "0077_alter_router_device_state"),
-    ]
+    dependencies = [("extras", "0004_ixapi"), ("peering", "0078_template_trim_lstrip")]
 
     operations = [
         migrations.AlterModelOptions(

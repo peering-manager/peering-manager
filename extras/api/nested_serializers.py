@@ -8,7 +8,7 @@ from users.api.nested_serializers import NestedUserSerializer
 class NestedIXAPISerializer(WritableNestedSerializer):
     class Meta:
         model = IXAPI
-        fields = ["id", "name", "url"]
+        fields = ["id", "display", "name", "url"]
 
 
 class NestedJobResultSerializer(WritableNestedSerializer):

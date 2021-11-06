@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from rest_framework import status
 
-from extras.models import JobResult, Webhook
+from extras.models import IXAPI, JobResult, Webhook
 from utils.testing import APITestCase, StandardAPITestCases
 
 
@@ -12,6 +12,56 @@ class AppTest(APITestCase):
     def test_root(self):
         response = self.client.get(reverse("extras-api:api-root"), **self.header)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class IXAPITest(StandardAPITestCases.View):
+    model = IXAPI
+    brief_fields = ["id", "display", "name", "url"]
+    create_data = [
+        {
+            "name": "IXP 4",
+            "url": "https://ixp4-ixapi.example.net",
+            "api_key": "key-ixp4",
+            "api_secret": "secret-ixp4",
+        },
+        {
+            "name": "IXP 5",
+            "url": "https://ixp5-ixapi.example.net",
+            "api_key": "key-ixp5",
+            "api_secret": "secret-ixp5",
+        },
+        {
+            "name": "IXP 6",
+            "url": "https://ixp6-ixapi.example.net",
+            "api_key": "key-ixp6",
+            "api_secret": "secret-ixp6",
+        },
+    ]
+
+    @classmethod
+    def setUpTestData(cls):
+        IXAPI.objects.bulk_create(
+            [
+                IXAPI(
+                    name="IXP 1",
+                    url="https://ixp1-ixapi.example.net",
+                    api_key="key-ixp1",
+                    api_secret="secret-ixp1",
+                ),
+                IXAPI(
+                    name="IXP 2",
+                    url="https://ixp2-ixapi.example.net",
+                    api_key="key-ixp2",
+                    api_secret="secret-ixp2",
+                ),
+                IXAPI(
+                    name="IXP 3",
+                    url="https://ixp3-ixapi.example.net",
+                    api_key="key-ixp3",
+                    api_secret="secret-ixp3",
+                ),
+            ]
+        )
 
 
 class JobResultTest(
