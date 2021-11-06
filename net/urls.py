@@ -30,4 +30,14 @@ urlpatterns = [
         views.ConnectionEdit.as_view(),
         name="connection_edit",
     ),
+    path(
+        "connections/edit/",
+        views.ConnectionBulkEdit.as_view(),
+        name="connection_bulk_edit",
+    ),
+    path(
+        "connections/delete/",
+        views.ConnectionBulkDelete.as_view(),
+        name="connection_bulk_delete",
+    ),
 ]

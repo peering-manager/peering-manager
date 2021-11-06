@@ -2,7 +2,6 @@ import django_tables2 as tables
 from django.utils.safestring import mark_safe
 
 from net.models import Connection
-from peering_manager import settings
 from utils.tables import (
     BaseTable,
     BooleanColumn,
@@ -321,37 +320,6 @@ class InternetExchangeTable(BaseTable):
             "internetexchangepeeringsession_count",
             "buttons",
         )
-
-
-class InternetExchangeConnectionTable(BaseTable):
-    pk = SelectColumn()
-    ipv6_address = tables.Column(linkify=True, verbose_name="IPv6")
-    ipv4_address = tables.Column(linkify=True, verbose_name="IPv4")
-    router = tables.LinkColumn()
-    buttons = ButtonsColumn(Connection)
-
-    class Meta(BaseTable.Meta):
-        model = Connection
-        fields = (
-            "pk",
-            "state",
-            "vlan",
-            "ipv6_address",
-            "ipv4_address",
-            "router",
-            "interface",
-            "buttons",
-        )
-        default_columns = (
-            "pk",
-            "state",
-            "vlan",
-            "ipv6_address",
-            "ipv4_address",
-            "router",
-            "buttons",
-        )
-        empty_text = "None"
 
 
 class InternetExchangePeeringSessionTable(BaseTable):

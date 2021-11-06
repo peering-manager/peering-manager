@@ -1,8 +1,17 @@
 from django.shortcuts import get_object_or_404
 
-from net.forms import ConnectionForm
+from net.filters import ConnectionFilterSet
+from net.forms import ConnectionBulkEditForm, ConnectionForm
 from net.models import Connection
-from utils.views import AddOrEditView, DeleteView, DetailsView, PermissionRequiredMixin
+from net.tables import ConnectionTable
+from utils.views import (
+    AddOrEditView,
+    BulkDeleteView,
+    BulkEditView,
+    DeleteView,
+    DetailsView,
+    PermissionRequiredMixin,
+)
 
 
 class ConnectionAdd(PermissionRequiredMixin, AddOrEditView):
@@ -34,3 +43,18 @@ class ConnectionEdit(PermissionRequiredMixin, AddOrEditView):
     model = Connection
     form = ConnectionForm
     template = "net/connection/add_edit.html"
+
+
+class ConnectionBulkEdit(PermissionRequiredMixin, BulkEditView):
+    permission_required = "net.change_connection"
+    queryset = Connection.objects.select_related("internet_exchange_point", "router")
+    filter = ConnectionFilterSet
+    table = ConnectionTable
+    form = ConnectionBulkEditForm
+
+
+class ConnectionBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = "net.delete_connection"
+    model = Connection
+    filter = ConnectionFilterSet
+    table = ConnectionTable

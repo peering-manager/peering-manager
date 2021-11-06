@@ -9,7 +9,10 @@ from django.template.defaultfilters import pluralize
 from django.utils.text import slugify
 from django.views.generic import View
 
+from net.filters import ConnectionFilterSet
+from net.forms import ConnectionFilterForm
 from net.models import Connection
+from net.tables import ConnectionTable
 from peeringdb.filters import NetworkIXLanFilterSet
 from peeringdb.forms import NetworkIXLanFilterForm
 from peeringdb.models import NetworkIXLan
@@ -90,7 +93,6 @@ from .tables import (
     ConfigurationTable,
     DirectPeeringSessionTable,
     EmailTable,
-    InternetExchangeConnectionTable,
     InternetExchangePeeringSessionTable,
     InternetExchangeTable,
     RouterConnectionTable,
@@ -824,7 +826,9 @@ class InternetExchangeBulkEdit(PermissionRequiredMixin, BulkEditView):
 
 class InternetExchangeConnections(PermissionRequiredMixin, ModelListView):
     permission_required = ("net.view_connection", "peering.view_internetexchange")
-    table = InternetExchangeConnectionTable
+    table = ConnectionTable
+    filter = ConnectionFilterSet
+    filter_form = ConnectionFilterForm
     template = "peering/internetexchange/connections.html"
 
     def build_queryset(self, request, kwargs):

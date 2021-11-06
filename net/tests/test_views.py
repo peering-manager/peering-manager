@@ -10,8 +10,6 @@ from utils.testing import StandardTestCases
 class ConnectionTestCase(StandardTestCases.Views):
     model = Connection
 
-    test_bulk_delete_objects = None
-    test_bulk_edit_objects = None
     test_list_objects = None
 
     @classmethod
@@ -69,3 +67,5 @@ class ConnectionTestCase(StandardTestCases.Views):
             "comments": "",
             "tags": [],
         }
+
+        cls.bulk_edit_data = {"state": ConnectionState.DISABLED}

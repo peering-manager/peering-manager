@@ -457,9 +457,7 @@ class BulkEditView(ReturnURLMixin, View):
                             updated_count += 1
 
                     if updated_count:
-                        message = (
-                            f"Updated {updated_count} {model._meta.verbose_name_plural}"
-                        )
+                        message = f"Updated {updated_count} {model._meta.verbose_name if updated_count == 1 else model._meta.verbose_name_plural}"
                         messages.success(self.request, message)
 
                     return redirect(self.get_return_url(request))

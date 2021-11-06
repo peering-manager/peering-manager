@@ -4,7 +4,9 @@ from taggit.forms import TagField
 from peering.models import InternetExchange, Router
 from utils.fields import CommentField
 from utils.forms import (
+    AddRemoveTagsForm,
     BootstrapMixin,
+    BulkEditForm,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     JSONField,
@@ -58,6 +60,36 @@ class ConnectionForm(BootstrapMixin, forms.ModelForm):
         }
 
 
+class ConnectionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+    pk = DynamicModelMultipleChoiceField(
+        queryset=Connection.objects.all(), widget=forms.MultipleHiddenInput
+    )
+    state = forms.ChoiceField(
+        required=False,
+        choices=add_blank_choice(ConnectionState.choices),
+        widget=StaticSelect,
+    )
+    internet_exchange_point = DynamicModelChoiceField(
+        required=False,
+        queryset=InternetExchange.objects.all(),
+        help_text="IXP to which this connection connects",
+    )
+    router = DynamicModelChoiceField(
+        required=False,
+        queryset=Router.objects.all(),
+        help_text="Router on which this connection is setup",
+    )
+    config_context = JSONField(
+        required=False, label="Config context", widget=SmallTextarea
+    )
+
+    class Meta:
+        model = Connection
+        fields = ("state", "internet_exchange_point", "router", "config_context")
+        nullable_fields = ("router",)
+        labels = {"vlan": "VLAN"}
+
+
 class ConnectionFilterForm(BootstrapMixin, forms.Form):
     model = Connection
     q = forms.CharField(required=False, label="Search")
@@ -77,6 +109,7 @@ class ConnectionFilterForm(BootstrapMixin, forms.Form):
         required=False,
         queryset=Router.objects.all(),
         to_field_name="pk",
+        label="Router",
         null_option="None",
     )
     tag = TagFilterField(model)
