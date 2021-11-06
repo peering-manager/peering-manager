@@ -87,7 +87,6 @@ class ConnectionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         model = Connection
         fields = ("state", "internet_exchange_point", "router", "config_context")
         nullable_fields = ("router",)
-        labels = {"vlan": "VLAN"}
 
 
 class ConnectionFilterForm(BootstrapMixin, forms.Form):
