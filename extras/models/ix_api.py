@@ -1,3 +1,4 @@
+import ipaddress
 import json
 import logging
 from datetime import datetime
@@ -6,8 +7,10 @@ import requests
 from cacheops import cached_as
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 
+from net.models import Connection
 from utils.models import ChangeLoggedModel
 
 logger = logging.getLogger("peering.manager.extras.ixapi")
@@ -149,6 +152,170 @@ class Client(object):
         return unpack_response(r)
 
 
+class RemoteObject(object):
+    """
+    Object serving as a proxy to IX-API remote data.
+
+    This object essentially tracks raw data from the IX-API and the object used to
+    interact with it.
+
+    Properties for each child of this class should be defined with the `@property`
+    annotation as it may use some logic to get remote data, i.e. the property is an
+    object referred to as an ID.
+    """
+
+    def __init__(self, ixapi, data):
+        self._ixapi = ixapi
+        self._data = data
+
+    def get_property(self, name):
+        """
+        Looks up a value by a key in the underlying `_data` dict of this object.
+        """
+        if name not in self._data:
+            raise AttributeError(f"{name} is not a valid property")
+
+        return self._data.get(name)
+
+    @property
+    def id(self):
+        return self.get_property("id")
+
+
+class NetworkService(RemoteObject):
+    """
+    Proxy object for `network-services` endpoint.
+    """
+
+    def __init__(self, ixapi, data):
+        super().__init__(ixapi, data)
+
+        self._product = None
+        self._ips = []
+        self._network_features = []
+        self._network_service_configs = []
+
+    @property
+    def peeringdb_ixid(self):
+        return self.get_property("peeringdb_ixid")
+
+    @property
+    def name(self):
+        return self.get_property("name")
+
+    @property
+    def metro_area(self):
+        return self.get_property("metro_area")
+
+    @property
+    def product(self):
+        product_id = self.get_property("product")
+        if not self._product and product_id:
+            self._product = self._ixapi.get_products([product_id])[0]
+        return self._product
+
+    @property
+    def ips(self):
+        ids = self.get_property("ips")
+        if ids and not self._ips:
+            self._ips = self._ixapi.get_ips(ids=ids)
+
+        return self._ips
+
+    @property
+    def network_features(self):
+        ids = self.get_property("network_features")
+        if ids and not self._network_features:
+            self._network_features = self._ixapi.get_network_features(ids=ids)
+        return self._network_features
+
+    @property
+    def network_service_configs(self):
+        if not self._network_service_configs:
+            for i in self._ixapi.get_network_service_configs():
+                if i.network_service == self.id and i.state in (
+                    "production",
+                    "testing",
+                ):
+                    self._network_service_configs.append(i)
+        return self._network_service_configs
+
+
+class NetworkServiceConfig(RemoteObject):
+    """
+    Proxy object for `network-service-configs` endpoint.
+    """
+
+    def __init__(self, ixapi, data):
+        super().__init__(ixapi, data)
+
+        self._ips = []
+        self._macs = []
+
+    @property
+    def network_service(self):
+        return self.get_property("network_service")
+
+    @property
+    def outer_vlan(self):
+        return self.get_property("outer_vlan")
+
+    @property
+    def inner_vlan(self):
+        return self.get_property("inner_vlan")
+
+    @property
+    def ips(self):
+        ids = self.get_property("ips")
+        if ids and not self._ips:
+            self._ips = self._ixapi.get_ips(ids=ids)
+
+        return self._ips
+
+    @property
+    def ipv4_address(self):
+        for i in self.ips:
+            ip = i["actual_ip"]
+            if ip.version == 4:
+                return ip
+        return None
+
+    @property
+    def ipv6_address(self):
+        for i in self.ips:
+            ip = i["actual_ip"]
+            if ip.version == 6:
+                return ip
+        return None
+
+    @property
+    def macs(self):
+        ids = self.get_property("macs")
+        if ids and not self._macs:
+            self._macs = self._ixapi.get_macs(ids=ids)
+        return self._macs
+
+    @property
+    def state(self):
+        return self.get_property("state")
+
+    @property
+    def connection(self):
+        """
+        Returns a `net.Connection` matching the IP addresses.
+        """
+        qs_filter = Q()
+        if self.ipv6_address:
+            qs_filter |= Q(ipv4_address=self.ipv6_address)
+        if self.ipv4_address:
+            qs_filter |= Q(ipv4_address=self.ipv4_address)
+
+        try:
+            return Connection.objects.get(qs_filter)
+        except (Connection.DoesNotExist, Connection.MultipleObjectsReturned):
+            return None
+
+
 class IXAPI(ChangeLoggedModel):
     """
     An Endpoint holds the details to reach an IX-API given its URL, API key and
@@ -257,8 +424,7 @@ class IXAPI(ChangeLoggedModel):
         return _lookup()
 
     def get_contacts(self):
-        d = self.lookup(f"contacts?consuming_customer={self.identity}")
-        return d
+        return self.lookup("contacts", params={"consuming_customer": self.identity})
 
     def get_demarcs(self):
         return self.lookup("demarcs")
@@ -267,34 +433,72 @@ class IXAPI(ChangeLoggedModel):
         return self.lookup("connections", params={"consuming_customer": self.identity})
 
     def get_ips(self, ids=[]):
+        d = []
         if ids:
-            return self.lookup("ips", params={"id": ",".join(ids)})
+            d = self.lookup("ips", params={"id": ",".join(ids)})
         else:
-            return self.lookup("ips", params={"consuming_customer": self.identity})
+            d = self.lookup("ips", params={"consuming_customer": self.identity})
 
-    def get_macs(self):
-        return self.lookup("macs", params={"consuming_customer": self.identity})
+        # Parse the IP address as a Python object for later use
+        for i in d:
+            i["actual_ip"] = ipaddress.ip_interface(
+                f"{i['address']}/{i['prefix_length']}"
+            )
+
+        return d
+
+    def get_macs(self, ids=[]):
+        if ids:
+            return self.lookup("macs", params={"id": ",".join(ids)})
+        else:
+            return self.lookup("macs", params={"consuming_customer": self.identity})
 
     def get_network_features(self, ids=[]):
+        d = []
         if ids:
-            return self.lookup("network-features", params={"id": ",".join(ids)})
+            d = self.lookup("network-features", params={"id": ",".join(ids)})
         else:
-            return self.lookup("network-features")
+            d = self.lookup("network-features")
+
+        # Fetch IP addresses if any
+        for i in d:
+            if i["ips"]:
+                i["ips"] = self.get_ips(ids=i["ips"])
+
+        return d
 
     def get_network_feature_configs(self):
         return self.lookup("network-feature-configs")
 
     def get_network_service_configs(self):
-        return self.lookup(
-            "network-service-configs",
-            params={"consuming_customer": self.identity, "type": "exchange_lan"},
-        )
+        """
+        Returns configs for IXP services specific for us.
+        """
+        o = []
+        for i in self.lookup("network-service-configs"):
+            o.append(NetworkServiceConfig(self, i))
+        return o
 
-    def get_network_services(self):
-        return self.lookup(
-            "network-services",
-            params={"consuming_customer": self.identity, "type": "exchange_lan"},
-        )
+    def get_network_services(self, ids=[]):
+        """
+        Returns IXP services available for all IX members.
+        """
+        d = []
+        if ids:
+            d = self.lookup("network-services", params={"id": ",".join(ids)})
+        else:
+            d = self.lookup(
+                "network-services",
+                params={"consuming_customer": self.identity, "type": "exchange_lan"},
+            )
+
+        return [NetworkService(self, i) for i in d]
+
+    def get_products(self, ids=[]):
+        if ids:
+            return self.lookup("products", params={"id": ",".join(ids)})
+        else:
+            return self.lookup("products")
 
     # Figure out what can be achieved with IX-API in the context of an IXP
     # List all connections on an IXP, service IDs, demarcation points, characteristics

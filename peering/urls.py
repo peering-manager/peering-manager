@@ -289,6 +289,11 @@ urlpatterns = [
         views.InternetExchangePeers.as_view(),
         name="internetexchange_peers",
     ),
+    path(
+        "internet-exchanges/<int:pk>/ixapi/",
+        views.InternetExchangeIXAPI.as_view(),
+        name="internetexchange_ixapi",
+    ),
     # Internet Exchange Peering Sessions
     path(
         "internet-exchange-peering-sessions/",

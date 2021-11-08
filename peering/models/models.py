@@ -625,6 +625,42 @@ class InternetExchange(AbstractGroup):
             > 0
         )
 
+    @property
+    def ixapi_network_service(self):
+        """
+        Returns data from IX-API's network service corresponding to this IXP.
+        """
+        network_service = None
+
+        if not self.ix_api_endpoint:
+            return network_service
+
+        # TODO: review this but seems to work
+        # Heuristic to find out which IX-API network service we have here
+        candidates = self.ix_api_endpoint.get_network_services()
+        for candidate in candidates:
+            # If PeeringDB's IX IDs match, we are on the right track
+            if (
+                self.peeringdb_ixlan
+                and self.peeringdb_ixlan.ix.id == candidate.peeringdb_ixid
+            ):
+                # Check if prefixes between IX-API and PeeringDB match
+                a = sorted(
+                    [
+                        i["actual_ip"].network
+                        for i in candidate.ips
+                        if i["actual_ip"].network.version == 4
+                    ]
+                )
+                b = sorted(
+                    [i.prefix for i in self.get_prefixes() if i.prefix.version == 4]
+                )
+                if a == b:
+                    network_service = candidate
+                    break
+
+        return network_service
+
     def __str__(self):
         return self.name
 
