@@ -26,7 +26,7 @@ class IXAPIForm(BootstrapMixin, forms.ModelForm):
             self.fields["identity"] = forms.ChoiceField(
                 label="Identity",
                 choices=[("", "---------")]
-                + [(c.id, c.name) for c in instance.get_customers()],
+                + [(c["id"], c["name"]) for c in instance.get_customers()],
                 widget=StaticSelect,
             )
             self.fields["identity"].widget.attrs["class"] = " ".join(
