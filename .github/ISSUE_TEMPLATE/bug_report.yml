@@ -1,0 +1,61 @@
+---
+name: 🐛 Bug Report
+description: Report a reproducible bug in the current release
+labels: ["type: bug"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        **NOTE:** This form is only for reporting _reproducible bugs_ in a
+        current Peering Manager installation. If you're having trouble with
+        installation or just looking for assistance, please visit our
+        discussion forum instead.
+  - type: input
+    attributes:
+      label: Peering Manager version
+      description: What version of Peering Manager are you currently running?
+      placeholder: v1.4.5
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Python version
+      description: What version of Python are you currently running?
+      options:
+        - "3.6"
+        - "3.7"
+        - "3.8"
+        - "3.9"
+        - "3.10"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to Reproduce
+      description: >
+        Describe in detail the exact steps that someone else can take to
+        reproduce this bug using the current stable release. Begin with the
+        creation of any necessary database objects and call out every
+        operation being performed explicitly. If reporting a bug in the REST
+        API, be sure to reconstruct the raw HTTP request(s) being made.
+      placeholder: |
+        1. Click on "call the avengers"
+        2. Set foo to 42
+        3. Click the "validate" button
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: >
+        A new widget should have been created with the specified attributes
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Observed Behavior
+      description: What happened instead?
+      placeholder: A TypeError exception was raised
+    validations:
+      required: true
