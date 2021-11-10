@@ -1,0 +1,9 @@
+---
+blank_issues_enabled: false
+contact_links:
+  - name: ❓ Discussion
+    url: "https://github.com/peering-manager/peering-manager/discussions"
+    about: "If you're just looking for help, try starting a discussion instead"
+  - name: 💬 Community Slack
+    url: "https://netdev.chat/"
+    about: "Join #peering-manager on the NetDev Community Slack for assistance"
