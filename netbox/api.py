@@ -47,4 +47,4 @@ class NetBox(object):
         device = self.api.dcim.devices.get(device_id)
         self.logger.debug("calling napalm: %s", method)
         result = device.napalm.list(method=method)
-        return result[method]
+        return next(result)[method]
