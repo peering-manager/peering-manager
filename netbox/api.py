@@ -35,7 +35,7 @@ class NetBox(object):
         Return all devices found with the NetBox API.
         """
         self.logger.debug(
-            "calling dcim.devices.filter: role=%s", settings.NETBOX_DEVICE_ROLES
+            f"calling dcim.devices.filter: role={settings.NETBOX_DEVICE_ROLES}"
         )
         return self.api.dcim.devices.filter(role=settings.NETBOX_DEVICE_ROLES)
 
@@ -43,8 +43,8 @@ class NetBox(object):
         """
         Runs the given NAPALM method on the device via the NetBox API.
         """
-        self.logger.debug("calling dcim.devices.get: %d", device_id)
+        self.logger.debug(f"calling dcim.devices.get: {device_id}")
         device = self.api.dcim.devices.get(device_id)
-        self.logger.debug("calling napalm: %s", method)
+        self.logger.debug(f"calling napalm: {method}")
         result = device.napalm.list(method=method)
         return next(result)[method]

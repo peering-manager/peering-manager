@@ -7,6 +7,20 @@ from netbox.api import NetBox
 from utils.testing import MockedResponse
 
 
+class MockedGenerator(object):
+    def __init__(self, data):
+        self._data = data
+
+    def __len__(self):
+        return len(self._data)
+
+    def __iter__(self):
+        return iter(self._data)
+
+    def __next__(self):
+        return self._data
+
+
 class NetBoxTestCase(TestCase):
     def setUp(self):
         super().setUp()
@@ -27,11 +41,13 @@ class NetBoxTestCase(TestCase):
 
     @patch(
         "pynetbox.core.endpoint.RODetailEndpoint.list",
-        return_value={
-            "get_facts": MockedResponse(
-                fixture="netbox/tests/fixtures/device_facts.json"
-            ).json()
-        },
+        return_value=MockedGenerator(
+            {
+                "get_facts": MockedResponse(
+                    fixture="netbox/tests/fixtures/device_facts.json"
+                ).json()
+            }
+        ),
     )
     def test_napalm(self, *_):
         with patch(

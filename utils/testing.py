@@ -7,7 +7,7 @@ from django.db.models import ManyToManyField
 from django.forms.models import model_to_dict as _model_to_dict
 from django.test import Client
 from django.test import TestCase as _TestCase
-from django.urls import NoReverseMatch, reverse
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 from taggit.managers import TaggableManager
@@ -18,7 +18,6 @@ from users.models import Token
 def json_file_to_python_type(filename):
     with open(filename, mode="r") as f:
         return json.load(f)
-    return None
 
 
 def model_to_dict(instance, fields, api=False):
