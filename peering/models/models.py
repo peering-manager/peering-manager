@@ -728,12 +728,12 @@ class InternetExchange(AbstractGroup):
     @transaction.atomic
     def poll_peering_sessions(self):
         # Get connections to this IXP
-        connections = self.get_connections()
+        connections = self.get_connections().filter(router__isnull=False)
 
         # Check if we are able to get BGP details
         log = 'ignoring session states on {}, reason: "{}"'
         if connections.count() < 0:
-            log = log.format(self.name.lower(), "no routers connected")
+            log = log.format(self.name.lower(), "no connections with routers")
         elif not self.check_bgp_session_states:
             log = log.format(self.name.lower(), "check disabled")
         else:
