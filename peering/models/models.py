@@ -727,12 +727,12 @@ class InternetExchange(AbstractGroup):
 
     @transaction.atomic
     def poll_peering_sessions(self):
-        # Get connected routers to this IXP
-        connected_routers = self.get_routers()
+        # Get connections to this IXP
+        connections = self.get_connections()
 
         # Check if we are able to get BGP details
         log = 'ignoring session states on {}, reason: "{}"'
-        if connected_routers.count() < 0:
+        if connections.count() < 0:
             log = log.format(self.name.lower(), "no routers connected")
         elif not self.check_bgp_session_states:
             log = log.format(self.name.lower(), "check disabled")
@@ -744,8 +744,9 @@ class InternetExchange(AbstractGroup):
             self.logger.debug(log)
             return False
 
-        for router in connected_routers:
+        for connection in connections:
             # Get all BGP sessions detail
+            router = connection.router
             bgp_neighbors_detail = router.get_bgp_neighbors_detail()
 
             # An error occured, probably
@@ -763,22 +764,8 @@ class InternetExchange(AbstractGroup):
 
                         # Check if the BGP session is on this IX
                         try:
-                            ip = ipaddress.ip_address(ip_address)
-                            lookup = {"ip_address": ip_address}
-                            for connection in router.get_connections():
-                                # Limit scope to address in connection's subnets
-                                if (
-                                    ip.version == 4
-                                    and ip in connection.ipv4_address.network
-                                ) or (
-                                    ip.version == 6
-                                    and ip in connection.ipv6_address.network
-                                ):
-                                    lookup["ixp_connection"] = connection
-                                    break
-
                             ixp_session = InternetExchangePeeringSession.objects.get(
-                                **lookup
+                                ip_address=ip_address, ixp_connection=connection
                             )
                             # Get the BGP state for the session
                             state = session["connection_state"].lower()
