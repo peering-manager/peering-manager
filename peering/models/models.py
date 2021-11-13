@@ -645,17 +645,15 @@ class InternetExchange(AbstractGroup):
                 and self.peeringdb_ixlan.ix.id == candidate.peeringdb_ixid
             ):
                 # Check if prefixes between IX-API and PeeringDB match
-                a = sorted(
-                    [
-                        i["actual_ip"].network
-                        for i in candidate.ips
-                        if i["actual_ip"].network.version == 4
-                    ]
-                )
-                b = sorted(
-                    [i.prefix for i in self.get_prefixes() if i.prefix.version == 4]
-                )
-                if a == b:
+                found_v4 = False
+                found_v6 = False
+                for i in self.get_prefixes():
+                    if i.prefix == candidate.subnet_v4:
+                        found_v4 = True
+                    if i.prefix == candidate.subnet_v6:
+                        found_v6 = True
+
+                if found_v4 and found_v6:
                     network_service = candidate
                     break
 

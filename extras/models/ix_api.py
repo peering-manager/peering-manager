@@ -215,12 +215,32 @@ class NetworkService(RemoteObject):
         return self._product
 
     @property
-    def ips(self):
-        ids = self.get_property("ips")
-        if ids and not self._ips:
-            self._ips = self._ixapi.get_ips(ids=ids)
+    def subnet_v6(self):
+        if self._ixapi.version > 1:
+            try:
+                return ipaddress.ip_network(self.get_property("subnet_v6"))
+            except (AttributeError, ValueError):
+                return None
 
-        return self._ips
+        # v1 uses `ips` list, iterator over list and return best value
+        for ip in self._ixapi.get_ips(ids=self.get_property("ips")):
+            if ip["actual_ip"].version == 6:
+                return ip["actual_ip"].network
+        return None
+
+    @property
+    def subnet_v4(self):
+        if self._ixapi.version > 1:
+            try:
+                return ipaddress.ip_network(self.get_property("subnet_v4"))
+            except (AttributeError, ValueError):
+                return None
+
+        # v1 uses `ips` list, iterator over list and return best value
+        for ip in self._ixapi.get_ips(ids=self.get_property("ips")):
+            if ip["actual_ip"].version == 4:
+                return ip["actual_ip"].network
+        return None
 
     @property
     def network_features(self):
@@ -232,12 +252,9 @@ class NetworkService(RemoteObject):
     @property
     def network_service_configs(self):
         if not self._network_service_configs:
-            for i in self._ixapi.get_network_service_configs():
-                if i.network_service == self.id and i.state in (
-                    "production",
-                    "testing",
-                ):
-                    self._network_service_configs.append(i)
+            self._network_service_configs = self._ixapi.get_network_service_configs(
+                network_service_id=self.id
+            )
         return self._network_service_configs
 
 
@@ -470,14 +487,26 @@ class IXAPI(ChangeLoggedModel):
     def get_network_feature_configs(self):
         return self.lookup("network-feature-configs")
 
-    def get_network_service_configs(self):
+    def get_network_service_configs(
+        self, network_service_id="", state=("production", "testing")
+    ):
         """
         Returns configs for IXP services specific for us.
         """
         o = []
-        for i in self.lookup("network-service-configs"):
-            o.append(NetworkServiceConfig(self, i))
-        return o
+        if not network_service_id:
+            o = self.lookup("network-service-configs")
+        elif self.version > 1:
+            o = self.lookup(
+                "network-service-configs",
+                params={"network_service": network_service_id},
+            )
+        else:
+            for i in self.lookup("network-service-configs"):
+                if i["network_service"] == network_service_id:
+                    o.append(i)
+
+        return [NetworkServiceConfig(self, i) for i in o if i["state"] in state]
 
     def get_network_services(self, ids=[]):
         """
