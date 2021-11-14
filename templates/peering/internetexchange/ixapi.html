@@ -74,8 +74,12 @@
           <td>{{ config.inner_vlan | render_none }}</td>
         </tr>
         <tr>
-          <td>IP address{{ config.ips|pluralize:"es" }}</td>
+          <td>IP address{{ config.ips | pluralize:"es" }}</td>
           <td>{{ config.ips | join:" - " }}</td>
+        </tr>
+        <tr>
+          <td>MAC address{{ config.macs | pluralize:"es" }}</td>
+          <td>{{ config.macs | join:" - "  | render_none }}</td>
         </tr>
       </table>
     </div>

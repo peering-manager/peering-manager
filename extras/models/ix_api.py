@@ -202,6 +202,15 @@ class IP(RemoteObject):
         return str(self._value)
 
 
+class MAC(RemoteObject):
+    @property
+    def address(self):
+        return self.get_property("address")
+
+    def __str__(self):
+        return self.address
+
+
 class NetworkService(RemoteObject):
     """
     Proxy object for `network-services` endpoint.
@@ -528,10 +537,13 @@ class IXAPI(ChangeLoggedModel):
         return [IP(self, i) for i in d]
 
     def get_macs(self, id=[]):
+        d = []
         if id:
-            return self.lookup("macs", params={"id": id})
+            d = self.lookup("macs", params={"id": id})
         else:
-            return self.lookup("macs", params={"consuming_customer": self.identity})
+            d = self.lookup("macs", params={"consuming_customer": self.identity})
+
+        return [MAC(self, i) for i in d]
 
     def get_network_features(self, id=[]):
         d = []
