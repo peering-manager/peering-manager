@@ -73,12 +73,10 @@
           <td>Inner VLAN</td>
           <td>{{ config.inner_vlan | render_none }}</td>
         </tr>
-        {% for i in config.ips %}
         <tr>
-          <td>IP address</td>
-          <td>{{ i }}</td>
+          <td>IP address{{ config.ips|pluralize:"es" }}</td>
+          <td>{{ config.ips | join:" - " }}</td>
         </tr>
-        {% endfor %}
       </table>
     </div>
     {% endfor %}
