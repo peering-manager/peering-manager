@@ -182,6 +182,26 @@ class RemoteObject(object):
         return self.get_property("id")
 
 
+class IP(RemoteObject):
+    def __init__(self, ixapi, data):
+        super().__init__(ixapi, data)
+
+        self._value = ipaddress.ip_interface(
+            f"{self.get_property('address')}/{self.get_property('prefix_length')}"
+        )
+
+    @property
+    def address(self):
+        return self._value.ip
+
+    @property
+    def network(self):
+        return self._value.network
+
+    def __str__(self):
+        return str(self._value)
+
+
 class NetworkService(RemoteObject):
     """
     Proxy object for `network-services` endpoint.
@@ -211,7 +231,7 @@ class NetworkService(RemoteObject):
     def product(self):
         product_id = self.get_property("product")
         if not self._product and product_id:
-            self._product = self._ixapi.get_products([product_id])[0]
+            self._product = self._ixapi.get_products(id=[product_id])[0]
         return self._product
 
     @property
@@ -223,9 +243,9 @@ class NetworkService(RemoteObject):
                 return None
 
         # v1 uses `ips` list, iterator over list and return best value
-        for ip in self._ixapi.get_ips(ids=self.get_property("ips")):
-            if ip["actual_ip"].version == 6:
-                return ip["actual_ip"].network
+        for ip in self._ixapi.get_ips(id=self.get_property("ips")):
+            if ip.address.version == 6:
+                return ip.network
         return None
 
     @property
@@ -237,16 +257,16 @@ class NetworkService(RemoteObject):
                 return None
 
         # v1 uses `ips` list, iterator over list and return best value
-        for ip in self._ixapi.get_ips(ids=self.get_property("ips")):
-            if ip["actual_ip"].version == 4:
-                return ip["actual_ip"].network
+        for ip in self._ixapi.get_ips(id=self.get_property("ips")):
+            if ip.address.version == 4:
+                return ip.network
         return None
 
     @property
     def network_features(self):
-        ids = self.get_property("network_features")
-        if ids and not self._network_features:
-            self._network_features = self._ixapi.get_network_features(ids=ids)
+        id = self.get_property("network_features")
+        if id and not self._network_features:
+            self._network_features = self._ixapi.get_network_features(id=id)
         return self._network_features
 
     @property
@@ -283,33 +303,31 @@ class NetworkServiceConfig(RemoteObject):
 
     @property
     def ips(self):
-        ids = self.get_property("ips")
-        if ids and not self._ips:
-            self._ips = self._ixapi.get_ips(ids=ids)
+        id = self.get_property("ips")
+        if id and not self._ips:
+            self._ips = self._ixapi.get_ips(id=id)
 
         return self._ips
 
     @property
     def ipv4_address(self):
         for i in self.ips:
-            ip = i["actual_ip"]
-            if ip.version == 4:
-                return ip
+            if i.address.version == 4:
+                return i
         return None
 
     @property
     def ipv6_address(self):
         for i in self.ips:
-            ip = i["actual_ip"]
-            if ip.version == 6:
-                return ip
+            if i.address.version == 6:
+                return i
         return None
 
     @property
     def macs(self):
-        ids = self.get_property("macs")
-        if ids and not self._macs:
-            self._macs = self._ixapi.get_macs(ids=ids)
+        id = self.get_property("macs")
+        if id and not self._macs:
+            self._macs = self._ixapi.get_macs(id=id)
         return self._macs
 
     @property
@@ -331,6 +349,56 @@ class NetworkServiceConfig(RemoteObject):
             return Connection.objects.get(qs_filter)
         except (Connection.DoesNotExist, Connection.MultipleObjectsReturned):
             return None
+
+
+class NetworkFeature(RemoteObject):
+    @property
+    def name(self):
+        return self.get_property("name")
+
+    @property
+    def type(self):
+        return self.get_property("type")
+
+    @property
+    def asn(self):
+        return self.get_property("asn")
+
+    @property
+    def fqdn(self):
+        return self.get_property("fqdn")
+
+    @property
+    def required(self):
+        return self.get_property("required")
+
+    @property
+    def ip_v6(self):
+        if self._ixapi.version > 1:
+            try:
+                return ipaddress.ip_address(self.get_property("ip_v6"))
+            except (AttributeError, ValueError):
+                return None
+
+        # v1 uses `ips` list, iterator over list and return best value
+        for ip in self._ixapi.get_ips(id=self.get_property("ips")):
+            if ip.address.version == 6:
+                return ip.address
+        return None
+
+    @property
+    def ip_v4(self):
+        if self._ixapi.version > 1:
+            try:
+                return ipaddress.ip_address(self.get_property("ip_v4"))
+            except (AttributeError, ValueError):
+                return None
+
+        # v1 uses `ips` list, iterator over list and return best value
+        for ip in self._ixapi.get_ips(id=self.get_property("ips")):
+            if ip.address.version == 4:
+                return ip.address
+        return None
 
 
 class IXAPI(ChangeLoggedModel):
@@ -382,6 +450,30 @@ class IXAPI(ChangeLoggedModel):
 
         return c
 
+    def lookup(self, endpoint, params={}):
+        """
+        Performs a GET request with given parameters and returns the data as dict.
+        """
+
+        # Process special id key depending, change endpoint if a single id is given,
+        # join id if it's a list
+        if "id" in params:
+            if type(params["id"]) is list:
+                id = ",".join(params["id"])
+                params["id"] = id
+            else:
+                endpoint = f"{endpoint}/{params['id']}"
+                del params["id"]
+
+        @cached_as(self, extra=params, timeout=settings.CACHE_TIMEOUT)
+        def _lookup():
+            # Make use of cache to speed up consecutive runs
+            client = self.dial()
+            _, data = client.get(endpoint, params=params)
+            return data
+
+        return _lookup()
+
     def get_health(self):
         """
         Returns the health of the API according to the following specification:
@@ -426,66 +518,29 @@ class IXAPI(ChangeLoggedModel):
         """
         return self.get_customers(id=self.identity)
 
-    def lookup(self, endpoint, params={}):
-        """
-        Performs a GET request with given parameters and returns the data as dict.
-        """
-
-        @cached_as(self, extra=params, timeout=settings.CACHE_TIMEOUT)
-        def _lookup():
-            # Make use of cache to speed up consecutive runs
-            client = self.dial()
-            _, data = client.get(endpoint, params=params)
-            return data
-
-        return _lookup()
-
-    def get_contacts(self):
-        return self.lookup("contacts", params={"consuming_customer": self.identity})
-
-    def get_demarcs(self):
-        return self.lookup("demarcs")
-
-    def get_connections(self):
-        return self.lookup("connections", params={"consuming_customer": self.identity})
-
-    def get_ips(self, ids=[]):
+    def get_ips(self, id=[]):
         d = []
-        if ids:
-            d = self.lookup("ips", params={"id": ",".join(ids)})
+        if id:
+            d = self.lookup("ips", params={"id": id})
         else:
             d = self.lookup("ips", params={"consuming_customer": self.identity})
 
-        # Parse the IP address as a Python object for later use
-        for i in d:
-            i["actual_ip"] = ipaddress.ip_interface(
-                f"{i['address']}/{i['prefix_length']}"
-            )
+        return [IP(self, i) for i in d]
 
-        return d
-
-    def get_macs(self, ids=[]):
-        if ids:
-            return self.lookup("macs", params={"id": ",".join(ids)})
+    def get_macs(self, id=[]):
+        if id:
+            return self.lookup("macs", params={"id": id})
         else:
             return self.lookup("macs", params={"consuming_customer": self.identity})
 
-    def get_network_features(self, ids=[]):
+    def get_network_features(self, id=[]):
         d = []
-        if ids:
-            d = self.lookup("network-features", params={"id": ",".join(ids)})
+        if id:
+            d = self.lookup("network-features", params={"id": id})
         else:
             d = self.lookup("network-features")
 
-        # Fetch IP addresses if any
-        for i in d:
-            if i["ips"]:
-                i["ips"] = self.get_ips(ids=i["ips"])
-
-        return d
-
-    def get_network_feature_configs(self):
-        return self.lookup("network-feature-configs")
+        return [NetworkFeature(self, i) for i in d]
 
     def get_network_service_configs(
         self, network_service_id="", state=("production", "testing")
@@ -508,13 +563,13 @@ class IXAPI(ChangeLoggedModel):
 
         return [NetworkServiceConfig(self, i) for i in o if i["state"] in state]
 
-    def get_network_services(self, ids=[]):
+    def get_network_services(self, id=[]):
         """
         Returns IXP services available for all IX members.
         """
         d = []
-        if ids:
-            d = self.lookup("network-services", params={"id": ",".join(ids)})
+        if id:
+            d = self.lookup("network-services", params={"id": id})
         else:
             d = self.lookup(
                 "network-services",
@@ -523,13 +578,8 @@ class IXAPI(ChangeLoggedModel):
 
         return [NetworkService(self, i) for i in d]
 
-    def get_products(self, ids=[]):
-        if ids:
-            return self.lookup("products", params={"id": ",".join(ids)})
+    def get_products(self, id=[]):
+        if id:
+            return self.lookup("products", params={"id": id})
         else:
             return self.lookup("products")
-
-    # Figure out what can be achieved with IX-API in the context of an IXP
-    # List all connections on an IXP, service IDs, demarcation points, characteristics
-    # (speed, …); list all IPs; list all MAC address (create/destroy them); list all
-    # services (order/cancel then)

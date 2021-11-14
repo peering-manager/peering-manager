@@ -37,25 +37,10 @@
           <td>Metro area</td>
           <td>{{ instance.ixapi_network_service.metro_area }}</td>
         </tr>
-      </table>
-    </div>
-    <div class="card mb-2">
-      <div class="card-header"><strong>Available features</strong></div>
-      <table class="card-body table table-hover attr-table mb-0">
-        {% for f in instance.ixapi_network_service.network_features %}
-        <tr{% if f.required is True %} data-toggle="tooltip" data-placement="left" title="Required"{% endif %}>
-          <td>{{ f.name }}</td>
-          {% if f.type == "route_server" %}
-          <td>AS{{ f.asn }}</td>
-          <td>{{ f.fqdn }}</td>
-          <td>
-            {% for i in f.ips %}
-            {{ i.actual_ip.ip }}
-            {% endfor %}
-          </td>
-          {% endif %}
+        <tr>
+          <td>Features</td>
+          <td><a href="#" role="button" data-toggle="modal" data-target="#features-modal">Show</a></td>
         </tr>
-        {% endfor %}
       </table>
     </div>
   </div>
@@ -91,12 +76,45 @@
         {% for i in config.ips %}
         <tr>
           <td>IP address</td>
-          <td>{{ i.actual_ip }}</td>
+          <td>{{ i }}</td>
         </tr>
         {% endfor %}
       </table>
     </div>
     {% endfor %}
+  </div>
+</div>
+<div class="modal fade" id="features-modal" tabindex="-1" aria-labelledby="featuresModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="featuresModalLabel">Available Features</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <table class="modal-body table table-hover attr-table mb-0">
+        {% for f in instance.ixapi_network_service.network_features %}
+        <tr>
+          <td>{{ f.name }}</td>
+          {% if f.type == "route_server" %}
+          <td>AS{{ f.asn }}</td>
+          <td>{{ f.fqdn }}</td>
+          <td>
+            {% if f.ip_v6 %}{{ f.ip_v6 }}{% endif %}
+            {% if f.ip_v4 %}{{ f.ip_v4 }}{% endif %}
+          </td>
+          {% if f.required is True %}
+          <td data-toggle="tooltip" data-placement="left" title="Required"><i class="fas fa-asterisk text-danger"></i></td>
+          {% endif %}
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </table>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
