@@ -37,10 +37,12 @@
           <td>Metro area</td>
           <td>{{ instance.ixapi_network_service.metro_area }}</td>
         </tr>
+        {% if instance.ixapi_network_service.network_features %}
         <tr>
           <td>Features</td>
           <td><a href="#" role="button" data-toggle="modal" data-target="#features-modal">Show</a></td>
         </tr>
+        {% endif %}
       </table>
     </div>
   </div>
@@ -86,6 +88,7 @@
     {% endfor %}
   </div>
 </div>
+{% if instance.ixapi_network_service.network_features %}
 <div class="modal fade" id="features-modal" tabindex="-1" aria-labelledby="featuresModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
@@ -119,6 +122,7 @@
     </div>
   </div>
 </div>
+{% endif %}
 {% endblock %}
 {% block javascript %}
 <script>
