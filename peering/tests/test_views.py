@@ -1,9 +1,5 @@
 import ipaddress
 
-from django.core import mail
-from django.db import transaction
-from django.urls.exceptions import NoReverseMatch
-
 from net.models import Connection
 from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
 from peering.models import (

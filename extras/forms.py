@@ -24,6 +24,7 @@ class IXAPIForm(BootstrapMixin, forms.ModelForm):
         instance = kwargs.get("instance", None)
         if instance.id:
             self.fields["identity"] = forms.ChoiceField(
+                required=False,
                 label="Identity",
                 choices=[("", "---------")]
                 + [(c["id"], c["name"]) for c in instance.get_customers()],
