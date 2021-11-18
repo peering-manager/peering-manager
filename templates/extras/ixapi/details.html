@@ -1,22 +1,6 @@
-{% extends '_base.html' %}
+{% extends 'extras/ixapi/_base.html' %}
 {% load helpers %}
-{% block actions %}
-{% if perms.extras.change_ixapi %}
-<a href="{% url 'extras:ixapi_edit' pk=instance.pk %}" class="btn btn-warning">
-  <i class="fas fa-edit"></i> Edit
-</a>
-{% endif %}
-{% if perms.extras.delete_ixapi %}
-<a href="{% url 'extras:ixapi_delete' pk=instance.pk %}" class="btn btn-danger">
-  <i class="fas fa-trash"></i> Delete
-</a>
-{% endif %}
-{% endblock %}
-{% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'extras:ixapi_list' %}">IX-API</a></li>
-<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
-{% endblock %}
-{% block content %}
+{% block subcontent %}
 <div class="row">
   <div class="col-md-6">
     <div class="card mb-2">

@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django.conf import settings
 
-from utils.tables import BaseTable, SelectColumn
+from utils.tables import BaseTable, ButtonsColumn, SelectColumn
 
 from .models import IXAPI, JobResult
 
@@ -9,11 +9,12 @@ from .models import IXAPI, JobResult
 class IXAPITable(BaseTable):
     name = tables.Column(linkify=True)
     url = tables.URLColumn()
+    buttons = ButtonsColumn(IXAPI)
 
     class Meta(BaseTable.Meta):
         model = IXAPI
-        fields = ("name", "url", "api_key")
-        default_columns = ("name", "url", "api_key")
+        fields = ("name", "url", "api_key", "buttons")
+        default_columns = ("name", "url", "api_key", "buttons")
 
 
 class JobResultTable(BaseTable):

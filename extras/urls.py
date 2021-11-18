@@ -1,6 +1,8 @@
 from django.urls import path
 
-from . import views
+from utils.views import ObjectChangeLog
+
+from . import models, views
 
 app_name = "extras"
 
@@ -11,6 +13,12 @@ urlpatterns = [
     path("ix-api/<int:pk>/edit/", views.IXAPIEditView.as_view(), name="ixapi_edit"),
     path(
         "ix-api/<int:pk>/delete/", views.IXAPIDeleteView.as_view(), name="ixapi_delete"
+    ),
+    path(
+        "ix-api/<int:pk>/changelog/",
+        ObjectChangeLog.as_view(),
+        name="ixapi_changelog",
+        kwargs={"model": models.IXAPI},
     ),
     path("job-results/", views.JobResultListView.as_view(), name="jobresult_list"),
     path(
