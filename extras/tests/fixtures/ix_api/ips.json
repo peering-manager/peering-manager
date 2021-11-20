@@ -1,0 +1,26 @@
+[
+  {
+    "address": "2001:0db8:0000:0000:0000:0000:0000:0000",
+    "consuming_customer": "1234",
+    "external_ref": null,
+    "fqdn": null,
+    "id": "1234",
+    "managing_customer": "1234",
+    "prefix_length": 64,
+    "valid_not_after": "1970-01-01T00:00:00Z",
+    "valid_not_before": "1970-01-01T00:00:00Z",
+    "version": 6
+  },
+  {
+    "address": "192.0.2.0",
+    "consuming_customer": "1234",
+    "external_ref": null,
+    "fqdn": null,
+    "id": "5678",
+    "managing_customer": "1234",
+    "prefix_length": 24,
+    "valid_not_after": "1970-01-01T00:00:00Z",
+    "valid_not_before": "1970-01-01T00:00:00Z",
+    "version": 4
+  }
+]

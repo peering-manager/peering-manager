@@ -44,19 +44,19 @@ class IXAPITest(StandardAPITestCases.View):
             [
                 IXAPI(
                     name="IXP 1",
-                    url="https://ixp1-ixapi.example.net",
+                    url="https://ixp1-ixapi.example.net/v1/",
                     api_key="key-ixp1",
                     api_secret="secret-ixp1",
                 ),
                 IXAPI(
                     name="IXP 2",
-                    url="https://ixp2-ixapi.example.net",
+                    url="https://ixp2-ixapi.example.net/v2/",
                     api_key="key-ixp2",
                     api_secret="secret-ixp2",
                 ),
                 IXAPI(
                     name="IXP 3",
-                    url="https://ixp3-ixapi.example.net",
+                    url="https://ixp3-ixapi.example.net/v3/",
                     api_key="key-ixp3",
                     api_secret="secret-ixp3",
                 ),

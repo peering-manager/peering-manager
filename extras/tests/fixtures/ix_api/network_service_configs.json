@@ -1,0 +1,25 @@
+[
+  {
+    "asns": [
+      64500
+    ],
+    "capacity": null,
+    "connection": "",
+    "consuming_customer": "1234",
+    "contacts": [],
+    "contract_ref": null,
+    "external_ref": null,
+    "id": "1234",
+    "inner_vlan": null,
+    "ips": [],
+    "macs": [],
+    "managing_customer": "1234",
+    "network_feature_configs": [],
+    "network_service": "1234",
+    "outer_vlan": 0,
+    "purchase_order": "",
+    "state": "production",
+    "status": [],
+    "type": "exchange_lan"
+  }
+]

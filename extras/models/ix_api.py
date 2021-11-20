@@ -119,38 +119,6 @@ class Client(object):
         r.raise_for_status()
         return unpack_response(r)
 
-    def put(self, resource, payload=None):
-        u = format_url(self.host, resource)
-        logger.debug(f"sending put to api located at {u}")
-
-        r = requests.put(u, json=payload, headers=self.request_headers)
-        r.raise_for_status()
-        return unpack_response(r)
-
-    def patch(self, resource, payload=None):
-        u = format_url(self.host, resource)
-        logger.debug(f"sending patch to api located at {u}")
-
-        r = requests.patch(u, json=payload, headers=self.request_headers)
-        r.raise_for_status()
-        return unpack_response(r)
-
-    def delete(self, resource):
-        u = format_url(self.host, resource)
-        logger.debug(f"sending delete to api located at {u}")
-
-        r = requests.delete(u, headers=self.request_headers)
-        r.raise_for_status()
-        return unpack_response(r)
-
-    def options(self, resource):
-        u = format_url(self.host, resource)
-        logger.debug(f"sending options to api located at {u}")
-
-        r = requests.options(u, headers=self.request_headers)
-        r.raise_for_status()
-        return unpack_response(r)
-
 
 class RemoteObject(object):
     """
@@ -501,7 +469,7 @@ class IXAPI(ChangeLoggedModel):
 
         if data["status"] in ("pass", "ok", "up"):
             return "healthy"
-        elif "warn" == data["status"]:
+        elif data["status"] == "warn":
             return "degraded"
         else:
             return "unhealthy"
@@ -525,6 +493,9 @@ class IXAPI(ChangeLoggedModel):
         """
         Returns our own customer instance.
         """
+        if not self.identity:
+            return None
+        else:
         return self.get_customers(id=self.identity)
 
     def get_ips(self, id=[]):
