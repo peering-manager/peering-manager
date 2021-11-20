@@ -496,7 +496,7 @@ class IXAPI(ChangeLoggedModel):
         if not self.identity:
             return None
         else:
-        return self.get_customers(id=self.identity)
+            return self.get_customers(id=self.identity)
 
     def get_ips(self, id=[]):
         d = []
