@@ -7,18 +7,6 @@ from extras.models import IXAPI
 from utils.testing import MockedResponse
 
 
-def ix_api_mocked_response(fixture="", content=None):
-    """
-    Returns both the mocked response and its JSON content.
-    """
-    r = None
-    if fixture:
-        r = MockedResponse(fixture=fixture)
-    elif content:
-        r = MockedResponse(content=content)
-    return r, r.json()
-
-
 class IXAPITest(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -52,8 +40,8 @@ class IXAPITest(TestCase):
         self.assertEqual(3, IXAPI.objects.get(name="IXP 3").version)
 
     @patch(
-        "extras.models.ix_api.Client.post",
-        return_value=ix_api_mocked_response(
+        "requests.post",
+        return_value=MockedResponse(
             content={"access_token": "1234", "refresh_token": "1234"}
         ),
     )
@@ -63,8 +51,8 @@ class IXAPITest(TestCase):
         self.assertEqual("1234", c.refresh_token)
 
     @patch(
-        "extras.models.ix_api.Client.post",
-        return_value=ix_api_mocked_response(
+        "requests.post",
+        return_value=MockedResponse(
             content={"access_token": "1234", "refresh_token": "1234"}
         ),
     )
@@ -90,8 +78,8 @@ class IXAPITest(TestCase):
             self.assertEqual("unhealthy", i.get_health())
 
     @patch(
-        "extras.models.ix_api.Client.post",
-        return_value=ix_api_mocked_response(
+        "requests.post",
+        return_value=MockedResponse(
             content={"access_token": "1234", "refresh_token": "1234"}
         ),
     )
@@ -108,8 +96,8 @@ class IXAPITest(TestCase):
             self.assertEqual("5678", c[1]["id"])
 
     @patch(
-        "extras.models.ix_api.Client.post",
-        return_value=ix_api_mocked_response(
+        "requests.post",
+        return_value=MockedResponse(
             content={"access_token": "1234", "refresh_token": "1234"}
         ),
     )
@@ -123,8 +111,8 @@ class IXAPITest(TestCase):
             self.assertEqual("1234", self.ix_api.get_identity()["id"])
 
     @patch(
-        "extras.models.ix_api.Client.post",
-        return_value=ix_api_mocked_response(
+        "requests.post",
+        return_value=MockedResponse(
             content={"access_token": "1234", "refresh_token": "1234"}
         ),
     )
@@ -144,8 +132,8 @@ class IXAPITest(TestCase):
             self.assertIsInstance(i[1].address, ipaddress.IPv4Address)
 
     @patch(
-        "extras.models.ix_api.Client.post",
-        return_value=ix_api_mocked_response(
+        "requests.post",
+        return_value=MockedResponse(
             content={"access_token": "1234", "refresh_token": "1234"}
         ),
     )
@@ -161,8 +149,8 @@ class IXAPITest(TestCase):
             self.assertEqual("AA:BB:CC:DD:EE:FF", i[0].address)
 
     @patch(
-        "extras.models.ix_api.Client.post",
-        return_value=ix_api_mocked_response(
+        "requests.post",
+        return_value=MockedResponse(
             content={"access_token": "1234", "refresh_token": "1234"}
         ),
     )
@@ -179,8 +167,8 @@ class IXAPITest(TestCase):
             self.assertTrue(i[0].required)
 
     @patch(
-        "extras.models.ix_api.Client.post",
-        return_value=ix_api_mocked_response(
+        "requests.post",
+        return_value=MockedResponse(
             content={"access_token": "1234", "refresh_token": "1234"}
         ),
     )
@@ -196,8 +184,8 @@ class IXAPITest(TestCase):
             self.assertEqual("production", i[0].state)
 
     @patch(
-        "extras.models.ix_api.Client.post",
-        return_value=ix_api_mocked_response(
+        "requests.post",
+        return_value=MockedResponse(
             content={"access_token": "1234", "refresh_token": "1234"}
         ),
     )
@@ -213,8 +201,8 @@ class IXAPITest(TestCase):
             self.assertEqual(1234, i[0].peeringdb_ixid)
 
     @patch(
-        "extras.models.ix_api.Client.post",
-        return_value=ix_api_mocked_response(
+        "requests.post",
+        return_value=MockedResponse(
             content={"access_token": "1234", "refresh_token": "1234"}
         ),
     )
