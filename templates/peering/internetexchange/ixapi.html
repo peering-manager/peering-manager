@@ -8,12 +8,12 @@
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
           <td>IX-API</td>
-          <td>{{ instance.ix_api_endpoint | as_link }}</td>
+          <td>{{ instance.ixapi_endpoint | as_link }}</td>
         </tr>
-        {% if instance.ix_api_endpoint.version != 1 %}
+        {% if instance.ixapi_endpoint.version != 1 %}
         <tr>
           <td>Status</td>
-          <td>{{ instance.ix_api_endpoint.get_health }}</td>
+          <td>{{ instance.ixapi_endpoint.get_health }}</td>
         </tr>
         {% endif %}
       </table>

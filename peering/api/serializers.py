@@ -215,7 +215,7 @@ class EmailSerializer(PrimaryModelSerializer):
 
 
 class InternetExchangeSerializer(PrimaryModelSerializer):
-    ix_api_endpoint = NestedIXAPISerializer(required=False)
+    ixapi_endpoint = NestedIXAPISerializer(required=False)
     local_autonomous_system = NestedAutonomousSystemSerializer()
     import_routing_policies = SerializedPKRelatedField(
         queryset=RoutingPolicy.objects.all(),
@@ -242,7 +242,7 @@ class InternetExchangeSerializer(PrimaryModelSerializer):
             "id",
             "display",
             "peeringdb_ixlan",
-            "ix_api_endpoint",
+            "ixapi_endpoint",
             "local_autonomous_system",
             "name",
             "slug",

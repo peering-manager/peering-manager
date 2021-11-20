@@ -40,7 +40,7 @@
     </a>
   </li>
   {% endif %}
-  {% if instance.ix_api_endpoint and perms.peering.view_internet_exchange_point_ixapi %}
+  {% if instance.ixapi_endpoint and perms.peering.view_internet_exchange_point_ixapi %}
   <li class="nav-item">
     <a class="nav-link{% if active_tab == 'ixapi' %} active{% endif %}" href="{% url 'peering:internetexchange_ixapi' pk=instance.pk %}">
       <i class="fas fa-robot"></i> IX-API

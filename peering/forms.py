@@ -490,7 +490,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     communities = DynamicModelMultipleChoiceField(
         required=False, queryset=Community.objects.all()
     )
-    ix_api_endpoint = DynamicModelChoiceField(
+    ixapi_endpoint = DynamicModelChoiceField(
         required=False, label="IX-API endpoint", queryset=IXAPI.objects.all()
     )
     comments = CommentField()
@@ -506,7 +506,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "import_routing_policies",
             "export_routing_policies",
             "check_bgp_session_states",
-            "ix_api_endpoint",
+            "ixapi_endpoint",
             "comments",
             "tags",
         )
@@ -544,7 +544,7 @@ class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFo
         label="Poll peering session states",
         widget=CustomNullBooleanSelect,
     )
-    ix_api_endpoint = DynamicModelChoiceField(
+    ixapi_endpoint = DynamicModelChoiceField(
         required=False, label="IX-API endpoint", queryset=IXAPI.objects.all()
     )
     comments = CommentField(widget=SmallTextarea)
@@ -554,7 +554,7 @@ class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFo
             "import_routing_policies",
             "export_routing_policies",
             "communities",
-            "ix_api_endpoint",
+            "ixapi_endpoint",
             "comments",
         ]
 

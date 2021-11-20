@@ -34,7 +34,7 @@ class IXAPIView(DetailsView):
         return {
             "instance": instance,
             "internet_exchange_points": InternetExchange.objects.filter(
-                ix_api_endpoint=instance
+                ixapi_endpoint=instance
             ),
             "active_tab": "main",
         }

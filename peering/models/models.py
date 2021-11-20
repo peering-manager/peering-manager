@@ -582,7 +582,7 @@ class InternetExchange(AbstractGroup):
     peeringdb_ixlan = models.ForeignKey(
         "peeringdb.IXLan", on_delete=models.SET_NULL, blank=True, null=True
     )
-    ix_api_endpoint = models.ForeignKey(
+    ixapi_endpoint = models.ForeignKey(
         "extras.IXAPI",
         on_delete=models.SET_NULL,
         blank=True,
@@ -632,12 +632,11 @@ class InternetExchange(AbstractGroup):
         """
         network_service = None
 
-        if not self.ix_api_endpoint:
+        if not self.ixapi_endpoint:
             return network_service
 
-        # TODO: review this but seems to work
         # Heuristic to find out which IX-API network service we have here
-        candidates = self.ix_api_endpoint.get_network_services()
+        candidates = self.ixapi_endpoint.get_network_services()
         for candidate in candidates:
             # If PeeringDB's IX IDs match, we are on the right track
             if (

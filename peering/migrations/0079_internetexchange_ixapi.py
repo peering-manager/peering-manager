@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="internetexchange",
-            name="ix_api_endpoint",
+            name="ixapi_endpoint",
             field=models.ForeignKey(
                 blank=True,
                 help_text="URL and authentication details to interact with IX-API",
