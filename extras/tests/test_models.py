@@ -74,18 +74,18 @@ class IXAPITest(TestCase):
 
         i = IXAPI.objects.get(name="IXP 2")
         with patch(
-            "extras.models.ix_api.Client.get",
-            return_value=ix_api_mocked_response(content={"status": "up"}),
+            "requests.get",
+            return_value=MockedResponse(content={"status": "up"}),
         ):
             self.assertEqual("healthy", i.get_health())
         with patch(
-            "extras.models.ix_api.Client.get",
-            return_value=ix_api_mocked_response(content={"status": "warn"}),
+            "requests.get",
+            return_value=MockedResponse(content={"status": "warn"}),
         ):
             self.assertEqual("degraded", i.get_health())
         with patch(
-            "extras.models.ix_api.Client.get",
-            return_value=ix_api_mocked_response(content={"status": "error"}),
+            "requests.get",
+            return_value=MockedResponse(content={"status": "error"}),
         ):
             self.assertEqual("unhealthy", i.get_health())
 
@@ -97,8 +97,8 @@ class IXAPITest(TestCase):
     )
     def test_get_customers(self, *_):
         with patch(
-            "extras.models.ix_api.Client.get",
-            return_value=ix_api_mocked_response(
+            "requests.get",
+            return_value=MockedResponse(
                 fixture="extras/tests/fixtures/ix_api/customers.json"
             ),
         ):
@@ -115,10 +115,8 @@ class IXAPITest(TestCase):
     )
     def test_get_identity(self, *_):
         with patch(
-            "extras.models.ix_api.Client.get",
-            return_value=ix_api_mocked_response(
-                content=[{"id": "1234", "name": "Customer 1"}]
-            ),
+            "requests.get",
+            return_value=MockedResponse(content=[{"id": "1234", "name": "Customer 1"}]),
         ):
             self.assertIsNone(self.ix_api.get_identity())
             self.ix_api.identity = "1234"
@@ -132,8 +130,8 @@ class IXAPITest(TestCase):
     )
     def test_get_ips(self, *_):
         with patch(
-            "extras.models.ix_api.Client.get",
-            return_value=ix_api_mocked_response(
+            "requests.get",
+            return_value=MockedResponse(
                 fixture="extras/tests/fixtures/ix_api/ips.json"
             ),
         ):
@@ -153,8 +151,8 @@ class IXAPITest(TestCase):
     )
     def test_get_macs(self, *_):
         with patch(
-            "extras.models.ix_api.Client.get",
-            return_value=ix_api_mocked_response(
+            "requests.get",
+            return_value=MockedResponse(
                 fixture="extras/tests/fixtures/ix_api/macs.json"
             ),
         ):
@@ -170,8 +168,8 @@ class IXAPITest(TestCase):
     )
     def test_get_network_features(self, *_):
         with patch(
-            "extras.models.ix_api.Client.get",
-            return_value=ix_api_mocked_response(
+            "requests.get",
+            return_value=MockedResponse(
                 fixture="extras/tests/fixtures/ix_api/network_features.json"
             ),
         ):
@@ -188,8 +186,8 @@ class IXAPITest(TestCase):
     )
     def test_get_network_service_configs(self, *_):
         with patch(
-            "extras.models.ix_api.Client.get",
-            return_value=ix_api_mocked_response(
+            "requests.get",
+            return_value=MockedResponse(
                 fixture="extras/tests/fixtures/ix_api/network_service_configs.json"
             ),
         ):
@@ -205,8 +203,8 @@ class IXAPITest(TestCase):
     )
     def test_get_network_services(self, *_):
         with patch(
-            "extras.models.ix_api.Client.get",
-            return_value=ix_api_mocked_response(
+            "requests.get",
+            return_value=MockedResponse(
                 fixture="extras/tests/fixtures/ix_api/network_services.json"
             ),
         ):
@@ -222,8 +220,8 @@ class IXAPITest(TestCase):
     )
     def test_get_products(self, *_):
         with patch(
-            "extras.models.ix_api.Client.get",
-            return_value=ix_api_mocked_response(
+            "requests.get",
+            return_value=MockedResponse(
                 fixture="extras/tests/fixtures/ix_api/products.json"
             ),
         ):
