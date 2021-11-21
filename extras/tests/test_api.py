@@ -1,11 +1,12 @@
 import uuid
+from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from rest_framework import status
 
 from extras.models import IXAPI, JobResult, Webhook
-from utils.testing import APITestCase, StandardAPITestCases
+from utils.testing import APITestCase, MockedResponse, StandardAPITestCases
 
 
 class AppTest(APITestCase):
@@ -68,6 +69,36 @@ class IXAPITest(StandardAPITestCases.View):
                 ),
             ]
         )
+
+    @patch(
+        "requests.post",
+        return_value=MockedResponse(
+            content={"access_token": "1234", "refresh_token": "1234"}
+        ),
+    )
+    def test_customers(self, *_):
+        ixapi = IXAPI.objects.get(name="IXP 1")
+        mocked = MockedResponse(fixture="extras/tests/fixtures/ix_api/customers.json")
+        url = reverse("extras-api:ixapi-customers")
+
+        # Query params required
+        with patch("requests.get", return_value=mocked):
+            response = self.client.get(url, format="json", **self.header)
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+            # With query params
+            response = self.client.get(
+                url,
+                data={
+                    "url": ixapi.url,
+                    "api_key": ixapi.api_key,
+                    "api_secret": ixapi.api_secret,
+                },
+                format="json",
+                **self.header
+            )
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            self.assertListEqual(mocked.json(), response.json())
 
 
 class JobResultTest(
