@@ -21,6 +21,12 @@ class IXAPISerializer(BaseModelSerializer):
         fields = ["id", "display", "name", "url", "api_key", "api_secret", "identity"]
 
 
+class IXAPICustomerSerializer(serializers.Serializer):
+    url = serializers.CharField()
+    api_key = serializers.CharField()
+    api_secret = serializers.CharField()
+
+
 class JobResultSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="extras-api:jobresult-detail")
     user = NestedUserSerializer(read_only=True)

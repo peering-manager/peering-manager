@@ -53,9 +53,15 @@ class Client(object):
     IX-API client to send requests.
     """
 
-    def __init__(self, ix_api_endpoint, *args, **kwargs):
-        self.ix_api_endpoint = ix_api_endpoint
-        self.host = self.ix_api_endpoint.url
+    def __init__(
+        self, ixapi_endpoint=None, ixapi_url="", ixapi_key="", ixapi_secret=""
+    ):
+        self.ixapi_endpoint = ixapi_endpoint
+        self.host = ixapi_url or self.ixapi_endpoint.url
+
+        self._ixapi_key = ixapi_key
+        self._ixapi_secret = ixapi_secret
+
         self.access_token = ""
         self.refresh_token = ""
 
@@ -76,8 +82,8 @@ class Client(object):
         _, d = self.post(
             "auth/token",
             payload={
-                "api_key": self.ix_api_endpoint.api_key,
-                "api_secret": self.ix_api_endpoint.api_secret,
+                "api_key": self._ixapi_key or self.ixapi_endpoint.api_key,
+                "api_secret": self._ixapi_secret or self.ixapi_endpoint.api_secret,
             },
         )
         logger.debug(f"api at {self.host} responded {d}")
@@ -140,9 +146,6 @@ class RemoteObject(object):
         """
         Looks up a value by a key in the underlying `_data` dict of this object.
         """
-        if name not in self._data:
-            raise AttributeError(f"{name} is not a valid property")
-
         return self._data.get(name)
 
     @property

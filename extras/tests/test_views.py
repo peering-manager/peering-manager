@@ -8,7 +8,6 @@ class IXAPITestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = IXAPI
 
     test_bulk_edit_objects = None
-    test_edit_object_with_permission = None  # disabled until mocking in place
 
     @classmethod
     def setUpTestData(cls):

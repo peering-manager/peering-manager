@@ -14,29 +14,11 @@ from .models import IXAPI, JobResult
 
 
 class IXAPIForm(BootstrapMixin, forms.ModelForm):
+    identity = forms.CharField(widget=StaticSelect)
+
     class Meta:
         model = IXAPI
         fields = ("name", "url", "api_key", "api_secret", "identity")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        instance = kwargs.get("instance", None)
-        if instance.id:
-            self.fields["identity"] = forms.ChoiceField(
-                required=False,
-                label="Identity",
-                choices=add_blank_choice(
-                    [(c["id"], c["name"]) for c in instance.get_customers()]
-                ),
-                widget=StaticSelect,
-            )
-            self.fields["identity"].widget.attrs["class"] = " ".join(
-                [
-                    self.fields["identity"].widget.attrs.get("class", ""),
-                    "form-control",
-                ]
-            ).strip()
 
 
 class IXAPIFilterForm(BootstrapMixin, forms.Form):

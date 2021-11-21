@@ -12,3 +12,34 @@
   </div>
 </div>
 {% endblock %}
+{% block javascript %}
+<script>
+  var input = document.getElementById("id_api_secret");
+  var timeout = null;
+
+  input.addEventListener("keyup", function (e) {
+    clearTimeout(timeout);
+    timeout = setTimeout(function () {
+      $.ajax({
+        method: "get",
+        data: {
+          url: $("#id_url").val(),
+          api_key: $("#id_api_key").val(),
+          api_secret: $("#id_api_secret").val(),
+        },
+        url: "{% url 'extras-api:ixapi-customers' %}"
+      }).done(function (r) {
+        for (var i = 0; i < r.length; i++) {
+          if ($("#id_identity").find("option[value='" + r[i].id + "']").length) {
+            $("#id_identity").val(r[i].id);
+          } else { 
+            var opt = new Option(r[i].name, r[i].id, i==0, i==0);
+            $("#id_identity").append(opt);
+          }
+          $("#id_identity").trigger("change");
+        }
+      });
+    }, 500);
+  });
+</script>
+{% endblock %}
