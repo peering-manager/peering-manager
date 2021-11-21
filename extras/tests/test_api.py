@@ -81,8 +81,8 @@ class IXAPITest(StandardAPITestCases.View):
         mocked = MockedResponse(fixture="extras/tests/fixtures/ix_api/customers.json")
         url = reverse("extras-api:ixapi-customers")
 
-        # Query params required
         with patch("requests.get", return_value=mocked):
+            # Query params required
             response = self.client.get(url, format="json", **self.header)
             self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
