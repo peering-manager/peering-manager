@@ -398,6 +398,11 @@ class IXAPI(ChangeLoggedModel):
     class Meta:
         verbose_name = "IX-API"
         ordering = ["name", "url", "-created"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["url", "api_key"], name="unique_ixapi_url_key"
+            )
+        ]
 
     @property
     def version(self):

@@ -41,4 +41,10 @@ class Migration(migrations.Migration):
                 "ordering": ["name", "url", "-created"],
             },
         ),
+        migrations.AddConstraint(
+            model_name="ixapi",
+            constraint=models.UniqueConstraint(
+                fields=("url", "api_key"), name="unique_ixapi_url_key"
+            ),
+        ),
     ]
