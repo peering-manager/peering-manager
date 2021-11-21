@@ -392,14 +392,12 @@ class IXAPI(ChangeLoggedModel):
     api_key = models.CharField(max_length=2000, verbose_name="API key")
     api_secret = models.CharField(max_length=2000, verbose_name="API secret")
     identity = models.CharField(
-        max_length=256,
-        help_text="Identity used to interact with the IX-API",
-        blank=True,
+        max_length=256, help_text="Identity used to interact with the IX-API"
     )
 
     class Meta:
         verbose_name = "IX-API"
-        ordering = ["url", "-created"]
+        ordering = ["name", "url", "-created"]
 
     @property
     def version(self):

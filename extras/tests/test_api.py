@@ -23,18 +23,21 @@ class IXAPITest(StandardAPITestCases.View):
             "url": "https://ixp4-ixapi.example.net",
             "api_key": "key-ixp4",
             "api_secret": "secret-ixp4",
+            "identity": "1234",
         },
         {
             "name": "IXP 5",
             "url": "https://ixp5-ixapi.example.net",
             "api_key": "key-ixp5",
             "api_secret": "secret-ixp5",
+            "identity": "1234",
         },
         {
             "name": "IXP 6",
             "url": "https://ixp6-ixapi.example.net",
             "api_key": "key-ixp6",
             "api_secret": "secret-ixp6",
+            "identity": "1234",
         },
     ]
 
@@ -47,18 +50,21 @@ class IXAPITest(StandardAPITestCases.View):
                     url="https://ixp1-ixapi.example.net/v1/",
                     api_key="key-ixp1",
                     api_secret="secret-ixp1",
+                    identity="1234",
                 ),
                 IXAPI(
                     name="IXP 2",
                     url="https://ixp2-ixapi.example.net/v2/",
                     api_key="key-ixp2",
                     api_secret="secret-ixp2",
+                    identity="1234",
                 ),
                 IXAPI(
                     name="IXP 3",
                     url="https://ixp3-ixapi.example.net/v3/",
                     api_key="key-ixp3",
                     api_secret="secret-ixp3",
+                    identity="1234",
                 ),
             ]
         )

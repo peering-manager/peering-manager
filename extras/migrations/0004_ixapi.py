@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("extras", "0003_webhook")]
 
     operations = [
@@ -34,13 +33,12 @@ class Migration(migrations.Migration):
                     models.CharField(
                         max_length=256,
                         help_text="Identity used to interact with the IX-API",
-                        blank=True,
                     ),
                 ),
             ],
             options={
                 "verbose_name": "IX-API",
-                "ordering": ["url", "-created"],
+                "ordering": ["name", "url", "-created"],
             },
         ),
     ]
