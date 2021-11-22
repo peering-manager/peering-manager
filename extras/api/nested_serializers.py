@@ -1,8 +1,14 @@
 from rest_framework import serializers
 
-from extras.models import JobResult, Webhook
+from extras.models import IXAPI, JobResult, Webhook
 from peering_manager.api.serializers import WritableNestedSerializer
 from users.api.nested_serializers import NestedUserSerializer
+
+
+class NestedIXAPISerializer(WritableNestedSerializer):
+    class Meta:
+        model = IXAPI
+        fields = ["id", "display", "name", "url"]
 
 
 class NestedJobResultSerializer(WritableNestedSerializer):

@@ -57,9 +57,10 @@ nav:
         - Routing Policy: "models/peering/routingpolicy.md"
         - Config Contexts: "models/peering/configcontexts.md"
         - Connection: "models/net/connection.md"
+        - IX-API: "models/extras/ixapi.md"
+        - Webhook: "models/extras/webhook.md"
         - Token: "models/users/token.md"
         - Tag: "models/utils/tag.md"
-        - Webhook: "models/webhooks/webhook.md"
     - Templating:
         - Writing Templates: "templating/index.md"
         - Jinja Filters: "templating/filters.md"

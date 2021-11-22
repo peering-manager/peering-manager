@@ -1,0 +1,134 @@
+{% extends 'peering/internetexchange/_base.html' %}
+{% load helpers %}
+{% block subcontent %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header"><strong>Endpoint</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>IX-API</td>
+          <td>{{ instance.ixapi_endpoint | as_link }}</td>
+        </tr>
+        {% if instance.ixapi_endpoint.version != 1 %}
+        <tr>
+          <td>Status</td>
+          <td>{{ instance.ixapi_endpoint.get_health }}</td>
+        </tr>
+        {% endif %}
+      </table>
+    </div>
+    <div class="card mb-2">
+      <div class="card-header"><strong>Network service</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Service ID</td>
+          <td>{{ instance.ixapi_network_service.id }}</td>
+        </tr>
+        <tr>
+          <td>Product</td>
+          <td>{{ instance.ixapi_network_service.product.name }}</td>
+        </tr>
+        <tr>
+          <td>Name</td>
+          <td>{{ instance.ixapi_network_service.name }}</td>
+        </tr>
+        <tr>
+          <td>Metro area</td>
+          <td>{{ instance.ixapi_network_service.metro_area }}</td>
+        </tr>
+        {% if instance.ixapi_network_service.network_features %}
+        <tr>
+          <td>Features</td>
+          <td><a href="#" role="button" data-toggle="modal" data-target="#features-modal">Show</a></td>
+        </tr>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+  <div class="col-md-6">
+    {% for config in instance.ixapi_network_service.network_service_configs %}
+    <div class="card mb-2">
+      <div class="card-header">
+        <strong>{{ config.id }} - {{ config.state | title }}</strong>
+        <div class="float-right">
+          {% if config.connection %}
+          <a class="btn btn-xs btn-success" href="{{ config.connection.get_absolute_url }}">
+            <i class="fas fa-check"></i> Configured
+          </a>
+          {% else %}
+          {% if perms.peering.change_internetexchange and perms.net.add_connection %}
+          <a class="btn btn-xs btn-primary"
+             href="{% url 'net:connection_add' %}?internet_exchange_point={{ instance.pk }}&vlan={{ config.outer_vlan }}{% if config.ipv6_address %}&ipv6_address={{ config.ipv6_address }}{% endif %}{% if config.ipv4_address %}&ipv4_address={{ config.ipv4_address }}{% endif %}&return_url={% url 'peering:internetexchange_ixapi' pk=instance.pk %}">
+            <i class="fas fa-plug"></i> Setup
+          </a>
+          {% endif %}
+          {% endif %}
+        </div>
+      </div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Outer VLAN</td>
+          <td>{{ config.outer_vlan | render_none }}</td>
+        </tr>
+        <tr>
+          <td>Inner VLAN</td>
+          <td>{{ config.inner_vlan | render_none }}</td>
+        </tr>
+        <tr>
+          <td>IP address{{ config.ips | pluralize:"es" }}</td>
+          <td>{{ config.ips | join:" - " }}</td>
+        </tr>
+        <tr>
+          <td>MAC address{{ config.macs | pluralize:"es" }}</td>
+          <td>{{ config.macs | join:" - "  | render_none }}</td>
+        </tr>
+      </table>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% if instance.ixapi_network_service.network_features %}
+<div class="modal fade" id="features-modal" tabindex="-1" aria-labelledby="featuresModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="featuresModalLabel">Available Features</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <table class="modal-body table table-hover attr-table mb-0">
+        {% for f in instance.ixapi_network_service.network_features %}
+        <tr>
+          <td>{{ f.name }}</td>
+          {% if f.type == "route_server" %}
+          <td>AS{{ f.asn }}</td>
+          <td>{{ f.fqdn }}</td>
+          <td>
+            {% if f.ip_v6 %}{{ f.ip_v6 }}{% endif %}
+            {% if f.ip_v4 %}{{ f.ip_v4 }}{% endif %}
+          </td>
+          {% if f.required is True %}
+          <td data-toggle="tooltip" data-placement="left" title="Required"><i class="fas fa-asterisk text-danger"></i></td>
+          {% endif %}
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </table>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block javascript %}
+<script>
+  // Init tooltip if there are any
+  $(function() {
+    $('[data-toggle="tooltip"]').tooltip();
+  });
+</script>
+{% endblock %}

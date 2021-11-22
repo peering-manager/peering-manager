@@ -5,6 +5,7 @@ from . import views
 router = OrderedDefaultRouter()
 router.APIRootView = views.ExtrasRootView
 
+router.register("ix-api", views.IXAPIViewSet)
 router.register("job-results", views.JobResultViewSet)
 router.register("webhooks", views.WebhookViewSet)
 

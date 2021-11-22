@@ -1,0 +1,61 @@
+{% extends 'utils/object_add_edit.html' %}
+{% load form_helpers %}
+{% block form %}
+<div class="card my-2">
+  <div class="card-header"><strong>IX-API</strong></div>
+  <div class="card-body">
+    {% render_field form.name %}
+    {% render_field form.url %}
+    {% render_field form.api_key %}
+    {% render_field form.api_secret %}
+    {% render_field form.identity %}
+  </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script>
+  var api_url = document.getElementById("id_url");
+  var api_key = document.getElementById("id_api_key");
+  var api_secret = document.getElementById("id_api_secret");
+  var timeout = null;
+
+  function getCustomers() {
+    if (api_url.value.length < 1 || api_key.value.length < 1 || api_secret.value.length < 1) {
+      return;
+    }
+
+    $.ajax({
+      method: "get",
+      data: {
+        url: api_url.value,
+        api_key: api_key.value,
+        api_secret: api_secret.value,
+      },
+      url: "{% url 'extras-api:ixapi-customers' %}"
+    }).done(function (r) {
+      for (var i = 0; i < r.length; i++) {
+        if ($("#id_identity").find("option[value='" + r[i].id + "']").length) {
+          $("#id_identity").val(r[i].id);
+        } else {
+          var opt = new Option(r[i].name, r[i].id, i == 0, i == 0);
+          $("#id_identity").append(opt);
+        }
+        $("#id_identity").trigger("change");
+      }
+    });
+  }
+
+  api_url.addEventListener("keyup", function () {
+    clearTimeout(timeout);
+    timeout = setTimeout(getCustomers, 500);
+  });
+  api_key.addEventListener("keyup", function () {
+    clearTimeout(timeout);
+    timeout = setTimeout(getCustomers, 500);
+  });
+  api_secret.addEventListener("keyup", function () {
+    clearTimeout(timeout);
+    timeout = setTimeout(getCustomers, 500);
+  });
+</script>
+{% endblock %}

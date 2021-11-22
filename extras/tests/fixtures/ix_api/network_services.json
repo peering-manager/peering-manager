@@ -1,0 +1,27 @@
+[
+  {
+    "consuming_customer": "1234",
+    "contacts": [],
+    "contract_ref": null,
+    "external_ref": null,
+    "id": "1234",
+    "ips": [
+      "1234",
+      "5678"
+    ],
+    "ixfdb_ixid": 9,
+    "managing_customer": "1234",
+    "metro_area": "NWR",
+    "name": "Standard Peering Service Nowhere",
+    "network_features": [
+      "IXP:RSS:1234"
+    ],
+    "peeringdb_ixid": 1234,
+    "product": "1234",
+    "purchase_order": "",
+    "required_contact_types": [
+      "implementation"
+    ],
+    "type": "exchange_lan"
+  }
+]

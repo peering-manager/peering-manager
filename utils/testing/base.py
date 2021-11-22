@@ -8,6 +8,7 @@ from django.db.models import ManyToManyField
 from django.forms.models import model_to_dict
 from django.test import Client
 from django.test import TestCase as _TestCase
+from requests.models import HTTPError
 from rest_framework import status
 from taggit.managers import TaggableManager
 
@@ -33,6 +34,14 @@ class MockedResponse(object):
 
     def json(self):
         return json.loads(self.content)
+
+    def raise_for_status(self):
+        if (
+            status.HTTP_400_BAD_REQUEST
+            <= self.status_code
+            <= status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED
+        ):
+            raise HTTPError("", response=self)
 
 
 class TestCase(_TestCase):

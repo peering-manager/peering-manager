@@ -510,11 +510,7 @@ class DirectPeeringSession(BGPSession):
         on_delete=models.SET_NULL,
         verbose_name="BGP group",
     )
-    relationship = models.CharField(
-        max_length=50,
-        choices=BGPRelationship.choices,
-        help_text="Relationship with the remote peer.",
-    )
+    relationship = models.CharField(max_length=50, choices=BGPRelationship.choices)
     router = models.ForeignKey(
         "Router", blank=True, null=True, on_delete=models.SET_NULL
     )
@@ -586,6 +582,14 @@ class InternetExchange(AbstractGroup):
     peeringdb_ixlan = models.ForeignKey(
         "peeringdb.IXLan", on_delete=models.SET_NULL, blank=True, null=True
     )
+    ixapi_endpoint = models.ForeignKey(
+        "extras.IXAPI",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name="IX-API",
+        help_text="URL and authentication details to interact with IX-API",
+    )
     local_autonomous_system = models.ForeignKey(
         "AutonomousSystem", on_delete=models.CASCADE, null=True
     )
@@ -594,6 +598,16 @@ class InternetExchange(AbstractGroup):
 
     class Meta(AbstractGroup.Meta):
         ordering = ["local_autonomous_system", "name", "slug"]
+        permissions = [
+            (
+                "view_internet_exchange_point_ixapi",
+                "Can view IX-API related info (read-only)",
+            ),
+            (
+                "change_internet_exchange_point_ixapi",
+                "Can use IX-API to change info (read-write)",
+            ),
+        ]
 
     @property
     def linked_to_peeringdb(self):
@@ -610,6 +624,39 @@ class InternetExchange(AbstractGroup):
             ).count()
             > 0
         )
+
+    @property
+    def ixapi_network_service(self):
+        """
+        Returns data from IX-API's network service corresponding to this IXP.
+        """
+        network_service = None
+
+        if not self.ixapi_endpoint:
+            return network_service
+
+        # Heuristic to find out which IX-API network service we have here
+        candidates = self.ixapi_endpoint.get_network_services()
+        for candidate in candidates:
+            # If PeeringDB's IX IDs match, we are on the right track
+            if (
+                self.peeringdb_ixlan
+                and self.peeringdb_ixlan.ix.id == candidate.peeringdb_ixid
+            ):
+                # Check if prefixes between IX-API and PeeringDB match
+                found_v4 = False
+                found_v6 = False
+                for i in self.get_prefixes():
+                    if i.prefix == candidate.subnet_v4:
+                        found_v4 = True
+                    if i.prefix == candidate.subnet_v6:
+                        found_v6 = True
+
+                if found_v4 and found_v6:
+                    network_service = candidate
+                    break
+
+        return network_service
 
     def __str__(self):
         return self.name

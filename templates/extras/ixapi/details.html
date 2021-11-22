@@ -1,0 +1,43 @@
+{% extends 'extras/ixapi/_base.html' %}
+{% load helpers %}
+{% block subcontent %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header"><strong>Details</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Name</td>
+          <td>{{ instance.name }}</td>
+        </tr>
+        <tr>
+          <td>URL</td>
+          <td>{{ instance.url | urlize }}</td>
+        </tr>
+        <tr>
+          <td>API key</td>
+          <td><code>{{ instance.api_key }}</code></td>
+        </tr>
+        {% if instance.identity %}
+        <tr>
+          <td>Identity</td>
+          <td>{{ instance.get_identity.name }} (<code>{{ instance.identity }}</code>)</td>
+        </tr>
+        {% endif %}
+        <tr>
+          <td>Version</td>
+          <td>{{ instance.version }}</td>
+        </tr>
+        <tr>
+          <td>Created</td>
+          <td>{{ instance.created | date_span }}</td>
+        </tr>
+        <tr>
+          <td>Used by</td>
+          <td>{{ internet_exchange_points | length }} Internet Exchange point{{ internet_exchange_points | length | pluralize }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

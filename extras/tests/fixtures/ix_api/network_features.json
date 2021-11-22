@@ -1,0 +1,27 @@
+[
+  {
+    "address_families": [
+      "af_inet"
+    ],
+    "asn": 64500,
+    "available_bgp_session_types": [
+      "active",
+      "passive"
+    ],
+    "flags": [],
+    "fqdn": "rs.ixp.example.net",
+    "id": "1234",
+    "ips": [
+      "1234"
+    ],
+    "looking_glass_url": "https://lg.ixp.example.net/",
+    "name": "Route Server Service",
+    "network_service": "1234",
+    "required": true,
+    "required_contact_types": [
+      "implementation"
+    ],
+    "session_mode": "public",
+    "type": "route_server"
+  }
+]

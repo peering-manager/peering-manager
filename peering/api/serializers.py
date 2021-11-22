@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from devices.api.nested_serializers import NestedPlatformSerializer
+from extras.api.nested_serializers import NestedIXAPISerializer
 from net.api.serializers import NestedConnectionSerializer
 from peering.models import (
     AutonomousSystem,
@@ -214,6 +215,7 @@ class EmailSerializer(PrimaryModelSerializer):
 
 
 class InternetExchangeSerializer(PrimaryModelSerializer):
+    ixapi_endpoint = NestedIXAPISerializer(required=False)
     local_autonomous_system = NestedAutonomousSystemSerializer()
     import_routing_policies = SerializedPKRelatedField(
         queryset=RoutingPolicy.objects.all(),
@@ -240,6 +242,7 @@ class InternetExchangeSerializer(PrimaryModelSerializer):
             "id",
             "display",
             "peeringdb_ixlan",
+            "ixapi_endpoint",
             "local_autonomous_system",
             "name",
             "slug",

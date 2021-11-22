@@ -15,7 +15,7 @@ from peering.forms import (
     RouterForm,
     RoutingPolicyForm,
 )
-from peering.models import AutonomousSystem, Configuration, Email, InternetExchange
+from peering.models import AutonomousSystem, Email, InternetExchange
 
 
 class AutonomousSystemTest(TestCase):

@@ -12,7 +12,12 @@ from django.urls import reverse
 from django.utils import timezone
 from rest_framework.utils.encoders import JSONEncoder
 
-from .enums import WEBHOOK_HTTP_CONTENT_TYPE_JSON, HttpMethod, JobResultStatus, LogLevel
+from extras.enums import (
+    WEBHOOK_HTTP_CONTENT_TYPE_JSON,
+    HttpMethod,
+    JobResultStatus,
+    LogLevel,
+)
 
 
 class JobResult(models.Model):

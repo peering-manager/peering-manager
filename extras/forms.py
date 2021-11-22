@@ -10,7 +10,20 @@ from utils.forms import (
 )
 
 from .enums import JobResultStatus
-from .models import JobResult
+from .models import IXAPI, JobResult
+
+
+class IXAPIForm(BootstrapMixin, forms.ModelForm):
+    identity = forms.CharField(widget=StaticSelect)
+
+    class Meta:
+        model = IXAPI
+        fields = ("name", "url", "api_key", "api_secret", "identity")
+
+
+class IXAPIFilterForm(BootstrapMixin, forms.Form):
+    model = IXAPI
+    q = forms.CharField(required=False, label="Search")
 
 
 class JobResultFilterForm(BootstrapMixin, forms.Form):

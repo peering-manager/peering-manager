@@ -1,7 +1,8 @@
-from django.contrib.contenttypes.models import ContentType
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404
 
+from peering.models.models import InternetExchange
 from utils.views import (
+    AddOrEditView,
     BulkDeleteView,
     DeleteView,
     DetailsView,
@@ -9,10 +10,55 @@ from utils.views import (
     PermissionRequiredMixin,
 )
 
-from .filters import JobResultFilterSet
-from .forms import JobResultFilterForm
-from .models import JobResult
-from .tables import JobResultTable
+from .filters import IXAPIFilterSet, JobResultFilterSet
+from .forms import IXAPIFilterForm, IXAPIForm, JobResultFilterForm
+from .models import IXAPI, JobResult
+from .tables import IXAPITable, JobResultTable
+
+
+class IXAPIListView(PermissionRequiredMixin, ModelListView):
+    permission_required = "extras.view_ixapi"
+    queryset = IXAPI.objects.all()
+    filter = IXAPIFilterSet
+    filter_form = IXAPIFilterForm
+    table = IXAPITable
+    template = "extras/ixapi/list.html"
+
+
+class IXAPIView(DetailsView):
+    permission_required = "extras.view_ixapi"
+    queryset = IXAPI.objects.all()
+
+    def get_context(self, request, **kwargs):
+        instance = get_object_or_404(IXAPI, **kwargs)
+        return {
+            "instance": instance,
+            "internet_exchange_points": InternetExchange.objects.filter(
+                ixapi_endpoint=instance
+            ),
+            "active_tab": "main",
+        }
+
+
+class IXAPIAddView(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "extras.add_ixapi"
+    model = IXAPI
+    form = IXAPIForm
+    return_url = "extras:ixapi_list"
+    template = "extras/ixapi/add_edit.html"
+
+
+class IXAPIEditView(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "extras.change_ixapi"
+    model = IXAPI
+    form = IXAPIForm
+    template = "extras/ixapi/add_edit.html"
+
+
+class IXAPIDeleteView(PermissionRequiredMixin, DeleteView):
+    permission_required = "extras.delete_ixapi"
+    model = IXAPI
+    return_url = "extras:ixapi_list"
 
 
 class JobResultListView(PermissionRequiredMixin, ModelListView):
@@ -27,7 +73,8 @@ class JobResultListView(PermissionRequiredMixin, ModelListView):
 
 class JobResultDeleteView(PermissionRequiredMixin, DeleteView):
     permission_required = "extras.delete_jobresult"
-    queryset = JobResult.objects.all()
+    model = JobResult
+    return_url = "extras:jobresult_list"
 
 
 class JobResultBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
