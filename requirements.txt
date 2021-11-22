@@ -7,7 +7,7 @@ django-netfields==1.2.4
 django-prometheus==2.1.0
 django-rq==2.5.1
 django-tables2==2.4.1
-django-taggit==1.5.1
+django-taggit==2.0.0
 Jinja2==3.0.3
 Markdown==3.3.6
 napalm==3.3.1
