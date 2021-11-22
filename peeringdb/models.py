@@ -290,6 +290,8 @@ class InternetExchange(models.Model):
     tech_phone = models.CharField(max_length=192, blank=True)
     policy_email = models.EmailField(max_length=254, blank=True)
     policy_phone = models.CharField(max_length=192, blank=True)
+    sales_email = models.EmailField(max_length=254, blank=True)
+    sales_phone = models.CharField(max_length=192, blank=True)
     ixf_net_count = models.IntegerField(default=0)
     ixf_last_import = models.DateTimeField(null=True, blank=True)
     service_level = models.CharField(

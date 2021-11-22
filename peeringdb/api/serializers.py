@@ -60,8 +60,12 @@ class InternetExchangeSerializer(serializers.ModelSerializer):
             "tech_phone",
             "policy_email",
             "policy_phone",
+            "sales_email",
+            "sales_phone",
             "ixf_net_count",
             "ixf_last_import",
+            "service_level",
+            "terms",
             "org",
         ]
 
@@ -93,6 +97,9 @@ class FacilitySerializer(serializers.ModelSerializer):
             "tech_phone",
             "sales_email",
             "sales_phone",
+            "property",
+            "diverse_serving_substations",
+            "available_voltage_services",
             "notes",
             "org",
         ]
