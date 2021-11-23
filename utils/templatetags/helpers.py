@@ -197,21 +197,6 @@ def date_span(date_value):
     return mark_safe(f'<span title="{long}">{short}</span>')
 
 
-@register.filter()
-def speed_for_human(speed):
-    """
-    Returns a string showing human readable speeds given in Mbps.
-    """
-    if not speed:
-        return ""
-    elif speed >= 1000000 and speed % 1000000 == 0:
-        return f"{int(speed / 1000000)} Tbps"
-    elif speed >= 1000 and speed % 1000 == 0:
-        return f"{int(speed / 1000)} Gbps"
-    else:
-        return f"{speed} Mbps"
-
-
 @register.simple_tag(takes_context=True)
 def missing_sessions(context, autonomous_system):
     if "context_as" not in context:
