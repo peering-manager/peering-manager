@@ -44,11 +44,11 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
     )
     irr_as_set_peeringdb_sync = models.BooleanField(default=True)
     ipv6_max_prefixes = models.PositiveIntegerField(
-        blank=True, default=0, verbose_name="IPv6 max prefix"
+        blank=True, null=True, default=0, verbose_name="IPv6 max prefix"
     )
     ipv6_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
     ipv4_max_prefixes = models.PositiveIntegerField(
-        blank=True, default=0, verbose_name="IPv4 max prefix"
+        blank=True, null=True, default=0, verbose_name="IPv4 max prefix"
     )
     ipv4_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
     import_routing_policies = models.ManyToManyField(

@@ -32,11 +32,11 @@
         </tr>
         <tr{% if instance.ipv6_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
           <td>IPv6 Max Prefixes</td>
-          <td id="id_ipv6_max_prefixes">{{ instance.ipv6_max_prefixes }}</td>
+          <td id="id_ipv6_max_prefixes">{{ instance.ipv6_max_prefixes|render_none }}</td>
         </tr>
         <tr{% if instance.ipv4_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
           <td>IPv4 Max Prefixes</td>
-          <td id="id_ipv4_max_prefixes">{{ instance.ipv4_max_prefixes }}</td>
+          <td id="id_ipv4_max_prefixes">{{ instance.ipv4_max_prefixes|render_none }}</td>
         </tr>
         {% if instance.general_policy %}
         <tr data-toggle="tooltip" data-placement="right" title="From PeeringDB">

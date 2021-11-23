@@ -60,7 +60,7 @@ def render_bandwidth_speed(speed):
 
 @register.filter()
 def render_none(value):
-    if not value:
+    if value is None or value == "":
         return mark_safe('<span class="text-muted">&mdash;</span>')
     return as_link(value)
 
