@@ -40,7 +40,7 @@
             </a>
             <div class="dropdown-menu dropdown-menu-right">
               {% for a in affiliated_autonomous_systems %}
-              <a role="button" class="dropdown-item{% if a.pk == context_as.pk %} active{% endif %} context-as" data-as-id="{{ a.pk }}">AS{{ a.asn }} - {{ a.name }}</a>
+              <a role="button" class="dropdown-item text-truncate{% if a.pk == context_as.pk %} active{% endif %} context-as" data-as-id="{{ a.pk }}">AS{{ a.asn }} - {{ a.name }}</a>
               {% endfor %}
             </div>
           </li>
