@@ -130,7 +130,7 @@ class PrimaryModelSerializer(ValidatedModelSerializer):
 
     def _save_tags(self, instance, tags):
         if tags:
-            instance.tags.set(*[t.name for t in tags])
+            instance.tags.set([t.name for t in tags])
         else:
             instance.tags.clear()
 
