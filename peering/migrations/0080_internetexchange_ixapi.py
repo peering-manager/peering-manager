@@ -5,7 +5,10 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-    dependencies = [("extras", "0004_ixapi"), ("peering", "0078_template_trim_lstrip")]
+    dependencies = [
+        ("extras", "0004_ixapi"),
+        ("peering", "0079_auto_nullable_max_prefix"),
+    ]
 
     operations = [
         migrations.AlterModelOptions(
