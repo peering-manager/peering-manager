@@ -19,6 +19,23 @@ class Migration(migrations.Migration):
         ),
     ]
 
+    def create_existing_relationships(apps, schema_editor):
+        db_alias = schema_editor.connection.alias
+        Relationship = apps.get_model("bgp.Relationship")
+        DirectPeeringSession = apps.get_model("peering.DirectPeeringSession")
+
+        # Create existing relationships
+        relationships = [
+            Relationship(name=r["relationship"], slug=r["relationship"])
+            for r in (
+                DirectPeeringSession.objects.using(db_alias)
+                .all()
+                .values("relationship")
+                .distinct()
+            )
+        ]
+        Relationship.objects.using(db_alias).bulk_create(relationships)
+
     def move_to_relationship_objects(apps, schema_editor):
         db_alias = schema_editor.connection.alias
         Relationship = apps.get_model("bgp.Relationship")
@@ -31,6 +48,7 @@ class Migration(migrations.Migration):
             ).update(relationship_fk=r)
 
     operations = [
+        migrations.RunPython(create_existing_relationships),
         migrations.AddField(
             model_name="directpeeringsession",
             name="relationship_fk",
