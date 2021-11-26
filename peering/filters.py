@@ -3,6 +3,7 @@ import ipaddress
 import django_filters
 from django.db.models import Q
 
+from bgp.models import Relationship
 from devices.models import Platform
 from net.models import Connection
 from utils.filters import (
@@ -12,7 +13,7 @@ from utils.filters import (
     TagFilter,
 )
 
-from .enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
+from .enums import CommunityType, DeviceState, RoutingPolicyType
 from .models import (
     AutonomousSystem,
     BGPGroup,
@@ -124,8 +125,14 @@ class DirectPeeringSessionFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
         label="BGP Group (Name)",
     )
     address_family = django_filters.NumberFilter(method="address_family_search")
-    relationship = django_filters.MultipleChoiceFilter(
-        choices=BGPRelationship.choices, null_value=None
+    relationship_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Relationship.objects.all(), label="Relationship (ID)"
+    )
+    relationship = django_filters.ModelMultipleChoiceFilter(
+        field_name="relationship__name",
+        queryset=Relationship.objects.all(),
+        to_field_name="name",
+        label="Relationship (Name)",
     )
     router_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Router.objects.all(), label="Router (ID)"

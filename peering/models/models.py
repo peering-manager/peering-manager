@@ -15,7 +15,6 @@ from net.models import Connection
 from netbox.api import NetBox
 from peering import call_irr_as_set_resolver, parse_irr_as_set
 from peering.enums import (
-    BGPRelationship,
     BGPState,
     CommunityType,
     DeviceState,
@@ -510,7 +509,7 @@ class DirectPeeringSession(BGPSession):
         on_delete=models.SET_NULL,
         verbose_name="BGP group",
     )
-    relationship = models.CharField(max_length=50, choices=BGPRelationship.choices)
+    relationship = models.ForeignKey("bgp.Relationship", on_delete=models.PROTECT)
     router = models.ForeignKey(
         "Router", blank=True, null=True, on_delete=models.SET_NULL
     )
@@ -524,7 +523,7 @@ class DirectPeeringSession(BGPSession):
         ]
 
     def __str__(self):
-        return f"{self.get_relationship_display()} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
+        return f"{self.relationship} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
 
     def get_absolute_url(self):
         return reverse("peering:directpeeringsession_details", args=[self.pk])
@@ -562,20 +561,6 @@ class DirectPeeringSession(BGPSession):
             return True
 
         return False
-
-    def get_relationship_html(self):
-        if self.relationship == BGPRelationship.CUSTOMER:
-            badge_type = "badge-danger"
-        elif self.relationship == BGPRelationship.PRIVATE_PEERING:
-            badge_type = "badge-success"
-        elif self.relationship == BGPRelationship.TRANSIT_PROVIDER:
-            badge_type = "badge-primary"
-        else:
-            badge_type = "badge-secondary"
-
-        return mark_safe(
-            f'<span class="badge {badge_type}">{self.get_relationship_display()}</span>'
-        )
 
 
 class InternetExchange(AbstractGroup):

@@ -3,10 +3,11 @@ from unittest.mock import patch
 from django.urls import reverse
 from rest_framework import status
 
+from bgp.models import Relationship
 from devices.models import Platform
 from net.models import Connection
 from peering.constants import *
-from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
+from peering.enums import CommunityType, DeviceState, RoutingPolicyType
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -211,25 +212,28 @@ class DirectPeeringSessionTest(StandardAPITestCases.View):
             asn=201281, name="Guillaume Mazoyer", affiliated=True
         )
         autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Dummy")
+        relationship_private_peering = Relationship.objects.create(
+            name="Private Peering", slug="private-peering"
+        )
         DirectPeeringSession.objects.bulk_create(
             [
                 DirectPeeringSession(
                     local_autonomous_system=local_autonomous_system,
                     autonomous_system=autonomous_system,
-                    relationship=BGPRelationship.PRIVATE_PEERING,
+                    relationship=relationship_private_peering,
                     ip_address="2001:db8::1",
                     password="mypassword",
                 ),
                 DirectPeeringSession(
                     local_autonomous_system=local_autonomous_system,
                     autonomous_system=autonomous_system,
-                    relationship=BGPRelationship.PRIVATE_PEERING,
+                    relationship=relationship_private_peering,
                     ip_address="2001:db8::2",
                 ),
                 DirectPeeringSession(
                     local_autonomous_system=local_autonomous_system,
                     autonomous_system=autonomous_system,
-                    relationship=BGPRelationship.PRIVATE_PEERING,
+                    relationship=relationship_private_peering,
                     ip_address="2001:db8::3",
                 ),
             ]
@@ -239,19 +243,19 @@ class DirectPeeringSessionTest(StandardAPITestCases.View):
                 "service_reference": "PNI-0001",
                 "local_autonomous_system": local_autonomous_system.pk,
                 "autonomous_system": autonomous_system.pk,
-                "relationship": BGPRelationship.PRIVATE_PEERING,
+                "relationship": relationship_private_peering.pk,
                 "ip_address": "198.51.100.1",
             },
             {
                 "local_autonomous_system": local_autonomous_system.pk,
                 "autonomous_system": autonomous_system.pk,
-                "relationship": BGPRelationship.PRIVATE_PEERING,
+                "relationship": relationship_private_peering.pk,
                 "ip_address": "198.51.100.2",
             },
             {
                 "local_autonomous_system": local_autonomous_system.pk,
                 "autonomous_system": autonomous_system.pk,
-                "relationship": BGPRelationship.PRIVATE_PEERING,
+                "relationship": relationship_private_peering.pk,
                 "ip_address": "198.51.100.3",
             },
         ]

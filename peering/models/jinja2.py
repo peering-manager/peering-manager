@@ -495,4 +495,4 @@ FILTER_DICT = {
     "merge_import_policies": merge_import_policies,
 }
 
-__all__ = ["FILTER_DICT"]
+__all__ = ("FILTER_DICT",)

@@ -14,4 +14,4 @@ DECRYPTERS = {
     PasswordAlgorithm.JUNIPER_TYPE9: juniper_type9_decrypt,
 }
 
-__all__ = ["ENCRYPTERS", "DECRYPTERS"]
+__all__ = ("ENCRYPTERS", "DECRYPTERS")

@@ -3,6 +3,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
+from bgp.models import Relationship
 from devices.models import Platform
 from extras.models.ix_api import IXAPI
 from net.models import Connection
@@ -23,14 +24,7 @@ from utils.forms import (
     add_blank_choice,
 )
 
-from .constants import ASN_MAX, ASN_MIN
-from .enums import (
-    BGPRelationship,
-    CommunityType,
-    DeviceState,
-    IPFamily,
-    RoutingPolicyType,
-)
+from .enums import CommunityType, DeviceState, IPFamily, RoutingPolicyType
 from .models import (
     AutonomousSystem,
     BGPGroup,
@@ -138,7 +132,7 @@ class AutonomousSystemEmailForm(BootstrapMixin, forms.Form):
 class BGPGroupForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField(
         max_length=255,
-        help_text="Friendly unique shorthand used for URL and config. Change Warning: May result in change of Operational State on a Router if being used in config generation",
+        help_text="Friendly unique shorthand used for URL and config. Warning: may result in change of operational state on a router if being used in the configuration.",
     )
     comments = CommentField()
     import_routing_policies = DynamicModelMultipleChoiceField(
@@ -286,9 +280,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     bgp_group = DynamicModelChoiceField(
         required=False, queryset=BGPGroup.objects.all(), label="BGP Group"
     )
-    relationship = forms.ChoiceField(
-        choices=BGPRelationship.choices, widget=StaticSelect
-    )
+    relationship = DynamicModelChoiceField(queryset=Relationship.objects.all())
     router = DynamicModelChoiceField(
         required=False,
         queryset=Router.objects.all(),
@@ -371,10 +363,8 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEd
     enabled = forms.NullBooleanField(
         required=False, label="Enable", widget=CustomNullBooleanSelect
     )
-    relationship = forms.ChoiceField(
-        required=False,
-        choices=add_blank_choice(BGPRelationship.choices),
-        widget=StaticSelect,
+    relationship = DynamicModelChoiceField(
+        required=False, queryset=Relationship.objects.all()
     )
     bgp_group = DynamicModelChoiceField(
         required=False, queryset=BGPGroup.objects.all(), label="BGP group"
@@ -428,8 +418,12 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
         required=False, choices=IPFamily.choices, widget=StaticSelect
     )
     enabled = forms.NullBooleanField(required=False, widget=CustomNullBooleanSelect)
-    relationship = forms.MultipleChoiceField(
-        required=False, choices=BGPRelationship.choices, widget=StaticSelectMultiple
+    relationship_id = DynamicModelMultipleChoiceField(
+        required=False,
+        queryset=Relationship.objects.all(),
+        to_field_name="pk",
+        null_option="None",
+        label="Relationship",
     )
     router_id = DynamicModelMultipleChoiceField(
         required=False,
@@ -471,7 +465,7 @@ class EmailFilterForm(BootstrapMixin, forms.Form):
 class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField(
         max_length=255,
-        help_text="Friendly unique shorthand used for URL and config. Change Warning: May result in change of Operational State on a Router if being used in config generation",
+        help_text="Friendly unique shorthand used for URL and config. Warning: may result in change of operational state on a router if being used in the configuration.",
     )
     local_autonomous_system = DynamicModelChoiceField(
         queryset=AutonomousSystem.objects.defer("prefixes"),

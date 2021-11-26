@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
-from devices.api.nested_serializers import NestedPlatformSerializer
-from extras.api.nested_serializers import NestedIXAPISerializer
+from bgp.api.serializers import NestedRelationshipSerializer
+from devices.api.serializers import NestedPlatformSerializer
+from extras.api.serializers import NestedIXAPISerializer
 from net.api.serializers import NestedConnectionSerializer
 from peering.models import (
     AutonomousSystem,
@@ -156,6 +157,7 @@ class DirectPeeringSessionSerializer(PrimaryModelSerializer):
     local_autonomous_system = NestedAutonomousSystemSerializer()
     autonomous_system = NestedAutonomousSystemSerializer()
     bgp_group = NestedBGPGroupSerializer(required=False)
+    relationship = NestedRelationshipSerializer()
     import_routing_policies = SerializedPKRelatedField(
         queryset=RoutingPolicy.objects.all(),
         serializer=NestedRoutingPolicySerializer,

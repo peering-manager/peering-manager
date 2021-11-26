@@ -1,7 +1,5 @@
 from django.db.models import Count
-from django.shortcuts import get_object_or_404, redirect, render
 
-from peering.models import Router
 from utils.views import (
     AddOrEditView,
     BulkDeleteView,

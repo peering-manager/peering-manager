@@ -12,13 +12,13 @@ from rest_framework.exceptions import ValidationError
 from utils.functions import dict_to_filter_params
 from utils.models import Tag
 
-__all__ = [
+__all__ = (
     "BaseModelSerializer",
     "BulkOperationSerializer",
     "PrimaryModelSerializer",
     "ValidatedModelSerializer",
     "WritableNestedSerializer",
-]
+)
 
 
 class BulkOperationSerializer(serializers.Serializer):

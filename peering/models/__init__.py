@@ -11,7 +11,7 @@ from .models import (
 )
 from .templates import Configuration, Email
 
-__all__ = [
+__all__ = (
     "AutonomousSystem",
     "BGPGroup",
     "BGPSession",
@@ -24,4 +24,4 @@ __all__ = [
     "Router",
     "RoutingPolicy",
     "Template",
-]
+)

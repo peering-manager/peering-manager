@@ -1,8 +1,9 @@
 from django.test import TestCase
 
+from bgp.models import Relationship
 from net.models import Connection
 from peering.constants import *
-from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
+from peering.enums import CommunityType, DeviceState, RoutingPolicyType
 from peering.forms import (
     AutonomousSystemEmailForm,
     AutonomousSystemForm,
@@ -74,13 +75,14 @@ class DirectPeeringSessionTest(TestCase):
         self.autonomous_system = AutonomousSystem.objects.create(
             asn=64500, name="Dummy"
         )
+        self.relationship = Relationship.objects.create(name="Test", slug="test")
 
     def test_direct_peering_session_form(self):
         test = DirectPeeringSessionForm(
             data={
                 "local_autonomous_system": self.local_autonomous_system.pk,
                 "autonomous_system": self.autonomous_system.pk,
-                "relationship": BGPRelationship.PRIVATE_PEERING,
+                "relationship": self.relationship.pk,
                 "ip_address": "2001:db8::1",
             }
         )

@@ -1,8 +1,9 @@
 from django.test import TestCase
 
+from bgp.models import Relationship
 from net.models import Connection
 from peering.constants import *
-from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
+from peering.enums import CommunityType, DeviceState, RoutingPolicyType
 from peering.filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
@@ -189,6 +190,15 @@ class DirectPeeringSessionTestCase(TestCase, BaseFilterSetTests):
             hostname="router1.example.net",
             local_autonomous_system=cls.local_as,
         )
+        cls.relationship_transit = Relationship.objects.create(
+            name="Transit", slug="transit"
+        )
+        relationship_private_peering = Relationship.objects.create(
+            name="Private Peering", slug="private-peering"
+        )
+        relationship_customer = Relationship.objects.create(
+            name="Customer", slug="customer"
+        )
         DirectPeeringSession.objects.bulk_create(
             [
                 DirectPeeringSession(
@@ -196,21 +206,21 @@ class DirectPeeringSessionTestCase(TestCase, BaseFilterSetTests):
                     local_autonomous_system=cls.local_as,
                     autonomous_system=cls.a_s,
                     ip_address="192.0.2.1",
-                    relationship=BGPRelationship.TRANSIT_PROVIDER,
+                    relationship=cls.relationship_transit,
                     router=cls.router,
                 ),
                 DirectPeeringSession(
                     local_autonomous_system=cls.local_as,
                     autonomous_system=cls.a_s,
                     ip_address="192.0.2.2",
-                    relationship=BGPRelationship.PRIVATE_PEERING,
+                    relationship=relationship_private_peering,
                     multihop_ttl=2,
                 ),
                 DirectPeeringSession(
                     local_autonomous_system=cls.local_as,
                     autonomous_system=cls.a_s,
                     ip_address="192.0.2.3",
-                    relationship=BGPRelationship.CUSTOMER,
+                    relationship=relationship_customer,
                     enabled=False,
                 ),
             ]
@@ -227,7 +237,7 @@ class DirectPeeringSessionTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_relationship(self):
-        params = {"relationship": [BGPRelationship.TRANSIT_PROVIDER]}
+        params = {"relationship_id": [self.relationship_transit.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_router_id(self):

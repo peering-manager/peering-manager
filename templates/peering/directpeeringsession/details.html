@@ -14,7 +14,7 @@
         {% endif %}
         <tr>
           <td>Relationship</td>
-          <td>{{ instance.get_relationship_display }}</td>
+          <td>{{ instance.relationship.get_html }}</td>
         </tr>
         {% if instance.bgp_group %}
         <tr>

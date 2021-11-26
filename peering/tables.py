@@ -23,7 +23,7 @@ from .models import (
     RoutingPolicy,
 )
 
-BGP_RELATIONSHIP = "{{ record.get_relationship_html }}"
+BGP_RELATIONSHIP = "{{ record.relationship.get_html }}"
 COMMUNITY_TYPE = "{{ record.get_type_html }}"
 ROUTING_POLICY_TYPE = "{{ record.get_type_html }}"
 

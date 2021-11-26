@@ -28,7 +28,7 @@ from peering_manager.api.exceptions import SerializerNotFound
 from peering_manager.api.serializers import BulkOperationSerializer
 from utils.api import get_serializer_for_model
 
-__all__ = [
+__all__ = (
     "APIRootView",
     "StatusView",
     "SpectacularAPIView",
@@ -39,7 +39,7 @@ __all__ = [
     "ModelViewSet",
     "ReadOnlyModelViewSet",
     "StaticChoicesViewSet",
-]
+)
 
 
 class APIRootView(APIView):
@@ -60,6 +60,7 @@ class APIRootView(APIView):
         return Response(
             OrderedDict(
                 (
+                    APIRootView.get_namespace("bgp", request, format),
                     APIRootView.get_namespace("devices", request, format),
                     APIRootView.get_namespace("extras", request, format),
                     APIRootView.get_namespace("net", request, format),

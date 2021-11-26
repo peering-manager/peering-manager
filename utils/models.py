@@ -1,15 +1,13 @@
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.core.serializers import serialize
 from django.db import models
-from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from taggit.managers import TaggableManager
 from taggit.models import GenericTaggedItemBase, TagBase
 
-from .enums import ObjectChangeAction
+from .enums import Color, ObjectChangeAction
 from .fields import ColorField
 from .functions import serialize_object
 
@@ -122,7 +120,7 @@ class ObjectChange(models.Model):
 
 
 class Tag(TagBase, ChangeLoggedModel):
-    color = ColorField(default="9e9e9e")
+    color = ColorField(default=Color.GREY)
     comments = models.TextField(blank=True, default="")
 
     def get_absolute_url(self):

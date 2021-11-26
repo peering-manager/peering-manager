@@ -361,6 +361,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "netfields",
     "taggit",
+    "bgp",
     "devices",
     "extras",
     "net",

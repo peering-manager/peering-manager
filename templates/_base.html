@@ -137,18 +137,21 @@
                 <span class="menu-collapsed">IX-API</span>
               </a>
             </div>
-            <a href="#other_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/job-results/,/tags/,/changelog/' %} active{% endif %}">
+            <a href="#other_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/bgp/relationships/,/job-results/,/tags/,/changelog/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
                 <span class="menu-collapsed">Other</span>
                 <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
               </div>
             </a>
             <div id="other_menu_id" class="collapse sidebar-submenu">
-              <a href="{% url 'extras:jobresult_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/job-results/' %} active{% endif %}">
-                <span class="menu-collapsed">Job Results</span>
+              <a href="{% url 'bgp:relationship_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/bgp/relationships/' %} active{% endif %}">
+                <span class="menu-collapsed">Relationships</span>
               </a>
               <a href="{% url 'utils:tag_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/tags/' %} active{% endif %}">
                 <div class="menu-collapsed">Tags</div>
+              </a>
+              <a href="{% url 'extras:jobresult_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/job-results/' %} active{% endif %}">
+                <span class="menu-collapsed">Job Results</span>
               </a>
               <a href="{% url 'utils:objectchange_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/changelog/' %} active{% endif %}">
                 <span class="menu-collapsed">Change Log</span>

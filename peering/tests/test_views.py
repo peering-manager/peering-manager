@@ -1,7 +1,8 @@
 import ipaddress
 
+from bgp.models import Relationship
 from net.models import Connection
-from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
+from peering.enums import CommunityType, DeviceState, RoutingPolicyType
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -136,25 +137,28 @@ class DirectPeeringSessionTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             asn=64501, name="Autonomous System 1", affiliated=True
         )
         a_s = AutonomousSystem.objects.create(asn=64502, name="Autonomous System 2")
+        relationship_private_peering = Relationship.objects.create(
+            name="Private Peering", slug="private-peering"
+        )
         DirectPeeringSession.objects.bulk_create(
             [
                 DirectPeeringSession(
                     local_autonomous_system=local_as,
                     autonomous_system=a_s,
                     ip_address="192.0.2.1",
-                    relationship=BGPRelationship.PRIVATE_PEERING,
+                    relationship=relationship_private_peering,
                 ),
                 DirectPeeringSession(
                     local_autonomous_system=local_as,
                     autonomous_system=a_s,
                     ip_address="192.0.2.2",
-                    relationship=BGPRelationship.PRIVATE_PEERING,
+                    relationship=relationship_private_peering,
                 ),
                 DirectPeeringSession(
                     local_autonomous_system=local_as,
                     autonomous_system=a_s,
                     ip_address="192.0.2.3",
-                    relationship=BGPRelationship.PRIVATE_PEERING,
+                    relationship=relationship_private_peering,
                 ),
             ]
         )
@@ -165,7 +169,7 @@ class DirectPeeringSessionTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "autonomous_system": a_s.pk,
             "ip_address": ipaddress.ip_address("2001:db8::4"),
             "multihop_ttl": 1,
-            "relationship": BGPRelationship.PRIVATE_PEERING,
+            "relationship": relationship_private_peering.pk,
             "password": None,
             "encrypted_password": None,
             "enabled": True,

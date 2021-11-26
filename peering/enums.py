@@ -1,12 +1,6 @@
 from django.db import models
 
 
-class BGPRelationship(models.TextChoices):
-    PRIVATE_PEERING = "private-peering"
-    TRANSIT_PROVIDER = "transit-provider"
-    CUSTOMER = "customer"
-
-
 class BGPState(models.TextChoices):
     IDLE = "idle"
     CONNECT = "connect"

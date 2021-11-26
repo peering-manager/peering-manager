@@ -3,9 +3,10 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
+from bgp.models import Relationship
 from devices.models import PasswordAlgorithm, Platform
 from net.models import Connection
-from peering.enums import BGPRelationship, CommunityType, DeviceState, RoutingPolicyType
+from peering.enums import CommunityType, DeviceState, RoutingPolicyType
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -176,6 +177,7 @@ class DirectPeeringSessionTest(TestCase):
             local_autonomous_system=cls.local_as,
             autonomous_system=cls.autonomous_system,
             bgp_group=cls.group,
+            relationship=Relationship.objects.create(name="Test", slug="test"),
             ip_address="2001:db8::1",
             password="mypassword",
             router=cls.router,
@@ -347,13 +349,16 @@ class RouterTest(TestCase):
         for i in range(1, 6):
             AutonomousSystem.objects.create(asn=i, name=f"Test {i}")
         bgp_group = BGPGroup.objects.create(name="Test Group", slug="testgroup")
+        relationship_private_peering = Relationship.objects.create(
+            name="Private Peering", slug="private-peering"
+        )
         for i in range(1, 6):
             DirectPeeringSession.objects.create(
                 local_autonomous_system=self.local_as,
                 local_ip_address="192.0.2.1",
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
                 bgp_group=bgp_group,
-                relationship=BGPRelationship.PRIVATE_PEERING,
+                relationship=relationship_private_peering,
                 ip_address=f"10.0.0.{i}",
                 enabled=bool(i % 2),
                 router=self.router,
