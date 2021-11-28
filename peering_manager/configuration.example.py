@@ -30,7 +30,6 @@ REDIS = {
         "PORT": 6379,
         "PASSWORD": "",
         "DATABASE": 0,
-        "DEFAULT_TIMEOUT": 300,
         "SSL": False,
     },
     "caching": {
@@ -38,10 +37,11 @@ REDIS = {
         "PORT": 6379,
         "PASSWORD": "",
         "DATABASE": 1,
-        "DEFAULT_TIMEOUT": 300,
         "SSL": False,
     },
 }
+# Maximum execution time for background tasks, in seconds.
+RQ_DEFAULT_TIMEOUT = 300
 # Cache timeout in seconds. Set to 0 to disable caching.
 CACHE_TIMEOUT = 900
 

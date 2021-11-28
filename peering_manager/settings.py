@@ -6,6 +6,7 @@
 
 
 import platform
+import warnings
 from pathlib import Path
 
 from django.contrib.messages import constants as messages
@@ -46,6 +47,8 @@ SECRET_KEY = getattr(configuration, "SECRET_KEY")
 
 # Deprecated, to be removed in 2.0.0
 MY_ASN = getattr(configuration, "MY_ASN", None)
+if MY_ASN:
+    warnings.warn("MY_ASN is no longer supported and will be removed in 2.0.")
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
@@ -55,6 +58,7 @@ if BASE_PATH:
 DEBUG = getattr(configuration, "DEBUG", False)
 LOGGING = getattr(configuration, "LOGGING", {})
 REDIS = getattr(configuration, "REDIS", {})
+RQ_DEFAULT_TIMEOUT = getattr(configuration, "RQ_DEFAULT_TIMEOUT", 300)
 CACHE_TIMEOUT = getattr(configuration, "CACHE_TIMEOUT", 0)
 CACHE_BGP_DETAIL_TIMEOUT = getattr(configuration, "CACHE_BGP_DETAIL_TIMEOUT", 900)
 CHANGELOG_RETENTION = getattr(configuration, "CHANGELOG_RETENTION", 90)
@@ -257,6 +261,10 @@ TASKS_REDIS_PASSWORD = TASKS_REDIS.get("PASSWORD", "")
 TASKS_REDIS_DATABASE = TASKS_REDIS.get("DATABASE", 0)
 TASKS_REDIS_DEFAULT_TIMEOUT = TASKS_REDIS.get("DEFAULT_TIMEOUT", 300)
 TASKS_REDIS_SSL = TASKS_REDIS.get("SSL", False)
+if "DEFAULT_TIMEOUT" in TASKS_REDIS:
+    warnings.warn(
+        "DEFAULT_TIMEOUT is no longer supported under REDIS configuration. Set RQ_DEFAULT_TIMEOUT instead."
+    )
 # Caching
 if "caching" not in REDIS:
     raise ImproperlyConfigured(
@@ -323,8 +331,8 @@ else:
         "PORT": TASKS_REDIS_PORT,
         "DB": TASKS_REDIS_DATABASE,
         "PASSWORD": TASKS_REDIS_PASSWORD,
-        "DEFAULT_TIMEOUT": TASKS_REDIS_DEFAULT_TIMEOUT,
         "SSL": TASKS_REDIS_SSL,
+        "DEFAULT_TIMEOUT": RQ_DEFAULT_TIMEOUT,
     }
 RQ_QUEUES = {"default": RQ_PARAMS, "check_releases": RQ_PARAMS}
 
