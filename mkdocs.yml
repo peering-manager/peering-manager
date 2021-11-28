@@ -79,3 +79,9 @@ nav:
         - Getting Started: "development/getting-started.md"
         - Style Guide: "development/style-guide.md"
         - Release Engineering: "development/release-engineering.md"
+    - Release Notes:
+        - Version 1.4: "release-notes/version-1.4.md"
+        - Version 1.3: "release-notes/version-1.3.md"
+        - Version 1.2: "release-notes/version-1.2.md"
+        - Version 1.1: "release-notes/version-1.1.md"
+        - Version 1.0: "release-notes/version-1.0.md"
