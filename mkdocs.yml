@@ -3,9 +3,6 @@ site_name: Peering Manager
 site_url: https://peering-manager.readthedocs.io/
 repo_url: https://github.com/peering-manager/peering-manager
 edit_uri: ""
-python:
-    install:
-        - requirements: docs/requirements.txt
 
 theme:
     name: material
