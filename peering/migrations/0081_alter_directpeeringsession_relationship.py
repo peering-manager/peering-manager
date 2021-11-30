@@ -26,12 +26,13 @@ class Migration(migrations.Migration):
 
         # Create existing relationships
         relationships = [
-            Relationship(name=r["relationship"], slug=r["relationship"])
+            Relationship(name=r, slug=r)
             for r in (
                 DirectPeeringSession.objects.using(db_alias)
                 .all()
-                .values("relationship")
+                .values_list("relationship", flat=True)
                 .distinct()
+                .order_by()
             )
         ]
         Relationship.objects.using(db_alias).bulk_create(relationships)
