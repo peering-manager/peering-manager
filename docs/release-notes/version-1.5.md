@@ -1,5 +1,11 @@
 # Peering Manager v1.5 Release Notes
 
+## Version 1.5.2 | MARK I (Features release) | 2021-12-01
+
+### Bug Fixes
+
+Fix initialization of WSGI daemon such as gunicorn.
+
 ## Version 1.5.1 | MARK I (Features release) | 2021-11-30
 
 ### Bug Fixes
