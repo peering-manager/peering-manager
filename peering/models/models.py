@@ -1289,9 +1289,9 @@ class Router(ChangeLoggedModel, TaggableModel):
         """
         Opens a connection with a device using NAPALM.
 
-        This method returns True if the connection is properly opened or False
-        in any other cases. It handles exceptions that can occur during the
-        connection opening process by itself.
+        This method returns `True` if the connection is properly opened or `False` in
+        any other cases. It handles exceptions that can occur during the connection
+        opening process by itself.
 
         It is a wrapper method mostly used for logging purpose.
         """
@@ -1327,8 +1327,12 @@ class Router(ChangeLoggedModel, TaggableModel):
         if not device:
             return False
 
-        device.close()
-        self.logger.debug(f"closing connection with {self.hostname}")
+        try:
+            device.close()
+            self.logger.debug(f"closed connection with {self.hostname}")
+        except Exception as e:
+            self.logger.debug(f"failed to close connection with {self.hostname}: {e}")
+            return False
 
         return True
 
@@ -1337,7 +1341,7 @@ class Router(ChangeLoggedModel, TaggableModel):
         Opens and closes a connection with a device using NAPALM to see if it
         is possible to interact with it.
 
-        This method returns True only if the connection opening and closing are
+        This method returns `True` only if the connection opening and closing are
         both successful.
         """
         opened, alive, closed = False, False, False
@@ -1363,12 +1367,12 @@ class Router(ChangeLoggedModel, TaggableModel):
         """
         Tries to merge a given configuration on a device using NAPALM.
 
-        This methods returns the changes applied to the configuration if the
-        merge was successful. It will return None in any other cases.
+        This methods returns the changes applied to the configuration if the merge was
+        successful. It will return None in any other cases.
 
-        The optional named argument 'commit' is a boolean which is used to
-        know if the changes must be commited or discarded. The default value is
-        False which means that the changes will be discarded.
+        The optional named argument 'commit' is a boolean which is used to know if the
+        changes must be commited or discarded. The default value is `False` which
+        means that the changes will be discarded.
         """
         error, changes = None, None
 
@@ -1407,10 +1411,6 @@ class Router(ChangeLoggedModel, TaggableModel):
                 else:
                     self.logger.debug(f"discarding configuration on {self.hostname}")
                     device.discard_config()
-            except napalm.base.exceptions.MergeConfigException as e:
-                error = f'unable to merge configuration on {self.hostname} reason "{e}"'
-                changes = None
-                self.logger.debug(error)
             except Exception as e:
                 error = f'unable to merge configuration on {self.hostname} reason "{e}"'
                 changes = None
@@ -1522,13 +1522,13 @@ class Router(ChangeLoggedModel, TaggableModel):
 
     def get_netbox_bgp_neighbors(self):
         """
-        Returns a list of dictionaries listing all BGP neighbors found on the
-        router using NetBox.
+        Returns a list of dictionaries listing all BGP neighbors found on the router
+        using NetBox.
 
         Each dictionary contains two keys 'ip_address' and 'remote_asn'.
 
-        If an error occurs or no BGP neighbors can be found, the returned list
-        will be empty.
+        If an error occurs or no BGP neighbors can be found, the returned list will be
+        empty.
         """
         bgp_sessions = []
 
@@ -1548,13 +1548,13 @@ class Router(ChangeLoggedModel, TaggableModel):
 
     def get_bgp_neighbors(self):
         """
-        Returns a list of dictionaries listing all BGP neighbors found on the
-        router using either NAPALM or NetBox based on the use_netbox flag.
+        Returns a list of dictionaries listing all BGP neighbors found on the router
+        using either NAPALM or NetBox based on the use_netbox flag.
 
         Each dictionary contains two keys 'ip_address' and 'remote_asn'.
 
-        If an error occurs or no BGP neighbors can be found, the returned list
-        will be empty.
+        If an error occurs or no BGP neighbors can be found, the returned list will be
+        empty.
         """
         if self.use_netbox:
             return self.get_netbox_bgp_neighbors()
@@ -1586,11 +1586,11 @@ class Router(ChangeLoggedModel, TaggableModel):
 
     def get_napalm_bgp_neighbors_detail(self, ip_address=None):
         """
-        Returns a list of dictionaries listing all BGP neighbors found on the
-        router using NAPALM and there respective detail.
+        Returns a list of dictionaries listing all BGP neighbors found on the router
+        using NAPALM and there respective detail.
 
-        If an error occurs or no BGP neighbors can be found, the returned list
-        will be empty.
+        If an error occurs or no BGP neighbors can be found, the returned list will be
+        empty.
         """
         bgp_neighbors_detail = []
 
@@ -1623,11 +1623,11 @@ class Router(ChangeLoggedModel, TaggableModel):
 
     def get_netbox_bgp_neighbors_detail(self, ip_address=None):
         """
-        Returns a list of dictionaries listing all BGP neighbors found on the
-        router using NetBox and their respective detail.
+        Returns a list of dictionaries listing all BGP neighbors found on the router
+        using NetBox and their respective detail.
 
-        If an error occurs or no BGP neighbors can be found, the returned list
-        will be empty.
+        If an error occurs or no BGP neighbors can be found, the returned list will be
+        empty.
         """
         bgp_neighbors_detail = []
 
@@ -1673,7 +1673,7 @@ class Router(ChangeLoggedModel, TaggableModel):
     def bgp_neighbors_detail_as_list(self, bgp_neighbors_detail):
         """
         Returns a list based on the dict returned by calling
-        get_napalm_bgp_neighbors_detail.
+        `get_napalm_bgp_neighbors_detail`.
         """
         flattened = []
 
