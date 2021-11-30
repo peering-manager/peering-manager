@@ -1,6 +1,12 @@
 # Peering Manager v1.5 Release Notes
 
-## Version 1.5.0 | MARK I (Features release) | 2021-11-29
+## Version 1.5.1 | MARK I (Features release) | 2021-11-30
+
+### Bug Fixes
+
+Fix migration failure when multiple direct peering sessions exist.
+
+## Version 1.5.0 | MARK I (Features release) | 2021-11-30
 
 Note: this release removes support for the `DEFAULT_TIMEOUT` parameter under `REDIS` database configuration. Set `RQ_DEFAULT_TIMEOUT` as a global configuration parameter instead.
 
