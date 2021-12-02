@@ -1412,9 +1412,17 @@ class Router(ChangeLoggedModel, TaggableModel):
                     self.logger.debug(f"discarding configuration on {self.hostname}")
                     device.discard_config()
             except Exception as e:
-                error = f'unable to merge configuration on {self.hostname} reason "{e}"'
+                try:
+                    # Try to restore initial config
+                    device.discard_config()
+                except Exception as f:
+                    self.logger.debug(
+                        f'unable to discard configuration on {self.hostname} reason "{f}"'
+                    )
                 changes = None
-                self.logger.debug(error)
+                self.logger.debug(
+                    f'unable to merge configuration on {self.hostname} reason "{e}"'
+                )
             else:
                 self.logger.debug(
                     f"successfully merged configuration on {self.hostname}"
