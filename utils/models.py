@@ -7,9 +7,9 @@ from django.utils.safestring import mark_safe
 from taggit.managers import TaggableManager
 from taggit.models import GenericTaggedItemBase, TagBase
 
-from .enums import Color, ObjectChangeAction
-from .fields import ColorField
-from .functions import serialize_object
+from utils.enums import Color, ObjectChangeAction
+from utils.fields import ColorField
+from utils.functions import serialize_object
 
 
 class ChangeLoggedModel(models.Model):
@@ -122,6 +122,9 @@ class ObjectChange(models.Model):
 class Tag(TagBase, ChangeLoggedModel):
     color = ColorField(default=Color.GREY)
     comments = models.TextField(blank=True, default="")
+
+    class Meta:
+        ordering = ["name"]
 
     def get_absolute_url(self):
         return reverse("utils:tag_details", args=[self.pk])

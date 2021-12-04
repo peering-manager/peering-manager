@@ -1,33 +1,29 @@
 import logging
 
 import requests
-from django.contrib.admin.models import LogEntry
-from django.utils import timezone
-from django_rq import get_queue, job
+from django_rq import job
 
-from utils.api import get_serializer_for_model
-from utils.enums import ObjectChangeAction
 from utils.functions import generate_signature
-from utils.models import ObjectChange
-
-from .models import Webhook
 
 logger = logging.getLogger("peering.manager.extras")
 
 
 @job("default")
-def process_webhook(webhook, data, model_name, event, timestamp, username, request_id):
+def process_webhook(
+    webhook, model_name, event, data, snapshots, timestamp, username, request_id
+):
     """
     Makes a request to the defined Webhook endpoint.
     """
     headers = {"Content-Type": webhook.http_content_type}
     context = {
-        "event": event,
+        "event": event.lower(),
         "timestamp": timestamp,
         "model": model_name,
         "username": username,
         "request_id": request_id,
         "data": data,
+        "snapshots": snapshots,
     }
     params = {
         "method": webhook.http_method,
@@ -37,11 +33,7 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
     }
 
     logger.info(
-        "Sending %s request to %s (%s %s)",
-        params["method"],
-        params["url"],
-        model_name,
-        event,
+        f"Sending {params['method']} request to {params['url']} ({model_name} {event})"
     )
     logger.debug(params)
     try:
@@ -63,8 +55,8 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
             session.verify = webhook.ca_file_path
         response = session.send(prepared_request)
 
-    if 200 <= response.status_code <= 299:
-        logger.info("Request succeeded; response status %s", response.status_code)
+    if response.status_code == requests.codes.ok:
+        logger.info(f"Request succeeded; response status {response.status_code}")
         return f"Status {response.status_code} returned, webhook successfully processed"
     else:
         logger.warning(
@@ -75,40 +67,3 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
         raise requests.exceptions.RequestException(
             f"Status {response.status_code} returned with content '{response.content}', webhook FAILED to process"
         )
-
-
-def enqueue_webhooks(instance, user, request_id, action):
-    """
-    Enqueues webhooks so they can be processed.
-    """
-    # Ignore object changes as a webhook is about informing of a change
-    if isinstance(instance, ObjectChange) or isinstance(instance, LogEntry):
-        return
-
-    # Finds usable webhooks
-    action_flag = {
-        ObjectChangeAction.CREATE: "type_create",
-        ObjectChangeAction.UPDATE: "type_update",
-        ObjectChangeAction.DELETE: "type_delete",
-    }[action]
-    webhooks = Webhook.objects.filter(enabled=True, **{action_flag: True})
-
-    if webhooks.exists():
-        # Get the Model's API serializer class and serialize the object
-        serializer_class = get_serializer_for_model(instance.__class__)
-        serializer_context = {"request": None}
-        serializer = serializer_class(instance, context=serializer_context)
-
-        # Enqueue the webhooks
-        webhook_queue = get_queue("default")
-        for webhook in webhooks:
-            webhook_queue.enqueue(
-                "extras.workers.process_webhook",
-                webhook,
-                serializer.data,
-                instance._meta.model_name,
-                action,
-                str(timezone.now()),
-                user.username,
-                request_id,
-            )

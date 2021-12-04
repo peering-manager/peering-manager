@@ -6,14 +6,6 @@ from django.core.serializers import serialize
 from taggit.managers import _TaggableManager
 
 
-# Shamlessly stolen from django.utils.functional (<3.0)
-def curry(_curried_func, *args, **kwargs):
-    def _curried(*moreargs, **morekwargs):
-        return _curried_func(*args, *moreargs, **{**kwargs, **morekwargs})
-
-    return _curried
-
-
 def dict_to_filter_params(d, prefix=""):
     """
     Flattens a dictionary of attributes to a set of parameters suitable for filtering
