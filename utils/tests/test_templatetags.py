@@ -65,6 +65,14 @@ class TemplateTagsTestCase(TestCase):
             render_json({"foo": "bar"}),
         )
 
+    def test_render_yaml(self):
+        self.assertEqual(
+            """---
+foo: bar
+""",
+            render_yaml({"foo": "bar"}),
+        )
+
     def test_title_with_uppers(self):
         self.assertEqual("Title", title_with_uppers("Title"))
         self.assertEqual("Title", title_with_uppers("title"))

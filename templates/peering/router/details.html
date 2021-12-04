@@ -116,13 +116,12 @@
   </div>
   <div class="col-md-6">
     <div class="card mb-2">
-      <div class="card-header"><strong>Config Context</strong></div>
-      <div class="card-body">
-        {% if instance.config_context %}
-        <pre class="pre-scrollable"><code>{{ instance.config_context | render_json }}</code></pre>
-        {% else %}
-        <span class="text-muted">None</span>
-        {% endif %}
+      <div class="card-header">
+        <strong>Config Context</strong>
+        {% include 'utils/includes/configcontext_format.html' with format=configcontext_format %}
+      </div>
+      <div class="card-body p-1">
+        {% include 'utils/includes/configcontext_data.html' with data=instance.config_context format=configcontext_format %}
       </div>
     </div>
     <div class="card">

@@ -1,0 +1,2 @@
+{% load helpers %}
+<pre class="pre-scrollable">{% if format == 'yaml' %}{{ data|render_yaml }}{% else %}{{ data|render_json }}{% endif %}</pre>

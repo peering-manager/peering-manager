@@ -1056,10 +1056,22 @@ class RouterDetails(DetailsView):
     queryset = Router.objects.all()
 
     def get_context(self, request, **kwargs):
+        if request.GET.get("format") in ("json", "yaml"):
+            format = request.GET.get("format")
+            if request.user.is_authenticated:
+                request.user.preferences.set(
+                    "configcontext.format", format, commit=True
+                )
+        elif request.user.is_authenticated:
+            format = request.user.preferences.get("configcontext.format", "json")
+        else:
+            format = "json"
+
         instance = get_object_or_404(Router, **kwargs)
         return {
             "instance": instance,
             "connections": Connection.objects.filter(router=instance),
+            "configcontext_format": format,
             "active_tab": "main",
         }
 
@@ -1208,8 +1220,20 @@ class RoutingPolicyDetails(DetailsView):
     queryset = RoutingPolicy.objects.all()
 
     def get_context(self, request, **kwargs):
+        if request.GET.get("format") in ("json", "yaml"):
+            format = request.GET.get("format")
+            if request.user.is_authenticated:
+                request.user.preferences.set(
+                    "configcontext.format", format, commit=True
+                )
+        elif request.user.is_authenticated:
+            format = request.user.preferences.get("configcontext.format", "json")
+        else:
+            format = "json"
+
         return {
             "instance": get_object_or_404(RoutingPolicy, **kwargs),
+            "configcontext_format": format,
             "active_tab": "main",
         }
 

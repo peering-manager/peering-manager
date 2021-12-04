@@ -1,7 +1,8 @@
 import datetime
+import json
 import re
-from json import dumps as json_dumps
 
+import yaml
 from django import template
 from django.conf import settings
 from django.template.defaultfilters import date
@@ -120,7 +121,17 @@ def render_json(value):
     """
     Render a dictionary as formatted JSON.
     """
-    return json_dumps(value, indent=4, sort_keys=True)
+    return json.dumps(value, indent=4, sort_keys=True)
+
+
+@register.filter()
+def render_yaml(value):
+    """
+    Render a dictionary as formatted YAML.
+    """
+    return yaml.dump(
+        json.loads(json.dumps(value)), explicit_start=True, explicit_end=False, indent=2
+    )
 
 
 @register.filter()
