@@ -18,6 +18,7 @@
   var api_key = document.getElementById("id_api_key");
   var api_secret = document.getElementById("id_api_secret");
   var timeout = null;
+  var selectedIdentity = {% if object.pk %}"{{ object.identity }}"{% else %}null{% endif %};
 
   function getCustomers() {
     if (api_url.value.length < 1 || api_key.value.length < 1 || api_secret.value.length < 1) {
@@ -37,7 +38,7 @@
         if ($("#id_identity").find("option[value='" + r[i].id + "']").length) {
           $("#id_identity").val(r[i].id);
         } else {
-          var opt = new Option(r[i].name, r[i].id, i == 0, i == 0);
+          var opt = new Option(r[i].name, r[i].id, i == 0, r[i].id == selectedIdentity);
           $("#id_identity").append(opt);
         }
         $("#id_identity").trigger("change");
@@ -45,17 +46,14 @@
     });
   }
 
-  api_url.addEventListener("keyup", function () {
-    clearTimeout(timeout);
-    timeout = setTimeout(getCustomers, 500);
+  [ api_url, api_key, api_secret ].forEach(function (element) {
+    element.addEventListener("keyup", function () {
+      clearTimeout(timeout);
+      timeout = setTimeout(getCustomers, 500);
+    });
   });
-  api_key.addEventListener("keyup", function () {
-    clearTimeout(timeout);
-    timeout = setTimeout(getCustomers, 500);
-  });
-  api_secret.addEventListener("keyup", function () {
-    clearTimeout(timeout);
-    timeout = setTimeout(getCustomers, 500);
-  });
+  {% if object.pk %}
+  getCustomers();
+  {% endif %}
 </script>
 {% endblock %}
