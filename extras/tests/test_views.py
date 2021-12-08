@@ -67,6 +67,16 @@ class IXAPITestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ):
             super().test_get_object_with_permission()
 
+    def test_create_object_with_permission(self):
+        with patch(
+            "extras.models.ix_api.IXAPI.get_customers",
+            return_value=[
+                {"id": "1234", "name": "Customer 1"},
+                {"id": "5678", "name": "Customer 2"},
+            ],
+        ):
+            super().test_create_object_with_permission()
+
     def test_edit_object_with_permission(self):
         with patch(
             "extras.models.ix_api.IXAPI.get_customers",

@@ -35,7 +35,6 @@ class IXAPIForm(BootstrapMixin, forms.ModelForm):
             ixapi.get_customers()
         except HTTPError as e:
             # Fail form validation on HTTP error to provide a feedback to the user
-            message = f"Unable to connect to IX-API ({e.response.status_code} {e.response.reason})"
             if e.response.status_code >= 400 and e.response.status_code < 500:
                 possible_issue = "make sure the URL, key and secret are correct"
             else:
