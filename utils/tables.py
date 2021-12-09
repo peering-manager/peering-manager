@@ -256,7 +256,7 @@ class TagColumn(tables.TemplateColumn):
 
 class TagTable(BaseTable):
     pk = SelectColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(linkify=True)
     color = ColourColumn()
     buttons = ButtonsColumn(Tag, buttons=("edit", "delete"))
 

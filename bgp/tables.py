@@ -6,7 +6,7 @@ from utils.tables import BaseTable, ButtonsColumn, ColourColumn, SelectColumn
 
 class RelationshipTable(BaseTable):
     pk = SelectColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(linkify=True)
     color = ColourColumn()
     buttons = ButtonsColumn(Relationship, buttons=("edit", "delete"))
 

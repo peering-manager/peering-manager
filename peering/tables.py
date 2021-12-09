@@ -399,7 +399,7 @@ class RouterConnectionTable(BaseTable):
     pk = SelectColumn()
     ipv6_address = tables.Column(linkify=True, verbose_name="IPv6")
     ipv4_address = tables.Column(linkify=True, verbose_name="IPv4")
-    internet_exchange_point = tables.LinkColumn()
+    internet_exchange_point = tables.Column(linkify=True)
     buttons = ButtonsColumn(Connection)
 
     class Meta(BaseTable.Meta):
