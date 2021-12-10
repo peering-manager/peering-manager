@@ -292,9 +292,7 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
         widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
     )
     action = forms.ChoiceField(
-        required=False,
-        choices=ObjectChangeAction.choices,
-        widget=StaticSelectMultiple,
+        required=False, choices=ObjectChangeAction.choices, widget=StaticSelectMultiple
     )
     user_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),

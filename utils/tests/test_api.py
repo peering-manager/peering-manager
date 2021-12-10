@@ -15,18 +15,9 @@ class TagTest(StandardAPITestCases.View):
     model = Tag
     brief_fields = ["id", "url", "name", "slug", "color"]
     create_data = [
-        {
-            "name": "Test 4",
-            "slug": "test-4",
-        },
-        {
-            "name": "Test 5",
-            "slug": "test-5",
-        },
-        {
-            "name": "Test 6",
-            "slug": "test-6",
-        },
+        {"name": "Test 4", "slug": "test-4"},
+        {"name": "Test 5", "slug": "test-5"},
+        {"name": "Test 6", "slug": "test-6"},
     ]
     bulk_update_data = {"color": "000000"}
 

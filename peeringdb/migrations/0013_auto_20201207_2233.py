@@ -5,9 +5,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("peeringdb", "0012_peerrecord_visible"),
-    ]
+    dependencies = [("peeringdb", "0012_peerrecord_visible")]
 
     def flush_peeringdb_tables(apps, schema_editor):
         apps.get_model("peeringdb", "Contact").objects.all().delete()

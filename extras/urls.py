@@ -22,9 +22,7 @@ urlpatterns = [
     ),
     path("job-results/", views.JobResultListView.as_view(), name="jobresult_list"),
     path(
-        "job-results/<int:pk>/",
-        views.JobResultView.as_view(),
-        name="jobresult_details",
+        "job-results/<int:pk>/", views.JobResultView.as_view(), name="jobresult_details"
     ),
     path(
         "job-results/delete/",

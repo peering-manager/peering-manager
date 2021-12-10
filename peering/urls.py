@@ -78,14 +78,10 @@ urlpatterns = [
         "bgp-groups/edit/", views.BGPGroupBulkEdit.as_view(), name="bgpgroup_bulk_edit"
     ),
     path(
-        "bgp-groups/<int:pk>/",
-        views.BGPGroupDetails.as_view(),
-        name="bgpgroup_details",
+        "bgp-groups/<int:pk>/", views.BGPGroupDetails.as_view(), name="bgpgroup_details"
     ),
     path(
-        "bgp-groups/<int:pk>/edit/",
-        views.BGPGroupEdit.as_view(),
-        name="bgpgroup_edit",
+        "bgp-groups/<int:pk>/edit/", views.BGPGroupEdit.as_view(), name="bgpgroup_edit"
     ),
     path(
         "bgp-groups/<int:pk>/changelog/",

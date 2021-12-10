@@ -16,11 +16,7 @@ class GroupTest(StandardAPITestCases.View):
     model = Group
     view_namespace = "users"
     brief_fields = ["id", "name", "url"]
-    create_data = [
-        {"name": "Group 4"},
-        {"name": "Group 5"},
-        {"name": "Group 6"},
-    ]
+    create_data = [{"name": "Group 4"}, {"name": "Group 5"}, {"name": "Group 6"}]
 
     @classmethod
     def setUpTestData(cls):
@@ -51,10 +47,7 @@ class UserTest(StandardAPITestCases.View):
         a_s = AutonomousSystem.objects.create(asn=65000, name="ACME")
         user = User.objects.get(username="User_1")
 
-        url = reverse(
-            "users-api:user-set-context-as",
-            kwargs={"pk": user.pk},
-        )
+        url = reverse("users-api:user-set-context-as", kwargs={"pk": user.pk})
 
         data = {"as_id": affiliated.pk}
         response = self.client.patch(url, data, format="json", **self.header)

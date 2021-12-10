@@ -367,14 +367,7 @@ class InternetExchangeTest(StandardAPITestCases.View):
 
 class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
     model = InternetExchangePeeringSession
-    brief_fields = [
-        "id",
-        "url",
-        "display",
-        "ip_address",
-        "enabled",
-        "is_route_server",
-    ]
+    brief_fields = ["id", "url", "display", "ip_address", "enabled", "is_route_server"]
     bulk_update_data = {"enabled": False}
 
     @classmethod

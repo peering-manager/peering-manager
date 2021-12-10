@@ -85,8 +85,7 @@ class ConfigurationFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
 class DirectPeeringSessionFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     local_autonomous_system_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=AutonomousSystem.objects.defer("prefixes"),
-        label="Local AS (ID)",
+        queryset=AutonomousSystem.objects.defer("prefixes"), label="Local AS (ID)"
     )
     local_autonomous_system_asn = django_filters.ModelMultipleChoiceFilter(
         field_name="local_autonomous_system__asn",

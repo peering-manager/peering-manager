@@ -10,12 +10,7 @@ class RelationshipForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Relationship
-        fields = [
-            "name",
-            "slug",
-            "description",
-            "color",
-        ]
+        fields = ["name", "slug", "description", "color"]
 
 
 class RelationshipFilterForm(BootstrapMixin, forms.Form):

@@ -62,18 +62,15 @@ class IXAPITest(TestCase):
 
         i = IXAPI.objects.get(name="IXP 2")
         with patch(
-            "requests.get",
-            return_value=MockedResponse(content={"status": "up"}),
+            "requests.get", return_value=MockedResponse(content={"status": "up"})
         ):
             self.assertEqual("healthy", i.get_health())
         with patch(
-            "requests.get",
-            return_value=MockedResponse(content={"status": "warn"}),
+            "requests.get", return_value=MockedResponse(content={"status": "warn"})
         ):
             self.assertEqual("degraded", i.get_health())
         with patch(
-            "requests.get",
-            return_value=MockedResponse(content={"status": "error"}),
+            "requests.get", return_value=MockedResponse(content={"status": "error"})
         ):
             self.assertEqual("unhealthy", i.get_health())
 

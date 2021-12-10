@@ -333,9 +333,7 @@ class RouterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
         local_as = AutonomousSystem.objects.create(
-            asn=64500,
-            name="Autonomous System",
-            affiliated=True,
+            asn=64500, name="Autonomous System", affiliated=True
         )
 
         Router.objects.bulk_create(

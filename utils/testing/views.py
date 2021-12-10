@@ -88,10 +88,7 @@ class ViewTestCases(object):
                 self.assertHttpStatus(self.client.get(self._get_url("add")), 403)
 
             # Try POST without permission
-            request = {
-                "path": self._get_url("add"),
-                "data": post_data(self.form_data),
-            }
+            request = {"path": self._get_url("add"), "data": post_data(self.form_data)}
             response = self.client.post(**request)
             with disable_warnings("django.request"):
                 self.assertHttpStatus(response, 403)
@@ -105,10 +102,7 @@ class ViewTestCases(object):
             self.assertHttpStatus(self.client.get(self._get_url("add")), 200)
 
             # Try POST with permission
-            request = {
-                "path": self._get_url("add"),
-                "data": post_data(self.form_data),
-            }
+            request = {"path": self._get_url("add"), "data": post_data(self.form_data)}
             self.assertHttpStatus(self.client.post(**request), 302)
             self.assertEqual(initial_count + 1, self._get_queryset().count())
             instance = self._get_queryset().order_by("pk").last()

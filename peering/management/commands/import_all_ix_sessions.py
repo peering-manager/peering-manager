@@ -14,9 +14,7 @@ class Command(BaseCommand):
         for ix in internet_exchanges:
             if options["verbosity"] >= 2:
                 self.stdout.write(f"[*] Attempting to import sessions for {ix}")
-            connections = Connection.objects.filter(
-                internet_exchange_point=ix,
-            )
+            connections = Connection.objects.filter(internet_exchange_point=ix)
             if connections.count() < 1:
                 if options["verbosity"] >= 2:
                     self.stdout.write(f"  - No connections on {ix}")

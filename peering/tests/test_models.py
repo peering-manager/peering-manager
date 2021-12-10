@@ -116,10 +116,7 @@ class CommunityTest(TestCase):
     def setUpTestData(cls):
         cls.communities = [
             Community(
-                name="test-1",
-                slug="test-1",
-                value="64500:1",
-                type=CommunityType.EGRESS,
+                name="test-1", slug="test-1", value="64500:1", type=CommunityType.EGRESS
             ),
             Community(
                 name="test-2",
@@ -159,9 +156,7 @@ class DirectPeeringSessionTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.local_as = AutonomousSystem.objects.create(
-            asn=64500,
-            name="Local Test",
-            affiliated=True,
+            asn=64500, name="Local Test", affiliated=True
         )
         cls.autonomous_system = AutonomousSystem.objects.create(asn=64501, name="Test")
         cls.group = BGPGroup.objects.create(
@@ -232,9 +227,7 @@ class InternetExchangePeeringSessionTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.local_as = AutonomousSystem.objects.create(
-            asn=64500,
-            name="Local Test",
-            affiliated=True,
+            asn=64500, name="Local Test", affiliated=True
         )
         cls.a_s = AutonomousSystem.objects.create(asn=64510, name="Test")
         cls.router = Router.objects.create(
@@ -327,9 +320,7 @@ class RouterTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.local_as = AutonomousSystem.objects.create(
-            asn=64500,
-            name="Autonomous System",
-            affiliated=True,
+            asn=64500, name="Autonomous System", affiliated=True
         )
         cls.bgp_neighbors_detail = json_file_to_python_type(
             "peering/tests/fixtures/get_bgp_neighbors_detail.json"
@@ -438,9 +429,7 @@ class RouterTest(TestCase):
             hostname="test.example.com",
             device_state=DeviceState.ENABLED,
             local_autonomous_system=AutonomousSystem.objects.create(
-                asn=64510,
-                name="Autonomous System",
-                affiliated=True,
+                asn=64510, name="Autonomous System", affiliated=True
             ),
         )
 

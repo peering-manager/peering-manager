@@ -31,8 +31,7 @@ class JobResultFilterSet(BaseFilterSet):
     created = django_filters.DateTimeFilter()
     completed = django_filters.DateTimeFilter()
     user_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=User.objects.all(),
-        label="User (ID)",
+        queryset=User.objects.all(), label="User (ID)"
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name="user__username",

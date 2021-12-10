@@ -16,8 +16,7 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from peering_manager.api.fields import SerializedPKRelatedField
-from peering_manager.api.serializers import PrimaryModelSerializer
+from peering_manager.api import PrimaryModelSerializer, SerializedPKRelatedField
 
 from .nested_serializers import *
 

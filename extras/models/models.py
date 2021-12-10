@@ -39,9 +39,7 @@ class JobResult(models.Model):
         to=User, on_delete=models.SET_NULL, related_name="+", null=True, blank=True
     )
     status = models.CharField(
-        max_length=30,
-        choices=JobResultStatus.choices,
-        default=JobResultStatus.PENDING,
+        max_length=30, choices=JobResultStatus.choices, default=JobResultStatus.PENDING
     )
     data = models.JSONField(encoder=DjangoJSONEncoder, null=True, blank=True)
     job_id = models.UUIDField(unique=True)

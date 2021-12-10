@@ -1,8 +1,7 @@
 from rest_framework import serializers
 
 from extras.models import IXAPI, JobResult, Webhook
-from peering_manager.api.fields import ContentTypeField
-from peering_manager.api.serializers import BaseModelSerializer
+from peering_manager.api import BaseModelSerializer, ContentTypeField
 from users.api.nested_serializers import NestedUserSerializer
 
 from .nested_serializers import *

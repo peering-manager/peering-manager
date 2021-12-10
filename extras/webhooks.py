@@ -66,11 +66,7 @@ def flush_webhooks(queue):
     Flush a list of object representation to RQ for webhook processing.
     """
     rq_queue = get_queue("default")
-    webhooks_cache = {
-        "type_create": {},
-        "type_update": {},
-        "type_delete": {},
-    }
+    webhooks_cache = {"type_create": {}, "type_update": {}, "type_delete": {}}
 
     for data in queue:
 

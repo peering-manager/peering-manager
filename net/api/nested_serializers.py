@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from net.models import Connection
-from peering_manager.api.serializers import WritableNestedSerializer
+from peering_manager.api import WritableNestedSerializer
 
 
 class NestedConnectionSerializer(WritableNestedSerializer):

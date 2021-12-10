@@ -16,9 +16,7 @@ class ConnectionTestCase(ViewTestCases.ContextualObjectViewTestCase):
             asn=64501, name="Autonomous System 1", affiliated=True
         )
         internet_exchange_point = InternetExchange.objects.create(
-            name="Internet Exchange 1",
-            slug="ix-1",
-            local_autonomous_system=local_as,
+            name="Internet Exchange 1", slug="ix-1", local_autonomous_system=local_as
         )
         router = Router.objects.create(
             name="test",

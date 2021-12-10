@@ -563,12 +563,7 @@ class InternetExchangePeeringDBForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = InternetExchange
-        fields = (
-            "peeringdb_ixlan",
-            "local_autonomous_system",
-            "name",
-            "slug",
-        )
+        fields = ("peeringdb_ixlan", "local_autonomous_system", "name", "slug")
         help_texts = {"name": "Full name of the Internet Exchange point"}
 
 
@@ -634,8 +629,7 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
         queryset=AutonomousSystem.objects.defer("prefixes")
     )
     ixp_connection = DynamicModelChoiceField(
-        queryset=Connection.objects.all(),
-        label="IXP connection",
+        queryset=Connection.objects.all(), label="IXP connection"
     )
     password = PasswordField(required=False, render_value=True)
     import_routing_policies = DynamicModelMultipleChoiceField(

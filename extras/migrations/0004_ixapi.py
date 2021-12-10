@@ -36,10 +36,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "verbose_name": "IX-API",
-                "ordering": ["name", "url", "-created"],
-            },
+            options={"verbose_name": "IX-API", "ordering": ["name", "url", "-created"]},
         ),
         migrations.AddConstraint(
             model_name="ixapi",

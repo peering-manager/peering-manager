@@ -1,9 +1,10 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from peering_manager.api.fields import ChoiceField, ContentTypeField
-from peering_manager.api.serializers import (
+from peering_manager.api import (
     BaseModelSerializer,
+    ChoiceField,
+    ContentTypeField,
     ValidatedModelSerializer,
 )
 from users.api.nested_serializers import NestedUserSerializer

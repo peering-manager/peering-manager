@@ -1,5 +1,5 @@
 from bgp.models import Relationship
-from peering_manager.api.serializers import ValidatedModelSerializer
+from peering_manager.api import ValidatedModelSerializer
 
 from .nested_serializers import *
 

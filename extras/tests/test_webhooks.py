@@ -64,10 +64,7 @@ class WebhookTest(APITestCase):
         data = {
             "asn": 64500,
             "name": "AS 1",
-            "tags": [
-                {"name": "Foo"},
-                {"name": "Bar"},
-            ],
+            "tags": [{"name": "Foo"}, {"name": "Bar"}],
         }
         url = reverse("peering-api:autonomoussystem-list")
         response = self.client.post(url, data, format="json", **self.header)
@@ -91,30 +88,9 @@ class WebhookTest(APITestCase):
     def test_enqueue_webhook_bulk_create(self):
         # Create multiple objects via the REST API
         data = [
-            {
-                "asn": 64500,
-                "name": "AS 1",
-                "tags": [
-                    {"name": "Foo"},
-                    {"name": "Bar"},
-                ],
-            },
-            {
-                "asn": 64501,
-                "name": "AS 2",
-                "tags": [
-                    {"name": "Foo"},
-                    {"name": "Bar"},
-                ],
-            },
-            {
-                "asn": 64502,
-                "name": "AS 3",
-                "tags": [
-                    {"name": "Foo"},
-                    {"name": "Bar"},
-                ],
-            },
+            {"asn": 64500, "name": "AS 1", "tags": [{"name": "Foo"}, {"name": "Bar"}]},
+            {"asn": 64501, "name": "AS 2", "tags": [{"name": "Foo"}, {"name": "Bar"}]},
+            {"asn": 64502, "name": "AS 3", "tags": [{"name": "Foo"}, {"name": "Bar"}]},
         ]
         url = reverse("peering-api:autonomoussystem-list")
         response = self.client.post(url, data, format="json", **self.header)

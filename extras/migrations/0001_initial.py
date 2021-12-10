@@ -75,8 +75,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "ordering": ["-created"],
-            },
-        ),
+            options={"ordering": ["-created"]},
+        )
     ]

@@ -71,9 +71,7 @@ class Jinja2FilterTestCase(TestCase):
         cls.router = Router.objects.create(name="test", hostname="test.example.com")
         cls.ixp = InternetExchange.objects.create(
             local_autonomous_system=AutonomousSystem.objects.create(
-                asn=64500,
-                name="Autonomous System",
-                affiliated=True,
+                asn=64500, name="Autonomous System", affiliated=True
             ),
             name="Test IXP",
             slug="test-ixp",
@@ -171,7 +169,7 @@ class Jinja2FilterTestCase(TestCase):
             FILTER_DICT["local_ips"](InternetExchange.objects.get(pk=self.ixp.pk), 4),
         )
         self.assertIsNone(
-            FILTER_DICT["local_ips"](Connection.objects.get(pk=self.ixp_connection.pk)),
+            FILTER_DICT["local_ips"](Connection.objects.get(pk=self.ixp_connection.pk))
         )
 
     def test_max_prefix(self):

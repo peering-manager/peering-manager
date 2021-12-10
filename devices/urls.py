@@ -11,9 +11,7 @@ urlpatterns = [
     path("platforms/", views.PlatformList.as_view(), name="platform_list"),
     path("platforms/add/", views.PlatformAdd.as_view(), name="platform_add"),
     path(
-        "platforms/<int:pk>/edit/",
-        views.PlatformEdit.as_view(),
-        name="platform_edit",
+        "platforms/<int:pk>/edit/", views.PlatformEdit.as_view(), name="platform_edit"
     ),
     path(
         "platforms/<int:pk>/changelog/",

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from bgp.models import Relationship
-from peering_manager.api.serializers import WritableNestedSerializer
+from peering_manager.api import WritableNestedSerializer
 
 
 class NestedRelationshipSerializer(WritableNestedSerializer):

@@ -212,16 +212,10 @@ class Network(models.Model):
     notes_private = models.TextField(blank=True)
     info_traffic = models.CharField(max_length=39, blank=True, choices=Traffic.choices)
     info_ratio = models.CharField(
-        max_length=45,
-        blank=True,
-        choices=Ratio.choices,
-        default=Ratio.NOT_DISCLOSED,
+        max_length=45, blank=True, choices=Ratio.choices, default=Ratio.NOT_DISCLOSED
     )
     info_scope = models.CharField(
-        max_length=39,
-        blank=True,
-        choices=Scope.choices,
-        default=Scope.NOT_DISCLOSED,
+        max_length=39, blank=True, choices=Scope.choices, default=Scope.NOT_DISCLOSED
     )
     info_type = models.CharField(
         max_length=60,
@@ -251,15 +245,11 @@ class Network(models.Model):
         max_length=72, blank=True, choices=GeneralPolicy.choices
     )
     policy_locations = models.CharField(
-        max_length=72,
-        blank=True,
-        choices=LocationsPolicy.choices,
+        max_length=72, blank=True, choices=LocationsPolicy.choices
     )
     policy_ratio = models.BooleanField(default=False)
     policy_contracts = models.CharField(
-        max_length=36,
-        blank=True,
-        choices=ContractsPolicy.choices,
+        max_length=36, blank=True, choices=ContractsPolicy.choices
     )
     org = models.ForeignKey(
         Organization,

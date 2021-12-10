@@ -23,9 +23,9 @@ from rest_framework.viewsets import ModelViewSet as __ModelViewSet
 from rest_framework.viewsets import ReadOnlyModelViewSet as __ReadOnlyModelViewSet
 from rq.worker import Worker
 
+from peering_manager.api import BulkOperationSerializer
 from peering_manager.api.authentication import IsAuthenticatedOrLoginNotRequired
 from peering_manager.api.exceptions import SerializerNotFound
-from peering_manager.api.serializers import BulkOperationSerializer
 from utils.api import get_serializer_for_model
 
 __all__ = (
@@ -48,10 +48,7 @@ class APIRootView(APIView):
 
     @staticmethod
     def get_namespace(name, request, format):
-        return (
-            name,
-            reverse(f"{name}-api:api-root", request=request, format=format),
-        )
+        return (name, reverse(f"{name}-api:api-root", request=request, format=format))
 
     def get_view_name(self):
         return "API Root"

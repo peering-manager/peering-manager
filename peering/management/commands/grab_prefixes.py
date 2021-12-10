@@ -32,13 +32,13 @@ class Command(BaseCommand):
                     if len(prefixes["ipv6"]) > options["limit"]:
                         if options["verbosity"] >= 2:
                             self.stdout.write(
-                                f"  - Too many IPv6 prefixes for as{autonomous_system.asn}: {len(prefixes['ipv6'])} > {options['limit']}, ignoring",
+                                f"  - Too many IPv6 prefixes for as{autonomous_system.asn}: {len(prefixes['ipv6'])} > {options['limit']}, ignoring"
                             )
                         prefixes["ipv6"] = []
                     if len(prefixes["ipv4"]) > options["limit"]:
                         if options["verbosity"] >= 2:
                             self.stdout.write(
-                                f"  - Too many IPv4 prefixes for as{autonomous_system.asn}: {len(prefixes['ipv4'])} > {options['limit']}, ignoring",
+                                f"  - Too many IPv4 prefixes for as{autonomous_system.asn}: {len(prefixes['ipv4'])} > {options['limit']}, ignoring"
                             )
                         prefixes["ipv4"] = []
             except ValueError as e:

@@ -1,5 +1,5 @@
 from devices.models import Platform
-from peering_manager.api.serializers import PrimaryModelSerializer
+from peering_manager.api import PrimaryModelSerializer
 
 from .nested_serializers import *
 

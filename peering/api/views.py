@@ -336,8 +336,7 @@ class InternetExchangeViewSet(ModelViewSet):
                 description="The user does not have the permission to update the IXP.",
             ),
             404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT,
-                description="The IXP does not exist.",
+                response=OpenApiTypes.OBJECT, description="The IXP does not exist."
             ),
             503: OpenApiResponse(
                 response=OpenApiTypes.NONE,
@@ -367,8 +366,7 @@ class InternetExchangeViewSet(ModelViewSet):
                 description="The PeeringDB records of available peers.",
             ),
             404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT,
-                description="The IXP does not exist.",
+                response=OpenApiTypes.OBJECT, description="The IXP does not exist."
             ),
         },
     )
@@ -395,8 +393,7 @@ class InternetExchangeViewSet(ModelViewSet):
                 description="The user does not have the permission to update the IXP sessions.",
             ),
             404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT,
-                description="The IXP does not exist.",
+                response=OpenApiTypes.OBJECT, description="The IXP does not exist."
             ),
         },
     )
@@ -428,8 +425,7 @@ class InternetExchangeViewSet(ModelViewSet):
                 description="The prefixes attached to the IXP sorted by address family.",
             ),
             404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT,
-                description="The IXP does not exist.",
+                response=OpenApiTypes.OBJECT, description="The IXP does not exist."
             ),
         },
     )
@@ -459,8 +455,7 @@ class InternetExchangeViewSet(ModelViewSet):
                 description="The user does not have the permission to poll session status.",
             ),
             404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT,
-                description="The IXP does not exist.",
+                response=OpenApiTypes.OBJECT, description="The IXP does not exist."
             ),
         },
     )
@@ -579,8 +574,7 @@ class RouterViewSet(ModelViewSet):
                 description="The user does not have the permission to generate a configuration.",
             ),
             404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT,
-                description="The router does not exist.",
+                response=OpenApiTypes.OBJECT, description="The router does not exist."
             ),
         },
     )
@@ -619,8 +613,7 @@ class RouterViewSet(ModelViewSet):
                 description="The user does not have the permission to configure routers.",
             ),
             404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT,
-                description="The router does not exist.",
+                response=OpenApiTypes.OBJECT, description="The router does not exist."
             ),
         },
     )
@@ -671,8 +664,7 @@ class RouterViewSet(ModelViewSet):
                 description="Job scheduled to test the router NAPALM connection.",
             ),
             404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT,
-                description="The router does not exist.",
+                response=OpenApiTypes.OBJECT, description="The router does not exist."
             ),
         },
     )
