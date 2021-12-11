@@ -16,10 +16,7 @@ class Migration(migrations.Migration):
         Contact = apps.get_model("messaging.Contact")
         ContactAssignment = apps.get_model("messaging.ContactAssignment")
         ContentType = apps.get_model("contenttypes", "ContentType")
-        AutonomousSystemType = ContentType.objects.get(
-            model=AutonomousSystem._meta.model_name,
-            app_label=AutonomousSystem._meta.app_label,
-        )
+        AutonomousSystemType = ContentType.objects.get_for_model(AutonomousSystem)
 
         # Create a placeholder role
         role = ContactRole.objects.using(db_alias).create(name="FIXME", slug="fixme")
