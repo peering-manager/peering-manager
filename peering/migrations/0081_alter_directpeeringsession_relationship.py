@@ -7,18 +7,6 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     dependencies = [("bgp", "0001_initial"), ("peering", "0080_internetexchange_ixapi")]
 
-    operations = [
-        migrations.AlterField(
-            model_name="directpeeringsession",
-            name="relationship",
-            field=models.ForeignKey(
-                null=True,
-                on_delete=django.db.models.deletion.SET_NULL,
-                to="bgp.relationship",
-            ),
-        ),
-    ]
-
     def create_existing_relationships(apps, schema_editor):
         db_alias = schema_editor.connection.alias
         Relationship = apps.get_model("bgp.Relationship")

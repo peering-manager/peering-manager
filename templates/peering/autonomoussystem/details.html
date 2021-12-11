@@ -50,35 +50,7 @@
         </tr>
       </table>
     </div>
-    <div class="card mb-2">
-      <div class="card-header"><strong>Contact Info</strong></div>
-      <table class="card-body table table-hover attr-table mb-0">
-        <tr>
-          <td>Contact Name</td>
-          <td>{{ instance.contact_name|render_none }}</td>
-        </tr>
-        <tr>
-          <td>Contact Phone</td>
-          <td>
-            {% if instance.contact_phone %}
-            <a href="tel:{{ instance.contact_phone }}">{{ instance.contact_phone }}</a>
-            {% else %}
-            <span class="text-muted">&mdash;</span>
-            {% endif %}
-          </td>
-        </tr>
-        <tr>
-          <td>Contact E-Mail</td>
-          <td>
-            {% if instance.contact_email %}
-            <a href="mailto:{{ instance.contact_email }}">{{ instance.contact_email }}</a>
-            {% else %}
-            <span class="text-muted">&mdash;</span>
-            {% endif %}
-          </td>
-        </tr>
-      </table>
-    </div>
+    {% include 'utils/includes/contacts.html' %}
     {% if shared_internet_exchanges %}
     <div class="card">
       <div class="card-header"><strong>Shared Internet Exchanges</strong></div>

@@ -163,7 +163,7 @@ class AddOrEditView(ReturnURLMixin, View):
         """
         The form has been submitted, process it.
         """
-        obj = self.get_object(kwargs)
+        obj = self.alter_object(self.get_object(kwargs), request, args, kwargs)
         form = self.form(request.POST, instance=obj)
 
         if form.is_valid():

@@ -1,0 +1,65 @@
+{% extends 'messaging/contact/_base.html' %}
+{% load helpers %}
+{% block subcontent %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header"><strong>Contact Details</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Name</td>
+          <td>{{ instance.name }}</td>
+        </tr>
+        <tr>
+          <tr>
+            <td>Title</td>
+            <td>{{ instance.title|render_none }}</td>
+          </tr>
+          <tr>
+          <td>Description</td>
+          <td><code>{{ instance.description|render_none }}</code></td>
+        </tr>
+        <tr>
+          <td>Phone</td>
+          <td>
+            {% if instance.phone %}
+              <a href="tel:{{ instance.phone }}">{{ instance.phone }}</a>
+            {% else %}
+              {{ instance.phone|render_none }}
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td>Email</td>
+          <td>
+            {% if instance.email %}
+              <a href="mailto:{{ instance.email }}">{{ instance.email }}</a>
+            {% else %}
+              {{ instance.email|render_none }}
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td>Address</td>
+          <td>{{ instance.address|linebreaksbr|render_none }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Assignments</th>
+          <td>{{ assignment_count }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="card my-2">
+      <div class="card-header"><strong>Comments</strong></div>
+      <div class="card-body">
+        {% if instance.comments %}
+        {{ instance.comments|markdown }}
+        {% else %}
+        <span class="text-muted">None</span>
+        {% endif %}
+      </div>
+    </div>
+    {% include 'utils/includes/tags_card.html' with tags=instance.tags.all url='messaging:contactrole_list' %}
+  </div>
+</div>
+{% endblock %}

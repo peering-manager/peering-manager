@@ -20,7 +20,7 @@ from peering.models import (
     RoutingPolicy,
 )
 from peering.tests.mocked_data import load_peeringdb_data, mocked_subprocess_popen
-from utils.testing import json_file_to_python_type
+from utils.testing import load_json
 
 
 class AutonomousSystemTest(TestCase):
@@ -182,9 +182,7 @@ class DirectPeeringSessionTest(TestCase):
         with patch(
             "peering.models.Router.get_bgp_neighbors_detail",
             return_value=self.router.find_bgp_neighbor_detail(
-                json_file_to_python_type(
-                    "peering/tests/fixtures/get_bgp_neighbors_detail.json"
-                ),
+                load_json("peering/tests/fixtures/get_bgp_neighbors_detail.json"),
                 "2001:db8::1",
             ),
         ):
@@ -306,9 +304,7 @@ class InternetExchangePeeringSessionTest(TestCase):
         with patch(
             "peering.models.Router.get_bgp_neighbors_detail",
             return_value=self.router.find_bgp_neighbor_detail(
-                json_file_to_python_type(
-                    "peering/tests/fixtures/get_bgp_neighbors_detail.json"
-                ),
+                load_json("peering/tests/fixtures/get_bgp_neighbors_detail.json"),
                 "2001:db8::1",
             ),
         ):
@@ -322,7 +318,7 @@ class RouterTest(TestCase):
         cls.local_as = AutonomousSystem.objects.create(
             asn=64500, name="Autonomous System", affiliated=True
         )
-        cls.bgp_neighbors_detail = json_file_to_python_type(
+        cls.bgp_neighbors_detail = load_json(
             "peering/tests/fixtures/get_bgp_neighbors_detail.json"
         )
         cls.router = Router.objects.create(

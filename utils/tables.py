@@ -31,6 +31,12 @@ OBJECT_CHANGE_REQUEST_ID = """
 """
 
 
+def linkify_phone(value):
+    if value is None:
+        return None
+    return f"tel:{value}"
+
+
 class BaseTable(tables.Table):
     """
     Default table for object lists

@@ -3,6 +3,8 @@ import hmac
 import json
 
 from django.core.serializers import serialize
+from django.db.models import Count, OuterRef, Subquery
+from django.db.models.functions import Coalesce
 from taggit.managers import _TaggableManager
 
 
@@ -40,6 +42,20 @@ def is_taggable(instance):
         if issubclass(instance.tags.__class__, _TaggableManager):
             return True
     return False
+
+
+def count_related(model, field):
+    """
+    Returns a `Subquery` suitable for annotating a child object count.
+    """
+    subquery = Subquery(
+        model.objects.filter(**{field: OuterRef("pk")})
+        .order_by()
+        .values(field)
+        .annotate(c=Count("*"))
+        .values("c")
+    )
+    return Coalesce(subquery, 0)
 
 
 def serialize_object(instance, extra=None, exclude=None):

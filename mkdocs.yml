@@ -55,6 +55,8 @@ nav:
         - Config Contexts: "models/peering/configcontexts.md"
         - Connection: "models/net/connection.md"
         - Relationship: "models/bgp/relationship.md"
+        - Contact: "models/messaging/contact.md"
+        - Contact Role: "models/messaging/contactrole.md"
         - IX-API: "models/extras/ixapi.md"
         - Webhook: "models/extras/webhook.md"
         - Token: "models/users/token.md"

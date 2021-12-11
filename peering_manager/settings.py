@@ -372,6 +372,7 @@ INSTALLED_APPS = [
     "bgp",
     "devices",
     "extras",
+    "messaging",
     "net",
     "peering",
     "peeringdb",

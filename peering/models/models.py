@@ -4,6 +4,7 @@ import logging
 import napalm
 from cacheops import cached_as
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
@@ -34,9 +35,6 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
     asn = ASNField(unique=True, verbose_name="ASN")
     name = models.CharField(max_length=128)
     name_peeringdb_sync = models.BooleanField(default=True)
-    contact_name = models.CharField(max_length=50, blank=True)
-    contact_phone = models.CharField(max_length=20, blank=True)
-    contact_email = models.EmailField(blank=True, verbose_name="Contact e-mail")
     comments = models.TextField(blank=True)
     irr_as_set = models.CharField(
         max_length=255, blank=True, null=True, verbose_name="IRR AS-SET"
@@ -59,6 +57,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
     communities = models.ManyToManyField("Community", blank=True)
     prefixes = models.JSONField(blank=True, null=True, editable=False)
     affiliated = models.BooleanField(default=False)
+    contacts = GenericRelation(to="messaging.ContactAssignment")
 
     logger = logging.getLogger("peering.manager.peering")
 
@@ -84,11 +83,12 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
     def peeringdb_contacts(self):
         if self.peeringdb_network:
             return NetworkContact.objects.filter(net=self.peeringdb_network)
-        return []
+        else:
+            return NetworkContact.objects.none()
 
     @property
     def can_receive_email(self):
-        return "" != self.contact_email or self.peeringdb_contacts
+        return self.contacts.count() > 0 or self.peeringdb_contacts.count() > 0
 
     @staticmethod
     def create_from_peeringdb(asn):
@@ -294,15 +294,10 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
         addresses = []
 
         # Append the contact set by the user if one has been set
-        if self.contact_email:
-            addresses.append(
-                (
-                    self.contact_email,
-                    f"{self.contact_name} - {self.contact_email}"
-                    if self.contact_name
-                    else self.contact_email,
-                )
-            )
+        for assigned in self.contacts.all():
+            contact = assigned.contact
+            if assigned.contact.email:
+                addresses.append((contact.email, f"{contact.name} - {contact.email}"))
 
         # Append the contacts found in PeeringDB, avoid re-adding a contact if the
         # email address is the same as the one set by the user manually
@@ -334,12 +329,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
                     )
                 )
             else:
-                addresses.append(
-                    (
-                        email,
-                        email,
-                    )
-                )
+                addresses.append((email, email))
         return addresses
 
     def get_email_context(self):

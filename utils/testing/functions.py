@@ -16,17 +16,20 @@ def disable_warnings(logger_name):
     logger.setLevel(current_level)
 
 
+def load_json(filename):
+    """
+    Loads and return JSON from a file.
+    """
+    with open(filename, mode="r") as f:
+        return json.load(f)
+
+
 def extract_form_failures(html):
     """
     Given raw HTML content from an HTTP response, returns a list of form errors.
     """
     FORM_ERROR_REGEX = r"<!-- FORM-ERROR (.*) -->"
     return re.findall(FORM_ERROR_REGEX, str(html))
-
-
-def json_file_to_python_type(filename):
-    with open(filename, mode="r") as f:
-        return json.load(f)
 
 
 def post_data(data):

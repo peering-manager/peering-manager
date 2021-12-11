@@ -126,6 +126,20 @@
                 <span class="menu-collapsed">E-mails</span>
               </a>
             </div>
+            <a href="#messaging_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/messaging/' %} active{% endif %}">
+              <div class="d-flex w-100 justify-content-start align-items-center">
+                <span class="menu-collapsed">Messaging</span>
+                <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
+              </div>
+            </a>
+            <div id="messaging_menu_id" class="collapse sidebar-submenu">
+              <a href="{% url 'messaging:contact_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/messaging/contacts/' %} active{% endif %}">
+                <span class="menu-collapsed">Contacts</span>
+              </a>
+              <a href="{% url 'messaging:contactrole_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/messaging/contact-roles/' %} active{% endif %}">
+                <div class="menu-collapsed">Contact Roles</div>
+              </a>
+            </div>
             <a href="#third_party_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/ix-api/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
                 <span class="menu-collapsed">3rd Party</span>

@@ -60,6 +60,7 @@ class APIRootView(APIView):
                     APIRootView.get_namespace("bgp", request, format),
                     APIRootView.get_namespace("devices", request, format),
                     APIRootView.get_namespace("extras", request, format),
+                    APIRootView.get_namespace("messaging", request, format),
                     APIRootView.get_namespace("net", request, format),
                     APIRootView.get_namespace("peering", request, format),
                     APIRootView.get_namespace("peeringdb", request, format),

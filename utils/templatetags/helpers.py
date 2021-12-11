@@ -5,6 +5,7 @@ import re
 import yaml
 from django import template
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import date
 from django.utils.html import escape, strip_tags
 from django.utils.safestring import mark_safe
@@ -142,6 +143,35 @@ def title_with_uppers(value):
     if not isinstance(value, str):
         value = str(value)
     return " ".join([word[0].upper() + word[1:] for word in value.split()])
+
+
+@register.filter()
+def meta(instance, attr):
+    """
+    Returns the specified `Meta` attribute of a model (Django does not allow that by
+    default).
+    """
+    return getattr(instance._meta, attr, "")
+
+
+@register.filter()
+def content_type(instance):
+    """
+    Returns the `ContentType` for the given object.
+    """
+    return ContentType.objects.get_for_model(instance)
+
+
+@register.filter()
+def content_type_id(instance):
+    """
+    Return the `ContentType` ID for the given object.
+    """
+    content_type = ContentType.objects.get_for_model(instance)
+    if content_type:
+        return content_type.pk
+    else:
+        return None
 
 
 @register.inclusion_tag("utils/templatetags/tag.html")
