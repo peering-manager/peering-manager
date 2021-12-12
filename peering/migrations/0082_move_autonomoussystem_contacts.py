@@ -22,14 +22,14 @@ class Migration(migrations.Migration):
         role = ContactRole.objects.using(db_alias).create(name="FIXME", slug="fixme")
         # Get AS with a contact name set
         for asn in AutonomousSystem.objects.using(db_alias).exclude(
-            contact_name__exact=""
+            contact_email__exact=""
         ):
             try:
-                contact = Contact.objects.using(db_alias).get(name=asn.contact_name)
+                contact = Contact.objects.using(db_alias).get(name=asn.contact_email)
             except Contact.DoesNotExist:
                 # Create a contact with the contact details of the AS
                 contact = Contact.objects.using(db_alias).create(
-                    name=asn.contact_name,
+                    name=f"AS{asn.asn} - {asn.contact_name}",
                     phone=asn.contact_phone,
                     email=asn.contact_email,
                 )
