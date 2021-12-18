@@ -70,12 +70,9 @@ class AutonomousSystemTable(BaseTable):
         verbose_name="IX Sessions",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
-    affiliated = BooleanColumn(
-        verbose_name="Affiliated",
-        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
-    )
+    affiliated = BooleanColumn(verbose_name="Affiliated")
     tags = TagColumn(url_name="peering:autonomoussystem_list")
-    buttons = ButtonsColumn(AutonomousSystem)
+    actions = ButtonsColumn(AutonomousSystem)
 
     class Meta(BaseTable.Meta):
         model = AutonomousSystem
@@ -93,7 +90,7 @@ class AutonomousSystemTable(BaseTable):
             "internetexchangepeeringsession_count",
             "affiliated",
             "tags",
-            "buttons",
+            "actions",
         )
         default_columns = (
             "pk",
@@ -102,17 +99,14 @@ class AutonomousSystemTable(BaseTable):
             "irr_as_set",
             "directpeeringsession_count",
             "internetexchangepeeringsession_count",
-            "buttons",
+            "actions",
         )
 
 
 class BGPGroupTable(BaseTable):
     pk = SelectColumn()
     name = tables.Column(linkify=True)
-    check_bgp_session_states = BooleanColumn(
-        verbose_name="Poll Session States",
-        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
-    )
+    check_bgp_session_states = BooleanColumn(verbose_name="Poll Session States")
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     directpeeringsession_count = tables.Column(
@@ -120,7 +114,7 @@ class BGPGroupTable(BaseTable):
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     tags = TagColumn(url_name="peering:bgpgroup_list")
-    buttons = ButtonsColumn(BGPGroup)
+    actions = ButtonsColumn(BGPGroup)
 
     class Meta(BaseTable.Meta):
         model = BGPGroup
@@ -133,14 +127,14 @@ class BGPGroupTable(BaseTable):
             "export_routing_policies",
             "directpeeringsession_count",
             "tags",
-            "buttons",
+            "actions",
         )
         default_columns = (
             "pk",
             "name",
             "check_bgp_session_states",
             "directpeeringsession_count",
-            "buttons",
+            "actions",
         )
 
 
@@ -149,27 +143,21 @@ class CommunityTable(BaseTable):
     name = tables.Column(linkify=True)
     type = tables.TemplateColumn(template_code=COMMUNITY_TYPE)
     tags = TagColumn(url_name="peering:community_list")
-    buttons = ButtonsColumn(Community)
+    actions = ButtonsColumn(Community)
 
     class Meta(BaseTable.Meta):
         model = Community
-        fields = ("pk", "name", "slug", "value", "type", "tags", "buttons")
-        default_columns = ("pk", "name", "value", "type", "buttons")
+        fields = ("pk", "name", "slug", "value", "type", "tags", "actions")
+        default_columns = ("pk", "name", "value", "type", "actions")
 
 
 class ConfigurationTable(BaseTable):
     pk = SelectColumn()
     name = tables.Column(linkify=True)
-    jinja2_trim = BooleanColumn(
-        verbose_name="Trim",
-        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
-    )
-    jinja2_lstrip = BooleanColumn(
-        verbose_name="Lstrip",
-        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
-    )
+    jinja2_trim = BooleanColumn(verbose_name="Trim")
+    jinja2_lstrip = BooleanColumn(verbose_name="Lstrip")
     tags = TagColumn(url_name="peering:configuration_list")
-    buttons = ButtonsColumn(Configuration)
+    actions = ButtonsColumn(Configuration)
 
     class Meta(BaseTable.Meta):
         model = Configuration
@@ -180,9 +168,9 @@ class ConfigurationTable(BaseTable):
             "jinja2_lstrip",
             "updated",
             "tags",
-            "buttons",
+            "actions",
         )
-        default_columns = ("pk", "name", "updated", "buttons")
+        default_columns = ("pk", "name", "updated", "actions")
 
 
 class DirectPeeringSessionTable(BaseTable):
@@ -206,17 +194,14 @@ class DirectPeeringSessionTable(BaseTable):
     relationship = tables.TemplateColumn(
         verbose_name="Relationship", template_code=BGP_RELATIONSHIP
     )
-    enabled = BooleanColumn(
-        verbose_name="Status",
-        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
-    )
+    enabled = BooleanColumn(verbose_name="Status")
     service_reference = tables.Column(verbose_name="Service ID", linkify=True)
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     state = BGPSessionStateColumn(accessor="bgp_state")
     router = tables.Column(verbose_name="Router", accessor="router", linkify=True)
     tags = TagColumn(url_name="peering:directpeeringsession_list")
-    buttons = ButtonsColumn(DirectPeeringSession, append_template=append_template)
+    actions = ButtonsColumn(DirectPeeringSession, append_template=append_template)
 
     class Meta(BaseTable.Meta):
         model = DirectPeeringSession
@@ -237,7 +222,7 @@ class DirectPeeringSessionTable(BaseTable):
             "advertised_prefix_count",
             "router",
             "tags",
-            "buttons",
+            "actions",
         )
         default_columns = (
             "pk",
@@ -248,23 +233,17 @@ class DirectPeeringSessionTable(BaseTable):
             "relationship",
             "enabled",
             "router",
-            "buttons",
+            "actions",
         )
 
 
 class EmailTable(BaseTable):
     pk = SelectColumn()
     name = tables.Column(linkify=True)
-    jinja2_trim = BooleanColumn(
-        verbose_name="Trim",
-        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
-    )
-    jinja2_lstrip = BooleanColumn(
-        verbose_name="Lstrip",
-        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
-    )
+    jinja2_trim = BooleanColumn(verbose_name="Trim")
+    jinja2_lstrip = BooleanColumn(verbose_name="Lstrip")
     tags = TagColumn(url_name="peering:configuration_list")
-    buttons = ButtonsColumn(Email)
+    actions = ButtonsColumn(Email)
 
     class Meta(BaseTable.Meta):
         model = Email
@@ -276,19 +255,16 @@ class EmailTable(BaseTable):
             "jinja2_lstrip",
             "updated",
             "tags",
-            "buttons",
+            "actions",
         )
-        default_columns = ("pk", "name", "updated", "buttons")
+        default_columns = ("pk", "name", "updated", "actions")
 
 
 class InternetExchangeTable(BaseTable):
     pk = SelectColumn()
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     name = tables.Column(linkify=True)
-    check_bgp_session_states = BooleanColumn(
-        verbose_name="Check Sessions",
-        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
-    )
+    check_bgp_session_states = BooleanColumn(verbose_name="Check Sessions")
     bgp_session_states_update = tables.Column(verbose_name="Last Sessions Check")
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
@@ -297,7 +273,7 @@ class InternetExchangeTable(BaseTable):
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     tags = TagColumn(url_name="peering:internetexchange_list")
-    buttons = ButtonsColumn(InternetExchange)
+    actions = ButtonsColumn(InternetExchange)
 
     class Meta(BaseTable.Meta):
         model = InternetExchange
@@ -312,13 +288,13 @@ class InternetExchangeTable(BaseTable):
             "bgp_session_states_update",
             "internetexchangepeeringsession_count",
             "tags",
-            "buttons",
+            "actions",
         )
         default_columns = (
             "pk",
             "name",
             "internetexchangepeeringsession_count",
-            "buttons",
+            "actions",
         )
 
 
@@ -348,19 +324,13 @@ class InternetExchangePeeringSessionTable(BaseTable):
     ixp_connection = tables.Column(verbose_name="Connection", linkify=True)
     ip_address = tables.Column(verbose_name="IP Address", linkify=True)
     service_reference = tables.Column(verbose_name="Service ID", linkify=True)
-    is_route_server = BooleanColumn(
-        verbose_name="Route Server",
-        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
-    )
-    enabled = BooleanColumn(
-        verbose_name="Enabled",
-        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
-    )
+    is_route_server = BooleanColumn(verbose_name="Route Server")
+    enabled = BooleanColumn(verbose_name="Enabled")
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     state = BGPSessionStateColumn(accessor="bgp_state")
     tags = TagColumn(url_name="peering:internetexchangepeeringsession_list")
-    buttons = ButtonsColumn(
+    actions = ButtonsColumn(
         InternetExchangePeeringSession, append_template=append_template
     )
 
@@ -382,7 +352,7 @@ class InternetExchangePeeringSessionTable(BaseTable):
             "received_prefix_count",
             "advertised_prefix_count",
             "tags",
-            "buttons",
+            "actions",
         )
         default_columns = (
             "pk",
@@ -391,7 +361,7 @@ class InternetExchangePeeringSessionTable(BaseTable):
             "ip_address",
             "is_route_server",
             "enabled",
-            "buttons",
+            "actions",
         )
 
 
@@ -400,7 +370,7 @@ class RouterConnectionTable(BaseTable):
     ipv6_address = tables.Column(linkify=True, verbose_name="IPv6")
     ipv4_address = tables.Column(linkify=True, verbose_name="IPv4")
     internet_exchange_point = tables.Column(linkify=True)
-    buttons = ButtonsColumn(Connection)
+    actions = ButtonsColumn(Connection)
 
     class Meta(BaseTable.Meta):
         model = Connection
@@ -412,7 +382,7 @@ class RouterConnectionTable(BaseTable):
             "ipv4_address",
             "internet_exchange_point",
             "interface",
-            "buttons",
+            "actions",
         )
         default_columns = (
             "pk",
@@ -421,7 +391,7 @@ class RouterConnectionTable(BaseTable):
             "ipv6_address",
             "ipv4_address",
             "internet_exchange_point",
-            "buttons",
+            "actions",
         )
         empty_text = "None"
 
@@ -431,10 +401,7 @@ class RouterTable(BaseTable):
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     name = tables.Column(linkify=True)
     platform = tables.Column(linkify=True)
-    encrypt_passwords = BooleanColumn(
-        verbose_name="Encrypt Password",
-        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
-    )
+    encrypt_passwords = BooleanColumn(verbose_name="Encrypt Password")
     configuration_template = tables.Column(linkify=True, verbose_name="Configuration")
     connection_count = tables.Column(
         verbose_name="Connections",
@@ -449,7 +416,7 @@ class RouterTable(BaseTable):
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     tags = TagColumn(url_name="peering:router_list")
-    buttons = ButtonsColumn(Router)
+    actions = ButtonsColumn(Router)
 
     class Meta(BaseTable.Meta):
         model = Router
@@ -466,7 +433,7 @@ class RouterTable(BaseTable):
             "internetexchangepeeringsession_count",
             "device_state",
             "tags",
-            "buttons",
+            "actions",
         )
         default_columns = (
             "pk",
@@ -477,7 +444,7 @@ class RouterTable(BaseTable):
             "configuration_template",
             "connection_count",
             "device_state",
-            "buttons",
+            "actions",
         )
 
 
@@ -486,9 +453,9 @@ class RoutingPolicyTable(BaseTable):
     name = tables.Column(linkify=True)
     type = tables.TemplateColumn(template_code=ROUTING_POLICY_TYPE)
     tags = TagColumn(url_name="peering:routingpolicy_list")
-    buttons = ButtonsColumn(RoutingPolicy)
+    actions = ButtonsColumn(RoutingPolicy)
 
     class Meta(BaseTable.Meta):
         model = RoutingPolicy
-        fields = ("pk", "name", "type", "weight", "address_family", "tags", "buttons")
-        default_columns = ("pk", "name", "type", "weight", "address_family", "buttons")
+        fields = ("pk", "name", "type", "weight", "address_family", "tags", "actions")
+        default_columns = ("pk", "name", "type", "weight", "address_family", "actions")

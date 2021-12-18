@@ -1,7 +1,9 @@
 import django_tables2 as tables
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models import ForeignKey
+from django.db.models.fields.related import RelatedField
 from django.utils.safestring import mark_safe
 
 from .models import ObjectChange, Tag
@@ -45,8 +47,8 @@ class BaseTable(tables.Table):
     class Meta:
         attrs = {"class": "table table-sm table-hover table-headings"}
 
-    def __init__(self, *args, columns=None, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, user=None, extra_columns=None, **kwargs):
+        super().__init__(*args, extra_columns=extra_columns, **kwargs)
 
         # Set default empty_text if none was provided
         if self.empty_text is None:
@@ -58,62 +60,91 @@ class BaseTable(tables.Table):
             if column.name not in default_columns:
                 self.columns.hide(column.name)
 
-        # Apply custom column ordering
-        if columns is not None:
-            # PK and actions columns are to be delt with differently
-            pk = self.base_columns.pop("pk", None)
-            actions = self.base_columns.pop("actions", None)
+        if user is not None and not isinstance(user, AnonymousUser):
+            selected_columns = user.preferences.get(
+                f"tables.{self.__class__.__name__}.columns".lower()
+            )
 
-            for name, column in self.base_columns.items():
-                if name in columns:
-                    self.columns.show(name)
-                else:
-                    self.columns.hide(name)
-            self.sequence = [c for c in columns if c in self.base_columns]
+            if selected_columns:
+                # Show only persistent or selected columns
+                for name, column in self.columns.items():
+                    if name in ["pk", "actions", *selected_columns]:
+                        self.columns.show(name)
+                    else:
+                        self.columns.hide(name)
 
-            # Always include PK as first column
-            if pk:
-                self.base_columns["pk"] = pk
-                self.sequence.insert(0, "pk")
-            # Always include actions as last column
-            if actions:
-                self.base_columns["actions"] = actions
-                self.sequence.append("actions")
+                # Rearrange the sequence to list selected columns first, followed by
+                # all remaining columns
+                self.sequence = [
+                    *[c for c in selected_columns if c in self.columns.names()],
+                    *[c for c in self.columns.names() if c not in selected_columns],
+                ]
+
+                # PK column should always come first
+                if "pk" in self.sequence:
+                    self.sequence.remove("pk")
+                    self.sequence.insert(0, "pk")
+
+                # Actions column should always come last
+                if "actions" in self.sequence:
+                    self.sequence.remove("actions")
+                    self.sequence.append("actions")
 
         # Update the table's QuerySet to ensure related fields prefeching
         if isinstance(self.data, tables.data.TableQuerysetData):
-            model = getattr(self.Meta, "model")
             prefetch_fields = []
             for column in self.columns:
                 if column.visible:
-                    field_path = column.accessor.split(".")
-                    try:
-                        model_field = model._meta.get_field(field_path[0])
-                        if isinstance(model_field, ForeignKey):
-                            prefetch_fields.append("__".join(field_path))
-                    except FieldDoesNotExist:
-                        pass
+                    model = getattr(self.Meta, "model")
+                    accessor = column.accessor
+                    prefetch_path = []
+                    for field_name in accessor.split(accessor.SEPARATOR):
+                        try:
+                            field = model._meta.get_field(field_name)
+                        except FieldDoesNotExist:
+                            break
+                        if isinstance(field, RelatedField):
+                            # Follow ForeignKeys to the related model
+                            prefetch_path.append(field_name)
+                            model = field.remote_field.model
+                        elif isinstance(field, GenericForeignKey):
+                            # Can't prefetch beyond a GenericForeignKey
+                            prefetch_path.append(field_name)
+                            break
+
+                    if prefetch_path:
+                        prefetch_fields.append("__".join(prefetch_path))
+
             self.data.data = self.data.data.prefetch_related(None).prefetch_related(
                 *prefetch_fields
             )
 
-    @property
-    def configurable_columns(self):
-        selected_columns = [
-            (name, self.columns[name].verbose_name)
-            for name in self.sequence
-            if name not in ["pk", "actions"]
-        ]
-        available_columns = [
-            (name, column.verbose_name)
-            for name, column in self.columns.items()
-            if name not in self.sequence and name not in ["pk", "actions"]
-        ]
-        return selected_columns + available_columns
+    def _get_columns(self, flat=False, visible=True):
+        columns = []
+        for name, column in self.columns.items():
+            if column.visible == visible and name not in ["pk", "actions"]:
+                if flat:
+                    columns.append(name)
+                else:
+                    columns.append((name, column.verbose_name))
+        return columns
 
     @property
-    def visible_columns(self):
-        return [name for name in self.sequence if self.columns[name].visible]
+    def available_columns(self):
+        return self._get_columns() + self._get_columns(visible=False)
+
+    @property
+    def selected_columns(self):
+        return self._get_columns(flat=True, visible=True)
+
+    @property
+    def objects_count(self):
+        """
+        Returns the total number of real objects represented by the table.
+        """
+        if not hasattr(self, "_objects_count"):
+            self._objects_count = sum(1 for obj in self.data if hasattr(obj, "pk"))
+        return self._objects_count
 
 
 class BooleanColumn(tables.BooleanColumn):
@@ -121,12 +152,28 @@ class BooleanColumn(tables.BooleanColumn):
     Simple column customizing boolean value rendering using icons and Bootstrap colors.
     """
 
+    def __init__(self, *args, **kwargs):
+        default = kwargs.pop("default", "")
+        visible = kwargs.pop("visible", True)
+        if "attrs" not in kwargs:
+            kwargs["attrs"] = {
+                "td": {"class": "text-center"},
+                "th": {"class": "text-center"},
+            }
+        super().__init__(*args, default=default, visible=visible, **kwargs)
+
     def render(self, value, record, bound_column):
-        html = '<i class="fas fa-check text-success"></i>'
         if not self._get_bool_value(record, value, bound_column):
             html = '<i class="fas fa-times text-danger"></i>'
+        elif value is None:
+            html = '<span class="text-muted">&mdash;</span>'
+        else:
+            html = '<i class="fas fa-check text-success"></i>'
 
         return mark_safe(html)
+
+    def value(self, value):
+        return str(value)
 
 
 class ButtonsColumn(tables.TemplateColumn):
@@ -264,9 +311,9 @@ class TagTable(BaseTable):
     pk = SelectColumn()
     name = tables.Column(linkify=True)
     color = ColourColumn()
-    buttons = ButtonsColumn(Tag, buttons=("edit", "delete"))
+    actions = ButtonsColumn(Tag, buttons=("edit", "delete"))
 
     class Meta(BaseTable.Meta):
         model = Tag
-        fields = ("pk", "name", "slug", "color", "items", "buttons")
-        default_columns = ("pk", "name", "color", "items", "buttons")
+        fields = ("pk", "name", "slug", "color", "items", "actions")
+        default_columns = ("pk", "name", "color", "items", "actions")

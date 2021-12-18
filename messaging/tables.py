@@ -15,12 +15,12 @@ __all__ = ("ContactTable", "ContactRoleTable")
 class ContactRoleTable(BaseTable):
     pk = SelectColumn()
     name = tables.Column(linkify=True)
-    buttons = ButtonsColumn(ContactRole, buttons=("edit", "delete"))
+    actions = ButtonsColumn(ContactRole, buttons=("edit", "delete"))
 
     class Meta(BaseTable.Meta):
         model = ContactRole
-        fields = ("pk", "name", "slug", "description", "buttons")
-        default_columns = ("pk", "name", "buttons")
+        fields = ("pk", "name", "slug", "description", "actions")
+        default_columns = ("pk", "name", "actions")
 
 
 class ContactTable(BaseTable):
@@ -29,7 +29,7 @@ class ContactTable(BaseTable):
     phone = tables.Column(linkify=linkify_phone)
     assignment_count = tables.Column(verbose_name="Assignments")
     tags = TagColumn(url_name="messaging:contact_list")
-    buttons = ButtonsColumn(Contact, buttons=("edit", "delete"))
+    actions = ButtonsColumn(Contact, buttons=("edit", "delete"))
 
     class Meta(BaseTable.Meta):
         model = Contact
@@ -51,5 +51,5 @@ class ContactTable(BaseTable):
             "title",
             "phone",
             "email",
-            "buttons",
+            "actions",
         )

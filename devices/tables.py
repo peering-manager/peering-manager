@@ -12,7 +12,7 @@ class PlatformTable(BaseTable):
         verbose_name="Routers",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
-    buttons = ButtonsColumn(Platform, buttons=("edit", "delete"))
+    actions = ButtonsColumn(Platform, buttons=("edit", "delete"))
 
     class Meta(BaseTable.Meta):
         model = Platform
@@ -25,7 +25,7 @@ class PlatformTable(BaseTable):
             "napalm_args",
             "password_algorithm",
             "description",
-            "buttons",
+            "actions",
         )
         default_columns = (
             "pk",
@@ -34,5 +34,5 @@ class PlatformTable(BaseTable):
             "napalm_driver",
             "password_algorithm",
             "description",
-            "buttons",
+            "actions",
         )

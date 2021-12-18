@@ -10,7 +10,7 @@ class ConnectionTable(BaseTable):
     ipv4_address = tables.Column(linkify=True, verbose_name="IPv4")
     internet_exchange_point = tables.Column(linkify=True)
     router = tables.Column(linkify=True)
-    buttons = ButtonsColumn(Connection)
+    actions = ButtonsColumn(Connection)
 
     class Meta(BaseTable.Meta):
         model = Connection
@@ -23,7 +23,7 @@ class ConnectionTable(BaseTable):
             "internet_exchange_point",
             "router",
             "interface",
-            "buttons",
+            "actions",
         )
         default_columns = (
             "pk",
@@ -32,6 +32,6 @@ class ConnectionTable(BaseTable):
             "ipv6_address",
             "ipv4_address",
             "router",
-            "buttons",
+            "actions",
         )
         empty_text = "None"

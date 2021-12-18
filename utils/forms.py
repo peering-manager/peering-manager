@@ -77,16 +77,23 @@ class TableConfigurationForm(BootstrapMixin, forms.Form):
     """
 
     columns = forms.MultipleChoiceField(
-        choices=[],
+        required=False,
+        choices=(),
         widget=forms.SelectMultiple(attrs={"size": 10}),
         help_text="Use the buttons below to arrange columns in the desired order, then select all columns to display.",
     )
 
     def __init__(self, table, *args, **kwargs):
+        self.table = table
+
         super().__init__(*args, **kwargs)
 
-        self.fields["columns"].choices = table.configurable_columns
-        self.fields["columns"].initial = table.visible_columns
+        self.fields["columns"].choices = table.available_columns
+        self.fields["columns"].initial = table.selected_columns
+
+    @property
+    def table_name(self):
+        return self.table.__class__.__name__
 
 
 class SmallTextarea(forms.Textarea):

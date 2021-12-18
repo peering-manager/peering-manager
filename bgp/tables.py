@@ -8,9 +8,9 @@ class RelationshipTable(BaseTable):
     pk = SelectColumn()
     name = tables.Column(linkify=True)
     color = ColourColumn()
-    buttons = ButtonsColumn(Relationship, buttons=("edit", "delete"))
+    actions = ButtonsColumn(Relationship, buttons=("edit", "delete"))
 
     class Meta(BaseTable.Meta):
         model = Relationship
-        fields = ("pk", "name", "slug", "description", "color", "buttons")
-        default_columns = ("pk", "name", "color", "buttons")
+        fields = ("pk", "name", "slug", "description", "color", "actions")
+        default_columns = ("pk", "name", "color", "actions")

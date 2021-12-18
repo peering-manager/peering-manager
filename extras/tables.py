@@ -9,12 +9,12 @@ from .models import IXAPI, JobResult
 class IXAPITable(BaseTable):
     name = tables.Column(linkify=True)
     url = tables.URLColumn()
-    buttons = ButtonsColumn(IXAPI)
+    actions = ButtonsColumn(IXAPI)
 
     class Meta(BaseTable.Meta):
         model = IXAPI
-        fields = ("name", "url", "api_key", "buttons")
-        default_columns = ("name", "url", "api_key", "buttons")
+        fields = ("name", "url", "api_key", "actions")
+        default_columns = ("name", "url", "api_key", "actions")
 
 
 class JobResultTable(BaseTable):

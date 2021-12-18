@@ -67,7 +67,6 @@ class JobResultListView(PermissionRequiredMixin, ModelListView):
     filter = JobResultFilterSet
     filter_form = JobResultFilterForm
     table = JobResultTable
-    action_buttons = ()
     template = "extras/jobresult/list.html"
 
 

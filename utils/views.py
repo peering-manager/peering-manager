@@ -621,7 +621,7 @@ class ModelListView(View):
             if request.user.is_authenticated
             else None
         )
-        table = self.table(self.queryset, columns=columns)
+        table = self.table(self.queryset, user=request.user)
         if "pk" in table.base_columns and (
             permissions["add"] or permissions["change"] or permissions["delete"]
         ):
