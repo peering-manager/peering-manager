@@ -47,7 +47,9 @@ class BaseTable(tables.Table):
     class Meta:
         attrs = {"class": "table table-sm table-hover table-headings"}
 
-    def __init__(self, *args, user=None, extra_columns=None, **kwargs):
+    def __init__(
+        self, *args, user=None, extra_columns=None, no_actions=False, **kwargs
+    ):
         super().__init__(*args, extra_columns=extra_columns, **kwargs)
 
         # Set default empty_text if none was provided
@@ -68,7 +70,7 @@ class BaseTable(tables.Table):
             if selected_columns:
                 # Show only persistent or selected columns
                 for name, column in self.columns.items():
-                    if name in ["pk", "actions", *selected_columns]:
+                    if name in ["pk", *selected_columns]:
                         self.columns.show(name)
                     else:
                         self.columns.hide(name)
@@ -85,10 +87,14 @@ class BaseTable(tables.Table):
                     self.sequence.remove("pk")
                     self.sequence.insert(0, "pk")
 
-                # Actions column should always come last
+                # Actions column should always come last unless excluded
                 if "actions" in self.sequence:
                     self.sequence.remove("actions")
                     self.sequence.append("actions")
+
+        # Remove actions column as we do not want it in this particular table
+        if no_actions:
+            self.sequence.remove("actions")
 
         # Update the table's QuerySet to ensure related fields prefeching
         if isinstance(self.data, tables.data.TableQuerysetData):
