@@ -39,9 +39,14 @@ class AutonomousSystemFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(
-            Q(name__icontains=value) | Q(irr_as_set__icontains=value)
-        )
+
+        qs_filter = Q(name__icontains=value) | Q(irr_as_set__icontains=value)
+        try:
+            qs_filter |= Q(asn=int(value.strip()))
+        except ValueError:
+            pass
+
+        return queryset.filter(qs_filter)
 
 
 class BGPGroupFilterSet(
