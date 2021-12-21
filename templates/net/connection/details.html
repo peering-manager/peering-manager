@@ -45,10 +45,10 @@
     <div class="card mb-2">
       <div class="card-header">
         <strong>Config Context</strong>
-        {% include 'utils/includes/configcontext_format.html' %}
+        {% include 'includes/configcontext_format.html' %}
       </div>
       <div class="card-body">
-        {% include 'utils/includes/configcontext_data.html' with data=instance.config_context format=format %}
+        {% include 'includes/configcontext_data.html' with data=instance.config_context format=format %}
       </div>
     </div>
   </div>
@@ -63,7 +63,7 @@
         {% endif %}
       </div>
     </div>
-    {% include 'utils/includes/tags_card.html' with tags=instance.tags.all url='net:connection_list' %}
+    {% include 'includes/tags_card.html' with tags=instance.tags.all url='net:connection_list' %}
   </div>
 </div>
 {% endblock %}

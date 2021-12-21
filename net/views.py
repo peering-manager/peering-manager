@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 
 from net.filters import ConnectionFilterSet
-from net.forms import ConnectionBulkEditForm, ConnectionForm
+from net.forms import ConnectionBulkEditForm, ConnectionFilterForm, ConnectionForm
 from net.models import Connection
 from net.tables import ConnectionTable
 from utils.views import (
@@ -10,8 +10,18 @@ from utils.views import (
     BulkEditView,
     DeleteView,
     DetailsView,
+    ModelListView,
     PermissionRequiredMixin,
 )
+
+
+class ConnectionList(PermissionRequiredMixin, ModelListView):
+    permission_required = "net.view_connection"
+    queryset = Connection.objects.prefetch_related("internet_exchange_point", "router")
+    filter = ConnectionFilterSet
+    filter_form = ConnectionFilterForm
+    table = ConnectionTable
+    template = "net/connection/list.html"
 
 
 class ConnectionAdd(PermissionRequiredMixin, AddOrEditView):

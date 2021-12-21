@@ -8,6 +8,7 @@ app_name = "net"
 
 urlpatterns = [
     # Connections
+    path("connections/", views.ConnectionList.as_view(), name="connection_list"),
     path(
         "connections/<int:pk>/",
         views.ConnectionDetails.as_view(),

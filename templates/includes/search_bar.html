@@ -1,0 +1,12 @@
+<div class="row mb-3">
+  <div class="col-2"></div>
+  <div class="col">
+    <form class="input-group" action="{% url 'search' %}" method="get">
+      <input class="form-control form-control-lg" type="text" name="q" value="{{ request.GET.q }}" placeholder="Search"/>
+      <div class="input-group-append">
+        <button class="btn btn-lg btn-primary" type="submit"><i class="fas fa-search"></i></button>
+      </div>
+    </form>
+  </div>
+  <div class="col-2"></div>
+</div>

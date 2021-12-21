@@ -10,7 +10,7 @@ from peering_manager.api.views import (
     SpectacularSwaggerView,
     StatusView,
 )
-from peering_manager.views import Home, handle_500, trigger_500
+from peering_manager.views import Home, SearchView, handle_500, trigger_500
 from users.views import LoginView, LogoutView
 
 handler500 = handle_500
@@ -18,6 +18,8 @@ handler500 = handle_500
 __patterns = [
     # Home
     path("", Home.as_view(), name="home"),
+    # Global search
+    path("search/", SearchView.as_view(), name="search"),
     # Login/Logout
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),

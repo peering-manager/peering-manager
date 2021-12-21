@@ -361,7 +361,9 @@ class BulkDeleteView(View):
 
         # Retrieve objects being deleted
         queryset = self.queryset or self.model.objects.all()
-        table = self.table(queryset.filter(pk__in=pk_list), orderable=False)
+        table = self.table(
+            queryset.filter(pk__in=pk_list), no_actions=True, orderable=False
+        )
         if "actions" in table.base_columns:
             table.columns.hide("actions")
         if not table.rows:
@@ -469,7 +471,9 @@ class BulkEditView(ReturnURLMixin, View):
             form = self.form(model, parent_object, initial=initial_data)
 
         # Retrieve objects being edited
-        table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
+        table = self.table(
+            self.queryset.filter(pk__in=pk_list), no_actions=True, orderable=False
+        )
         if "actions" in table.base_columns:
             table.columns.hide("actions")
         if not table.rows:

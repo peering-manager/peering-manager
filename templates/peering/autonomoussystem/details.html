@@ -50,7 +50,7 @@
         </tr>
       </table>
     </div>
-    {% include 'utils/includes/contacts.html' %}
+    {% include 'includes/contacts.html' %}
     {% if shared_internet_exchanges %}
     <div class="card">
       <div class="card-header"><strong>Shared Internet Exchanges</strong></div>
@@ -115,7 +115,7 @@
         {% endif %}
       </div>
     </div>
-    {% include 'utils/includes/tags_card.html' with tags=instance.tags.all url='peering:autonomoussystem_list' %}
+    {% include 'includes/tags_card.html' with tags=instance.tags.all url='peering:autonomoussystem_list' %}
   </div>
 </div>
 {% endblock %}

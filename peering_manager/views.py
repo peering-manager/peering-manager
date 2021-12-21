@@ -3,6 +3,7 @@ import sys
 
 from django.conf import settings
 from django.shortcuts import render
+from django.urls import reverse
 from django.views.generic import View
 from packaging import version
 
@@ -18,10 +19,11 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
+from peering_manager.constants import SEARCH_MAX_RESULTS, SEARCH_TYPES
+from peering_manager.forms import SearchForm
+from peering_manager.releases import get_latest_release
 from peeringdb.models import Synchronization
 from utils.models import ObjectChange
-
-from .releases import get_latest_release
 
 
 def handle_500(request):
@@ -83,3 +85,34 @@ class Home(View):
             "new_release": new_release,
         }
         return render(request, "home.html", context)
+
+
+class SearchView(View):
+    def get(self, request):
+        form = SearchForm(request.GET)
+        results = []
+
+        if form.is_valid():
+            for obj_type in SEARCH_TYPES.keys():
+                queryset = SEARCH_TYPES[obj_type]["queryset"]
+                filterset = SEARCH_TYPES[obj_type]["filterset"]
+                table = SEARCH_TYPES[obj_type]["table"]
+                url = SEARCH_TYPES[obj_type]["url"]
+
+                # Construct the results table for this object type
+                filtered_queryset = filterset(
+                    {"q": form.cleaned_data["q"]}, queryset=queryset
+                ).qs
+                table = table(filtered_queryset, orderable=False, no_actions=True)
+                table.paginate(per_page=SEARCH_MAX_RESULTS)
+
+                if table.page:
+                    results.append(
+                        {
+                            "name": queryset.model._meta.verbose_name_plural,
+                            "table": table,
+                            "url": f"{reverse(url)}?q={form.cleaned_data.get('q')}",
+                        }
+                    )
+
+        return render(request, "search.html", {"form": form, "results": results})

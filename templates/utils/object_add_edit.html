@@ -53,6 +53,6 @@
   </div>
 </form>
 {% if object and settings.DOCS_DIR %}
-{% include 'utils/includes/modal.html' with name='docs' content=object|get_docs %}
+{% include 'includes/modal.html' with name='docs' content=object|get_docs %}
 {% endif %}
 {% endblock %}
