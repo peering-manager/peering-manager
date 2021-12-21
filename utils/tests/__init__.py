@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
-from django.test import TestCase
 from django.urls import reverse
 
 from utils.forms import add_blank_choice
+from utils.testing import TestCase
 
 
 class ViewTestCase(TestCase):
