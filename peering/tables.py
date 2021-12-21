@@ -268,8 +268,8 @@ class InternetExchangeTable(BaseTable):
     bgp_session_states_update = tables.Column(verbose_name="Last Sessions Check")
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
-    internetexchangepeeringsession_count = tables.Column(
-        verbose_name="Sessions",
+    connection_count = tables.Column(
+        verbose_name="Connections",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     tags = TagColumn(url_name="peering:internetexchange_list")
@@ -286,14 +286,14 @@ class InternetExchangeTable(BaseTable):
             "export_routing_policies",
             "check_bgp_session_states",
             "bgp_session_states_update",
-            "internetexchangepeeringsession_count",
+            "connection_count",
             "tags",
             "actions",
         )
         default_columns = (
             "pk",
             "name",
-            "internetexchangepeeringsession_count",
+            "connection_count",
             "actions",
         )
 
