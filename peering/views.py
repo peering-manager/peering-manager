@@ -18,6 +18,7 @@ from peeringdb.forms import NetworkIXLanFilterForm
 from peeringdb.models import NetworkIXLan
 from peeringdb.tables import NetworkContactTable, NetworkIXLanTable
 from utils.forms import ConfirmationForm
+from utils.functions import count_related
 from utils.views import (
     AddOrEditView,
     BulkAddFromDependencyView,
@@ -62,7 +63,6 @@ from .forms import (
     InternetExchangeBulkEditForm,
     InternetExchangeFilterForm,
     InternetExchangeForm,
-    InternetExchangePeeringDBForm,
     InternetExchangePeeringSessionBulkEditForm,
     InternetExchangePeeringSessionFilterForm,
     InternetExchangePeeringSessionForm,
@@ -657,8 +657,10 @@ class EmailBulkDelete(PermissionRequiredMixin, BulkDeleteView):
 
 class InternetExchangeList(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_internetexchange"
-    queryset = InternetExchange.objects.all().order_by(
-        "local_autonomous_system", "name", "slug"
+    queryset = (
+        InternetExchange.objects.all()
+        .order_by("local_autonomous_system", "name", "slug")
+        .annotate(connection_count=count_related(Connection, "internet_exchange_point"))
     )
     table = InternetExchangeTable
     filter = InternetExchangeFilterSet
