@@ -5,7 +5,7 @@ from peeringdb.sync import PeeringDB
 
 
 class Command(BaseCommand):
-    help = "Cache PeeringDB data locally."
+    help = "Cache PeeringDB data locally and update AS data."
 
     def add_arguments(self, parser):
         parser.add_argument(

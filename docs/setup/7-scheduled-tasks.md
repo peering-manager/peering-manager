@@ -14,7 +14,9 @@ data inside Peering Manager.
 ## Caching in the Local Database
 
 Assuming that Peering Manager is installed at `/opt/peering-manager` the
-following command will retrieve data from PeeringDB and store it locally.
+following command will retrieve data from PeeringDB and store it locally. It
+will also take care of updating data from AS you are peering with if they have
+matching PeeringDB records.
 
 ```no-highlight
 # venv/bin/python3 manage.py peeringdb_sync
