@@ -1,6 +1,5 @@
 from django.conf import settings
-from django.conf.urls import include
-from django.urls import path
+from django.urls import include, path
 
 from peering_manager.admin import admin_site
 from peering_manager.api.views import (
