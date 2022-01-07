@@ -23,21 +23,21 @@
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
           <td>Service ID</td>
-          <td>{{ instance.ixapi_network_service.id }}</td>
+          <td>{{ ixapi_service.id }}</td>
         </tr>
         <tr>
           <td>Product</td>
-          <td>{{ instance.ixapi_network_service.product.name }}</td>
+          <td>{{ ixapi_service.product.name }}</td>
         </tr>
         <tr>
           <td>Name</td>
-          <td>{{ instance.ixapi_network_service.name }}</td>
+          <td>{{ ixapi_service.name }}</td>
         </tr>
         <tr>
           <td>Metro area</td>
-          <td>{{ instance.ixapi_network_service.metro_area }}</td>
+          <td>{{ ixapi_service.metro_area }}</td>
         </tr>
-        {% if instance.ixapi_network_service.network_features %}
+        {% if ixapi_service.network_features %}
         <tr>
           <td>Features</td>
           <td><a href="#" role="button" data-toggle="modal" data-target="#features-modal">Show</a></td>
@@ -47,7 +47,7 @@
     </div>
   </div>
   <div class="col-md-6">
-    {% for config in instance.ixapi_network_service.network_service_configs %}
+    {% for config in ixapi_service.network_service_configs %}
     <div class="card mb-2">
       <div class="card-header">
         <strong>{{ config.id }} - {{ config.state | title }}</strong>
@@ -88,7 +88,7 @@
     {% endfor %}
   </div>
 </div>
-{% if instance.ixapi_network_service.network_features %}
+{% if ixapi_service.network_features %}
 <div class="modal fade" id="features-modal" tabindex="-1" aria-labelledby="featuresModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
@@ -99,7 +99,7 @@
         </button>
       </div>
       <table class="modal-body table table-hover attr-table mb-0">
-        {% for f in instance.ixapi_network_service.network_features %}
+        {% for f in ixapi_service.network_features %}
         <tr>
           <td>{{ f.name }}</td>
           {% if f.type == "route_server" %}

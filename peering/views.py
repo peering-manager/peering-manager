@@ -890,14 +890,23 @@ class InternetExchangeIXAPI(PermissionRequiredMixin, View):
     permission_required = "peering.view_internet_exchange_point_ixapi"
 
     def get(self, request, pk):
-        return render(
-            request,
-            "peering/internetexchange/ixapi.html",
-            {
-                "instance": get_object_or_404(InternetExchange, pk=pk),
-                "active_tab": "ixapi",
-            },
-        )
+        instance = get_object_or_404(InternetExchange, pk=pk)
+        try:
+            return render(
+                request,
+                "peering/internetexchange/ixapi.html",
+                {
+                    "instance": instance,
+                    "ixapi_service": instance.get_ixapi_network_service(),
+                    "active_tab": "ixapi",
+                },
+            )
+        except Exception as e:
+            return render(
+                request,
+                "peering/internetexchange/ixapi_error.html",
+                {"instance": instance, "error": str(e), "active_tab": "ixapi"},
+            )
 
 
 class InternetExchangePeeringSessionList(PermissionRequiredMixin, ModelListView):
