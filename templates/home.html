@@ -67,18 +67,30 @@
                 <p class="list-group-item-textn text-muted">Templates to build router configurations</p>
               </div>
               <div class="list-group-item">
-                <h1 class="display-4 float-right">{{ statistics.emails_count }}</h1>
-                <h5 class="list-group-item-heading">
-                  <a href="{% url 'peering:email_list' %}">E-mails</a>
-                </h5>
-                <p class="list-group-item-textn text-muted">Templates to build e-mails</p>
-              </div>
-              <div class="list-group-item">
                 <h1 class="display-4 float-right">{{ statistics.routers_count }}</h1>
                 <h5 class="list-group-item-heading">
                   <a href="{% url 'peering:router_list' %}">Routers</a>
                 </h5>
                 <p class="list-group-item-textn text-muted">Network devices running BGP</p>
+              </div>
+            </div>
+          </div>
+          <div class="card mb-4 shadow-sm">
+            <h4 class="card-header">Messaging</h4>
+            <div class="list-group list-group-flush">
+              <div class="list-group-item">
+                <h1 class="display-4 float-right">{{ statistics.contacts_count }}</h1>
+                <h5 class="list-group-item-heading">
+                  <a href="{% url 'messaging:contact_list' %}">Contacts</a>
+                </h5>
+                <p class="list-group-item-textn text-muted">People to discuss peering with</p>
+              </div>
+              <div class="list-group-item">
+                <h1 class="display-4 float-right">{{ statistics.emails_count }}</h1>
+                <h5 class="list-group-item-heading">
+                  <a href="{% url 'messaging:email_list' %}">E-mails</a>
+                </h5>
+                <p class="list-group-item-textn text-muted">Templates to build e-mails</p>
               </div>
             </div>
           </div>

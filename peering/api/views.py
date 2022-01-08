@@ -8,13 +8,13 @@ from rest_framework.routers import APIRootView
 
 from extras.api.serializers import JobResultSerializer
 from extras.models import JobResult
+from messaging.models import Email
 from peering.filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
     CommunityFilterSet,
     ConfigurationFilterSet,
     DirectPeeringSessionFilterSet,
-    EmailFilterSet,
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
     RouterFilterSet,
@@ -33,7 +33,6 @@ from peering.models import (
     Community,
     Configuration,
     DirectPeeringSession,
-    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
@@ -50,7 +49,6 @@ from .serializers import (
     CommunitySerializer,
     ConfigurationSerializer,
     DirectPeeringSessionSerializer,
-    EmailSerializer,
     InternetExchangePeeringSessionSerializer,
     InternetExchangeSerializer,
     NestedInternetExchangeSerializer,
@@ -310,12 +308,6 @@ class DirectPeeringSessionViewSet(ModelViewSet):
             if success
             else status.HTTP_503_SERVICE_UNAVAILABLE
         )
-
-
-class EmailViewSet(ModelViewSet):
-    queryset = Email.objects.all()
-    serializer_class = EmailSerializer
-    filterset_class = EmailFilterSet
 
 
 class InternetExchangeViewSet(ModelViewSet):

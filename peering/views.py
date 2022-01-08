@@ -37,7 +37,6 @@ from .filters import (
     CommunityFilterSet,
     ConfigurationFilterSet,
     DirectPeeringSessionFilterSet,
-    EmailFilterSet,
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
     RouterFilterSet,
@@ -58,8 +57,6 @@ from .forms import (
     DirectPeeringSessionBulkEditForm,
     DirectPeeringSessionFilterForm,
     DirectPeeringSessionForm,
-    EmailFilterForm,
-    EmailForm,
     InternetExchangeBulkEditForm,
     InternetExchangeFilterForm,
     InternetExchangeForm,
@@ -80,7 +77,6 @@ from .models import (
     Community,
     Configuration,
     DirectPeeringSession,
-    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
@@ -92,7 +88,6 @@ from .tables import (
     CommunityTable,
     ConfigurationTable,
     DirectPeeringSessionTable,
-    EmailTable,
     InternetExchangePeeringSessionTable,
     InternetExchangeTable,
     RouterConnectionTable,
@@ -605,54 +600,6 @@ class DirectPeeringSessionList(PermissionRequiredMixin, ModelListView):
     filter = DirectPeeringSessionFilterSet
     filter_form = DirectPeeringSessionFilterForm
     template = "peering/directpeeringsession/list.html"
-
-
-class EmailList(PermissionRequiredMixin, ModelListView):
-    permission_required = "peering.view_email"
-    queryset = Email.objects.all()
-    filter = EmailFilterSet
-    filter_form = EmailFilterForm
-    table = EmailTable
-    template = "peering/email/list.html"
-
-
-class EmailAdd(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "peering.add_email"
-    model = Email
-    form = EmailForm
-    template = "peering/email/add_edit.html"
-    return_url = "peering:email_list"
-
-
-class EmailDetails(DetailsView):
-    permission_required = "peering.view_email"
-    queryset = Email.objects.all()
-
-    def get_context(self, request, **kwargs):
-        return {
-            "instance": get_object_or_404(self.queryset, **kwargs),
-            "active_tab": "main",
-        }
-
-
-class EmailEdit(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "peering.change_email"
-    model = Email
-    form = EmailForm
-    template = "peering/email/add_edit.html"
-
-
-class EmailDelete(PermissionRequiredMixin, DeleteView):
-    permission_required = "peering.delete_email"
-    model = Email
-    return_url = "peering:email_list"
-
-
-class EmailBulkDelete(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = "peering.delete_email"
-    model = Email
-    filter = EmailFilterSet
-    table = EmailTable
 
 
 class InternetExchangeList(PermissionRequiredMixin, ModelListView):

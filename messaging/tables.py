@@ -1,8 +1,9 @@
 import django_tables2 as tables
 
-from messaging.models import Contact, ContactRole
+from messaging.models import Contact, ContactRole, Email
 from utils.tables import (
     BaseTable,
+    BooleanColumn,
     ButtonsColumn,
     SelectColumn,
     TagColumn,
@@ -53,3 +54,26 @@ class ContactTable(BaseTable):
             "email",
             "actions",
         )
+
+
+class EmailTable(BaseTable):
+    pk = SelectColumn()
+    name = tables.Column(linkify=True)
+    jinja2_trim = BooleanColumn(verbose_name="Trim")
+    jinja2_lstrip = BooleanColumn(verbose_name="Lstrip")
+    tags = TagColumn(url_name="peering:configuration_list")
+    actions = ButtonsColumn(Email)
+
+    class Meta(BaseTable.Meta):
+        model = Email
+        fields = (
+            "pk",
+            "name",
+            "subject",
+            "jinja2_trim",
+            "jinja2_lstrip",
+            "updated",
+            "tags",
+            "actions",
+        )
+        default_columns = ("pk", "name", "updated", "actions")

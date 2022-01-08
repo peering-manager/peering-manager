@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from messaging.filters import ContactFilterSet, ContactRoleFilterSet
-from messaging.models import Contact, ContactRole
+from messaging.filters import ContactFilterSet, ContactRoleFilterSet, EmailFilterSet
+from messaging.models import Contact, ContactRole, Email
 from utils.testing import BaseFilterSetTests
 
 
@@ -43,3 +43,34 @@ class ContactTestCase(TestCase, BaseFilterSetTests):
     def test_name(self):
         params = {"name": ["Contact 1", "Contact 2"]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class EmailTestCase(TestCase, BaseFilterSetTests):
+    queryset = Email.objects.all()
+    filterset = EmailFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        Email.objects.bulk_create(
+            [
+                Email(
+                    name="E-mail 1",
+                    subject="E-mail subject 1",
+                    template="E-mail template 1",
+                ),
+                Email(
+                    name="E-mail 2",
+                    subject="E-mail subject 2",
+                    template="E-mail template 2",
+                ),
+                Email(
+                    name="E-mail 3",
+                    subject="E-mail subject 3",
+                    template="E-mail template 3",
+                ),
+            ]
+        )
+
+    def test_q(self):
+        params = {"q": "E-mail 1"}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)

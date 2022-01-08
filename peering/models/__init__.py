@@ -9,7 +9,7 @@ from .models import (
     Router,
     RoutingPolicy,
 )
-from .templates import Configuration, Email
+from .templates import Configuration
 
 __all__ = (
     "AutonomousSystem",
@@ -18,7 +18,6 @@ __all__ = (
     "Community",
     "Configuration",
     "DirectPeeringSession",
-    "Email",
     "InternetExchange",
     "InternetExchangePeeringSession",
     "Router",

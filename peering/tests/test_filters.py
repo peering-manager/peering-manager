@@ -10,7 +10,6 @@ from peering.filters import (
     CommunityFilterSet,
     ConfigurationFilterSet,
     DirectPeeringSessionFilterSet,
-    EmailFilterSet,
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
     RouterFilterSet,
@@ -22,7 +21,6 @@ from peering.models import (
     Community,
     Configuration,
     DirectPeeringSession,
-    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
@@ -266,37 +264,6 @@ class DirectPeeringSessionTestCase(TestCase, BaseFilterSetTests):
         params = {"enabled": True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"enabled": False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-
-class EmailTestCase(TestCase, BaseFilterSetTests):
-    queryset = Email.objects.all()
-    filterset = EmailFilterSet
-
-    @classmethod
-    def setUpTestData(cls):
-        Email.objects.bulk_create(
-            [
-                Email(
-                    name="E-mail 1",
-                    subject="E-mail subject 1",
-                    template="E-mail template 1",
-                ),
-                Email(
-                    name="E-mail 2",
-                    subject="E-mail subject 2",
-                    template="E-mail template 2",
-                ),
-                Email(
-                    name="E-mail 3",
-                    subject="E-mail subject 3",
-                    template="E-mail template 3",
-                ),
-            ]
-        )
-
-    def test_q(self):
-        params = {"q": "E-mail 1"}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 

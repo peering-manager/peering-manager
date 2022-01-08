@@ -1,7 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 
-from messaging.filters import ContactFilterSet, ContactRoleFilterSet
+from messaging.filters import ContactFilterSet, ContactRoleFilterSet, EmailFilterSet
 from messaging.forms import (
     ContactAssignmentForm,
     ContactBulkEditForm,
@@ -10,9 +10,11 @@ from messaging.forms import (
     ContactRoleBulkEditForm,
     ContactRoleFilterForm,
     ContactRoleForm,
+    EmailFilterForm,
+    EmailForm,
 )
-from messaging.models import Contact, ContactAssignment, ContactRole
-from messaging.tables import ContactRoleTable, ContactTable
+from messaging.models import Contact, ContactAssignment, ContactRole, Email
+from messaging.tables import ContactRoleTable, ContactTable, EmailTable
 from utils.functions import count_related
 from utils.views import (
     AddOrEditView,
@@ -159,3 +161,51 @@ class ContactAssignmentEditView(PermissionRequiredMixin, AddOrEditView):
 class ContactAssignmentDeleteView(PermissionRequiredMixin, DeleteView):
     permission_required = "messaging.delete_contactassignment"
     model = ContactAssignment
+
+
+class EmailList(PermissionRequiredMixin, ModelListView):
+    permission_required = "messaging.view_email"
+    queryset = Email.objects.all()
+    filter = EmailFilterSet
+    filter_form = EmailFilterForm
+    table = EmailTable
+    template = "messaging/email/list.html"
+
+
+class EmailAdd(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "messaging.add_email"
+    model = Email
+    form = EmailForm
+    template = "messaging/email/add_edit.html"
+    return_url = "messaging:email_list"
+
+
+class EmailDetails(DetailsView):
+    permission_required = "messaging.view_email"
+    queryset = Email.objects.all()
+
+    def get_context(self, request, **kwargs):
+        return {
+            "instance": get_object_or_404(self.queryset, **kwargs),
+            "active_tab": "main",
+        }
+
+
+class EmailEdit(PermissionRequiredMixin, AddOrEditView):
+    permission_required = "messaging.change_email"
+    model = Email
+    form = EmailForm
+    template = "messaging/email/add_edit.html"
+
+
+class EmailDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = "messaging.delete_email"
+    model = Email
+    return_url = "messaging:email_list"
+
+
+class EmailBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = "messaging.delete_email"
+    model = Email
+    filter = EmailFilterSet
+    table = EmailTable

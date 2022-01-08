@@ -10,7 +10,6 @@ from peering.models import (
     Community,
     Configuration,
     DirectPeeringSession,
-    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
@@ -27,7 +26,6 @@ __all__ = (
     "CommunitySerializer",
     "ConfigurationSerializer",
     "DirectPeeringSessionSerializer",
-    "EmailSerializer",
     "InternetExchangeSerializer",
     "InternetExchangePeeringSessionSerializer",
     "RouterSerializer",
@@ -38,7 +36,6 @@ __all__ = (
     "NestedCommunitySerializer",
     "NestedConfigurationSerializer",
     "NestedDirectPeeringSessionSerializer",
-    "NestedEmailSerializer",
     "NestedInternetExchangeSerializer",
     "NestedInternetExchangePeeringSessionSerializer",
     "NestedRouterSerializer",
@@ -191,22 +188,6 @@ class DirectPeeringSessionSerializer(PrimaryModelSerializer):
             "received_prefix_count",
             "advertised_prefix_count",
             "last_established_state",
-            "comments",
-            "tags",
-        ]
-
-
-class EmailSerializer(PrimaryModelSerializer):
-    class Meta:
-        model = Email
-        fields = [
-            "id",
-            "display",
-            "name",
-            "subject",
-            "template",
-            "jinja2_trim",
-            "jinja2_lstrip",
             "comments",
             "tags",
         ]

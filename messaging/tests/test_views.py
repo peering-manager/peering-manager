@@ -1,4 +1,4 @@
-from messaging.models import Contact, ContactRole
+from messaging.models import Contact, ContactRole, Email
 from utils.testing import ViewTestCases
 
 
@@ -43,3 +43,39 @@ class ContactTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "tags": [],
         }
         cls.bulk_edit_data = {"comments": "Foo"}
+
+
+class EmailTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = Email
+
+    test_bulk_edit_objects = None
+
+    @classmethod
+    def setUpTestData(cls):
+        Email.objects.bulk_create(
+            [
+                Email(
+                    name="E-mail 1",
+                    subject="E-mail subject 1",
+                    template="E-mail template 1",
+                ),
+                Email(
+                    name="E-mail 2",
+                    subject="E-mail subject 2",
+                    template="E-mail template 2",
+                ),
+                Email(
+                    name="E-mail 3",
+                    subject="E-mail subject 3",
+                    template="E-mail template 3",
+                ),
+            ]
+        )
+
+        cls.form_data = {
+            "name": "E-mail 4",
+            "subject": "E-mail subject 4",
+            "template": "E-mail template 4",
+            "comments": "",
+            "tags": [],
+        }

@@ -6,9 +6,16 @@ from taggit.forms import TagField
 from bgp.models import Relationship
 from devices.models import Platform
 from extras.models.ix_api import IXAPI
+from messaging.models import Email
 from net.models import Connection
 from netbox.api import NetBox
-from utils.fields import CommentField, PasswordField, SlugField, TextareaField
+from utils.fields import (
+    CommentField,
+    PasswordField,
+    SlugField,
+    TemplateField,
+    TextareaField,
+)
 from utils.forms import (
     AddRemoveTagsForm,
     BootstrapMixin,
@@ -31,28 +38,11 @@ from .models import (
     Community,
     Configuration,
     DirectPeeringSession,
-    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
 )
-
-
-class TemplateField(TextareaField):
-    """
-    A textarea dedicated for template. Note that it does not actually do anything
-    special. It just here to add a help text.
-    """
-
-    def __init__(self, *args, **kwargs):
-        label = kwargs.pop("label", "Template")
-        super().__init__(
-            label=label,
-            help_text='<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/templating/" target="_blank">Jinja2 template</a> syntax is supported',
-            *args,
-            **kwargs,
-        )
 
 
 class AutonomousSystemForm(BootstrapMixin, forms.ModelForm):
@@ -429,33 +419,6 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
         null_option="None",
         label="Router",
     )
-    tag = TagFilterField(model)
-
-
-class EmailForm(BootstrapMixin, forms.ModelForm):
-    subject = forms.CharField(
-        help_text='<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/templating/" target="_blank">Jinja2 template</a> syntax is supported'
-    )
-    template = TemplateField(label="Body")
-    comments = CommentField()
-    tags = TagField(required=False)
-
-    class Meta:
-        model = Email
-        fields = (
-            "name",
-            "subject",
-            "template",
-            "jinja2_trim",
-            "jinja2_lstrip",
-            "comments",
-            "tags",
-        )
-
-
-class EmailFilterForm(BootstrapMixin, forms.Form):
-    model = Configuration
-    q = forms.CharField(required=False, label="Search")
     tag = TagFilterField(model)
 
 

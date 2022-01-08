@@ -7,13 +7,13 @@ from django.urls import reverse
 from django.views.generic import View
 from packaging import version
 
+from messaging.models import Contact, Email
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
     Configuration,
     DirectPeeringSession,
-    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
@@ -60,11 +60,13 @@ class Home(View):
             "communities_count": Community.objects.count(),
             "configurations_count": Configuration.objects.count(),
             "direct_peering_sessions_count": DirectPeeringSession.objects.count(),
-            "emails_count": Email.objects.count(),
             "internet_exchanges_count": InternetExchange.objects.count(),
             "internet_exchange_peering_sessions_count": InternetExchangePeeringSession.objects.count(),
             "routers_count": Router.objects.count(),
             "routing_policies_count": RoutingPolicy.objects.count(),
+            # Messaging
+            "contacts_count": Contact.objects.count(),
+            "emails_count": Email.objects.count(),
         }
 
         # Check whether a new release is available for staff and superuser

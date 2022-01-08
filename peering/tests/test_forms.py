@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from bgp.models import Relationship
+from messaging.models import Email
 from net.models import Connection
 from peering.constants import *
 from peering.enums import CommunityType, DeviceState, RoutingPolicyType
@@ -10,13 +11,12 @@ from peering.forms import (
     CommunityForm,
     ConfigurationForm,
     DirectPeeringSessionForm,
-    EmailForm,
     InternetExchangeForm,
     InternetExchangePeeringSessionForm,
     RouterForm,
     RoutingPolicyForm,
 )
-from peering.models import AutonomousSystem, Email, InternetExchange
+from peering.models import AutonomousSystem, InternetExchange
 
 
 class AutonomousSystemTest(TestCase):
@@ -84,19 +84,6 @@ class DirectPeeringSessionTest(TestCase):
                 "autonomous_system": self.autonomous_system.pk,
                 "relationship": self.relationship.pk,
                 "ip_address": "2001:db8::1",
-            }
-        )
-        self.assertTrue(test.is_valid())
-        self.assertTrue(test.save())
-
-
-class EmailTest(TestCase):
-    def test_email_form(self):
-        test = EmailForm(
-            data={
-                "name": "Test",
-                "subject": "test_subject",
-                "template": "test_template",
             }
         )
         self.assertTrue(test.is_valid())

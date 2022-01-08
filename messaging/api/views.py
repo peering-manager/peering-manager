@@ -4,13 +4,15 @@ from messaging.api.serializers import (
     ContactAssignmentSerializer,
     ContactRoleSerializer,
     ContactSerializer,
+    EmailSerializer,
 )
 from messaging.filters import (
     ContactAssignmentFilterSet,
     ContactFilterSet,
     ContactRoleFilterSet,
+    EmailFilterSet,
 )
-from messaging.models import Contact, ContactAssignment, ContactRole
+from messaging.models import Contact, ContactAssignment, ContactRole, Email
 from peering_manager.api.views import ModelViewSet
 
 
@@ -35,3 +37,9 @@ class ContactAssignmentViewSet(ModelViewSet):
     queryset = ContactAssignment.objects.prefetch_related("object", "contact", "role")
     serializer_class = ContactAssignmentSerializer
     filterset_class = ContactAssignmentFilterSet
+
+
+class EmailViewSet(ModelViewSet):
+    queryset = Email.objects.all()
+    serializer_class = EmailSerializer
+    filterset_class = EmailFilterSet

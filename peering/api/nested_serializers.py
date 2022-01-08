@@ -6,7 +6,6 @@ from peering.models import (
     Community,
     Configuration,
     DirectPeeringSession,
-    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
@@ -67,14 +66,6 @@ class NestedDirectPeeringSessionSerializer(WritableNestedSerializer):
     class Meta:
         model = DirectPeeringSession
         fields = ["id", "url", "display", "ip_address", "enabled"]
-
-
-class NestedEmailSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="peering-api:email-detail")
-
-    class Meta:
-        model = Email
-        fields = ["id", "url", "display", "name"]
 
 
 class NestedInternetExchangeSerializer(WritableNestedSerializer):

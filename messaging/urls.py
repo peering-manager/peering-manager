@@ -99,4 +99,29 @@ urlpatterns = [
         views.ContactAssignmentDeleteView.as_view(),
         name="contactassignment_delete",
     ),
+    # E-mails
+    path("messaging/emails/", views.EmailList.as_view(), name="email_list"),
+    path("messaging/emails/add/", views.EmailAdd.as_view(), name="email_add"),
+    path(
+        "messaging/emails/<int:pk>/", views.EmailDetails.as_view(), name="email_details"
+    ),
+    path(
+        "messaging/emails/<int:pk>/edit/", views.EmailEdit.as_view(), name="email_edit"
+    ),
+    path(
+        "messaging/emails/<int:pk>/changelog/",
+        ObjectChangeLog.as_view(),
+        name="email_changelog",
+        kwargs={"model": models.Email},
+    ),
+    path(
+        "messaging/emails/<int:pk>/delete/",
+        views.EmailDelete.as_view(),
+        name="email_delete",
+    ),
+    path(
+        "messaging/emails/delete/",
+        views.EmailBulkDelete.as_view(),
+        name="email_bulk_delete",
+    ),
 ]

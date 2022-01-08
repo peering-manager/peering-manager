@@ -1,5 +1,8 @@
 from collections import OrderedDict
 
+from messaging.filters import EmailFilterSet
+from messaging.models import Email
+from messaging.tables import EmailTable
 from net.filters import ConnectionFilterSet
 from net.models import Connection
 from net.tables import ConnectionTable
@@ -9,7 +12,6 @@ from peering.filters import (
     CommunityFilterSet,
     ConfigurationFilterSet,
     DirectPeeringSessionFilterSet,
-    EmailFilterSet,
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
     RouterFilterSet,
@@ -21,7 +23,6 @@ from peering.models import (
     Community,
     Configuration,
     DirectPeeringSession,
-    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
@@ -33,7 +34,6 @@ from peering.tables import (
     CommunityTable,
     ConfigurationTable,
     DirectPeeringSessionTable,
-    EmailTable,
     InternetExchangePeeringSessionTable,
     InternetExchangeTable,
     RouterTable,
@@ -46,6 +46,16 @@ __all__ = ("SEARCH_MAX_RESULTS", "SEARCH_TYPES")
 SEARCH_MAX_RESULTS = 15
 SEARCH_TYPES = OrderedDict(
     (
+        # messaging
+        (
+            "email",
+            {
+                "queryset": Email.objects.all(),
+                "filterset": EmailFilterSet,
+                "table": EmailTable,
+                "url": "messaging:email_list",
+            },
+        ),
         # net
         (
             "connection",
@@ -104,15 +114,6 @@ SEARCH_TYPES = OrderedDict(
                 "filterset": ConfigurationFilterSet,
                 "table": ConfigurationTable,
                 "url": "peering:configuration_list",
-            },
-        ),
-        (
-            "email",
-            {
-                "queryset": Email.objects.all(),
-                "filterset": EmailFilterSet,
-                "table": EmailTable,
-                "url": "peering:email_list",
             },
         ),
         (

@@ -14,7 +14,6 @@ from peering.models import (
     Community,
     Configuration,
     DirectPeeringSession,
-    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
@@ -259,27 +258,6 @@ class DirectPeeringSessionTest(StandardAPITestCases.View):
                 "ip_address": "198.51.100.3",
             },
         ]
-
-
-class EmailTest(StandardAPITestCases.View):
-    model = Email
-    brief_fields = ["id", "url", "display", "name"]
-    create_data = [
-        {"name": "Test1", "subject": "test1_subject", "template": "test1_template"},
-        {"name": "Test2", "subject": "test2_subject", "template": "test2_template"},
-        {"name": "Test3", "subject": "test3_subject", "template": "test3_template"},
-    ]
-    bulk_update_data = {"template": "{{ autonomous_system.asn }}"}
-
-    @classmethod
-    def setUpTestData(cls):
-        Email.objects.bulk_create(
-            [
-                Email(name="Example 1", subject="Example 1", template="example_1"),
-                Email(name="Example 2", subject="Example 2", template="example_2"),
-                Email(name="Example 3", subject="Example 3", template="example_3"),
-            ]
-        )
 
 
 class InternetExchangeTest(StandardAPITestCases.View):

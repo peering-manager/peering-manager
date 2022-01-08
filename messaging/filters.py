@@ -1,7 +1,7 @@
 import django_filters
 from django.db.models import Q
 
-from messaging.models import Contact, ContactAssignment, ContactRole
+from messaging.models import Contact, ContactAssignment, ContactRole, Email
 from utils.filters import (
     BaseFilterSet,
     ContentTypeFilter,
@@ -60,3 +60,21 @@ class ContactAssignmentFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     class Meta:
         model = ContactAssignment
         fields = ["id", "content_type_id", "object_id"]
+
+
+class EmailFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
+    q = django_filters.CharFilter(method="search", label="Search")
+    tag = TagFilter()
+
+    class Meta:
+        model = Email
+        fields = ["id", "jinja2_trim", "jinja2_lstrip"]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value)
+            | Q(subject__icontains=value)
+            | Q(template__icontains=value)
+        )

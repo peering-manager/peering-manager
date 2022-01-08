@@ -1,4 +1,4 @@
-{% extends 'peering/email/_base.html' %}
+{% extends 'messaging/email/_base.html' %}
 {% load helpers %}
 {% block subcontent %}
 <div class="row">
@@ -56,7 +56,7 @@
         {% endif %}
       </div>
     </div>
-    {% include 'includes/tags_card.html' with tags=instance.tags.all url='peering:email_list' %}
+    {% include 'includes/tags_card.html' with tags=instance.tags.all url='messaging:email_list' %}
   </div>
 </div>
 <div class="row">

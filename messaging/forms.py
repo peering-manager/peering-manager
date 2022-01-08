@@ -1,8 +1,8 @@
 from django import forms
 from taggit.forms import TagField
 
-from messaging.models import Contact, ContactAssignment, ContactRole
-from utils.fields import CommentField, SlugField
+from messaging.models import Contact, ContactAssignment, ContactRole, Email
+from utils.fields import CommentField, SlugField, TemplateField
 from utils.forms import (
     AddRemoveTagsForm,
     BootstrapMixin,
@@ -21,6 +21,8 @@ __all__ = (
     "ContactRoleBulkEditForm",
     "ContactRoleFilterForm",
     "ContactAssignmentForm",
+    "EmailForm",
+    "EmailFilterForm",
 )
 
 
@@ -87,3 +89,30 @@ class ContactAssignmentForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ContactAssignment
         fields = ("contact", "role")
+
+
+class EmailForm(BootstrapMixin, forms.ModelForm):
+    subject = forms.CharField(
+        help_text='<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/templating/" target="_blank">Jinja2 template</a> syntax is supported'
+    )
+    template = TemplateField(label="Body")
+    comments = CommentField()
+    tags = TagField(required=False)
+
+    class Meta:
+        model = Email
+        fields = (
+            "name",
+            "subject",
+            "template",
+            "jinja2_trim",
+            "jinja2_lstrip",
+            "comments",
+            "tags",
+        )
+
+
+class EmailFilterForm(BootstrapMixin, forms.Form):
+    model = Email
+    q = forms.CharField(required=False, label="Search")
+    tag = TagFilterField(model)

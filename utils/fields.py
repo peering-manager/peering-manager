@@ -118,3 +118,19 @@ class SlugField(forms.SlugField):
         )
         super().__init__(label=label, help_text=help_text, *args, **kwargs)
         self.widget.attrs["slug-source"] = slug_source
+
+
+class TemplateField(TextareaField):
+    """
+    A textarea dedicated for template. Note that it does not actually do anything
+    special. It just here to add a help text.
+    """
+
+    def __init__(self, *args, **kwargs):
+        label = kwargs.pop("label", "Template")
+        super().__init__(
+            label=label,
+            help_text='<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/templating/" target="_blank">Jinja2 template</a> syntax is supported',
+            *args,
+            **kwargs,
+        )

@@ -20,7 +20,6 @@ from .models import (
     Community,
     Configuration,
     DirectPeeringSession,
-    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
@@ -181,24 +180,6 @@ class DirectPeeringSessionFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
         if value in [4, 6]:
             return queryset.filter(Q(ip_address__family=value))
         return queryset
-
-
-class EmailFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
-    q = django_filters.CharFilter(method="search", label="Search")
-    tag = TagFilter()
-
-    class Meta:
-        model = Email
-        fields = ["id", "jinja2_trim", "jinja2_lstrip"]
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(
-            Q(name__icontains=value)
-            | Q(subject__icontains=value)
-            | Q(template__icontains=value)
-        )
 
 
 class InternetExchangeFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):

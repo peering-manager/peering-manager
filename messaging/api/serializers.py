@@ -1,10 +1,8 @@
 from django.contrib.contenttypes.models import ContentType
-from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 
-from messaging.models import Contact, ContactAssignment, ContactRole
+from messaging.models import Contact, ContactAssignment, ContactRole, Email
 from peering_manager.api import ContentTypeField, PrimaryModelSerializer
-from utils.api import get_serializer_for_model
 
 from .nested_serializers import *
 
@@ -15,6 +13,8 @@ __all__ = (
     "NestedContactRoleSerializer",
     "ContactAssignmentSerializer",
     "NestedContactAssignmentSerializer",
+    "EmailSerializer",
+    "NestedEmailSerializer",
 )
 
 
@@ -69,3 +69,19 @@ class ContactAssignmentSerializer(PrimaryModelSerializer):
     def get_object(self, instance):
         context = {"request": self.context["request"]}
         return NestedContactSerializer(instance.object, context=context).data
+
+
+class EmailSerializer(PrimaryModelSerializer):
+    class Meta:
+        model = Email
+        fields = [
+            "id",
+            "display",
+            "name",
+            "subject",
+            "template",
+            "jinja2_trim",
+            "jinja2_lstrip",
+            "comments",
+            "tags",
+        ]

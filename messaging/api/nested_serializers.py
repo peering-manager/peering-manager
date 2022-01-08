@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from messaging.models import Contact, ContactAssignment, ContactRole
+from messaging.models import Contact, ContactAssignment, ContactRole, Email
 from peering_manager.api import WritableNestedSerializer
 
 
@@ -32,3 +32,11 @@ class NestedContactAssignmentSerializer(WritableNestedSerializer):
     class Meta:
         model = ContactAssignment
         fields = ["id", "url", "display", "contact", "role"]
+
+
+class NestedEmailSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name="messaging-api:email-detail")
+
+    class Meta:
+        model = Email
+        fields = ["id", "url", "display", "name"]

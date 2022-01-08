@@ -10,7 +10,6 @@ router.register("bgp-groups", views.BGPGroupViewSet)
 router.register("communities", views.CommunityViewSet)
 router.register("configurations", views.ConfigurationViewSet)
 router.register("direct-peering-sessions", views.DirectPeeringSessionViewSet)
-router.register("emails", views.EmailViewSet)
 router.register("internet-exchanges", views.InternetExchangeViewSet)
 router.register(
     "internet-exchange-peering-sessions", views.InternetExchangePeeringSessionViewSet

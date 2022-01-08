@@ -16,7 +16,6 @@ from .models import (
     Community,
     Configuration,
     DirectPeeringSession,
-    Email,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
@@ -235,29 +234,6 @@ class DirectPeeringSessionTable(BaseTable):
             "router",
             "actions",
         )
-
-
-class EmailTable(BaseTable):
-    pk = SelectColumn()
-    name = tables.Column(linkify=True)
-    jinja2_trim = BooleanColumn(verbose_name="Trim")
-    jinja2_lstrip = BooleanColumn(verbose_name="Lstrip")
-    tags = TagColumn(url_name="peering:configuration_list")
-    actions = ButtonsColumn(Email)
-
-    class Meta(BaseTable.Meta):
-        model = Email
-        fields = (
-            "pk",
-            "name",
-            "subject",
-            "jinja2_trim",
-            "jinja2_lstrip",
-            "updated",
-            "tags",
-            "actions",
-        )
-        default_columns = ("pk", "name", "updated", "actions")
 
 
 class InternetExchangeTable(BaseTable):
