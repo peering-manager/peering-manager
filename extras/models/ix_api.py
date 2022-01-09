@@ -480,15 +480,17 @@ class IXAPI(ChangeLoggedModel):
         else:
             return "unhealthy"
 
-    def get_customers(self, id=0):
+    def get_accounts(self, id=0):
         """
-        Returns our own customer.
+        Returns accounts that we are entitled to use.
 
-        In theory the primary customer is us, that said we may be a reseller (thus
-        having sub-customers), but we do not need to track this, at least yet.
+        In theory the primary account is us, that said we may be a reseller (thus
+        having sub-accounts), but we do not need to track this, at least not yet.
         """
         c = self.dial()
-        _, d = c.get("customers", {"id": id} if id else {})
+        _, d = c.get(
+            "accounts" if self.version != 1 else "customers", {"id": id} if id else {}
+        )
 
         if id:
             return d[0]
@@ -497,12 +499,12 @@ class IXAPI(ChangeLoggedModel):
 
     def get_identity(self):
         """
-        Returns our own customer instance.
+        Returns our own account instance.
         """
         if not self.identity:
             return None
         else:
-            return self.get_customers(id=self.identity)
+            return self.get_accounts(id=self.identity)
 
     def get_ips(self, id=[]):
         d = []

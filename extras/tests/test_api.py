@@ -76,10 +76,10 @@ class IXAPITest(StandardAPITestCases.View):
             content={"access_token": "1234", "refresh_token": "1234"}
         ),
     )
-    def test_customers(self, *_):
+    def test_accounts(self, *_):
         ixapi = IXAPI.objects.get(name="IXP 1")
-        mocked = MockedResponse(fixture="extras/tests/fixtures/ix_api/customers.json")
-        url = reverse("extras-api:ixapi-customers")
+        mocked = MockedResponse(fixture="extras/tests/fixtures/ix_api/accounts.json")
+        url = reverse("extras-api:ixapi-accounts")
 
         with patch("requests.get", return_value=mocked):
             # Query params required

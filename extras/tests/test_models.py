@@ -80,14 +80,14 @@ class IXAPITest(TestCase):
             content={"access_token": "1234", "refresh_token": "1234"}
         ),
     )
-    def test_get_customers(self, *_):
+    def test_get_accounts(self, *_):
         with patch(
             "requests.get",
             return_value=MockedResponse(
-                fixture="extras/tests/fixtures/ix_api/customers.json"
+                fixture="extras/tests/fixtures/ix_api/accounts.json"
             ),
         ):
-            c = self.ix_api.get_customers()
+            c = self.ix_api.get_accounts()
             self.assertEqual(2, len(c))
             self.assertEqual("1234", c[0]["id"])
             self.assertEqual("5678", c[1]["id"])

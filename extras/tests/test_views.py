@@ -1,7 +1,5 @@
 from unittest.mock import patch
 
-from funcy.funcs import identity
-
 from extras.models import IXAPI
 from utils.testing import ViewTestCases
 
@@ -49,40 +47,40 @@ class IXAPITestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     def test_get_object_anonymous(self):
         with patch(
-            "extras.models.ix_api.IXAPI.get_customers",
+            "extras.models.ix_api.IXAPI.get_accounts",
             return_value=[
-                {"id": "1234", "name": "Customer 1"},
-                {"id": "5678", "name": "Customer 2"},
+                {"id": "1234", "name": "Account 1"},
+                {"id": "5678", "name": "Account 2"},
             ],
         ):
             super().test_get_object_anonymous()
 
     def test_get_object_with_permission(self):
         with patch(
-            "extras.models.ix_api.IXAPI.get_customers",
+            "extras.models.ix_api.IXAPI.get_accounts",
             return_value=[
-                {"id": "1234", "name": "Customer 1"},
-                {"id": "5678", "name": "Customer 2"},
+                {"id": "1234", "name": "Account 1"},
+                {"id": "5678", "name": "Account 2"},
             ],
         ):
             super().test_get_object_with_permission()
 
     def test_create_object_with_permission(self):
         with patch(
-            "extras.models.ix_api.IXAPI.get_customers",
+            "extras.models.ix_api.IXAPI.get_accounts",
             return_value=[
-                {"id": "1234", "name": "Customer 1"},
-                {"id": "5678", "name": "Customer 2"},
+                {"id": "1234", "name": "Account 1"},
+                {"id": "5678", "name": "Account 2"},
             ],
         ):
             super().test_create_object_with_permission()
 
     def test_edit_object_with_permission(self):
         with patch(
-            "extras.models.ix_api.IXAPI.get_customers",
+            "extras.models.ix_api.IXAPI.get_accounts",
             return_value=[
-                {"id": "1234", "name": "Customer 1"},
-                {"id": "5678", "name": "Customer 2"},
+                {"id": "1234", "name": "Account 1"},
+                {"id": "5678", "name": "Account 2"},
             ],
         ):
             super().test_edit_object_with_permission()

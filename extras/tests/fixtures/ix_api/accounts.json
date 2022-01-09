@@ -1,0 +1,40 @@
+[
+  {
+    "id": "1234",
+    "name": "Account 1"
+  },
+  {
+    "state": "requested",
+    "status": [],
+    "managing_account": "1234",
+    "id": "5678",
+    "name": "Account 2",
+    "legal_name": "Account 2",
+    "billing_information": {
+      "name": "Account 2",
+      "address": {
+        "country": "US",
+        "locality": "Mountain View",
+        "region": "CA",
+        "postal_code": "9409",
+        "street_address": "1600 Amphitheatre Pkwy.",
+        "post_office_box_number": "2335232"
+      },
+      "vat_number": "US1234567890"
+    },
+    "external_ref": "IX:Service:5678",
+    "discoverable": false,
+    "metro_area_network_presence": [
+      "1234",
+      "5678"
+    ],
+    "address": {
+      "country": "US",
+      "locality": "Mountain View",
+      "region": "CA",
+      "postal_code": "9409",
+      "street_address": "1600 Amphitheatre Pkwy.",
+      "post_office_box_number": "2335232"
+    }
+  }
+]

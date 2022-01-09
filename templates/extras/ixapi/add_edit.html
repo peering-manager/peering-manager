@@ -32,7 +32,7 @@
         api_key: api_key.value,
         api_secret: api_secret.value,
       },
-      url: "{% url 'extras-api:ixapi-customers' %}"
+      url: "{% url 'extras-api:ixapi-accounts' %}"
     }).done(function (r) {
       for (var i = 0; i < r.length; i++) {
         if ($("#id_identity").find("option[value='" + r[i].id + "']").length) {

@@ -32,7 +32,7 @@ class IXAPIForm(BootstrapMixin, forms.ModelForm):
         )
         try:
             # Try to query API and see if it raises an error
-            ixapi.get_customers()
+            ixapi.get_accounts()
         except HTTPError as e:
             # Fail form validation on HTTP error to provide a feedback to the user
             if e.response.status_code >= 400 and e.response.status_code < 500:

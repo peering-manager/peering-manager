@@ -27,31 +27,32 @@ class IXAPIViewSet(ModelViewSet):
     serializer_class = IXAPISerializer
 
     @extend_schema(
-        operation_id="extras_ixapi_customers",
+        operation_id="extras_ix_api_accounts",
         request=IXAPICustomerSerializer,
         responses={
             200: OpenApiResponse(
                 response=OpenApiTypes.OBJECT,
-                description="The list of customers returned by IX-API.",
+                description="The list of accounts returned by IX-API.",
             )
         },
     )
-    @action(detail=False, methods=["get"], url_path="customers")
-    def customers(self, request, pk=None):
+    @action(detail=False, methods=["get"], url_path="accounts")
+    def accounts(self, request, pk=None):
         # Make sure request is valid
         serializer = IXAPICustomerSerializer(data=request.query_params)
         serializer.is_valid(raise_exception=True)
 
         # Query IX-API with given parameters
+        api_url = serializer.validated_data.get("url")
         c = Client(
-            ixapi_url=serializer.validated_data.get("url"),
+            ixapi_url=api_url,
             ixapi_key=serializer.validated_data.get("api_key"),
             ixapi_secret=serializer.validated_data.get("api_secret"),
         )
         c.auth()
-        _, customers = c.get("customers")
+        _, accounts = c.get("accounts" if "v1" not in api_url else "customers")
 
-        return Response(data=customers)
+        return Response(data=accounts)
 
 
 class JobResultViewSet(ReadOnlyModelViewSet):
