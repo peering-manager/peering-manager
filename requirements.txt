@@ -16,4 +16,4 @@ packaging==21.3
 psycopg2-binary==2.9.3
 pynetbox==6.5.0
 PyYAML==6.0
-requests==2.26.0
+requests==2.27.1
