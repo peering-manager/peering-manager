@@ -76,7 +76,9 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
         null=True,
         help_text="Optional internal service reference",
     )
-    autonomous_system = models.ForeignKey("AutonomousSystem", on_delete=models.CASCADE)
+    autonomous_system = models.ForeignKey(
+        to="peering.AutonomousSystem", on_delete=models.CASCADE
+    )
     ip_address = InetAddressField(store_prefix_length=False, verbose_name="IP address")
     password = models.CharField(max_length=255, blank=True, null=True)
     encrypted_password = models.CharField(max_length=255, blank=True, null=True)
@@ -88,10 +90,14 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
     )
     enabled = models.BooleanField(default=True)
     import_routing_policies = models.ManyToManyField(
-        "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
+        to="peering.RoutingPolicy",
+        blank=True,
+        related_name="%(class)s_import_routing_policies",
     )
     export_routing_policies = models.ManyToManyField(
-        "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
+        to="peering.RoutingPolicy",
+        blank=True,
+        related_name="%(class)s_export_routing_policies",
     )
     bgp_state = models.CharField(
         max_length=50, choices=BGPState.choices, blank=True, null=True

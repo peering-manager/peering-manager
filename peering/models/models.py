@@ -481,7 +481,7 @@ class Community(ChangeLoggedModel, TaggableModel):
 
 class DirectPeeringSession(BGPSession):
     local_autonomous_system = models.ForeignKey(
-        "AutonomousSystem",
+        to="peering.AutonomousSystem",
         on_delete=models.CASCADE,
         related_name="%(class)s_local_autonomous_system",
         null=True,
@@ -493,15 +493,15 @@ class DirectPeeringSession(BGPSession):
         verbose_name="Local IP address",
     )
     bgp_group = models.ForeignKey(
-        "BGPGroup",
+        to="peering.BGPGroup",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
         verbose_name="BGP group",
     )
-    relationship = models.ForeignKey("bgp.Relationship", on_delete=models.PROTECT)
+    relationship = models.ForeignKey(to="bgp.Relationship", on_delete=models.PROTECT)
     router = models.ForeignKey(
-        "Router", blank=True, null=True, on_delete=models.SET_NULL
+        to="peering.Router", blank=True, null=True, on_delete=models.SET_NULL
     )
 
     class Meta(BGPSession.Meta):
@@ -555,10 +555,10 @@ class DirectPeeringSession(BGPSession):
 
 class InternetExchange(AbstractGroup):
     peeringdb_ixlan = models.ForeignKey(
-        "peeringdb.IXLan", on_delete=models.SET_NULL, blank=True, null=True
+        to="peeringdb.IXLan", on_delete=models.SET_NULL, blank=True, null=True
     )
     ixapi_endpoint = models.ForeignKey(
-        "extras.IXAPI",
+        to="extras.IXAPI",
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
@@ -566,7 +566,7 @@ class InternetExchange(AbstractGroup):
         help_text="URL and authentication details to interact with IX-API",
     )
     local_autonomous_system = models.ForeignKey(
-        "AutonomousSystem", on_delete=models.CASCADE, null=True
+        to="peering.AutonomousSystem", on_delete=models.CASCADE, null=True
     )
 
     logger = logging.getLogger("peering.manager.peering")
@@ -891,7 +891,7 @@ class InternetExchange(AbstractGroup):
 
 class InternetExchangePeeringSession(BGPSession):
     ixp_connection = models.ForeignKey(
-        "net.Connection",
+        to="net.Connection",
         on_delete=models.CASCADE,
         null=True,
         verbose_name="IXP connection",
@@ -1027,12 +1027,12 @@ class InternetExchangePeeringSession(BGPSession):
 
 class Router(ChangeLoggedModel, TaggableModel):
     local_autonomous_system = models.ForeignKey(
-        "AutonomousSystem", on_delete=models.CASCADE, null=True
+        to="peering.AutonomousSystem", on_delete=models.CASCADE, null=True
     )
     name = models.CharField(max_length=128)
     hostname = models.CharField(max_length=256)
     platform = models.ForeignKey(
-        "devices.Platform",
+        to="devices.Platform",
         on_delete=models.PROTECT,
         blank=True,
         null=True,
@@ -1044,7 +1044,7 @@ class Router(ChangeLoggedModel, TaggableModel):
         help_text="Try to encrypt passwords for peering sessions",
     )
     configuration_template = models.ForeignKey(
-        "Configuration", blank=True, null=True, on_delete=models.SET_NULL
+        to="peering.Configuration", blank=True, null=True, on_delete=models.SET_NULL
     )
     device_state = models.CharField(
         max_length=20,

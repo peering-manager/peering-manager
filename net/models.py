@@ -16,7 +16,7 @@ logger = logging.getLogger("peering.manager.net")
 
 class Connection(ChangeLoggedModel, TaggableModel):
     peeringdb_netixlan = models.ForeignKey(
-        "peeringdb.NetworkIXLan", on_delete=models.SET_NULL, blank=True, null=True
+        to="peeringdb.NetworkIXLan", on_delete=models.SET_NULL, blank=True, null=True
     )
     state = models.CharField(
         max_length=20, choices=ConnectionState.choices, default=ConnectionState.ENABLED
@@ -35,10 +35,10 @@ class Connection(ChangeLoggedModel, TaggableModel):
         validators=[AddressFamilyValidator(4)],
     )
     internet_exchange_point = models.ForeignKey(
-        "peering.InternetExchange", blank=True, null=True, on_delete=models.CASCADE
+        to="peering.InternetExchange", blank=True, null=True, on_delete=models.CASCADE
     )
     router = models.ForeignKey(
-        "peering.Router", blank=True, null=True, on_delete=models.SET_NULL
+        to="peering.Router", blank=True, null=True, on_delete=models.SET_NULL
     )
     interface = models.CharField(max_length=200, blank=True)
     description = models.CharField(max_length=200, blank=True)

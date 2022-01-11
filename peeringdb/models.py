@@ -181,7 +181,7 @@ class Facility(Address):
         verbose_name="Continental Region",
     )
     org = models.ForeignKey(
-        Organization,
+        to="peeringdb.Organization",
         related_name="fac_set",
         verbose_name="Organization",
         on_delete=models.CASCADE,
@@ -252,7 +252,7 @@ class Network(models.Model):
         max_length=36, blank=True, choices=ContractsPolicy.choices
     )
     org = models.ForeignKey(
-        Organization,
+        to="peeringdb.Organization",
         related_name="net_set",
         verbose_name="Organization",
         on_delete=models.CASCADE,
@@ -294,7 +294,7 @@ class InternetExchange(models.Model):
         max_length=60, blank=True, choices=Terms.choices, default=Terms.NOT_DISCLOSED
     )
     org = models.ForeignKey(
-        Organization,
+        to="peeringdb.Organization",
         related_name="ix_set",
         verbose_name="Organization",
         on_delete=models.CASCADE,
@@ -314,13 +314,13 @@ class InternetExchange(models.Model):
 
 class InternetExchangeFacility(models.Model):
     ix = models.ForeignKey(
-        InternetExchange,
+        to="peeringdb.InternetExchange",
         related_name="ixfac_set",
         verbose_name="Internet Exchange",
         on_delete=models.CASCADE,
     )
     fac = models.ForeignKey(
-        Facility,
+        to="peeringdb.Facility",
         default=0,
         related_name="ixfac_set",
         verbose_name="Facility",
@@ -359,7 +359,7 @@ class IXLan(models.Model):
         default=Visibility.PRIVATE,
     )
     ix = models.ForeignKey(
-        InternetExchange,
+        to="peeringdb.InternetExchange",
         default=0,
         related_name="ixlan_set",
         verbose_name="Internet Exchange",
@@ -377,7 +377,7 @@ class IXLanPrefix(models.Model):
     prefix = CidrAddressField(unique=True)
     in_dfz = models.BooleanField(default=False)
     ixlan = models.ForeignKey(
-        IXLan,
+        to="peeringdb.IXLan",
         default=0,
         related_name="ixpfx_set",
         verbose_name="Internet Exchange LAN",
@@ -399,7 +399,7 @@ class NetworkContact(models.Model):
     email = models.EmailField(max_length=254, blank=True)
     url = URLField(blank=True)
     net = models.ForeignKey(
-        Network,
+        to="peeringdb.Network",
         default=0,
         related_name="poc_set",
         verbose_name="Network",
@@ -413,14 +413,14 @@ class NetworkFacility(models.Model):
     avail_ethernet = models.BooleanField(default=False)
     avail_atm = models.BooleanField(default=False)
     net = models.ForeignKey(
-        Network,
+        to="peeringdb.Network",
         default=0,
         related_name="netfac_set",
         verbose_name="Network",
         on_delete=models.CASCADE,
     )
     fac = models.ForeignKey(
-        Facility,
+        to="peeringdb.Facility",
         default=0,
         related_name="netfac_set",
         verbose_name="Facility",
@@ -454,14 +454,14 @@ class NetworkIXLan(models.Model):
     speed = models.PositiveIntegerField()
     operational = models.BooleanField(default=True)
     net = models.ForeignKey(
-        Network,
+        to="peeringdb.Network",
         default=0,
         related_name="netixlan_set",
         verbose_name="Network",
         on_delete=models.CASCADE,
     )
     ixlan = models.ForeignKey(
-        IXLan,
+        to="peeringdb.IXLan",
         default=0,
         related_name="netixlan_set",
         verbose_name="Internet Exchange LAN",
