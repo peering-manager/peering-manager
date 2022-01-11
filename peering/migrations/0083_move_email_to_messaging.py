@@ -9,8 +9,19 @@ class Migration(migrations.Migration):
     database_operations = [migrations.AlterModelTable("Email", "messaging_email")]
     state_operations = [migrations.DeleteModel("Email")]
 
+    def cleanup_object_changes(apps, schema_editor):
+        ContentType = apps.get_model("contenttypes", "ContentType")
+        Email = apps.get_model("peering.Email")
+        EmailType = ContentType.objects.get_for_model(Email)
+        ObjectChange = apps.get_model("utils.ObjectChange")
+
+        ObjectChange.objects.using(schema_editor.connection.alias).filter(
+            changed_object_type=EmailType
+        )._raw_delete(schema_editor.connection.alias)
+
     operations = [
+        migrations.RunPython(cleanup_object_changes, migrations.RunPython.noop),
         migrations.SeparateDatabaseAndState(
             database_operations=database_operations, state_operations=state_operations
-        )
+        ),
     ]
