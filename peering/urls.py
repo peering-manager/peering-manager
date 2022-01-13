@@ -133,41 +133,6 @@ urlpatterns = [
         views.CommunityBulkEdit.as_view(),
         name="community_bulk_edit",
     ),
-    # Configurations
-    path(
-        "configurations/", views.ConfigurationList.as_view(), name="configuration_list"
-    ),
-    path(
-        "configurations/add/",
-        views.ConfigurationAdd.as_view(),
-        name="configuration_add",
-    ),
-    path(
-        "configurations/<int:pk>/",
-        views.ConfigurationDetails.as_view(),
-        name="configuration_details",
-    ),
-    path(
-        "configurations/<int:pk>/edit/",
-        views.ConfigurationEdit.as_view(),
-        name="configuration_edit",
-    ),
-    path(
-        "configurations/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
-        name="configuration_changelog",
-        kwargs={"model": models.Configuration},
-    ),
-    path(
-        "configurations/<int:pk>/delete/",
-        views.ConfigurationDelete.as_view(),
-        name="configuration_delete",
-    ),
-    path(
-        "configurations/delete/",
-        views.ConfigurationBulkDelete.as_view(),
-        name="configuration_bulk_delete",
-    ),
     # Direct Peering Sessions
     path(
         "direct-peering-sessions/",

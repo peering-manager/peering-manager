@@ -1,8 +1,27 @@
 from django.test import TestCase
 
-from devices.filters import PlatformFilterSet
-from devices.models import Platform
+from devices.filters import ConfigurationFilterSet, PlatformFilterSet
+from devices.models import Configuration, Platform
 from utils.testing import BaseFilterSetTests
+
+
+class ConfigurationTestCase(TestCase, BaseFilterSetTests):
+    queryset = Configuration.objects.all()
+    filterset = ConfigurationFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        Configuration.objects.bulk_create(
+            [
+                Configuration(name="Configuration 1", template="Configuration 1"),
+                Configuration(name="Configuration 2", template="Configuration 2"),
+                Configuration(name="Configuration 3", template="Configuration 3"),
+            ]
+        )
+
+    def test_name(self):
+        params = {"q": "Configuration 1"}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class PlatformTestCase(TestCase, BaseFilterSetTests):

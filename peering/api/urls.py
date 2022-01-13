@@ -8,7 +8,6 @@ router.APIRootView = views.PeeringRootView
 router.register("autonomous-systems", views.AutonomousSystemViewSet)
 router.register("bgp-groups", views.BGPGroupViewSet)
 router.register("communities", views.CommunityViewSet)
-router.register("configurations", views.ConfigurationViewSet)
 router.register("direct-peering-sessions", views.DirectPeeringSessionViewSet)
 router.register("internet-exchanges", views.InternetExchangeViewSet)
 router.register(

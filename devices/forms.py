@@ -1,16 +1,40 @@
 from django import forms
+from taggit.forms import TagField
 
-from utils.fields import SlugField
+from devices.enums import PasswordAlgorithm
+from devices.models import Configuration, Platform
+from utils.fields import CommentField, SlugField, TemplateField
 from utils.forms import (
     BootstrapMixin,
     JSONField,
     SmallTextarea,
     StaticSelect,
+    TagFilterField,
     add_blank_choice,
 )
 
-from .enums import PasswordAlgorithm
-from .models import Platform
+
+class ConfigurationForm(BootstrapMixin, forms.ModelForm):
+    template = TemplateField()
+    comments = CommentField()
+    tags = TagField(required=False)
+
+    class Meta:
+        model = Configuration
+        fields = (
+            "name",
+            "template",
+            "jinja2_trim",
+            "jinja2_lstrip",
+            "comments",
+            "tags",
+        )
+
+
+class ConfigurationFilterForm(BootstrapMixin, forms.Form):
+    model = Configuration
+    q = forms.CharField(required=False, label="Search")
+    tag = TagFilterField(model)
 
 
 class PlatformForm(BootstrapMixin, forms.ModelForm):

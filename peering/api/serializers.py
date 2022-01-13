@@ -1,14 +1,16 @@
 from rest_framework import serializers
 
 from bgp.api.serializers import NestedRelationshipSerializer
-from devices.api.serializers import NestedPlatformSerializer
+from devices.api.serializers import (
+    NestedConfigurationSerializer,
+    NestedPlatformSerializer,
+)
 from extras.api.serializers import NestedIXAPISerializer
 from net.api.serializers import NestedConnectionSerializer
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    Configuration,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -24,7 +26,6 @@ __all__ = (
     "AutonomousSystemGenerateEmailSerializer",
     "BGPGroupSerializer",
     "CommunitySerializer",
-    "ConfigurationSerializer",
     "DirectPeeringSessionSerializer",
     "InternetExchangeSerializer",
     "InternetExchangePeeringSessionSerializer",
@@ -34,7 +35,6 @@ __all__ = (
     "NestedAutonomousSystemSerializer",
     "NestedBGPGroupSerializer",
     "NestedCommunitySerializer",
-    "NestedConfigurationSerializer",
     "NestedDirectPeeringSessionSerializer",
     "NestedInternetExchangeSerializer",
     "NestedInternetExchangePeeringSessionSerializer",
@@ -129,21 +129,6 @@ class CommunitySerializer(PrimaryModelSerializer):
     class Meta:
         model = Community
         fields = ["id", "display", "name", "slug", "value", "type", "comments", "tags"]
-
-
-class ConfigurationSerializer(PrimaryModelSerializer):
-    class Meta:
-        model = Configuration
-        fields = [
-            "id",
-            "display",
-            "name",
-            "template",
-            "jinja2_trim",
-            "jinja2_lstrip",
-            "comments",
-            "tags",
-        ]
 
 
 class DirectPeeringSessionSerializer(PrimaryModelSerializer):

@@ -1044,7 +1044,7 @@ class Router(ChangeLoggedModel, TaggableModel):
         help_text="Try to encrypt passwords for peering sessions",
     )
     configuration_template = models.ForeignKey(
-        to="peering.Configuration", blank=True, null=True, on_delete=models.SET_NULL
+        "devices.Configuration", blank=True, null=True, on_delete=models.SET_NULL
     )
     device_state = models.CharField(
         max_length=20,

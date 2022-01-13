@@ -4,7 +4,6 @@ from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    Configuration,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -15,7 +14,6 @@ from peering.models import (
 admin_site.register(AutonomousSystem)
 admin_site.register(BGPGroup)
 admin_site.register(Community)
-admin_site.register(Configuration)
 admin_site.register(DirectPeeringSession)
 admin_site.register(InternetExchange)
 admin_site.register(InternetExchangePeeringSession)

@@ -1,5 +1,28 @@
-from devices.models import Platform
+from devices.models import Configuration, Platform
 from utils.testing import ViewTestCases
+
+
+class ConfigurationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = Configuration
+
+    test_bulk_edit_objects = None
+
+    @classmethod
+    def setUpTestData(cls):
+        Configuration.objects.bulk_create(
+            [
+                Configuration(name="Configuration 1", template="Configuration 1"),
+                Configuration(name="Configuration 2", template="Configuration 2"),
+                Configuration(name="Configuration 3", template="Configuration 3"),
+            ]
+        )
+
+        cls.form_data = {
+            "name": "Configuration 4",
+            "template": "Configuration 4",
+            "comments": "",
+            "tags": [],
+        }
 
 
 class PlatformTestCase(

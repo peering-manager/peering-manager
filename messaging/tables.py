@@ -61,7 +61,7 @@ class EmailTable(BaseTable):
     name = tables.Column(linkify=True)
     jinja2_trim = BooleanColumn(verbose_name="Trim")
     jinja2_lstrip = BooleanColumn(verbose_name="Lstrip")
-    tags = TagColumn(url_name="peering:configuration_list")
+    tags = TagColumn(url_name="devices:configuration_list")
     actions = ButtonsColumn(Email)
 
     class Meta(BaseTable.Meta):

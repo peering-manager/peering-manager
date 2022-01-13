@@ -4,18 +4,12 @@ from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
 from bgp.models import Relationship
-from devices.models import Platform
+from devices.models import Configuration, Platform
 from extras.models.ix_api import IXAPI
 from messaging.models import Email
 from net.models import Connection
 from netbox.api import NetBox
-from utils.fields import (
-    CommentField,
-    PasswordField,
-    SlugField,
-    TemplateField,
-    TextareaField,
-)
+from utils.fields import CommentField, PasswordField, SlugField, TextareaField
 from utils.forms import (
     AddRemoveTagsForm,
     BootstrapMixin,
@@ -36,7 +30,6 @@ from .models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    Configuration,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -230,29 +223,6 @@ class CommunityFilterForm(BootstrapMixin, forms.Form):
     type = forms.MultipleChoiceField(
         required=False, choices=CommunityType.choices, widget=StaticSelectMultiple
     )
-    tag = TagFilterField(model)
-
-
-class ConfigurationForm(BootstrapMixin, forms.ModelForm):
-    template = TemplateField()
-    comments = CommentField()
-    tags = TagField(required=False)
-
-    class Meta:
-        model = Configuration
-        fields = (
-            "name",
-            "template",
-            "jinja2_trim",
-            "jinja2_lstrip",
-            "comments",
-            "tags",
-        )
-
-
-class ConfigurationFilterForm(BootstrapMixin, forms.Form):
-    model = Configuration
-    q = forms.CharField(required=False, label="Search")
     tag = TagFilterField(model)
 
 

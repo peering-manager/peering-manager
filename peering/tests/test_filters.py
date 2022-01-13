@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from bgp.models import Relationship
+from devices.models import Configuration
 from net.models import Connection
 from peering.constants import *
 from peering.enums import CommunityType, DeviceState, RoutingPolicyType
@@ -8,7 +9,6 @@ from peering.filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
     CommunityFilterSet,
-    ConfigurationFilterSet,
     DirectPeeringSessionFilterSet,
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
@@ -19,7 +19,6 @@ from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    Configuration,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -151,25 +150,6 @@ class CommunityTestCase(TestCase, BaseFilterSetTests):
 
     def test_value(self):
         params = {"value": ["64500:1"]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-
-class ConfigurationTestCase(TestCase, BaseFilterSetTests):
-    queryset = Configuration.objects.all()
-    filterset = ConfigurationFilterSet
-
-    @classmethod
-    def setUpTestData(cls):
-        Configuration.objects.bulk_create(
-            [
-                Configuration(name="Configuration 1", template="Configuration 1"),
-                Configuration(name="Configuration 2", template="Configuration 2"),
-                Configuration(name="Configuration 3", template="Configuration 3"),
-            ]
-        )
-
-    def test_name(self):
-        params = {"q": "Configuration 1"}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 

@@ -35,7 +35,6 @@ from .filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
     CommunityFilterSet,
-    ConfigurationFilterSet,
     DirectPeeringSessionFilterSet,
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
@@ -52,8 +51,6 @@ from .forms import (
     CommunityBulkEditForm,
     CommunityFilterForm,
     CommunityForm,
-    ConfigurationFilterForm,
-    ConfigurationForm,
     DirectPeeringSessionBulkEditForm,
     DirectPeeringSessionFilterForm,
     DirectPeeringSessionForm,
@@ -75,7 +72,6 @@ from .models import (
     BGPGroup,
     BGPSession,
     Community,
-    Configuration,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -86,7 +82,6 @@ from .tables import (
     AutonomousSystemTable,
     BGPGroupTable,
     CommunityTable,
-    ConfigurationTable,
     DirectPeeringSessionTable,
     InternetExchangePeeringSessionTable,
     InternetExchangeTable,
@@ -478,56 +473,6 @@ class CommunityBulkEdit(PermissionRequiredMixin, BulkEditView):
     filter = CommunityFilterSet
     table = CommunityTable
     form = CommunityBulkEditForm
-
-
-class ConfigurationList(PermissionRequiredMixin, ModelListView):
-    permission_required = "peering.view_configuration"
-    queryset = Configuration.objects.all()
-    filter = ConfigurationFilterSet
-    filter_form = ConfigurationFilterForm
-    table = ConfigurationTable
-    template = "peering/configuration/list.html"
-
-
-class ConfigurationAdd(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "peering.add_configuration"
-    model = Configuration
-    form = ConfigurationForm
-    template = "peering/configuration/add_edit.html"
-    return_url = "peering:configuration_list"
-
-
-class ConfigurationDetails(DetailsView):
-    permission_required = "peering.view_configuration"
-    queryset = Configuration.objects.all()
-
-    def get_context(self, request, **kwargs):
-        instance = get_object_or_404(self.queryset, **kwargs)
-        return {
-            "instance": instance,
-            "routers": Router.objects.filter(configuration_template=instance),
-            "active_tab": "main",
-        }
-
-
-class ConfigurationEdit(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "peering.change_configuration"
-    model = Configuration
-    form = ConfigurationForm
-    template = "peering/configuration/add_edit.html"
-
-
-class ConfigurationDelete(PermissionRequiredMixin, DeleteView):
-    permission_required = "peering.delete_configuration"
-    model = Configuration
-    return_url = "peering:configuration_list"
-
-
-class ConfigurationBulkDelete(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = "peering.delete_configuration"
-    model = Configuration
-    filter = ConfigurationFilterSet
-    table = ConfigurationTable
 
 
 class DirectPeeringSessionAdd(PermissionRequiredMixin, AddOrEditView):

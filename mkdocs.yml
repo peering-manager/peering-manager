@@ -41,15 +41,16 @@ nav:
         - Optional Settings: "configuration/optional-settings.md"
     - User Interface: "user-interface.md"
     - User Manual:
+        - Devices:
+            - Configuration: "models/peering/configuration.md"
+            - Platform: "models/devices/platform.md"
         - Peering:
             - Autonomous System: "models/peering/autonomoussystem.md"
             - BGP Group: "models/peering/bgpgroup.md"
             - Community: "models/peering/community.md"
-            - Configuration: "models/peering/configuration.md"
             - Direct Peering Session: "models/peering/directpeeringsession.md"
             - Internet Exchange: "models/peering/internetexchange.md"
             - Internet Exchange Peering Session: "models/peering/internetexchangepeeringsession.md"
-            - Platform: "models/devices/platform.md"
             - Router: "models/peering/router.md"
             - Routing Policy: "models/peering/routingpolicy.md"
             - Config Contexts: "models/peering/configcontexts.md"

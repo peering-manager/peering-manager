@@ -14,7 +14,6 @@ from .models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    Configuration,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -148,28 +147,6 @@ class CommunityTable(BaseTable):
         model = Community
         fields = ("pk", "name", "slug", "value", "type", "tags", "actions")
         default_columns = ("pk", "name", "value", "type", "actions")
-
-
-class ConfigurationTable(BaseTable):
-    pk = SelectColumn()
-    name = tables.Column(linkify=True)
-    jinja2_trim = BooleanColumn(verbose_name="Trim")
-    jinja2_lstrip = BooleanColumn(verbose_name="Lstrip")
-    tags = TagColumn(url_name="peering:configuration_list")
-    actions = ButtonsColumn(Configuration)
-
-    class Meta(BaseTable.Meta):
-        model = Configuration
-        fields = (
-            "pk",
-            "name",
-            "jinja2_trim",
-            "jinja2_lstrip",
-            "updated",
-            "tags",
-            "actions",
-        )
-        default_columns = ("pk", "name", "updated", "actions")
 
 
 class DirectPeeringSessionTable(BaseTable):

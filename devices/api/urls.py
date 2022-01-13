@@ -5,6 +5,7 @@ from . import views
 router = OrderedDefaultRouter()
 router.APIRootView = views.DevicesRootView
 
+router.register("configurations", views.ConfigurationViewSet)
 router.register("platforms", views.PlatformViewSet)
 
 app_name = "devices-api"

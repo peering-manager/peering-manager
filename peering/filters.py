@@ -4,7 +4,7 @@ import django_filters
 from django.db.models import Q
 
 from bgp.models import Relationship
-from devices.models import Platform
+from devices.models import Configuration, Platform
 from net.models import Connection
 from utils.filters import (
     BaseFilterSet,
@@ -18,7 +18,6 @@ from .models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    Configuration,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -70,20 +69,6 @@ class CommunityFilterSet(
     class Meta:
         model = Community
         fields = ["id", "value", "type"]
-
-
-class ConfigurationFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
-    q = django_filters.CharFilter(method="search", label="Search")
-    tag = TagFilter()
-
-    class Meta:
-        model = Configuration
-        fields = ["id", "jinja2_trim", "jinja2_lstrip"]
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(Q(name__icontains=value) | Q(template__icontains=value))
 
 
 class DirectPeeringSessionFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):

@@ -9,7 +9,6 @@ from peering.forms import (
     AutonomousSystemEmailForm,
     AutonomousSystemForm,
     CommunityForm,
-    ConfigurationForm,
     DirectPeeringSessionForm,
     InternetExchangeForm,
     InternetExchangePeeringSessionForm,
@@ -54,13 +53,6 @@ class CommunityTest(TestCase):
                 "type": CommunityType.EGRESS,
             }
         )
-        self.assertTrue(test.is_valid())
-        self.assertTrue(test.save())
-
-
-class ConfigurationTest(TestCase):
-    def test_configuration_form(self):
-        test = ConfigurationForm(data={"name": "Test", "template": "test_template"})
         self.assertTrue(test.is_valid())
         self.assertTrue(test.save())
 

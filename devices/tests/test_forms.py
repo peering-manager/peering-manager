@@ -1,7 +1,13 @@
 from django.test import TestCase
 
-from devices.forms import PlatformForm
-from devices.models import Platform
+from devices.forms import ConfigurationForm, PlatformForm
+
+
+class ConfigurationTest(TestCase):
+    def test_configuration_form(self):
+        test = ConfigurationForm(data={"name": "Test", "template": "test_template"})
+        self.assertTrue(test.is_valid())
+        self.assertTrue(test.save())
 
 
 class PlatformTest(TestCase):

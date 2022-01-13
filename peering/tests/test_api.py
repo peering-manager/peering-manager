@@ -4,7 +4,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from bgp.models import Relationship
-from devices.models import Platform
+from devices.models import Configuration, Platform
 from net.models import Connection
 from peering.constants import *
 from peering.enums import CommunityType, DeviceState, RoutingPolicyType
@@ -12,7 +12,6 @@ from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    Configuration,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -175,27 +174,6 @@ class CommunityTest(StandardAPITestCases.View):
                     value="64500:3",
                     type=CommunityType.EGRESS,
                 ),
-            ]
-        )
-
-
-class ConfigurationTest(StandardAPITestCases.View):
-    model = Configuration
-    brief_fields = ["id", "url", "display", "name"]
-    create_data = [
-        {"name": "Test1", "template": "test1_template"},
-        {"name": "Test2", "template": "test2_template"},
-        {"name": "Test3", "template": "test3_template"},
-    ]
-    bulk_update_data = {"template": "{{ router.hostname }}"}
-
-    @classmethod
-    def setUpTestData(cls):
-        Configuration.objects.bulk_create(
-            [
-                Configuration(name="Example 1", template="example_1"),
-                Configuration(name="Example 2", template="example_2"),
-                Configuration(name="Example 3", template="example_3"),
             ]
         )
 

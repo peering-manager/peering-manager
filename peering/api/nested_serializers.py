@@ -4,7 +4,6 @@ from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    Configuration,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -46,16 +45,6 @@ class NestedCommunitySerializer(WritableNestedSerializer):
     class Meta:
         model = Community
         fields = ["id", "url", "display", "name", "slug", "value", "type"]
-
-
-class NestedConfigurationSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="peering-api:configuration-detail"
-    )
-
-    class Meta:
-        model = Configuration
-        fields = ["id", "url", "display", "name"]
 
 
 class NestedDirectPeeringSessionSerializer(WritableNestedSerializer):

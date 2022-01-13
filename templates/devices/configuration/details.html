@@ -1,4 +1,4 @@
-{% extends 'peering/configuration/_base.html' %}
+{% extends 'devices/configuration/_base.html' %}
 {% load helpers %}
 {% block subcontent %}
 <div class="row">
@@ -52,7 +52,7 @@
         {% endif %}
       </div>
     </div>
-    {% include 'includes/tags_card.html' with tags=instance.tags.all url='peering:configuration_list' %}
+    {% include 'includes/tags_card.html' with tags=instance.tags.all url='devices:configuration_list' %}
   </div>
 </div>
 <div class="row">

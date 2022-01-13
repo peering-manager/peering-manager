@@ -1,7 +1,17 @@
 from rest_framework import serializers
 
-from devices.models import Platform
+from devices.models import Configuration, Platform
 from peering_manager.api import WritableNestedSerializer
+
+
+class NestedConfigurationSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name="devices-api:configuration-detail"
+    )
+
+    class Meta:
+        model = Configuration
+        fields = ["id", "url", "display", "name"]
 
 
 class NestedPlatformSerializer(WritableNestedSerializer):

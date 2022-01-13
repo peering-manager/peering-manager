@@ -1,8 +1,20 @@
-from django.conf import settings
 from django.test import TestCase
 
 from devices.enums import PasswordAlgorithm
-from devices.models import Platform
+from devices.models import Configuration, Platform
+
+
+class ConfigurationTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.template = Configuration.objects.create(name="Test", template="{{ test }}")
+
+    def test_render(self):
+        self.assertEqual(self.template.render({"test": "test"}), "test")
+        self.template.template = "{% for i in range(5) %}\n{{ i }}\n{% endfor %}"
+        self.assertEqual(self.template.render({}), "\n0\n\n1\n\n2\n\n3\n\n4\n")
+        self.template.jinja2_trim = True
+        self.assertEqual(self.template.render({}), "0\n1\n2\n3\n4\n")
 
 
 class PlatformTest(TestCase):

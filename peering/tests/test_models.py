@@ -11,7 +11,6 @@ from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    Configuration,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -136,19 +135,6 @@ class CommunityTest(TestCase):
 
         for i in range(len(expected)):
             self.assertEqual(expected[i], self.communities[i].get_type_html())
-
-
-class ConfigurationTest(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.template = Configuration.objects.create(name="Test", template="{{ test }}")
-
-    def test_render(self):
-        self.assertEqual(self.template.render({"test": "test"}), "test")
-        self.template.template = "{% for i in range(5) %}\n{{ i }}\n{% endfor %}"
-        self.assertEqual(self.template.render({}), "\n0\n\n1\n\n2\n\n3\n\n4\n")
-        self.template.jinja2_trim = True
-        self.assertEqual(self.template.render({}), "0\n1\n2\n3\n4\n")
 
 
 class DirectPeeringSessionTest(TestCase):

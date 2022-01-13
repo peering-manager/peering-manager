@@ -13,7 +13,6 @@ from peering.filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
     CommunityFilterSet,
-    ConfigurationFilterSet,
     DirectPeeringSessionFilterSet,
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
@@ -31,7 +30,6 @@ from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    Configuration,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -47,7 +45,6 @@ from .serializers import (
     AutonomousSystemSerializer,
     BGPGroupSerializer,
     CommunitySerializer,
-    ConfigurationSerializer,
     DirectPeeringSessionSerializer,
     InternetExchangePeeringSessionSerializer,
     InternetExchangeSerializer,
@@ -226,12 +223,6 @@ class CommunityViewSet(ModelViewSet):
     queryset = Community.objects.all()
     serializer_class = CommunitySerializer
     filterset_class = CommunityFilterSet
-
-
-class ConfigurationViewSet(ModelViewSet):
-    queryset = Configuration.objects.all()
-    serializer_class = ConfigurationSerializer
-    filterset_class = ConfigurationFilterSet
 
 
 class DirectPeeringSessionViewSet(ModelViewSet):

@@ -1,5 +1,8 @@
 from collections import OrderedDict
 
+from devices.filters import ConfigurationFilterSet
+from devices.models import Configuration
+from devices.tables import ConfigurationTable
 from messaging.filters import EmailFilterSet
 from messaging.models import Email
 from messaging.tables import EmailTable
@@ -10,7 +13,6 @@ from peering.filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
     CommunityFilterSet,
-    ConfigurationFilterSet,
     DirectPeeringSessionFilterSet,
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
@@ -21,7 +23,6 @@ from peering.models import (
     AutonomousSystem,
     BGPGroup,
     Community,
-    Configuration,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -32,7 +33,6 @@ from peering.tables import (
     AutonomousSystemTable,
     BGPGroupTable,
     CommunityTable,
-    ConfigurationTable,
     DirectPeeringSessionTable,
     InternetExchangePeeringSessionTable,
     InternetExchangeTable,
@@ -46,6 +46,16 @@ __all__ = ("SEARCH_MAX_RESULTS", "SEARCH_TYPES")
 SEARCH_MAX_RESULTS = 15
 SEARCH_TYPES = OrderedDict(
     (
+        # devices
+        (
+            "configuration",
+            {
+                "queryset": Configuration.objects.all(),
+                "filterset": ConfigurationFilterSet,
+                "table": ConfigurationTable,
+                "url": "devices:configuration_list",
+            },
+        ),
         # messaging
         (
             "email",
@@ -105,15 +115,6 @@ SEARCH_TYPES = OrderedDict(
                 "filterset": DirectPeeringSessionFilterSet,
                 "table": DirectPeeringSessionTable,
                 "url": "peering:directpeeringsession_list",
-            },
-        ),
-        (
-            "configuration",
-            {
-                "queryset": Configuration.objects.all(),
-                "filterset": ConfigurationFilterSet,
-                "table": ConfigurationTable,
-                "url": "peering:configuration_list",
             },
         ),
         (

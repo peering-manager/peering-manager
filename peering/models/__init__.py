@@ -9,14 +9,12 @@ from .models import (
     Router,
     RoutingPolicy,
 )
-from .templates import Configuration
 
 __all__ = (
     "AutonomousSystem",
     "BGPGroup",
     "BGPSession",
     "Community",
-    "Configuration",
     "DirectPeeringSession",
     "InternetExchange",
     "InternetExchangePeeringSession",

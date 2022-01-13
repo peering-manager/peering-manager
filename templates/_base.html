@@ -106,21 +106,21 @@
                 <span class="menu-collapsed">Routing Policies</span>
               </a>
             </div>
-            <a href="#deployment_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/configurations/,/platforms/,/routers/' %} active{% endif %}">
+            <a href="#devices_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/devices/,/routers/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                <span class="menu-collapsed">Deployment</span>
+                <span class="menu-collapsed">Devices</span>
                 <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
               </div>
             </a>
-            <div id="deployment_menu_id" class="collapse sidebar-submenu">
-              <a href="{% url 'devices:platform_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/platforms/' %} active{% endif %}">
-                <span class="menu-collapsed">Platforms</span>
+            <div id="devices_menu_id" class="collapse sidebar-submenu">
+              <a href="{% url 'devices:configuration_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/devices/configurations/' %} active{% endif %}">
+                <span class="menu-collapsed">Configurations</span>
               </a>
               <a href="{% url 'peering:router_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/routers/' %} active{% endif %}">
                 <span class="menu-collapsed">Routers</span>
               </a>
-              <a href="{% url 'peering:configuration_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/configurations/' %} active{% endif %}">
-                <span class="menu-collapsed">Configurations</span>
+              <a href="{% url 'devices:platform_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/devices/platforms/' %} active{% endif %}">
+                <span class="menu-collapsed">Platforms</span>
               </a>
             </div>
             <a href="#messaging_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/messaging/' %} active{% endif %}">
