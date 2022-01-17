@@ -139,7 +139,7 @@ class DirectPeeringSessionTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "local_autonomous_system": local_as.pk,
             "local_ip_address": None,
             "autonomous_system": a_s.pk,
-            "ip_address": ipaddress.ip_address("2001:db8::4"),
+            "ip_address": ipaddress.ip_interface("2001:db8::4/128"),
             "multihop_ttl": 1,
             "relationship": relationship_private_peering.pk,
             "password": None,

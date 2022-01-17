@@ -487,11 +487,12 @@ class DirectPeeringSession(BGPSession):
         null=True,
     )
     local_ip_address = InetAddressField(
-        store_prefix_length=False,
+        store_prefix_length=True,
         blank=True,
         null=True,
         verbose_name="Local IP address",
     )
+    ip_address = InetAddressField(store_prefix_length=True, verbose_name="IP address")
     bgp_group = models.ForeignKey(
         to="peering.BGPGroup",
         blank=True,
@@ -510,6 +511,18 @@ class DirectPeeringSession(BGPSession):
             "local_autonomous_system",
             "autonomous_system",
             "ip_address",
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "local_autonomous_system",
+                    "autonomous_system",
+                    "local_ip_address",
+                    "ip_address",
+                    "relationship",
+                ],
+                name="unique_directpeeringsession_as_ip_relationship",
+            )
         ]
 
     def __str__(self):

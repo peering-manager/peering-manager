@@ -2,6 +2,7 @@
 
 import argparse
 import json
+
 import requests
 
 
@@ -19,11 +20,10 @@ def setup_cli():
 def read_json(filename):
     with open(filename, "r") as json_file:
         return json.load(json_file)
-    return None
 
 
 def call_api(url, token, data):
-    headers = {"accept": "application/json", "authorization": "Token {}".format(token)}
+    headers = {"accept": "application/json", "authorization": f"Token {token}"}
     r = requests.post(url, headers=headers, json=data)
     r.raise_for_status()
 

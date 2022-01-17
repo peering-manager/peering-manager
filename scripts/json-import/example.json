@@ -1,13 +1,19 @@
 [
     {
         "asn": "201281",
+        "name": "Guillaume Mazoyer",
         "comment": "The developer of Peering Manager",
-        "ipv4_max_prefixes": "0",
-        "ipv4_max_prefixes_peeringdb_sync": true,
-        "ipv6_max_prefixes": "1",
-        "ipv6_max_prefixes_peeringdb_sync": true,
         "irr_as_set": "RIPE::AS-MAZOYER-EU",
         "irr_as_set_peeringdb_sync": true,
-        "name": "Guillaume Mazoyer"
+        "ipv6_max_prefixes": "5",
+        "ipv6_max_prefixes_peeringdb_sync": true,
+        "ipv4_max_prefixes": "5",
+        "ipv4_max_prefixes_peeringdb_sync": true,
+        "import_routing_policies": [],
+        "export_routing_policies": [],
+        "communities": [],
+        "prefixes": null,
+        "affiliated": false,
+        "tags": []
     }
 ]

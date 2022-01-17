@@ -286,13 +286,13 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        # Make sure that both local and remote IP addresses are from the same family
-        if cleaned_data["local_ip_address"] and (
-            cleaned_data["local_ip_address"].version
-            != cleaned_data["ip_address"].version
-        ):
+        ip_src = cleaned_data["local_ip_address"]
+        ip_dst = cleaned_data["ip_address"]
+
+        # Make sure that both local qnd remote IP addresses belong in the same subnet
+        if ip_src and (ip_src.network != ip_dst.network):
             raise ValidationError(
-                "Local and remote IP addresses must belong to the same address family."
+                f"{ip_src} and {ip_dst} don't belong to the same subnet."
             )
 
         # Make sure that routing policies are compatible (address family)
@@ -301,7 +301,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         ):
             if (
                 policy.address_family != IPFamily.ALL
-                and policy.address_family != cleaned_data["ip_address"].version
+                and policy.address_family != ip_dst.version
             ):
                 raise ValidationError(
                     f"Routing policy '{policy.name}' cannot be used for this session, address families mismatch."

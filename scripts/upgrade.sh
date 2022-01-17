@@ -90,7 +90,7 @@ $DRY python manage.py invalidate all || exit 1
 
 if [ -n "${WARN_MISSING_VENV}" ]; then
   echo "--------------------------------------------------------------------"
-  echo "⚠️   No existing virtual environment was detected. A new one has"
+  echo "⚠️  No existing virtual environment was detected. A new one has"
   echo "been created. Update your systemd service files to reflect the new"
   echo "Python and gunicorn executables."
   echo ""

@@ -221,19 +221,19 @@ class DirectPeeringSessionTest(StandardAPITestCases.View):
                 "local_autonomous_system": local_autonomous_system.pk,
                 "autonomous_system": autonomous_system.pk,
                 "relationship": relationship_private_peering.pk,
-                "ip_address": "198.51.100.1",
+                "ip_address": "198.51.100.1/32",
             },
             {
                 "local_autonomous_system": local_autonomous_system.pk,
                 "autonomous_system": autonomous_system.pk,
                 "relationship": relationship_private_peering.pk,
-                "ip_address": "198.51.100.2",
+                "ip_address": "198.51.100.2/32",
             },
             {
                 "local_autonomous_system": local_autonomous_system.pk,
                 "autonomous_system": autonomous_system.pk,
                 "relationship": relationship_private_peering.pk,
-                "ip_address": "198.51.100.3",
+                "ip_address": "198.51.100.3/32",
             },
         ]
 

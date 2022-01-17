@@ -1,4 +1,4 @@
-from ipaddress import IPv6Interface
+import ipaddress
 
 from net.enums import ConnectionState
 from net.models import Connection
@@ -54,7 +54,7 @@ class ConnectionTestCase(ViewTestCases.ContextualObjectViewTestCase):
             "peeringdb_netixlan": None,
             "state": ConnectionState.ENABLED,
             "vlan": 2004,
-            "ipv6_address": IPv6Interface("2001:db8::4/64"),
+            "ipv6_address": ipaddress.ip_interface("2001:db8::4/64"),
             "ipv4_address": None,
             "internet_exchange_point": internet_exchange_point.pk,
             "router": router.pk,
