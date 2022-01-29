@@ -3,9 +3,9 @@ from collections import OrderedDict
 from devices.filters import ConfigurationFilterSet
 from devices.models import Configuration
 from devices.tables import ConfigurationTable
-from messaging.filters import EmailFilterSet
-from messaging.models import Email
-from messaging.tables import EmailTable
+from messaging.filters import ContactFilterSet, EmailFilterSet
+from messaging.models import Contact, Email
+from messaging.tables import ContactTable, EmailTable
 from net.filters import ConnectionFilterSet
 from net.models import Connection
 from net.tables import ConnectionTable
@@ -57,6 +57,15 @@ SEARCH_TYPES = OrderedDict(
             },
         ),
         # messaging
+        (
+            "contact",
+            {
+                "queryset": Contact.objects.all(),
+                "filterset": ContactFilterSet,
+                "table": ContactTable,
+                "url": "messaging:contact_list",
+            },
+        ),
         (
             "email",
             {
