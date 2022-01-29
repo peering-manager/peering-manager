@@ -4,6 +4,8 @@ Some Internet exchange points can provide access to IX-API instance that hold
 details about services and features available to members as well as the ones
 a member already subscribed to.
 
+Supported IX-API versions are `v1` and `v2`.
+
 ## In Peering Manager
 
 Inside Peering Manager, you create an IX-API object and then assign it to
@@ -14,4 +16,4 @@ in the IXP detail view.
 * `URL`: the URL to connect to the remote IX-API.
 * `API key`: the unique key to connect to IX-API.
 * `API secret`: the unique secret to connect to IX-API.
-* `Identity`: the customer object found in IX-API to be used as primary identity.
+* `Identity`: the account object found in IX-API to be used as primary identity.
