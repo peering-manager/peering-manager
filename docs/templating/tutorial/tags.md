@@ -1,4 +1,5 @@
 # Use of _Tags_
+
 Peering Manager offers _tags_ you can attach to nearly all elements.
 They are a great tool to put optional configurations into your template -
 so no need to request a new checkbox or button for every BGP option you do not
@@ -10,6 +11,7 @@ This page shows what currently works in version 1.4.4 and will be changed once
 there is a new version.
 
 ## Example: Using a tag for not enforcing the first AS in an AS path
+
 A common BGP security feature is to check if the first AS in the AS path
 you receive is the same as the AS of your peer.
 However, this must be switched off for IXPs route servers
@@ -22,7 +24,7 @@ Coding this for route server can be done as follows:
     {%- for ixp in internet_exchange_points %}
       {%- for session in ixp |  sessions %}
         {%- if session.enabled %}
-        neighbor {{ session.ip_address }}
+        neighbor {{ session | ip }}
         remote-as {{ session.autonomous_system.asn }}
         description {{ session.autonomous_system.name | safe_string }}
         {%-if session.is_route_server %}
@@ -50,7 +52,7 @@ In this example I show this for _direct sessions_:
     {%- for as in autonomous_systems %}
       {%- for session in as | direct_sessions %}
         {%- if session.enabled %}
-        neighbor {{ session.ip_address }}
+        neighbor {{ session | ip }}
         remote-as {{ session.autonomous_system.asn }}
         description {{ session.autonomous_system.name | safe_string }}
         {% for tag in session.tags.all() %}

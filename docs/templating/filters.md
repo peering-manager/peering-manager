@@ -24,7 +24,7 @@ Returns an iterable structure for all tags assigned to an object.
 Example:
 
 ```no-highlight
-Tags: {{ ixp | tags }}
+Tags: {{ ixp | tags }}
 ```
 
 ## `has_tag` / `has_not_tag`
@@ -34,8 +34,8 @@ Returns a boolean telling if a tag is or is not applied to an object.
 Example:
 
 ```no-highlight
-{% if ixp | has_tag('remote-peering') %}
-{% if ixp | has_not_tag('remote-peering') %}
+{% if ixp | has_tag('remote-peering') %}
+{% if ixp | has_not_tag('remote-peering') %}
 ```
 
 ## `ipv4` / `ipv6`
@@ -49,6 +49,18 @@ Example:
 
 ```no-highlight
 {% if session.ip_address | ipv6 %}
+```
+
+## `ip`
+
+Returns the IP address without the prefix length for a BGP session. The
+returned value is a string.
+
+Example:
+```no-highlight
+{% for session in ixp | sessions %}
+{{ session | ip }}
+{% endfor %}
 ```
 
 ## `length` / `len` / `count`
@@ -83,7 +95,7 @@ filter will behave in the exact same way as `filter`.
 Example:
 
 ```no-highlight
-My AS is {{ affiliated_autonomous_systems | get(asn=64500) }}
+My AS is {{ affiliated_autonomous_systems | get(asn=64500) }}
 ```
 
 ## `iterate`

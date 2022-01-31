@@ -1,3 +1,5 @@
+import ipaddress
+
 from django.test import TestCase
 
 from net.models import Connection
@@ -135,6 +137,23 @@ class Jinja2FilterTestCase(TestCase):
         self.assertFalse(FILTER_DICT["ipv6"](self.session4.ip_address))
         self.assertFalse(FILTER_DICT["ipv6"](self.ixp_connection.ipv4_address))
         self.assertFalse(FILTER_DICT["ipv6"]("notanip"))
+
+    def test_ip(self):
+        ip = "2001:db8::1"
+        self.session6.ip_address = ip
+        self.assertEqual(ip, FILTER_DICT["ip"](self.session6))
+        self.session6.ip_address = ipaddress.ip_address(ip)
+        self.assertEqual(ip, FILTER_DICT["ip"](self.session6))
+        self.session6.ip_address = ipaddress.ip_interface(f"{ip}/64")
+        self.assertEqual(ip, FILTER_DICT["ip"](self.session6))
+
+        ip = "192.0.2.10"
+        self.session4.ip_address = ip
+        self.assertEqual(ip, FILTER_DICT["ip"](self.session4))
+        self.session4.ip_address = ipaddress.ip_address(ip)
+        self.assertEqual(ip, FILTER_DICT["ip"](self.session4))
+        self.session4.ip_address = ipaddress.ip_interface(f"{ip}/24")
+        self.assertEqual(ip, FILTER_DICT["ip"](self.session4))
 
     def test_ip_version(self):
         self.assertEqual(6, FILTER_DICT["ip_version"](self.session6))

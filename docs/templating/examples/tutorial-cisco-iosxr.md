@@ -181,7 +181,7 @@ router bgp {{ local_as.asn }}
 {%- for ixp in internet_exchange_points %}
   {%- for session in ixp |  sessions %}
     {%- if session.enabled %}
-  neighbor {{ session.ip_address }}
+  neighbor {{ session | ip }}
      remote-as {{ session.autonomous_system.asn }}
      description {{ session.autonomous_system.name | safe_string }}
       {%- if session.encrypted_password %}
@@ -204,7 +204,7 @@ router bgp {{ local_as.asn }}
       maximum-prefix {{ session | max_prefix }} 95
       {%- endif %}
     {%- else %}
-   no neighbor {{ session.ip_address }}
+   no neighbor {{ session | ip }}
     {%-endif%}
   {%-endfor%}
 {%-endfor%}

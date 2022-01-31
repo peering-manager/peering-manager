@@ -158,26 +158,26 @@ router bgp {{ local_as.asn }}
   {%- for session in ixp |  sessions %}
     {%- if session.enabled %}
     ! AS{{ session.autonomous_system.asn }} - {{ session.autonomous_system.name | safe_string }}
-    neighbor {{ session.ip_address }} remote-as {{ session.autonomous_system.asn }}
-    neighbor {{ session.ip_address }} description {{ session.autonomous_system.name | safe_string }}
+    neighbor {{ session | ip }} remote-as {{ session.autonomous_system.asn }}
+    neighbor {{ session | ip }} description {{ session.autonomous_system.name | safe_string }}
         {%- if session.encrypted_password %}
-    neighbor {{ session.ip_address }} password encrypted {{ session.encrypted_password | cisco_password }}
+    neighbor {{ session | ip }} password encrypted {{ session.encrypted_password | cisco_password }}
         {%- elif session.password %}
-    neighbor {{ session.ip_address }} password clear {{ session.password }}
+    neighbor {{ session | ip }} password clear {{ session.password }}
         {%- endif %}
     address-family ipv{{ session | ip_version }} unicast
-      neighbor {{ session.ip_address }} activate
-      neighbor {{ session.ip_address }} route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-in in
-      neighbor {{ session.ip_address }} route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-out out
-      neighbor {{ session.ip_address }} prefix-list {{p}}from-as{{session.autonomous_system.asn}} in
-      neighbor {{ session.ip_address }} send-community both
-      neighbor {{ session.ip_address }} remove-private-as
+      neighbor {{ session | ip }} activate
+      neighbor {{ session | ip }} route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-in in
+      neighbor {{ session | ip }} route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-out out
+      neighbor {{ session | ip }} prefix-list {{p}}from-as{{session.autonomous_system.asn}} in
+      neighbor {{ session | ip }} send-community both
+      neighbor {{ session | ip }} remove-private-as
         {%- if session | max_prefix %}
-      neighbor {{ session.ip_address }} maximum-prefix {{ session | max_prefix }} 95
+      neighbor {{ session | ip }} maximum-prefix {{ session | max_prefix }} 95
         {%- endif %}
     exit-address-family
     {%- else %}
-   no neighbor {{ session.ip_address }}
+   no neighbor {{ session | ip }}
     {%-endif%}
   {%-endfor%}
 {%-endfor%}
@@ -194,26 +194,26 @@ router bgp {{ local_as.asn }}
   {%- for session in as | direct_sessions %}
     {%- if session.enabled %}
   ! AS{{ session.autonomous_system.asn }} - {{ session.autonomous_system.name | safe_string }}
-  neighbor {{ session.ip_address }} remote-as {{ session.autonomous_system.asn }}
-  neighbor {{ session.ip_address }} description {{ session.autonomous_system.name | safe_string }}
+  neighbor {{ session | ip }} remote-as {{ session.autonomous_system.asn }}
+  neighbor {{ session | ip }} description {{ session.autonomous_system.name | safe_string }}
       {%- if session.encrypted_password %}
-  neighbor {{ session.ip_address }} password encrypted {{ session.encrypted_password | cisco_password }}
+  neighbor {{ session | ip }} password encrypted {{ session.encrypted_password | cisco_password }}
       {%- elif session.password %}
-  neighbor {{ session.ip_address }} password clear {{ session.password }}
+  neighbor {{ session | ip }} password clear {{ session.password }}
       {%- endif %}
   address-family ipv{{ session | ip_version }} unicast
-    neighbor {{ session.ip_address }} activate
-    neighbor {{ session.ip_address }} route-map {{p}}{{session.relationship}}-out out
-    neighbor {{ session.ip_address }} route-map {{p}}{{session.relationship}}-in in
-    neighbor {{ session.ip_address }} prefix-list {{p}}from-as{{as.asn}} in
-    neighbor {{ session.ip_address }} send-community both
-    neighbor {{ session.ip_address }} remove-private-as
+    neighbor {{ session | ip }} activate
+    neighbor {{ session | ip }} route-map {{p}}{{session.relationship}}-out out
+    neighbor {{ session | ip }} route-map {{p}}{{session.relationship}}-in in
+    neighbor {{ session | ip }} prefix-list {{p}}from-as{{as.asn}} in
+    neighbor {{ session | ip }} send-community both
+    neighbor {{ session | ip }} remove-private-as
       {%- if session | max_prefix %}
-    neighbor {{ session.ip_address }} maximum-prefix {{ session | max_prefix }} 95
+    neighbor {{ session | ip }} maximum-prefix {{ session | max_prefix }} 95
       {%- endif %}
   exit-address-family
     {%- else %}
-   no neighbor {{ session.ip_address }}
+   no neighbor {{ session | ip }}
     {%-endif%}
   {%-endfor%}
 {%-endfor%}

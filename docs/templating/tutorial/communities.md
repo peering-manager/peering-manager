@@ -1,4 +1,5 @@
 # BGP Communities
+
 Peering Manager allows communities to be applied to the following parts of the
 configuration:
 

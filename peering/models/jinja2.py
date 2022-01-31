@@ -52,6 +52,22 @@ def ipv6(value):
     return None
 
 
+def ip(value):
+    """
+    Returns the remote IP of a BGP session.
+    """
+    if not isinstance(value, BGPSession):
+        raise ValueError("value is not a bgp session")
+
+    ip = value.ip_address
+    if type(ip) in (ipaddress.IPv4Interface, ipaddress.IPv6Interface):
+        return str(ip.ip)
+    elif type(ip) in (ipaddress.IPv4Address, ipaddress.IPv6Address):
+        return str(ip)
+    else:
+        return ip
+
+
 def ip_version(value):
     """
     Returns the IP version of a BGP session.
@@ -477,6 +493,7 @@ FILTER_DICT = {
     "ixp_sessions": ixp_sessions,
     "sessions": sessions,
     "route_server": route_server,
+    "ip": ip,
     "ip_version": ip_version,
     "max_prefix": max_prefix,
     "cisco_password": cisco_password,

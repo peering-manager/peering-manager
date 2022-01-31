@@ -1,9 +1,11 @@
 # AS-based template parts
+
 In this chapter we show how the information Peering Manager contains
 about Autonomous Systems can be put into a template.
 
 
 ## Prefix Filtering
+
 Peering Manager has the ability to pull all prefixes an AS should announce from
 the Internet Registries.
 Here we show how you can put this information into filter lists for
@@ -30,7 +32,7 @@ prefixes for an AS.
 
     ```no-highlight
     {%- for as in autonomous_systems %}
-      {%- if as | has_tag("prefix-filter") and as.prefixes}
+      {%- if as | has_tag("prefix-filter") and as.prefixes}
     !
     ! Prefix-list for AS{{as.asn}}
     !
@@ -74,7 +76,7 @@ prefixes for an AS.
 
     ```no-highlight
     {%- for as in autonomous_systems %}
-      {%- if as | has_tag("prefix-filter") and as.prefixes}
+      {%- if as | has_tag("prefix-filter") and as.prefixes}
     !
     ! Prefix-lists for AS{{as.asn}}
     ! {{as.name}}

@@ -1,4 +1,5 @@
 # Templating Tutorial - Getting Started
+
 This tutorial will try to enable you to write your own templates or modify
 one of the examples to your needs.
 On this page we develop a basic template for Peering Manager.
@@ -92,6 +93,7 @@ in the template:
 
 
 ## Platform specialities
+
 All platforms are different and some platforms lack certain features.
 Peering Manager itself is platform independent.
 That does not mean that everything you configure inside Peering Manager can be 
@@ -101,6 +103,7 @@ This overview here will focus on the limits of the platforms featured in the
 examples of this tutorial.
 
 ### Cisco IOS XR
+
 The 'modern' Cisco platform.
 Lots of features and nearly everything can be put into a template.
 One issue to be aware of are the handling of _BGP Communities_
@@ -118,6 +121,7 @@ To check out if the resulting policy is ok, you can use
 ```show rpl route-policy _name_ inline``` command.
 
 ### Cisco IOS
+
 The 'old' Cisco platform - quite limited in features.
 You can attach only _one_ route-map to each BGP session.
 So if you have multiple policies applied to various elements,
@@ -129,6 +133,7 @@ check the configuration produced before you apply it.
 
 
 ## Configuration design
+
 For all configs the following design decisions are applied:
 
 * We distinguish between three types of eBGP sessions:
@@ -254,6 +259,7 @@ apply them to the IXP, no need to also apply them to every AS.
     Customers" community as _ingress_ BGP community.
 
 ## Prefix filtering
+
 Peering Manager uses [bgpq3](http://snar.spb.ru/prog/bgpq3/) to build prefix
 filters.
 You might not want that for every peer, especially if you peer with a
@@ -301,7 +307,7 @@ To enable filtering for a peering AS, we use a _tag_.
     This is later attached to the BGP session like this:
     ```
     ...
-      neighbor {{ session.ip_address }} prefix-list {{p}}from-as{{as.asn}} in
+      neighbor {{ session | ip }} prefix-list {{p}}from-as{{as.asn}} in
     ...
     ```
 
@@ -736,10 +742,12 @@ Now we define templates for the different platforms.
       # end-apply pm-ix-de-cix-frankfurt-out
     end-policy
     ```
+
     So if the community for exporting to peers (65500:42000) is not set,
     policy _pm-peering-out_ takes care that the announcement is dropped.
 
 ## BGP Sessions
+
 At last we now create the template for the IXP BGP sessions
 (direct sessions are not hanled in this tutorial).
 
@@ -760,26 +768,26 @@ peer entries for both IPv4 and IPv6.
       {%- for session in ixp |  sessions %}
         {%- if session.enabled %}
         ! AS{{ session.autonomous_system.asn }} - {{ session.autonomous_system.name | safe_string }}
-        neighbor {{ session.ip_address }} remote-as {{ session.autonomous_system.asn }}
-        neighbor {{ session.ip_address }} description {{ session.autonomous_system.name | safe_string }}
+        neighbor {{ session | ip }} remote-as {{ session.autonomous_system.asn }}
+        neighbor {{ session | ip }} description {{ session.autonomous_system.name | safe_string }}
         {%- if session.encrypted_password %}
-        neighbor {{ session.ip_address }} password encrypted {{ session.encrypted_password | cisco_password }}
+        neighbor {{ session | ip }} password encrypted {{ session.encrypted_password | cisco_password }}
         {%- elif session.password %}
-        neighbor {{ session.ip_address }} password clear {{ session.password }}
+        neighbor {{ session | ip }} password clear {{ session.password }}
         {%- endif %}
         address-family ipv{{ session | ip_version }} unicast
-          neighbor {{ session.ip_address }} activate
-          neighbor {{ session.ip_address }} route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-in in
-          neighbor {{ session.ip_address }} route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-out out
-          neighbor {{ session.ip_address }} prefix-list {{p}}from-as{{session.autonomous_system.asn}} in
-          neighbor {{ session.ip_address }} send-community both
-          neighbor {{ session.ip_address }} remove-private-as
+          neighbor {{ session | ip }} activate
+          neighbor {{ session | ip }} route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-in in
+          neighbor {{ session | ip }} route-map {{p}}session-as{{session.autonomous_system.asn}}-id{{session.id}}-out out
+          neighbor {{ session | ip }} prefix-list {{p}}from-as{{session.autonomous_system.asn}} in
+          neighbor {{ session | ip }} send-community both
+          neighbor {{ session | ip }} remove-private-as
             {%- if session | max_prefix %}
-          neighbor {{ session.ip_address }} maximum-prefix {{ session | max_prefix }} 95
+          neighbor {{ session | ip }} maximum-prefix {{ session | max_prefix }} 95
             {%- endif %}
         exit-address-family
         {%- else %}
-       no neighbor {{ session.ip_address }}
+       no neighbor {{ session | ip }}
         {%-endif%}
       {%-endfor%}
     {%-endfor%}
@@ -834,7 +842,7 @@ peer entries for both IPv4 and IPv6.
     {%- for ixp in internet_exchange_points %}
       {%- for session in ixp |  sessions %}
         {%- if session.enabled %}
-      neighbor {{ session.ip_address }}
+      neighbor {{ session | ip }}
          remote-as {{ session.autonomous_system.asn }}
          description {{ session.autonomous_system.name | safe_string }}
           {%- if session.encrypted_password %}
@@ -857,7 +865,7 @@ peer entries for both IPv4 and IPv6.
           maximum-prefix {{ session | max_prefix }} 95
           {%- endif %}
         {%- else %}
-       no neighbor {{ session.ip_address }}
+       no neighbor {{ session | ip }}
         {%-endif%}
       {%-endfor%}
     {%-endfor%}
@@ -890,7 +898,9 @@ peer entries for both IPv4 and IPv6.
       maximum-prefix 100 95
 
     ```
+
 ## Complete Examples
+
 You can find the complete examples built here in the examples section:
 
 * [Cisco IOS-XR from this tutorial](../examples/tutorial-cisco-iosxr.md)
