@@ -294,13 +294,15 @@ that these filters will not traverse relationships, therefore, they will not
 fetch AS policies for a session (for instance).
 
 You can use a string as an option to these filters to select only a specific
-field of the policies.
+field of the policies. Another optional argument named family can be used to
+get policies only matching a given address family. Values for the family
+parameter can be `4` or `6`.
 
 Examples:
 
 ```no-highlight
 export [ {{ session | iter_export_policies('slug') | join(' ') }} ];
-import [ {{ session | iter_import_policies('slug') | join(' ') }} ];
+import [ {{ session | iter_import_policies(field='slug', family=6) | join(' ') }} ];
 ```
 
 ## `merge_export_policies` / `merge_import_policies`

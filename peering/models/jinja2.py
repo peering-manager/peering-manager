@@ -6,6 +6,7 @@ from django.db.models.query import QuerySet
 
 from devices.crypto.cisco import MAGIC as CISCO_MAGIC
 from net.models import Connection
+from peering.enums import IPFamily
 from peering.models.abstracts import BGPSession
 from peering.models.models import (
     AutonomousSystem,
@@ -161,9 +162,13 @@ def iterate(value, field):
         yield getattr(item, field, None)
 
 
-def iter_export_policies(value, field=""):
+def iter_export_policies(value, field="", family=-1):
     """
     Returns a list of policies to apply on export.
+
+    An optional field can be passed as parameter to return only this field's value.
+    An optional family can be passed to return only policies matching the address
+    family.
     """
     if not hasattr(value, "export_policies"):
         raise AttributeError("{value} has not export policies")
@@ -171,15 +176,24 @@ def iter_export_policies(value, field=""):
     if type(field) is not str:
         raise AttributeError(f"field must be a string'")
 
+    if family in IPFamily.values:
+        policies = value.export_policies().filter(address_family__in=[0, family])
+    else:
+        policies = value.export_policies()
+
     if field:
-        return [getattr(rp, field) for rp in value.export_policies()]
+        return [getattr(p, field) for p in policies]
 
-    return list(value.export_policies())
+    return list(policies)
 
 
-def iter_import_policies(value, field=""):
+def iter_import_policies(value, field="", family=-1):
     """
     Returns a list of policies to apply on import.
+
+    An optional field can be passed as parameter to return only this field's value.
+    An optional family can be passed to return only policies matching the address
+    family.
     """
     if not hasattr(value, "import_policies"):
         raise AttributeError("{value} has not import policies")
@@ -187,10 +201,15 @@ def iter_import_policies(value, field=""):
     if type(field) is not str:
         raise AttributeError(f"field must be a string'")
 
-    if field:
-        return [getattr(rp, field) for rp in value.import_policies()]
+    if family in IPFamily.values:
+        policies = value.import_policies().filter(address_family__in=[0, family])
+    else:
+        policies = value.import_policies()
 
-    return list(value.import_policies())
+    if field:
+        return [getattr(p, field) for p in policies]
+
+    return list(policies)
 
 
 def communities(value, field=""):

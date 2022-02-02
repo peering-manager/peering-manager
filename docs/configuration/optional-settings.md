@@ -51,7 +51,7 @@ of logging, e.g. to write logs to file. Please consult the
 [Django logging documentation](https://docs.djangoproject.com/en/3.0/topics/logging/)
 for more information on configuring this setting.
 
---
+---
 
 ## RQ_DEFAULT_TIMEOUT
 

@@ -237,11 +237,49 @@ class Jinja2FilterTestCase(TestCase):
             ],
             FILTER_DICT["iter_export_policies"](self.session6),
         )
+        self.assertListEqual(
+            ["accept-all", "export-supernets"],
+            FILTER_DICT["iter_export_policies"](self.session6, field="slug"),
+        )
+        self.assertListEqual(
+            [RoutingPolicy.objects.get(slug="reject-all")],
+            FILTER_DICT["iter_export_policies"](self.ixp),
+        )
+        self.ixp.export_routing_policies.add(
+            RoutingPolicy.objects.get(slug="export-deaggregated-v4"),
+            RoutingPolicy.objects.get(slug="export-deaggregated-v6"),
+        )
+        self.assertListEqual(
+            [
+                RoutingPolicy.objects.get(slug="reject-all"),
+                RoutingPolicy.objects.get(slug="export-deaggregated-v6"),
+            ],
+            FILTER_DICT["iter_export_policies"](self.ixp, family=6),
+        )
 
     def test_iter_import_policies(self):
         self.assertListEqual(
             [RoutingPolicy.objects.get(slug="accept-all")],
             FILTER_DICT["iter_import_policies"](self.session6),
+        )
+        self.assertListEqual(
+            ["accept-all"],
+            FILTER_DICT["iter_import_policies"](self.session6, field="slug"),
+        )
+        self.assertListEqual(
+            [RoutingPolicy.objects.get(slug="reject-all")],
+            FILTER_DICT["iter_import_policies"](self.ixp),
+        )
+        self.ixp.import_routing_policies.add(
+            RoutingPolicy.objects.get(slug="export-deaggregated-v4"),
+            RoutingPolicy.objects.get(slug="export-deaggregated-v6"),
+        )
+        self.assertListEqual(
+            [
+                RoutingPolicy.objects.get(slug="reject-all"),
+                RoutingPolicy.objects.get(slug="export-deaggregated-v4"),
+            ],
+            FILTER_DICT["iter_import_policies"](self.ixp, family=4),
         )
 
     def test_merge_export_policies(self):
