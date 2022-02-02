@@ -62,6 +62,14 @@ class AutonomousSystemTest(StandardAPITestCases.View):
         cls.autonomous_system = AutonomousSystem.objects.get(asn=65536)
         load_peeringdb_data()
 
+    def test_poll_bgp_sessions(self):
+        url = reverse(
+            "peering-api:autonomoussystem-poll-bgp-sessions",
+            kwargs={"pk": self.autonomous_system.pk},
+        )
+        response = self.client.post(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
+
     def test_synchronize_with_peeringdb(self):
         autonomous_system = AutonomousSystem.objects.create(
             asn=201281, name="Test", irr_as_set="AS-TEST"
@@ -118,9 +126,9 @@ class BGPGroupTest(StandardAPITestCases.View):
             ]
         )
 
-    def test_poll_sessions(self):
+    def test_poll_bgp_sessions(self):
         url = reverse(
-            "peering-api:bgpgroup-poll-sessions",
+            "peering-api:bgpgroup-poll-bgp-sessions",
             kwargs={"pk": BGPGroup.objects.get(slug="example-1").pk},
         )
         response = self.client.post(url, **self.header)
@@ -312,9 +320,9 @@ class InternetExchangeTest(StandardAPITestCases.View):
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertDictEqual(response.data, {})
 
-    def test_poll_sessions(self):
+    def test_poll_bgp_sessions(self):
         url = reverse(
-            "peering-api:internetexchange-poll-sessions",
+            "peering-api:internetexchange-poll-bgp-sessions",
             kwargs={"pk": self.internet_exchange.pk},
         )
         response = self.client.post(url, **self.header)
@@ -449,6 +457,13 @@ class RouterTest(StandardAPITestCases.View):
     def test_configuration(self):
         url = reverse("peering-api:router-configuration", kwargs={"pk": self.router.pk})
         response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
+
+    def test_poll_bgp_sessions(self):
+        url = reverse(
+            "peering-api:router-poll-bgp-sessions", kwargs={"pk": self.router.pk}
+        )
+        response = self.client.post(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
 
     def test_test_napalm_connection(self):

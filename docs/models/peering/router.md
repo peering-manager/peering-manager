@@ -20,6 +20,8 @@ can be configured (n.b. some are optional):
 * `Encrypt Passwords`: an option to tell if protected BGP sessions use
   encrypted passwords and if Peering Manager should generate and record the
   encrypted password if it can.
+* `Poll BGP Sessions State`: whether Peering Manager should poll the state of
+  BGP sessions on the router.
 * `Configuration Template`: a template used generate the configuration of the
   router.
 * `Configuration Context`: a snippet of JSON that contains additional

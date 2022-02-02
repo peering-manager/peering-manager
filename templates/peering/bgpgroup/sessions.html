@@ -1,5 +1,8 @@
 {% extends 'peering/bgpgroup/_base.html' %}
 {% block subcontent %}
+{% if instance.are_bgp_sessions_pollable %}
+{% include 'includes/alerts_success_danger.html' %}
+{% endif %}
 <div class="row">
   <div class="col-md-9">
     {% include 'peering/bgpgroup/inc/sessions_table.html' with bulk_edit_url='peering:directpeeringsession_bulk_edit' bulk_delete_url='peering:directpeeringsession_bulk_delete' %}
@@ -11,22 +14,36 @@
 {% endblock %}
 {% block javascript %}
 <script>
+  {% if instance.are_bgp_sessions_pollable %}
   $('.alert').hide();
   $('.alert').on('click', '.close', function () {
     $(this).closest('.alert').slideUp();
   });
 
-  {% if instance.check_bgp_session_states %}
-  $('#id_poll_session_states').click(function () {
+  var jobResultURL = {% url 'extras:jobresult_list' %};
+  $('#id_poll_sessions_state').click(function () {
     $.ajax({
       method: 'post',
-      url: "{% url 'peering-api:bgpgroup-poll-sessions' pk=instance.pk %}",
+      url: "{% url 'peering-api:bgpgroup-poll-bgp-sessions' pk=instance.pk %}",
       headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
-      beforeSend: function () {
-        PeeringManager.setWorkingButton($('#id_poll_session_states'));
-      },
-    }).done(function () {
-      location.reload();
+    }).done(function (r) {
+      let message;
+      if (r.length < 1) {
+        return;
+      } else if (r.length == 1) {
+          message = 'BGP sessions polling <a href="' + jobResultURL + r[0].id + '" class="alert-link">background task</a> initiated';
+      } else {
+        message = 'BGP sessions polling background tasks initiated:<ul class="m-0">';
+        for (let i = 0; i < r.length; i++) {
+          message += '<li><a href="' + jobResultURL + r[i].id + '" class="alert-link">ID #' + r[i].id + '</a></li>';
+        }
+        message += '</ul>';
+      }
+      $('#id_message_success').html(message);
+      $('#id_alert_success').slideDown();
+    }).fail(function () {
+      $('#id_message_danger').html('Failure trying to schedule background tasks for polling BGP sessions.');
+      $('#id_alert_danger').slideDown();
     });
   });
   {% endif %}

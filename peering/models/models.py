@@ -202,6 +202,41 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
             )
         return NetworkIXLan.objects.filter(qs_filter)
 
+    def get_routers(self):
+        """
+        Returns all routers that have at least one BGP session with this autonomous
+        system (direct or over IXP).
+        """
+        connections = Connection.objects.filter(
+            pk__in=self.get_ixp_peering_sessions().values_list(
+                "ixp_connection", flat=True
+            )
+        )
+        routers = Router.objects.filter(
+            pk__in=self.get_direct_peering_sessions().values_list("router", flat=True)
+        )
+
+        if connections:
+            return routers.union(
+                Router.objects.filter(
+                    pk__in=connections.values_list("router", flat=True)
+                )
+            )
+        else:
+            return routers
+
+    def are_bgp_sessions_pollable(self):
+        """
+        Returns whether or not BGP sessions can be polled for the autonomous system.
+
+        If a router has its `poll_bgp_sessions_state` property set to a boolan true,
+        BGP sessions are considered as pollable.
+        """
+        for router in self.get_routers():
+            if router.poll_bgp_sessions_state:
+                return True
+        return False
+
     def synchronize_with_peeringdb(self):
         """
         Synchronizes AS properties with those found in PeeringDB.
@@ -254,7 +289,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
         # If fallback is triggered or no prefixes found, try prefix lookup by ASN
         if fallback or not prefixes["ipv6"] and not prefixes["ipv4"]:
             self.logger.debug(
-                f"falling back to AS number lookup to search for {self.asn} prefixes"
+                f"falling back to AS number lookup to search for AS{self.asn} prefixes"
             )
             prefixes["ipv6"].extend(
                 call_irr_as_set_resolver(f"AS{self.asn}", address_family=6)
@@ -366,84 +401,10 @@ class BGPGroup(AbstractGroup):
     def get_peering_sessions(self):
         return DirectPeeringSession.objects.filter(bgp_group=self)
 
-    def poll_peering_sessions(self):
-        if not self.check_bgp_session_states:
-            self.logger.debug(
-                'ignoring session states for %s, reason: "check disabled"',
-                self.name.lower(),
-            )
-            return False
-
-        peering_sessions = DirectPeeringSession.objects.prefetch_related(
-            "router"
-        ).filter(bgp_group=self)
-        if not peering_sessions:
-            # Empty result no need to go further
-            return False
-
-        # Get BGP neighbors details from router, but only get them once
-        bgp_neighbors_detail = {}
-        for session in peering_sessions:
-            if session.router not in bgp_neighbors_detail:
-                detail = session.router.get_bgp_neighbors_detail()
-                bgp_neighbors_detail.update(
-                    {
-                        session.router: session.router.bgp_neighbors_detail_as_list(
-                            detail
-                        )
-                    }
-                )
-
-        if not bgp_neighbors_detail:
-            # Empty result no need to go further
-            return False
-
-        with transaction.atomic():
-            for router, detail in bgp_neighbors_detail.items():
-                for session in detail:
-                    ip_address = session["remote_address"]
-                    self.logger.debug(
-                        "looking for session %s in %s", ip_address, self.name.lower()
-                    )
-
-                    try:
-                        peering_session = DirectPeeringSession.objects.get(
-                            ip_address=ip_address, bgp_group=self, router=router
-                        )
-
-                        # Get info that we are actually looking for
-                        state = session["connection_state"].lower()
-                        received = session["received_prefix_count"]
-                        advertised = session["advertised_prefix_count"]
-                        self.logger.debug(
-                            "found session %s in %s with state %s",
-                            ip_address,
-                            self.name.lower(),
-                            state,
-                        )
-
-                        # Update fields
-                        peering_session.bgp_state = state
-                        peering_session.received_prefix_count = (
-                            0 if received < 0 else received
-                        )
-                        peering_session.advertised_prefix_count = (
-                            0 if advertised < 0 else advertised
-                        )
-                        # Update the BGP state of the session
-                        if peering_session.bgp_state == BGPState.ESTABLISHED:
-                            peering_session.last_established_state = timezone.now()
-                        peering_session.save()
-                    except DirectPeeringSession.DoesNotExist:
-                        self.logger.debug(
-                            "session %s in %s not found", ip_address, self.name.lower()
-                        )
-
-            # Save last session states update
-            self.bgp_session_states_update = timezone.now()
-            self.save()
-
-        return True
+    def get_routers(self):
+        return Router.objects.filter(
+            pk__in=self.get_peering_sessions().values_list("router", flat=True)
+        )
 
 
 class Community(ChangeLoggedModel, TaggableModel):
@@ -532,32 +493,17 @@ class DirectPeeringSession(BGPSession):
         return reverse("peering:directpeeringsession_details", args=[self.pk])
 
     def poll(self):
-        # Check if we are able to get BGP details
-        log = 'ignoring session states on {}, reason: "{}"'
-        if not self.router or not self.router.platform:
-            log = log.format(str(self.ip_address).lower(), "no usable router attached")
-        elif self.bgp_group and not self.bgp_group.check_bgp_session_states:
-            log = log.format(self.name.lower(), "check disabled")
-        else:
-            log = None
-
-        # If we cannot check for BGP details, don't do anything
-        if log:
-            self.logger.debug(log)
+        if not self.router:
+            self.logger.debug(
+                f"cannot poll bgp session state for {self.ip_address}, no router"
+            )
             return False
 
-        # Get BGP session detail
-        bgp_neighbor_detail = self.router.get_bgp_neighbors_detail(
-            ip_address=self.ip_address
-        )
-        if bgp_neighbor_detail:
-            received = bgp_neighbor_detail["received_prefix_count"]
-            advertised = bgp_neighbor_detail["advertised_prefix_count"]
-
-            # Update fields
-            self.bgp_state = bgp_neighbor_detail["connection_state"].lower()
-            self.received_prefix_count = received if received > 0 else 0
-            self.advertised_prefix_count = advertised if advertised > 0 else 0
+        state = self.router.poll_bgp_session(self.ip_address)
+        if state:
+            self.bgp_state = state["bgp_state"]
+            self.received_prefix_count = state["received_prefix_count"]
+            self.advertised_prefix_count = state["advertised_prefix_count"]
             if self.bgp_state == BGPState.ESTABLISHED:
                 self.last_established_state = timezone.now()
             self.save()
@@ -760,79 +706,6 @@ class InternetExchange(AbstractGroup):
         return network_service
 
     @transaction.atomic
-    def poll_peering_sessions(self):
-        # Get connections to this IXP
-        connections = self.get_connections().filter(router__isnull=False)
-
-        # Check if we are able to get BGP details
-        log = 'ignoring session states on {}, reason: "{}"'
-        if connections.count() < 0:
-            log = log.format(self.name.lower(), "no connections with routers")
-        elif not self.check_bgp_session_states:
-            log = log.format(self.name.lower(), "check disabled")
-        else:
-            log = None
-
-        # If we cannot check for BGP details, don't do anything
-        if log:
-            self.logger.debug(log)
-            return False
-
-        for connection in connections:
-            # Get all BGP sessions detail
-            router = connection.router
-            bgp_neighbors_detail = router.get_bgp_neighbors_detail()
-
-            # An error occured, probably
-            if not bgp_neighbors_detail:
-                return False
-
-            for _, as_details in bgp_neighbors_detail.items():
-                for _, sessions in as_details.items():
-                    # Check BGP sessions found
-                    for session in sessions:
-                        ip_address = session["remote_address"]
-                        self.logger.debug(
-                            f"looking for session {ip_address} in {self.name.lower()}"
-                        )
-
-                        # Check if the BGP session is on this IX
-                        try:
-                            ixp_session = InternetExchangePeeringSession.objects.get(
-                                ip_address=ip_address, ixp_connection=connection
-                            )
-                            # Get the BGP state for the session
-                            state = session["connection_state"].lower()
-                            received = session["received_prefix_count"]
-                            advertised = session["advertised_prefix_count"]
-                            self.logger.debug(
-                                f"found session {ip_address} in {self.name.lower()} with state {state}"
-                            )
-
-                            # Update fields
-                            ixp_session.bgp_state = state
-                            ixp_session.received_prefix_count = (
-                                0 if received < 0 else received
-                            )
-                            ixp_session.advertised_prefix_count = (
-                                0 if advertised < 0 else advertised
-                            )
-                            # Update the BGP state of the session
-                            if ixp_session.bgp_state == BGPState.ESTABLISHED:
-                                ixp_session.last_established_state = timezone.now()
-                            ixp_session.save()
-                        except InternetExchangePeeringSession.DoesNotExist:
-                            self.logger.debug(
-                                f"session {ip_address} in {self.name.lower()} not found"
-                            )
-
-                # Save last session states update
-                self.bgp_session_states_update = timezone.now()
-                self.save()
-
-        return True
-
-    @transaction.atomic
     def import_sessions(self, connection):
         """
         Imports sessions setup on a connected router.
@@ -969,30 +842,17 @@ class InternetExchangePeeringSession(BGPSession):
         return reverse("peering:internetexchangepeeringsession_details", args=[self.pk])
 
     def poll(self):
-        # Check if we are able to get BGP details
-        log = 'ignoring session states on {}, reason: "{}"'
-        if not self.ixp_connection.router or not self.ixp_connection.router.platform:
-            log = log.format(str(self.ip_address).lower(), "no usable router attached")
-        else:
-            log = None
-
-        # If we cannot check for BGP details, don't do anything
-        if log:
-            self.logger.debug(log)
+        if not self.ixp_connection.router:
+            self.logger.debug(
+                f"cannot poll bgp session state for {self.ip_address}, no router"
+            )
             return False
 
-        # Get BGP session detail
-        bgp_neighbor_detail = self.ixp_connection.router.get_bgp_neighbors_detail(
-            ip_address=self.ip_address
-        )
-        if bgp_neighbor_detail:
-            received = bgp_neighbor_detail["received_prefix_count"]
-            advertised = bgp_neighbor_detail["advertised_prefix_count"]
-
-            # Update fields
-            self.bgp_state = bgp_neighbor_detail["connection_state"].lower()
-            self.received_prefix_count = received if received > 0 else 0
-            self.advertised_prefix_count = advertised if advertised > 0 else 0
+        state = self.ixp_connection.router.poll_bgp_session(self.ip_address)
+        if state:
+            self.bgp_state = state["bgp_state"]
+            self.received_prefix_count = state["received_prefix_count"]
+            self.advertised_prefix_count = state["advertised_prefix_count"]
             if self.bgp_state == BGPState.ESTABLISHED:
                 self.last_established_state = timezone.now()
             self.save()
@@ -1056,6 +916,13 @@ class Router(ChangeLoggedModel, TaggableModel):
         default=False,
         help_text="Try to encrypt passwords for peering sessions",
     )
+    poll_bgp_sessions_state = models.BooleanField(
+        blank=True,
+        default=False,
+        help_text="Enable polling of BGP sessions state",
+        verbose_name="Poll BGP sessions state",
+    )
+    poll_bgp_sessions_last_updated = models.DateTimeField(blank=True, null=True)
     configuration_template = models.ForeignKey(
         "devices.Configuration", blank=True, null=True, on_delete=models.SET_NULL
     )
@@ -1576,12 +1443,12 @@ class Router(ChangeLoggedModel, TaggableModel):
         Finds and returns a single BGP neighbor amongst others.
         """
         # NAPALM dict expected
-        if not isinstance(bgp_neighbors, dict):
+        if type(bgp_neighbors) is not dict:
             return None
 
         # Make sure to use an IP object
-        if isinstance(ip_address, str):
-            ip_address = ipaddress.ip_address(ip_address)
+        if type(ip_address) in (str, ipaddress.IPv4Address, ipaddress.IPv6Address):
+            ip_address = ipaddress.ip_interface(ip_address)
 
         for _, asn in bgp_neighbors.items():
             for _, neighbors in asn.items():
@@ -1589,7 +1456,7 @@ class Router(ChangeLoggedModel, TaggableModel):
                     neighbor_ip_address = ipaddress.ip_address(
                         neighbor["remote_address"]
                     )
-                    if ip_address == neighbor_ip_address:
+                    if ip_address.ip == neighbor_ip_address:
                         return neighbor
 
         return None
@@ -1609,20 +1476,18 @@ class Router(ChangeLoggedModel, TaggableModel):
 
         if opened:
             # Get all BGP neighbors on the router
-            self.logger.debug("getting bgp neighbors detail on %s", self.hostname)
+            self.logger.debug(f"getting bgp neighbors detail on {self.hostname}")
             bgp_neighbors_detail = device.get_bgp_neighbors_detail()
-            self.logger.debug("raw napalm output %s", bgp_neighbors_detail)
+            self.logger.debug(f"raw napalm output {bgp_neighbors_detail}")
             self.logger.debug(
-                "found %s vrfs with bgp neighbors on %s",
-                len(bgp_neighbors_detail),
-                self.hostname,
+                f"found {len(bgp_neighbors_detail)} vrfs with bgp neighbors on {self.hostname}"
             )
 
             # Close connection to the device
             closed = self.close_napalm_device(device)
             if not closed:
                 self.logger.debug(
-                    "error while closing connection with %s", self.hostname
+                    f"error while closing connection with {self.hostname}"
                 )
 
         return (
@@ -1641,15 +1506,13 @@ class Router(ChangeLoggedModel, TaggableModel):
         """
         bgp_neighbors_detail = []
 
-        self.logger.debug("getting bgp neighbors detail on %s", self.hostname)
+        self.logger.debug(f"getting bgp neighbors detail on {self.hostname}")
         bgp_neighbors_detail = NetBox().napalm(
             self.netbox_device_id, "get_bgp_neighbors_detail"
         )
-        self.logger.debug("raw napalm output %s", bgp_neighbors_detail)
+        self.logger.debug(f"raw napalm output {bgp_neighbors_detail}")
         self.logger.debug(
-            "found %s vrfs with bgp neighbors on %s",
-            len(bgp_neighbors_detail),
-            self.hostname,
+            f"found {len(bgp_neighbors_detail)} vrfs with bgp neighbors on {self.hostname}",
         )
 
         return (
@@ -1695,6 +1558,108 @@ class Router(ChangeLoggedModel, TaggableModel):
                 flattened.extend(bgp_neighbors_detail[vrf][asn])
 
         return flattened
+
+    def poll_bgp_session(self, ip_address):
+        """
+        Polls the state of a single session given its IP address.
+        """
+        if not self.is_usable_for_task():
+            return {}
+
+        # Get BGP session detail
+        bgp_neighbor_detail = self.get_bgp_neighbors_detail(ip_address=ip_address)
+        if bgp_neighbor_detail:
+            received = bgp_neighbor_detail["received_prefix_count"]
+            advertised = bgp_neighbor_detail["advertised_prefix_count"]
+
+            return {
+                "bgp_state": bgp_neighbor_detail["connection_state"].lower(),
+                "received_prefix_count": received if received > 0 else 0,
+                "advertised_prefix_count": advertised if advertised > 0 else 0,
+            }
+
+        return {}
+
+    @transaction.atomic
+    def poll_bgp_sessions(self):
+        """
+        Polls the state of all BGP sessions on this router and update the
+        corresponding IXP or direct sessions found in records.
+        """
+        if not self.is_usable_for_task():
+            self.logger.debug(
+                f"cannot poll bgp sessions state for {self.name.lower()}, disabled or platform unusable"
+            )
+            return False
+        if not self.poll_bgp_sessions_state:
+            self.logger.debug(
+                f"bgp sessions state polling disabled for {self.name.lower()}"
+            )
+            return False
+
+        directs = self.get_direct_peering_sessions()
+        ixps = self.get_ixp_peering_sessions()
+
+        if not directs and not ixps:
+            self.logger.debug(f"no bgp sessions attached to {self.name.lower()}")
+            return False
+
+        # Get BGP neighbors details from router, but only get them once
+        bgp_neighbors_detail = self.bgp_neighbors_detail_as_list(
+            self.get_bgp_neighbors_detail()
+        )
+        if not bgp_neighbors_detail:
+            self.logger.debug(f"no bgp sessions found on {self.name.lower()}")
+            return False
+
+        for neighbor_detail in bgp_neighbors_detail:
+            ip_address = neighbor_detail["remote_address"]
+            self.logger.debug(
+                f"looking for session {ip_address} in {self.name.lower()}"
+            )
+
+            # Check if the session is in our database, skip it if not
+            # NAPALM ignores prefix length, so __host is used to lookup the actual IP
+            match = directs.filter(ip_address__host=ip_address) or ixps.filter(
+                ip_address__host=ip_address
+            )
+            if not match:
+                self.logger.debug(
+                    f"session {ip_address} not found for {self.name.lower()}"
+                )
+                continue
+            if match.count() > 1:
+                self.logger.debug(
+                    f"multiple sessions found for {ip_address} and {self.name.lower()}, ignoring"
+                )
+                continue
+
+            # Get info that we are actually looking for
+            state = neighbor_detail["connection_state"].lower()
+            received = neighbor_detail["received_prefix_count"]
+            advertised = neighbor_detail["advertised_prefix_count"]
+            self.logger.debug(
+                f"found session {ip_address} on {self.name.lower()} in {state} state"
+            )
+
+            # Update fields
+            session = match.first()
+            session.bgp_state = state
+            session.received_prefix_count = 0 if received < 0 else received
+            session.advertised_prefix_count = 0 if advertised < 0 else advertised
+            # Update the BGP state of the session
+            if session.bgp_state == BGPState.ESTABLISHED:
+                session.last_established_state = timezone.now()
+            session.save()
+            self.logger.debug(
+                f"session {ip_address} on {self.name.lower()} saved as {state}"
+            )
+
+        # Save last session states update
+        self.poll_bgp_sessions_last_updated = timezone.now()
+        self.save()
+
+        return True
 
 
 class RoutingPolicy(ChangeLoggedModel, TaggableModel):

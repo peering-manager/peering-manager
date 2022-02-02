@@ -144,9 +144,7 @@ class DirectPeeringSessionTest(TestCase):
             asn=64500, name="Local Test", affiliated=True
         )
         cls.autonomous_system = AutonomousSystem.objects.create(asn=64501, name="Test")
-        cls.group = BGPGroup.objects.create(
-            name="Test Group", slug="testgroup", check_bgp_session_states=True
-        )
+        cls.group = BGPGroup.objects.create(name="Test Group", slug="testgroup")
         cls.router = Router.objects.create(
             local_autonomous_system=cls.local_as,
             name="Test",
@@ -201,10 +199,7 @@ class InternetExchangePeeringSessionTest(TestCase):
             platform=Platform.objects.get(name="Juniper Junos"),
         )
         cls.ixp = InternetExchange.objects.create(
-            local_autonomous_system=cls.local_as,
-            name="Test Group",
-            slug="testgroup",
-            check_bgp_session_states=True,
+            local_autonomous_system=cls.local_as, name="Test Group", slug="testgroup"
         )
         cls.ixp_connection = Connection.objects.create(
             vlan=2000, internet_exchange_point=cls.ixp, router=cls.router
@@ -292,6 +287,7 @@ class RouterTest(TestCase):
             name="Test",
             hostname="test.example.com",
             device_state=DeviceState.ENABLED,
+            poll_bgp_sessions_state=True,
         )
 
     def test_is_usable_for_task(self):
@@ -524,6 +520,39 @@ class RouterTest(TestCase):
                 self.bgp_neighbors_detail, ipaddress.ip_address("2001:db8::1")
             )
         )
+
+    def test_poll_bgp_sessions(self):
+        with patch(
+            "peering.models.Router.get_bgp_neighbors_detail",
+            return_value=load_json(
+                "peering/tests/fixtures/get_bgp_neighbors_detail.json"
+            ),
+        ):
+            self.assertFalse(self.router.poll_bgp_sessions())
+
+            autonomous_system = AutonomousSystem.objects.create(
+                asn=64666, name="Poll Testing"
+            )
+            group = BGPGroup.objects.create(name="Poll Testing", slug="poll-testing")
+            relationship = Relationship.objects.create(
+                name="Poll Testing", slug="poll-testing"
+            )
+            self.router.platform = Platform.objects.get(slug="juniper-junos")
+            self.router.save()
+            session = DirectPeeringSession.objects.create(
+                local_autonomous_system=self.local_as,
+                local_ip_address="2001:db8::2/126",
+                autonomous_system=autonomous_system,
+                bgp_group=group,
+                relationship=relationship,
+                ip_address=f"2001:db8::1/126",
+                enabled=True,
+                router=self.router,
+            )
+
+            self.assertTrue(self.router.poll_bgp_sessions())
+            session.refresh_from_db()
+            self.assertEqual(567_257, session.received_prefix_count)
 
     def test_set_napalm_configuration(self):
         error, changes = self.router.set_napalm_configuration(None)

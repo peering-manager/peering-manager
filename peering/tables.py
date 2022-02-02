@@ -104,7 +104,6 @@ class AutonomousSystemTable(BaseTable):
 class BGPGroupTable(BaseTable):
     pk = SelectColumn()
     name = tables.Column(linkify=True)
-    check_bgp_session_states = BooleanColumn(verbose_name="Poll Session States")
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     directpeeringsession_count = tables.Column(
@@ -120,7 +119,6 @@ class BGPGroupTable(BaseTable):
             "pk",
             "name",
             "slug",
-            "check_bgp_session_states",
             "import_routing_policies",
             "export_routing_policies",
             "directpeeringsession_count",
@@ -130,7 +128,6 @@ class BGPGroupTable(BaseTable):
         default_columns = (
             "pk",
             "name",
-            "check_bgp_session_states",
             "directpeeringsession_count",
             "actions",
         )
@@ -217,8 +214,6 @@ class InternetExchangeTable(BaseTable):
     pk = SelectColumn()
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     name = tables.Column(linkify=True)
-    check_bgp_session_states = BooleanColumn(verbose_name="Check Sessions")
-    bgp_session_states_update = tables.Column(verbose_name="Last Sessions Check")
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     connection_count = tables.Column(
@@ -237,8 +232,6 @@ class InternetExchangeTable(BaseTable):
             "slug",
             "import_routing_policies",
             "export_routing_policies",
-            "check_bgp_session_states",
-            "bgp_session_states_update",
             "connection_count",
             "tags",
             "actions",
@@ -355,6 +348,7 @@ class RouterTable(BaseTable):
     name = tables.Column(linkify=True)
     platform = tables.Column(linkify=True)
     encrypt_passwords = BooleanColumn(verbose_name="Encrypt Password")
+    poll_bgp_sessions_state = BooleanColumn(verbose_name="Poll BGP Sessions")
     configuration_template = tables.Column(linkify=True, verbose_name="Configuration")
     connection_count = tables.Column(
         verbose_name="Connections",
@@ -380,6 +374,8 @@ class RouterTable(BaseTable):
             "hostname",
             "platform",
             "encrypt_passwords",
+            "poll_bgp_sessions_state",
+            "poll_bgp_sessions_last_updated",
             "configuration_template",
             "connection_count",
             "directpeeringsession_count",
@@ -394,6 +390,7 @@ class RouterTable(BaseTable):
             "hostname",
             "platform",
             "encrypt_passwords",
+            "poll_bgp_sessions_state",
             "configuration_template",
             "connection_count",
             "device_state",

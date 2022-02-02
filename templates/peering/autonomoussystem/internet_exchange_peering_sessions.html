@@ -1,6 +1,9 @@
 {% extends 'peering/autonomoussystem/_base.html' %}
 {% load render_table from django_tables2 %}
 {% block subcontent %}
+{% if instance.are_bgp_sessions_pollable %}
+{% include 'includes/alerts_success_danger.html' %}
+{% endif %}
 <div class="row">
   <div class="col-md-9">
     {% include 'peering/autonomoussystem/inc/internet_exchange_peering_sessions_table.html' with bulk_edit_url='peering:internetexchangepeeringsession_bulk_edit' bulk_delete_url='peering:internetexchangepeeringsession_bulk_delete' %}
@@ -9,4 +12,41 @@
     {% include 'utils/search_form.html' %}
   </div>
 </div>
+{% endblock %}
+{% block javascript %}
+<script>
+  {% if instance.are_bgp_sessions_pollable %}
+  $('.alert').hide();
+  $('.alert').on('click', '.close', function () {
+    $(this).closest('.alert').slideUp();
+  });
+
+  var jobResultURL = {% url 'extras:jobresult_list' %};
+  $('#id_poll_sessions_state').click(function () {
+    $.ajax({
+      method: 'post',
+      url: "{% url 'peering-api:autonomoussystem-poll-bgp-sessions' pk=instance.pk %}",
+      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+    }).done(function (r) {
+      let message;
+      if (r.length < 1) {
+        return;
+      } else if (r.length == 1) {
+          message = 'BGP sessions polling <a href="' + jobResultURL + r[0].id + '" class="alert-link">background task</a> initiated';
+      } else {
+        message = 'BGP sessions polling background tasks initiated:<ul class="m-0">';
+        for (let i = 0; i < r.length; i++) {
+          message += '<li><a href="' + jobResultURL + r[i].id + '" class="alert-link">ID #' + r[i].id + '</a></li>';
+        }
+        message += '</ul>';
+      }
+      $('#id_message_success').html(message);
+      $('#id_alert_success').slideDown();
+    }).fail(function () {
+      $('#id_message_danger').html('Failure trying to schedule background tasks for polling BGP sessions.');
+      $('#id_alert_danger').slideDown();
+    });
+  });
+  {% endif %}
+</script>
 {% endblock %}

@@ -64,16 +64,17 @@ separated by commas without spaces.
 If no configuration template is attached to a given router, it will be ignored
 during the execution of the task.
 
-## Poll Peering Sessions
+## Poll BGP Sessions
 
-Poll peering sessions to update values shown in Peering Manager. The sessions
-must be in a BGP group or an Internet Exchange for them to be polled. They also
-have to be set in a reachable router.
+Poll BGP sessions to update values shown in Peering Manager. The sessions must
+be attached to a router, via a BGP group or a connection to an IXP for them to
+be polled. The router must be enabled for polling too.
+
+A `--limit` flag is available to limit the polling process to a given set of
+routers, thanks to a comma separated list of hostnames.
 
 ```no-highlight
-# venv/bin/python3 manage.py poll_peering_sessions --all # can be -a (--all),
-                                                         # -g (--bgp-groups) or
-                                                         # -i (--internet-exchanges)
+# venv/bin/python3 manage.py poll_bgp_sessions
 ```
 
 ## Storing IRR AS-SET Prefixes

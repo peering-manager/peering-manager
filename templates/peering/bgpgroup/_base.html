@@ -35,11 +35,7 @@
   </li>
   <li class="nav-item">
     <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">
-      {% if instance.bgp_session_states_update %}
-      Sessions last updated: {{ instance.bgp_session_states_update | date_span }}
-      {% else %}
       Last updated: {{ instance.updated | date_span }}
-      {% endif %}
     </a>
   </li>
 </ul>

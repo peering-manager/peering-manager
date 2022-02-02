@@ -22,7 +22,7 @@ from peering.filters import (
 from peering.jobs import (
     generate_configuration,
     import_sessions_to_internet_exchange,
-    poll_peering_sessions,
+    poll_bgp_sessions,
     set_napalm_configuration,
     test_napalm_connection,
 )
@@ -64,6 +64,53 @@ class AutonomousSystemViewSet(ModelViewSet):
     queryset = AutonomousSystem.objects.defer("prefixes")
     serializer_class = AutonomousSystemSerializer
     filterset_class = AutonomousSystemFilterSet
+
+    @extend_schema(
+        operation_id="peering_autonomous_systems_poll_bgp_sessions",
+        request=None,
+        responses={
+            202: OpenApiResponse(
+                response=JobResultSerializer(many=True),
+                description="Jobs scheduled to poll BGP sessions.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to poll BGP sessions state.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The autonomous system does not exist.",
+            ),
+        },
+    )
+    @action(detail=True, methods=["post"], url_path="poll-bgp-sessions")
+    def poll_bgp_sessions(self, request, pk=None):
+        # Check user permission first
+        if not request.user.has_perm(
+            "peering.change_directpeeringsession"
+        ) or not request.user.has_perm("peering.change_internetexchangepeeringsession"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        job_results = []
+        for router in self.get_object().get_routers():
+            job_results.append(
+                JobResult.enqueue_job(
+                    poll_bgp_sessions,
+                    "peering.router.poll_bgp_sessions",
+                    Router,
+                    request.user,
+                    router,
+                )
+            )
+        return Response(
+            data=[
+                JobResultSerializer(
+                    instance=job_result, context={"request": request}
+                ).data
+                for job_result in job_results
+            ],
+            status=status.HTTP_202_ACCEPTED,
+        )
 
     @extend_schema(
         operation_id="peering_autonomous_systems_sync_with_peeringdb",
@@ -181,16 +228,16 @@ class BGPGroupViewSet(ModelViewSet):
     filterset_class = BGPGroupFilterSet
 
     @extend_schema(
-        operation_id="peering_bgp_groups_poll_sessions",
+        operation_id="peering_bgp_groups_poll_bgp_sessions",
         request=None,
         responses={
             202: OpenApiResponse(
-                response=JobResultSerializer,
-                description="Job scheduled to poll sessions.",
+                response=JobResultSerializer(many=True),
+                description="Jobs scheduled to poll BGP sessions.",
             ),
             403: OpenApiResponse(
                 response=OpenApiTypes.NONE,
-                description="The user does not have the permission to poll session status.",
+                description="The user does not have the permission to poll BGP sessions state.",
             ),
             404: OpenApiResponse(
                 response=OpenApiTypes.OBJECT,
@@ -198,23 +245,30 @@ class BGPGroupViewSet(ModelViewSet):
             ),
         },
     )
-    @action(detail=True, methods=["post"], url_path="poll-sessions")
-    def poll_sessions(self, request, pk=None):
+    @action(detail=True, methods=["post"], url_path="poll-bgp-sessions")
+    def poll_bgp_sessions(self, request, pk=None):
         # Check user permission first
         if not request.user.has_perm("peering.change_directpeeringsession"):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        job_result = JobResult.enqueue_job(
-            poll_peering_sessions,
-            "peering.bgpgroup.poll_peering_sessions",
-            BGPGroup,
-            request.user,
-            self.get_object(),
-        )
+        job_results = []
+        for router in self.get_object().get_routers():
+            job_results.append(
+                JobResult.enqueue_job(
+                    poll_bgp_sessions,
+                    "peering.router.poll_bgp_sessions",
+                    Router,
+                    request.user,
+                    router,
+                )
+            )
         return Response(
-            data=JobResultSerializer(
-                instance=job_result, context={"request": request}
-            ).data,
+            data=[
+                JobResultSerializer(
+                    instance=job_result, context={"request": request}
+                ).data
+                for job_result in job_results
+            ],
             status=status.HTTP_202_ACCEPTED,
         )
 
@@ -426,39 +480,47 @@ class InternetExchangeViewSet(ModelViewSet):
         return Response(data=prefixes)
 
     @extend_schema(
-        operation_id="peering_internet_exchanges_poll_sessions",
+        operation_id="peering_internet_exchanges_poll_bgp_sessions",
         request=None,
         responses={
             202: OpenApiResponse(
-                response=JobResultSerializer,
-                description="Job scheduled to poll sessions.",
+                response=JobResultSerializer(many=True),
+                description="Jobs scheduled to poll BGP sessions.",
             ),
             403: OpenApiResponse(
                 response=OpenApiTypes.NONE,
-                description="The user does not have the permission to poll session status.",
+                description="The user does not have the permission to poll BGP sessions state.",
             ),
             404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT, description="The IXP does not exist."
+                response=OpenApiTypes.OBJECT,
+                description="The IXP does not exist.",
             ),
         },
     )
-    @action(detail=True, methods=["post"], url_path="poll-sessions")
-    def poll_sessions(self, request, pk=None):
+    @action(detail=True, methods=["post"], url_path="poll-bgp-sessions")
+    def poll_bgp_sessions(self, request, pk=None):
         # Check user permission first
         if not request.user.has_perm("peering.change_internetexchangepeeringsession"):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        job_result = JobResult.enqueue_job(
-            poll_peering_sessions,
-            "peering.internetexchange.poll_peering_sessions",
-            InternetExchange,
-            request.user,
-            self.get_object(),
-        )
+        job_results = []
+        for router in self.get_object().get_routers():
+            job_results.append(
+                JobResult.enqueue_job(
+                    poll_bgp_sessions,
+                    "peering.router.poll_bgp_sessions",
+                    Router,
+                    request.user,
+                    router,
+                )
+            )
         return Response(
-            data=JobResultSerializer(
-                instance=job_result, context={"request": request}
-            ).data,
+            data=[
+                JobResultSerializer(
+                    instance=job_result, context={"request": request}
+                ).data
+                for job_result in job_results
+            ],
             status=status.HTTP_202_ACCEPTED,
         )
 
@@ -634,6 +696,46 @@ class RouterViewSet(ModelViewSet):
         return Response(
             JobResultSerializer(
                 job_results, many=True, context={"request": request}
+            ).data,
+            status=status.HTTP_202_ACCEPTED,
+        )
+
+    @extend_schema(
+        operation_id="peering_routers_poll_bgp_sessions",
+        request=None,
+        responses={
+            202: OpenApiResponse(
+                response=JobResultSerializer,
+                description="Job scheduled to poll BGP sessions.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to poll BGP sessions state.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The router does not exist.",
+            ),
+        },
+    )
+    @action(detail=True, methods=["post"], url_path="poll-bgp-sessions")
+    def poll_bgp_sessions(self, request, pk=None):
+        # Check user permission first
+        if not request.user.has_perm(
+            "peering.change_directpeeringsession"
+        ) or not request.user.has_perm("peering.change_internetexchangepeeringsession"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        job_result = JobResult.enqueue_job(
+            poll_bgp_sessions,
+            "peering.router.poll_bgp_sessions",
+            Router,
+            request.user,
+            self.get_object(),
+        )
+        return Response(
+            data=JobResultSerializer(
+                instance=job_result, context={"request": request}
             ).data,
             status=status.HTTP_202_ACCEPTED,
         )

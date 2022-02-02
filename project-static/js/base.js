@@ -29,6 +29,11 @@ var PeeringManager = {
     button.removeClass('btn-warning', 'btn-danger', 'btn-success');
     button.addClass('btn-primary').html('<i class="fas fa-sync"></i> Sync with PeeringDB');
   },
+  resetPollSessionsButton: function (button) {
+    button.removeAttr('disabled');
+    button.removeClass('btn-warning', 'btn-danger', 'btn-primary');
+    button.addClass('btn-success').html('<i class="fas fa-sync"></i> Poll Sessions');
+  },
   resetConfirmButton: function (button) {
     button.removeAttr('disabled');
     button.removeClass('btn-warning', 'btn-danger', 'btn-success');

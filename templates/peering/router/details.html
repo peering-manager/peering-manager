@@ -1,24 +1,22 @@
 {% extends 'peering/router/_base.html' %}
 {% load helpers %}
 {% block subcontent %}
-<div class="alert alert-success alert-dismissible" role="alert" id="message-can-ping">
-  <button type="button" class="close" aria-label="Close"><span>&times;</span></button>
-  Successfully connected to the router.
-</div>
-<div class="alert alert-danger alert-dismissible" role="alert" id="message-cannot-ping">
-  <button type="button" class="close" aria-label="Close"><span>&times;</span></button>
-  Unable to connect to the router.
-</div>
+{% include 'includes/alerts_success_danger.html' %}
 <div class="row">
   <div class="col-md-6">
     <div class="card mb-2">
       <div class="card-header">
         <strong>Router Details</strong>
-        {% if instance.platform %}
+        {% if instance.is_usable_for_task %}
         <div class="float-right">
-          <button class="btn btn-xs btn-primary" id="router-ping" title="Check if the router is usable.">
+          <button type="button" class="btn btn-xs btn-primary" id="id_router_ping" title="Check if the router is usable.">
             <i class="fa fa-plug"></i> Ping
           </button>
+          {% if perms.peering.change_directpeeringsession and perms.peering.change_internetexchangepeeringsession and instance.poll_bgp_sessions_state %}
+          <button type="button" class="btn btn-xs btn-success" id="id_poll_sessions_state" title="Poll BGP sessions state on this router.">
+            <i class="fas fa-sync"></i> Poll Sessions
+          </button>
+          {% endif %}
         </div>
         {% endif %}
       </div>
@@ -36,6 +34,18 @@
           <td>{{ instance.platform|as_link|render_none }}</td>
         </tr>
         <tr>
+          <td>Device State</td>
+          <td>{{ instance.get_device_state_display }}</td>
+        </tr>
+        <tr>
+          <td>Local AS</td>
+          <td>{{ instance.local_autonomous_system|as_link }}</td>
+        </tr>
+        <tr>
+          <td>Configuration</td>
+          <td>{{ instance.configuration_template|render_none }}</td>
+        </tr>
+        <tr>
           <td>Encrypt Passwords</td>
           <td>
             {% if instance.encrypt_passwords %}
@@ -46,17 +56,21 @@
           </td>
         </tr>
         <tr>
-          <td>Device State</td>
-          <td>{{ instance.get_device_state_display }}</td>
+          <td>Poll BGP Sessions</td>
+          <td>
+            {% if instance.poll_bgp_sessions_state %}
+            <i class="fas fa-check text-success"></i>
+            {% else %}
+            <i class="fas fa-times text-danger"></i>
+            {% endif %}
+          </td>
         </tr>
+        {% if instance.poll_bgp_sessions_state and instance.poll_bgp_sessions_last_updated %}
         <tr>
-          <td>Configuration</td>
-          <td>{{ instance.configuration_template|render_none }}</td>
+          <td>Last Polled</td>
+          <td>{{ instance.poll_bgp_sessions_last_updated | date_span }}</td>
         </tr>
-        <tr>
-          <td>Local AS</td>
-          <td>{{ instance.local_autonomous_system|as_link }}</td>
-        </tr>
+        {% endif %}
         {% if settings.NETBOX_API %}
         <tr>
           <td>Source</td>
@@ -145,8 +159,9 @@
     $(this).closest('.alert').slideUp();
   });
 
+  {% if instance.platform and instance.platform.napalm_driver %}
   function pingFailHandler() {
-    PeeringManager.resetPingButton($('#router-ping'));
+    PeeringManager.resetPingButton($('#id_router_ping'));
   }
   function pingDoneHandler(r) {
     switch (r['status']) {
@@ -157,26 +172,65 @@
         }, 2000);
         break;
       case 'completed':
-        $('#message-can-ping').slideDown();
-        PeeringManager.resetPingButton($('#router-ping'));
+        $('#id_message_success').html('Successfully connected to the router.');
+        $('#id_alert_success').slideDown();
+        PeeringManager.resetPingButton($('#id_router_ping'));
         break;
       case 'errored':
       case 'failed':
       default:
-        $('#message-cannot-ping').slideDown();
-        PeeringManager.resetPingButton($('#router-ping'));
+        $('#id_message_danger').html('Unable to connect to the router.');
+        $('#id_alert_danger').slideDown();
+        PeeringManager.resetPingButton($('#id_router_ping'));
         break;
     }
   }
-
-  $("#router-ping").click(function () {
+  $("#id_router_ping").click(function () {
     $.ajax({
       method: "get",
       url: "{% url 'peering-api:router-test-napalm-connection' pk=instance.pk %}",
     }).done(function(r) {
-      PeeringManager.setWorkingButton($('#router-ping'));
+      PeeringManager.setWorkingButton($('#id_router_ping'));
       PeeringManager.pollJobResult(r, pingDoneHandler, pingFailHandler);
     });
   });
+  {% endif %}
+  {% if instance.poll_bgp_sessions_state and instance.is_usable_for_task %}
+  function pollSessionsFailHandler() {
+    PeeringManager.resetPollSessionsButton($('#id_poll_sessions_state'));
+    $('#id_message_danger').html('Failure polling BGP sessions state.');
+    $('#id_alert_danger').slideDown();
+  }
+  function pollSessionsDoneHandler(r) {
+    switch (r['status']) {
+      case 'pending':
+      case 'running':
+        setTimeout(function () {
+          PeeringManager.pollJobResult(r, pollSessionsDoneHandler, pollSessionsFailHandler);
+        }, 2000);
+        break;
+      case 'completed':
+        PeeringManager.resetPollSessionsButton($('#id_poll_sessions_state'));
+        $('#id_message_success').html('Successfully polled BGP sessions state.');
+        $('#id_alert_success').slideDown();
+        break;
+      case 'errored':
+      case 'failed':
+      default:
+        pollSessionsFailHandler();
+        break;
+    }
+  }
+  $('#id_poll_sessions_state').click(function () {
+    $.ajax({
+      method: 'post',
+      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+      url: "{% url 'peering-api:router-poll-bgp-sessions' pk=instance.pk %}",
+    }).done(function (r) {
+      PeeringManager.setWorkingButton($('#id_poll_sessions_state'));
+      PeeringManager.pollJobResult(r, pollSessionsDoneHandler, pollSessionsFailHandler);
+    }).fail(pollSessionsFailHandler);
+  });
+  {% endif %}
 </script>
 {% endblock %}

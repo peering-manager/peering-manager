@@ -214,8 +214,6 @@ class InternetExchangeSerializer(PrimaryModelSerializer):
             "import_routing_policies",
             "export_routing_policies",
             "communities",
-            "check_bgp_session_states",
-            "bgp_session_states_update",
             "tags",
         ]
 
@@ -262,6 +260,7 @@ class InternetExchangePeeringSessionSerializer(PrimaryModelSerializer):
 
 
 class RouterSerializer(PrimaryModelSerializer):
+    poll_bgp_sessions_last_updated = serializers.DateTimeField(read_only=True)
     configuration_template = NestedConfigurationSerializer(required=False)
     local_autonomous_system = NestedAutonomousSystemSerializer()
     platform = NestedPlatformSerializer()
@@ -275,6 +274,8 @@ class RouterSerializer(PrimaryModelSerializer):
             "hostname",
             "platform",
             "encrypt_passwords",
+            "poll_bgp_sessions_state",
+            "poll_bgp_sessions_last_updated",
             "configuration_template",
             "local_autonomous_system",
             "netbox_device_id",

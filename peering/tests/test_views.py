@@ -65,8 +65,6 @@ class BGPGroupTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             "name": "BGP Group 4",
             "slug": "bgp-group-4",
-            "bgp_session_states_update": None,
-            "check_bgp_session_states": False,
             "communities": [],
             "export_routing_policies": [],
             "import_routing_policies": [],
@@ -195,8 +193,6 @@ class InternetExchangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "communities": [],
             "export_routing_policies": [],
             "import_routing_policies": [],
-            "bgp_session_states_update": None,
-            "check_bgp_session_states": False,
             "comments": "",
             "tags": [],
         }

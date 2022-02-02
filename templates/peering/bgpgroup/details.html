@@ -12,16 +12,6 @@
           <td>Name</td>
           <td>{{ instance.name }}</td>
         </tr>
-        <tr>
-          <td>Poll Session States</td>
-          <td>
-            {% if instance.check_bgp_session_states %}
-            <i class="fas fa-check text-success"></i>
-            {% else %}
-            <i class="fas fa-times text-danger"></i>
-            {% endif %}
-          </td>
-        </tr>
       </table>
     </div>
     <div class="card">

@@ -17,8 +17,6 @@ the following properties can be configured (n.b. some are optional):
 * `Local Autonomous System`: your autonomous system connected to this IX.
 * `Comments`: text to explain what the Internet exchange is for. Can use
   Markdown formatting.
-* `Check BGP Session States`: whether Peering Manager should poll the state
-  of BGP sessions at this IX.
 * `Import Routing Policies`: a list of routing policies to apply when
    receiving prefixes though BGP sessions at this IX.
 * `Export Routing Policies`: a list of routing policies to apply when

@@ -125,7 +125,7 @@
     }).done(function (r) {
       $('#configuration').html('<div class="text-center" style="font-size: 2rem;"><i class="fas fa-sync fa-spin fa-fw"></i> Working</div>');
       configDoneHandler(r);
-    }).fail(function (r) {
+    }).fail(function () {
       $('#configuration').html('<p>Unable to generate router configuration.</p>');
     });
   });

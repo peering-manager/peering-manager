@@ -139,14 +139,9 @@ class BGPGroupForm(BootstrapMixin, forms.ModelForm):
             "import_routing_policies",
             "export_routing_policies",
             "communities",
-            "check_bgp_session_states",
             "tags",
         )
-        labels = {"check_bgp_session_states": "Poll peering session states"}
-        help_texts = {
-            "name": "Full name of the BGP group",
-            "check_bgp_session_states": "If enabled, the state of peering sessions will be polled.",
-        }
+        help_texts = {"name": "Full name of the BGP group"}
 
 
 class BGPGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
@@ -429,16 +424,11 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
             "communities",
             "import_routing_policies",
             "export_routing_policies",
-            "check_bgp_session_states",
             "ixapi_endpoint",
             "comments",
             "tags",
         )
-        labels = {"check_bgp_session_states": "Poll peering session states"}
-        help_texts = {
-            "name": "Full name of the Internet Exchange point",
-            "check_bgp_session_states": "If enabled, with a usable router, the state of peering sessions will be polled.",
-        }
+        help_texts = {"name": "Full name of the Internet Exchange point"}
 
 
 class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
@@ -462,11 +452,6 @@ class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFo
     )
     communities = DynamicModelMultipleChoiceField(
         required=False, queryset=Community.objects.all()
-    )
-    check_bgp_session_states = forms.NullBooleanField(
-        required=False,
-        label="Poll peering session states",
-        widget=CustomNullBooleanSelect,
     )
     ixapi_endpoint = DynamicModelChoiceField(
         required=False, label="IX-API endpoint", queryset=IXAPI.objects.all()
@@ -711,6 +696,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
             "hostname",
             "platform",
             "encrypt_passwords",
+            "poll_bgp_sessions_state",
             "device_state",
             "configuration_template",
             "local_autonomous_system",
@@ -736,6 +722,9 @@ class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     )
     platform = DynamicModelChoiceField(required=False, queryset=Platform.objects.all())
     encrypt_passwords = forms.NullBooleanField(
+        required=False, widget=CustomNullBooleanSelect
+    )
+    poll_bgp_sessions_state = forms.NullBooleanField(
         required=False, widget=CustomNullBooleanSelect
     )
     configuration_template = DynamicModelChoiceField(

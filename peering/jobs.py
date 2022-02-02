@@ -77,21 +77,24 @@ def import_sessions_to_internet_exchange(internet_exchange, job_result):
 
 
 @job("default")
-def poll_peering_sessions(group, job_result):
-    job_result.mark_running("Polling peering session states.", obj=group, logger=logger)
+def poll_bgp_sessions(router, job_result):
+    if not router.is_usable_for_task(job_result=job_result, logger=logger):
+        return False
 
-    success = group.poll_peering_sessions()
+    job_result.mark_running("Polling BGP sessions state.", obj=router, logger=logger)
+
+    success = router.poll_bgp_sessions()
 
     if success:
         job_result.mark_completed(
-            "Successfully polled peering session states.", obj=group, logger=logger
+            "Successfully polled BGP sessions state.", obj=router, logger=logger
         )
-        return True
     else:
         job_result.mark_failed(
-            "Error while polling peering session states.", obj=group, logger=logger
+            "Error while polling BGP sessions state.", obj=router, logger=logger
         )
-        return False
+
+    return success
 
 
 @job("default")

@@ -23,8 +23,6 @@ class AbstractGroup(ChangeLoggedModel, TaggableModel, PolicyMixin):
         "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
     )
     communities = models.ManyToManyField("Community", blank=True)
-    check_bgp_session_states = models.BooleanField(default=False)
-    bgp_session_states_update = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         abstract = True
@@ -42,8 +40,26 @@ class AbstractGroup(ChangeLoggedModel, TaggableModel, PolicyMixin):
     def get_peering_sessions(self):
         raise NotImplementedError()
 
-    def poll_peering_sessions(self):
-        raise NotImplementedError()
+    def are_bgp_sessions_pollable(self):
+        """
+        Returns whether or not BGP sessions can be polled for the group.
+
+        If a router has its `poll_bgp_sessions_state` property set to a boolan true,
+        BGP sessions are considered as pollable. The group also needs to contain BGP
+        sessions.
+        """
+        if self.get_peering_sessions():
+            for router in self.get_routers():
+                if router.poll_bgp_sessions_state and router.is_usable_for_task():
+                    return True
+        return False
+
+    def poll_bgp_sessions(self):
+        """
+        Polls BGP sessions belonging to the group.
+        """
+        for router in self.get_routers():
+            router.poll_bgp_sessions()
 
 
 class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
