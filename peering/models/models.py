@@ -793,6 +793,12 @@ class InternetExchangePeeringSession(BGPSession):
             "ixp_connection",
             "ip_address",
         ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["ixp_connection", "ip_address"],
+                name="unique_internetexchangepeeringsession_connection_ip",
+            )
+        ]
 
     @staticmethod
     def create_from_peeringdb(affiliated, internet_exchange, netixlan):
