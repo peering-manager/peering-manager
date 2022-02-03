@@ -176,10 +176,9 @@ def iter_export_policies(value, field="", family=-1):
     if type(field) is not str:
         raise AttributeError(f"field must be a string'")
 
+    policies = value.export_policies()
     if family in IPFamily.values:
-        policies = value.export_policies().filter(address_family__in=[0, family])
-    else:
-        policies = value.export_policies()
+        policies = filter(policies, address_family__in=[0, family])
 
     if field:
         return [getattr(p, field) for p in policies]
@@ -201,10 +200,9 @@ def iter_import_policies(value, field="", family=-1):
     if type(field) is not str:
         raise AttributeError(f"field must be a string'")
 
+    policies = value.import_policies()
     if family in IPFamily.values:
-        policies = value.import_policies().filter(address_family__in=[0, family])
-    else:
-        policies = value.import_policies()
+        policies = filter(policies, address_family__in=[0, family])
 
     if field:
         return [getattr(p, field) for p in policies]
