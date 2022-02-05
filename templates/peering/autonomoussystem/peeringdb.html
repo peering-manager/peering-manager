@@ -112,10 +112,12 @@
     </div>
   </div>
 </div>
+{% if instance.peeringdb_contacts %}
 <div class="row">
   <div class="col">
     {% include 'utils/responsive_table.html' %}
     {% include 'includes/pagination.html' with paginator=table.paginator page=table.page %}
   </div>
 </div>
+{% endif %}
 {% endblock %}
