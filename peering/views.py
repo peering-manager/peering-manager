@@ -210,10 +210,10 @@ class ASBulkDelete(PermissionRequiredMixin, BulkDeleteView):
     table = AutonomousSystemTable
 
 
-class AutonomousSystemContacts(PermissionRequiredMixin, ModelListView):
+class AutonomousSystemPeeringDB(PermissionRequiredMixin, ModelListView):
     permission_required = "peering.view_autonomoussystem"
     table = NetworkContactTable
-    template = "peering/autonomoussystem/contacts.html"
+    template = "peering/autonomoussystem/peeringdb.html"
 
     def build_queryset(self, request, kwargs):
         instance = get_object_or_404(AutonomousSystem, pk=kwargs["pk"])
@@ -222,7 +222,7 @@ class AutonomousSystemContacts(PermissionRequiredMixin, ModelListView):
     def extra_context(self, kwargs):
         return {
             "instance": get_object_or_404(AutonomousSystem, pk=kwargs["pk"]),
-            "active_tab": "contacts",
+            "active_tab": "peeringdb",
         }
 
 

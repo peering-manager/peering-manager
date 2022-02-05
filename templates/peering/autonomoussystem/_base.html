@@ -23,6 +23,13 @@
       <i class="fas fa-info-circle"></i> Details
     </a>
   </li>
+  {% if instance.peeringdb_network %}
+  <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'peeringdb' %} active{% endif %}" href="{% url 'peering:autonomoussystem_peeringdb' pk=instance.pk %}">
+      <i class="fas fa-database"></i> PeeringDB
+    </a>
+  </li>
+  {% endif %}
   <li class="nav-item">
     <a class="nav-link{% if active_tab == 'directsessions' %} active{% endif %}" href="{% url 'peering:autonomoussystem_direct_peering_sessions' pk=instance.pk %}">
       <i class="fas fa-ethernet"></i> Direct Peering Sessions
@@ -38,13 +45,6 @@
   <li class="nav-item">
     <a class="nav-link{% if active_tab == 'peers' %} active{% endif %}" href="{% url 'peering:autonomoussystem_peers' pk=instance.pk %}">
       <i class="fas fa-link"></i> Available Sessions
-    </a>
-  </li>
-  {% endif %}
-  {% if instance.peeringdb_contacts|length > 0 %}
-  <li class="nav-item">
-    <a class="nav-link{% if active_tab == 'contacts' %} active{% endif %}" href="{% url 'peering:autonomoussystem_contacts' pk=instance.pk %}">
-      <i class="fas fa-address-book"></i> PeeringDB Contacts
     </a>
   </li>
   {% endif %}

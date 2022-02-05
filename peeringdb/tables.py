@@ -50,7 +50,21 @@ class NetworkIXLanTable(BaseTable):
         verbose_name="Operational",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
+    info_traffic = tables.Column(verbose_name="Traffic", accessor="net__info_traffic")
+    info_scope = tables.Column(verbose_name="Scope", accessor="net__info_scope")
+    info_type = tables.Column(verbose_name="Type", accessor="net__info_type")
     policy = tables.Column(verbose_name="Policy", accessor="net__policy_general")
+    policy_locations = tables.Column(
+        verbose_name="Multiple Locations",
+        accessor="net__policy_locations",
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
+    )
+    policy_ratio = BooleanColumn(
+        verbose_name="Ratio Requirement", accessor="net__policy_ratio"
+    )
+    policy_contracts = tables.Column(
+        verbose_name="Contract Requirement", accessor="net__policy_contracts"
+    )
 
     class Meta(BaseTable.Meta):
         model = NetworkIXLan
@@ -67,7 +81,13 @@ class NetworkIXLanTable(BaseTable):
             "is_rs_peer",
             "speed",
             "operational",
+            "info_traffic",
+            "info_scope",
+            "info_type",
             "policy",
+            "policy_locations",
+            "policy_ratio",
+            "policy_contracts",
         )
         default_columns = (
             "pk",

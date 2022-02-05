@@ -23,7 +23,18 @@ class NetworkIXLanFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = NetworkIXLan
-        fields = ["id", "asn", "net__policy_general", "is_rs_peer"]
+        fields = [
+            "id",
+            "asn",
+            "is_rs_peer",
+            "net__info_traffic",
+            "net__info_scope",
+            "net__info_type",
+            "net__policy_general",
+            "net__policy_locations",
+            "net__policy_ratio",
+            "net__policy_contracts",
+        ]
 
     def search(self, queryset, name, value):
         if not value.strip():

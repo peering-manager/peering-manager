@@ -21,9 +21,9 @@ urlpatterns = [
         name="autonomoussystem_edit",
     ),
     path(
-        "autonomous-systems/<int:pk>/contacts/",
-        views.AutonomousSystemContacts.as_view(),
-        name="autonomoussystem_contacts",
+        "autonomous-systems/<int:pk>/peeringdb/",
+        views.AutonomousSystemPeeringDB.as_view(),
+        name="autonomoussystem_peeringdb",
     ),
     path(
         "autonomous-systems/<int:pk>/email/",

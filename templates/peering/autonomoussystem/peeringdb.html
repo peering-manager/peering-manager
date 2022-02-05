@@ -1,0 +1,121 @@
+{% extends 'peering/autonomoussystem/_base.html' %}
+{% load render_table from django_tables2 %}
+{% block subcontent %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header"><strong>Info</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        {% if instance.peeringdb_network.name %}
+        <tr>
+          <td>Name</td>
+          <td>{{ instance.peeringdb_network.name }}</td>
+        </tr>
+        {% endif %}
+        {% if instance.peeringdb_network.name_long %}
+        <tr>
+          <td>Long Name</td>
+          <td>{{ instance.peeringdb_network.name_long }}</td>
+        </tr>
+        {% endif %}
+        {% if instance.peeringdb_network.aka %}
+        <tr>
+          <td>Also Known As</td>
+          <td>{{ instance.peeringdb_network.aka }}</td>
+        </tr>
+        {% endif %}
+        {% if instance.peeringdb_network.website %}
+        <tr>
+          <td>Website</td>
+          <td>{{ instance.peeringdb_network.website|urlize }}</td>
+        </tr>
+        {% endif %}
+        {% if instance.peeringdb_network.looking_glass %}
+        <tr>
+          <td>Looking Glass</td>
+          <td>{{ instance.peeringdb_network.looking_glass|urlize }}</td>
+        </tr>
+        {% endif %}
+        {% if instance.peeringdb_network.route_server %}
+        <tr>
+          <td>Route Server</td>
+          <td>{{ instance.peeringdb_network.route_server|urlize }}</td>
+        </tr>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header"><strong>Traffic</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        {% if instance.peeringdb_network.info_type %}
+        <tr>
+          <td>Network Type</td>
+          <td>{{ instance.peeringdb_network.info_type }}</td>
+        </tr>
+        {% endif %}
+        {% if instance.peeringdb_network.info_traffic %}
+        <tr>
+          <td>Levels</td>
+          <td>{{ instance.peeringdb_network.info_traffic }}</td>
+        </tr>
+        {% endif %}
+        {% if instance.peeringdb_network.info_ratio %}
+        <tr>
+          <td>Ratios</td>
+          <td>{{ instance.peeringdb_network.info_ratio }}</td>
+        </tr>
+        {% endif %}
+        {% if instance.peeringdb_network.info_scope %}
+        <tr>
+          <td>Scope</td>
+          <td>{{ instance.peeringdb_network.info_scope }}</td>
+        </tr>
+        {% endif %}
+      </table>
+    </div>
+    <div class="card mb-2">
+      <div class="card-header"><strong>Policy</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        {% if instance.peeringdb_network.policy_url %}
+        <tr>
+          <td>URL</td>
+          <td>{{ instance.peeringdb_network.policy_url }}</td>
+        </tr>
+        {% endif %}
+        {% if instance.peeringdb_network.policy_general %}
+        <tr>
+          <td>General</td>
+          <td>{{ instance.peeringdb_network.policy_general }}</td>
+        </tr>
+        {% endif %}
+        {% if instance.peeringdb_network.policy_locations %}
+        <tr>
+          <td>Multiple Locations</td>
+          <td>{{ instance.peeringdb_network.policy_locations }}</td>
+        </tr>
+        {% endif %}
+        {% if instance.peeringdb_network.policy_ratio %}
+        <tr>
+          <td>Ratio Requirement</td>
+          <td>{{ instance.peeringdb_network.policy_ratio }}</td>
+        </tr>
+        {% endif %}
+        {% if instance.peeringdb_network.policy_contracts %}
+        <tr>
+          <td>Contract Requirement</td>
+          <td>{{ instance.peeringdb_network.policy_contracts }}</td>
+        </tr>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    {% include 'utils/responsive_table.html' %}
+    {% include 'includes/pagination.html' with paginator=table.paginator page=table.page %}
+  </div>
+</div>
+{% endblock %}
