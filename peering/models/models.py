@@ -895,7 +895,7 @@ class InternetExchangePeeringSession(BGPSession):
         """
         if (
             not self.ixp_connection.linked_to_peeringdb
-            or not self.ixp_connection.internet_exchange_point.check_bgp_session_states
+            or not self.ixp_connection.router.poll_bgp_sessions_state
             or not self.autonomous_system.peeringdb_network
             or self.exists_in_peeringdb()
             or self.bgp_state not in [BGPState.IDLE, BGPState.ACTIVE]
