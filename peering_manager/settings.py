@@ -392,10 +392,10 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "utils.middleware.ExceptionCatchingMiddleware",
-    "utils.middleware.RequireLoginMiddleware",
-    "utils.middleware.ObjectChangeMiddleware",
-    "users.middleware.LastSearchMiddleware",
+    "peering_manager.middleware.ExceptionCatchingMiddleware",
+    "peering_manager.middleware.RequireLoginMiddleware",
+    "peering_manager.middleware.ObjectChangeMiddleware",
+    "peering_manager.middleware.LastSearchMiddleware",
 ]
 
 # Prometheus setup
@@ -425,8 +425,8 @@ TEMPLATES = [
                 "django.template.context_processors.media",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "utils.context_processors.settings",
-                "utils.context_processors.affiliated_autonomous_systems",
+                "peering_manager.context_processors.settings",
+                "peering_manager.context_processors.affiliated_autonomous_systems",
             ]
         },
     }
