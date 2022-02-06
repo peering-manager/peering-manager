@@ -25,6 +25,7 @@ class ConnectionForm(BootstrapMixin, forms.ModelForm):
     internet_exchange_point = DynamicModelChoiceField(
         required=False,
         queryset=InternetExchange.objects.all(),
+        label="IXP",
         help_text="IXP to which this connection connects",
     )
     router = DynamicModelChoiceField(

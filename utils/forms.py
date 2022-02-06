@@ -200,8 +200,9 @@ class DynamicModelChoiceMixin(object):
     def __init__(
         self,
         *args,
-        display_field="name",
+        display_field="display",
         query_params=None,
+        initial_params=None,
         null_option=None,
         disabled_indicator=None,
         **kwargs,
@@ -209,23 +210,58 @@ class DynamicModelChoiceMixin(object):
         self.display_field = display_field
         self.to_field_name = kwargs.get("to_field_name")
         self.query_params = query_params or {}
+        self.initial_params = initial_params or {}
         self.null_option = null_option
         self.disabled_indicator = disabled_indicator
 
         super().__init__(*args, **kwargs)
 
+    def widget_attrs(self, widget):
+        attrs = {"display-field": self.display_field}
+
+        # Set value-field attribute if the field specifies to_field_name
+        if self.to_field_name:
+            attrs["value-field"] = self.to_field_name
+
+        # Set the string used to represent a null option
+        if self.null_option is not None:
+            attrs["data-null-option"] = self.null_option
+
+        # Set the disabled indicator, if any
+        if self.disabled_indicator is not None:
+            attrs["disabled-indicator"] = self.disabled_indicator
+
+        # Attach any static query parameters
+        for key, value in self.query_params.items():
+            widget.add_query_param(key, value)
+
+        return attrs
+
     def get_bound_field(self, form, field_name):
         bound_field = BoundField(form, self, field_name)
+
+        # Set the initial value based on prescribed child fields (if not set)
+        if not self.initial and self.initial_params:
+            filter_kwargs = {}
+            for kwarg, child_field in self.initial_params.items():
+                value = form.initial.get(child_field.lstrip("$"))
+                if value:
+                    filter_kwargs[kwarg] = value
+            if filter_kwargs:
+                self.initial = self.queryset.filter(**filter_kwargs).first()
 
         # Modify the QuerySet of the field before we return it. Limit choices to any
         # data already bound: Options will be populated on-demand via the APISelect
         # widget
-        data = self.prepare_value(bound_field.data or bound_field.initial)
+        data = bound_field.value()
         if data:
-            filter = self.filter(
-                field_name=self.to_field_name or "pk", queryset=self.queryset
-            )
-            self.queryset = filter.filter(self.queryset, data)
+            field_name = getattr(self, "to_field_name") or "pk"
+            filter = self.filter(field_name=field_name)
+            try:
+                self.queryset = filter.filter(self.queryset, data)
+            except (TypeError, ValueError):
+                # Catch errors caused by invalid initial data
+                self.queryset = self.queryset.none()
         else:
             self.queryset = self.queryset.none()
 

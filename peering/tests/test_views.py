@@ -236,6 +236,7 @@ class InternetExchangePeeringSessionTestCase(ViewTestCases.PrimaryObjectViewTest
 
         cls.form_data = {
             "autonomous_system": cls.a_s.pk,
+            "internet_exchange": cls.ixp.pk,
             "ixp_connection": cls.ixp_connection.pk,
             "ip_address": ipaddress.ip_address("2001:db8::4"),
             "multihop_ttl": 1,

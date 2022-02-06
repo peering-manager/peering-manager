@@ -225,6 +225,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
     local_autonomous_system = DynamicModelChoiceField(
         queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
+        label="Local AS",
     )
     autonomous_system = DynamicModelChoiceField(
         queryset=AutonomousSystem.objects.defer("prefixes")
@@ -311,6 +312,7 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEd
         required=False,
         queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
+        label="Local AS",
     )
     enabled = forms.NullBooleanField(
         required=False, label="Enable", widget=CustomNullBooleanSelect
@@ -351,7 +353,7 @@ class DirectPeeringSessionFilterForm(BootstrapMixin, forms.Form):
         queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
         to_field_name="pk",
-        label="Local autonomous system",
+        label="Local AS",
     )
     autonomous_system_id = DynamicModelChoiceField(
         required=False,
@@ -395,6 +397,7 @@ class InternetExchangeForm(BootstrapMixin, forms.ModelForm):
     local_autonomous_system = DynamicModelChoiceField(
         queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
+        label="Local AS",
     )
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
@@ -439,6 +442,7 @@ class InternetExchangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFo
         required=False,
         queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
+        label="Local AS",
     )
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
@@ -489,7 +493,7 @@ class InternetExchangeFilterForm(BootstrapMixin, forms.Form):
         required=False,
         queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
-        label="Local autonomous system",
+        label="Local AS",
     )
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
@@ -543,8 +547,13 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
     autonomous_system = DynamicModelChoiceField(
         queryset=AutonomousSystem.objects.defer("prefixes")
     )
+    internet_exchange = DynamicModelChoiceField(
+        required=False, queryset=InternetExchange.objects.all(), label="IXP"
+    )
     ixp_connection = DynamicModelChoiceField(
-        queryset=Connection.objects.all(), label="IXP connection"
+        queryset=Connection.objects.all(),
+        query_params={"internet_exchange_point_id": "$internet_exchange"},
+        label="IXP connection",
     )
     password = PasswordField(required=False, render_value=True)
     import_routing_policies = DynamicModelMultipleChoiceField(
@@ -635,6 +644,7 @@ class RouterForm(BootstrapMixin, forms.ModelForm):
     local_autonomous_system = DynamicModelChoiceField(
         queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
+        label="Local AS",
     )
     config_context = JSONField(
         required=False, label="Config context", widget=SmallTextarea
@@ -719,6 +729,7 @@ class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         required=False,
         queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
+        label="Local AS",
     )
     platform = DynamicModelChoiceField(required=False, queryset=Platform.objects.all())
     encrypt_passwords = forms.NullBooleanField(
@@ -749,7 +760,7 @@ class RouterFilterForm(BootstrapMixin, forms.Form):
         required=False,
         queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
-        label="Local autonomous system",
+        label="Local AS",
     )
     platform_id = DynamicModelMultipleChoiceField(
         required=False,

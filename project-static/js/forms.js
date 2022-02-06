@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function () {
   // Parse URLs which may contain variable refrences to other field values
   function parseURL(url) {
     var filter_regex = /\{\{([a-z_]+)\}\}/g;
@@ -29,7 +29,7 @@ $(document).ready(function() {
     allowClear: true,
     ajax: {
       delay: 500,
-      url: function(params) {
+      url: function (params) {
         var element = this[0];
         var url = parseURL(element.getAttribute('data-url'));
 
@@ -39,7 +39,7 @@ $(document).ready(function() {
         }
         return url;
       },
-      data: function(params) {
+      data: function (params) {
         var element = this[0];
         // Paging. Note that `params.page` indexes at 1
         var offset = (params.page - 1) * 50 || 0;
@@ -50,11 +50,23 @@ $(document).ready(function() {
         parameters.brief = $(element).is('[data-full]') ? undefined : true;
 
         // Query params
-        $.each(element.attributes, function(index, attr) {
+        $.each(element.attributes, function (index, attr) {
           if (attr.name.includes('data-query-param-')) {
             var param_name = attr.name.split('data-query-param-')[1];
 
-            $.each($.parseJSON(attr.value), function(index, value) {
+            $.each($.parseJSON(attr.value), function (index, value) {
+              // Reference of a value from another form field
+              if (value.startsWith('$')) {
+                let refField = $('#id_' + value.slice(1));
+                if (refField.val() && refField.is(':visible')) {
+                  value = refField.val();
+                } else if (refField.attr('required') && refField.attr('data-null-option')) {
+                  value = 'null';
+                } else {
+                  // Skip if reference field has no value
+                  return true;
+                }
+              }
               if (param_name in parameters) {
                 if (Array.isArray(parameters[param_name])) {
                   parameters[param_name].push(value);
@@ -70,7 +82,7 @@ $(document).ready(function() {
 
         return $.param(parameters, true);
       },
-      processResults: function(data) {
+      processResults: function (data) {
         var element = this.$element[0];
         $(element).children('option').attr('disabled', false);
         var results = data.results;
@@ -79,8 +91,8 @@ $(document).ready(function() {
           record.text = record[element.getAttribute('display-field')] || record.name;
           record.id = record[element.getAttribute('value-field')] || record.id;
           if (element.getAttribute('disabled-indicator') && record[element.getAttribute('disabled-indicator')]) {
-              // The disabled-indicator equated to true, so we disable this option
-              record.disabled = true;
+            // The disabled-indicator equated to true, so we disable this option
+            record.disabled = true;
           }
           results[idx] = record;
 
@@ -106,7 +118,7 @@ $(document).ready(function() {
   function colorPickerClassCopy(data, container) {
     if (data.element) {
       // Remove any existing color-selection classes
-      $(container).attr('class', function(i, c) {
+      $(container).attr('class', function (i, c) {
         return c.replace(/(^|\s)color-selection-\S+/g, '');
       });
       console.log($(data.element).attr("class"));
@@ -125,7 +137,7 @@ $(document).ready(function() {
 
 
   // Pagination
-  $('select#id_per_page').change(function() {
+  $('select#id_per_page').change(function () {
     this.form.submit();
   });
 
@@ -139,13 +151,13 @@ $(document).ready(function() {
 
   // Auto fill slug field based on name field
   var slugField = $('#id_slug');
-  slugField.change(function() {
+  slugField.change(function () {
     $(this).attr('_changed', true);
   });
 
   if (slugField) {
     var slugSource = $('#id_' + slugField.attr('slug-source'));
-    slugSource.on('keyup change', function() {
+    slugSource.on('keyup change', function () {
       if (slugField && !slugField.attr('_changed')) {
         slugField.val(generateSlug($(this).val()));
       }
@@ -153,7 +165,7 @@ $(document).ready(function() {
   }
 
   // Show/Hide password in a password input field
-  $('button[id$="_reveal"]').click(function() {
+  $('button[id$="_reveal"]').click(function () {
     var passwordInputID = '#' + this.id.replace('_reveal', '');
     inputType = $(passwordInputID).attr('type');
     if (inputType == 'password') {
@@ -166,7 +178,7 @@ $(document).ready(function() {
   });
 
   // "Select" checkbox for objects lists (PK column)
-  $('input:checkbox.toggle').click(function() {
+  $('input:checkbox.toggle').click(function () {
     $(this).closest('table').find('input:checkbox[name=pk]').prop('checked', $(this).prop('checked'));
 
     // Show the "select all" box if present
@@ -178,14 +190,14 @@ $(document).ready(function() {
   });
 
   // Uncheck the "Select" if an item is unchecked
-  $('input:checkbox[name=pk]').click(function() {
+  $('input:checkbox[name=pk]').click(function () {
     if (!$(this).is(':checked')) {
       $('input:checkbox.toggle, #select_all').prop('checked', false);
     }
   });
 
   // Enable hidden buttons when "select all" is checked
-  $('#select_all').click(function() {
+  $('#select_all').click(function () {
     if ($(this).is(':checked')) {
       $('#select_all_box').find('button').prop('disabled', '');
     } else {
@@ -194,25 +206,25 @@ $(document).ready(function() {
   });
 
   // Disable field when clicking on the "Set null" checkbox
-  $('input:checkbox[name=_nullify]').click(function() {
-      var elementToHide = $('#id_' + this.value);
-      if (elementToHide.is('select')) {
-        elementToHide.toggle('disabled');
-        elementToHide.next().toggle('disabled');
-      } else {
-        elementToHide.toggle('disabled');
-      }
+  $('input:checkbox[name=_nullify]').click(function () {
+    var elementToHide = $('#id_' + this.value);
+    if (elementToHide.is('select')) {
+      elementToHide.toggle('disabled');
+      elementToHide.next().toggle('disabled');
+    } else {
+      elementToHide.toggle('disabled');
+    }
   });
 
   // Grab tags in the text input
   var tags = $('#id_tags');
-  if ((tags.length > 0) && (tags.val().length > 0)){
+  if ((tags.length > 0) && (tags.val().length > 0)) {
     tags = $('#id_tags').val().split(/,\s*/);
   } else {
     tags = [];
   }
   // Generate a map of tags to be used in the select element
-  tag_objects = $.map(tags, function(tag) {
+  tag_objects = $.map(tags, function (tag) {
     return { id: tag, text: tag, selected: true }
   });
   // Replace the text input with a select element
@@ -228,7 +240,7 @@ $(document).ready(function() {
     ajax: {
       delay: 250,
       url: our_api_path + 'utils/tags/', // API endpoint to query
-      data: function(params) {
+      data: function (params) {
         var offset = (params.page - 1) * 50 || 0;
         var parameters = {
           q: params.term,
@@ -238,8 +250,8 @@ $(document).ready(function() {
         };
         return parameters;
       },
-      processResults: function(data) {
-        var results = $.map(data.results, function(obj) {
+      processResults: function (data) {
+        var results = $.map(data.results, function (obj) {
           // If tag contains space add double quotes
           if (/\s/.test(obj.name)) {
             obj.name = '"' + obj.name + '"'
@@ -251,7 +263,7 @@ $(document).ready(function() {
       }
     }
   });
-  $('#id_tags').closest('form').submit(function(event) {
+  $('#id_tags').closest('form').submit(function (event) {
     // django-taggit can only accept a single comma seperated string value
     var value = $('#id_tags').val();
     if (value.length > 0) {
@@ -262,9 +274,9 @@ $(document).ready(function() {
     }
   });
   // Rearrange options within a <select> list
-  $('#move-option-up').bind('click', function() {
+  $('#move-option-up').bind('click', function () {
     var selectID = '#' + $(this).attr('data-target');
-    $(selectID + ' option:selected').each(function() {
+    $(selectID + ' option:selected').each(function () {
       var newPos = $(selectID + ' option').index(this) - 1;
       if (newPos > -1) {
         $(selectID + ' option').eq(newPos).before("<option value='" + $(this).val() + "' selected='selected'>" + $(this).text() + "</option>");
@@ -272,11 +284,11 @@ $(document).ready(function() {
       }
     });
   });
-  $('#move-option-down').bind('click', function() {
+  $('#move-option-down').bind('click', function () {
     var selectID = '#' + $(this).attr('data-target');
     var countOptions = $(selectID + ' option').length;
     var countSelectedOptions = $(selectID + ' option:selected').length;
-    $(selectID + ' option:selected').each(function() {
+    $(selectID + ' option:selected').each(function () {
       var newPos = $(selectID + ' option').index(this) + countSelectedOptions;
       if (newPos < countOptions) {
         $(selectID + ' option').eq(newPos).after("<option value='" + $(this).val() + "' selected='selected'>" + $(this).text() + "</option>");
@@ -284,8 +296,8 @@ $(document).ready(function() {
       }
     });
   });
-  $('#select-all-options').bind('click', function() {
+  $('#select-all-options').bind('click', function () {
     var selectID = '#' + $(this).attr('data-target');
-    $(selectID + ' option').prop('selected',true);
+    $(selectID + ' option').prop('selected', true);
   });
 });
