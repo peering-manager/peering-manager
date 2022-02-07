@@ -986,9 +986,7 @@ class Router(ChangeLoggedModel, TaggableModel):
         # Ensure device is not in disabled state
         if self.device_state == DeviceState.DISABLED:
             if job_result:
-                job_result.mark_errored(
-                    "Router is not enabled.", obj=self, logger=logger
-                )
+                job_result.mark_errored("Router is disabled.", obj=self, logger=logger)
                 job_result.save()
             return False
 
@@ -1252,15 +1250,19 @@ class Router(ChangeLoggedModel, TaggableModel):
         error, changes = None, None
 
         # Ensure device is enabled, we allow maintenance mode to force a config push
-        if self.device_state == DeviceState.DISABLED:
-            self.logger.debug(f"device: {self.name} is disabled, exiting config push")
-            return "device is disabled, cannot deploy config", changes
+        if not self.is_usable_for_task():
+            self.logger.debug(
+                f"{self.hostname}: unusable (due to disabled state or platform), exiting config push"
+            )
+            return (
+                "device is unusable (check state or platform), cannot deploy config",
+                changes,
+            )
 
         # Make sure there actually a configuration to merge
         if config is None or not isinstance(config, str) or not config.strip():
-            self.logger.debug(f"no configuration to merge: {config}")
-            error = "no configuration found to be merged"
-            return error, changes
+            self.logger.debug(f"{self.hostname}: no configuration to merge: {config}")
+            return "no configuration found to be merged", changes
 
         device = self.get_napalm_device()
         opened = self.open_napalm_device(device)
@@ -1570,7 +1572,15 @@ class Router(ChangeLoggedModel, TaggableModel):
         Polls the state of a single session given its IP address.
         """
         if not self.is_usable_for_task():
-            return {}
+            self.logger.debug(
+                f"cannot poll bgp sessions state for {self.hostname}, disabled or platform unusable"
+            )
+            return False
+        if not self.poll_bgp_sessions_state:
+            self.logger.debug(
+                f"bgp sessions state polling disabled for {self.hostname}"
+            )
+            return False
 
         # Get BGP session detail
         bgp_neighbor_detail = self.get_bgp_neighbors_detail(ip_address=ip_address)
@@ -1594,12 +1604,12 @@ class Router(ChangeLoggedModel, TaggableModel):
         """
         if not self.is_usable_for_task():
             self.logger.debug(
-                f"cannot poll bgp sessions state for {self.name.lower()}, disabled or platform unusable"
+                f"cannot poll bgp sessions state for {self.hostname}, disabled or platform unusable"
             )
             return False
         if not self.poll_bgp_sessions_state:
             self.logger.debug(
-                f"bgp sessions state polling disabled for {self.name.lower()}"
+                f"bgp sessions state polling disabled for {self.hostname}"
             )
             return False
 
@@ -1607,7 +1617,7 @@ class Router(ChangeLoggedModel, TaggableModel):
         ixps = self.get_ixp_peering_sessions()
 
         if not directs and not ixps:
-            self.logger.debug(f"no bgp sessions attached to {self.name.lower()}")
+            self.logger.debug(f"no bgp sessions attached to {self.hostname}")
             return False
 
         # Get BGP neighbors details from router, but only get them once
@@ -1615,14 +1625,12 @@ class Router(ChangeLoggedModel, TaggableModel):
             self.get_bgp_neighbors_detail()
         )
         if not bgp_neighbors_detail:
-            self.logger.debug(f"no bgp sessions found on {self.name.lower()}")
+            self.logger.debug(f"no bgp sessions found on {self.hostname}")
             return False
 
         for neighbor_detail in bgp_neighbors_detail:
             ip_address = neighbor_detail["remote_address"]
-            self.logger.debug(
-                f"looking for session {ip_address} in {self.name.lower()}"
-            )
+            self.logger.debug(f"looking for session {ip_address} in {self.hostname}")
 
             # Check if the session is in our database, skip it if not
             # NAPALM ignores prefix length, so __host is used to lookup the actual IP
@@ -1630,13 +1638,11 @@ class Router(ChangeLoggedModel, TaggableModel):
                 ip_address__host=ip_address
             )
             if not match:
-                self.logger.debug(
-                    f"session {ip_address} not found for {self.name.lower()}"
-                )
+                self.logger.debug(f"session {ip_address} not found for {self.hostname}")
                 continue
             if match.count() > 1:
                 self.logger.debug(
-                    f"multiple sessions found for {ip_address} and {self.name.lower()}, ignoring"
+                    f"multiple sessions found for {ip_address} and {self.hostname}, ignoring"
                 )
                 continue
 
@@ -1645,7 +1651,7 @@ class Router(ChangeLoggedModel, TaggableModel):
             received = neighbor_detail["received_prefix_count"]
             advertised = neighbor_detail["advertised_prefix_count"]
             self.logger.debug(
-                f"found session {ip_address} on {self.name.lower()} in {state} state"
+                f"found session {ip_address} on {self.hostname} in {state} state"
             )
 
             # Update fields
@@ -1658,7 +1664,7 @@ class Router(ChangeLoggedModel, TaggableModel):
                 session.last_established_state = timezone.now()
             session.save()
             self.logger.debug(
-                f"session {ip_address} on {self.name.lower()} saved as {state}"
+                f"session {ip_address} on {self.hostname} saved as {state}"
             )
 
         # Save last session states update

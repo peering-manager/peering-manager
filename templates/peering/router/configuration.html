@@ -7,7 +7,7 @@
       <input type="checkbox" class="custom-control-input" id="compare-switch" checked>
       <label class="custom-control-label" for="compare-switch">Compare before commit</label>
     </div>
-    <button type="button" class="btn btn-primary btn-block" id="deploy"{% if instance.device_state == "disabled" %} disabled{% endif %}>
+    <button type="button" class="btn btn-primary btn-block" id="deploy"{% if not instance.is_usable_for_task %} disabled{% endif %}>
       <i class="fa fa-cogs"></i> Deploy
     </button>
     {% endif %}

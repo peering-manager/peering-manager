@@ -150,6 +150,7 @@ class DirectPeeringSessionTest(TestCase):
             name="Test",
             hostname="test.example.com",
             platform=Platform.objects.get(name="Juniper Junos"),
+            poll_bgp_sessions_state=True,
         )
         cls.session = DirectPeeringSession.objects.create(
             local_autonomous_system=cls.local_as,
@@ -197,6 +198,7 @@ class InternetExchangePeeringSessionTest(TestCase):
             name="Test",
             hostname="test.example.com",
             platform=Platform.objects.get(name="Juniper Junos"),
+            poll_bgp_sessions_state=True,
         )
         cls.ixp = InternetExchange.objects.create(
             local_autonomous_system=cls.local_as, name="Test Group", slug="testgroup"

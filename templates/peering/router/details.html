@@ -159,7 +159,7 @@
     $(this).closest('.alert').slideUp();
   });
 
-  {% if instance.platform and instance.platform.napalm_driver %}
+  {% if instance.is_usable_for_task %}
   function pingFailHandler() {
     PeeringManager.resetPingButton($('#id_router_ping'));
   }
