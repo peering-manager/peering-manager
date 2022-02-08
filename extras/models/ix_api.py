@@ -98,7 +98,6 @@ class Client(object):
         _, d = self.post(
             "auth/token",
             payload={
-                **self.request_headers,
                 "api_key": self._ixapi_key or self.ixapi_endpoint.api_key,
                 "api_secret": self._ixapi_secret or self.ixapi_endpoint.api_secret,
             },
@@ -118,7 +117,7 @@ class Client(object):
         """
         _, d = self.post(
             "auth/refresh",
-            payload={**self.request_headers, "refresh_token": self.refresh_token},
+            payload={"refresh_token": self.refresh_token},
         )
         logger.debug(f"api at {self.host} responded {d}")
 
