@@ -61,6 +61,10 @@ If the `--limit` flag is set, it expects a list of router hostnames on which
 the new configuration must be installed. The router hostnames must be
 separated by commas without spaces.
 
+If the `--tasks` flag is set, it will schedule background tasks for running
+multiple configuration processes instead of running it as part of the command
+process.
+
 If no configuration template is attached to a given router, it will be ignored
 during the execution of the task.
 
@@ -72,6 +76,9 @@ be polled. The router must be enabled for polling too.
 
 A `--limit` flag is available to limit the polling process to a given set of
 routers, thanks to a comma separated list of hostnames.
+
+A `--tasks` flag is available to schedule background tasks for running
+multiple polling processes instead of running it as part of the command process.
 
 ```no-highlight
 # venv/bin/python3 manage.py poll_bgp_sessions

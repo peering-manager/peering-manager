@@ -1,7 +1,8 @@
 from django.core.management.base import BaseCommand
 from django.template.defaultfilters import pluralize
 
-from peering.enums import DeviceState
+from extras.models import JobResult
+from peering.jobs import set_napalm_configuration
 from peering.models import Router
 
 
@@ -12,16 +13,52 @@ class Command(BaseCommand):
         parser.add_argument(
             "--no-commit-check",
             action="store_true",
-            help="Do not check for configuration changes before commiting them.",
+            help="Do not check for configuration changes before commiting them (no effect in task mode).",
         )
         parser.add_argument(
             "--limit",
             nargs="?",
             help="Limit the configuration to the given set of routers (comma separated).",
         )
+        parser.add_argument(
+            "-t",
+            "--tasks",
+            action="store_true",
+            help="Delegate router configuration to Redis worker process.",
+        )
+
+    def process(self, router, as_task=False, no_commit_check=False):
+        self.stdout.write(f"  - {router.hostname} ... ", ending="")
+
+        if not as_task:
+            configuration = router.generate_configuration()
+            error, changes = router.set_napalm_configuration(
+                configuration, commit=no_commit_check
+            )
+            if not no_commit_check and not error and changes:
+                error, _ = router.set_napalm_configuration(configuration, commit=True)
+
+            if not error:
+                self.stdout.write(self.style.SUCCESS("success"))
+            else:
+                self.stdout.write(self.style.ERROR("failed"))
+        else:
+            job = JobResult.enqueue_job(
+                set_napalm_configuration,
+                "commands.configure_routers",
+                Router,
+                None,
+                router,
+                True,
+            )
+            self.stdout.write(self.style.SUCCESS(f"task #{job.id}"))
 
     def handle(self, *args, **options):
-        routers = Router.objects.all()
+        # Configuration can be applied only if there is a template and the router
+        # is running on a supported platform
+        routers = Router.objects.filter(
+            configuration_template__isnull=False, platform__isnull=False
+        )
         if options["limit"]:
             routers = routers.filter(hostname__in=options["limit"].split(","))
 
@@ -29,36 +66,6 @@ class Command(BaseCommand):
         self.stdout.write("[*] Deploying configurations")
 
         for r in routers:
-            # Only apply configuration if the device is in an enabled state
-            if r.device_state != DeviceState.ENABLED:
-                if options["verbosity"] >= 2:
-                    self.stdout.write(
-                        f"  - {r.hostname} is in a {r.device_state} state, not applying configuration"
-                    )
-                continue
-
-            # Configuration can be applied only if there is a template and the router
-            # is running on a supported platform
-            if r.configuration_template and r.platform:
-                if options["verbosity"] >= 2:
-                    self.stdout.write(f"  - Configuring {r.hostname}")
-                # Generate configuration and apply it something has changed
-                configuration = r.generate_configuration()
-                error, changes = r.set_napalm_configuration(
-                    configuration, commit=options["no_commit_check"]
-                )
-                if not options["no_commit_check"] and not error and changes:
-                    r.set_napalm_configuration(configuration, commit=True)
-                    configured.append(r)
-            else:
-                if options["verbosity"] >= 2:
-                    self.stdout.write(
-                        f"  - Ignoring {r.hostname}, no configuration to apply"
-                    )
-
-        if configured:
-            self.stdout.write(
-                f"[*] Configurations deployed on {len(configured)} router{pluralize(len(configured))}"
+            self.process(
+                r, as_task=options["tasks"], no_commit_check=options["no_commit_check"]
             )
-        else:
-            self.stdout.write("[*] No configuration changes to apply")
