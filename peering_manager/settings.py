@@ -115,7 +115,7 @@ FILTERS_NULL_CHOICE_VALUE = "null"
 
 
 # Use major.minor as API version
-REST_FRAMEWORK_VERSION = VERSION[0:3]
+REST_FRAMEWORK_VERSION = VERSION[1:4]
 REST_FRAMEWORK = {
     "DEFAULT_VERSION": REST_FRAMEWORK_VERSION,
     "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.AcceptHeaderVersioning",
@@ -147,6 +147,12 @@ SPECTACULAR_SETTINGS = {
 
 # Case insensitive search for tags
 TAGGIT_CASE_INSENSITIVE = True
+
+
+# User-Agent for requests
+REQUESTS_USER_AGENT = getattr(
+    configuration, "REQUESTS_USER_AGENT", f"PeeringManager/{VERSION[1:4]}"
+)
 
 
 # NetBox API configuration

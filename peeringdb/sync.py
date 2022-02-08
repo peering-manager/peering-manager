@@ -60,10 +60,17 @@ class PeeringDB(object):
             search["depth"] = 1
 
         # Authenticate with API Key if present
-        q = {"params": search}
+        q = {
+            "headers": {
+                "User-Agent": settings.REQUESTS_USER_AGENT,
+            },
+            "params": search,
+        }
 
         if settings.PEERINGDB_API_KEY:
-            q["headers"] = {"AUTHORIZATION": f"Api-Key {settings.PEERINGDB_API_KEY}"}
+            q["headers"].update(
+                {"AUTHORIZATION": f"Api-Key {settings.PEERINGDB_API_KEY}"}
+            )
         # To be removed in v2.0
         elif settings.PEERINGDB_USERNAME:
             logger.warning(

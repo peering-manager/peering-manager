@@ -70,10 +70,26 @@ class Client(object):
         """
         Returns the authentication header to perform a request.
         """
-        if not self.access_token:
-            return {}
-        else:
-            return {"Authorization": f"Bearer {self.access_token}"}
+        headers = {"User-Agent": settings.REQUESTS_USER_AGENT}
+        if self.access_token:
+            headers["Authorization"] = f"Bearer {self.access_token}"
+        return headers
+
+    def get(self, resource, params={}):
+        u = format_url(self.host, resource)
+        logger.debug(f"sending get to api located at {u}")
+
+        r = requests.get(u, params=params, headers=self.request_headers)
+        r.raise_for_status()
+        return unpack_response(r)
+
+    def post(self, resource, payload=None):
+        u = format_url(self.host, resource)
+        logger.debug(f"sending post to api located at {u}")
+
+        r = requests.post(u, json=payload, headers=self.request_headers)
+        r.raise_for_status()
+        return unpack_response(r)
 
     def auth(self):
         """
@@ -82,6 +98,7 @@ class Client(object):
         _, d = self.post(
             "auth/token",
             payload={
+                **self.request_headers,
                 "api_key": self._ixapi_key or self.ixapi_endpoint.api_key,
                 "api_secret": self._ixapi_secret or self.ixapi_endpoint.api_secret,
             },
@@ -99,7 +116,10 @@ class Client(object):
         """
         Refreshes the current session to continue using the same token.
         """
-        _, d = self.post("auth/refresh", payload={"refresh_token": self.refresh_token})
+        _, d = self.post(
+            "auth/refresh",
+            payload={**self.request_headers, "refresh_token": self.refresh_token},
+        )
         logger.debug(f"api at {self.host} responded {d}")
 
         if "access_token" not in d or "refresh_token" not in d:
@@ -108,22 +128,6 @@ class Client(object):
 
         self.access_token = d["access_token"]
         self.refresh_token = d["refresh_token"]
-
-    def get(self, resource, params={}):
-        u = format_url(self.host, resource)
-        logger.debug(f"sending get to api located at {u}")
-
-        r = requests.get(u, params=params, headers=self.request_headers)
-        r.raise_for_status()
-        return unpack_response(r)
-
-    def post(self, resource, payload=None):
-        u = format_url(self.host, resource)
-        logger.debug(f"sending post to api located at {u}")
-
-        r = requests.post(u, json=payload, headers=self.request_headers)
-        r.raise_for_status()
-        return unpack_response(r)
 
 
 class RemoteObject(object):

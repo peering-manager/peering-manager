@@ -2,7 +2,7 @@
 
 ## BASE_PATH
 
-Default: None
+Default: `None`
 
 The base URL path to use when accessing Peering Manager. Do not include the
 scheme or domain name. For example, if installed at [http://example.com/peering/],
@@ -63,7 +63,7 @@ The maximum execution time of a background task, in seconds.
 
 ## CACHE_TIMEOUT
 
-Default: 0
+Default: `0`
 
 The number of seconds to retain cache entries before automatically invalidating
 them. Setting the value to 0 will disable the use of the caching functionality.
@@ -72,7 +72,7 @@ them. Setting the value to 0 will disable the use of the caching functionality.
 
 ## CACHE_BGP_DETAIL_TIMEOUT
 
-Default: 900
+Default: `900`
 
 The number of seconds to retain cache entries for NAPALM BGP details data
 before automatically invalidating them. It improves the speed of operations
@@ -253,7 +253,7 @@ The roles that devices must have in the NetBox instance that will be queried.
 
 ## RELEASE_CHECK_URL
 
-Default: "https://api.github.com/repos/peering-manager/peering-manager/releases"
+Default: `https://api.github.com/repos/peering-manager/peering-manager/releases`
 
 The URL to detect new releases, which are shown on the home page of the web
 interface. You can change this to your own fork, or set it to None to disable
@@ -261,8 +261,18 @@ it. The URL provided must be compatible with the GitHub API.
 
 ## RELEASE_CHECK_TIMEOUT
 
-Default: 86400 (24 hours)
+Default: `86400` (24 hours)
 
 The number of seconds to retain the latest version that is fetched from the
 GitHub API before fetching it from the API again. This value cannot be set to
 less than 3600 seconds (1 hour).
+
+---
+
+## REQUESTS_USER_AGENT
+
+Default: "PeeringManager/x.y"
+
+User agent that Peering Manager will user when making requests to external
+HTTP resources. It should probably not be changed unless you have issues with
+specific HTTP endpoints.

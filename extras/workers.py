@@ -1,6 +1,7 @@
 import logging
 
 import requests
+from django.conf import settings
 from django_rq import job
 
 from utils.functions import generate_signature
@@ -15,7 +16,10 @@ def process_webhook(
     """
     Makes a request to the defined Webhook endpoint.
     """
-    headers = {"Content-Type": webhook.http_content_type}
+    headers = {
+        "User-Agent": settings.REQUESTS_USER_AGENT,
+        "Content-Type": webhook.http_content_type,
+    }
     context = {
         "event": event.lower(),
         "timestamp": timestamp,
