@@ -4,9 +4,7 @@
 <div class="row">
   <div class="col-md-6">
     <div class="card mb-2">
-      <div class="card-header">
-        <strong>IX Details</strong>
-      </div>
+      <div class="card-header"><strong>IX Details</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
           <td>Name</td>
@@ -20,24 +18,20 @@
     </div>
     {% if instance.linked_to_peeringdb %}
     <div class="card mb-2">
-      <div class="card-header">
-        <strong>IX Prefixes</strong>
-      </div>
+      <div class="card-header"><strong>IX Prefixes</strong></div>
       <ul class="list-group list-group-flush">
         {% for ixlan_prefix in instance.get_prefixes %}
         <li class="list-group-item">{{ ixlan_prefix.prefix }}</li>
         {% endfor %}
       </ul>
       <div class="card-footer">
-        <small><sup>1)</sup> These are the prefixes used to connect to the IX network.
-        {% if instance.router and instance.router.platform %}<br /><sup>2)</sup> They can be used to discover peering sessions already setup on the router.{% endif %}</small>
+        <small>These are the prefixes used to connect to the IX network.</small>
       </div>
     </div>
     {% endif %}
+    {% include 'includes/contacts.html' %}
     <div class="card">
-      <div class="card-header">
-        <strong>Comments</strong>
-      </div>
+      <div class="card-header"><strong>Comments</strong></div>
       <div class="card-body">
         {% if instance.comments %}
         {{ instance.comments|markdown }}
@@ -50,9 +44,7 @@
   </div>
   <div class="col-md-6">
     <div class="card mb-2">
-      <div class="card-header">
-        <strong>BGP Communities</strong>
-      </div>
+      <div class="card-header"><strong>BGP Communities</strong></div>
       {% if instance.communities.all.count > 0 %}
       <ul class="list-group list-group-flush">
       {% for community in instance.communities.all %}
@@ -62,15 +54,11 @@
       {% endfor %}
       </ul>
       {% else %}
-      <div class="card-body">
-        <span class="text-muted">None</span>
-      </div>
+      <div class="card-body"><span class="text-muted">None</span></div>
       {% endif %}
     </div>
     <div class="card">
-      <div class="card-header">
-        <strong>Routing Policies</strong>
-      </div>
+      <div class="card-header"><strong>Routing Policies</strong></div>
       {% if instance.export_routing_policies.all.count > 0 or instance.import_routing_policies.all.count > 0 %}
       <ul class="list-group list-group-flush">
       {% for routing_policy in instance.export_routing_policies.all %}
@@ -85,9 +73,7 @@
       {% endfor %}
       </ul>
       {% else %}
-      <div class="card-body">
-        <span class="text-muted">None</span>
-      </div>
+      <div class="card-body"><span class="text-muted">None</span></div>
       {% endif %}
     </div>
   </div>

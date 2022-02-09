@@ -527,6 +527,7 @@ class InternetExchange(AbstractGroup):
     local_autonomous_system = models.ForeignKey(
         to="peering.AutonomousSystem", on_delete=models.CASCADE, null=True
     )
+    contacts = GenericRelation(to="messaging.ContactAssignment")
 
     logger = logging.getLogger("peering.manager.peering")
 
