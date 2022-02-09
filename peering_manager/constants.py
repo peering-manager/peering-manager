@@ -4,7 +4,7 @@ from devices.filters import ConfigurationFilterSet
 from devices.models import Configuration
 from devices.tables import ConfigurationTable
 from messaging.filters import ContactFilterSet, EmailFilterSet
-from messaging.models import Contact, Email
+from messaging.models import Contact, ContactAssignment, Email
 from messaging.tables import ContactTable, EmailTable
 from net.filters import ConnectionFilterSet
 from net.models import Connection
@@ -60,7 +60,9 @@ SEARCH_TYPES = OrderedDict(
         (
             "contact",
             {
-                "queryset": Contact.objects.all(),
+                "queryset": Contact.objects.prefetch_related("assignments").annotate(
+                    assignment_count=count_related(ContactAssignment, "contact")
+                ),
                 "filterset": ContactFilterSet,
                 "table": ContactTable,
                 "url": "messaging:contact_list",

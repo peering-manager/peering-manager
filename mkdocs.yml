@@ -59,6 +59,7 @@ nav:
         - Messaging:
             - Contact: "models/messaging/contact.md"
             - Contact Role: "models/messaging/contactrole.md"
+            - Contact Assignment: "models/messaging/contactassignment.md"
             - E-mail: "models/messaging/email.md"
         - Extras:
             - IX-API: "models/extras/ixapi.md"

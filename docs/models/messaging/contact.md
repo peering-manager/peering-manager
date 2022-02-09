@@ -12,10 +12,3 @@ Each contact must include a name, which is unique to its parent group (if any). 
 * `Email`: an e-mail address the contact can be reached at
 * `Address`: a location the contact where the contact can be
 * `Comments`: a text to your liking to provide more details about the contact
-
-## Contact Assignment
-
-Each contact can be assigned to one or more autonomous systems, allowing for
-the efficient reuse of contact information. When assigning a contact to an AS,
-the user may optionally specify a role to better convey the nature of the
-contact's relationship to the assigned AS.
