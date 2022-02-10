@@ -81,7 +81,7 @@
         {% if instance.peeringdb_network.policy_url %}
         <tr>
           <td>URL</td>
-          <td>{{ instance.peeringdb_network.policy_url }}</td>
+          <td>{{ instance.peeringdb_network.policy_url|urlize }}</td>
         </tr>
         {% endif %}
         {% if instance.peeringdb_network.policy_general %}
