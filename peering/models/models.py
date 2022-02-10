@@ -643,17 +643,13 @@ class InternetExchange(AbstractGroup):
         if not self.linked_to_peeringdb:
             return NetworkIXLan.objects.none()
 
-        # Get all peering sessions currently existing
-        ipv6_sessions = self.get_peering_sessions().filter(ip_address__family=6)
-        ipv4_sessions = self.get_peering_sessions().filter(ip_address__family=4)
+        # Get all session IPs already setup
+        ip_addresses = self.get_peering_sessions().values_list("ip_address", flat=True)
 
         return NetworkIXLan.objects.filter(
             ~Q(asn=self.local_autonomous_system.asn)
             & Q(ixlan=self.peeringdb_ixlan)
-            & (
-                ~Q(ipaddr6__in=ipv6_sessions.values_list("ip_address", flat=True))
-                | ~Q(ipaddr4__in=ipv4_sessions.values_list("ip_address", flat=True))
-            )
+            & (~Q(ipaddr6__in=ip_addresses) | ~Q(ipaddr4__in=ip_addresses))
         ).order_by("asn")
 
     def get_ixapi_network_service(self):
