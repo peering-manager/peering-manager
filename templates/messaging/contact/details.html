@@ -1,9 +1,10 @@
 {% extends 'messaging/contact/_base.html' %}
+{% load render_table from django_tables2 %}
 {% load helpers %}
 {% block subcontent %}
 <div class="row">
   <div class="col-md-6">
-    <div class="card">
+    <div class="card mb-2">
       <div class="card-header"><strong>Contact Details</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
@@ -44,12 +45,14 @@
           <td>{{ instance.address|linebreaksbr|render_none }}</td>
         </tr>
         <tr>
-          <th scope="row">Assignments</th>
+          <td>Assignments</td>
           <td>{{ assignment_count }}</td>
         </tr>
       </table>
     </div>
-    <div class="card my-2">
+  </div>
+  <div class="col-md-6">
+    <div class="card mb-2">
       <div class="card-header"><strong>Comments</strong></div>
       <div class="card-body">
         {% if instance.comments %}
@@ -60,6 +63,12 @@
       </div>
     </div>
     {% include 'includes/tags_card.html' with tags=instance.tags.all url='messaging:contactrole_list' %}
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    {% include 'utils/responsive_table.html' %}
+    {% include 'includes/pagination.html' with paginator=table.paginator page=table.page %}
   </div>
 </div>
 {% endblock %}

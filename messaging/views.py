@@ -14,8 +14,14 @@ from messaging.forms import (
     EmailForm,
 )
 from messaging.models import Contact, ContactAssignment, ContactRole, Email
-from messaging.tables import ContactRoleTable, ContactTable, EmailTable
+from messaging.tables import (
+    ContactAssignmentTable,
+    ContactRoleTable,
+    ContactTable,
+    EmailTable,
+)
 from utils.functions import count_related
+from utils.tables import paginate_table
 from utils.views import (
     AddOrEditView,
     BulkDeleteView,
@@ -94,13 +100,23 @@ class ContactList(PermissionRequiredMixin, ModelListView):
     template = "messaging/contact/list.html"
 
 
-class ContactDetails(DetailsView):
+class ContactDetails(PermissionRequiredMixin, ModelListView):
     permission_required = "messaging.view_contact"
-    queryset = Contact.objects.all()
+    table = ContactAssignmentTable
+    template = "messaging/contact/details.html"
 
-    def get_context(self, request, **kwargs):
+    def build_queryset(self, request, kwargs):
+        instance = get_object_or_404(Contact, pk=kwargs["pk"])
+        return ContactAssignment.objects.filter(contact=instance)
+
+    def extra_context(self, kwargs):
+        instance = get_object_or_404(Contact, pk=kwargs["pk"])
+
         return {
-            "instance": get_object_or_404(self.queryset, **kwargs),
+            "instance": instance,
+            "assignment_count": ContactAssignment.objects.filter(
+                contact=instance
+            ).count(),
             "active_tab": "main",
         }
 

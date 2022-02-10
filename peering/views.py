@@ -215,11 +215,11 @@ class AutonomousSystemPeeringDB(PermissionRequiredMixin, ModelListView):
     table = NetworkContactTable
     template = "peering/autonomoussystem/peeringdb.html"
 
-    def build_queryset(self, request, kwargs):
+    def build_queryset(self, request, **kwargs):
         instance = get_object_or_404(AutonomousSystem, pk=kwargs["pk"])
         return instance.peeringdb_contacts
 
-    def extra_context(self, kwargs):
+    def extra_context(self, **kwargs):
         return {
             "instance": get_object_or_404(AutonomousSystem, pk=kwargs["pk"]),
             "active_tab": "peeringdb",

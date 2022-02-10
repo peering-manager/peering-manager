@@ -1,10 +1,11 @@
 import django_tables2 as tables
 
-from messaging.models import Contact, ContactRole, Email
+from messaging.models import Contact, ContactAssignment, ContactRole, Email
 from utils.tables import (
     BaseTable,
     BooleanColumn,
     ButtonsColumn,
+    ContentTypeColumn,
     SelectColumn,
     TagColumn,
     linkify_phone,
@@ -54,6 +55,19 @@ class ContactTable(BaseTable):
             "email",
             "actions",
         )
+
+
+class ContactAssignmentTable(BaseTable):
+    content_type = ContentTypeColumn(verbose_name="Object Type")
+    object = tables.Column(linkify=True, orderable=False)
+    contact = tables.Column(linkify=True)
+    role = tables.Column(linkify=True)
+    actions = ButtonsColumn(model=ContactAssignment, buttons=("edit", "delete"))
+
+    class Meta(BaseTable.Meta):
+        model = ContactAssignment
+        fields = ("content_type", "object", "contact", "role", "actions")
+        default_columns = ("content_type", "object", "contact", "role", "actions")
 
 
 class EmailTable(BaseTable):

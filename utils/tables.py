@@ -6,7 +6,9 @@ from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import RelatedField
 from django.utils.safestring import mark_safe
 
+from .functions import content_type_identifier, content_type_name
 from .models import ObjectChange, Tag
+from .paginators import EnhancedPaginator, get_paginate_count
 
 OBJECT_CHANGE_ACTION = """
 {% if record.action == "create" %}
@@ -34,9 +36,23 @@ OBJECT_CHANGE_REQUEST_ID = """
 
 
 def linkify_phone(value):
+    """
+    Returns a user friendly clickable phone string.
+    """
     if value is None:
         return None
     return f"tel:{value}"
+
+
+def paginate_table(table, request):
+    """
+    Paginates a table given a request context.
+    """
+    paginate = {
+        "paginator_class": EnhancedPaginator,
+        "per_page": get_paginate_count(request),
+    }
+    tables.RequestConfig(request, paginate).configure(table)
 
 
 class BaseTable(tables.Table):
@@ -251,6 +267,22 @@ class ColourColumn(tables.Column):
         return mark_safe(
             f'<span class="label color-block" style="background-color: #{value}">&nbsp;</span>'
         )
+
+
+class ContentTypeColumn(tables.Column):
+    """
+    Display a ContentType instance.
+    """
+
+    def render(self, value):
+        if value is None:
+            return None
+        return content_type_name(value)
+
+    def value(self, value):
+        if value is None:
+            return None
+        return content_type_identifier(value)
 
 
 class ObjectChangeTable(BaseTable):
