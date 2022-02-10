@@ -473,18 +473,6 @@ class DirectPeeringSession(BGPSession):
             "autonomous_system",
             "ip_address",
         ]
-        constraints = [
-            models.UniqueConstraint(
-                fields=[
-                    "local_autonomous_system",
-                    "autonomous_system",
-                    "local_ip_address",
-                    "ip_address",
-                    "relationship",
-                ],
-                name="unique_directpeeringsession_as_ip_relationship",
-            )
-        ]
 
     def __str__(self):
         return f"{self.relationship} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
