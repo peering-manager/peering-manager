@@ -182,9 +182,9 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
 
         filter = {"autonomous_system": self}
         if internet_exchange_point:
-            filter["ixp_connection__id__in"] = Connection.objects.filter(
-                internet_exchange_point=internet_exchange_point
-            ).values_list("id", flat=True)
+            filter[
+                "ixp_connection__id__in"
+            ] = internet_exchange_point.get_connections().values_list("id", flat=True)
         ip_sessions = InternetExchangePeeringSession.objects.filter(
             **filter
         ).values_list("ip_address", flat=True)
@@ -644,22 +644,16 @@ class InternetExchange(AbstractGroup):
             return NetworkIXLan.objects.none()
 
         # Get all peering sessions currently existing
-        existing_sessions = self.get_peering_sessions()
-        ipv6_sessions = []
-        ipv4_sessions = []
-        for session in existing_sessions:
-            ip = ipaddress.ip_address(session.ip_address)
-            if ip.version == 6:
-                ipv6_sessions.append(ip)
-            elif ip.version == 4:
-                ipv4_sessions.append(ip)
-            else:
-                self.logger.debug(f"peering session with strange ip: {ip}")
+        ipv6_sessions = self.get_peering_sessions().filter(ip_address__family=6)
+        ipv4_sessions = self.get_peering_sessions().filter(ip_address__family=4)
 
         return NetworkIXLan.objects.filter(
             ~Q(asn=self.local_autonomous_system.asn)
             & Q(ixlan=self.peeringdb_ixlan)
-            & (~Q(ipaddr6__in=ipv6_sessions) | ~Q(ipaddr4__in=ipv4_sessions))
+            & (
+                ~Q(ipaddr6__in=ipv6_sessions.values_list("ip_address", flat=True))
+                | ~Q(ipaddr4__in=ipv4_sessions.values_list("ip_address", flat=True))
+            )
         ).order_by("asn")
 
     def get_ixapi_network_service(self):
