@@ -2,7 +2,7 @@
 {% block subcontent %}
 <div class="row">
   <div class="col-md-2">
-    {% if perms.peering.deploy_router_configuration and instance.platform %}
+    {% if perms.peering.deploy_router_configuration and instance.is_usable_for_task %}
     <div class="custom-control custom-switch btn-block">
       <input type="checkbox" class="custom-control-input" id="compare-switch" checked>
       <label class="custom-control-label" for="compare-switch">Compare before commit</label>
@@ -20,7 +20,7 @@
   </div>
   <div class="col" id="configuration"></div>
 </div>
-{% if perms.peering.deploy_router_configuration and instance.platform %}
+{% if perms.peering.deploy_router_configuration and instance.is_usable_for_task %}
 <div class="modal fade" id="main-modal" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-lg" id="main-dialog" role="document">
     <div class="modal-content" id="main-content">
@@ -39,7 +39,7 @@
 </div>
 {% endif %}
 {% endblock %}
-{% if perms.peering.deploy_router_configuration and instance.platform %}
+{% if perms.peering.deploy_router_configuration and instance.is_usable_for_task %}
 {% block javascript %}
 <script>
   function deployFailHandler() {
@@ -147,9 +147,9 @@
     temp.remove();
   });
 
-  var router_in_maintenance = {% if instance.device_state == 'maintenance' %}true{% else %}false{% endif %};
+  var maintenance = {% if instance.device_state == 'maintenance' %}true{% else %}false{% endif %};
   $('#deploy').click(function () {
-    var commit = $('#compare-switch').is(':checked') || router_in_maintenance;
+    var commit = !$('#compare-switch').is(':checked') || maintenance;
     $.ajax({
       method: 'post',
       url: "{% url 'peering-api:router-configure' %}",
