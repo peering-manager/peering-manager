@@ -78,7 +78,7 @@
           modal_text = '<p>No configuration differences found.</p>';
         } else {
           modal_text = '<p>Configuration differences:</p><pre class="pre-scrollable">' + output + '</pre>';
-          if (router_in_maintenance) {
+          if (maintenance) {
             modal_text = '<div class="alert alert-warning" role="alert">This router is in maintenance, proceed with care!</div>' + modal_text;
           }
           $('#commit').removeClass('invisible');
