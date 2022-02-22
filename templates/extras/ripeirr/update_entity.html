@@ -1,0 +1,43 @@
+{% extends '_base.html' %}
+{% load form_helpers %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'extras:ripeirr_list' %}">RIPE IRR</a></li>
+{% endblock %}
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  {% for field in form.hidden_fields %}
+  {{ field }}
+  {% endfor %}
+  <div class="row justify-content-center">
+    <div class="col-8">
+      {% if form.non_field_errors %}
+      <div class="card bg-danger text-white my-2">
+        <div class="card-header"><strong>Errors</strong></div>
+        <div class="card-body">
+          {{ form.non_field_errors }}
+        </div>
+      </div>
+      {% endif %}
+      {% block form %}
+      <div class="card my-2">
+        <div class="card-header"><strong>Update autonomous system {{ instance }} on RIPE IRR</strong></div>
+        <div class="card-body">
+          {% render_form form %}
+          <div>
+            <label><strong>Body</strong></label>
+            <pre>{{ preview }}</pre>
+          </div>
+        </div>
+      </div>
+      {% endblock %}
+    </div>
+  </div>
+  <div class="row justify-content-center">
+    <div class="col-8 text-right">
+      <button type="submit" class="btn btn-primary">Update</button>
+      <a class="btn btn-secondary" href="{{ return_url }}">Cancel</a>
+    </div>
+  </div>
+</form>
+{% endblock %}

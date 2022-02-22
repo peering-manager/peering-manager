@@ -5,7 +5,7 @@ from django.db.models import Q
 from utils.filters import BaseFilterSet, ContentTypeFilter
 
 from .enums import HttpMethod, JobResultStatus
-from .models import IXAPI, JobResult, Webhook
+from .models import IXAPI, JobResult, RipeIrr, Webhook
 
 
 class IXAPIFilterSet(BaseFilterSet):
@@ -53,6 +53,17 @@ class JobResultFilterSet(BaseFilterSet):
         return queryset.filter(
             Q(name__icontains=value) | Q(user__username__icontains=value)
         )
+
+
+class RipeIrrFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(method="search", label="Search")
+
+    class Meta:
+        model = RipeIrr
+        fields = ["id", "name"]
+
+    def search(self, queryset, name, value):
+        return queryset
 
 
 class WebhookFilterSet(BaseFilterSet):

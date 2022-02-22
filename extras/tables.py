@@ -3,7 +3,7 @@ from django.conf import settings
 
 from utils.tables import BaseTable, ButtonsColumn, SelectColumn
 
-from .models import IXAPI, JobResult
+from .models import IXAPI, JobResult, RipeIrr
 
 
 class IXAPITable(BaseTable):
@@ -64,3 +64,12 @@ class JobResultTable(BaseTable):
             "data",
         )
         default_columns = ("pk", "created", "name", "user", "status", "data")
+
+
+class RipeIrrTable(BaseTable):
+    name = tables.Column(linkify=True)
+
+    class Meta(BaseTable.Meta):
+        model = RipeIrr
+        fields = ("name",)
+        default_columns = ("name",)

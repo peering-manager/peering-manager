@@ -10,6 +10,11 @@
           <a class="btn btn-xs btn-primary" href="{{ settings.PEERINGDB }}{{ instance.asn }}" target="_blank">
             <i class="fas fa-external-link-alt"></i> PeeringDB
           </a>
+          {% if instance.affiliated %}
+          <a class="btn btn-xs btn-primary" href="{% url 'extras:ripeirr_update_entity' pk=instance.pk %}">
+            <i class="fas fa-edit"></i> Update on RIPE
+          </a>
+          {% endif %}
           {% if perms.peering.change_autonomoussystem and peeringdb_last_synchronization %}
           <button class="btn btn-xs btn-success" id="synchronize-with-peeringdb">
             <i class="fas fa-sync"></i> Synchronize

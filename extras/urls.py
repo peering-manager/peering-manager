@@ -20,6 +20,28 @@ urlpatterns = [
         name="ixapi_changelog",
         kwargs={"model": models.IXAPI},
     ),
+    path("ripe-irr/", views.RipeIrrListView.as_view(), name="ripeirr_list"),
+    path("ripe-irr/add/", views.RipeIrrAddView.as_view(), name="ripeirr_add"),
+    path("ripe-irr/<int:pk>/", views.RipeIrrView.as_view(), name="ripeirr_details"),
+    path(
+        "ripe-irr/<int:pk>/edit/", views.RipeIrrEditView.as_view(), name="ripeirr_edit"
+    ),
+    path(
+        "ripe-irr/<int:pk>/delete/",
+        views.RipeIrrDeleteView.as_view(),
+        name="ripeirr_delete",
+    ),
+    path(
+        "ripe-irr/aut-num/<int:pk>/update/",
+        views.RipeIrrUpdateEntityView.as_view(),
+        name="ripeirr_update_entity",
+    ),
+    path(
+        "ripe-irr/<int:pk>/changelog/",
+        ObjectChangeLog.as_view(),
+        name="ripeirr_changelog",
+        kwargs={"model": models.RipeIrr},
+    ),
     path("job-results/", views.JobResultListView.as_view(), name="jobresult_list"),
     path("job-results/<int:pk>/", views.JobResultView.as_view(), name="jobresult_view"),
     path(

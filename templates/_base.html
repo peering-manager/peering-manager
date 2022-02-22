@@ -136,7 +136,7 @@
                 <span class="ml-4">E-mails</span>
               </a>
             </div>
-            <a href="#third_party_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/ix-api/' %} active{% endif %}">
+            <a href="#third_party_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/ix-api/' or request.path|contains:'/ripe-irr/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
                 3rd Party <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
               </div>
@@ -144,6 +144,9 @@
             <div id="third_party_menu_id" class="collapse sidebar-submenu">
               <a href="{% url 'extras:ixapi_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/ix-api/' %} active{% endif %}">
                 <span class="ml-4">IX-API</span>
+              </a>
+              <a href="{% url 'extras:ripeirr_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/ripe-irr/' %} active{% endif %}">
+                <span class="ml-4">RIPE IRR</span>
               </a>
             </div>
             <a href="#other_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/bgp/relationships/,/job-results/,/tags/,/changelog/' %} active{% endif %}">

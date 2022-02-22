@@ -12,7 +12,7 @@ from utils.forms import (
 )
 
 from .enums import JobResultStatus
-from .models import IXAPI, JobResult
+from .models import IXAPI, JobResult, RipeIrr
 
 
 class IXAPIForm(BootstrapMixin, forms.ModelForm):
@@ -65,3 +65,18 @@ class JobResultFilterForm(BootstrapMixin, forms.Form):
         choices=add_blank_choice(JobResultStatus.choices),
         widget=StaticSelect(),
     )
+
+
+class RipeIrrForm(BootstrapMixin, forms.ModelForm):
+    class Meta:
+        model = RipeIrr
+        fields = ("name", "password")
+
+
+class RipeIrrFilterForm(BootstrapMixin, forms.Form):
+    model = RipeIrr
+    q = forms.CharField(required=False, label="Search")
+
+
+class RipeIrrEntityUpdateForm(BootstrapMixin, forms.Form):
+    ripe_irr = forms.ModelChoiceField(queryset=RipeIrr.objects.all(), label="RIPE IRR")

@@ -1,4 +1,4 @@
 from .ix_api import IXAPI
-from .models import JobResult, Webhook
+from .models import JobResult, RipeIrr, Webhook
 
-__all__ = ("IXAPI", "JobResult", "Webhook")
+__all__ = ("IXAPI", "JobResult", "Webhook", "RipeIrr")

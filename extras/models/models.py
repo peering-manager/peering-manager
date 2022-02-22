@@ -204,6 +204,17 @@ class JobResult(models.Model):
         )
 
 
+class RipeIrr(models.Model):
+    name = models.CharField(max_length=255)
+    password = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"RIPE IRR {self.name}"
+
+    def get_absolute_url(self):
+        return reverse("extras:ripeirr_details", args=[self.pk])
+
+
 class Webhook(models.Model):
     """
     A Webhook defines a request that will be sent to a remote HTTP server when an
