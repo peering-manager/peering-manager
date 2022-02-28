@@ -18,7 +18,7 @@ HOSTNAME = platform.node()
 BASE_DIR = Path(__file__).resolve().parent.parent
 DOCS_DIR = BASE_DIR / "docs"
 
-VERSION = "v1.5.3-dev"
+VERSION = "v1.6.0"
 
 major, minor, _ = platform.python_version_tuple()
 if (int(major), int(minor)) < (3, 6):
