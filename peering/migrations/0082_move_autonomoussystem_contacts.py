@@ -18,12 +18,17 @@ class Migration(migrations.Migration):
         ContentType = apps.get_model("contenttypes", "ContentType")
         AutonomousSystemType = ContentType.objects.get_for_model(AutonomousSystem)
 
-        # Create a placeholder role
-        role = ContactRole.objects.using(db_alias).create(name="FIXME", slug="fixme")
-        # Get AS with a contact name set
-        for asn in AutonomousSystem.objects.using(db_alias).exclude(
+        as_with_contact = AutonomousSystem.objects.using(db_alias).exclude(
             contact_email__exact=""
-        ):
+        )
+        if not as_with_contact:
+            return
+
+        # Create a placeholder role
+        role = ContactRole.objects.using(db_alias).create(
+            name="FIXME", slug="fixme", description="Used to migrate known old contacts"
+        )
+        for asn in as_with_contact:
             try:
                 contact = Contact.objects.using(db_alias).get(name=asn.contact_email)
             except Contact.DoesNotExist:
