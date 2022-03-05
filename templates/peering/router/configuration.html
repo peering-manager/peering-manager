@@ -149,7 +149,12 @@
 
   var maintenance = {% if instance.device_state == 'maintenance' %}true{% else %}false{% endif %};
   $('#deploy').click(function () {
-    var commit = !$('#compare-switch').is(':checked') || maintenance;
+    // Enable compare before commit if switch is checked or if the router is in maintenance mode
+    var commit = true;
+    if ($('#compare-switch').is(':checked') || maintenance) {
+      commit = false;
+    }
+
     $.ajax({
       method: 'post',
       url: "{% url 'peering-api:router-configure' %}",
