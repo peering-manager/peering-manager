@@ -87,7 +87,7 @@ class Connection(ChangeLoggedModel, TaggableModel):
 
         # If data imported from PDB is null+null then there the query
         # could return many objects and will runtime.
-        if self.ipv4_address is None and self.ipv4_address is None:
+        if self.ipv4_address is None and self.ipv6_address is None:
             return None
 
         try:
