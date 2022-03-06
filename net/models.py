@@ -84,6 +84,12 @@ class Connection(ChangeLoggedModel, TaggableModel):
         any other cases `None` will be returned. The value will also be saved in the
         corresponding field of the model.
         """
+
+        # If data imported from PDB is null+null then there the query
+        # could return many objects and will runtime.
+        if self.ipv4_address is None and self.ipv4_address is None:
+            return None
+
         try:
             netixlan = NetworkIXLan.objects.get(
                 ipaddr6=self.ipv6_address, ipaddr4=self.ipv4_address
