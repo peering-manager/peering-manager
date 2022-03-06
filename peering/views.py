@@ -621,6 +621,9 @@ class InternetExchangePeeringDBImport(PermissionRequiredMixin, ReturnURLMixin, V
             )
 
             for connection in connections:
+                if not connection.cidr4 and not connection.cidr6:
+                    # PeeringDB has no address data; skip!
+                    continue
                 Connection.objects.create(
                     peeringdb_netixlan=connection,
                     internet_exchange_point=i,

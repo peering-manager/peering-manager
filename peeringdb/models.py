@@ -476,11 +476,17 @@ class NetworkIXLan(models.Model):
 
     @property
     def cidr4(self):
-        return self.cidr(address_family=4)
+        try:
+            return self.cidr(address_family=4)
+        except ValueError:
+            return None
 
     @property
     def cidr6(self):
-        return self.cidr(address_family=6)
+        try:
+            return self.cidr(address_family=6)
+        except ValueError:
+            return None
 
     def get_ixlan_prefix(self, address_family=0):
         """
