@@ -96,7 +96,11 @@ class PasswordField(forms.CharField):
     """
 
     def __init__(self, password_source="password", render_value=False, *args, **kwargs):
-        widget = kwargs.pop("widget", forms.PasswordInput(render_value=render_value))
+        password_input = forms.PasswordInput(
+            render_value=render_value,
+            attrs={"autocomplete": "new-password"},
+        )
+        widget = kwargs.pop("widget", password_input)
         label = kwargs.pop("label", "Password")
         empty_value = kwargs.pop("empty_value", None)
         super().__init__(
