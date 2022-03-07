@@ -9,7 +9,7 @@ jobs:
     name: black
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Python
         uses: actions/setup-python@v3
         with:
@@ -27,7 +27,7 @@ jobs:
     name: isort
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Python
         uses: actions/setup-python@v3
         with:
@@ -79,7 +79,7 @@ jobs:
         ports:
           - 6379:6379
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Python
         uses: actions/setup-python@v3
         with:
