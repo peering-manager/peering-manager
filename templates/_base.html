@@ -88,8 +88,8 @@
               </div>
             </a>
             <div id="provisioning_menu_id" class="collapse sidebar-submenu">
-              <a href="{% url 'peering:provisioning_allixpeers' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/all-available-ix-peers/' %} active{% endif %}">
-                <span class="menu-collapsed">All Available IX Peers</span>
+              <a href="{% url 'peering:provisioning_ixppeers' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/all-available-ix-peers/' %} active{% endif %}">
+                <span class="menu-collapsed">Available IXP Peers</span>
               </a>
             </div>
             <a href="#policy_options_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/communities/,/routing-policies/' %} active{% endif %}">

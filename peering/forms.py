@@ -736,7 +736,7 @@ class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         required=False, widget=CustomNullBooleanSelect
     )
     poll_bgp_sessions_state = forms.NullBooleanField(
-        required=False, widget=CustomNullBooleanSelect
+        required=False, widget=CustomNullBooleanSelect, label="Poll BGP sessions state"
     )
     configuration_template = DynamicModelChoiceField(
         required=False, queryset=Configuration.objects.all()

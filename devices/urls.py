@@ -20,8 +20,8 @@ urlpatterns = [
     ),
     path(
         "devices/configurations/<int:pk>/",
-        views.ConfigurationDetails.as_view(),
-        name="configuration_details",
+        views.ConfigurationView.as_view(),
+        name="configuration_view",
     ),
     path(
         "devices/configurations/<int:pk>/edit/",

@@ -3,8 +3,14 @@ from django.core.paginator import Page, Paginator
 
 
 class EnhancedPaginator(Paginator):
+    default_page_lengths = (25, 50, 100, 250, 500, 1000)
+
     def __init__(self, object_list, per_page, orphans=None, **kwargs):
-        if not isinstance(per_page, int) or per_page < 1:
+        try:
+            per_page = int(per_page)
+            if per_page < 1:
+                per_page = settings.PAGINATE_COUNT
+        except ValueError:
             per_page = settings.PAGINATE_COUNT
 
         # Set orphans count based on page size
@@ -15,6 +21,11 @@ class EnhancedPaginator(Paginator):
 
     def _get_page(self, *args, **kwargs):
         return EnhancedPage(*args, **kwargs)
+
+    def get_page_lengths(self):
+        if self.per_page not in self.default_page_lengths:
+            return sorted([*self.default_page_lengths, self.per_page])
+        return self.default_page_lengths
 
 
 class EnhancedPage(Page):

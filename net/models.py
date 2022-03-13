@@ -75,7 +75,7 @@ class Connection(ChangeLoggedModel, TaggableModel):
         return s or f"Connection #{self.pk}"
 
     def get_absolute_url(self):
-        return reverse("net:connection_details", args=[self.pk])
+        return reverse("net:connection_view", args=[self.pk])
 
     def link_to_peeringdb(self):
         """

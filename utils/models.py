@@ -101,7 +101,7 @@ class ObjectChange(models.Model):
         return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("utils:objectchange_details", args=[self.pk])
+        return reverse("utils:objectchange_view", args=[self.pk])
 
     def get_html_icon(self):
         icon = '<i class="fas fa-question-circle text-secondary"></i>'
@@ -122,7 +122,7 @@ class Tag(TagBase, ChangeLoggedModel):
         ordering = ["name"]
 
     def get_absolute_url(self):
-        return reverse("utils:tag_details", args=[self.pk])
+        return reverse("utils:tag_view", args=[self.pk])
 
 
 class TaggedItem(GenericTaggedItemBase):

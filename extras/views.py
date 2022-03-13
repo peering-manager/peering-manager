@@ -1,13 +1,10 @@
-from django.shortcuts import get_object_or_404
-
 from peering.models.models import InternetExchange
-from utils.views import (
-    AddOrEditView,
+from peering_manager.views.generics import (
     BulkDeleteView,
-    DeleteView,
-    DetailsView,
-    ModelListView,
-    PermissionRequiredMixin,
+    ObjectDeleteView,
+    ObjectEditView,
+    ObjectListView,
+    ObjectView,
 )
 
 from .filters import IXAPIFilterSet, JobResultFilterSet
@@ -16,23 +13,21 @@ from .models import IXAPI, JobResult
 from .tables import IXAPITable, JobResultTable
 
 
-class IXAPIListView(PermissionRequiredMixin, ModelListView):
+class IXAPIListView(ObjectListView):
     permission_required = "extras.view_ixapi"
     queryset = IXAPI.objects.all()
-    filter = IXAPIFilterSet
-    filter_form = IXAPIFilterForm
+    filterset = IXAPIFilterSet
+    filterset_form = IXAPIFilterForm
     table = IXAPITable
-    template = "extras/ixapi/list.html"
+    template_name = "extras/ixapi/list.html"
 
 
-class IXAPIView(DetailsView):
+class IXAPIView(ObjectView):
     permission_required = "extras.view_ixapi"
     queryset = IXAPI.objects.all()
 
-    def get_context(self, request, **kwargs):
-        instance = get_object_or_404(IXAPI, **kwargs)
+    def get_extra_context(self, request, instance):
         return {
-            "instance": instance,
             "internet_exchange_points": InternetExchange.objects.filter(
                 ixapi_endpoint=instance
             ),
@@ -40,48 +35,46 @@ class IXAPIView(DetailsView):
         }
 
 
-class IXAPIAddView(PermissionRequiredMixin, AddOrEditView):
+class IXAPIAddView(ObjectEditView):
     permission_required = "extras.add_ixapi"
-    model = IXAPI
-    form = IXAPIForm
-    return_url = "extras:ixapi_list"
-    template = "extras/ixapi/add_edit.html"
+    queryset = IXAPI.objects.all()
+    model_form = IXAPIForm
+    template_name = "extras/ixapi/add_edit.html"
 
 
-class IXAPIEditView(PermissionRequiredMixin, AddOrEditView):
+class IXAPIEditView(ObjectEditView):
     permission_required = "extras.change_ixapi"
-    model = IXAPI
-    form = IXAPIForm
-    template = "extras/ixapi/add_edit.html"
+    queryset = IXAPI.objects.all()
+    model_form = IXAPIForm
+    template_name = "extras/ixapi/add_edit.html"
 
 
-class IXAPIDeleteView(PermissionRequiredMixin, DeleteView):
+class IXAPIDeleteView(ObjectDeleteView):
     permission_required = "extras.delete_ixapi"
-    model = IXAPI
-    return_url = "extras:ixapi_list"
+    queryset = IXAPI.objects.all()
 
 
-class JobResultListView(PermissionRequiredMixin, ModelListView):
+class JobResultListView(ObjectListView):
     permission_required = "extras.view_jobresult"
     queryset = JobResult.objects.all()
-    filter = JobResultFilterSet
-    filter_form = JobResultFilterForm
+    filterset = JobResultFilterSet
+    filterset_form = JobResultFilterForm
     table = JobResultTable
-    template = "extras/jobresult/list.html"
+    template_name = "extras/jobresult/list.html"
 
 
-class JobResultDeleteView(PermissionRequiredMixin, DeleteView):
+class JobResultDeleteView(ObjectDeleteView):
     permission_required = "extras.delete_jobresult"
-    model = JobResult
-    return_url = "extras:jobresult_list"
+    queryset = JobResult.objects.all()
 
 
-class JobResultBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+class JobResultBulkDeleteView(BulkDeleteView):
     permission_required = "extras.delete_jobresult"
-    model = JobResult
+    queryset = JobResult.objects.all()
+    filterset = JobResultFilterSet
     table = JobResultTable
 
 
-class JobResultView(DetailsView):
+class JobResultView(ObjectView):
     permission_required = "extras.view_jobresult"
     queryset = JobResult.objects.all()

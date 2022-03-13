@@ -20,100 +20,92 @@ from messaging.tables import (
     ContactTable,
     EmailTable,
 )
-from utils.functions import count_related
-from utils.tables import paginate_table
-from utils.views import (
-    AddOrEditView,
+from peering_manager.views.generics import (
     BulkDeleteView,
     BulkEditView,
-    DeleteView,
-    DetailsView,
-    ModelListView,
-    PermissionRequiredMixin,
+    ObjectDeleteView,
+    ObjectEditView,
+    ObjectListView,
+    ObjectView,
 )
+from utils.functions import count_related
+from utils.tables import paginate_table
 
 
-class ContactRoleList(PermissionRequiredMixin, ModelListView):
+class ContactRoleList(ObjectListView):
     permission_required = "messaging.view_contactrole"
     queryset = ContactRole.objects.all()
-    filter = ContactRoleFilterSet
-    filter_form = ContactRoleFilterForm
+    filterset = ContactRoleFilterSet
+    filterset_form = ContactRoleFilterForm
     table = ContactRoleTable
-    template = "messaging/contactrole/list.html"
+    template_name = "messaging/contactrole/list.html"
 
 
-class ContactRoleDetails(DetailsView):
+class ContactRoleView(ObjectView):
     permission_required = "messaging.view_contactrole"
     queryset = ContactRole.objects.all()
 
-    def get_context(self, request, **kwargs):
-        return {
-            "instance": get_object_or_404(self.queryset, **kwargs),
-            "active_tab": "main",
-        }
+    def get_extra_context(self, request, instance):
+        return {"active_tab": "main"}
 
 
-class ContactRoleAdd(PermissionRequiredMixin, AddOrEditView):
+class ContactRoleAdd(ObjectEditView):
     permission_required = "messaging.add_contactrole"
-    model = ContactRole
-    form = ContactRoleForm
-    return_url = "bgp:relationship_list"
-    template = "bgp/relationship/add_edit.html"
+    queryset = ContactRole.objects.all()
+    model_form = ContactRoleForm
+    template_name = "messaging/contactrole/add_edit.html"
 
 
-class ContactRoleEdit(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "messaging.change_contactrole"
-    model = ContactRole
-    form = ContactRoleForm
-    template = "messaging/contactrole/add_edit.html"
-
-
-class ContactRoleBulkEdit(PermissionRequiredMixin, BulkEditView):
+class ContactRoleBulkEdit(BulkEditView):
     permission_required = "messaging.change_contactrole"
     queryset = ContactRole.objects.all()
-    filter = ContactRoleFilterSet
+    filterset = ContactRoleFilterSet
     table = ContactRoleTable
     form = ContactRoleBulkEditForm
 
 
-class ContactRoleDelete(PermissionRequiredMixin, DeleteView):
-    permission_required = "messaging.delete_contactrole"
-    model = ContactRole
-    return_url = "messaging:contactrole_list"
+class ContactRoleEdit(ObjectEditView):
+    permission_required = "messaging.change_contactrole"
+    queryset = ContactRole.objects.all()
+    model_form = ContactRoleForm
+    template_name = "messaging/contactrole/add_edit.html"
 
 
-class ContactRoleBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+class ContactRoleDelete(ObjectDeleteView):
     permission_required = "messaging.delete_contactrole"
-    model = ContactRole
-    filter = ContactRoleFilterSet
+    queryset = ContactRole.objects.all()
+
+
+class ContactRoleBulkDelete(BulkDeleteView):
+    permission_required = "messaging.delete_contactrole"
+    queryset = ContactRole.objects.all()
+    filterset = ContactRoleFilterSet
     table = ContactRoleTable
 
 
-class ContactList(PermissionRequiredMixin, ModelListView):
+class ContactList(ObjectListView):
     permission_required = "messaging.view_contact"
     queryset = Contact.objects.annotate(
         assignment_count=count_related(ContactAssignment, "contact")
     )
-    filter = ContactFilterSet
-    filter_form = ContactFilterForm
+    filterset = ContactFilterSet
+    filterset_form = ContactFilterForm
     table = ContactTable
-    template = "messaging/contact/list.html"
+    template_name = "messaging/contact/list.html"
 
 
-class ContactDetails(PermissionRequiredMixin, ModelListView):
+class ContactView(ObjectView):
     permission_required = "messaging.view_contact"
-    table = ContactAssignmentTable
-    template = "messaging/contact/details.html"
+    queryset = Contact.objects.all()
 
-    def build_queryset(self, request, kwargs):
-        instance = get_object_or_404(Contact, pk=kwargs["pk"])
-        return ContactAssignment.objects.filter(contact=instance)
-
-    def extra_context(self, kwargs):
-        instance = get_object_or_404(Contact, pk=kwargs["pk"])
+    def get_extra_context(self, request, instance):
+        contact_assignments = ContactAssignment.objects.filter(contact=instance)
+        assignments_table = ContactAssignmentTable(contact_assignments)
+        assignments_table.columns.hide("contact")
+        paginate_table(assignments_table, request)
 
         return {
-            "instance": instance,
+            "assignments_table": assignments_table,
             "assignment_count": ContactAssignment.objects.filter(
                 contact=instance
             ).count(),
@@ -121,47 +113,45 @@ class ContactDetails(PermissionRequiredMixin, ModelListView):
         }
 
 
-class ContactAdd(PermissionRequiredMixin, AddOrEditView):
+class ContactAdd(ObjectEditView):
     permission_required = "messaging.add_contact"
-    model = Contact
-    form = ContactForm
-    return_url = "messaging:relationship_list"
-    template = "messaging/contact/add_edit.html"
+    queryset = Contact.objects.all()
+    model_form = ContactForm
+    template_name = "messaging/contact/add_edit.html"
 
 
-class ContactEdit(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "messaging.change_contact"
-    model = Contact
-    form = ContactForm
-    template = "messaging/contact/add_edit.html"
-
-
-class ContactBulkEdit(PermissionRequiredMixin, BulkEditView):
+class ContactEdit(ObjectEditView):
     permission_required = "messaging.change_contact"
     queryset = Contact.objects.all()
-    filter = ContactFilterSet
+    model_form = ContactForm
+    template_name = "messaging/contact/add_edit.html"
+
+
+class ContactBulkEdit(BulkEditView):
+    permission_required = "messaging.change_contact"
+    queryset = Contact.objects.all()
+    filterset = ContactFilterSet
     table = ContactTable
     form = ContactBulkEditForm
 
 
-class ContactDelete(PermissionRequiredMixin, DeleteView):
+class ContactDelete(ObjectDeleteView):
     permission_required = "messaging.delete_contact"
-    model = Contact
-    return_url = "messaging:contact_list"
+    queryset = Contact.objects.all()
 
 
-class ContactBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+class ContactBulkDelete(BulkDeleteView):
     permission_required = "messaging.delete_contact"
-    model = Contact
-    filter = ContactFilterSet
+    queryset = Contact.objects.all()
+    filterset = ContactFilterSet
     table = ContactTable
 
 
-class ContactAssignmentEditView(PermissionRequiredMixin, AddOrEditView):
+class ContactAssignmentEditView(ObjectEditView):
     permission_required = "messaging.edit_contactassignment"
-    model = ContactAssignment
-    form = ContactAssignmentForm
-    template = "messaging/contactassignment/add_edit.html"
+    queryset = ContactAssignment.objects.all()
+    model_form = ContactAssignmentForm
+    template_name = "messaging/contactassignment/add_edit.html"
 
     def alter_object(self, instance, request, args, kwargs):
         if not instance.pk:
@@ -174,54 +164,49 @@ class ContactAssignmentEditView(PermissionRequiredMixin, AddOrEditView):
         return instance
 
 
-class ContactAssignmentDeleteView(PermissionRequiredMixin, DeleteView):
+class ContactAssignmentDeleteView(ObjectDeleteView):
     permission_required = "messaging.delete_contactassignment"
-    model = ContactAssignment
+    queryset = ContactAssignment.objects.all()
 
 
-class EmailList(PermissionRequiredMixin, ModelListView):
+class EmailList(ObjectListView):
     permission_required = "messaging.view_email"
     queryset = Email.objects.all()
-    filter = EmailFilterSet
-    filter_form = EmailFilterForm
+    filterset = EmailFilterSet
+    filterset_form = EmailFilterForm
     table = EmailTable
-    template = "messaging/email/list.html"
+    template_name = "messaging/email/list.html"
 
 
-class EmailAdd(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "messaging.add_email"
-    model = Email
-    form = EmailForm
-    template = "messaging/email/add_edit.html"
-    return_url = "messaging:email_list"
-
-
-class EmailDetails(DetailsView):
+class EmailView(ObjectView):
     permission_required = "messaging.view_email"
     queryset = Email.objects.all()
 
-    def get_context(self, request, **kwargs):
-        return {
-            "instance": get_object_or_404(self.queryset, **kwargs),
-            "active_tab": "main",
-        }
+    def get_extra_context(self, request, instance):
+        return {"active_tab": "main"}
 
 
-class EmailEdit(PermissionRequiredMixin, AddOrEditView):
+class EmailAdd(ObjectEditView):
+    permission_required = "messaging.add_email"
+    queryset = Email.objects.all()
+    model_form = EmailForm
+    template_name = "messaging/email/add_edit.html"
+
+
+class EmailEdit(ObjectEditView):
     permission_required = "messaging.change_email"
-    model = Email
-    form = EmailForm
-    template = "messaging/email/add_edit.html"
+    queryset = Email.objects.all()
+    model_form = EmailForm
+    template_name = "messaging/email/add_edit.html"
 
 
-class EmailDelete(PermissionRequiredMixin, DeleteView):
+class EmailDelete(ObjectDeleteView):
     permission_required = "messaging.delete_email"
-    model = Email
-    return_url = "messaging:email_list"
+    queryset = Email.objects.all()
 
 
-class EmailBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+class EmailBulkDelete(BulkDeleteView):
     permission_required = "messaging.delete_email"
-    model = Email
-    filter = EmailFilterSet
+    queryset = Email.objects.all()
+    filterset = EmailFilterSet
     table = EmailTable

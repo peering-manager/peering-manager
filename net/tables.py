@@ -34,4 +34,3 @@ class ConnectionTable(BaseTable):
             "router",
             "actions",
         )
-        empty_text = "None"

@@ -18,8 +18,8 @@ urlpatterns = [
     ),
     path(
         "bgp/relationships/<int:pk>/",
-        views.RelationshipDetails.as_view(),
-        name="relationship_details",
+        views.RelationshipView.as_view(),
+        name="relationship_view",
     ),
     path(
         "bgp/relationships/<int:pk>/edit/",

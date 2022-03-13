@@ -135,12 +135,6 @@ $(document).ready(function () {
     templateSelection: colorPickerClassCopy
   });
 
-
-  // Pagination
-  $('select#id_per_page').change(function () {
-    this.form.submit();
-  });
-
   function generateSlug(value) {
     value = value.replace(/[^\-\.\w\s]/g, '');        // Remove unneeded chars
     value = value.replace(/^[\s\.]+|[\s\.]+$/g, '');  // Trim leading/trailing spaces

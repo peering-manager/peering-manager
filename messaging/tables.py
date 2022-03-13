@@ -22,7 +22,7 @@ class ContactRoleTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = ContactRole
         fields = ("pk", "name", "slug", "description", "actions")
-        default_columns = ("pk", "name", "actions")
+        default_columns = ("pk", "name", "description", "actions")
 
 
 class ContactTable(BaseTable):

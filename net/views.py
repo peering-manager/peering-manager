@@ -1,70 +1,63 @@
-from django.shortcuts import get_object_or_404
-
 from net.filters import ConnectionFilterSet
 from net.forms import ConnectionBulkEditForm, ConnectionFilterForm, ConnectionForm
 from net.models import Connection
 from net.tables import ConnectionTable
-from utils.views import (
-    AddOrEditView,
+from peering_manager.views.generics import (
     BulkDeleteView,
     BulkEditView,
-    DeleteView,
-    DetailsView,
-    ModelListView,
-    PermissionRequiredMixin,
+    ObjectDeleteView,
+    ObjectEditView,
+    ObjectListView,
+    ObjectView,
 )
 
 
-class ConnectionList(PermissionRequiredMixin, ModelListView):
+class ConnectionList(ObjectListView):
     permission_required = "net.view_connection"
     queryset = Connection.objects.prefetch_related("internet_exchange_point", "router")
-    filter = ConnectionFilterSet
-    filter_form = ConnectionFilterForm
+    filterset = ConnectionFilterSet
+    filterset_form = ConnectionFilterForm
     table = ConnectionTable
-    template = "net/connection/list.html"
+    template_name = "net/connection/list.html"
 
 
-class ConnectionAdd(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "net.add_connection"
-    model = Connection
-    form = ConnectionForm
-    template = "net/connection/add_edit.html"
-
-
-class ConnectionDelete(PermissionRequiredMixin, DeleteView):
-    permission_required = "net.delete_connection"
-    model = Connection
-    return_url = "net:connection_list"
-
-
-class ConnectionDetails(DetailsView):
+class ConnectionView(ObjectView):
     permission_required = "net.view_connection"
     queryset = Connection.objects.all()
 
-    def get_context(self, request, **kwargs):
-        return {
-            "instance": get_object_or_404(self.queryset, **kwargs),
-            "active_tab": "main",
-        }
+    def get_extra_context(self, request, instance):
+        return {"active_tab": "main"}
 
 
-class ConnectionEdit(PermissionRequiredMixin, AddOrEditView):
+class ConnectionAdd(ObjectEditView):
+    permission_required = "net.add_connection"
+    queryset = Connection.objects.all()
+    model_form = ConnectionForm
+    template_name = "net/connection/add_edit.html"
+
+
+class ConnectionEdit(ObjectEditView):
     permission_required = "net.change_connection"
-    model = Connection
-    form = ConnectionForm
-    template = "net/connection/add_edit.html"
+    queryset = Connection.objects.all()
+    model_form = ConnectionForm
+    template_name = "net/connection/add_edit.html"
 
 
-class ConnectionBulkEdit(PermissionRequiredMixin, BulkEditView):
+class ConnectionBulkEdit(BulkEditView):
     permission_required = "net.change_connection"
     queryset = Connection.objects.select_related("internet_exchange_point", "router")
-    filter = ConnectionFilterSet
+    filterset = ConnectionFilterSet
     table = ConnectionTable
     form = ConnectionBulkEditForm
 
 
-class ConnectionBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+class ConnectionDelete(ObjectDeleteView):
     permission_required = "net.delete_connection"
-    model = Connection
-    filter = ConnectionFilterSet
+    queryset = Connection.objects.all()
+
+
+class ConnectionBulkDelete(BulkDeleteView):
+    permission_required = "net.delete_connection"
+    queryset = Connection.objects.all()
+    filterset = ConnectionFilterSet
     table = ConnectionTable

@@ -27,7 +27,7 @@ class ContactRole(ChangeLoggedModel, TaggableModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("messaging:contactrole_details", args=[self.pk])
+        return reverse("messaging:contactrole_view", args=[self.pk])
 
 
 class Contact(ChangeLoggedModel, TaggableModel):
@@ -45,7 +45,7 @@ class Contact(ChangeLoggedModel, TaggableModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("messaging:contact_details", args=[self.pk])
+        return reverse("messaging:contact_view", args=[self.pk])
 
 
 class ContactAssignment(ChangeLoggedModel):
@@ -79,7 +79,7 @@ class Email(Template):
     subject = models.CharField(max_length=512)
 
     def get_absolute_url(self):
-        return reverse("messaging:email_details", args=[self.pk])
+        return reverse("messaging:email_view", args=[self.pk])
 
     def render(self, variables):
         """

@@ -339,7 +339,6 @@ class RouterConnectionTable(BaseTable):
             "internet_exchange_point",
             "actions",
         )
-        empty_text = "None"
 
 
 class RouterTable(BaseTable):

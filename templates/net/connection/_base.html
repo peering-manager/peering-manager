@@ -18,7 +18,7 @@
 {% block content %}
 <ul class="nav nav-tabs">
   <li class="nav-item">
-    <a class="nav-link{% if active_tab == 'main' %} active{% endif %}" href="{% url 'net:connection_details' pk=instance.pk %}">
+    <a class="nav-link{% if active_tab == 'main' %} active{% endif %}" href="{% url 'net:connection_view' pk=instance.pk %}">
       <i class="fas fa-info-circle"></i> Info
     </a>
   </li>

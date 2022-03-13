@@ -23,7 +23,7 @@ class Relationship(ChangeLoggedModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("bgp:relationship_details", args=[self.pk])
+        return reverse("bgp:relationship_view", args=[self.pk])
 
     def get_html(self):
         return mark_safe(

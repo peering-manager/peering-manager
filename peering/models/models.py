@@ -119,7 +119,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
         return self.import_routing_policies.all()
 
     def get_absolute_url(self):
-        return reverse("peering:autonomoussystem_details", args=[self.pk])
+        return reverse("peering:autonomoussystem_view", args=[self.pk])
 
     def get_internet_exchange_peering_sessions_list_url(self):
         return reverse(
@@ -185,12 +185,12 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
             filter[
                 "ixp_connection__id__in"
             ] = internet_exchange_point.get_connections().values_list("id", flat=True)
-        ip_sessions = InternetExchangePeeringSession.objects.filter(
+        ip_addresses = InternetExchangePeeringSession.objects.filter(
             **filter
         ).values_list("ip_address", flat=True)
 
         qs_filter = Q(asn=self.asn) & (
-            ~Q(ipaddr6__in=ip_sessions) | ~Q(ipaddr4__in=ip_sessions)
+            ~Q(ipaddr6__in=ip_addresses) | ~Q(ipaddr4__in=ip_addresses)
         )
         if internet_exchange_point:
             qs_filter &= Q(ixlan=internet_exchange_point.peeringdb_ixlan)
@@ -393,7 +393,7 @@ class BGPGroup(AbstractGroup):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("peering:bgpgroup_details", args=[self.pk])
+        return reverse("peering:bgpgroup_view", args=[self.pk])
 
     def get_peering_sessions_list_url(self):
         return reverse("peering:bgpgroup_peering_sessions", args=[self.pk])
@@ -424,7 +424,7 @@ class Community(ChangeLoggedModel, TaggableModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("peering:community_details", args=[self.pk])
+        return reverse("peering:community_view", args=[self.pk])
 
     def get_type_html(self):
         if self.type == CommunityType.EGRESS:
@@ -478,7 +478,7 @@ class DirectPeeringSession(BGPSession):
         return f"{self.relationship} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
 
     def get_absolute_url(self):
-        return reverse("peering:directpeeringsession_details", args=[self.pk])
+        return reverse("peering:directpeeringsession_view", args=[self.pk])
 
     def poll(self):
         if not self.router:
@@ -552,7 +552,7 @@ class InternetExchange(AbstractGroup):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("peering:internetexchange_details", args=[self.pk])
+        return reverse("peering:internetexchange_view", args=[self.pk])
 
     def get_peering_sessions_list_url(self):
         return reverse("peering:internetexchange_peering_sessions", args=[self.pk])
@@ -824,7 +824,7 @@ class InternetExchangePeeringSession(BGPSession):
         return f"{self.ixp_connection.internet_exchange_point.name} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
 
     def get_absolute_url(self):
-        return reverse("peering:internetexchangepeeringsession_details", args=[self.pk])
+        return reverse("peering:internetexchangepeeringsession_view", args=[self.pk])
 
     def poll(self):
         if not self.ixp_connection.router:
@@ -946,7 +946,7 @@ class Router(ChangeLoggedModel, TaggableModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("peering:router_details", args=[self.pk])
+        return reverse("peering:router_view", args=[self.pk])
 
     def get_direct_peering_sessions_list_url(self):
         return reverse("peering:router_direct_peering_sessions", args=[self.pk])
@@ -1678,7 +1678,7 @@ class RoutingPolicy(ChangeLoggedModel, TaggableModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("peering:routingpolicy_details", args=[self.pk])
+        return reverse("peering:routingpolicy_view", args=[self.pk])
 
     def get_type_html(self, display_name=False):
         if self.type == RoutingPolicyType.EXPORT:

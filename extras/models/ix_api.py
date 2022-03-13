@@ -425,7 +425,7 @@ class IXAPI(ChangeLoggedModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("extras:ixapi_details", args=[self.pk])
+        return reverse("extras:ixapi_view", args=[self.pk])
 
     def dial(self):
         """

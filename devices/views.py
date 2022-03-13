@@ -1,103 +1,95 @@
 from django.db.models import Count
-from django.shortcuts import get_object_or_404
 
 from devices.filters import ConfigurationFilterSet, PlatformFilterSet
 from devices.forms import ConfigurationFilterForm, ConfigurationForm, PlatformForm
 from devices.models import Configuration, Platform
 from devices.tables import ConfigurationTable, PlatformTable
 from peering.models import Router
-from utils.views import (
-    AddOrEditView,
+from peering_manager.views.generics import (
     BulkDeleteView,
-    DeleteView,
-    DetailsView,
-    ModelListView,
-    PermissionRequiredMixin,
+    ObjectDeleteView,
+    ObjectEditView,
+    ObjectListView,
+    ObjectView,
 )
 
 
-class ConfigurationList(PermissionRequiredMixin, ModelListView):
+class ConfigurationList(ObjectListView):
     permission_required = "devices.view_configuration"
     queryset = Configuration.objects.all()
-    filter = ConfigurationFilterSet
-    filter_form = ConfigurationFilterForm
+    filterset = ConfigurationFilterSet
+    filterset_form = ConfigurationFilterForm
     table = ConfigurationTable
-    template = "devices/configuration/list.html"
+    template_name = "devices/configuration/list.html"
 
 
-class ConfigurationAdd(PermissionRequiredMixin, AddOrEditView):
-    permission_required = "devices.add_configuration"
-    model = Configuration
-    form = ConfigurationForm
-    template = "devices/configuration/add_edit.html"
-    return_url = "devices:configuration_list"
-
-
-class ConfigurationDetails(DetailsView):
+class ConfigurationView(ObjectView):
     permission_required = "devices.view_configuration"
     queryset = Configuration.objects.all()
 
-    def get_context(self, request, **kwargs):
-        instance = get_object_or_404(self.queryset, **kwargs)
+    def get_extra_context(self, request, instance):
         return {
-            "instance": instance,
             "routers": Router.objects.filter(configuration_template=instance),
             "active_tab": "main",
         }
 
 
-class ConfigurationEdit(PermissionRequiredMixin, AddOrEditView):
+class ConfigurationAdd(ObjectEditView):
+    permission_required = "devices.add_configuration"
+    queryset = Configuration.objects.all()
+    model_form = ConfigurationForm
+    template_name = "devices/configuration/add_edit.html"
+
+
+class ConfigurationEdit(ObjectEditView):
     permission_required = "devices.change_configuration"
-    model = Configuration
-    form = ConfigurationForm
-    template = "devices/configuration/add_edit.html"
+    queryset = Configuration.objects.all()
+    model_form = ConfigurationForm
+    template_name = "devices/configuration/add_edit.html"
 
 
-class ConfigurationDelete(PermissionRequiredMixin, DeleteView):
+class ConfigurationDelete(ObjectDeleteView):
     permission_required = "devices.delete_configuration"
-    model = Configuration
-    return_url = "devices:configuration_list"
+    queryset = Configuration.objects.all()
 
 
-class ConfigurationBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+class ConfigurationBulkDelete(BulkDeleteView):
     permission_required = "devices.delete_configuration"
-    model = Configuration
-    filter = ConfigurationFilterSet
+    queryset = Configuration.objects.all()
+    filterset = ConfigurationFilterSet
     table = ConfigurationTable
 
 
-class PlatformList(PermissionRequiredMixin, ModelListView):
+class PlatformList(ObjectListView):
     permission_required = "devices.view_platform"
     queryset = Platform.objects.annotate(
         router_count=Count("router", distinct=True)
     ).order_by("name")
     table = PlatformTable
-    template = "devices/platform/list.html"
+    template_name = "devices/platform/list.html"
 
 
-class PlatformAdd(PermissionRequiredMixin, AddOrEditView):
+class PlatformAdd(ObjectEditView):
     permission_required = "devices.add_platform"
-    model = Platform
-    form = PlatformForm
-    return_url = "devices:platform_list"
-    template = "devices/platform/add_edit.html"
+    queryset = Platform.objects.all()
+    model_form = PlatformForm
+    template_name = "devices/platform/add_edit.html"
 
 
-class PlatformEdit(PermissionRequiredMixin, AddOrEditView):
+class PlatformEdit(ObjectEditView):
     permission_required = "devices.change_platform"
-    model = Platform
-    form = PlatformForm
-    template = "devices/platform/add_edit.html"
+    queryset = Platform.objects.all()
+    model_form = PlatformForm
+    template_name = "devices/platform/add_edit.html"
 
 
-class PlatformDelete(PermissionRequiredMixin, DeleteView):
+class PlatformDelete(ObjectDeleteView):
     permission_required = "devices.delete_platform"
-    model = Platform
-    return_url = "devices:platform_list"
+    queryset = Platform.objects.all()
 
 
-class PlatformBulkDelete(PermissionRequiredMixin, BulkDeleteView):
+class PlatformBulkDelete(BulkDeleteView):
     permission_required = "devices.delete_platform"
-    model = Platform
-    filter = PlatformFilterSet
+    queryset = Platform.objects.all()
+    filterset = PlatformFilterSet
     table = PlatformTable

@@ -8,16 +8,24 @@ app_name = "peering"
 
 urlpatterns = [
     # Autonomous Systems
-    path("autonomous-systems/", views.ASList.as_view(), name="autonomoussystem_list"),
-    path("autonomous-systems/add/", views.ASAdd.as_view(), name="autonomoussystem_add"),
+    path(
+        "autonomous-systems/",
+        views.AutonomousSystemList.as_view(),
+        name="autonomoussystem_list",
+    ),
+    path(
+        "autonomous-systems/add/",
+        views.AutonomousSystemAdd.as_view(),
+        name="autonomoussystem_add",
+    ),
     path(
         "autonomous-systems/<int:pk>/",
-        views.ASDetails.as_view(),
-        name="autonomoussystem_details",
+        views.AutonomousSystemView.as_view(),
+        name="autonomoussystem_view",
     ),
     path(
         "autonomous-systems/<int:pk>/edit/",
-        views.ASEdit.as_view(),
+        views.AutonomousSystemEdit.as_view(),
         name="autonomoussystem_edit",
     ),
     path(
@@ -27,7 +35,7 @@ urlpatterns = [
     ),
     path(
         "autonomous-systems/<int:pk>/email/",
-        views.ASEmail.as_view(),
+        views.AutonomousSystemEmail.as_view(),
         name="autonomoussystem_email",
     ),
     path(
@@ -38,12 +46,12 @@ urlpatterns = [
     ),
     path(
         "autonomous-systems/<int:pk>/delete/",
-        views.ASDelete.as_view(),
+        views.AutonomousSystemDelete.as_view(),
         name="autonomoussystem_delete",
     ),
     path(
         "autonomous-systems/delete/",
-        views.ASBulkDelete.as_view(),
+        views.AutonomousSystemBulkDelete.as_view(),
         name="autonomoussystem_bulk_delete",
     ),
     path(
@@ -61,11 +69,6 @@ urlpatterns = [
         views.AutonomousSystemPeers.as_view(),
         name="autonomoussystem_peers",
     ),
-    path(
-        "autonomous-systems/add_from_peeringdb/",
-        views.AutonomousSystemAddFromPeeringDB.as_view(),
-        name="autonomoussystem_add_from_peeringdb",
-    ),
     # BGP Groups
     path("bgp-groups/", views.BGPGroupList.as_view(), name="bgpgroup_list"),
     path("bgp-groups/add/", views.BGPGroupAdd.as_view(), name="bgpgroup_add"),
@@ -77,9 +80,7 @@ urlpatterns = [
     path(
         "bgp-groups/edit/", views.BGPGroupBulkEdit.as_view(), name="bgpgroup_bulk_edit"
     ),
-    path(
-        "bgp-groups/<int:pk>/", views.BGPGroupDetails.as_view(), name="bgpgroup_details"
-    ),
+    path("bgp-groups/<int:pk>/", views.BGPGroupView.as_view(), name="bgpgroup_view"),
     path(
         "bgp-groups/<int:pk>/edit/", views.BGPGroupEdit.as_view(), name="bgpgroup_edit"
     ),
@@ -102,11 +103,7 @@ urlpatterns = [
     # BGP Communities
     path("communities/", views.CommunityList.as_view(), name="community_list"),
     path("communities/add/", views.CommunityAdd.as_view(), name="community_add"),
-    path(
-        "communities/<int:pk>/",
-        views.CommunityDetails.as_view(),
-        name="community_details",
-    ),
+    path("communities/<int:pk>/", views.CommunityView.as_view(), name="community_view"),
     path(
         "communities/<int:pk>/edit/",
         views.CommunityEdit.as_view(),
@@ -141,8 +138,8 @@ urlpatterns = [
     ),
     path(
         "direct-peering-sessions/<int:pk>/",
-        views.DirectPeeringSessionDetails.as_view(),
-        name="directpeeringsession_details",
+        views.DirectPeeringSessionView.as_view(),
+        name="directpeeringsession_view",
     ),
     path(
         "direct-peering-sessions/add/",
@@ -214,8 +211,8 @@ urlpatterns = [
     ),
     path(
         "internet-exchanges/<int:pk>/",
-        views.InternetExchangeDetails.as_view(),
-        name="internetexchange_details",
+        views.InternetExchangeView.as_view(),
+        name="internetexchange_view",
     ),
     path(
         "internet-exchanges/<int:pk>/edit/",
@@ -255,8 +252,8 @@ urlpatterns = [
     ),
     path(
         "internet-exchange-peering-sessions/<int:pk>/",
-        views.InternetExchangePeeringSessionDetails.as_view(),
-        name="internetexchangepeeringsession_details",
+        views.InternetExchangePeeringSessionView.as_view(),
+        name="internetexchangepeeringsession_view",
     ),
     path(
         "internet-exchange-peering-sessions/<int:pk>/edit/",
@@ -276,7 +273,7 @@ urlpatterns = [
     ),
     path(
         "internet-exchange-peering-sessions/add_from_peeringdb/",
-        views.InternetExchangePeeringSessionAddFromPeeringDB.as_view(),
+        views.InternetExchangePeeringSessionImportFromPeeringDB.as_view(),
         name="internetexchangepeeringsession_add_from_peeringdb",
     ),
     path(
@@ -292,7 +289,7 @@ urlpatterns = [
     # Routers
     path("routers/", views.RouterList.as_view(), name="router_list"),
     path("routers/add/", views.RouterAdd.as_view(), name="router_add"),
-    path("routers/<int:pk>/", views.RouterDetails.as_view(), name="router_details"),
+    path("routers/<int:pk>/", views.RouterView.as_view(), name="router_view"),
     path(
         "routers/<int:pk>/connections/",
         views.RouterConnections.as_view(),
@@ -340,8 +337,8 @@ urlpatterns = [
     ),
     path(
         "routing-policies/<int:pk>/",
-        views.RoutingPolicyDetails.as_view(),
-        name="routingpolicy_details",
+        views.RoutingPolicyView.as_view(),
+        name="routingpolicy_view",
     ),
     path(
         "routing-policies/<int:pk>/edit/",
@@ -369,10 +366,10 @@ urlpatterns = [
         views.RoutingPolicyBulkEdit.as_view(),
         name="routingpolicy_bulk_edit",
     ),
-    # Provisioning Views
+    # Provisioning
     path(
-        "provisioning/all-available-ix-peers/",
-        views.ProvisioningAllAvailableIXPeers.as_view(),
-        name="provisioning_allixpeers",
+        "provisioning/available-ix-peers/",
+        views.ProvisioningAvailableIXPeers.as_view(),
+        name="provisioning_ixppeers",
     ),
 ]

@@ -11,9 +11,7 @@ urlpatterns = [
     path("messaging/contacts/", views.ContactList.as_view(), name="contact_list"),
     path("messaging/contacts/add/", views.ContactAdd.as_view(), name="contact_add"),
     path(
-        "messaging/contacts/<int:pk>/",
-        views.ContactDetails.as_view(),
-        name="contact_details",
+        "messaging/contacts/<int:pk>/", views.ContactView.as_view(), name="contact_view"
     ),
     path(
         "messaging/contacts/<int:pk>/edit/",
@@ -54,8 +52,8 @@ urlpatterns = [
     ),
     path(
         "messaging/contact-roles/<int:pk>/",
-        views.ContactRoleDetails.as_view(),
-        name="contactrole_details",
+        views.ContactRoleView.as_view(),
+        name="contactrole_view",
     ),
     path(
         "messaging/contact-roles/<int:pk>/edit/",
@@ -102,9 +100,7 @@ urlpatterns = [
     # E-mails
     path("messaging/emails/", views.EmailList.as_view(), name="email_list"),
     path("messaging/emails/add/", views.EmailAdd.as_view(), name="email_add"),
-    path(
-        "messaging/emails/<int:pk>/", views.EmailDetails.as_view(), name="email_details"
-    ),
+    path("messaging/emails/<int:pk>/", views.EmailView.as_view(), name="email_view"),
     path(
         "messaging/emails/<int:pk>/edit/", views.EmailEdit.as_view(), name="email_edit"
     ),

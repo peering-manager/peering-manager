@@ -2,9 +2,12 @@ import hashlib
 import hmac
 import json
 
+from django.contrib import messages
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
 from django.db.models.functions import Coalesce
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 from taggit.managers import _TaggableManager
 
 
@@ -23,6 +26,20 @@ def dict_to_filter_params(d, prefix=""):
             params[k] = val
 
     return params
+
+
+def normalize_querydict(querydict):
+    """
+    Converts a `QueryDict` to a normal, mutable dictionary, preserving list values.
+
+        QueryDict('foo=1&bar=2&bar=3&baz=')
+    becomes:
+        {'foo': '1', 'bar': ['2', '3'], 'baz': ''}
+
+    This function is necessary because `QueryDict` does not provide any built-in
+    mechanism which preserves multiple values.
+    """
+    return {k: v if len(v) > 1 else v[0] for k, v in querydict.lists()}
 
 
 def generate_signature(data, secret):
@@ -123,3 +140,38 @@ def content_type_identifier(ct):
     Return a "raw" `ContentType` identifier string (e.g. "peering.autonomoussystem").
     """
     return f"{ct.app_label}.{ct.model}"
+
+
+def get_permission_for_model(model, action):
+    """
+    Resolves the named permission for a given model and action.
+    """
+    if action not in ("view", "add", "change", "delete"):
+        raise ValueError(f"Unsupported action: {action}")
+
+    return f"{model._meta.app_label}.{action}_{model._meta.model_name}"
+
+
+def handle_protectederror(obj_list, request, e):
+    """
+    Generates a user-friendly error message in response to a `ProtectedError`
+    exception.
+    """
+    protected_objects = list(e.protected_objects)
+    protected_count = (
+        len(protected_objects) if len(protected_objects) <= 50 else "More than 50"
+    )
+    err_message = f"Unable to delete <strong>{', '.join(str(obj) for obj in obj_list)}</strong>. {protected_count} dependent objects were found: "
+
+    # Append dependent objects to error message
+    dependent_objects = []
+    for dependent in protected_objects[:50]:
+        if hasattr(dependent, "get_absolute_url"):
+            dependent_objects.append(
+                f'<a href="{dependent.get_absolute_url()}">{escape(dependent)}</a>'
+            )
+        else:
+            dependent_objects.append(str(dependent))
+    err_message += ", ".join(dependent_objects)
+
+    messages.error(request, mark_safe(err_message))

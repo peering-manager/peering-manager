@@ -102,12 +102,6 @@ BGPQ3_ARGS = getattr(
     {"ipv6": ["-r", "16", "-R", "48"], "ipv4": ["-r", "8", "-R", "24"]},
 )
 
-# Pagination
-PER_PAGE_SELECTION = [25, 50, 100, 250, 500, 1000]
-if PAGINATE_COUNT not in PER_PAGE_SELECTION:
-    PER_PAGE_SELECTION.append(PAGINATE_COUNT)
-    PER_PAGE_SELECTION = sorted(PER_PAGE_SELECTION)
-
 
 # Django filters
 FILTERS_NULL_CHOICE_LABEL = "-- None --"

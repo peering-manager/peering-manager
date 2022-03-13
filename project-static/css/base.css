@@ -127,9 +127,6 @@ div.dropdown-menu {
   line-height: .5;
   border-radius: .2rem;
 }
-select#id_per_page {
-  width: auto;
-}
 div#action_buttons {
   margin-left: 5px;
 }

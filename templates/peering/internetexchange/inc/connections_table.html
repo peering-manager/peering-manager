@@ -1,4 +1,4 @@
-{% extends 'utils/object_list.html' %}
+{% extends 'generic/object_list.html' %}
 {% block extra_buttons %}
 {% if perms.peering.change_internetexchange and perms.net.add_connection %}
 <a href="{% url 'net:connection_add' %}?internet_exchange_point={{ instance.pk }}&return_url={% url 'peering:internetexchange_connections' pk=instance.pk %}" class="btn btn-sm btn-primary">

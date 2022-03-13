@@ -10,9 +10,7 @@ urlpatterns = [
     # Connections
     path("connections/", views.ConnectionList.as_view(), name="connection_list"),
     path(
-        "connections/<int:pk>/",
-        views.ConnectionDetails.as_view(),
-        name="connection_details",
+        "connections/<int:pk>/", views.ConnectionView.as_view(), name="connection_view"
     ),
     path("connections/add/", views.ConnectionAdd.as_view(), name="connection_add"),
     path(

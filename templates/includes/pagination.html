@@ -1,6 +1,5 @@
 {% load helpers %}
 
-{% with paginator=table.paginator page=table.page %}
 <div class="paginator float-right text-right">
   {% if paginator.num_pages > 1 %}
   <div class="d-flex flex-row-reverse">
@@ -22,22 +21,18 @@
       </ul>
     </nav>
   </div>
-  <form method="get">
-    {% for k, v in request.GET.lists %}
-    {% if k != 'per_page' %}
-    {% for i in v %}
-    <input type="hidden" name="{{ k }}" value="{{ i }}" />
-    {% endfor %}
-    {% endif %}
-    {% endfor %}
-    <select class="custom-select custom-select-sm" name="per_page" id="id_per_page">
-      {% for n in settings.PER_PAGE_SELECTION %}
-      <option value="{{ n }}"{% if page.paginator.per_page == n %} selected="selected"{% endif %}>{{ n }}</option>
-      {% endfor %}
-    </select> per page
-  </form>
   {% endif %}
   {% if page %}
+  <div class="btn-group dropup">
+    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+      Per Page
+    </button>
+    <ul class="dropdown-menu">
+      {% for n in page.paginator.get_page_lengths %}
+      <a href="{% querystring request per_page=n %}" class="dropdown-item">{{ n }}</a>
+      {% endfor %}
+    </ul>
+  </div>
   <div class="d-flex flex-row-reverse">
     <div class="text-muted">
       Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.paginator.count }}
@@ -45,4 +40,3 @@
   </div>
   {% endif %}
 </div>
-{% endwith %}

@@ -14,7 +14,7 @@ __all__ = ("Configuration", "Platform")
 
 class Configuration(Template):
     def get_absolute_url(self):
-        return reverse("devices:configuration_details", args=[self.pk])
+        return reverse("devices:configuration_view", args=[self.pk])
 
     def render(self, variables):
         """

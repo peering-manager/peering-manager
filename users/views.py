@@ -159,7 +159,7 @@ class TokenAddEdit(LoginRequiredMixin, View):
 
         return render(
             request,
-            "utils/object_add_edit.html",
+            "generic/object_edit.html",
             {
                 "object": token,
                 "object_type": token._meta.verbose_name,
@@ -195,7 +195,7 @@ class TokenAddEdit(LoginRequiredMixin, View):
 
         return render(
             request,
-            "utils/object_add_edit.html",
+            "generic/object_edit.html",
             {
                 "object": token,
                 "object_type": token._meta.verbose_name,
@@ -215,7 +215,7 @@ class TokenDelete(PermissionRequiredMixin, View):
 
         return render(
             request,
-            "utils/object_delete.html",
+            "generic/object_delete.html",
             {
                 "object": token,
                 "object_type": token._meta.verbose_name,
@@ -234,7 +234,7 @@ class TokenDelete(PermissionRequiredMixin, View):
 
         return render(
             request,
-            "utils/object_delete.html",
+            "generic/object_delete.html",
             {
                 "object": token,
                 "object_type": token._meta.verbose_name,
