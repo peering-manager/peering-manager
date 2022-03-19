@@ -286,7 +286,11 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         ip_dst = cleaned_data["ip_address"]
 
         # Make sure that both local qnd remote IP addresses belong in the same subnet
-        if ip_src and (ip_src.network != ip_dst.network):
+        if (
+            cleaned_data["multihop_ttl"] == 1
+            and ip_src
+            and (ip_src.network != ip_dst.network)
+        ):
             raise ValidationError(
                 f"{ip_src} and {ip_dst} don't belong to the same subnet."
             )

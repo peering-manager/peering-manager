@@ -177,6 +177,18 @@ class DirectPeeringSessionSerializer(PrimaryModelSerializer):
             "tags",
         ]
 
+    def validate(self, attrs):
+        multihop_ttl = attrs.get("multihop_ttl")
+        ip_src = attrs.get("local_ip_address")
+        ip_dst = attrs.get("ip_address")
+
+        if multihop_ttl == 1 and ip_src and (ip_src.network != ip_dst.network):
+            raise serializers.ValidationError(
+                f"{ip_src} and {ip_dst} don't belong to the same subnet."
+            )
+
+        return super().validate(attrs)
+
 
 class InternetExchangeSerializer(PrimaryModelSerializer):
     ixapi_endpoint = NestedIXAPISerializer(required=False)
