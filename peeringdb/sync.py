@@ -82,7 +82,13 @@ class PeeringDB(object):
         logger.debug(f"calling api: {api_url} | {search}")
         response = requests.get(api_url, **q)
 
-        return response.json() if response.status_code == 200 else None
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            logger.error(e)
+            return None
+
+        return response.json()
 
     def record_last_sync(self, time, changes):
         """
