@@ -123,6 +123,20 @@ following items can be defined within the `EMAIL` setting:
 Note that `USE_TLS`/`USE_SSL` are mutually exclusive, so only set one of those
 settings to True.
 
+Example:
+
+```no-highlight
+EMAIL = {
+    'SERVER': 'localhost',
+    'FROM_ADDRESS': 'peering-manager@example.net',
+    'SUBJECT_PREFIX': '[Peering]'
+    'CC_CONTACTS': [
+        ('peering@example.net', 'Peering Contact'),
+        ('noc@example.net', 'NOC'),
+    ]
+}
+```
+
 ---
 
 ## PEERINGDB_API_KEY
