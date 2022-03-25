@@ -159,8 +159,8 @@ NETBOX_DEVICE_ROLES = getattr(
 )
 
 # PeeringDB URLs
-PEERINGDB_API = "https://peeringdb.com/api/"
-PEERINGDB = "https://peeringdb.com/asn/"
+PEERINGDB_API = "https://www.peeringdb.com/api/"
+PEERINGDB = "https://www.peeringdb.com/asn/"
 # To be removed in v2.0
 PEERINGDB_USERNAME = getattr(configuration, "PEERINGDB_USERNAME", "")
 PEERINGDB_PASSWORD = getattr(configuration, "PEERINGDB_PASSWORD", "")
