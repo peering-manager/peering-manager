@@ -30,6 +30,8 @@ from utils.models import ChangeLoggedModel, TaggableModel
 from .abstracts import AbstractGroup, BGPSession
 from .mixins import PolicyMixin
 
+logger = logging.getLogger("peering.manager.peering")
+
 
 class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
     asn = ASNField(unique=True, verbose_name="ASN")
@@ -58,8 +60,6 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
     prefixes = models.JSONField(blank=True, null=True, editable=False)
     affiliated = models.BooleanField(default=False)
     contacts = GenericRelation(to="messaging.ContactAssignment")
-
-    logger = logging.getLogger("peering.manager.peering")
 
     class Meta:
         ordering = ["asn", "affiliated"]
@@ -288,7 +288,7 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
 
         # If fallback is triggered or no prefixes found, try prefix lookup by ASN
         if fallback or not prefixes["ipv6"] and not prefixes["ipv4"]:
-            self.logger.debug(
+            logger.debug(
                 f"falling back to AS number lookup to search for AS{self.asn} prefixes"
             )
             prefixes["ipv6"].extend(
@@ -383,8 +383,6 @@ class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
 
 
 class BGPGroup(AbstractGroup):
-    logger = logging.getLogger("peering.manager.peering")
-
     class Meta(AbstractGroup.Meta):
         ordering = ["name", "slug"]
         verbose_name = "BGP group"
@@ -482,7 +480,7 @@ class DirectPeeringSession(BGPSession):
 
     def poll(self):
         if not self.router:
-            self.logger.debug(
+            logger.debug(
                 f"cannot poll bgp session state for {self.ip_address}, no router"
             )
             return False
@@ -516,8 +514,6 @@ class InternetExchange(AbstractGroup):
         to="peering.AutonomousSystem", on_delete=models.CASCADE, null=True
     )
     contacts = GenericRelation(to="messaging.ContactAssignment")
-
-    logger = logging.getLogger("peering.manager.peering")
 
     class Meta(AbstractGroup.Meta):
         ordering = ["local_autonomous_system", "name", "slug"]
@@ -594,6 +590,7 @@ class InternetExchange(AbstractGroup):
         if peeringdb_ixlan is not None:
             self.peeringdb_ixlan = peeringdb_ixlan
             self.save()
+            logger.debug(f"linked ixp {self} (pk: {self.pk}) to peeringdb")
 
         return peeringdb_ixlan
 
@@ -705,24 +702,24 @@ class InternetExchange(AbstractGroup):
         for session in sessions:
             ip = ipaddress.ip_address(session["ip_address"])
             if not is_valid(ip):
-                self.logger.debug(
+                logger.debug(
                     f"ignoring ixp session, {str(ip)} does not fit in any prefixes"
                 )
                 continue
 
-            self.logger.debug(f"processing ixp session {str(ip)}")
+            logger.debug(f"processing ixp session {str(ip)}")
             remote_asn = session["remote_asn"]
 
             try:
                 InternetExchangePeeringSession.objects.get(
                     ixp_connection=connection, ip_address=ip
                 )
-                self.logger.debug(
+                logger.debug(
                     f"ixp session {str(ip)} with as{remote_asn} already exists"
                 )
                 continue
             except InternetExchangePeeringSession.DoesNotExist:
-                self.logger.debug(
+                logger.debug(
                     f"ixp session {str(ip)} with as{remote_asn} does not exist"
                 )
 
@@ -731,25 +728,25 @@ class InternetExchange(AbstractGroup):
 
             # Do not count the AS if it does not have a PeeringDB record
             if autonomous_system:
-                self.logger.debug(f"as{remote_asn} created")
+                logger.debug(f"as{remote_asn} created")
                 asn_number += 1
             else:
                 if remote_asn not in ignored_autonomous_systems:
                     ignored_autonomous_systems.append(remote_asn)
-                    self.logger.debug(
+                    logger.debug(
                         f"could not create as{remote_asn}, session {str(ip)} ignored"
                     )
 
             # Only add a session if we can use the AS it is linked to
             if autonomous_system:
-                self.logger.debug(f"creating session {str(ip)}")
+                logger.debug(f"creating session {str(ip)}")
                 InternetExchangePeeringSession.objects.create(
                     autonomous_system=autonomous_system,
                     ixp_connection=connection,
                     ip_address=ip,
                 )
                 session_number += 1
-                self.logger.debug(f"session {str(ip)} created")
+                logger.debug(f"session {str(ip)} created")
 
         return session_number, asn_number
 
@@ -828,7 +825,7 @@ class InternetExchangePeeringSession(BGPSession):
 
     def poll(self):
         if not self.ixp_connection.router:
-            self.logger.debug(
+            logger.debug(
                 f"cannot poll bgp session state for {self.ip_address}, no router"
             )
             return False
@@ -1106,14 +1103,14 @@ class Router(ChangeLoggedModel, TaggableModel):
         Returns an instance of the NAPALM driver to connect to a router.
         """
         if not self.platform or not self.platform.napalm_driver:
-            self.logger.debug("no napalm driver defined")
+            logger.debug("no napalm driver defined")
             return None
 
-        self.logger.debug(f"looking for napalm driver '{self.platform.napalm_driver}'")
+        logger.debug(f"looking for napalm driver '{self.platform.napalm_driver}'")
         try:
             # Driver found, instanciate it
             driver = napalm.get_network_driver(self.platform.napalm_driver)
-            self.logger.debug(f"found napalm driver '{self.platform.napalm_driver}'")
+            logger.debug(f"found napalm driver '{self.platform.napalm_driver}'")
 
             # Merge NAPALM args: first global, then platform's, finish with router's
             args = settings.NAPALM_ARGS
@@ -1132,7 +1129,7 @@ class Router(ChangeLoggedModel, TaggableModel):
         except napalm.base.exceptions.ModuleImportError:
             # Unable to import proper driver from napalm
             # Most probably due to a broken install
-            self.logger.error(
+            logger.error(
                 f"no napalm driver: '{self.platform.napalm_driver}' for platform: '{self.platform}' found (not installed or does not exist)"
             )
             return None
@@ -1153,16 +1150,16 @@ class Router(ChangeLoggedModel, TaggableModel):
             return success
 
         try:
-            self.logger.debug(f"connecting to {self.hostname}")
+            logger.debug(f"connecting to {self.hostname}")
             device.open()
         except napalm.base.exceptions.ConnectionException as e:
-            self.logger.error(
+            logger.error(
                 f'error while trying to connect to {self.hostname} reason "{e}"'
             )
         except Exception:
-            self.logger.error(f"error while trying to connect to {self.hostname}")
+            logger.error(f"error while trying to connect to {self.hostname}")
         else:
-            self.logger.debug(f"successfully connected to {self.hostname}")
+            logger.debug(f"successfully connected to {self.hostname}")
             success = True
         finally:
             return success
@@ -1181,9 +1178,9 @@ class Router(ChangeLoggedModel, TaggableModel):
 
         try:
             device.close()
-            self.logger.debug(f"closed connection with {self.hostname}")
+            logger.debug(f"closed connection with {self.hostname}")
         except Exception as e:
-            self.logger.debug(f"failed to close connection with {self.hostname}: {e}")
+            logger.debug(f"failed to close connection with {self.hostname}: {e}")
             return False
 
         return True
@@ -1200,7 +1197,7 @@ class Router(ChangeLoggedModel, TaggableModel):
         device = self.get_napalm_device()
 
         # Open and close the test_napalm_connection
-        self.logger.debug(f"testing connection with {self.hostname}")
+        logger.debug(f"testing connection with {self.hostname}")
         opened = self.open_napalm_device(device)
         if opened:
             alive = device.is_alive()
@@ -1209,7 +1206,7 @@ class Router(ChangeLoggedModel, TaggableModel):
 
         # Issue while opening or closing the connection
         if not opened or not closed or not alive:
-            self.logger.error(
+            logger.error(
                 f"cannot connect to {self.hostname}, napalm functions won't work"
             )
 
@@ -1230,7 +1227,7 @@ class Router(ChangeLoggedModel, TaggableModel):
 
         # Ensure device is enabled, we allow maintenance mode to force a config push
         if not self.is_usable_for_task():
-            self.logger.debug(
+            logger.debug(
                 f"{self.hostname}: unusable (due to disabled state or platform), exiting config push"
             )
             return (
@@ -1240,7 +1237,7 @@ class Router(ChangeLoggedModel, TaggableModel):
 
         # Make sure there actually a configuration to merge
         if config is None or not isinstance(config, str) or not config.strip():
-            self.logger.debug(f"{self.hostname}: no configuration to merge: {config}")
+            logger.debug(f"{self.hostname}: no configuration to merge: {config}")
             return "no configuration found to be merged", changes
 
         device = self.get_napalm_device()
@@ -1249,46 +1246,40 @@ class Router(ChangeLoggedModel, TaggableModel):
         if opened:
             try:
                 # Load the config
-                self.logger.debug(f"merging configuration on {self.hostname}")
+                logger.debug(f"merging configuration on {self.hostname}")
                 device.load_merge_candidate(config=config)
-                self.logger.debug(f"merged configuration\n{config}")
+                logger.debug(f"merged configuration\n{config}")
 
                 # Get the config diff
-                self.logger.debug(
-                    f"checking for configuration changes on {self.hostname}"
-                )
+                logger.debug(f"checking for configuration changes on {self.hostname}")
                 changes = device.compare_config()
-                self.logger.debug(f"raw napalm output\n{changes}")
+                logger.debug(f"raw napalm output\n{changes}")
 
                 # Commit the config if required
                 if commit:
-                    self.logger.debug(f"commiting configuration on {self.hostname}")
+                    logger.debug(f"commiting configuration on {self.hostname}")
                     device.commit_config()
                 else:
-                    self.logger.debug(f"discarding configuration on {self.hostname}")
+                    logger.debug(f"discarding configuration on {self.hostname}")
                     device.discard_config()
             except Exception as e:
                 try:
                     # Try to restore initial config
                     device.discard_config()
                 except Exception as f:
-                    self.logger.debug(
+                    logger.debug(
                         f'unable to discard configuration on {self.hostname} reason "{f}"'
                     )
                 changes = None
-                self.logger.debug(
+                logger.debug(
                     f'unable to merge configuration on {self.hostname} reason "{e}"'
                 )
             else:
-                self.logger.debug(
-                    f"successfully merged configuration on {self.hostname}"
-                )
+                logger.debug(f"successfully merged configuration on {self.hostname}")
             finally:
                 closed = self.close_napalm_device(device)
                 if not closed:
-                    self.logger.debug(
-                        f"error while closing connection with {self.hostname}"
-                    )
+                    logger.debug(f"error while closing connection with {self.hostname}")
         else:
             error = f"unable to connect to {self.hostname}"
 
@@ -1304,23 +1295,21 @@ class Router(ChangeLoggedModel, TaggableModel):
         for vrf in napalm_dict:
             # Get peers inside it
             peers = napalm_dict[vrf]["peers"]
-            self.logger.debug(
+            logger.debug(
                 "found %s bgp neighbors in %s vrf on %s", len(peers), vrf, self.hostname
             )
 
             # For each peer handle its IP address and the needed details
             for ip, details in peers.items():
                 if "remote_as" not in details:
-                    self.logger.debug(
+                    logger.debug(
                         "ignored bgp neighbor %s in %s vrf on %s",
                         ip,
                         vrf,
                         self.hostname,
                     )
                 elif ip in [str(i["ip_address"]) for i in bgp_peers]:
-                    self.logger.debug(
-                        "duplicate bgp neighbor %s on %s", ip, self.hostname
-                    )
+                    logger.debug("duplicate bgp neighbor %s on %s", ip, self.hostname)
                 else:
                     try:
                         # Save the BGP session (IP and remote ASN)
@@ -1332,7 +1321,7 @@ class Router(ChangeLoggedModel, TaggableModel):
                         )
                     except ValueError as e:
                         # Error while parsing the IP address
-                        self.logger.error(
+                        logger.error(
                             'ignored bgp neighbor %s in %s vrf on %s reason "%s"',
                             ip,
                             vrf,
@@ -1361,26 +1350,24 @@ class Router(ChangeLoggedModel, TaggableModel):
 
         if opened:
             # Get all BGP neighbors on the router
-            self.logger.debug("getting bgp neighbors on %s", self.hostname)
+            logger.debug("getting bgp neighbors on %s", self.hostname)
             bgp_neighbors = device.get_bgp_neighbors()
-            self.logger.debug("raw napalm output %s", bgp_neighbors)
-            self.logger.debug(
+            logger.debug("raw napalm output %s", bgp_neighbors)
+            logger.debug(
                 "found %s vrfs with bgp neighbors on %s",
                 len(bgp_neighbors),
                 self.hostname,
             )
 
             bgp_sessions = self._napalm_bgp_neighbors_to_peer_list(bgp_neighbors)
-            self.logger.debug(
+            logger.debug(
                 "found %s bgp neighbors on %s", len(bgp_sessions), self.hostname
             )
 
             # Close connection to the device
             closed = self.close_napalm_device(device)
             if not closed:
-                self.logger.debug(
-                    "error while closing connection with %s", self.hostname
-                )
+                logger.debug("error while closing connection with %s", self.hostname)
 
         return bgp_sessions
 
@@ -1396,17 +1383,15 @@ class Router(ChangeLoggedModel, TaggableModel):
         """
         bgp_sessions = []
 
-        self.logger.debug("getting bgp neighbors on %s", self.hostname)
+        logger.debug("getting bgp neighbors on %s", self.hostname)
         bgp_neighbors = NetBox().napalm(self.netbox_device_id, "get_bgp_neighbors")
-        self.logger.debug("raw napalm output %s", bgp_neighbors)
-        self.logger.debug(
+        logger.debug("raw napalm output %s", bgp_neighbors)
+        logger.debug(
             "found %s vrfs with bgp neighbors on %s", len(bgp_neighbors), self.hostname
         )
 
         bgp_sessions = self._napalm_bgp_neighbors_to_peer_list(bgp_neighbors)
-        self.logger.debug(
-            "found %s bgp neighbors on %s", len(bgp_sessions), self.hostname
-        )
+        logger.debug("found %s bgp neighbors on %s", len(bgp_sessions), self.hostname)
 
         return bgp_sessions
 
@@ -1463,19 +1448,17 @@ class Router(ChangeLoggedModel, TaggableModel):
 
         if opened:
             # Get all BGP neighbors on the router
-            self.logger.debug(f"getting bgp neighbors detail on {self.hostname}")
+            logger.debug(f"getting bgp neighbors detail on {self.hostname}")
             bgp_neighbors_detail = device.get_bgp_neighbors_detail()
-            self.logger.debug(f"raw napalm output {bgp_neighbors_detail}")
-            self.logger.debug(
+            logger.debug(f"raw napalm output {bgp_neighbors_detail}")
+            logger.debug(
                 f"found {len(bgp_neighbors_detail)} vrfs with bgp neighbors on {self.hostname}"
             )
 
             # Close connection to the device
             closed = self.close_napalm_device(device)
             if not closed:
-                self.logger.debug(
-                    f"error while closing connection with {self.hostname}"
-                )
+                logger.debug(f"error while closing connection with {self.hostname}")
 
         return (
             bgp_neighbors_detail
@@ -1493,12 +1476,12 @@ class Router(ChangeLoggedModel, TaggableModel):
         """
         bgp_neighbors_detail = []
 
-        self.logger.debug(f"getting bgp neighbors detail on {self.hostname}")
+        logger.debug(f"getting bgp neighbors detail on {self.hostname}")
         bgp_neighbors_detail = NetBox().napalm(
             self.netbox_device_id, "get_bgp_neighbors_detail"
         )
-        self.logger.debug(f"raw napalm output {bgp_neighbors_detail}")
-        self.logger.debug(
+        logger.debug(f"raw napalm output {bgp_neighbors_detail}")
+        logger.debug(
             f"found {len(bgp_neighbors_detail)} vrfs with bgp neighbors on {self.hostname}",
         )
 
@@ -1551,14 +1534,12 @@ class Router(ChangeLoggedModel, TaggableModel):
         Polls the state of a single session given its IP address.
         """
         if not self.is_usable_for_task():
-            self.logger.debug(
+            logger.debug(
                 f"cannot poll bgp sessions state for {self.hostname}, disabled or platform unusable"
             )
             return False
         if not self.poll_bgp_sessions_state:
-            self.logger.debug(
-                f"bgp sessions state polling disabled for {self.hostname}"
-            )
+            logger.debug(f"bgp sessions state polling disabled for {self.hostname}")
             return False
 
         # Get BGP session detail
@@ -1582,21 +1563,19 @@ class Router(ChangeLoggedModel, TaggableModel):
         corresponding IXP or direct sessions found in records.
         """
         if not self.is_usable_for_task():
-            self.logger.debug(
+            logger.debug(
                 f"cannot poll bgp sessions state for {self.hostname}, disabled or platform unusable"
             )
             return False
         if not self.poll_bgp_sessions_state:
-            self.logger.debug(
-                f"bgp sessions state polling disabled for {self.hostname}"
-            )
+            logger.debug(f"bgp sessions state polling disabled for {self.hostname}")
             return False
 
         directs = self.get_direct_peering_sessions()
         ixps = self.get_ixp_peering_sessions()
 
         if not directs and not ixps:
-            self.logger.debug(f"no bgp sessions attached to {self.hostname}")
+            logger.debug(f"no bgp sessions attached to {self.hostname}")
             return False
 
         # Get BGP neighbors details from router, but only get them once
@@ -1604,12 +1583,12 @@ class Router(ChangeLoggedModel, TaggableModel):
             self.get_bgp_neighbors_detail()
         )
         if not bgp_neighbors_detail:
-            self.logger.debug(f"no bgp sessions found on {self.hostname}")
+            logger.debug(f"no bgp sessions found on {self.hostname}")
             return False
 
         for neighbor_detail in bgp_neighbors_detail:
             ip_address = neighbor_detail["remote_address"]
-            self.logger.debug(f"looking for session {ip_address} in {self.hostname}")
+            logger.debug(f"looking for session {ip_address} in {self.hostname}")
 
             # Check if the session is in our database, skip it if not
             # NAPALM ignores prefix length, so __host is used to lookup the actual IP
@@ -1617,10 +1596,10 @@ class Router(ChangeLoggedModel, TaggableModel):
                 ip_address__host=ip_address
             )
             if not match:
-                self.logger.debug(f"session {ip_address} not found for {self.hostname}")
+                logger.debug(f"session {ip_address} not found for {self.hostname}")
                 continue
             if match.count() > 1:
-                self.logger.debug(
+                logger.debug(
                     f"multiple sessions found for {ip_address} and {self.hostname}, ignoring"
                 )
                 continue
@@ -1629,7 +1608,7 @@ class Router(ChangeLoggedModel, TaggableModel):
             state = neighbor_detail["connection_state"].lower()
             received = neighbor_detail["received_prefix_count"]
             advertised = neighbor_detail["advertised_prefix_count"]
-            self.logger.debug(
+            logger.debug(
                 f"found session {ip_address} on {self.hostname} in {state} state"
             )
 
@@ -1642,9 +1621,7 @@ class Router(ChangeLoggedModel, TaggableModel):
             if session.bgp_state == BGPState.ESTABLISHED:
                 session.last_established_state = timezone.now()
             session.save()
-            self.logger.debug(
-                f"session {ip_address} on {self.hostname} saved as {state}"
-            )
+            logger.debug(f"session {ip_address} on {self.hostname} saved as {state}")
 
         # Save last session states update
         self.poll_bgp_sessions_last_updated = timezone.now()

@@ -85,16 +85,29 @@ class Connection(ChangeLoggedModel, TaggableModel):
         corresponding field of the model.
         """
 
-        # If data imported from PDB is null+null then there the query
-        # could return many objects and will runtime.
+        # If data imported from PeeringDB doesn't have IPs set, ignore it
         if self.ipv4_address is None and self.ipv6_address is None:
             return None
 
+        # Prepare value for database lookup
+        ipaddr6 = (
+            self.ipv6_address.ip
+            if hasattr(self.ipv6_address, "ip")
+            else self.ipv6_address
+        )
+        ipaddr4 = (
+            self.ipv4_address.ip
+            if hasattr(self.ipv4_address, "ip")
+            else self.ipv4_address
+        )
+
         try:
-            netixlan = NetworkIXLan.objects.get(
-                ipaddr6=self.ipv6_address, ipaddr4=self.ipv4_address
-            )
+            netixlan = NetworkIXLan.objects.get(ipaddr6=ipaddr6, ipaddr4=ipaddr4)
+            logger.debug(f"linked connection {self} (pk: {self.pk}) to peeringdb")
         except NetworkIXLan.DoesNotExist:
+            logger.debug(
+                f"linking connection {self} (pk: {self.pk}) to peeringdb failed"
+            )
             return None
 
         self.peeringdb_netixlan = netixlan

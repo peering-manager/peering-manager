@@ -276,8 +276,6 @@ class PeeringDB(object):
             else:
                 deleted += 1
 
-        self._fix_related_objects()
-
         return (created, updated, deleted)
 
     def update_local_database(self, last_sync):
@@ -296,6 +294,8 @@ class PeeringDB(object):
             for namespace, object_type in NAMESPACES.items():
                 changes = self.synchronize_objects(last_sync, namespace, object_type)
                 list_of_changes.append(changes)
+
+            self._fix_related_objects()
 
         objects_changes = {
             "created": sum(created for created, _, _ in list_of_changes),
