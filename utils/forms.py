@@ -28,10 +28,9 @@ class BulkEditForm(forms.Form):
     Base form for editing several objects at the same time.
     """
 
-    def __init__(self, model, parent_object=None, *args, **kwargs):
+    def __init__(self, model, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model = model
-        self.parent_object = parent_object
         self.nullable_fields = []
 
         if hasattr(self.Meta, "nullable_fields"):

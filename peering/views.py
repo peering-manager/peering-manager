@@ -446,7 +446,6 @@ class DirectPeeringSessionEdit(ObjectEditView):
 class DirectPeeringSessionBulkEdit(BulkEditView):
     permission_required = "peering.change_directpeeringsession"
     queryset = DirectPeeringSession.objects.select_related("autonomous_system")
-    parent_object = BGPSession
     filterset = DirectPeeringSessionFilterSet
     table = DirectPeeringSessionTable
     form = DirectPeeringSessionBulkEditForm
@@ -748,7 +747,6 @@ class InternetExchangePeeringSessionBulkEdit(BulkEditView):
     queryset = InternetExchangePeeringSession.objects.select_related(
         "autonomous_system"
     )
-    parent_object = BGPSession
     filterset = InternetExchangePeeringSessionFilterSet
     table = InternetExchangePeeringSessionTable
     form = InternetExchangePeeringSessionBulkEditForm
