@@ -4,7 +4,14 @@
 <div class="row">
   <div class="col-md-6 mb-2">
     <div class="card">
-      <div class="card-header"><strong>Details</strong></div>
+      <div class="card-header">
+        <strong>Details</strong>
+        {% if instance.linked_to_peeringdb %}
+        <span class="float-right" data-toggle="tooltip" data-placement="right" title="Linked to PeeringDB">
+          <i class="fas fa-check-circle text-success"></i>
+        </span>
+        {% endif %}
+      </div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
           <td>State</td>
@@ -66,4 +73,11 @@
     {% include 'includes/tags_card.html' with tags=instance.tags.all url='net:connection_list' %}
   </div>
 </div>
+{% endblock %}
+{% block javascript %}
+<script>
+  $(function() {
+    $('[data-toggle="tooltip"]').tooltip();
+  });
+</script>
 {% endblock %}
