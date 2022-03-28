@@ -136,16 +136,17 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
             or f"AS{self.autonomous_system.asn} - {self.ip_address}"
         )
 
-    @property
-    def ip_address_version(self):
-        return ipaddress.ip_address(self.ip_address).version
-
     def _merge_policies(self, merged_policies, new_policies):
+        if type(self.ip_address) in (int, str):
+            ip_address = ipaddress.ip_address(self.ip_address)
+        else:
+            ip_address = self.ip_address
+
         for policy in new_policies:
             # Only merge universal policies or policies of same IP family
             if policy in merged_policies or policy.address_family not in (
                 IPFamily.ALL,
-                self.ip_address_version,
+                ip_address.version,
             ):
                 continue
             merged_policies.append(policy)
