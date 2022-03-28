@@ -1,3 +1,24 @@
+## Version 1.6.1 | MARK I (Bug fixes release) | 2022-03-29
+
+### Enhancements
+
+* Prevent browser password manager prepopulating BGP/NAPALM passwords
+* Global rework of generic views
+* Log error reaching PeeringDB (i.e. auth issue)
+* Add e-mail settings example to documentation
+* Display an icon for objects linked to PeeringDB
+* [#568](https://github.com/peering-manager/peering-manager/issues/568) Fix multihop session validation and API validation for direct sessions
+
+### Bug Fixes
+
+* Do not always create placeholder contact role on database migration
+* Fix upgrade instructions link
+* Fix config compare for router in maintenance
+* Do not import connections without IP addresses from PeeringDB
+* Fix PeeringDB linking after a cache flush
+* Fix IX-API lookup for remote v2 endpoints
+* [#570](https://github.com/peering-manager/peering-manager/issues/570) Change PeeringDB URL to avoid HTTP 301 redirect
+
 ## Version 1.6.0 | MARK I (Features release) | 2022-02-28
 
 The 1.6.x releases will be the last ones to support Python 3.6 and Python 3.7 as well as PostgreSQL 9.6. It is recommended for users to pro-actively upgrade their environments to use at least Python 3.8 and PostgreSQL 10 for safer upgrades.
