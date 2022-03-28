@@ -13,7 +13,7 @@
         {% if instance.ixapi_endpoint.version != 1 %}
         <tr>
           <td>Status</td>
-          <td>{{ instance.ixapi_endpoint.get_health }}</td>
+          <td>{{ instance.ixapi_endpoint.get_health | title }}</td>
         </tr>
         {% endif %}
       </table>

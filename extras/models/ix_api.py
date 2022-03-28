@@ -509,12 +509,22 @@ class IXAPI(ChangeLoggedModel):
         else:
             return self.get_accounts(id=self.identity)
 
+    def get_consuming_account_parameter(self):
+        """
+        Returns the headers for consuming account depending on the API version.
+        """
+        if self.version == 1:
+            key = "consuming_customer"
+        else:
+            key = "consuming_account"
+        return {key: self.identity}
+
     def get_ips(self, id=[]):
         d = []
         if id:
             d = self.lookup("ips", params={"id": id})
         else:
-            d = self.lookup("ips", params={"consuming_customer": self.identity})
+            d = self.lookup("ips", params=self.get_consuming_account_parameter())
 
         return [IP(self, i) for i in d]
 
@@ -523,7 +533,7 @@ class IXAPI(ChangeLoggedModel):
         if id:
             d = self.lookup("macs", params={"id": id})
         else:
-            d = self.lookup("macs", params={"consuming_customer": self.identity})
+            d = self.lookup("macs", params=self.get_consuming_account_parameter())
 
         return [MAC(self, i) for i in d]
 
@@ -566,8 +576,7 @@ class IXAPI(ChangeLoggedModel):
             d = self.lookup("network-services", params={"id": id})
         else:
             d = self.lookup(
-                "network-services",
-                params={"consuming_customer": self.identity, "type": "exchange_lan"},
+                "network-services", params=self.get_consuming_account_parameter()
             )
 
         return [NetworkService(self, i) for i in d]
