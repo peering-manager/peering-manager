@@ -747,7 +747,6 @@ class RouterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     )
     device_state = forms.ChoiceField(
         required=False,
-        initial=DeviceState.ENABLED,
         choices=add_blank_choice(DeviceState.choices),
         widget=StaticSelect,
     )
