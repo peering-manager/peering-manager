@@ -145,24 +145,6 @@ class ObjectChangeView(PermissionRequiredMixin, View):
         )
 
 
-@requires_csrf_token
-def ServerError(request, template_name=ERROR_500_TEMPLATE_NAME):
-    """
-    Custom 500 handler to provide details when rendering 500.html.
-    """
-    try:
-        template = loader.get_template(template_name)
-    except TemplateDoesNotExist:
-        return HttpResponseServerError(
-            "<h1>Server Error (500)</h1>", content_type="text/html"
-        )
-    type_, error, _ = sys.exc_info()
-
-    return HttpResponseServerError(
-        template.render({"exception": str(type_), "error": error})
-    )
-
-
 class TagList(ObjectListView):
     permission_required = "utils.view_tag"
     queryset = Tag.objects.annotate(
@@ -220,3 +202,21 @@ class TagBulkDelete(BulkDeleteView):
     ).order_by("name")
     filterset = TagFilterSet
     table = TagTable
+
+
+@requires_csrf_token
+def ServerError(request, template_name=ERROR_500_TEMPLATE_NAME):
+    """
+    Custom 500 handler to provide details when rendering 500.html.
+    """
+    try:
+        template = loader.get_template(template_name)
+    except TemplateDoesNotExist:
+        return HttpResponseServerError(
+            "<h1>Server Error (500)</h1>", content_type="text/html"
+        )
+    type_, error, _ = sys.exc_info()
+
+    return HttpResponseServerError(
+        template.render({"exception": str(type_), "error": error})
+    )

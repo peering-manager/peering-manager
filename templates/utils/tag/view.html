@@ -2,19 +2,19 @@
 {% load helpers %}
 {% block actions %}
 {% if perms.utils.change_tag %}
-<a href="{% url 'utils:tag_edit' pk=tag.pk %}" class="btn btn-warning">
+<a href="{% url 'utils:tag_edit' pk=instance.pk %}" class="btn btn-warning">
   <i class="fas fa-edit"></i> Edit
 </a>
 {% endif %}
 {% if perms.utils.delete_tag %}
-<a href="{% url 'utils:tag_delete' pk=tag.pk %}" class="btn btn-danger">
+<a href="{% url 'utils:tag_delete' pk=instance.pk %}" class="btn btn-danger">
   <i class="fas fa-trash"></i> Delete
 </a>
 {% endif %}
 {% endblock %}
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'utils:tag_list' %}">Tags</a></li>
-<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ tag }}{% endblock %}</li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
       <div class="row">
@@ -24,11 +24,11 @@
             <table class="card-body table table-hover attr-table mb-0">
               <tr>
                 <td>Name</td>
-                <td>{{ tag.name }}</td>
+                <td>{{ instance.name }}</td>
               </tr>
               <tr>
                 <td>Slug</td>
-                <td>{{ tag.slug }}</td>
+                <td>{{ instance.slug }}</td>
               </tr>
               <tr>
                 <td>Tagged Items</td>
@@ -37,7 +37,7 @@
               <tr>
                 <td>Color</td>
                 <td>
-                  <span class="label color-block" style="background-color: #{{ tag.color }}">
+                  <span class="label color-block" style="background-color: #{{ instance.color }}">
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                   </span>
                 </td>
@@ -51,8 +51,8 @@
               <strong>Comments</strong>
             </div>
             <div class="card-body">
-              {% if tag.comments %}
-              {{ tag.comments|markdown }}
+              {% if instance.comments %}
+              {{ instance.comments | markdown }}
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}
