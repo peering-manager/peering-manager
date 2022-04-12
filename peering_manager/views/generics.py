@@ -96,7 +96,7 @@ class TableConfigurationMixin(object):
     def table_configuration_form(self, table):
         return TableConfigurationForm(table=table)
 
-    def post(self, request):
+    def post(self, request, **kwargs):
         table = self.table(self.queryset)
         form = TableConfigurationForm(table=table, data=request.POST)
 
