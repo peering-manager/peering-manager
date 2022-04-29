@@ -1271,6 +1271,7 @@ class Router(ChangeLoggedModel, TaggableModel):
                         f'unable to discard configuration on {self.hostname} reason "{f}"'
                     )
                 changes = None
+                error = str(e)
                 logger.debug(
                     f'unable to merge configuration on {self.hostname} reason "{e}"'
                 )
