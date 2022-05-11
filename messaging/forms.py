@@ -2,16 +2,15 @@ from django import forms
 from taggit.forms import TagField
 
 from messaging.models import Contact, ContactAssignment, ContactRole, Email
-from utils.fields import CommentField, SlugField, TemplateField
-from utils.forms import (
-    AddRemoveTagsForm,
-    BootstrapMixin,
-    BulkEditForm,
+from utils.forms import AddRemoveTagsForm, BootstrapMixin, BulkEditForm, TagFilterField
+from utils.forms.fields import (
+    CommentField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
-    SmallTextarea,
-    TagFilterField,
+    SlugField,
+    TemplateField,
 )
+from utils.forms.widgets import SmallTextarea
 
 __all__ = (
     "ContactForm",

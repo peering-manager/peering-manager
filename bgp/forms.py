@@ -1,8 +1,8 @@
 from django import forms
 
 from bgp.models import Relationship
-from utils.fields import SlugField
 from utils.forms import BootstrapMixin
+from utils.forms.fields import SlugField
 
 
 class RelationshipForm(BootstrapMixin, forms.ModelForm):

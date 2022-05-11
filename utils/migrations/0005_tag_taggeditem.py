@@ -3,7 +3,7 @@
 import django.db.models.deletion
 from django.db import migrations, models
 
-import utils.fields
+import utils.forms.fields
 
 
 class Migration(migrations.Migration):
@@ -36,7 +36,10 @@ class Migration(migrations.Migration):
                 ),
                 ("created", models.DateTimeField(auto_now_add=True, null=True)),
                 ("updated", models.DateTimeField(auto_now=True, null=True)),
-                ("color", utils.fields.ColorField(default="9e9e9e", max_length=6)),
+                (
+                    "color",
+                    utils.forms.fields.ColorField(default="9e9e9e", max_length=6),
+                ),
                 ("comments", models.TextField(blank=True, default="")),
             ],
             options={"abstract": False},

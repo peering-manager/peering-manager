@@ -7,11 +7,10 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
 from django_filters.constants import EMPTY_VALUES
-from django_filters.utils import get_model_field, resolve_field
 
-from .enums import ObjectChangeAction
-from .fields import multivalue_field_factory
-from .models import ObjectChange, Tag
+from utils.enums import ObjectChangeAction
+from utils.forms.fields import multivalue_field_factory
+from utils.models import ObjectChange, Tag
 
 
 class ContentTypeFilter(django_filters.CharFilter):

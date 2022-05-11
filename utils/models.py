@@ -8,7 +8,7 @@ from taggit.managers import TaggableManager
 from taggit.models import GenericTaggedItemBase, TagBase
 
 from utils.enums import Color, ObjectChangeAction
-from utils.fields import ColorField
+from utils.forms.fields import ColorField
 from utils.functions import serialize_object
 
 

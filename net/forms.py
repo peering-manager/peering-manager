@@ -2,19 +2,20 @@ from django import forms
 from taggit.forms import TagField
 
 from peering.models import InternetExchange, Router
-from utils.fields import CommentField
 from utils.forms import (
     AddRemoveTagsForm,
     BootstrapMixin,
     BulkEditForm,
-    DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField,
-    JSONField,
-    SmallTextarea,
-    StaticSelect,
     TagFilterField,
     add_blank_choice,
 )
+from utils.forms.fields import (
+    CommentField,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    JSONField,
+)
+from utils.forms.widgets import SmallTextarea, StaticSelect
 
 from .enums import ConnectionState
 from .models import Connection

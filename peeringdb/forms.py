@@ -1,11 +1,7 @@
 from django import forms
 
-from utils.forms import (
-    BootstrapMixin,
-    CustomNullBooleanSelect,
-    StaticSelectMultiple,
-    add_blank_choice,
-)
+from utils.forms import BootstrapMixin, add_blank_choice
+from utils.forms.widgets import CustomNullBooleanSelect, StaticSelectMultiple
 
 from .enums import (
     ContractsPolicy,

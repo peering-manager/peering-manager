@@ -3,15 +3,9 @@ from taggit.forms import TagField
 
 from devices.enums import PasswordAlgorithm
 from devices.models import Configuration, Platform
-from utils.fields import CommentField, SlugField, TemplateField
-from utils.forms import (
-    BootstrapMixin,
-    JSONField,
-    SmallTextarea,
-    StaticSelect,
-    TagFilterField,
-    add_blank_choice,
-)
+from utils.forms import BootstrapMixin, TagFilterField, add_blank_choice
+from utils.forms.fields import CommentField, JSONField, SlugField, TemplateField
+from utils.forms.widgets import SmallTextarea, StaticSelect
 
 
 class ConfigurationForm(BootstrapMixin, forms.ModelForm):

@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from utils.enums import Color
-from utils.fields import ColorField
+from utils.forms.fields import ColorField
 from utils.models import ChangeLoggedModel
 from utils.templatetags.helpers import foreground_color
 

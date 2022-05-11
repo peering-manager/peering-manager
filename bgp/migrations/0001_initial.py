@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 
-import utils.fields
+import utils.forms.fields
 
 
 class Migration(migrations.Migration):
@@ -28,7 +28,10 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=100, unique=True)),
                 ("slug", models.SlugField(max_length=100, unique=True)),
                 ("description", models.CharField(blank=True, max_length=200)),
-                ("color", utils.fields.ColorField(default="9e9e9e", max_length=6)),
+                (
+                    "color",
+                    utils.forms.fields.ColorField(default="9e9e9e", max_length=6),
+                ),
             ],
             options={"ordering": ["name"]},
         ),

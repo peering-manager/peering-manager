@@ -3,13 +3,9 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from requests.exceptions import HTTPError
 
-from utils.forms import (
-    APISelectMultiple,
-    BootstrapMixin,
-    DynamicModelMultipleChoiceField,
-    StaticSelect,
-    add_blank_choice,
-)
+from utils.forms import BootstrapMixin, add_blank_choice
+from utils.forms.fields import APISelectMultiple, DynamicModelMultipleChoiceField
+from utils.forms.widgets import StaticSelect
 
 from .enums import JobResultStatus
 from .models import IXAPI, JobResult

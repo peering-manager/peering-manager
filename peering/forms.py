@@ -9,20 +9,27 @@ from extras.models.ix_api import IXAPI
 from messaging.models import Email
 from net.models import Connection
 from netbox.api import NetBox
-from utils.fields import CommentField, PasswordField, SlugField, TextareaField
 from utils.forms import (
     AddRemoveTagsForm,
     BootstrapMixin,
     BulkEditForm,
-    CustomNullBooleanSelect,
+    TagFilterField,
+    add_blank_choice,
+)
+from utils.forms.fields import (
+    CommentField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     JSONField,
+    PasswordField,
+    SlugField,
+    TextareaField,
+)
+from utils.forms.widgets import (
+    CustomNullBooleanSelect,
     SmallTextarea,
     StaticSelect,
     StaticSelectMultiple,
-    TagFilterField,
-    add_blank_choice,
 )
 
 from .enums import CommunityType, DeviceState, IPFamily, RoutingPolicyType

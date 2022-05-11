@@ -71,7 +71,6 @@ from .forms import (
 from .models import (
     AutonomousSystem,
     BGPGroup,
-    BGPSession,
     Community,
     DirectPeeringSession,
     InternetExchange,
