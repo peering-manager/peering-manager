@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -89,6 +90,8 @@ class Email(Template):
         environment = Environment(
             trim_blocks=self.jinja2_trim, lstrip_blocks=self.jinja2_lstrip
         )
+        for extension in settings.JINJA2_TEMPLATE_EXTENSIONS:
+            environment.add_extension(extension)
 
         # Add custom filters to our environment
         environment.filters.update(FILTER_DICT)
