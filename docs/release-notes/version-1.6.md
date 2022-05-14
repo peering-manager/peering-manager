@@ -1,3 +1,18 @@
+## Version 1.6.2 | MARK I (Bug fixes release) | 2022-05-14
+
+### Enhancements
+
+* [#574](https://github.com/peering-manager/peering-manager/issues/574) Indent sidebar menu items
+* Send error to user when an error is raised by a configuration deployment
+* Add `JINJA2_TEMPLATE_EXTENSIONS` to allow Jinja2 extensions to be loaded and used in templates
+
+### Bug Fixes
+
+* Fix bulk router state change
+* [#575](https://github.com/peering-manager/peering-manager/issues/575) Fix tag view
+* Fix table configuration form validation
+* Escape HTML characters to render configuration differences properly
+
 ## Version 1.6.1 | MARK I (Bug fixes release) | 2022-03-29
 
 ### Enhancements
