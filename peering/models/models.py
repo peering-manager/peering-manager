@@ -410,7 +410,7 @@ class Community(ChangeLoggedModel, TaggableModel):
     slug = models.SlugField(unique=True, max_length=255)
     value = CommunityField(max_length=50)
     type = models.CharField(
-        max_length=50, choices=CommunityType.choices, default=CommunityType.INGRESS
+        max_length=50, choices=CommunityType.choices, blank=True, null=True
     )
     comments = models.TextField(blank=True)
 
@@ -433,7 +433,7 @@ class Community(ChangeLoggedModel, TaggableModel):
             text = self.get_type_display()
         else:
             badge_type = "badge-secondary"
-            text = "Unknown"
+            text = "Not set"
 
         return mark_safe(f'<span class="badge {badge_type}">{text}</span>')
 

@@ -188,9 +188,10 @@ class BGPGroupFilterForm(BootstrapMixin, forms.Form):
 class CommunityForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField(max_length=255)
     type = forms.ChoiceField(
+        required=False,
         choices=add_blank_choice(CommunityType.choices),
         widget=StaticSelect,
-        help_text="Ingress to tag received routes or Egress to tag advertised routes",
+        help_text="Optional, Ingress for received routes, Egress for advertised routes",
     )
     comments = CommentField()
     tags = TagField(required=False)
@@ -216,14 +217,16 @@ class CommunityBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ["comments"]
+        nullable_fields = ["type", "comments"]
 
 
 class CommunityFilterForm(BootstrapMixin, forms.Form):
     model = Community
     q = forms.CharField(required=False, label="Search")
     type = forms.MultipleChoiceField(
-        required=False, choices=CommunityType.choices, widget=StaticSelectMultiple
+        required=False,
+        choices=add_blank_choice(CommunityType.choices),
+        widget=StaticSelectMultiple,
     )
     tag = TagFilterField(model)
 

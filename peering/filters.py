@@ -62,7 +62,7 @@ class CommunityFilterSet(
     BaseFilterSet, CreatedUpdatedFilterSet, NameSlugSearchFilterSet
 ):
     type = django_filters.MultipleChoiceFilter(
-        choices=CommunityType.choices, null_value=None
+        choices=CommunityType.choices, null_value=""
     )
     tag = TagFilter()
 

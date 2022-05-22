@@ -130,7 +130,7 @@ class CommunityTest(TestCase):
         expected = [
             '<span class="badge badge-primary">Egress</span>',
             '<span class="badge badge-info">Ingress</span>',
-            '<span class="badge badge-secondary">Unknown</span>',
+            '<span class="badge badge-secondary">Not set</span>',
         ]
 
         for i in range(len(expected)):

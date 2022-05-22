@@ -131,7 +131,12 @@ class CommunityTestCase(TestCase, BaseFilterSetTests):
                     value="64500:1",
                     type=CommunityType.EGRESS,
                 ),
-                Community(name="Community 2", slug="community-2", value="64500:2"),
+                Community(
+                    name="Community 2",
+                    slug="community-2",
+                    value="64500:2",
+                    type=CommunityType.INGRESS,
+                ),
                 Community(name="Community 3", slug="community-3", value="64500:3"),
             ]
         )
@@ -143,8 +148,10 @@ class CommunityTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_type(self):
+        params = {"type": [""]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"type": [CommunityType.INGRESS]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"type": [CommunityType.EGRESS]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 

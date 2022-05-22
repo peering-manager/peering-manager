@@ -19,10 +19,12 @@
           <td>Value</td>
           <td><code>{{ instance.value }}</code></td>
         </tr>
+        {% if instance.type %}
         <tr>
           <td>Type</td>
           <td>{{ instance.get_type_html }}</td>
         </tr>
+        {% endif %}
       </table>
     </div>
   </div>

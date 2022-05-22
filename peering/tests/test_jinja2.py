@@ -3,7 +3,7 @@ import ipaddress
 from django.test import TestCase
 
 from net.models import Connection
-from peering.enums import IPFamily
+from peering.enums import CommunityType, IPFamily
 from peering.models import (
     AutonomousSystem,
     InternetExchange,
@@ -52,7 +52,10 @@ class Jinja2FilterTestCase(TestCase):
                 value="123:2",
             ),
             Community(
-                name="Learnt from transit", slug="learnt-from-transit", value="123:3"
+                name="Learnt from transit",
+                slug="learnt-from-transit",
+                value="123:3",
+                type=CommunityType.INGRESS,
             ),
         ]
         Community.objects.bulk_create(cls.communities)
@@ -212,10 +215,12 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(1, FILTER_DICT["length"](filtered))
 
         communities = FILTER_DICT["merge_communities"](self.session6)
-        filtered = FILTER_DICT["filter"](communities, type="ingress")
-        self.assertEqual(2, FILTER_DICT["length"](filtered))
-        filtered = FILTER_DICT["filter"](communities, type="egress")
+        filtered = FILTER_DICT["filter"](communities, type=CommunityType.INGRESS)
+        self.assertEqual(1, FILTER_DICT["length"](filtered))
+        filtered = FILTER_DICT["filter"](communities, type=CommunityType.EGRESS)
         self.assertEqual(0, FILTER_DICT["length"](filtered))
+        filtered = FILTER_DICT["filter"](communities, type=None)
+        self.assertEqual(1, FILTER_DICT["length"](filtered))
 
     def test_iterate(self):
         routing_policies = RoutingPolicy.objects.all()
