@@ -93,7 +93,14 @@ SEARCH_TYPES = OrderedDict(
         (
             "autonomousystem",
             {
-                "queryset": AutonomousSystem.objects.defer("prefixes"),
+                "queryset": AutonomousSystem.objects.defer("prefixes").annotate(
+                    directpeeringsession_count=count_related(
+                        DirectPeeringSession, "autonomous_system"
+                    ),
+                    internetexchangepeeringsession_count=count_related(
+                        InternetExchangePeeringSession, "autonomous_system"
+                    ),
+                ),
                 "filterset": AutonomousSystemFilterSet,
                 "table": AutonomousSystemTable,
                 "url": "peering:autonomoussystem_list",
