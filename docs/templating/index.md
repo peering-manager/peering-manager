@@ -5,10 +5,14 @@ used to generate configuration for routers as well as e-mails.
 
 ## Jinja2
 
-The templating feature is based on [Jinja2](https://jinja.palletsprojects.com/);
-therefore templates must follow Jinja2's syntax. To help you writing your
-templates, Peering Manager will expose [variables](variables.md) and
-[filters](filters.md).
+The templating feature is based on
+[Jinja2](https://jinja.palletsprojects.com/); therefore templates must follow
+Jinja2's syntax. To help you writing your templates, Peering Manager will
+expose [variables](variables.md) and [filters](filters.md).
+
+You can also use Jinja2 extensions by installing them in the Python
+environment and asking Peering Manager to load them using the
+`JINJA2_TEMPLATE_EXTENSIONS` setting.
 
 ## CLI
 

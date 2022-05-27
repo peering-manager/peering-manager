@@ -2,6 +2,8 @@ import ipaddress
 
 from django.test import TestCase
 
+from devices.models import Configuration
+from messaging.models import Email
 from net.models import Connection
 from peering.enums import CommunityType, IPFamily
 from peering.models import (
@@ -11,8 +13,8 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from peering.models.jinja2 import FILTER_DICT
 from peering.models.models import Community
+from peering_manager.jinja2 import FILTER_DICT
 from utils.models import Tag
 
 
@@ -369,3 +371,22 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(False, FILTER_DICT["has_not_tag"](self.a_s, "Tag 1"))
         self.assertEqual(True, FILTER_DICT["has_not_tag"](self.router, "tag-1"))
         self.assertEqual(True, FILTER_DICT["has_not_tag"](self.router, "Tag 1"))
+
+    def test_include_template_extension(self):
+        Configuration.objects.create(name="test", template="this is a test")
+        main = Configuration.objects.create(
+            name="main", template="{% include_configuration 'test' %}"
+        )
+        self.assertEquals("this is a test", main.render({}))
+        main.template = "{% include 'configuration::test' %}"
+        main.save()
+        self.assertEquals("this is a test", main.render({}))
+
+        Email.objects.create(name="test", subject="test", template="this is a test")
+        main = Email.objects.create(
+            name="main", subject="main", template="{% include_email 'test' %}"
+        )
+        self.assertEquals(("main", "this is a test"), main.render({}))
+        main.template = "{% include 'email::test' %}"
+        main.save()
+        self.assertEquals(("main", "this is a test"), main.render({}))

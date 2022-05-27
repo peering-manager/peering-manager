@@ -6,7 +6,11 @@ from django.urls import reverse
 from jinja2 import Environment, TemplateSyntaxError
 
 from peering.models import Template
-from peering.models.jinja2 import FILTER_DICT
+from peering_manager.jinja2 import (
+    FILTER_DICT,
+    IncludeTemplateExtension,
+    PeeringManagerLoader,
+)
 from utils.models import ChangeLoggedModel, TaggableModel
 
 __all__ = ("ContactRole", "Contact", "ContactAssignment", "Email")
@@ -88,8 +92,11 @@ class Email(Template):
         """
         subject, body = "", ""
         environment = Environment(
-            trim_blocks=self.jinja2_trim, lstrip_blocks=self.jinja2_lstrip
+            loader=PeeringManagerLoader(),
+            trim_blocks=self.jinja2_trim,
+            lstrip_blocks=self.jinja2_lstrip,
         )
+        environment.add_extension(IncludeTemplateExtension)
         for extension in settings.JINJA2_TEMPLATE_EXTENSIONS:
             environment.add_extension(extension)
 

@@ -5,6 +5,26 @@ provided ones. These filters are used to parse, transform, fetch values of
 known types. If they are not used as expected, template processing may result
 in failure or half rendered texts.
 
+## `include_configuration` / `include_email`
+
+Includes the configuration template or the e-mail body defined in another
+object. It is useful to divide a big template into smaller ones for ease of
+management. The context and extensions are passed to the included templates.
+
+`include_*` functions take a template name or a template ID as a parameter.
+
+Examples:
+
+```no-highlight
+{% include_configuration "BGP Groups" %}
+{% include_configuration "BGP Sessions" %}
+{% include_configuration "BGP Policies" %}
+```
+
+```no-highlight
+{% include_email 1 %} {# ID of the e-mail object #}
+```
+
 ## `safe_string`
 
 Converts a string to another one using only safe characters (retaining only
@@ -171,8 +191,8 @@ Example:
 
 ```no-highlight
 {% for connection in router | connections %}
-IPv4: {{ connections.ipv4_address }}
-IPv6: {{ connections.ipv46_address }}
+IPv4: {{ connection.ipv4_address }}
+IPv6: {{ connection.ipv6_address }}
 {% endfor %}
 ```
 

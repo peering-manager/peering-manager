@@ -1,10 +1,16 @@
+import traceback
+
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from jinja2 import Environment, TemplateSyntaxError
 
 from peering.models import Template
-from peering.models.jinja2 import FILTER_DICT
+from peering_manager.jinja2 import (
+    FILTER_DICT,
+    IncludeTemplateExtension,
+    PeeringManagerLoader,
+)
 from utils.models import ChangeLoggedModel
 
 from .crypto import *
@@ -22,8 +28,11 @@ class Configuration(Template):
         Render the template using Jinja2.
         """
         environment = Environment(
-            trim_blocks=self.jinja2_trim, lstrip_blocks=self.jinja2_lstrip
+            loader=PeeringManagerLoader(),
+            trim_blocks=self.jinja2_trim,
+            lstrip_blocks=self.jinja2_lstrip,
         )
+        environment.add_extension(IncludeTemplateExtension)
         for extension in settings.JINJA2_TEMPLATE_EXTENSIONS:
             environment.add_extension(extension)
 
@@ -38,7 +47,7 @@ class Configuration(Template):
         except TemplateSyntaxError as e:
             return f"Syntax error in template at line {e.lineno}: {e.message}"
         except Exception as e:
-            return str(e)
+            return traceback.format_exc()
 
 
 class Platform(ChangeLoggedModel):
