@@ -46,7 +46,7 @@ class Configuration(Template):
             return jinja2_template.render(variables)
         except TemplateSyntaxError as e:
             return f"Syntax error in template at line {e.lineno}: {e.message}"
-        except Exception as e:
+        except Exception:
             return traceback.format_exc()
 
 

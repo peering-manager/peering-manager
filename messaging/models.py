@@ -1,3 +1,5 @@
+import traceback
+
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -118,7 +120,7 @@ class Email(Template):
             body = jinja2_template.render(variables)
         except TemplateSyntaxError as e:
             body = f"Syntax error in body template at line {e.lineno}: {e.message}"
-        except Exception as e:
-            body = str(e)
+        except Exception:
+            body = traceback.format_exc()
 
         return subject, body
