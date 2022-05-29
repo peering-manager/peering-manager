@@ -49,16 +49,10 @@ jobs:
     strategy:
       matrix:
         toxenv:
-          - py36
-          - py37
           - py38
           - py39
           - py310
         include:
-          - toxenv: py36
-            python-version: "3.6"
-          - toxenv: py37
-            python-version: "3.7"
           - toxenv: py38
             python-version: "3.8"
           - toxenv: py39
@@ -67,7 +61,7 @@ jobs:
             python-version: "3.10"
     services:
       postgres:
-        image: postgres:9.6
+        image: postgres:10
         ports:
           - 5432:5432
         env:
@@ -75,7 +69,7 @@ jobs:
           POSTGRES_USER: devbox
           POSTGRES_PASSWORD: devbox
       redis:
-        image: redis:6.0
+        image: redis:6
         ports:
           - 6379:6379
     steps:

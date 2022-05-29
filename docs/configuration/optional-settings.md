@@ -14,6 +14,63 @@ BASE_PATH = "peering/"
 
 ---
 
+## CORS_ORIGIN_ALLOW_ALL
+
+Default: False
+
+If True, cross-origin resource sharing (CORS) requests will be accepted from
+all origins. If False, a whitelist will be used (see below).
+
+---
+
+## CORS_ORIGIN_WHITELIST
+
+## CORS_ORIGIN_REGEX_WHITELIST
+
+These settings specify a list of origins that are authorized to make
+cross-site API requests. Use `CORS_ORIGIN_WHITELIST` to define a list of exact
+hostnames, or `CORS_ORIGIN_REGEX_WHITELIST` to define a set of regular
+expressions. (These settings have no effect if `CORS_ORIGIN_ALLOW_ALL` is
+True.) For example:
+
+```python
+CORS_ORIGIN_WHITELIST = [
+    'https://example.com',
+]
+```
+
+---
+
+## CSRF_COOKIE_NAME
+
+Default: `csrftoken`
+
+The name of the cookie to use for the cross-site request forgery (CSRF)
+authentication token. See the
+[Django documentation](https://docs.djangoproject.com/en/stable/ref/settings/#csrf-cookie-name)
+for more detail.
+
+---
+
+## CSRF_TRUSTED_ORIGINS
+
+Default: `[]`
+
+Defines a list of trusted origins for unsafe (e.g. `POST`) requests. This is a
+pass-through to Django's
+[`CSRF_TRUSTED_ORIGINS`](https://docs.djangoproject.com/en/4.0/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS)
+setting. Note that each host listed must specify a scheme (e.g. `http://` or
+`https://).
+
+```python
+CSRF_TRUSTED_ORIGINS = (
+    'http://peering-manager.local',
+    'https://peering-manager.local',
+)
+```
+
+---
+
 ## USE_X_FORWARDED_HOST
 
 Default: `True`

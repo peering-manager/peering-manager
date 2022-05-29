@@ -4,12 +4,12 @@
       <div class="row">
         <div class="col-md-2">
           <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
-            <a class="nav-link {% ifequal active_tab "profile" %} active{% endifequal %}" role="tab" href="{% url 'users:profile' %}">Profile</a>
-            <a class="nav-link {% ifequal active_tab "preferences" %} active{% endifequal %}" role="tab" href="{% url 'users:preferences' %}">Preferences</a>
+            <a class="nav-link {% if active_tab == "profile" %} active{% endif %}" role="tab" href="{% url 'users:profile' %}">Profile</a>
+            <a class="nav-link {% if active_tab == "preferences" %} active{% endif %}" role="tab" href="{% url 'users:preferences' %}">Preferences</a>
             {% if not request.user.ldap_username %}
-            <a class="nav-link {% ifequal active_tab "password" %} active{% endifequal %}" role="tab" href="{% url 'users:change_password' %}">Change Password</a>
+            <a class="nav-link {% if active_tab == "password" %} active{% endif %}" role="tab" href="{% url 'users:change_password' %}">Change Password</a>
             {% endif %}
-            <a class="nav-link {% ifequal active_tab "api_tokens" %} active{% endifequal %}" role="tab" href="{% url 'users:token_list' %}">API Tokens</a>
+            <a class="nav-link {% if active_tab == "api_tokens" %} active{% endif %}" role="tab" href="{% url 'users:token_list' %}">API Tokens</a>
           </div>
         </div>
         <div class="col-md-8">

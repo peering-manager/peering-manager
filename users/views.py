@@ -1,3 +1,6 @@
+import logging
+
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
@@ -6,13 +9,16 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.decorators import method_decorator
+from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
 
 from utils.forms import ConfirmationForm
 
 from .forms import LoginForm, TokenForm, UserPasswordChangeForm
 from .models import Token
+
+logger = logging.getLogger("peering.manager.users")
 
 
 def is_user_logged_in(request):
@@ -30,8 +36,30 @@ def is_user_logged_in(request):
 class LoginView(View):
     template = "users/login.html"
 
+    @method_decorator(sensitive_post_parameters("password"))
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def redirect_to_next(self, request):
+        data = request.POST if request.method == "POST" else request.GET
+        redirect_url = data.get("next", settings.BASE_PATH)
+
+        if redirect_url and redirect_url.startswith("/"):
+            logger.debug(f"Redirecting user to {redirect_url}")
+        else:
+            if redirect_url:
+                logger.warning(
+                    f"Ignoring unsafe 'next' URL passed to login form: {redirect_url}"
+                )
+            redirect_url = reverse("home")
+
+        return HttpResponseRedirect(redirect_url)
+
     def get(self, request):
         form = LoginForm(request)
+
+        if request.user.is_authenticated:
+            return self.redirect_to_next(request)
 
         return render(request, self.template, {"form": form})
 
@@ -39,16 +67,15 @@ class LoginView(View):
         form = LoginForm(request, data=request.POST)
 
         if form.is_valid():
-            # Check where should the user be redirected
-            next_redirect = request.POST.get("next", "")
-            if not url_has_allowed_host_and_scheme(
-                url=next_redirect, allowed_hosts=[request.get_host()]
-            ):
-                next_redirect = reverse("home")
+            logger.debug("Login form validation was successful")
 
             auth_login(request, form.get_user())
-            messages.info(request, "Logged in as {}.".format(request.user))
-            return HttpResponseRedirect(next_redirect)
+            logger.info(f"User {request.user} successfully authenticated")
+            messages.info(request, f"Logged in as {request.user}.")
+
+            return self.redirect_to_next(request)
+        else:
+            logger.debug("Login form validation failed")
 
         return render(request, self.template, {"form": form})
 
