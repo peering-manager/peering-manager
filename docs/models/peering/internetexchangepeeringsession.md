@@ -19,6 +19,7 @@ properties can be configured (n.b. some are optional):
 * `Autonomous System`: autonomous system of the remote peer.
 * `Internet Exchange`: Internet exchange providing a LAN and IP addresses
   for autonomous systems to peer.
+* `BGP Group`: group to which the BGP session belongs to.
 * `Password`: a password to secure a BGP session; it can be a clear text
   password or an encrypted one. In the latter case, make sure that the router
   will not try to encrypt the password again.
