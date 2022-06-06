@@ -233,6 +233,7 @@ class InternetExchangeSerializer(PrimaryModelSerializer):
 class InternetExchangePeeringSessionSerializer(PrimaryModelSerializer):
     autonomous_system = NestedAutonomousSystemSerializer()
     ixp_connection = NestedConnectionSerializer()
+    bgp_group = NestedBGPGroupSerializer(required=False)
     import_routing_policies = SerializedPKRelatedField(
         queryset=RoutingPolicy.objects.all(),
         serializer=NestedRoutingPolicySerializer,
@@ -254,6 +255,7 @@ class InternetExchangePeeringSessionSerializer(PrimaryModelSerializer):
             "service_reference",
             "autonomous_system",
             "ixp_connection",
+            "bgp_group",
             "ip_address",
             "password",
             "encrypted_password",
