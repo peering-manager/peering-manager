@@ -564,6 +564,9 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
     internet_exchange = DynamicModelChoiceField(
         required=False, queryset=InternetExchange.objects.all(), label="IXP"
     )
+    bgp_group = DynamicModelChoiceField(
+        required=False, queryset=BGPGroup.objects.all(), label="BGP Group"
+    )
     ixp_connection = DynamicModelChoiceField(
         queryset=Connection.objects.all(),
         query_params={"internet_exchange_point_id": "$internet_exchange"},
@@ -589,6 +592,7 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "service_reference",
             "autonomous_system",
             "ixp_connection",
+            "bgp_group",
             "ip_address",
             "password",
             "multihop_ttl",

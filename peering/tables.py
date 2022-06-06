@@ -110,6 +110,10 @@ class BGPGroupTable(BaseTable):
         verbose_name="Direct Sessions",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
+    ixppeeringsession_count = tables.Column(
+        verbose_name="IXP Sessions",
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
+    )
     tags = TagColumn(url_name="peering:bgpgroup_list")
     actions = ButtonsColumn(BGPGroup)
 
@@ -122,6 +126,7 @@ class BGPGroupTable(BaseTable):
             "import_routing_policies",
             "export_routing_policies",
             "directpeeringsession_count",
+            "ixppeeringsession_count",
             "tags",
             "actions",
         )
@@ -129,6 +134,7 @@ class BGPGroupTable(BaseTable):
             "pk",
             "name",
             "directpeeringsession_count",
+            "ixppeeringsession_count",
             "actions",
         )
 
@@ -268,6 +274,9 @@ class InternetExchangePeeringSessionTable(BaseTable):
         linkify=True,
     )
     ixp_connection = tables.Column(verbose_name="Connection", linkify=True)
+    bgp_group = tables.Column(
+        verbose_name="BGP Group", accessor="bgp_group", linkify=True
+    )
     ip_address = tables.Column(verbose_name="IP Address", linkify=True)
     service_reference = tables.Column(verbose_name="Service ID", linkify=True)
     is_route_server = BooleanColumn(verbose_name="Route Server")
@@ -287,6 +296,7 @@ class InternetExchangePeeringSessionTable(BaseTable):
             "service_reference",
             "autonomous_system",
             "ixp_connection",
+            "bgp_group",
             "internet_exchange_point",
             "ip_address",
             "is_route_server",

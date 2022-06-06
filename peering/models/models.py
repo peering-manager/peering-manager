@@ -761,6 +761,13 @@ class InternetExchangePeeringSession(BGPSession):
     is_route_server = models.BooleanField(
         blank=True, default=False, verbose_name="Route server"
     )
+    bgp_group = models.ForeignKey(
+        to="peering.BGPGroup",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name="BGP group",
+    )
 
     class Meta(BGPSession.Meta):
         ordering = [
@@ -992,8 +999,15 @@ class Router(ChangeLoggedModel, TaggableModel):
         the group are also attached to the router.
         """
         return BGPGroup.objects.filter(
-            pk__in=DirectPeeringSession.objects.filter(router=self).values_list(
-                "bgp_group", flat=True
+            Q(
+                pk__in=DirectPeeringSession.objects.filter(router=self).values_list(
+                    "bgp_group", flat=True
+                )
+            )
+            | Q(
+                pk__in=InternetExchangePeeringSession.objects.filter(
+                    ixp_connection__router=self
+                ).values_list("bgp_group", flat=True)
             )
         )
 

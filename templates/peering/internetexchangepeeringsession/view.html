@@ -30,6 +30,12 @@
             {% endif %}
           </td>
         </tr>
+        {% if instance.bgp_group %}
+        <tr>
+          <td>BGP Group</td>
+          <td>{{ instance.bgp_group|as_link }}</td>
+        </tr>
+        {% endif %}
         <tr>
           <td>IP Address</td>
           <td>{{ instance.ip_address }}</td>

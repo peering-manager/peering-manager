@@ -290,7 +290,8 @@ class AutonomousSystemEmail(PermissionRequiredMixin, View):
 class BGPGroupList(ObjectListView):
     permission_required = "peering.view_bgpgroup"
     queryset = BGPGroup.objects.annotate(
-        directpeeringsession_count=Count("directpeeringsession")
+        directpeeringsession_count=Count("directpeeringsession"),
+        ixppeeringsession_count=Count("internetexchangepeeringsession"),
     ).order_by("name", "slug")
     filterset = BGPGroupFilterSet
     filterset_form = BGPGroupFilterForm
