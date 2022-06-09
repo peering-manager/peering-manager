@@ -73,13 +73,16 @@ Example:
 
 ## `ip`
 
-Returns the IP address without the prefix length for a BGP session. The
+Returns the IP address without the prefix length for a BGP session or IP address fields. The
 returned value is a string.
 
-Example:
+Examples:
 ```no-highlight
 {% for session in ixp | sessions %}
-{{ session | ip }}
+Remote: {{ session | ip }}
+{% if session.local_ip_address %}
+Local: {{ session.local_ip_address | ip }}
+{% endif %}
 {% endfor %}
 ```
 

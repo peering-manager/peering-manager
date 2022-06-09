@@ -145,8 +145,8 @@ Default: `[]`
 
 List of Jinja2 extensions to load when rendering templates. Extensions can be
 used to add more features to the initial ones. Extensions that are not built
-into Jinja2 will required to be installed in the Python environment used to
-run Peering Manager.
+into Jinja2 need to be installed in the Python environment used to run Peering
+Manager.
 
 ---
 
