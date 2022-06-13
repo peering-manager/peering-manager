@@ -55,18 +55,29 @@ def ipv6(value):
 
 def ip(value):
     """
-    Returns the remote IP of a BGP session.
+    Returns the IP address without prefix length.
     """
-    if not isinstance(value, BGPSession):
-        raise ValueError("value is not a bgp session")
-
-    ip = value.ip_address
-    if type(ip) in (ipaddress.IPv4Interface, ipaddress.IPv6Interface):
-        return str(ip.ip)
-    elif type(ip) in (ipaddress.IPv4Address, ipaddress.IPv6Address):
-        return str(ip)
+    if isinstance(value, BGPSession):
+        address = value.ip_address
+    elif type(value) in (
+        ipaddress.IPv4Interface,
+        ipaddress.IPv6Interface,
+        ipaddress.IPv4Address,
+        ipaddress.IPv6Address,
+    ):
+        address = value
     else:
-        return ip
+        try:
+            address = ipaddress.ip_interface(value)
+        except ValueError:
+            address = ipaddress.ip_address(value)
+
+    if type(address) in (ipaddress.IPv4Interface, ipaddress.IPv6Interface):
+        return str(address.ip)
+    elif type(address) in (ipaddress.IPv4Address, ipaddress.IPv6Address):
+        return str(address)
+    else:
+        return address
 
 
 def ip_version(value):
