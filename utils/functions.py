@@ -10,6 +10,8 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from taggit.managers import _TaggableManager
 
+from utils.templatetags.helpers import title_with_uppers
+
 
 def dict_to_filter_params(d, prefix=""):
     """
@@ -129,10 +131,12 @@ def content_type_name(ct):
     """
     try:
         meta = ct.model_class()._meta
-        return f"{meta.app_config.verbose_name} > {meta.verbose_name}"
+        return (
+            f"{meta.app_config.verbose_name} > {title_with_uppers(meta.verbose_name)}"
+        )
     except AttributeError:
         # Model no longer exists
-        return f"{ct.app_label} > {ct.model}"
+        return f"{ct.app_label} > {title_with_uppers(ct.model)}"
 
 
 def content_type_identifier(ct):

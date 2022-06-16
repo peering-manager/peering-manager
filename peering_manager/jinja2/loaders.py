@@ -29,5 +29,5 @@ class PeeringManagerLoader(BaseLoader):
             raise TemplateNotFound(identifier)
 
     def get_source(self, environment, template):
-        source = self._lookup_object(*template.split("::"))
+        source = self._lookup_object(*template.split("::", maxsplit=1))
         return source.template, template, True
