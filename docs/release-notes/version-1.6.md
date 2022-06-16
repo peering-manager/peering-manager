@@ -1,3 +1,17 @@
+## Version 1.6.3 | MARK I (Bug fixes release) | 2022-06-16
+
+### Enhancements
+
+* [#577](https://github.com/peering-manager/peering-manager/discussions/577) Make community `type` field optional
+* Add include statements (`include_configuration` and `include_email`) support for templates
+* [#592](https://github.com/peering-manager/peering-manager/issues/592) Make `ip` filter work with all IP fields
+
+### Bug Fixes
+
+* [#588](https://github.com/peering-manager/peering-manager/issues/588) Fix session count in AS global search
+* Fix tables buttons when changing columns order
+* Fix content type name display
+
 ## Version 1.6.2 | MARK I (Bug fixes release) | 2022-05-14
 
 ### Enhancements
