@@ -2,10 +2,36 @@ import django_filters
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-from utils.filters import BaseFilterSet, ContentTypeFilter
+from utils.filters import BaseFilterSet, ContentTypeFilter, CreatedUpdatedFilterSet
 
 from .enums import HttpMethod, JobResultStatus
-from .models import IXAPI, JobResult, Webhook
+from .models import IXAPI, ConfigContext, ConfigContextAssignment, JobResult, Webhook
+
+
+class ConfigContextFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
+    q = django_filters.CharFilter(method="search", label="Search")
+
+    class Meta:
+        model = ConfigContext
+        fields = ["id", "name", "description", "is_active"]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) | Q(description__icontains=value)
+        )
+
+
+class ConfigContextAssignmentFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
+    content_type = ContentTypeFilter()
+    config_context_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ConfigContext.objects.all(), label="Config Context (ID)"
+    )
+
+    class Meta:
+        model = ConfigContextAssignment
+        fields = ["id", "content_type_id", "object_id", "weight"]
 
 
 class IXAPIFilterSet(BaseFilterSet):

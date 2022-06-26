@@ -14,6 +14,11 @@ urlpatterns = [
     ),
     path("connections/add/", views.ConnectionAdd.as_view(), name="connection_add"),
     path(
+        "connections/<int:pk>/config-context/",
+        views.ConnectionContext.as_view(),
+        name="connection_configcontext",
+    ),
+    path(
         "connections/<int:pk>/changelog/",
         ObjectChangeLog.as_view(),
         name="connection_changelog",

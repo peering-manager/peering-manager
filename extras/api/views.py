@@ -4,12 +4,25 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 
-from extras.filters import JobResultFilterSet, WebhookFilterSet
-from extras.models import IXAPI, JobResult, Webhook
+from extras.filters import (
+    ConfigContextAssignmentFilterSet,
+    ConfigContextFilterSet,
+    JobResultFilterSet,
+    WebhookFilterSet,
+)
+from extras.models import (
+    IXAPI,
+    ConfigContext,
+    ConfigContextAssignment,
+    JobResult,
+    Webhook,
+)
 from extras.models.ix_api import Client
 from peering_manager.api.views import ModelViewSet, ReadOnlyModelViewSet
 
 from .serializers import (
+    ConfigContextAssignmentSerializer,
+    ConfigContextSerializer,
     IXAPICustomerSerializer,
     IXAPISerializer,
     JobResultSerializer,
@@ -20,6 +33,20 @@ from .serializers import (
 class ExtrasRootView(APIRootView):
     def get_view_name(self):
         return "Extras"
+
+
+class ConfigContextViewSet(ModelViewSet):
+    queryset = ConfigContext.objects.all()
+    serializer_class = ConfigContextSerializer
+    filterset_class = ConfigContextFilterSet
+
+
+class ConfigContextAssignmentViewSet(ModelViewSet):
+    queryset = ConfigContextAssignment.objects.prefetch_related(
+        "object", "config_context"
+    )
+    serializer_class = ConfigContextAssignmentSerializer
+    filterset_class = ConfigContextAssignmentFilterSet
 
 
 class IXAPIViewSet(ModelViewSet):

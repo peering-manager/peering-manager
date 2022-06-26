@@ -31,7 +31,7 @@ the following manner:
         {
             "id": 1,
             ...
-            "config_context": {
+            "local_context_data": {
                 "bgp_region": "eu-frankfurt",
             }
         }

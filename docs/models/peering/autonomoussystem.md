@@ -11,9 +11,9 @@ for private use and must not be routed on the Internet.
 ## In Peering Manager
 
 Inside Peering Manager, you create autonomous systems that you want to peer
-with. Your own ASN numbers must be provided by checking the `affiliated field`.
-For each AS that you create, the following properties can be configured (n.b.
-some are optional):
+with. Your own ASN numbers must be provided by checking the `affiliated`
+field. For each AS that you create, the following properties can be configured
+(n.b. some are optional):
 
 * `ASN`: unique autonomous system number of the entity.
 * `Name`: human-readable name attached to an AS.
@@ -25,9 +25,6 @@ some are optional):
   number of IPv4 prefixes to receive from the AS.
 * `General Policy`: the General Peering Policy of an Autonomous System. This
   is auto synced from PeeringDB and is not user changeable.
-* `Contact Name`: contact person/team in charge of BGP/peering operations.
-* `Contact Phone`: phone number to get in touch with the contact.
-* `Contact E-mail`: e-mail address to get in touch with the contact.
 * `Import Routing Policies`: a list of routing policies to apply when
    receiving prefixes from the AS.
 * `Export Routing Policies`: a list of routing policies to apply when

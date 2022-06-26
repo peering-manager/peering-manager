@@ -16,7 +16,7 @@ from peering.models.models import (
     InternetExchangePeeringSession,
     Router,
 )
-from utils.models import TaggableModel
+from utils.models import TagsMixin
 
 
 def ipv4(value):
@@ -466,7 +466,7 @@ def tags(value):
     """
     Returns an iterable containing tags associated with an object."
     """
-    if not isinstance(value, TaggableModel):
+    if not isinstance(value, TagsMixin):
         raise AttributeError("object has no tags")
     return value.tags.all()
 
@@ -475,7 +475,7 @@ def has_tag(value, tag):
     """
     Returns a boolean indicating if an objects has the given tag.
     """
-    if not isinstance(value, TaggableModel):
+    if not isinstance(value, TagsMixin):
         raise AttributeError("object has no tags")
 
     return value.tags.filter(Q(name=tag) | Q(slug=tag)).count() > 0
@@ -485,7 +485,7 @@ def has_not_tag(value, tag):
     """
     Returns a boolean indicating if an objects has the given tag.
     """
-    if not isinstance(value, TaggableModel):
+    if not isinstance(value, TagsMixin):
         raise AttributeError("object has no tags")
 
     return value.tags.filter(Q(name=tag) | Q(slug=tag)).count() == 0

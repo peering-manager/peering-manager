@@ -5,7 +5,7 @@ from django.urls import reverse
 from netfields import InetAddressField, NetManager
 
 from peeringdb.models import NetworkIXLan
-from utils.models import ChangeLoggedModel, TaggableModel
+from utils.models import ChangeLoggedMixin, ConfigContextMixin, TagsMixin
 from utils.validators import AddressFamilyValidator
 
 from .enums import ConnectionState
@@ -14,7 +14,7 @@ from .fields import VLANField
 logger = logging.getLogger("peering.manager.net")
 
 
-class Connection(ChangeLoggedModel, TaggableModel):
+class Connection(ChangeLoggedMixin, ConfigContextMixin, TagsMixin):
     peeringdb_netixlan = models.ForeignKey(
         to="peeringdb.NetworkIXLan", on_delete=models.SET_NULL, blank=True, null=True
     )
@@ -42,7 +42,6 @@ class Connection(ChangeLoggedModel, TaggableModel):
     )
     interface = models.CharField(max_length=200, blank=True)
     description = models.CharField(max_length=200, blank=True)
-    config_context = models.JSONField(blank=True, null=True)
     comments = models.TextField(blank=True)
 
     objects = NetManager()
@@ -114,3 +113,25 @@ class Connection(ChangeLoggedModel, TaggableModel):
         self.save()
 
         return netixlan
+
+    def get_ixapi_network_service_config(self):
+        """
+        Returns the corresponding IX-API network service config for this connection.
+        """
+        if (
+            not self.internet_exchange_point
+            or not self.internet_exchange_point.ixapi_endpoint
+        ):
+            return None
+
+        network_service_configs = (
+            self.internet_exchange_point.ixapi_endpoint.get_network_service_configs()
+        )
+        for network_service_config in network_service_configs:
+            if (
+                network_service_config.ipv4_address == self.ipv4_address
+                or network_service_config.ipv6_address == self.ipv6_address
+            ):
+                return network_service_config
+
+        return None

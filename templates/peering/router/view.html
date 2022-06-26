@@ -47,23 +47,11 @@
         </tr>
         <tr>
           <td>Encrypt Passwords</td>
-          <td>
-            {% if instance.encrypt_passwords %}
-            <i class="fas fa-check text-success"></i>
-            {% else %}
-            <i class="fas fa-times text-danger"></i>
-            {% endif %}
-          </td>
+          <td>{{ instance.encrypt_passwords|boolean_as_icon }}</td>
         </tr>
         <tr>
           <td>Poll BGP Sessions</td>
-          <td>
-            {% if instance.poll_bgp_sessions_state %}
-            <i class="fas fa-check text-success"></i>
-            {% else %}
-            <i class="fas fa-times text-danger"></i>
-            {% endif %}
-          </td>
+          <td>{{ instance.poll_bgp_sessions_state|boolean_as_icon }}</td>
         </tr>
         {% if instance.poll_bgp_sessions_state and instance.poll_bgp_sessions_last_updated %}
         <tr>

@@ -1,9 +1,47 @@
+from tabnanny import verbose
+
 import django_tables2 as tables
 from django.conf import settings
 
-from utils.tables import BaseTable, ButtonsColumn, SelectColumn
+from utils.tables import (
+    BaseTable,
+    BooleanColumn,
+    ButtonsColumn,
+    ContentTypeColumn,
+    SelectColumn,
+)
 
-from .models import IXAPI, JobResult
+from .models import IXAPI, ConfigContext, ConfigContextAssignment, JobResult
+
+
+class ConfigContextTable(BaseTable):
+    pk = SelectColumn()
+    name = tables.Column(linkify=True)
+    is_active = BooleanColumn(verbose_name="Active")
+    actions = ButtonsColumn(ConfigContext)
+
+    class Meta(BaseTable.Meta):
+        model = ConfigContext
+        fields = ("pk", "name", "description", "is_active")
+        default_columns = ("name", "description", "is_active")
+
+
+class ConfigContextAssignmentTable(BaseTable):
+    content_type = ContentTypeColumn(verbose_name="Object Type")
+    object = tables.Column(linkify=True, orderable=False)
+    config_context = tables.Column(linkify=True)
+    actions = ButtonsColumn(model=ConfigContextAssignment, buttons=("edit", "delete"))
+
+    class Meta(BaseTable.Meta):
+        model = ConfigContextAssignment
+        fields = ("content_type", "object", "config_context", "weight", "actions")
+        default_columns = (
+            "content_type",
+            "object",
+            "config_context",
+            "weight",
+            "actions",
+        )
 
 
 class IXAPITable(BaseTable):
@@ -19,7 +57,7 @@ class IXAPITable(BaseTable):
 
 class JobResultTable(BaseTable):
     pk = SelectColumn()
-    obj_type = tables.Column(verbose_name="Object Type", accessor="obj_type__name")
+    obj_type = ContentTypeColumn(verbose_name="Object type")
     created = tables.DateTimeColumn(linkify=True, format=settings.SHORT_DATETIME_FORMAT)
     status = tables.TemplateColumn(
         """
@@ -63,4 +101,4 @@ class JobResultTable(BaseTable):
             "status",
             "data",
         )
-        default_columns = ("pk", "created", "name", "user", "status", "data")
+        default_columns = ("created", "name", "user", "status", "data")
