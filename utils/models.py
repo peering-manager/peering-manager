@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -174,7 +175,11 @@ class ConfigContextMixin(models.Model):
         """
         rendered = {}
         for assignment in self.config_contexts.all():
-            rendered = merge_hash(rendered, assignment.config_context.data)
+            rendered = merge_hash(
+                rendered,
+                assignment.config_context.data,
+                **settings.CONFIG_CONTEXT_MERGE_STRATEGY,
+            )
 
         if not self.local_context_data and not rendered:
             # Always return a null value instead of empty dict
@@ -184,7 +189,9 @@ class ConfigContextMixin(models.Model):
         if not rendered:
             return self.local_context_data
 
-        return merge_hash(rendered, self.local_context_data)
+        return merge_hash(
+            rendered, self.local_context_data, **settings.CONFIG_CONTEXT_MERGE_STRATEGY
+        )
 
 
 FEATURES_MAP = (

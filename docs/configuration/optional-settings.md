@@ -207,6 +207,38 @@ Manager.
 
 ---
 
+## CONFIG_CONTEXT_RECURSIVE_MERGE / CONFIG_CONTEXT_LIST_MERGE
+
+Default: `True` / `replace`
+
+When merging configuration contexts, Peering Manager needs to know what should
+happen to nested dictionaries/hashes and to list. These two options can be
+changed to reproduce the wanted behaviour. They are similar to Ansible's
+`combine` filter and should produce the same results.
+
+Keep in mind that config contexts are merged in a way that one that has a high
+priority will override one with a lower priority.
+
+If `CONFIG_CONTEXT_RECURSIVE_MERGE` is set to `True` (the default value), it
+will recursively merge nested hashes.
+
+`CONFIG_CONTEXT_LIST_MERGE` has multiple values possible:
+* `replace`: default, arrays in the higher priority config context will
+  replace the ones in lower priority config context,
+* `keep`: arrays in the lower priority config context will be kept,
+* `append`: arrays in the higher priority config context will be appended to
+  the ones in the lower priority config context,
+* `prepend`: arrays in the higher priority config context will be prepended to
+  the ones in the lower priority config context,
+* `append_rp`: arrays in the higher priority config context will be appended
+  to the ones in the lower priority config context, elements of arrays in that
+  are in both config contextes will be removed ("rp" stands for "remove
+  present"), duplicate elements that aren’t in both config contexts are kept,
+* `prepend_rp`: the behavior is similar to the one for `append_rp`, but
+  elements of arrays are prepended.
+
+---
+
 ## PEERINGDB_API_KEY
 
 PeeringDB API key used to authenticate against PeeringDB allowing Peering

@@ -1,9 +1,21 @@
 # Config Contexts
 
 Config(uration) contexts can be used to give "context" (or "hints") to tooling
-that uses Peering Manager as its data source. This context is given as a simple
-JSON snippet, which is able to model properties that Peering Manager by default
-would not be able to represent.
+that uses Peering Manager as its data source. This context is given as a
+simple JSON snippet, which is able to model properties that Peering Manager by
+default would not be able to represent.
+
+## Levels
+
+They are two levels of config contexts. The first one is composed of config
+contexts objects assigned to an object such as a BGP group, an IXP, …. These
+config contexts can be assigned to multiple objects. When merged, ones with
+higher priorities will override ones with lower priorities. The second level
+is defined with the `local_context_data` field of an object. When merged, the
+data in this field will override data of all other config contexts.
+
+Note that the strategy for merging config contexts can be tweaked with the
+`CONFIG_CONTEXT_RECURSIVE_MERGE` and `CONFIG_CONTEXT_LIST_MERGE` settings.
 
 ## Config Contexts for Routers
 

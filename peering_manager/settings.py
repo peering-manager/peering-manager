@@ -89,8 +89,8 @@ try:
         raise Exception("Unsupported TZ")
 except (IOError, Exception):
     BASE_TZ = "UTC"
-
 TIME_ZONE = getattr(configuration, "TIME_ZONE", BASE_TZ).rstrip()
+
 EMAIL = getattr(configuration, "EMAIL", {})
 BGPQ3_PATH = getattr(configuration, "BGPQ3_PATH", "bgpq3")
 BGPQ3_HOST = getattr(configuration, "BGPQ3_HOST", "whois.radb.net")
@@ -105,6 +105,10 @@ BGPQ3_ARGS = getattr(
     {"ipv6": ["-r", "16", "-R", "48"], "ipv4": ["-r", "8", "-R", "24"]},
 )
 JINJA2_TEMPLATE_EXTENSIONS = getattr(configuration, "JINJA2_TEMPLATE_EXTENSIONS", [])
+CONFIG_CONTEXT_MERGE_STRATEGY = {
+    "recursive": getattr(configuration, "CONFIG_CONTEXT_RECURSIVE_MERGE", True),
+    "list_merge": getattr(configuration, "CONFIG_CONTEXT_LIST_MERGE", "replace"),
+}
 
 
 # Django filters
