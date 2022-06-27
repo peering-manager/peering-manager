@@ -21,9 +21,9 @@ DOCS_DIR = BASE_DIR / "docs"
 VERSION = "v1.6.4-dev"
 
 major, minor, _ = platform.python_version_tuple()
-if (int(major), int(minor)) < (3, 6):
+if (int(major), int(minor)) < (3, 8):
     raise RuntimeError(
-        f"Peering Manager requires Python 3.6 or higher (current: Python {platform.python_version()})"
+        f"Peering Manager requires Python 3.8 or higher (current: Python {platform.python_version()})"
     )
 
 try:
@@ -50,11 +50,14 @@ MY_ASN = getattr(configuration, "MY_ASN", None)
 if MY_ASN:
     warnings.warn("MY_ASN is no longer supported and will be removed in 2.0.")
 
-CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
-
 BASE_PATH = getattr(configuration, "BASE_PATH", "")
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip("/") + "/"  # Enforce trailing slash only
+CORS_ORIGIN_ALLOW_ALL = getattr(configuration, "CORS_ORIGIN_ALLOW_ALL", False)
+CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, "CORS_ORIGIN_REGEX_WHITELIST", [])
+CORS_ORIGIN_WHITELIST = getattr(configuration, "CORS_ORIGIN_WHITELIST", [])
+CSRF_COOKIE_NAME = getattr(configuration, "CSRF_COOKIE_NAME", "csrftoken")
+CSRF_TRUSTED_ORIGINS = getattr(configuration, "CSRF_TRUSTED_ORIGINS", [])
 DEBUG = getattr(configuration, "DEBUG", False)
 LOGGING = getattr(configuration, "LOGGING", {})
 REDIS = getattr(configuration, "REDIS", {})

@@ -388,16 +388,16 @@ class Jinja2FilterTestCase(TestCase):
         main = Configuration.objects.create(
             name="main", template="{% include_configuration 'test' %}"
         )
-        self.assertEquals("this is a test", main.render({}))
+        self.assertEqual("this is a test", main.render({}))
         main.template = "{% include 'configuration::test' %}"
         main.save()
-        self.assertEquals("this is a test", main.render({}))
+        self.assertEqual("this is a test", main.render({}))
 
         Email.objects.create(name="test", subject="test", template="this is a test")
         main = Email.objects.create(
             name="main", subject="main", template="{% include_email 'test' %}"
         )
-        self.assertEquals(("main", "this is a test"), main.render({}))
+        self.assertEqual(("main", "this is a test"), main.render({}))
         main.template = "{% include 'email::test' %}"
         main.save()
-        self.assertEquals(("main", "this is a test"), main.render({}))
+        self.assertEqual(("main", "this is a test"), main.render({}))
