@@ -157,6 +157,13 @@ class ConfigContextMixin(models.Model):
     class Meta:
         abstract = True
 
+    @property
+    def config_context(self):
+        """
+        Property mostly exposed for templating purposes.
+        """
+        return self.get_config_context()
+
     def clean(self):
         super().clean()
 

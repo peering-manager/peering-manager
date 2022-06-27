@@ -181,6 +181,31 @@ def handle_protectederror(obj_list, request, e):
     messages.error(request, mark_safe(err_message))
 
 
+def get_key_in_hash(hash, key, default=None, recursive=True):
+    """
+    Returns the key's value and a boolean telling if this value is a default or not.
+
+    The default value, when key is not found, can be adjusted with the `default`
+    parameter. The `recursive` parameter controls whether or not to search for the key
+    in nested hashes.
+    """
+    # null or empty hash, no key to lookup
+    if hash is None or hash == {}:
+        return default, False
+
+    for k, v in hash.items():
+        if k == key:
+            return v, True
+
+        # Lookup nested hash
+        if recursive and type(v) is dict:
+            value, found = get_key_in_hash(v, key, default=default, recursive=recursive)
+            if found:
+                return value, True
+
+    return default, False
+
+
 def merge_hash(a, b, recursive=True, list_merge="replace"):
     """
     Return a new dictionary result of the merges of `b` into `a`, so that keys from

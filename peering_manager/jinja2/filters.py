@@ -16,7 +16,8 @@ from peering.models.models import (
     InternetExchangePeeringSession,
     Router,
 )
-from utils.models import TagsMixin
+from utils.functions import get_key_in_hash
+from utils.models import ConfigContextMixin, TagsMixin
 
 
 def ipv4(value):
@@ -491,6 +492,45 @@ def has_not_tag(value, tag):
     return value.tags.filter(Q(name=tag) | Q(slug=tag)).count() == 0
 
 
+def context_has_key(value, key, recursive=True):
+    """
+    Returns whether or not a config context has a key.
+
+    The `recursive` parameter can be set to `False` to avoid looking in nested hashes.
+    """
+    if not isinstance(value, ConfigContextMixin):
+        raise AttributeError("object has no config context")
+
+    _, found = get_key_in_hash(value.get_config_context(), key, recursive=recursive)
+    return found
+
+
+def context_has_not_key(value, key, recursive=True):
+    """
+    Returns whether or not a config context has **not** a key.
+
+    The `recursive` parameter can be set to `False` to avoid looking in nested hashes.
+    """
+    return not context_has_key(value, key, recursive=recursive)
+
+
+def context_get_key(value, key, default=None, recursive=True):
+    """
+    Returns the value of a key in a config context.
+
+    The `default` parameter can be set to any value if the key is not to be found.
+
+    The `recursive` parameter can be set to `False` to avoid looking in nested hashes.
+    """
+    if not isinstance(value, ConfigContextMixin):
+        raise AttributeError("object has no config context")
+
+    value, _ = get_key_in_hash(
+        value.get_config_context(), key, default=default, recursive=recursive
+    )
+    return value
+
+
 FILTER_DICT = {
     # Generics
     "safe_string": safe_string,
@@ -538,6 +578,10 @@ FILTER_DICT = {
     "iter_import_policies": iter_import_policies,
     "merge_export_policies": merge_export_policies,
     "merge_import_policies": merge_import_policies,
+    # Config contexts
+    "context_has_key": context_has_key,
+    "context_has_not_key": context_has_not_key,
+    "context_get_key": context_get_key,
 }
 
 __all__ = ("FILTER_DICT",)
