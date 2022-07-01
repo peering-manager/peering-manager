@@ -146,7 +146,7 @@
                 <span class="ml-4">IX-API</span>
               </a>
             </div>
-            <a href="#other_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/bgp/relationships/,/job-results/,/tags/,/changelog/' %} active{% endif %}">
+            <a href="#other_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/bgp/relationships/,/extras/config-contexts/,/job-results/,/tags/,/changelog/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
                 Other <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
               </div>
@@ -154,6 +154,9 @@
             <div id="other_menu_id" class="collapse sidebar-submenu">
               <a href="{% url 'bgp:relationship_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/bgp/relationships/' %} active{% endif %}">
                 <span class="ml-4">Relationships</span>
+              </a>
+              <a href="{% url 'extras:configcontext_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/extras/config-contexts/' %} active{% endif %}">
+                <span class="ml-4">Config Contexts</span>
               </a>
               <a href="{% url 'utils:tag_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/tags/' %} active{% endif %}">
                 <div class="ml-4">Tags</div>

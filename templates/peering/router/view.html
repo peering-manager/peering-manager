@@ -47,23 +47,11 @@
         </tr>
         <tr>
           <td>Encrypt Passwords</td>
-          <td>
-            {% if instance.encrypt_passwords %}
-            <i class="fas fa-check text-success"></i>
-            {% else %}
-            <i class="fas fa-times text-danger"></i>
-            {% endif %}
-          </td>
+          <td>{{ instance.encrypt_passwords|boolean_as_icon }}</td>
         </tr>
         <tr>
           <td>Poll BGP Sessions</td>
-          <td>
-            {% if instance.poll_bgp_sessions_state %}
-            <i class="fas fa-check text-success"></i>
-            {% else %}
-            <i class="fas fa-times text-danger"></i>
-            {% endif %}
-          </td>
+          <td>{{ instance.poll_bgp_sessions_state|boolean_as_icon }}</td>
         </tr>
         {% if instance.poll_bgp_sessions_state and instance.poll_bgp_sessions_last_updated %}
         <tr>
@@ -129,15 +117,6 @@
     {% endif %}
   </div>
   <div class="col-md-6">
-    <div class="card mb-2">
-      <div class="card-header">
-        <strong>Config Context</strong>
-        {% include 'includes/configcontext_format.html' with format=configcontext_format %}
-      </div>
-      <div class="card-body p-1">
-        {% include 'includes/configcontext_data.html' with data=instance.config_context format=configcontext_format %}
-      </div>
-    </div>
     <div class="card">
       <div class="card-header"><strong>Comments</strong></div>
       <div class="card-body">

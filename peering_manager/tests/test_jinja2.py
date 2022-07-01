@@ -75,7 +75,11 @@ class Jinja2FilterTestCase(TestCase):
         )
         cls.a_s.communities.add(Community.objects.get(slug="learnt-from-transit"))
         cls.a_s.tags.add(*cls.tags)
-        cls.router = Router.objects.create(name="test", hostname="test.example.com")
+        cls.router = Router.objects.create(
+            name="test",
+            hostname="test.example.com",
+            local_context_data={"foo": "bar", "nested": {"inside": True}},
+        )
         cls.ixp = InternetExchange.objects.create(
             local_autonomous_system=AutonomousSystem.objects.create(
                 asn=64500, name="Autonomous System", affiliated=True
@@ -401,3 +405,43 @@ class Jinja2FilterTestCase(TestCase):
         main.template = "{% include 'email::test' %}"
         main.save()
         self.assertEqual(("main", "this is a test"), main.render({}))
+
+    def test_context_has_key(self):
+        self.assertEqual(True, FILTER_DICT["context_has_key"](self.router, "foo"))
+        self.assertEqual(False, FILTER_DICT["context_has_key"](self.router, "bar"))
+
+        self.assertEqual(
+            True, FILTER_DICT["context_has_key"](self.router, "inside", recursive=True)
+        )
+        self.assertEqual(
+            False,
+            FILTER_DICT["context_has_key"](self.router, "inside", recursive=False),
+        )
+
+    def test_context_has_not_key(self):
+        self.assertEqual(False, FILTER_DICT["context_has_not_key"](self.router, "foo"))
+        self.assertEqual(True, FILTER_DICT["context_has_not_key"](self.router, "bar"))
+        self.assertEqual(
+            False,
+            FILTER_DICT["context_has_not_key"](self.router, "inside", recursive=True),
+        )
+        self.assertEqual(
+            True,
+            FILTER_DICT["context_has_not_key"](self.router, "inside", recursive=False),
+        )
+
+    def test_context_get_key(self):
+        self.assertEqual("bar", FILTER_DICT["context_get_key"](self.router, "foo"))
+        self.assertEqual(None, FILTER_DICT["context_get_key"](self.router, "bar"))
+        self.assertEqual(
+            "nope",
+            FILTER_DICT["context_get_key"](
+                self.router, "inside", default="nope", recursive=False
+            ),
+        )
+        self.assertEqual(
+            True,
+            FILTER_DICT["context_get_key"](
+                self.router, "inside", default="nope", recursive=True
+            ),
+        )

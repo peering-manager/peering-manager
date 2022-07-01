@@ -53,7 +53,6 @@ nav:
             - Internet Exchange Peering Session: "models/peering/internetexchangepeeringsession.md"
             - Router: "models/peering/router.md"
             - Routing Policy: "models/peering/routingpolicy.md"
-            - Config Contexts: "models/peering/configcontexts.md"
             - Connection: "models/net/connection.md"
             - Relationship: "models/bgp/relationship.md"
         - Messaging:
@@ -62,6 +61,7 @@ nav:
             - Contact Assignment: "models/messaging/contactassignment.md"
             - E-mail: "models/messaging/email.md"
         - Extras:
+            - Config Context: "models/extras/configcontext.md"
             - IX-API: "models/extras/ixapi.md"
             - Tag: "models/utils/tag.md"
             - Webhook: "models/extras/webhook.md"

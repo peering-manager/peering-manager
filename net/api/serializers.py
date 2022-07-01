@@ -30,7 +30,7 @@ class ConnectionSerializer(PrimaryModelSerializer):
             "router",
             "interface",
             "description",
-            "config_context",
+            "local_context_data",
             "comments",
             "tags",
         ]
