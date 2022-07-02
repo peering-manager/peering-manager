@@ -32,8 +32,10 @@ The first cache synchronization can take a lot of time due to the amount of
 data to be stored. Later runs will be faster because only the differences with
 the previous synchronization will be retrieved.
 
+If the `--tasks` flag is set, it will schedule a background task.
+
 This command can be called with the `--flush` option to remove synchronized
-items.
+items. Flushing cannot be run as a background task.
 
 ```no-highlight
 # venv/bin/python3 manage.py peeringdb_sync --flush
@@ -111,7 +113,7 @@ run automatically.
 ### systemd
 
 Beside the systemd units for the main application and worker, the 
-[contrib-Repository](https://github.com/peering-manager/contrib/tree/main/systemd)
+[contrib repository](https://github.com/peering-manager/contrib/tree/main/systemd)
 also contains units to run the previously metioned tasks.
 After copying the files, you have to enable the timer units you want to use by
 running `systemctl enable peering-manager_peeringdb-sync.timer --now`.
