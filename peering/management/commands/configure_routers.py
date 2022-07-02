@@ -1,5 +1,4 @@
 from django.core.management.base import BaseCommand
-from django.template.defaultfilters import pluralize
 
 from extras.models import JobResult
 from peering.jobs import set_napalm_configuration
