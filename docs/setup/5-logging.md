@@ -15,6 +15,7 @@ loggers are provided:
 * `peering.manager.peering`: logging internal models and views
 * `peering.manager.peeringdb`: logging actions related to PeeringDB
 * `peering.manager.releases`: logging new release monitoring
+* `peering.manager.users`: logging user and authentication views
 
 To adjust the logging configuration to your needs, you probably want to read
 [Django's documentation](https://docs.djangoproject.com/en/stable/topics/logging/)

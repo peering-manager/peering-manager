@@ -42,14 +42,24 @@
         </li>
         {% if instance.get_peering_sessions|length > 0 %}
         <li class="nav-item">
-          <a class="nav-link{% if active_tab == 'ixsessions' %} active{% endif %}" href="{% url 'peering:router_internet_exchange_peering_sessions' pk=instance.pk %}">
+          <a class="nav-link{% if active_tab == 'ixp-sessions' %} active{% endif %}" href="{% url 'peering:router_internet_exchange_peering_sessions' pk=instance.pk %}">
             <i class="fas fa-network-wired"></i> IX Peering Sessions
           </a>
         </li>
         {% endif %}
         <li class="nav-item">
+          <a class="nav-link{% if active_tab == 'config-context' %} active{% endif %}" href="{% url 'peering:router_configcontext' pk=instance.pk %}">
+            <i class="fas fa-code"></i> Config Context
+          </a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link{% if active_tab == 'changelog' %} active{% endif %}" href="{% url 'peering:router_changelog' pk=instance.pk %}">
             <i class="fas fa-history"></i> Changelog
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">
+            Last updated: {{ instance.updated | date_span }}
           </a>
         </li>
       </ul>

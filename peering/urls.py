@@ -39,6 +39,11 @@ urlpatterns = [
         name="autonomoussystem_email",
     ),
     path(
+        "autonomous-systems/<int:pk>/config-context/",
+        views.AutonomousSystemConfigContext.as_view(),
+        name="autonomoussystem_configcontext",
+    ),
+    path(
         "autonomous-systems/<int:pk>/changelog/",
         ObjectChangeLog.as_view(),
         name="autonomoussystem_changelog",
@@ -85,6 +90,11 @@ urlpatterns = [
         "bgp-groups/<int:pk>/edit/", views.BGPGroupEdit.as_view(), name="bgpgroup_edit"
     ),
     path(
+        "bgp-groups/<int:pk>/config-context/",
+        views.BGPGroupConfigContext.as_view(),
+        name="bgpgroup_configcontext",
+    ),
+    path(
         "bgp-groups/<int:pk>/changelog/",
         ObjectChangeLog.as_view(),
         name="bgpgroup_changelog",
@@ -108,6 +118,11 @@ urlpatterns = [
         "communities/<int:pk>/edit/",
         views.CommunityEdit.as_view(),
         name="community_edit",
+    ),
+    path(
+        "communities/<int:pk>/config-context/",
+        views.CommunityConfigContext.as_view(),
+        name="community_configcontext",
     ),
     path(
         "communities/<int:pk>/changelog/",
@@ -162,6 +177,11 @@ urlpatterns = [
         name="directpeeringsession_edit",
     ),
     path(
+        "direct-peering-sessions/<int:pk>/config-context/",
+        views.DirectPeeringSessionConfigContext.as_view(),
+        name="directpeeringsession_configcontext",
+    ),
+    path(
         "direct-peering-sessions/<int:pk>/changelog/",
         ObjectChangeLog.as_view(),
         name="directpeeringsession_changelog",
@@ -192,6 +212,11 @@ urlpatterns = [
         "internet-exchanges/<int:pk>/connections/",
         views.InternetExchangeConnections.as_view(),
         name="internetexchange_connections",
+    ),
+    path(
+        "internet-exchanges/<int:pk>/config-context/",
+        views.InternetExchangeConfigContext.as_view(),
+        name="internetexchange_configcontext",
     ),
     path(
         "internet-exchanges/<int:pk>/changelog/",
@@ -261,6 +286,11 @@ urlpatterns = [
         name="internetexchangepeeringsession_edit",
     ),
     path(
+        "internet-exchange-peering-sessions/<int:pk>/config-context/",
+        views.InternetExchangePeeringSessionConfigContext.as_view(),
+        name="internetexchangepeeringsession_configcontext",
+    ),
+    path(
         "internet-exchange-peering-sessions/<int:pk>/changelog/",
         ObjectChangeLog.as_view(),
         name="internetexchangepeeringsession_changelog",
@@ -312,6 +342,11 @@ urlpatterns = [
     ),
     path("routers/<int:pk>/edit/", views.RouterEdit.as_view(), name="router_edit"),
     path(
+        "routers/<int:pk>/config-context/",
+        views.RouterConfigContext.as_view(),
+        name="router_configcontext",
+    ),
+    path(
         "routers/<int:pk>/changelog/",
         ObjectChangeLog.as_view(),
         name="router_changelog",
@@ -344,6 +379,11 @@ urlpatterns = [
         "routing-policies/<int:pk>/edit/",
         views.RoutingPolicyEdit.as_view(),
         name="routingpolicy_edit",
+    ),
+    path(
+        "routing-policies/<int:pk>/config-context/",
+        views.RoutingPolicyContext.as_view(),
+        name="routingpolicy_configcontext",
     ),
     path(
         "routing-policies/<int:pk>/changelog/",

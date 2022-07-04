@@ -1,0 +1,39 @@
+{% load helpers %}
+<div class="card my-2">
+  <div class="card-header"><strong>Config contexts</strong></div>
+  {% with assignments=instance.config_contexts.all %}
+  {% if assignments.exists %}
+  <table class="card-body table table-hover attr-table mb-0">
+    <tr><th>Name</th><th>Weight</th><th class="text-center">Active</th></tr>
+    {% for assignment in assignments %}
+    <tr>
+      <td><a href="{{ assignment.config_context.get_absolute_url }}">{{ assignment.config_context }}</a></td>
+      <td>{{ assignment.weight }}</td>
+      <td class="text-center">{{ assignment.config_context.is_active|boolean_as_icon }}</td>
+      <td class="text-right">
+        {% if perms.extras.change_configcontextassignment %}
+          <a href="{% url 'extras:configcontextassignment_edit' pk=assignment.pk %}?return_url={{ instance.get_absolute_url }}" class="btn btn-warning btn-sm lh-1" title="Edit">
+            <i class="fas fa-edit"></i>
+          </a>
+        {% endif %}
+        {% if perms.extras.delete_configcontextassignment %}
+          <a href="{% url 'extras:configcontextassignment_delete' pk=assignment.pk %}?return_url={{ instance.get_absolute_url }}" class="btn btn-danger btn-sm lh-1" title="Delete">
+            <i class="fas fa-trash-alt"></i>
+          </a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <div class="card-body text-muted">None</div>
+  {% endif %}
+  {% endwith %}
+  {% if perms.extras.add_configcontextassignment %}
+  <div class="card-footer text-right">
+    <a href="{% url 'extras:configcontextassignment_add' %}?content_type={{ instance|content_type_id }}&object_id={{ instance.pk }}&return_url={{ instance.get_absolute_url }}" class="btn btn-primary btn-sm">
+      <i class="fas fa-plus"></i> Add a config context
+    </a>
+  </div>
+  {% endif %}
+</div>

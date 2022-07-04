@@ -2,6 +2,8 @@ from django.db import models
 
 WEBHOOK_HTTP_CONTENT_TYPE_JSON = "application/json"
 
+EXTRAS_FEATURES = ("config-contexts", "tags")
+
 
 class HttpMethod(models.TextChoices):
     GET = "GET", "GET"

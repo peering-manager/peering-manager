@@ -9,6 +9,7 @@ from django.template.defaultfilters import pluralize
 from django.utils.text import slugify
 from django.views.generic import View
 
+from extras.views import ObjectConfigContextView
 from net.filters import ConnectionFilterSet
 from net.forms import ConnectionFilterForm
 from net.models import Connection
@@ -135,6 +136,12 @@ class AutonomousSystemView(ObjectView):
         }
 
 
+class AutonomousSystemConfigContext(ObjectConfigContextView):
+    permission_required = "peering.view_autonomoussystem"
+    queryset = AutonomousSystem.objects.defer("prefixes")
+    base_template = "peering/autonomoussystem/_base.html"
+
+
 class AutonomousSystemAdd(ObjectEditView):
     permission_required = "peering.add_autonomoussystem"
     queryset = AutonomousSystem.objects.defer("prefixes")
@@ -218,7 +225,7 @@ class AutonomousSystemInternetExchangesPeeringSessions(ObjectChildrenView):
         )
 
     def get_extra_context(self, request, instance):
-        return {"active_tab": "ixsessions"}
+        return {"active_tab": "ixp-sessions"}
 
 
 class AutonomousSystemPeers(ObjectChildrenView):
@@ -306,6 +313,12 @@ class BGPGroupView(ObjectView):
         return {"active_tab": "main"}
 
 
+class BGPGroupConfigContext(ObjectConfigContextView):
+    permission_required = "peering.view_bgpgroup"
+    queryset = BGPGroup.objects.all()
+    base_template = "peering/bgpgroup/_base.html"
+
+
 class BGPGroupAdd(ObjectEditView):
     permission_required = "peering.add_bgpgroup"
     queryset = BGPGroup.objects.all()
@@ -375,6 +388,12 @@ class CommunityView(ObjectView):
         return {"active_tab": "main"}
 
 
+class CommunityConfigContext(ObjectConfigContextView):
+    permission_required = "peering.view_community"
+    queryset = Community.objects.all()
+    base_template = "peering/community/_base.html"
+
+
 class CommunityAdd(ObjectEditView):
     permission_required = "peering.add_community"
     queryset = Community.objects.all()
@@ -426,6 +445,12 @@ class DirectPeeringSessionView(ObjectView):
 
     def get_extra_context(self, request, instance):
         return {"active_tab": "main"}
+
+
+class DirectPeeringSessionConfigContext(ObjectConfigContextView):
+    permission_required = "peering.view_directpeeringsession"
+    queryset = DirectPeeringSession.objects.all()
+    base_template = "peering/directpeeringsession/_base.html"
 
 
 class DirectPeeringSessionAdd(ObjectEditView):
@@ -490,6 +515,12 @@ class InternetExchangeView(ObjectView):
                 )
 
         return {"active_tab": "main"}
+
+
+class InternetExchangeConfigContext(ObjectConfigContextView):
+    permission_required = "peering.view_internetexchange"
+    queryset = InternetExchange.objects.all()
+    base_template = "peering/internetexchange/_base.html"
 
 
 class InternetExchangeAdd(ObjectEditView):
@@ -727,6 +758,12 @@ class InternetExchangePeeringSessionView(ObjectView):
         return {"is_abandoned": instance.is_abandoned(), "active_tab": "main"}
 
 
+class InternetExchangePeeringSessionConfigContext(ObjectConfigContextView):
+    permission_required = "peering.view_internetexchangepeeringsession"
+    queryset = InternetExchangePeeringSession.objects.all()
+    base_template = "peering/internetexchangepeeringsession/_base.html"
+
+
 class InternetExchangePeeringSessionAdd(ObjectEditView):
     permission_required = "peering.add_internetexchangepeeringsession"
     queryset = InternetExchangePeeringSession.objects.all()
@@ -826,22 +863,16 @@ class RouterView(ObjectView):
     queryset = Router.objects.all()
 
     def get_extra_context(self, request, instance):
-        if request.GET.get("format") in ("json", "yaml"):
-            format = request.GET.get("format")
-            if request.user.is_authenticated:
-                request.user.preferences.set(
-                    "configcontext.format", format, commit=True
-                )
-        elif request.user.is_authenticated:
-            format = request.user.preferences.get("configcontext.format", "json")
-        else:
-            format = "json"
-
         return {
             "connections": Connection.objects.filter(router=instance),
-            "configcontext_format": format,
             "active_tab": "main",
         }
+
+
+class RouterConfigContext(ObjectConfigContextView):
+    permission_required = "peering.view_router"
+    queryset = Router.objects.all()
+    base_template = "peering/router/_base.html"
 
 
 class RouterAdd(ObjectEditView):
@@ -941,7 +972,7 @@ class RouterInternetExchangesPeeringSessions(ObjectChildrenView):
         ).order_by("internet_exchange", "ip_address")
 
     def get_extra_context(self, request, instance):
-        return {"active_tab": "ixsessions"}
+        return {"active_tab": "ixp-sessions"}
 
 
 class RoutingPolicyList(ObjectListView):
@@ -958,18 +989,13 @@ class RoutingPolicyView(ObjectView):
     queryset = RoutingPolicy.objects.all()
 
     def get_extra_context(self, request, instance):
-        if request.GET.get("format") in ("json", "yaml"):
-            format = request.GET.get("format")
-            if request.user.is_authenticated:
-                request.user.preferences.set(
-                    "configcontext.format", format, commit=True
-                )
-        elif request.user.is_authenticated:
-            format = request.user.preferences.get("configcontext.format", "json")
-        else:
-            format = "json"
+        return {"active_tab": "main"}
 
-        return {"configcontext_format": format, "active_tab": "main"}
+
+class RoutingPolicyContext(ObjectConfigContextView):
+    permission_required = "peering.view_routingpolicy"
+    queryset = RoutingPolicy.objects.all()
+    base_template = "peering/routingpolicy/_base.html"
 
 
 class RoutingPolicyAdd(ObjectEditView):

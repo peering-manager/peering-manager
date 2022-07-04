@@ -6,13 +6,8 @@ from taggit.forms import TagField
 from utils.enums import ObjectChangeAction
 from utils.models import ObjectChange, Tag
 
-from .fields import (
-    ColorSelect,
-    CommentField,
-    DynamicModelMultipleChoiceField,
-    SlugField,
-)
-from .widgets import APISelectMultiple, StaticSelectMultiple
+from .fields import CommentField, DynamicModelMultipleChoiceField, SlugField
+from .widgets import APISelectMultiple, ColorSelect, StaticSelectMultiple
 
 
 def add_blank_choice(choices):

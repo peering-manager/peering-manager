@@ -1,7 +1,25 @@
 from unittest.mock import patch
 
-from extras.models import IXAPI
+from extras.models import IXAPI, ConfigContext
 from utils.testing import ViewTestCases
+
+
+class ConfigContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = ConfigContext
+
+    test_bulk_edit_objects = None
+
+    @classmethod
+    def setUpTestData(cls):
+        ConfigContext.objects.bulk_create(
+            [
+                ConfigContext(name="Test 1", data={"test": 1}),
+                ConfigContext(name="Test 2", data={"test": 2}),
+                ConfigContext(name="Test 3", data={"test": 3}),
+            ]
+        )
+
+        cls.form_data = {"name": "Test 4", "data": {"test": 4}}
 
 
 class IXAPITestCase(ViewTestCases.PrimaryObjectViewTestCase):

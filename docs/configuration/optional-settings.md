@@ -14,6 +14,63 @@ BASE_PATH = "peering/"
 
 ---
 
+## CORS_ORIGIN_ALLOW_ALL
+
+Default: False
+
+If True, cross-origin resource sharing (CORS) requests will be accepted from
+all origins. If False, a whitelist will be used (see below).
+
+---
+
+## CORS_ORIGIN_WHITELIST
+
+## CORS_ORIGIN_REGEX_WHITELIST
+
+These settings specify a list of origins that are authorized to make
+cross-site API requests. Use `CORS_ORIGIN_WHITELIST` to define a list of exact
+hostnames, or `CORS_ORIGIN_REGEX_WHITELIST` to define a set of regular
+expressions. (These settings have no effect if `CORS_ORIGIN_ALLOW_ALL` is
+True.) For example:
+
+```python
+CORS_ORIGIN_WHITELIST = [
+    'https://example.com',
+]
+```
+
+---
+
+## CSRF_COOKIE_NAME
+
+Default: `csrftoken`
+
+The name of the cookie to use for the cross-site request forgery (CSRF)
+authentication token. See the
+[Django documentation](https://docs.djangoproject.com/en/stable/ref/settings/#csrf-cookie-name)
+for more detail.
+
+---
+
+## CSRF_TRUSTED_ORIGINS
+
+Default: `[]`
+
+Defines a list of trusted origins for unsafe (e.g. `POST`) requests. This is a
+pass-through to Django's
+[`CSRF_TRUSTED_ORIGINS`](https://docs.djangoproject.com/en/4.0/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS)
+setting. Note that each host listed must specify a scheme (e.g. `http://` or
+`https://).
+
+```python
+CSRF_TRUSTED_ORIGINS = (
+    'http://peering-manager.local',
+    'https://peering-manager.local',
+)
+```
+
+---
+
 ## USE_X_FORWARDED_HOST
 
 Default: `True`
@@ -147,6 +204,38 @@ List of Jinja2 extensions to load when rendering templates. Extensions can be
 used to add more features to the initial ones. Extensions that are not built
 into Jinja2 need to be installed in the Python environment used to run Peering
 Manager.
+
+---
+
+## CONFIG_CONTEXT_RECURSIVE_MERGE / CONFIG_CONTEXT_LIST_MERGE
+
+Default: `True` / `replace`
+
+When merging configuration contexts, Peering Manager needs to know what should
+happen to nested dictionaries/hashes and to list. These two options can be
+changed to reproduce the wanted behaviour. They are similar to Ansible's
+`combine` filter and should produce the same results.
+
+Keep in mind that config contexts are merged in a way that one that has a high
+priority will override one with a lower priority.
+
+If `CONFIG_CONTEXT_RECURSIVE_MERGE` is set to `True` (the default value), it
+will recursively merge nested hashes.
+
+`CONFIG_CONTEXT_LIST_MERGE` has multiple values possible:
+* `replace`: default, arrays in the higher priority config context will
+  replace the ones in lower priority config context,
+* `keep`: arrays in the lower priority config context will be kept,
+* `append`: arrays in the higher priority config context will be appended to
+  the ones in the lower priority config context,
+* `prepend`: arrays in the higher priority config context will be prepended to
+  the ones in the lower priority config context,
+* `append_rp`: arrays in the higher priority config context will be appended
+  to the ones in the lower priority config context, elements of arrays in that
+  are in both config contextes will be removed ("rp" stands for "remove
+  present"), duplicate elements that aren’t in both config contexts are kept,
+* `prepend_rp`: the behavior is similar to the one for `append_rp`, but
+  elements of arrays are prepended.
 
 ---
 
