@@ -3,12 +3,43 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from requests.exceptions import HTTPError
 
+from extras.models.configcontext import ConfigContextAssignment
 from utils.forms import BootstrapMixin, add_blank_choice
-from utils.forms.fields import APISelectMultiple, DynamicModelMultipleChoiceField
-from utils.forms.widgets import StaticSelect
+from utils.forms.fields import (
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    JSONField,
+)
+from utils.forms.widgets import APISelectMultiple, CustomNullBooleanSelect, StaticSelect
 
 from .enums import JobResultStatus
-from .models import IXAPI, JobResult
+from .models import IXAPI, ConfigContext, JobResult
+
+
+class ConfigContextForm(BootstrapMixin, forms.ModelForm):
+    data = JSONField()
+
+    class Meta:
+        model = ConfigContext
+        fields = "__all__"
+
+
+class ConfigContextFilterForm(BootstrapMixin, forms.Form):
+    model = ConfigContext
+    q = forms.CharField(required=False, label="Search")
+    is_active = forms.NullBooleanField(
+        required=False, label="Active", widget=CustomNullBooleanSelect
+    )
+
+
+class ConfigContextAssignmentForm(BootstrapMixin, forms.ModelForm):
+    config_context = DynamicModelChoiceField(
+        queryset=ConfigContext.objects.filter(is_active=True)
+    )
+
+    class Meta:
+        model = ConfigContextAssignment
+        fields = ("config_context", "weight")
 
 
 class IXAPIForm(BootstrapMixin, forms.ModelForm):

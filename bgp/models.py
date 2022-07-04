@@ -4,13 +4,13 @@ from django.utils.safestring import mark_safe
 
 from utils.enums import Color
 from utils.forms.fields import ColorField
-from utils.models import ChangeLoggedModel
+from utils.models import ChangeLoggedMixin
 from utils.templatetags.helpers import foreground_color
 
 __all__ = ("Relationship",)
 
 
-class Relationship(ChangeLoggedModel):
+class Relationship(ChangeLoggedMixin):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True)
     description = models.CharField(max_length=200, blank=True)

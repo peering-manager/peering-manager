@@ -4,7 +4,7 @@
 
 First we need a proper text editor, Git and Python. We will use Git to get the
 code, and Python to run it. Peering Manager is mostly tested with Python
-version 3 so we will setup the machine with this version.
+version 3 (3.8 minimum) so we will setup the machine with this version.
 
 === "Debian 10 / 11"
 	```no-highlight
@@ -89,7 +89,7 @@ and HTTP services to run under this account.
 ## Set Up Python Environment
 
 First create a Python
-[virtual environment](https://docs.python.org/3.6/tutorial/venv.html) to ensure
+[virtual environment](https://docs.python.org/3.8/tutorial/venv.html) to ensure
 Peering Manager's required packages don't conflict with anything in the system.
 This will create a directory named `venv` in the Peering Manager root
 directory.
@@ -224,8 +224,8 @@ And now we can start testing the setup.
 Performing system checks...
 
 System check identified no issues (0 silenced).
-September 27, 2017 - 22:33:30
-Django version 1.11.5, using settings 'peering_manager.settings'
+May 29, 2022 - 11:22:19
+Django version 4.0.4, using settings 'peering_manager.settings'
 Starting development server at http://0.0.0.0:8000/
 Quit the server with CONTROL-C.
 ```

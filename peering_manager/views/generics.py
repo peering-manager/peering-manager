@@ -15,7 +15,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.html import escape
-from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
@@ -57,11 +56,9 @@ class GetReturnURLMixin(object):
     def get_return_url(self, request, instance=None):
         # Check if `return_url` was specified as a query parameter or form
         # data, use this URL only if it's safe
-        query_param = request.GET.get("return_url") or request.POST.get("return_url")
-        if query_param and is_safe_url(
-            url=query_param, allowed_hosts=request.get_host()
-        ):
-            return query_param
+        return_url = request.GET.get("return_url") or request.POST.get("return_url")
+        if return_url and return_url.startswith("/"):
+            return return_url
 
         # Check if the object being modified (if any) has an absolute URL
         if (
@@ -425,9 +422,7 @@ class ObjectDeleteView(GetReturnURLMixin, PermissionRequiredMixin, View):
             messages.success(request, msg)
 
             return_url = form.cleaned_data.get("return_url")
-            if return_url is not None and is_safe_url(
-                url=return_url, allowed_hosts=request.get_host()
-            ):
+            if return_url and return_url.startswith("/"):
                 return redirect(return_url)
             else:
                 return redirect(self.get_return_url(request, instance=o))

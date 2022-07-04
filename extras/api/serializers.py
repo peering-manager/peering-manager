@@ -1,12 +1,22 @@
+from django.contrib.contenttypes.models import ContentType
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from extras.models import IXAPI, JobResult, Webhook
-from peering_manager.api import BaseModelSerializer, ContentTypeField
+from extras.models import (
+    IXAPI,
+    ConfigContext,
+    ConfigContextAssignment,
+    JobResult,
+    Webhook,
+)
+from peering_manager.api import ContentTypeField, ValidatedModelSerializer
 from users.api.nested_serializers import NestedUserSerializer
 
 from .nested_serializers import *
 
 __all__ = (
+    "ConfigContextSerializer",
+    "ConfigContextAssignmentSerializer",
     "JobResultSerializer",
     "WebhookSerializer",
     "NestedJobResultSerializer",
@@ -14,7 +24,49 @@ __all__ = (
 )
 
 
-class IXAPISerializer(BaseModelSerializer):
+class ConfigContextSerializer(ValidatedModelSerializer):
+    class Meta:
+        model = ConfigContext
+        fields = [
+            "id",
+            "display",
+            "name",
+            "description",
+            "is_active",
+            "data",
+        ]
+
+
+class ConfigContextAssignmentSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name="extras-api:configcontextassignment-detail"
+    )
+    content_type = ContentTypeField(queryset=ContentType.objects.all())
+    object = serializers.SerializerMethodField(read_only=True)
+    config_context = NestedConfigContextSerializer()
+
+    class Meta:
+        model = ConfigContextAssignment
+        fields = [
+            "id",
+            "url",
+            "display",
+            "content_type",
+            "object_id",
+            "object",
+            "config_context",
+            "weight",
+            "created",
+            "updated",
+        ]
+
+    @extend_schema_field(NestedConfigContextSerializer)
+    def get_object(self, instance):
+        context = {"request": self.context["request"]}
+        return NestedConfigContextSerializer(instance.object, context=context).data
+
+
+class IXAPISerializer(ValidatedModelSerializer):
     class Meta:
         model = IXAPI
         fields = ["id", "display", "name", "url", "api_key", "api_secret", "identity"]
@@ -27,7 +79,6 @@ class IXAPICustomerSerializer(serializers.Serializer):
 
 
 class JobResultSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="extras-api:jobresult-detail")
     user = NestedUserSerializer(read_only=True)
     obj_type = ContentTypeField(read_only=True)
     output = serializers.CharField(read_only=True)
@@ -36,7 +87,6 @@ class JobResultSerializer(serializers.ModelSerializer):
         model = JobResult
         fields = [
             "id",
-            "url",
             "created",
             "completed",
             "name",

@@ -179,3 +179,110 @@ def handle_protectederror(obj_list, request, e):
     err_message += ", ".join(dependent_objects)
 
     messages.error(request, mark_safe(err_message))
+
+
+def get_key_in_hash(hash, key, default=None, recursive=True):
+    """
+    Returns the key's value and a boolean telling if this value is a default or not.
+
+    The default value, when key is not found, can be adjusted with the `default`
+    parameter. The `recursive` parameter controls whether or not to search for the key
+    in nested hashes.
+    """
+    # null or empty hash, no key to lookup
+    if hash is None or hash == {}:
+        return default, False
+
+    for k, v in hash.items():
+        if k == key:
+            return v, True
+
+        # Lookup nested hash
+        if recursive and type(v) is dict:
+            value, found = get_key_in_hash(v, key, default=default, recursive=recursive)
+            if found:
+                return value, True
+
+    return default, False
+
+
+def merge_hash(a, b, recursive=True, list_merge="replace"):
+    """
+    Return a new dictionary result of the merges of `b` into `a`, so that keys from
+    `b` take precedence over keys from `a`. (`a` and `b` aren't modified)
+
+    This function is inspired by Ansible's `combine` filter.
+    """
+    if list_merge not in (
+        "replace",
+        "keep",
+        "append",
+        "prepend",
+        "append_rp",
+        "prepend_rp",
+    ):
+        raise ValueError(
+            "merge_hash: 'list_merge' argument can only be equal to 'replace', 'keep', 'append', 'prepend', 'append_rp' or 'prepend_rp'"
+        )
+
+    # Check that a and b are dicts
+    if type(a) is not dict or type(b) is not dict:
+        raise ValueError(
+            f"Failed to combine variables, expected dicts but got '{type(a)}' and '{type(b)}'"
+        )
+
+    # Performance tweak: if a is empty or equal to b, return b
+    if a == {} or a == b:
+        return b.copy()
+
+    # Create a copy of a to avoid modifying it
+    a = a.copy()
+
+    # Performance tweak: if no recursion and replace values, use built-in dict's
+    # `update`
+    if not recursive and list_merge == "replace":
+        a.update(b)
+        return a
+
+    # Insert each element of b in a, overriding the one in a (as b has higher
+    # priority).
+    for key, b_value in b.items():
+        # `key` isn't in, update a and move on to the next element of b
+        if key not in a:
+            a[key] = b_value
+            continue
+
+        a_value = a[key]
+
+        # Both a's element and b's element are dicts recursively merge them or
+        # override depending on the `recursive` argument and move on
+        if type(a_value) is dict and type(b_value) is dict:
+            if recursive:
+                a[key] = merge_hash(a_value, b_value, recursive, list_merge)
+            else:
+                a[key] = b_value
+            continue
+
+        # Both a's element and b's element are lists merge them depending on the
+        # `list_merge` argument and move on
+        if type(a_value) is list and type(b_value) is list:
+            if list_merge == "replace":
+                a[key] = b_value
+            elif list_merge == "append":
+                a[key] = a_value + b_value
+            elif list_merge == "prepend":
+                a[key] = b_value + a_value
+            elif list_merge == "append_rp":
+                # Append all elements from b_value to a_value and remove common ones
+                # _rp stands for "remove present"
+                a[key] = [i for i in a_value if i not in b_value] + b_value
+            elif list_merge == "prepend_rp":
+                # Same as 'append_rp' but prepend
+                a[key] = b_value + [i for i in a_value if i not in b_value]
+            # else 'keep' done by not changing a[key]
+            continue
+
+        # Otherwise just override a's element with b's one
+        a[key] = b_value
+
+    return a

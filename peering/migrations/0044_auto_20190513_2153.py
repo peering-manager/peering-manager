@@ -13,8 +13,8 @@ class Migration(migrations.Migration):
             name="export_routing_policies",
             field=models.ManyToManyField(
                 blank=True,
-                related_name="autonomoussystem_export_routing_policies",
-                to="peering.RoutingPolicy",
+                related_name="%(class)s_export_routing_policies",
+                to="peering.routingpolicy",
             ),
         ),
         migrations.AddField(
@@ -22,8 +22,8 @@ class Migration(migrations.Migration):
             name="import_routing_policies",
             field=models.ManyToManyField(
                 blank=True,
-                related_name="autonomoussystem_import_routing_policies",
-                to="peering.RoutingPolicy",
+                related_name="%(class)s_import_routing_policies",
+                to="peering.routingpolicy",
             ),
         ),
     ]

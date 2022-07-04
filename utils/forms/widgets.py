@@ -4,6 +4,8 @@ from json import loads as json_loads
 from django import forms
 from django.conf import settings
 
+from utils.enums import Color
+
 
 class SmallTextarea(forms.Textarea):
     """
@@ -48,6 +50,21 @@ class APISelectMultiple(APISelect, forms.SelectMultiple):
         super().__init__(*args, **kwargs)
         self.attrs["data-multiple"] = 1
         self.attrs["data-close-on-select"] = 0
+
+
+class ColorSelect(forms.Select):
+    """
+    Colorize each <option> inside a select widget.
+    """
+
+    option_template_name = "widgets/colorselect_option.html"
+
+    def __init__(self, *args, **kwargs):
+        from . import add_blank_choice
+
+        kwargs["choices"] = add_blank_choice(Color.choices)
+        super().__init__(*args, **kwargs)
+        self.attrs["class"] = "custom-select2-color-picker"
 
 
 class StaticSelect(forms.Select):
