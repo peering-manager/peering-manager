@@ -31,8 +31,8 @@ class Migration(migrations.Migration):
             name="export_routing_policies",
             field=models.ManyToManyField(
                 blank=True,
-                related_name="directpeeringsession_export_routing_policies",
-                to="peering.RoutingPolicy",
+                related_name="%(class)s_export_routing_policies",
+                to="peering.routingpolicy",
             ),
         ),
         migrations.AddField(
@@ -40,8 +40,8 @@ class Migration(migrations.Migration):
             name="import_routing_policies",
             field=models.ManyToManyField(
                 blank=True,
-                related_name="directpeeringsession_import_routing_policies",
-                to="peering.RoutingPolicy",
+                related_name="%(class)s_import_routing_policies",
+                to="peering.routingpolicy",
             ),
         ),
         migrations.AddField(
@@ -49,8 +49,8 @@ class Migration(migrations.Migration):
             name="export_routing_policies",
             field=models.ManyToManyField(
                 blank=True,
-                related_name="internetexchange_export_routing_policies",
-                to="peering.RoutingPolicy",
+                related_name="%(class)s_export_routing_policies",
+                to="peering.routingpolicy",
             ),
         ),
         migrations.AddField(
@@ -58,8 +58,8 @@ class Migration(migrations.Migration):
             name="import_routing_policies",
             field=models.ManyToManyField(
                 blank=True,
-                related_name="internetexchange_import_routing_policies",
-                to="peering.RoutingPolicy",
+                related_name="%(class)s_import_routing_policies",
+                to="peering.routingpolicy",
             ),
         ),
         migrations.AddField(
@@ -67,8 +67,8 @@ class Migration(migrations.Migration):
             name="export_routing_policies",
             field=models.ManyToManyField(
                 blank=True,
-                related_name="internetexchangepeeringsession_export_routing_policies",
-                to="peering.RoutingPolicy",
+                related_name="%(class)s_export_routing_policies",
+                to="peering.routingpolicy",
             ),
         ),
         migrations.AddField(
@@ -76,8 +76,8 @@ class Migration(migrations.Migration):
             name="import_routing_policies",
             field=models.ManyToManyField(
                 blank=True,
-                related_name="internetexchangepeeringsession_import_routing_policies",
-                to="peering.RoutingPolicy",
+                related_name="%(class)s_import_routing_policies",
+                to="peering.routingpolicy",
             ),
         ),
     ]

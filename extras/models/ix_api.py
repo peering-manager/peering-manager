@@ -5,13 +5,13 @@ from datetime import datetime
 
 import requests
 from cacheops import cached_as
+from django.apps import apps
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
 
-from net.models import Connection
-from utils.models import ChangeLoggedModel
+from utils.models import ChangeLoggedMixin
 
 logger = logging.getLogger("peering.manager.extras.ixapi")
 
@@ -322,6 +322,7 @@ class NetworkServiceConfig(RemoteObject):
         """
         Returns a `net.Connection` matching the IP addresses.
         """
+        Connection = apps.get_model("net", "Connection")
         qs_filter = Q()
         if self.ipv6_address:
             qs_filter |= Q(ipv4_address=self.ipv6_address)
@@ -384,7 +385,7 @@ class NetworkFeature(RemoteObject):
         return None
 
 
-class IXAPI(ChangeLoggedModel):
+class IXAPI(ChangeLoggedMixin):
     """
     An Endpoint holds the details to reach an IX-API given its URL, API key and
     secret.

@@ -16,7 +16,6 @@
     {% render_field form.configuration_template %}
     {% render_field form.local_autonomous_system %}
     {% render_field form.device_state %}
-    {% render_field form.config_context %}
   </div>
 </div>
 <div class="card my-2">
@@ -26,6 +25,12 @@
     {% render_field form.napalm_password %}
     {% render_field form.napalm_timeout %}
     {% render_field form.napalm_args %}
+  </div>
+</div>
+<div class="card my-2">
+  <div class="card-header"><strong>Config Context</strong></div>
+  <div class="card-body">
+    {% render_field form.local_context_data %}
   </div>
 </div>
 <div class="card my-2">

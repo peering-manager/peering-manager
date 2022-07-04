@@ -12,23 +12,11 @@
         </tr>
         <tr>
           <td>Trim</td>
-          <td>
-            {% if instance.jinja2_trim %}
-            <i class="fas fa-check text-success"></i>
-            {% else %}
-            <i class="fas fa-times text-danger"></i>
-            {% endif %}
-          </td>
+          <td>{{ instance.jinja2_trim|boolean_as_icon }}</td>
         </tr>
         <tr>
           <td>Lstrip</td>
-          <td>
-            {% if instance.jinja2_lstrip %}
-            <i class="fas fa-check text-success"></i>
-            {% else %}
-            <i class="fas fa-times text-danger"></i>
-            {% endif %}
-          </td>
+          <td>{{ instance.jinja2_lstrip|boolean_as_icon }}</td>
         </tr>
         <tr>
           <td>Last update</td>

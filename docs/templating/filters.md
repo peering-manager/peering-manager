@@ -373,3 +373,32 @@ Example:
 ```no-highlight
 communities [ {{ session | merge_communities | iterate('value') | join(' ') }} ];
 ```
+
+## `context_has_key` / `context_has_not_key`
+
+Checks if the config context of an object contains a given key. `context_has_not_key`
+filter is the exact opposite of `context_has_key`. The filters' behaviour can be
+tweaked with the `recursive` argument. The default value for `recursive` is `True`
+which means that the key will be searched in nested hashes. It won't be if `recursive`
+is set to `False`.
+
+Examples:
+
+```no-highlight
+{% if session | context_has_key('local_asn') %}
+{% if ixp | context_has_not_key('ignore') %}
+{% if router | context_has_key('region', recursive=False) %}
+```
+
+## `context_get_key`
+
+Retrieves the value of a key in an object's config context. If the key is not found, a
+default null value will be returned. The default value can be changed by setting the
+`default` parameter of the filter. The filter will search through nested hashes, but
+this can be disabled by setting the `recursive` parameter to `False`.
+
+```no-highlight
+{{ session | context_get_key('local_asn') }}
+{{ ixp | context_get_key('ignore', default=False) }}
+{{ if router | context_get_key('region', recursive=False) }}
+```
