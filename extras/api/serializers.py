@@ -79,6 +79,7 @@ class IXAPICustomerSerializer(serializers.Serializer):
 
 
 class JobResultSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name="extras-api:jobresult-detail")
     user = NestedUserSerializer(read_only=True)
     obj_type = ContentTypeField(read_only=True)
     output = serializers.CharField(read_only=True)
@@ -87,6 +88,7 @@ class JobResultSerializer(serializers.ModelSerializer):
         model = JobResult
         fields = [
             "id",
+            "url",
             "created",
             "completed",
             "name",
