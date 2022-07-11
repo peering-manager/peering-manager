@@ -11,7 +11,7 @@ django-taggit==3.0.0
 drf-spectacular==0.22.1
 Jinja2>=3.1.2
 Markdown==3.3.7
-napalm==3.4.1
+napalm==4.0.0
 packaging==21.3
 psycopg2-binary==2.9.3
 pynetbox==6.6.2
