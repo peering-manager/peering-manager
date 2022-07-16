@@ -9,6 +9,7 @@ from extras.models import (
     IXAPI,
     ConfigContext,
     ConfigContextAssignment,
+    ExportTemplate,
     JobResult,
     Webhook,
 )
@@ -95,6 +96,51 @@ class ConfigContextAssignmentAssignmentTest(StandardAPITestCases.View):
                 "object_id": asns[1].pk,
                 "config_context": config_contexts[5].pk,
                 "weight": 1000,
+            },
+        ]
+
+
+class ExportTemplateTest(StandardAPITestCases.View):
+    model = ExportTemplate
+    brief_fields = ["id", "url", "display", "name"]
+
+    @classmethod
+    def setUpTestData(cls):
+        content_type = ContentType.objects.get_for_model(AutonomousSystem)
+        export_templates = [
+            ExportTemplate(
+                content_type=content_type,
+                name="Test 1",
+                template="{{ dataset | length }}",
+            ),
+            ExportTemplate(
+                content_type=content_type,
+                name="Test 2",
+                template="{{ dataset | length }}",
+            ),
+            ExportTemplate(
+                content_type=content_type,
+                name="Test 3",
+                template="{{ dataset | length }}",
+            ),
+        ]
+        ExportTemplate.objects.bulk_create(export_templates)
+
+        cls.create_data = [
+            {
+                "content_type": "peering.bgpgroup",
+                "name": "Test 4",
+                "template": "nothing to see",
+            },
+            {
+                "content_type": "peering.bgpgroup",
+                "name": "Test 5",
+                "template": "nothing to see",
+            },
+            {
+                "content_type": "peering.bgpgroup",
+                "name": "Test 6",
+                "template": "nothing to see",
             },
         ]
 

@@ -5,7 +5,12 @@ from django.urls import reverse
 from netfields import InetAddressField, NetManager
 
 from peeringdb.models import NetworkIXLan
-from utils.models import ChangeLoggedMixin, ConfigContextMixin, TagsMixin
+from utils.models import (
+    ChangeLoggedMixin,
+    ConfigContextMixin,
+    ExportTemplatesMixin,
+    TagsMixin,
+)
 from utils.validators import AddressFamilyValidator
 
 from .enums import ConnectionState
@@ -14,7 +19,9 @@ from .fields import VLANField
 logger = logging.getLogger("peering.manager.net")
 
 
-class Connection(ChangeLoggedMixin, ConfigContextMixin, TagsMixin):
+class Connection(
+    ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMixin
+):
     peeringdb_netixlan = models.ForeignKey(
         to="peeringdb.NetworkIXLan", on_delete=models.SET_NULL, blank=True, null=True
     )

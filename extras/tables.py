@@ -11,7 +11,13 @@ from utils.tables import (
     SelectColumn,
 )
 
-from .models import IXAPI, ConfigContext, ConfigContextAssignment, JobResult
+from .models import (
+    IXAPI,
+    ConfigContext,
+    ConfigContextAssignment,
+    ExportTemplate,
+    JobResult,
+)
 
 
 class ConfigContextTable(BaseTable):
@@ -41,6 +47,26 @@ class ConfigContextAssignmentTable(BaseTable):
             "config_context",
             "weight",
             "actions",
+        )
+
+
+class ExportTemplateTable(BaseTable):
+    pk = SelectColumn()
+    content_type = ContentTypeColumn()
+    name = tables.Column(linkify=True)
+    jinja2_trim = BooleanColumn(verbose_name="Trim")
+    jinja2_lstrip = BooleanColumn(verbose_name="Lstrip")
+    actions = ButtonsColumn(ExportTemplate)
+
+    class Meta(BaseTable.Meta):
+        model = ExportTemplate
+        fields = ("name", "content_type", "description", "jinja2_trim", "jinja2_lstrip")
+        default_columns = (
+            "name",
+            "content_type",
+            "description",
+            "jinja2_trim",
+            "jinja2_lstrip",
         )
 
 

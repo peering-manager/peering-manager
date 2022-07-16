@@ -1,5 +1,6 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
@@ -7,13 +8,16 @@ from rest_framework.routers import APIRootView
 from extras.filters import (
     ConfigContextAssignmentFilterSet,
     ConfigContextFilterSet,
+    ExportTemplateFilterSet,
     JobResultFilterSet,
     WebhookFilterSet,
 )
+from extras.jobs import render_export_template
 from extras.models import (
     IXAPI,
     ConfigContext,
     ConfigContextAssignment,
+    ExportTemplate,
     JobResult,
     Webhook,
 )
@@ -23,6 +27,7 @@ from peering_manager.api.views import ModelViewSet, ReadOnlyModelViewSet
 from .serializers import (
     ConfigContextAssignmentSerializer,
     ConfigContextSerializer,
+    ExportTemplateSerializer,
     IXAPICustomerSerializer,
     IXAPISerializer,
     JobResultSerializer,
@@ -47,6 +52,74 @@ class ConfigContextAssignmentViewSet(ModelViewSet):
     )
     serializer_class = ConfigContextAssignmentSerializer
     filterset_class = ConfigContextAssignmentFilterSet
+
+
+class ExportTemplateViewSet(ModelViewSet):
+    queryset = ExportTemplate.objects.all()
+    serializer_class = ExportTemplateSerializer
+    filterset_class = ExportTemplateFilterSet
+
+    @extend_schema(
+        operation_id="extras_exporttemplates_render",
+        request=None,
+        responses={
+            202: OpenApiResponse(
+                response=JobResultSerializer,
+                description="Job scheduled to render the export template.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to view export templates.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The export template does not exist.",
+            ),
+        },
+    )
+    @action(detail=True, methods=["get"], url_path="render")
+    def render(self, request, pk=None):
+        # Check user permission first
+        if not request.user.has_perm("extras.view_exporttemplate"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        job_result = JobResult.enqueue_job(
+            render_export_template,
+            "extras.exporttemplate.render",
+            ExportTemplate,
+            request.user,
+            self.get_object(),
+        )
+        return Response(
+            JobResultSerializer(instance=job_result, context={"request": request}).data,
+            status=status.HTTP_202_ACCEPTED,
+        )
+
+    @extend_schema(
+        operation_id="extras_exporttemplates_render_synchronous",
+        request=None,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The rendered export template.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to view export templates.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The export template does not exist.",
+            ),
+        },
+    )
+    @action(detail=True, methods=["get"], url_path="render-synchronous")
+    def render_synchronous(self, request, pk=None):
+        # Check user permission first
+        if not request.user.has_perm("extras.view_exporttemplate"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return Response(data={"rendered": self.get_object().render()})
 
 
 class IXAPIViewSet(ModelViewSet):

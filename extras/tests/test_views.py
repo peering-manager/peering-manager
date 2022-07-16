@@ -1,6 +1,9 @@
 from unittest.mock import patch
 
-from extras.models import IXAPI, ConfigContext
+from django.contrib.contenttypes.models import ContentType
+
+from extras.models import IXAPI, ConfigContext, ExportTemplate
+from peering.models import AutonomousSystem
 from utils.testing import ViewTestCases
 
 
@@ -20,6 +23,42 @@ class ConfigContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.form_data = {"name": "Test 4", "data": {"test": 4}}
+
+
+class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = ExportTemplate
+
+    test_bulk_edit_objects = None
+
+    @classmethod
+    def setUpTestData(cls):
+        content_type = ContentType.objects.get_for_model(AutonomousSystem)
+        ExportTemplate.objects.bulk_create(
+            [
+                ExportTemplate(
+                    content_type=content_type,
+                    name="Test 1",
+                    template="{{ dataset | length }}",
+                ),
+                ExportTemplate(
+                    content_type=content_type,
+                    name="Test 2",
+                    template="{{ dataset | length }}",
+                ),
+                ExportTemplate(
+                    content_type=content_type,
+                    name="Test 3",
+                    description="Foo",
+                    template="{{ dataset | length }}",
+                ),
+            ]
+        )
+
+        cls.form_data = {
+            "content_type": content_type.pk,
+            "name": "Test 4",
+            "template": "foo",
+        }
 
 
 class IXAPITestCase(ViewTestCases.PrimaryObjectViewTestCase):

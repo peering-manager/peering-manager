@@ -1,8 +1,10 @@
 import json
 import logging
+import traceback
 import uuid
 from collections import OrderedDict
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -10,6 +12,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from jinja2 import Environment, TemplateSyntaxError
 from rest_framework.utils.encoders import JSONEncoder
 
 from extras.enums import (
@@ -18,6 +21,84 @@ from extras.enums import (
     JobResultStatus,
     LogLevel,
 )
+from extras.utils import FeatureQuery
+from peering_manager.jinja2 import (
+    FILTER_DICT,
+    IncludeTemplateExtension,
+    PeeringManagerLoader,
+)
+from utils.models import ChangeLoggedMixin
+
+
+class ExportTemplate(ChangeLoggedMixin):
+    content_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to=FeatureQuery("export-templates"),
+    )
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=200, blank=True)
+    template = models.TextField(
+        help_text="Jinja2 template code. The list of objects being exported is passed as a context variable named <code>dataset</code>."
+    )
+    jinja2_trim = models.BooleanField(
+        default=False, help_text="Removes new line after tag"
+    )
+    jinja2_lstrip = models.BooleanField(
+        default=False, help_text="Strips whitespaces before block"
+    )
+
+    class Meta:
+        ordering = ["content_type", "name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["content_type", "name"], name="contenttype_per_name"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.content_type}: {self.name}"
+
+    def get_absolute_url(self):
+        return reverse("extras:exporttemplate_view", args=[self.pk])
+
+    def clean(self):
+        super().clean()
+
+        if self.name.lower() == "table":
+            raise ValidationError(
+                {
+                    "name": f'"{self.name}" is a reserved name. Please choose a different name.'
+                }
+            )
+
+    def render(self):
+        """
+        Renders the content of the export template.
+        """
+        environment = Environment(
+            loader=PeeringManagerLoader(),
+            trim_blocks=self.jinja2_trim,
+            lstrip_blocks=self.jinja2_lstrip,
+        )
+        environment.add_extension(IncludeTemplateExtension)
+        for extension in settings.JINJA2_TEMPLATE_EXTENSIONS:
+            environment.add_extension(extension)
+
+        # Add custom filters to our environment
+        environment.filters.update(FILTER_DICT)
+
+        # Try rendering the template, return a message about syntax issues if there
+        # are any
+        try:
+            jinja2_template = environment.from_string(self.template)
+            return jinja2_template.render(
+                dataset=self.content_type.model_class().objects.all()
+            )
+        except TemplateSyntaxError as e:
+            return f"Syntax error in template at line {e.lineno}: {e.message}"
+        except Exception:
+            return traceback.format_exc()
 
 
 class JobResult(models.Model):

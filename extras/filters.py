@@ -5,7 +5,14 @@ from django.db.models import Q
 from utils.filters import BaseFilterSet, ContentTypeFilter, CreatedUpdatedFilterSet
 
 from .enums import HttpMethod, JobResultStatus
-from .models import IXAPI, ConfigContext, ConfigContextAssignment, JobResult, Webhook
+from .models import (
+    IXAPI,
+    ConfigContext,
+    ConfigContextAssignment,
+    ExportTemplate,
+    JobResult,
+    Webhook,
+)
 
 
 class ConfigContextFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
@@ -32,6 +39,21 @@ class ConfigContextAssignmentFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     class Meta:
         model = ConfigContextAssignment
         fields = ["id", "content_type_id", "object_id", "weight"]
+
+
+class ExportTemplateFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
+    q = django_filters.CharFilter(method="search", label="Search")
+
+    class Meta:
+        model = ExportTemplate
+        fields = ["id", "name", "description"]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) | Q(description__icontains=value)
+        )
 
 
 class IXAPIFilterSet(BaseFilterSet):

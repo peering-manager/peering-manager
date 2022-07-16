@@ -7,12 +7,19 @@ from netfields import InetAddressField, NetManager
 
 from peering.enums import BGPState, IPFamily
 from peering.fields import TTLField
-from utils.models import ChangeLoggedMixin, ConfigContextMixin, TagsMixin
+from utils.models import (
+    ChangeLoggedMixin,
+    ConfigContextMixin,
+    ExportTemplatesMixin,
+    TagsMixin,
+)
 
 from .mixins import PolicyMixin
 
 
-class AbstractGroup(ChangeLoggedMixin, ConfigContextMixin, PolicyMixin, TagsMixin):
+class AbstractGroup(
+    ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, PolicyMixin, TagsMixin
+):
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, max_length=255)
     comments = models.TextField(blank=True)
@@ -62,7 +69,9 @@ class AbstractGroup(ChangeLoggedMixin, ConfigContextMixin, PolicyMixin, TagsMixi
             router.poll_bgp_sessions()
 
 
-class BGPSession(ChangeLoggedMixin, ConfigContextMixin, PolicyMixin, TagsMixin):
+class BGPSession(
+    ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, PolicyMixin, TagsMixin
+):
     """
     Abstract class used to define common caracteristics of BGP sessions.
 

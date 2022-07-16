@@ -4,7 +4,7 @@ from ipaddress import IPv4Address, IPv4Interface, IPv6Address, IPv6Interface
 from django.contrib.auth.models import Permission, User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models import JSONField, ManyToManyField
+from django.db.models import ManyToManyField
 from django.forms.models import model_to_dict
 from django.test import Client
 from django.test import TestCase as _TestCase

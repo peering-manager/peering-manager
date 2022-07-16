@@ -25,7 +25,12 @@ from peering.enums import (
 from peering.fields import ASNField, CommunityField
 from peeringdb.functions import get_shared_internet_exchanges
 from peeringdb.models import IXLanPrefix, Network, NetworkContact, NetworkIXLan
-from utils.models import ChangeLoggedMixin, ConfigContextMixin, TagsMixin
+from utils.models import (
+    ChangeLoggedMixin,
+    ConfigContextMixin,
+    ExportTemplatesMixin,
+    TagsMixin,
+)
 
 from .abstracts import AbstractGroup, BGPSession
 from .mixins import PolicyMixin
@@ -33,7 +38,9 @@ from .mixins import PolicyMixin
 logger = logging.getLogger("peering.manager.peering")
 
 
-class AutonomousSystem(ChangeLoggedMixin, ConfigContextMixin, PolicyMixin, TagsMixin):
+class AutonomousSystem(
+    ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, PolicyMixin, TagsMixin
+):
     asn = ASNField(unique=True, verbose_name="ASN")
     name = models.CharField(max_length=128)
     name_peeringdb_sync = models.BooleanField(default=True)
@@ -405,7 +412,7 @@ class BGPGroup(AbstractGroup):
         )
 
 
-class Community(ChangeLoggedMixin, ConfigContextMixin, TagsMixin):
+class Community(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMixin):
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, max_length=255)
     value = CommunityField(max_length=50)
@@ -883,7 +890,7 @@ class InternetExchangePeeringSession(BGPSession):
         return True
 
 
-class Router(ChangeLoggedMixin, ConfigContextMixin, TagsMixin):
+class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMixin):
     local_autonomous_system = models.ForeignKey(
         to="peering.AutonomousSystem", on_delete=models.CASCADE, null=True
     )
@@ -1633,7 +1640,9 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, TagsMixin):
         return True
 
 
-class RoutingPolicy(ChangeLoggedMixin, ConfigContextMixin, TagsMixin):
+class RoutingPolicy(
+    ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMixin
+):
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, max_length=255)
     type = models.CharField(

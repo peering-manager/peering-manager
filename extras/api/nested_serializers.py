@@ -4,6 +4,7 @@ from extras.models import (
     IXAPI,
     ConfigContext,
     ConfigContextAssignment,
+    ExportTemplate,
     JobResult,
     Webhook,
 )
@@ -30,6 +31,16 @@ class NestedConfigContextAssignmentSerializer(WritableNestedSerializer):
     class Meta:
         model = ConfigContextAssignment
         fields = ["id", "url", "display", "config_context"]
+
+
+class NestedExportTemplateSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name="extras-api:exporttemplate-detail"
+    )
+
+    class Meta:
+        model = ExportTemplate
+        fields = ["id", "url", "display", "name"]
 
 
 class NestedIXAPISerializer(WritableNestedSerializer):

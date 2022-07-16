@@ -1,5 +1,7 @@
 import ipaddress
+import json
 
+import yaml
 from django.test import TestCase
 
 from devices.models import Configuration
@@ -445,3 +447,23 @@ class Jinja2FilterTestCase(TestCase):
                 self.router, "inside", default="nope", recursive=True
             ),
         )
+
+    def test_as_json(self):
+        data = {"foo": "bar"}
+        self.assertDictEqual(data, json.loads(FILTER_DICT["as_json"](data)))
+        data = 1
+        self.assertEqual(data, json.loads(FILTER_DICT["as_json"](data)))
+        data = RoutingPolicy.objects.all()
+        self.assertIsInstance(json.loads(FILTER_DICT["as_json"](data)), list)
+        data = RoutingPolicy.objects.first()
+        self.assertIsInstance(json.loads(FILTER_DICT["as_json"](data)), dict)
+
+    def test_as_yaml(self):
+        data = {"foo": "bar"}
+        self.assertDictEqual(data, yaml.safe_load(FILTER_DICT["as_yaml"](data)))
+        data = 1
+        self.assertEqual(data, json.loads(FILTER_DICT["as_json"](data)))
+        data = RoutingPolicy.objects.all()
+        self.assertIsInstance(json.loads(FILTER_DICT["as_json"](data)), list)
+        data = RoutingPolicy.objects.first()
+        self.assertIsInstance(json.loads(FILTER_DICT["as_json"](data)), dict)

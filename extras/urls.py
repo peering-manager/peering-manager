@@ -15,11 +15,11 @@ urlpatterns = [
     ),
     path(
         "extras/config-contexts/add/",
-        views.ConfigContextAdd.as_view(),
+        views.ConfigContextAddView.as_view(),
         name="configcontext_add",
     ),
     path(
-        "config-contexts/<int:pk>/",
+        "extras/config-contexts/<int:pk>/",
         views.ConfigContextView.as_view(),
         name="configcontext_view",
     ),
@@ -59,6 +59,43 @@ urlpatterns = [
         "extras/config-context-assignments/<int:pk>/delete/",
         views.ConfigContextAssignmentDeleteView.as_view(),
         name="configcontextassignment_delete",
+    ),
+    # Export templates
+    path(
+        "extras/export-templates/",
+        views.ExportTemplateListView.as_view(),
+        name="exporttemplate_list",
+    ),
+    path(
+        "extras/export-templates/add/",
+        views.ExportTemplateAddView.as_view(),
+        name="exporttemplate_add",
+    ),
+    path(
+        "extras/export-templates/<int:pk>/",
+        views.ExportTemplateView.as_view(),
+        name="exporttemplate_view",
+    ),
+    path(
+        "extras/export-templates/<int:pk>/edit/",
+        views.ExportTemplateEditView.as_view(),
+        name="exporttemplate_edit",
+    ),
+    path(
+        "extras/export-templates/delete/",
+        views.ExportTemplateBulkDeleteView.as_view(),
+        name="exporttemplate_bulk_delete",
+    ),
+    path(
+        "extras/export-templates/<int:pk>/delete/",
+        views.ExportTemplateDeleteView.as_view(),
+        name="exporttemplate_delete",
+    ),
+    path(
+        "extras/export-templates/<int:pk>/changelog/",
+        ObjectChangeLog.as_view(),
+        name="exporttemplate_changelog",
+        kwargs={"model": models.ExportTemplate},
     ),
     # IX-API
     path("ix-api/", views.IXAPIListView.as_view(), name="ixapi_list"),

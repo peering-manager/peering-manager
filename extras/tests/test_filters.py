@@ -1,11 +1,18 @@
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from extras.filters import (
     ConfigContextAssignmentFilterSet,
     ConfigContextFilterSet,
+    ExportTemplateFilterSet,
     WebhookFilterSet,
 )
-from extras.models import ConfigContext, ConfigContextAssignment, Webhook
+from extras.models import (
+    ConfigContext,
+    ConfigContextAssignment,
+    ExportTemplate,
+    Webhook,
+)
 from peering.models import AutonomousSystem
 
 
@@ -43,7 +50,7 @@ class ConfigContextTestCase(TestCase):
         params = {"description": ["This is test 1", "This is test 2"]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_description(self):
+    def test_is_active(self):
         params = {"is_active": True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"is_active": False}
@@ -53,7 +60,6 @@ class ConfigContextTestCase(TestCase):
 class ConfigContextAssignmentTestCase(TestCase):
     queryset = ConfigContextAssignment.objects.all()
     filterset = ConfigContextAssignmentFilterSet
-    # ["id", "content_type_id", "object_id", "weight"]
 
     @classmethod
     def setUpTestData(cls):
@@ -95,6 +101,46 @@ class ConfigContextAssignmentTestCase(TestCase):
         params = {"weight": [1000]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"weight": [2000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+
+class ExportTemplateTestCase(TestCase):
+    queryset = ExportTemplate.objects.all()
+    filterset = ExportTemplateFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        content_type = ContentType.objects.get_for_model(AutonomousSystem)
+        export_templates = [
+            ExportTemplate(
+                content_type=content_type,
+                name="Test 1",
+                template="{{ dataset | length }}",
+            ),
+            ExportTemplate(
+                content_type=content_type,
+                name="Test 2",
+                template="{{ dataset | length }}",
+            ),
+            ExportTemplate(
+                content_type=content_type,
+                name="Test 3",
+                description="Foo",
+                template="{{ dataset | length }}",
+            ),
+        ]
+        ExportTemplate.objects.bulk_create(export_templates)
+
+    def test_id(self):
+        params = {"id": self.queryset.values_list("pk", flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {"name": ["Test 1", "Test 2"]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {"description": ["Foo"]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 

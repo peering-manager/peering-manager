@@ -201,8 +201,18 @@ class ConfigContextMixin(models.Model):
         )
 
 
+class ExportTemplatesMixin(models.Model):
+    """
+    Enables support for export templates.
+    """
+
+    class Meta:
+        abstract = True
+
+
 FEATURES_MAP = (
     ("config-contexts", ConfigContextMixin),
+    ("export-templates", ExportTemplatesMixin),
     ("tags", TagsMixin),
 )
 

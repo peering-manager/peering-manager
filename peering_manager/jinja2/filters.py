@@ -1,8 +1,12 @@
 import ipaddress
+import json
 import unicodedata
 
+import yaml
+from django.db import models
 from django.db.models import Q
 from django.db.models.query import QuerySet
+from django.forms.models import model_to_dict
 
 from devices.crypto.cisco import MAGIC as CISCO_MAGIC
 from net.models import Connection
@@ -531,6 +535,33 @@ def context_get_key(value, key, default=None, recursive=True):
     return value
 
 
+def as_json(value, indent=4, sort_keys=True):
+    """
+    Render something as JSON.
+    """
+    if type(value) is QuerySet:
+        data = [model_to_dict(i) for i in value]
+    elif isinstance(value, models.Model):
+        data = model_to_dict(value)
+    else:
+        data = value
+    return json.dumps(data, indent=indent, sort_keys=sort_keys)
+
+
+def as_yaml(value, indent=2, sort_keys=True):
+    """
+    Render something as YAML.
+    """
+    if type(value) is QuerySet:
+        data = [model_to_dict(i) for i in value]
+    elif isinstance(value, models.Model):
+        data = model_to_dict(value)
+    else:
+        data = value
+
+    return yaml.dump(data, indent=indent, sort_keys=sort_keys, default_flow_style=False)
+
+
 FILTER_DICT = {
     # Generics
     "safe_string": safe_string,
@@ -582,6 +613,9 @@ FILTER_DICT = {
     "context_has_key": context_has_key,
     "context_has_not_key": context_has_not_key,
     "context_get_key": context_get_key,
+    # Formatting
+    "as_json": as_json,
+    "as_yaml": as_yaml,
 }
 
 __all__ = ("FILTER_DICT",)

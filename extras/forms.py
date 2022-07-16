@@ -1,19 +1,23 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from requests.exceptions import HTTPError
 
 from extras.models.configcontext import ConfigContextAssignment
 from utils.forms import BootstrapMixin, add_blank_choice
 from utils.forms.fields import (
+    ContentTypeChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     JSONField,
+    TemplateField,
 )
 from utils.forms.widgets import APISelectMultiple, CustomNullBooleanSelect, StaticSelect
 
 from .enums import JobResultStatus
-from .models import IXAPI, ConfigContext, JobResult
+from .models import IXAPI, ConfigContext, ExportTemplate, JobResult
+from .utils import FeatureQuery
 
 
 class ConfigContextForm(BootstrapMixin, forms.ModelForm):
@@ -40,6 +44,26 @@ class ConfigContextAssignmentForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConfigContextAssignment
         fields = ("config_context", "weight")
+
+
+class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
+    content_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery("export-templates"),
+        label="Object type",
+    )
+
+    class Meta:
+        model = ExportTemplate
+        fields = "__all__"
+        widgets = {
+            "template": forms.Textarea(attrs={"class": "text-monospace"}),
+        }
+
+
+class ExportTemplateFilterForm(BootstrapMixin, forms.Form):
+    model = ExportTemplate
+    q = forms.CharField(required=False, label="Search")
 
 
 class IXAPIForm(BootstrapMixin, forms.ModelForm):

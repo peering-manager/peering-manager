@@ -11,19 +11,33 @@ from peering_manager.views.generics import (
 )
 from utils.tables import paginate_table
 
-from .filters import ConfigContextFilterSet, IXAPIFilterSet, JobResultFilterSet
+from .filters import (
+    ConfigContextFilterSet,
+    ExportTemplateFilterSet,
+    IXAPIFilterSet,
+    JobResultFilterSet,
+)
 from .forms import (
     ConfigContextAssignmentForm,
     ConfigContextFilterForm,
     ConfigContextForm,
+    ExportTemplateFilterForm,
+    ExportTemplateForm,
     IXAPIFilterForm,
     IXAPIForm,
     JobResultFilterForm,
 )
-from .models import IXAPI, ConfigContext, ConfigContextAssignment, JobResult
+from .models import (
+    IXAPI,
+    ConfigContext,
+    ConfigContextAssignment,
+    ExportTemplate,
+    JobResult,
+)
 from .tables import (
     ConfigContextAssignmentTable,
     ConfigContextTable,
+    ExportTemplateTable,
     IXAPITable,
     JobResultTable,
 )
@@ -71,7 +85,7 @@ class ConfigContextView(ObjectView):
         }
 
 
-class ConfigContextAdd(ObjectEditView):
+class ConfigContextAddView(ObjectEditView):
     permission_required = "extras.add_configcontext"
     queryset = ConfigContext.objects.all()
     model_form = ConfigContextForm
@@ -141,6 +155,49 @@ class ObjectConfigContextView(ObjectView):
             "active_tab": "config-context",
             "rendered_context": instance.get_config_context(),
         }
+
+
+class ExportTemplateListView(ObjectListView):
+    permission_required = "extras.view_exporttemplate"
+    queryset = ExportTemplate.objects.all()
+    filterset = ExportTemplateFilterSet
+    filterset_form = ExportTemplateFilterForm
+    table = ExportTemplateTable
+    template_name = "extras/exporttemplate/list.html"
+
+
+class ExportTemplateView(ObjectView):
+    permission_required = "extras.view_exporttemplate"
+    queryset = ExportTemplate.objects.all()
+
+    def get_extra_context(self, request, instance):
+        return {"active_tab": "main"}
+
+
+class ExportTemplateAddView(ObjectEditView):
+    permission_required = "extras.add_exporttemplate"
+    queryset = ExportTemplate.objects.all()
+    model_form = ExportTemplateForm
+    template_name = "extras/exporttemplate/add_edit.html"
+
+
+class ExportTemplateEditView(ObjectEditView):
+    permission_required = "extras.change_exporttemplate"
+    queryset = ExportTemplate.objects.all()
+    model_form = ExportTemplateForm
+    template_name = "extras/exporttemplate/add_edit.html"
+
+
+class ExportTemplateDeleteView(ObjectDeleteView):
+    permission_required = "extras.delete_exporttemplate"
+    queryset = ExportTemplate.objects.all()
+
+
+class ExportTemplateBulkDeleteView(BulkDeleteView):
+    permission_required = "extras.delete_exporttemplate"
+    queryset = ExportTemplate.objects.all()
+    filterset = ExportTemplateFilterSet
+    table = ExportTemplateTable
 
 
 class IXAPIListView(ObjectListView):

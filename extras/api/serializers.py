@@ -6,6 +6,7 @@ from extras.models import (
     IXAPI,
     ConfigContext,
     ConfigContextAssignment,
+    ExportTemplate,
     JobResult,
     Webhook,
 )
@@ -17,6 +18,7 @@ from .nested_serializers import *
 __all__ = (
     "ConfigContextSerializer",
     "ConfigContextAssignmentSerializer",
+    "ExportTemplateSerializer",
     "JobResultSerializer",
     "WebhookSerializer",
     "NestedJobResultSerializer",
@@ -64,6 +66,23 @@ class ConfigContextAssignmentSerializer(ValidatedModelSerializer):
     def get_object(self, instance):
         context = {"request": self.context["request"]}
         return NestedConfigContextSerializer(instance.object, context=context).data
+
+
+class ExportTemplateSerializer(ValidatedModelSerializer):
+    content_type = ContentTypeField(queryset=ContentType.objects.all())
+
+    class Meta:
+        model = ExportTemplate
+        fields = [
+            "id",
+            "display",
+            "name",
+            "content_type",
+            "description",
+            "template",
+            "jinja2_trim",
+            "jinja2_lstrip",
+        ]
 
 
 class IXAPISerializer(ValidatedModelSerializer):
