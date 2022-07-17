@@ -2,20 +2,22 @@ import ipaddress
 import json
 
 import yaml
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from devices.models import Configuration
+from extras.models import ExportTemplate
 from messaging.models import Email
 from net.models import Connection
 from peering.enums import CommunityType, IPFamily
 from peering.models import (
     AutonomousSystem,
+    Community,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
     RoutingPolicy,
 )
-from peering.models.models import Community
 from peering_manager.jinja2 import FILTER_DICT
 from utils.models import Tag
 
@@ -241,6 +243,23 @@ class Jinja2FilterTestCase(TestCase):
         filtered = FILTER_DICT["filter"](communities, type=None)
         self.assertEqual(1, FILTER_DICT["length"](filtered))
 
+    def test_get(self):
+        ixps = InternetExchange.objects.all()
+        self.assertIsInstance(
+            FILTER_DICT["get"](ixps, pk=self.ixp.pk), InternetExchange
+        )
+        sessions = InternetExchangePeeringSession.objects.all()
+        self.assertIsInstance(
+            FILTER_DICT["get"](sessions, ip_address="2001:db8::1"),
+            InternetExchangePeeringSession,
+        )
+        self.assertEqual(0, len(FILTER_DICT["get"](sessions, ip_address="2001:a::a")))
+
+    def test_unique(self):
+        sessions = InternetExchangePeeringSession.objects.all()
+        self.assertEqual(1, len(FILTER_DICT["unique"](sessions, "autonomous_system")))
+        self.assertEqual(4, len(FILTER_DICT["unique"](sessions, "ip_address")))
+
     def test_iterate(self):
         routing_policies = RoutingPolicy.objects.all()
         slugs = [s for s in FILTER_DICT["iterate"](routing_policies, "slug")]
@@ -407,6 +426,20 @@ class Jinja2FilterTestCase(TestCase):
         main.template = "{% include 'email::test' %}"
         main.save()
         self.assertEqual(("main", "this is a test"), main.render({}))
+
+        content_type = ContentType.objects.get_for_model(AutonomousSystem)
+        ExportTemplate.objects.create(
+            name="test", content_type=content_type, template="this is a test"
+        )
+        main = ExportTemplate.objects.create(
+            name="main",
+            content_type=content_type,
+            template="{% include_exporttemplate 'test' %}",
+        )
+        self.assertEqual("this is a test", main.render())
+        main.template = "{% include 'exporttemplate::test' %}"
+        main.save()
+        self.assertEqual("this is a test", main.render())
 
     def test_context_has_key(self):
         self.assertEqual(True, FILTER_DICT["context_has_key"](self.router, "foo"))
