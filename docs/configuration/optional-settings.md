@@ -205,6 +205,15 @@ used to add more features to the initial ones. Extensions that are not built
 into Jinja2 need to be installed in the Python environment used to run Peering
 Manager.
 
+Example:
+
+```no-highlight
+JINJA2_TEMPLATE_EXTENSIONS = [
+  "jinja2.ext.debug",
+  "jinja2.ext.do",
+]
+```
+
 ---
 
 ## CONFIG_CONTEXT_RECURSIVE_MERGE / CONFIG_CONTEXT_LIST_MERGE
