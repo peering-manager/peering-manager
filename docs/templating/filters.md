@@ -127,6 +127,19 @@ Example:
 My AS is {{ affiliated_autonomous_systems | get(asn=64500) }}
 ```
 
+## `unique`
+
+Keeps only unique items given a field in a list. Uniqueness is based on the
+field value.
+
+Example:
+
+```no-highlight
+{% for session in dataset | unique("autonomous_system") %}
+...
+{% endfo %}
+```
+
 ## `iterate`
 
 Allows to select and to return the value of a single field for each object in

@@ -61,7 +61,7 @@ class ExportTemplate(ChangeLoggedMixin):
         return self.render()
 
     def __str__(self):
-        return f"{self.content_type}: {self.name}"
+        return self.name
 
     def get_absolute_url(self):
         return reverse("extras:exporttemplate_view", args=[self.pk])

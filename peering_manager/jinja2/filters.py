@@ -142,7 +142,7 @@ def filter(value, **kwargs):
         valid = True
         for k, v in kwargs.items():
             try:
-                valid = getattr(i, k, None) == v
+                valid = getattr(i, k) == v
             except AttributeError:
                 valid = False
 
@@ -166,6 +166,35 @@ def get(queryset, **kwargs):
         return q.get()
     else:
         return q
+
+
+def unique(value, field):
+    """
+    Returns an iterable containing unique items based on a field (and its value).
+    """
+    if type(value) is QuerySet:
+        return value.order_by().distinct(field)
+
+    try:
+        iter(value)
+    except TypeError:
+        raise ValueError("value cannot be filtered (not iterable)")
+
+    unique_items = []
+    seen_values = []
+
+    # Build a list with unique items matching one field value
+    # Fail validation of an item if it does not have the attribute
+    for i in value:
+        try:
+            value = getattr(i, field)
+            if value not in seen_values:
+                seen_values.append(value)
+                unique_items.append(i)
+        except AttributeError:
+            continue
+
+    return unique_items
 
 
 def iterate(value, field):
@@ -578,6 +607,7 @@ FILTER_DICT = {
     # Filtering
     "filter": filter,
     "get": get,
+    "unique": unique,
     "iterate": iterate,
     # Autonomous system
     "ixps": ixps,
