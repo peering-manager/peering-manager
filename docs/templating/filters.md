@@ -5,11 +5,16 @@ provided ones. These filters are used to parse, transform, fetch values of
 known types. If they are not used as expected, template processing may result
 in failure or half rendered texts.
 
-## `include_configuration` / `include_email`
+## `include_configuration` / `include_email` / `include_exporttemplate`
 
 Includes the configuration template or the e-mail body defined in another
 object. It is useful to divide a big template into smaller ones for ease of
-management. The context and extensions are passed to the included templates.
+management. The context and extensions are passed to the included templates
+except for the export template include statement.
+
+In the case of export template, the one that is imported is evaluated before
+its actual import which means that it is rendered independently before being
+printed into the main template.
 
 `include_*` functions take a template name or a template ID as a parameter.
 
@@ -19,6 +24,7 @@ Examples:
 {% include_configuration "BGP Groups" %}
 {% include_configuration "BGP Sessions" %}
 {% include_configuration "BGP Policies" %}
+{% include_exporttemplate "IXPs" %}
 ```
 
 ```no-highlight
@@ -406,7 +412,6 @@ Examples:
 {{ ixp | context_get_key('ignore', default=False) }}
 {{ if router | context_get_key('region', recursive=False) }}
 ```
-
 
 ## `as_json` / `as_yaml`
 

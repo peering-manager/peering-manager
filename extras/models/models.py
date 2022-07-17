@@ -56,6 +56,10 @@ class ExportTemplate(ChangeLoggedMixin):
             )
         ]
 
+    @property
+    def rendered(self):
+        return self.render()
+
     def __str__(self):
         return f"{self.content_type}: {self.name}"
 
