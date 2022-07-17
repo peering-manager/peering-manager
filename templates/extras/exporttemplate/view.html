@@ -72,11 +72,11 @@
         break;
       case 'completed':
         var formatted;
-        var value = r['output'];
-        if (value == "") {
+        var output = r['output'];
+        if (output == "") {
           formatted = '<div class="card-body"><p class="card-text">Rendering result is empty.</p></div>';
         } else {
-          formatted = '<pre class="pre-scrollable" id="result">' + value + '</pre>';
+          formatted = '<pre class="pre-scrollable" id="result">' + PeeringManager.escapeHTML(output) + '</pre>';
         }
         $('#rendered').html(formatted);
         break;
