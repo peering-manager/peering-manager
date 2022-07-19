@@ -58,6 +58,12 @@ __patterns = [
     path("error500/", trigger_500),
 ]
 
+if settings.OIDC_CONFIGURED:
+    __patterns.insert(
+        2,
+        path("oidc/", include("mozilla_django_oidc.urls")),
+    )
+
 # Add debug_toolbar in debug mode
 if settings.DEBUG:
     import debug_toolbar

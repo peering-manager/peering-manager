@@ -403,6 +403,21 @@ MIDDLEWARE = [
     "peering_manager.middleware.LastSearchMiddleware",
 ]
 
+try:
+    from peering_manager.oidc_config import *
+
+    OIDC_CONFIGURED = True
+except ImportError:
+    OIDC_CONFIGURED = False
+
+if OIDC_CONFIGURED:
+    AUTHENTICATION_BACKENDS = [
+        "mozilla_django_oidc.auth.OIDCAuthenticationBackend",
+        "django.contrib.auth.backends.ModelBackend",
+    ]
+    INSTALLED_APPS.insert(2, "mozilla_django_oidc")
+    MIDDLEWARE.insert(5, "mozilla_django_oidc.middleware.SessionRefresh")
+
 # Prometheus setup
 if METRICS_ENABLED:
     PROMETHEUS_EXPORT_MIGRATIONS = False

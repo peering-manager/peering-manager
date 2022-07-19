@@ -18,3 +18,4 @@ pynetbox==6.6.2
 PyYAML==6.0
 requests==2.28.1
 tzdata==2022.2
+mozilla-django-oidc==2.0.0
