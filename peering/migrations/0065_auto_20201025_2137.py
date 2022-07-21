@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="directpeeringsession_local_autonomous_system",
+                related_name="%(class)s_local_autonomous_system",
                 to="peering.autonomoussystem",
             ),
         ),

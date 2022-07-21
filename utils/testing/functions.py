@@ -41,6 +41,8 @@ def post_data(data):
     for key, value in data.items():
         if value is None:
             r[key] = ""
+        elif type(value) is dict:
+            r[key] = json.dumps(value)
         elif type(value) in (list, tuple):
             if value and hasattr(value[0], "pk"):
                 # Value is a list of instances

@@ -5,7 +5,15 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from rest_framework import status
 
-from extras.models import IXAPI, JobResult, Webhook
+from extras.models import (
+    IXAPI,
+    ConfigContext,
+    ConfigContextAssignment,
+    ExportTemplate,
+    JobResult,
+    Webhook,
+)
+from peering.models import AutonomousSystem
 from utils.testing import APITestCase, MockedResponse, StandardAPITestCases
 
 
@@ -13,6 +21,128 @@ class AppTest(APITestCase):
     def test_root(self):
         response = self.client.get(reverse("extras-api:api-root"), **self.header)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class ConfigContextTest(StandardAPITestCases.View):
+    model = ConfigContext
+    brief_fields = ["id", "url", "display", "name"]
+
+    @classmethod
+    def setUpTestData(cls):
+        config_contexts = [
+            ConfigContext(name="Test 1", data={"test": True}),
+            ConfigContext(name="Test 2", data={"test": True}),
+            ConfigContext(name="Test 3", data={"test": True}),
+        ]
+        ConfigContext.objects.bulk_create(config_contexts)
+
+        cls.create_data = [
+            {"name": "Test 4", "data": {"test": False}},
+            {"name": "Test 5", "data": {"test": False}},
+            {"name": "Test 6", "data": {"test": False}},
+        ]
+
+
+class ConfigContextAssignmentAssignmentTest(StandardAPITestCases.View):
+    model = ConfigContextAssignment
+    brief_fields = ["id", "url", "display", "config_context"]
+
+    @classmethod
+    def setUpTestData(cls):
+        asns = [
+            AutonomousSystem(name="Foo", asn=64501),
+            AutonomousSystem(name="Bar", asn=64502),
+        ]
+        AutonomousSystem.objects.bulk_create(asns)
+
+        config_contexts = [
+            ConfigContext(name="Test 1", data={"test": True}),
+            ConfigContext(name="Test 2", data={"test": True}),
+            ConfigContext(name="Test 3", data={"test": True}),
+            ConfigContext(name="Test 4", data={"test": False}),
+            ConfigContext(name="Test 5", data={"test": False}),
+            ConfigContext(name="Test 6", data={"test": False}),
+        ]
+        ConfigContext.objects.bulk_create(config_contexts)
+
+        config_context_assignments = [
+            ConfigContextAssignment(
+                object=asns[0], config_context=config_contexts[0], weight=1000
+            ),
+            ConfigContextAssignment(
+                object=asns[0], config_context=config_contexts[1], weight=1000
+            ),
+            ConfigContextAssignment(
+                object=asns[0], config_context=config_contexts[2], weight=1000
+            ),
+        ]
+        ConfigContextAssignment.objects.bulk_create(config_context_assignments)
+
+        cls.create_data = [
+            {
+                "content_type": "peering.autonomoussystem",
+                "object_id": asns[1].pk,
+                "config_context": config_contexts[3].pk,
+                "weight": 1000,
+            },
+            {
+                "content_type": "peering.autonomoussystem",
+                "object_id": asns[1].pk,
+                "config_context": config_contexts[4].pk,
+                "weight": 1000,
+            },
+            {
+                "content_type": "peering.autonomoussystem",
+                "object_id": asns[1].pk,
+                "config_context": config_contexts[5].pk,
+                "weight": 1000,
+            },
+        ]
+
+
+class ExportTemplateTest(StandardAPITestCases.View):
+    model = ExportTemplate
+    brief_fields = ["id", "url", "display", "name"]
+
+    @classmethod
+    def setUpTestData(cls):
+        content_type = ContentType.objects.get_for_model(AutonomousSystem)
+        export_templates = [
+            ExportTemplate(
+                content_type=content_type,
+                name="Test 1",
+                template="{{ dataset | length }}",
+            ),
+            ExportTemplate(
+                content_type=content_type,
+                name="Test 2",
+                template="{{ dataset | length }}",
+            ),
+            ExportTemplate(
+                content_type=content_type,
+                name="Test 3",
+                template="{{ dataset | length }}",
+            ),
+        ]
+        ExportTemplate.objects.bulk_create(export_templates)
+
+        cls.create_data = [
+            {
+                "content_type": "peering.bgpgroup",
+                "name": "Test 4",
+                "template": "nothing to see",
+            },
+            {
+                "content_type": "peering.bgpgroup",
+                "name": "Test 5",
+                "template": "nothing to see",
+            },
+            {
+                "content_type": "peering.bgpgroup",
+                "name": "Test 6",
+                "template": "nothing to see",
+            },
+        ]
 
 
 class IXAPITest(StandardAPITestCases.View):
@@ -105,7 +235,7 @@ class JobResultTest(
     StandardAPITestCases.GetObjectView, StandardAPITestCases.ListObjectsView
 ):
     model = JobResult
-    brief_fields = ["url", "created", "completed", "user", "status"]
+    brief_fields = ["id", "url", "created", "completed", "user", "status"]
 
     @classmethod
     def setUpTestData(cls):

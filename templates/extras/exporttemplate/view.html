@@ -1,0 +1,103 @@
+{% extends 'extras/exporttemplate/_base.html' %}
+{% load helpers %}
+{% block subcontent %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header"><strong>Details</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Name</td>
+          <td>{{ instance.name }}</td>
+        </tr>
+        <tr>
+          <td>Description</td>
+          <td>{{ instance.description|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Object type</td>
+          <td>{{ instance.content_type }}</td>
+        </tr>
+        <tr>
+          <td>Trim</td>
+          <td>{{ instance.jinja2_trim|boolean_as_icon }}</td>
+        </tr>
+        <tr>
+          <td>Lstrip</td>
+          <td>{{ instance.jinja2_lstrip|boolean_as_icon }}</td>
+        </tr>
+        <tr>
+          <td>Last update</td>
+          <td>{{ instance.updated|date_span }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="card mb-2">
+      <div class="card-header"><strong>Template</strong></div>
+      <pre class="pre-scrollable">{{ instance.template }}</pre>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header">
+        <strong>Rendered data</strong>
+        <div class="float-right">
+          <button type="button" class="btn btn-xs btn-secondary" id="clipboard">
+            <i class="fa fa-clipboard"></i> Copy
+          </button>
+        </div>
+      </div>
+      <div id="rendered"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script>
+  $('#clipboard').click(function () {
+    var temp = $('<textarea>');
+    $('body').append(temp);
+    temp.val($('#result').text()).select();
+    document.execCommand('copy');
+    temp.remove();
+  });
+
+  function exportDoneHandler(r) {
+    switch (r['status']) {
+      case 'pending':
+      case 'running':
+        setTimeout(function() {
+          PeeringManager.pollJobResult(r, exportDoneHandler);
+        }, 2000);
+        break;
+      case 'completed':
+        var formatted;
+        var output = r['output'];
+        if (output == "") {
+          formatted = '<div class="card-body"><p class="card-text">Rendering result is empty.</p></div>';
+        } else {
+          formatted = '<pre class="pre-scrollable" id="result">' + PeeringManager.escapeHTML(output) + '</pre>';
+        }
+        $('#rendered').html(formatted);
+        break;
+      case 'errored':
+      case 'failed':
+      default:
+        $('#rendered').html('<div class="card-body"><p class="card-text">An error occured while rendering the export template.</p></div>');
+        break;
+    }
+  }
+
+  $(document).ready(function () {
+    $.ajax({
+      method: 'get',
+      url: "{% url 'extras-api:exporttemplate-render' pk=instance.pk %}"
+    }).done(function (r) {
+      $('#rendered').html('<div class="text-center" style="font-size: 2rem;"><i class="fas fa-sync fa-spin fa-fw"></i> Working</div>');
+      exportDoneHandler(r);
+    }).fail(function () {
+      $('#rendered').html('<div class="card-body"><p class="card-text">Unable to render the export template.</p></div>');
+    });
+  });
+</script>
+{% endblock %}

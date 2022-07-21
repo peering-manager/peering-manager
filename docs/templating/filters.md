@@ -5,11 +5,16 @@ provided ones. These filters are used to parse, transform, fetch values of
 known types. If they are not used as expected, template processing may result
 in failure or half rendered texts.
 
-## `include_configuration` / `include_email`
+## `include_configuration` / `include_email` / `include_exporttemplate`
 
 Includes the configuration template or the e-mail body defined in another
 object. It is useful to divide a big template into smaller ones for ease of
-management. The context and extensions are passed to the included templates.
+management. The context and extensions are passed to the included templates
+except for the export template include statement.
+
+In the case of export template, the one that is imported is evaluated before
+its actual import which means that it is rendered independently before being
+printed into the main template.
 
 `include_*` functions take a template name or a template ID as a parameter.
 
@@ -19,6 +24,7 @@ Examples:
 {% include_configuration "BGP Groups" %}
 {% include_configuration "BGP Sessions" %}
 {% include_configuration "BGP Policies" %}
+{% include_exporttemplate "IXPs" %}
 ```
 
 ```no-highlight
@@ -119,6 +125,19 @@ Example:
 
 ```no-highlight
 My AS is {{ affiliated_autonomous_systems | get(asn=64500) }}
+```
+
+## `unique`
+
+Keeps only unique items given a field in a list. Uniqueness is based on the
+field value.
+
+Example:
+
+```no-highlight
+{% for session in dataset | unique("autonomous_system") %}
+...
+{% endfo %}
 ```
 
 ## `iterate`
@@ -235,13 +254,13 @@ Examples:
 When used on an autonomous system, it will return direct peering sessions or
 respectively IXP peering sessions setup with the AS.
 
-If family with a value of `4` or `6` is passed as extra parameter, only the sessions
-with a IP version matching will be returned.
+If family with a value of `4` or `6` is passed as extra parameter, only the
+sessions with a IP version matching will be returned.
 
-* If group is passed as extra parameter for `direct_sessions`, only the sessions
-  contained in given group will be returned.
-* If ixp is passed as extra parameter for `ixp_sessions`, only the sessions contained
-  in given IXP will be returned.
+* If group is passed as extra parameter for `direct_sessions`, only the
+  sessions contained in given group will be returned.
+* If ixp is passed as extra parameter for `ixp_sessions`, only the sessions
+  contained in given IXP will be returned.
 
 Examples:
 
@@ -365,11 +384,62 @@ communities [ {{ ixp | communities | join(' ') }} ];
 
 ## `merge_communities`
 
-Merges all communities from an object into a single list. For BGP session, group's and
-autonomous system's communities will be merged together, avoiding duplicates.
+Merges all communities from an object into a single list. For BGP session,
+group's and autonomous system's communities will be merged together, avoiding
+duplicates.
 
 Example:
 
 ```no-highlight
 communities [ {{ session | merge_communities | iterate('value') | join(' ') }} ];
+```
+
+## `context_has_key` / `context_has_not_key`
+
+Checks if the config context of an object contains a given key.
+`context_has_not_key` filter is the exact opposite of `context_has_key`. The
+filters' behaviour can be tweaked with the `recursive` argument. The default
+value for `recursive` is `True` which means that the key will be searched in
+nested hashes. It won't be if `recursive` is set to `False`.
+
+Examples:
+
+```no-highlight
+{% if session | context_has_key('local_asn') %}
+{% if ixp | context_has_not_key('ignore') %}
+{% if router | context_has_key('region', recursive=False) %}
+```
+
+## `context_get_key`
+
+Retrieves the value of a key in an object's config context. If the key is not
+found, a default null value will be returned. The default value can be changed
+by setting the `default` parameter of the filter. The filter will search
+through nested hashes, but this can be disabled by setting the `recursive`
+parameter to `False`.
+
+Examples:
+
+```no-highlight
+{{ session | context_get_key('local_asn') }}
+{{ ixp | context_get_key('ignore', default=False) }}
+{{ if router | context_get_key('region', recursive=False) }}
+```
+
+## `as_json` / `as_yaml`
+
+Convert an object or a list of objects (database result) as JSON or YAML. Keys
+sorting can be disabled by setting the `sort_keys` parameter to `False`.
+Indentation can be changed by setting the `indent` parameter to a positive
+numeric value (default is 4 for JSON and 2 for YAML).
+
+Examples:
+
+```no-highlight
+{{ router | connections | as_json }}
+{{ router | connections | as_yaml }}
+
+{% for connection in router | connections %}
+{{ connection | as_yaml }}
+{% endfor %}
 ```

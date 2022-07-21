@@ -1,8 +1,12 @@
 import ipaddress
+import json
 import unicodedata
 
+import yaml
+from django.db import models
 from django.db.models import Q
 from django.db.models.query import QuerySet
+from django.forms.models import model_to_dict
 
 from devices.crypto.cisco import MAGIC as CISCO_MAGIC
 from net.models import Connection
@@ -16,7 +20,8 @@ from peering.models.models import (
     InternetExchangePeeringSession,
     Router,
 )
-from utils.models import TaggableModel
+from utils.functions import get_key_in_hash
+from utils.models import ConfigContextMixin, TagsMixin
 
 
 def ipv4(value):
@@ -137,7 +142,7 @@ def filter(value, **kwargs):
         valid = True
         for k, v in kwargs.items():
             try:
-                valid = getattr(i, k, None) == v
+                valid = getattr(i, k) == v
             except AttributeError:
                 valid = False
 
@@ -161,6 +166,35 @@ def get(queryset, **kwargs):
         return q.get()
     else:
         return q
+
+
+def unique(value, field):
+    """
+    Returns an iterable containing unique items based on a field (and its value).
+    """
+    if type(value) is QuerySet:
+        return value.order_by().distinct(field)
+
+    try:
+        iter(value)
+    except TypeError:
+        raise ValueError("value cannot be filtered (not iterable)")
+
+    unique_items = []
+    seen_values = []
+
+    # Build a list with unique items matching one field value
+    # Fail validation of an item if it does not have the attribute
+    for i in value:
+        try:
+            value = getattr(i, field)
+            if value not in seen_values:
+                seen_values.append(value)
+                unique_items.append(i)
+        except AttributeError:
+            continue
+
+    return unique_items
 
 
 def iterate(value, field):
@@ -466,7 +500,7 @@ def tags(value):
     """
     Returns an iterable containing tags associated with an object."
     """
-    if not isinstance(value, TaggableModel):
+    if not isinstance(value, TagsMixin):
         raise AttributeError("object has no tags")
     return value.tags.all()
 
@@ -475,7 +509,7 @@ def has_tag(value, tag):
     """
     Returns a boolean indicating if an objects has the given tag.
     """
-    if not isinstance(value, TaggableModel):
+    if not isinstance(value, TagsMixin):
         raise AttributeError("object has no tags")
 
     return value.tags.filter(Q(name=tag) | Q(slug=tag)).count() > 0
@@ -485,10 +519,76 @@ def has_not_tag(value, tag):
     """
     Returns a boolean indicating if an objects has the given tag.
     """
-    if not isinstance(value, TaggableModel):
+    if not isinstance(value, TagsMixin):
         raise AttributeError("object has no tags")
 
     return value.tags.filter(Q(name=tag) | Q(slug=tag)).count() == 0
+
+
+def context_has_key(value, key, recursive=True):
+    """
+    Returns whether or not a config context has a key.
+
+    The `recursive` parameter can be set to `False` to avoid looking in nested hashes.
+    """
+    if not isinstance(value, ConfigContextMixin):
+        raise AttributeError("object has no config context")
+
+    _, found = get_key_in_hash(value.get_config_context(), key, recursive=recursive)
+    return found
+
+
+def context_has_not_key(value, key, recursive=True):
+    """
+    Returns whether or not a config context has **not** a key.
+
+    The `recursive` parameter can be set to `False` to avoid looking in nested hashes.
+    """
+    return not context_has_key(value, key, recursive=recursive)
+
+
+def context_get_key(value, key, default=None, recursive=True):
+    """
+    Returns the value of a key in a config context.
+
+    The `default` parameter can be set to any value if the key is not to be found.
+
+    The `recursive` parameter can be set to `False` to avoid looking in nested hashes.
+    """
+    if not isinstance(value, ConfigContextMixin):
+        raise AttributeError("object has no config context")
+
+    value, _ = get_key_in_hash(
+        value.get_config_context(), key, default=default, recursive=recursive
+    )
+    return value
+
+
+def as_json(value, indent=4, sort_keys=True):
+    """
+    Render something as JSON.
+    """
+    if type(value) is QuerySet:
+        data = [model_to_dict(i) for i in value]
+    elif isinstance(value, models.Model):
+        data = model_to_dict(value)
+    else:
+        data = value
+    return json.dumps(data, indent=indent, sort_keys=sort_keys)
+
+
+def as_yaml(value, indent=2, sort_keys=True):
+    """
+    Render something as YAML.
+    """
+    if type(value) is QuerySet:
+        data = [model_to_dict(i) for i in value]
+    elif isinstance(value, models.Model):
+        data = model_to_dict(value)
+    else:
+        data = value
+
+    return yaml.dump(data, indent=indent, sort_keys=sort_keys, default_flow_style=False)
 
 
 FILTER_DICT = {
@@ -507,6 +607,7 @@ FILTER_DICT = {
     # Filtering
     "filter": filter,
     "get": get,
+    "unique": unique,
     "iterate": iterate,
     # Autonomous system
     "ixps": ixps,
@@ -538,6 +639,13 @@ FILTER_DICT = {
     "iter_import_policies": iter_import_policies,
     "merge_export_policies": merge_export_policies,
     "merge_import_policies": merge_import_policies,
+    # Config contexts
+    "context_has_key": context_has_key,
+    "context_has_not_key": context_has_not_key,
+    "context_get_key": context_get_key,
+    # Formatting
+    "as_json": as_json,
+    "as_yaml": as_yaml,
 }
 
 __all__ = ("FILTER_DICT",)

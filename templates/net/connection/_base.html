@@ -23,6 +23,11 @@
     </a>
   </li>
   <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'config-context' %} active{% endif %}" href="{% url 'net:connection_configcontext' pk=instance.pk %}">
+      <i class="fas fa-code"></i> Config Context
+    </a>
+  </li>
+  <li class="nav-item">
     <a class="nav-link{% if active_tab == 'changelog' %} active{% endif %}" href="{% url 'net:connection_changelog' pk=instance.pk %}">
       <i class="fas fa-history"></i> Changelog
     </a>

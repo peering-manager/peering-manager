@@ -1,5 +1,5 @@
 # PostgreSQL
-Peering Manager requires a PostgreSQL (>= 9.6) database to store data. This can be
+Peering Manager requires a PostgreSQL (>= 10) database to store data. This can be
 hosted locally or on a remote server. Please note that Peering Manager does not
 support any other database backends as it uses some specific features of
 PostgreSQL.
@@ -46,7 +46,7 @@ username and password for authentication.
 
 ```no-highlight
 # sudo -u postgres psql
-psql (9.6.3)
+psql (10.21)
 Type "help" for help.
 
 postgres=# CREATE DATABASE peering_manager ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TEMPLATE template0;

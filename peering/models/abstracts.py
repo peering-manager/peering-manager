@@ -7,12 +7,19 @@ from netfields import InetAddressField, NetManager
 
 from peering.enums import BGPState, IPFamily
 from peering.fields import TTLField
-from utils.models import ChangeLoggedModel, TaggableModel
+from utils.models import (
+    ChangeLoggedMixin,
+    ConfigContextMixin,
+    ExportTemplatesMixin,
+    TagsMixin,
+)
 
 from .mixins import PolicyMixin
 
 
-class AbstractGroup(ChangeLoggedModel, TaggableModel, PolicyMixin):
+class AbstractGroup(
+    ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, PolicyMixin, TagsMixin
+):
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, max_length=255)
     comments = models.TextField(blank=True)
@@ -62,7 +69,9 @@ class AbstractGroup(ChangeLoggedModel, TaggableModel, PolicyMixin):
             router.poll_bgp_sessions()
 
 
-class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
+class BGPSession(
+    ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, PolicyMixin, TagsMixin
+):
     """
     Abstract class used to define common caracteristics of BGP sessions.
 
@@ -275,7 +284,7 @@ class BGPSession(ChangeLoggedModel, TaggableModel, PolicyMixin):
         return True
 
 
-class Template(ChangeLoggedModel, TaggableModel):
+class Template(ChangeLoggedMixin, TagsMixin):
     name = models.CharField(max_length=128)
     template = models.TextField()
     jinja2_trim = models.BooleanField(

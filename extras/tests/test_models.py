@@ -1,10 +1,24 @@
 import ipaddress
 from unittest.mock import patch
 
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
-from extras.models import IXAPI
+from extras.models import IXAPI, ExportTemplate
+from peering.models import AutonomousSystem
 from utils.testing import MockedResponse
+
+
+class ExportTemplateTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        content_type = ContentType.objects.get_for_model(AutonomousSystem)
+        cls.export_template = ExportTemplate.objects.create(
+            content_type=content_type, name="Test", template="{{ dataset | length }}"
+        )
+
+    def test_render(self):
+        self.assertEqual("0", self.export_template.render())
 
 
 class IXAPITest(TestCase):

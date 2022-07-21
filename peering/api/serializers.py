@@ -82,6 +82,7 @@ class AutonomousSystemSerializer(PrimaryModelSerializer):
             "communities",
             "prefixes",
             "affiliated",
+            "local_context_data",
             "tags",
         ]
 
@@ -120,6 +121,7 @@ class BGPGroupSerializer(PrimaryModelSerializer):
             "import_routing_policies",
             "export_routing_policies",
             "communities",
+            "local_context_data",
             "comments",
             "tags",
         ]
@@ -128,7 +130,17 @@ class BGPGroupSerializer(PrimaryModelSerializer):
 class CommunitySerializer(PrimaryModelSerializer):
     class Meta:
         model = Community
-        fields = ["id", "display", "name", "slug", "value", "type", "comments", "tags"]
+        fields = [
+            "id",
+            "display",
+            "name",
+            "slug",
+            "value",
+            "type",
+            "local_context_data",
+            "comments",
+            "tags",
+        ]
 
 
 class DirectPeeringSessionSerializer(PrimaryModelSerializer):
@@ -169,6 +181,7 @@ class DirectPeeringSessionSerializer(PrimaryModelSerializer):
             "import_routing_policies",
             "export_routing_policies",
             "router",
+            "local_context_data",
             "bgp_state",
             "received_prefix_count",
             "advertised_prefix_count",
@@ -226,6 +239,7 @@ class InternetExchangeSerializer(PrimaryModelSerializer):
             "import_routing_policies",
             "export_routing_policies",
             "communities",
+            "local_context_data",
             "tags",
         ]
 
@@ -262,6 +276,7 @@ class InternetExchangePeeringSessionSerializer(PrimaryModelSerializer):
             "is_route_server",
             "import_routing_policies",
             "export_routing_policies",
+            "local_context_data",
             "bgp_state",
             "received_prefix_count",
             "advertised_prefix_count",
@@ -293,7 +308,7 @@ class RouterSerializer(PrimaryModelSerializer):
             "netbox_device_id",
             "device_state",
             "use_netbox",
-            "config_context",
+            "local_context_data",
             "napalm_username",
             "napalm_password",
             "napalm_timeout",
@@ -319,7 +334,7 @@ class RoutingPolicySerializer(PrimaryModelSerializer):
             "type",
             "weight",
             "address_family",
-            "config_context",
+            "local_context_data",
             "comments",
             "tags",
         ]
