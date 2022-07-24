@@ -2,8 +2,8 @@
 {% load helpers %}
 {% block subcontent %}
 <div class="row">
-  <div class="col-md-6 mb-2">
-    <div class="card">
+  <div class="col-md-6">
+    <div class="card mb-2">
       <div class="card-header">
         <strong>Details</strong>
         {% if instance.linked_to_peeringdb %}
@@ -47,13 +47,44 @@
         </tr>
       </table>
     </div>
+    {% if instance.ixapi_network_service_config %}
+    <div class="card mb-2">
+      <div class="card-header"><strong>IX-API</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Identifier</td>
+          <td>{{ instance.ixapi_network_service_config.id }}</td>
+        </tr>
+        <tr>
+          <td>State</td>
+          <td>{{ instance.ixapi_network_service_config.state | title }}</td>
+        </tr>
+        <tr>
+          <td>Outer VLAN</td>
+          <td>{{ instance.ixapi_network_service_config.outer_vlan | render_none }}</td>
+        </tr>
+        <tr>
+          <td>Inner VLAN</td>
+          <td>{{ instance.ixapi_network_service_config.inner_vlan | render_none }}</td>
+        </tr>
+        <tr>
+          <td>IP address{{ config.ips | pluralize:"es" }}</td>
+          <td>{{ instance.ixapi_network_service_config.ips | join:" - " }}</td>
+        </tr>
+        <tr>
+          <td>MAC address{{ config.macs | pluralize:"es" }}</td>
+          <td>{{ instance.ixapi_network_service_config.macs | join:" - "  | render_none }}</td>
+        </tr>
+      </table>
+    </div>
+    {% endif %}
   </div>
   <div class="col-md-6">
     <div class="card">
       <div class="card-header"><strong>Comments</strong></div>
       <div class="card-body">
         {% if instance.comments %}
-        {{ instance.comments|markdown }}
+        {{ instance.comments | markdown }}
         {% else %}
         <span class="text-muted">None</span>
         {% endif %}

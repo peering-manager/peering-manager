@@ -121,7 +121,7 @@ class Connection(
 
         return netixlan
 
-    def get_ixapi_network_service_config(self):
+    def ixapi_network_service_config(self):
         """
         Returns the corresponding IX-API network service config for this connection.
         """
@@ -135,10 +135,7 @@ class Connection(
             self.internet_exchange_point.ixapi_endpoint.get_network_service_configs()
         )
         for network_service_config in network_service_configs:
-            if (
-                network_service_config.ipv4_address == self.ipv4_address
-                or network_service_config.ipv6_address == self.ipv6_address
-            ):
+            if network_service_config.connection == self:
                 return network_service_config
 
         return None
