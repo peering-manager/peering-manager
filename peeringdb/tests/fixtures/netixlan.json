@@ -1,21 +1,23 @@
 {
-  "data": [{
-    "id": 11709,
-    "net_id": 4840,
-    "ix_id": 297,
-    "name": "LU-CIX",
-    "ixlan_id": 297,
-    "notes": "",
-    "speed": 10000,
-    "asn": 2602,
-    "ipaddr4": "188.93.170.9",
-    "ipaddr6": "2001:7f8:4c::a2a:1",
-    "is_rs_peer": true,
-    "operational": true,
-    "created": "2012-06-26T00:00:00Z",
-    "updated": "2019-11-14T09:45:08Z",
-    "status": "ok"
-  }],
+  "data": [
+    {
+      "id": 11709,
+      "net_id": 4840,
+      "ix_id": 297,
+      "name": "LU-CIX",
+      "ixlan_id": 297,
+      "notes": "",
+      "speed": 100000,
+      "asn": 2602,
+      "ipaddr4": "188.93.170.9",
+      "ipaddr6": "2001:7f8:4c::a2a:1",
+      "is_rs_peer": true,
+      "operational": true,
+      "created": "2012-06-26T00:00:00Z",
+      "updated": "2021-10-15T12:59:47Z",
+      "status": "ok"
+    }
+  ],
   "meta": {
     "generated": 1608389840.621
   }

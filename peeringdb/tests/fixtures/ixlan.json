@@ -1,18 +1,20 @@
 {
-  "data": [{
-    "id": 297,
-    "ix_id": 297,
-    "name": "",
-    "descr": "",
-    "mtu": null,
-    "dot1q_support": false,
-    "rs_asn": 0,
-    "arp_sponge": null,
-    "ixf_ixp_member_list_url_visible": "Private",
-    "created": "2010-07-29T00:00:00Z",
-    "updated": "2016-03-14T20:27:54Z",
-    "status": "ok"
-  }],
+  "data": [
+    {
+      "id": 297,
+      "ix_id": 297,
+      "name": "",
+      "descr": "",
+      "mtu": 1500,
+      "dot1q_support": false,
+      "rs_asn": 0,
+      "arp_sponge": null,
+      "ixf_ixp_member_list_url_visible": "Private",
+      "created": "2010-07-29T00:00:00Z",
+      "updated": "2021-05-05T13:17:51Z",
+      "status": "ok"
+    }
+  ],
   "meta": {
     "generated": 1608389813.813
   }
