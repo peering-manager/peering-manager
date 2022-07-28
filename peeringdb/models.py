@@ -180,6 +180,7 @@ class Facility(Address):
         null=True,
         verbose_name="Continental Region",
     )
+    status_dashboard = URLField(null=True, blank=True)
     org = models.ForeignKey(
         to="peeringdb.Organization",
         related_name="fac_set",
@@ -251,6 +252,9 @@ class Network(models.Model):
     policy_contracts = models.CharField(
         max_length=36, blank=True, choices=ContractsPolicy.choices
     )
+    status_dashboard = URLField(null=True, blank=True)
+    rir_status = models.CharField(null=True, default=None, max_length=255)
+    rir_status_updated = models.DateTimeField(blank=True, null=True)
     org = models.ForeignKey(
         to="peeringdb.Organization",
         related_name="net_set",
@@ -293,6 +297,7 @@ class InternetExchange(models.Model):
     terms = models.CharField(
         max_length=60, blank=True, choices=Terms.choices, default=Terms.NOT_DISCLOSED
     )
+    status_dashboard = URLField(null=True, blank=True)
     org = models.ForeignKey(
         to="peeringdb.Organization",
         related_name="ix_set",
