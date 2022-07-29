@@ -49,7 +49,12 @@
     </div>
     {% if instance.ixapi_network_service_config %}
     <div class="card mb-2">
-      <div class="card-header"><strong>IX-API</strong></div>
+      <div class="card-header">
+        <strong>IX-API</strong>
+        <span class="float-right" data-toggle="tooltip" data-placement="right" title="Found in IX-API">
+          <i class="fas fa-check-circle text-success"></i>
+        </span>
+      </div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
           <td>Identifier</td>
