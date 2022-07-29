@@ -19,8 +19,9 @@ protocols {
             export [ {{ ixp | iter_export_policies('slug') | join(' ') }} ];
     {%- endif %}
     {%- for session in router | ixp_sessions(family=family, ixp=ixp) %}
+            {%- if not session.enabled %}inactive: {%- endif %}
             neighbor {{ session | ip }} {
-      {%- if not session.enabled %}
+      {%- if not session.enabled %}{#- Junos>=19.1 #}
                 shutdown;
       {%- endif %}
                 description "Peering: AS{{ session.autonomous_system.asn }} - {{ session.autonomous_system.name }}";
@@ -76,8 +77,9 @@ protocols {
             export [ {{ group | iter_export_policies('slug') | join(' ') }} ];
     {%- endif %}
     {%- for session in router | direct_sessions(family=family, group=group)  %}
+            {%- if not session.enabled %}inactive: {%- endif %}
             neighbor {{ session | ip }} {
-      {%- if not session.enabled %}
+      {%- if not session.enabled %}{#- Junos>=19.1 #}
                 shutdown;
       {%- endif %}
                 description "Peering: AS{{ session.autonomous_system.asn }} - {{ session.autonomous_system.name }}";
@@ -124,3 +126,9 @@ policy-options {
 {%- endfor %}
 }
 ```
+
+Notes:
+
+- when using `if not session.enabled`, either `inactive:` (older releases) or `shutdown` (since 19.1, [link][shutdown]) can be used.
+
+[shutdown]: https://www.juniper.net/documentation/us/en/software/junos/bgp/topics/ref/statement/protocols-bgp-shutdown.html
