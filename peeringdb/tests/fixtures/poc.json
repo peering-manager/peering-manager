@@ -1,15 +1,17 @@
 {
-  "data": [{
-    "id": 1,
-    "net_id": 6428,
-    "role": "Sales",
-    "visible": "Public",
-    "name": "John Doe",
-    "phone": "",
-    "email": "jdoe@restena.lu",
-    "url": "",
-    "status": "ok"
-  }],
+  "data": [
+    {
+      "id": 1,
+      "net_id": 4840,
+      "role": "Sales",
+      "visible": "Public",
+      "name": "John Doe",
+      "phone": "",
+      "email": "jdoe@restena.lu",
+      "url": "",
+      "status": "ok"
+    }
+  ],
   "meta": {
     "generated": 1608389850.925
   }

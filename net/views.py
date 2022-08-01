@@ -1,3 +1,4 @@
+from extras.views import ObjectConfigContextView
 from net.filters import ConnectionFilterSet
 from net.forms import ConnectionBulkEditForm, ConnectionFilterForm, ConnectionForm
 from net.models import Connection
@@ -27,6 +28,12 @@ class ConnectionView(ObjectView):
 
     def get_extra_context(self, request, instance):
         return {"active_tab": "main"}
+
+
+class ConnectionContext(ObjectConfigContextView):
+    permission_required = "net.view_connection"
+    queryset = Connection.objects.all()
+    base_template = "net/connection/_base.html"
 
 
 class ConnectionAdd(ObjectEditView):

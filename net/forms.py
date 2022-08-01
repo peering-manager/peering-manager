@@ -34,8 +34,8 @@ class ConnectionForm(BootstrapMixin, forms.ModelForm):
         queryset=Router.objects.all(),
         help_text="Router on which this connection is setup",
     )
-    config_context = JSONField(
-        required=False, label="Config context", widget=SmallTextarea
+    local_context_data = JSONField(
+        required=False, label="Local context data", widget=SmallTextarea
     )
     comments = CommentField()
     tags = TagField(required=False)
@@ -51,7 +51,7 @@ class ConnectionForm(BootstrapMixin, forms.ModelForm):
             "router",
             "interface",
             "description",
-            "config_context",
+            "local_context_data",
             "comments",
             "tags",
         )
@@ -81,13 +81,13 @@ class ConnectionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         queryset=Router.objects.all(),
         help_text="Router on which this connection is setup",
     )
-    config_context = JSONField(
-        required=False, label="Config context", widget=SmallTextarea
+    local_context_data = JSONField(
+        required=False, label="Local context data", widget=SmallTextarea
     )
 
     class Meta:
         model = Connection
-        fields = ("state", "internet_exchange_point", "router", "config_context")
+        fields = ("state", "internet_exchange_point", "router", "local_context_data")
         nullable_fields = ("router",)
 
 

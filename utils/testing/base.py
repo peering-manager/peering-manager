@@ -12,6 +12,8 @@ from requests.models import HTTPError
 from rest_framework import status
 from taggit.managers import TaggableManager
 
+from utils.functions import content_type_identifier
+
 from .functions import extract_form_failures
 
 
@@ -153,27 +155,26 @@ class ModelTestCase(TestCase):
                 continue
 
             # Handle ManyToManyFields
-            if value and type(field) in (ManyToManyField, TaggableManager):
+            if value and type(field) in (ManyToManyField, TaggableManager) and api:
                 if field.related_model is ContentType:
                     model_dict[key] = sorted(
-                        [f"{ct.app_label}.{ct.model}" for ct in value]
+                        [content_type_identifier(ct) for ct in value]
                     )
                 else:
                     model_dict[key] = sorted([obj.pk for obj in value])
-
-            if api and type(value) in (
-                IPv4Address,
-                IPv6Address,
-                IPv4Interface,
-                IPv6Interface,
-            ):
-                model_dict[key] = str(value)
-
-            if api:
+            elif api:
                 # Replace ContentType numeric IDs with <app_label>.<model>
                 if type(getattr(instance, key)) is ContentType:
                     ct = ContentType.objects.get(pk=value)
-                    model_dict[key] = f"{ct.app_label}.{ct.model}"
+                    model_dict[key] = content_type_identifier(ct)
+                # Handle IP related fields
+                elif type(value) in (
+                    IPv4Address,
+                    IPv6Address,
+                    IPv4Interface,
+                    IPv6Interface,
+                ):
+                    model_dict[key] = str(value)
 
         return model_dict
 

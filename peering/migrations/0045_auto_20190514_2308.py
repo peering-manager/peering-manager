@@ -34,16 +34,16 @@ class Migration(migrations.Migration):
                     "export_routing_policies",
                     models.ManyToManyField(
                         blank=True,
-                        related_name="bgpgroup_export_routing_policies",
-                        to="peering.RoutingPolicy",
+                        related_name="%(class)s_export_routing_policies",
+                        to="peering.routingpolicy",
                     ),
                 ),
                 (
                     "import_routing_policies",
                     models.ManyToManyField(
                         blank=True,
-                        related_name="bgpgroup_import_routing_policies",
-                        to="peering.RoutingPolicy",
+                        related_name="%(class)s_import_routing_policies",
+                        to="peering.routingpolicy",
                     ),
                 ),
                 (

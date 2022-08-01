@@ -7,6 +7,12 @@ class PeeringManagerLoader(BaseLoader):
     """
 
     def _lookup_object(self, kind, identifier):
+        """
+        Look for an object of a given kind using its identifier and return one of its
+        attributes (a template or a rendered template).
+        """
+        attribute = "template"
+
         if kind == "configuration":
             from devices.models import Configuration
 
@@ -15,6 +21,11 @@ class PeeringManagerLoader(BaseLoader):
             from messaging.models import Email
 
             model = Email
+        elif kind == "exporttemplate":
+            from extras.models import ExportTemplate
+
+            model = ExportTemplate
+            attribute = "rendered"
         else:
             return ""
 
@@ -24,10 +35,12 @@ class PeeringManagerLoader(BaseLoader):
             lookup = {"name": identifier}
 
         try:
-            return model.objects.get(**lookup)
+            o = model.objects.get(**lookup)
         except model.DoesNotExist:
             raise TemplateNotFound(identifier)
 
+        return getattr(o, attribute)
+
     def get_source(self, environment, template):
         source = self._lookup_object(*template.split("::", maxsplit=1))
-        return source.template, template, True
+        return source, template, True

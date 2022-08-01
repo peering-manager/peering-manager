@@ -65,6 +65,11 @@ nav > ol.breadcrumb > li.breadcrumb-item > a {
 .footer > p, .footer > p > a {
   color: white;
 }
+label.required:after {
+  font-weight: bold;
+  content: " *";
+  color: red;
+}
 textarea {
   font-family: Consolas, Lucida Console, monospace;
 }

@@ -64,6 +64,30 @@ class ViewTestCases(object):
             # Try GET with permission
             self.assertHttpStatus(self.client.get(instance.get_absolute_url()), 200)
 
+    class GetObjectConfigContextViewTestCase(ModelViewTestCase):
+        """
+        View the config context for an instance.
+        """
+
+        @override_settings(LOGIN_REQUIRED=True)
+        def test_get_object_config_context_without_permission(self):
+            instance = self._get_queryset().first()
+            url = self._get_url("configcontext", instance)
+
+            # Try GET without permission
+            with disable_warnings("django.request"):
+                self.assertHttpStatus(self.client.get(url), 403)
+
+        @override_settings(LOGIN_REQUIRED=True)
+        def test_get_object_config_context_with_permission(self):
+            instance = self._get_queryset().first()
+            url = self._get_url("configcontext", instance)
+
+            self.add_permissions("view")
+
+            # Try GET with permission
+            self.assertHttpStatus(self.client.get(url), 200)
+
     class GetObjectChangelogViewTestCase(ModelViewTestCase):
         """
         View the changelog for an instance.
@@ -72,8 +96,7 @@ class ViewTestCases(object):
         @override_settings(LOGIN_REQUIRED=True)
         def test_get_object_changelog(self):
             url = self._get_url("changelog", self._get_queryset().first())
-            response = self.client.get(url)
-            self.assertHttpStatus(response, 200)
+            self.assertHttpStatus(self.client.get(url), 200)
 
     class CreateObjectViewTestCase(ModelViewTestCase):
         """

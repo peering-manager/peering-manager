@@ -8,7 +8,7 @@ class IncludeTemplateExtension(Extension):
     inside the database.
     """
 
-    tags = {"include_configuration", "include_email"}
+    tags = {"include_configuration", "include_email", "include_exporttemplate"}
 
     def __init__(self, environment):
         super().__init__(environment)
@@ -16,11 +16,12 @@ class IncludeTemplateExtension(Extension):
     def parse(self, parser):
         token = next(parser.stream)
         template = parser.parse_expression()
+        identifier = getattr(template, "name", getattr(template, "value", ""))
 
         # Create an include node for Jinja to parse it and properly import the
         # template. It won't interpret it if we just use an output node instead.
         node = nodes.Include(lineno=token.lineno)
-        node.template = nodes.Const(f"{token.value[8:]}::{template.value}")
+        node.template = nodes.Const(f"{token.value[8:]}::{identifier}")
         node.ignore_missing = False
         node.with_context = True
 

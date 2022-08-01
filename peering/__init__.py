@@ -4,8 +4,6 @@ import subprocess
 
 from django.conf import settings
 
-default_app_config = "peering.apps.PeeringConfig"
-
 
 def call_irr_as_set_resolver(irr_as_set, address_family=6):
     """

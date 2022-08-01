@@ -84,8 +84,8 @@ $ python manage.py runserver
 Performing system checks...
 
 System check identified no issues (0 silenced).
-July 12, 2021 - 19:38:41
-Django version 3.2.5, using settings 'peering_manager.settings'
+May 29, 2022 - 11:22:19
+Django version 4.0.4, using settings 'peering_manager.settings'
 Starting development server at http://127.0.0.1:8000/
 Quit the server with CONTROL-C.
 ```

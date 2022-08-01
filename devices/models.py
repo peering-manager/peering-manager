@@ -11,7 +11,7 @@ from peering_manager.jinja2 import (
     IncludeTemplateExtension,
     PeeringManagerLoader,
 )
-from utils.models import ChangeLoggedModel
+from utils.models import ChangeLoggedMixin
 
 from .crypto import *
 from .enums import PasswordAlgorithm
@@ -50,7 +50,7 @@ class Configuration(Template):
             return traceback.format_exc()
 
 
-class Platform(ChangeLoggedModel):
+class Platform(ChangeLoggedMixin):
     """
     Platform refers to the software or firmware running on a device.
 

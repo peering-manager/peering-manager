@@ -36,7 +36,7 @@
     </a>
   </li>
   <li class="nav-item">
-    <a class="nav-link{% if active_tab == 'ixsessions' %} active{% endif %}" href="{% url 'peering:autonomoussystem_internet_exchange_peering_sessions' pk=instance.pk %}">
+    <a class="nav-link{% if active_tab == 'ixp-sessions' %} active{% endif %}" href="{% url 'peering:autonomoussystem_internet_exchange_peering_sessions' pk=instance.pk %}">
       <i class="fas fa-network-wired"></i> IX Peering Sessions
     </a>
   </li>
@@ -55,6 +55,11 @@
     </a>
   </li>
   {% endif %}
+  <li class="nav-item">
+    <a class="nav-link{% if active_tab == 'config-context' %} active{% endif %}" href="{% url 'peering:autonomoussystem_configcontext' pk=instance.pk %}">
+      <i class="fas fa-code"></i> Config Context
+    </a>
+  </li>
   <li class="nav-item">
     <a class="nav-link{% if active_tab == 'changelog' %} active{% endif %}" href="{% url 'peering:autonomoussystem_changelog' pk=instance.pk %}">
       <i class="fas fa-history"></i> Changelog

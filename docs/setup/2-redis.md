@@ -6,7 +6,7 @@ Manager for caching and queuing.
 This section explains the installation and configuration of a local Redis
 service. If you already have a Redis service in place, you can skip this step.
 
-Redis version 4.0+ is required so you may wish to check that your distribution
+Redis version 6+ is required so you may wish to check that your distribution
 can provide a compatible version.
 
 ## Installation

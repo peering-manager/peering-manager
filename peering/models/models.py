@@ -25,7 +25,12 @@ from peering.enums import (
 from peering.fields import ASNField, CommunityField
 from peeringdb.functions import get_shared_internet_exchanges
 from peeringdb.models import IXLanPrefix, Network, NetworkContact, NetworkIXLan
-from utils.models import ChangeLoggedModel, TaggableModel
+from utils.models import (
+    ChangeLoggedMixin,
+    ConfigContextMixin,
+    ExportTemplatesMixin,
+    TagsMixin,
+)
 
 from .abstracts import AbstractGroup, BGPSession
 from .mixins import PolicyMixin
@@ -33,7 +38,9 @@ from .mixins import PolicyMixin
 logger = logging.getLogger("peering.manager.peering")
 
 
-class AutonomousSystem(ChangeLoggedModel, TaggableModel, PolicyMixin):
+class AutonomousSystem(
+    ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, PolicyMixin, TagsMixin
+):
     asn = ASNField(unique=True, verbose_name="ASN")
     name = models.CharField(max_length=128)
     name_peeringdb_sync = models.BooleanField(default=True)
@@ -405,7 +412,7 @@ class BGPGroup(AbstractGroup):
         )
 
 
-class Community(ChangeLoggedModel, TaggableModel):
+class Community(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMixin):
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, max_length=255)
     value = CommunityField(max_length=50)
@@ -883,7 +890,7 @@ class InternetExchangePeeringSession(BGPSession):
         return True
 
 
-class Router(ChangeLoggedModel, TaggableModel):
+class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMixin):
     local_autonomous_system = models.ForeignKey(
         to="peering.AutonomousSystem", on_delete=models.CASCADE, null=True
     )
@@ -926,7 +933,6 @@ class Router(ChangeLoggedModel, TaggableModel):
         default=False,
         help_text="Use NetBox to communicate instead of NAPALM",
     )
-    config_context = models.JSONField(blank=True, null=True)
     napalm_username = models.CharField(blank=True, null=True, max_length=256)
     napalm_password = models.CharField(blank=True, null=True, max_length=256)
     napalm_timeout = models.PositiveIntegerField(blank=True, default=0)
@@ -1634,7 +1640,9 @@ class Router(ChangeLoggedModel, TaggableModel):
         return True
 
 
-class RoutingPolicy(ChangeLoggedModel, TaggableModel):
+class RoutingPolicy(
+    ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMixin
+):
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, max_length=255)
     type = models.CharField(
@@ -1648,7 +1656,6 @@ class RoutingPolicy(ChangeLoggedModel, TaggableModel):
     address_family = models.PositiveSmallIntegerField(
         default=IPFamily.ALL, choices=IPFamily.choices
     )
-    config_context = models.JSONField(blank=True, null=True)
     comments = models.TextField(blank=True)
 
     class Meta:

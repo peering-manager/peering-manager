@@ -13,12 +13,12 @@ from peering_manager.jinja2 import (
     IncludeTemplateExtension,
     PeeringManagerLoader,
 )
-from utils.models import ChangeLoggedModel, TaggableModel
+from utils.models import ChangeLoggedMixin, TagsMixin
 
 __all__ = ("ContactRole", "Contact", "ContactAssignment", "Email")
 
 
-class ContactRole(ChangeLoggedModel, TaggableModel):
+class ContactRole(ChangeLoggedMixin, TagsMixin):
     """
     Functional role for a `Contact` assigned to an object.
     """
@@ -37,7 +37,7 @@ class ContactRole(ChangeLoggedModel, TaggableModel):
         return reverse("messaging:contactrole_view", args=[self.pk])
 
 
-class Contact(ChangeLoggedModel, TaggableModel):
+class Contact(ChangeLoggedMixin, TagsMixin):
     name = models.CharField(max_length=100, unique=True)
     title = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=50, blank=True)
@@ -55,7 +55,7 @@ class Contact(ChangeLoggedModel, TaggableModel):
         return reverse("messaging:contact_view", args=[self.pk])
 
 
-class ContactAssignment(ChangeLoggedModel):
+class ContactAssignment(ChangeLoggedMixin):
     content_type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     object = GenericForeignKey(ct_field="content_type", fk_field="object_id")
