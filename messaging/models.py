@@ -38,7 +38,7 @@ class ContactRole(ChangeLoggedMixin, TagsMixin):
 
 
 class Contact(ChangeLoggedMixin, TagsMixin):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     title = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=50, blank=True)
     email = models.EmailField(blank=True)
