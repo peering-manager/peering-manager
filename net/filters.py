@@ -48,7 +48,11 @@ class ConnectionFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        qs_filter = Q(interface__icontains=value)
+        qs_filter = (
+            Q(interface__icontains=value)
+            | Q(router__name__icontains=value)
+            | Q(router__hostname__icontains=value)
+        )
         try:
             ip = ipaddress.ip_interface(value.strip())
             qs_filter |= Q(ipv6_address__host=str(ip)) | Q(ipv4_address__host=str(ip))

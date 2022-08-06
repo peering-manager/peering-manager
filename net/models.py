@@ -53,6 +53,9 @@ class Connection(
 
     objects = NetManager()
 
+    class Meta:
+        ordering = ["internet_exchange_point", "router"]
+
     @property
     def name(self):
         return str(self)
