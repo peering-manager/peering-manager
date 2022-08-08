@@ -1,4 +1,4 @@
-Django>=3.2,<3.3
+Django>=3.2,<4.2
 djangorestframework==3.13.1
 django-cacheops==6.1
 django-debug-toolbar==3.2.4
