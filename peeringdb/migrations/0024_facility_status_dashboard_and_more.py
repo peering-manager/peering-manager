@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="network",
             name="rir_status",
-            field=models.CharField(default=None, max_length=255, null=True),
+            field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
             model_name="network",
