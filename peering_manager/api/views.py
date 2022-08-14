@@ -154,11 +154,11 @@ class BulkUpdateModelMixin:
     [
         {
             "id": 123,
-            "device_state": "maintenance"
+            "status": "maintenance"
         },
         {
             "id": 456,
-            "device_state": "maintenance"
+            "status": "maintenance"
         }
     ]
     ```

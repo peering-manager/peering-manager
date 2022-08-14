@@ -19,6 +19,7 @@ properties can be configured (n.b. some are optional):
 * `Autonomous System`: autonomous system of the remote peer.
 * `Internet Exchange`: Internet exchange providing a LAN and IP addresses
   for autonomous systems to peer.
+* `Status`: session's status such as `enabled`, `disabled`, etc.
 * `Password`: a password to secure a BGP session; it can be a clear text
   password or an encrypted one. In the latter case, make sure that the router
   will not try to encrypt the password again.
@@ -27,8 +28,6 @@ properties can be configured (n.b. some are optional):
   sessions but can be set to a higher value to establish sessions that have
   to cross a network composed of more than one router in the transit path of
   the packets.
-* `Enabled`: a value that tells if the session must be configured and
-  enabled.
 * `Import Routing Policies`: a list of routing policies to apply when
    receiving prefixes though the BGP session.
 * `Export Routing Policies`: a list of routing policies to apply when

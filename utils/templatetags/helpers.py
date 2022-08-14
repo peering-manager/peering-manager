@@ -16,24 +16,24 @@ register = template.Library()
 
 @register.filter()
 def boolean_as_icon(value):
-    html = '<i class="fas fa-check text-success"></i>'
-    if not value:
-        html = '<i class="fas fa-times text-danger"></i>'
+    if value:
+        icon, colour = "check", "success"
+    else:
+        icon, colour = "times", "danger"
+    return mark_safe(f'<i class="fas fa-{icon} text-{colour}"></i>')
 
-    return mark_safe(html)
 
+@register.filter()
+def status_as_badge(value):
+    """
+    Renders a Bootstrap badge for a status field.
+    """
+    if not hasattr(value, "status"):
+        return ""
 
-@register.simple_tag
-def get_status(text):
-    text = text.lower()
-
-    if text in ("delete", "deleted", "remove", "removed"):
-        return "danger"
-    if text in ("change", "changed", "update", "updated"):
-        return "warning"
-    if text in ("add", "added", "create", "created"):
-        return "success"
-    return "info"
+    return mark_safe(
+        f'<span class="badge badge-{value.get_status_colour()}">{value.get_status_display()}</span>'
+    )
 
 
 @register.filter()

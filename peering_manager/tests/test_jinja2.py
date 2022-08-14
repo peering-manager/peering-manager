@@ -8,8 +8,15 @@ from django.test import TestCase
 from devices.models import Configuration
 from extras.models import ExportTemplate
 from messaging.models import Email
+from net.enums import ConnectionStatus
 from net.models import Connection
-from peering.enums import CommunityType, IPFamily
+from peering.enums import (
+    BGPGroupStatus,
+    BGPSessionStatus,
+    CommunityType,
+    DeviceStatus,
+    IPFamily,
+)
 from peering.models import (
     AutonomousSystem,
     Community,
@@ -213,6 +220,45 @@ class Jinja2FilterTestCase(TestCase):
         )
         self.assertIsNone(
             FILTER_DICT["local_ips"](Connection.objects.get(pk=self.ixp_connection.pk))
+        )
+
+    def test_inherited_status(self):
+        self.assertEqual(
+            BGPSessionStatus.ENABLED, FILTER_DICT["inherited_status"](self.session6)
+        )
+        self.router.status = DeviceStatus.MAINTENANCE
+        self.assertEqual(
+            BGPSessionStatus.MAINTENANCE, FILTER_DICT["inherited_status"](self.session6)
+        )
+        self.ixp_connection.status = ConnectionStatus.DISABLED
+        # Inherit from connection
+        self.assertEqual(
+            BGPSessionStatus.DISABLED, FILTER_DICT["inherited_status"](self.session6)
+        )
+        self.assertEqual(
+            DeviceStatus.MAINTENANCE, FILTER_DICT["inherited_status"](self.router)
+        )
+        self.assertEqual(
+            ConnectionStatus.DISABLED,
+            FILTER_DICT["inherited_status"](self.ixp_connection),
+        )
+        # Inherit from router
+        self.ixp_connection.status = ConnectionStatus.ENABLED
+        self.assertEqual(
+            ConnectionStatus.MAINTENANCE,
+            FILTER_DICT["inherited_status"](self.ixp_connection),
+        )
+        self.ixp.status = BGPGroupStatus.MAINTENANCE
+        self.assertEqual(
+            BGPGroupStatus.MAINTENANCE, FILTER_DICT["inherited_status"](self.ixp)
+        )
+        # Inherit from IXP
+        self.assertEqual(
+            ConnectionStatus.MAINTENANCE,
+            FILTER_DICT["inherited_status"](self.ixp_connection),
+        )
+        self.assertEqual(
+            BGPSessionStatus.MAINTENANCE, FILTER_DICT["inherited_status"](self.session6)
         )
 
     def test_max_prefix(self):

@@ -19,6 +19,7 @@ create, the following properties can be configured (n.b. some are optional):
 * `Name`: human-readable name attached to a group.
 * `Slug`: unique configuration and URL friendly name; usually it is
    automatically generated from the group's name.
+* `Status`: session's status such as `enabled`, `disabled`, etc.
 * `Comments`: text to explain what the group is for. Can use Markdown
   formatting.
 * `Import Routing Policies`: a list of routing policies to apply when

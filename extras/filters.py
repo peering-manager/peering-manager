@@ -88,7 +88,7 @@ class JobResultFilterSet(BaseFilterSet):
         label="User name",
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=JobResultStatus.choices, null_value=None
+        choices=JobResultStatus, null_value=None
     )
 
     class Meta:
@@ -104,7 +104,7 @@ class JobResultFilterSet(BaseFilterSet):
 
 
 class WebhookFilterSet(BaseFilterSet):
-    http_method = django_filters.MultipleChoiceFilter(choices=HttpMethod.choices)
+    http_method = django_filters.MultipleChoiceFilter(choices=HttpMethod)
 
     class Meta:
         model = Webhook

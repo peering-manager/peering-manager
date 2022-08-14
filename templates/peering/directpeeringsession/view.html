@@ -45,6 +45,10 @@
           <td>IP Address</td>
           <td>{{ instance.ip_address }}</td>
         </tr>
+        <tr>
+          <td>Status</td>
+          <td>{{ instance|status_as_badge }}</td>
+        </tr>
         {% if request.user.is_authenticated and instance.password %}
         <tr>
           <td>Password</td>
@@ -85,14 +89,10 @@
     {% include 'includes/tags_card.html' with tags=instance.tags.all url='peering:directpeeringsession_list' %}
   </div>
   <div class="col-md-6">
-    {% if instance.bgp_state != None %}
+    {% if instance.last_established_state != None %}
     <div class="card mb-2">
       <div class="card-header"><strong>BGP State</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
-        <tr>
-          <td>Enabled</td>
-          <td>{{ instance.enabled|boolean_as_icon }}</td>
-        </tr>
         <tr>
           <td>State</td>
           <td>{{ instance.get_bgp_state_html }}</td>
@@ -145,14 +145,13 @@
       headers: { "X-CSRFTOKEN": "{{ csrf_token }}" },
       data: {
         "id": {{ instance.pk }},
-        "enabled": false,
+        "status": "disabled",
         "bgp_state": "idle",
         "received_prefix_count": 0,
         "advertised_prefix_count": 0
       }
     }).done(function() {
-      $("#id_session_enable").removeClass("d-none");
-      $("#id_session_disable").addClass("d-none");
+      location.reload();
     });
   });
   $("#id_session_enable").click(function() {
@@ -160,10 +159,9 @@
       method: "patch",
       url: "{% url 'peering-api:directpeeringsession-detail' pk=instance.pk %}",
       headers: { "X-CSRFTOKEN": "{{ csrf_token }}" },
-      data: { "id": {{ instance.pk }}, "enabled": true }
+      data: { "id": {{ instance.pk }}, "status": "enabled" }
     }).done(function() {
-      $("#id_session_enable").addClass("d-none");
-      $("#id_session_disable").removeClass("d-none");
+      location.reload();
     });
   });
 </script>

@@ -6,7 +6,12 @@ from django.test import TestCase
 from bgp.models import Relationship
 from devices.models import PasswordAlgorithm, Platform
 from net.models import Connection
-from peering.enums import CommunityType, DeviceState, RoutingPolicyType
+from peering.enums import (
+    BGPSessionStatus,
+    CommunityType,
+    DeviceStatus,
+    RoutingPolicyType,
+)
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -288,7 +293,7 @@ class RouterTest(TestCase):
             local_autonomous_system=cls.local_as,
             name="Test",
             hostname="test.example.com",
-            device_state=DeviceState.ENABLED,
+            status=DeviceStatus.ENABLED,
             poll_bgp_sessions_state=True,
         )
 
@@ -311,7 +316,9 @@ class RouterTest(TestCase):
                 bgp_group=bgp_group,
                 relationship=relationship_private_peering,
                 ip_address=f"10.0.0.{i}",
-                enabled=bool(i % 2),
+                status=BGPSessionStatus.ENABLED
+                if bool(i % 2)
+                else BGPSessionStatus.DISABLED,
                 router=self.router,
             )
         ixp = InternetExchange.objects.create(
@@ -325,13 +332,17 @@ class RouterTest(TestCase):
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
                 ixp_connection=ixp_connection,
                 ip_address=f"2001:db8::{i}",
-                enabled=bool(i % 2),
+                status=BGPSessionStatus.ENABLED
+                if bool(i % 2)
+                else BGPSessionStatus.DISABLED,
             )
             InternetExchangePeeringSession.objects.create(
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
                 ixp_connection=ixp_connection,
                 ip_address=f"192.0.2.{i}",
-                enabled=bool(i % 2),
+                status=BGPSessionStatus.ENABLED
+                if bool(i % 2)
+                else BGPSessionStatus.DISABLED,
             )
 
         # Generate expected result
@@ -387,7 +398,7 @@ class RouterTest(TestCase):
         router = Router.objects.create(
             name="test",
             hostname="test.example.com",
-            device_state=DeviceState.ENABLED,
+            status=DeviceStatus.ENABLED,
             local_autonomous_system=AutonomousSystem.objects.create(
                 asn=64510, name="Autonomous System", affiliated=True
             ),
@@ -548,7 +559,7 @@ class RouterTest(TestCase):
                 bgp_group=group,
                 relationship=relationship,
                 ip_address=f"2001:db8::1/126",
-                enabled=True,
+                status=BGPSessionStatus.ENABLED,
                 router=self.router,
             )
 

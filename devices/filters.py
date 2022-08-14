@@ -29,7 +29,7 @@ class PlatformFilterSet(
     BaseFilterSet, CreatedUpdatedFilterSet, NameSlugSearchFilterSet
 ):
     password_algorithm = django_filters.MultipleChoiceFilter(
-        choices=PasswordAlgorithm.choices, null_value=None
+        choices=PasswordAlgorithm, null_value=None
     )
 
     class Meta:

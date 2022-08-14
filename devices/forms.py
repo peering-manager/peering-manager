@@ -40,9 +40,7 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
         widget=SmallTextarea,
     )
     password_algorithm = forms.ChoiceField(
-        required=False,
-        choices=add_blank_choice(PasswordAlgorithm.choices),
-        widget=StaticSelect,
+        required=False, choices=add_blank_choice(PasswordAlgorithm), widget=StaticSelect
     )
 
     class Meta:

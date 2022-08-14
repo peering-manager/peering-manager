@@ -79,15 +79,44 @@ Example:
 
 ## `ip`
 
-Returns the IP address without the prefix length for a BGP session or IP address fields. The
-returned value is a string.
+Returns the IP address without the prefix length for a BGP session or IP
+address fields. The returned value is a string.
 
 Examples:
+
 ```no-highlight
 {% for session in ixp | sessions %}
 Remote: {{ session | ip }}
 {% if session.local_ip_address %}
 Local: {{ session.local_ip_address | ip }}
+{% endif %}
+{% endfor %}
+```
+
+## `inherited_status`
+
+Returns the status of an object if it has any.
+
+If the status of the object is equivalent to a disabled one, the status of the
+parent will not be resolved as this kind of status is considered more
+specific.
+
+In case of connections, both IXP's and router's statuses will be checked
+(IXP's first).
+
+In case of direct peering sessions, both group's and router's statuses will be
+checked (group's first).
+
+In case of IXP peering sessions, connection's status will be checked but that
+will trigger a recursive check for it which means it'll take into account the
+IXP or router status.
+
+Example:
+
+```no-highlight
+{% for session in ixp | sessions %}
+{% if session | inherited_status != "enabled" %}
+{{ session | ip }} is not enabled
 {% endif %}
 {% endfor %}
 ```

@@ -10,12 +10,17 @@
     {% endif %}
     {% render_field form.name %}
     {% render_field form.hostname %}
-    {% render_field form.platform %}
     {% render_field form.encrypt_passwords %}
     {% render_field form.poll_bgp_sessions_state %}
     {% render_field form.configuration_template %}
     {% render_field form.local_autonomous_system %}
-    {% render_field form.device_state %}
+  </div>
+</div>
+<div class="card my-2">
+  <div class="card-header"><strong>Management</strong></div>
+  <div class="card-body">
+    {% render_field form.platform %}
+    {% render_field form.status %}
   </div>
 </div>
 <div class="card my-2">

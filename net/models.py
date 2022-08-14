@@ -13,7 +13,7 @@ from utils.models import (
 )
 from utils.validators import AddressFamilyValidator
 
-from .enums import ConnectionState
+from .enums import ConnectionStatus
 from .fields import VLANField
 
 logger = logging.getLogger("peering.manager.net")
@@ -25,8 +25,8 @@ class Connection(
     peeringdb_netixlan = models.ForeignKey(
         to="peeringdb.NetworkIXLan", on_delete=models.SET_NULL, blank=True, null=True
     )
-    state = models.CharField(
-        max_length=20, choices=ConnectionState.choices, default=ConnectionState.ENABLED
+    status = models.CharField(
+        max_length=20, choices=ConnectionStatus, default=ConnectionStatus.ENABLED
     )
     vlan = VLANField(verbose_name="VLAN", blank=True, null=True)
     ipv6_address = InetAddressField(
@@ -82,6 +82,9 @@ class Connection(
                 s += f" {self.interface}"
 
         return s or f"Connection #{self.pk}"
+
+    def get_status_colour(self):
+        return ConnectionStatus.colours.get(self.status)
 
     def get_absolute_url(self):
         return reverse("net:connection_view", args=[self.pk])

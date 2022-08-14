@@ -113,6 +113,6 @@ class JobResultFilterForm(BootstrapMixin, forms.Form):
     )
     status = forms.ChoiceField(
         required=False,
-        choices=add_blank_choice(JobResultStatus.choices),
+        choices=add_blank_choice(JobResultStatus),
         widget=StaticSelect(),
     )

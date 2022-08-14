@@ -2,7 +2,12 @@ import ipaddress
 
 from bgp.models import Relationship
 from net.models import Connection
-from peering.enums import CommunityType, DeviceState, RoutingPolicyType
+from peering.enums import (
+    BGPSessionStatus,
+    CommunityType,
+    DeviceStatus,
+    RoutingPolicyType,
+)
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -138,11 +143,11 @@ class DirectPeeringSessionTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "local_ip_address": None,
             "autonomous_system": a_s.pk,
             "ip_address": ipaddress.ip_interface("2001:db8::4/128"),
+            "status": BGPSessionStatus.ENABLED,
             "multihop_ttl": 1,
             "relationship": relationship_private_peering.pk,
             "password": None,
             "encrypted_password": None,
-            "enabled": True,
             "bgp_group": None,
             "router": None,
             "export_routing_policies": [],
@@ -154,7 +159,10 @@ class DirectPeeringSessionTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "comments": "",
             "tags": [],
         }
-        cls.bulk_edit_data = {"enabled": False, "comments": "New comments"}
+        cls.bulk_edit_data = {
+            "enabled": BGPSessionStatus.DISABLED,
+            "comments": "New comments",
+        }
 
 
 class InternetExchangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -275,19 +283,19 @@ class RouterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
                     name="Router 1",
                     hostname="router1.example.net",
                     local_autonomous_system=local_as,
-                    device_state=DeviceState.ENABLED,
+                    status=DeviceStatus.ENABLED,
                 ),
                 Router(
                     name="Router 2",
                     hostname="router2.example.net",
                     local_autonomous_system=local_as,
-                    device_state=DeviceState.ENABLED,
+                    status=DeviceStatus.ENABLED,
                 ),
                 Router(
                     name="Router 3",
                     hostname="router3.example.net",
                     local_autonomous_system=local_as,
-                    device_state=DeviceState.ENABLED,
+                    status=DeviceStatus.ENABLED,
                 ),
             ]
         )
@@ -299,7 +307,7 @@ class RouterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "local_autonomous_system": local_as.pk,
             "encrypt_passwords": False,
             "platform": None,
-            "device_state": DeviceState.ENABLED,
+            "status": DeviceStatus.ENABLED,
             "netbox_device_id": 0,
             "use_netbox": False,
             "comments": "",

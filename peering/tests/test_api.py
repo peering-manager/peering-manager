@@ -7,7 +7,12 @@ from bgp.models import Relationship
 from devices.models import Configuration, Platform
 from net.models import Connection
 from peering.constants import *
-from peering.enums import CommunityType, DeviceState, RoutingPolicyType
+from peering.enums import (
+    BGPSessionStatus,
+    CommunityType,
+    DeviceStatus,
+    RoutingPolicyType,
+)
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -108,7 +113,7 @@ class AutonomousSystemTest(StandardAPITestCases.View):
 
 class BGPGroupTest(StandardAPITestCases.View):
     model = BGPGroup
-    brief_fields = ["id", "url", "display", "name", "slug"]
+    brief_fields = ["id", "url", "display", "name", "slug", "status"]
     create_data = [
         {"name": "Test 1", "slug": "test-1"},
         {"name": "Test 2", "slug": "test-2"},
@@ -188,8 +193,8 @@ class CommunityTest(StandardAPITestCases.View):
 
 class DirectPeeringSessionTest(StandardAPITestCases.View):
     model = DirectPeeringSession
-    brief_fields = ["id", "url", "display", "ip_address", "enabled"]
-    bulk_update_data = {"enabled": False}
+    brief_fields = ["id", "url", "display", "ip_address", "status"]
+    bulk_update_data = {"status": BGPSessionStatus.DISABLED}
 
     @classmethod
     def setUpTestData(cls):
@@ -248,7 +253,7 @@ class DirectPeeringSessionTest(StandardAPITestCases.View):
 
 class InternetExchangeTest(StandardAPITestCases.View):
     model = InternetExchange
-    brief_fields = ["id", "url", "display", "name", "slug"]
+    brief_fields = ["id", "url", "display", "name", "slug", "status"]
     bulk_update_data = {"comments": "Awesome IXP"}
 
     @classmethod
@@ -331,8 +336,8 @@ class InternetExchangeTest(StandardAPITestCases.View):
 
 class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
     model = InternetExchangePeeringSession
-    brief_fields = ["id", "url", "display", "ip_address", "enabled", "is_route_server"]
-    bulk_update_data = {"enabled": False}
+    brief_fields = ["id", "url", "display", "ip_address", "status", "is_route_server"]
+    bulk_update_data = {"status": BGPSessionStatus.DISABLED}
 
     @classmethod
     def setUpTestData(cls):
@@ -390,7 +395,7 @@ class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
 class RouterTest(StandardAPITestCases.View):
     model = Router
     brief_fields = ["id", "url", "display", "name", "hostname"]
-    bulk_update_data = {"device_state": DeviceState.MAINTENANCE}
+    bulk_update_data = {"status": DeviceStatus.MAINTENANCE}
 
     @classmethod
     def setUpTestData(cls):
@@ -406,21 +411,21 @@ class RouterTest(StandardAPITestCases.View):
                 Router(
                     name="Example 1",
                     hostname="1.example.com",
-                    device_state=DeviceState.ENABLED,
+                    status=DeviceStatus.ENABLED,
                     configuration_template=cls.template,
                     local_autonomous_system=cls.local_autonomous_system,
                 ),
                 Router(
                     name="Example 2",
                     hostname="2.example.com",
-                    device_state=DeviceState.ENABLED,
+                    status=DeviceStatus.ENABLED,
                     configuration_template=cls.template,
                     local_autonomous_system=cls.local_autonomous_system,
                 ),
                 Router(
                     name="Example 3",
                     hostname="3.example.com",
-                    device_state=DeviceState.ENABLED,
+                    status=DeviceStatus.ENABLED,
                     configuration_template=cls.template,
                     local_autonomous_system=cls.local_autonomous_system,
                 ),
@@ -431,7 +436,7 @@ class RouterTest(StandardAPITestCases.View):
             {
                 "name": "Test 1",
                 "hostname": "test1.example.com",
-                "device_state": DeviceState.ENABLED,
+                "status": DeviceStatus.ENABLED,
                 "configuration_template": cls.template.pk,
                 "local_autonomous_system": cls.local_autonomous_system.pk,
                 "platform": cls.platform.pk,
@@ -439,7 +444,7 @@ class RouterTest(StandardAPITestCases.View):
             {
                 "name": "Test 2",
                 "hostname": "test2.example.com",
-                "device_state": DeviceState.MAINTENANCE,
+                "status": DeviceStatus.MAINTENANCE,
                 "configuration_template": cls.template.pk,
                 "local_autonomous_system": cls.local_autonomous_system.pk,
                 "platform": cls.platform.pk,
@@ -447,7 +452,7 @@ class RouterTest(StandardAPITestCases.View):
             {
                 "name": "Test 3",
                 "hostname": "test3.example.com",
-                "device_state": DeviceState.DISABLED,
+                "status": DeviceStatus.DISABLED,
                 "configuration_template": cls.template.pk,
                 "local_autonomous_system": cls.local_autonomous_system.pk,
                 "platform": cls.platform.pk,

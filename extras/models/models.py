@@ -124,7 +124,7 @@ class JobResult(models.Model):
         to=User, on_delete=models.SET_NULL, related_name="+", null=True, blank=True
     )
     status = models.CharField(
-        max_length=30, choices=JobResultStatus.choices, default=JobResultStatus.PENDING
+        max_length=30, choices=JobResultStatus, default=JobResultStatus.PENDING
     )
     data = models.JSONField(encoder=DjangoJSONEncoder, null=True, blank=True)
     job_id = models.UUIDField(unique=True)
@@ -191,6 +191,9 @@ class JobResult(models.Model):
     def get_absolute_url(self):
         return reverse("extras:jobresult_view", args=[self.pk])
 
+    def get_status_colour(self):
+        return JobResultStatus.colours.get(self.status)
+
     def set_status(self, status):
         """
         Helper method to change the status of the job result. If the target status is
@@ -216,7 +219,7 @@ class JobResult(models.Model):
         """
         Stores log messages in a JobResult's `data` field.
         """
-        if level_choice not in LogLevel.values:
+        if level_choice not in LogLevel.values():
             raise Exception(f"Unknown logging level: {level_choice}")
 
         if not self.data:
@@ -314,7 +317,7 @@ class Webhook(models.Model):
     enabled = models.BooleanField(default=True)
     http_method = models.CharField(
         max_length=32,
-        choices=HttpMethod.choices,
+        choices=HttpMethod,
         default=HttpMethod.POST,
         verbose_name="HTTP method",
     )

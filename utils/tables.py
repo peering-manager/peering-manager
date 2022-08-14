@@ -255,6 +255,28 @@ class ButtonsColumn(tables.TemplateColumn):
         return ""
 
 
+class ChoiceFieldColumn(tables.Column):
+    """
+    Renders a model's static choice field with its value from `get_*_display()` as a
+    coloured badge. The background colour is infered by `get_*_colour()`.
+    """
+
+    DEFAULT_BG_COLOUR = "secondary"
+
+    def render(self, record, bound_column, value):
+        if value in self.empty_values:
+            return self.default
+
+        try:
+            bg_colour = getattr(record, f"get_{bound_column.name}_colour")()
+        except AttributeError:
+            bg_colour = self.DEFAULT_BG_COLOUR
+        return mark_safe(f'<span class="badge badge-{bg_colour}">{value}</span>')
+
+    def value(self, value):
+        return value
+
+
 class ColourColumn(tables.Column):
     """
     Displays a coloured block.

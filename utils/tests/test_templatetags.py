@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from peering.models import AutonomousSystem
+from peering.models import AutonomousSystem, InternetExchange
 from utils.templatetags.helpers import *
 
 
@@ -8,6 +8,7 @@ class TemplateTagsTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.a_s = AutonomousSystem.objects.create(asn=64520, name="Useless")
+        cls.ixp = InternetExchange.objects.create(name="Useless", slug="useless")
 
     def test_boolean_as_icon(self):
         self.assertEqual(
@@ -17,12 +18,11 @@ class TemplateTagsTestCase(TestCase):
             '<i class="fas fa-times text-danger"></i>', boolean_as_icon(False)
         )
 
-    def test_get_status(self):
-        self.assertEqual("danger", get_status("delete"))
-        self.assertEqual("danger", get_status("REMOVE"))
-        self.assertEqual("warning", get_status("change"))
-        self.assertEqual("success", get_status("add"))
-        self.assertEqual("info", get_status("whatever"))
+    def test_status_as_badge(self):
+        self.assertEqual(
+            '<span class="badge badge-success">Enabled</span>',
+            status_as_badge(self.ixp),
+        )
 
     def test_as_link(self):
         self.assertEqual("Undefined", as_link("Undefined"))

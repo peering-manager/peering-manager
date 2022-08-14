@@ -158,7 +158,7 @@ class ObjectChangeFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     time = django_filters.DateTimeFromToRangeFilter()
     action = django_filters.MultipleChoiceFilter(
-        choices=ObjectChangeAction.choices, null_value=None
+        choices=ObjectChangeAction, null_value=None
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(), label="User (ID)"

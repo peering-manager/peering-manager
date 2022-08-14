@@ -147,7 +147,7 @@
     temp.remove();
   });
 
-  var maintenance = {% if instance.device_state == 'maintenance' %}true{% else %}false{% endif %};
+  var maintenance = {% if instance.status == 'maintenance' %}true{% else %}false{% endif %};
   $('#deploy').click(function () {
     // Enable compare before commit if switch is checked or if the router is in maintenance mode
     var commit = true;

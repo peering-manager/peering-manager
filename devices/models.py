@@ -81,7 +81,7 @@ class Platform(ChangeLoggedMixin):
     password_algorithm = models.CharField(
         max_length=16,
         blank=True,
-        choices=PasswordAlgorithm.choices,
+        choices=PasswordAlgorithm,
         help_text="Algorithm to cipher password in configuration",
     )
     description = models.CharField(max_length=200, blank=True)

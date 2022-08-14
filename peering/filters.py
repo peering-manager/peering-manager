@@ -13,7 +13,13 @@ from utils.filters import (
     TagFilter,
 )
 
-from .enums import CommunityType, DeviceState, RoutingPolicyType
+from .enums import (
+    BGPGroupStatus,
+    BGPSessionStatus,
+    CommunityType,
+    DeviceStatus,
+    RoutingPolicyType,
+)
 from .models import (
     AutonomousSystem,
     BGPGroup,
@@ -51,6 +57,7 @@ class BGPGroupFilterSet(
     BaseFilterSet, CreatedUpdatedFilterSet, NameSlugSearchFilterSet
 ):
     q = django_filters.CharFilter(method="search", label="Search")
+    status = django_filters.MultipleChoiceFilter(choices=BGPGroupStatus, null_value="")
     tag = TagFilter()
 
     class Meta:
@@ -61,9 +68,7 @@ class BGPGroupFilterSet(
 class CommunityFilterSet(
     BaseFilterSet, CreatedUpdatedFilterSet, NameSlugSearchFilterSet
 ):
-    type = django_filters.MultipleChoiceFilter(
-        choices=CommunityType.choices, null_value=""
-    )
+    type = django_filters.MultipleChoiceFilter(choices=CommunityType, null_value="")
     tag = TagFilter()
 
     class Meta:
@@ -113,6 +118,9 @@ class DirectPeeringSessionFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
         label="BGP Group (Name)",
     )
     address_family = django_filters.NumberFilter(method="address_family_search")
+    status = django_filters.MultipleChoiceFilter(
+        choices=BGPSessionStatus, null_value=""
+    )
     relationship_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Relationship.objects.all(), label="Relationship (ID)"
     )
@@ -141,7 +149,7 @@ class DirectPeeringSessionFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
 
     class Meta:
         model = DirectPeeringSession
-        fields = ["id", "multihop_ttl", "enabled"]
+        fields = ["id", "multihop_ttl"]
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -169,6 +177,7 @@ class DirectPeeringSessionFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
 
 class InternetExchangeFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
+    status = django_filters.MultipleChoiceFilter(choices=BGPGroupStatus, null_value="")
     local_autonomous_system_id = django_filters.ModelMultipleChoiceFilter(
         queryset=AutonomousSystem.objects.defer("prefixes"), label="Local AS (ID)"
     )
@@ -237,11 +246,14 @@ class InternetExchangePeeringSessionFilterSet(BaseFilterSet, CreatedUpdatedFilte
         label="IX (Name)",
     )
     address_family = django_filters.NumberFilter(method="address_family_search")
+    status = django_filters.MultipleChoiceFilter(
+        choices=BGPSessionStatus, null_value=""
+    )
     tag = TagFilter()
 
     class Meta:
         model = InternetExchangePeeringSession
-        fields = ["id", "multihop_ttl", "enabled", "is_route_server"]
+        fields = ["id", "multihop_ttl", "is_route_server"]
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -293,6 +305,7 @@ class RouterFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
         to_field_name="name",
         label="Platform (Name)",
     )
+    status = django_filters.MultipleChoiceFilter(choices=DeviceStatus, null_value=None)
     configuration_template_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Configuration.objects.all(), label="Configuration (ID)"
     )
@@ -301,9 +314,6 @@ class RouterFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
         queryset=Configuration.objects.all(),
         to_field_name="name",
         label="Configuration (Name)",
-    )
-    device_state = django_filters.MultipleChoiceFilter(
-        choices=DeviceState.choices, null_value=None
     )
     tag = TagFilter()
 
@@ -325,7 +335,7 @@ class RoutingPolicyFilterSet(
     BaseFilterSet, CreatedUpdatedFilterSet, NameSlugSearchFilterSet
 ):
     type = django_filters.MultipleChoiceFilter(
-        method="type_search", choices=RoutingPolicyType.choices, null_value=None
+        method="type_search", choices=RoutingPolicyType, null_value=None
     )
     tag = TagFilter()
 

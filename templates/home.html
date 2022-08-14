@@ -135,7 +135,7 @@
               </thead>
               <tbody>
                 {% for change in changelog %}
-                <tr class="table-{% get_status change.get_action_display %}">
+                <tr class="table-{{ change.get_action_colour }}">
                   <th scope="row">{{ change.user | default:change.user_name }}</th>
                   <td>{{ change.get_action_display | title_with_uppers }}</td>
                   <td>{{ change.changed_object_type.name | title_with_uppers }}</td>

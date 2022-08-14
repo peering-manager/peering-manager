@@ -12,7 +12,7 @@ from taggit.managers import TaggableManager
 from taggit.models import GenericTaggedItemBase, TagBase
 
 from extras.utils import register_features
-from utils.enums import Color, ObjectChangeAction
+from utils.enums import Colour, ObjectChangeAction
 from utils.forms.fields import ColorField
 from utils.functions import merge_hash, serialize_object
 
@@ -68,7 +68,7 @@ class ObjectChange(models.Model):
     )
     user_name = models.CharField(max_length=150, editable=False)
     request_id = models.UUIDField(editable=False)
-    action = models.CharField(max_length=50, choices=ObjectChangeAction.choices)
+    action = models.CharField(max_length=50, choices=ObjectChangeAction)
     changed_object_type = models.ForeignKey(
         to=ContentType, on_delete=models.PROTECT, related_name="+"
     )
@@ -108,19 +108,12 @@ class ObjectChange(models.Model):
     def get_absolute_url(self):
         return reverse("utils:objectchange_view", args=[self.pk])
 
-    def get_html_icon(self):
-        icon = '<i class="fas fa-question-circle text-secondary"></i>'
-        if self.action == ObjectChangeAction.CREATE:
-            icon = '<i class="fas fa-plus-square text-success"></i>'
-        if self.action == ObjectChangeAction.UPDATE:
-            icon = '<i class="fas fa-pen-square text-warning"></i>'
-        if self.action == ObjectChangeAction.DELETE:
-            icon = '<i class="fas fa-minus-square text-danger"></i>'
-        return mark_safe(icon)
+    def get_action_colour(self):
+        return ObjectChangeAction.colours.get(self.action)
 
 
 class Tag(TagBase, ChangeLoggedMixin):
-    color = ColorField(default=Color.GREY)
+    color = ColorField(default=Colour.GREY)
     comments = models.TextField(blank=True, default="")
 
     class Meta:

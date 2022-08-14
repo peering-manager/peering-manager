@@ -6,14 +6,14 @@ from django.db.models import Q
 from peering.models import InternetExchange, Router
 from utils.filters import BaseFilterSet, CreatedUpdatedFilterSet, TagFilter
 
-from .enums import ConnectionState
+from .enums import ConnectionStatus
 from .models import Connection
 
 
 class ConnectionFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
-    state = django_filters.MultipleChoiceFilter(
-        choices=ConnectionState.choices, null_value=None
+    status = django_filters.MultipleChoiceFilter(
+        choices=ConnectionStatus, null_value=None
     )
     internet_exchange_point_id = django_filters.ModelMultipleChoiceFilter(
         queryset=InternetExchange.objects.all(), label="IXP (ID)"
@@ -50,6 +50,7 @@ class ConnectionFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
             return queryset
         qs_filter = (
             Q(interface__icontains=value)
+            | Q(description__icontains=value)
             | Q(router__name__icontains=value)
             | Q(router__hostname__icontains=value)
         )

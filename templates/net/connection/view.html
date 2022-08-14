@@ -14,8 +14,8 @@
       </div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
-          <td>State</td>
-          <td>{{ instance.get_state_display }}</td>
+          <td>Status</td>
+          <td>{{ instance|status_as_badge }}</td>
         </tr>
         <tr>
           <td>VLAN</td>

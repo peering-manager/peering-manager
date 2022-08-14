@@ -1,37 +1,116 @@
-from django.db import models
+class ChoiceSetMeta(type):
+    """
+    Metaclass for `ChoiceSet`.
+    """
+
+    def __new__(mcs, name, bases, attrs):
+        # Define choice tuples and colour maps
+        attrs["_choices"] = []
+        attrs["colours"] = {}
+        for choice in attrs["CHOICES"]:
+            if isinstance(choice[1], (list, tuple)):
+                grouped_choices = []
+                for c in choice[1]:
+                    grouped_choices.append((c[0], c[1]))
+                    if len(c) == 3:
+                        attrs["colours"][c[0]] = c[2]
+                attrs["_choices"].append((choice[0], grouped_choices))
+            else:
+                attrs["_choices"].append((choice[0], choice[1]))
+                if len(choice) == 3:
+                    attrs["colours"][choice[0]] = choice[2]
+
+        return super().__new__(mcs, name, bases, attrs)
+
+    def __call__(cls, *args, **kwargs):
+        # django-filters will check if a 'choices' value is callable, and if so assume
+        # that it returns an iterable
+        return getattr(cls, "_choices", ())
+
+    def __iter__(cls):
+        return iter(getattr(cls, "_choices", ()))
 
 
-class Color(models.TextChoices):
-    DARK_RED = "aa1409", "Dark red"
-    RED = "f44336", "Red"
-    PINK = "e91e63", "Pink"
-    ROSE = "ffe4e1", "Rose"
-    FUSCHIA = "ff66ff", "Fuschia"
-    PURPLE = "9c27b0", "Purple"
-    DARK_PURPLE = "673ab7", "Dark purple"
-    INDIGO = "3f51b5", "Indigo"
-    BLUE = "2196f3", "Blue"
-    LIGHT_BLUE = "03a9f4", "Light blue"
-    CYAN = "00bcd4", "Cyan"
-    TEAL = "009688", "Teal"
-    AQUA = "00ffff", "Aqua"
-    DARK_GREEN = "2f6a31", "Dark green"
-    GREEN = "4caf50", "Green"
-    LIGHT_GREEN = "8bc34a", "Light green"
-    LIME = "cddc39", "Lime"
-    YELLOW = "ffeb3b", "Yellow"
-    AMBER = "ffc107", "Amber"
-    ORANGE = "ff9800", "Orange"
-    DARK_ORANGE = "ff5722", "Dark orange"
-    BROWN = "795548", "Brown"
-    LIGHT_GREY = "c0c0c0", "Light grey"
-    GREY = "9e9e9e", "Grey"
-    DARK_GREY = "607d8b", "Dark grey"
-    BLACK = "111111", "Black"
-    WHITE = "ffffff", "White"
+class ChoiceSet(metaclass=ChoiceSetMeta):
+    """
+    Holds an iterable of choice tuples suitable for passing to a Django model or form
+    field.
+    """
+
+    CHOICES = list()
+
+    @classmethod
+    def values(cls):
+        return [c[0] for c in cls._choices]
 
 
-class ObjectChangeAction(models.TextChoices):
-    CREATE = "create", "Created"
-    UPDATE = "update", "Updated"
-    DELETE = "delete", "Deleted"
+class Colour(ChoiceSet):
+    DARK_RED = "aa1409"
+    RED = "f44336"
+    PINK = "e91e63"
+    ROSE = "ffe4e1"
+    FUCHSIA = "ff66ff"
+    PURPLE = "9c27b0"
+    DARK_PURPLE = "673ab7"
+    INDIGO = "3f51b5"
+    BLUE = "2196f3"
+    LIGHT_BLUE = "03a9f4"
+    CYAN = "00bcd4"
+    TEAL = "009688"
+    AQUA = "00ffff"
+    DARK_GREEN = "2f6a31"
+    GREEN = "4caf50"
+    LIGHT_GREEN = "8bc34a"
+    LIME = "cddc39"
+    YELLOW = "ffeb3b"
+    AMBER = "ffc107"
+    ORANGE = "ff9800"
+    DARK_ORANGE = "ff5722"
+    BROWN = "795548"
+    LIGHT_GREY = "c0c0c0"
+    GREY = "9e9e9e"
+    DARK_GREY = "607d8b"
+    BLACK = "111111"
+    WHITE = "ffffff"
+
+    CHOICES = (
+        (DARK_RED, "Dark Red"),
+        (RED, "Red"),
+        (PINK, "Pink"),
+        (ROSE, "Rose"),
+        (FUCHSIA, "Fuchsia"),
+        (PURPLE, "Purple"),
+        (DARK_PURPLE, "Dark Purple"),
+        (INDIGO, "Indigo"),
+        (BLUE, "Blue"),
+        (LIGHT_BLUE, "Light Blue"),
+        (CYAN, "Cyan"),
+        (TEAL, "Teal"),
+        (AQUA, "Aqua"),
+        (DARK_GREEN, "Dark Green"),
+        (GREEN, "Green"),
+        (LIGHT_GREEN, "Light Green"),
+        (LIME, "Lime"),
+        (YELLOW, "Yellow"),
+        (AMBER, "Amber"),
+        (ORANGE, "Orange"),
+        (DARK_ORANGE, "Dark Orange"),
+        (BROWN, "Brown"),
+        (LIGHT_GREY, "Light Grey"),
+        (GREY, "Grey"),
+        (DARK_GREY, "Dark Grey"),
+        (BLACK, "Black"),
+        (WHITE, "White"),
+    )
+
+
+class ObjectChangeAction(ChoiceSet):
+    CREATE = "create"
+    UPDATE = "update"
+    DELETE = "delete"
+
+    CHOICES = (
+        (CREATE, "Created", "success"),
+        (UPDATE, "Updated", "warning"),
+        (DELETE, "Deleted", "danger"),
+    )

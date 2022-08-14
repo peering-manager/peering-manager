@@ -2,7 +2,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
-from utils.enums import Color
+from utils.enums import Colour
 from utils.forms.fields import ColorField
 from utils.models import ChangeLoggedMixin
 from utils.templatetags.helpers import foreground_color
@@ -14,7 +14,7 @@ class Relationship(ChangeLoggedMixin):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True)
     description = models.CharField(max_length=200, blank=True)
-    color = ColorField(default=Color.GREY)
+    color = ColorField(default=Colour.GREY)
 
     class Meta:
         ordering = ["name"]

@@ -36,7 +36,7 @@ class NestedBGPGroupSerializer(WritableNestedSerializer):
 
     class Meta:
         model = BGPGroup
-        fields = ["id", "url", "display", "name", "slug"]
+        fields = ["id", "url", "display", "name", "slug", "status"]
 
 
 class NestedCommunitySerializer(WritableNestedSerializer):
@@ -54,7 +54,7 @@ class NestedDirectPeeringSessionSerializer(WritableNestedSerializer):
 
     class Meta:
         model = DirectPeeringSession
-        fields = ["id", "url", "display", "ip_address", "enabled"]
+        fields = ["id", "url", "display", "ip_address", "status"]
 
 
 class NestedInternetExchangeSerializer(WritableNestedSerializer):
@@ -64,7 +64,7 @@ class NestedInternetExchangeSerializer(WritableNestedSerializer):
 
     class Meta:
         model = InternetExchange
-        fields = ["id", "url", "display", "name", "slug"]
+        fields = ["id", "url", "display", "name", "slug", "status"]
 
 
 class NestedInternetExchangePeeringSessionSerializer(WritableNestedSerializer):
@@ -74,7 +74,7 @@ class NestedInternetExchangePeeringSessionSerializer(WritableNestedSerializer):
 
     class Meta:
         model = InternetExchangePeeringSession
-        fields = ["id", "url", "display", "ip_address", "enabled", "is_route_server"]
+        fields = ["id", "url", "display", "ip_address", "status", "is_route_server"]
 
 
 class NestedRouterSerializer(WritableNestedSerializer):

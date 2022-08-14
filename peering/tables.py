@@ -6,6 +6,7 @@ from utils.tables import (
     BaseTable,
     BooleanColumn,
     ButtonsColumn,
+    ChoiceFieldColumn,
     SelectColumn,
     TagColumn,
 )
@@ -104,6 +105,7 @@ class AutonomousSystemTable(BaseTable):
 class BGPGroupTable(BaseTable):
     pk = SelectColumn()
     name = tables.Column(linkify=True)
+    status = ChoiceFieldColumn()
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     directpeeringsession_count = tables.Column(
@@ -119,6 +121,7 @@ class BGPGroupTable(BaseTable):
             "pk",
             "name",
             "slug",
+            "status",
             "import_routing_policies",
             "export_routing_policies",
             "directpeeringsession_count",
@@ -128,6 +131,7 @@ class BGPGroupTable(BaseTable):
         default_columns = (
             "pk",
             "name",
+            "status",
             "directpeeringsession_count",
             "actions",
         )
@@ -161,13 +165,13 @@ class DirectPeeringSessionTable(BaseTable):
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     autonomous_system = tables.Column(verbose_name="AS", linkify=True)
     ip_address = tables.Column(verbose_name="IP Address", linkify=True)
+    status = ChoiceFieldColumn()
     bgp_group = tables.Column(
         verbose_name="BGP Group", accessor="bgp_group", linkify=True
     )
     relationship = tables.TemplateColumn(
         verbose_name="Relationship", template_code=BGP_RELATIONSHIP
     )
-    enabled = BooleanColumn(verbose_name="Status")
     service_reference = tables.Column(verbose_name="Service ID", linkify=True)
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
@@ -183,10 +187,10 @@ class DirectPeeringSessionTable(BaseTable):
             "service_reference",
             "local_autonomous_system",
             "autonomous_system",
-            "ip_address",
             "bgp_group",
             "relationship",
-            "enabled",
+            "ip_address",
+            "status",
             "import_routing_policies",
             "export_routing_policies",
             "state",
@@ -202,9 +206,9 @@ class DirectPeeringSessionTable(BaseTable):
             "local_autonomous_system",
             "autonomous_system",
             "ip_address",
+            "status",
             "bgp_group",
             "relationship",
-            "enabled",
             "router",
             "actions",
         )
@@ -214,6 +218,7 @@ class InternetExchangeTable(BaseTable):
     pk = SelectColumn()
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     name = tables.Column(linkify=True)
+    status = ChoiceFieldColumn()
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     connection_count = tables.Column(
@@ -230,18 +235,14 @@ class InternetExchangeTable(BaseTable):
             "local_autonomous_system",
             "name",
             "slug",
+            "status",
             "import_routing_policies",
             "export_routing_policies",
             "connection_count",
             "tags",
             "actions",
         )
-        default_columns = (
-            "pk",
-            "name",
-            "connection_count",
-            "actions",
-        )
+        default_columns = ("pk", "name", "status", "connection_count", "actions")
 
 
 class InternetExchangePeeringSessionTable(BaseTable):
@@ -269,9 +270,9 @@ class InternetExchangePeeringSessionTable(BaseTable):
     )
     ixp_connection = tables.Column(verbose_name="Connection", linkify=True)
     ip_address = tables.Column(verbose_name="IP Address", linkify=True)
+    status = ChoiceFieldColumn()
     service_reference = tables.Column(verbose_name="Service ID", linkify=True)
     is_route_server = BooleanColumn(verbose_name="Route Server")
-    enabled = BooleanColumn(verbose_name="Enabled")
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     state = BGPSessionStateColumn(accessor="bgp_state")
@@ -289,8 +290,8 @@ class InternetExchangePeeringSessionTable(BaseTable):
             "ixp_connection",
             "internet_exchange_point",
             "ip_address",
+            "status",
             "is_route_server",
-            "enabled",
             "import_routing_policies",
             "export_routing_policies",
             "state",
@@ -305,8 +306,8 @@ class InternetExchangePeeringSessionTable(BaseTable):
             "autonomous_system",
             "ixp_connection",
             "ip_address",
+            "status",
             "is_route_server",
-            "enabled",
             "actions",
         )
 
@@ -346,6 +347,7 @@ class RouterTable(BaseTable):
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     name = tables.Column(linkify=True)
     platform = tables.Column(linkify=True)
+    status = ChoiceFieldColumn()
     encrypt_passwords = BooleanColumn(verbose_name="Encrypt Password")
     poll_bgp_sessions_state = BooleanColumn(verbose_name="Poll BGP Sessions")
     configuration_template = tables.Column(linkify=True, verbose_name="Configuration")
@@ -372,6 +374,7 @@ class RouterTable(BaseTable):
             "name",
             "hostname",
             "platform",
+            "status",
             "encrypt_passwords",
             "poll_bgp_sessions_state",
             "poll_bgp_sessions_last_updated",
@@ -379,7 +382,6 @@ class RouterTable(BaseTable):
             "connection_count",
             "directpeeringsession_count",
             "internetexchangepeeringsession_count",
-            "device_state",
             "tags",
             "actions",
         )
@@ -388,11 +390,11 @@ class RouterTable(BaseTable):
             "name",
             "hostname",
             "platform",
+            "status",
             "encrypt_passwords",
             "poll_bgp_sessions_state",
             "configuration_template",
             "connection_count",
-            "device_state",
             "actions",
         )
 

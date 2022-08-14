@@ -21,7 +21,7 @@ class ObjectChangeSerializer(BaseModelSerializer):
         view_name="utils-api:objectchange-detail"
     )
     user = NestedUserSerializer(read_only=True)
-    action = ChoiceField(choices=ObjectChangeAction.choices, read_only=True)
+    action = ChoiceField(choices=ObjectChangeAction, read_only=True)
     changed_object_type = ContentTypeField(read_only=True)
     changed_object = serializers.SerializerMethodField(read_only=True)
 

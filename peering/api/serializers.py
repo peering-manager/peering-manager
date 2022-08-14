@@ -7,6 +7,7 @@ from devices.api.serializers import (
 )
 from extras.api.serializers import NestedIXAPISerializer
 from net.api.serializers import NestedConnectionSerializer
+from peering.enums import BGPGroupStatus, BGPSessionStatus, DeviceStatus
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -17,7 +18,11 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from peering_manager.api import PrimaryModelSerializer, SerializedPKRelatedField
+from peering_manager.api import (
+    ChoiceField,
+    PrimaryModelSerializer,
+    SerializedPKRelatedField,
+)
 
 from .nested_serializers import *
 
@@ -92,6 +97,7 @@ class AutonomousSystemGenerateEmailSerializer(serializers.Serializer):
 
 
 class BGPGroupSerializer(PrimaryModelSerializer):
+    status = ChoiceField(required=False, choices=BGPGroupStatus)
     import_routing_policies = SerializedPKRelatedField(
         queryset=RoutingPolicy.objects.all(),
         serializer=NestedRoutingPolicySerializer,
@@ -118,6 +124,7 @@ class BGPGroupSerializer(PrimaryModelSerializer):
             "display",
             "name",
             "slug",
+            "status",
             "import_routing_policies",
             "export_routing_policies",
             "communities",
@@ -147,6 +154,7 @@ class DirectPeeringSessionSerializer(PrimaryModelSerializer):
     local_autonomous_system = NestedAutonomousSystemSerializer()
     autonomous_system = NestedAutonomousSystemSerializer()
     bgp_group = NestedBGPGroupSerializer(required=False)
+    status = ChoiceField(required=False, choices=BGPSessionStatus)
     relationship = NestedRelationshipSerializer()
     import_routing_policies = SerializedPKRelatedField(
         queryset=RoutingPolicy.objects.all(),
@@ -172,12 +180,12 @@ class DirectPeeringSessionSerializer(PrimaryModelSerializer):
             "local_ip_address",
             "autonomous_system",
             "bgp_group",
-            "relationship",
             "ip_address",
+            "status",
+            "relationship",
             "password",
             "encrypted_password",
             "multihop_ttl",
-            "enabled",
             "import_routing_policies",
             "export_routing_policies",
             "router",
@@ -206,6 +214,7 @@ class DirectPeeringSessionSerializer(PrimaryModelSerializer):
 class InternetExchangeSerializer(PrimaryModelSerializer):
     ixapi_endpoint = NestedIXAPISerializer(required=False)
     local_autonomous_system = NestedAutonomousSystemSerializer()
+    status = ChoiceField(required=False, choices=BGPGroupStatus)
     import_routing_policies = SerializedPKRelatedField(
         queryset=RoutingPolicy.objects.all(),
         serializer=NestedRoutingPolicySerializer,
@@ -232,9 +241,10 @@ class InternetExchangeSerializer(PrimaryModelSerializer):
             "display",
             "peeringdb_ixlan",
             "ixapi_endpoint",
-            "local_autonomous_system",
             "name",
             "slug",
+            "status",
+            "local_autonomous_system",
             "comments",
             "import_routing_policies",
             "export_routing_policies",
@@ -247,6 +257,7 @@ class InternetExchangeSerializer(PrimaryModelSerializer):
 class InternetExchangePeeringSessionSerializer(PrimaryModelSerializer):
     autonomous_system = NestedAutonomousSystemSerializer()
     ixp_connection = NestedConnectionSerializer()
+    status = ChoiceField(required=False, choices=BGPSessionStatus)
     import_routing_policies = SerializedPKRelatedField(
         queryset=RoutingPolicy.objects.all(),
         serializer=NestedRoutingPolicySerializer,
@@ -269,10 +280,10 @@ class InternetExchangePeeringSessionSerializer(PrimaryModelSerializer):
             "autonomous_system",
             "ixp_connection",
             "ip_address",
+            "status",
             "password",
             "encrypted_password",
             "multihop_ttl",
-            "enabled",
             "is_route_server",
             "import_routing_policies",
             "export_routing_policies",
@@ -291,6 +302,7 @@ class RouterSerializer(PrimaryModelSerializer):
     configuration_template = NestedConfigurationSerializer(required=False)
     local_autonomous_system = NestedAutonomousSystemSerializer()
     platform = NestedPlatformSerializer()
+    status = ChoiceField(required=False, choices=DeviceStatus)
 
     class Meta:
         model = Router
@@ -300,13 +312,13 @@ class RouterSerializer(PrimaryModelSerializer):
             "name",
             "hostname",
             "platform",
+            "status",
             "encrypt_passwords",
             "poll_bgp_sessions_state",
             "poll_bgp_sessions_last_updated",
             "configuration_template",
             "local_autonomous_system",
             "netbox_device_id",
-            "device_state",
             "use_netbox",
             "local_context_data",
             "napalm_username",

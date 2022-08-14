@@ -17,6 +17,7 @@ can be configured (n.b. some are optional):
 * `Name`: human-readable name attached to a router.
 * `Hostname`: resolvable FQDN or an IP address to reach the router.
 * `Platform`: network operating system which is running on the router.
+* `Status`: router's status such as `enabled`, `disabled`, etc.
 * `Encrypt Passwords`: an option to tell if protected BGP sessions use
   encrypted passwords and if Peering Manager should generate and record the
   encrypted password if it can.

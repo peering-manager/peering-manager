@@ -15,14 +15,14 @@ from utils.forms.fields import (
     DynamicModelMultipleChoiceField,
     JSONField,
 )
-from utils.forms.widgets import SmallTextarea, StaticSelect
+from utils.forms.widgets import SmallTextarea, StaticSelect, StaticSelectMultiple
 
-from .enums import ConnectionState
+from .enums import ConnectionStatus
 from .models import Connection
 
 
 class ConnectionForm(BootstrapMixin, forms.ModelForm):
-    state = forms.ChoiceField(choices=ConnectionState.choices, widget=StaticSelect)
+    status = forms.ChoiceField(choices=ConnectionStatus, widget=StaticSelect)
     internet_exchange_point = DynamicModelChoiceField(
         required=False,
         queryset=InternetExchange.objects.all(),
@@ -43,7 +43,7 @@ class ConnectionForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Connection
         fields = (
-            "state",
+            "status",
             "vlan",
             "ipv6_address",
             "ipv4_address",
@@ -66,9 +66,9 @@ class ConnectionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = DynamicModelMultipleChoiceField(
         queryset=Connection.objects.all(), widget=forms.MultipleHiddenInput
     )
-    state = forms.ChoiceField(
+    status = forms.ChoiceField(
         required=False,
-        choices=add_blank_choice(ConnectionState.choices),
+        choices=add_blank_choice(ConnectionStatus),
         widget=StaticSelect,
     )
     internet_exchange_point = DynamicModelChoiceField(
@@ -87,17 +87,17 @@ class ConnectionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
 
     class Meta:
         model = Connection
-        fields = ("state", "internet_exchange_point", "router", "local_context_data")
+        fields = ("status", "internet_exchange_point", "router", "local_context_data")
         nullable_fields = ("router",)
 
 
 class ConnectionFilterForm(BootstrapMixin, forms.Form):
     model = Connection
     q = forms.CharField(required=False, label="Search")
-    state = forms.MultipleChoiceField(
+    status = forms.MultipleChoiceField(
         required=False,
-        choices=add_blank_choice(ConnectionState.choices),
-        widget=StaticSelect,
+        choices=ConnectionStatus,
+        widget=StaticSelectMultiple,
     )
     internet_exchange_point_id = DynamicModelMultipleChoiceField(
         required=False,

@@ -1,6 +1,15 @@
 from django.db import models
 
+from utils.enums import ChoiceSet
 
-class ConnectionState(models.TextChoices):
-    ENABLED = "enabled", "Enabled"
-    DISABLED = "disabled", "Disabled"
+
+class ConnectionStatus(ChoiceSet):
+    ENABLED = "enabled"
+    MAINTENANCE = "maintenance"
+    DISABLED = "disabled"
+
+    CHOICES = (
+        (ENABLED, "Enabled", "success"),
+        (MAINTENANCE, "Maintenance", "warning"),
+        (DISABLED, "Disabled", "danger"),
+    )

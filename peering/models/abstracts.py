@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.safestring import mark_safe
 from netfields import InetAddressField, NetManager
 
-from peering.enums import BGPState, IPFamily
+from peering.enums import BGPGroupStatus, BGPSessionStatus, BGPState, IPFamily
 from peering.fields import TTLField
 from utils.models import (
     ChangeLoggedMixin,
@@ -22,6 +22,11 @@ class AbstractGroup(
 ):
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, max_length=255)
+    status = models.CharField(
+        max_length=50,
+        choices=BGPGroupStatus,
+        default=BGPGroupStatus.ENABLED,
+    )
     comments = models.TextField(blank=True)
     import_routing_policies = models.ManyToManyField(
         "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
@@ -40,6 +45,9 @@ class AbstractGroup(
 
     def import_policies(self):
         return self.import_routing_policies.all()
+
+    def get_status_colour(self):
+        return BGPGroupStatus.colours.get(self.status)
 
     def get_peering_sessions_list_url(self):
         raise NotImplementedError()
@@ -105,6 +113,11 @@ class BGPSession(
         to="peering.AutonomousSystem", on_delete=models.CASCADE
     )
     ip_address = InetAddressField(store_prefix_length=False, verbose_name="IP address")
+    status = models.CharField(
+        max_length=50,
+        choices=BGPSessionStatus,
+        default=BGPSessionStatus.ENABLED,
+    )
     password = models.CharField(max_length=255, blank=True, null=True)
     encrypted_password = models.CharField(max_length=255, blank=True, null=True)
     multihop_ttl = TTLField(
@@ -113,7 +126,6 @@ class BGPSession(
         verbose_name="Multihop TTL",
         help_text="Use a value greater than 1 for BGP multihop sessions",
     )
-    enabled = models.BooleanField(default=True)
     import_routing_policies = models.ManyToManyField(
         to="peering.RoutingPolicy",
         blank=True,
@@ -124,9 +136,7 @@ class BGPSession(
         blank=True,
         related_name="%(class)s_export_routing_policies",
     )
-    bgp_state = models.CharField(
-        max_length=50, choices=BGPState.choices, blank=True, null=True
-    )
+    bgp_state = models.CharField(max_length=50, choices=BGPState, blank=True, null=True)
     received_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     advertised_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     last_established_state = models.DateTimeField(blank=True, null=True)
@@ -139,11 +149,23 @@ class BGPSession(
         abstract = True
         ordering = ["service_reference", "autonomous_system", "ip_address"]
 
+    @property
+    def enabled(self):
+        """
+        Tells if a BGP session is enabled.
+
+        DEPRECATED: This is kept for retro-compatibility and will be removed in 2.0.
+        """
+        return self.status == BGPSessionStatus.ENABLED
+
     def __str__(self):
         return (
             self.service_reference
             or f"AS{self.autonomous_system.asn} - {self.ip_address}"
         )
+
+    def get_status_colour(self):
+        return BGPSessionStatus.colours.get(self.status)
 
     def _merge_policies(self, merged_policies, new_policies):
         if type(self.ip_address) in (int, str):

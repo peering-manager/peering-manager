@@ -4,7 +4,7 @@ from bgp.models import Relationship
 from messaging.models import Email
 from net.models import Connection
 from peering.constants import *
-from peering.enums import CommunityType, DeviceState, RoutingPolicyType
+from peering.enums import CommunityType, DeviceStatus, RoutingPolicyType
 from peering.forms import (
     AutonomousSystemEmailForm,
     AutonomousSystemForm,
@@ -136,7 +136,7 @@ class RouterTest(TestCase):
                 "netbox_device_id": 0,
                 "name": "test",
                 "hostname": "test.example.com",
-                "device_state": DeviceState.ENABLED,
+                "status": DeviceStatus.ENABLED,
                 "local_autonomous_system": AutonomousSystem.objects.create(
                     asn=64501,
                     name="Autonomous System 1",

@@ -9,8 +9,9 @@ from django.db.models.query import QuerySet
 from django.forms.models import model_to_dict
 
 from devices.crypto.cisco import MAGIC as CISCO_MAGIC
+from net.enums import ConnectionStatus
 from net.models import Connection
-from peering.enums import IPFamily
+from peering.enums import BGPGroupStatus, BGPSessionStatus, DeviceStatus, IPFamily
 from peering.models.abstracts import BGPSession
 from peering.models.models import (
     AutonomousSystem,
@@ -98,6 +99,65 @@ def ip_version(value):
         return 4
 
     raise ValueError("ip address for session is invalid")
+
+
+def inherited_status(value):
+    """
+    Returns the status of an object taking into account the status of its parent.
+
+    If the status of the object is equivalent to a disabled one, the status of the
+    parent will not be resolved as this kind of status is considered more specific.
+
+    In case of connections, both IXP's and router's statuses will be checked (IXP's
+    first).
+
+    In case of direct peering sessions, both group's and router's statuses will be
+    checked (group's first).
+
+    In case of IXP peering sessions, connection's status will be checked but that will
+    trigger a recursive check for it which means it'll take into account the IXP or
+    router status.
+    """
+    if not hasattr(value, "status"):
+        raise ValueError("value has no status property")
+
+    if type(value) is Connection and value.status != ConnectionStatus.DISABLED:
+        # Disabled on IXP probably means the same for connections
+        if value.internet_exchange_point.status == BGPGroupStatus.DISABLED:
+            return ConnectionStatus.DISABLED
+        # Maintenance on IXP probably means the same for connections
+        if value.internet_exchange_point.status == BGPGroupStatus.MAINTENANCE:
+            return ConnectionStatus.MAINTENANCE
+        # Maintenance on a router probably means the same for connections
+        if value.router and value.router.status == DeviceStatus.MAINTENANCE:
+            return ConnectionStatus.MAINTENANCE
+
+    if (
+        type(value) is DirectPeeringSession
+        and value.status != BGPSessionStatus.DISABLED
+    ):
+        # Disabled group probably means sessions should be teared down
+        if value.bgp_group.status == BGPGroupStatus.DISABLED:
+            return BGPSessionStatus.DISABLED
+        # Maintenance group probably means sessions should be less preferred
+        if value.bgp_group.status == BGPGroupStatus.MAINTENANCE:
+            return BGPSessionStatus.MAINTENANCE
+        # Maintenance on a router probably means sessions should be less preferred
+        if value.router and value.router.status == DeviceStatus.MAINTENANCE:
+            return BGPSessionStatus.MAINTENANCE
+
+    if (
+        type(value) is InternetExchangePeeringSession
+        and value.status != BGPSessionStatus.DISABLED
+    ):
+        # Disabled connection probably means sessions should be teared down
+        if inherited_status(value.ixp_connection) == ConnectionStatus.DISABLED:
+            return BGPSessionStatus.DISABLED
+        # Maintenance connection probably means sessions should be less preferred
+        if inherited_status(value.ixp_connection) == ConnectionStatus.MAINTENANCE:
+            return BGPSessionStatus.MAINTENANCE
+
+    return value.status
 
 
 def max_prefix(value):
@@ -222,7 +282,7 @@ def iter_export_policies(value, field="", family=-1):
         raise AttributeError(f"field must be a string'")
 
     policies = value.export_policies()
-    if family in IPFamily.values:
+    if family in IPFamily.values():
         policies = filter(policies, address_family__in=[0, family])
 
     if field:
@@ -246,7 +306,7 @@ def iter_import_policies(value, field="", family=-1):
         raise AttributeError(f"field must be a string'")
 
     policies = value.import_policies()
-    if family in IPFamily.values:
+    if family in IPFamily.values():
         policies = filter(policies, address_family__in=[0, family])
 
     if field:
@@ -322,8 +382,12 @@ def merge_import_policies(value, order=""):
 
 
 def connections(value):
+    """
+    Returns connections attached to an object.
+    """
     if not hasattr(value, "get_connections"):
         raise AttributeError(f"{value} has no connections")
+
     return value.get_connections()
 
 
@@ -597,6 +661,7 @@ FILTER_DICT = {
     "tags": tags,
     "has_tag": has_tag,
     "has_not_tag": has_not_tag,
+    "inherited_status": inherited_status,
     # IP address utilities
     "ipv4": ipv4,
     "ipv6": ipv6,

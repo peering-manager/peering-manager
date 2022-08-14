@@ -2,19 +2,29 @@
 {% load form_helpers %}
 {% block form %}
 <div class="card my-2">
-  <div class="card-header"><strong>Direct Peering Session</strong></div>
+  <div class="card-header"><strong>Peer</strong></div>
   <div class="card-body">
-    {% render_field form.service_reference %}
-    {% render_field form.local_autonomous_system %}
-    {% render_field form.local_ip_address %}
-    {% render_field form.autonomous_system %}
     {% render_field form.bgp_group %}
     {% render_field form.relationship %}
+    {% render_field form.autonomous_system %}
     {% render_field form.ip_address %}
+  </div>
+</div>
+<div class="card my-2">
+  <div class="card-header"><strong>Local</strong></div>
+  <div class="card-body">
+    {% render_field form.local_autonomous_system %}
+    {% render_field form.local_ip_address %}
+    {% render_field form.router %}
+  </div>
+</div>
+<div class="card my-2">
+  <div class="card-header"><strong>Properties</strong></div>
+  <div class="card-body">
+    {% render_field form.service_reference %}
+    {% render_field form.status %}
     {% render_field form.password %}
     {% render_field form.multihop_ttl %}
-    {% render_field form.enabled %}
-    {% render_field form.router %}
   </div>
 </div>
 <div class="card my-2">

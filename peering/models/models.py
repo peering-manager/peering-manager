@@ -18,7 +18,7 @@ from peering import call_irr_as_set_resolver, parse_irr_as_set
 from peering.enums import (
     BGPState,
     CommunityType,
-    DeviceState,
+    DeviceStatus,
     IPFamily,
     RoutingPolicyType,
 )
@@ -416,9 +416,7 @@ class Community(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, Tag
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, max_length=255)
     value = CommunityField(max_length=50)
-    type = models.CharField(
-        max_length=50, choices=CommunityType.choices, blank=True, null=True
-    )
+    type = models.CharField(max_length=50, choices=CommunityType, blank=True, null=True)
     comments = models.TextField(blank=True)
 
     class Meta:
@@ -903,6 +901,9 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
         null=True,
         help_text="The router platform, used to interact with it",
     )
+    status = models.CharField(
+        max_length=50, choices=DeviceStatus, default=DeviceStatus.ENABLED
+    )
     encrypt_passwords = models.BooleanField(
         blank=True,
         default=False,
@@ -917,13 +918,6 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
     poll_bgp_sessions_last_updated = models.DateTimeField(blank=True, null=True)
     configuration_template = models.ForeignKey(
         "devices.Configuration", blank=True, null=True, on_delete=models.SET_NULL
-    )
-    device_state = models.CharField(
-        max_length=20,
-        choices=DeviceState.choices,
-        default=DeviceState.ENABLED,
-        blank=True,
-        help_text="State of the device for configuration pushes",
     )
     netbox_device_id = models.PositiveIntegerField(
         blank=True, default=0, verbose_name="NetBox device"
@@ -957,6 +951,9 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
     def get_direct_peering_sessions_list_url(self):
         return reverse("peering:router_direct_peering_sessions", args=[self.pk])
 
+    def get_status_colour(self):
+        return DeviceStatus.colours.get(self.status)
+
     def is_netbox_device(self):
         return self.netbox_device_id != 0
 
@@ -969,7 +966,7 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
             logger = self.logger
 
         # Ensure device is not in disabled state
-        if self.device_state == DeviceState.DISABLED:
+        if self.status == DeviceStatus.DISABLED:
             if job_result:
                 job_result.mark_errored("Router is disabled.", obj=self, logger=logger)
                 job_result.save()
@@ -1647,14 +1644,14 @@ class RoutingPolicy(
     slug = models.SlugField(unique=True, max_length=255)
     type = models.CharField(
         max_length=50,
-        choices=RoutingPolicyType.choices,
+        choices=RoutingPolicyType,
         default=RoutingPolicyType.IMPORT,
     )
     weight = models.PositiveSmallIntegerField(
         default=0, help_text="The higher the number, the higher the priority"
     )
     address_family = models.PositiveSmallIntegerField(
-        default=IPFamily.ALL, choices=IPFamily.choices
+        default=IPFamily.ALL, choices=IPFamily
     )
     comments = models.TextField(blank=True)
 

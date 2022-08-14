@@ -14,6 +14,7 @@ the following properties can be configured (n.b. some are optional):
 * `Name`: human-readable name attached to the IX.
 * `Slug`: unique configuration and URL friendly name; usually it is
    automatically generated from the IXP's name.
+* `Status`: session's status such as `enabled`, `disabled`, etc.
 * `Local Autonomous System`: your autonomous system connected to this IX.
 * `Comments`: text to explain what the Internet exchange is for. Can use
   Markdown formatting.

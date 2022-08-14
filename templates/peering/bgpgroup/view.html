@@ -12,6 +12,10 @@
           <td>Name</td>
           <td>{{ instance.name }}</td>
         </tr>
+        <tr>
+          <td>Status</td>
+          <td>{{ instance | status_as_badge }}</td>
+        </tr>
       </table>
     </div>
     <div class="card">

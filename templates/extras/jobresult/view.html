@@ -31,21 +31,7 @@
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
           <td>Status</td>
-          <td>
-            {% if instance.status == 'failed' %}
-            <span class="badge badge-danger">Failed</span>
-            {% elif instance.status == 'errored' %}
-            <span class="badge badge-danger">Errored</span>
-            {% elif instance.status == 'pending' %}
-            <span class="badge badge-primary">Pending</span>
-            {% elif instance.status == 'running' %}
-            <span class="badge badge-warning">Running</span>
-            {% elif instance.status == 'completed' %}
-            <span class="badge badge-success">Completed</span>
-            {% else %}
-            <span class="badge badge-secondary">Unknown</span>
-            {% endif %}
-          </td>
+          <td>{{ instance|status_as_badge }}</td>
         </tr>
         <tr>
           <td>Duration</td>

@@ -1,8 +1,8 @@
 import ipaddress
 
-from net.enums import ConnectionState
+from net.enums import ConnectionStatus
 from net.models import Connection
-from peering.enums import DeviceState
+from peering.enums import DeviceStatus
 from peering.models import AutonomousSystem, InternetExchange, Router
 from utils.testing import ViewTestCases
 
@@ -21,27 +21,27 @@ class ConnectionTestCase(ViewTestCases.ContextualObjectViewTestCase):
         router = Router.objects.create(
             name="test",
             hostname="test.example.com",
-            device_state=DeviceState.ENABLED,
+            status=DeviceStatus.ENABLED,
             local_autonomous_system=local_as,
         )
         Connection.objects.bulk_create(
             [
                 Connection(
-                    state=ConnectionState.ENABLED,
+                    status=ConnectionStatus.ENABLED,
                     vlan=2001,
                     ipv6_address="2001:db8::1/64",
                     internet_exchange_point=internet_exchange_point,
                     router=router,
                 ),
                 Connection(
-                    state=ConnectionState.ENABLED,
+                    status=ConnectionStatus.ENABLED,
                     vlan=2002,
                     ipv6_address="2001:db8::2/64",
                     internet_exchange_point=internet_exchange_point,
                     router=router,
                 ),
                 Connection(
-                    state=ConnectionState.DISABLED,
+                    status=ConnectionStatus.DISABLED,
                     vlan=2003,
                     ipv6_address="2001:db8::3/64",
                     internet_exchange_point=internet_exchange_point,
@@ -52,7 +52,7 @@ class ConnectionTestCase(ViewTestCases.ContextualObjectViewTestCase):
 
         cls.form_data = {
             "peeringdb_netixlan": None,
-            "state": ConnectionState.ENABLED,
+            "status": ConnectionStatus.ENABLED,
             "vlan": 2004,
             "ipv6_address": ipaddress.ip_interface("2001:db8::4/64"),
             "ipv4_address": None,
@@ -64,4 +64,4 @@ class ConnectionTestCase(ViewTestCases.ContextualObjectViewTestCase):
             "tags": [],
         }
 
-        cls.bulk_edit_data = {"state": ConnectionState.DISABLED}
+        cls.bulk_edit_data = {"status": ConnectionStatus.DISABLED}

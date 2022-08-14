@@ -1,9 +1,10 @@
+from net.enums import ConnectionStatus
 from net.models import Connection
 from peering.api.nested_serializers import (
     NestedInternetExchangeSerializer,
     NestedRouterSerializer,
 )
-from peering_manager.api import PrimaryModelSerializer
+from peering_manager.api import ChoiceField, PrimaryModelSerializer
 
 from .nested_serializers import *
 
@@ -12,6 +13,7 @@ __all__ = ("ConnectionSerializer", "NestedConnectionSerializer")
 
 class ConnectionSerializer(PrimaryModelSerializer):
     name = serializers.CharField(read_only=True)
+    status = ChoiceField(required=False, choices=ConnectionStatus)
     internet_exchange_point = NestedInternetExchangeSerializer()
     router = NestedRouterSerializer()
 
@@ -22,7 +24,7 @@ class ConnectionSerializer(PrimaryModelSerializer):
             "display",
             "name",
             "peeringdb_netixlan",
-            "state",
+            "status",
             "vlan",
             "ipv6_address",
             "ipv4_address",

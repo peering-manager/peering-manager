@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from net.enums import ConnectionState
+from net.enums import ConnectionStatus
 from net.forms import ConnectionForm
 
 
@@ -8,7 +8,7 @@ class ConnectionTest(TestCase):
     def test_connection_form(self):
         test = ConnectionForm(
             data={
-                "state": ConnectionState.ENABLED,
+                "status": ConnectionStatus.ENABLED,
                 "vlan": 2000,
                 "ipv6_address": "2001:db8::1",
                 "ipv4_address": "",
@@ -23,7 +23,7 @@ class ConnectionTest(TestCase):
 
         test = ConnectionForm(
             data={
-                "state": ConnectionState.ENABLED,
+                "status": ConnectionStatus.ENABLED,
                 "vlan": 2000,
                 "ipv6_address": "",
                 "ipv4_address": "192.0.2.1",
@@ -38,7 +38,7 @@ class ConnectionTest(TestCase):
 
         test = ConnectionForm(
             data={
-                "state": ConnectionState.DISABLED,
+                "status": ConnectionStatus.DISABLED,
                 "vlan": 2000,
                 "ipv6_address": "2001:db8::1",
                 "ipv4_address": "192.0.2.1",

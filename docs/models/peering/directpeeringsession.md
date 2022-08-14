@@ -31,7 +31,7 @@ properties can be configured (n.b. some are optional):
   sessions but can be set to a higher value to establish sessions that have
   to cross a network composed of more than one router in the transit path of
   the packets.
-* `Enabled`: whether the session should be enabled or not.
+* `Status`: session's status such as `enabled`, `disabled`, etc.
 * `Router`: the router on which the BGP session should be configured.
 * `Import Routing Policies`: a list of routing policies to apply when
    receiving prefixes.

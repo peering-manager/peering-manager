@@ -1,9 +1,9 @@
 from django.urls import reverse
 from rest_framework import status
 
-from net.enums import ConnectionState
+from net.enums import ConnectionStatus
 from net.models import Connection
-from peering.enums import DeviceState
+from peering.enums import DeviceStatus
 from peering.models import AutonomousSystem, InternetExchange, Router
 from utils.testing import APITestCase, StandardAPITestCases
 
@@ -17,7 +17,7 @@ class AppTest(APITestCase):
 class ConnectionTest(StandardAPITestCases.View):
     model = Connection
     brief_fields = ["id", "url", "display", "name", "ipv6_address", "ipv4_address"]
-    bulk_update_data = {"state": ConnectionState.DISABLED}
+    bulk_update_data = {"status": ConnectionStatus.DISABLED}
 
     @classmethod
     def setUpTestData(cls):
@@ -30,27 +30,27 @@ class ConnectionTest(StandardAPITestCases.View):
         router = Router.objects.create(
             name="Test",
             hostname="test.example.com",
-            device_state=DeviceState.ENABLED,
+            status=DeviceStatus.ENABLED,
             local_autonomous_system=local_autonomous_system,
         )
         Connection.objects.bulk_create(
             [
                 Connection(
-                    state=ConnectionState.ENABLED,
+                    status=ConnectionStatus.ENABLED,
                     vlan=2000,
                     ipv6_address="2001:db8:10::/64",
                     internet_exchange_point=internet_exchange_point,
                     router=router,
                 ),
                 Connection(
-                    state=ConnectionState.ENABLED,
+                    status=ConnectionStatus.ENABLED,
                     vlan=2000,
                     ipv6_address="2001:db8:10::f/64",
                     internet_exchange_point=internet_exchange_point,
                     router=router,
                 ),
                 Connection(
-                    state=ConnectionState.ENABLED,
+                    status=ConnectionStatus.ENABLED,
                     vlan=2000,
                     ipv6_address="2001:db8:10::ff/64",
                     internet_exchange_point=internet_exchange_point,
@@ -60,21 +60,21 @@ class ConnectionTest(StandardAPITestCases.View):
         )
         cls.create_data = [
             {
-                "state": ConnectionState.ENABLED,
+                "status": ConnectionStatus.ENABLED,
                 "vlan": 2001,
                 "ipv6_address": "2001:db8:10::1/64",
                 "internet_exchange_point": internet_exchange_point.pk,
                 "router": router.pk,
             },
             {
-                "state": ConnectionState.ENABLED,
+                "status": ConnectionStatus.ENABLED,
                 "vlan": 2002,
                 "ipv4_address": "192.0.2.2/24",
                 "internet_exchange_point": internet_exchange_point.pk,
                 "router": router.pk,
             },
             {
-                "state": ConnectionState.DISABLED,
+                "status": ConnectionStatus.DISABLED,
                 "ipv6_address": "2001:db8:10::3/64",
                 "ipv4_address": "192.0.2.3",
                 "internet_exchange_point": internet_exchange_point.pk,

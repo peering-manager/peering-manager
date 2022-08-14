@@ -4,7 +4,7 @@ from json import loads as json_loads
 from django import forms
 from django.conf import settings
 
-from utils.enums import Color
+from utils.enums import Colour
 
 
 class SmallTextarea(forms.Textarea):
@@ -62,7 +62,7 @@ class ColorSelect(forms.Select):
     def __init__(self, *args, **kwargs):
         from . import add_blank_choice
 
-        kwargs["choices"] = add_blank_choice(Color.choices)
+        kwargs["choices"] = add_blank_choice(Colour)
         super().__init__(*args, **kwargs)
         self.attrs["class"] = "custom-select2-color-picker"
 

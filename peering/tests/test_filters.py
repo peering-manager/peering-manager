@@ -4,7 +4,13 @@ from bgp.models import Relationship
 from devices.models import Configuration
 from net.models import Connection
 from peering.constants import *
-from peering.enums import CommunityType, DeviceState, RoutingPolicyType
+from peering.enums import (
+    BGPGroupStatus,
+    BGPSessionStatus,
+    CommunityType,
+    DeviceStatus,
+    RoutingPolicyType,
+)
 from peering.filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
@@ -106,7 +112,11 @@ class BGPGroupTestCase(TestCase, BaseFilterSetTests):
             [
                 BGPGroup(name="BGP Group 1", slug="bgp-group-1"),
                 BGPGroup(name="BGP Group 2", slug="bgp-group-2"),
-                BGPGroup(name="BGP Group 3", slug="bgp-group-3"),
+                BGPGroup(
+                    name="BGP Group 3",
+                    slug="bgp-group-3",
+                    status=BGPGroupStatus.DISABLED,
+                ),
             ]
         )
 
@@ -115,6 +125,14 @@ class BGPGroupTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"q": "bgp-group-1"}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_status(self):
+        params = {"status": [BGPGroupStatus.ENABLED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"status": [BGPGroupStatus.DISABLED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"status": [BGPGroupStatus.ENABLED, BGPGroupStatus.DISABLED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
 class CommunityTestCase(TestCase, BaseFilterSetTests):
@@ -205,8 +223,8 @@ class DirectPeeringSessionTestCase(TestCase, BaseFilterSetTests):
                     local_autonomous_system=cls.local_as,
                     autonomous_system=cls.a_s,
                     ip_address="192.0.2.3",
+                    status=BGPSessionStatus.DISABLED,
                     relationship=relationship_customer,
-                    enabled=False,
                 ),
             ]
         )
@@ -247,11 +265,13 @@ class DirectPeeringSessionTestCase(TestCase, BaseFilterSetTests):
         params = {"multihop_ttl": [2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    def test_enabled(self):
-        params = {"enabled": True}
+    def test_status(self):
+        params = {"status": [BGPSessionStatus.ENABLED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {"enabled": False}
+        params = {"status": [BGPSessionStatus.DISABLED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"status": [BGPSessionStatus.ENABLED, BGPSessionStatus.DISABLED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
 class InternetExchangeTestCase(TestCase, BaseFilterSetTests):
@@ -271,6 +291,7 @@ class InternetExchangeTestCase(TestCase, BaseFilterSetTests):
                     local_autonomous_system=cls.local_as,
                     name="Internet Exchange 3",
                     slug="ix-3",
+                    status=BGPGroupStatus.DISABLED,
                 ),
             ]
         )
@@ -284,6 +305,14 @@ class InternetExchangeTestCase(TestCase, BaseFilterSetTests):
     def test_local_autonomous_system_id(self):
         params = {"local_autonomous_system_id": [self.local_as.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_status(self):
+        params = {"status": [BGPGroupStatus.ENABLED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"status": [BGPGroupStatus.DISABLED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"status": [BGPGroupStatus.ENABLED, BGPGroupStatus.DISABLED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
 class InternetExchangePeeringSessionTestCase(TestCase, BaseFilterSetTests):
@@ -322,7 +351,7 @@ class InternetExchangePeeringSessionTestCase(TestCase, BaseFilterSetTests):
                     autonomous_system=cls.a_s,
                     ixp_connection=cls.ixp_connection,
                     ip_address="192.0.2.2",
-                    enabled=False,
+                    status=BGPSessionStatus.DISABLED,
                 ),
                 InternetExchangePeeringSession(
                     autonomous_system=cls.a_s,
@@ -349,11 +378,13 @@ class InternetExchangePeeringSessionTestCase(TestCase, BaseFilterSetTests):
         params = {"multihop_ttl": [2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    def test_enabled(self):
-        params = {"enabled": True}
+    def test_status(self):
+        params = {"status": [BGPSessionStatus.ENABLED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {"enabled": False}
+        params = {"status": [BGPSessionStatus.DISABLED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"status": [BGPSessionStatus.ENABLED, BGPSessionStatus.DISABLED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_is_route_server(self):
         params = {"is_route_server": False}
@@ -413,21 +444,21 @@ class RouterTestCase(TestCase, BaseFilterSetTests):
                 Router(
                     name="Router 1",
                     hostname="router1.example.net",
-                    device_state=DeviceState.ENABLED,
+                    status=DeviceStatus.ENABLED,
                     encrypt_passwords=True,
                     local_autonomous_system=cls.local_as,
                 ),
                 Router(
                     name="Router 2",
                     hostname="router2.example.net",
-                    device_state=DeviceState.DISABLED,
+                    status=DeviceStatus.DISABLED,
                     encrypt_passwords=True,
                     local_autonomous_system=cls.local_as,
                 ),
                 Router(
                     name="Router 3",
                     hostname="router3.example.net",
-                    device_state=DeviceState.ENABLED,
+                    status=DeviceStatus.ENABLED,
                     configuration_template=cls.configuration,
                     local_autonomous_system=cls.local_as,
                 ),
@@ -466,11 +497,13 @@ class RouterTestCase(TestCase, BaseFilterSetTests):
         params = {"local_autonomous_system": [self.local_as.name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
-    def test_device_state(self):
-        params = {"device_state": [DeviceState.ENABLED]}
+    def test_status(self):
+        params = {"status": [DeviceStatus.ENABLED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {"device_state": [DeviceState.DISABLED]}
+        params = {"status": [DeviceStatus.DISABLED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"status": [DeviceStatus.ENABLED, DeviceStatus.DISABLED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
 class RoutingPolicyTestCase(TestCase, BaseFilterSetTests):

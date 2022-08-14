@@ -1,11 +1,12 @@
 import django_tables2 as tables
 
 from net.models import Connection
-from utils.tables import BaseTable, ButtonsColumn, SelectColumn
+from utils.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, SelectColumn
 
 
 class ConnectionTable(BaseTable):
     pk = SelectColumn()
+    status = ChoiceFieldColumn()
     ipv6_address = tables.Column(linkify=True, verbose_name="IPv6")
     ipv4_address = tables.Column(linkify=True, verbose_name="IPv4")
     internet_exchange_point = tables.Column(linkify=True)
@@ -16,7 +17,7 @@ class ConnectionTable(BaseTable):
         model = Connection
         fields = (
             "pk",
-            "state",
+            "status",
             "vlan",
             "ipv6_address",
             "ipv4_address",
@@ -27,7 +28,7 @@ class ConnectionTable(BaseTable):
         )
         default_columns = (
             "pk",
-            "state",
+            "status",
             "vlan",
             "ipv6_address",
             "ipv4_address",
