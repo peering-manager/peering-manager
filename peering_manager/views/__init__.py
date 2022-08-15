@@ -1,6 +1,7 @@
 import platform
 import sys
 
+from cacheops import CacheMiss, cache
 from django.conf import settings
 from django.shortcuts import render
 from django.urls import reverse
@@ -21,7 +22,6 @@ from peering.models import (
 )
 from peering_manager.constants import SEARCH_MAX_RESULTS, SEARCH_TYPES
 from peering_manager.forms import SearchForm
-from peering_manager.releases import get_latest_release
 from peeringdb.models import Synchronization
 from utils.models import ObjectChange
 
@@ -70,14 +70,17 @@ class Home(View):
             "emails_count": Email.objects.count(),
         }
 
-        # Check whether a new release is available for staff and superuser
+        # Check whether a new release is available (staff and superusers only)
         new_release = None
         if request.user.is_staff or request.user.is_superuser:
-            latest_release, release_url = get_latest_release()
-            if isinstance(latest_release, version.Version):
-                current_version = version.parse(settings.VERSION)
-                if latest_release > current_version:
-                    new_release = {"version": str(latest_release), "url": release_url}
+            try:
+                latest_release = cache.get("latest_release")
+            except CacheMiss:
+                latest_release = None
+            if latest_release:
+                release_version, release_url = latest_release
+                if release_version > version.parse(settings.VERSION):
+                    new_release = {"version": str(release_version), "url": release_url}
 
         context = {
             "statistics": statistics,

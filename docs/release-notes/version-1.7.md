@@ -50,6 +50,14 @@ As status can be changed at different level, a `inherited_status` Jinja2 filter 
 
 Possible values for `status` are: `enabled`, `maintenance` and `disabled`.
 
+#### New `housekeeping` Command
+
+Object changelog and job results used to be cleanup automatically. This is no longer the case as the code logic has been entirely moved to the new `housekeeping` command. By default, changelog and job results will not be cleaned unless users run the command for it. This command also checks the availability of new releases.
+
+The `housekeeping` command is intended to be run regularly, at any interval users want.
+
+In addition to the command, a new `JOBRESULT_RETENTION` setting, with a default value of 90 days, has been added to allow different retention periods for changelog and job results.
+
 ### Enhancements
 
 * Allow `--tasks` flag to `peeringdb_sync` command
@@ -57,6 +65,7 @@ Possible values for `status` are: `enabled`, `maintenance` and `disabled`.
 * Add Jinja2 extensions example in docs
 * Display IX-API details on the connection details view
 * Synchronise PeeringDB models with 2.39.0
+* Remove setting `RELEASE_CHECK_TIMEOUT`, not needed with new `housekeeping` command
 
 ### Bug Fixes
 

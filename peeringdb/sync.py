@@ -80,7 +80,7 @@ class PeeringDB(object):
 
         # Make the request
         logger.debug(f"calling api: {api_url} | {search}")
-        response = requests.get(api_url, **q)
+        response = requests.get(api_url, **q, proxies=settings.HTTP_PROXIES)
 
         try:
             response.raise_for_status()

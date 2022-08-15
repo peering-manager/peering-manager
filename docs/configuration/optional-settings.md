@@ -149,6 +149,16 @@ impact on its performances)
 
 ---
 
+## JOBRESULT_RETENTION
+
+Default: `90`
+
+The number of days to retain job results. Set this to `0` to retain changes in
+the database indefinitely. (Warning: This will greatly increase database size
+over time having also an impact on its performances)
+
+---
+
 ## LOGIN_REQUIRED
 
 Default: `False`
@@ -191,6 +201,24 @@ EMAIL = {
         ('peering@example.net', 'Peering Contact'),
         ('noc@example.net', 'NOC'),
     ]
+}
+```
+
+---
+
+## HTTP_PROXIES
+
+Default: `None`
+
+A dictionary of HTTP proxies to use for outbound requests originating from
+Peering Manager (e.g. requesting PeeringDB synchronisation). Proxies should be
+specified by schema (HTTP and HTTPS) as per the Python requests library
+documentation. For example:
+
+```no-highlight
+HTTP_PROXIES = {
+    'http': 'http://10.10.1.10:3128',
+    'https': 'http://10.10.1.10:1080',
 }
 ```
 
@@ -381,14 +409,6 @@ Default: `https://api.github.com/repos/peering-manager/peering-manager/releases`
 The URL to detect new releases, which are shown on the home page of the web
 interface. You can change this to your own fork, or set it to None to disable
 it. The URL provided must be compatible with the GitHub API.
-
-## RELEASE_CHECK_TIMEOUT
-
-Default: `86400` (24 hours)
-
-The number of seconds to retain the latest version that is fetched from the
-GitHub API before fetching it from the API again. This value cannot be set to
-less than 3600 seconds (1 hour).
 
 ---
 

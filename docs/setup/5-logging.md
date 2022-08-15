@@ -14,7 +14,6 @@ loggers are provided:
 * `peering.manager.netbox`: logging actions related to NetBox
 * `peering.manager.peering`: logging internal models and views
 * `peering.manager.peeringdb`: logging actions related to PeeringDB
-* `peering.manager.releases`: logging new release monitoring
 * `peering.manager.users`: logging user and authentication views
 
 To adjust the logging configuration to your needs, you probably want to read
@@ -56,7 +55,6 @@ LOGGING = {
     },
     "loggers": {
         "peering.manager.peeringdb": {"handlers": ["peeringdb_file"], "level": "DEBUG"},
-        "peering.manager.releases": {"handlers": ["console"], "level": "DEBUG"},
     },
 }
 ```

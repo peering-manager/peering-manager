@@ -57,7 +57,7 @@ def process_webhook(
         session.verify = webhook.ssl_verification
         if webhook.ca_file_path:
             session.verify = webhook.ca_file_path
-        response = session.send(prepared_request)
+        response = session.send(prepared_request, proxies=settings.HTTP_PROXIES)
 
     if response.status_code == requests.codes.ok:
         logger.info(f"Request succeeded; response status {response.status_code}")

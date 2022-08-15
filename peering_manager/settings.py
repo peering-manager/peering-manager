@@ -65,6 +65,7 @@ RQ_DEFAULT_TIMEOUT = getattr(configuration, "RQ_DEFAULT_TIMEOUT", 300)
 CACHE_TIMEOUT = getattr(configuration, "CACHE_TIMEOUT", 0)
 CACHE_BGP_DETAIL_TIMEOUT = getattr(configuration, "CACHE_BGP_DETAIL_TIMEOUT", 900)
 CHANGELOG_RETENTION = getattr(configuration, "CHANGELOG_RETENTION", 90)
+JOBRESULT_RETENTION = getattr(configuration, "JOBRESULT_RETENTION", 90)
 LOGIN_REQUIRED = getattr(configuration, "LOGIN_REQUIRED", False)
 BANNER_LOGIN = getattr(configuration, "BANNER_LOGIN", "")
 NAPALM_USERNAME = getattr(configuration, "NAPALM_USERNAME", "")
@@ -92,6 +93,7 @@ except (IOError, Exception):
 TIME_ZONE = getattr(configuration, "TIME_ZONE", BASE_TZ).rstrip()
 
 EMAIL = getattr(configuration, "EMAIL", {})
+HTTP_PROXIES = getattr(configuration, "HTTP_PROXIES", None)
 BGPQ3_PATH = getattr(configuration, "BGPQ3_PATH", "bgpq3")
 BGPQ3_HOST = getattr(configuration, "BGPQ3_HOST", "whois.radb.net")
 BGPQ3_SOURCES = getattr(
@@ -180,7 +182,6 @@ RELEASE_CHECK_URL = getattr(
     "RELEASE_CHECK_URL",
     "https://api.github.com/repos/peering-manager/peering-manager/releases",
 )
-RELEASE_CHECK_TIMEOUT = getattr(configuration, "RELEASE_CHECK_TIMEOUT", 86400)
 
 # Validate repository URL and timeout
 if RELEASE_CHECK_URL:
@@ -191,10 +192,6 @@ if RELEASE_CHECK_URL:
             "RELEASE_CHECK_URL must be a valid API URL. "
             "Example: https://api.github.com/repos/peering-manager/peering-manager"
         )
-if RELEASE_CHECK_TIMEOUT < 3600:
-    raise ImproperlyConfigured(
-        "RELEASE_CHECK_TIMEOUT must be at least 3600 seconds (1 hour)"
-    )
 
 
 try:
@@ -342,7 +339,7 @@ else:
         "SSL": TASKS_REDIS_SSL,
         "DEFAULT_TIMEOUT": RQ_DEFAULT_TIMEOUT,
     }
-RQ_QUEUES = {"default": RQ_PARAMS, "check_releases": RQ_PARAMS}
+RQ_QUEUES = {"high": RQ_PARAMS, "default": RQ_PARAMS, "low": RQ_PARAMS}
 
 
 # Email

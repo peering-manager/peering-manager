@@ -1,13 +1,8 @@
 import logging
-import random
-from datetime import timedelta
 
 from cacheops.signals import cache_invalidated, cache_read
-from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db import DEFAULT_DB_ALIAS
 from django.dispatch import Signal
-from django.utils import timezone
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 from prometheus_client import Counter
 
@@ -79,13 +74,6 @@ def handle_changed_object(sender, instance, **kwargs):
         model_inserts.labels(instance._meta.model_name).inc()
     elif action == ObjectChangeAction.UPDATE:
         model_updates.labels(instance._meta.model_name).inc()
-
-    # Housekeeping: 0.1% chance of clearing out expired ObjectChanges
-    if settings.CHANGELOG_RETENTION and random.randint(1, 1000) == 1:
-        date_limit = timezone.now() - timedelta(days=settings.CHANGELOG_RETENTION)
-        ObjectChange.objects.filter(time__lt=date_limit)._raw_delete(
-            using=DEFAULT_DB_ALIAS
-        )
 
 
 def handle_deleted_object(sender, instance, **kwargs):
