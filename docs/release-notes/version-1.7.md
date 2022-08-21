@@ -1,4 +1,4 @@
-## Version 1.7.0 | MARK I (Features release) | 2022-08-DD
+## Version 1.7.0 | MARK I (Features release) | 2022-08-21
 
 The 1.7.x releases require Python 3.8 or later as well as PostgreSQL 10 or later.
 
