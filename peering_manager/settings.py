@@ -6,6 +6,7 @@
 
 
 import platform
+import unicodedata
 import warnings
 from pathlib import Path
 
@@ -409,6 +410,13 @@ try:
     OIDC_CONFIGURED = True
 except ImportError:
     OIDC_CONFIGURED = False
+
+
+def generate_username(email):
+    return unicodedata.normalize("NFKC", email)[:150]
+
+
+OIDC_USERNAME_ALGO = generate_username
 
 if OIDC_CONFIGURED:
     AUTHENTICATION_BACKENDS = [
