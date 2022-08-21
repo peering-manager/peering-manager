@@ -73,7 +73,7 @@ This first big refactoring of the codebase does not bring a lot of new features,
 * Move changelog logic to signals
 * Re-design the login view
 * Rewrite object details views using generic code
-* [#286](https://github.com/peering-manager/peering-manager/issues/286) Expose Prometheus metrics [see docs](../setup/8-prometheus.md) (by @dgjustice)
+* [#286](https://github.com/peering-manager/peering-manager/issues/286) Expose Prometheus metrics [see docs](../setup/9-prometheus.md) (by @dgjustice)
 
 ### Bug Fixes
 
