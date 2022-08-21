@@ -9,6 +9,13 @@ Local authentication will continue to work.
 |-------------------------|--------------------|
 | Keycloak                | :white_check_mark: |
 
+## Install mozilla-django-oidc
+
+```no-highlight
+# echo 'mozilla-django-oidc==2.0.0' >> local_requirements.txt
+# pip3 install -r local_requirements.txt
+```
+
 ## Configuration
 
 Create a new configuration file called `oidc_config.py` in the same directory
