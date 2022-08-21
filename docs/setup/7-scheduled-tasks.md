@@ -5,13 +5,31 @@ Peering Manager can run scheduled tasks to speed up some processes.
 Before adding any of these tasks in a cron file, make sure that they use the
 Python virtual environment if you have one for Peering Manager (you should).
 
+## Housekeeping
+
+Most of actions that users make in Peering Manager are logged. There are two
+kind of logs: change logs and job results. The retention periods for these
+logs are defined with two configuration settings: `CHANGELOG_RETENTION` and
+`JOBRESULT_RETENTION`.
+
+By default, changelog and job results will not be cleaned unless users run
+the command for it. This command also checks the availability of new
+releases and clean stale user sessions.
+
+The `housekeeping` command is intended to be run regularly, at any interval
+users want.
+
+```no-highlight
+# venv/bin/python3 manage.py housekeeping
+```
+
+## Caching in the Local Database
+
 Since it is based on the [PeeringDB](https://www.peeringdb.com) API, querying
 these API can take quite a lot of time depending of the data that is needed to
 be retrieved. To avoid such time loss, Peering Manager is able to cache some of
 this data in its local database. This is required if you want to use PeeringDB
 data inside Peering Manager.
-
-## Caching in the Local Database
 
 Assuming that Peering Manager is installed at `/opt/peering-manager` the
 following command will retrieve data from PeeringDB and store it locally. It
@@ -121,6 +139,7 @@ running `systemctl enable peering-manager_peeringdb-sync.timer --now`.
 ### CRON
 
 ```no-highlight
+30 1 * * * user cd /opt/peering-manager && venv/bin/python3 manage.py housekeeping
 30 2 * * * user cd /opt/peering-manager && venv/bin/python3 manage.py peeringdb_sync
 55 * * * * user cd /opt/peering-manager && venv/bin/python3 manage.py configure_routers
 0  * * * * user cd /opt/peering-manager && venv/bin/python3 manage.py poll_peering_sessions --all
