@@ -44,3 +44,4 @@ time to develop this project.
 * [LUNOG2 A better Internet thanks to peering and automation](https://drive.mazoyer.eu/index.php/s/3RiyrPQd3Tdwc96) by Guillaume Mazoyer (English)
 * [NetLdn16 Peering Manager - Your BGP Source Of Truth](https://drive.mazoyer.eu/s/EHj3pH87Pe55Rfa) by Guillaume Mazoyer (English)
 * [DE-CIX Tech Meeting 2021 - Keeping track of your BGP configuration](https://youtu.be/MoPr9ttIMwE) by Guillaume Mazoyer (English)
+* [RIPE84 An introduction to Peering Manager](https://ripe84.ripe.net/archives/video/790/) by Guillaume Mazoyer (English)
