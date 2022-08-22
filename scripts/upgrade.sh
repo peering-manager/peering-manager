@@ -17,6 +17,24 @@ fi
 
 cd "$(dirname "$(dirname "$(realpath "$0")")")"
 VIRTUALENV="$(pwd -P)/venv"
+PYTHON="${PYTHON:-python3}"
+
+# Validate the Python required version
+COMMAND="${PYTHON} -c 'import sys; exit(1 if sys.version_info < (3, 8) else 0)'"
+PYTHON_VERSION=$(${PYTHON} -V)
+eval $COMMAND || {
+  echo "--------------------------------------------------------------------"
+  echo "ERROR: Unsupported Python version: ${PYTHON_VERSION}. Peering"
+  echo "Manager requires Python 3.8 or later. To specify an alternate Python"
+  echo "executable, set the PYTHON environment variable. For example:"
+  echo ""
+  echo "  PYTHON=/usr/bin/python3.8 ./upgrade.sh"
+  echo ""
+  echo "To show your current Python version: ${PYTHON} -V"
+  echo "--------------------------------------------------------------------"
+  exit 1
+}
+echo "Using ${PYTHON_VERSION}"
 
 # Enabling dry-run mode
 if [ -z "${DRY_RUN}" ]; then
@@ -36,7 +54,7 @@ fi
 
 # Create a new venv
 echo "📦 Creating a new virtual environment at ${VIRTUALENV}"
-$DRY /usr/bin/python3 -m venv "$VIRTUALENV" || {
+$DRY ${PYTHON} -m venv "$VIRTUALENV" || {
   echo "--------------------------------------------------------------------"
   echo "🚨 Failed to create the virtual environment."
   echo "Check that you have the required system packages installed and the"
