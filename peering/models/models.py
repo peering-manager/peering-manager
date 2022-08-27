@@ -1514,9 +1514,11 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
         @cached_as(self, timeout=settings.CACHE_BGP_DETAIL_TIMEOUT)
         def _get_bgp_neighbors_detail():
             if self.use_netbox:
-                return self.get_netbox_bgp_neighbors_detail(ip_address=ip_address)
+                r = self.get_netbox_bgp_neighbors_detail(ip_address=ip_address)
             else:
-                return self.get_napalm_bgp_neighbors_detail(ip_address=ip_address)
+                r = self.get_napalm_bgp_neighbors_detail(ip_address=ip_address)
+            # Force evaluation of lambda (NAPALM uses them in its IOS driver)
+            return dict(r)
 
         return _get_bgp_neighbors_detail()
 
