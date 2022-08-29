@@ -20,9 +20,8 @@ VIRTUALENV="$(pwd -P)/venv"
 PYTHON="${PYTHON:-python3}"
 
 # Validate the Python required version
-COMMAND="${PYTHON} -c 'import sys; exit(1 if sys.version_info < (3, 8) else 0)'"
 PYTHON_VERSION=$(${PYTHON} -V)
-eval $COMMAND || {
+${PYTHON} -c 'import sys; exit(1 if sys.version_info < (3, 8) else 0)' || {
   echo "--------------------------------------------------------------------"
   echo "ERROR: Unsupported Python version: ${PYTHON_VERSION}. Peering"
   echo "Manager requires Python 3.8 or later. To specify an alternate Python"
