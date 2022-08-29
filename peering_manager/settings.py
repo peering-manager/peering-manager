@@ -18,7 +18,7 @@ HOSTNAME = platform.node()
 BASE_DIR = Path(__file__).resolve().parent.parent
 DOCS_DIR = BASE_DIR / "docs"
 
-VERSION = "v1.7.1-dev"
+VERSION = "v1.7.1"
 
 major, minor, _ = platform.python_version_tuple()
 if (int(major), int(minor)) < (3, 8):
@@ -123,18 +123,19 @@ REST_FRAMEWORK_VERSION = VERSION[1:4]
 REST_FRAMEWORK = {
     "DEFAULT_VERSION": REST_FRAMEWORK_VERSION,
     "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.AcceptHeaderVersioning",
-    "DEFAULT_AUTHENTICATION_CLASSES": [
+    "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.SessionAuthentication",
         "peering_manager.api.authentication.TokenAuthentication",
-    ],
-    "DEFAULT_PERMISSION_CLASSES": [
-        "peering_manager.api.authentication.TokenPermissions"
-    ],
+    ),
+    "DEFAULT_PARSER_CLASSES": ("rest_framework.parsers.JSONParser",),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "peering_manager.api.authentication.TokenPermissions",
+    ),
     "DEFAULT_RENDERER_CLASSES": (
         "rest_framework.renderers.JSONRenderer",
         "peering_manager.api.renderers.FormlessBrowsableAPIRenderer",
     ),
-    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "DEFAULT_METADATA_CLASS": "peering_manager.api.metadata.BulkOperationMetadata",
     "DEFAULT_SCHEMA_CLASS": "peering_manager.api.inspectors.PeeringManagerAutoSchema",

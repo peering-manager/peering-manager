@@ -1,3 +1,14 @@
+## Version 1.7.1 | MARK I (Bug fixes release) | 2022-08-29
+
+### Bug Fixes
+
+* Fix side menu expansion with export templates
+* Remove hardcoded python path from upgrade script
+* [#548](https://github.com/peering-manager/peering-manager/issues/548) Always cache dict values for NAPALM neighbors output
+* Fix connection edit form
+* Use napalm logger for NAPALM related code
+* Fix columns in router connections table
+
 ## Version 1.7.0 | MARK I (Features release) | 2022-08-21
 
 The 1.7.x releases require Python 3.8 or later as well as PostgreSQL 10 or later.
@@ -9,7 +20,7 @@ The 1.7.x releases require Python 3.8 or later as well as PostgreSQL 10 or later
 1. BGP group `status` field has been added.
 2. Internet exchange point `status` field has been added.
 3. BGP sessions (direct and IXP) `status` field has been added.
-4. BGP sessions (direct and IXP) `enabled` field has been removed (replaced by `status`). Templating will not be broken as an `enabled` property is still exposed (not in the REST API though) which reflects the boolean value the expression `status == "enabled"`.
+4. BGP sessions (direct and IXP) `enabled` field has been removed (replaced by `status`). Templating will not be broken as an `enabled` property is still exposed (not in the REST API though) which reflects the boolean value of the expression `status == "enabled"`.
 5. Router `device_state` field has been renamed to `status`.
 6. Connection `state` field has been renamed to `status`.
 
