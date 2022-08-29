@@ -314,6 +314,7 @@ class InternetExchangePeeringSessionTable(BaseTable):
 
 class RouterConnectionTable(BaseTable):
     pk = SelectColumn()
+    status = ChoiceFieldColumn()
     ipv6_address = tables.Column(linkify=True, verbose_name="IPv6")
     ipv4_address = tables.Column(linkify=True, verbose_name="IPv4")
     internet_exchange_point = tables.Column(linkify=True)
@@ -323,7 +324,7 @@ class RouterConnectionTable(BaseTable):
         model = Connection
         fields = (
             "pk",
-            "state",
+            "status",
             "vlan",
             "ipv6_address",
             "ipv4_address",
@@ -333,7 +334,7 @@ class RouterConnectionTable(BaseTable):
         )
         default_columns = (
             "pk",
-            "state",
+            "status",
             "vlan",
             "ipv6_address",
             "ipv4_address",
