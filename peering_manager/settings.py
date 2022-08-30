@@ -127,7 +127,6 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
         "peering_manager.api.authentication.TokenAuthentication",
     ),
-    "DEFAULT_PARSER_CLASSES": ("rest_framework.parsers.JSONParser",),
     "DEFAULT_PERMISSION_CLASSES": (
         "peering_manager.api.authentication.TokenPermissions",
     ),
