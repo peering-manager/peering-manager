@@ -1,3 +1,9 @@
+## Version 1.7.2 | MARK I (Urgent bug fixes release) | 2022-08-30
+
+### Bug Fixes
+
+* Revert forced JSON parser for REST API, it prevents from using configuration deployment tasks
+
 ## Version 1.7.1 | MARK I (Bug fixes release) | 2022-08-29
 
 ### Bug Fixes
