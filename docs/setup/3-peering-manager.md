@@ -296,7 +296,7 @@ Before we can deliver Peering Manager with our web server of choice, we have to 
 	WantedBy=multi-user.target
 	```
 
-	Create another service file `/etc/systemd/system/peering-manager-rq.service`
+	Create another service file `/etc/systemd/system/peering-manager-rqworker.service`
 	and set its content.
 	```no-highlight
 	[Unit]
@@ -327,11 +327,11 @@ Before we can deliver Peering Manager with our web server of choice, we have to 
 	```no-highlight
 	# systemctl daemon-reload
 	# systemctl enable peering-manager --now
-	# systemctl enable peering-manager-rq --now
+	# systemctl enable peering-manager-rqworker --now
 	```
 
 	You can use the `systemctl status peering-manager` and
-	`systemctl status peering-manager-rq` to verify that the WSGI service and the
+	`systemctl status peering-manager-rqworker` to verify that the WSGI service and the
 	request queue worker service are respectively running.
 
 
