@@ -158,12 +158,12 @@ class AutonomousSystemEdit(ObjectEditView):
 
 class AutonomousSystemDelete(ObjectDeleteView):
     permission_required = "peering.delete_autonomoussystem"
-    queryset = AutonomousSystem.objects.all()
+    queryset = AutonomousSystem.objects.defer("prefixes")
 
 
 class AutonomousSystemBulkDelete(BulkDeleteView):
     permission_required = "peering.delete_autonomoussystem"
-    queryset = AutonomousSystem.objects.all()
+    queryset = AutonomousSystem.objects.defer("prefixes")
     filterset = AutonomousSystemFilterSet
     table = AutonomousSystemTable
 

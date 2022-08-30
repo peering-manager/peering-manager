@@ -85,7 +85,7 @@
 
       $('#update_cache').click(function () {
         $.ajax({
-          method: "post",
+          method: 'post',
           data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
           url: "{% url 'peeringdb-api:cache-update-local' %}",
           beforeSend: function () {
@@ -100,7 +100,7 @@
       });
       $('#clear_cache').click(function () {
         $.ajax({
-          method: "post",
+          method: 'post',
           data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
           url: "{% url 'peeringdb-api:cache-clear-local' %}",
           beforeSend: function () {
