@@ -8,48 +8,38 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
+            "-l",
             "--limit",
             type=int,
             help="Limit the number of prefixes to store. If the prefix count is over the given value, prefixes will be ignored.",
         )
-        parser.add_argument(
-            "--ignore-errors",
-            action="store_true",
-            help="Ignore errors and continue processing all ASNs",
-        )
 
     def handle(self, *args, **options):
-        self.stdout.write("[*] Getting prefixes for AS with IRR AS-SETs")
+        limit = int(options.get("limit") or 0)
+        quiet = options["verbosity"] == 0
+
+        if not quiet:
+            self.stdout.write("[*] Fetching prefixes for autonomous systems")
 
         for autonomous_system in AutonomousSystem.objects.defer("prefixes"):
-            try:
-                prefixes = autonomous_system.retrieve_irr_as_set_prefixes()
-                if (
-                    "limit" in options
-                    and options["limit"] is not None
-                    and int(options["limit"])
-                ):
-                    if len(prefixes["ipv6"]) > options["limit"]:
-                        if options["verbosity"] >= 2:
-                            self.stdout.write(
-                                f"  - Too many IPv6 prefixes for as{autonomous_system.asn}: {len(prefixes['ipv6'])} > {options['limit']}, ignoring"
-                            )
-                        prefixes["ipv6"] = []
-                    if len(prefixes["ipv4"]) > options["limit"]:
-                        if options["verbosity"] >= 2:
-                            self.stdout.write(
-                                f"  - Too many IPv4 prefixes for as{autonomous_system.asn}: {len(prefixes['ipv4'])} > {options['limit']}, ignoring"
-                            )
-                        prefixes["ipv4"] = []
-            except ValueError as e:
-                if options.get("ignore-errors", False):
-                    if options["verbosity"] >= 2:
+            if not quiet:
+                self.stdout.write(f"  - AS{autonomous_system.asn}:")
+
+            prefixes = autonomous_system.retrieve_irr_as_set_prefixes()
+            for family in ("ipv6", "ipv4"):
+                count = len(prefixes[family])
+
+                if limit and count > limit:
+                    if not quiet:
                         self.stdout.write(
-                            f"  - Error fetching prefixes for as{autonomous_system.asn}: {e}"
+                            f"    {count:>6} {family} (ignored)", self.style.WARNING
                         )
-                    prefixes = dict(ipv6=[], ipv4=[])
+                    prefixes[family] = []
                 else:
-                    raise (e)
+                    if not quiet:
+                        self.stdout.write(
+                            f"    {count:>6} {family}", self.style.SUCCESS
+                        )
 
             autonomous_system.prefixes = prefixes
             autonomous_system.save()

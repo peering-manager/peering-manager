@@ -22,25 +22,34 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        quiet = options["verbosity"] == 0
         api = PeeringDB()
 
         if options["flush"]:
-            self.stdout.write("[*] Removing cached data")
+            if not quiet:
+                self.stdout.write("[*] Removing cached data ... ", ending="")
             api.clear_local_database()
+            if not quiet:
+                self.stdout.write("done", self.style.SUCCESS)
             return
 
         if options["tasks"]:
             job = JobResult.enqueue_job(
                 synchronize, "peeringdb.synchronize", Synchronization, None
             )
-            self.stdout.write(self.style.SUCCESS(f"task #{job.id}"))
+            if not quiet:
+                self.stdout.write(self.style.SUCCESS(f"task #{job.id}"))
         else:
-            self.stdout.write("[*] Caching data locally")
+            if not quiet:
+                self.stdout.write("[*] Caching data locally ... ", ending="")
             api.update_local_database(api.get_last_sync_time())
+            if not quiet:
+                self.stdout.write("done", self.style.SUCCESS)
 
             self.stdout.write("[*] Updating AS details")
-            autonomous_systems = AutonomousSystem.objects.defer("prefixes")
-            for autonomous_system in autonomous_systems:
+            for autonomous_system in AutonomousSystem.objects.defer("prefixes"):
+                if not quiet:
+                    self.stdout.write(f"  - AS{autonomous_system.asn} ... ", ending="")
                 autonomous_system.synchronize_with_peeringdb()
-                if options["verbosity"] >= 2:
-                    self.stdout.write(f"  - Synchronized AS{autonomous_system.asn}")
+                if not quiet:
+                    self.stdout.write("done", self.style.SUCCESS)

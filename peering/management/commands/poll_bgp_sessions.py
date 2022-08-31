@@ -22,15 +22,17 @@ class Command(BaseCommand):
             help="Delegate BGP sessions polling to Redis worker process.",
         )
 
-    def process(self, router, as_task=False):
-        self.stdout.write(f"  - {router.hostname} ... ", ending="")
+    def process(self, router, quiet=False, as_task=False):
+        if not quiet:
+            self.stdout.write(f"  - {router.hostname} ... ", ending="")
 
         if not as_task:
             success = router.poll_bgp_sessions()
-            if success:
-                self.stdout.write(self.style.SUCCESS("success"))
-            else:
-                self.stdout.write(self.style.ERROR("failed"))
+            if not quiet:
+                if success:
+                    self.stdout.write(self.style.SUCCESS("success"))
+                else:
+                    self.stdout.write(self.style.ERROR("failed"))
         else:
             job = JobResult.enqueue_job(
                 poll_bgp_sessions,
@@ -39,14 +41,17 @@ class Command(BaseCommand):
                 None,
                 router,
             )
-            self.stdout.write(self.style.SUCCESS(f"task #{job.id}"))
+            if not quiet:
+                self.stdout.write(self.style.SUCCESS(f"task #{job.id}"))
 
     def handle(self, *args, **options):
+        quiet = options["verbosity"] == 0
         routers = Router.objects.filter(poll_bgp_sessions_state=True)
         if options["limit"]:
             routers = routers.filter(hostname__in=options["limit"].split(","))
 
-        self.stdout.write("[*] Polling BGP sessions state")
+        if not quiet:
+            self.stdout.write("[*] Polling BGP sessions state")
 
         for r in routers:
-            self.process(r, as_task=options["tasks"])
+            self.process(r, quiet=quiet, as_task=options["tasks"])
