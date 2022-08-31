@@ -32,7 +32,9 @@ from .tables import ObjectChangeTable, TagTable
 
 class ObjectChangeList(ObjectListView):
     permission_required = "utils.view_objectchange"
-    queryset = ObjectChange.objects.select_related("user", "changed_object_type")
+    queryset = ObjectChange.objects.select_related("user").prefetch_related(
+        "changed_object"
+    )
     filterset = ObjectChangeFilterSet
     filterset_form = ObjectChangeFilterForm
     table = ObjectChangeTable

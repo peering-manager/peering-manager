@@ -330,6 +330,7 @@ class ObjectChangeTable(BaseTable):
             "user_name",
             "action",
             "changed_object_type",
+            "object_repr",
             "request_id",
         )
 
