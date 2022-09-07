@@ -245,7 +245,7 @@ class ButtonsColumn(tables.TemplateColumn):
             pk_field=pk_field,
             buttons=buttons,
         )
-        super().__init__(template_code=template_code, *args, **kwargs)
+        super().__init__(template_code=template_code, *args, orderable=False, **kwargs)
 
         self.extra_context.update(
             {"buttons": buttons, "return_url_extra": return_url_extra}

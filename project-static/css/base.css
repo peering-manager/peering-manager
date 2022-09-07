@@ -88,6 +88,14 @@ table.attr-table tr:first-child td {
 .table-headings th {
   background-color: #f5f5f5;
 }
+table.table thead th.asc.orderable a::after {
+  content: " \f0dd";
+  font-family: "Font Awesome 5 Free";
+}
+table.table thead th.desc.orderable a::after {
+  content: " \f0de";
+  font-family: "Font Awesome 5 Free";
+}
 ul.nav-tabs, ul.nav-pills {
   margin-bottom: 20px;
 }
