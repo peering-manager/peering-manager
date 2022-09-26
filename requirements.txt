@@ -1,5 +1,5 @@
 Django>=4.0,<4.1
-djangorestframework==3.13.1
+djangorestframework==3.14.0
 django-cacheops==6.1
 django-debug-toolbar==3.7.0
 django-filter==22.1
