@@ -1322,22 +1322,17 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
             # Get peers inside it
             peers = napalm_dict[vrf]["peers"]
             self.logger.debug(
-                "found %s bgp neighbors in %s vrf on %s", len(peers), vrf, self.hostname
+                f"found {len(peers)} bgp neighbors in {vrf} vrf on {self.hostname}"
             )
 
             # For each peer handle its IP address and the needed details
             for ip, details in peers.items():
                 if "remote_as" not in details:
                     self.logger.debug(
-                        "ignored bgp neighbor %s in %s vrf on %s",
-                        ip,
-                        vrf,
-                        self.hostname,
+                        f"ignored bgp neighbor {ip} in {vrf} vrf on {self.hostname}",
                     )
                 elif ip in [str(i["ip_address"]) for i in bgp_peers]:
-                    self.logger.debug(
-                        "duplicate bgp neighbor %s on %s", ip, self.hostname
-                    )
+                    self.logger.debug(f"duplicate bgp neighbor {ip} on {self.hostname}")
                 else:
                     try:
                         # Save the BGP session (IP and remote ASN)
@@ -1350,11 +1345,7 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
                     except ValueError as e:
                         # Error while parsing the IP address
                         self.logger.error(
-                            'ignored bgp neighbor %s in %s vrf on %s reason "%s"',
-                            ip,
-                            vrf,
-                            self.hostname,
-                            e,
+                            f'ignored bgp neighbor {ip} in {vrf} vrf on {self.hostname} reason "{e}"',
                         )
                         # Force next iteration
                         continue
@@ -1378,25 +1369,23 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
 
         if opened:
             # Get all BGP neighbors on the router
-            self.logger.debug("getting bgp neighbors on %s", self.hostname)
+            self.logger.debug(f"getting bgp neighbors on {self.hostname}")
             bgp_neighbors = device.get_bgp_neighbors()
-            self.logger.debug("raw napalm output %s", bgp_neighbors)
+            self.logger.debug(f"raw napalm output {bgp_neighbors}")
             self.logger.debug(
-                "found %s vrfs with bgp neighbors on %s",
-                len(bgp_neighbors),
-                self.hostname,
+                f"found {len(bgp_neighbors)} vrfs with bgp neighbors on {self.hostname}"
             )
 
             bgp_sessions = self._napalm_bgp_neighbors_to_peer_list(bgp_neighbors)
             self.logger.debug(
-                "found %s bgp neighbors on %s", len(bgp_sessions), self.hostname
+                f"found {len(bgp_sessions)} bgp neighbors on {self.hostname}"
             )
 
             # Close connection to the device
             closed = self.close_napalm_device(device)
             if not closed:
                 self.logger.debug(
-                    "error while closing connection with %s", self.hostname
+                    f"error while closing connection with {self.hostname}"
                 )
 
         return bgp_sessions
@@ -1413,17 +1402,15 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
         """
         bgp_sessions = []
 
-        self.logger.debug("getting bgp neighbors on %s", self.hostname)
+        self.logger.debug(f"getting bgp neighbors on {self.hostname}")
         bgp_neighbors = NetBox().napalm(self.netbox_device_id, "get_bgp_neighbors")
-        self.logger.debug("raw napalm output %s", bgp_neighbors)
+        self.logger.debug(f"raw napalm output {bgp_neighbors}")
         self.logger.debug(
-            "found %s vrfs with bgp neighbors on %s", len(bgp_neighbors), self.hostname
+            f"found {len(bgp_neighbors)} vrfs with bgp neighbors on {self.hostname}"
         )
 
         bgp_sessions = self._napalm_bgp_neighbors_to_peer_list(bgp_neighbors)
-        self.logger.debug(
-            "found %s bgp neighbors on %s", len(bgp_sessions), self.hostname
-        )
+        self.logger.debug(f"found {len(bgp_sessions)} bgp neighbors on {self.hostname}")
 
         return bgp_sessions
 

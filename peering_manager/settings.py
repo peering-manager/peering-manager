@@ -145,7 +145,10 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "Peering Manager",
     "DESCRIPTION": "BGP sessions management tool",
     "VERSION": VERSION,
-    "ENUM_NAME_OVERRIDES": {"VisibleEnum": "peeringdb.enums.Visibility"},
+    "ENUM_NAME_OVERRIDES": {
+        "StatusEnum": "peering.enums.BGPSessionStatus",
+        "VisibleEnum": "peeringdb.enums.Visibility",
+    },
 }
 
 
