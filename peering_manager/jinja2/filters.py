@@ -545,12 +545,22 @@ def missing_sessions(value, other, ixp=None):
 
 def prefix_list(value, family=0):
     """
-    Returns the prefixes for the given AS.
+    Returns the prefixes for the given AS or IXP.
     """
-    if type(value) is not AutonomousSystem:
-        raise ValueError("value is not an autonomous system")
+    if type(value) is AutonomousSystem:
+        return value.get_irr_as_set_prefixes(family=family)
 
-    return value.get_irr_as_set_prefixes(family)
+    if type(value) is InternetExchange:
+        prefixes = {}
+        for p in value.get_prefixes(family=family):
+            prefixes.setdefault(f"ipv{p.prefix.version}", []).append(str(p.prefix))
+
+        if family in (4, 6):
+            return prefixes.get(f"ipv{family}", [])
+        else:
+            return prefixes
+
+    raise ValueError("value has no prefixes")
 
 
 def safe_string(value):
@@ -655,6 +665,20 @@ def as_yaml(value, indent=2, sort_keys=True):
     return yaml.dump(data, indent=indent, sort_keys=sort_keys, default_flow_style=False)
 
 
+def indent(value, n, chars=" ", reset=False):
+    """
+    Appends `n` chars to the beginning of each line of a value which is parsed as a
+    string. Remove the chars before applying the indentation if `reset` is set to
+    `True`.
+    """
+    r = ""
+
+    for line in str(value).splitlines(True):
+        r += f"{chars * n}{line if not reset else line.lstrip(chars)}"
+
+    return r
+
+
 FILTER_DICT = {
     # Generics
     "safe_string": safe_string,
@@ -711,6 +735,7 @@ FILTER_DICT = {
     # Formatting
     "as_json": as_json,
     "as_yaml": as_yaml,
+    "indent": indent,
 }
 
 __all__ = ("FILTER_DICT",)

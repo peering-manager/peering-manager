@@ -549,6 +549,15 @@ class InternetExchange(AbstractGroup):
             > 0
         )
 
+    @property
+    def peeringdb_prefixes(self):
+        prefixes = {}
+
+        for p in self.get_prefixes():
+            prefixes.setdefault(f"ipv{p.prefix.version}", []).append(str(p.prefix))
+
+        return prefixes
+
     def __str__(self):
         return self.name
 
@@ -599,14 +608,18 @@ class InternetExchange(AbstractGroup):
 
         return peeringdb_ixlan
 
-    def get_prefixes(self):
+    def get_prefixes(self, family=0):
         """
         Returns all prefixes found (in PeeringDB) for this IXP.
         """
         if not self.linked_to_peeringdb:
             return IXLanPrefix.objects.none()
 
-        return IXLanPrefix.objects.filter(ixlan=self.peeringdb_ixlan)
+        prefixes = IXLanPrefix.objects.filter(ixlan=self.peeringdb_ixlan)
+        if family in (4, 6):
+            return prefixes.filter(prefix__family=family)
+        else:
+            return prefixes
 
     def get_connections(self):
         """

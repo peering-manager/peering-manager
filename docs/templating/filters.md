@@ -224,9 +224,13 @@ IPv6: {{ missing.ipaddr6 }}
 
 ## `prefix_list`
 
-Fetches all the prefixes of an autonomous system and returns them as a JSON
-formatted object. Prefixes are fetched using `bgpq3` (or `bgpq4`) but can
-come from the local cache if present.
+Fetches all the prefixes of an autonomous system or an IXP and returns them as
+a JSON formatted object. For AS, prefixes are fetched using `bgpq3` (or
+`bgpq4`) but can come from the local cache if present. For IXP, prefixes are
+fetched from the PeeringDB local cache.
+
+If the `family` parameter is set to `6` or `4` only the prefixes belonging to
+the given family will be returned, as a list.
 
 Example:
 
@@ -470,5 +474,18 @@ Examples:
 
 {% for connection in router | connections %}
 {{ connection | as_yaml }}
+{% endfor %}
+```
+
+## `indent`
+
+Appends `n` chars to the beginning of each line of a value which is parsed as
+a string. Remove the chars before applying the indentation if `reset` is set
+to `True`.
+
+```no-highlight
+{% for ixp in dataset %}
+{{ ixp.slug }}:
+{{ ixp | prefix_list | as_yaml | indent(2) }}
 {% endfor %}
 ```

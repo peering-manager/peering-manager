@@ -546,3 +546,11 @@ class Jinja2FilterTestCase(TestCase):
         self.assertIsInstance(json.loads(FILTER_DICT["as_json"](data)), list)
         data = RoutingPolicy.objects.first()
         self.assertIsInstance(json.loads(FILTER_DICT["as_json"](data)), dict)
+
+    def test_indent(self):
+        data = "a\nb\nc"
+        self.assertEqual("  a\n  b\n  c", FILTER_DICT["indent"](data, 2))
+        data = "  a\n  b\n  c"
+        self.assertEqual("  a\n  b\n  c", FILTER_DICT["indent"](data, 2, reset=True))
+        data = "a\nb\nc"
+        self.assertEqual("\ta\n\tb\n\tc", FILTER_DICT["indent"](data, 1, chars="\t"))

@@ -29,7 +29,7 @@
     </div>
     {% if instance.linked_to_peeringdb %}
     <div class="card mb-2">
-      <div class="card-header"><strong>IX Prefixes</strong></div>
+      <div class="card-header"><strong>IXP Prefixes</strong></div>
       <ul class="list-group list-group-flush">
         {% for ixlan_prefix in instance.get_prefixes %}
         <li class="list-group-item">{{ ixlan_prefix.prefix }}</li>
