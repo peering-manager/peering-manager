@@ -453,6 +453,8 @@ class InternetExchangeViewSet(ModelViewSet):
             status=status.HTTP_202_ACCEPTED,
         )
 
+    # DEPRECATED
+    # TODO: remove in next feature release
     @extend_schema(
         operation_id="peering_internet_exchanges_prefixes",
         request=None,

@@ -240,6 +240,7 @@ class InternetExchangeSerializer(PrimaryModelSerializer):
             "id",
             "display",
             "peeringdb_ixlan",
+            "peeringdb_prefixes",
             "ixapi_endpoint",
             "name",
             "slug",

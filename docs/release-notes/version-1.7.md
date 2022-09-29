@@ -1,3 +1,19 @@
+## Version 1.7.3 | MARK I (Bug fixes release) | 2022-MM-DD
+
+### Bug Fixes
+
+* Update of rqworker service documentation
+
+### Enhancements
+
+* Defer AS prefixes field from some queryset (should improve performance in some cases)
+* Cleanup commands output, consider `-v 0` as a silencer for common scripts, show prefix counts when using `grab_prefixes`
+* Add object representation as default column in changelog
+* Show sort arrow in table header
+* Add `indent` Jinja2 filter to manipulate spacing in templates
+* Add support for IXP prefix in `prefix_list` Jinja2 filter
+* Deprecate `api/peering/internet-exchanges/<id>/prefixes/` in favour of the `peeringdb_prefixes` field in `api/peering/internet-exchanges/<id>`, the prefixes endpoint will be removed in the next features release
+
 ## Version 1.7.2 | MARK I (Urgent bug fixes release) | 2022-08-30
 
 ### Bug Fixes
