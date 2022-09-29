@@ -43,7 +43,7 @@ def process_webhook(
     try:
         prepared_request = requests.Request(**params).prepare()
     except requests.exceptions.RequestException as e:
-        logger.error("Error forming HTTP request: %s", e)
+        logger.error(f"Error forming HTTP request: {e}")
         raise e
 
     # If a secret key is defined, sign the request with a hash (key + content)
@@ -64,9 +64,7 @@ def process_webhook(
         return f"Status {response.status_code} returned, webhook successfully processed"
     else:
         logger.warning(
-            "Request failed; response status %s: %s",
-            response.status_code,
-            response.content,
+            f"Request failed; response status {response.status_code}: {response.content}"
         )
         raise requests.exceptions.RequestException(
             f"Status {response.status_code} returned with content '{response.content}', webhook FAILED to process"

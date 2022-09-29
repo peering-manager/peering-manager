@@ -551,14 +551,10 @@ def prefix_list(value, family=0):
         return value.get_irr_as_set_prefixes(family=family)
 
     if type(value) is InternetExchange:
-        prefixes = {}
-        for p in value.get_prefixes(family=family):
-            prefixes.setdefault(f"ipv{p.prefix.version}", []).append(str(p.prefix))
-
         if family in (4, 6):
-            return prefixes.get(f"ipv{family}", [])
+            return value.peeringdb_prefixes.get(f"ipv{family}", [])
         else:
-            return prefixes
+            return value.peeringdb_prefixes
 
     raise ValueError("value has no prefixes")
 
