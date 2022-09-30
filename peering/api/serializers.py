@@ -1,3 +1,5 @@
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from bgp.api.serializers import NestedRelationshipSerializer
@@ -213,6 +215,7 @@ class DirectPeeringSessionSerializer(PrimaryModelSerializer):
 
 class InternetExchangeSerializer(PrimaryModelSerializer):
     ixapi_endpoint = NestedIXAPISerializer(required=False)
+    peeringdb_prefixes = serializers.DictField(read_only=True)
     local_autonomous_system = NestedAutonomousSystemSerializer()
     status = ChoiceField(required=False, choices=BGPGroupStatus)
     import_routing_policies = SerializedPKRelatedField(
@@ -253,6 +256,10 @@ class InternetExchangeSerializer(PrimaryModelSerializer):
             "local_context_data",
             "tags",
         ]
+
+    @extend_schema_field(OpenApiTypes.OBJECT)
+    def get_peeringdb_prefixes(self, object):
+        return object.peeringdb_prefixes
 
 
 class InternetExchangePeeringSessionSerializer(PrimaryModelSerializer):
