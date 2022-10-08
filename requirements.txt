@@ -20,3 +20,5 @@ pynetbox==7.2.0
 PyYAML==6.0.1
 requests==2.31.0
 tzdata==2023.3
+napalm-sros>=1.0.1
+bcrypt>=4.0.1
