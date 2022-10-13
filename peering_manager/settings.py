@@ -6,6 +6,7 @@
 
 
 import platform
+import unicodedata
 import warnings
 from pathlib import Path
 
@@ -405,6 +406,28 @@ MIDDLEWARE = [
     "peering_manager.middleware.ObjectChangeMiddleware",
     "peering_manager.middleware.LastSearchMiddleware",
 ]
+
+try:
+    from peering_manager.oidc_config import *
+
+    OIDC_CONFIGURED = True
+except ImportError:
+    OIDC_CONFIGURED = False
+
+
+def generate_username(email):
+    return unicodedata.normalize("NFKC", email)[:150]
+
+
+OIDC_USERNAME_ALGO = generate_username
+
+if OIDC_CONFIGURED:
+    AUTHENTICATION_BACKENDS = [
+        "mozilla_django_oidc.auth.OIDCAuthenticationBackend",
+        "django.contrib.auth.backends.ModelBackend",
+    ]
+    INSTALLED_APPS.insert(2, "mozilla_django_oidc")
+    MIDDLEWARE.insert(5, "mozilla_django_oidc.middleware.SessionRefresh")
 
 # Prometheus setup
 if METRICS_ENABLED:
