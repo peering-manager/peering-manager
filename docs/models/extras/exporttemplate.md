@@ -32,7 +32,7 @@ CURL_OPTS='--silent'
 TMP_FILE="/tmp/librenms_bgp_sessions_$(date --utc +%s).json"
 
 curl ${CURL_OPTS} --header "X-Auth-Token: ${LIBRENMS_TOKEN}" \
-  "https://nms.kviknet.dk/api/v0/bgp" > ${TMP_FILE}
+  "https://${LIBRENMS_FQDN}/api/v0/bgp" > ${TMP_FILE}
 
 {%- for session in dataset %}
 
@@ -61,7 +61,7 @@ if [ $(echo -n ${session_id} | wc -l) ]; then
   --data "{
     \"bgp_descr\": \"$(echo -n ${bgp_description})\"
   }" \
-  "https://nms.kviknet.dk/api/v0/bgp/${session_id}"
+  "https://${LIBRENMS_FQDN}/api/v0/bgp/${session_id}"
 
 fi
 
@@ -70,10 +70,10 @@ fi
 
 Will generate a complete bash shell script that can be run to update BGP Peer
 descriptions in LibreNMS. The script assumes the LibreNMS token is provided as
-an environment variable, `LIBRENMS_TOKEN`. Peering Manager Object Type used for
-this template is `peering | internet exchange peering session`. Assumes `jq`,
-and `curl` are installed on the system. ([community.librenms.org][0],
-[github.com][1]).
+an environment variable, `LIBRENMS_TOKEN`. And the Domain Name as
+`LIBRENMS_FQDN`. Peering Manager Object Type used for this template is `peering
+| internet exchange peering session`. Assumes `jq`, and `curl` are installed on
+the system. ([community.librenms.org][0], [github.com][1]).
 
 [0]: https://community.librenms.org/t/bgp-peer-description-on-routing-page-complete/3337
 [1]: https://github.com/librenms/librenms/pull/9165
