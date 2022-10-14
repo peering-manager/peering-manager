@@ -24,3 +24,56 @@ autonomous_systems:
 ```
 
 This template will export all ASNs with an IRR AS-SET defined.
+
+```jinja2
+#! /usr/bin/env bash
+
+CURL_OPTS='--silent'
+TMP_FILE="/tmp/librenms_bgp_sessions_$(date --utc +%s).json"
+
+curl ${CURL_OPTS} --header "X-Auth-Token: ${LIBRENMS_TOKEN}" \
+  "https://nms.kviknet.dk/api/v0/bgp" > ${TMP_FILE}
+
+{%- for session in dataset %}
+
+device_information=$(
+  cat ${TMP_FILE} | \
+  jq '.bgp_sessions[] | select(.bgpPeerRemoteAs=={{ session.autonomous_system.asn }}) | select(.bgpPeerIdentifier=="{{ session.ip_address }}")'
+)
+
+session_id=$(
+  echo "${device_information}" | jq '.bgpPeer_id'
+)
+
+if [ $(echo -n ${session_id} | wc -l) ]; then
+
+  device_id=$(
+    echo "${device_information}" | jq '.device_id'
+  )
+
+  local_address=$(
+    echo "${device_information}" | jq '.bgpLocalAddr' | sed -e 's/"//g'
+  )
+
+  bgp_description=$(echo -n "IXP Peering: AS{{ session.autonomous_system.asn }} - {{ session.autonomous_system.name | safe_string }} - Peering Manager Session ID: {{ session.id }} - LibreNMS Device ID: ${device_id} - Local Device Address: ${local_address}{% if session.service_reference %} - Service Reference: {{ session.service_reference | safe_string }}{% endif %}")
+
+  curl ${CURL_OPTS} --header "X-Auth-Token: ${LIBRENMS_TOKEN}" \
+  --data "{
+    \"bgp_descr\": \"$(echo -n ${bgp_description})\"
+  }" \
+  "https://nms.kviknet.dk/api/v0/bgp/${session_id}"
+
+fi
+
+{%- endfor %}
+```
+
+Will generate a complete bash shell script that can be run to update BGP Peer
+descriptions in LibreNMS. The script assumes the LibreNMS token is provided as
+an environment variable, `LIBRENMS_TOKEN`. Peering Manager Object Type used for
+this template is `peering | internet exchange peering session`. Assumes `jq`,
+and `curl` are installed on the system. ([community.librenms.org][0],
+[github.com][1]).
+
+[0]: https://community.librenms.org/t/bgp-peer-description-on-routing-page-complete/3337
+[1]: https://github.com/librenms/librenms/pull/9165
