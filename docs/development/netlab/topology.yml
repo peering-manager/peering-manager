@@ -1,0 +1,37 @@
+module: [ bgp ]
+
+provider: clab
+
+plugin: [ peeringdb ]
+
+defaults.device: srlinux
+
+addressing:
+  lan:
+    ipv6: True
+
+nodes:
+
+  DE-CIX: # Multiple locations
+    bgp.as: 65001
+    ixp: "DE-CIX Frankfurt"
+    # ospf.reference_bandwidth: 800000 # Mbps = 800G links
+
+  GlobalConnect:
+    bgp.as: 12552 # Global Connect AS
+    bgp.originate: [ 194.19.50.0/24, 2001:194:19:50::/64 ]
+    device: sros
+    clab.type: sr-14s
+
+  Twitter:
+    bgp.as: 13414 # Twitter AS
+    bgp.originate: [ 104.244.42.0/24, 2001:104:244:42::/64 ]
+
+  Apple:
+    bgp.as: 714
+
+links:
+- DE-CIX:
+  GlobalConnect:
+  Twitter:
+  Apple:
