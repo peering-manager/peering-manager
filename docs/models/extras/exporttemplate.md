@@ -38,7 +38,7 @@ curl ${CURL_OPTS} --header "X-Auth-Token: ${LIBRENMS_TOKEN}" \
 
 device_information=$(
   cat ${TMP_FILE} | \
-  jq '.bgp_sessions[] | select(.bgpPeerRemoteAs=={{ session.autonomous_system.asn }}) | select(.bgpPeerIdentifier=="{{ session.ip_address }}")'
+  jq '.bgp_sessions[] | select(.bgpPeerRemoteAs=={{ session.autonomous_system.asn }}) | select(.bgpPeerIdentifier=="{{ session.ip_address | ip }}")'
 )
 
 session_id=$(
