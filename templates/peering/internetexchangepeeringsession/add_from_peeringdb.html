@@ -35,7 +35,14 @@
         {% for hidden in form.hidden_fields %}
         {{ hidden }}
         {% endfor %}
-        <div class="card-header"><strong>Peering Session</strong></div>
+        <div class="card-header">
+          <strong>Peering Session</strong>
+          {% if formset.can_delete %}
+          <div class="float-right">
+            <button type="button" class="btn btn-xs btn-danger hide-form"><i class="fas fa-minus"></i> Ignore</button>
+          </div>
+          {% endif %}
+        </div>
         <div class="card-body">
           {% for field in form.visible_fields %}
           {% render_field field %}
@@ -52,4 +59,16 @@
     </div>
   </div>
 </form>
+{% endblock %}
+{% block javascript %}
+<script>
+  // Bind function to button click
+  $('.hide-form').click(function() {
+    mainDiv = $(this).parent().parent().parent();
+
+    // Hide form but check hidden delete field
+    mainDiv.hide();
+    mainDiv.find($('input[type=hidden]')).val('true');
+  });
+</script>
 {% endblock %}

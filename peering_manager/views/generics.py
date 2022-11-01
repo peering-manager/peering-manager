@@ -18,6 +18,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
+from peering_manager.forms import HiddenControlFormSet
 from utils.forms import ConfirmationForm, TableConfigurationForm
 from utils.functions import (
     get_permission_for_model,
@@ -702,10 +703,12 @@ class ImportFromObjectView(GetReturnURLMixin, PermissionRequiredMixin, View):
 
         # Prepare the form
         if not self.custom_formset:
-            ObjectFormSet = formset_factory(self.form_model, extra=0)
+            ObjectFormSet = formset_factory(
+                self.form_model, formset=HiddenControlFormSet, extra=0, can_delete=True
+            )
         else:
             ObjectFormSet = formset_factory(
-                self.form_model, formset=self.custom_formset, extra=0
+                self.form_model, formset=self.custom_formset, extra=0, can_delete=True
             )
 
         # Get dependencies
@@ -727,6 +730,8 @@ class ImportFromObjectView(GetReturnURLMixin, PermissionRequiredMixin, View):
 
             with transaction.atomic():
                 for form in formset:
+                    if formset.can_delete and formset._should_delete_form(form):
+                        continue
                     if form.is_valid():
                         instance = form.save()
                         created_objects.append(instance)
