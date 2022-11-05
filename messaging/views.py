@@ -129,7 +129,9 @@ class ContactEdit(ObjectEditView):
 
 class ContactBulkEdit(BulkEditView):
     permission_required = "messaging.change_contact"
-    queryset = Contact.objects.all()
+    queryset = Contact.objects.annotate(
+        assignment_count=count_related(ContactAssignment, "contact")
+    )
     filterset = ContactFilterSet
     table = ContactTable
     form = ContactBulkEditForm
@@ -142,7 +144,9 @@ class ContactDelete(ObjectDeleteView):
 
 class ContactBulkDelete(BulkDeleteView):
     permission_required = "messaging.delete_contact"
-    queryset = Contact.objects.all()
+    queryset = Contact.objects.annotate(
+        assignment_count=count_related(ContactAssignment, "contact")
+    )
     filterset = ContactFilterSet
     table = ContactTable
 
