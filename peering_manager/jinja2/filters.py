@@ -136,12 +136,13 @@ def inherited_status(value):
         type(value) is DirectPeeringSession
         and value.status != BGPSessionStatus.DISABLED
     ):
-        # Disabled group probably means sessions should be teared down
-        if value.bgp_group.status == BGPGroupStatus.DISABLED:
-            return BGPSessionStatus.DISABLED
-        # Maintenance group probably means sessions should be less preferred
-        if value.bgp_group.status == BGPGroupStatus.MAINTENANCE:
-            return BGPSessionStatus.MAINTENANCE
+        if value.bgp_group:
+            # Disabled group probably means sessions should be teared down
+            if value.bgp_group.status == BGPGroupStatus.DISABLED:
+                return BGPSessionStatus.DISABLED
+            # Maintenance group probably means sessions should be less preferred
+            if value.bgp_group.status == BGPGroupStatus.MAINTENANCE:
+                return BGPSessionStatus.MAINTENANCE
         # Maintenance on a router probably means sessions should be less preferred
         if value.router and value.router.status == DeviceStatus.MAINTENANCE:
             return BGPSessionStatus.MAINTENANCE
