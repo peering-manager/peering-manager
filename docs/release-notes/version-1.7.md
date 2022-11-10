@@ -1,8 +1,9 @@
-## Version 1.7.3 | MARK I (Bug fixes release) | 2022-MM-DD
+## Version 1.7.3 | MARK I (Bug fixes release) | 2022-11-11
 
 ### Bug Fixes
 
-* Update of rqworker service documentation
+* Fix contact assigment count in bulk edit/delete views
+* Fix `inherited_status` Jinja2 filter for group-less direct sessions
 
 ### Enhancements
 
@@ -13,6 +14,13 @@
 * Add `indent` Jinja2 filter to manipulate spacing in templates
 * Add support for IXP prefix in `prefix_list` Jinja2 filter
 * Deprecate `api/peering/internet-exchanges/<id>/prefixes/` in favour of the `peeringdb_prefixes` field in `api/peering/internet-exchanges/<id>`, the prefixes endpoint will be removed in the next features release
+* Add OpenID Connect login (by @Paktosan)
+* Add ability to ignore some sessions when importing them from PeeringDB
+
+### Documentation
+
+* Update of rqworker service documentation
+* Add export template example (by @netravnen)
 
 ## Version 1.7.2 | MARK I (Urgent bug fixes release) | 2022-08-30
 
