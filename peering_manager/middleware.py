@@ -104,6 +104,7 @@ class RequireLoginMiddleware(object):
                 not request.path_info.startswith(reverse("api-root"))
                 and request.path_info != settings.LOGIN_URL
                 and not request.path.startswith("/oidc/")
+                and not request.path.startswith("/sso/")
             ):
                 return HttpResponseRedirect(
                     f"{settings.LOGIN_URL}?next={request.path_info}"

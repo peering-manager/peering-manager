@@ -64,6 +64,12 @@ if settings.OIDC_CONFIGURED:
         path("oidc/", include("mozilla_django_oidc.urls")),
     )
 
+if settings.SAML2_CONFIGURED:
+    __patterns.insert(
+        2,
+        path("sso/", include("django3_auth_saml2.urls")),
+    )
+
 # Add debug_toolbar in debug mode
 if settings.DEBUG:
     import debug_toolbar

@@ -429,6 +429,22 @@ if OIDC_CONFIGURED:
     INSTALLED_APPS.insert(2, "mozilla_django_oidc")
     MIDDLEWARE.insert(5, "mozilla_django_oidc.middleware.SessionRefresh")
 
+# SAML2
+
+try:
+    from peering_manager.saml2_config import *
+
+    SAML2_CONFIGURED = True
+except ImportError:
+    SAML2_CONFIGURED = False
+
+if SAML2_CONFIGURED:
+    AUTHENTICATION_BACKENDS = [
+        SAML2_AUTH_CONFIG['AUTHENTICATION_BACKEND'],
+        "django.contrib.auth.backends.ModelBackend",
+    ]
+    INSTALLED_APPS.insert(2, "django3_auth_saml2")
+
 # Prometheus setup
 if METRICS_ENABLED:
     PROMETHEUS_EXPORT_MIGRATIONS = False
