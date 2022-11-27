@@ -1,10 +1,27 @@
 import logging
+import traceback
 
 from django_rq import job
 
 from extras.enums import LogLevel
+from extras.models import JobResult
 
 logger = logging.getLogger("peering.manager.extras.jobs")
+
+
+def exception_handler(rq_job, exc_type, exc_value, trace):
+    """
+    Sets result's details according to the exception that occurred while running the job.
+    """
+    try:
+        job = JobResult.objects.get(job_id=rq_job.id)
+    except JobResult.DoesNotExist:
+        logger.error(f"could not find job id {rq_job.id}, cannot log exception")
+
+    job.set_output("".join(traceback.format_exception(exc_type, exc_value, trace)))
+    job.mark_errored(
+        "An exception occurred, see output for more details.", logger=logger
+    )
 
 
 @job("default")

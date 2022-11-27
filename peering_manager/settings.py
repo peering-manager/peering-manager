@@ -344,6 +344,7 @@ else:
         "DEFAULT_TIMEOUT": RQ_DEFAULT_TIMEOUT,
     }
 RQ_QUEUES = {"high": RQ_PARAMS, "default": RQ_PARAMS, "low": RQ_PARAMS}
+RQ_EXCEPTION_HANDLERS = ["extras.jobs.exception_handler"]
 
 
 # Email
