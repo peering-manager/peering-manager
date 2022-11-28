@@ -6,7 +6,6 @@ import yaml
 from django.db import models
 from django.db.models import Q
 from django.db.models.query import QuerySet
-from django.forms.models import model_to_dict
 
 from devices.crypto.cisco import MAGIC as CISCO_MAGIC
 from net.enums import ConnectionStatus
@@ -21,7 +20,7 @@ from peering.models.models import (
     InternetExchangePeeringSession,
     Router,
 )
-from utils.functions import get_key_in_hash
+from utils.functions import get_key_in_hash, serialize_object
 from utils.models import ConfigContextMixin, TagsMixin
 
 
@@ -635,31 +634,34 @@ def context_get_key(value, key, default=None, recursive=True):
     return value
 
 
+def _serialize(value):
+    """
+    Serializes a queryset, an object or a basic value as something usable by a JSON or
+    YAML dumper.
+    """
+    if type(value) is QuerySet:
+        data = [serialize_object(i) for i in value]
+    elif isinstance(value, models.Model):
+        data = serialize_object(value)
+    else:
+        data = value
+    return data
+
+
 def as_json(value, indent=4, sort_keys=True):
     """
     Render something as JSON.
     """
-    if type(value) is QuerySet:
-        data = [model_to_dict(i) for i in value]
-    elif isinstance(value, models.Model):
-        data = model_to_dict(value)
-    else:
-        data = value
-    return json.dumps(data, indent=indent, sort_keys=sort_keys)
+    return json.dumps(_serialize(value), indent=indent, sort_keys=sort_keys)
 
 
 def as_yaml(value, indent=2, sort_keys=True):
     """
     Render something as YAML.
     """
-    if type(value) is QuerySet:
-        data = [model_to_dict(i) for i in value]
-    elif isinstance(value, models.Model):
-        data = model_to_dict(value)
-    else:
-        data = value
-
-    return yaml.dump(data, indent=indent, sort_keys=sort_keys, default_flow_style=False)
+    return yaml.dump(
+        _serialize(value), indent=indent, sort_keys=sort_keys, default_flow_style=False
+    )
 
 
 def indent(value, n, chars=" ", reset=False):
