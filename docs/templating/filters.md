@@ -80,7 +80,8 @@ Example:
 ## `ip`
 
 Returns the IP address without the prefix length for a BGP session or IP
-address fields. The returned value is a string.
+address fields. The returned value is a string. If a list is given, each item
+of the list will be processed and returned as a list as well.
 
 Examples:
 

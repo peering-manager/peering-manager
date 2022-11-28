@@ -159,32 +159,36 @@ class Jinja2FilterTestCase(TestCase):
         self.assertFalse(FILTER_DICT["ipv6"]("notanip"))
 
     def test_ip(self):
-        ip = "2001:db8::1"
-        self.session6.ip_address = ip
-        self.assertEqual(ip, FILTER_DICT["ip"](self.session6))
-        self.session6.ip_address = ipaddress.ip_address(ip)
-        self.assertEqual(ip, FILTER_DICT["ip"](self.session6))
-        self.session6.ip_address = ipaddress.ip_interface(f"{ip}/64")
-        self.assertEqual(ip, FILTER_DICT["ip"](self.session6))
-        self.assertEqual(ip, FILTER_DICT["ip"](ip))
-        self.assertEqual(ip, FILTER_DICT["ip"](f"{ip}/64"))
-        self.assertEqual(ip, FILTER_DICT["ip"](ipaddress.ip_address(ip)))
-        self.assertEqual(ip, FILTER_DICT["ip"](ipaddress.ip_interface(f"{ip}/64")))
+        ip6 = "2001:db8::1"
+        self.session6.ip_address = ip6
+        self.assertEqual(ip6, FILTER_DICT["ip"](self.session6))
+        self.session6.ip_address = ipaddress.ip_address(ip6)
+        self.assertEqual(ip6, FILTER_DICT["ip"](self.session6))
+        self.session6.ip_address = ipaddress.ip_interface(f"{ip6}/64")
+        self.assertEqual(ip6, FILTER_DICT["ip"](self.session6))
+        self.assertEqual(ip6, FILTER_DICT["ip"](ip6))
+        self.assertEqual(ip6, FILTER_DICT["ip"](f"{ip6}/64"))
+        self.assertEqual(ip6, FILTER_DICT["ip"](ipaddress.ip_address(ip6)))
+        self.assertEqual(ip6, FILTER_DICT["ip"](ipaddress.ip_interface(f"{ip6}/64")))
 
-        ip = "192.0.2.10"
-        self.session4.ip_address = ip
-        self.assertEqual(ip, FILTER_DICT["ip"](self.session4))
-        self.session4.ip_address = ipaddress.ip_address(ip)
-        self.assertEqual(ip, FILTER_DICT["ip"](self.session4))
-        self.session4.ip_address = ipaddress.ip_interface(f"{ip}/24")
-        self.assertEqual(ip, FILTER_DICT["ip"](self.session4))
-        self.assertEqual(ip, FILTER_DICT["ip"](ip))
-        self.assertEqual(ip, FILTER_DICT["ip"](f"{ip}/24"))
-        self.assertEqual(ip, FILTER_DICT["ip"](ipaddress.ip_address(ip)))
-        self.assertEqual(ip, FILTER_DICT["ip"](ipaddress.ip_interface(f"{ip}/24")))
+        ip4 = "192.0.2.10"
+        self.session4.ip_address = ip4
+        self.assertEqual(ip4, FILTER_DICT["ip"](self.session4))
+        self.session4.ip_address = ipaddress.ip_address(ip4)
+        self.assertEqual(ip4, FILTER_DICT["ip"](self.session4))
+        self.session4.ip_address = ipaddress.ip_interface(f"{ip4}/24")
+        self.assertEqual(ip4, FILTER_DICT["ip"](self.session4))
+        self.assertEqual(ip4, FILTER_DICT["ip"](ip4))
+        self.assertEqual(ip4, FILTER_DICT["ip"](f"{ip4}/24"))
+        self.assertEqual(ip4, FILTER_DICT["ip"](ipaddress.ip_address(ip4)))
+        self.assertEqual(ip4, FILTER_DICT["ip"](ipaddress.ip_interface(f"{ip4}/24")))
+
+        self.assertListEqual(
+            [ip6, ip4], FILTER_DICT["ip"]([self.session6, self.session4])
+        )
 
         with self.assertRaises(ValueError):
-            self.assertEqual(ip, FILTER_DICT["ip"]("notanip"))
+            FILTER_DICT["ip"]("notanip")
 
     def test_ip_version(self):
         self.assertEqual(6, FILTER_DICT["ip_version"](self.session6))

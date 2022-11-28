@@ -1,3 +1,4 @@
+import collections
 import ipaddress
 import json
 import unicodedata
@@ -71,6 +72,8 @@ def ip(value):
         ipaddress.IPv6Address,
     ):
         address = value
+    elif type(value) is list:
+        return [ip(i) for i in value]
     else:
         try:
             address = ipaddress.ip_interface(value)
