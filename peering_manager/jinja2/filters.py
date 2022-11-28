@@ -1,4 +1,3 @@
-import collections
 import ipaddress
 import json
 import unicodedata
