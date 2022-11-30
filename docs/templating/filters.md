@@ -167,7 +167,7 @@ Example:
 ```no-highlight
 {% for session in dataset | unique("autonomous_system") %}
 ...
-{% endfo %}
+{% endfor %}
 ```
 
 ## `iterate`

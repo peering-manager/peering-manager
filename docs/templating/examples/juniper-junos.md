@@ -129,6 +129,7 @@ policy-options {
 
 Notes:
 
-- when using `if not session.enabled`, either `inactive:` (older releases) or `shutdown` (since 19.1, [link][shutdown]) can be used.
+- when using `if not session.enabled`, either `inactive:` (older releases) or
+  `shutdown` (since 19.1, [link][shutdown]) can be used.
 
 [shutdown]: https://www.juniper.net/documentation/us/en/software/junos/bgp/topics/ref/statement/protocols-bgp-shutdown.html
