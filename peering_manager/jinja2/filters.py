@@ -550,7 +550,7 @@ def prefix_list(value, family=0):
     Returns the prefixes for the given AS or IXP.
     """
     if type(value) is AutonomousSystem:
-        return value.get_irr_as_set_prefixes(family=family)
+        return value.get_irr_as_set_prefixes(address_family=family)
 
     if type(value) is InternetExchange:
         if family in (4, 6):
