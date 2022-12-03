@@ -2,13 +2,13 @@ import logging
 
 from cacheops.signals import cache_invalidated, cache_read
 from django.contrib.contenttypes.models import ContentType
-from django.dispatch import Signal
+from django.db.models.signals import m2m_changed, post_save, pre_delete
+from django.dispatch import Signal, receiver
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 from prometheus_client import Counter
 
 from extras.webhooks import enqueue_object, get_snapshots, serialize_for_webhook
-from peering_manager import thread_locals
-from peering_manager.request_context import get_request
+from peering_manager.context import current_request, webhooks_queue
 from utils.enums import ObjectChangeAction
 from utils.models import ObjectChange
 
@@ -16,22 +16,32 @@ from utils.models import ObjectChange
 clear_webhooks = Signal()
 
 
+def is_same_object(instance, webhook_data, request_id):
+    """
+    Compare the given instance to the most recent queued webhook object, returning True
+    if they match. This check is used to avoid creating duplicate webhook entries.
+    """
+    return (
+        instance.pk == webhook_data["object_id"]
+        and request_id == webhook_data["request_id"]
+    )
+
+
+@receiver((post_save, m2m_changed))
 def handle_changed_object(sender, instance, **kwargs):
     """
     Fires when an object is created or updated.
     """
+    m2m_changed = False
+
     # Ignore object without the right method
     if not hasattr(instance, "to_objectchange"):
         return
 
-    request = get_request()
-    m2m_changed = False
-
-    def is_same_object(instance, webhook_data):
-        return (
-            instance.pk == webhook_data["object_id"]
-            and request.id == webhook_data["request_id"]
-        )
+    # Get the current request, or bail if not set
+    request = current_request.get()
+    if request is None:
+        return
 
     # Queue the object for processing once the request completes
     if kwargs.get("created"):
@@ -59,15 +69,16 @@ def handle_changed_object(sender, instance, **kwargs):
         change.save()
 
     # If this is an M2M change, update the previously queued webhook (from post_save)
-    webhook_queue = thread_locals.webhook_queue
-    if m2m_changed and webhook_queue and is_same_object(instance, webhook_queue[-1]):
+    queue = webhooks_queue.get()
+    if m2m_changed and queue and is_same_object(instance, queue[-1], request.id):
         instance.refresh_from_db()  # Ensure that we're working with fresh M2M assignments
-        webhook_queue[-1]["data"] = serialize_for_webhook(instance)
-        webhook_queue[-1]["snapshots"]["postchange"] = get_snapshots(instance, action)[
+        queue[-1]["data"] = serialize_for_webhook(instance)
+        queue[-1]["snapshots"]["postchange"] = get_snapshots(instance, action)[
             "postchange"
         ]
     else:
-        enqueue_object(webhook_queue, instance, request.user, request.id, action)
+        enqueue_object(queue, instance, request.user, request.id, action)
+    webhooks_queue.set(queue)
 
     # Increment metric counters
     if action == ObjectChangeAction.CREATE:
@@ -76,6 +87,7 @@ def handle_changed_object(sender, instance, **kwargs):
         model_updates.labels(instance._meta.model_name).inc()
 
 
+@receiver(pre_delete)
 def handle_deleted_object(sender, instance, **kwargs):
     """
     Fires when an object is deleted.
@@ -84,7 +96,10 @@ def handle_deleted_object(sender, instance, **kwargs):
     if not hasattr(instance, "to_objectchange"):
         return
 
-    request = get_request()
+    # Get the current request, or bail if not set
+    request = current_request.get()
+    if request is None:
+        return
 
     # Record an object change
     change = instance.to_objectchange(ObjectChangeAction.DELETE)
@@ -93,24 +108,23 @@ def handle_deleted_object(sender, instance, **kwargs):
     change.save()
 
     # Enqueue webhooks
-    webhook_queue = thread_locals.webhook_queue
-    enqueue_object(
-        webhook_queue, instance, request.user, request.id, ObjectChangeAction.DELETE
-    )
+    queue = webhooks_queue.get()
+    enqueue_object(queue, instance, request.user, request.id, ObjectChangeAction.DELETE)
+    webhooks_queue.set(queue)
 
     # Increment metric counters
     model_deletes.labels(instance._meta.model_name).inc()
 
 
+@receiver(clear_webhooks)
 def clear_webhook_queue(sender, **kwargs):
     """
     Deletes any queued webhooks (e.g. because of an aborted bulk transaction).
     """
-    logger = logging.getLogger("webhooks")
-    webhook_queue = thread_locals.webhook_queue
-
-    logger.info(f"clearing {len(webhook_queue)} queued webhooks ({sender})")
-    webhook_queue.clear()
+    logging.getLogger("peering_manager.extras.webhooks").info(
+        f"clearing {len(webhooks_queue.get())} queued webhooks ({sender})"
+    )
+    webhooks_queue.set([])
 
 
 cacheops_cache_hit = Counter("cacheops_cache_hit", "Number of cache hits")
