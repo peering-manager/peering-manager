@@ -440,7 +440,7 @@ except ImportError:
 
 if SAML2_CONFIGURED:
     AUTHENTICATION_BACKENDS = [
-        SAML2_AUTH_CONFIG['AUTHENTICATION_BACKEND'],
+        SAML2_AUTH_CONFIG["AUTHENTICATION_BACKEND"],
         "django.contrib.auth.backends.ModelBackend",
     ]
     INSTALLED_APPS.insert(2, "django3_auth_saml2")
