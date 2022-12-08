@@ -27,8 +27,10 @@ nav:
             - a. Apache 2: "setup/4a-apache2.md"
             - b. nginx: "setup/4b-nginx.md"
         - 5. Logging (Optional): "setup/5-logging.md"
-        - 6. LDAP (Optional): "setup/6-ldap.md"
-        - 7. OIDC (Optional): "setup/7-oidc.md"
+        - 6. External Authentication (Optional):
+            - a. LDAP (Optional): "setup/6a-ldap.md"
+            - b. OIDC (Optional): "setup/6b-oidc.md"
+            - c. SAML2 (Optional): "setup/6c-saml.md"
         - 8. Scheduled Tasks (Optional): "setup/8-scheduled-tasks.md"
         - 9. Prometheus (Optional): "setup/9-prometheus.md"
         - uWSGI: "setup/uwsgi.md"
