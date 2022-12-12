@@ -12,7 +12,7 @@ drf-spectacular==0.24.2
 Jinja2>=3.1.2
 Markdown==3.4.1
 napalm==4.0.0
-packaging==21.3
+packaging==22.0
 psycopg2-binary==2.9.5
 pynetbox==6.6.2
 PyYAML==6.0
