@@ -60,6 +60,10 @@ AUTH_LDAP_BIND_PASSWORD = "thisisnotasecurepassword"
 When using Windows Server 2012, `AUTH_LDAP_USER_DN_TEMPLATE` should be set to
 `None`.
 
+When authenticating against MS Active Directory, you may want to change the
+LDAP search string to `"(|(sAMAccountName=%(user)s)(userPrincipalName=%(user)s))"`
+so that users can log in with their userid or their UPN in hybrid environments.
+
 ```python
 from django_auth_ldap.config import LDAPSearch
 
