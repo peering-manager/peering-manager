@@ -149,7 +149,13 @@ class AutonomousSystem(
         """
         Returns all IXP peering sessions with this AS.
         """
-        return InternetExchangePeeringSession.objects.filter(autonomous_system=self)
+        sessions = InternetExchangePeeringSession.objects.filter(autonomous_system=self)
+        if internet_exchange_point:
+            return sessions.filter(
+                ixp_connection__internet_exchange_point__pk=internet_exchange_point.pk
+            )
+        else:
+            return sessions
 
     def get_internet_exchange_points(self, other):
         """

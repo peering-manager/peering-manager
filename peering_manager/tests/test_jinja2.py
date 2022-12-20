@@ -414,12 +414,28 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(0, FILTER_DICT["direct_sessions"](self.router).count())
 
     def test_ixp_sessions(self):
-        self.assertEqual(4, FILTER_DICT["ixp_sessions"](self.a_s).count())
+        tmp_ixp = InternetExchange.objects.create(
+            local_autonomous_system=AutonomousSystem.objects.get(asn=64500),
+            name="Temp IXP",
+            slug="temp-ixp",
+        )
+        tmp_ixp_connection = Connection.objects.create(
+            vlan=10, internet_exchange_point=tmp_ixp, ipv4_address="192.0.10.10"
+        )
+        InternetExchangePeeringSession.objects.create(
+            autonomous_system=self.a_s,
+            ixp_connection=tmp_ixp_connection,
+            ip_address="192.0.10.1",
+        )
+
+        self.assertEqual(5, FILTER_DICT["ixp_sessions"](self.a_s).count())
         self.assertEqual(2, FILTER_DICT["ixp_sessions"](self.a_s, family=6).count())
-        self.assertEqual(2, FILTER_DICT["ixp_sessions"](self.a_s, family=4).count())
+        self.assertEqual(3, FILTER_DICT["ixp_sessions"](self.a_s, family=4).count())
         self.assertEqual(
             4, FILTER_DICT["ixp_sessions"](self.router, ixp=self.ixp).count()
         )
+        self.assertEqual(1, FILTER_DICT["ixp_sessions"](self.a_s, ixp=tmp_ixp).count())
+        self.assertEqual(4, FILTER_DICT["ixp_sessions"](self.a_s, ixp=self.ixp).count())
 
     def test_sessions(self):
         self.assertEqual(4, FILTER_DICT["sessions"](self.ixp).count())
