@@ -152,7 +152,7 @@ class AutonomousSystem(
         sessions = InternetExchangePeeringSession.objects.filter(autonomous_system=self)
         if internet_exchange_point:
             return sessions.filter(
-                ixp_connection__internet_exchange_point__pk=internet_exchange_point.pk
+                ixp_connection__internet_exchange_point=internet_exchange_point
             )
         else:
             return sessions
