@@ -57,6 +57,10 @@
             <p class="font-weight-bolder mt-3">OR</p>
             <a class="btn btn-lg btn-block btn-secondary" href="{% url 'oidc_authentication_init' %}"><i class="fas fab fa-openid"></i> OpenID Connect Login</a>
             {% endif %}
+            {% if settings.SAML2_CONFIGURED %}
+            <p class="font-weight-bolder mt-3">OR</p>
+            <a class="btn btn-lg btn-block btn-secondary" href="/sso/login/"><i class="fas fa-sign-in-alt"></i> SAML2 SSO Login</a>
+            {% endif %}
             <p class="mt-5 mb-3 text-muted">
               <i class="fas fa-fw fa-cloud"></i> <a class="text-muted" href="{% url 'api-root' %}">API</a> &middot;
               <i class="fas fa-fw fa-book"></i> <a class="text-muted" href="http://peering-manager.readthedocs.io/">Docs</a> &middot;
