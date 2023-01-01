@@ -478,6 +478,139 @@ class RouterTest(StandardAPITestCases.View):
         response = self.client.get(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
 
+    def test_update_from_netbox(self):
+        url = reverse("peering-api:router-update-from-netbox")
+        response = self.client.post(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        response = self.client.post(
+            url, **self.header, data={"event": "created"}, format="json"
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        response = self.client.post(
+            url, **self.header, data={"data": {}}, format="json"
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        data = {
+            "event": "created",
+            "data": {
+                "id": 1,
+                "url": "/api/dcim/devices/1/",
+                "display": "router.example.net",
+                "name": "router.example.net",
+                "device_role": {
+                    "id": 7,
+                    "url": "/api/dcim/device-roles/7/",
+                    "display": "Router",
+                    "name": "Router",
+                    "slug": "router",
+                },
+                "platform": {
+                    "id": 9,
+                    "url": "/api/dcim/platforms/9/",
+                    "display": "Malfunctioning OS",
+                    "name": "Malfunctioning OS",
+                    "slug": "malfunctioning-os",
+                },
+                "status": {"value": "active", "label": "Active"},
+                "local_context_data": None,
+                "tags": [],
+            },
+        }
+        response = self.client.post(url, **self.header, data=data, format="json")
+        self.assertHttpStatus(response, status.HTTP_501_NOT_IMPLEMENTED)
+
+        data = {
+            "event": "created",
+            "data": {
+                "id": 1,
+                "url": "/api/dcim/devices/1/",
+                "display": "router.example.net",
+                "name": "router.example.net",
+                "device_role": {
+                    "id": 7,
+                    "url": "/api/dcim/device-roles/7/",
+                    "display": "Router",
+                    "name": "Router",
+                    "slug": "router",
+                },
+                "platform": {
+                    "id": 3,
+                    "url": "/api/dcim/platforms/3/",
+                    "display": "Juniper Junos",
+                    "name": "Juniper Junos",
+                    "slug": "juniper-junos",
+                },
+                "status": {"value": "active", "label": "Active"},
+                "local_context_data": None,
+                "tags": [],
+            },
+        }
+        response = self.client.post(url, **self.header, data=data, format="json")
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Router.objects.get(netbox_device_id=1).status, "enabled")
+
+        data = {
+            "event": "updated",
+            "data": {
+                "id": 1,
+                "url": "/api/dcim/devices/1/",
+                "display": "router.example.net",
+                "name": "router.example.net",
+                "device_role": {
+                    "id": 7,
+                    "url": "/api/dcim/device-roles/7/",
+                    "display": "Router",
+                    "name": "Router",
+                    "slug": "router",
+                },
+                "platform": {
+                    "id": 3,
+                    "url": "/api/dcim/platforms/3/",
+                    "display": "Juniper Junos",
+                    "name": "Juniper Junos",
+                    "slug": "juniper-junos",
+                },
+                "status": {"value": "offline", "label": "Offline"},
+                "local_context_data": None,
+                "tags": [],
+            },
+        }
+        response = self.client.post(url, **self.header, data=data, format="json")
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(Router.objects.get(netbox_device_id=1).status, "disabled")
+
+        data = {
+            "event": "deleted",
+            "data": {
+                "id": 1,
+                "url": "/api/dcim/devices/1/",
+                "display": "router.example.net",
+                "name": "router.example.net",
+                "device_role": {
+                    "id": 7,
+                    "url": "/api/dcim/device-roles/7/",
+                    "display": "Router",
+                    "name": "Router",
+                    "slug": "router",
+                },
+                "platform": {
+                    "id": 3,
+                    "url": "/api/dcim/platforms/3/",
+                    "display": "Juniper Junos",
+                    "name": "Juniper Junos",
+                    "slug": "juniper-junos",
+                },
+                "status": {"value": "offline", "label": "Offline"},
+                "local_context_data": None,
+                "tags": [],
+            },
+        }
+        response = self.client.post(url, **self.header, data=data, format="json")
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        with self.assertRaises(Router.DoesNotExist):
+            Router.objects.get(netbox_device_id=1)
+
 
 class RoutingPolicyTest(StandardAPITestCases.View):
     model = RoutingPolicy

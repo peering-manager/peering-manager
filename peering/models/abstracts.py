@@ -187,7 +187,7 @@ class BGPSession(
         return self.export_routing_policies.all()
 
     def merged_export_policies(self, reverse=False):
-        merged = [p for p in self.export_policies()]
+        merged = list(self.export_policies())
 
         # Merge policies from nested objects (first AS, then BGP group)
         self._merge_policies(merged, self.autonomous_system.export_policies())
@@ -208,7 +208,7 @@ class BGPSession(
 
     def merged_import_policies(self, reverse=False):
         # Get own policies
-        merged = [p for p in self.import_policies()]
+        merged = list(self.import_policies())
 
         # Merge policies from nested objects (first AS, then BGP group)
         self._merge_policies(merged, self.autonomous_system.import_policies())
@@ -225,7 +225,7 @@ class BGPSession(
         return list(reversed(merged)) if reverse else merged
 
     def merged_communities(self):
-        merged = [c for c in self.autonomous_system.communities.all()]
+        merged = list(self.autonomous_system.communities.all())
 
         group = None
         if hasattr(self, "ixp_connection"):

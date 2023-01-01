@@ -142,7 +142,7 @@ Examples:
 ```no-highlight
 {% for autonomous_system in autonomous_systems | filter(ipv6_max_prefixes__gt=100) %}
 {% for session in bgpgroup | session | filter(router=router) %}
-{% for community in session | merge_communities | | filter(type='ingress') %}
+{% for community in session | merge_communities | filter(type='ingress') %}
 ```
 
 ## `get`
@@ -403,11 +403,10 @@ import [ {{ session | merge_import_policies('reverse') | iterate('slug') | join(
 
 ## `communities`
 
-Fetches communities applied to an object. Note that this filter will traverse
-relationships, therefore, it will fetch communities for BGP session as well.
+Fetches communities applied to an object.
 
-You can use a string as an option to these filters to select only a specific
-field of the policies.
+You can use a string as an option to this filter to select only a specific
+field of communities.
 
 Examples:
 

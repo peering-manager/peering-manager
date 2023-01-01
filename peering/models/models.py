@@ -944,7 +944,8 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
     use_netbox = models.BooleanField(
         blank=True,
         default=False,
-        help_text="Use NetBox to communicate instead of NAPALM",
+        verbose_name="Use NetBox",
+        help_text="Use NetBox as proxy for NAPALM",
     )
     napalm_username = models.CharField(blank=True, null=True, max_length=256)
     napalm_password = models.CharField(blank=True, null=True, max_length=256)

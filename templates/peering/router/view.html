@@ -59,15 +59,17 @@
           <td>{{ instance.poll_bgp_sessions_last_updated | date_span }}</td>
         </tr>
         {% endif %}
-        {% if settings.NETBOX_API %}
+        {% if settings.NETBOX_URL and instance.is_netbox_device %}
         <tr>
-          <td>Source</td>
-          {% if instance.is_netbox_device %}
           <td>NetBox</td>
-          {% else %}
-          <td>Local</td>
-          {% endif %}
+          <td><a href="{{ settings.NETBOX_URL }}/dcim/devices/{{ instance.netbox_device_id }}">Device #{{ instance.netbox_device_id }}</a></td>
         </tr>
+        {% if instance.use_netbox %}
+        <tr>
+          <td>Proxy NAPALM via NetBox</td>
+          <td>{{ instance.use_netbox|boolean_as_icon }}</td>
+        </tr>
+        {% endif %}
         {% endif %}
         <tr>
           <td>Utilization</td>

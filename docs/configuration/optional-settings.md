@@ -396,9 +396,19 @@ if you use an auto-generated certificate for the NetBox API.
 
 ## NETBOX_DEVICE_ROLES
 
-Default: `["router", "firewall", "switch"]`
+Default: `["router", "firewall"]`
 
 The roles that devices must have in the NetBox instance that will be queried.
+Incoming webhooks to process will also check if the device role matches one of
+the list. An empty list will match all devices in the NetBox instance.
+
+## NETBOX_TAGS
+
+Default: `[]` (empty list)
+
+The tags that devices must have in the NetBox instance from which incoming
+webhooks will be processed. As soon as one tag matches, the webhook will be
+accepted.
 
 ---
 

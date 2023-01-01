@@ -69,6 +69,7 @@ nav:
             - Tag: "models/utils/tag.md"
             - Webhook: "models/extras/webhook.md"
         - Token: "models/users/token.md"
+    - Third-Party: "third-party.md"
     - Templating:
         - Writing Templates: "templating/index.md"
         - Jinja Filters: "templating/filters.md"

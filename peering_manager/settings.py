@@ -165,12 +165,17 @@ REQUESTS_USER_AGENT = getattr(
 
 # NetBox API configuration
 NETBOX_API = getattr(configuration, "NETBOX_API", "")
+NETBOX_URL = NETBOX_API.strip("/")
+if NETBOX_URL.endswith("/api"):
+    NETBOX_URL = NETBOX_URL[:-3]
 NETBOX_API_TOKEN = getattr(configuration, "NETBOX_API_TOKEN", "")
 NETBOX_API_THREADING = getattr(configuration, "NETBOX_API_THREADING", False)
 NETBOX_API_VERIFY_SSL = getattr(configuration, "NETBOX_API_VERIFY_SSL", True)
 NETBOX_DEVICE_ROLES = getattr(
     configuration, "NETBOX_DEVICE_ROLES", ["router", "firewall"]
 )
+# TODO: Defaults to ["peering-manager"] as of next major release
+NETBOX_TAGS = set(getattr(configuration, "NETBOX_TAGS", []))
 
 # PeeringDB URLs
 PEERINGDB_API = "https://www.peeringdb.com/api/"

@@ -106,7 +106,7 @@
         if (config == "") {
           formatted = '<p>Configuration is empty.</p>';
         } else {
-          formatted = '<pre class="pre-scrollable"><code>' + config + '</code></pre>';
+          formatted = '<pre class="pre-scrollable"><code>' + PeeringManager.escapeHTML(config) + '</code></pre>';
         }
         $('#configuration').html(formatted);
         break;

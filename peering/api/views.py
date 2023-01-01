@@ -1,3 +1,4 @@
+from django.conf import settings
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
@@ -6,9 +7,11 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 
+from devices.models import Platform
 from extras.api.serializers import JobResultSerializer
 from extras.models import JobResult
 from messaging.models import Email
+from peering.enums import DeviceStatus
 from peering.filters import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
@@ -768,6 +771,98 @@ class RouterViewSet(ModelViewSet):
             JobResultSerializer(instance=job_result, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
+
+    @extend_schema(
+        operation_id="peering_routers_update_from_netbox",
+        request=OpenApiTypes.OBJECT,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="NetBox webhook has been processed successfully.",
+            )
+        },
+    )
+    @action(detail=False, methods=["post"], url_path="update-from-netbox")
+    def update_from_netbox(self, request):
+        # Check user permission first
+        if (
+            not request.user.has_perm("peering.add_router")
+            or not request.user.has_perm("peering.change_router")
+            or not request.user.has_perm("peering.delete_router")
+        ):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            event = request.data["event"]
+            data = request.data["data"]
+        except KeyError:
+            # Fail if we do not find required keys
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        for i in (
+            "id",
+            "device_role",
+            "local_context_data",
+            "name",
+            "platform",
+            "status",
+        ):
+            if i not in data:
+                # Fail if we do not find required keys
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # Fail if not in device roles and/or not with correct tag(s)
+        if (
+            settings.NETBOX_DEVICE_ROLES
+            and data["device_role"]["slug"] not in settings.NETBOX_DEVICE_ROLES
+        ):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if settings.NETBOX_TAGS:
+            tags = set([t.slug for t in data["tags"]])
+            if not tags.intersection(settings.NETBOX_TAGS):
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if event == "deleted":
+            try:
+                number, _ = Router.objects.get(netbox_device_id=data["id"]).delete()
+            except Router.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                status=status.HTTP_200_OK if number == 1 else status.HTTP_404_NOT_FOUND
+            )
+
+        try:
+            # Platform slugs must be the same in NetBox and Peering Manager
+            platform = Platform.objects.get(slug=data["platform"]["slug"])
+        except Platform.DoesNotExist:
+            # If platform does not exist, we can proceed
+            return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+        # Map NetBox status to Peering Manager's
+        device_status = (
+            DeviceStatus.ENABLED
+            if data["status"]["value"] == "active"
+            else DeviceStatus.DISABLED
+        )
+
+        router, created = Router.objects.get_or_create(
+            netbox_device_id=data["id"],
+            defaults={
+                "netbox_device_id": data["id"],
+                "name": data["name"],
+                "hostname": data["name"],
+                "status": device_status,
+                "platform": platform,
+                "local_context_data": data["local_context_data"],
+            },
+        )
+
+        if created:
+            return Response(status=status.HTTP_201_CREATED)
+        else:
+            router.platform = platform
+            router.status = device_status
+            router.save()
+            return Response(status=status.HTTP_200_OK)
 
 
 class RoutingPolicyViewSet(ModelViewSet):
