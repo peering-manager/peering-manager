@@ -779,7 +779,27 @@ class RouterViewSet(ModelViewSet):
             200: OpenApiResponse(
                 response=OpenApiTypes.NONE,
                 description="NetBox webhook has been processed successfully.",
-            )
+            ),
+            201: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The device creation has been processed successfully.",
+            ),
+            400: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The webhook body did not have the required data to take action.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to manage devices.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The device given in the webhook cannot be found.",
+            ),
+            501: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The device platform in the webhook does not match an avilable platform.",
+            ),
         },
     )
     @action(detail=False, methods=["post"], url_path="update-from-netbox")
