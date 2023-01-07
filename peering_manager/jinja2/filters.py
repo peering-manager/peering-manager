@@ -2,6 +2,7 @@ import ipaddress
 import json
 import unicodedata
 
+import netaddr
 import yaml
 from django.db import models
 from django.db.models import Q
@@ -100,6 +101,38 @@ def ip_version(value):
         return 4
 
     raise ValueError("ip address for session is invalid")
+
+
+def mac(value, format=""):
+    """
+    Returns the MAC address as a lowercased string given a format.
+
+    Accepted formats are:
+      - cisco: 001b.7749.54fd
+      - bare: 001b774954fd
+
+    If not format is given, it'll default to the UNIX one: 00:1b:77:49:54:fd.
+    """
+    # Handle connection objects
+    if hasattr(value, "mac_address"):
+        return mac(value.mac_address, format=format)
+
+    if type(value) is str:
+        try:
+            v = netaddr.EUI(value)
+        except netaddr.core.AddrFormatError:
+            raise ValueError("value is not a valid mac address")
+    else:
+        v = value
+
+    if format == "cisco":
+        v.dialect = netaddr.mac_cisco
+    elif format == "bare":
+        v.dialect = netaddr.mac_bare
+    else:
+        v.dialect = netaddr.mac_unix_expanded
+
+    return str(v).lower()
 
 
 def inherited_status(value):
@@ -690,6 +723,8 @@ FILTER_DICT = {
     # IP address utilities
     "ipv4": ipv4,
     "ipv6": ipv6,
+    # MAC utility
+    "mac": mac,
     # Length filter and synonyms
     "length": length,
     "len": length,

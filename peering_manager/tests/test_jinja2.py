@@ -108,6 +108,7 @@ class Jinja2FilterTestCase(TestCase):
         cls.ixp_connection = Connection.objects.create(
             vlan=10,
             internet_exchange_point=cls.ixp,
+            mac_address="00:1b:77:49:54:fd",
             ipv4_address="192.0.2.10",
             ipv6_address="2001:db8::a",
             router=cls.router,
@@ -225,6 +226,18 @@ class Jinja2FilterTestCase(TestCase):
         self.assertIsNone(
             FILTER_DICT["local_ips"](Connection.objects.get(pk=self.ixp_connection.pk))
         )
+
+    def test_mac(self):
+        self.assertEqual("00:1b:77:49:54:fd", FILTER_DICT["mac"](self.ixp_connection))
+        self.assertEqual("00:1b:77:49:54:fd", FILTER_DICT["mac"]("00:1b:77:49:54:fd"))
+        self.assertEqual(
+            "001b.7749.54fd", FILTER_DICT["mac"]("00:1b:77:49:54:fd", "cisco")
+        )
+        self.assertEqual(
+            "001b774954fd", FILTER_DICT["mac"]("00:1b:77:49:54:fd", "bare")
+        )
+        with self.assertRaises(ValueError):
+            self.assertEqual("", FILTER_DICT["mac"](""))
 
     def test_inherited_status(self):
         self.assertEqual(

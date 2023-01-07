@@ -94,6 +94,24 @@ Local: {{ session.local_ip_address | ip }}
 {% endfor %}
 ```
 
+## `mac`
+
+Returns the MAC address as a lowercased string given a format.
+
+Accepted formats are:
+
+* `cisco`: `001b.7749.54fd`
+* `bare`: `001b774954fd`
+
+If not format is given, it'll default to the UNIX one: `00:1b:77:49:54:fd`.
+
+xamples:
+
+```no-highlight
+MAC address: {{ connection | mac }}
+MAC address: {{ connection.mac_address | mac('cisco') }}
+```
+
 ## `inherited_status`
 
 Returns the status of an object if it has any.

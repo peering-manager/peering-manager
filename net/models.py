@@ -2,7 +2,7 @@ import logging
 
 from django.db import models
 from django.urls import reverse
-from netfields import InetAddressField, NetManager
+from netfields import InetAddressField, MACAddressField, NetManager
 
 from peeringdb.models import NetworkIXLan
 from utils.models import (
@@ -11,7 +11,7 @@ from utils.models import (
     ExportTemplatesMixin,
     TagsMixin,
 )
-from utils.validators import AddressFamilyValidator
+from utils.validators import AddressFamilyValidator, MACAddressValidator
 
 from .enums import ConnectionStatus
 from .fields import VLANField
@@ -29,6 +29,12 @@ class Connection(
         max_length=20, choices=ConnectionStatus, default=ConnectionStatus.ENABLED
     )
     vlan = VLANField(verbose_name="VLAN", blank=True, null=True)
+    mac_address = MACAddressField(
+        verbose_name="MAC address",
+        blank=True,
+        null=True,
+        validators=[MACAddressValidator],
+    )
     ipv6_address = InetAddressField(
         store_prefix_length=True,
         blank=True,

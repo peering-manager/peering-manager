@@ -45,6 +45,7 @@ class ConnectionForm(BootstrapMixin, forms.ModelForm):
         fields = (
             "status",
             "vlan",
+            "mac_address",
             "ipv6_address",
             "ipv4_address",
             "internet_exchange_point",

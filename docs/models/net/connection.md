@@ -1,8 +1,9 @@
 # Connection
 
-A connection provides connectivity on Internet exchange point network. Each
-link on an IXP can have VLAN and IP addresses assigned to it. On a router it
-will most likely be configured on an interface being a physical or a VLAN one.
+A connection provides connectivity on Internet exchange point network, it can
+identify a single port or several in a link aggregation group. Each link on
+an IXP can have VLAN and IP addresses assigned to it. On a router it will most
+likely be configured on an interface being a physical or a VLAN one.
 
 ## In Peering Manager
 
@@ -10,6 +11,7 @@ Inside Peering Manager, you create connections to model interfaces connected
 to Internet exchange point.
 
 * `VLAN`: VLAN allocated by the IXP.
+* `MAC Address`: MAC address allowed by the IXP.
 * `IPv6 Address`: IPv6 address allocated by the IP and configured on the
   interface.
 * `IPv4 Address`: IPv4 address allocated by the IP and configured on the

@@ -10,6 +10,7 @@ class ConnectionTest(TestCase):
             data={
                 "status": ConnectionStatus.ENABLED,
                 "vlan": 2000,
+                "mac_address": "00:1b:77:49:54:fd",
                 "ipv6_address": "2001:db8::1",
                 "ipv4_address": "",
                 "internet_exchange_point": None,

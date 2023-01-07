@@ -26,6 +26,7 @@ class ConnectionSerializer(PrimaryModelSerializer):
             "peeringdb_netixlan",
             "status",
             "vlan",
+            "mac_address",
             "ipv6_address",
             "ipv4_address",
             "internet_exchange_point",
