@@ -103,9 +103,9 @@ Accepted formats are:
 * `cisco`: `001b.7749.54fd`
 * `bare`: `001b774954fd`
 
-If not format is given, it'll default to the UNIX one: `00:1b:77:49:54:fd`.
+If no format is given, it'll default to the UNIX one: `00:1b:77:49:54:fd`.
 
-xamples:
+Examples:
 
 ```no-highlight
 MAC address: {{ connection | mac }}
