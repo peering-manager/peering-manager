@@ -311,10 +311,10 @@ def iter_export_policies(value, field="", family=-1):
     family.
     """
     if not hasattr(value, "export_policies"):
-        raise AttributeError("{value} has not export policies")
+        raise AttributeError(f"{value} has not export policies")
 
     if type(field) is not str:
-        raise AttributeError(f"field must be a string'")
+        raise AttributeError("field must be a string'")
 
     policies = value.export_policies()
     if family in IPFamily.values():
@@ -335,10 +335,10 @@ def iter_import_policies(value, field="", family=-1):
     family.
     """
     if not hasattr(value, "import_policies"):
-        raise AttributeError("{value} has not import policies")
+        raise AttributeError(f"{value} has not import policies")
 
     if type(field) is not str:
-        raise AttributeError(f"field must be a string'")
+        raise AttributeError("field must be a string'")
 
     policies = value.import_policies()
     if family in IPFamily.values():
@@ -376,7 +376,7 @@ def merge_communities(value):
     Merges and returns communities.
     """
     if not hasattr(value, "merged_communities"):
-        raise AttributeError("{value} has not merged communities")
+        raise AttributeError(f"{value} has not merged communities")
 
     return value.merged_communities()
 
@@ -399,7 +399,7 @@ def merge_export_policies(value, order=""):
     If duplicates are found, only the most specific one will be kept.
     """
     if not hasattr(value, "merged_export_policies"):
-        raise AttributeError("{value} has not merged export policies")
+        raise AttributeError(f"{value} has not merged export policies")
 
     return value.merged_export_policies(order == "reverse")
 
@@ -411,7 +411,7 @@ def merge_import_policies(value, order=""):
     If duplicates are found, only the most specific one will be kept.
     """
     if not hasattr(value, "merged_import_policies"):
-        raise AttributeError("{value} has not merged import policies")
+        raise AttributeError(f"{value} has not merged import policies")
 
     return value.merged_import_policies(order == "reverse")
 
