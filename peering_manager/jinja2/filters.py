@@ -601,6 +601,18 @@ def safe_string(value):
     return unicodedata.normalize("NFKD", value).encode("ASCII", "ignore").decode()
 
 
+def quote(value, char='"'):
+    """
+    Returns the value as a string between "quotes". Actually quotes can be any other
+    string.
+    """
+    if not value:
+        return ""
+    if type(value) is not str:
+        value = str(value)
+    return f"{char}{value}{char}"
+
+
 def tags(value):
     """
     Returns an iterable containing tags associated with an object."
@@ -716,6 +728,7 @@ def indent(value, n, chars=" ", reset=False):
 FILTER_DICT = {
     # Generics
     "safe_string": safe_string,
+    "quote": quote,
     "tags": tags,
     "has_tag": has_tag,
     "has_not_tag": has_not_tag,

@@ -471,6 +471,13 @@ class Jinja2FilterTestCase(TestCase):
     def test_safe_string(self):
         self.assertEqual("Tele_a_ciu", FILTER_DICT["safe_string"]("Téle_à_çiu"))
 
+    def test_quote(self):
+        self.assertEqual('"example"', FILTER_DICT["quote"]("example"))
+        self.assertEqual("||example||", FILTER_DICT["quote"]("example", "||"))
+        self.assertEqual('"12345"', FILTER_DICT["quote"](12345))
+        for i in (None, "", [], {}):
+            self.assertEqual("", FILTER_DICT["quote"](i))
+
     def test_tags(self):
         self.assertEqual(3, FILTER_DICT["tags"](self.a_s).count())
         self.assertEqual(0, FILTER_DICT["tags"](self.ixp).count())

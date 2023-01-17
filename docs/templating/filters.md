@@ -43,6 +43,19 @@ Example:
 description "Peering: AS{{ a_s.asn }} {{ a_s.name | safe_string }}"
 ```
 
+## `quote`
+
+Quote a value before displaying it as a string. The character/string used for
+quotation can be changed by using a second parameter to the filter. Default
+quotation character is `"`.
+
+Examples:
+
+```no-highlight
+community {{ community.slug }} members {{ community.value | quote }}
+description {{ autonomous_system | quote('--') }}
+```
+
 ## `tags`
 
 Returns an iterable structure for all tags assigned to an object.
