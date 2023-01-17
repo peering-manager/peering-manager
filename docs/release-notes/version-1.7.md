@@ -1,3 +1,25 @@
+## Version 1.7.4 | Mark I (Bug fixes release) | 2023-01-18
+
+The 1.7.4 release is the last one to support PostgreSQL 10. Next releases will require at least PostgreSQL 11.
+
+### Bug Fixes
+
+* Add a RQ job exception handler to mark job results as errored when an error occurred during the execution of a background task; this should fix job results left as `running` when they failed in an unpredictable way
+* Use `serialize_object` instead of `model_to_dict`; this should fix `as_json` and `as_yaml` filters behaviour
+* Allow list for `ip` filter
+* Fix crash/regression of `prefix_list` filter
+* Fix `ixp_sessions` filter when using `ixp` parameter
+
+### Enhancements
+
+* Use context vars instead of thread-local storage for change logging and webhook processing
+* Add SAML2 integration, authentication only (by @Nurtic-Vibe)
+* Support Unix sockets for Redis connections with `TASKS_REDIS_UNIX_SOCKET_PATH` and `CACHING_REDIS_UNIX_SOCKET_PATH` settings (by @@yu-re-ka)
+* Add support for receiving NetBox webhook; webhook with proper format will be able to trigger the creation, deletion or edition of a device
+* Add `quote` filter for templates
+* Add MAC address field to `Connection`; the `mac_address` field can be used to track MAC addresses associated to
+connections; only valid Ethernet MAC address formats are accepted (EUI-64 included); a `mac` Jinja2 filter is provided to change MAC addresses format in template (e.g. for Cisco users)
+
 ## Version 1.7.3 | MARK I (Bug fixes release) | 2022-11-11
 
 ### Bug Fixes
