@@ -55,9 +55,7 @@
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="{% url 'users:profile' %}"><i class="far fa-id-card"></i> Profile</a>
               {% if request.user.is_staff %}
-              <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fa fa-cogs"></i> Admin</a>
-              <a class="dropdown-item" href="{% url 'peeringdb:cache_management' %}"><i class="fas fa-database"></i> Cache Management</a>
               {% endif %}
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Log out</a>
@@ -137,12 +135,17 @@
                 <span class="ml-4">E-mails</span>
               </a>
             </div>
-            <a href="#third_party_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/ix-api/' %} active{% endif %}">
+            <a href="#third_party_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/peeringdb/cache/,/ix-api/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
                 3rd Party <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
               </div>
             </a>
             <div id="third_party_menu_id" class="collapse sidebar-submenu">
+              {% if request.user.is_staff %}
+              <a href="{% url 'peeringdb:cache_management' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/peeringdb/cache/' %} active{% endif %}">
+                <span class="ml-4">PeeringDB</span>
+              </a>
+              {% endif %}
               <a href="{% url 'extras:ixapi_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/ix-api/' %} active{% endif %}">
                 <span class="ml-4">IX-API</span>
               </a>

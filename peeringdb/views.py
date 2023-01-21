@@ -30,16 +30,26 @@ class CacheManagementView(View):
 
         context = {
             "last_sync_time": sync_time,
-            "fac_count": Facility.objects.count(),
-            "ix_count": InternetExchange.objects.count(),
-            "ixfac_count": InternetExchangeFacility.objects.count(),
-            "ixlan_count": IXLan.objects.count(),
-            "ixlanpfx_count": IXLanPrefix.objects.count(),
-            "net_count": Network.objects.count(),
-            "poc_count": NetworkContact.objects.count(),
-            "netfac_count": NetworkFacility.objects.count(),
-            "netixlan_count": NetworkContact.objects.count(),
-            "org_count": Organization.objects.count(),
+            "counts": [
+                {
+                    "Facilities": Facility.objects.count(),
+                    "Internet Exchanges": InternetExchange.objects.count(),
+                    "Internet Exchange Facilities": InternetExchangeFacility.objects.count(),
+                },
+                {
+                    "Internet Exchange LANs": IXLan.objects.count(),
+                    "Internet Exchange LAN Prefixes": IXLanPrefix.objects.count(),
+                    "Networks": Network.objects.count(),
+                },
+                {
+                    "Network Contacts": NetworkContact.objects.count(),
+                    "Network Facilities": NetworkFacility.objects.count(),
+                    "Network Internet Exchange LANs": NetworkContact.objects.count(),
+                },
+                {
+                    "Organizations": Organization.objects.count(),
+                },
+            ],
         }
 
         return render(request, "peeringdb/cache.html", context)
