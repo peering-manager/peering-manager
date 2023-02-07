@@ -13,7 +13,7 @@
         {% if instance.ixapi_endpoint.version != 1 %}
         <tr>
           <td>Status</td>
-          <td>{{ instance.ixapi_endpoint.get_health | title }}</td>
+          <td>{{ instance.ixapi_endpoint.get_health | title | render_none }}</td>
         </tr>
         {% endif %}
       </table>
@@ -66,18 +66,24 @@
         {% endif %}
       </div>
       <table class="table table-hover attr-table mb-0">
+        {% if config.outer_vlan %}
         <tr>
           <td>Outer VLAN</td>
-          <td>{{ config.outer_vlan | render_none }}</td>
+          <td>{{ config.outer_vlan }}</td>
         </tr>
+        {% endif %}
+        {% if config.inner_vlan %}
         <tr>
           <td>Inner VLAN</td>
-          <td>{{ config.inner_vlan | render_none }}</td>
+          <td>{{ config.inner_vlan }}</td>
         </tr>
+        {% endif %}
+        {% for ip in config.ips %}
         <tr>
-          <td>IP address{{ config.ips | pluralize:"es" }}</td>
-          <td>{{ config.ips | join:" - " }}</td>
+          <td>IPv{{ ip.version }} address</td>
+          <td>{{ ip }}</td>
         </tr>
+        {% endfor %}
         <tr>
           <td>MAC address{{ config.macs | pluralize:"es" }}</td>
           <td>{{ config.macs | join:" - "  | render_none }}</td>

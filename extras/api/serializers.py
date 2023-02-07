@@ -91,7 +91,7 @@ class IXAPISerializer(ValidatedModelSerializer):
         fields = ["id", "display", "name", "url", "api_key", "api_secret", "identity"]
 
 
-class IXAPICustomerSerializer(serializers.Serializer):
+class IXAPIAccountSerializer(serializers.Serializer):
     url = serializers.CharField()
     api_key = serializers.CharField()
     api_secret = serializers.CharField()

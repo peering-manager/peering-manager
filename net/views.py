@@ -27,7 +27,10 @@ class ConnectionView(ObjectView):
     queryset = Connection.objects.all()
 
     def get_extra_context(self, request, instance):
-        return {"active_tab": "main"}
+        return {
+            "active_tab": "main",
+            "ixapi_network_service_config": instance.ixapi_network_service_config(),
+        }
 
 
 class ConnectionContext(ObjectConfigContextView):

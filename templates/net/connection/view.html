@@ -51,7 +51,7 @@
         </tr>
       </table>
     </div>
-    {% if instance.ixapi_network_service_config %}
+    {% if ixapi_network_service_config %}
     <div class="card mb-2">
       <div class="card-header">
         <strong>IX-API</strong>
@@ -62,27 +62,33 @@
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
           <td>Identifier</td>
-          <td>{{ instance.ixapi_network_service_config.id }}</td>
+          <td>{{ ixapi_network_service_config.id }}</td>
         </tr>
         <tr>
           <td>State</td>
-          <td>{{ instance.ixapi_network_service_config.state | title }}</td>
+          <td>{{ ixapi_network_service_config.state | title }}</td>
         </tr>
+        {% if ixapi_network_service_config.outer_vlan %}
         <tr>
           <td>Outer VLAN</td>
-          <td>{{ instance.ixapi_network_service_config.outer_vlan | render_none }}</td>
+          <td>{{ ixapi_network_service_config.outer_vlan }}</td>
         </tr>
+        {% endif %}
+        {% if ixapi_network_service_config.inner_vlan %}
         <tr>
           <td>Inner VLAN</td>
-          <td>{{ instance.ixapi_network_service_config.inner_vlan | render_none }}</td>
+          <td>{{ ixapi_network_service_config.inner_vlan }}</td>
         </tr>
+        {% endif %}
+        {% for ip in ixapi_network_service_config.ips %}
         <tr>
-          <td>IP address{{ config.ips | pluralize:"es" }}</td>
-          <td>{{ instance.ixapi_network_service_config.ips | join:" - " }}</td>
+          <td>IPv{{ ip.version }} address</td>
+          <td{% if ip.fqdn %} data-toggle="tooltip" data-placement="top" title="{{ ip.fqdn }}"{% endif %}>{{ ip }}</td>
         </tr>
+        {% endfor %}
         <tr>
-          <td>MAC address{{ config.macs | pluralize:"es" }}</td>
-          <td>{{ instance.ixapi_network_service_config.macs | join:" - "  | render_none }}</td>
+          <td>MAC address{{ ixapi_network_service_config.macs | pluralize:"es" }}</td>
+          <td>{{ ixapi_network_service_config.macs | join:" - " | render_none }}</td>
         </tr>
       </table>
     </div>

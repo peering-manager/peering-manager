@@ -32,6 +32,18 @@
           <td>Created</td>
           <td>{{ instance.created | date_span }}</td>
         </tr>
+        {% if instance.access_token_expiration %}
+        <tr>
+          <td>Access token expiration</td>
+          <td>{{ instance.access_token_expiration | date_span }}</td>
+        </tr>
+        {% endif %}
+        {% if instance.refresh_token_expiration %}
+        <tr>
+          <td>Refresh token expiration</td>
+          <td>{{ instance.refresh_token_expiration | date_span }}</td>
+        </tr>
+        {% endif %}
         <tr>
           <td>Used by</td>
           <td>{{ internet_exchange_points | length }} Internet Exchange point{{ internet_exchange_points | length | pluralize }}</td>

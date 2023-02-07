@@ -1,3 +1,4 @@
+import pyixapi
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
@@ -21,14 +22,13 @@ from extras.models import (
     JobResult,
     Webhook,
 )
-from extras.models.ix_api import Client
 from peering_manager.api.views import ModelViewSet, ReadOnlyModelViewSet
 
 from .serializers import (
     ConfigContextAssignmentSerializer,
     ConfigContextSerializer,
     ExportTemplateSerializer,
-    IXAPICustomerSerializer,
+    IXAPIAccountSerializer,
     IXAPISerializer,
     JobResultSerializer,
     WebhookSerializer,
@@ -128,7 +128,7 @@ class IXAPIViewSet(ModelViewSet):
 
     @extend_schema(
         operation_id="extras_ix_api_accounts",
-        request=IXAPICustomerSerializer,
+        request=IXAPIAccountSerializer,
         responses={
             200: OpenApiResponse(
                 response=OpenApiTypes.OBJECT,
@@ -139,20 +139,18 @@ class IXAPIViewSet(ModelViewSet):
     @action(detail=False, methods=["get"], url_path="accounts")
     def accounts(self, request, pk=None):
         # Make sure request is valid
-        serializer = IXAPICustomerSerializer(data=request.query_params)
+        serializer = IXAPIAccountSerializer(data=request.query_params)
         serializer.is_valid(raise_exception=True)
 
         # Query IX-API with given parameters
-        api_url = serializer.validated_data.get("url")
-        c = Client(
-            ixapi_url=api_url,
-            ixapi_key=serializer.validated_data.get("api_key"),
-            ixapi_secret=serializer.validated_data.get("api_secret"),
+        api = pyixapi.api(
+            serializer.validated_data["url"],
+            serializer.validated_data["api_key"],
+            serializer.validated_data["api_secret"],
         )
-        c.auth()
-        _, accounts = c.get("accounts" if "v1" not in api_url else "customers")
+        api.authenticate()
 
-        return Response(data=accounts)
+        return Response(data=api.customers.all())
 
 
 class JobResultViewSet(ReadOnlyModelViewSet):

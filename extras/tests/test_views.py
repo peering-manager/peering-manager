@@ -102,7 +102,8 @@ class IXAPITestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "identity": "1234",
         }
 
-    def test_get_object_anonymous(self):
+    @patch("extras.models.ix_api.IXAPI.version", return_value=1)
+    def test_get_object_anonymous(self, *_):
         with patch(
             "extras.models.ix_api.IXAPI.get_accounts",
             return_value=[
@@ -112,7 +113,8 @@ class IXAPITestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ):
             super().test_get_object_anonymous()
 
-    def test_get_object_with_permission(self):
+    @patch("extras.models.ix_api.IXAPI.version", return_value=1)
+    def test_get_object_with_permission(self, *_):
         with patch(
             "extras.models.ix_api.IXAPI.get_accounts",
             return_value=[

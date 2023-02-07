@@ -143,11 +143,10 @@ class Connection(
         ):
             return None
 
-        network_service_configs = (
-            self.internet_exchange_point.ixapi_endpoint.get_network_service_configs()
-        )
-        for network_service_config in network_service_configs:
-            if network_service_config.connection == self:
-                return network_service_config
+        for (
+            config
+        ) in self.internet_exchange_point.ixapi_endpoint.get_network_service_configs():
+            if config.connection == self:
+                return config
 
         return None

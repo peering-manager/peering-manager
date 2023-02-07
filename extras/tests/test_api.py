@@ -201,22 +201,28 @@ class IXAPITest(StandardAPITestCases.View):
         )
 
     @patch(
-        "requests.post",
+        "requests.sessions.Session.post",
         return_value=MockedResponse(
-            content={"access_token": "1234", "refresh_token": "1234"}
+            fixture="extras/tests/fixtures/ix_api/authenticate.json"
         ),
     )
     def test_accounts(self, *_):
         ixapi = IXAPI.objects.get(name="IXP 1")
-        mocked = MockedResponse(fixture="extras/tests/fixtures/ix_api/accounts.json")
         url = reverse("extras-api:ixapi-accounts")
 
-        with patch("requests.get", return_value=mocked):
-            # Query params required
-            response = self.client.get(url, format="json", **self.header)
-            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        # Query params required
+        response = self.client.get(url, format="json", **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
-            # With query params
+        # With query params
+        with patch(
+            "pyixapi.core.query.Request.get",
+            return_value=iter(
+                MockedResponse(
+                    fixture="extras/tests/fixtures/ix_api/accounts.json"
+                ).json()
+            ),
+        ):
             response = self.client.get(
                 url,
                 data={
@@ -228,7 +234,6 @@ class IXAPITest(StandardAPITestCases.View):
                 **self.header
             )
             self.assertHttpStatus(response, status.HTTP_200_OK)
-            self.assertListEqual(mocked.json(), response.json())
 
 
 class JobResultTest(
