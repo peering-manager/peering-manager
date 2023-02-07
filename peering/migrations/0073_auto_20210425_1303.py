@@ -8,7 +8,6 @@ import peering.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("net", "0001_initial"),
         ("peering", "0072_auto_20210420_2144"),

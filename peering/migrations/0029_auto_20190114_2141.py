@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("peering", "0028_internetexchangepeeringsession_is_router_server")]
 
     operations = [

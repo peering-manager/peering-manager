@@ -9,7 +9,6 @@ import utils.forms.fields
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ("utils", "0001_initial"),
         ("utils", "0002_auto_20180329_2146"),

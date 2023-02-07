@@ -7,7 +7,6 @@ import utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("peeringdb", "0009_auto_20181212_2322")]
 
     operations = [

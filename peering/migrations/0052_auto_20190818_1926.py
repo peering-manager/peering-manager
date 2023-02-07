@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("peering", "0051_auto_20190818_1816")]
 
     def add_permissions(apps, schema_editor):

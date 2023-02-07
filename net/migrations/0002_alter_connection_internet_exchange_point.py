@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("peering", "0075_auto_20210604_1709"), ("net", "0001_initial")]
 
     def deleted_orphaned_connections(apps, schema_editor):

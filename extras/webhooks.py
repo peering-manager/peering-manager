@@ -69,7 +69,6 @@ def flush_webhooks(queue):
     webhooks_cache = {"type_create": {}, "type_update": {}, "type_delete": {}}
 
     for data in queue:
-
         action_flag = {
             ObjectChangeAction.CREATE: "type_create",
             ObjectChangeAction.UPDATE: "type_update",

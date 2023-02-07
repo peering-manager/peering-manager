@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("net", "0001_initial"),
         ("peering", "0070_remove_router_last_deployment_id"),

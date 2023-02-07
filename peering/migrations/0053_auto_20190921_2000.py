@@ -5,7 +5,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("peering", "0052_auto_20190818_1926"),
         ("utils", "0005_tag_taggeditem"),

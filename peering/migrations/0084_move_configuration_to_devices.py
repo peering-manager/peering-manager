@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("utils", "0012_tag_ordering"),
         ("devices", "0003_configuration"),

@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("peering", "0053_auto_20190921_2000")]
 
     operations = [

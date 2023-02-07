@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("peering", "0058_autonomoussystem_name_peeringdb_sync")]
 
     operations = [

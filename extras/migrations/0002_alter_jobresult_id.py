@@ -4,10 +4,7 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
-    dependencies = [
-        ("extras", "0001_initial"),
-    ]
+    dependencies = [("extras", "0001_initial")]
 
     operations = [
         migrations.AlterField(

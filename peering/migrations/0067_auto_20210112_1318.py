@@ -5,7 +5,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("peering", "0066_auto_20201212_2301")]
 
     def set_local_autonomous_system(apps, schema_editor):

@@ -4,10 +4,7 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
-    dependencies = [
-        ("peering", "0071_auto_20210321_1843"),
-    ]
+    dependencies = [("peering", "0071_auto_20210321_1843")]
 
     operations = [
         migrations.AlterField(

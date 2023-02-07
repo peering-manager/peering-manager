@@ -8,7 +8,6 @@ import utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("peering", "0039_routingpolicy_address_family")]
 
     operations = [

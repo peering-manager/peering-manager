@@ -5,7 +5,6 @@ from django.utils.text import slugify
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("peering", "0060_auto_20200718_0023")]
 
     @transaction.atomic()

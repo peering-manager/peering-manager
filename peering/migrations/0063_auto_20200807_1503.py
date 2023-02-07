@@ -6,7 +6,6 @@ from django.db import migrations, models, transaction
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("utils", "0007_auto_20200805_2322"),
         ("peering", "0062_auto_20200805_2322"),

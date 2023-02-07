@@ -8,7 +8,6 @@ import peering.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("peeringdb", "0001_initial")]
 
     operations = [

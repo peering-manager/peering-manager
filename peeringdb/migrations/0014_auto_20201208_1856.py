@@ -10,7 +10,6 @@ import utils.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("peering", "0065_auto_20201025_2137"),
         ("peeringdb", "0013_auto_20201207_2233"),
