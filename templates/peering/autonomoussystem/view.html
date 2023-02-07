@@ -10,9 +10,9 @@
           <a class="btn btn-xs btn-primary" href="{{ settings.PEERINGDB }}{{ instance.asn }}" target="_blank">
             <i class="fas fa-external-link-alt"></i> PeeringDB
           </a>
-          {% if perms.peering.change_autonomoussystem and peeringdb_last_synchronization %}
-          <button class="btn btn-xs btn-success" id="synchronize-with-peeringdb">
-            <i class="fas fa-sync"></i> Synchronize
+          {% if perms.peering.change_autonomoussystem and peeringdb_last_synchronisation %}
+          <button class="btn btn-xs btn-success" id="synchronise-with-peeringdb">
+            <i class="fas fa-sync"></i> Synchronise
           </button>
           {% endif %}
         </div>
@@ -127,16 +127,16 @@
   });
 
   // Bind function to button click
-  $('#synchronize-with-peeringdb').click(function() {
+  $('#synchronise-with-peeringdb').click(function() {
     $.ajax({
       method: 'post',
       data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
       url: "{% url 'peering-api:autonomoussystem-sync-with-peeringdb' pk=instance.pk %}",
       beforeSend: function() {
-        PeeringManager.setWorkingButton($('#synchronize-with-peeringdb'));
+        PeeringManager.setWorkingButton($('#synchronise-with-peeringdb'));
       },
       complete: function() {
-        PeeringManager.resetSyncPeeringDBButton($('#synchronize-with-peeringdb'));
+        PeeringManager.resetSyncPeeringDBButton($('#synchronise-with-peeringdb'));
       }
     }).done(function() {
       $.ajax({

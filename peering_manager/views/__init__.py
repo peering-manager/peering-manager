@@ -22,7 +22,7 @@ from peering.models import (
 )
 from peering_manager.constants import SEARCH_MAX_RESULTS, SEARCH_TYPES
 from peering_manager.forms import SearchForm
-from peeringdb.models import Synchronization
+from peeringdb.models import Synchronisation
 from utils.models import ObjectChange
 
 
@@ -87,7 +87,7 @@ class Home(View):
             "changelog": ObjectChange.objects.select_related(
                 "user", "changed_object_type"
             )[:15],
-            "synchronizations": Synchronization.objects.all()[:5],
+            "synchronisations": Synchronisation.objects.all()[:5],
             "new_release": new_release,
         }
         return render(request, "home.html", context)

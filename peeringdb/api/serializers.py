@@ -11,7 +11,7 @@ from peeringdb.models import (
     NetworkFacility,
     NetworkIXLan,
     Organization,
-    Synchronization,
+    Synchronisation,
 )
 
 
@@ -218,7 +218,7 @@ class NetworkIXLanSerializer(serializers.ModelSerializer):
         ]
 
 
-class SynchronizationSerializer(serializers.ModelSerializer):
+class SynchronisationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Synchronization
+        model = Synchronisation
         fields = ["id", "time", "created", "updated", "deleted"]

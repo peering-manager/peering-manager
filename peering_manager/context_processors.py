@@ -24,5 +24,5 @@ def affiliated_autonomous_systems(request):
 def settings(request):
     return {
         "settings": django_settings,
-        "peeringdb_last_synchronization": PeeringDB().get_last_synchronization(),
+        "peeringdb_last_synchronisation": PeeringDB().get_last_synchronisation(),
     }

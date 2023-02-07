@@ -9,9 +9,11 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 
 from extras.api.serializers import JobResultSerializer
 from extras.models import JobResult
-from peeringdb.filters import NetworkFilterSet, SynchronizationFilterSet
-from peeringdb.jobs import synchronize
+from peeringdb.filters import NetworkFilterSet, SynchronisationFilterSet
+from peeringdb.jobs import synchronise
 from peeringdb.models import (
+    Carrier,
+    CarrierFacility,
     Facility,
     InternetExchange,
     InternetExchangeFacility,
@@ -22,7 +24,7 @@ from peeringdb.models import (
     NetworkFacility,
     NetworkIXLan,
     Organization,
-    Synchronization,
+    Synchronisation,
 )
 from peeringdb.sync import PeeringDB
 from utils.api import get_serializer_for_model
@@ -38,7 +40,7 @@ from .serializers import (
     NetworkIXLanSerializer,
     NetworkSerializer,
     OrganizationSerializer,
-    SynchronizationSerializer,
+    SynchronisationSerializer,
 )
 
 
@@ -62,6 +64,8 @@ class CacheViewSet(ViewSet):
     def statistics(self, request):
         return Response(
             {
+                "carrier-count": Carrier.objects.count(),
+                "carrierfac": CarrierFacility.objects.count(),
                 "fac-count": Facility.objects.count(),
                 "ix-count": InternetExchange.objects.count(),
                 "ixfac-count": InternetExchangeFacility.objects.count(),
@@ -72,7 +76,7 @@ class CacheViewSet(ViewSet):
                 "netfac-count": NetworkFacility.objects.count(),
                 "netixlan-count": NetworkIXLan.objects.count(),
                 "org-count": Organization.objects.count(),
-                "sync-count": Synchronization.objects.count(),
+                "sync-count": Synchronisation.objects.count(),
             }
         )
 
@@ -84,7 +88,7 @@ class CacheViewSet(ViewSet):
     @action(detail=False, methods=["post"], url_path="update-local")
     def update_local(self, request):
         job_result = JobResult.enqueue_job(
-            synchronize, "peeringdb.synchronize", Synchronization, request.user
+            synchronise, "peeringdb.synchronise", Synchronisation, request.user
         )
         serializer = get_serializer_for_model(JobResult)
 
@@ -155,7 +159,7 @@ class OrganizationViewSet(ReadOnlyModelViewSet):
     serializer_class = OrganizationSerializer
 
 
-class SynchronizationViewSet(ReadOnlyModelViewSet):
-    queryset = Synchronization.objects.all()
-    serializer_class = SynchronizationSerializer
-    filterset_class = SynchronizationFilterSet
+class SynchronisationViewSet(ReadOnlyModelViewSet):
+    queryset = Synchronisation.objects.all()
+    serializer_class = SynchronisationSerializer
+    filterset_class = SynchronisationFilterSet

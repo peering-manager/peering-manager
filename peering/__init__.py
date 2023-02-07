@@ -59,7 +59,7 @@ def parse_irr_as_set(asn, irr_as_set):
 
     # Can't work with empty or whitespace only AS-SET
     if not irr_as_set or not irr_as_set.strip():
-        return ["AS{}".format(asn)]
+        return [f"AS{asn}"]
 
     unparsed = re.split(r"[/,&\s]", irr_as_set)
     for value in unparsed:

@@ -250,9 +250,9 @@ class AutonomousSystem(
                 return True
         return False
 
-    def synchronize_with_peeringdb(self):
+    def synchronise_with_peeringdb(self):
         """
-        Synchronizes AS properties with those found in PeeringDB.
+        Synchronises AS properties with those found in PeeringDB.
         """
         network = self.peeringdb_network
         if not network:

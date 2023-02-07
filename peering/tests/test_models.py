@@ -67,18 +67,18 @@ class AutonomousSystemTest(TestCase):
             exists = False
         self.assertTrue(exists)
 
-    def test_synchronize_with_peeringdb(self, *_):
+    def test_synchronise_with_peeringdb(self, *_):
         # Create legal AS to sync with PeeringDB
         asn = 201281
         a_s = AutonomousSystem.create_from_peeringdb(asn)
         self.assertEqual(asn, a_s.asn)
-        self.assertTrue(a_s.synchronize_with_peeringdb())
+        self.assertTrue(a_s.synchronise_with_peeringdb())
 
         # Create illegal AS to fail sync with PeeringDB
         asn = 64500
         a_s = AutonomousSystem.objects.create(asn=asn, name="Test")
         self.assertEqual(asn, a_s.asn)
-        self.assertFalse(a_s.synchronize_with_peeringdb())
+        self.assertFalse(a_s.synchronise_with_peeringdb())
 
     def test_retrieve_irr_as_set_prefixes(self):
         with patch("peering.subprocess.Popen", side_effect=mocked_subprocess_popen):

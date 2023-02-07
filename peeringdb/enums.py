@@ -149,3 +149,8 @@ class AvailableVoltage(models.TextChoices):
     VAC_208 = "208 VAC", "208 VAC"
     VAC_240 = "240 VAC", "240 VAC"
     VAC_480 = "480 VAC", "480 VAC"
+
+
+class MTU(models.IntegerChoices):
+    MTU_1500 = 1500, "1500"
+    MTU_9000 = 9000, "9000"

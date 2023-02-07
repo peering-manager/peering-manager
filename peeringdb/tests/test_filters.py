@@ -2,22 +2,22 @@ from django.db.models import query
 from django.test import TestCase
 from django.utils import timezone
 
-from peeringdb.filters import SynchronizationFilterSet
-from peeringdb.models import Synchronization
+from peeringdb.filters import SynchronisationFilterSet
+from peeringdb.models import Synchronisation
 
 
-class SynchronizationTestCase(TestCase):
-    queryset = Synchronization.objects.all()
-    filterset = SynchronizationFilterSet
+class SynchronisationTestCase(TestCase):
+    queryset = Synchronisation.objects.all()
+    filterset = SynchronisationFilterSet
 
     @classmethod
     def setUpTestData(cls):
         cls.times = [timezone.now(), timezone.now(), timezone.now()]
-        Synchronization.objects.bulk_create(
+        Synchronisation.objects.bulk_create(
             [
-                Synchronization(time=cls.times[0], created=1, updated=0, deleted=0),
-                Synchronization(time=cls.times[1], created=0, updated=1, deleted=0),
-                Synchronization(time=cls.times[2], created=0, updated=0, deleted=1),
+                Synchronisation(time=cls.times[0], created=1, updated=0, deleted=0),
+                Synchronisation(time=cls.times[1], created=0, updated=1, deleted=0),
+                Synchronisation(time=cls.times[2], created=0, updated=0, deleted=1),
             ]
         )
 

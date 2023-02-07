@@ -2,7 +2,7 @@ from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 
-from peeringdb.models import Synchronization
+from peeringdb.models import Synchronisation
 from utils.testing import APITestCase
 
 
@@ -33,21 +33,21 @@ class CacheTest(APITestCase):
         self.assertEqual(response.data["status"], "success")
 
 
-class SynchronizationTest(APITestCase):
+class SynchronisationTest(APITestCase):
     def setUp(self):
         super().setUp()
 
         for i in range(1, 10):
-            Synchronization.objects.create(
+            Synchronisation.objects.create(
                 time=timezone.now(), created=i, updated=i, deleted=i
             )
 
-    def test_get_synchronization(self):
-        url = reverse("peeringdb-api:synchronization-detail", kwargs={"pk": 1})
+    def test_get_synchronisation(self):
+        url = reverse("peeringdb-api:synchronisation-detail", kwargs={"pk": 1})
         response = self.client.get(url, **self.header)
         self.assertEqual(response.data["created"], 1)
 
-    def test_list_synchronizations(self):
-        url = reverse("peeringdb-api:synchronization-list")
+    def test_list_synchronisations(self):
+        url = reverse("peeringdb-api:synchronisation-list")
         response = self.client.get(url, **self.header)
         self.assertEqual(response.data["count"], 9)

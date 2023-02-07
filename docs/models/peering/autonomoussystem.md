@@ -31,12 +31,12 @@ field. For each AS that you create, the following properties can be configured
    advertising prefixes to the AS.
 * `Communities`: a list of communities to apply on prefixes received from or
   advertised by sessions with this AS.
-* `Properties To Synchronize From PeeringDB`: some properties such as the
-  name, the IRR AS-SET and prefix limits can be synchronized from the
+* `Properties To Synchronise From PeeringDB`: some properties such as the
+  name, the IRR AS-SET and prefix limits can be synchronised from the
   AS' [PeeringDB](https://peeringdb.com/) record.
 * `Tags`: a list of tags to help identifying and searching for an AS.
 * `Comments`: text to record some notes about the AS. Can use Markdown
   formatting.
 
 Note that the best way to keep all of these properties up-to-date is to use the
-PeeringDB integration that can synchronize some of them automatically.
+PeeringDB integration that can synchronise some of them automatically.

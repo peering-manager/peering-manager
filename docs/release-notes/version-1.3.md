@@ -4,7 +4,7 @@
 
 ### Enhancements
 
-* Hide PeeringDB related buttons if data are not locally synchronized
+* Hide PeeringDB related buttons if data are not locally synchronised
 
 ### Bug Fixes
 
@@ -19,7 +19,7 @@
 ### Enhancements
 
 * Make sure multi-AS migration is passed before PeeringDB's
-* Remove PeeringDB synchronization records when upgrading to make sure a full synchronization will be performed next time
+* Remove PeeringDB synchronisation records when upgrading to make sure a full synchronisation will be performed next time
 * Use `pathlib` in settings instead of `os.join()` to load settings
 * [#316](https://github.com/peering-manager/peering-manager/issues/316) Add a tab to see an object changelog when viewing its properties
 * [#317](https://github.com/peering-manager/peering-manager/issues/317) Expose changelogs on the REST API
@@ -62,7 +62,7 @@ To support new features and fix some serious bugs that we tried to manage from o
 
 During the migration from a previous release, the local PeeringDB cache will be cleared to make a clean slate. Users will need to run `python3 manage.py peeringdb_sync` after upgrading. Be aware that first run can take a lot of time to complete: up to an hour depending on the machine Peering Manager is running on.
 
-This first big refactoring of the codebase does not bring a lot of new features, yet. However, it will fix and bring stability to long lasting issues. It also comes in pair with the new affiliated autonomous systems feature as it required it. If no local synchronization of PeeringDB's data is performed, Peering Manager will assume that PeeringDB is not supposed to be used as data source. This change is intentional and will stay as is. If a local copy of PeeringDB data is found, Internet Exchanges will be automatically linked to their corresponding PeeringDB records when a user will load each IX views. These links between Peering Manager and PeeringDB data cannot be overridden and will be set to `NULL` in the database if PeeringDB's data is deleted during a synchronization. Missing peering sessions will still be detected but dynamically, it can take some time but the result will be cached into Redis. The `check_for_ix_peering_sessions` command has been therefore removed. Users will see a regression in the AS list as the icon showing missing sessions has been removed. This is intended due to performance issue and it might come back in another release.
+This first big refactoring of the codebase does not bring a lot of new features, yet. However, it will fix and bring stability to long lasting issues. It also comes in pair with the new affiliated autonomous systems feature as it required it. If no local synchronisation of PeeringDB's data is performed, Peering Manager will assume that PeeringDB is not supposed to be used as data source. This change is intentional and will stay as is. If a local copy of PeeringDB data is found, Internet Exchanges will be automatically linked to their corresponding PeeringDB records when a user will load each IX views. These links between Peering Manager and PeeringDB data cannot be overridden and will be set to `NULL` in the database if PeeringDB's data is deleted during a synchronisation. Missing peering sessions will still be detected but dynamically, it can take some time but the result will be cached into Redis. The `check_for_ix_peering_sessions` command has been therefore removed. Users will see a regression in the AS list as the icon showing missing sessions has been removed. This is intended due to performance issue and it might come back in another release.
 
 ### Enhancements
 

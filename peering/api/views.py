@@ -121,11 +121,11 @@ class AutonomousSystemViewSet(ModelViewSet):
         responses={
             200: OpenApiResponse(
                 response=OpenApiTypes.NONE,
-                description="The synchronization has been done.",
+                description="The synchronisation has been done.",
             ),
             204: OpenApiResponse(
                 response=OpenApiTypes.NONE,
-                description="The synchronization cannot be done.",
+                description="The synchronisation cannot be done.",
             ),
             403: OpenApiResponse(
                 response=OpenApiTypes.NONE,
@@ -142,7 +142,7 @@ class AutonomousSystemViewSet(ModelViewSet):
         if not request.user.has_perm("peering.change_autonomoussystem"):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        success = self.get_object().synchronize_with_peeringdb()
+        success = self.get_object().synchronise_with_peeringdb()
         return Response(
             status=status.HTTP_200_OK if success else status.HTTP_204_NO_CONTENT
         )

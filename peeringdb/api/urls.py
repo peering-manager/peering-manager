@@ -16,7 +16,7 @@ router.register("network-contacts", views.NetworkContactViewSet)
 router.register("network-facilities", views.NetworkFacilityViewSet)
 router.register("network-ixlans", views.NetworkIXLanViewSet)
 router.register("organizations", views.OrganizationViewSet)
-router.register("synchronizations", views.SynchronizationViewSet)
+router.register("synchronisations", views.SynchronisationViewSet)
 
 app_name = "peeringdb-api"
 urlpatterns = router.urls

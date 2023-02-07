@@ -10,6 +10,7 @@ from peering.fields import ASNField
 from utils.validators import AddressFamilyValidator
 
 from .enums import (
+    MTU,
     AvailableVoltage,
     ContractsPolicy,
     GeneralPolicy,
@@ -195,6 +196,45 @@ class Facility(Address):
         return self.name
 
 
+class Carrier(models.Model):
+    name = models.CharField("Name", max_length=255, unique=True)
+    aka = models.CharField("Also Known As", max_length=255, blank=True)
+    name_long = models.CharField("Long Name", max_length=255, blank=True)
+    website = URLField("Website", blank=True, null=True)
+    notes = models.TextField("Notes", blank=True)
+    org = models.ForeignKey(
+        to="peeringdb.Organization",
+        related_name="carrier_set",
+        verbose_name="Organization",
+        on_delete=models.CASCADE,
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class CarrierFacility(models.Model):
+    carrier = models.ForeignKey(
+        to="peeringdb.Carrier",
+        related_name="carrierfac_set",
+        verbose_name="Carrier",
+        on_delete=models.CASCADE,
+    )
+    fac = models.ForeignKey(
+        to="peeringdb.Facility",
+        default=0,
+        related_name="carrierfac_set",
+        verbose_name="Facility",
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        unique_together = ("carrier", "fac")
+
+    def __str__(self):
+        return f"{self.carrier} @ {self.fac}"
+
+
 class Network(models.Model):
     asn = ASNField(unique=True, verbose_name="ASN")
     name = models.CharField(max_length=255, unique=True)
@@ -341,7 +381,7 @@ class InternetExchangeFacility(models.Model):
 class IXLan(models.Model):
     name = models.CharField(max_length=255, blank=True)
     descr = models.TextField(blank=True)
-    mtu = models.PositiveIntegerField(null=True, blank=True)
+    mtu = models.PositiveIntegerField(null=True, blank=True, choices=MTU.choices)
     vlan = models.PositiveIntegerField(null=True, blank=True)
     dot1q_support = models.BooleanField(default=False)
     rs_asn = ASNField(
@@ -535,7 +575,7 @@ class NetworkIXLan(models.Model):
         return ipaddress.ip_interface(f"{address.ip}/{prefix.prefixlen}")
 
 
-class Synchronization(models.Model):
+class Synchronisation(models.Model):
     time = models.DateTimeField()
     created = models.PositiveIntegerField()
     updated = models.PositiveIntegerField()
@@ -545,4 +585,4 @@ class Synchronization(models.Model):
         ordering = ["-time"]
 
     def __str__(self):
-        return f"Synced {(self.created + self.deleted + self.updated)} objects at {self.time}"
+        return f"Synchronised {(self.created + self.deleted + self.updated)} objects at {self.time}"

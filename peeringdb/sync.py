@@ -13,6 +13,8 @@ from peering.models import InternetExchange as IXP
 from utils.enums import ObjectChangeAction
 
 from .models import (
+    Carrier,
+    CarrierFacility,
     Facility,
     InternetExchange,
     InternetExchangeFacility,
@@ -23,13 +25,15 @@ from .models import (
     NetworkFacility,
     NetworkIXLan,
     Organization,
-    Synchronization,
+    Synchronisation,
 )
 
 # Order matters for caching data locally
 NAMESPACES = {
     "org": Organization,
     "fac": Facility,
+    "carrier": Carrier,
+    "carrierfac": CarrierFacility,
     "net": Network,
     "ix": InternetExchange,
     "ixfac": InternetExchangeFacility,
@@ -92,7 +96,7 @@ class PeeringDB(object):
 
     def record_last_sync(self, time, changes):
         """
-        Saves the last synchronization details (number of objects and time) for later
+        Saves the last synchronisation details (number of objects and time) for later
         use (and logs).
         """
         last_sync = None
@@ -107,32 +111,32 @@ class PeeringDB(object):
                 "deleted": changes["deleted"],
             }
 
-            last_sync = Synchronization(**values)
+            last_sync = Synchronisation(**values)
             last_sync.save()
 
-            logger.debug(f"synchronized {changes_number} objects at {last_sync.time}")
+            logger.debug(f"synchronised {changes_number} objects at {last_sync.time}")
 
         return last_sync
 
-    def get_last_synchronization(self):
+    def get_last_synchronisation(self):
         """
-        Returns the last recorded synchronization.
+        Returns the last recorded synchronisation.
         """
         try:
-            return Synchronization.objects.latest("time")
-        except Synchronization.DoesNotExist:
+            return Synchronisation.objects.latest("time")
+        except Synchronisation.DoesNotExist:
             pass
 
         return None
 
     def get_last_sync_time(self):
         """
-        Returns the last synchronization time based on the latest record.
+        Returns the last synchronisation time based on the latest record.
         The time is returned as a UNIX timestamp.
         """
         # Assume first sync
         last_sync_time = 0
-        last_sync = self.get_last_synchronization()
+        last_sync = self.get_last_synchronisation()
 
         if last_sync:
             last_sync_time = last_sync.time.timestamp()
@@ -178,7 +182,7 @@ class PeeringDB(object):
 
     def _process_object(self, model, data):
         """
-        Synchronizes a single object.
+        Synchronises a single object.
         """
         action = (
             ObjectChangeAction.DELETE
@@ -224,9 +228,9 @@ class PeeringDB(object):
         for i in IXP.objects.all():
             i.link_to_peeringdb()
 
-    def synchronize_objects(self, last_sync, namespace, model):
+    def synchronise_objects(self, last_sync, namespace, model):
         """
-        Synchronizes all the objects of a namespace of the PeeringDB to the
+        Synchronises all the objects of a namespace of the PeeringDB to the
         local database. This function is meant to be run regularly to update
         the local database with the latest changes.
 
@@ -237,7 +241,7 @@ class PeeringDB(object):
         locally as well.
 
         This function returns the number of objects that have been successfully
-        synchronized to the local database.
+        synchronised to the local database.
         """
         created, updated, deleted = 0, 0, 0
 
@@ -280,7 +284,7 @@ class PeeringDB(object):
 
     def update_local_database(self, last_sync):
         """
-        Updates the local database by synchronizing all PeeringDB API's namespaces
+        Updates the local database by synchronising all PeeringDB API's namespaces
         that we are caring about.
         """
         # Set time of sync
@@ -288,11 +292,11 @@ class PeeringDB(object):
         list_of_changes = []
 
         # Make a single transaction, avoid too much database commits (poor
-        # speed) and fail the whole synchronization if something goes wrong
+        # speed) and fail the whole synchronisation if something goes wrong
         with transaction.atomic():
             # Try to sync objects
             for namespace, object_type in NAMESPACES.items():
-                changes = self.synchronize_objects(last_sync, namespace, object_type)
+                changes = self.synchronise_objects(last_sync, namespace, object_type)
                 list_of_changes.append(changes)
 
             self._fix_related_objects()
@@ -321,5 +325,5 @@ class PeeringDB(object):
         for model in reversed(list(NAMESPACES.values())):
             model.objects.all()._raw_delete(using=DEFAULT_DB_ALIAS)
             invalidate_model(model)
-        Synchronization.objects.all()._raw_delete(using=DEFAULT_DB_ALIAS)
-        invalidate_model(Synchronization)
+        Synchronisation.objects.all()._raw_delete(using=DEFAULT_DB_ALIAS)
+        invalidate_model(Synchronisation)

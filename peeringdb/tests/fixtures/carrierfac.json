@@ -1,0 +1,25 @@
+{
+    "data": [
+        {
+            "id": 1,
+            "name": "BCE Colocation Luxembourg",
+            "carrier_id": 1,
+            "fac_id": 220,
+            "created": "2023-01-25T15:57:19.788823Z",
+            "updated": "2023-02-01T13:24:29.425200Z",
+            "status": "ok"
+        },
+        {
+            "id": 2,
+            "name": "LuxConnect - Bettembourg",
+            "carrier_id": 1,
+            "fac_id": 909,
+            "created": "2023-01-25T15:57:25.329512Z",
+            "updated": "2023-02-01T13:27:50.693755Z",
+            "status": "ok"
+        }
+    ],
+    "meta": {
+        "generated": 1675763404.396
+    }
+}

@@ -279,7 +279,7 @@ will recursively merge nested hashes.
 ## PEERINGDB_API_KEY
 
 PeeringDB API key used to authenticate against PeeringDB allowing Peering
-Manager to synchronize data not accessible without authentication (such as
+Manager to synchronise data not accessible without authentication (such as
 e-mail contacts).
 
 ---

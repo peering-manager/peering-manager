@@ -127,7 +127,7 @@ Leveraging the new `Email` object, the `subject` field has been added to allow u
 * [#217](https://github.com/peering-manager/peering-manager/issues/217) If bgpq3 exits with a non-zero status code when looking for an AS-SETtry to perform the same lookup with the AS object instead
 * [#215](https://github.com/peering-manager/peering-manager/issues/215) Update encrypted passwords when clear ones change
 * [#221](https://github.com/peering-manager/peering-manager/issues/221) Remove duplicates from missing peering sessions in templates
-* [#190](https://github.com/peering-manager/peering-manager/issues/190) Add the possibility to ignore the name of an AS during PeeringDBsynchronizations
+* [#190](https://github.com/peering-manager/peering-manager/issues/190) Add the possibility to ignore the name of an AS during PeeringDBsynchronisations
 * [#235](https://github.com/peering-manager/peering-manager/issues/235) Add documentation to move the PostgreSQL database to UTF-8 encoding
 * [#214](https://github.com/peering-manager/peering-manager/issues/214) Fix router tags usage in templates
 * [#251](https://github.com/peering-manager/peering-manager/issues/251) Add routing policies columns for eligible model lists

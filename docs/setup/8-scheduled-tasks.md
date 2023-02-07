@@ -46,13 +46,13 @@ wish to sync Email Contacts from PeeringDB.
 This command does not need to be run very often. For example, running it every
 5 minutes is overkill, running it once a day should be enough.
 
-The first cache synchronization can take a lot of time due to the amount of
+The first cache synchronisation can take a lot of time due to the amount of
 data to be stored. Later runs will be faster because only the differences with
-the previous synchronization will be retrieved.
+the previous synchronisation will be retrieved.
 
 If the `--tasks` flag is set, it will schedule a background task.
 
-This command can be called with the `--flush` option to remove synchronized
+This command can be called with the `--flush` option to remove synchronised
 items. Flushing cannot be run as a background task.
 
 ```no-highlight

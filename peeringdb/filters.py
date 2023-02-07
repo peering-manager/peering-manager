@@ -3,7 +3,7 @@ import ipaddress
 import django_filters
 from django.db.models import Q
 
-from .models import Network, NetworkContact, NetworkIXLan, Synchronization
+from .models import Network, NetworkContact, NetworkIXLan, Synchronisation
 
 
 class NetworkFilterSet(django_filters.FilterSet):
@@ -48,7 +48,7 @@ class NetworkIXLanFilterSet(django_filters.FilterSet):
         return queryset.filter(qs_filter)
 
 
-class SynchronizationFilterSet(django_filters.FilterSet):
+class SynchronisationFilterSet(django_filters.FilterSet):
     class Meta:
-        model = Synchronization
+        model = Synchronisation
         fields = ["id", "time", "created", "updated", "deleted"]

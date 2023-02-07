@@ -7,7 +7,7 @@ from peeringdb.sync import NAMESPACES, PeeringDB
 from utils.testing import MockedResponse
 
 
-def mocked_synchronization(*args, **kwargs):
+def mocked_synchronisation(*args, **kwargs):
     namespace = args[0].split("/")[-1]
     if namespace in NAMESPACES:
         return MockedResponse(fixture=f"peeringdb/tests/fixtures/{namespace}.json")
@@ -16,11 +16,11 @@ def mocked_synchronization(*args, **kwargs):
 
 
 class PeeringDBSyncTestCase(TestCase):
-    def test_get_last_synchronization(self):
+    def test_get_last_synchronisation(self):
         api = PeeringDB()
 
         # Test when no sync has been done
-        self.assertIsNone(api.get_last_synchronization())
+        self.assertIsNone(api.get_last_synchronisation())
 
         # Test of sync record with no objects
         time_of_sync = timezone.now()
@@ -31,7 +31,7 @@ class PeeringDBSyncTestCase(TestCase):
         time_of_sync = timezone.now()
         api.record_last_sync(time_of_sync, {"created": 1, "updated": 0, "deleted": 0})
         self.assertEqual(
-            int(api.get_last_synchronization().time.timestamp()),
+            int(api.get_last_synchronisation().time.timestamp()),
             int(time_of_sync.timestamp()),
         )
 
@@ -51,10 +51,10 @@ class PeeringDBSyncTestCase(TestCase):
         api.record_last_sync(time_of_sync, {"created": 1, "updated": 0, "deleted": 0})
         self.assertEqual(api.get_last_sync_time(), int(time_of_sync.timestamp()))
 
-    @patch("peeringdb.sync.requests.get", side_effect=mocked_synchronization)
+    @patch("peeringdb.sync.requests.get", side_effect=mocked_synchronisation)
     def test_update_local_database(self, *_):
         sync_result = PeeringDB().update_local_database(0)
-        self.assertEqual(19, sync_result.created)
+        self.assertEqual(23, sync_result.created)
         self.assertEqual(0, sync_result.updated)
         self.assertEqual(0, sync_result.deleted)
 

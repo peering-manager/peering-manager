@@ -75,7 +75,7 @@ class AutonomousSystemTest(StandardAPITestCases.View):
         response = self.client.post(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
 
-    def test_synchronize_with_peeringdb(self):
+    def test_synchronise_with_peeringdb(self):
         autonomous_system = AutonomousSystem.objects.create(
             asn=201281, name="Test", irr_as_set="AS-TEST"
         )

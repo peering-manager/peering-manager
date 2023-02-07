@@ -6,7 +6,7 @@
 
 #### E-mailing
 
-Autonomous System contacts can be synchronized from PeeringDB to use them as recipients for e-mails. Some PeeringDB contacts are hidden and cannot be synchronized if the `PEERINGDB_USERNAME` and `PEERINGDB_PASSWORD` are not set in the configuration. For all contacts to be synchronized, clearing the cache then re-synchronizing with PeeringDB is required.
+Autonomous System contacts can be synchronised from PeeringDB to use them as recipients for e-mails. Some PeeringDB contacts are hidden and cannot be synchronised if the `PEERINGDB_USERNAME` and `PEERINGDB_PASSWORD` are not set in the configuration. For all contacts to be synchronised, clearing the cache then re-synchronising with PeeringDB is required.
 
 [//]: # (The links in the next line are broken.)
 When a contact is available for an Autonomous System a `Send E-mail` tab will be available from the AS view. An e-mail template has to be selected along with a contact to send the e-mail to. E-mail templates can be written following [this section](https://peering-manager.readthedocs.io/en/latest/templates/#e-mail) of the documentation. An example is also [available](https://peering-manager.readthedocs.io/en/latest/templates/peering-request-email/).
