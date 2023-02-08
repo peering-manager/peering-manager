@@ -16,7 +16,7 @@ framework. It runs as a WSGI service behind your choice of HTTP server.
 | HTTP Service | Apache 2 or nginx     |
 | WSGI Service | gunicorn or uWSGI     |
 | Application  | Django/Python         |
-| Database     | PostgreSQL 10+        |
+| Database     | PostgreSQL 11+        |
 | Task queuing | Redis 6+              |
 
 ## Getting Started

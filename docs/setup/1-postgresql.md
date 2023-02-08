@@ -1,5 +1,5 @@
 # PostgreSQL
-Peering Manager requires a PostgreSQL (>= 10) database to store data. This can be
+Peering Manager requires a PostgreSQL (>= 11) database to store data. This can be
 hosted locally or on a remote server. Please note that Peering Manager does not
 support any other database backends as it uses some specific features of
 PostgreSQL.
@@ -35,7 +35,7 @@ PostgreSQL.
 	the previously mentioned are the most trivial to use. Please note that especially
 	`trust` can result in security risks and should only be used if you
 	know what you are doing.
-	Please see the [PostgreSQL documentation](https://www.postgresql.org/docs/13/auth-pg-hba-conf.html)
+	Please see the [PostgreSQL documentation](https://www.postgresql.org/docs/11/auth-pg-hba-conf.html)
 	for more information.
 
 
