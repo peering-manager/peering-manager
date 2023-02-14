@@ -1273,7 +1273,7 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
                 )
                 changes = device.compare_config()
                 if not changes:
-                    self.logger.debug(f"no configuration changes detected")
+                    self.logger.debug("no configuration changes detected")
                 else:
                     self.logger.debug(f"raw napalm output\n{changes}")
 

@@ -82,7 +82,7 @@
     $(this).closest('.alert').slideUp();
   });
 
-  var jobResultURL = {% url 'extras:jobresult_list' %};
+  var jobResultURL = "{% url 'extras:jobresult_list' %}";
   $('#id_poll_sessions_state').click(function () {
     $.ajax({
       method: 'post',
