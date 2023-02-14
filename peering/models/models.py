@@ -1272,15 +1272,20 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
                     f"checking for configuration changes on {self.hostname}"
                 )
                 changes = device.compare_config()
-                self.logger.debug(f"raw napalm output\n{changes}")
-
-                # Commit the config if required
-                if commit:
-                    self.logger.debug(f"commiting configuration on {self.hostname}")
-                    device.commit_config()
+                if not changes:
+                    self.logger.debug(f"no configuration changes detected")
                 else:
-                    self.logger.debug(f"discarding configuration on {self.hostname}")
-                    device.discard_config()
+                    self.logger.debug(f"raw napalm output\n{changes}")
+
+                    # Commit the config if required
+                    if commit:
+                        self.logger.debug(f"commiting configuration on {self.hostname}")
+                        device.commit_config()
+                    else:
+                        self.logger.debug(
+                            f"discarding configuration on {self.hostname}"
+                        )
+                        device.discard_config()
             except Exception as e:
                 try:
                     # Try to restore initial config
