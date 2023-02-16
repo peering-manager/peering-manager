@@ -979,24 +979,21 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
         # Ensure device is not in disabled state
         if self.status == DeviceStatus.DISABLED:
             if job_result:
-                job_result.mark_errored("Router is disabled.", obj=self, logger=logger)
-                job_result.save()
+                job_result.log_warning("Router is disabled.", obj=self, logger=logger)
             return False
 
         # Check if the router runs on a supported platform
         if not self.platform:
             if job_result:
-                job_result.mark_errored(
+                job_result.log_warning(
                     "Router has no assigned platform.", obj=self, logger=logger
                 )
-                job_result.save()
             return False
         if not self.platform.napalm_driver:
             if job_result:
-                job_result.mark_errored(
+                job_result.log_warning(
                     "Router's platform has no NAPALM driver.", obj=self, logger=logger
                 )
-                job_result.save()
             return False
 
         return True

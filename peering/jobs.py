@@ -79,6 +79,7 @@ def import_sessions_to_internet_exchange(internet_exchange, job_result):
 @job("default")
 def poll_bgp_sessions(router, job_result):
     if not router.is_usable_for_task(job_result=job_result, logger=logger):
+        job_result.mark_completed("Task cancelled")
         return False
 
     job_result.mark_running("Polling BGP sessions state.", obj=router, logger=logger)
@@ -100,6 +101,7 @@ def poll_bgp_sessions(router, job_result):
 @job("default")
 def set_napalm_configuration(router, commit, job_result):
     if not router.is_usable_for_task(job_result=job_result, logger=logger):
+        job_result.mark_completed("Task cancelled")
         return False
 
     job_result.mark_running(
@@ -137,6 +139,7 @@ def set_napalm_configuration(router, commit, job_result):
 @job("default")
 def test_napalm_connection(router, job_result):
     if not router.is_usable_for_task(job_result=job_result, logger=logger):
+        job_result.mark_completed("Task cancelled")
         return False
 
     job_result.mark_running("Trying to connect...", obj=router, logger=logger)

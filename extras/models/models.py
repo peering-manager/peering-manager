@@ -266,6 +266,16 @@ class JobResult(models.Model):
         if save:
             self.save()
 
+    def log_warning(self, message, obj=None, grouping="main", logger=None, save=True):
+        self.log(
+            message,
+            obj=obj,
+            level_choice=LogLevel.WARNING,
+            grouping=grouping,
+            logger=logger,
+            save=save,
+        )
+
     def mark_completed(self, log_message, obj=None, logger=None):
         self.set_status(JobResultStatus.COMPLETED)
         self.log(log_message, obj=obj, level_choice=LogLevel.SUCCESS, logger=logger)
