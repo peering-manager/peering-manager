@@ -188,7 +188,7 @@ Example:
 My AS is {{ affiliated_autonomous_systems | get(asn=64500) }}
 ```
 
-## `unique`
+## `unique_items`
 
 Keeps only unique items given a field in a list. Uniqueness is based on the
 field value.
@@ -196,7 +196,7 @@ field value.
 Example:
 
 ```no-highlight
-{% for session in dataset | unique("autonomous_system") %}
+{% for session in dataset | unique_items("autonomous_system") %}
 ...
 {% endfor %}
 ```

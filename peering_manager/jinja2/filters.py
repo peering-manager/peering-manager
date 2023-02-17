@@ -263,7 +263,7 @@ def get(queryset, **kwargs):
         return q
 
 
-def unique(value, field):
+def unique_items(value, field):
     """
     Returns an iterable containing unique items based on a field (and its value).
     """
@@ -745,7 +745,7 @@ FILTER_DICT = {
     # Filtering
     "filter": filter,
     "get": get,
-    "unique": unique,
+    "unique_items": unique_items,
     "iterate": iterate,
     # Autonomous system
     "ixps": ixps,

@@ -320,8 +320,10 @@ class Jinja2FilterTestCase(TestCase):
 
     def test_unique(self):
         sessions = InternetExchangePeeringSession.objects.all()
-        self.assertEqual(1, len(FILTER_DICT["unique"](sessions, "autonomous_system")))
-        self.assertEqual(4, len(FILTER_DICT["unique"](sessions, "ip_address")))
+        self.assertEqual(
+            1, len(FILTER_DICT["unique_items"](sessions, "autonomous_system"))
+        )
+        self.assertEqual(4, len(FILTER_DICT["unique_items"](sessions, "ip_address")))
 
     def test_iterate(self):
         routing_policies = RoutingPolicy.objects.all()
