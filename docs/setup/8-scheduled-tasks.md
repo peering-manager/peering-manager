@@ -139,9 +139,9 @@ running `systemctl enable peering-manager_peeringdb-sync.timer --now`.
 ### CRON
 
 ```no-highlight
-30 1 * * * user cd /opt/peering-manager && venv/bin/python3 manage.py housekeeping
-30 2 * * * user cd /opt/peering-manager && venv/bin/python3 manage.py peeringdb_sync
-55 * * * * user cd /opt/peering-manager && venv/bin/python3 manage.py configure_routers
-0  * * * * user cd /opt/peering-manager && venv/bin/python3 manage.py poll_peering_sessions --all
-30 4 * * * user cd /opt/peering-manager && venv/bin/python3 manage.py grab_prefixes
+30 1 * * * user /opt/peering-manager/venv/bin/python3 /opt/peering-manager/manage.py housekeeping
+30 2 * * * user /opt/peering-manager/venv/bin/python3 /opt/peering-manager/manage.py peeringdb_sync
+55 * * * * user /opt/peering-manager/venv/bin/python3 /opt/peering-manager/manage.py configure_routers
+0  * * * * user /opt/peering-manager/venv/bin/python3 /opt/peering-manager/manage.py poll_bgp_sessions
+30 4 * * * user /opt/peering-manager/venv/bin/python3 /opt/peering-manager/manage.py grab_prefixes
 ```
