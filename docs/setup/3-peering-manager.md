@@ -252,6 +252,11 @@ Before we can deliver Peering Manager with our web server of choice, we have to 
 	the pythonpath variable if needed. Note that some tasks such as importing
 	existing peering sessions or generating prefix lists can take a lot of time to
 	complete so setting a timeout greater than 30 seconds can be helpful.
+
+	!!! info "IPv6"
+		Replace `http://127.0.0.1:8001` with `http://[::1]:8001` if you have
+		configured gunicorn to listen on the IPv6 loopback address.
+
 	```no-highlight
 	bind = '127.0.0.1:8001'
 	workers = 5

@@ -27,6 +27,9 @@ To serve the application, a new configuration file has to be created at
 	your configuration files.
 	It also places a default configuration there that you should remove.
 
+!!! info "IPv6"
+	Replace `http://127.0.0.1:8001` with `http://[::1]:8001` if you have
+	configured gunicorn to listen on the IPv6 loopback address.
 
 ```no-highlight
 server {

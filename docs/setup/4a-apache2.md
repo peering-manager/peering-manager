@@ -27,7 +27,12 @@ application server. On Debian, the configuration goes to
 `/etc/apache2/sites-available/peering-manager.conf`, on CentOS to
 `/etc/httpd/conf.d/peering-manager.conf`.
 
+!!! info "IPv6"
+	Replace `http://127.0.0.1:8001` with `http://[::1]:8001` if you have
+	configured gunicorn to listen on the IPv6 loopback address.
+
 The content of the file can be something like this.
+
 ```no-highlight
 <VirtualHost *:80>
   ProxyPreserveHost On
