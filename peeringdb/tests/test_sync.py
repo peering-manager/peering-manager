@@ -54,7 +54,7 @@ class PeeringDBSyncTestCase(TestCase):
     @patch("peeringdb.sync.requests.get", side_effect=mocked_synchronisation)
     def test_update_local_database(self, *_):
         sync_result = PeeringDB().update_local_database(0)
-        self.assertEqual(23, sync_result.created)
+        self.assertEqual(24, sync_result.created)
         self.assertEqual(0, sync_result.updated)
         self.assertEqual(0, sync_result.deleted)
 

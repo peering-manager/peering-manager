@@ -1,0 +1,24 @@
+{
+    "data": [
+        {
+            "id": 1,
+            "org_id": 2930,
+            "org_name": "LuxConnect",
+            "status": "ok",
+            "created": "2023-02-22T09:08:20.195547Z",
+            "updated": "2023-02-22T09:08:43.962812Z",
+            "name": "LuxConnect Campus",
+            "name_long": null,
+            "notes": "",
+            "aka": null,
+            "website": "https://www.luxconnect.lu",
+            "country": "LU",
+            "city": "Bettembourg",
+            "zipcode": "L-3235",
+            "state": ""
+        }
+    ],
+    "meta": {
+        "generated": 1677706647.496
+    }
+}

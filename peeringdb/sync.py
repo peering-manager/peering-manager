@@ -13,6 +13,7 @@ from peering.models import InternetExchange as IXP
 from utils.enums import ObjectChangeAction
 
 from .models import (
+    Campus,
     Carrier,
     CarrierFacility,
     Facility,
@@ -31,6 +32,7 @@ from .models import (
 # Order matters for caching data locally
 NAMESPACES = {
     "org": Organization,
+    "campus": Campus,
     "fac": Facility,
     "carrier": Carrier,
     "carrierfac": CarrierFacility,

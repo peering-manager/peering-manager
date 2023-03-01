@@ -154,6 +154,26 @@ class Organization(Address):
         return self.name
 
 
+class Campus(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    name_long = models.CharField(max_length=255, blank=True, null=True)
+    aka = models.CharField(max_length=255, blank=True, null=True)
+    website = URLField(blank=True, null=True)
+    notes = models.TextField(blank=True)
+    org = models.ForeignKey(
+        to="peeringdb.Organization",
+        related_name="campus_set",
+        verbose_name="Organization",
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        verbose_name_plural = "campuses"
+
+    def __str__(self):
+        return self.name
+
+
 class Facility(Address):
     name = models.CharField(max_length=255, unique=True)
     name_long = models.CharField(max_length=255, blank=True)
@@ -187,6 +207,14 @@ class Facility(Address):
         related_name="fac_set",
         verbose_name="Organization",
         on_delete=models.CASCADE,
+    )
+    campus = models.ForeignKey(
+        to="peeringdb.Campus",
+        related_name="fac_set",
+        verbose_name="Campus",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
 
     class Meta:
@@ -226,6 +254,14 @@ class CarrierFacility(models.Model):
         related_name="carrierfac_set",
         verbose_name="Facility",
         on_delete=models.CASCADE,
+    )
+    campus = models.ForeignKey(
+        to="peeringdb.Campus",
+        related_name="carrierfac_set",
+        verbose_name="Campus",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
 
     class Meta:
