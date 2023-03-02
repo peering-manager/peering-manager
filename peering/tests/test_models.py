@@ -541,7 +541,7 @@ class RouterTest(TestCase):
                 "peering/tests/fixtures/get_bgp_neighbors_detail.json"
             ),
         ):
-            self.assertFalse(self.router.poll_bgp_sessions())
+            self.assertTupleEqual((False, 0), self.router.poll_bgp_sessions())
 
             autonomous_system = AutonomousSystem.objects.create(
                 asn=64666, name="Poll Testing"
@@ -563,7 +563,7 @@ class RouterTest(TestCase):
                 router=self.router,
             )
 
-            self.assertTrue(self.router.poll_bgp_sessions())
+            self.assertTupleEqual((True, 1), self.router.poll_bgp_sessions())
             session.refresh_from_db()
             self.assertEqual(567_257, session.received_prefix_count)
 

@@ -1,5 +1,6 @@
 import logging
 
+from django.template.defaultfilters import pluralize
 from django_rq import job
 
 from extras.enums import LogLevel
@@ -84,11 +85,13 @@ def poll_bgp_sessions(router, job_result):
 
     job_result.mark_running("Polling BGP sessions state.", obj=router, logger=logger)
 
-    success = router.poll_bgp_sessions()
+    success, count = router.poll_bgp_sessions()
 
     if success:
         job_result.mark_completed(
-            "Successfully polled BGP sessions state.", obj=router, logger=logger
+            f"Successfully polled BGP {count} session{pluralize(count)} state.",
+            obj=router,
+            logger=logger,
         )
     else:
         job_result.mark_failed(

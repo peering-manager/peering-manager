@@ -1591,19 +1591,19 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
             self.logger.debug(
                 f"cannot poll bgp sessions state for {self.hostname}, disabled or platform unusable"
             )
-            return False
+            return False, 0
         if not self.poll_bgp_sessions_state:
             self.logger.debug(
                 f"bgp sessions state polling disabled for {self.hostname}"
             )
-            return False
+            return False, 0
 
         directs = self.get_direct_peering_sessions()
         ixps = self.get_ixp_peering_sessions()
 
         if not directs and not ixps:
             self.logger.debug(f"no bgp sessions attached to {self.hostname}")
-            return False
+            return True, 0
 
         # Get BGP neighbors details from router, but only get them once
         bgp_neighbors_detail = self.bgp_neighbors_detail_as_list(
@@ -1611,8 +1611,9 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
         )
         if not bgp_neighbors_detail:
             self.logger.debug(f"no bgp sessions found on {self.hostname}")
-            return False
+            return True, 0
 
+        count = 0
         for neighbor_detail in bgp_neighbors_detail:
             ip_address = neighbor_detail["remote_address"]
             self.logger.debug(f"looking for session {ip_address} in {self.hostname}")
@@ -1651,12 +1652,13 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
             self.logger.debug(
                 f"session {ip_address} on {self.hostname} saved as {state}"
             )
+            count += 1
 
         # Save last session states update
         self.poll_bgp_sessions_last_updated = timezone.now()
         self.save()
 
-        return True
+        return True, count
 
 
 class RoutingPolicy(
