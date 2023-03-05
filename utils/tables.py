@@ -7,7 +7,7 @@ from django.db.models.fields.related import RelatedField
 from django.utils.safestring import mark_safe
 
 from .functions import content_type_identifier, content_type_name
-from .models import ObjectChange, Tag
+from .models import ObjectChange, Tag, TaggedItem
 from .paginators import EnhancedPaginator, get_paginate_count
 
 OBJECT_CHANGE_ACTION = """
@@ -375,3 +375,17 @@ class TagTable(BaseTable):
         model = Tag
         fields = ("pk", "name", "slug", "color", "items", "actions")
         default_columns = ("pk", "name", "color", "items", "actions")
+
+
+class TaggedItemTable(BaseTable):
+    id = tables.Column(
+        verbose_name="ID",
+        linkify=lambda record: record.content_object.get_absolute_url(),
+        accessor="content_object__id",
+    )
+    content_type = ContentTypeColumn(verbose_name="Type")
+    content_object = tables.Column(linkify=True, orderable=False, verbose_name="Object")
+
+    class Meta(BaseTable.Meta):
+        model = TaggedItem
+        fields = ("id", "content_type", "content_object")

@@ -27,7 +27,7 @@ from .forms import ObjectChangeFilterForm, TagBulkEditForm, TagFilterForm, TagFo
 from .functions import shallow_compare_dict
 from .models import ObjectChange, Tag, TaggedItem
 from .paginators import EnhancedPaginator, get_paginate_count
-from .tables import ObjectChangeTable, TagTable
+from .tables import ObjectChangeTable, TaggedItemTable, TagTable, paginate_table
 
 
 class ObjectChangeList(ObjectListView):
@@ -163,9 +163,25 @@ class TagView(ObjectView):
     queryset = Tag.objects.all()
 
     def get_extra_context(self, request, instance):
-        tagged_items = TaggedItem.objects.filter(tag=instance).count()
+        tagged_items = TaggedItem.objects.filter(tag=instance)
+        taggeditem_table = TaggedItemTable(data=tagged_items, orderable=False)
+        paginate_table(taggeditem_table, request)
 
-        return {"items_count": tagged_items}
+        object_types = [
+            {
+                "content_type": ContentType.objects.get(pk=ti["content_type"]),
+                "item_count": ti["item_count"],
+            }
+            for ti in tagged_items.values("content_type").annotate(
+                item_count=Count("pk")
+            )
+        ]
+
+        return {
+            "taggeditem_table": taggeditem_table,
+            "tagged_item_count": tagged_items.count(),
+            "object_types": object_types,
+        }
 
 
 class TagAdd(ObjectEditView):

@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load render_table from django_tables2 %}
 {% load helpers %}
 {% block actions %}
 {% if perms.utils.change_tag %}
@@ -20,7 +21,7 @@
       <div class="row">
         <div class="col-md-6">
           <div class="card mb-2">
-            <div class="card-header"><strong>Tag Details</strong></div>
+            <div class="card-header"><strong>Details</strong></div>
             <table class="card-body table table-hover attr-table mb-0">
               <tr>
                 <td>Name</td>
@@ -32,7 +33,7 @@
               </tr>
               <tr>
                 <td>Tagged Items</td>
-                <td>{{ items_count }}</td>
+                <td>{{ tagged_item_count }}</td>
               </tr>
               <tr>
                 <td>Color</td>
@@ -46,10 +47,21 @@
           </div>
         </div>
         <div class="col-md-6">
+          <div class="card mb-2">
+            <div class="card-header"><strong>Tagged Item Types</strong></div>
+            <table class="card-body table table-hover attr-table mb-0">
+              {% for object_type in object_types %}
+                <tr>
+                  <td>{{ object_type.content_type.name|title_with_uppers }}</td>
+                  <td>{{ object_type.item_count }}</td>
+                </tr>
+              {% endfor %}
+            </table>
+          </div>
+        </div>
+        <div class="col-md-6 mb-2">
           <div class="card">
-            <div class="card-header">
-              <strong>Comments</strong>
-            </div>
+            <div class="card-header"><strong>Comments</strong></div>
             <div class="card-body">
               {% if instance.comments %}
               {{ instance.comments | markdown }}
@@ -58,6 +70,15 @@
               {% endif %}
             </div>
           </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="card mb-2">
+            <div class="card-header"><strong>Tagged Objects</strong></div>
+            {% render_table taggeditem_table 'includes/table.html' %}
+          </div>
+          {% include 'includes/pagination.html' with paginator=taggeditem_table.paginator page=taggeditem_table.page %}
         </div>
       </div>
 {% endblock %}
