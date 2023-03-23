@@ -136,6 +136,7 @@ class BGPSession(
         blank=True,
         related_name="%(class)s_export_routing_policies",
     )
+    communities = models.ManyToManyField("Community", blank=True)
     bgp_state = models.CharField(max_length=50, choices=BGPState, blank=True, null=True)
     received_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     advertised_prefix_count = models.PositiveIntegerField(blank=True, default=0)
@@ -225,7 +226,11 @@ class BGPSession(
         return list(reversed(merged)) if reverse else merged
 
     def merged_communities(self):
-        merged = list(self.autonomous_system.communities.all())
+        merged = list(self.communities.all())
+
+        for c in self.autonomous_system.communities.all():
+            if c not in merged:
+                merged.append(c)
 
         group = None
         if hasattr(self, "ixp_connection"):

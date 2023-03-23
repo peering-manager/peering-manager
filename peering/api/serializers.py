@@ -170,6 +170,12 @@ class DirectPeeringSessionSerializer(PrimaryModelSerializer):
         required=False,
         many=True,
     )
+    communities = SerializedPKRelatedField(
+        queryset=Community.objects.all(),
+        serializer=NestedCommunitySerializer,
+        required=False,
+        many=True,
+    )
     router = NestedRouterSerializer(required=False)
 
     class Meta:
@@ -190,6 +196,7 @@ class DirectPeeringSessionSerializer(PrimaryModelSerializer):
             "multihop_ttl",
             "import_routing_policies",
             "export_routing_policies",
+            "communities",
             "router",
             "local_context_data",
             "bgp_state",
@@ -278,6 +285,12 @@ class InternetExchangePeeringSessionSerializer(PrimaryModelSerializer):
         required=False,
         many=True,
     )
+    communities = SerializedPKRelatedField(
+        queryset=Community.objects.all(),
+        serializer=NestedCommunitySerializer,
+        required=False,
+        many=True,
+    )
 
     class Meta:
         model = InternetExchangePeeringSession
@@ -295,6 +308,7 @@ class InternetExchangePeeringSessionSerializer(PrimaryModelSerializer):
             "is_route_server",
             "import_routing_policies",
             "export_routing_policies",
+            "communities",
             "local_context_data",
             "bgp_state",
             "received_prefix_count",
@@ -344,6 +358,13 @@ class RouterConfigureSerializer(serializers.Serializer):
 
 
 class RoutingPolicySerializer(PrimaryModelSerializer):
+    communities = SerializedPKRelatedField(
+        queryset=Community.objects.all(),
+        serializer=NestedCommunitySerializer,
+        required=False,
+        many=True,
+    )
+
     class Meta:
         model = RoutingPolicy
         fields = [
@@ -354,6 +375,7 @@ class RoutingPolicySerializer(PrimaryModelSerializer):
             "type",
             "weight",
             "address_family",
+            "communities",
             "local_context_data",
             "comments",
             "tags",

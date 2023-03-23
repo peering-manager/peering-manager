@@ -3,8 +3,8 @@
 {% block subcontent %}
 <div class="row">
   <div class="col-md-6">
-    <div class="card">
-      <div class="card-header"><strong>Routing Policy Details</strong></div>
+    <div class="card mb-2">
+      <div class="card-header"><strong>Details</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
           <td>Name</td>
@@ -24,8 +24,6 @@
         </tr>
       </table>
     </div>
-  </div>
-  <div class="col-md-6">
     <div class="card">
       <div class="card-header"><strong>Comments</strong></div>
       <div class="card-body">
@@ -35,6 +33,24 @@
         <span class="text-muted">None</span>
         {% endif %}
       </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header"><strong>BGP Communities</strong></div>
+      {% if instance.communities.all.count > 0 %}
+      <ul class="list-group list-group-flush">
+      {% for community in instance.communities.all %}
+        <li class="list-group-item">
+          {{ community|as_link }}{% if community.type %} <span class="float-right">{{ community.get_type_html }}{% endif %}</span>
+        </li>
+      {% endfor %}
+      </ul>
+      {% else %}
+      <div class="card-body">
+        <span class="text-muted">None</span>
+      </div>
+      {% endif %}
     </div>
     {% include 'includes/tags_card.html' with tags=instance.tags.all url='peering:routingpolicy_list' %}
   </div>

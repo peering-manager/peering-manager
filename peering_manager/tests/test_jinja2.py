@@ -413,7 +413,7 @@ class Jinja2FilterTestCase(TestCase):
 
     def test_communities(self):
         self.assertEqual(1, len(FILTER_DICT["communities"](self.ixp)))
-        self.assertEqual(1, len(FILTER_DICT["communities"](self.session6)))
+        self.assertEqual(0, len(FILTER_DICT["communities"](self.session6)))
         self.assertEqual(0, len(FILTER_DICT["communities"](self.router)))
 
     def test_merge_communities(self):

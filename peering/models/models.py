@@ -1677,6 +1677,7 @@ class RoutingPolicy(
     address_family = models.PositiveSmallIntegerField(
         default=IPFamily.ALL, choices=IPFamily
     )
+    communities = models.ManyToManyField("Community", blank=True)
     comments = models.TextField(blank=True)
 
     class Meta:

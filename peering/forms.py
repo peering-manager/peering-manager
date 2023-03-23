@@ -293,6 +293,9 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
         queryset=RoutingPolicy.objects.all(),
         query_params={"type": "export-policy"},
     )
+    communities = DynamicModelMultipleChoiceField(
+        required=False, queryset=Community.objects.all()
+    )
     password = PasswordField(required=False, render_value=True)
     local_context_data = JSONField(required=False, widget=SmallTextarea)
     comments = CommentField()
@@ -314,6 +317,7 @@ class DirectPeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "router",
             "import_routing_policies",
             "export_routing_policies",
+            "communities",
             "local_context_data",
             "comments",
             "tags",
@@ -387,6 +391,9 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEd
         queryset=RoutingPolicy.objects.all(),
         query_params={"type": "export-policy"},
     )
+    communities = DynamicModelMultipleChoiceField(
+        required=False, queryset=Community.objects.all()
+    )
     router = DynamicModelChoiceField(required=False, queryset=Router.objects.all())
     local_context_data = JSONField(required=False, widget=SmallTextarea)
     comments = CommentField()
@@ -395,6 +402,7 @@ class DirectPeeringSessionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEd
         nullable_fields = (
             "import_routing_policies",
             "export_routing_policies",
+            "communities",
             "router",
             "local_context_data",
             "comments",
@@ -609,6 +617,9 @@ class InternetExchangePeeringSessionBulkEditForm(
         queryset=RoutingPolicy.objects.all(),
         query_params={"type": "export-policy"},
     )
+    communities = DynamicModelMultipleChoiceField(
+        required=False, queryset=Community.objects.all()
+    )
     local_context_data = JSONField(required=False, widget=SmallTextarea)
     comments = CommentField(widget=SmallTextarea)
 
@@ -616,6 +627,7 @@ class InternetExchangePeeringSessionBulkEditForm(
         nullable_fields = (
             "import_routing_policies",
             "export_routing_policies",
+            "communities",
             "local_context_data",
             "comments",
         )
@@ -647,6 +659,9 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
         queryset=RoutingPolicy.objects.all(),
         query_params={"type": "export-policy"},
     )
+    communities = DynamicModelMultipleChoiceField(
+        required=False, queryset=Community.objects.all()
+    )
     local_context_data = JSONField(required=False, widget=SmallTextarea)
     comments = CommentField()
     tags = TagField(required=False)
@@ -664,6 +679,7 @@ class InternetExchangePeeringSessionForm(BootstrapMixin, forms.ModelForm):
             "is_route_server",
             "import_routing_policies",
             "export_routing_policies",
+            "communities",
             "local_context_data",
             "comments",
             "tags",
@@ -870,6 +886,9 @@ class RoutingPolicyForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField(max_length=255)
     type = forms.ChoiceField(choices=RoutingPolicyType, widget=StaticSelect)
     address_family = forms.ChoiceField(choices=IPFamily, widget=StaticSelect)
+    communities = DynamicModelMultipleChoiceField(
+        required=False, queryset=Community.objects.all()
+    )
     local_context_data = JSONField(required=False, widget=SmallTextarea)
     comments = CommentField()
     tags = TagField(required=False)
@@ -883,6 +902,7 @@ class RoutingPolicyForm(BootstrapMixin, forms.ModelForm):
             "type",
             "weight",
             "address_family",
+            "communities",
             "local_context_data",
             "comments",
             "tags",
@@ -902,11 +922,14 @@ class RoutingPolicyBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm)
     address_family = forms.ChoiceField(
         required=False, choices=IPFamily, widget=StaticSelect
     )
+    communities = DynamicModelMultipleChoiceField(
+        required=False, queryset=Community.objects.all()
+    )
     local_context_data = JSONField(required=False, widget=SmallTextarea)
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ("local_context_data", "comments")
+        nullable_fields = ("communities", "local_context_data", "comments")
 
 
 class RoutingPolicyFilterForm(BootstrapMixin, forms.Form):

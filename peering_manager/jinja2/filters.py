@@ -376,7 +376,8 @@ def merge_communities(value):
     Merges and returns communities.
     """
     if not hasattr(value, "merged_communities"):
-        raise AttributeError(f"{value} has not merged communities")
+        # If value has not `merged_communities`, default to `communities` filter
+        return communities(value)
 
     return value.merged_communities()
 
