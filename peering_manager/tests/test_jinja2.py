@@ -7,7 +7,7 @@ from django.test import TestCase
 
 from devices.models import Configuration
 from extras.models import ExportTemplate
-from messaging.models import Email
+from messaging.models import Contact, ContactAssignment, ContactRole, Email
 from net.enums import ConnectionStatus
 from net.models import Connection
 from peering.enums import (
@@ -143,6 +143,13 @@ class Jinja2FilterTestCase(TestCase):
         cls.session6.export_routing_policies.add(
             RoutingPolicy.objects.get(slug="accept-all"),
             RoutingPolicy.objects.get(slug="export-supernets"),
+        )
+        cls.contact = Contact.objects.create(name="Contact 1")
+        cls.contact_role = ContactRole.objects.create(
+            name="Contact Role 1", slug="contact-role-1"
+        )
+        ContactAssignment.objects.create(
+            object=cls.a_s, contact=cls.contact, role=cls.contact_role
         )
 
     def test_ipv4(self):
@@ -418,6 +425,16 @@ class Jinja2FilterTestCase(TestCase):
 
     def test_merge_communities(self):
         self.assertEqual(2, len(FILTER_DICT["merge_communities"](self.session6)))
+
+    def test_contact(self):
+        self.assertEqual(
+            self.contact, FILTER_DICT["contact"](self.a_s, "Contact Role 1")
+        )
+        self.assertEqual(
+            self.contact, FILTER_DICT["contact"](self.session6, "Contact Role 1")
+        )
+        self.assertIsNone(FILTER_DICT["contact"](self.session6, "test"))
+        self.assertRaises(AttributeError, FILTER_DICT["contact"], self.router, "test")
 
     def connections(self):
         self.assertEqual(1, FILTER_DICT["connections"](self.ixp).count())

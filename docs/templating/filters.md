@@ -458,6 +458,22 @@ Example:
 communities [ {{ session | merge_communities | iterate('value') | join(' ') }} ];
 ```
 
+## `contact`
+
+Get the first matching contact for an autonomous system, an IXP or a BGP
+session. A role name (case insensitive) must be given as parameter. An
+optional `field` parameter can be given to only return the value of said
+field.
+
+Contacts found in PeeringDB are not included in the potential matches list.
+
+Examples:
+
+```no-highlight
+{{ session | contact('technical') }}
+{{ session.autonomous_system | contact('technical', field='name') }}
+```
+
 ## `context_has_key` / `context_has_not_key`
 
 Checks if the config context of an object contains a given key.

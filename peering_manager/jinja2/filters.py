@@ -382,6 +382,28 @@ def merge_communities(value):
     return value.merged_communities()
 
 
+def contact(value, role, field=""):
+    """
+    Returns the first matching contact given a role, optionaly only returns a field.
+    """
+    if type(value) in (AutonomousSystem, InternetExchange):
+        contacts = value.contacts
+    elif type(value) in (DirectPeeringSession, InternetExchangePeeringSession):
+        contacts = value.autonomous_system.contacts
+    else:
+        raise AttributeError(f"{value} has no contacts")
+
+    if contacts:
+        assignement = contacts.filter(role__name__iexact=role).first()
+        if assignement:
+            if not field:
+                return assignement.contact
+            else:
+                return getattr(assignement.contact, field)
+
+    return None
+
+
 def length(value):
     """
     Returns the number of items in a queryset or an iterable.
@@ -773,6 +795,8 @@ FILTER_DICT = {
     # Communities
     "communities": communities,
     "merge_communities": merge_communities,
+    # Contacts
+    "contact": contact,
     # Routing policies
     "iter_export_policies": iter_export_policies,
     "iter_import_policies": iter_import_policies,
