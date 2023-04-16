@@ -73,7 +73,24 @@ class AutonomousSystem(
         permissions = [("send_email", "Can send e-mails to AS contact")]
 
     @property
+    def is_private(self):
+        return (
+            self.asn == 0  # RFC 7607
+            or self.asn == 23456  # RFC 4893
+            or (self.asn >= 64496 and self.asn <= 64511)  # RFC 5398
+            or (self.asn >= 64512 and self.asn <= 65534)  # RFC 6996
+            or self.asn == 65535  # RFC 7300
+            or (self.asn >= 65536 and self.asn <= 65551)  # RFC 5398
+            or (self.asn >= 65552 and self.asn <= 131071)  # RFC IANA
+            or (self.asn >= 4200000000 and self.asn <= 4294967294)  # RFC 6996
+            or self.asn == 4294967295  # RFC 7300
+        )
+
+    @property
     def peeringdb_network(self):
+        if self.is_private:
+            return None
+
         try:
             return Network.objects.get(asn=self.asn)
         except Network.DoesNotExist:
@@ -190,7 +207,7 @@ class AutonomousSystem(
         If the IXP is not specified then missing peering sessions will be returned for
         all shared IXPs between this and the other AS.
         """
-        if self == other:
+        if self == other or self.is_private:
             return NetworkIXLan.objects.none()
 
         filter = {"autonomous_system": self}
@@ -254,6 +271,9 @@ class AutonomousSystem(
         """
         Synchronises AS properties with those found in PeeringDB.
         """
+        if self.is_private:
+            return True
+
         network = self.peeringdb_network
         if not network:
             return False

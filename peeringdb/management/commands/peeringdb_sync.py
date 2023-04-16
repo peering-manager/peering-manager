@@ -48,6 +48,8 @@ class Command(BaseCommand):
 
             self.stdout.write("[*] Updating AS details")
             for autonomous_system in AutonomousSystem.objects.defer("prefixes"):
+                if autonomous_system.is_private:
+                    continue
                 if not quiet:
                     self.stdout.write(f"  - AS{autonomous_system.asn} ... ", ending="")
                 autonomous_system.synchronise_with_peeringdb()

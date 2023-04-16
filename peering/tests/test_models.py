@@ -74,9 +74,15 @@ class AutonomousSystemTest(TestCase):
         self.assertEqual(asn, a_s.asn)
         self.assertTrue(a_s.synchronise_with_peeringdb())
 
-        # Create illegal AS to fail sync with PeeringDB
+        # Private AS passes sync even if not synced for real
         asn = 64500
         a_s = AutonomousSystem.objects.create(asn=asn, name="Test")
+        self.assertEqual(asn, a_s.asn)
+        self.assertTrue(a_s.synchronise_with_peeringdb())
+
+        # Private AS passes sync even if not synced for real
+        asn = 1
+        a_s = AutonomousSystem.objects.create(asn=asn, name="Not in PeeringDB")
         self.assertEqual(asn, a_s.asn)
         self.assertFalse(a_s.synchronise_with_peeringdb())
 

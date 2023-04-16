@@ -7,6 +7,9 @@
       <div class="card-header">
         <strong>AS Details</strong>
         <div class="float-right">
+          {% if instance.is_private %}
+          <span class="badge badge-warning">Private ASN</span>
+          {% else %}
           <a class="btn btn-xs btn-primary" href="{{ settings.PEERINGDB }}{{ instance.asn }}" target="_blank">
             <i class="fas fa-external-link-alt"></i> PeeringDB
           </a>
@@ -14,6 +17,7 @@
           <button class="btn btn-xs btn-success" id="synchronise-with-peeringdb">
             <i class="fas fa-sync"></i> Synchronise
           </button>
+          {% endif %}
           {% endif %}
         </div>
       </div>
@@ -26,19 +30,19 @@
           <td>Name</td>
           <td>{{ instance.name }}</td>
         </tr>
-        <tr{% if instance.irr_as_set_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
+        <tr{% if not instance.is_private and instance.irr_as_set_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
           <td>IRR AS-SET</td>
-          <td id="id_irr_as_set">{{ instance.irr_as_set }}</td>
+          <td id="id_irr_as_set">{{ instance.irr_as_set|render_none }}</td>
         </tr>
-        <tr{% if instance.ipv6_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
+        <tr{% if not instance.is_private and instance.ipv6_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
           <td>IPv6 Max Prefixes</td>
           <td id="id_ipv6_max_prefixes">{{ instance.ipv6_max_prefixes|render_none }}</td>
         </tr>
-        <tr{% if instance.ipv4_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
+        <tr{% if not instance.is_private and instance.ipv4_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
           <td>IPv4 Max Prefixes</td>
           <td id="id_ipv4_max_prefixes">{{ instance.ipv4_max_prefixes|render_none }}</td>
         </tr>
-        {% if instance.general_policy %}
+        {% if not instance.is_private and instance.general_policy %}
         <tr data-toggle="tooltip" data-placement="right" title="From PeeringDB">
           <td>General Policy</td>
           <td id="peering_policy">{{ instance.general_policy }}</td>
@@ -125,7 +129,7 @@
   $(function() {
     $('[data-toggle="tooltip"]').tooltip();
   });
-
+  {% if not instance.is_private %}
   // Bind function to button click
   $('#synchronise-with-peeringdb').click(function() {
     $.ajax({
@@ -168,5 +172,6 @@
       });
     });
   });
+  {% endif %}
 </script>
 {% endblock %}
