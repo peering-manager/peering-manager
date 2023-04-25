@@ -1,8 +1,8 @@
-from peering_manager.api import OrderedDefaultRouter
+from peering_manager.api.routers import PeeringManagerRouter
 
 from . import views
 
-router = OrderedDefaultRouter()
+router = PeeringManagerRouter()
 router.APIRootView = views.MessagingRootView
 
 router.register("contact-roles", views.ContactRoleViewSet)

@@ -40,7 +40,7 @@ from peering.models import (
     RoutingPolicy,
 )
 from peering_manager.api.exceptions import ServiceUnavailable
-from peering_manager.api.views import ModelViewSet
+from peering_manager.api.viewsets import PeeringManagerModelViewSet
 from peeringdb.api.serializers import NetworkIXLanSerializer
 
 from .serializers import (
@@ -63,14 +63,13 @@ class PeeringRootView(APIRootView):
         return "Peering"
 
 
-class AutonomousSystemViewSet(ModelViewSet):
+class AutonomousSystemViewSet(PeeringManagerModelViewSet):
     queryset = AutonomousSystem.objects.defer("prefixes")
     serializer_class = AutonomousSystemSerializer
     filterset_class = AutonomousSystemFilterSet
 
     @extend_schema(
         operation_id="peering_autonomous_systems_poll_bgp_sessions",
-        request=None,
         responses={
             202: OpenApiResponse(
                 response=JobResultSerializer(many=True),
@@ -117,7 +116,6 @@ class AutonomousSystemViewSet(ModelViewSet):
 
     @extend_schema(
         operation_id="peering_autonomous_systems_sync_with_peeringdb",
-        request=None,
         responses={
             200: OpenApiResponse(
                 response=OpenApiTypes.NONE,
@@ -149,7 +147,6 @@ class AutonomousSystemViewSet(ModelViewSet):
 
     @extend_schema(
         operation_id="peering_autonomous_systems_as_set_prefixes",
-        request=None,
         responses={
             200: OpenApiResponse(
                 response=OpenApiTypes.OBJECT,
@@ -166,7 +163,6 @@ class AutonomousSystemViewSet(ModelViewSet):
 
     @extend_schema(
         operation_id="peering_autonomous_systems_shared_ixps",
-        request=None,
         responses={
             200: OpenApiResponse(
                 response=NestedInternetExchangeSerializer(many=True),
@@ -200,7 +196,6 @@ class AutonomousSystemViewSet(ModelViewSet):
 
     @extend_schema(
         operation_id="peering_autonomous_systems_generate_email",
-        request=None,
         responses={
             200: OpenApiResponse(
                 response=OpenApiTypes.OBJECT, description="Renders the e-mail template."
@@ -225,14 +220,13 @@ class AutonomousSystemViewSet(ModelViewSet):
             raise Response(status=status.HTTP_404_NOT_FOUND)
 
 
-class BGPGroupViewSet(ModelViewSet):
+class BGPGroupViewSet(PeeringManagerModelViewSet):
     queryset = BGPGroup.objects.all()
     serializer_class = BGPGroupSerializer
     filterset_class = BGPGroupFilterSet
 
     @extend_schema(
         operation_id="peering_bgp_groups_poll_bgp_sessions",
-        request=None,
         responses={
             202: OpenApiResponse(
                 response=JobResultSerializer(many=True),
@@ -276,20 +270,19 @@ class BGPGroupViewSet(ModelViewSet):
         )
 
 
-class CommunityViewSet(ModelViewSet):
+class CommunityViewSet(PeeringManagerModelViewSet):
     queryset = Community.objects.all()
     serializer_class = CommunitySerializer
     filterset_class = CommunityFilterSet
 
 
-class DirectPeeringSessionViewSet(ModelViewSet):
+class DirectPeeringSessionViewSet(PeeringManagerModelViewSet):
     queryset = DirectPeeringSession.objects.all()
     serializer_class = DirectPeeringSessionSerializer
     filterset_class = DirectPeeringSessionFilterSet
 
     @extend_schema(
         operation_id="peering_direct_peering_sessions_encrypt_password",
-        request=None,
         responses={
             200: OpenApiResponse(
                 response=OpenApiTypes.NONE,
@@ -324,7 +317,6 @@ class DirectPeeringSessionViewSet(ModelViewSet):
 
     @extend_schema(
         operation_id="peering_direct_peering_sessions_poll",
-        request=None,
         responses={
             200: OpenApiResponse(
                 response=OpenApiTypes.NONE,
@@ -358,14 +350,13 @@ class DirectPeeringSessionViewSet(ModelViewSet):
         )
 
 
-class InternetExchangeViewSet(ModelViewSet):
+class InternetExchangeViewSet(PeeringManagerModelViewSet):
     queryset = InternetExchange.objects.all()
     serializer_class = InternetExchangeSerializer
     filterset_class = InternetExchangeFilterSet
 
     @extend_schema(
         operation_id="peering_internet_exchange_link_to_peeringdb",
-        request=None,
         responses={
             200: OpenApiResponse(
                 response=OpenApiTypes.NONE,
@@ -399,7 +390,6 @@ class InternetExchangeViewSet(ModelViewSet):
 
     @extend_schema(
         operation_id="peering_internet_exchange_available_peers",
-        request=None,
         responses={
             200: OpenApiResponse(
                 response=NetworkIXLanSerializer(many=True),
@@ -422,7 +412,6 @@ class InternetExchangeViewSet(ModelViewSet):
 
     @extend_schema(
         operation_id="peering_internet_exchanges_import_sessions",
-        request=None,
         responses={
             202: OpenApiResponse(
                 response=JobResultSerializer,
@@ -486,7 +475,6 @@ class InternetExchangeViewSet(ModelViewSet):
 
     @extend_schema(
         operation_id="peering_internet_exchanges_poll_bgp_sessions",
-        request=None,
         responses={
             202: OpenApiResponse(
                 response=JobResultSerializer(many=True),
@@ -530,14 +518,13 @@ class InternetExchangeViewSet(ModelViewSet):
         )
 
 
-class InternetExchangePeeringSessionViewSet(ModelViewSet):
+class InternetExchangePeeringSessionViewSet(PeeringManagerModelViewSet):
     queryset = InternetExchangePeeringSession.objects.all()
     serializer_class = InternetExchangePeeringSessionSerializer
     filterset_class = InternetExchangePeeringSessionFilterSet
 
     @extend_schema(
         operation_id="peering_internet_exchange_peering_sessions_encrypt_password",
-        request=None,
         responses={
             200: OpenApiResponse(
                 response=OpenApiTypes.NONE,
@@ -572,7 +559,6 @@ class InternetExchangePeeringSessionViewSet(ModelViewSet):
 
     @extend_schema(
         operation_id="peering_internet_exchange_peering_sessions_poll",
-        request=None,
         responses={
             200: OpenApiResponse(
                 response=OpenApiTypes.NONE,
@@ -606,14 +592,13 @@ class InternetExchangePeeringSessionViewSet(ModelViewSet):
         )
 
 
-class RouterViewSet(ModelViewSet):
+class RouterViewSet(PeeringManagerModelViewSet):
     queryset = Router.objects.all()
     serializer_class = RouterSerializer
     filterset_class = RouterFilterSet
 
     @extend_schema(
         operation_id="peering_routers_configuration",
-        request=None,
         responses={
             202: OpenApiResponse(
                 response=JobResultSerializer,
@@ -707,7 +692,6 @@ class RouterViewSet(ModelViewSet):
 
     @extend_schema(
         operation_id="peering_routers_poll_bgp_sessions",
-        request=None,
         responses={
             202: OpenApiResponse(
                 response=JobResultSerializer,
@@ -885,7 +869,7 @@ class RouterViewSet(ModelViewSet):
             return Response(status=status.HTTP_200_OK)
 
 
-class RoutingPolicyViewSet(ModelViewSet):
+class RoutingPolicyViewSet(PeeringManagerModelViewSet):
     queryset = RoutingPolicy.objects.all()
     serializer_class = RoutingPolicySerializer
     filterset_class = RoutingPolicyFilterSet

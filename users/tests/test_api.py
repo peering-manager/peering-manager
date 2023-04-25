@@ -3,6 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from peering.models import AutonomousSystem
+from utils.functions import merge_hash
 from utils.testing import APITestCase, StandardAPITestCases
 
 
@@ -28,33 +29,63 @@ class GroupTest(StandardAPITestCases.View):
 class UserTest(StandardAPITestCases.View):
     model = User
     view_namespace = "users"
-    brief_fields = ["id", "url", "username"]
+    brief_fields = ["display", "id", "url", "username"]
+    validation_excluded_fields = ["password"]
     create_data = [
-        {"username": "User_4"},
-        {"username": "User_5"},
-        {"username": "User_6"},
+        {"username": "user4", "password": "password4"},
+        {"username": "user5", "password": "password5"},
+        {"username": "user6", "password": "password6"},
     ]
 
     @classmethod
     def setUpTestData(cls):
-        User.objects.create(username="User_1")
-        User.objects.bulk_create([User(username="User_2"), User(username="User_3")])
-
-    def test_set_context_as(self):
-        affiliated = AutonomousSystem.objects.create(
-            asn=201281, name="Guillaume Mazoyer", affiliated=True
+        User.objects.bulk_create(
+            [
+                User(username="user1", password="password1"),
+                User(username="user2", password="password2"),
+                User(username="user3", password="password3"),
+            ]
         )
-        a_s = AutonomousSystem.objects.create(asn=65000, name="ACME")
-        user = User.objects.get(username="User_1")
 
-        url = reverse("users-api:user-set-context-as", kwargs={"pk": user.pk})
 
-        data = {"as_id": affiliated.pk}
-        response = self.client.patch(url, data, format="json", **self.header)
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(user.preferences.get("context.as"), affiliated.pk)
+class UserPreferencesTest(APITestCase):
+    def test_get(self):
+        """
+        Retrieve user configuration via GET request.
+        """
+        preferences = self.user.preferences
+        url = reverse("users-api:userpref-list")
 
-        data = {"as_id": a_s.pk}
-        response = self.client.patch(url, data, format="json", **self.header)
-        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(user.preferences.get("context.as"), affiliated.pk)
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data, {})
+
+        data = {"a": 123, "b": 456, "c": 789}
+        preferences.data = data
+        preferences.save()
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data, data)
+
+    def test_patch(self):
+        """
+        Set user config via PATCH requests.
+        """
+        preferences = self.user.preferences
+        url = reverse("users-api:userpref-list")
+
+        data = {
+            "a": {"a1": "X", "a2": "Y"},
+            "b": {"b1": "Z"},
+        }
+        response = self.client.patch(url, data=data, format="json", **self.header)
+        self.assertDictEqual(response.data, data)
+        preferences.refresh_from_db()
+        self.assertDictEqual(preferences.data, data)
+
+        update_data = {"c": 123}
+        response = self.client.patch(
+            url, data=update_data, format="json", **self.header
+        )
+        new_data = merge_hash(data, update_data)
+        self.assertDictEqual(response.data, new_data)
+        preferences.refresh_from_db()
+        self.assertDictEqual(preferences.data, new_data)

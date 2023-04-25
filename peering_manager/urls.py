@@ -1,14 +1,13 @@
 from django.conf import settings
 from django.urls import include, path
-
-from peering_manager.admin import admin_site
-from peering_manager.api.views import (
-    APIRootView,
+from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
     SpectacularSwaggerView,
-    StatusView,
 )
+
+from peering_manager.admin import admin_site
+from peering_manager.api.views import APIRootView, StatusView
 from peering_manager.views import Home, SearchView, handle_500, trigger_500
 from users.views import LoginView, LogoutView
 
@@ -44,13 +43,18 @@ __patterns = [
     path("api/users/", include("users.api.urls")),
     path("api/utils/", include("utils.api.urls")),
     path("api/status/", StatusView.as_view(), name="api-status"),
+    # API Schema and docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
-        "api/docs/",
+        "api/schema/swagger-ui/",
         SpectacularSwaggerView.as_view(url_name="schema"),
-        name="swagger-ui",
+        name="api-docs",
     ),
-    path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+    path(
+        "api/schema/redoc/",
+        SpectacularRedocView.as_view(url_name="schema"),
+        name="api-redocs",
+    ),
     # Admin
     path("admin/background-tasks/", include("django_rq.urls")),
     path("admin/", admin_site.urls),

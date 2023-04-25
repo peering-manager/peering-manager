@@ -22,7 +22,10 @@ from extras.models import (
     JobResult,
     Webhook,
 )
-from peering_manager.api.views import ModelViewSet, ReadOnlyModelViewSet
+from peering_manager.api.viewsets import (
+    PeeringManagerModelViewSet,
+    PeeringManagerReadOnlyModelViewSet,
+)
 
 from .serializers import (
     ConfigContextAssignmentSerializer,
@@ -40,13 +43,13 @@ class ExtrasRootView(APIRootView):
         return "Extras"
 
 
-class ConfigContextViewSet(ModelViewSet):
+class ConfigContextViewSet(PeeringManagerModelViewSet):
     queryset = ConfigContext.objects.all()
     serializer_class = ConfigContextSerializer
     filterset_class = ConfigContextFilterSet
 
 
-class ConfigContextAssignmentViewSet(ModelViewSet):
+class ConfigContextAssignmentViewSet(PeeringManagerModelViewSet):
     queryset = ConfigContextAssignment.objects.prefetch_related(
         "object", "config_context"
     )
@@ -54,14 +57,13 @@ class ConfigContextAssignmentViewSet(ModelViewSet):
     filterset_class = ConfigContextAssignmentFilterSet
 
 
-class ExportTemplateViewSet(ModelViewSet):
+class ExportTemplateViewSet(PeeringManagerModelViewSet):
     queryset = ExportTemplate.objects.all()
     serializer_class = ExportTemplateSerializer
     filterset_class = ExportTemplateFilterSet
 
     @extend_schema(
         operation_id="extras_exporttemplates_render",
-        request=None,
         responses={
             202: OpenApiResponse(
                 response=JobResultSerializer,
@@ -97,7 +99,6 @@ class ExportTemplateViewSet(ModelViewSet):
 
     @extend_schema(
         operation_id="extras_exporttemplates_render_synchronous",
-        request=None,
         responses={
             200: OpenApiResponse(
                 response=OpenApiTypes.OBJECT,
@@ -122,7 +123,7 @@ class ExportTemplateViewSet(ModelViewSet):
         return Response(data={"rendered": self.get_object().render()})
 
 
-class IXAPIViewSet(ModelViewSet):
+class IXAPIViewSet(PeeringManagerModelViewSet):
     queryset = IXAPI.objects.all()
     serializer_class = IXAPISerializer
 
@@ -153,13 +154,13 @@ class IXAPIViewSet(ModelViewSet):
         return Response(data=api.customers.all())
 
 
-class JobResultViewSet(ReadOnlyModelViewSet):
+class JobResultViewSet(PeeringManagerReadOnlyModelViewSet):
     queryset = JobResult.objects.all()
     serializer_class = JobResultSerializer
     filterset_class = JobResultFilterSet
 
 
-class WebhookViewSet(ModelViewSet):
+class WebhookViewSet(PeeringManagerModelViewSet):
     queryset = Webhook.objects.all()
     serializer_class = WebhookSerializer
     filterset_class = WebhookFilterSet

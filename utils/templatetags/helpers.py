@@ -256,4 +256,4 @@ def doc_version(version):
     if "-dev" in version:
         return "latest"
     else:
-        return version
+        return f"v{version}"

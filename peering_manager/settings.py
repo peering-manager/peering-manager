@@ -19,7 +19,7 @@ HOSTNAME = platform.node()
 BASE_DIR = Path(__file__).resolve().parent.parent
 DOCS_DIR = BASE_DIR / "docs"
 
-VERSION = "v1.7.5-dev"
+VERSION = "1.8.0-dev"
 
 major, minor, _ = platform.python_version_tuple()
 if (int(major), int(minor)) < (3, 8):
@@ -120,13 +120,23 @@ FILTERS_NULL_CHOICE_VALUE = "null"
 
 
 # Use major.minor as API version
-REST_FRAMEWORK_VERSION = VERSION[1:4]
+REST_FRAMEWORK_VERSION = ".".join(VERSION.split("-")[0].split(".")[:2])
 REST_FRAMEWORK = {
-    "DEFAULT_VERSION": REST_FRAMEWORK_VERSION,
-    "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.AcceptHeaderVersioning",
+    "ALLOWED_VERSIONS": [REST_FRAMEWORK_VERSION],
+    "COERCE_DECIMAL_TO_STRING": False,
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.SessionAuthentication",
         "peering_manager.api.authentication.TokenAuthentication",
+    ),
+    "DEFAULT_FILTER_BACKENDS": (
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.OrderingFilter",
+    ),
+    "DEFAULT_METADATA_CLASS": "peering_manager.api.metadata.BulkOperationMetadata",
+    "DEFAULT_PAGINATION_CLASS": "peering_manager.api.pagination.OptionalLimitOffsetPagination",
+    "DEFAULT_PARSER_CLASSES": (
+        "rest_framework.parsers.JSONParser",
+        "rest_framework.parsers.MultiPartParser",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "peering_manager.api.authentication.TokenPermissions",
@@ -135,21 +145,28 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
         "peering_manager.api.renderers.FormlessBrowsableAPIRenderer",
     ),
-    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-    "DEFAULT_METADATA_CLASS": "peering_manager.api.metadata.BulkOperationMetadata",
-    "DEFAULT_SCHEMA_CLASS": "peering_manager.api.inspectors.PeeringManagerAutoSchema",
-    "PAGE_SIZE": PAGINATE_COUNT,
+    "DEFAULT_SCHEMA_CLASS": "core.api.schema.PeeringManagerAutoSchema",
+    "DEFAULT_VERSION": REST_FRAMEWORK_VERSION,
+    "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.AcceptHeaderVersioning",
+    "SCHEMA_COERCE_METHOD_NAMES": {
+        # Default mappings
+        "retrieve": "read",
+        "destroy": "delete",
+        # Custom operations
+        "bulk_destroy": "bulk_delete",
+    },
+    "VIEW_NAME_FUNCTION": "utils.api.get_view_name",
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Peering Manager",
-    "DESCRIPTION": "BGP sessions management tool",
+    "TITLE": "Peering Manager API",
+    "DESCRIPTION": "API to access Peering Manager data",
+    "LICENSE": {"name": "Apache v2 License"},
     "VERSION": VERSION,
-    "ENUM_NAME_OVERRIDES": {
-        "StatusEnum": "peering.enums.BGPSessionStatus",
-        "VisibleEnum": "peeringdb.enums.Visibility",
-    },
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
 }
 
 
@@ -396,6 +413,7 @@ INSTALLED_APPS = [
     "netfields",
     "taggit",
     "bgp",
+    "core",
     "devices",
     "extras",
     "messaging",
@@ -407,6 +425,7 @@ INSTALLED_APPS = [
     "webhooks",
     "django_rq",
     "drf_spectacular",
+    "drf_spectacular_sidecar",
 ]
 
 MIDDLEWARE = [

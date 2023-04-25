@@ -18,6 +18,17 @@ class GroupFilterSet(django_filters.FilterSet):
 
 class UserFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
+    group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name="groups",
+        queryset=Group.objects.all(),
+        label="Group",
+    )
+    group = django_filters.ModelMultipleChoiceFilter(
+        field_name="groups__name",
+        queryset=Group.objects.all(),
+        to_field_name="name",
+        label="Group (name)",
+    )
 
     class Meta:
         model = User

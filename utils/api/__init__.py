@@ -5,6 +5,7 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.urls import reverse
 from rest_framework import status
+from rest_framework.utils import formatting
 
 from peering_manager.api.exceptions import SerializerNotFound
 
@@ -30,6 +31,30 @@ def get_serializer_for_model(model, prefix="", suffix=""):
         raise SerializerNotFound(
             f"Could not determine serializer for {app_name}.{model_name} with prefix '{prefix}' and suffix '{suffix}'"
         )
+
+
+def get_view_name(view, suffix=None):
+    """
+    Derive the view name from its associated model, if it has one.
+    Fall back to DRF's built-in `get_view_name`.
+    """
+    if hasattr(view, "queryset"):
+        # Determine the model name from the queryset
+        name = view.queryset.model._meta.verbose_name
+        name = " ".join(
+            [w[0].upper() + w[1:] for w in name.split()]
+        )  # Capitalize each word
+    else:
+        # Replicate DRF's built-in behavior
+        name = view.__class__.__name__
+        name = formatting.remove_trailing_string(name, "View")
+        name = formatting.remove_trailing_string(name, "ViewSet")
+        name = formatting.camelcase_to_spaces(name)
+
+    if suffix:
+        name += " " + suffix
+
+    return name
 
 
 def is_api_request(request):

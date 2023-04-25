@@ -1,11 +1,14 @@
-from collections import OrderedDict
-
 from django.core.exceptions import ObjectDoesNotExist
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import PrimaryKeyRelatedField, RelatedField
 
+__all__ = ("ChoiceField", "ContentTypeField", "SerializedPKRelatedField")
 
+
+@extend_schema_field(OpenApiTypes.STR)
 class ChoiceField(serializers.Field):
     """
     Represents a `ChoiceField` as:
@@ -41,12 +44,10 @@ class ChoiceField(serializers.Field):
                 data = ""
         return super().validate_empty_values(data)
 
-    def to_representation(self, o):
-        return (
-            None
-            if o == ""
-            else OrderedDict([("value", o), ("label", self._choices[o])])
-        )
+    def to_representation(self, obj):
+        if obj == "":
+            return None
+        return {"value": obj, "label": self._choices[obj]}
 
     def to_internal_value(self, data):
         if data == "":
@@ -85,6 +86,7 @@ class ChoiceField(serializers.Field):
         return self._choices
 
 
+@extend_schema_field(OpenApiTypes.STR)
 class ContentTypeField(RelatedField):
     """
     Represent a ContentType as '<app_label>.<model>'

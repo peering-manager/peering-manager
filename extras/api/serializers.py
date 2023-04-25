@@ -10,7 +10,8 @@ from extras.models import (
     JobResult,
     Webhook,
 )
-from peering_manager.api import ContentTypeField, ValidatedModelSerializer
+from peering_manager.api.fields import ContentTypeField
+from peering_manager.api.serializers import ValidatedModelSerializer
 from users.api.nested_serializers import NestedUserSerializer
 
 from .nested_serializers import *

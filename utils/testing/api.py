@@ -35,7 +35,7 @@ class APITestCase(ModelTestCase):
         return reverse(viewname)
 
 
-class StandardAPITestCases(object):
+class StandardAPITestCases:
     class GetObjectView(APITestCase):
         @override_settings(LOGIN_REQUIRED=False)
         def test_get_object_anonymous(self):
@@ -49,7 +49,8 @@ class StandardAPITestCases(object):
         @override_settings(LOGIN_REQUIRED=True)
         def test_get_object(self):
             """
-            GET a single object as an authenticated user with permission to view the object.
+            GET a single object as an authenticated user with permission to view the
+            object.
             """
             self.assertGreaterEqual(
                 self._get_queryset().count(),
@@ -101,6 +102,7 @@ class StandardAPITestCases(object):
 
     class CreateObjectView(APITestCase):
         create_data = []
+        validation_excluded_fields = []
 
         def test_create_object(self):
             """
@@ -117,6 +119,7 @@ class StandardAPITestCases(object):
             self.assertInstanceEqual(
                 self.model.objects.get(pk=response.data["id"]),
                 self.create_data[0],
+                exclude=self.validation_excluded_fields,
                 api=True,
             )
 
@@ -138,6 +141,7 @@ class StandardAPITestCases(object):
     class UpdateObjectView(APITestCase):
         update_data = {}
         bulk_update_data = None
+        validation_excluded_fields = []
 
         def test_update_object(self):
             """
@@ -150,7 +154,12 @@ class StandardAPITestCases(object):
 
             self.assertHttpStatus(response, status.HTTP_200_OK)
             instance.refresh_from_db()
-            self.assertInstanceEqual(instance, self.update_data, api=True)
+            self.assertInstanceEqual(
+                instance,
+                self.update_data,
+                exclude=self.validation_excluded_fields,
+                api=True,
+            )
 
         def test_bulk_update_objects(self):
             """

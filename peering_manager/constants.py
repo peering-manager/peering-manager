@@ -41,7 +41,10 @@ from peering.tables import (
 )
 from utils.functions import count_related
 
-__all__ = ("SEARCH_MAX_RESULTS", "SEARCH_TYPES")
+__all__ = ("NESTED_SERIALIZER_PREFIX", "SEARCH_MAX_RESULTS", "SEARCH_TYPES")
+
+# Prefix for nested serializers
+NESTED_SERIALIZER_PREFIX = "Nested"
 
 SEARCH_MAX_RESULTS = 15
 SEARCH_TYPES = OrderedDict(

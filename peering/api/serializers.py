@@ -20,11 +20,8 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from peering_manager.api import (
-    ChoiceField,
-    PrimaryModelSerializer,
-    SerializedPKRelatedField,
-)
+from peering_manager.api.fields import ChoiceField, SerializedPKRelatedField
+from peering_manager.api.serializers import PeeringManagerModelSerializer
 
 from .nested_serializers import *
 
@@ -50,7 +47,7 @@ __all__ = (
 )
 
 
-class AutonomousSystemSerializer(PrimaryModelSerializer):
+class AutonomousSystemSerializer(PeeringManagerModelSerializer):
     import_routing_policies = SerializedPKRelatedField(
         queryset=RoutingPolicy.objects.all(),
         serializer=NestedRoutingPolicySerializer,
@@ -98,7 +95,7 @@ class AutonomousSystemGenerateEmailSerializer(serializers.Serializer):
     email = serializers.IntegerField()
 
 
-class BGPGroupSerializer(PrimaryModelSerializer):
+class BGPGroupSerializer(PeeringManagerModelSerializer):
     status = ChoiceField(required=False, choices=BGPGroupStatus)
     import_routing_policies = SerializedPKRelatedField(
         queryset=RoutingPolicy.objects.all(),
@@ -136,7 +133,7 @@ class BGPGroupSerializer(PrimaryModelSerializer):
         ]
 
 
-class CommunitySerializer(PrimaryModelSerializer):
+class CommunitySerializer(PeeringManagerModelSerializer):
     class Meta:
         model = Community
         fields = [
@@ -152,10 +149,10 @@ class CommunitySerializer(PrimaryModelSerializer):
         ]
 
 
-class DirectPeeringSessionSerializer(PrimaryModelSerializer):
+class DirectPeeringSessionSerializer(PeeringManagerModelSerializer):
     local_autonomous_system = NestedAutonomousSystemSerializer()
     autonomous_system = NestedAutonomousSystemSerializer()
-    bgp_group = NestedBGPGroupSerializer(required=False)
+    bgp_group = NestedBGPGroupSerializer(required=False, allow_null=True)
     status = ChoiceField(required=False, choices=BGPSessionStatus)
     relationship = NestedRelationshipSerializer()
     import_routing_policies = SerializedPKRelatedField(
@@ -176,7 +173,7 @@ class DirectPeeringSessionSerializer(PrimaryModelSerializer):
         required=False,
         many=True,
     )
-    router = NestedRouterSerializer(required=False)
+    router = NestedRouterSerializer(required=False, allow_null=True)
 
     class Meta:
         model = DirectPeeringSession
@@ -220,8 +217,8 @@ class DirectPeeringSessionSerializer(PrimaryModelSerializer):
         return super().validate(attrs)
 
 
-class InternetExchangeSerializer(PrimaryModelSerializer):
-    ixapi_endpoint = NestedIXAPISerializer(required=False)
+class InternetExchangeSerializer(PeeringManagerModelSerializer):
+    ixapi_endpoint = NestedIXAPISerializer(required=False, allow_null=True)
     peeringdb_prefixes = serializers.DictField(read_only=True)
     local_autonomous_system = NestedAutonomousSystemSerializer()
     status = ChoiceField(required=False, choices=BGPGroupStatus)
@@ -269,7 +266,7 @@ class InternetExchangeSerializer(PrimaryModelSerializer):
         return object.peeringdb_prefixes
 
 
-class InternetExchangePeeringSessionSerializer(PrimaryModelSerializer):
+class InternetExchangePeeringSessionSerializer(PeeringManagerModelSerializer):
     autonomous_system = NestedAutonomousSystemSerializer()
     ixp_connection = NestedConnectionSerializer()
     status = ChoiceField(required=False, choices=BGPSessionStatus)
@@ -319,7 +316,7 @@ class InternetExchangePeeringSessionSerializer(PrimaryModelSerializer):
         ]
 
 
-class RouterSerializer(PrimaryModelSerializer):
+class RouterSerializer(PeeringManagerModelSerializer):
     poll_bgp_sessions_last_updated = serializers.DateTimeField(read_only=True)
     configuration_template = NestedConfigurationSerializer(required=False)
     local_autonomous_system = NestedAutonomousSystemSerializer()
@@ -357,7 +354,7 @@ class RouterConfigureSerializer(serializers.Serializer):
     commit = serializers.BooleanField()
 
 
-class RoutingPolicySerializer(PrimaryModelSerializer):
+class RoutingPolicySerializer(PeeringManagerModelSerializer):
     communities = SerializedPKRelatedField(
         queryset=Community.objects.all(),
         serializer=NestedCommunitySerializer,

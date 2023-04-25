@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from devices.models import Configuration, Platform
-from peering_manager.api import WritableNestedSerializer
+from peering_manager.api.serializers import WritableNestedSerializer
 
 
 class NestedConfigurationSerializer(WritableNestedSerializer):

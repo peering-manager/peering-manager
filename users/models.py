@@ -31,7 +31,7 @@ class Token(models.Model):
 
     def __str__(self):
         # Prevent exposure of the complete key
-        return "{} ({})".format(self.key[-6:], self.user)
+        return f"{self.key[-6:]} ({self.user})"
 
     def __generate_key(self):
         # Random 160-bit key in hexadecimal

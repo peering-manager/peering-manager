@@ -4,18 +4,19 @@ from peering.api.nested_serializers import (
     NestedInternetExchangeSerializer,
     NestedRouterSerializer,
 )
-from peering_manager.api import ChoiceField, PrimaryModelSerializer
+from peering_manager.api.fields import ChoiceField
+from peering_manager.api.serializers import PeeringManagerModelSerializer
 
 from .nested_serializers import *
 
 __all__ = ("ConnectionSerializer", "NestedConnectionSerializer")
 
 
-class ConnectionSerializer(PrimaryModelSerializer):
+class ConnectionSerializer(PeeringManagerModelSerializer):
     name = serializers.CharField(read_only=True)
     status = ChoiceField(required=False, choices=ConnectionStatus)
-    internet_exchange_point = NestedInternetExchangeSerializer()
-    router = NestedRouterSerializer()
+    internet_exchange_point = NestedInternetExchangeSerializer(allow_null=True)
+    router = NestedRouterSerializer(allow_null=True)
 
     class Meta:
         model = Connection

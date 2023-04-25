@@ -1,12 +1,13 @@
-from peering_manager.api import OrderedDefaultRouter
+from peering_manager.api.routers import PeeringManagerRouter
 
 from . import views
 
-router = OrderedDefaultRouter()
+router = PeeringManagerRouter()
 router.APIRootView = views.UsersRootView
 
 router.register("groups", views.GroupViewSet)
 router.register("users", views.UserViewSet)
+router.register("userpref", views.UserPreferencesViewSet, basename="userpref")
 
 app_name = "users-api"
 urlpatterns = router.urls

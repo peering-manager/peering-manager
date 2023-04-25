@@ -10,7 +10,7 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from peering_manager.api import WritableNestedSerializer
+from peering_manager.api.serializers import WritableNestedSerializer
 
 
 class NestedAutonomousSystemSerializer(WritableNestedSerializer):

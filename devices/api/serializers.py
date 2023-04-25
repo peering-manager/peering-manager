@@ -1,5 +1,5 @@
 from devices.models import Platform
-from peering_manager.api import PrimaryModelSerializer
+from peering_manager.api.serializers import PeeringManagerModelSerializer
 
 from .nested_serializers import *
 
@@ -11,7 +11,7 @@ __all__ = (
 )
 
 
-class ConfigurationSerializer(PrimaryModelSerializer):
+class ConfigurationSerializer(PeeringManagerModelSerializer):
     class Meta:
         model = Configuration
         fields = [
@@ -26,7 +26,7 @@ class ConfigurationSerializer(PrimaryModelSerializer):
         ]
 
 
-class PlatformSerializer(PrimaryModelSerializer):
+class PlatformSerializer(PeeringManagerModelSerializer):
     class Meta:
         model = Platform
         fields = [

@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from peering_manager.api.fields import ChoiceField
+from peeringdb.enums import Visibility
 from peeringdb.models import (
     Facility,
     InternetExchange,
@@ -179,6 +181,7 @@ class NetworkSerializer(serializers.ModelSerializer):
 
 
 class NetworkContactSerializer(serializers.ModelSerializer):
+    visible = ChoiceField(choices=Visibility.choices)
     net = NetworkSerializer()
 
     class Meta:

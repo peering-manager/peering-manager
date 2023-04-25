@@ -2,7 +2,8 @@ from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import extend_schema_field
 
 from messaging.models import Contact, ContactAssignment, ContactRole, Email
-from peering_manager.api import ContentTypeField, PrimaryModelSerializer
+from peering_manager.api.fields import ContentTypeField
+from peering_manager.api.serializers import PeeringManagerModelSerializer
 
 from .nested_serializers import *
 
@@ -18,13 +19,13 @@ __all__ = (
 )
 
 
-class ContactRoleSerializer(PrimaryModelSerializer):
+class ContactRoleSerializer(PeeringManagerModelSerializer):
     class Meta:
         model = ContactRole
         fields = ["id", "display", "name", "slug", "description", "tags"]
 
 
-class ContactSerializer(PrimaryModelSerializer):
+class ContactSerializer(PeeringManagerModelSerializer):
     class Meta:
         model = Contact
         fields = [
@@ -41,7 +42,7 @@ class ContactSerializer(PrimaryModelSerializer):
         ]
 
 
-class ContactAssignmentSerializer(PrimaryModelSerializer):
+class ContactAssignmentSerializer(PeeringManagerModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="messaging-api:contactassignment-detail"
     )
@@ -71,7 +72,7 @@ class ContactAssignmentSerializer(PrimaryModelSerializer):
         return NestedContactSerializer(instance.object, context=context).data
 
 
-class EmailSerializer(PrimaryModelSerializer):
+class EmailSerializer(PeeringManagerModelSerializer):
     class Meta:
         model = Email
         fields = [

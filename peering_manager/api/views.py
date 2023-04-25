@@ -4,36 +4,19 @@ from collections import OrderedDict
 from django import __version__ as DJANGO_VERSION
 from django.apps import apps
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.db import transaction
-from django.db.models import ProtectedError
 from django_rq.queues import get_connection
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema
-from drf_spectacular.views import (
-    SpectacularAPIView,
-    SpectacularRedocView,
-    SpectacularSwaggerView,
-)
-from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet as __ModelViewSet
-from rest_framework.viewsets import ReadOnlyModelViewSet as __ReadOnlyModelViewSet
 from rq.worker import Worker
 
-from peering_manager.api import BulkOperationSerializer
 from peering_manager.api.authentication import IsAuthenticatedOrLoginNotRequired
-from peering_manager.api.exceptions import SerializerNotFound
-from utils.api import get_serializer_for_model
 
 __all__ = (
     "APIRootView",
     "StatusView",
-    "SpectacularAPIView",
-    "SpectacularRedocView",
-    "SpectacularSwaggerView",
     "BulkDestroyModelMixin",
     "BulkUpdateModelMixin",
     "ModelViewSet",
@@ -44,7 +27,6 @@ __all__ = (
 
 class APIRootView(APIView):
     _ignore_model_permissions = True
-    exclude_from_schema = True
 
     @staticmethod
     def get_namespace(name, request, format):
@@ -53,6 +35,7 @@ class APIRootView(APIView):
     def get_view_name(self):
         return "API Root"
 
+    @extend_schema(exclude=True)
     def get(self, request, format=None):
         return Response(
             OrderedDict(
@@ -81,7 +64,6 @@ class StatusView(APIView):
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
 
     @extend_schema(
-        request=None,
         responses={
             200: OpenApiResponse(
                 response=OpenApiTypes.OBJECT,
@@ -110,235 +92,3 @@ class StatusView(APIView):
                 "rq-workers-running": Worker.count(get_connection("default")),
             }
         )
-
-
-class BulkDestroyModelMixin:
-    """
-    Supports bulk deletion of objects using the list endpoint.
-    Accepts a DELETE action with a list of one or more JSON objects, each specifying
-    the numeric ID of an object to be deleted. For example:
-    ```
-    DELETE /routers/
-    [
-        {"id": 123},
-        {"id": 456}
-    ]
-    ```
-    """
-
-    def bulk_destroy(self, request, *args, **kwargs):
-        serializer = BulkOperationSerializer(data=request.data, many=True)
-        serializer.is_valid(raise_exception=True)
-
-        qs = self.get_queryset().filter(pk__in=[o["id"] for o in serializer.data])
-        self.perform_bulk_destroy(qs)
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    def perform_bulk_destroy(self, objects):
-        with transaction.atomic():
-            for o in objects:
-                if hasattr(o, "snapshot"):
-                    o.snapshot()
-                self.perform_destroy(o)
-
-
-class BulkUpdateModelMixin:
-    """
-    Supports bulk modification of objects using the list endpoint.
-    Accepts a PATCH action with a list of one or more JSON objects, each specifying
-    the numeric ID of an object to be updated as well as the attributes to be set.
-    For example:
-    ```
-    PATCH /routers/
-    [
-        {
-            "id": 123,
-            "status": "maintenance"
-        },
-        {
-            "id": 456,
-            "status": "maintenance"
-        }
-    ]
-    ```
-    """
-
-    def bulk_update(self, request, *args, **kwargs):
-        partial = kwargs.pop("partial", False)
-        serializer = BulkOperationSerializer(data=request.data, many=True)
-
-        serializer.is_valid(raise_exception=True)
-        qs = self.get_queryset().filter(pk__in=[o["id"] for o in serializer.data])
-
-        # Map update data by object ID
-        update_data = {o.pop("id"): o for o in request.data}
-
-        data = self.perform_bulk_update(qs, update_data, partial=partial)
-
-        return Response(data, status=status.HTTP_200_OK)
-
-    def perform_bulk_update(self, objects, update_data, partial):
-        with transaction.atomic():
-            data_list = []
-            for obj in objects:
-                data = update_data.get(obj.id)
-                if hasattr(obj, "snapshot"):
-                    obj.snapshot()
-
-                serializer = self.get_serializer(obj, data=data, partial=partial)
-                serializer.is_valid(raise_exception=True)
-                self.perform_update(serializer)
-                data_list.append(serializer.data)
-
-            return data_list
-
-    def bulk_partial_update(self, request, *args, **kwargs):
-        kwargs["partial"] = True
-        return self.bulk_update(request, *args, **kwargs)
-
-
-class ModelViewSet(BulkDestroyModelMixin, BulkUpdateModelMixin, __ModelViewSet):
-    """
-    Custom `ModelViewSet` capable of handling either a single object or a list of
-    objects to create, update or delete.
-    """
-
-    brief = False
-    brief_prefetch_fields = []
-
-    def get_object_with_snapshot(self):
-        """
-        Saves a pre-change snapshot of the object immediately after retrieving it.
-        This snapshot will be used to record the "before" data in the changelog.
-        """
-        o = super().get_object()
-        if hasattr(o, "snapshot"):
-            o.snapshot()
-        return o
-
-    def get_serializer(self, *args, **kwargs):
-        # A list is given use `many=True`
-        if isinstance(kwargs.get("data", {}), list):
-            kwargs["many"] = True
-
-        return super().get_serializer(*args, **kwargs)
-
-    def get_serializer_class(self):
-        if self.brief:
-            try:
-                return get_serializer_for_model(self.queryset.model, prefix="Nested")
-            except SerializerNotFound:
-                pass
-
-        # Fall back to the hard-coded serializer class
-        return self.serializer_class
-
-    def get_queryset(self):
-        # If using `brief` mode, clear all prefetches from the queryset and append
-        # only `brief_prefetch_fields` (if any)
-        if self.brief:
-            return (
-                super()
-                .get_queryset()
-                .prefetch_related(None)
-                .prefetch_related(*self.brief_prefetch_fields)
-            )
-        else:
-            return super().get_queryset()
-
-    def initialize_request(self, request, *args, **kwargs):
-        if request.method == "GET" and request.GET.get("brief"):
-            self.brief = True
-
-        return super().initialize_request(request, *args, **kwargs)
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            return super().dispatch(request, *args, **kwargs)
-        except ProtectedError as e:
-            protected_objects = list(e.protected_objects)
-            msg = f"Unable to delete object. {len(protected_objects)} dependent objects were found: "
-            msg += ", ".join([f"{o} ({o.pk})" for o in protected_objects])
-            return self.finalize_response(
-                request,
-                Response({"detail": msg}, status=status.HTTP_409_CONFLICT),
-                *args,
-                **kwargs,
-            )
-
-    def _validate_objects(self, instance):
-        """
-        Checks that the provided instance or list of instances are matched by the
-        current queryset.
-        """
-        if type(instance) is list:
-            # Check that all instances are still included in the view's queryset
-            conforming_count = self.queryset.filter(
-                pk__in=[o.pk for o in instance]
-            ).count()
-            if conforming_count != len(instance):
-                raise ObjectDoesNotExist
-        else:
-            # Check that the instance is matched by the view's queryset
-            self.queryset.get(pk=instance.pk)
-
-    def perform_create(self, serializer):
-        try:
-            with transaction.atomic():
-                instance = serializer.save()
-                self._validate_objects(instance)
-        except ObjectDoesNotExist:
-            raise PermissionDenied()
-
-    def update(self, request, *args, **kwargs):
-        # Hotwire get_object() to ensure we save a pre-change snapshot
-        self.get_object = self.get_object_with_snapshot
-        return super().update(request, *args, **kwargs)
-
-    def perform_update(self, serializer):
-        try:
-            with transaction.atomic():
-                instance = serializer.save()
-                self._validate_objects(instance)
-        except ObjectDoesNotExist:
-            raise PermissionDenied()
-
-    def destroy(self, request, *args, **kwargs):
-        # Hotwire get_object() to ensure we save a pre-change snapshot
-        self.get_object = self.get_object_with_snapshot
-        return super().destroy(request, *args, **kwargs)
-
-    def perform_destroy(self, instance):
-        return super().perform_destroy(instance)
-
-
-class ReadOnlyModelViewSet(__ReadOnlyModelViewSet):
-    """
-    Custom ReadOnlyModelViewSet capable of using nested serializers.
-    """
-
-    brief = False
-
-    def get_serializer(self, *args, **kwargs):
-        # A list is given use `many=True`
-        if isinstance(kwargs.get("data", {}), list):
-            kwargs["many"] = True
-
-        return super().get_serializer(*args, **kwargs)
-
-    def get_serializer_class(self):
-        if self.brief:
-            try:
-                return get_serializer_for_model(self.queryset.model, prefix="Nested")
-            except SerializerNotFound:
-                pass
-
-        # Fall back to the hard-coded serializer class
-        return self.serializer_class
-
-    def initialize_request(self, request, *args, **kwargs):
-        if request.method == "GET" and request.GET.get("brief"):
-            self.brief = True
-
-        return super().initialize_request(request, *args, **kwargs)

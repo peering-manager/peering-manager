@@ -8,7 +8,7 @@ from extras.models import (
     JobResult,
     Webhook,
 )
-from peering_manager.api import WritableNestedSerializer
+from peering_manager.api.serializers import WritableNestedSerializer
 from users.api.nested_serializers import NestedUserSerializer
 
 
