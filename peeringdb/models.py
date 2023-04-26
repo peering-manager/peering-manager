@@ -148,6 +148,7 @@ class Organization(Address):
     name_long = models.CharField(max_length=255, blank=True)
     aka = models.CharField(max_length=255, blank=True, verbose_name="Also Known As")
     website = URLField(blank=True)
+    social_media = models.JSONField(default=dict, blank=True, null=True)
     notes = models.TextField(blank=True)
 
     def __str__(self):
@@ -159,6 +160,7 @@ class Campus(models.Model):
     name_long = models.CharField(max_length=255, blank=True, null=True)
     aka = models.CharField(max_length=255, blank=True, null=True)
     website = URLField(blank=True, null=True)
+    social_media = models.JSONField(default=dict, blank=True, null=True)
     notes = models.TextField(blank=True)
     org = models.ForeignKey(
         to="peeringdb.Organization",
@@ -179,6 +181,7 @@ class Facility(Address):
     name_long = models.CharField(max_length=255, blank=True)
     aka = models.CharField(max_length=255, blank=True, verbose_name="Also Known As")
     website = URLField(blank=True)
+    social_media = models.JSONField(default=dict, blank=True, null=True)
     clli = models.CharField(max_length=18, blank=True)
     rencode = models.CharField(max_length=18, blank=True)
     npanxx = models.CharField(max_length=21, blank=True)
@@ -229,6 +232,7 @@ class Carrier(models.Model):
     aka = models.CharField("Also Known As", max_length=255, blank=True)
     name_long = models.CharField("Long Name", max_length=255, blank=True)
     website = URLField("Website", blank=True, null=True)
+    social_media = models.JSONField(default=dict, blank=True, null=True)
     notes = models.TextField("Notes", blank=True)
     org = models.ForeignKey(
         to="peeringdb.Organization",
@@ -283,6 +287,7 @@ class Network(models.Model):
         help_text="Reference to an AS-SET or ROUTE-SET in Internet Routing Registry (IRR)",
     )
     website = URLField(blank=True)
+    social_media = models.JSONField(default=dict, blank=True, null=True)
     looking_glass = URLField(blank=True)
     route_server = URLField(blank=True)
     notes = models.TextField(blank=True)
@@ -355,6 +360,7 @@ class InternetExchange(models.Model):
     proto_multicast = models.BooleanField(default=False)
     proto_ipv6 = models.BooleanField(default=False)
     website = URLField(blank=True)
+    social_media = models.JSONField(default=dict, blank=True, null=True)
     url_stats = URLField(blank=True)
     tech_email = models.EmailField(max_length=254, blank=True)
     tech_phone = models.CharField(max_length=192, blank=True)
