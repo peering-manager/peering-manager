@@ -324,6 +324,15 @@ Determine how many objects to display per page within each list of objects.
 
 ---
 
+## MAX_PAGE_SIZE
+
+Default: `1000`
+
+Determine how many objects to display per page within each list of objects in
+the REST API.
+
+---
+
 ## TIME_ZONE
 
 Default: `UTC`
