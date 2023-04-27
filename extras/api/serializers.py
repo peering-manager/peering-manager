@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -13,6 +14,7 @@ from extras.models import (
 from peering_manager.api.fields import ContentTypeField
 from peering_manager.api.serializers import ValidatedModelSerializer
 from users.api.nested_serializers import NestedUserSerializer
+from utils.api import get_serializer_for_model
 
 from .nested_serializers import *
 
@@ -63,10 +65,11 @@ class ConfigContextAssignmentSerializer(ValidatedModelSerializer):
             "updated",
         ]
 
-    @extend_schema_field(NestedConfigContextSerializer)
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_object(self, instance):
         context = {"request": self.context["request"]}
-        return NestedConfigContextSerializer(instance.object, context=context).data
+        serializer = get_serializer_for_model(instance.object, prefix="Nested")
+        return serializer(instance.object, context=context).data
 
 
 class ExportTemplateSerializer(ValidatedModelSerializer):
