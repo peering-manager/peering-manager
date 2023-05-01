@@ -111,17 +111,4 @@ urlpatterns = [
         name="ixapi_changelog",
         kwargs={"model": models.IXAPI},
     ),
-    # Job results
-    path("job-results/", views.JobResultListView.as_view(), name="jobresult_list"),
-    path("job-results/<int:pk>/", views.JobResultView.as_view(), name="jobresult_view"),
-    path(
-        "job-results/delete/",
-        views.JobResultBulkDeleteView.as_view(),
-        name="jobresult_bulk_delete",
-    ),
-    path(
-        "job-results/<int:pk>/delete/",
-        views.JobResultDeleteView.as_view(),
-        name="jobresult_delete",
-    ),
 ]

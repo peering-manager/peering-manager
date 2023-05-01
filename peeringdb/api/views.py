@@ -7,8 +7,8 @@ from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 
-from extras.api.serializers import JobResultSerializer
-from extras.models import JobResult
+from core.api.serializers import JobSerializer
+from core.models import Job
 from peeringdb.filters import NetworkFilterSet, SynchronisationFilterSet
 from peeringdb.jobs import synchronise
 from peeringdb.models import (
@@ -83,17 +83,18 @@ class CacheViewSet(ViewSet):
     @extend_schema(
         operation_id="peeringdb_cache_update",
         request=None,
-        responses={202: JobResultSerializer},
+        responses={202: JobSerializer},
     )
     @action(detail=False, methods=["post"], url_path="update-local")
     def update_local(self, request):
-        job_result = JobResult.enqueue_job(
-            synchronise, "peeringdb.synchronise", Synchronisation, request.user
+        job = Job.enqueue_job(
+            synchronise,
+            name="peeringdb.synchronise",
+            object_model=Synchronisation,
+            user=request.user,
         )
-        serializer = get_serializer_for_model(JobResult)
-
         return Response(
-            serializer(instance=job_result, context={"request": request}).data,
+            JobSerializer(instance=job, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
 

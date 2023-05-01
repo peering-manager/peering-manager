@@ -63,11 +63,11 @@
   });
 
   function exportDoneHandler(r) {
-    switch (r['status']) {
+    switch (r['status']['value']) {
       case 'pending':
       case 'running':
         setTimeout(function() {
-          PeeringManager.pollJobResult(r, exportDoneHandler);
+          PeeringManager.pollJob(r, exportDoneHandler);
         }, 2000);
         break;
       case 'completed':

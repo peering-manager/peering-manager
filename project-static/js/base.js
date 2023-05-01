@@ -45,9 +45,9 @@ var PeeringManager = {
     button.removeClass('btn-warning', 'btn-danger', 'btn-success');
     button.addClass('btn-primary').html('Confirm');
   },
-  pollJobResult: function (jobResult, doneHandler, failHandler = undefined) {
+  pollJob: function (job, doneHandler, failHandler = undefined) {
     $.ajax({
-      method: 'get', url: jobResult['url']
+      method: 'get', url: job['url']
     }).done(doneHandler).fail(failHandler);
   }
 };

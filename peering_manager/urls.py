@@ -23,6 +23,7 @@ __patterns = [
     path("logout/", LogoutView.as_view(), name="logout"),
     # Apps
     path("", include("bgp.urls")),
+    path("", include("core.urls")),
     path("", include("devices.urls")),
     path("", include("extras.urls")),
     path("", include("messaging.urls")),
@@ -34,6 +35,7 @@ __patterns = [
     # API
     path("api/", APIRootView.as_view(), name="api-root"),
     path("api/bgp/", include("bgp.api.urls")),
+    path("api/core/", include("core.api.urls")),
     path("api/devices/", include("devices.api.urls")),
     path("api/extras/", include("extras.api.urls")),
     path("api/messaging/", include("messaging.api.urls")),

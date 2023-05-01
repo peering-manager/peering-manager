@@ -344,6 +344,8 @@ CACHEOPS = {
     "auth.user": {"ops": "get", "timeout": 900},
     "auth.*": {"ops": ("fetch", "get")},
     "auth.permission": {"ops": "all"},
+    "bgp.*": {"ops": "all"},
+    "core.*": {"ops": "all"},
     "devices.*": {"ops": "all"},
     "extras.*": {"ops": "all"},
     "net.*": {"ops": "all"},
@@ -379,7 +381,7 @@ else:
         "DEFAULT_TIMEOUT": RQ_DEFAULT_TIMEOUT,
     }
 RQ_QUEUES = {"high": RQ_PARAMS, "default": RQ_PARAMS, "low": RQ_PARAMS}
-RQ_EXCEPTION_HANDLERS = ["extras.jobs.exception_handler"]
+RQ_EXCEPTION_HANDLERS = ["core.exceptions.exception_handler"]
 
 
 # Email

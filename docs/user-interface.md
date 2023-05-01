@@ -74,7 +74,7 @@ filtering, a logical `and` operation will be performed in the database, thus
 returning objects matching **all** filters. Filtering is also available in the
 API.
 
-### Change Logging And Job Results
+### Change Logging And Jobs
 
 Peering Manager tracks changes that happen for almost all objects. Change
 logging is performed when a user creates, updates or deletes one or more
@@ -86,8 +86,8 @@ The same kind of idea is applied to background jobs as well. Peering Manager
 makes an extensive use of jobs that are run asynchronously to perform tasks
 which may need several seconds or minutes to complete. You can still navigate
 the user interface while tasks are running as well as scheduling more of them.
-A job result namespace is available for you to track all background tasks,
-their states and their results.
+A job namespace is available for you to track all background tasks, their
+states and their results.
 
 ## API Browser
 

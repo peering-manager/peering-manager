@@ -153,8 +153,8 @@ impact on its performances)
 
 Default: `90`
 
-The number of days to retain job results. Set this to `0` to retain changes in
-the database indefinitely. (Warning: This will greatly increase database size
+The number of days to retain jobs. Set this to `0` to retain changes in the
+database indefinitely. (Warning: This will greatly increase database size
 over time having also an impact on its performances)
 
 ---

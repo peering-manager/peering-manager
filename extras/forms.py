@@ -1,22 +1,18 @@
 from django import forms
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from requests.exceptions import HTTPError
 
 from extras.models.configcontext import ConfigContextAssignment
-from utils.forms import BootstrapMixin, add_blank_choice
+from utils.forms import BootstrapMixin
 from utils.forms.fields import (
     ContentTypeChoiceField,
     DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField,
     JSONField,
-    TemplateField,
 )
-from utils.forms.widgets import APISelectMultiple, CustomNullBooleanSelect, StaticSelect
+from utils.forms.widgets import CustomNullBooleanSelect, StaticSelect
 
-from .enums import JobResultStatus
-from .models import IXAPI, ConfigContext, ExportTemplate, JobResult
+from .models import IXAPI, ConfigContext, ExportTemplate
 from .utils import FeatureQuery
 
 
@@ -98,21 +94,3 @@ class IXAPIForm(BootstrapMixin, forms.ModelForm):
 class IXAPIFilterForm(BootstrapMixin, forms.Form):
     model = IXAPI
     q = forms.CharField(required=False, label="Search")
-
-
-class JobResultFilterForm(BootstrapMixin, forms.Form):
-    model = JobResult
-    q = forms.CharField(required=False, label="Search")
-    name = forms.CharField(required=False)
-    user_id = DynamicModelMultipleChoiceField(
-        queryset=User.objects.all(),
-        required=False,
-        display_field="username",
-        label="User",
-        widget=APISelectMultiple(api_url="/api/users/users/"),
-    )
-    status = forms.ChoiceField(
-        required=False,
-        choices=add_blank_choice(JobResultStatus),
-        widget=StaticSelect(),
-    )

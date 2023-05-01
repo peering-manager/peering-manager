@@ -20,7 +20,7 @@
     $(this).closest('.alert').slideUp();
   });
 
-  var jobResultURL = "{% url 'extras:jobresult_list' %}";
+  var jobURL = "{% url 'core:job_list' %}";
   $('#id_poll_sessions_state').click(function () {
     $.ajax({
       method: 'post',
@@ -31,11 +31,11 @@
       if (r.length < 1) {
         return;
       } else if (r.length == 1) {
-          message = 'BGP sessions polling <a href="' + jobResultURL + r[0].id + '" class="alert-link">background task</a> initiated';
+          message = 'BGP sessions polling <a href="' + jobURL + r[0].id + '" class="alert-link">background task</a> initiated';
       } else {
         message = 'BGP sessions polling background tasks initiated:<ul class="m-0">';
         for (let i = 0; i < r.length; i++) {
-          message += '<li><a href="' + jobResultURL + r[i].id + '" class="alert-link">ID #' + r[i].id + '</a></li>';
+          message += '<li><a href="' + jobURL + r[i].id + '" class="alert-link">ID #' + r[i].id + '</a></li>';
         }
         message += '</ul>';
       }

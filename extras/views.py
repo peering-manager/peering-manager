@@ -11,12 +11,7 @@ from peering_manager.views.generics import (
 )
 from utils.tables import paginate_table
 
-from .filters import (
-    ConfigContextFilterSet,
-    ExportTemplateFilterSet,
-    IXAPIFilterSet,
-    JobResultFilterSet,
-)
+from .filters import ConfigContextFilterSet, ExportTemplateFilterSet, IXAPIFilterSet
 from .forms import (
     ConfigContextAssignmentForm,
     ConfigContextFilterForm,
@@ -25,21 +20,13 @@ from .forms import (
     ExportTemplateForm,
     IXAPIFilterForm,
     IXAPIForm,
-    JobResultFilterForm,
 )
-from .models import (
-    IXAPI,
-    ConfigContext,
-    ConfigContextAssignment,
-    ExportTemplate,
-    JobResult,
-)
+from .models import IXAPI, ConfigContext, ConfigContextAssignment, ExportTemplate
 from .tables import (
     ConfigContextAssignmentTable,
     ConfigContextTable,
     ExportTemplateTable,
     IXAPITable,
-    JobResultTable,
 )
 
 
@@ -239,29 +226,3 @@ class IXAPIEditView(ObjectEditView):
 class IXAPIDeleteView(ObjectDeleteView):
     permission_required = "extras.delete_ixapi"
     queryset = IXAPI.objects.all()
-
-
-class JobResultListView(ObjectListView):
-    permission_required = "extras.view_jobresult"
-    queryset = JobResult.objects.all()
-    filterset = JobResultFilterSet
-    filterset_form = JobResultFilterForm
-    table = JobResultTable
-    template_name = "extras/jobresult/list.html"
-
-
-class JobResultDeleteView(ObjectDeleteView):
-    permission_required = "extras.delete_jobresult"
-    queryset = JobResult.objects.all()
-
-
-class JobResultBulkDeleteView(BulkDeleteView):
-    permission_required = "extras.delete_jobresult"
-    queryset = JobResult.objects.all()
-    filterset = JobResultFilterSet
-    table = JobResultTable
-
-
-class JobResultView(ObjectView):
-    permission_required = "extras.view_jobresult"
-    queryset = JobResult.objects.all()

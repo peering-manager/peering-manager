@@ -9,7 +9,6 @@ router.register("config-contexts", views.ConfigContextViewSet)
 router.register("config-context-assignments", views.ConfigContextAssignmentViewSet)
 router.register("export-templates", views.ExportTemplateViewSet)
 router.register("ix-api", views.IXAPIViewSet)
-router.register("job-results", views.JobResultViewSet)
 router.register("webhooks", views.WebhookViewSet)
 
 app_name = "extras-api"

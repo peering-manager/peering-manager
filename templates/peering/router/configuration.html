@@ -46,11 +46,11 @@
     PeeringManager.setFailedButton($('#commit'), 'An error occurred');
   }
   function deployDoneHandler(r) {
-    switch (r['status']) {
+    switch (r['status']['value']) {
       case 'pending':
       case 'running':
         setTimeout(function () {
-          PeeringManager.pollJobResult(r, deployDoneHandler, deployFailHandler);
+          PeeringManager.pollJob(r, deployDoneHandler, deployFailHandler);
         }, 2000);
         break;
       case 'completed':
@@ -64,11 +64,11 @@
     }
   }
   function checkDoneHandler(r) {
-    switch (r['status']) {
+    switch (r['status']['value']) {
       case 'pending':
       case 'running':
         setTimeout(function() {
-          PeeringManager.pollJobResult(r, checkDoneHandler);
+          PeeringManager.pollJob(r, checkDoneHandler);
         }, 2000);
         break;
       case 'completed':
@@ -93,11 +93,11 @@
     }
   }
   function configDoneHandler(r) {
-    switch (r['status']) {
+    switch (r['status']['value']) {
       case 'pending':
       case 'running':
         setTimeout(function() {
-          PeeringManager.pollJobResult(r, configDoneHandler);
+          PeeringManager.pollJob(r, configDoneHandler);
         }, 2000);
         break;
       case 'completed':

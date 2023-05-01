@@ -5,11 +5,9 @@ from extras.models import (
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
-    JobResult,
     Webhook,
 )
 from peering_manager.api.serializers import WritableNestedSerializer
-from users.api.nested_serializers import NestedUserSerializer
 
 
 class NestedConfigContextSerializer(WritableNestedSerializer):
@@ -47,15 +45,6 @@ class NestedIXAPISerializer(WritableNestedSerializer):
     class Meta:
         model = IXAPI
         fields = ["id", "display", "name", "url"]
-
-
-class NestedJobResultSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="extras-api:jobresult-detail")
-    user = NestedUserSerializer(read_only=True)
-
-    class Meta:
-        model = JobResult
-        fields = ["id", "url", "created", "completed", "user", "status"]
 
 
 class NestedWebhookSerializer(WritableNestedSerializer):

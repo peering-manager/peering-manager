@@ -8,7 +8,6 @@ from extras.models import (
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
-    JobResult,
     Webhook,
 )
 from peering_manager.api.fields import ContentTypeField
@@ -22,9 +21,7 @@ __all__ = (
     "ConfigContextSerializer",
     "ConfigContextAssignmentSerializer",
     "ExportTemplateSerializer",
-    "JobResultSerializer",
     "WebhookSerializer",
-    "NestedJobResultSerializer",
     "NestedWebhookSerializer",
 )
 
@@ -99,29 +96,6 @@ class IXAPIAccountSerializer(serializers.Serializer):
     url = serializers.CharField()
     api_key = serializers.CharField()
     api_secret = serializers.CharField()
-
-
-class JobResultSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="extras-api:jobresult-detail")
-    user = NestedUserSerializer(read_only=True)
-    obj_type = ContentTypeField(read_only=True)
-    output = serializers.CharField(read_only=True)
-
-    class Meta:
-        model = JobResult
-        fields = [
-            "id",
-            "url",
-            "created",
-            "completed",
-            "name",
-            "obj_type",
-            "status",
-            "user",
-            "data",
-            "job_id",
-            "output",
-        ]
 
 
 class WebhookSerializer(serializers.ModelSerializer):

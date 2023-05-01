@@ -7,9 +7,9 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 
+from core.api.serializers import JobSerializer
+from core.models import Job
 from devices.models import Platform
-from extras.api.serializers import JobResultSerializer
-from extras.models import JobResult
 from messaging.models import Email
 from peering.enums import DeviceStatus
 from peering.filters import (
@@ -72,7 +72,7 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
         operation_id="peering_autonomous_systems_poll_bgp_sessions",
         responses={
             202: OpenApiResponse(
-                response=JobResultSerializer(many=True),
+                response=JobSerializer(many=True),
                 description="Jobs scheduled to poll BGP sessions.",
             ),
             403: OpenApiResponse(
@@ -93,24 +93,19 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
         ) or not request.user.has_perm("peering.change_internetexchangepeeringsession"):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        job_results = []
+        jobs = []
         for router in self.get_object().get_routers():
-            job_results.append(
-                JobResult.enqueue_job(
+            jobs.append(
+                Job.enqueue_job(
                     poll_bgp_sessions,
-                    "peering.router.poll_bgp_sessions",
-                    Router,
-                    request.user,
                     router,
+                    name="peering.router.poll_bgp_sessions",
+                    object=router,
+                    user=request.user,
                 )
             )
         return Response(
-            data=[
-                JobResultSerializer(
-                    instance=job_result, context={"request": request}
-                ).data
-                for job_result in job_results
-            ],
+            JobSerializer(jobs, many=True, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
@@ -229,7 +224,7 @@ class BGPGroupViewSet(PeeringManagerModelViewSet):
         operation_id="peering_bgp_groups_poll_bgp_sessions",
         responses={
             202: OpenApiResponse(
-                response=JobResultSerializer(many=True),
+                response=JobSerializer(many=True),
                 description="Jobs scheduled to poll BGP sessions.",
             ),
             403: OpenApiResponse(
@@ -248,24 +243,19 @@ class BGPGroupViewSet(PeeringManagerModelViewSet):
         if not request.user.has_perm("peering.change_directpeeringsession"):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        job_results = []
+        jobs = []
         for router in self.get_object().get_routers():
-            job_results.append(
-                JobResult.enqueue_job(
+            jobs.append(
+                Job.enqueue_job(
                     poll_bgp_sessions,
-                    "peering.router.poll_bgp_sessions",
-                    Router,
-                    request.user,
                     router,
+                    name="peering.router.poll_bgp_sessions",
+                    object=router,
+                    user=request.user,
                 )
             )
         return Response(
-            data=[
-                JobResultSerializer(
-                    instance=job_result, context={"request": request}
-                ).data
-                for job_result in job_results
-            ],
+            JobSerializer(jobs, many=True, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
@@ -414,7 +404,7 @@ class InternetExchangeViewSet(PeeringManagerModelViewSet):
         operation_id="peering_internet_exchanges_import_sessions",
         responses={
             202: OpenApiResponse(
-                response=JobResultSerializer,
+                response=JobSerializer,
                 description="Session import job is scheduled.",
             ),
             403: OpenApiResponse(
@@ -431,17 +421,16 @@ class InternetExchangeViewSet(PeeringManagerModelViewSet):
         if not request.user.has_perm("peering.add_internetexchangepeeringsession"):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        job_result = JobResult.enqueue_job(
+        ixp = self.get_object()
+        job = Job.enqueue_job(
             import_sessions_to_internet_exchange,
-            "peering.internet_exchange.import_sessions",
-            InternetExchange,
-            request.user,
-            self.get_object(),
+            ixp,
+            name="peering.internet_exchange.import_sessions",
+            object=ixp,
+            user=request.user,
         )
         return Response(
-            data=JobResultSerializer(
-                instance=job_result, context={"request": request}
-            ).data,
+            data=JobSerializer(instance=job, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
@@ -477,7 +466,7 @@ class InternetExchangeViewSet(PeeringManagerModelViewSet):
         operation_id="peering_internet_exchanges_poll_bgp_sessions",
         responses={
             202: OpenApiResponse(
-                response=JobResultSerializer(many=True),
+                response=JobSerializer(many=True),
                 description="Jobs scheduled to poll BGP sessions.",
             ),
             403: OpenApiResponse(
@@ -496,24 +485,19 @@ class InternetExchangeViewSet(PeeringManagerModelViewSet):
         if not request.user.has_perm("peering.change_internetexchangepeeringsession"):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        job_results = []
+        jobs = []
         for router in self.get_object().get_routers():
-            job_results.append(
-                JobResult.enqueue_job(
+            jobs.append(
+                Job.enqueue_job(
                     poll_bgp_sessions,
-                    "peering.router.poll_bgp_sessions",
-                    Router,
-                    request.user,
                     router,
+                    name="peering.router.poll_bgp_sessions",
+                    object=router,
+                    user=request.user,
                 )
             )
         return Response(
-            data=[
-                JobResultSerializer(
-                    instance=job_result, context={"request": request}
-                ).data
-                for job_result in job_results
-            ],
+            JobSerializer(jobs, many=True, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
@@ -601,7 +585,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
         operation_id="peering_routers_configuration",
         responses={
             202: OpenApiResponse(
-                response=JobResultSerializer,
+                response=JobSerializer,
                 description="Job scheduled to generate the router configuration.",
             ),
             403: OpenApiResponse(
@@ -619,15 +603,16 @@ class RouterViewSet(PeeringManagerModelViewSet):
         if not request.user.has_perm("peering.view_router_configuration"):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        job_result = JobResult.enqueue_job(
+        router = self.get_object()
+        job = Job.enqueue_job(
             generate_configuration,
-            "peering.router.generate_configuration",
-            Router,
-            request.user,
-            self.get_object(),
+            router,
+            name="peering.router.generate_configuration",
+            object=router,
+            user=request.user,
         )
         return Response(
-            JobResultSerializer(instance=job_result, context={"request": request}).data,
+            JobSerializer(instance=job, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
@@ -636,7 +621,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
         request=RouterConfigureSerializer,
         responses={
             202: OpenApiResponse(
-                response=JobResultSerializer,
+                response=JobSerializer,
                 description="Job scheduled to generate configure routers.",
             ),
             400: OpenApiResponse(
@@ -671,22 +656,20 @@ class RouterViewSet(PeeringManagerModelViewSet):
         if not routers:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        job_results = []
+        jobs = []
         for router in routers:
-            job_result = JobResult.enqueue_job(
+            job = Job.enqueue_job(
                 set_napalm_configuration,
-                "peering.router.set_napalm_configuration",
-                Router,
-                request.user,
                 router,
                 commit,
+                name="peering.router.set_napalm_configuration",
+                object=router,
+                user=request.user,
             )
-            job_results.append(job_result)
+            jobs.append(job)
 
         return Response(
-            JobResultSerializer(
-                job_results, many=True, context={"request": request}
-            ).data,
+            JobSerializer(jobs, many=True, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
@@ -694,7 +677,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
         operation_id="peering_routers_poll_bgp_sessions",
         responses={
             202: OpenApiResponse(
-                response=JobResultSerializer,
+                response=JobSerializer,
                 description="Job scheduled to poll BGP sessions.",
             ),
             403: OpenApiResponse(
@@ -715,17 +698,16 @@ class RouterViewSet(PeeringManagerModelViewSet):
         ) or not request.user.has_perm("peering.change_internetexchangepeeringsession"):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        job_result = JobResult.enqueue_job(
+        router = self.get_object()
+        job = Job.enqueue_job(
             poll_bgp_sessions,
-            "peering.router.poll_bgp_sessions",
-            Router,
-            request.user,
-            self.get_object(),
+            router,
+            name="peering.router.poll_bgp_sessions",
+            object=router,
+            user=request.user,
         )
         return Response(
-            data=JobResultSerializer(
-                instance=job_result, context={"request": request}
-            ).data,
+            data=JobSerializer(instance=job, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
@@ -734,7 +716,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
         request=RouterConfigureSerializer,
         responses={
             202: OpenApiResponse(
-                response=JobResultSerializer,
+                response=JobSerializer,
                 description="Job scheduled to test the router NAPALM connection.",
             ),
             404: OpenApiResponse(
@@ -744,15 +726,16 @@ class RouterViewSet(PeeringManagerModelViewSet):
     )
     @action(detail=True, methods=["get"], url_path="test-napalm-connection")
     def test_napalm_connection(self, request, pk=None):
-        job_result = JobResult.enqueue_job(
+        router = self.get_object()
+        job = Job.enqueue_job(
             test_napalm_connection,
-            "peering.router.test_napalm_connection",
-            Router,
-            request.user,
-            self.get_object(),
+            router,
+            name="peering.router.test_napalm_connection",
+            object=router,
+            user=request.user,
         )
         return Response(
-            JobResultSerializer(instance=job_result, context={"request": request}).data,
+            JobSerializer(instance=job, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
 

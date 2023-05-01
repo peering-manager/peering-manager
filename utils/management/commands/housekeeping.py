@@ -10,7 +10,7 @@ from django.template.defaultfilters import pluralize
 from django.utils import timezone
 from packaging import version
 
-from extras.models import JobResult
+from core.models import Job
 from utils.models import ObjectChange
 
 
@@ -67,9 +67,9 @@ class Command(BaseCommand):
                 f"    Skipping: No retention period specified (CHANGELOG_RETENTION = {settings.CHANGELOG_RETENTION})"
             )
 
-        # Delete expired JobResults
+        # Delete expired jobs
         if options["verbosity"]:
-            self.stdout.write("[*] Checking for expired jobresult records")
+            self.stdout.write("[*] Checking for expired jobs records")
         if settings.JOBRESULT_RETENTION:
             cutoff = timezone.now() - timedelta(days=settings.JOBRESULT_RETENTION)
             if options["verbosity"] >= 2:
@@ -77,7 +77,7 @@ class Command(BaseCommand):
                     f"    Retention period: {settings.JOBRESULT_RETENTION} day{pluralize(settings.JOBRESULT_RETENTION)}"
                 )
                 self.stdout.write(f"    Cut-off time: {cutoff}")
-            expired_records = JobResult.objects.filter(created__lt=cutoff).count()
+            expired_records = Job.objects.filter(created__lt=cutoff).count()
             if expired_records:
                 if options["verbosity"]:
                     self.stdout.write(
@@ -86,7 +86,7 @@ class Command(BaseCommand):
                         ending="",
                     )
                     self.stdout.flush()
-                JobResult.objects.filter(created__lt=cutoff)._raw_delete(
+                Job.objects.filter(created__lt=cutoff)._raw_delete(
                     using=DEFAULT_DB_ALIAS
                 )
                 if options["verbosity"]:

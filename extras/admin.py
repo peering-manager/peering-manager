@@ -2,10 +2,9 @@ from django import forms
 from django.contrib import admin
 from django.contrib.admin import site as admin_site
 
-from .models import IXAPI, JobResult, Webhook
+from .models import IXAPI, Webhook
 
 admin_site.register(IXAPI)
-admin_site.register(JobResult)
 
 
 class WebhookForm(forms.ModelForm):

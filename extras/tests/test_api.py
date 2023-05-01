@@ -10,7 +10,6 @@ from extras.models import (
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
-    JobResult,
     Webhook,
 )
 from peering.models import AutonomousSystem
@@ -234,22 +233,6 @@ class IXAPITest(StandardAPITestCases.View):
                 **self.header
             )
             self.assertHttpStatus(response, status.HTTP_200_OK)
-
-
-class JobResultTest(
-    StandardAPITestCases.GetObjectView, StandardAPITestCases.ListObjectsView
-):
-    model = JobResult
-    brief_fields = ["id", "url", "created", "completed", "user", "status"]
-
-    @classmethod
-    def setUpTestData(cls):
-        JobResult.objects.create(
-            name="test",
-            obj_type=ContentType.objects.get_for_model(JobResult),
-            user=None,
-            job_id=uuid.uuid4(),
-        )
 
 
 class WebhookTest(StandardAPITestCases.View):

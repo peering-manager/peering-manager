@@ -3,136 +3,128 @@ import logging
 from django.template.defaultfilters import pluralize
 from django_rq import job
 
-from extras.enums import LogLevel
+from core.enums import LogLevel
 from net.models import Connection
 
 logger = logging.getLogger("peering.manager.peering.jobs")
 
 
 @job("default")
-def generate_configuration(router, job_result):
-    job_result.mark_running(
-        "Generating router configuration.", obj=router, logger=logger
-    )
+def generate_configuration(router, job):
+    job.mark_running("Generating router configuration.", object=router, logger=logger)
 
     config = router.generate_configuration()
 
     if config:
-        job_result.set_output(config)
+        job.set_output(config)
     else:
-        job_result.log(
+        job.log(
             f"No configuration (or empty) generated.",
-            obj=router,
+            object=router,
             level_choice=LogLevel.INFO,
             logger=logger,
         )
 
-    job_result.mark_completed(
-        "Router configuration generated.", obj=router, logger=logger
-    )
+    job.mark_completed("Router configuration generated.", object=router, logger=logger)
 
 
 @job("default")
-def import_sessions_to_internet_exchange(internet_exchange, job_result):
-    job_result.mark_running(
-        "Trying to import peering sessions.", obj=internet_exchange, logger=logger
+def import_sessions_to_internet_exchange(internet_exchange, job):
+    job.mark_running(
+        "Trying to import peering sessions.", object=internet_exchange, logger=logger
     )
 
     connections = Connection.objects.filter(
         internet_exchange_point=internet_exchange, router__isnull=False
     )
     if connections.count() < 1:
-        job_result.mark_completed(
-            "No usable connections.", obj=internet_exchange, logger=logger
+        job.mark_completed(
+            "No usable connections.", object=internet_exchange, logger=logger
         )
         return False
 
-    job_result.log(
+    job.log(
         f"Found {connections.count()} connections.",
-        obj=internet_exchange,
+        object=internet_exchange,
         level_choice=LogLevel.INFO,
         logger=logger,
     )
 
     for connection in connections:
         if not connection.router or not connection.router.is_usable_for_task():
-            job_result.log(
+            job.log(
                 f"Ignored connection {connection}, no router or not usable.",
-                obj=internet_exchange,
+                object=internet_exchange,
                 level_choice=LogLevel.INFO,
                 logger=logger,
             )
             continue
 
         session_number, asn_number = internet_exchange.import_sessions(connection)
-        job_result.log(
+        job.log(
             f"Imported {session_number} sessions for {asn_number} autonomous systems.",
-            obj=internet_exchange,
+            object=internet_exchange,
             level_choice=LogLevel.INFO,
             logger=logger,
         )
 
-    job_result.mark_completed("Import completed.", obj=internet_exchange, logger=logger)
+    job.mark_completed("Import completed.", object=internet_exchange, logger=logger)
 
     return True
 
 
 @job("default")
-def poll_bgp_sessions(router, job_result):
-    if not router.is_usable_for_task(job_result=job_result, logger=logger):
-        job_result.mark_completed("Task cancelled")
+def poll_bgp_sessions(router, job):
+    if not router.is_usable_for_task(job=job, logger=logger):
+        job.mark_completed("Task cancelled")
         return False
 
-    job_result.mark_running("Polling BGP sessions state.", obj=router, logger=logger)
+    job.mark_running("Polling BGP sessions state.", object=router, logger=logger)
 
     success, count = router.poll_bgp_sessions()
 
     if success:
-        job_result.mark_completed(
+        job.mark_completed(
             f"Successfully polled BGP {count} session{pluralize(count)} state.",
-            obj=router,
+            object=router,
             logger=logger,
         )
     else:
-        job_result.mark_failed(
-            "Error while polling BGP sessions state.", obj=router, logger=logger
+        job.mark_failed(
+            "Error while polling BGP sessions state.", object=router, logger=logger
         )
 
     return success
 
 
 @job("default")
-def set_napalm_configuration(router, commit, job_result):
-    if not router.is_usable_for_task(job_result=job_result, logger=logger):
-        job_result.mark_completed("Task cancelled")
+def set_napalm_configuration(router, commit, job):
+    if not router.is_usable_for_task(job=job, logger=logger):
+        job.mark_completed("Task cancelled")
         return False
 
-    job_result.mark_running(
-        "Trying to install configuration.", obj=router, logger=logger
-    )
+    job.mark_running("Trying to install configuration.", object=router, logger=logger)
 
     error, changes = router.set_napalm_configuration(
         router.generate_configuration(), commit=commit
     )
 
     if error:
-        job_result.set_output(error)
-        job_result.mark_failed(
-            "Failed to install configuration.", obj=router, logger=logger
+        job.set_output(error)
+        job.mark_failed(
+            "Failed to install configuration.", object=router, logger=logger
         )
         return False
 
     if not changes:
-        job_result.mark_completed(
-            "No configuration to install.", obj=router, logger=logger
-        )
+        job.mark_completed("No configuration to install.", object=router, logger=logger)
     else:
-        job_result.set_output(changes)
-        job_result.mark_completed(
+        job.set_output(changes)
+        job.mark_completed(
             "Configuration installed."
             if commit
             else "Configuration differences found.",
-            obj=router,
+            object=router,
             logger=logger,
         )
 
@@ -140,18 +132,18 @@ def set_napalm_configuration(router, commit, job_result):
 
 
 @job("default")
-def test_napalm_connection(router, job_result):
-    if not router.is_usable_for_task(job_result=job_result, logger=logger):
-        job_result.mark_completed("Task cancelled")
+def test_napalm_connection(router, job):
+    if not router.is_usable_for_task(job=job, logger=logger):
+        job.mark_completed("Task cancelled")
         return False
 
-    job_result.mark_running("Trying to connect...", obj=router, logger=logger)
+    job.mark_running("Trying to connect...", object=router, logger=logger)
 
     success = router.test_napalm_connection()
 
     if success:
-        job_result.mark_completed("Connection successful.", obj=router, logger=logger)
+        job.mark_completed("Connection successful.", object=router, logger=logger)
     else:
-        job_result.mark_failed("Connection failure.", obj=router, logger=logger)
+        job.mark_failed("Connection failure.", object=router, logger=logger)
 
     return success

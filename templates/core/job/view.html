@@ -1,7 +1,7 @@
 {% extends '_base.html' %}
 {% load helpers %}
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'extras:jobresult_list' %}">Job Results</a></li>
+<li class="breadcrumb-item"><a href="{% url 'core:job_list' %}">Jobs</a></li>
 <li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
@@ -19,8 +19,14 @@
           <td><code>{{ instance.name }}</code></td>
         </tr>
         <tr>
-          <td>Created</td>
-          <td>{{ instance.created | date_span }}</td>
+          <td>Created By</td>
+          <td>{{ instance.user|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Object Type</td>
+          <td>
+            <a href="{% url 'core:job_list' %}?object_type={{ instance.object_type_id }}">{{ instance.object_type }}</a>
+          </td>
         </tr>
       </table>
     </div>
@@ -38,8 +44,12 @@
           <td>{{ instance.duration|render_none }}</td>
         </tr>
         <tr>
+          <td>Started</td>
+          <td>{{ instance.started|date_span }}</td>
+        </tr>
+        <tr>
           <td>Completed</td>
-          <td>{{ instance.completed|render_none }}</td>
+          <td>{{ instance.completed|date_span }}</td>
         </tr>
       </table>
     </div>

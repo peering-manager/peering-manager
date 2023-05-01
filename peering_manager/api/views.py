@@ -41,6 +41,7 @@ class APIRootView(APIView):
             OrderedDict(
                 (
                     APIRootView.get_namespace("bgp", request, format),
+                    APIRootView.get_namespace("core", request, format),
                     APIRootView.get_namespace("devices", request, format),
                     APIRootView.get_namespace("extras", request, format),
                     APIRootView.get_namespace("messaging", request, format),

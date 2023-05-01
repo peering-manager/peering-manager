@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from extras.models import JobResult
+from core.models import Job
 from peering.jobs import poll_bgp_sessions
 from peering.models import Router
 
@@ -34,12 +34,11 @@ class Command(BaseCommand):
                 else:
                     self.stdout.write(self.style.ERROR("failed"))
         else:
-            job = JobResult.enqueue_job(
+            job = Job.enqueue_job(
                 poll_bgp_sessions,
-                "commands.poll_bgp_sessions",
-                Router,
-                None,
                 router,
+                name="commands.poll_bgp_sessions",
+                object=router,
             )
             if not quiet:
                 self.stdout.write(self.style.SUCCESS(f"task #{job.id}"))

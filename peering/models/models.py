@@ -988,7 +988,7 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
     def is_netbox_device(self):
         return self.netbox_device_id != 0
 
-    def is_usable_for_task(self, job_result=None, logger=None):
+    def is_usable_for_task(self, job=None, logger=None):
         """
         Performs pre-flight checks to understand if a router is suited for background
         task processing.
@@ -998,20 +998,20 @@ class Router(ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, TagsMi
 
         # Ensure device is not in disabled state
         if self.status == DeviceStatus.DISABLED:
-            if job_result:
-                job_result.log_warning("Router is disabled.", obj=self, logger=logger)
+            if job:
+                job.log_warning("Router is disabled.", obj=self, logger=logger)
             return False
 
         # Check if the router runs on a supported platform
         if not self.platform:
-            if job_result:
-                job_result.log_warning(
+            if job:
+                job.log_warning(
                     "Router has no assigned platform.", obj=self, logger=logger
                 )
             return False
         if not self.platform.napalm_driver:
-            if job_result:
-                job_result.log_warning(
+            if job:
+                job.log_warning(
                     "Router's platform has no NAPALM driver.", obj=self, logger=logger
                 )
             return False

@@ -6,11 +6,12 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 
+from core.api.serializers import JobSerializer
+from core.models import Job
 from extras.filters import (
     ConfigContextAssignmentFilterSet,
     ConfigContextFilterSet,
     ExportTemplateFilterSet,
-    JobResultFilterSet,
     WebhookFilterSet,
 )
 from extras.jobs import render_export_template
@@ -19,7 +20,6 @@ from extras.models import (
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
-    JobResult,
     Webhook,
 )
 from peering_manager.api.viewsets import (
@@ -33,7 +33,6 @@ from .serializers import (
     ExportTemplateSerializer,
     IXAPIAccountSerializer,
     IXAPISerializer,
-    JobResultSerializer,
     WebhookSerializer,
 )
 
@@ -66,7 +65,7 @@ class ExportTemplateViewSet(PeeringManagerModelViewSet):
         operation_id="extras_exporttemplates_render",
         responses={
             202: OpenApiResponse(
-                response=JobResultSerializer,
+                response=JobSerializer,
                 description="Job scheduled to render the export template.",
             ),
             403: OpenApiResponse(
@@ -85,15 +84,16 @@ class ExportTemplateViewSet(PeeringManagerModelViewSet):
         if not request.user.has_perm("extras.view_exporttemplate"):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        job_result = JobResult.enqueue_job(
+        export_template = self.get_object()
+        job = Job.enqueue_job(
             render_export_template,
-            "extras.exporttemplate.render",
-            ExportTemplate,
-            request.user,
-            self.get_object(),
+            export_template,
+            name="extras.exporttemplate.render",
+            object=export_template,
+            user=request.user,
         )
         return Response(
-            JobResultSerializer(instance=job_result, context={"request": request}).data,
+            JobSerializer(instance=job, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
 
@@ -152,12 +152,6 @@ class IXAPIViewSet(PeeringManagerModelViewSet):
         api.authenticate()
 
         return Response(data=api.customers.all())
-
-
-class JobResultViewSet(PeeringManagerReadOnlyModelViewSet):
-    queryset = JobResult.objects.all()
-    serializer_class = JobResultSerializer
-    filterset_class = JobResultFilterSet
 
 
 class WebhookViewSet(PeeringManagerModelViewSet):

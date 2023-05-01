@@ -145,11 +145,11 @@
     PeeringManager.resetPingButton($('#id_router_ping'));
   }
   function pingDoneHandler(r) {
-    switch (r['status']) {
+    switch (r['status']['value']) {
       case 'pending':
       case 'running':
         setTimeout(function () {
-          PeeringManager.pollJobResult(r, pingDoneHandler, pingFailHandler);
+          PeeringManager.pollJob(r, pingDoneHandler, pingFailHandler);
         }, 2000);
         break;
       case 'completed':
@@ -172,7 +172,7 @@
       url: "{% url 'peering-api:router-test-napalm-connection' pk=instance.pk %}",
     }).done(function(r) {
       PeeringManager.setWorkingButton($('#id_router_ping'));
-      PeeringManager.pollJobResult(r, pingDoneHandler, pingFailHandler);
+      PeeringManager.pollJob(r, pingDoneHandler, pingFailHandler);
     });
   });
   {% endif %}
@@ -183,11 +183,11 @@
     $('#id_alert_danger').slideDown();
   }
   function pollSessionsDoneHandler(r) {
-    switch (r['status']) {
+    switch (r['status']['value']) {
       case 'pending':
       case 'running':
         setTimeout(function () {
-          PeeringManager.pollJobResult(r, pollSessionsDoneHandler, pollSessionsFailHandler);
+          PeeringManager.pollJob(r, pollSessionsDoneHandler, pollSessionsFailHandler);
         }, 2000);
         break;
       case 'completed':
@@ -209,7 +209,7 @@
       url: "{% url 'peering-api:router-poll-bgp-sessions' pk=instance.pk %}",
     }).done(function (r) {
       PeeringManager.setWorkingButton($('#id_poll_sessions_state'));
-      PeeringManager.pollJobResult(r, pollSessionsDoneHandler, pollSessionsFailHandler);
+      PeeringManager.pollJob(r, pollSessionsDoneHandler, pollSessionsFailHandler);
     }).fail(pollSessionsFailHandler);
   });
   {% endif %}
