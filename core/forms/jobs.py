@@ -13,12 +13,12 @@ class JobFilterForm(BootstrapMixin, forms.Form):
     model = Job
     q = forms.CharField(required=False, label="Search")
     name = forms.CharField(required=False)
-    user_id = DynamicModelMultipleChoiceField(
+    user = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,
-        display_field="username",
-        label="User",
-        widget=APISelectMultiple(api_url="/api/users/users/"),
+        widget=APISelectMultiple(
+            api_url="/api/users/users/",
+        ),
     )
     status = forms.ChoiceField(
         required=False,
