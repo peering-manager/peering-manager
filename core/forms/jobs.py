@@ -16,9 +16,7 @@ class JobFilterForm(BootstrapMixin, forms.Form):
     user = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,
-        widget=APISelectMultiple(
-            api_url="/api/users/users/",
-        ),
+        widget=APISelectMultiple(api_url="/api/users/users/"),
     )
     status = forms.ChoiceField(
         required=False,
