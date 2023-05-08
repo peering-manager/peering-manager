@@ -7,7 +7,7 @@ django-netfields==1.3.1
 django-prometheus==2.2.0
 django-rq==2.7.0
 django-tables2==2.5.3
-django-taggit==3.1.0
+django-taggit==4.0.0
 drf-spectacular==0.26.2
 drf-spectacular-sidecar==2023.5.1
 Jinja2>=3.1.2
