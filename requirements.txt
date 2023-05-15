@@ -5,7 +5,7 @@ django-debug-toolbar==4.0.0
 django-filter==23.2
 django-netfields==1.3.1
 django-prometheus==2.3.1
-django-rq==2.8.0
+django-rq==2.8.1
 django-tables2==2.5.3
 django-taggit==4.0.0
 drf-spectacular==0.26.2
