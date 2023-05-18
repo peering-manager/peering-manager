@@ -597,7 +597,7 @@ class NetworkIXLan(models.Model):
                     r.append(p.prefix)
                     break
 
-        return r if len(r) != 1 else r[0]
+        return r
 
     def cidr(self, address_family=4):
         """
@@ -611,10 +611,12 @@ class NetworkIXLan(models.Model):
         if address_family == 6 and not self.ipaddr6:
             raise ValueError("IPv6 address is not set")
 
-        prefix = self.get_ixlan_prefix(address_family=address_family)
         address = self.ipaddr4 if address_family == 4 else self.ipaddr6
+        for prefix in self.get_ixlan_prefix(address_family=address_family):
+            if address in prefix:
+                return ipaddress.ip_interface(f"{address.ip}/{prefix.prefixlen}")
 
-        return ipaddress.ip_interface(f"{address.ip}/{prefix.prefixlen}")
+        raise ValueError("No CIDR formatted IP address found")
 
 
 class Synchronisation(models.Model):
