@@ -20,3 +20,6 @@ pynetbox==7.0.1
 PyYAML==6.0
 requests==2.31.0
 tzdata==2023.3
+
+# Pin rq to v1.13.0 to retain compatibility with django-rq
+rq==1.13.0
