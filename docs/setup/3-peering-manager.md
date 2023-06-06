@@ -307,7 +307,7 @@ Before we can deliver Peering Manager with our web server of choice, we have to 
 	WantedBy=multi-user.target
 	```
 
-	Create another service file `/etc/systemd/system/peering-manager-rqworker.service`
+	Create another service file `/etc/systemd/system/peering-manager-rqworker@.service`
 	and set its content.
 	```no-highlight
 	[Unit]
@@ -338,12 +338,18 @@ Before we can deliver Peering Manager with our web server of choice, we have to 
 	```no-highlight
 	# systemctl daemon-reload
 	# systemctl enable peering-manager --now
-	# systemctl enable peering-manager-rqworker --now
+	# systemctl enable peering-manager-rqworker@1 --now
 	```
 
 	You can use the `systemctl status peering-manager` and
-	`systemctl status peering-manager-rqworker` to verify that the WSGI service and the
+	`systemctl status peering-manager-rqworker@1` to verify that the WSGI service and the
 	request queue worker service are respectively running.
+
+    !!! attention
+        The rqworker unit is prepared to run multiple worker instances but the documentation
+        only explains it with one unit to make it easier to read. If you want, you can start more
+        units by replacing the 1 after the @ with something else, it can also be a string. So you
+        could have `peering-manager-rqworker@something` or similar.
 
 
 === "uWSGI"

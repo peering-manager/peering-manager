@@ -18,5 +18,5 @@ in order for it to take effect:
 
 ```no-highlight
 # systemctl restart peering-manager
-# systemctl restart peering-manager-rqworker
+# systemctl restart peering-manager-rqworker@1
 ```
