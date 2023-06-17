@@ -11,7 +11,7 @@ from django.utils import timezone
 from packaging import version
 
 from core.models import Job
-from utils.models import ObjectChange
+from extras.models import ObjectChange
 
 
 class Command(BaseCommand):

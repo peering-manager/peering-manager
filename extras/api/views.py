@@ -1,4 +1,5 @@
 import pyixapi
+from django.db.models import Count
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
@@ -12,6 +13,8 @@ from extras.filters import (
     ConfigContextAssignmentFilterSet,
     ConfigContextFilterSet,
     ExportTemplateFilterSet,
+    ObjectChangeFilterSet,
+    TagFilterSet,
     WebhookFilterSet,
 )
 from extras.jobs import render_export_template
@@ -20,12 +23,11 @@ from extras.models import (
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
+    ObjectChange,
+    Tag,
     Webhook,
 )
-from peering_manager.api.viewsets import (
-    PeeringManagerModelViewSet,
-    PeeringManagerReadOnlyModelViewSet,
-)
+from peering_manager.api.viewsets import PeeringManagerModelViewSet
 
 from .serializers import (
     ConfigContextAssignmentSerializer,
@@ -33,6 +35,8 @@ from .serializers import (
     ExportTemplateSerializer,
     IXAPIAccountSerializer,
     IXAPISerializer,
+    ObjectChangeSerializer,
+    TagSerializer,
     WebhookSerializer,
 )
 
@@ -152,6 +156,20 @@ class IXAPIViewSet(PeeringManagerModelViewSet):
         api.authenticate()
 
         return Response(data=api.customers.all())
+
+
+class ObjectChangeViewSet(PeeringManagerModelViewSet):
+    queryset = ObjectChange.objects.all()
+    serializer_class = ObjectChangeSerializer
+    filterset_class = ObjectChangeFilterSet
+
+
+class TagViewSet(PeeringManagerModelViewSet):
+    queryset = Tag.objects.annotate(
+        tagged_items=Count("extras_taggeditem_items", distinct=True)
+    )
+    serializer_class = TagSerializer
+    filterset_class = TagFilterSet
 
 
 class WebhookViewSet(PeeringManagerModelViewSet):

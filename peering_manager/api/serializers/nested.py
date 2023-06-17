@@ -6,8 +6,8 @@ from django.core.exceptions import (
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from extras.models import Tag
 from utils.functions import dict_to_filter_params
-from utils.models import Tag
 
 from .base import BaseModelSerializer
 
@@ -65,7 +65,7 @@ class WritableNestedSerializer(BaseModelSerializer):
 # Declared here for use by PeeringManagerModelSerializer, but should be imported from
 # utils.api.nested_serializers
 class NestedTagSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="utils-api:tag-detail")
+    url = serializers.HyperlinkedIdentityField(view_name="extras-api:tag-detail")
 
     class Meta:
         model = Tag

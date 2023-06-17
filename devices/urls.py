@@ -1,6 +1,6 @@
 from django.urls import path
 
-from utils.views import ObjectChangeLog
+from extras.views import ObjectChangeLog
 
 from . import models, views
 

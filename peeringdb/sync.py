@@ -8,9 +8,9 @@ from django.db import transaction
 from django.db.utils import DEFAULT_DB_ALIAS
 from django.utils import timezone
 
+from extras.enums import ObjectChangeAction
 from net.models import Connection
 from peering.models import InternetExchange as IXP
-from utils.enums import ObjectChangeAction
 
 from .models import (
     Campus,

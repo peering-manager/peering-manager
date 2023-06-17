@@ -18,6 +18,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
+from extras.signals import clear_webhooks
 from peering_manager.forms import HiddenControlFormSet
 from utils.forms import ConfirmationForm, TableConfigurationForm
 from utils.functions import (
@@ -25,7 +26,6 @@ from utils.functions import (
     handle_protectederror,
     normalize_querydict,
 )
-from utils.signals import clear_webhooks
 from utils.tables import paginate_table
 
 

@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from utils.forms import TagForm
+from extras.forms import TagForm
 
 
 class TagTest(TestCase):

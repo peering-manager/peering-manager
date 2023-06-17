@@ -6,6 +6,8 @@ from django.urls import reverse
 
 from utils.models import ChangeLoggedMixin
 
+__all__ = ("ConfigContext", "ConfigContextAssignment")
+
 
 class ConfigContext(ChangeLoggedMixin):
     """

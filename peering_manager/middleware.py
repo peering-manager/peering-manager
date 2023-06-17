@@ -5,8 +5,8 @@ from django.db import ProgrammingError
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 
+from extras.context_managers import change_logging
 from utils.api import is_api_request, rest_api_server_error
-from utils.context_managers import change_logging
 from utils.views import ServerError
 
 

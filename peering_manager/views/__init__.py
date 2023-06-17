@@ -9,6 +9,7 @@ from django.views.generic import View
 from packaging import version
 
 from devices.models import Configuration
+from extras.models import ObjectChange
 from messaging.models import Contact, Email
 from peering.models import (
     AutonomousSystem,
@@ -23,7 +24,6 @@ from peering.models import (
 from peering_manager.constants import SEARCH_MAX_RESULTS, SEARCH_TYPES
 from peering_manager.forms import SearchForm
 from peeringdb.models import Synchronisation
-from utils.models import ObjectChange
 
 
 def handle_500(request):

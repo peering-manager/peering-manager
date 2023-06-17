@@ -1,19 +1,13 @@
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import ValidationError
 from django.db import models
 from django.db.models.signals import class_prepared
 from django.dispatch import receiver
-from django.urls import reverse
-from django.utils.safestring import mark_safe
 from taggit.managers import TaggableManager
-from taggit.models import GenericTaggedItemBase, TagBase
 
+from extras.enums import ObjectChangeAction
 from extras.utils import register_features
-from utils.enums import Colour, ObjectChangeAction
-from utils.forms.fields import ColorField
 from utils.functions import merge_hash, serialize_object
 
 
@@ -38,6 +32,8 @@ class ChangeLoggedMixin(models.Model):
         """
         Return a new `ObjectChange` representing a change made to this object.
         """
+        from extras.models import ObjectChange
+
         object_change = ObjectChange(
             changed_object=self,
             related_object=related_object,
@@ -53,91 +49,12 @@ class ChangeLoggedMixin(models.Model):
         return object_change
 
 
-class ObjectChange(models.Model):
-    """
-    Records a change done to an object and the user who did it.
-    """
-
-    time = models.DateTimeField(auto_now_add=True, editable=False, db_index=True)
-    user = models.ForeignKey(
-        to=User,
-        on_delete=models.SET_NULL,
-        related_name="changes",
-        blank=True,
-        null=True,
-    )
-    user_name = models.CharField(max_length=150, editable=False)
-    request_id = models.UUIDField(editable=False)
-    action = models.CharField(max_length=50, choices=ObjectChangeAction)
-    changed_object_type = models.ForeignKey(
-        to=ContentType, on_delete=models.PROTECT, related_name="+"
-    )
-    changed_object_id = models.PositiveIntegerField()
-    changed_object = GenericForeignKey(
-        ct_field="changed_object_type", fk_field="changed_object_id"
-    )
-    related_object_type = models.ForeignKey(
-        to=ContentType,
-        on_delete=models.PROTECT,
-        related_name="+",
-        blank=True,
-        null=True,
-    )
-    related_object_id = models.PositiveIntegerField(blank=True, null=True)
-    related_object = GenericForeignKey(
-        ct_field="related_object_type", fk_field="related_object_id"
-    )
-    object_repr = models.CharField(max_length=200, editable=False)
-    prechange_data = models.JSONField(editable=False, blank=True, null=True)
-    postchange_data = models.JSONField(editable=False, blank=True, null=True)
-
-    class Meta:
-        ordering = ["-time"]
-
-    def __str__(self):
-        return f"{self.changed_object_type} {self.object_repr} {self.get_action_display().lower()} by {self.user_name}"
-
-    def save(self, *args, **kwargs):
-        if not self.user_name:
-            self.user_name = self.user.username
-        if not self.object_repr:
-            self.object_repr = str(self.changed_object)
-
-        return super().save(*args, **kwargs)
-
-    def get_absolute_url(self):
-        return reverse("utils:objectchange_view", args=[self.pk])
-
-    def get_action_colour(self):
-        return ObjectChangeAction.colours.get(self.action)
-
-
-class Tag(TagBase, ChangeLoggedMixin):
-    color = ColorField(default=Colour.GREY)
-    comments = models.TextField(blank=True, default="")
-
-    class Meta:
-        ordering = ["name"]
-
-    def get_absolute_url(self):
-        return reverse("utils:tag_view", args=[self.pk])
-
-
-class TaggedItem(GenericTaggedItemBase):
-    tag = models.ForeignKey(
-        to=Tag, related_name="%(app_label)s_%(class)s_items", on_delete=models.CASCADE
-    )
-
-    class Meta:
-        index_together = ("content_type", "object_id")
-
-
 class TagsMixin(models.Model):
     """
     Abstract class that just provides tags to its subclasses.
     """
 
-    tags = TaggableManager(through=TaggedItem)
+    tags = TaggableManager(through="extras.TaggedItem")
 
     class Meta:
         abstract = True

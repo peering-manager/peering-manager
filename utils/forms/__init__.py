@@ -1,13 +1,8 @@
 from django import forms
-from django.contrib.auth.models import User
 from django.db.models import Count
 from taggit.forms import TagField
 
-from utils.enums import ObjectChangeAction
-from utils.models import ObjectChange, Tag
-
-from .fields import CommentField, DynamicModelMultipleChoiceField, SlugField
-from .widgets import APISelectMultiple, ColorSelect, StaticSelectMultiple
+from .widgets import StaticSelectMultiple
 
 
 def add_blank_choice(choices):
@@ -89,55 +84,6 @@ class TableConfigurationForm(BootstrapMixin, forms.Form):
         return self.table.__class__.__name__
 
 
-class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
-    model = ObjectChange
-    q = forms.CharField(required=False, label="Search")
-    time_after = forms.DateTimeField(
-        label="After",
-        required=False,
-        widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
-    )
-    time_before = forms.DateTimeField(
-        label="Before",
-        required=False,
-        widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
-    )
-    action = forms.ChoiceField(
-        required=False, choices=ObjectChangeAction, widget=StaticSelectMultiple
-    )
-    user_id = DynamicModelMultipleChoiceField(
-        queryset=User.objects.all(),
-        required=False,
-        display_field="username",
-        label="User",
-        widget=APISelectMultiple(api_url="/api/users/users/"),
-    )
-
-
-class TagBulkEditForm(BootstrapMixin, BulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Tag.objects.all(), widget=forms.MultipleHiddenInput
-    )
-    color = forms.CharField(max_length=6, required=False, widget=ColorSelect())
-
-    class Meta:
-        nullable_fields = ["comments"]
-
-
-class TagFilterForm(BootstrapMixin, forms.Form):
-    model = Tag
-    q = forms.CharField(required=False, label="Search")
-
-
-class TagForm(BootstrapMixin, forms.ModelForm):
-    slug = SlugField()
-    comments = CommentField()
-
-    class Meta:
-        model = Tag
-        fields = ["name", "slug", "color", "comments"]
-
-
 class AddRemoveTagsForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -155,7 +101,7 @@ class TagFilterField(forms.MultipleChoiceField):
 
     def __init__(self, model, *args, **kwargs):
         def get_choices():
-            tags = model.tags.annotate(count=Count("utils_taggeditem_items")).order_by(
+            tags = model.tags.annotate(count=Count("extras_taggeditem_items")).order_by(
                 "name"
             )
             return [(str(tag.slug), f"{tag.name} ({tag.count})") for tag in tags]

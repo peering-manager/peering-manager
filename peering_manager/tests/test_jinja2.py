@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from devices.models import Configuration
-from extras.models import ExportTemplate
+from extras.models import ExportTemplate, Tag
 from messaging.models import Contact, ContactAssignment, ContactRole, Email
 from net.enums import ConnectionStatus
 from net.models import Connection
@@ -26,7 +26,6 @@ from peering.models import (
     RoutingPolicy,
 )
 from peering_manager.jinja2 import FILTER_DICT
-from utils.models import Tag
 
 
 class Jinja2FilterTestCase(TestCase):

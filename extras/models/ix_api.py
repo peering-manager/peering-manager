@@ -1,8 +1,6 @@
-import ipaddress
 import logging
 
 import pyixapi
-from cacheops import cached_as
 from django.apps import apps
 from django.conf import settings
 from django.db import models
@@ -11,6 +9,8 @@ from django.urls import reverse
 from django.utils.timezone import make_aware
 
 from utils.models import ChangeLoggedMixin
+
+__all__ = ("IXAPI",)
 
 logger = logging.getLogger("peering.manager.extras.ixapi")
 

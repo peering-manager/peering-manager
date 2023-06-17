@@ -18,6 +18,8 @@ from peering_manager.jinja2 import (
 )
 from utils.models import ChangeLoggedMixin
 
+__all__ = ("ExportTemplate", "Webhook")
+
 
 class ExportTemplate(ChangeLoggedMixin):
     content_type = models.ForeignKey(
