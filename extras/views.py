@@ -265,7 +265,7 @@ class ObjectChangeList(ObjectListView):
     filterset = ObjectChangeFilterSet
     filterset_form = ObjectChangeFilterForm
     table = ObjectChangeTable
-    template_name = "utils/object_change/list.html"
+    template_name = "extras/object_change/list.html"
 
 
 class ObjectChangeLog(View):
@@ -299,7 +299,7 @@ class ObjectChangeLog(View):
 
         return render(
             request,
-            "utils/object_change/log.html",
+            "extras/object_change/log.html",
             {
                 "instance": obj,
                 "table": objectchanges_table,
@@ -360,7 +360,7 @@ class ObjectChangeView(PermissionRequiredMixin, View):
 
         return render(
             request,
-            "utils/object_change/details.html",
+            "extras/object_change/details.html",
             {
                 "instance": instance,
                 "diff_added": diff_added,
