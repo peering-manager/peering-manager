@@ -2,7 +2,7 @@ import sys
 
 from django import template
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count, Q
+from django.db.models import Q
 from django.http import HttpResponseServerError
 from django.shortcuts import get_object_or_404, render
 from django.template import loader
@@ -12,22 +12,14 @@ from django.views.defaults import ERROR_500_TEMPLATE_NAME
 from django.views.generic import View
 from django_tables2 import RequestConfig
 
-from peering_manager.views.generics import (
-    BulkDeleteView,
-    BulkEditView,
-    ObjectDeleteView,
-    ObjectEditView,
-    ObjectListView,
-    ObjectView,
-    PermissionRequiredMixin,
-)
+from peering_manager.views.generics import ObjectListView, PermissionRequiredMixin
 
-from .filters import ObjectChangeFilterSet, TagFilterSet
-from .forms import ObjectChangeFilterForm, TagBulkEditForm, TagFilterForm, TagForm
+from .filters import ObjectChangeFilterSet
+from .forms import ObjectChangeFilterForm
 from .functions import shallow_compare_dict
-from .models import ObjectChange, Tag, TaggedItem
+from .models import ObjectChange
 from .paginators import EnhancedPaginator, get_paginate_count
-from .tables import ObjectChangeTable, TaggedItemTable, TagTable, paginate_table
+from .tables import ObjectChangeTable
 
 
 class ObjectChangeList(ObjectListView):
@@ -145,81 +137,6 @@ class ObjectChangeView(PermissionRequiredMixin, View):
                 "non_atomic_change": non_atomic_change,
             },
         )
-
-
-class TagList(ObjectListView):
-    permission_required = "utils.view_tag"
-    queryset = Tag.objects.annotate(
-        items=Count("utils_taggeditem_items", distinct=True)
-    ).order_by("name")
-    filterset = TagFilterSet
-    filterset_form = TagFilterForm
-    table = TagTable
-    template_name = "utils/tag/list.html"
-
-
-class TagView(ObjectView):
-    permission_required = "utils.view_tag"
-    queryset = Tag.objects.all()
-
-    def get_extra_context(self, request, instance):
-        tagged_items = TaggedItem.objects.filter(tag=instance)
-        taggeditem_table = TaggedItemTable(data=tagged_items, orderable=False)
-        paginate_table(taggeditem_table, request)
-
-        object_types = [
-            {
-                "content_type": ContentType.objects.get(pk=ti["content_type"]),
-                "item_count": ti["item_count"],
-            }
-            for ti in tagged_items.values("content_type").annotate(
-                item_count=Count("pk")
-            )
-        ]
-
-        return {
-            "taggeditem_table": taggeditem_table,
-            "tagged_item_count": tagged_items.count(),
-            "object_types": object_types,
-        }
-
-
-class TagAdd(ObjectEditView):
-    permission_required = "utils.add_tag"
-    queryset = Tag.objects.all()
-    model_form = TagForm
-    template_name = "utils/tag/add_edit.html"
-
-
-class TagEdit(ObjectEditView):
-    permission_required = "utils.change_tag"
-    queryset = Tag.objects.all()
-    model_form = TagForm
-    template_name = "utils/tag/add_edit.html"
-
-
-class TagBulkEdit(BulkEditView):
-    permission_required = "utils.change_tag"
-    queryset = Tag.objects.annotate(
-        items=Count("utils_taggeditem_items", distinct=True)
-    ).order_by("name")
-    filter = TagFilterSet
-    table = TagTable
-    form = TagBulkEditForm
-
-
-class TagDelete(ObjectDeleteView):
-    permission_required = "utils.delete_tag"
-    queryset = Tag.objects.all()
-
-
-class TagBulkDelete(BulkDeleteView):
-    permission_required = "utils.delete_tag"
-    queryset = Tag.objects.annotate(
-        items=Count("utils_taggeditem_items", distinct=True)
-    ).order_by("name")
-    filterset = TagFilterSet
-    table = TagTable
 
 
 @requires_csrf_token

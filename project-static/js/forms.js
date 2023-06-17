@@ -233,7 +233,7 @@ $(document).ready(function () {
     data: tag_objects,
     ajax: {
       delay: 250,
-      url: our_api_path + 'utils/tags/', // API endpoint to query
+      url: our_api_path + 'extras/tags/', // API endpoint to query
       data: function (params) {
         var offset = (params.page - 1) * 50 || 0;
         var parameters = {

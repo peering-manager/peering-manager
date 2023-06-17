@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
 
-from extras.models import IXAPI, ConfigContext, ExportTemplate
+from extras.models import IXAPI, ConfigContext, ExportTemplate, Tag
 from peering.models import AutonomousSystem
 from utils.testing import ViewTestCases
 
@@ -143,3 +143,28 @@ class IXAPITestCase(ViewTestCases.PrimaryObjectViewTestCase):
             ],
         ):
             super().test_edit_object_with_permission()
+
+
+class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
+    model = Tag
+
+    test_changelog_object = None
+
+    @classmethod
+    def setUpTestData(cls):
+        Tag.objects.bulk_create(
+            (
+                Tag(name="Tag 1", slug="tag-1"),
+                Tag(name="Tag 2", slug="tag-2"),
+                Tag(name="Tag 3", slug="tag-3"),
+            )
+        )
+
+        cls.form_data = {
+            "name": "Tag 4",
+            "slug": "tag-4",
+            "color": "c0c0c0",
+            "comments": "Some comments",
+        }
+
+        cls.bulk_edit_data = {"color": "00ff00"}

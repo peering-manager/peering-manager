@@ -7,13 +7,10 @@ from django.db import models
 from django.db.models.signals import class_prepared
 from django.dispatch import receiver
 from django.urls import reverse
-from django.utils.safestring import mark_safe
 from taggit.managers import TaggableManager
-from taggit.models import GenericTaggedItemBase, TagBase
 
 from extras.utils import register_features
-from utils.enums import Colour, ObjectChangeAction
-from utils.forms.fields import ColorField
+from utils.enums import ObjectChangeAction
 from utils.functions import merge_hash, serialize_object
 
 
@@ -112,32 +109,12 @@ class ObjectChange(models.Model):
         return ObjectChangeAction.colours.get(self.action)
 
 
-class Tag(TagBase, ChangeLoggedMixin):
-    color = ColorField(default=Colour.GREY)
-    comments = models.TextField(blank=True, default="")
-
-    class Meta:
-        ordering = ["name"]
-
-    def get_absolute_url(self):
-        return reverse("utils:tag_view", args=[self.pk])
-
-
-class TaggedItem(GenericTaggedItemBase):
-    tag = models.ForeignKey(
-        to=Tag, related_name="%(app_label)s_%(class)s_items", on_delete=models.CASCADE
-    )
-
-    class Meta:
-        index_together = ("content_type", "object_id")
-
-
 class TagsMixin(models.Model):
     """
     Abstract class that just provides tags to its subclasses.
     """
 
-    tags = TaggableManager(through=TaggedItem)
+    tags = TaggableManager(through="extras.TaggedItem")
 
     class Meta:
         abstract = True

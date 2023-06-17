@@ -4,11 +4,19 @@ from utils.tables import (
     BaseTable,
     BooleanColumn,
     ButtonsColumn,
+    ColourColumn,
     ContentTypeColumn,
     SelectColumn,
 )
 
-from .models import IXAPI, ConfigContext, ConfigContextAssignment, ExportTemplate
+from .models import (
+    IXAPI,
+    ConfigContext,
+    ConfigContextAssignment,
+    ExportTemplate,
+    Tag,
+    TaggedItem,
+)
 
 
 class ConfigContextTable(BaseTable):
@@ -70,3 +78,29 @@ class IXAPITable(BaseTable):
         model = IXAPI
         fields = ("name", "url", "api_key", "actions")
         default_columns = ("name", "url", "api_key", "actions")
+
+
+class TagTable(BaseTable):
+    pk = SelectColumn()
+    name = tables.Column(linkify=True)
+    color = ColourColumn()
+    actions = ButtonsColumn(Tag, buttons=("edit", "delete"))
+
+    class Meta(BaseTable.Meta):
+        model = Tag
+        fields = ("pk", "name", "slug", "color", "items", "actions")
+        default_columns = ("pk", "name", "color", "items", "actions")
+
+
+class TaggedItemTable(BaseTable):
+    id = tables.Column(
+        verbose_name="ID",
+        linkify=lambda record: record.content_object.get_absolute_url(),
+        accessor="content_object__id",
+    )
+    content_type = ContentTypeColumn(verbose_name="Type")
+    content_object = tables.Column(linkify=True, orderable=False, verbose_name="Object")
+
+    class Meta(BaseTable.Meta):
+        model = TaggedItem
+        fields = ("id", "content_type", "content_object")

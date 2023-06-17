@@ -5,15 +5,18 @@ from extras.filters import (
     ConfigContextAssignmentFilterSet,
     ConfigContextFilterSet,
     ExportTemplateFilterSet,
+    TagFilterSet,
     WebhookFilterSet,
 )
 from extras.models import (
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
+    Tag,
     Webhook,
 )
 from peering.models import AutonomousSystem
+from utils.testing.filtersets import BaseFilterSetTests
 
 
 class ConfigContextTestCase(TestCase):
@@ -141,6 +144,27 @@ class ExportTemplateTestCase(TestCase):
 
     def test_description(self):
         params = {"description": ["Foo"]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+
+class TagTestCase(TestCase, BaseFilterSetTests):
+    queryset = Tag.objects.all()
+    filterset = TagFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        Tag.objects.bulk_create(
+            (
+                Tag(name="Tag 1", slug="tag-1"),
+                Tag(name="Tag 2", slug="tag-2"),
+                Tag(name="Tag 3", slug="tag-3"),
+            )
+        )
+
+    def test_q(self):
+        params = {"q": ""}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {"q": "tag-1"}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 

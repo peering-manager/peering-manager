@@ -1,7 +1,12 @@
 import django_filters
 from django.db.models import Q
 
-from utils.filters import BaseFilterSet, ContentTypeFilter, CreatedUpdatedFilterSet
+from utils.filters import (
+    BaseFilterSet,
+    ContentTypeFilter,
+    CreatedUpdatedFilterSet,
+    NameSlugSearchFilterSet,
+)
 
 from .enums import HttpMethod
 from .models import (
@@ -9,6 +14,7 @@ from .models import (
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
+    Tag,
     Webhook,
 )
 
@@ -69,6 +75,12 @@ class IXAPIFilterSet(BaseFilterSet):
             | Q(url__icontains=value)
             | Q(api_key__icontains=value)
         )
+
+
+class TagFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
+    class Meta:
+        model = Tag
+        fields = ["id", "color"]
 
 
 class WebhookFilterSet(BaseFilterSet):

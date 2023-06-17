@@ -165,7 +165,7 @@
               <a href="{% url 'extras:exporttemplate_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/extras/export-templates/' %} active{% endif %}">
                 <span class="ml-4">Export Templates</span>
               </a>
-              <a href="{% url 'utils:tag_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/tags/' %} active{% endif %}">
+              <a href="{% url 'extras:tag_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/tags/' %} active{% endif %}">
                 <div class="ml-4">Tags</div>
               </a>
               <a href="{% url 'core:job_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/jobs/' %} active{% endif %}">

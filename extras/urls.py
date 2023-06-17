@@ -111,4 +111,12 @@ urlpatterns = [
         name="ixapi_changelog",
         kwargs={"model": models.IXAPI},
     ),
+    # Tags
+    path("tags/", views.TagList.as_view(), name="tag_list"),
+    path("tags/add/", views.TagAdd.as_view(), name="tag_add"),
+    path("tags/edit/", views.TagBulkEdit.as_view(), name="tag_bulk_edit"),
+    path("tags/delete/", views.TagBulkDelete.as_view(), name="tag_bulk_delete"),
+    path("tags/<int:pk>/", views.TagView.as_view(), name="tag_view"),
+    path("tags/<int:pk>/edit/", views.TagEdit.as_view(), name="tag_edit"),
+    path("tags/<int:pk>/delete/", views.TagDelete.as_view(), name="tag_delete"),
 ]

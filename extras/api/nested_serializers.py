@@ -5,6 +5,7 @@ from extras.models import (
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
+    Tag,
     Webhook,
 )
 from peering_manager.api.serializers import WritableNestedSerializer
@@ -45,6 +46,14 @@ class NestedIXAPISerializer(WritableNestedSerializer):
     class Meta:
         model = IXAPI
         fields = ["id", "display", "name", "url"]
+
+
+class NestedTagSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name="extras-api:tag-detail")
+
+    class Meta:
+        model = Tag
+        fields = ["id", "url", "name", "slug", "color"]
 
 
 class NestedWebhookSerializer(WritableNestedSerializer):

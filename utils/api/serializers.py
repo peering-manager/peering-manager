@@ -2,17 +2,13 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from peering_manager.api.fields import ChoiceField, ContentTypeField
-from peering_manager.api.serializers import (
-    BaseModelSerializer,
-    ValidatedModelSerializer,
-)
+from peering_manager.api.serializers import BaseModelSerializer
 from users.api.nested_serializers import NestedUserSerializer
 from utils.api import get_serializer_for_model
-from utils.api.nested_serializers import NestedTagSerializer
 from utils.enums import ObjectChangeAction
-from utils.models import ObjectChange, Tag
+from utils.models import ObjectChange
 
-__all__ = ("ObjectChangeSerializer", "TagSerializer", "NestedTagSerializer")
+__all__ = ("ObjectChangeSerializer",)
 
 
 class ObjectChangeSerializer(BaseModelSerializer):
@@ -59,21 +55,3 @@ class ObjectChangeSerializer(BaseModelSerializer):
         data = serializer(o.changed_object, context=context).data
 
         return data
-
-
-class TagSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="utils-api:tag-detail")
-    tagged_items = serializers.IntegerField(read_only=True)
-
-    class Meta:
-        model = Tag
-        fields = [
-            "id",
-            "url",
-            "display",
-            "name",
-            "slug",
-            "color",
-            "comments",
-            "tagged_items",
-        ]

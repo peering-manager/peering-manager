@@ -8,11 +8,11 @@ from extras.models import (
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
+    Tag,
     Webhook,
 )
 from peering_manager.api.fields import ContentTypeField
 from peering_manager.api.serializers import ValidatedModelSerializer
-from users.api.nested_serializers import NestedUserSerializer
 from utils.api import get_serializer_for_model
 
 from .nested_serializers import *
@@ -21,7 +21,13 @@ __all__ = (
     "ConfigContextSerializer",
     "ConfigContextAssignmentSerializer",
     "ExportTemplateSerializer",
+    "TagSerializer",
     "WebhookSerializer",
+    "NestedConfigContextSerializer",
+    "NestedConfigContextAssignmentSerializer",
+    "NestedExportTemplateSerializer",
+    "NestedIXAPISerializer",
+    "NestedTagSerializer",
     "NestedWebhookSerializer",
 )
 
@@ -96,6 +102,24 @@ class IXAPIAccountSerializer(serializers.Serializer):
     url = serializers.CharField()
     api_key = serializers.CharField()
     api_secret = serializers.CharField()
+
+
+class TagSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name="extras-api:tag-detail")
+    tagged_items = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Tag
+        fields = [
+            "id",
+            "url",
+            "display",
+            "name",
+            "slug",
+            "color",
+            "comments",
+            "tagged_items",
+        ]
 
 
 class WebhookSerializer(serializers.ModelSerializer):

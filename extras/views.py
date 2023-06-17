@@ -1,9 +1,11 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 
 from peering.models import InternetExchange
 from peering_manager.views.generics import (
     BulkDeleteView,
+    BulkEditView,
     ObjectDeleteView,
     ObjectEditView,
     ObjectListView,
@@ -11,7 +13,12 @@ from peering_manager.views.generics import (
 )
 from utils.tables import paginate_table
 
-from .filters import ConfigContextFilterSet, ExportTemplateFilterSet, IXAPIFilterSet
+from .filters import (
+    ConfigContextFilterSet,
+    ExportTemplateFilterSet,
+    IXAPIFilterSet,
+    TagFilterSet,
+)
 from .forms import (
     ConfigContextAssignmentForm,
     ConfigContextFilterForm,
@@ -20,13 +27,25 @@ from .forms import (
     ExportTemplateForm,
     IXAPIFilterForm,
     IXAPIForm,
+    TagBulkEditForm,
+    TagFilterForm,
+    TagForm,
 )
-from .models import IXAPI, ConfigContext, ConfigContextAssignment, ExportTemplate
+from .models import (
+    IXAPI,
+    ConfigContext,
+    ConfigContextAssignment,
+    ExportTemplate,
+    Tag,
+    TaggedItem,
+)
 from .tables import (
     ConfigContextAssignmentTable,
     ConfigContextTable,
     ExportTemplateTable,
     IXAPITable,
+    TaggedItemTable,
+    TagTable,
 )
 
 
@@ -226,3 +245,78 @@ class IXAPIEditView(ObjectEditView):
 class IXAPIDeleteView(ObjectDeleteView):
     permission_required = "extras.delete_ixapi"
     queryset = IXAPI.objects.all()
+
+
+class TagList(ObjectListView):
+    permission_required = "extras.view_tag"
+    queryset = Tag.objects.annotate(
+        items=Count("extras_taggeditem_items", distinct=True)
+    ).order_by("name")
+    filterset = TagFilterSet
+    filterset_form = TagFilterForm
+    table = TagTable
+    template_name = "extras/tag/list.html"
+
+
+class TagView(ObjectView):
+    permission_required = "extras.view_tag"
+    queryset = Tag.objects.all()
+
+    def get_extra_context(self, request, instance):
+        tagged_items = TaggedItem.objects.filter(tag=instance)
+        taggeditem_table = TaggedItemTable(data=tagged_items, orderable=False)
+        paginate_table(taggeditem_table, request)
+
+        object_types = [
+            {
+                "content_type": ContentType.objects.get(pk=ti["content_type"]),
+                "item_count": ti["item_count"],
+            }
+            for ti in tagged_items.values("content_type").annotate(
+                item_count=Count("pk")
+            )
+        ]
+
+        return {
+            "taggeditem_table": taggeditem_table,
+            "tagged_item_count": tagged_items.count(),
+            "object_types": object_types,
+        }
+
+
+class TagAdd(ObjectEditView):
+    permission_required = "extras.add_tag"
+    queryset = Tag.objects.all()
+    model_form = TagForm
+    template_name = "extras/tag/add_edit.html"
+
+
+class TagEdit(ObjectEditView):
+    permission_required = "extras.change_tag"
+    queryset = Tag.objects.all()
+    model_form = TagForm
+    template_name = "extras/tag/add_edit.html"
+
+
+class TagBulkEdit(BulkEditView):
+    permission_required = "extras.change_tag"
+    queryset = Tag.objects.annotate(
+        items=Count("extras_taggeditem_items", distinct=True)
+    ).order_by("name")
+    filter = TagFilterSet
+    table = TagTable
+    form = TagBulkEditForm
+
+
+class TagDelete(ObjectDeleteView):
+    permission_required = "extras.delete_tag"
+    queryset = Tag.objects.all()
+
+
+class TagBulkDelete(BulkDeleteView):
+    permission_required = "extras.delete_tag"
+    queryset = Tag.objects.annotate(
+        items=Count("extras_taggeditem_items", distinct=True)
+    ).order_by("name")
+    filterset = TagFilterSet
+    table = TagTable

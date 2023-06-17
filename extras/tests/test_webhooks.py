@@ -8,12 +8,11 @@ from django.urls import reverse
 from requests import Session
 from rest_framework import status
 
-from extras.models import Webhook
+from extras.models import Tag, Webhook
 from extras.webhooks import enqueue_object, flush_webhooks, generate_signature
 from extras.workers import generate_signature, process_webhook
 from peering.models import AutonomousSystem
 from utils.enums import ObjectChangeAction
-from utils.models import Tag
 from utils.testing import APITestCase
 
 

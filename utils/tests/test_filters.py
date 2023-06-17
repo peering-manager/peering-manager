@@ -3,9 +3,10 @@ import uuid
 from django.contrib.auth.models import User
 from django.test import TestCase
 
+from extras.models import Tag
 from utils.enums import ObjectChangeAction
-from utils.filters import ObjectChangeFilterSet, TagFilterSet
-from utils.models import ObjectChange, Tag
+from utils.filters import ObjectChangeFilterSet
+from utils.models import ObjectChange
 from utils.testing.filtersets import BaseFilterSetTests
 
 
@@ -49,25 +50,4 @@ class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
 
     def test_request_id(self):
         params = {"request_id": self.uuids[0]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-
-class TagTestCase(TestCase, BaseFilterSetTests):
-    queryset = Tag.objects.all()
-    filterset = TagFilterSet
-
-    @classmethod
-    def setUpTestData(cls):
-        Tag.objects.bulk_create(
-            (
-                Tag(name="Tag 1", slug="tag-1"),
-                Tag(name="Tag 2", slug="tag-2"),
-                Tag(name="Tag 3", slug="tag-3"),
-            )
-        )
-
-    def test_q(self):
-        params = {"q": ""}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-        params = {"q": "tag-1"}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)

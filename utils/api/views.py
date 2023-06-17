@@ -1,11 +1,10 @@
-from django.db.models import Count
 from rest_framework.routers import APIRootView
 
 from peering_manager.api.viewsets import PeeringManagerModelViewSet
-from utils.filters import ObjectChangeFilterSet, TagFilterSet
-from utils.models import ObjectChange, Tag
+from utils.filters import ObjectChangeFilterSet
+from utils.models import ObjectChange
 
-from .serializers import ObjectChangeSerializer, TagSerializer
+from .serializers import ObjectChangeSerializer
 
 
 class UtilsRootView(APIRootView):
@@ -17,11 +16,3 @@ class ObjectChangeViewSet(PeeringManagerModelViewSet):
     queryset = ObjectChange.objects.all()
     serializer_class = ObjectChangeSerializer
     filterset_class = ObjectChangeFilterSet
-
-
-class TagViewSet(PeeringManagerModelViewSet):
-    queryset = Tag.objects.annotate(
-        tagged_items=Count("utils_taggeditem_items", distinct=True)
-    )
-    serializer_class = TagSerializer
-    filterset_class = TagFilterSet

@@ -4,15 +4,17 @@ from django.core.exceptions import ValidationError
 from requests.exceptions import HTTPError
 
 from extras.models.configcontext import ConfigContextAssignment
-from utils.forms import BootstrapMixin
+from utils.forms import BootstrapMixin, BulkEditForm
 from utils.forms.fields import (
+    CommentField,
     ContentTypeChoiceField,
     DynamicModelChoiceField,
     JSONField,
+    SlugField,
 )
-from utils.forms.widgets import CustomNullBooleanSelect, StaticSelect
+from utils.forms.widgets import ColorSelect, CustomNullBooleanSelect, StaticSelect
 
-from .models import IXAPI, ConfigContext, ExportTemplate
+from .models import IXAPI, ConfigContext, ExportTemplate, Tag
 from .utils import FeatureQuery
 
 
@@ -94,3 +96,27 @@ class IXAPIForm(BootstrapMixin, forms.ModelForm):
 class IXAPIFilterForm(BootstrapMixin, forms.Form):
     model = IXAPI
     q = forms.CharField(required=False, label="Search")
+
+
+class TagBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(), widget=forms.MultipleHiddenInput
+    )
+    color = forms.CharField(max_length=6, required=False, widget=ColorSelect())
+
+    class Meta:
+        nullable_fields = ["comments"]
+
+
+class TagFilterForm(BootstrapMixin, forms.Form):
+    model = Tag
+    q = forms.CharField(required=False, label="Search")
+
+
+class TagForm(BootstrapMixin, forms.ModelForm):
+    slug = SlugField()
+    comments = CommentField()
+
+    class Meta:
+        model = Tag
+        fields = ["name", "slug", "color", "comments"]

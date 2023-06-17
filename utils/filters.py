@@ -10,7 +10,7 @@ from django_filters.constants import EMPTY_VALUES
 
 from utils.enums import ObjectChangeAction
 from utils.forms.fields import multivalue_field_factory
-from utils.models import ObjectChange, Tag
+from utils.models import ObjectChange
 
 
 class ContentTypeFilter(django_filters.CharFilter):
@@ -93,6 +93,8 @@ class TagFilter(django_filters.ModelMultipleChoiceFilter):
     """
 
     def __init__(self, *args, **kwargs):
+        from extras.models import Tag
+
         kwargs.setdefault("field_name", "tags__slug")
         kwargs.setdefault("to_field_name", "slug")
         kwargs.setdefault("conjoined", True)
@@ -189,9 +191,3 @@ class ObjectChangeFilterSet(BaseFilterSet):
         return queryset.filter(
             Q(user_name__icontains=value) | Q(object_repr__icontains=value)
         )
-
-
-class TagFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
-    class Meta:
-        model = Tag
-        fields = ["id", "color"]
