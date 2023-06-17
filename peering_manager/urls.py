@@ -30,7 +30,6 @@ __patterns = [
     path("", include("net.urls")),
     path("", include("peering.urls")),
     path("", include("peeringdb.urls")),
-    path("", include("utils.urls")),
     path("user/", include("users.urls")),
     # API
     path("api/", APIRootView.as_view(), name="api-root"),
@@ -43,7 +42,6 @@ __patterns = [
     path("api/peering/", include("peering.api.urls")),
     path("api/peeringdb/", include("peeringdb.api.urls")),
     path("api/users/", include("users.api.urls")),
-    path("api/utils/", include("utils.api.urls")),
     path("api/status/", StatusView.as_view(), name="api-status"),
     # API Schema and docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),

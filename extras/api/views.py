@@ -13,6 +13,7 @@ from extras.filters import (
     ConfigContextAssignmentFilterSet,
     ConfigContextFilterSet,
     ExportTemplateFilterSet,
+    ObjectChangeFilterSet,
     TagFilterSet,
     WebhookFilterSet,
 )
@@ -22,6 +23,7 @@ from extras.models import (
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
+    ObjectChange,
     Tag,
     Webhook,
 )
@@ -33,6 +35,7 @@ from .serializers import (
     ExportTemplateSerializer,
     IXAPIAccountSerializer,
     IXAPISerializer,
+    ObjectChangeSerializer,
     TagSerializer,
     WebhookSerializer,
 )
@@ -153,6 +156,12 @@ class IXAPIViewSet(PeeringManagerModelViewSet):
         api.authenticate()
 
         return Response(data=api.customers.all())
+
+
+class ObjectChangeViewSet(PeeringManagerModelViewSet):
+    queryset = ObjectChange.objects.all()
+    serializer_class = ObjectChangeSerializer
+    filterset_class = ObjectChangeFilterSet
 
 
 class TagViewSet(PeeringManagerModelViewSet):

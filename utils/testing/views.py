@@ -3,8 +3,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from utils.enums import ObjectChangeAction
-from utils.models import ObjectChange
+from extras.enums import ObjectChangeAction
+from extras.models import ObjectChange
 
 from .base import ModelTestCase
 from .functions import disable_warnings, post_data

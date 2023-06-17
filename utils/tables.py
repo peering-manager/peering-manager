@@ -1,5 +1,4 @@
 import django_tables2 as tables
-from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import FieldDoesNotExist
@@ -7,32 +6,7 @@ from django.db.models.fields.related import RelatedField
 from django.utils.safestring import mark_safe
 
 from .functions import content_type_identifier, content_type_name
-from .models import ObjectChange
 from .paginators import EnhancedPaginator, get_paginate_count
-
-OBJECT_CHANGE_ACTION = """
-{% if record.action == "create" %}
-<span class="badge badge-success">Created</span>
-{% elif record.action == "update" %}
-<span class="badge badge-primary">Updated</span>
-{% elif record.action == "delete" %}
-<span class="badge badge-danger">Deleted</span>
-{% endif %}
-"""
-
-OBJECT_CHANGE_OBJECT = """
-{% if record.action != 3 and record.changed_object.get_absolute_url %}
-<a href="{{ record.changed_object.get_absolute_url }}">{{ record.object_repr }}</a>
-{% elif record.action != 3 and record.related_object.get_absolute_url %}
-<a href="{{ record.related_object.get_absolute_url }}">{{ record.object_repr }}</a>
-{% else %}
-{{ record.object_repr }}
-{% endif %}
-"""
-
-OBJECT_CHANGE_REQUEST_ID = """
-<a href="{% url 'utils:objectchange_list' %}?request_id={{ value }}">{{ value }}</a>
-"""
 
 
 def linkify_phone(value):
@@ -302,37 +276,6 @@ class ContentTypeColumn(tables.Column):
         if value is None:
             return None
         return content_type_identifier(value)
-
-
-class ObjectChangeTable(BaseTable):
-    time = tables.DateTimeColumn(linkify=True, format=settings.SHORT_DATETIME_FORMAT)
-    action = tables.TemplateColumn(template_code=OBJECT_CHANGE_ACTION)
-    changed_object_type = tables.Column(verbose_name="Type")
-    object_repr = tables.TemplateColumn(
-        template_code=OBJECT_CHANGE_OBJECT, verbose_name="Object"
-    )
-    request_id = tables.TemplateColumn(
-        template_code=OBJECT_CHANGE_REQUEST_ID, verbose_name="Request ID"
-    )
-
-    class Meta(BaseTable.Meta):
-        model = ObjectChange
-        fields = (
-            "time",
-            "user_name",
-            "action",
-            "changed_object_type",
-            "object_repr",
-            "request_id",
-        )
-        default_columns = (
-            "time",
-            "user_name",
-            "action",
-            "changed_object_type",
-            "object_repr",
-            "request_id",
-        )
 
 
 class SelectColumn(tables.CheckBoxColumn):

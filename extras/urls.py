@@ -1,7 +1,5 @@
 from django.urls import path
 
-from utils.views import ObjectChangeLog
-
 from . import models, views
 
 app_name = "extras"
@@ -40,7 +38,7 @@ urlpatterns = [
     ),
     path(
         "extras/config-contexts/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
+        views.ObjectChangeLog.as_view(),
         name="configcontext_changelog",
         kwargs={"model": models.ConfigContext},
     ),
@@ -93,7 +91,7 @@ urlpatterns = [
     ),
     path(
         "extras/export-templates/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
+        views.ObjectChangeLog.as_view(),
         name="exporttemplate_changelog",
         kwargs={"model": models.ExportTemplate},
     ),
@@ -107,9 +105,16 @@ urlpatterns = [
     ),
     path(
         "ix-api/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
+        views.ObjectChangeLog.as_view(),
         name="ixapi_changelog",
         kwargs={"model": models.IXAPI},
+    ),
+    # Change logging
+    path("changelog/", views.ObjectChangeList.as_view(), name="objectchange_list"),
+    path(
+        "changelog/<int:pk>/",
+        views.ObjectChangeView.as_view(),
+        name="objectchange_view",
     ),
     # Tags
     path("tags/", views.TagList.as_view(), name="tag_list"),

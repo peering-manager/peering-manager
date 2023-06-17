@@ -6,6 +6,8 @@ from utils.enums import Colour
 from utils.forms.fields import ColorField
 from utils.models import ChangeLoggedMixin
 
+__all__ = ("Tag", "TaggedItem")
+
 
 class Tag(TagBase, ChangeLoggedMixin):
     color = ColorField(default=Colour.GREY)

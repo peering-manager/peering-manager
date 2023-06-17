@@ -19,3 +19,15 @@ class HttpMethod(ChoiceSet):
         (PATCH, "PATCH"),
         (DELETE, "DELETE"),
     )
+
+
+class ObjectChangeAction(ChoiceSet):
+    CREATE = "create"
+    UPDATE = "update"
+    DELETE = "delete"
+
+    CHOICES = (
+        (CREATE, "Created", "success"),
+        (UPDATE, "Updated", "warning"),
+        (DELETE, "Deleted", "danger"),
+    )

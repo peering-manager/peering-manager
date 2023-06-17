@@ -49,7 +49,6 @@ class APIRootView(APIView):
                     APIRootView.get_namespace("peering", request, format),
                     APIRootView.get_namespace("peeringdb", request, format),
                     APIRootView.get_namespace("users", request, format),
-                    APIRootView.get_namespace("utils", request, format),
                     ("status", reverse("api-status", request=request, format=format)),
                 )
             )

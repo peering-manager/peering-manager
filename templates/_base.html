@@ -171,7 +171,7 @@
               <a href="{% url 'core:job_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/jobs/' %} active{% endif %}">
                 <span class="ml-4">Jobs</span>
               </a>
-              <a href="{% url 'utils:objectchange_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/changelog/' %} active{% endif %}">
+              <a href="{% url 'extras:objectchange_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/changelog/' %} active{% endif %}">
                 <span class="ml-4">Change Log</span>
               </a>
             </div>
