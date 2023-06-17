@@ -152,7 +152,7 @@ class ContactBulkDelete(BulkDeleteView):
 
 
 class ContactAssignmentEditView(ObjectEditView):
-    permission_required = "messaging.edit_contactassignment"
+    permission_required = "messaging.change_contactassignment"
     queryset = ContactAssignment.objects.all()
     model_form = ContactAssignmentForm
     template_name = "messaging/contactassignment/add_edit.html"
