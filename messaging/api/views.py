@@ -1,19 +1,20 @@
 from rest_framework.routers import APIRootView
 
-from messaging.api.serializers import (
-    ContactAssignmentSerializer,
-    ContactRoleSerializer,
-    ContactSerializer,
-    EmailSerializer,
-)
-from messaging.filters import (
+from peering_manager.api.viewsets import PeeringManagerModelViewSet
+
+from ..filtersets import (
     ContactAssignmentFilterSet,
     ContactFilterSet,
     ContactRoleFilterSet,
     EmailFilterSet,
 )
-from messaging.models import Contact, ContactAssignment, ContactRole, Email
-from peering_manager.api.viewsets import PeeringManagerModelViewSet
+from ..models import Contact, ContactAssignment, ContactRole, Email
+from .serializers import (
+    ContactAssignmentSerializer,
+    ContactRoleSerializer,
+    ContactSerializer,
+    EmailSerializer,
+)
 
 
 class MessagingRootView(APIRootView):

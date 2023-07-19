@@ -3,6 +3,8 @@ from django.db import models
 
 from .constants import VLAN_MAX, VLAN_MIN
 
+__all__ = ("VLANField",)
+
 
 class VLANField(models.PositiveSmallIntegerField):
     description = "Ethernet VLAN field"

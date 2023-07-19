@@ -3,9 +3,10 @@ from unittest.mock import patch
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
-from extras.models import IXAPI, ExportTemplate
 from peering.models import AutonomousSystem
 from utils.testing import MockedResponse
+
+from ..models import IXAPI, ExportTemplate
 
 
 class ExportTemplateTest(TestCase):

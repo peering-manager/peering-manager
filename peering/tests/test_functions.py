@@ -2,8 +2,8 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
-from peering import call_irr_as_set_resolver, parse_irr_as_set
-from peering.tests.mocked_data import *
+from .. import call_irr_as_set_resolver, parse_irr_as_set
+from .mocked_data import *
 
 
 class IRRASSetFunctions(TestCase):

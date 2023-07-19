@@ -12,17 +12,17 @@ from devices.crypto.cisco import MAGIC as CISCO_MAGIC
 from net.enums import ConnectionStatus
 from net.models import Connection
 from peering.enums import BGPGroupStatus, BGPSessionStatus, DeviceStatus, IPFamily
-from peering.models.abstracts import BGPSession
-from peering.models.models import (
+from peering.models import (
     AutonomousSystem,
     BGPGroup,
+    BGPSession,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
 )
+from peering_manager.models.features import ConfigContextMixin, TagsMixin
 from utils.functions import get_key_in_hash, serialize_object
-from utils.models import ConfigContextMixin, TagsMixin
 
 
 def ipv4(value):

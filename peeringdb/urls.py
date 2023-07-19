@@ -6,7 +6,5 @@ app_name = "peeringdb"
 
 urlpatterns = [
     # PeeringDB Cache
-    path(
-        "peeringdb/cache/", views.CacheManagementView.as_view(), name="cache_management"
-    ),
+    path("cache/", views.CacheManagementView.as_view(), name="cache_management"),
 ]

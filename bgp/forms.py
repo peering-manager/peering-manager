@@ -1,18 +1,26 @@
-from django import forms
+from taggit.forms import TagField
 
-from bgp.models import Relationship
-from utils.forms import BootstrapMixin
-from utils.forms.fields import SlugField
+from peering_manager.forms import (
+    PeeringManagerModelFilterSetForm,
+    PeeringManagerModelForm,
+)
+from utils.forms.fields import SlugField, TagFilterField
+
+from .models import Relationship
+
+__all__ = ("RelationshipForm", "RelationshipFilterForm")
 
 
-class RelationshipForm(BootstrapMixin, forms.ModelForm):
+class RelationshipForm(PeeringManagerModelForm):
     slug = SlugField()
+    tags = TagField(required=False)
+    fieldsets = (("Relationship", ("name", "slug", "description", "color")),)
 
     class Meta:
         model = Relationship
-        fields = ["name", "slug", "description", "color"]
+        fields = "__all__"
 
 
-class RelationshipFilterForm(BootstrapMixin, forms.Form):
+class RelationshipFilterForm(PeeringManagerModelFilterSetForm):
     model = Relationship
-    q = forms.CharField(required=False, label="Search")
+    tag = TagFilterField(model)

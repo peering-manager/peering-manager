@@ -1,9 +1,10 @@
 from rest_framework.routers import APIRootView
 
-from bgp.api.serializers import RelationshipSerializer
-from bgp.filters import RelationshipFilterSet
-from bgp.models import Relationship
 from peering_manager.api.viewsets import PeeringManagerModelViewSet
+
+from ..filtersets import RelationshipFilterSet
+from ..models import Relationship
+from .serializers import RelationshipSerializer
 
 
 class BGPRootView(APIRootView):

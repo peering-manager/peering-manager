@@ -29,6 +29,8 @@ from .models import (
     Synchronisation,
 )
 
+__all__ = ("NAMESPACES", "PeeringDB")
+
 # Order matters for caching data locally
 NAMESPACES = {
     "org": Organization,
@@ -49,7 +51,7 @@ NAMESPACES = {
 logger = logging.getLogger("peering.manager.peeringdb")
 
 
-class PeeringDB(object):
+class PeeringDB:
     """
     Class used to interact with the PeeringDB API.
     """

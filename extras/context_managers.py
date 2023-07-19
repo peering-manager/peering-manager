@@ -1,7 +1,8 @@
 from contextlib import contextmanager
 
-from extras.webhooks import flush_webhooks
 from peering_manager.context import current_request, webhooks_queue
+
+from .webhooks import flush_webhooks
 
 
 @contextmanager

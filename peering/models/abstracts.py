@@ -5,29 +5,21 @@ from django.db import models
 from django.utils.safestring import mark_safe
 from netfields import InetAddressField, NetManager
 
-from peering.enums import BGPGroupStatus, BGPSessionStatus, BGPState, IPFamily
-from peering.fields import TTLField
-from utils.models import (
-    ChangeLoggedMixin,
-    ConfigContextMixin,
-    ExportTemplatesMixin,
-    TagsMixin,
-)
+from peering_manager.models import OrganisationalModel, PrimaryModel
 
+from ..enums import BGPGroupStatus, BGPSessionStatus, BGPState, IPFamily
+from ..fields import TTLField
 from .mixins import PolicyMixin
 
+__all__ = ("AbstractGroup", "BGPSession", "Template")
 
-class AbstractGroup(
-    ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, PolicyMixin, TagsMixin
-):
-    name = models.CharField(max_length=128)
-    slug = models.SlugField(unique=True, max_length=255)
+
+class AbstractGroup(OrganisationalModel, PolicyMixin):
     status = models.CharField(
         max_length=50,
         choices=BGPGroupStatus,
         default=BGPGroupStatus.ENABLED,
     )
-    comments = models.TextField(blank=True)
     import_routing_policies = models.ManyToManyField(
         "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
     )
@@ -38,7 +30,6 @@ class AbstractGroup(
 
     class Meta:
         abstract = True
-        ordering = ["name", "slug"]
 
     def export_policies(self):
         return self.export_routing_policies.all()
@@ -77,9 +68,7 @@ class AbstractGroup(
             router.poll_bgp_sessions()
 
 
-class BGPSession(
-    ChangeLoggedMixin, ConfigContextMixin, ExportTemplatesMixin, PolicyMixin, TagsMixin
-):
+class BGPSession(PrimaryModel, PolicyMixin):
     """
     Abstract class used to define common caracteristics of BGP sessions.
 
@@ -141,7 +130,6 @@ class BGPSession(
     received_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     advertised_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     last_established_state = models.DateTimeField(blank=True, null=True)
-    comments = models.TextField(blank=True)
 
     objects = NetManager()
     logger = logging.getLogger("peering.manager.peering")
@@ -311,8 +299,8 @@ class BGPSession(
         return True
 
 
-class Template(ChangeLoggedMixin, TagsMixin):
-    name = models.CharField(max_length=128)
+class Template(PrimaryModel):
+    name = models.CharField(max_length=100)
     template = models.TextField()
     jinja2_trim = models.BooleanField(
         default=False, help_text="Removes new line after tag"
@@ -320,7 +308,6 @@ class Template(ChangeLoggedMixin, TagsMixin):
     jinja2_lstrip = models.BooleanField(
         default=False, help_text="Strips whitespaces before block"
     )
-    comments = models.TextField(blank=True)
 
     class Meta:
         abstract = True

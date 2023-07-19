@@ -18,6 +18,14 @@
           <td>{{ instance.name }}</td>
         </tr>
         <tr>
+          <td>Slug</td>
+          <td>{{ instance.slug }}</td>
+        </tr>
+        <tr>
+          <td>Description</td>
+          <td>{{ instance.description|render_none }}</td>
+        </tr>
+        <tr>
           <td>Status</td>
           <td>{{ instance | status_as_badge }}</td>
         </tr>

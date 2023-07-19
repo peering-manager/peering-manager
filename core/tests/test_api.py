@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from rest_framework import status
 
-from utils.testing import APITestCase, StandardAPITestCases
+from utils.testing import APITestCase, APIViewTestCases
 
 from ..models import Job
 
@@ -15,7 +15,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class JobTest(StandardAPITestCases.GetObjectView, StandardAPITestCases.ListObjectsView):
+class JobTest(APIViewTestCases.GetObjectView, APIViewTestCases.ListObjectsView):
     model = Job
     test_list_objects_brief = None
 

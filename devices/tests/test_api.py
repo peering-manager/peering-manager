@@ -3,8 +3,9 @@ from unittest.mock import patch
 from django.urls import reverse
 from rest_framework import status
 
-from devices.models import Configuration, Platform
-from utils.testing import APITestCase, StandardAPITestCases
+from utils.testing import APITestCase, APIViewTestCases
+
+from ..models import *
 
 
 class AppTest(APITestCase):
@@ -13,7 +14,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class ConfigurationTest(StandardAPITestCases.View):
+class ConfigurationTest(APIViewTestCases.View):
     model = Configuration
     brief_fields = ["id", "url", "display", "name"]
     create_data = [
@@ -34,7 +35,7 @@ class ConfigurationTest(StandardAPITestCases.View):
         )
 
 
-class PlatformTest(StandardAPITestCases.View):
+class PlatformTest(APIViewTestCases.View):
     model = Platform
     brief_fields = ["id", "url", "display", "name", "slug"]
     create_data = [

@@ -1,0 +1,49 @@
+{% load form_helpers %}
+
+{% if form.fieldsets %}
+{# Render hidden fields #}
+{% for field in form.hidden_fields %}
+{{ field }}
+{% endfor %}
+
+{# Render grouped fields according to Form #}
+{% for group, fields in form.fieldsets %}
+<div class="card mb-2">
+  {% if group %}
+  <div class="card-header"><strong>{{ group }}</strong></div>
+  {% endif %}
+  <div class="card-body">
+    {% for name in fields %}
+    {% with field=form|getfield:name %}
+    {% if field and not field.field.widget.is_hidden %}
+    {% render_field field %}
+    {% endif %}
+    {% endwith %}
+    {% endfor %}
+  </div>
+</div>
+{% endfor %}
+{% if form.tags %}
+<div class="card mb-2">
+  <div class="card-header"><strong>Tags</strong></div>
+  <div class="card-body">
+    {% render_field form.tags %}
+  </div>
+</div>
+{% endif %}
+{% if form.comments %}
+<div class="card mb-2">
+  <div class="card-header"><strong>Comments</strong></div>
+  <div class="card-body">
+    {% render_field form.comments %}
+  </div>
+</div>
+{% endif %}
+{% else %}
+{# Render all fields in a single group #}
+<div class="card mb-2">
+  <div class="card-body">
+    {% render_form form %}
+  </div>
+</div>
+{% endif %}

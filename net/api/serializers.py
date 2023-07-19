@@ -1,5 +1,5 @@
-from net.enums import ConnectionStatus
-from net.models import Connection
+from rest_framework import serializers
+
 from peering.api.nested_serializers import (
     NestedInternetExchangeSerializer,
     NestedRouterSerializer,
@@ -7,6 +7,8 @@ from peering.api.nested_serializers import (
 from peering_manager.api.fields import ChoiceField
 from peering_manager.api.serializers import PeeringManagerModelSerializer
 
+from ..enums import ConnectionStatus
+from ..models import Connection
 from .nested_serializers import *
 
 __all__ = ("ConnectionSerializer", "NestedConnectionSerializer")
@@ -37,4 +39,6 @@ class ConnectionSerializer(PeeringManagerModelSerializer):
             "local_context_data",
             "comments",
             "tags",
+            "created",
+            "updated",
         ]

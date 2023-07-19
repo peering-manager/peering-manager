@@ -15,6 +15,11 @@ from extras.workers import generate_signature, process_webhook
 from peering.models import AutonomousSystem
 from utils.testing import APITestCase
 
+from ..enums import ObjectChangeAction
+from ..models import Tag, Webhook
+from ..webhooks import enqueue_object, flush_webhooks, generate_signature
+from ..workers import generate_signature, process_webhook
+
 
 class WebhookTest(APITestCase):
     def setUp(self):

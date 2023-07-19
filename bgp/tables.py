@@ -1,16 +1,17 @@
 import django_tables2 as tables
 
-from bgp.models import Relationship
-from utils.tables import BaseTable, ButtonsColumn, ColourColumn, SelectColumn
+from peering_manager.tables import PeeringManagerTable, columns
+
+from .models import Relationship
+
+__all__ = ("RelationshipTable",)
 
 
-class RelationshipTable(BaseTable):
-    pk = SelectColumn()
+class RelationshipTable(PeeringManagerTable):
     name = tables.Column(linkify=True)
-    color = ColourColumn()
-    actions = ButtonsColumn(Relationship, buttons=("edit", "delete"))
+    color = columns.ColourColumn()
 
-    class Meta(BaseTable.Meta):
+    class Meta(PeeringManagerTable.Meta):
         model = Relationship
-        fields = ("pk", "name", "slug", "description", "color", "actions")
+        fields = ("pk", "id", "name", "slug", "description", "color", "actions")
         default_columns = ("pk", "name", "color", "actions")

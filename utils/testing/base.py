@@ -12,12 +12,13 @@ from requests.models import HTTPError
 from rest_framework import status
 from taggit.managers import TaggableManager
 
-from utils.functions import content_type_identifier
-
+from ..functions import content_type_identifier
 from .functions import extract_form_failures
 
+__all__ = ("MockedResponse", "TestCase", "ModelTestCase")
 
-class MockedResponse(object):
+
+class MockedResponse:
     def __init__(
         self, status_code=status.HTTP_200_OK, ok=True, fixture=None, content=None
     ):

@@ -3,9 +3,10 @@ from django.test import TestCase
 from bgp.models import Relationship
 from messaging.models import Email
 from net.models import Connection
-from peering.constants import *
-from peering.enums import CommunityType, DeviceStatus, RoutingPolicyType
-from peering.forms import (
+
+from ..constants import *
+from ..enums import CommunityType, DeviceStatus, RoutingPolicyType
+from ..forms import (
     AutonomousSystemEmailForm,
     AutonomousSystemForm,
     CommunityForm,
@@ -15,7 +16,7 @@ from peering.forms import (
     RouterForm,
     RoutingPolicyForm,
 )
-from peering.models import AutonomousSystem, InternetExchange
+from ..models import AutonomousSystem, InternetExchange
 
 
 class AutonomousSystemTest(TestCase):

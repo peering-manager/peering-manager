@@ -2,8 +2,9 @@ from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 
-from peeringdb.models import Synchronisation
 from utils.testing import APITestCase
+
+from ..models import *
 
 
 class CacheTest(APITestCase):

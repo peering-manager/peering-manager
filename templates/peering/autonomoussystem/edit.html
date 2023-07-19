@@ -1,0 +1,29 @@
+{% extends 'generic/edit.html' %}
+{% block javascript %}
+<script>
+  // Wait for user to focus out of the ASN field
+  $("#id_asn").focusout(function() {
+    var asn = $(this).val();
+    $.ajax({
+      type: "get",
+      dataType: "json",
+      url: "{% url 'peeringdb-api:network-list' %}?asn=" + asn,
+      beforeSend: function(xhr) {
+        $("#querying_indicator_id").removeClass("d-none");
+      },
+    }).done(function(response) {
+      if (!("results" in response) || response["results"].length < 1) {
+        return;
+      }
+
+      var d = response["results"][0];
+      $("#id_name").val(d["name"]);
+      $("#id_irr_as_set").val(d["irr_as_set"]);
+      $("#id_ipv6_max_prefixes").val(d["info_prefixes6"]);
+      $("#id_ipv4_max_prefixes").val(d["info_prefixes4"]);
+    }).always(function() {
+      $("#querying_indicator_id").addClass("d-none");
+    });
+  });
+</script>
+{% endblock %}

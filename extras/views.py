@@ -3,10 +3,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import View
-from django_tables2 import RequestConfig
 
+from extras.forms import ObjectChangeFilterForm
+from extras.tables import ObjectChangeTable
 from peering.models import InternetExchange
-from peering_manager.views.generics import (
+from peering_manager.views.generic import (
     BulkDeleteView,
     BulkEditView,
     ObjectDeleteView,
@@ -16,10 +17,8 @@ from peering_manager.views.generics import (
     PermissionRequiredMixin,
 )
 from utils.functions import shallow_compare_dict
-from utils.paginators import EnhancedPaginator, get_paginate_count
-from utils.tables import paginate_table
 
-from .filters import (
+from .filtersets import (
     ConfigContextFilterSet,
     ExportTemplateFilterSet,
     IXAPIFilterSet,
@@ -71,6 +70,7 @@ class ConfigContextListView(ObjectListView):
 class ConfigContextView(ObjectView):
     permission_required = "extras.view_configcontext"
     queryset = ConfigContext.objects.all()
+    tab = "main"
 
     def get_extra_context(self, request, instance):
         if request.GET.get("format") in ("json", "yaml"):
@@ -89,7 +89,7 @@ class ConfigContextView(ObjectView):
         )
         assignments_table = ConfigContextAssignmentTable(config_context_assignments)
         assignments_table.columns.hide("config_context")
-        paginate_table(assignments_table, request)
+        assignments_table.configure(request)
 
         return {
             "assignments_table": assignments_table,
@@ -97,22 +97,12 @@ class ConfigContextView(ObjectView):
                 config_context=instance
             ).count(),
             "configcontext_format": format,
-            "active_tab": "main",
         }
 
 
-class ConfigContextAddView(ObjectEditView):
-    permission_required = "extras.add_configcontext"
-    queryset = ConfigContext.objects.all()
-    model_form = ConfigContextForm
-    template_name = "extras/configcontext/add_edit.html"
-
-
 class ConfigContextEditView(ObjectEditView):
-    permission_required = "extras.change_configcontext"
     queryset = ConfigContext.objects.all()
-    model_form = ConfigContextForm
-    template_name = "extras/configcontext/add_edit.html"
+    form = ConfigContextForm
 
 
 class ConfigContextDeleteView(ObjectDeleteView):
@@ -130,7 +120,7 @@ class ConfigContextBulkDeleteView(BulkDeleteView):
 class ConfigContextAssignmentEditView(ObjectEditView):
     permission_required = "extras.edit_configcontextassignment"
     queryset = ConfigContextAssignment.objects.all()
-    model_form = ConfigContextAssignmentForm
+    form = ConfigContextAssignmentForm
     template_name = "extras/configcontextassignment/add_edit.html"
 
     def alter_object(self, instance, request, args, kwargs):
@@ -152,6 +142,7 @@ class ConfigContextAssignmentDeleteView(ObjectDeleteView):
 class ObjectConfigContextView(ObjectView):
     base_template = None
     template_name = "extras/object_configcontext.html"
+    tab = "config-context"
 
     def get_extra_context(self, request, instance):
         if request.GET.get("format") in ("json", "yaml"):
@@ -168,7 +159,6 @@ class ObjectConfigContextView(ObjectView):
         return {
             "configcontext_format": format,
             "base_template": self.base_template,
-            "active_tab": "config-context",
             "rendered_context": instance.get_config_context(),
         }
 
@@ -185,23 +175,12 @@ class ExportTemplateListView(ObjectListView):
 class ExportTemplateView(ObjectView):
     permission_required = "extras.view_exporttemplate"
     queryset = ExportTemplate.objects.all()
-
-    def get_extra_context(self, request, instance):
-        return {"active_tab": "main"}
-
-
-class ExportTemplateAddView(ObjectEditView):
-    permission_required = "extras.add_exporttemplate"
-    queryset = ExportTemplate.objects.all()
-    model_form = ExportTemplateForm
-    template_name = "extras/exporttemplate/add_edit.html"
+    tab = "main"
 
 
 class ExportTemplateEditView(ObjectEditView):
-    permission_required = "extras.change_exporttemplate"
     queryset = ExportTemplate.objects.all()
-    model_form = ExportTemplateForm
-    template_name = "extras/exporttemplate/add_edit.html"
+    form = ExportTemplateForm
 
 
 class ExportTemplateDeleteView(ObjectDeleteView):
@@ -228,28 +207,20 @@ class IXAPIListView(ObjectListView):
 class IXAPIView(ObjectView):
     permission_required = "extras.view_ixapi"
     queryset = IXAPI.objects.all()
+    tab = "main"
 
     def get_extra_context(self, request, instance):
         return {
             "internet_exchange_points": InternetExchange.objects.filter(
                 ixapi_endpoint=instance
-            ),
-            "active_tab": "main",
+            )
         }
 
 
-class IXAPIAddView(ObjectEditView):
-    permission_required = "extras.add_ixapi"
-    queryset = IXAPI.objects.all()
-    model_form = IXAPIForm
-    template_name = "extras/ixapi/add_edit.html"
-
-
 class IXAPIEditView(ObjectEditView):
-    permission_required = "extras.change_ixapi"
     queryset = IXAPI.objects.all()
-    model_form = IXAPIForm
-    template_name = "extras/ixapi/add_edit.html"
+    form = IXAPIForm
+    template_name = "extras/ixapi/edit.html"
 
 
 class IXAPIDeleteView(ObjectDeleteView):
@@ -266,47 +237,6 @@ class ObjectChangeList(ObjectListView):
     filterset_form = ObjectChangeFilterForm
     table = ObjectChangeTable
     template_name = "extras/object_change/list.html"
-
-
-class ObjectChangeLog(View):
-    def get(self, request, model, **kwargs):
-        # Get object by model and kwargs (like asn=64500)
-        obj = get_object_or_404(model, **kwargs)
-
-        # Gather all changes for this object (and its related objects)
-        content_type = ContentType.objects.get_for_model(model)
-        objectchanges = ObjectChange.objects.select_related(
-            "user", "changed_object_type"
-        ).filter(
-            Q(changed_object_type=content_type, changed_object_id=obj.pk)
-            | Q(related_object_type=content_type, related_object_id=obj.pk)
-        )
-        objectchanges_table = ObjectChangeTable(data=objectchanges, orderable=False)
-
-        # Apply the request context
-        paginate = {
-            "paginator_class": EnhancedPaginator,
-            "per_page": get_paginate_count(request),
-        }
-        RequestConfig(request, paginate).configure(objectchanges_table)
-
-        # Check whether a header template exists for this model
-        base_template = f"{model._meta.app_label}/{model._meta.model_name}/_base.html"
-        try:
-            template.loader.get_template(base_template)
-        except template.TemplateDoesNotExist:
-            base_template = "_base.html"
-
-        return render(
-            request,
-            "extras/object_change/log.html",
-            {
-                "instance": obj,
-                "table": objectchanges_table,
-                "base_template": base_template,
-                "active_tab": "changelog",
-            },
-        )
 
 
 class ObjectChangeView(PermissionRequiredMixin, View):
@@ -388,11 +318,12 @@ class TagList(ObjectListView):
 class TagView(ObjectView):
     permission_required = "extras.view_tag"
     queryset = Tag.objects.all()
+    tab = "main"
 
     def get_extra_context(self, request, instance):
         tagged_items = TaggedItem.objects.filter(tag=instance)
         taggeditem_table = TaggedItemTable(data=tagged_items, orderable=False)
-        paginate_table(taggeditem_table, request)
+        taggeditem_table.configure(request)
 
         object_types = [
             {
@@ -412,17 +343,13 @@ class TagView(ObjectView):
 
 
 class TagAdd(ObjectEditView):
-    permission_required = "extras.add_tag"
     queryset = Tag.objects.all()
-    model_form = TagForm
-    template_name = "extras/tag/add_edit.html"
+    form = TagForm
 
 
 class TagEdit(ObjectEditView):
-    permission_required = "extras.change_tag"
     queryset = Tag.objects.all()
-    model_form = TagForm
-    template_name = "extras/tag/add_edit.html"
+    form = TagForm
 
 
 class TagBulkEdit(BulkEditView):
@@ -430,7 +357,7 @@ class TagBulkEdit(BulkEditView):
     queryset = Tag.objects.annotate(
         items=Count("extras_taggeditem_items", distinct=True)
     ).order_by("name")
-    filter = TagFilterSet
+    filterset = TagFilterSet
     table = TagTable
     form = TagBulkEditForm
 

@@ -10,7 +10,25 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from taggit.managers import _TaggableManager
 
-from utils.templatetags.helpers import title_with_uppers
+from .templatetags.helpers import title_with_uppers
+
+__all__ = (
+    "dict_to_filter_params",
+    "normalize_querydict",
+    "generate_signature",
+    "sha256_hash",
+    "is_taggable",
+    "count_related",
+    "serialize_object",
+    "shallow_compare_dict",
+    "content_type_name",
+    "content_type_identifier",
+    "get_permission_for_model",
+    "get_viewname",
+    "handle_protectederror",
+    "get_key_in_hash",
+    "merge_hash",
+)
 
 
 def dict_to_filter_params(d, prefix=""):
@@ -51,6 +69,14 @@ def generate_signature(data, secret):
     """
     signature = hmac.new(key=secret.encode("utf8"), msg=data, digestmod=hashlib.sha512)
     return signature.hexdigest()
+
+
+def sha256_hash(filepath):
+    """
+    Returns the SHA256 hash of the file at the specified path.
+    """
+    with open(filepath, "rb") as f:
+        return hashlib.sha256(f.read())
 
 
 def is_taggable(instance):
@@ -154,6 +180,30 @@ def get_permission_for_model(model, action):
         raise ValueError(f"Unsupported action: {action}")
 
     return f"{model._meta.app_label}.{action}_{model._meta.model_name}"
+
+
+def get_viewname(model, action=None, rest_api=False):
+    """
+    Return the view name for the given model and action, if valid.
+    """
+    app_label = model._meta.app_label
+    model_name = model._meta.model_name
+
+    if rest_api:
+        # Alter the app_label for group and user model_name to point to users app
+        if app_label == "auth" and model_name in ["group", "user"]:
+            app_label = "users"
+        viewname = f"{app_label}-api:{model_name}"
+        # Append the action, if any
+        if action:
+            viewname = f"{viewname}-{action}"
+    else:
+        viewname = f"{app_label}:{model_name}"
+        # Append the action, if any
+        if action:
+            viewname = f"{viewname}_{action}"
+
+    return viewname
 
 
 def handle_protectederror(obj_list, request, e):

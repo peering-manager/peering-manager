@@ -1,5 +1,4 @@
-from devices.enums import PasswordAlgorithm
-
+from ..enums import PasswordAlgorithm
 from .cisco import decrypt as cisco_type7_decrypt
 from .cisco import encrypt as cisco_type7_encrypt
 from .juniper import decrypt as juniper_type9_decrypt

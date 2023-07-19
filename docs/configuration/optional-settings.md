@@ -149,7 +149,7 @@ impact on its performances)
 
 ---
 
-## JOBRESULT_RETENTION
+## JOB_RETENTION
 
 Default: `90`
 

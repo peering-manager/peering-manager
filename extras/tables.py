@@ -1,14 +1,7 @@
 import django_tables2 as tables
 from django.conf import settings
 
-from utils.tables import (
-    BaseTable,
-    BooleanColumn,
-    ButtonsColumn,
-    ColourColumn,
-    ContentTypeColumn,
-    SelectColumn,
-)
+from peering_manager.tables import PeeringManagerTable, columns
 
 from .models import (
     IXAPI,
@@ -45,27 +38,25 @@ OBJECT_CHANGE_REQUEST_ID = """
 """
 
 
-class ConfigContextTable(BaseTable):
-    pk = SelectColumn()
+class ConfigContextTable(PeeringManagerTable):
     name = tables.Column(linkify=True)
-    is_active = BooleanColumn(verbose_name="Active")
-    actions = ButtonsColumn(ConfigContext)
+    is_active = columns.BooleanColumn(verbose_name="Active")
 
-    class Meta(BaseTable.Meta):
+    class Meta(PeeringManagerTable.Meta):
         model = ConfigContext
-        fields = ("pk", "name", "description", "is_active")
+        fields = ("pk", "id", "name", "description", "is_active")
         default_columns = ("name", "description", "is_active")
 
 
-class ConfigContextAssignmentTable(BaseTable):
-    content_type = ContentTypeColumn(verbose_name="Object Type")
+class ConfigContextAssignmentTable(PeeringManagerTable):
+    content_type = columns.ContentTypeColumn(verbose_name="Object Type")
     object = tables.Column(linkify=True, orderable=False)
     config_context = tables.Column(linkify=True)
-    actions = ButtonsColumn(model=ConfigContextAssignment, buttons=("edit", "delete"))
+    actions = columns.ActionsColumn(actions=("edit", "delete"))
 
-    class Meta(BaseTable.Meta):
+    class Meta(PeeringManagerTable.Meta):
         model = ConfigContextAssignment
-        fields = ("content_type", "object", "config_context", "weight", "actions")
+        fields = ("id", "content_type", "object", "config_context", "weight", "actions")
         default_columns = (
             "content_type",
             "object",
@@ -75,17 +66,22 @@ class ConfigContextAssignmentTable(BaseTable):
         )
 
 
-class ExportTemplateTable(BaseTable):
-    pk = SelectColumn()
-    content_type = ContentTypeColumn()
+class ExportTemplateTable(PeeringManagerTable):
+    content_type = columns.ContentTypeColumn()
     name = tables.Column(linkify=True)
-    jinja2_trim = BooleanColumn(verbose_name="Trim")
-    jinja2_lstrip = BooleanColumn(verbose_name="Lstrip")
-    actions = ButtonsColumn(ExportTemplate)
+    jinja2_trim = columns.BooleanColumn(verbose_name="Trim")
+    jinja2_lstrip = columns.BooleanColumn(verbose_name="Lstrip")
 
-    class Meta(BaseTable.Meta):
+    class Meta(PeeringManagerTable.Meta):
         model = ExportTemplate
-        fields = ("name", "content_type", "description", "jinja2_trim", "jinja2_lstrip")
+        fields = (
+            "id",
+            "name",
+            "content_type",
+            "description",
+            "jinja2_trim",
+            "jinja2_lstrip",
+        )
         default_columns = (
             "name",
             "content_type",
@@ -95,18 +91,17 @@ class ExportTemplateTable(BaseTable):
         )
 
 
-class IXAPITable(BaseTable):
+class IXAPITable(PeeringManagerTable):
     name = tables.Column(linkify=True)
     url = tables.URLColumn()
-    actions = ButtonsColumn(IXAPI)
 
-    class Meta(BaseTable.Meta):
+    class Meta(PeeringManagerTable.Meta):
         model = IXAPI
-        fields = ("name", "url", "api_key", "actions")
+        fields = ("id", "name", "url", "api_key", "actions")
         default_columns = ("name", "url", "api_key", "actions")
 
 
-class ObjectChangeTable(BaseTable):
+class ObjectChangeTable(PeeringManagerTable):
     time = tables.DateTimeColumn(linkify=True, format=settings.SHORT_DATETIME_FORMAT)
     action = tables.TemplateColumn(template_code=OBJECT_CHANGE_ACTION)
     changed_object_type = tables.Column(verbose_name="Type")
@@ -116,16 +111,19 @@ class ObjectChangeTable(BaseTable):
     request_id = tables.TemplateColumn(
         template_code=OBJECT_CHANGE_REQUEST_ID, verbose_name="Request ID"
     )
+    actions = columns.ActionsColumn(actions=())
 
-    class Meta(BaseTable.Meta):
+    class Meta(PeeringManagerTable.Meta):
         model = ObjectChange
         fields = (
+            "pk",
+            "id",
             "time",
             "user_name",
-            "action",
             "changed_object_type",
             "object_repr",
             "request_id",
+            "action",
         )
         default_columns = (
             "time",
@@ -137,27 +135,26 @@ class ObjectChangeTable(BaseTable):
         )
 
 
-class TagTable(BaseTable):
-    pk = SelectColumn()
+class TagTable(PeeringManagerTable):
     name = tables.Column(linkify=True)
-    color = ColourColumn()
-    actions = ButtonsColumn(Tag, buttons=("edit", "delete"))
+    color = columns.ColourColumn()
 
-    class Meta(BaseTable.Meta):
+    class Meta(PeeringManagerTable.Meta):
         model = Tag
-        fields = ("pk", "name", "slug", "color", "items", "actions")
+        fields = ("pk", "id", "name", "slug", "color", "items", "actions")
         default_columns = ("pk", "name", "color", "items", "actions")
 
 
-class TaggedItemTable(BaseTable):
+class TaggedItemTable(PeeringManagerTable):
     id = tables.Column(
         verbose_name="ID",
         linkify=lambda record: record.content_object.get_absolute_url(),
         accessor="content_object__id",
     )
-    content_type = ContentTypeColumn(verbose_name="Type")
+    content_type = columns.ContentTypeColumn(verbose_name="Type")
     content_object = tables.Column(linkify=True, orderable=False, verbose_name="Object")
+    actions = columns.ActionsColumn(actions=())
 
-    class Meta(BaseTable.Meta):
+    class Meta(PeeringManagerTable.Meta):
         model = TaggedItem
         fields = ("id", "content_type", "content_object")

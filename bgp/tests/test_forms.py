@@ -1,7 +1,8 @@
 from django.test import TestCase
 
-from bgp.forms import RelationshipForm
 from utils.enums import Colour
+
+from ..forms import *
 
 
 class Relationshipest(TestCase):

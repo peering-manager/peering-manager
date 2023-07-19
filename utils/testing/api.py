@@ -8,6 +8,8 @@ from users.models import Token
 
 from .base import ModelTestCase
 
+__all__ = ("APITestCase", "APIViewTestCases")
+
 
 class APITestCase(ModelTestCase):
     client_class = APIClient
@@ -35,7 +37,7 @@ class APITestCase(ModelTestCase):
         return reverse(viewname)
 
 
-class StandardAPITestCases:
+class APIViewTestCases:
     class GetObjectView(APITestCase):
         @override_settings(LOGIN_REQUIRED=False)
         def test_get_object_anonymous(self):

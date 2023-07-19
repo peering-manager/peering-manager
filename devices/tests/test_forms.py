@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from devices.forms import ConfigurationForm, PlatformForm
+from ..forms import *
 
 
 class ConfigurationTest(TestCase):

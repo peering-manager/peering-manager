@@ -3,7 +3,7 @@
         "asn": "201281",
         "name": "Guillaume Mazoyer",
         "comment": "The developer of Peering Manager",
-        "irr_as_set": "RIPE::AS-MAZOYER-EU",
+        "irr_as_set": "RIPE::AS201281:AS-MAZOYER-EU",
         "irr_as_set_peeringdb_sync": true,
         "ipv6_max_prefixes": "5",
         "ipv6_max_prefixes_peeringdb_sync": true,

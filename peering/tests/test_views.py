@@ -2,13 +2,10 @@ import ipaddress
 
 from bgp.models import Relationship
 from net.models import Connection
-from peering.enums import (
-    BGPSessionStatus,
-    CommunityType,
-    DeviceStatus,
-    RoutingPolicyType,
-)
-from peering.models import (
+from utils.testing import ViewTestCases
+
+from ..enums import BGPSessionStatus, CommunityType, DeviceStatus, RoutingPolicyType
+from ..models import (
     AutonomousSystem,
     BGPGroup,
     Community,
@@ -18,7 +15,6 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from utils.testing import ViewTestCases
 
 
 class AutonomousSystemTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -76,7 +72,7 @@ class BGPGroupTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "comments": "",
             "tags": [],
         }
-        cls.bulk_edit_data = {"comments": "New comments"}
+        cls.bulk_edit_data = {"description": "New description"}
 
 
 class CommunityTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -100,7 +96,7 @@ class CommunityTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "comments": "",
             "tags": [],
         }
-        cls.bulk_edit_data = {"comments": "New comments"}
+        cls.bulk_edit_data = {"description": "New description"}
 
 
 class DirectPeeringSessionTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -204,7 +200,7 @@ class InternetExchangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "comments": "",
             "tags": [],
         }
-        cls.bulk_edit_data = {"comments": "New comments"}
+        cls.bulk_edit_data = {"description": "New description"}
 
 
 class InternetExchangePeeringSessionTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -357,4 +353,4 @@ class RoutingPolicyTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "comments": "",
             "tags": [],
         }
-        cls.bulk_edit_data = {"weight": 10, "comments": "New comments"}
+        cls.bulk_edit_data = {"weight": 10, "description": "New description"}

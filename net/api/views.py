@@ -1,9 +1,9 @@
 from rest_framework.routers import APIRootView
 
-from net.filters import ConnectionFilterSet
-from net.models import Connection
 from peering_manager.api.viewsets import PeeringManagerModelViewSet
 
+from ..filtersets import ConnectionFilterSet
+from ..models import Connection
 from .serializers import ConnectionSerializer
 
 

@@ -10,7 +10,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
-from core.enums import JobStatus, LogLevel
+from ..enums import JobStatus, LogLevel
 
 __all__ = ("Job",)
 
@@ -32,7 +32,7 @@ class Job(models.Model):
     object = GenericForeignKey(
         ct_field="object_type", fk_field="object_id", for_concrete_model=False
     )
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=200)
     created = models.DateTimeField(auto_now_add=True)
     started = models.DateTimeField(null=True, blank=True)
     completed = models.DateTimeField(blank=True, null=True)

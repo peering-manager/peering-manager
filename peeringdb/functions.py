@@ -1,5 +1,7 @@
 from .models import IXLan, IXLanPrefix, NetworkIXLan
 
+__all__ = ("get_shared_internet_exchanges",)
+
 
 def get_shared_internet_exchanges(as1, as2):
     """

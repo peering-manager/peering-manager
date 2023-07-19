@@ -6,13 +6,10 @@ from django.test import TestCase
 from bgp.models import Relationship
 from devices.models import PasswordAlgorithm, Platform
 from net.models import Connection
-from peering.enums import (
-    BGPSessionStatus,
-    CommunityType,
-    DeviceStatus,
-    RoutingPolicyType,
-)
-from peering.models import (
+from utils.testing import load_json
+
+from ..enums import BGPSessionStatus, CommunityType, DeviceStatus, RoutingPolicyType
+from ..models import (
     AutonomousSystem,
     BGPGroup,
     Community,
@@ -22,8 +19,7 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from peering.tests.mocked_data import load_peeringdb_data, mocked_subprocess_popen
-from utils.testing import load_json
+from .mocked_data import load_peeringdb_data, mocked_subprocess_popen
 
 
 class AutonomousSystemTest(TestCase):

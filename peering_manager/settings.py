@@ -66,7 +66,7 @@ RQ_DEFAULT_TIMEOUT = getattr(configuration, "RQ_DEFAULT_TIMEOUT", 300)
 CACHE_TIMEOUT = getattr(configuration, "CACHE_TIMEOUT", 0)
 CACHE_BGP_DETAIL_TIMEOUT = getattr(configuration, "CACHE_BGP_DETAIL_TIMEOUT", 900)
 CHANGELOG_RETENTION = getattr(configuration, "CHANGELOG_RETENTION", 90)
-JOBRESULT_RETENTION = getattr(configuration, "JOBRESULT_RETENTION", 90)
+JOB_RETENTION = getattr(configuration, "JOB_RETENTION", 90)
 LOGIN_REQUIRED = getattr(configuration, "LOGIN_REQUIRED", False)
 BANNER_LOGIN = getattr(configuration, "BANNER_LOGIN", "")
 NAPALM_USERNAME = getattr(configuration, "NAPALM_USERNAME", "")
@@ -352,8 +352,6 @@ CACHEOPS = {
     "peering.*": {"ops": "all"},
     "peeringdb.*": {"ops": "all"},
     "users.*": {"ops": "all"},
-    "utils.*": {"ops": "all"},
-    "webhooks.*": {"ops": "all"},
 }
 CACHEOPS_DEGRADE_ON_FAILURE = True
 

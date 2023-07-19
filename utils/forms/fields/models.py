@@ -3,12 +3,12 @@ from django import forms
 from django.forms import BoundField
 from django.urls import reverse
 
-from utils.forms.widgets import APISelect, APISelectMultiple
+from ...forms.widgets import APISelect, APISelectMultiple
 
 __all__ = ("DynamicModelChoiceField", "DynamicModelMultipleChoiceField")
 
 
-class DynamicModelChoiceMixin(object):
+class DynamicModelChoiceMixin:
     filter = django_filters.ModelChoiceFilter
     widget = APISelect
 

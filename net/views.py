@@ -1,9 +1,5 @@
 from extras.views import ObjectConfigContextView
-from net.filters import ConnectionFilterSet
-from net.forms import ConnectionBulkEditForm, ConnectionFilterForm, ConnectionForm
-from net.models import Connection
-from net.tables import ConnectionTable
-from peering_manager.views.generics import (
+from peering_manager.views.generic import (
     BulkDeleteView,
     BulkEditView,
     ObjectDeleteView,
@@ -11,6 +7,11 @@ from peering_manager.views.generics import (
     ObjectListView,
     ObjectView,
 )
+
+from .filtersets import ConnectionFilterSet
+from .forms import ConnectionBulkEditForm, ConnectionFilterForm, ConnectionForm
+from .models import Connection
+from .tables import ConnectionTable
 
 
 class ConnectionList(ObjectListView):
@@ -25,12 +26,10 @@ class ConnectionList(ObjectListView):
 class ConnectionView(ObjectView):
     permission_required = "net.view_connection"
     queryset = Connection.objects.all()
+    tab = "main"
 
     def get_extra_context(self, request, instance):
-        return {
-            "active_tab": "main",
-            "ixapi_network_service_config": instance.ixapi_network_service_config(),
-        }
+        return {"ixapi_network_service_config": instance.ixapi_network_service_config()}
 
 
 class ConnectionContext(ObjectConfigContextView):
@@ -39,18 +38,9 @@ class ConnectionContext(ObjectConfigContextView):
     base_template = "net/connection/_base.html"
 
 
-class ConnectionAdd(ObjectEditView):
-    permission_required = "net.add_connection"
-    queryset = Connection.objects.all()
-    model_form = ConnectionForm
-    template_name = "net/connection/add_edit.html"
-
-
 class ConnectionEdit(ObjectEditView):
-    permission_required = "net.change_connection"
     queryset = Connection.objects.all()
-    model_form = ConnectionForm
-    template_name = "net/connection/add_edit.html"
+    form = ConnectionForm
 
 
 class ConnectionBulkEdit(BulkEditView):
@@ -67,7 +57,6 @@ class ConnectionDelete(ObjectDeleteView):
 
 
 class ConnectionBulkDelete(BulkDeleteView):
-    permission_required = "net.delete_connection"
     queryset = Connection.objects.all()
     filterset = ConnectionFilterSet
     table = ConnectionTable

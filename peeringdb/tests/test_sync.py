@@ -3,8 +3,9 @@ from unittest.mock import patch
 from django.test import TestCase
 from django.utils import timezone
 
-from peeringdb.sync import NAMESPACES, PeeringDB
 from utils.testing import MockedResponse
+
+from ..sync import *
 
 
 def mocked_synchronisation(*args, **kwargs):

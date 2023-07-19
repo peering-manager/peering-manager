@@ -1,9 +1,10 @@
 from django.urls import reverse
 from rest_framework import status
 
-from bgp.models import Relationship
 from utils.enums import Colour
-from utils.testing import APITestCase, StandardAPITestCases
+from utils.testing import APITestCase, APIViewTestCases
+
+from ..models import *
 
 
 class AppTest(APITestCase):
@@ -12,7 +13,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class RelationshipTest(StandardAPITestCases.View):
+class RelationshipTest(APIViewTestCases.View):
     model = Relationship
     brief_fields = ["id", "url", "display", "name", "slug"]
     create_data = [

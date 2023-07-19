@@ -8,28 +8,26 @@ from drf_spectacular.views import (
 
 from peering_manager.admin import admin_site
 from peering_manager.api.views import APIRootView, StatusView
-from peering_manager.views import Home, SearchView, handle_500, trigger_500
+from peering_manager.views import HomeView, SearchView, trigger_500
 from users.views import LoginView, LogoutView
-
-handler500 = handle_500
 
 __patterns = [
     # Home
-    path("", Home.as_view(), name="home"),
+    path("", HomeView.as_view(), name="home"),
     # Global search
     path("search/", SearchView.as_view(), name="search"),
     # Login/Logout
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     # Apps
-    path("", include("bgp.urls")),
-    path("", include("core.urls")),
-    path("", include("devices.urls")),
-    path("", include("extras.urls")),
+    path("bgp/", include("bgp.urls")),
+    path("core/", include("core.urls")),
+    path("devices/", include("devices.urls")),
+    path("extras/", include("extras.urls")),
     path("", include("messaging.urls")),
-    path("", include("net.urls")),
+    path("net/", include("net.urls")),
     path("", include("peering.urls")),
-    path("", include("peeringdb.urls")),
+    path("peeringdb/", include("peeringdb.urls")),
     path("user/", include("users.urls")),
     # API
     path("api/", APIRootView.as_view(), name="api-root"),
@@ -85,3 +83,5 @@ if settings.METRICS_ENABLED:
 
 # Prepend BASE_PATH
 urlpatterns = [path(f"{settings.BASE_PATH}", include(__patterns))]
+
+handler500 = "peering_manager.views.errors.handler_500"

@@ -7,10 +7,11 @@ from django.urls import reverse
 
 from extras.context_managers import change_logging
 from utils.api import is_api_request, rest_api_server_error
-from utils.views import ServerError
+
+from .views import handler_500
 
 
-class ExceptionCatchingMiddleware(object):
+class ExceptionCatchingMiddleware:
     """
     Catch some exceptions which can give clues about some issues or
     instructions to the end-user.
@@ -42,10 +43,10 @@ class ExceptionCatchingMiddleware(object):
             template = "errors/import_error.html"
 
         if template:
-            return ServerError(request, template_name=template)
+            return handler_500(request, template_name=template)
 
 
-class LastSearchMiddleware(object):
+class LastSearchMiddleware:
     """
     Registers the last search done by a user in a session variable.
     """
@@ -64,7 +65,7 @@ class LastSearchMiddleware(object):
         return self.get_response(request)
 
 
-class ObjectChangeMiddleware(object):
+class ObjectChangeMiddleware:
     """
     Create ObjectChange objects to reflect modifications done to objects.
 
@@ -89,7 +90,7 @@ class ObjectChangeMiddleware(object):
         return response
 
 
-class RequireLoginMiddleware(object):
+class RequireLoginMiddleware:
     """
     Redirect all non-authenticated user to the login page if the LOGIN_REQUIRED
     setting has been set to true.

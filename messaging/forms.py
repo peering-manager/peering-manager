@@ -1,16 +1,22 @@
 from django import forms
 from taggit.forms import TagField
 
-from messaging.models import Contact, ContactAssignment, ContactRole, Email
-from utils.forms import AddRemoveTagsForm, BootstrapMixin, BulkEditForm, TagFilterField
+from peering_manager.forms import (
+    PeeringManagerModelBulkEditForm,
+    PeeringManagerModelFilterSetForm,
+    PeeringManagerModelForm,
+)
+from utils.forms import BootstrapMixin
 from utils.forms.fields import (
     CommentField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     SlugField,
+    TagFilterField,
     TemplateField,
 )
-from utils.forms.widgets import SmallTextarea
+
+from .models import Contact, ContactAssignment, ContactRole, Email
 
 __all__ = (
     "ContactForm",
@@ -25,16 +31,17 @@ __all__ = (
 )
 
 
-class ContactRoleForm(BootstrapMixin, forms.ModelForm):
+class ContactRoleForm(PeeringManagerModelForm):
     slug = SlugField()
     tags = TagField(required=False)
+    fieldsets = (("Role", ("name", "slug", "description")),)
 
     class Meta:
         model = ContactRole
         fields = ["name", "slug", "description", "tags"]
 
 
-class ContactRoleBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class ContactRoleBulkEditForm(PeeringManagerModelBulkEditForm):
     pk = DynamicModelMultipleChoiceField(
         queryset=ContactRole.objects.all(), widget=forms.MultipleHiddenInput
     )
@@ -45,23 +52,32 @@ class ContactRoleBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         nullable_fields = ["description"]
 
 
-class ContactRoleFilterForm(BootstrapMixin, forms.Form):
+class ContactRoleFilterForm(PeeringManagerModelFilterSetForm):
     model = ContactRole
-    q = forms.CharField(required=False, label="Search")
     tag = TagFilterField(model)
 
 
-class ContactForm(BootstrapMixin, forms.ModelForm):
+class ContactForm(PeeringManagerModelForm):
     comments = CommentField()
     tags = TagField(required=False)
+    fieldsets = (("Contact", ("name", "title", "phone", "email", "address")),)
 
     class Meta:
         model = Contact
-        fields = ["name", "title", "phone", "email", "address", "comments", "tags"]
-        widgets = {"address": SmallTextarea(attrs={"rows": 3})}
+        fields = [
+            "name",
+            "title",
+            "phone",
+            "email",
+            "address",
+            "description",
+            "comments",
+            "tags",
+        ]
+        widgets = {"address": forms.Textarea(attrs={"rows": 3})}
 
 
-class ContactBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class ContactBulkEditForm(PeeringManagerModelBulkEditForm):
     pk = DynamicModelMultipleChoiceField(
         queryset=Contact.objects.all(), widget=forms.MultipleHiddenInput
     )
@@ -75,15 +91,15 @@ class ContactBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         nullable_fields = ["title", "phone", "email", "address"]
 
 
-class ContactFilterForm(BootstrapMixin, forms.Form):
+class ContactFilterForm(PeeringManagerModelFilterSetForm):
     model = Contact
-    q = forms.CharField(required=False, label="Search")
     tag = TagFilterField(model)
 
 
 class ContactAssignmentForm(BootstrapMixin, forms.ModelForm):
     contact = DynamicModelChoiceField(queryset=Contact.objects.all())
     role = DynamicModelChoiceField(queryset=ContactRole.objects.all())
+    # fieldsets not here, overriden in template
 
     class Meta:
         model = ContactAssignment
@@ -97,6 +113,9 @@ class EmailForm(BootstrapMixin, forms.ModelForm):
     template = TemplateField(label="Body")
     comments = CommentField()
     tags = TagField(required=False)
+    fieldsets = (
+        ("E-mail", ("name", "subject", "jinja2_trim", "jinja2_lstrip", "template")),
+    )
 
     class Meta:
         model = Email

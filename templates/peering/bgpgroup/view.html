@@ -13,22 +13,18 @@
           <td>{{ instance.name }}</td>
         </tr>
         <tr>
+          <td>Slug</td>
+          <td>{{ instance.slug }}</td>
+        </tr>
+        <tr>
+          <td>Description</td>
+          <td>{{ instance.description|render_none }}</td>
+        </tr>
+        <tr>
           <td>Status</td>
           <td>{{ instance | status_as_badge }}</td>
         </tr>
       </table>
-    </div>
-    <div class="card">
-      <div class="card-header">
-        <strong>Comments</strong>
-      </div>
-      <div class="card-body">
-        {% if instance.comments %}
-        {{ instance.comments|markdown }}
-        {% else %}
-        <span class="text-muted">None</span>
-        {% endif %}
-      </div>
     </div>
     {% include 'includes/tags_card.html' with tags=instance.tags.all url='peering:bgpgroup_list' %}
   </div>

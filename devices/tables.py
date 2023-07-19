@@ -1,27 +1,23 @@
 import django_tables2 as tables
 
-from devices.models import Configuration, Platform
-from utils.tables import (
-    BaseTable,
-    BooleanColumn,
-    ButtonsColumn,
-    SelectColumn,
-    TagColumn,
-)
+from peering_manager.tables import PeeringManagerTable, columns
+
+from .models import Configuration, Platform
+
+__all__ = ("ConfigurationTable", "PlatformTable")
 
 
-class ConfigurationTable(BaseTable):
-    pk = SelectColumn()
+class ConfigurationTable(PeeringManagerTable):
     name = tables.Column(linkify=True)
-    jinja2_trim = BooleanColumn(verbose_name="Trim")
-    jinja2_lstrip = BooleanColumn(verbose_name="Lstrip")
-    tags = TagColumn(url_name="devices:configuration_list")
-    actions = ButtonsColumn(Configuration)
+    jinja2_trim = columns.BooleanColumn(verbose_name="Trim")
+    jinja2_lstrip = columns.BooleanColumn(verbose_name="Lstrip")
+    tags = columns.TagColumn(url_name="devices:configuration_list")
 
-    class Meta(BaseTable.Meta):
+    class Meta(PeeringManagerTable.Meta):
         model = Configuration
         fields = (
             "pk",
+            "id",
             "name",
             "jinja2_trim",
             "jinja2_lstrip",
@@ -32,18 +28,18 @@ class ConfigurationTable(BaseTable):
         default_columns = ("pk", "name", "updated", "actions")
 
 
-class PlatformTable(BaseTable):
-    pk = SelectColumn()
+class PlatformTable(PeeringManagerTable):
     router_count = tables.Column(
         verbose_name="Routers",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
-    actions = ButtonsColumn(Platform, buttons=("edit", "delete"))
+    actions = columns.ActionsColumn(actions=("edit", "delete"))
 
-    class Meta(BaseTable.Meta):
+    class Meta(PeeringManagerTable.Meta):
         model = Platform
         fields = (
             "pk",
+            "id",
             "name",
             "router_count",
             "slug",

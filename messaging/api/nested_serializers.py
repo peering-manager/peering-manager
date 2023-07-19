@@ -1,7 +1,15 @@
 from rest_framework import serializers
 
-from messaging.models import Contact, ContactAssignment, ContactRole, Email
 from peering_manager.api.serializers import WritableNestedSerializer
+
+from ..models import Contact, ContactAssignment, ContactRole, Email
+
+__all__ = (
+    "NestedContactRoleSerializer",
+    "NestedContactSerializer",
+    "NestedContactAssignmentSerializer",
+    "NestedEmailSerializer",
+)
 
 
 class NestedContactRoleSerializer(WritableNestedSerializer):

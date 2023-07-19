@@ -11,7 +11,7 @@ from peering_manager.jinja2 import (
     IncludeTemplateExtension,
     PeeringManagerLoader,
 )
-from utils.models import ChangeLoggedMixin
+from peering_manager.models import OrganisationalModel
 
 from .crypto import *
 from .enums import PasswordAlgorithm
@@ -50,7 +50,7 @@ class Configuration(Template):
             return traceback.format_exc()
 
 
-class Platform(ChangeLoggedMixin):
+class Platform(OrganisationalModel):
     """
     Platform refers to the software or firmware running on a device.
 
@@ -60,12 +60,6 @@ class Platform(ChangeLoggedMixin):
     specifying a NAPALM driver.
     """
 
-    name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(
-        max_length=100,
-        unique=True,
-        help_text="Friendly unique shorthand used for URL and config",
-    )
     napalm_driver = models.CharField(
         max_length=50,
         blank=True,
@@ -84,13 +78,6 @@ class Platform(ChangeLoggedMixin):
         choices=PasswordAlgorithm,
         help_text="Algorithm to cipher password in configuration",
     )
-    description = models.CharField(max_length=200, blank=True)
-
-    class Meta:
-        ordering = ["name"]
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return f"{reverse('peering:router_list')}?platform={self.pk}"

@@ -11,8 +11,12 @@ from core.api.serializers import JobSerializer
 from core.models import Job
 from devices.models import Platform
 from messaging.models import Email
-from peering.enums import DeviceStatus
-from peering.filters import (
+from peering_manager.api.exceptions import ServiceUnavailable
+from peering_manager.api.viewsets import PeeringManagerModelViewSet
+from peeringdb.api.serializers import NetworkIXLanSerializer
+
+from ..enums import DeviceStatus
+from ..filtersets import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
     CommunityFilterSet,
@@ -22,14 +26,14 @@ from peering.filters import (
     RouterFilterSet,
     RoutingPolicyFilterSet,
 )
-from peering.jobs import (
+from ..jobs import (
     generate_configuration,
     import_sessions_to_internet_exchange,
     poll_bgp_sessions,
     set_napalm_configuration,
     test_napalm_connection,
 )
-from peering.models import (
+from ..models import (
     AutonomousSystem,
     BGPGroup,
     Community,
@@ -39,10 +43,6 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from peering_manager.api.exceptions import ServiceUnavailable
-from peering_manager.api.viewsets import PeeringManagerModelViewSet
-from peeringdb.api.serializers import NetworkIXLanSerializer
-
 from .serializers import (
     AutonomousSystemGenerateEmailSerializer,
     AutonomousSystemSerializer,
@@ -212,7 +212,7 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
             rendered = self.get_object().generate_email(template)
             return Response(data={"subject": rendered[0], "body": rendered[1]})
         except Email.DoesNotExist:
-            raise Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class BGPGroupViewSet(PeeringManagerModelViewSet):

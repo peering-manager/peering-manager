@@ -1,7 +1,8 @@
 from django.urls import reverse
 
-from users.models import Token
 from utils.tests import ViewTestCase
+
+from ..models import Token
 
 
 class UserTestCase(ViewTestCase):

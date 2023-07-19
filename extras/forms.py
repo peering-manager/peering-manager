@@ -7,7 +7,6 @@ from requests.exceptions import HTTPError
 from extras.models.configcontext import ConfigContextAssignment
 from utils.forms import BootstrapMixin, BulkEditForm
 from utils.forms.fields import (
-    CommentField,
     ContentTypeChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
@@ -16,19 +15,30 @@ from utils.forms.fields import (
 )
 from utils.forms.widgets import (
     APISelectMultiple,
-    ColorSelect,
+    ColourSelect,
     CustomNullBooleanSelect,
     StaticSelect,
     StaticSelectMultiple,
 )
 
 from .enums import ObjectChangeAction
-from .models import IXAPI, ConfigContext, ExportTemplate, ObjectChange, Tag
+from .models import (
+    IXAPI,
+    ConfigContext,
+    ConfigContextAssignment,
+    ExportTemplate,
+    ObjectChange,
+    Tag,
+)
 from .utils import FeatureQuery
 
 
 class ConfigContextForm(BootstrapMixin, forms.ModelForm):
     data = JSONField()
+    fieldsets = (
+        ("Config Context", ("name", "description", "is_active")),
+        ("Data", ("data",)),
+    )
 
     class Meta:
         model = ConfigContext
@@ -59,6 +69,19 @@ class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
         limit_choices_to=FeatureQuery("export-templates"),
         label="Object type",
     )
+    fieldsets = (
+        (
+            "Export Template",
+            (
+                "name",
+                "content_type",
+                "description",
+                "jinja2_trim",
+                "jinja2_lstrip",
+                "template",
+            ),
+        ),
+    )
 
     class Meta:
         model = ExportTemplate
@@ -75,6 +98,7 @@ class ExportTemplateFilterForm(BootstrapMixin, forms.Form):
 
 class IXAPIForm(BootstrapMixin, forms.ModelForm):
     identity = forms.CharField(widget=StaticSelect)
+    fieldsets = (("IX-API", ("name", "url", "api_key", "api_secret", "identity")),)
 
     class Meta:
         model = IXAPI
@@ -132,11 +156,11 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     )
 
 
-class TagBulkEditForm(BootstrapMixin, BulkEditForm):
+class TagBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all(), widget=forms.MultipleHiddenInput
     )
-    color = forms.CharField(max_length=6, required=False, widget=ColorSelect())
+    color = forms.CharField(max_length=6, required=False, widget=ColourSelect())
 
     class Meta:
         nullable_fields = ["comments"]
@@ -149,8 +173,9 @@ class TagFilterForm(BootstrapMixin, forms.Form):
 
 class TagForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
-    comments = CommentField()
+
+    fieldsets = (("Tag", ("name", "slug", "color", "description")),)
 
     class Meta:
         model = Tag
-        fields = ["name", "slug", "color", "comments"]
+        fields = ["name", "slug", "color", "description"]

@@ -11,6 +11,8 @@ from django.utils.html import escape, strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown as md
 
+from ..forms import TableConfigForm
+
 register = template.Library()
 
 
@@ -115,6 +117,16 @@ def querystring(request, **kwargs):
 
     querystring = querydict.urlencode(safe="/")
     return "?" + querystring if querystring else ""
+
+
+@register.filter("startswith")
+def startswith(text, starts):
+    """
+    Template implementation of `str.startswith()`.
+    """
+    if isinstance(text, str):
+        return text.startswith(starts)
+    return False
 
 
 @register.filter()
@@ -257,3 +269,11 @@ def doc_version(version):
         return "latest"
     else:
         return f"v{version}"
+
+
+@register.inclusion_tag("helpers/table_config_form.html")
+def table_config_form(table, table_name=None):
+    return {
+        "table_name": table_name or table.__class__.__name__,
+        "form": TableConfigForm(table=table),
+    }

@@ -9,7 +9,9 @@ from rest_framework.routers import APIRootView
 
 from core.api.serializers import JobSerializer
 from core.models import Job
-from extras.filters import (
+from peering_manager.api.viewsets import PeeringManagerModelViewSet
+
+from ..filtersets import (
     ConfigContextAssignmentFilterSet,
     ConfigContextFilterSet,
     ExportTemplateFilterSet,
@@ -17,8 +19,8 @@ from extras.filters import (
     TagFilterSet,
     WebhookFilterSet,
 )
-from extras.jobs import render_export_template
-from extras.models import (
+from ..jobs import render_export_template
+from ..models import (
     IXAPI,
     ConfigContext,
     ConfigContextAssignment,
@@ -27,8 +29,6 @@ from extras.models import (
     Tag,
     Webhook,
 )
-from peering_manager.api.viewsets import PeeringManagerModelViewSet
-
 from .serializers import (
     ConfigContextAssignmentSerializer,
     ConfigContextSerializer,
@@ -156,6 +156,20 @@ class IXAPIViewSet(PeeringManagerModelViewSet):
         api.authenticate()
 
         return Response(data=api.customers.all())
+
+
+class ObjectChangeViewSet(PeeringManagerModelViewSet):
+    queryset = ObjectChange.objects.all()
+    serializer_class = ObjectChangeSerializer
+    filterset_class = ObjectChangeFilterSet
+
+
+class TagViewSet(PeeringManagerModelViewSet):
+    queryset = Tag.objects.annotate(
+        tagged_items=Count("extras_taggeditem_items", distinct=True)
+    )
+    serializer_class = TagSerializer
+    filterset_class = TagFilterSet
 
 
 class ObjectChangeViewSet(PeeringManagerModelViewSet):

@@ -1,5 +1,6 @@
-from devices.models import Configuration, Platform
 from utils.testing import ViewTestCases
+
+from ..models import *
 
 
 class ConfigurationTestCase(ViewTestCases.PrimaryObjectViewTestCase):

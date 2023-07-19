@@ -13,37 +13,26 @@ from peering_manager.jinja2 import (
     IncludeTemplateExtension,
     PeeringManagerLoader,
 )
-from utils.models import ChangeLoggedMixin, TagsMixin
+from peering_manager.models import ChangeLoggedModel, OrganisationalModel, PrimaryModel
 
 __all__ = ("ContactRole", "Contact", "ContactAssignment", "Email")
 
 
-class ContactRole(ChangeLoggedMixin, TagsMixin):
+class ContactRole(OrganisationalModel):
     """
     Functional role for a `Contact` assigned to an object.
     """
-
-    name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(max_length=100, unique=True)
-    description = models.CharField(max_length=200, blank=True)
-
-    class Meta:
-        ordering = ["name"]
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse("messaging:contactrole_view", args=[self.pk])
 
 
-class Contact(ChangeLoggedMixin, TagsMixin):
+class Contact(PrimaryModel):
     name = models.CharField(max_length=100)
     title = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=50, blank=True)
     email = models.EmailField(blank=True)
     address = models.CharField(max_length=200, blank=True)
-    comments = models.TextField(blank=True)
 
     class Meta:
         ordering = ["name"]
@@ -55,7 +44,7 @@ class Contact(ChangeLoggedMixin, TagsMixin):
         return reverse("messaging:contact_view", args=[self.pk])
 
 
-class ContactAssignment(ChangeLoggedMixin):
+class ContactAssignment(ChangeLoggedModel):
     content_type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     object = GenericForeignKey(ct_field="content_type", fk_field="object_id")

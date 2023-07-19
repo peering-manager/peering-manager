@@ -5,6 +5,8 @@ from rest_framework import serializers
 
 from peering_manager.api.serializers import WritableNestedSerializer
 
+__all__ = ("NestedGroupSerializer", "NestedUserSerializer")
+
 
 class NestedGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="users-api:group-detail")

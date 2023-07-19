@@ -1,13 +1,15 @@
 import logging
 import traceback
 
-from .models import Job
+__all__ = ("exception_handler", "SyncError")
 
 
 def exception_handler(rq_job, exc_type, exc_value, trace):
     """
     Sets result's details according to the exception that occurred while running the job.
     """
+    from .models import Job
+
     logger = logging.getLogger("peering.manager.core.jobs")
 
     try:
@@ -19,3 +21,7 @@ def exception_handler(rq_job, exc_type, exc_value, trace):
     job.mark_errored(
         "An exception occurred, see output for more details.", logger=logger
     )
+
+
+class SyncError(Exception):
+    pass

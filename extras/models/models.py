@@ -16,12 +16,14 @@ from peering_manager.jinja2 import (
     IncludeTemplateExtension,
     PeeringManagerLoader,
 )
-from utils.models import ChangeLoggedMixin
+from peering_manager.models import ChangeLoggedModel
+
+__all__ = ("ExportTemplate", "Webhook")
 
 __all__ = ("ExportTemplate", "Webhook")
 
 
-class ExportTemplate(ChangeLoggedMixin):
+class ExportTemplate(ChangeLoggedModel):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
@@ -103,7 +105,7 @@ class Webhook(models.Model):
     representation of the object.
     """
 
-    name = models.CharField(max_length=128, unique=True)
+    name = models.CharField(max_length=100, unique=True)
     type_create = models.BooleanField(
         default=False, help_text="Call this webhook when an object is created."
     )

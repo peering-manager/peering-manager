@@ -1,7 +1,12 @@
 import django_tables2 as tables
 from django.conf import settings
 
-from utils.tables import BaseTable, ChoiceFieldColumn, ContentTypeColumn, SelectColumn
+from peering_manager.tables import (
+    BaseTable,
+    ChoiceFieldColumn,
+    ContentTypeColumn,
+    SelectColumn,
+)
 
 from ..models import Job
 

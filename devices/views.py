@@ -1,17 +1,18 @@
 from django.db.models import Count
 
-from devices.filters import ConfigurationFilterSet, PlatformFilterSet
-from devices.forms import ConfigurationFilterForm, ConfigurationForm, PlatformForm
-from devices.models import Configuration, Platform
-from devices.tables import ConfigurationTable, PlatformTable
 from peering.models import Router
-from peering_manager.views.generics import (
+from peering_manager.views.generic import (
     BulkDeleteView,
     ObjectDeleteView,
     ObjectEditView,
     ObjectListView,
     ObjectView,
 )
+
+from .filtersets import ConfigurationFilterSet, PlatformFilterSet
+from .forms import ConfigurationFilterForm, ConfigurationForm, PlatformForm
+from .models import Configuration, Platform
+from .tables import ConfigurationTable, PlatformTable
 
 
 class ConfigurationList(ObjectListView):
@@ -26,26 +27,15 @@ class ConfigurationList(ObjectListView):
 class ConfigurationView(ObjectView):
     permission_required = "devices.view_configuration"
     queryset = Configuration.objects.all()
+    tab = "main"
 
     def get_extra_context(self, request, instance):
-        return {
-            "routers": Router.objects.filter(configuration_template=instance),
-            "active_tab": "main",
-        }
-
-
-class ConfigurationAdd(ObjectEditView):
-    permission_required = "devices.add_configuration"
-    queryset = Configuration.objects.all()
-    model_form = ConfigurationForm
-    template_name = "devices/configuration/add_edit.html"
+        return {"routers": Router.objects.filter(configuration_template=instance)}
 
 
 class ConfigurationEdit(ObjectEditView):
-    permission_required = "devices.change_configuration"
     queryset = Configuration.objects.all()
-    model_form = ConfigurationForm
-    template_name = "devices/configuration/add_edit.html"
+    form = ConfigurationForm
 
 
 class ConfigurationDelete(ObjectDeleteView):
@@ -54,7 +44,6 @@ class ConfigurationDelete(ObjectDeleteView):
 
 
 class ConfigurationBulkDelete(BulkDeleteView):
-    permission_required = "devices.delete_configuration"
     queryset = Configuration.objects.all()
     filterset = ConfigurationFilterSet
     table = ConfigurationTable
@@ -69,18 +58,9 @@ class PlatformList(ObjectListView):
     template_name = "devices/platform/list.html"
 
 
-class PlatformAdd(ObjectEditView):
-    permission_required = "devices.add_platform"
-    queryset = Platform.objects.all()
-    model_form = PlatformForm
-    template_name = "devices/platform/add_edit.html"
-
-
 class PlatformEdit(ObjectEditView):
-    permission_required = "devices.change_platform"
     queryset = Platform.objects.all()
-    model_form = PlatformForm
-    template_name = "devices/platform/add_edit.html"
+    form = PlatformForm
 
 
 class PlatformDelete(ObjectDeleteView):
@@ -89,7 +69,6 @@ class PlatformDelete(ObjectDeleteView):
 
 
 class PlatformBulkDelete(BulkDeleteView):
-    permission_required = "devices.delete_platform"
     queryset = Platform.objects.all()
     filterset = PlatformFilterSet
     table = PlatformTable

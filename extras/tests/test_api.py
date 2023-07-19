@@ -1,11 +1,13 @@
-import uuid
 from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from rest_framework import status
 
-from extras.models import (
+from peering.models import AutonomousSystem
+from utils.testing import APITestCase, APIViewTestCases, MockedResponse
+
+from ..models import (
     IXAPI,
     ConfigContext,
     ConfigContextAssignment,
@@ -13,8 +15,6 @@ from extras.models import (
     Tag,
     Webhook,
 )
-from peering.models import AutonomousSystem
-from utils.testing import APITestCase, MockedResponse, StandardAPITestCases
 
 
 class AppTest(APITestCase):
@@ -23,7 +23,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class ConfigContextTest(StandardAPITestCases.View):
+class ConfigContextTest(APIViewTestCases.View):
     model = ConfigContext
     brief_fields = ["id", "url", "display", "name"]
 
@@ -43,7 +43,7 @@ class ConfigContextTest(StandardAPITestCases.View):
         ]
 
 
-class ConfigContextAssignmentAssignmentTest(StandardAPITestCases.View):
+class ConfigContextAssignmentAssignmentTest(APIViewTestCases.View):
     model = ConfigContextAssignment
     brief_fields = ["id", "url", "display", "config_context"]
 
@@ -100,7 +100,7 @@ class ConfigContextAssignmentAssignmentTest(StandardAPITestCases.View):
         ]
 
 
-class ExportTemplateTest(StandardAPITestCases.View):
+class ExportTemplateTest(APIViewTestCases.View):
     model = ExportTemplate
     brief_fields = ["id", "url", "display", "name"]
 
@@ -145,7 +145,7 @@ class ExportTemplateTest(StandardAPITestCases.View):
         ]
 
 
-class IXAPITest(StandardAPITestCases.View):
+class IXAPITest(APIViewTestCases.View):
     model = IXAPI
     brief_fields = ["id", "display", "name", "url"]
     create_data = [
@@ -236,7 +236,7 @@ class IXAPITest(StandardAPITestCases.View):
             self.assertHttpStatus(response, status.HTTP_200_OK)
 
 
-class TagTest(StandardAPITestCases.View):
+class TagTest(APIViewTestCases.View):
     model = Tag
     brief_fields = ["id", "url", "name", "slug", "color"]
     create_data = [
@@ -257,7 +257,7 @@ class TagTest(StandardAPITestCases.View):
         )
 
 
-class WebhookTest(StandardAPITestCases.View):
+class WebhookTest(APIViewTestCases.View):
     model = Webhook
     brief_fields = ["id", "name", "url"]
     create_data = [

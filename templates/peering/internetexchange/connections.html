@@ -2,7 +2,7 @@
 {% block subcontent %}
 <div class="row">
   <div class="col">
-    {% include 'peering/internetexchange/inc/connections_table.html' with bulk_edit_url='net:connection_bulk_edit' bulk_delete_url='net:connection_bulk_delete' %}
+    {% include 'peering/internetexchange/inc/connections_table.html' with table_modal='ConnectionTable_config' bulk_edit_url='net:connection_bulk_edit' bulk_delete_url='net:connection_bulk_delete' %}
   </div>
   <div class="col-md-3">
     {% include 'utils/search_form.html' %}

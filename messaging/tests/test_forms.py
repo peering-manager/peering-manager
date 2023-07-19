@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from messaging.forms import ContactForm, ContactRoleForm, EmailForm
+from ..forms import *
 
 
 class ContactRoleTest(TestCase):

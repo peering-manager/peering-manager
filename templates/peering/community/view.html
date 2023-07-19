@@ -11,13 +11,12 @@
           <td>{{ instance.name }}</td>
         </tr>
         <tr>
-          <tr>
-            <td>Slug</td>
-            <td>{{ instance.slug }}</td>
-          </tr>
-          <tr>
-          <td>Value</td>
-          <td><code>{{ instance.value }}</code></td>
+          <td>Slug</td>
+          <td>{{ instance.slug }}</td>
+        </tr>
+        <tr>
+          <td>Description</td>
+          <td>{{ instance.description|render_none }}</td>
         </tr>
         {% if instance.type %}
         <tr>
@@ -25,6 +24,10 @@
           <td>{{ instance.get_type_html }}</td>
         </tr>
         {% endif %}
+        <tr>
+          <td>Value</td>
+          <td><code>{{ instance.value }}</code></td>
+        </tr>
       </table>
     </div>
   </div>

@@ -7,7 +7,7 @@ from netbox.api import NetBox
 from utils.testing import MockedResponse
 
 
-class MockedGenerator(object):
+class MockedGenerator:
     def __init__(self, data):
         self._data = data
 

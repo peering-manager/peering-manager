@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from messaging.models import Email
+from ..models import *
 
 
 class EmailTest(TestCase):

@@ -3,10 +3,14 @@ import logging
 import pynetbox
 from django.conf import settings
 
+__all__ = ("NetBox",)
 
-class NetBox(object):
+
+class NetBox:
     """
     Class used to interact with the NetBox API.
+
+    FIXME: Move to another app
     """
 
     logger = logging.getLogger("peering.manager.netbox")

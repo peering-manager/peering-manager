@@ -29,6 +29,7 @@
         </tr>
       </table>
     </div>
+    {% include 'includes/tags_card.html' with tags=instance.tags.all url='extras:tag_list' %}
   </div>
 </div>
 {% endblock %}

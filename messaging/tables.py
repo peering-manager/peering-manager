@@ -1,42 +1,32 @@
 import django_tables2 as tables
 
-from messaging.models import Contact, ContactAssignment, ContactRole, Email
-from utils.tables import (
-    BaseTable,
-    BooleanColumn,
-    ButtonsColumn,
-    ContentTypeColumn,
-    SelectColumn,
-    TagColumn,
-    linkify_phone,
-)
+from peering_manager.tables import PeeringManagerTable, columns, linkify_phone
 
-__all__ = ("ContactTable", "ContactRoleTable")
+from .models import Contact, ContactAssignment, ContactRole, Email
+
+__all__ = ("ContactTable", "ContactRoleTable", "ContactAssignmentTable", "EmailTable")
 
 
-class ContactRoleTable(BaseTable):
-    pk = SelectColumn()
+class ContactRoleTable(PeeringManagerTable):
     name = tables.Column(linkify=True)
-    actions = ButtonsColumn(ContactRole, buttons=("edit", "delete"))
 
-    class Meta(BaseTable.Meta):
+    class Meta(PeeringManagerTable.Meta):
         model = ContactRole
-        fields = ("pk", "name", "slug", "description", "actions")
+        fields = ("pk", "id", "name", "slug", "description", "actions")
         default_columns = ("pk", "name", "description", "actions")
 
 
-class ContactTable(BaseTable):
-    pk = SelectColumn()
+class ContactTable(PeeringManagerTable):
     name = tables.Column(linkify=True)
     phone = tables.Column(linkify=linkify_phone)
     assignment_count = tables.Column(verbose_name="Assignments")
-    tags = TagColumn(url_name="messaging:contact_list")
-    actions = ButtonsColumn(Contact, buttons=("edit", "delete"))
+    tags = columns.TagColumn(url_name="messaging:contact_list")
 
-    class Meta(BaseTable.Meta):
+    class Meta(PeeringManagerTable.Meta):
         model = Contact
         fields = (
             "pk",
+            "id",
             "name",
             "title",
             "phone",
@@ -57,28 +47,26 @@ class ContactTable(BaseTable):
         )
 
 
-class ContactAssignmentTable(BaseTable):
-    content_type = ContentTypeColumn(verbose_name="Object Type")
+class ContactAssignmentTable(PeeringManagerTable):
+    content_type = columns.ContentTypeColumn(verbose_name="Object Type")
     object = tables.Column(linkify=True, orderable=False)
     contact = tables.Column(linkify=True)
     role = tables.Column(linkify=True)
-    actions = ButtonsColumn(model=ContactAssignment, buttons=("edit", "delete"))
+    actions = columns.ActionsColumn(actions=("edit", "delete"))
 
-    class Meta(BaseTable.Meta):
+    class Meta(PeeringManagerTable.Meta):
         model = ContactAssignment
-        fields = ("content_type", "object", "contact", "role", "actions")
+        fields = ("id", "content_type", "object", "contact", "role", "actions")
         default_columns = ("content_type", "object", "contact", "role", "actions")
 
 
-class EmailTable(BaseTable):
-    pk = SelectColumn()
+class EmailTable(PeeringManagerTable):
     name = tables.Column(linkify=True)
-    jinja2_trim = BooleanColumn(verbose_name="Trim")
-    jinja2_lstrip = BooleanColumn(verbose_name="Lstrip")
-    tags = TagColumn(url_name="devices:configuration_list")
-    actions = ButtonsColumn(Email)
+    jinja2_trim = columns.BooleanColumn(verbose_name="Trim")
+    jinja2_lstrip = columns.BooleanColumn(verbose_name="Lstrip")
+    tags = columns.TagColumn(url_name="devices:configuration_list")
 
-    class Meta(BaseTable.Meta):
+    class Meta(PeeringManagerTable.Meta):
         model = Email
         fields = (
             "pk",
@@ -90,4 +78,4 @@ class EmailTable(BaseTable):
             "tags",
             "actions",
         )
-        default_columns = ("pk", "name", "updated", "actions")
+        default_columns = ("pk", "id", "name", "updated", "actions")

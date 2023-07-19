@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
-from extras.models import (
+from peering_manager.api.serializers import WritableNestedSerializer
+
+from ..models import (
     IXAPI,
     ConfigContext,
     ConfigContextAssignment,
@@ -8,7 +10,6 @@ from extras.models import (
     Tag,
     Webhook,
 )
-from peering_manager.api.serializers import WritableNestedSerializer
 
 
 class NestedConfigContextSerializer(WritableNestedSerializer):

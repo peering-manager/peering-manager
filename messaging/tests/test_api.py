@@ -1,9 +1,10 @@
 from django.urls import reverse
 from rest_framework import status
 
-from messaging.models import Contact, ContactAssignment, ContactRole, Email
-from peering.models.models import AutonomousSystem
-from utils.testing import APITestCase, StandardAPITestCases
+from peering.models import AutonomousSystem
+from utils.testing import APITestCase, APIViewTestCases
+
+from ..models import *
 
 
 class AppTest(APITestCase):
@@ -12,7 +13,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class ContactRoleTest(StandardAPITestCases.View):
+class ContactRoleTest(APIViewTestCases.View):
     model = ContactRole
     brief_fields = ["display", "id", "name", "slug", "url"]
     create_data = [
@@ -32,7 +33,7 @@ class ContactRoleTest(StandardAPITestCases.View):
         ContactRole.objects.bulk_create(contact_roles)
 
 
-class ContactTest(StandardAPITestCases.View):
+class ContactTest(APIViewTestCases.View):
     model = Contact
     brief_fields = ["display", "id", "name", "url"]
     bulk_update_data = {"comments": "Foo"}
@@ -53,7 +54,7 @@ class ContactTest(StandardAPITestCases.View):
         ]
 
 
-class ContactAssignmentTest(StandardAPITestCases.View):
+class ContactAssignmentTest(APIViewTestCases.View):
     model = ContactAssignment
     brief_fields = ["contact", "display", "id", "role", "url"]
 
@@ -117,7 +118,7 @@ class ContactAssignmentTest(StandardAPITestCases.View):
         ]
 
 
-class EmailTest(StandardAPITestCases.View):
+class EmailTest(APIViewTestCases.View):
     model = Email
     brief_fields = ["id", "url", "display", "name"]
     create_data = [

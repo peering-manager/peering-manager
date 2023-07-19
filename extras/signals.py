@@ -7,10 +7,11 @@ from django.dispatch import Signal, receiver
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 from prometheus_client import Counter
 
-from extras.enums import ObjectChangeAction
-from extras.models import ObjectChange
-from extras.webhooks import enqueue_object, get_snapshots, serialize_for_webhook
 from peering_manager.context import current_request, webhooks_queue
+
+from .enums import ObjectChangeAction
+from .models import ObjectChange
+from .webhooks import enqueue_object, get_snapshots, serialize_for_webhook
 
 # Define a custom signal that can be sent to clear any queued webhooks
 clear_webhooks = Signal()

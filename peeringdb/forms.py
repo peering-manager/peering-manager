@@ -13,6 +13,8 @@ from .enums import (
 )
 from .models import NetworkIXLan
 
+__all__ = ("NetworkIXLanFilterForm",)
+
 
 class NetworkIXLanFilterForm(BootstrapMixin, forms.Form):
     model = NetworkIXLan

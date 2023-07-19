@@ -150,7 +150,7 @@
                 <span class="ml-4">IX-API</span>
               </a>
             </div>
-            <a href="#other_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/bgp/relationships/,/extras/,/jobs/,/tags/,/changelog/' %} active{% endif %}">
+            <a href="#other_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/bgp/relationships/,/extras/,/core/jobs/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
                 Other <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
               </div>
@@ -168,10 +168,10 @@
               <a href="{% url 'extras:tag_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/tags/' %} active{% endif %}">
                 <div class="ml-4">Tags</div>
               </a>
-              <a href="{% url 'core:job_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/jobs/' %} active{% endif %}">
+              <a href="{% url 'core:job_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/core/jobs/' %} active{% endif %}">
                 <span class="ml-4">Jobs</span>
               </a>
-              <a href="{% url 'extras:objectchange_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/changelog/' %} active{% endif %}">
+              <a href="{% url 'extras:objectchange_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/extras/changelog/' %} active{% endif %}">
                 <span class="ml-4">Change Log</span>
               </a>
             </div>

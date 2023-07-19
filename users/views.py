@@ -96,7 +96,7 @@ class ProfileView(View, LoginRequiredMixin):
         if not is_user_logged_in(request):
             return redirect("home")
 
-        return render(request, "users/profile.html", {"active_tab": "profile"})
+        return render(request, "users/profile.html", {"tab": "profile"})
 
 
 class PreferencesView(View, LoginRequiredMixin):
@@ -108,7 +108,7 @@ class PreferencesView(View, LoginRequiredMixin):
             self.template_name,
             {
                 "preferences": request.user.preferences.all(),
-                "active_tab": "preferences",
+                "tab": "preferences",
             },
         )
 
@@ -143,7 +143,7 @@ class ChangePasswordView(View, LoginRequiredMixin):
             return redirect("users:profile")
 
         form = UserPasswordChangeForm(user=request.user)
-        context = {"form": form, "active_tab": "password"}
+        context = {"form": form, "tab": "password"}
 
         return render(request, self.template, context)
 
@@ -152,7 +152,7 @@ class ChangePasswordView(View, LoginRequiredMixin):
             return redirect("home")
 
         form = UserPasswordChangeForm(user=request.user, data=request.POST)
-        context = {"form": form, "active_tab": "password"}
+        context = {"form": form, "tab": "password"}
 
         if form.is_valid():
             form.save()
@@ -169,7 +169,7 @@ class TokenList(LoginRequiredMixin, View):
         return render(
             request,
             "users/api_tokens.html",
-            {"tokens": tokens, "active_tab": "api_tokens"},
+            {"tokens": tokens, "tab": "api_tokens"},
         )
 
 
@@ -188,10 +188,9 @@ class TokenAddEdit(LoginRequiredMixin, View):
 
         return render(
             request,
-            "generic/object_edit.html",
+            "generic/edit.html",
             {
-                "object": token,
-                "object_type": token._meta.verbose_name,
+                "instance": token,
                 "form": form,
                 "return_url": reverse("users:token_list"),
             },
@@ -224,10 +223,9 @@ class TokenAddEdit(LoginRequiredMixin, View):
 
         return render(
             request,
-            "generic/object_edit.html",
+            "generic/edit.html",
             {
-                "object": token,
-                "object_type": token._meta.verbose_name,
+                "instance": token,
                 "form": form,
                 "return_url": reverse("users:token_list"),
             },
@@ -246,8 +244,7 @@ class TokenDelete(PermissionRequiredMixin, View):
             request,
             "generic/object_delete.html",
             {
-                "object": token,
-                "object_type": token._meta.verbose_name,
+                "instance": token,
                 "form": form,
                 "return_url": reverse("users:token_list"),
             },
@@ -265,8 +262,7 @@ class TokenDelete(PermissionRequiredMixin, View):
             request,
             "generic/object_delete.html",
             {
-                "object": token,
-                "object_type": token._meta.verbose_name,
+                "instance": token,
                 "form": form,
                 "return_url": reverse("users:token_list"),
             },

@@ -4,10 +4,14 @@ from django.urls import reverse
 from utils.forms import add_blank_choice
 from utils.testing import TestCase
 
+__all__ = ("ViewTestCase",)
+
 
 class ViewTestCase(TestCase):
     """
     This class provides various pre-defined functions to test views.
+
+    FIXME: Legacy test case
     """
 
     def setUp(self):
