@@ -1,4 +1,4 @@
-from peering_manager.views.generics import (
+from peering_manager.views.generic import (
     BulkDeleteView,
     ObjectDeleteView,
     ObjectListView,
