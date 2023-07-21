@@ -1,7 +1,6 @@
 import logging
 
 import requests
-from cacheops import invalidate_model
 from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import transaction
@@ -328,6 +327,4 @@ class PeeringDB:
         # The use of reversed is important to avoid fk issues
         for model in reversed(list(NAMESPACES.values())):
             model.objects.all()._raw_delete(using=DEFAULT_DB_ALIAS)
-            invalidate_model(model)
         Synchronisation.objects.all()._raw_delete(using=DEFAULT_DB_ALIAS)
-        invalidate_model(Synchronisation)
