@@ -1,5 +1,5 @@
-from cacheops import CacheMiss, cache
 from django.conf import settings
+from django.core.cache import cache
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import View
@@ -44,10 +44,7 @@ class HomeView(View):
         # Check whether a new release is available (staff and superusers only)
         new_release = None
         if request.user.is_staff or request.user.is_superuser:
-            try:
-                latest_release = cache.get("latest_release")
-            except CacheMiss:
-                latest_release = None
+            latest_release = cache.get("latest_release")
             if latest_release:
                 release_version, release_url = latest_release
                 if release_version > version.parse(settings.VERSION):

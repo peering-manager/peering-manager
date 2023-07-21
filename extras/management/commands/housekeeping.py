@@ -2,8 +2,8 @@ from datetime import timedelta
 from importlib import import_module
 
 import requests
-from cacheops import cache
 from django.conf import settings
+from django.core.cache import cache
 from django.core.management.base import BaseCommand
 from django.db import DEFAULT_DB_ALIAS
 from django.template.defaultfilters import pluralize

@@ -2,9 +2,9 @@ import ipaddress
 import logging
 
 import napalm
-from cacheops import cached_as
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
+from django.core.cache import cache
 from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
@@ -1540,17 +1540,19 @@ class Router(PrimaryModel):
         If an error occurs or no BGP neighbors can be found, the returned list
         will be empty.
         """
+        cache_key = f"bgp_neighbors_detail_{ip_address or ''}_{self.pk}"
+        cached_value = cache.get(cache_key)
 
-        @cached_as(self, timeout=settings.CACHE_BGP_DETAIL_TIMEOUT)
-        def _get_bgp_neighbors_detail():
-            if self.use_netbox:
-                r = self.get_netbox_bgp_neighbors_detail(ip_address=ip_address)
-            else:
-                r = self.get_napalm_bgp_neighbors_detail(ip_address=ip_address)
-            # Force evaluation of lambda (NAPALM uses them in its IOS driver)
-            return dict(r)
+        if cached_value:
+            return cached_value
 
-        return _get_bgp_neighbors_detail()
+        if self.use_netbox:
+            r = dict(self.get_netbox_bgp_neighbors_detail(ip_address=ip_address))
+        else:
+            r = dict(self.get_napalm_bgp_neighbors_detail(ip_address=ip_address))
+
+        cache.set(cache_key, r, timeout=settings.CACHE_BGP_DETAIL_TIMEOUT)
+        return r
 
     def bgp_neighbors_detail_as_list(self, bgp_neighbors_detail):
         """
