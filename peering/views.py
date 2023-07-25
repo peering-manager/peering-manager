@@ -933,6 +933,8 @@ class ProvisioningAvailableIXPeers(ObjectListView):
     table = NetworkIXLanTable
     template_name = "peering/provisioning/peers.html"
 
-    def alter_queryset(self):
+    def get_queryset(self, request):
         for ixp in InternetExchange.objects.all():
             self.queryset = self.queryset | ixp.get_available_peers()
+
+        return self.queryset

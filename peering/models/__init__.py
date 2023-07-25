@@ -687,7 +687,10 @@ class InternetExchange(AbstractGroup):
         return NetworkIXLan.objects.filter(
             ~Q(asn=self.local_autonomous_system.asn)
             & Q(ixlan=self.peeringdb_ixlan)
-            & (~Q(ipaddr6__in=ip_addresses) | ~Q(ipaddr4__in=ip_addresses))
+            & (
+                (Q(ipaddr6__isnull=False) & ~Q(ipaddr6__in=ip_addresses))
+                | (Q(ipaddr4__isnull=False) & ~Q(ipaddr4__in=ip_addresses))
+            )
         ).order_by("asn")
 
     def get_ixapi_network_service(self):
