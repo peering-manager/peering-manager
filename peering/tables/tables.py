@@ -241,6 +241,9 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
     is_route_server = columns.BooleanColumn(verbose_name="Route Server")
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
+    exists_in_peeringdb = columns.BooleanColumn(
+        accessor="exists_in_peeringdb", verbose_name="In PeeringDB", orderable=False
+    )
     state = BGPSessionStateColumn(accessor="bgp_state")
     tags = columns.TagColumn(url_name="peering:internetexchangepeeringsession_list")
     actions = columns.ActionsColumn(extra_buttons=append_template)
@@ -259,6 +262,7 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
             "is_route_server",
             "import_routing_policies",
             "export_routing_policies",
+            "exists_in_peeringdb",
             "state",
             "last_established_state",
             "received_prefix_count",

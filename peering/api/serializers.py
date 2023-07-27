@@ -317,6 +317,8 @@ class InternetExchangePeeringSessionSerializer(PeeringManagerModelSerializer):
             "export_routing_policies",
             "communities",
             "local_context_data",
+            "exists_in_peeringdb",
+            "is_abandoned",
             "bgp_state",
             "received_prefix_count",
             "advertised_prefix_count",

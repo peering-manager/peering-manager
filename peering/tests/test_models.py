@@ -265,10 +265,10 @@ class InternetExchangePeeringSessionTest(TestCase):
         self.assertIsNone(self.session.encrypted_password)
 
     def test_exists_in_peeringdb(self):
-        self.assertFalse(self.session.exists_in_peeringdb())
+        self.assertFalse(self.session.exists_in_peeringdb)
 
     def test_is_abandoned(self):
-        self.assertFalse(self.session.is_abandoned())
+        self.assertFalse(self.session.is_abandoned)
 
     def test_poll(self):
         with patch(

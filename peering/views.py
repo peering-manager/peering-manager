@@ -688,9 +688,6 @@ class InternetExchangePeeringSessionView(ObjectView):
     queryset = InternetExchangePeeringSession.objects.all()
     tab = "main"
 
-    def get_extra_context(self, request, instance):
-        return {"is_abandoned": instance.is_abandoned()}
-
 
 class InternetExchangePeeringSessionConfigContext(ObjectConfigContextView):
     permission_required = "peering.view_internetexchangepeeringsession"
@@ -927,14 +924,15 @@ class RoutingPolicyBulkDelete(BulkDeleteView):
 
 class ProvisioningAvailableIXPeers(ObjectListView):
     permission_required = "peering.view_internetexchange"
-    queryset = NetworkIXLan.objects.none()
     filterset = NetworkIXLanFilterSet
     filterset_form = NetworkIXLanFilterForm
     table = NetworkIXLanTable
     template_name = "peering/provisioning/peers.html"
 
     def get_queryset(self, request):
-        for ixp in InternetExchange.objects.all():
-            self.queryset = self.queryset | ixp.get_available_peers()
+        queryset = NetworkIXLan.objects.none()
 
-        return self.queryset
+        for ixp in InternetExchange.objects.all():
+            queryset = queryset | ixp.get_available_peers()
+
+        return queryset

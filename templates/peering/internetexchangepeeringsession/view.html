@@ -1,6 +1,11 @@
 {% extends 'peering/internetexchangepeeringsession/_base.html' %}
 {% load helpers %}
 {% block subcontent %}
+{% if instance.autonomous_system.peeringdb_network and not instance.exists_in_peeringdb %}
+<div class="alert alert-warning" role="alert">
+  The remote AS has a PeeringDB record, but the session IP does not.
+</div>
+{% endif %}
 <div class="row">
   <div class="col-md-6">
     <div class="card mb-2">
@@ -80,7 +85,7 @@
     <div class="card mb-2">
       <div class="card-header"><strong>BGP State</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
-        {% if is_abandoned %}<tr class="bg-warning">It looks like this peering session may be abandoned</tr>{% endif %}
+        {% if instance.is_abandoned %}<tr class="bg-warning">It looks like this peering session may be abandoned</tr>{% endif %}
         <tr>
           <td>State</td>
           <td>{{ instance.get_bgp_state_html }}</td>

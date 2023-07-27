@@ -811,6 +811,54 @@ class InternetExchangePeeringSession(BGPSession):
             )
         ]
 
+    @property
+    def exists_in_peeringdb(self):
+        """
+        Returns `True` if a `NetworkIXLan` exists for this session's IP and if
+        the `NetworkIXLan` ASN matches the autonomous system's.
+        """
+        if isinstance(self.ip_address, str):
+            ip_version = ipaddress.ip_address(self.ip_address).version
+        else:
+            ip_version = self.ip_address.version
+        try:
+            NetworkIXLan.objects.get(
+                **{
+                    f"ipaddr{ip_version}": str(self.ip_address),
+                    "net__asn": self.autonomous_system.asn,
+                }
+            )
+        except NetworkIXLan.DoesNotExist:
+            return False
+        return True
+
+    @property
+    def is_abandoned(self):
+        """
+        Returns `True` if a session is considered as abandoned. Returns
+        `False` otherwise.
+
+        A session is *not* considered as abandoned if it matches one of the following
+        criteria:
+          * The `InternetExchange` is not linked to a PeeringDB record
+          * User does not poll peering session states
+          * The peer AS has no cached PeeringDB record
+          * The peer AS has a cached PeeringDB record with the session IP address
+          * The BGP state for the session is not idle or active
+        """
+        if (
+            not self.ixp_connection.linked_to_peeringdb
+            or (
+                self.ixp_connection.router
+                and not self.ixp_connection.router.poll_bgp_sessions_state
+            )
+            or not self.autonomous_system.peeringdb_network
+            or self.exists_in_peeringdb
+            or self.bgp_state not in [BGPState.IDLE, BGPState.ACTIVE]
+        ):
+            return False
+        return True
+
     @staticmethod
     def create_from_peeringdb(affiliated, internet_exchange, netixlan):
         results = []
@@ -876,46 +924,6 @@ class InternetExchangePeeringSession(BGPSession):
             return True
 
         return False
-
-    def exists_in_peeringdb(self):
-        """
-        Returns `True` if a NetworkIXLan exists for this session's IP.
-        """
-        if isinstance(self.ip_address, str):
-            ip_version = ipaddress.ip_address(self.ip_address).version
-        else:
-            ip_version = self.ip_address.version
-        try:
-            NetworkIXLan.objects.get(**{f"ipaddr{ip_version}": str(self.ip_address)})
-            return True
-        except NetworkIXLan.DoesNotExist:
-            pass
-        return False
-
-    def is_abandoned(self):
-        """
-        Returns True if a session is considered as abandoned. Returns False otherwise.
-
-        A session is *not* considered as abandoned if it matches one of the following
-        criteria:
-          * The Internet Exchange is not linked to a PeeringDB record
-          * User does not poll peering session states
-          * The peer AS has no cached PeeringDB record
-          * The peer AS has a cached PeeringDB record with the session IP address
-          * The BGP state for the session is not idle or active
-        """
-        if (
-            not self.ixp_connection.linked_to_peeringdb
-            or (
-                self.ixp_connection.router
-                and not self.ixp_connection.router.poll_bgp_sessions_state
-            )
-            or not self.autonomous_system.peeringdb_network
-            or self.exists_in_peeringdb()
-            or self.bgp_state not in [BGPState.IDLE, BGPState.ACTIVE]
-        ):
-            return False
-        return True
 
 
 class Router(PrimaryModel):
