@@ -5,7 +5,7 @@
 <a href="{% url 'peering:internetexchange_add' %}" class="btn btn-primary">
   <i class="fas fa-plus"></i> Add
 </a>
-{% if peeringdb_last_synchronisation %}
+{% if peeringdb_last_synchronisation and context_as %}
 <a href="{% url 'peering:internetexchange_peeringdb_import' %}" class="btn btn-info">
   <i class="fas fa-cloud-upload-alt"></i> Import from PeeringDB
 </a>
