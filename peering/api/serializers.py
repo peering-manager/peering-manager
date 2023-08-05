@@ -298,6 +298,8 @@ class InternetExchangePeeringSessionSerializer(PeeringManagerModelSerializer):
         required=False,
         many=True,
     )
+    exists_in_peeringdb = serializers.BooleanField(read_only=True)
+    is_abandoned = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = InternetExchangePeeringSession
