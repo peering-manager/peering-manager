@@ -8,8 +8,15 @@ def get_shared_internet_exchanges(as1, as2):
     Returns shared IXPs (via PeeringDB IXLAN objects) between two autonomous systems
     based on PeeringDB data.
     """
-    # If both AS are the same, no point in sharing IXPs
-    if as1 == as2 or as1 is None or as2 is None:
+    # If both AS are the same or one of each has not PeeringDB record
+    # Cannot find shared IXPs
+    if (
+        as1 == as2
+        or as1 is None
+        or as2 is None
+        or not as1.peeringdb_network
+        or not as2.peeringdb_network
+    ):
         return IXLan.objects.none()
 
     # Find IX LANs to which AS are participating to and get IDs

@@ -8,8 +8,6 @@ from peering_manager.models import ChangeLoggedModel
 
 __all__ = ("ConfigContext", "ConfigContextAssignment")
 
-__all__ = ("ConfigContext", "ConfigContextAssignment")
-
 
 class ConfigContext(ChangeLoggedModel):
     """

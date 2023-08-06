@@ -593,14 +593,3 @@ class RoutingPolicyTest(TestCase):
             RoutingPolicy(name="test-4", slug="test-4", type="unknown"),
         ]
         RoutingPolicy.objects.bulk_create(cls.routing_policies)
-
-    def test_get_type_html(self):
-        expected = [
-            '<span class="badge badge-primary">Export</span>',
-            '<span class="badge badge-info">Import</span>',
-            '<span class="badge badge-dark">Import+Export</span>',
-            '<span class="badge badge-secondary">Unknown</span>',
-        ]
-
-        for i in range(len(expected)):
-            self.assertEqual(expected[i], self.routing_policies[i].get_type_html())

@@ -1,6 +1,8 @@
 from jinja2 import nodes
 from jinja2.ext import Extension
 
+__all__ = ("IncludeTemplateExtension",)
+
 
 class IncludeTemplateExtension(Extension):
     """
@@ -26,6 +28,3 @@ class IncludeTemplateExtension(Extension):
         node.with_context = True
 
         return node
-
-
-__all__ = ("IncludeTemplateExtension",)

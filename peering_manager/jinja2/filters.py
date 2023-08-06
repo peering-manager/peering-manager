@@ -24,6 +24,8 @@ from peering.models import (
 from peering_manager.models.features import ConfigContextMixin, TagsMixin
 from utils.functions import get_key_in_hash, serialize_object
 
+__all__ = ("FILTER_DICT",)
+
 
 def ipv4(value):
     """
@@ -830,5 +832,3 @@ FILTER_DICT = {
     "as_yaml": as_yaml,
     "indent": indent,
 }
-
-__all__ = ("FILTER_DICT",)

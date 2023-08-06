@@ -1,16 +1,8 @@
-import traceback
-
-from django.conf import settings
 from django.db import models
 from django.urls import reverse
-from jinja2 import Environment, TemplateSyntaxError
 
 from peering.models import Template
-from peering_manager.jinja2 import (
-    FILTER_DICT,
-    IncludeTemplateExtension,
-    PeeringManagerLoader,
-)
+from peering_manager.jinja2 import render_jinja2
 from peering_manager.models import OrganisationalModel
 
 from .crypto import *
@@ -23,31 +15,13 @@ class Configuration(Template):
     def get_absolute_url(self):
         return reverse("devices:configuration_view", args=[self.pk])
 
-    def render(self, variables):
+    def render(self, context):
         """
         Render the template using Jinja2.
         """
-        environment = Environment(
-            loader=PeeringManagerLoader(),
-            trim_blocks=self.jinja2_trim,
-            lstrip_blocks=self.jinja2_lstrip,
+        return render_jinja2(
+            self.template, context, trim=self.jinja2_trim, lstrip=self.jinja2_lstrip
         )
-        environment.add_extension(IncludeTemplateExtension)
-        for extension in settings.JINJA2_TEMPLATE_EXTENSIONS:
-            environment.add_extension(extension)
-
-        # Add custom filters to our environment
-        environment.filters.update(FILTER_DICT)
-
-        # Try rendering the template, return a message about syntax issues if there
-        # are any
-        try:
-            jinja2_template = environment.from_string(self.template)
-            return jinja2_template.render(variables)
-        except TemplateSyntaxError as e:
-            return f"Syntax error in template at line {e.lineno}: {e.message}"
-        except Exception:
-            return traceback.format_exc()
 
 
 class Platform(OrganisationalModel):

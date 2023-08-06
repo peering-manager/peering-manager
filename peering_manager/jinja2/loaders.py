@@ -1,5 +1,7 @@
 from jinja2 import BaseLoader, TemplateNotFound
 
+__all__ = ("PeeringManagerLoader",)
+
 
 class PeeringManagerLoader(BaseLoader):
     """

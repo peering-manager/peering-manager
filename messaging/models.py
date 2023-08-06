@@ -1,18 +1,10 @@
-import traceback
-
-from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
-from jinja2 import Environment, TemplateSyntaxError
 
 from peering.models import Template
-from peering_manager.jinja2 import (
-    FILTER_DICT,
-    IncludeTemplateExtension,
-    PeeringManagerLoader,
-)
+from peering_manager.jinja2 import render_jinja2
 from peering_manager.models import ChangeLoggedModel, OrganisationalModel, PrimaryModel
 
 __all__ = ("ContactRole", "Contact", "ContactAssignment", "Email")
@@ -81,35 +73,11 @@ class Email(Template):
         """
         Render the template using Jinja2.
         """
-        subject, body = "", ""
-        environment = Environment(
-            loader=PeeringManagerLoader(),
-            trim_blocks=self.jinja2_trim,
-            lstrip_blocks=self.jinja2_lstrip,
+        subject = render_jinja2(
+            self.subject, variables, trim=self.jinja2_trim, lstrip=self.jinja2_lstrip
         )
-        environment.add_extension(IncludeTemplateExtension)
-        for extension in settings.JINJA2_TEMPLATE_EXTENSIONS:
-            environment.add_extension(extension)
-
-        # Add custom filters to our environment
-        environment.filters.update(FILTER_DICT)
-
-        try:
-            jinja2_template = environment.from_string(self.subject)
-            subject = jinja2_template.render(variables)
-        except TemplateSyntaxError as e:
-            subject = (
-                f"Syntax error in subject template at line {e.lineno}: {e.message}"
-            )
-        except Exception as e:
-            subject = str(e)
-
-        try:
-            jinja2_template = environment.from_string(self.template)
-            body = jinja2_template.render(variables)
-        except TemplateSyntaxError as e:
-            body = f"Syntax error in body template at line {e.lineno}: {e.message}"
-        except Exception:
-            body = traceback.format_exc()
+        body = render_jinja2(
+            self.template, variables, trim=self.jinja2_trim, lstrip=self.jinja2_lstrip
+        )
 
         return subject, body
