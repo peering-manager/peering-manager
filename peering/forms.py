@@ -322,7 +322,10 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
         required=False, queryset=BGPGroup.objects.all(), label="BGP Group"
     )
     status = forms.ChoiceField(
-        required=False, choices=BGPSessionStatus, widget=StaticSelect
+        required=False,
+        choices=BGPSessionStatus,
+        initial=BGPSessionStatus.ENABLED,
+        widget=StaticSelect,
     )
     relationship = DynamicModelChoiceField(queryset=Relationship.objects.all())
     router = DynamicModelChoiceField(
@@ -711,7 +714,10 @@ class InternetExchangePeeringSessionForm(PeeringManagerModelForm):
         label="IXP connection",
     )
     status = forms.ChoiceField(
-        required=False, choices=BGPSessionStatus, widget=StaticSelect
+        required=False,
+        choices=BGPSessionStatus,
+        initial=BGPSessionStatus.ENABLED,
+        widget=StaticSelect,
     )
     password = PasswordField(required=False, render_value=True)
     import_routing_policies = DynamicModelMultipleChoiceField(
