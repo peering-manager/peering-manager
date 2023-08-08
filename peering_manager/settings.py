@@ -178,7 +178,7 @@ TAGGIT_CASE_INSENSITIVE = True
 
 # User-Agent for requests
 REQUESTS_USER_AGENT = getattr(
-    configuration, "REQUESTS_USER_AGENT", f"PeeringManager/{VERSION[1:4]}"
+    configuration, "REQUESTS_USER_AGENT", f"PeeringManager/{VERSION[0:3]}"
 )
 
 
