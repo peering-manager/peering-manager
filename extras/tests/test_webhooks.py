@@ -3,6 +3,7 @@ import uuid
 from unittest.mock import patch
 
 import django_rq
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.urls import reverse
 from requests import Session
@@ -31,6 +32,7 @@ class WebhookTest(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
+        as_ct = ContentType.objects.get_for_model(AutonomousSystem)
         TEST_URL = "http://localhost/"
         TEST_SECRET = "thisisaverystrongsecret"
 
@@ -39,23 +41,27 @@ class WebhookTest(APITestCase):
                 Webhook(
                     name="Create Webhook",
                     type_create=True,
-                    url=TEST_URL,
+                    payload_url=TEST_URL,
                     secret=TEST_SECRET,
+                    additional_headers="X-Foo: Bar",
                 ),
                 Webhook(
                     name="Update Webhook",
                     type_update=True,
-                    url=TEST_URL,
+                    payload_url=TEST_URL,
                     secret=TEST_SECRET,
                 ),
                 Webhook(
                     name="Delete Webhook",
                     type_delete=True,
-                    url=TEST_URL,
+                    payload_url=TEST_URL,
                     secret=TEST_SECRET,
                 ),
             ]
         )
+        for webhook in webhooks:
+            webhook.content_types.set([as_ct])
+
         Tag.objects.bulk_create(
             (
                 Tag(name="Foo", slug="foo"),
@@ -258,6 +264,7 @@ class WebhookTest(APITestCase):
             # Validate the outgoing request headers
             self.assertEqual(request.headers["Content-Type"], webhook.http_content_type)
             self.assertEqual(request.headers["X-Hook-Signature"], signature)
+            self.assertEqual(request.headers["X-Foo"], "Bar")
 
             # Validate the outgoing request body
             body = json.loads(request.body)

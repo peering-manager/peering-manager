@@ -24,6 +24,7 @@ from .filtersets import (
     IXAPIFilterSet,
     ObjectChangeFilterSet,
     TagFilterSet,
+    WebhookFilterSet,
 )
 from .forms import (
     ConfigContextAssignmentForm,
@@ -37,6 +38,8 @@ from .forms import (
     TagBulkEditForm,
     TagFilterForm,
     TagForm,
+    WebhookFilterForm,
+    WebhookForm,
 )
 from .models import (
     IXAPI,
@@ -46,6 +49,7 @@ from .models import (
     ObjectChange,
     Tag,
     TaggedItem,
+    Webhook,
 )
 from .tables import (
     ConfigContextAssignmentTable,
@@ -55,6 +59,7 @@ from .tables import (
     ObjectChangeTable,
     TaggedItemTable,
     TagTable,
+    WebhookTable,
 )
 
 
@@ -374,3 +379,33 @@ class TagBulkDelete(BulkDeleteView):
     ).order_by("name")
     filterset = TagFilterSet
     table = TagTable
+
+
+class WebhookList(ObjectListView):
+    permission_required = "extras.view_webhook"
+    queryset = Webhook.objects.all()
+    filterset = WebhookFilterSet
+    filterset_form = WebhookFilterForm
+    table = WebhookTable
+    template_name = "extras/webhook/list.html"
+
+
+class WebhookView(ObjectView):
+    permission_required = "extras.view_webhook"
+    queryset = Webhook.objects.all()
+    tab = "main"
+
+
+class WebhookAdd(ObjectEditView):
+    queryset = Webhook.objects.all()
+    form = WebhookForm
+
+
+class WebhookEdit(ObjectEditView):
+    queryset = Webhook.objects.all()
+    form = WebhookForm
+
+
+class WebhookDelete(ObjectDeleteView):
+    permission_required = "extras.delete_webhook"
+    queryset = Webhook.objects.all()

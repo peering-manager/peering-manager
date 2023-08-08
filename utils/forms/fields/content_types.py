@@ -14,7 +14,7 @@ class ContentTypeChoiceMixin:
 
     def label_from_instance(self, obj):
         try:
-            return content_type_name(obj)
+            return content_type_name(obj, include_app=False)
         except AttributeError:
             return super().label_from_instance(obj)
 

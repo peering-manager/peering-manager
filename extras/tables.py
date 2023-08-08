@@ -11,6 +11,7 @@ from .models import (
     ObjectChange,
     Tag,
     TaggedItem,
+    Webhook,
 )
 
 OBJECT_CHANGE_ACTION = """
@@ -158,3 +159,45 @@ class TaggedItemTable(PeeringManagerTable):
     class Meta(PeeringManagerTable.Meta):
         model = TaggedItem
         fields = ("id", "content_type", "content_object")
+
+
+class WebhookTable(PeeringManagerTable):
+    name = tables.Column(linkify=True)
+    content_types = columns.ContentTypesColumn()
+    enabled = columns.BooleanColumn()
+    type_create = columns.BooleanColumn(verbose_name="Create")
+    type_update = columns.BooleanColumn(verbose_name="Update")
+    type_delete = columns.BooleanColumn(verbose_name="Delete")
+    ssl_validation = columns.BooleanColumn(verbose_name="SSL Validation")
+    actions = columns.ActionsColumn()
+
+    class Meta(PeeringManagerTable.Meta):
+        model = Webhook
+        fields = (
+            "pk",
+            "id",
+            "name",
+            "content_types",
+            "enabled",
+            "type_create",
+            "type_update",
+            "type_delete",
+            "http_method",
+            "payload_url",
+            "secret",
+            "ssl_validation",
+            "ca_file_path",
+            "created",
+            "last_updated",
+        )
+        default_columns = (
+            "pk",
+            "name",
+            "content_types",
+            "enabled",
+            "type_create",
+            "type_update",
+            "type_delete",
+            "http_method",
+            "payload_url",
+        )

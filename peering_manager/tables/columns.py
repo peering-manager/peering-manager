@@ -17,6 +17,7 @@ __all__ = (
     "ChoiceFieldColumn",
     "ColourColumn",
     "ContentTypeColumn",
+    "ContentTypesColumn",
     "LinkedCountColumn",
     "SelectColumn",
     "TagColumn",
@@ -213,12 +214,30 @@ class ContentTypeColumn(tables.Column):
     def render(self, value):
         if value is None:
             return None
-        return content_type_name(value)
+        return content_type_name(value, include_app=False)
 
     def value(self, value):
         if value is None:
             return None
         return content_type_identifier(value)
+
+
+class ContentTypesColumn(tables.ManyToManyColumn):
+    """
+    Display a list of ContentType instances.
+    """
+
+    def __init__(self, separator=None, *args, **kwargs):
+        # Use a line break as the default separator
+        if separator is None:
+            separator = mark_safe("<br />")
+        super().__init__(separator=separator, *args, **kwargs)
+
+    def transform(self, obj):
+        return content_type_name(obj, include_app=False)
+
+    def value(self, value):
+        return ",".join([content_type_identifier(ct) for ct in self.filter(value)])
 
 
 class LinkedCountColumn(tables.Column):

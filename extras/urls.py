@@ -132,4 +132,20 @@ urlpatterns = [
         name="tag_changelog",
         kwargs={"model": models.Tag},
     ),
+    # Webhooks
+    path("webhooks/", views.WebhookList.as_view(), name="webhook_list"),
+    path("webhooks/add/", views.WebhookAdd.as_view(), name="webhook_add"),
+    path("webhooks/<int:pk>/", views.WebhookView.as_view(), name="webhook_view"),
+    path("webhooks/<int:pk>/edit/", views.WebhookEdit.as_view(), name="webhook_edit"),
+    path(
+        "webhooks/<int:pk>/delete/",
+        views.WebhookDelete.as_view(),
+        name="webhook_delete",
+    ),
+    path(
+        "webhooks/<int:pk>/changelog/",
+        ObjectChangeLogView.as_view(),
+        name="webhook_changelog",
+        kwargs={"model": models.Webhook},
+    ),
 ]

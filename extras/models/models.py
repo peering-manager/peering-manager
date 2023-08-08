@@ -1,24 +1,17 @@
 import json
-import traceback
 
-from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
-from jinja2 import Environment, TemplateSyntaxError
 from rest_framework.utils.encoders import JSONEncoder
 
-from extras.enums import WEBHOOK_HTTP_CONTENT_TYPE_JSON, HttpMethod
-from extras.utils import FeatureQuery
-from peering_manager.jinja2 import (
-    FILTER_DICT,
-    IncludeTemplateExtension,
-    PeeringManagerLoader,
-)
+from peering_manager.jinja2 import render_jinja2
 from peering_manager.models import ChangeLoggedModel
 
-__all__ = ("ExportTemplate", "Webhook")
+from ..conditions import ConditionSet
+from ..enums import WEBHOOK_HTTP_CONTENT_TYPE_JSON, HttpMethod
+from ..utils import FeatureQuery
 
 __all__ = ("ExportTemplate", "Webhook")
 
@@ -73,38 +66,25 @@ class ExportTemplate(ChangeLoggedModel):
         """
         Renders the content of the export template.
         """
-        environment = Environment(
-            loader=PeeringManagerLoader(),
-            trim_blocks=self.jinja2_trim,
-            lstrip_blocks=self.jinja2_lstrip,
+        return render_jinja2(
+            self.template, {"dataset": self.content_type.model_class().objects.all()}
         )
-        environment.add_extension(IncludeTemplateExtension)
-        for extension in settings.JINJA2_TEMPLATE_EXTENSIONS:
-            environment.add_extension(extension)
-
-        # Add custom filters to our environment
-        environment.filters.update(FILTER_DICT)
-
-        # Try rendering the template, return a message about syntax issues if there
-        # are any
-        try:
-            jinja2_template = environment.from_string(self.template)
-            return jinja2_template.render(
-                dataset=self.content_type.model_class().objects.all()
-            )
-        except TemplateSyntaxError as e:
-            return f"Syntax error in template at line {e.lineno}: {e.message}"
-        except Exception:
-            return traceback.format_exc()
 
 
-class Webhook(models.Model):
+class Webhook(ChangeLoggedModel):
     """
     A Webhook defines a request that will be sent to a remote HTTP server when an
     object is created, updated, and/or delete. The request will contain a
     representation of the object.
     """
 
+    content_types = models.ManyToManyField(
+        to=ContentType,
+        related_name="webhooks",
+        verbose_name="Object types",
+        limit_choices_to=FeatureQuery("webhooks"),
+        help_text="The object(s) to which this webhook applies.",
+    )
     name = models.CharField(max_length=100, unique=True)
     type_create = models.BooleanField(
         default=False, help_text="Call this webhook when an object is created."
@@ -115,10 +95,10 @@ class Webhook(models.Model):
     type_delete = models.BooleanField(
         default=False, help_text="Call this webhook when an object is deleted."
     )
-    url = models.CharField(
+    payload_url = models.CharField(
         max_length=512,
         verbose_name="URL",
-        help_text="A POST will be sent to this URL when the webhook is called.",
+        help_text="This URL will be called using the HTTP method defined when the webhook is called. Jinja2 template processing is supported with the same context as the request body.",
     )
     enabled = models.BooleanField(default=True)
     http_method = models.CharField(
@@ -133,10 +113,23 @@ class Webhook(models.Model):
         verbose_name="HTTP content type",
         help_text='The complete list of official content types is available <a href="https://www.iana.org/assignments/media-types/media-types.xhtml">here</a>.',
     )
+    additional_headers = models.TextField(
+        blank=True,
+        help_text="User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is supported with the same context as the request body (below).",
+    )
+    body_template = models.TextField(
+        blank=True,
+        help_text="Jinja2 template for a custom request body. If blank, a JSON object representing the change will be included. Available context data includes: <code>event</code>, <code>model</code>, <code>timestamp</code>, <code>username</code>, <code>request_id</code>, and <code>data</code>.",
+    )
     secret = models.CharField(
         max_length=255,
         blank=True,
         help_text="When provided, the request will include a 'X-Hook-Signature' header containing a HMAC hex digest of the payload body using the secret as the key. The secret is not transmitted in the request.",
+    )
+    conditions = models.JSONField(
+        blank=True,
+        null=True,
+        help_text="A set of conditions which determine whether the webhook will be generated.",
     )
     ssl_verification = models.BooleanField(
         default=True,
@@ -153,18 +146,26 @@ class Webhook(models.Model):
 
     class Meta:
         ordering = ["name"]
-        unique_together = ["type_create", "type_update", "type_delete", "url"]
+        unique_together = ["type_create", "type_update", "type_delete", "payload_url"]
 
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse("extras:webhook_view", args=[self.pk])
+
     def clean(self):
         super().clean()
 
-        if not self.type_create and not self.type_delete and not self.type_update:
+        if not any([self.type_create, self.type_update, self.type_delete]):
             raise ValidationError(
-                "You must select at least one type: create, update, and/or delete."
+                "At least one event type must be selected: create, update, and/or delete."
             )
+        if self.conditions:
+            try:
+                ConditionSet(self.conditions)
+            except ValueError as e:
+                raise ValidationError({"conditions": e})
         if not self.ssl_verification and self.ca_file_path:
             raise ValidationError(
                 {
@@ -172,8 +173,33 @@ class Webhook(models.Model):
                 }
             )
 
-    def render_body(self, data):
+    def render_headers(self, context):
         """
-        Renders the data as a JSON object.
+        Render `additional_headers` and return a dict of `Header: Value`
+        pairs.
         """
-        return json.dumps(data, cls=JSONEncoder)
+        if not self.additional_headers:
+            return {}
+
+        r = {}
+        data = render_jinja2(self.additional_headers, context)
+        for line in data.splitlines():
+            header, value = line.split(":", 1)
+            r[header.strip()] = value.strip()
+        return r
+
+    def render_body(self, context):
+        """
+        Render the body template, if defined. Otherwise, jump the context as a JSON
+        object.
+        """
+        if self.body_template:
+            return render_jinja2(self.body_template, context)
+        else:
+            return json.dumps(context, cls=JSONEncoder)
+
+    def render_payload_url(self, context):
+        """
+        Render the payload URL.
+        """
+        return render_jinja2(self.payload_url, context)

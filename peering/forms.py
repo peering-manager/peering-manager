@@ -14,7 +14,7 @@ from peering_manager.forms import (
     PeeringManagerModelFilterSetForm,
     PeeringManagerModelForm,
 )
-from utils.forms import BootstrapMixin, add_blank_choice
+from utils.forms import BOOLEAN_WITH_BLANK_CHOICES, BootstrapMixin, add_blank_choice
 from utils.forms.fields import (
     CommentField,
     DynamicModelChoiceField,
@@ -25,11 +25,7 @@ from utils.forms.fields import (
     TagFilterField,
     TextareaField,
 )
-from utils.forms.widgets import (
-    CustomNullBooleanSelect,
-    StaticSelect,
-    StaticSelectMultiple,
-)
+from utils.forms.widgets import StaticSelect, StaticSelectMultiple
 
 from .enums import (
     BGPGroupStatus,
@@ -135,7 +131,10 @@ class AutonomousSystemFilterForm(PeeringManagerModelFilterSetForm):
     asn = forms.IntegerField(required=False, label="ASN")
     ipv6_max_prefixes = forms.IntegerField(required=False, label="IPv6 max prefixes")
     ipv4_max_prefixes = forms.IntegerField(required=False, label="IPv4 max prefixes")
-    affiliated = forms.NullBooleanField(required=False, widget=CustomNullBooleanSelect)
+    affiliated = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
+    )
     tag = TagFilterField(model)
 
 
@@ -669,7 +668,9 @@ class InternetExchangePeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm
         widget=StaticSelect,
     )
     is_route_server = forms.NullBooleanField(
-        required=False, label="Route server", widget=CustomNullBooleanSelect
+        required=False,
+        label="Route server",
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
@@ -801,7 +802,9 @@ class InternetExchangePeeringSessionFilterForm(PeeringManagerModelFilterSetForm)
         required=False, choices=BGPSessionStatus, widget=StaticSelectMultiple
     )
     is_route_server = forms.NullBooleanField(
-        required=False, label="Route server", widget=CustomNullBooleanSelect
+        required=False,
+        label="Route server",
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
     tag = TagFilterField(model)
 
@@ -928,10 +931,13 @@ class RouterBulkEditForm(PeeringManagerModelBulkEditForm):
         widget=StaticSelect,
     )
     encrypt_passwords = forms.NullBooleanField(
-        required=False, widget=CustomNullBooleanSelect
+        required=False,
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
     poll_bgp_sessions_state = forms.NullBooleanField(
-        required=False, widget=CustomNullBooleanSelect, label="Poll BGP sessions state"
+        required=False,
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
+        label="Poll BGP sessions state",
     )
     configuration_template = DynamicModelChoiceField(
         required=False, queryset=Configuration.objects.all()
@@ -962,7 +968,8 @@ class RouterFilterForm(PeeringManagerModelFilterSetForm):
         required=False, choices=DeviceStatus, widget=StaticSelectMultiple
     )
     encrypt_passwords = forms.NullBooleanField(
-        required=False, widget=CustomNullBooleanSelect
+        required=False,
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
     configuration_template_id = DynamicModelMultipleChoiceField(
         required=False,

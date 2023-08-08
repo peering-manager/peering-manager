@@ -151,18 +151,22 @@ def shallow_compare_dict(first_dict, second_dict, exclude=None):
     return difference
 
 
-def content_type_name(ct):
+def content_type_name(ct, include_app=True):
     """
     Returns a human-friendly `ContentType` name (e.g. "Peering > Autonomous System").
     """
     try:
         meta = ct.model_class()._meta
-        return (
-            f"{meta.app_config.verbose_name} > {title_with_uppers(meta.verbose_name)}"
-        )
+        app_label = title_with_uppers(meta.app_config.verbose_name)
+        model_name = title_with_uppers(meta.verbose_name)
+
+        if include_app:
+            return f"{app_label} > {model_name}"
+        else:
+            return model_name
     except AttributeError:
         # Model no longer exists
-        return f"{ct.app_label} > {title_with_uppers(ct.model)}"
+        return f"{ct.app_label} > {ct.model}"
 
 
 def content_type_identifier(ct):

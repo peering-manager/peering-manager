@@ -3,6 +3,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from extras.utils import FeatureQuery
 from peering_manager.api.fields import ChoiceField, ContentTypeField
 from peering_manager.api.serializers import (
     BaseModelSerializer,
@@ -235,20 +236,34 @@ class TagSerializer(ValidatedModelSerializer):
         ]
 
 
-class WebhookSerializer(serializers.ModelSerializer):
+class WebhookSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name="extras-api:webhook-detail")
+    content_types = ContentTypeField(
+        queryset=ContentType.objects.filter(FeatureQuery("webhooks").get_query()),
+        many=True,
+    )
+
     class Meta:
         model = Webhook
         fields = [
             "id",
+            "url",
+            "display",
+            "content_types",
             "name",
             "type_create",
             "type_update",
             "type_delete",
-            "url",
+            "payload_url",
             "enabled",
             "http_method",
             "http_content_type",
+            "additional_headers",
+            "body_template",
             "secret",
+            "conditions",
             "ssl_verification",
             "ca_file_path",
+            "created",
+            "updated",
         ]

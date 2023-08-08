@@ -5,9 +5,10 @@ from django.core.exceptions import ValidationError
 from requests.exceptions import HTTPError
 
 from extras.models.configcontext import ConfigContextAssignment
-from utils.forms import BootstrapMixin, BulkEditForm
+from utils.forms import BOOLEAN_WITH_BLANK_CHOICES, BootstrapMixin, BulkEditForm
 from utils.forms.fields import (
     ContentTypeChoiceField,
+    ContentTypeMultipleChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     JSONField,
@@ -16,12 +17,11 @@ from utils.forms.fields import (
 from utils.forms.widgets import (
     APISelectMultiple,
     ColourSelect,
-    CustomNullBooleanSelect,
     StaticSelect,
     StaticSelectMultiple,
 )
 
-from .enums import ObjectChangeAction
+from .enums import HttpMethod, ObjectChangeAction
 from .models import (
     IXAPI,
     ConfigContext,
@@ -29,6 +29,7 @@ from .models import (
     ExportTemplate,
     ObjectChange,
     Tag,
+    Webhook,
 )
 from .utils import FeatureQuery
 
@@ -49,7 +50,9 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
     model = ConfigContext
     q = forms.CharField(required=False, label="Search")
     is_active = forms.NullBooleanField(
-        required=False, label="Active", widget=CustomNullBooleanSelect
+        required=False,
+        label="Active",
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
 
 
@@ -179,3 +182,77 @@ class TagForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Tag
         fields = ["name", "slug", "color", "description"]
+
+
+class WebhookForm(BootstrapMixin, forms.ModelForm):
+    content_types = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(), limit_choices_to=FeatureQuery("webhooks")
+    )
+    http_method = forms.ChoiceField(
+        choices=HttpMethod, widget=StaticSelect, label="HTTP method"
+    )
+
+    fieldsets = (
+        ("Webhook", ("name", "content_types", "enabled")),
+        ("Events", ("type_create", "type_update", "type_delete")),
+        (
+            "HTTP Request",
+            (
+                "payload_url",
+                "http_method",
+                "http_content_type",
+                "additional_headers",
+                "body_template",
+                "secret",
+            ),
+        ),
+        ("Conditions", ("conditions",)),
+        ("SSL", ("ssl_verification", "ca_file_path")),
+    )
+
+    class Meta:
+        model = Webhook
+        fields = "__all__"
+        labels = {
+            "type_create": "Creations",
+            "type_update": "Updates",
+            "type_delete": "Deletions",
+        }
+        widgets = {
+            "additional_headers": forms.Textarea(attrs={"class": "font-monospace"}),
+            "body_template": forms.Textarea(attrs={"class": "font-monospace"}),
+            "conditions": forms.Textarea(attrs={"class": "font-monospace"}),
+        }
+
+
+class WebhookFilterForm(BootstrapMixin, forms.Form):
+    model = Webhook
+    content_type_id = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.filter(FeatureQuery("webhooks").get_query()),
+        required=False,
+        label="Object type",
+    )
+    http_method = forms.MultipleChoiceField(
+        required=False,
+        choices=HttpMethod,
+        widget=StaticSelectMultiple,
+        label="HTTP method",
+    )
+    enabled = forms.NullBooleanField(
+        required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES)
+    )
+    type_create = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
+        label="Object creations",
+    )
+    type_update = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
+        label="Object updates",
+    )
+    type_delete = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
+        label="Object deletions",
+    )

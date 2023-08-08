@@ -3,12 +3,7 @@ from django import forms
 from ...enums import Colour
 from ..utils import add_blank_choice
 
-__all__ = (
-    "ColourSelect",
-    "CustomNullBooleanSelect",
-    "StaticSelect",
-    "StaticSelectMultiple",
-)
+__all__ = ("ColourSelect", "StaticSelect", "StaticSelectMultiple")
 
 
 class BulkEditNullBooleanSelect(forms.NullBooleanSelect):
@@ -55,13 +50,3 @@ class StaticSelectMultiple(StaticSelect, forms.SelectMultiple):
         super().__init__(*args, **kwargs)
         self.attrs["data-multiple"] = 1
         self.attrs["data-close-on-select"] = 0
-
-
-class CustomNullBooleanSelect(StaticSelect):
-    """
-    Do not enforce True/False when not selecting an option.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.choices = (("unknown", "---------"), ("true", "Yes"), ("false", "No"))

@@ -1,7 +1,7 @@
 from django import forms
 
-from utils.forms import BootstrapMixin, add_blank_choice
-from utils.forms.widgets import CustomNullBooleanSelect, StaticSelectMultiple
+from utils.forms import BOOLEAN_WITH_BLANK_CHOICES, BootstrapMixin, add_blank_choice
+from utils.forms.widgets import StaticSelect, StaticSelectMultiple
 
 from .enums import (
     ContractsPolicy,
@@ -21,7 +21,9 @@ class NetworkIXLanFilterForm(BootstrapMixin, forms.Form):
     q = forms.CharField(required=False, label="Search")
     asn = forms.IntegerField(required=False, label="ASN")
     is_rs_peer = forms.NullBooleanField(
-        required=False, label="On Route Server", widget=CustomNullBooleanSelect
+        required=False,
+        label="On Route Server",
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
     net__info_traffic = forms.ChoiceField(
         label="Traffic",
@@ -54,7 +56,9 @@ class NetworkIXLanFilterForm(BootstrapMixin, forms.Form):
         widget=StaticSelectMultiple,
     )
     net__policy_ratio = forms.NullBooleanField(
-        required=False, label="Ratio Requirement", widget=CustomNullBooleanSelect
+        required=False,
+        label="Ratio Requirement",
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
     net__policy_contracts = forms.ChoiceField(
         label="Contract Requirement",

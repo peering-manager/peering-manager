@@ -58,6 +58,8 @@ class NestedTagSerializer(WritableNestedSerializer):
 
 
 class NestedWebhookSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name="extras-api:webhook-detail")
+
     class Meta:
         model = Webhook
         fields = ["id", "name", "url"]
