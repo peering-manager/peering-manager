@@ -353,13 +353,13 @@ to change this setting.
 
 ## BGPQ3_HOST
 
-Default: `whois.radb.net`
+Default: `rr.ntt.net`
 
 The host that will be used by BGPQ3 to look for IRR objects.
 
 ## BGPQ3_SOURCES
 
-Default: `RIPE,APNIC,AFRINIC,ARIN,NTTCOM,ALTDB,BBOI,BELL,JPIRR,LEVEL3,RADB,RGNET,SAVVIS,TC`
+Default: `RPKI,RIPE,ARIN,APNIC,AFRINIC,LACNIC`
 
 A list of comma separated sources from which we will accept IRR objects.
 

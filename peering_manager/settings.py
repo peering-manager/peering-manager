@@ -97,11 +97,9 @@ TIME_ZONE = getattr(configuration, "TIME_ZONE", BASE_TZ).rstrip()
 EMAIL = getattr(configuration, "EMAIL", {})
 HTTP_PROXIES = getattr(configuration, "HTTP_PROXIES", None)
 BGPQ3_PATH = getattr(configuration, "BGPQ3_PATH", "bgpq3")
-BGPQ3_HOST = getattr(configuration, "BGPQ3_HOST", "whois.radb.net")
+BGPQ3_HOST = getattr(configuration, "BGPQ3_HOST", "rr.ntt.net")
 BGPQ3_SOURCES = getattr(
-    configuration,
-    "BGPQ3_SOURCES",
-    "RIPE,APNIC,AFRINIC,ARIN,NTTCOM,ALTDB,BBOI,BELL,JPIRR,LEVEL3,RADB,RGNET,TC",
+    configuration, "BGPQ3_SOURCES", "RPKI,RIPE,ARIN,APNIC,AFRINIC,LACNIC"
 )
 BGPQ3_ARGS = getattr(
     configuration,

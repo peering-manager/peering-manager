@@ -24,11 +24,12 @@ class IRRASSetFunctions(TestCase):
 
     def test_parse_irr_as_set(self):
         self.assertEqual(
-            ["AS-MAZOYER-EU"], parse_irr_as_set(201281, "RIPE::AS-MAZOYER-EU")
+            ["AS201281:AS-MAZOYER-EU"],
+            parse_irr_as_set(201281, "RIPE::AS201281:AS-MAZOYER-EU"),
         )
         self.assertEqual(
             ["AS-HURRICANE", "AS-HURRICANEv6"],
-            parse_irr_as_set(6939, "RADB::AS-HURRICANE RADB::AS-HURRICANEv6"),
+            parse_irr_as_set(6939, "AS-HURRICANE AS-HURRICANEv6"),
         )
         self.assertEqual(
             ["AS51706:AS-MEMBERS"], parse_irr_as_set(51706, "AS51706:AS-MEMBERS")
