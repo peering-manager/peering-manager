@@ -118,15 +118,6 @@ The maximum execution time of a background task, in seconds.
 
 ---
 
-## CACHE_TIMEOUT
-
-Default: `0`
-
-The number of seconds to retain cache entries before automatically invalidating
-them. Setting the value to 0 will disable the use of the caching functionality.
-
----
-
 ## CACHE_BGP_DETAIL_TIMEOUT
 
 Default: `900`
