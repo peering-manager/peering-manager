@@ -15,18 +15,10 @@
 {% endblock %}
 {% block content %}
 <form method="post">
-  {% render_errors form %}
   {% csrf_token %}
   <div class="row justify-content-center">
     <div class="col-8">
-      {% if form.non_field_errors %}
-      <div class="card bg-danger text-white my-2">
-        <div class="card-header"><strong>Errors</strong></div>
-        <div class="card-body">
-          {{ form.non_field_errors }}
-        </div>
-      </div>
-      {% endif %}
+      {% render_errors form %}
       {% block form %}
       {% include 'generic/form.html' %}
       {% endblock form %}
