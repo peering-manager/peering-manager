@@ -60,6 +60,18 @@ class IXAPI(ChangeLoggedModel):
     def get_absolute_url(self):
         return reverse("extras:ixapi_view", args=[self.pk])
 
+    @staticmethod
+    def test_connectivity(url, api_key, api_secret):
+        """
+        Performs a authentication and see if it succeeds.
+        """
+        api = pyixapi.api(
+            url, api_key, api_secret, user_agent=settings.REQUESTS_USER_AGENT
+        )
+
+        # Perform an authentication
+        return api.authenticate() is not None
+
     def dial(self):
         """
         Returns a API client to use for queries.

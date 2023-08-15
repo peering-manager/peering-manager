@@ -110,15 +110,11 @@ class IXAPIForm(BootstrapMixin, forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        ixapi = IXAPI(
-            name=cleaned_data["name"],
-            url=cleaned_data["url"],
-            api_key=cleaned_data["api_key"],
-            api_secret=cleaned_data["api_secret"],
-        )
         try:
             # Try to query API and see if it raises an error
-            ixapi.get_accounts()
+            IXAPI.test_connectivity(
+                cleaned_data["url"], cleaned_data["api_key"], cleaned_data["api_secret"]
+            )
         except HTTPError as e:
             # Fail form validation on HTTP error to provide a feedback to the user
             if e.response.status_code >= 400 and e.response.status_code < 500:
@@ -128,9 +124,9 @@ class IXAPIForm(BootstrapMixin, forms.ModelForm):
             raise ValidationError(
                 f"Unable to connect to IX-API ({e.response.status_code} {e.response.reason}), {possible_issue}."
             )
-        # Even though it's not in the database, if not called, it will trigger
-        # a constraint violation
-        ixapi.delete()
+        except Exception as e:
+            # Raised by pyixapi
+            raise ValidationError(str(e))
 
 
 class IXAPIFilterForm(BootstrapMixin, forms.Form):
