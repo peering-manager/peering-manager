@@ -218,7 +218,7 @@ class IXAPI(ChangeLoggedModel):
                 try:
                     setattr(nsc, "connection", Connection.objects.get(qs_filter))
                 except (Connection.DoesNotExist, Connection.MultipleObjectsReturned):
-                    return setattr(nsc, "connection", None)
+                    setattr(nsc, "connection", None)
 
             c.append(nsc)
 

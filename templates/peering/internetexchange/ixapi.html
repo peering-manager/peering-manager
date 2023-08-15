@@ -47,25 +47,24 @@
     </div>
   </div>
   <div class="col-md-6">
-    <div class="list-group">
     {% for config in ixapi_service.network_service_configs %}
-    <div class="list-group-item list-group-item-action flex-column align-items-start">
-      <div class="d-flex w-100 justify-content-between">
-        <strong class="mb-1">{{ config.id }} - {{ config.state | title }}</strong>
+    <div class="card mb-2">
+      <div class="card-header">
+        <strong>{{ config.id }} - {{ config.state | title }}</strong>
         {% if config.connection %}
-        <a class="btn btn-xs btn-success" href="{{ config.connection.get_absolute_url }}">
+        <a class="btn btn-xs btn-success float-right" href="{{ config.connection.get_absolute_url }}">
           <i class="fas fa-check"></i> Configured
         </a>
         {% else %}
         {% if perms.peering.change_internetexchange and perms.net.add_connection %}
-        <a class="btn btn-xs btn-primary"
+        <a class="btn btn-xs btn-primary float-right"
            href="{% url 'net:connection_add' %}?internet_exchange_point={{ instance.pk }}&vlan={{ config.outer_vlan }}{% if config.ipv6_address %}&ipv6_address={{ config.ipv6_address }}{% endif %}{% if config.ipv4_address %}&ipv4_address={{ config.ipv4_address }}{% endif %}&return_url={% url 'peering:internetexchange_ixapi' pk=instance.pk %}">
           <i class="fas fa-plug"></i> Setup
         </a>
         {% endif %}
         {% endif %}
       </div>
-      <table class="table table-hover attr-table mb-0">
+      <table class="card-body table table-hover attr-table mb-0">
         {% if config.outer_vlan %}
         <tr>
           <td>Outer VLAN</td>
@@ -91,7 +90,6 @@
       </table>
     </div>
     {% endfor %}
-    </div>
   </div>
 </div>
 {% if ixapi_service.network_features %}
