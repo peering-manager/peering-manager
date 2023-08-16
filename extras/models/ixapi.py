@@ -3,6 +3,7 @@ import logging
 import pyixapi
 from django.apps import apps
 from django.conf import settings
+from django.core.cache import cache
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
@@ -43,16 +44,25 @@ class IXAPI(ChangeLoggedModel):
         ]
 
     @property
+    def _cache_key(self):
+        return f"ixapi_data__{self.pk}"
+
+    @property
     def version(self):
         """
         Returns the API version based on the URL.
         """
-        if not hasattr(self, "_version"):
+        key = f"ixapi_version__{self.pk}"
+        value = cache.get(key)
+
+        if not value:
             logger.debug("ix-api version not cached, querying...")
             # Cache version to avoid re-querying the API
             api = self.dial()
-            self._version = api.version
-        return self._version
+            value = api.version
+            cache.set(key, value)
+
+        return value
 
     def __str__(self):
         return self.name
@@ -155,13 +165,13 @@ class IXAPI(ChangeLoggedModel):
         Fetches all IX-API useful data and cache them in memory, to improve lookup
         speed.
         """
-        if hasattr(self, "_cached_data"):
+        if cache.get(self._cache_key):
             logger.debug("ix-api data already cached")
             return
 
         logger.debug("ix-api data not cached, fetching and caching")
         api = self.dial()
-        self._cached_data = {
+        data = {
             "network_service_configs": list(api.network_service_configs.all()),
             "network_services": list(api.network_services.all()),
             "network_features": list(api.network_features.all()),
@@ -169,14 +179,16 @@ class IXAPI(ChangeLoggedModel):
             "macs": list(api.macs.all()),
             "ips": list(api.ips.all()),
         }
+        cache.set(self._cache_key, data)
 
     def get_cached_data(self, endpoint):
         """
         Retrieves a cached value for an IX-API endpoint.
         """
-        if not hasattr(self, "_cached_data"):
+        cached_value = cache.get(self._cache_key)
+        if not cached_value:
             return []
-        return self._cached_data.get(endpoint, [])
+        return cached_value.get(endpoint, [])
 
     def get_network_service_configs(
         self, network_service=None, states=("production", "testing")
