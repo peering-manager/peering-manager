@@ -162,14 +162,8 @@ class IXAPI(ChangeLoggedModel):
 
     def cache_ixapi_data(self):
         """
-        Fetches all IX-API useful data and cache them in memory, to improve lookup
-        speed.
+        Fetches all IX-API useful data and cache them, to improve lookup speed.
         """
-        if cache.get(self._cache_key):
-            logger.debug("ix-api data already cached")
-            return
-
-        logger.debug("ix-api data not cached, fetching and caching")
         api = self.dial()
         data = {
             "network_service_configs": list(api.network_service_configs.all()),
@@ -181,13 +175,17 @@ class IXAPI(ChangeLoggedModel):
         }
         cache.set(self._cache_key, data)
 
+        return data
+
     def get_cached_data(self, endpoint):
         """
-        Retrieves a cached value for an IX-API endpoint.
+        Retrieves a cached value for an IX-API endpoint. If not cached data are found,
+        build the cache and return its value.
         """
         cached_value = cache.get(self._cache_key)
         if not cached_value:
-            return []
+            logger.debug("ix-api data not cached, fetching and caching")
+            cached_value = self.cache_ixapi_data()
         return cached_value.get(endpoint, [])
 
     def get_network_service_configs(
@@ -198,8 +196,6 @@ class IXAPI(ChangeLoggedModel):
 
         TODO: retrieve RS configurations with network feature configs
         """
-        self.cache_ixapi_data()
-
         c = []
         network_service_configs = self.get_cached_data("network_service_configs")
 
@@ -252,8 +248,6 @@ class IXAPI(ChangeLoggedModel):
         """
         Returns all known network services assigned to us.
         """
-        self.cache_ixapi_data()
-
         network_services = self.get_cached_data("network_services")
         for ns in network_services:
             if hasattr(ns, "product"):
@@ -291,10 +285,9 @@ class IXAPI(ChangeLoggedModel):
         mac_address = str(mac_address).upper()
 
         # Fetch MACs and only get the actual addresses
-        self.cache_ixapi_data()
         macs = [i["address"] for i in self.get_cached_data("macs")]
         if mac_address in macs:
-            print(f"{mac_address} already exists")
+            logger.debug(f"{mac_address} already exists")
         else:
-            print(f"create mac address {mac_address}")
+            logger.debug(f"create mac address {mac_address}")
             # self.dial().macs.create(address=mac_address)
