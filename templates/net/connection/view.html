@@ -66,7 +66,7 @@
         </tr>
         <tr>
           <td>State</td>
-          <td>{{ ixapi_network_service_config.state | title }}</td>
+          <td>{{ ixapi_network_service_config.state|title }}</td>
         </tr>
         {% if ixapi_network_service_config.outer_vlan %}
         <tr>
@@ -87,8 +87,13 @@
         </tr>
         {% endfor %}
         <tr>
-          <td>MAC address{{ ixapi_network_service_config.macs | pluralize:"es" }}</td>
-          <td>{{ ixapi_network_service_config.macs | join:" - " | render_none }}</td>
+          <td>MAC address</td>
+          <td>
+            {{ ixapi_mac_address|render_none }}
+            {% if ixapi_mac_address and not instance.mac_address %}
+            <button type="button" class="btn btn-sm btn-outline-primary float-right" id="id_use_ixapi_mac" data-toggle="tooltip" data-placement="top" title="Set this MAC as the one of the connection"><i class="fas fa-download"></i> Use this MAC</button>
+            {% endif %}
+          </td>
         </tr>
       </table>
     </div>
@@ -99,7 +104,7 @@
       <div class="card-header"><strong>Comments</strong></div>
       <div class="card-body">
         {% if instance.comments %}
-        {{ instance.comments | markdown }}
+        {{ instance.comments|markdown }}
         {% else %}
         <span class="text-muted">None</span>
         {% endif %}
@@ -114,5 +119,20 @@
   $(function() {
     $('[data-toggle="tooltip"]').tooltip();
   });
+  {% if ixapi_mac_address and not instance.mac_address %}
+  $("#id_use_ixapi_mac").click(function() {
+    $.ajax({
+      method: "patch",
+      url: "{% url 'net-api:connection-detail' pk=instance.pk %}",
+      headers: { "X-CSRFTOKEN": "{{ csrf_token }}" },
+      data: {
+        "id": {{ instance.pk }},
+        "mac_address": "{{ ixapi_mac_address }}"
+      }
+    }).done(function() {
+      location.reload();
+    });
+  });
+  {% endif %}
 </script>
 {% endblock %}

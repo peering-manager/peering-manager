@@ -143,3 +143,12 @@ class Connection(PrimaryModel):
                 return config
 
         return None
+
+    def ixapi_mac_address(self, network_service_config):
+        """
+        Returns the MAC address found in IX-API for this connection.
+        """
+        if not network_service_config or not len(network_service_config.macs):
+            return None
+
+        return network_service_config.macs[0]
