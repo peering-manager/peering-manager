@@ -206,6 +206,7 @@ class IXAPITest(APIViewTestCases.View):
             fixture="extras/tests/fixtures/ix_api/authenticate.json"
         ),
     )
+    @patch("pyixapi.core.api.API.version", return_value=1)
     def test_accounts(self, *_):
         ixapi = IXAPI.objects.get(name="IXP 1")
         url = reverse("extras-api:ixapi-accounts")

@@ -18,8 +18,7 @@ __all__ = ("IXAPI",)
 
 class IXAPI(ChangeLoggedModel):
     """
-    An Endpoint holds the details to reach an IX-API given its URL, API key and
-    secret.
+    This model holds the details to reach an IX-API given its URL, API key and secret.
     """
 
     name = models.CharField(max_length=100)
@@ -132,7 +131,7 @@ class IXAPI(ChangeLoggedModel):
         In theory the primary account is us, that said we may be a reseller (thus
         having sub-accounts), but we do not need to track this, at least not yet.
         """
-        accounts = self.dial().customers
+        accounts = self.dial().accounts
         if id:
             return accounts.filter(id=id)
         else:

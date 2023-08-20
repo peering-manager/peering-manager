@@ -15,7 +15,7 @@ Markdown==3.4.4
 napalm==4.1.0
 packaging==23.1
 psycopg[binary,pool]==3.1.9
-pyixapi==0.1.4
+pyixapi==0.2.0
 pynetbox==7.0.1
 PyYAML==6.0.1
 requests==2.31.0

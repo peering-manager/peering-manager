@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
+from rest_framework import status
 
 from peering.models import AutonomousSystem
 from utils.testing import MockedResponse
@@ -108,6 +109,7 @@ class IXAPITest(TestCase):
             fixture="extras/tests/fixtures/ix_api/authenticate.json"
         ),
     )
+    @patch("pyixapi.core.api.API.version", return_value=1)
     def test_get_accounts(self, *_):
         with patch(
             "requests.sessions.Session.get",
@@ -124,6 +126,7 @@ class IXAPITest(TestCase):
             fixture="extras/tests/fixtures/ix_api/authenticate.json"
         ),
     )
+    @patch("pyixapi.core.api.API.version", return_value=1)
     def test_get_identity(self, *_):
         with patch(
             "requests.sessions.Session.get",
