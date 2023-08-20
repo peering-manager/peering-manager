@@ -2,7 +2,6 @@ from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
-from rest_framework import status
 
 from peering.models import AutonomousSystem
 from utils.testing import MockedResponse

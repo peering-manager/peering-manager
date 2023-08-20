@@ -155,7 +155,7 @@ class IXAPIViewSet(PeeringManagerModelViewSet):
         )
         api.authenticate()
 
-        return Response(data=api.customers.all())
+        return Response(data=api.accounts.all())
 
 
 class ObjectChangeViewSet(PeeringManagerModelViewSet):
