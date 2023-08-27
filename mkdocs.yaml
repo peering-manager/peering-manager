@@ -69,6 +69,8 @@ nav:
             - Tag: "models/extras/tag.md"
             - Webhook: "models/extras/webhook.md"
         - Token: "models/users/token.md"
+    - References:
+        - Conditions: "reference/conditions.md"
     - Third-Party: "third-party.md"
     - Templating:
         - Writing Templates: "templating/index.md"
