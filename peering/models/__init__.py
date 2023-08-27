@@ -700,6 +700,9 @@ class InternetExchange(AbstractGroup):
         if not self.ixapi_endpoint:
             return None
 
+        candidates = self.ixapi_endpoint.get_network_services()
+
+        # First we try to get a match using known connections if any
         networks = []
         for ipv4, ipv6 in self.get_connections().values_list(
             "ipv4_address", "ipv6_address"
@@ -709,12 +712,33 @@ class InternetExchange(AbstractGroup):
             if ipv6.network not in networks:
                 networks.append(ipv6.network)
 
-        for candidate in self.ixapi_endpoint.get_network_services():
-            # Check if prefixes between IX-API and know connections match
+        for candidate in candidates:
+            # Check if prefixes between IX-API and known connections match
             if candidate.subnet_v4 in networks or candidate.subnet_v6 in networks:
                 return candidate
 
-        return None
+        # Then we fall back to make a match using PeeringDB data
+        network_service = None
+        for candidate in candidates:
+            # If PeeringDB's IX IDs match, we are on the right track
+            if (
+                self.peeringdb_ixlan
+                and self.peeringdb_ixlan.ix.id == candidate.peeringdb_ixid
+            ):
+                # Check if prefixes between IX-API and PeeringDB match
+                found_v4 = False
+                found_v6 = False
+                for i in self.get_prefixes():
+                    if i.prefix == candidate.subnet_v4:
+                        found_v4 = True
+                    if i.prefix == candidate.subnet_v6:
+                        found_v6 = True
+
+                if found_v4 and found_v6:
+                    network_service = candidate
+                    break
+
+        return network_service
 
     @transaction.atomic
     def import_sessions(self, connection):
