@@ -252,7 +252,7 @@ def date_span(date_value):
 
 @register.simple_tag(takes_context=True)
 def missing_sessions(context, autonomous_system):
-    if "context_as" not in context:
+    if "context_as" not in context or not context["context_as"]:
         return False
 
     ix = autonomous_system.get_shared_internet_exchange_points(context["context_as"])

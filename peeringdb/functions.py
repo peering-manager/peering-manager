@@ -10,22 +10,12 @@ def get_shared_internet_exchanges(as1, as2):
     """
     # If both AS are the same or one of each has not PeeringDB record
     # Cannot find shared IXPs
-    if (
-        as1 == as2
-        or as1 is None
-        or as2 is None
-        or not as1.peeringdb_network
-        or not as2.peeringdb_network
-    ):
+    if as1 == as2 or as1 is None or as2 is None:
         return IXLan.objects.none()
 
     # Find IX LANs to which AS are participating to and get IDs
-    ixlan_ids_1 = NetworkIXLan.objects.filter(net=as1.peeringdb_network).values_list(
-        "ixlan", flat=True
-    )
-    ixlan_ids_2 = NetworkIXLan.objects.filter(net=as2.peeringdb_network).values_list(
-        "ixlan", flat=True
-    )
+    ixlan_ids_1 = NetworkIXLan.objects.filter(net=as1).values_list("ixlan", flat=True)
+    ixlan_ids_2 = NetworkIXLan.objects.filter(net=as2).values_list("ixlan", flat=True)
 
     # Return IXP LANs found previously
     return IXLan.objects.filter(pk__in=ixlan_ids_1).intersection(

@@ -192,7 +192,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
         """
         return InternetExchange.objects.filter(
             peeringdb_ixlan__id__in=get_shared_internet_exchanges(
-                self, other
+                self.peeringdb_network, other.peeringdb_network
             ).values_list("id", flat=True),
             local_autonomous_system=other,
         )
