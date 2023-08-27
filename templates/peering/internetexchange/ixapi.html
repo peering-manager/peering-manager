@@ -58,7 +58,7 @@
         {% else %}
         {% if perms.peering.change_internetexchange and perms.net.add_connection %}
         <a class="btn btn-xs btn-primary float-right"
-           href="{% url 'net:connection_add' %}?internet_exchange_point={{ instance.pk }}&vlan={{ config.outer_vlan }}{% if config.ipv6_address %}&ipv6_address={{ config.ipv6_address }}{% endif %}{% if config.ipv4_address %}&ipv4_address={{ config.ipv4_address }}{% endif %}&return_url={% url 'peering:internetexchange_ixapi' pk=instance.pk %}">
+           href="{% url 'net:connection_add' %}?internet_exchange_point={{ instance.pk }}&vlan={{ config.outer_vlan }}{% if config.ipv6_address %}&ipv6_address={{ config.ipv6_address }}{% endif %}{% if config.ipv4_address %}&ipv4_address={{ config.ipv4_address }}{% endif %}{% if config.macs %}&mac_address={{ config.macs.0 }}{% endif %}&return_url={% url 'peering:internetexchange_ixapi' pk=instance.pk %}">
           <i class="fas fa-plug"></i> Setup
         </a>
         {% endif %}
