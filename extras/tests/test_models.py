@@ -148,6 +148,7 @@ class IXAPITest(TestCase):
             fixture="extras/tests/fixtures/ix_api/authenticate.json"
         ),
     )
+    @patch("pyixapi.core.api.API.version", return_value=1)
     def test_get_network_service_configs(self, *_):
         with patch(
             "requests.sessions.Session.get",
@@ -176,6 +177,7 @@ class IXAPITest(TestCase):
             fixture="extras/tests/fixtures/ix_api/authenticate.json"
         ),
     )
+    @patch("pyixapi.core.api.API.version", return_value=1)
     def test_get_network_services(self, *_):
         with patch(
             "requests.sessions.Session.get",
