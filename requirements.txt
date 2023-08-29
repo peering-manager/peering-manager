@@ -16,7 +16,7 @@ napalm==4.1.0
 packaging==23.1
 psycopg2-binary==2.9.6
 pyixapi==0.1.4
-pynetbox==7.0.1
+pynetbox==7.1.0
 PyYAML==6.0.1
 requests==2.31.0
 tzdata==2023.3
