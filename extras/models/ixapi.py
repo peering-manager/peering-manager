@@ -186,9 +186,7 @@ class IXAPI(ChangeLoggedModel):
             "network_service_configs": list(api.network_service_configs.all()),
             "network_services": list(api.network_services.all()),
             "network_features": list(api.network_features.all()),
-            "products": list(
-                api.products.all() if self.version == 1 else api.product_offerings.all()
-            ),
+            "product_offerings": list(api.product_offerings.all()),
             "macs": list(api.macs.all()),
             "ips": list(api.ips.all()),
         }
@@ -275,11 +273,22 @@ class IXAPI(ChangeLoggedModel):
         """
         network_services = self.get_cached_data("network_services")
         for ns in network_services:
+            # Product IX-APi v1/v2 compatibility
             if hasattr(ns, "product"):
                 setattr(
                     ns,
                     "product",
-                    self.search_in_list(self.get_cached_data("products"), ns.product),
+                    self.search_in_list(
+                        self.get_cached_data("product_offerings"), ns.product
+                    ),
+                )
+            if hasattr(ns, "product_offering"):
+                setattr(
+                    ns,
+                    "product_offering",
+                    self.search_in_list(
+                        self.get_cached_data("product_offerings"), ns.product_offering
+                    ),
                 )
             if hasattr(ns, "ips"):
                 for ip in ns.ips:

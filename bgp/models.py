@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 from peering_manager.models import OrganisationalModel
 from utils.enums import Colour
 from utils.forms.fields import ColourField
-from utils.templatetags.helpers import foreground_color
+from utils.templatetags.helpers import foreground_colour
 
 __all__ = ("Relationship",)
 
@@ -17,5 +17,5 @@ class Relationship(OrganisationalModel):
 
     def get_html(self):
         return mark_safe(
-            f'<span class="badge" style="color: {foreground_color(self.color)}; background-color: #{self.color}">{self.name}</span>'
+            f'<span class="badge" style="color: {foreground_colour(self.color)}; background-color: #{self.color}">{self.name}</span>'
         )

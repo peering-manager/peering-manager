@@ -64,6 +64,9 @@ def render_bandwidth_speed(speed):
 
 @register.filter()
 def render_none(value):
+    """
+    Render a placeholder if a value is null or an empty string.
+    """
     if value is None or value == "":
         return mark_safe('<span class="text-muted">&mdash;</span>')
     return as_link(value)
@@ -195,9 +198,9 @@ def tag(tag, url_name=None):
 
 
 @register.filter()
-def foreground_color(value):
+def foreground_colour(value):
     """
-    Return black (#000000) or white (#ffffff) given a background color in RRGGBB
+    Return black (#000000) or white (#ffffff) given a background colour in RRGGBB
     format.
     """
     value = value.lower().strip("#")

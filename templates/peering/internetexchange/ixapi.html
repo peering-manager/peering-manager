@@ -27,7 +27,15 @@
         </tr>
         <tr>
           <td>Product</td>
-          <td>{{ ixapi_service.product.name }}</td>
+          <td>
+            {% if ixapi_service.product_offering %}
+            {{ ixapi_service.product_offering.name }}
+            {% elif ixapi_service.product %}
+            {{ ixapi_service.product.name }}
+            {% else %}
+            <span class="text-muted">&mdash;</span>
+            {% endif %}
+          </td>
         </tr>
         <tr>
           <td>Name</td>
