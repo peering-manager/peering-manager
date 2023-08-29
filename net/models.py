@@ -152,3 +152,40 @@ class Connection(PrimaryModel):
             return None
 
         return network_service_config.macs[0]
+
+    def set_ixapi_mac_address(self):
+        """
+        Calls IX-API to set the MAC address to be used by the network service config
+        related to this connection.
+        """
+        if not self.mac_address:
+            # If connection has not MAC, update cannot be performed
+            logger.debug(
+                f"connection #{self.pk} has no mac address, cannot change in ix-api"
+            )
+            return False
+
+        network_service_config = self.ixapi_network_service_config()
+        if not network_service_config:
+            # If connection has not IX-API network service config, update cannot be
+            # performed
+            logger.debug(
+                f"cannot find ix-api network service config for connection #{self.pk}"
+            )
+            return False
+
+        mac = self.internet_exchange_point.ixapi_endpoint.create_mac_address(
+            self.mac_address
+        )
+        if not mac:
+            # If MAC failed to be created and does not already exist, update cannot be
+            # performed
+            logger.debug(
+                f"cannot create mac address {self.mac_address} in ix-api for connection #{self.pk}"
+            )
+            return False
+
+        logger.debug(
+            f"changing ix-api connection mac to {mac} on nsc {network_service_config} for connection #{self.pk}"
+        )
+        return network_service_config.update({"macs": [mac]})

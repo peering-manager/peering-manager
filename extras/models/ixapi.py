@@ -81,6 +81,24 @@ class IXAPI(ChangeLoggedModel):
         # Perform an authentication
         return api.authenticate() is not None
 
+    def get_account_dict(self):
+        """
+        Returns a key/value mapping for account fields to set in IX-API requests.
+
+        If the API version is 1, it'll use the `_customer` suffix. It'll use
+        `_account` for all other versions.
+        """
+
+        if self.version == 1:
+            suffix = "_customer"
+        else:
+            suffix = "_account"
+
+        return {
+            f"managing_{suffix}": self.identity,
+            f"consuming_{suffix}": self.identity,
+        }
+
     def dial(self):
         """
         Returns a API client to use for queries.
@@ -168,7 +186,9 @@ class IXAPI(ChangeLoggedModel):
             "network_service_configs": list(api.network_service_configs.all()),
             "network_services": list(api.network_services.all()),
             "network_features": list(api.network_features.all()),
-            "products": list(api.products.all()),
+            "products": list(
+                api.products.all() if self.version == 1 else api.product_offerings.all()
+            ),
             "macs": list(api.macs.all()),
             "ips": list(api.ips.all()),
         }
@@ -188,7 +208,10 @@ class IXAPI(ChangeLoggedModel):
         return cached_value.get(endpoint, [])
 
     def get_network_service_configs(
-        self, network_service=None, states=("production", "testing")
+        self,
+        network_service=None,
+        states=(),
+        exclude_states=("archived", "decommissioned"),
     ):
         """
         Returns configs for IXP services specific to us.
@@ -203,8 +226,11 @@ class IXAPI(ChangeLoggedModel):
             return []
 
         for nsc in network_service_configs:
-            if (states and nsc.state not in states) or (
-                network_service and nsc.network_service != network_service.id
+            # Ignore depends on state or if network service IDs don't match
+            if (
+                (states and nsc.state not in states)
+                or (exclude_states and nsc.state in exclude_states)
+                or (network_service and nsc.network_service != network_service.id)
             ):
                 continue
 
@@ -278,15 +304,17 @@ class IXAPI(ChangeLoggedModel):
 
     def create_mac_address(self, mac_address):
         """
-        Create a new MAC address in IX-API.
+        Create a new MAC address in IX-API. If the MAC already exists, return it
+        without creation.
         """
-        # IX-API has MACs in upper case strings
-        mac_address = str(mac_address).upper()
+        # Make sure to have a consistent case
+        mac_address = str(mac_address).lower()
 
-        # Fetch MACs and only get the actual addresses
-        macs = [i["address"] for i in self.get_cached_data("macs")]
-        if mac_address in macs:
-            logger.debug(f"{mac_address} already exists")
-        else:
-            logger.debug(f"create mac address {mac_address}")
-            # self.dial().macs.create(address=mac_address)
+        # Return existing object if MAC already exists
+        for mac in self.get_cached_data("macs"):
+            if mac["address"].lower() == mac_address:
+                logger.debug(f"{mac_address} already exists")
+                return mac
+
+        logger.debug(f"create mac address {mac_address}")
+        return self.dial().macs.create(address=mac_address, **self.get_account_dict())
