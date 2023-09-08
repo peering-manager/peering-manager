@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from devices.enums import PasswordAlgorithm
-from devices.models import Configuration, Platform
+from ..enums import *
+from ..models import *
 
 
 class ConfigurationTest(TestCase):

@@ -63,10 +63,9 @@ DEBUG = getattr(configuration, "DEBUG", False)
 LOGGING = getattr(configuration, "LOGGING", {})
 REDIS = getattr(configuration, "REDIS", {})
 RQ_DEFAULT_TIMEOUT = getattr(configuration, "RQ_DEFAULT_TIMEOUT", 300)
-CACHE_TIMEOUT = getattr(configuration, "CACHE_TIMEOUT", 0)
 CACHE_BGP_DETAIL_TIMEOUT = getattr(configuration, "CACHE_BGP_DETAIL_TIMEOUT", 900)
 CHANGELOG_RETENTION = getattr(configuration, "CHANGELOG_RETENTION", 90)
-JOBRESULT_RETENTION = getattr(configuration, "JOBRESULT_RETENTION", 90)
+JOB_RETENTION = getattr(configuration, "JOB_RETENTION", 90)
 LOGIN_REQUIRED = getattr(configuration, "LOGIN_REQUIRED", False)
 BANNER_LOGIN = getattr(configuration, "BANNER_LOGIN", "")
 NAPALM_USERNAME = getattr(configuration, "NAPALM_USERNAME", "")
@@ -97,11 +96,9 @@ TIME_ZONE = getattr(configuration, "TIME_ZONE", BASE_TZ).rstrip()
 EMAIL = getattr(configuration, "EMAIL", {})
 HTTP_PROXIES = getattr(configuration, "HTTP_PROXIES", None)
 BGPQ3_PATH = getattr(configuration, "BGPQ3_PATH", "bgpq3")
-BGPQ3_HOST = getattr(configuration, "BGPQ3_HOST", "whois.radb.net")
+BGPQ3_HOST = getattr(configuration, "BGPQ3_HOST", "rr.ntt.net")
 BGPQ3_SOURCES = getattr(
-    configuration,
-    "BGPQ3_SOURCES",
-    "RIPE,APNIC,AFRINIC,ARIN,NTTCOM,ALTDB,BBOI,BELL,JPIRR,LEVEL3,RADB,RGNET,TC",
+    configuration, "BGPQ3_SOURCES", "RPKI,RIPE,ARIN,APNIC,AFRINIC,LACNIC"
 )
 BGPQ3_ARGS = getattr(
     configuration,
@@ -178,7 +175,7 @@ TAGGIT_CASE_INSENSITIVE = True
 
 # User-Agent for requests
 REQUESTS_USER_AGENT = getattr(
-    configuration, "REQUESTS_USER_AGENT", f"PeeringManager/{VERSION[1:4]}"
+    configuration, "REQUESTS_USER_AGENT", f"PeeringManager/{VERSION[0:3]}"
 )
 
 
@@ -290,15 +287,14 @@ TASKS_REDIS_USING_SENTINEL = all(
     [isinstance(TASKS_REDIS_SENTINELS, (list, tuple)), len(TASKS_REDIS_SENTINELS) > 0]
 )
 TASKS_REDIS_SENTINEL_SERVICE = TASKS_REDIS.get("SENTINEL_SERVICE", "default")
+TASKS_REDIS_SENTINEL_TIMEOUT = TASKS_REDIS.get("SENTINEL_TIMEOUT", 10)
+TASKS_REDIS_USERNAME = TASKS_REDIS.get("USERNAME", "")
 TASKS_REDIS_PASSWORD = TASKS_REDIS.get("PASSWORD", "")
 TASKS_REDIS_DATABASE = TASKS_REDIS.get("DATABASE", 0)
-TASKS_REDIS_DEFAULT_TIMEOUT = TASKS_REDIS.get("DEFAULT_TIMEOUT", 300)
 TASKS_REDIS_SSL = TASKS_REDIS.get("SSL", False)
-TASKS_REDIS_UNIX_SOCKET_PATH = TASKS_REDIS.get("UNIX_SOCKET_PATH", "")
-if "DEFAULT_TIMEOUT" in TASKS_REDIS:
-    warnings.warn(
-        "DEFAULT_TIMEOUT is no longer supported under REDIS configuration. Set RQ_DEFAULT_TIMEOUT instead."
-    )
+TASKS_REDIS_SKIP_TLS_VERIFY = TASKS_REDIS.get("INSECURE_SKIP_TLS_VERIFY", False)
+TASKS_REDIS_CA_CERT_PATH = TASKS_REDIS.get("CA_CERT_PATH", False)
+
 # Caching
 if "caching" not in REDIS:
     raise ImproperlyConfigured(
@@ -307,79 +303,56 @@ if "caching" not in REDIS:
 CACHING_REDIS = REDIS["caching"]
 CACHING_REDIS_HOST = CACHING_REDIS.get("HOST", "localhost")
 CACHING_REDIS_PORT = CACHING_REDIS.get("PORT", 6379)
-CACHING_REDIS_SENTINELS = CACHING_REDIS.get("SENTINELS", [])
-CACHING_REDIS_USING_SENTINEL = all(
-    [
-        isinstance(CACHING_REDIS_SENTINELS, (list, tuple)),
-        len(CACHING_REDIS_SENTINELS) > 0,
-    ]
-)
-CACHING_REDIS_SENTINEL_SERVICE = CACHING_REDIS.get("SENTINEL_SERVICE", "default")
-CACHING_REDIS_PASSWORD = CACHING_REDIS.get("PASSWORD", "")
 CACHING_REDIS_DATABASE = CACHING_REDIS.get("DATABASE", 0)
-CACHING_REDIS_DEFAULT_TIMEOUT = CACHING_REDIS.get("DEFAULT_TIMEOUT", 300)
-CACHING_REDIS_SSL = CACHING_REDIS.get("SSL", False)
-CACHING_REDIS_UNIX_SOCKET_PATH = CACHING_REDIS.get("UNIX_SOCKET_PATH", "")
+CACHING_REDIS_USERNAME = CACHING_REDIS.get("USERNAME", "")
+CACHING_REDIS_USERNAME_HOST = "@".join(
+    filter(None, [CACHING_REDIS_USERNAME, CACHING_REDIS_HOST])
+)
+CACHING_REDIS_PASSWORD = CACHING_REDIS.get("PASSWORD", "")
+CACHING_REDIS_SENTINELS = CACHING_REDIS.get("SENTINELS", [])
+CACHING_REDIS_SENTINEL_SERVICE = CACHING_REDIS.get("SENTINEL_SERVICE", "default")
+CACHING_REDIS_PROTO = "rediss" if CACHING_REDIS.get("SSL", False) else "redis"
+CACHING_REDIS_SKIP_TLS_VERIFY = CACHING_REDIS.get("INSECURE_SKIP_TLS_VERIFY", False)
+CACHING_REDIS_CA_CERT_PATH = CACHING_REDIS.get("CA_CERT_PATH", False)
 
-if CACHING_REDIS_USING_SENTINEL:
-    CACHEOPS_SENTINEL = {
-        "locations": CACHING_REDIS_SENTINELS,
-        "service_name": CACHING_REDIS_SENTINEL_SERVICE,
-        "db": CACHING_REDIS_DATABASE,
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"{CACHING_REDIS_PROTO}://{CACHING_REDIS_USERNAME_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PASSWORD": CACHING_REDIS_PASSWORD,
+        },
     }
-elif CACHING_REDIS_UNIX_SOCKET_PATH != "":
-    CACHEOPS_REDIS = (
-        f"unix://{CACHING_REDIS_UNIX_SOCKET_PATH}?db={CACHING_REDIS_DATABASE}"
-    )
-else:
-    REDIS_CACHE_CON_STRING = "rediss://" if CACHING_REDIS_SSL else "redis://"
-    if CACHING_REDIS_PASSWORD:
-        REDIS_CACHE_CON_STRING = f"{REDIS_CACHE_CON_STRING}:{CACHING_REDIS_PASSWORD}@"
-    REDIS_CACHE_CON_STRING = f"{REDIS_CACHE_CON_STRING}{CACHING_REDIS_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}"
-    CACHEOPS_REDIS = REDIS_CACHE_CON_STRING
-
-CACHEOPS_ENABLED = bool(CACHE_TIMEOUT)
-CACHEOPS_DEFAULTS = {"timeout": CACHE_TIMEOUT}
-CACHEOPS = {
-    "auth.user": {"ops": "get", "timeout": 900},
-    "auth.*": {"ops": ("fetch", "get")},
-    "auth.permission": {"ops": "all"},
-    "bgp.*": {"ops": "all"},
-    "core.*": {"ops": "all"},
-    "devices.*": {"ops": "all"},
-    "extras.*": {"ops": "all"},
-    "net.*": {"ops": "all"},
-    "peering.*": {"ops": "all"},
-    "peeringdb.*": {"ops": "all"},
-    "users.*": {"ops": "all"},
-    "utils.*": {"ops": "all"},
-    "webhooks.*": {"ops": "all"},
 }
-CACHEOPS_DEGRADE_ON_FAILURE = True
 
 if TASKS_REDIS_USING_SENTINEL:
     RQ_PARAMS = {
         "SENTINELS": TASKS_REDIS_SENTINELS,
         "MASTER_NAME": TASKS_REDIS_SENTINEL_SERVICE,
-        "DB": TASKS_REDIS_DATABASE,
-        "PASSWORD": TASKS_REDIS_PASSWORD,
         "SOCKET_TIMEOUT": None,
-        "CONNECTION_KWARGS": {"socket_connect_timeout": TASKS_REDIS_DEFAULT_TIMEOUT},
-    }
-elif TASKS_REDIS_UNIX_SOCKET_PATH != "":
-    RQ_PARAMS = {
-        "UNIX_SOCKET_PATH": TASKS_REDIS_UNIX_SOCKET_PATH,
-        "DB": TASKS_REDIS_DATABASE,
+        "CONNECTION_KWARGS": {"socket_connect_timeout": TASKS_REDIS_SENTINEL_TIMEOUT},
     }
 else:
     RQ_PARAMS = {
         "HOST": TASKS_REDIS_HOST,
         "PORT": TASKS_REDIS_PORT,
-        "DB": TASKS_REDIS_DATABASE,
-        "PASSWORD": TASKS_REDIS_PASSWORD,
         "SSL": TASKS_REDIS_SSL,
+        "SSL_CERT_REQS": None if TASKS_REDIS_SKIP_TLS_VERIFY else "required",
+    }
+RQ_PARAMS.update(
+    {
+        "DB": TASKS_REDIS_DATABASE,
+        "USERNAME": TASKS_REDIS_USERNAME,
+        "PASSWORD": TASKS_REDIS_PASSWORD,
         "DEFAULT_TIMEOUT": RQ_DEFAULT_TIMEOUT,
     }
+)
+
+if TASKS_REDIS_CA_CERT_PATH:
+    RQ_PARAMS.setdefault("REDIS_CLIENT_KWARGS", {})
+    RQ_PARAMS["REDIS_CLIENT_KWARGS"]["ssl_ca_certs"] = TASKS_REDIS_CA_CERT_PATH
+
 RQ_QUEUES = {"high": RQ_PARAMS, "default": RQ_PARAMS, "low": RQ_PARAMS}
 RQ_EXCEPTION_HANDLERS = ["core.exceptions.exception_handler"]
 
@@ -410,7 +383,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "debug_toolbar",
-    "cacheops",
     "django_filters",
     "django_tables2",
     "rest_framework",

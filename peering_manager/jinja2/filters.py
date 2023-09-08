@@ -12,17 +12,19 @@ from devices.crypto.cisco import MAGIC as CISCO_MAGIC
 from net.enums import ConnectionStatus
 from net.models import Connection
 from peering.enums import BGPGroupStatus, BGPSessionStatus, DeviceStatus, IPFamily
-from peering.models.abstracts import BGPSession
-from peering.models.models import (
+from peering.models import (
     AutonomousSystem,
     BGPGroup,
+    BGPSession,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
 )
+from peering_manager.models.features import ConfigContextMixin, TagsMixin
 from utils.functions import get_key_in_hash, serialize_object
-from utils.models import ConfigContextMixin, TagsMixin
+
+__all__ = ("FILTER_DICT",)
 
 
 def ipv4(value):
@@ -156,15 +158,25 @@ def inherited_status(value):
         raise ValueError("value has no status property")
 
     if type(value) is Connection and value.status != ConnectionStatus.DISABLED:
-        # Disabled on IXP probably means the same for connections
-        if value.internet_exchange_point.status == BGPGroupStatus.DISABLED:
-            return ConnectionStatus.DISABLED
-        # Maintenance on IXP probably means the same for connections
-        if value.internet_exchange_point.status == BGPGroupStatus.MAINTENANCE:
-            return ConnectionStatus.MAINTENANCE
-        # Maintenance on a router probably means the same for connections
-        if value.router and value.router.status == DeviceStatus.MAINTENANCE:
-            return ConnectionStatus.MAINTENANCE
+        if value.internet_exchange_point:
+            # Disabled on IXP probably means the same for connections
+            if value.internet_exchange_point.status == BGPGroupStatus.DISABLED:
+                return ConnectionStatus.DISABLED
+            # Maintenance on IXP probably means the same for connections
+            if value.internet_exchange_point.status == BGPGroupStatus.PRE_MAINTENANCE:
+                return ConnectionStatus.PRE_MAINTENANCE
+            if value.internet_exchange_point.status == BGPGroupStatus.MAINTENANCE:
+                return ConnectionStatus.MAINTENANCE
+            if value.internet_exchange_point.status == BGPGroupStatus.POST_MAINTENANCE:
+                return ConnectionStatus.POST_MAINTENANCE
+        if value.router:
+            # Maintenance on a router probably means the same for connections
+            if value.router.status == DeviceStatus.PRE_MAINTENANCE:
+                return ConnectionStatus.PRE_MAINTENANCE
+            if value.router.status == DeviceStatus.MAINTENANCE:
+                return ConnectionStatus.MAINTENANCE
+            if value.router.status == DeviceStatus.POST_MAINTENANCE:
+                return ConnectionStatus.POST_MAINTENANCE
 
     if (
         type(value) is DirectPeeringSession
@@ -177,9 +189,14 @@ def inherited_status(value):
             # Maintenance group probably means sessions should be less preferred
             if value.bgp_group.status == BGPGroupStatus.MAINTENANCE:
                 return BGPSessionStatus.MAINTENANCE
-        # Maintenance on a router probably means sessions should be less preferred
-        if value.router and value.router.status == DeviceStatus.MAINTENANCE:
-            return BGPSessionStatus.MAINTENANCE
+        if value.router:
+            # Maintenance on a router probably means sessions should be less preferred
+            if value.router.status == DeviceStatus.PRE_MAINTENANCE:
+                return BGPSessionStatus.PRE_MAINTENANCE
+            if value.router.status == DeviceStatus.MAINTENANCE:
+                return BGPSessionStatus.MAINTENANCE
+            if value.router.status == DeviceStatus.POST_MAINTENANCE:
+                return BGPSessionStatus.POST_MAINTENANCE
 
     if (
         type(value) is InternetExchangePeeringSession
@@ -189,8 +206,12 @@ def inherited_status(value):
         if inherited_status(value.ixp_connection) == ConnectionStatus.DISABLED:
             return BGPSessionStatus.DISABLED
         # Maintenance connection probably means sessions should be less preferred
+        if inherited_status(value.ixp_connection) == ConnectionStatus.PRE_MAINTENANCE:
+            return BGPSessionStatus.PRE_MAINTENANCE
         if inherited_status(value.ixp_connection) == ConnectionStatus.MAINTENANCE:
             return BGPSessionStatus.MAINTENANCE
+        if inherited_status(value.ixp_connection) == ConnectionStatus.POST_MAINTENANCE:
+            return BGPSessionStatus.POST_MAINTENANCE
 
     return value.status
 
@@ -811,5 +832,3 @@ FILTER_DICT = {
     "as_yaml": as_yaml,
     "indent": indent,
 }
-
-__all__ = ("FILTER_DICT",)

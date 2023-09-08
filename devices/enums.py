@@ -1,5 +1,3 @@
-from django.db import models
-
 from utils.enums import ChoiceSet
 
 

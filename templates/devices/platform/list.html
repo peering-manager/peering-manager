@@ -13,7 +13,7 @@
 {% block content %}
 <div class="row">
   <div class="col">
-    {% include 'generic/object_list.html' with bulk_delete_url='devices:platform_bulk_delete' %}
+    {% include 'generic/object_list.html' with table_modal='PlatformTable_config' bulk_delete_url='devices:platform_bulk_delete' %}
   </div>
 </div>
 {% endblock %}

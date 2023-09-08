@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
                 ("updated", models.DateTimeField(auto_now=True, null=True)),
                 (
                     "color",
-                    utils.forms.fields.fields.ColorField(
+                    utils.forms.fields.fields.ColourField(
                         default="9e9e9e", max_length=6
                     ),
                 ),

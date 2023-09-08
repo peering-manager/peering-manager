@@ -1,21 +1,21 @@
 import django_tables2 as tables
 from django.conf import settings
 
-from utils.tables import BaseTable, ChoiceFieldColumn, ContentTypeColumn, SelectColumn
+from peering_manager.tables import BaseTable, columns
 
 from ..models import Job
 
 
 class JobTable(BaseTable):
-    pk = SelectColumn()
-    object_type = ContentTypeColumn(verbose_name="Object type")
+    pk = columns.SelectColumn()
+    object_type = columns.ContentTypeColumn(verbose_name="Object type")
     object = tables.Column(linkify=True)
     created = tables.DateTimeColumn(linkify=True, format=settings.SHORT_DATETIME_FORMAT)
     started = tables.DateTimeColumn(linkify=True, format=settings.SHORT_DATETIME_FORMAT)
     completed = tables.DateTimeColumn(
         linkify=True, format=settings.SHORT_DATETIME_FORMAT
     )
-    status = ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn()
     data = tables.TemplateColumn(
         """
         <span class="badge badge-success">{{ value.total.success }}</span>

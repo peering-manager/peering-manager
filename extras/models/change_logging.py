@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
 
-from extras.enums import ObjectChangeAction
+from ..enums import ObjectChangeAction
 
 __all__ = ("ObjectChange",)
 

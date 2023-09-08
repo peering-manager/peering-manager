@@ -41,8 +41,6 @@ REDIS = {
     },
 }
 # Maximum execution time for background tasks, in seconds.
-RQ_DEFAULT_TIMEOUT = 300
-# Cache timeout in seconds. Set to 0 to disable caching.
-CACHE_TIMEOUT = 900
+RQ_DEFAULT_TIMEOUT = 3600
 
 LOGIN_REQUIRED = True

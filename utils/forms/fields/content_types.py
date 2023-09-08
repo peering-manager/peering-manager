@@ -1,12 +1,12 @@
 from django import forms
 
-from utils.forms import widgets
-from utils.functions import content_type_name
+from ...forms import widgets
+from ...functions import content_type_name
 
 __all__ = ("ContentTypeChoiceField", "ContentTypeMultipleChoiceField")
 
 
-class ContentTypeChoiceMixin(object):
+class ContentTypeChoiceMixin:
     def __init__(self, queryset, *args, **kwargs):
         # Order ContentTypes by app_label
         queryset = queryset.order_by("app_label", "model")
@@ -14,7 +14,7 @@ class ContentTypeChoiceMixin(object):
 
     def label_from_instance(self, obj):
         try:
-            return content_type_name(obj)
+            return content_type_name(obj, include_app=False)
         except AttributeError:
             return super().label_from_instance(obj)
 

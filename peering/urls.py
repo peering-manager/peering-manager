@@ -1,6 +1,6 @@
 from django.urls import path
 
-from extras.views import ObjectChangeLog
+from peering_manager.views.generic import ObjectChangeLogView, ObjectJobsView
 
 from . import models, views
 
@@ -15,7 +15,7 @@ urlpatterns = [
     ),
     path(
         "autonomous-systems/add/",
-        views.AutonomousSystemAdd.as_view(),
+        views.AutonomousSystemEdit.as_view(),
         name="autonomoussystem_add",
     ),
     path(
@@ -45,7 +45,7 @@ urlpatterns = [
     ),
     path(
         "autonomous-systems/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
+        ObjectChangeLogView.as_view(),
         name="autonomoussystem_changelog",
         kwargs={"model": models.AutonomousSystem},
     ),
@@ -76,7 +76,7 @@ urlpatterns = [
     ),
     # BGP Groups
     path("bgp-groups/", views.BGPGroupList.as_view(), name="bgpgroup_list"),
-    path("bgp-groups/add/", views.BGPGroupAdd.as_view(), name="bgpgroup_add"),
+    path("bgp-groups/add/", views.BGPGroupEdit.as_view(), name="bgpgroup_add"),
     path(
         "bgp-groups/delete/",
         views.BGPGroupBulkDelete.as_view(),
@@ -96,7 +96,7 @@ urlpatterns = [
     ),
     path(
         "bgp-groups/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
+        ObjectChangeLogView.as_view(),
         name="bgpgroup_changelog",
         kwargs={"model": models.BGPGroup},
     ),
@@ -112,7 +112,7 @@ urlpatterns = [
     ),
     # BGP Communities
     path("communities/", views.CommunityList.as_view(), name="community_list"),
-    path("communities/add/", views.CommunityAdd.as_view(), name="community_add"),
+    path("communities/add/", views.CommunityEdit.as_view(), name="community_add"),
     path("communities/<int:pk>/", views.CommunityView.as_view(), name="community_view"),
     path(
         "communities/<int:pk>/edit/",
@@ -126,7 +126,7 @@ urlpatterns = [
     ),
     path(
         "communities/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
+        ObjectChangeLogView.as_view(),
         name="community_changelog",
         kwargs={"model": models.Community},
     ),
@@ -158,7 +158,7 @@ urlpatterns = [
     ),
     path(
         "direct-peering-sessions/add/",
-        views.DirectPeeringSessionAdd.as_view(),
+        views.DirectPeeringSessionEdit.as_view(),
         name="directpeeringsession_add",
     ),
     path(
@@ -183,7 +183,7 @@ urlpatterns = [
     ),
     path(
         "direct-peering-sessions/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
+        ObjectChangeLogView.as_view(),
         name="directpeeringsession_changelog",
         kwargs={"model": models.DirectPeeringSession},
     ),
@@ -200,7 +200,7 @@ urlpatterns = [
     ),
     path(
         "internet-exchanges/add/",
-        views.InternetExchangeAdd.as_view(),
+        views.InternetExchangeEdit.as_view(),
         name="internetexchange_add",
     ),
     path(
@@ -220,7 +220,7 @@ urlpatterns = [
     ),
     path(
         "internet-exchanges/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
+        ObjectChangeLogView.as_view(),
         name="internetexchange_changelog",
         kwargs={"model": models.InternetExchange},
     ),
@@ -272,7 +272,7 @@ urlpatterns = [
     ),
     path(
         "internet-exchange-peering-sessions/add/",
-        views.InternetExchangePeeringSessionAdd.as_view(),
+        views.InternetExchangePeeringSessionEdit.as_view(),
         name="internetexchangepeeringsession_add",
     ),
     path(
@@ -292,7 +292,7 @@ urlpatterns = [
     ),
     path(
         "internet-exchange-peering-sessions/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
+        ObjectChangeLogView.as_view(),
         name="internetexchangepeeringsession_changelog",
         kwargs={"model": models.InternetExchangePeeringSession},
     ),
@@ -318,7 +318,7 @@ urlpatterns = [
     ),
     # Routers
     path("routers/", views.RouterList.as_view(), name="router_list"),
-    path("routers/add/", views.RouterAdd.as_view(), name="router_add"),
+    path("routers/add/", views.RouterEdit.as_view(), name="router_add"),
     path("routers/<int:pk>/", views.RouterView.as_view(), name="router_view"),
     path(
         "routers/<int:pk>/connections/",
@@ -348,8 +348,14 @@ urlpatterns = [
     ),
     path(
         "routers/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
+        ObjectChangeLogView.as_view(),
         name="router_changelog",
+        kwargs={"model": models.Router},
+    ),
+    path(
+        "routers/<int:pk>/jobs/",
+        ObjectJobsView.as_view(),
+        name="router_jobs",
         kwargs={"model": models.Router},
     ),
     path(
@@ -367,7 +373,7 @@ urlpatterns = [
     ),
     path(
         "routing-policies/add/",
-        views.RoutingPolicyAdd.as_view(),
+        views.RoutingPolicyEdit.as_view(),
         name="routingpolicy_add",
     ),
     path(
@@ -387,7 +393,7 @@ urlpatterns = [
     ),
     path(
         "routing-policies/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
+        ObjectChangeLogView.as_view(),
         name="routingpolicy_changelog",
         kwargs={"model": models.RoutingPolicy},
     ),

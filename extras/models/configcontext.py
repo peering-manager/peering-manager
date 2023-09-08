@@ -4,12 +4,12 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 
-from utils.models import ChangeLoggedMixin
+from peering_manager.models import ChangeLoggedModel
 
 __all__ = ("ConfigContext", "ConfigContextAssignment")
 
 
-class ConfigContext(ChangeLoggedMixin):
+class ConfigContext(ChangeLoggedModel):
     """
     This model represents a set of arbitrary data available to an object type. Data is
     stored in JSON format.
@@ -39,7 +39,7 @@ class ConfigContext(ChangeLoggedMixin):
             )
 
 
-class ConfigContextAssignment(ChangeLoggedMixin):
+class ConfigContextAssignment(ChangeLoggedModel):
     content_type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     object = GenericForeignKey(ct_field="content_type", fk_field="object_id")

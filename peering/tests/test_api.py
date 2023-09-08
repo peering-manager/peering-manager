@@ -6,14 +6,11 @@ from rest_framework import status
 from bgp.models import Relationship
 from devices.models import Configuration, Platform
 from net.models import Connection
-from peering.constants import *
-from peering.enums import (
-    BGPSessionStatus,
-    CommunityType,
-    DeviceStatus,
-    RoutingPolicyType,
-)
-from peering.models import (
+from utils.testing import APITestCase, APIViewTestCases
+
+from ..constants import *
+from ..enums import BGPSessionStatus, CommunityType, DeviceStatus, RoutingPolicyType
+from ..models import (
     AutonomousSystem,
     BGPGroup,
     Community,
@@ -23,8 +20,7 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from peering.tests.mocked_data import load_peeringdb_data, mocked_subprocess_popen
-from utils.testing import APITestCase, StandardAPITestCases
+from .mocked_data import load_peeringdb_data, mocked_subprocess_popen
 
 
 class AppTest(APITestCase):
@@ -33,7 +29,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class AutonomousSystemTest(StandardAPITestCases.View):
+class AutonomousSystemTest(APIViewTestCases.View):
     model = AutonomousSystem
     brief_fields = [
         "id",
@@ -111,7 +107,7 @@ class AutonomousSystemTest(StandardAPITestCases.View):
         self.assertEqual(response.data, [])
 
 
-class BGPGroupTest(StandardAPITestCases.View):
+class BGPGroupTest(APIViewTestCases.View):
     model = BGPGroup
     brief_fields = ["id", "url", "display", "name", "slug", "status"]
     create_data = [
@@ -119,7 +115,7 @@ class BGPGroupTest(StandardAPITestCases.View):
         {"name": "Test 2", "slug": "test-2"},
         {"name": "Test 3", "slug": "test-3"},
     ]
-    bulk_update_data = {"comments": "Awesome group"}
+    bulk_update_data = {"description": "Awesome group"}
 
     @classmethod
     def setUpTestData(cls):
@@ -140,7 +136,7 @@ class BGPGroupTest(StandardAPITestCases.View):
         self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
 
 
-class CommunityTest(StandardAPITestCases.View):
+class CommunityTest(APIViewTestCases.View):
     model = Community
     brief_fields = ["id", "url", "display", "name", "slug", "value", "type"]
     create_data = [
@@ -163,7 +159,7 @@ class CommunityTest(StandardAPITestCases.View):
             "type": CommunityType.EGRESS,
         },
     ]
-    bulk_update_data = {"comments": "Awesome community"}
+    bulk_update_data = {"description": "Awesome community"}
 
     @classmethod
     def setUpTestData(cls):
@@ -191,7 +187,7 @@ class CommunityTest(StandardAPITestCases.View):
         )
 
 
-class DirectPeeringSessionTest(StandardAPITestCases.View):
+class DirectPeeringSessionTest(APIViewTestCases.View):
     model = DirectPeeringSession
     brief_fields = ["id", "url", "display", "ip_address", "status"]
     bulk_update_data = {"status": BGPSessionStatus.DISABLED}
@@ -251,10 +247,10 @@ class DirectPeeringSessionTest(StandardAPITestCases.View):
         ]
 
 
-class InternetExchangeTest(StandardAPITestCases.View):
+class InternetExchangeTest(APIViewTestCases.View):
     model = InternetExchange
     brief_fields = ["id", "url", "display", "name", "slug", "status"]
-    bulk_update_data = {"comments": "Awesome IXP"}
+    bulk_update_data = {"description": "Awesome IXP"}
 
     @classmethod
     def setUpTestData(cls):
@@ -334,7 +330,7 @@ class InternetExchangeTest(StandardAPITestCases.View):
         self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
 
 
-class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
+class InternetExchangePeeringSessionTest(APIViewTestCases.View):
     model = InternetExchangePeeringSession
     brief_fields = ["id", "url", "display", "ip_address", "status", "is_route_server"]
     bulk_update_data = {"status": BGPSessionStatus.DISABLED}
@@ -392,7 +388,7 @@ class InternetExchangePeeringSessionTest(StandardAPITestCases.View):
         ]
 
 
-class RouterTest(StandardAPITestCases.View):
+class RouterTest(APIViewTestCases.View):
     model = Router
     brief_fields = ["id", "url", "display", "name", "hostname"]
     bulk_update_data = {"status": DeviceStatus.MAINTENANCE}
@@ -612,7 +608,7 @@ class RouterTest(StandardAPITestCases.View):
             Router.objects.get(netbox_device_id=1)
 
 
-class RoutingPolicyTest(StandardAPITestCases.View):
+class RoutingPolicyTest(APIViewTestCases.View):
     model = RoutingPolicy
     brief_fields = ["id", "url", "display", "name", "slug", "type"]
     create_data = [
@@ -635,7 +631,7 @@ class RoutingPolicyTest(StandardAPITestCases.View):
             "weight": 3,
         },
     ]
-    bulk_update_data = {"comments": "Awesome routing policy"}
+    bulk_update_data = {"description": "Awesome routing policy"}
 
     @classmethod
     def setUpTestData(cls):

@@ -6,7 +6,7 @@
 {% endif %}
 <div class="row">
   <div class="col-md-9">
-    {% include 'peering/autonomoussystem/inc/direct_peering_sessions_table.html' with bulk_edit_url='peering:directpeeringsession_bulk_edit' bulk_delete_url='peering:directpeeringsession_bulk_delete' %}
+    {% include 'peering/autonomoussystem/inc/direct_peering_sessions_table.html' with table_modal='DirectPeeringSessionTable_config' bulk_edit_url='peering:directpeeringsession_bulk_edit' bulk_delete_url='peering:directpeeringsession_bulk_delete' %}
   </div>
   <div class="col-md-3">
     {% include 'utils/search_form.html' %}

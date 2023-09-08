@@ -1,9 +1,9 @@
 from rest_framework.routers import APIRootView
 
-from devices.filters import ConfigurationFilterSet, PlatformFilterSet
-from devices.models import Configuration, Platform
 from peering_manager.api.viewsets import PeeringManagerModelViewSet
 
+from ..filtersets import ConfigurationFilterSet, PlatformFilterSet
+from ..models import Configuration, Platform
 from .serializers import ConfigurationSerializer, PlatformSerializer
 
 

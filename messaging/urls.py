@@ -1,6 +1,6 @@
 from django.urls import path
 
-from extras.views import ObjectChangeLog
+from peering_manager.views.generic import ObjectChangeLogView
 
 from . import models, views
 
@@ -9,7 +9,7 @@ app_name = "messaging"
 urlpatterns = [
     # Contacts
     path("messaging/contacts/", views.ContactList.as_view(), name="contact_list"),
-    path("messaging/contacts/add/", views.ContactAdd.as_view(), name="contact_add"),
+    path("messaging/contacts/add/", views.ContactEdit.as_view(), name="contact_add"),
     path(
         "messaging/contacts/<int:pk>/", views.ContactView.as_view(), name="contact_view"
     ),
@@ -25,7 +25,7 @@ urlpatterns = [
     ),
     path(
         "messaging/contacts/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
+        ObjectChangeLogView.as_view(),
         name="contact_changelog",
         kwargs={"model": models.Contact},
     ),
@@ -47,7 +47,7 @@ urlpatterns = [
     ),
     path(
         "messaging/contact-roles/add/",
-        views.ContactRoleAdd.as_view(),
+        views.ContactRoleEdit.as_view(),
         name="contactrole_add",
     ),
     path(
@@ -67,7 +67,7 @@ urlpatterns = [
     ),
     path(
         "messaging/contact-roles/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
+        ObjectChangeLogView.as_view(),
         name="contactrole_changelog",
         kwargs={"model": models.ContactRole},
     ),
@@ -99,14 +99,14 @@ urlpatterns = [
     ),
     # E-mails
     path("messaging/emails/", views.EmailList.as_view(), name="email_list"),
-    path("messaging/emails/add/", views.EmailAdd.as_view(), name="email_add"),
+    path("messaging/emails/add/", views.EmailEdit.as_view(), name="email_add"),
     path("messaging/emails/<int:pk>/", views.EmailView.as_view(), name="email_view"),
     path(
         "messaging/emails/<int:pk>/edit/", views.EmailEdit.as_view(), name="email_edit"
     ),
     path(
         "messaging/emails/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
+        ObjectChangeLogView.as_view(),
         name="email_changelog",
         kwargs={"model": models.Email},
     ),

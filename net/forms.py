@@ -2,26 +2,28 @@ from django import forms
 from taggit.forms import TagField
 
 from peering.models import InternetExchange, Router
-from utils.forms import (
-    AddRemoveTagsForm,
-    BootstrapMixin,
-    BulkEditForm,
-    TagFilterField,
-    add_blank_choice,
+from peering_manager.forms import (
+    PeeringManagerModelBulkEditForm,
+    PeeringManagerModelFilterSetForm,
+    PeeringManagerModelForm,
 )
+from utils.forms import add_blank_choice
 from utils.forms.fields import (
     CommentField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     JSONField,
+    TagFilterField,
 )
-from utils.forms.widgets import SmallTextarea, StaticSelect, StaticSelectMultiple
+from utils.forms.widgets import StaticSelect, StaticSelectMultiple
 
 from .enums import ConnectionStatus
 from .models import Connection
 
+__all__ = ("ConnectionForm", "ConnectionBulkEditForm", "ConnectionFilterForm")
 
-class ConnectionForm(BootstrapMixin, forms.ModelForm):
+
+class ConnectionForm(PeeringManagerModelForm):
     status = forms.ChoiceField(choices=ConnectionStatus, widget=StaticSelect)
     internet_exchange_point = DynamicModelChoiceField(
         required=False,
@@ -34,11 +36,25 @@ class ConnectionForm(BootstrapMixin, forms.ModelForm):
         queryset=Router.objects.all(),
         help_text="Router on which this connection is setup",
     )
-    local_context_data = JSONField(
-        required=False, label="Local context data", widget=SmallTextarea
-    )
     comments = CommentField()
     tags = TagField(required=False)
+    fieldsets = (
+        (
+            "Connection",
+            (
+                "status",
+                "vlan",
+                "mac_address",
+                "ipv6_address",
+                "ipv4_address",
+                "internet_exchange_point",
+                "router",
+                "interface",
+                "description",
+            ),
+        ),
+        ("Config Context", ("local_context_data",)),
+    )
 
     class Meta:
         model = Connection
@@ -63,7 +79,7 @@ class ConnectionForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConnectionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class ConnectionBulkEditForm(PeeringManagerModelBulkEditForm):
     pk = DynamicModelMultipleChoiceField(
         queryset=Connection.objects.all(), widget=forms.MultipleHiddenInput
     )
@@ -82,9 +98,7 @@ class ConnectionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         queryset=Router.objects.all(),
         help_text="Router on which this connection is setup",
     )
-    local_context_data = JSONField(
-        required=False, label="Local context data", widget=SmallTextarea
-    )
+    local_context_data = JSONField(required=False)
 
     class Meta:
         model = Connection
@@ -92,9 +106,8 @@ class ConnectionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         nullable_fields = ("router",)
 
 
-class ConnectionFilterForm(BootstrapMixin, forms.Form):
+class ConnectionFilterForm(PeeringManagerModelFilterSetForm):
     model = Connection
-    q = forms.CharField(required=False, label="Search")
     status = forms.MultipleChoiceField(
         required=False,
         choices=ConnectionStatus,

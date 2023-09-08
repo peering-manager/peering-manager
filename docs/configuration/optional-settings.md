@@ -118,15 +118,6 @@ The maximum execution time of a background task, in seconds.
 
 ---
 
-## CACHE_TIMEOUT
-
-Default: `0`
-
-The number of seconds to retain cache entries before automatically invalidating
-them. Setting the value to 0 will disable the use of the caching functionality.
-
----
-
 ## CACHE_BGP_DETAIL_TIMEOUT
 
 Default: `900`
@@ -149,7 +140,7 @@ impact on its performances)
 
 ---
 
-## JOBRESULT_RETENTION
+## JOB_RETENTION
 
 Default: `90`
 
@@ -353,13 +344,13 @@ to change this setting.
 
 ## BGPQ3_HOST
 
-Default: `whois.radb.net`
+Default: `rr.ntt.net`
 
 The host that will be used by BGPQ3 to look for IRR objects.
 
 ## BGPQ3_SOURCES
 
-Default: `RIPE,APNIC,AFRINIC,ARIN,NTTCOM,ALTDB,BBOI,BELL,JPIRR,LEVEL3,RADB,RGNET,SAVVIS,TC`
+Default: `RPKI,RIPE,ARIN,APNIC,AFRINIC,LACNIC`
 
 A list of comma separated sources from which we will accept IRR objects.
 

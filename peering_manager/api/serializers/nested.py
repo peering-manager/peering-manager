@@ -63,7 +63,7 @@ class WritableNestedSerializer(BaseModelSerializer):
 
 
 # Declared here for use by PeeringManagerModelSerializer, but should be imported from
-# utils.api.nested_serializers
+# extras.api.nested_serializers
 class NestedTagSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="extras-api:tag-detail")
 

@@ -11,6 +11,8 @@ from django.utils.html import escape, strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown as md
 
+from ..forms import TableConfigForm
+
 register = template.Library()
 
 
@@ -62,6 +64,9 @@ def render_bandwidth_speed(speed):
 
 @register.filter()
 def render_none(value):
+    """
+    Render a placeholder if a value is null or an empty string.
+    """
     if value is None or value == "":
         return mark_safe('<span class="text-muted">&mdash;</span>')
     return as_link(value)
@@ -115,6 +120,16 @@ def querystring(request, **kwargs):
 
     querystring = querydict.urlencode(safe="/")
     return "?" + querystring if querystring else ""
+
+
+@register.filter("startswith")
+def startswith(text, starts):
+    """
+    Template implementation of `str.startswith()`.
+    """
+    if isinstance(text, str):
+        return text.startswith(starts)
+    return False
 
 
 @register.filter()
@@ -183,9 +198,9 @@ def tag(tag, url_name=None):
 
 
 @register.filter()
-def foreground_color(value):
+def foreground_colour(value):
     """
-    Return black (#000000) or white (#ffffff) given a background color in RRGGBB
+    Return black (#000000) or white (#ffffff) given a background colour in RRGGBB
     format.
     """
     value = value.lower().strip("#")
@@ -240,7 +255,7 @@ def date_span(date_value):
 
 @register.simple_tag(takes_context=True)
 def missing_sessions(context, autonomous_system):
-    if "context_as" not in context:
+    if "context_as" not in context or not context["context_as"]:
         return False
 
     ix = autonomous_system.get_shared_internet_exchange_points(context["context_as"])
@@ -257,3 +272,11 @@ def doc_version(version):
         return "latest"
     else:
         return f"v{version}"
+
+
+@register.inclusion_tag("helpers/table_config_form.html")
+def table_config_form(table, table_name=None):
+    return {
+        "table_name": table_name or table.__class__.__name__,
+        "form": TableConfigForm(table=table),
+    }

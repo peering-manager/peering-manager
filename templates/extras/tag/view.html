@@ -1,84 +1,60 @@
-{% extends '_base.html' %}
+{% extends 'extras/tag/_base.html' %}
 {% load render_table from django_tables2 %}
 {% load helpers %}
-{% block actions %}
-{% if perms.extras.change_tag %}
-<a href="{% url 'extras:tag_edit' pk=instance.pk %}" class="btn btn-warning">
-  <i class="fas fa-edit"></i> Edit
-</a>
-{% endif %}
-{% if perms.utils.delete_tag %}
-<a href="{% url 'extras:tag_delete' pk=instance.pk %}" class="btn btn-danger">
-  <i class="fas fa-trash"></i> Delete
-</a>
-{% endif %}
-{% endblock %}
-{% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'extras:tag_list' %}">Tags</a></li>
-<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
-{% endblock %}
-{% block content %}
-      <div class="row">
-        <div class="col-md-6">
-          <div class="card mb-2">
-            <div class="card-header"><strong>Details</strong></div>
-            <table class="card-body table table-hover attr-table mb-0">
-              <tr>
-                <td>Name</td>
-                <td>{{ instance.name }}</td>
-              </tr>
-              <tr>
-                <td>Slug</td>
-                <td>{{ instance.slug }}</td>
-              </tr>
-              <tr>
-                <td>Tagged Items</td>
-                <td>{{ tagged_item_count }}</td>
-              </tr>
-              <tr>
-                <td>Color</td>
-                <td>
-                  <span class="label color-block" style="background-color: #{{ instance.color }}">
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span>
-                </td>
-              </tr>
-            </table>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="card mb-2">
-            <div class="card-header"><strong>Tagged Item Types</strong></div>
-            <table class="card-body table table-hover attr-table mb-0">
-              {% for object_type in object_types %}
-                <tr>
-                  <td>{{ object_type.content_type.name|title_with_uppers }}</td>
-                  <td>{{ object_type.item_count }}</td>
-                </tr>
-              {% endfor %}
-            </table>
-          </div>
-        </div>
-        <div class="col-md-6 mb-2">
-          <div class="card">
-            <div class="card-header"><strong>Comments</strong></div>
-            <div class="card-body">
-              {% if instance.comments %}
-              {{ instance.comments | markdown }}
-              {% else %}
-              <span class="text-muted">None</span>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col">
-          <div class="card mb-2">
-            <div class="card-header"><strong>Tagged Objects</strong></div>
-            {% render_table taggeditem_table 'includes/table.html' %}
-          </div>
-          {% include 'includes/pagination.html' with paginator=taggeditem_table.paginator page=taggeditem_table.page %}
-        </div>
-      </div>
+{% block subcontent %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header"><strong>Details</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Name</td>
+          <td>{{ instance.name }}</td>
+        </tr>
+        <tr>
+          <td>Slug</td>
+          <td>{{ instance.slug }}</td>
+        </tr>
+        <tr>
+          <td>Description</td>
+          <td>{{ instance.description|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Tagged Items</td>
+          <td>{{ tagged_item_count }}</td>
+        </tr>
+        <tr>
+          <td>Color</td>
+          <td>
+            <span class="label color-block" style="background-color: #{{ instance.color }}">
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header"><strong>Tagged Item Types</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        {% for object_type in object_types %}
+          <tr>
+            <td>{{ object_type.content_type.name|title_with_uppers }}</td>
+            <td>{{ object_type.item_count }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <div class="card mb-2">
+      <div class="card-header"><strong>Tagged Objects</strong></div>
+      {% render_table taggeditem_table 'includes/table.html' %}
+    </div>
+    {% include 'includes/pagination.html' with paginator=taggeditem_table.paginator page=taggeditem_table.page %}
+  </div>
+</div>
 {% endblock %}

@@ -9,6 +9,8 @@ from extras.models import ObjectChange
 from .base import ModelTestCase
 from .functions import disable_warnings, post_data
 
+__all__ = ("ModelViewTestCase", "ViewTestCases")
+
 
 class ModelViewTestCase(ModelTestCase):
     """
@@ -34,7 +36,7 @@ class ModelViewTestCase(ModelTestCase):
             return reverse(url_format.format(action), kwargs={"pk": instance.pk})
 
 
-class ViewTestCases(object):
+class ViewTestCases:
     class GetObjectViewTestCase(ModelViewTestCase):
         """
         Retrieves a single instance.

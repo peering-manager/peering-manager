@@ -1,8 +1,18 @@
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 
-from messaging.filters import ContactFilterSet, ContactRoleFilterSet, EmailFilterSet
-from messaging.forms import (
+from peering_manager.views.generic import (
+    BulkDeleteView,
+    BulkEditView,
+    ObjectDeleteView,
+    ObjectEditView,
+    ObjectListView,
+    ObjectView,
+)
+from utils.functions import count_related
+
+from .filtersets import ContactFilterSet, ContactRoleFilterSet, EmailFilterSet
+from .forms import (
     ContactAssignmentForm,
     ContactBulkEditForm,
     ContactFilterForm,
@@ -13,23 +23,8 @@ from messaging.forms import (
     EmailFilterForm,
     EmailForm,
 )
-from messaging.models import Contact, ContactAssignment, ContactRole, Email
-from messaging.tables import (
-    ContactAssignmentTable,
-    ContactRoleTable,
-    ContactTable,
-    EmailTable,
-)
-from peering_manager.views.generics import (
-    BulkDeleteView,
-    BulkEditView,
-    ObjectDeleteView,
-    ObjectEditView,
-    ObjectListView,
-    ObjectView,
-)
-from utils.functions import count_related
-from utils.tables import paginate_table
+from .models import Contact, ContactAssignment, ContactRole, Email
+from .tables import ContactAssignmentTable, ContactRoleTable, ContactTable, EmailTable
 
 
 class ContactRoleList(ObjectListView):
@@ -44,16 +39,7 @@ class ContactRoleList(ObjectListView):
 class ContactRoleView(ObjectView):
     permission_required = "messaging.view_contactrole"
     queryset = ContactRole.objects.all()
-
-    def get_extra_context(self, request, instance):
-        return {"active_tab": "main"}
-
-
-class ContactRoleAdd(ObjectEditView):
-    permission_required = "messaging.add_contactrole"
-    queryset = ContactRole.objects.all()
-    model_form = ContactRoleForm
-    template_name = "messaging/contactrole/add_edit.html"
+    tab = "main"
 
 
 class ContactRoleBulkEdit(BulkEditView):
@@ -65,10 +51,8 @@ class ContactRoleBulkEdit(BulkEditView):
 
 
 class ContactRoleEdit(ObjectEditView):
-    permission_required = "messaging.change_contactrole"
     queryset = ContactRole.objects.all()
-    model_form = ContactRoleForm
-    template_name = "messaging/contactrole/add_edit.html"
+    form = ContactRoleForm
 
 
 class ContactRoleDelete(ObjectDeleteView):
@@ -77,7 +61,6 @@ class ContactRoleDelete(ObjectDeleteView):
 
 
 class ContactRoleBulkDelete(BulkDeleteView):
-    permission_required = "messaging.delete_contactrole"
     queryset = ContactRole.objects.all()
     filterset = ContactRoleFilterSet
     table = ContactRoleTable
@@ -97,34 +80,25 @@ class ContactList(ObjectListView):
 class ContactView(ObjectView):
     permission_required = "messaging.view_contact"
     queryset = Contact.objects.all()
+    tab = "main"
 
     def get_extra_context(self, request, instance):
         contact_assignments = ContactAssignment.objects.filter(contact=instance)
         assignments_table = ContactAssignmentTable(contact_assignments)
         assignments_table.columns.hide("contact")
-        paginate_table(assignments_table, request)
+        assignments_table.configure(request)
 
         return {
             "assignments_table": assignments_table,
             "assignment_count": ContactAssignment.objects.filter(
                 contact=instance
             ).count(),
-            "active_tab": "main",
         }
 
 
-class ContactAdd(ObjectEditView):
-    permission_required = "messaging.add_contact"
-    queryset = Contact.objects.all()
-    model_form = ContactForm
-    template_name = "messaging/contact/add_edit.html"
-
-
 class ContactEdit(ObjectEditView):
-    permission_required = "messaging.change_contact"
     queryset = Contact.objects.all()
-    model_form = ContactForm
-    template_name = "messaging/contact/add_edit.html"
+    form = ContactForm
 
 
 class ContactBulkEdit(BulkEditView):
@@ -143,7 +117,6 @@ class ContactDelete(ObjectDeleteView):
 
 
 class ContactBulkDelete(BulkDeleteView):
-    permission_required = "messaging.delete_contact"
     queryset = Contact.objects.annotate(
         assignment_count=count_related(ContactAssignment, "contact")
     )
@@ -154,8 +127,8 @@ class ContactBulkDelete(BulkDeleteView):
 class ContactAssignmentEditView(ObjectEditView):
     permission_required = "messaging.change_contactassignment"
     queryset = ContactAssignment.objects.all()
-    model_form = ContactAssignmentForm
-    template_name = "messaging/contactassignment/add_edit.html"
+    form = ContactAssignmentForm
+    template_name = "messaging/contactassignment/edit.html"
 
     def alter_object(self, instance, request, args, kwargs):
         if not instance.pk:
@@ -185,23 +158,12 @@ class EmailList(ObjectListView):
 class EmailView(ObjectView):
     permission_required = "messaging.view_email"
     queryset = Email.objects.all()
-
-    def get_extra_context(self, request, instance):
-        return {"active_tab": "main"}
-
-
-class EmailAdd(ObjectEditView):
-    permission_required = "messaging.add_email"
-    queryset = Email.objects.all()
-    model_form = EmailForm
-    template_name = "messaging/email/add_edit.html"
+    tab = "main"
 
 
 class EmailEdit(ObjectEditView):
-    permission_required = "messaging.change_email"
     queryset = Email.objects.all()
-    model_form = EmailForm
-    template_name = "messaging/email/add_edit.html"
+    form = EmailForm
 
 
 class EmailDelete(ObjectDeleteView):
@@ -210,7 +172,6 @@ class EmailDelete(ObjectDeleteView):
 
 
 class EmailBulkDelete(BulkDeleteView):
-    permission_required = "messaging.delete_email"
     queryset = Email.objects.all()
     filterset = EmailFilterSet
     table = EmailTable

@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.core.paginator import Page, Paginator
 
+__all__ = ("EnhancedPaginator", "get_paginate_count")
+
 
 class EnhancedPaginator(Paginator):
     default_page_lengths = (25, 50, 100, 250, 500, 1000)

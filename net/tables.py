@@ -1,23 +1,25 @@
 import django_tables2 as tables
 
-from net.models import Connection
-from utils.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, SelectColumn
+from peering_manager.tables import PeeringManagerTable, columns
+
+from .models import Connection
+
+__all__ = ("ConnectionTable",)
 
 
-class ConnectionTable(BaseTable):
-    pk = SelectColumn()
-    status = ChoiceFieldColumn()
+class ConnectionTable(PeeringManagerTable):
+    status = columns.ChoiceFieldColumn()
     mac_address = tables.Column(linkify=True, verbose_name="MAC")
     ipv6_address = tables.Column(linkify=True, verbose_name="IPv6")
     ipv4_address = tables.Column(linkify=True, verbose_name="IPv4")
     internet_exchange_point = tables.Column(linkify=True)
     router = tables.Column(linkify=True)
-    actions = ButtonsColumn(Connection)
 
-    class Meta(BaseTable.Meta):
+    class Meta(PeeringManagerTable.Meta):
         model = Connection
         fields = (
             "pk",
+            "id",
             "status",
             "vlan",
             "mac_address",

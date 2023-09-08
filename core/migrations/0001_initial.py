@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("object_id", models.PositiveBigIntegerField(blank=True, null=True)),
-                ("name", models.CharField(max_length=255)),
+                ("name", models.CharField(max_length=200)),
                 ("created", models.DateTimeField()),
                 ("started", models.DateTimeField(blank=True, null=True)),
                 ("completed", models.DateTimeField(blank=True, null=True)),

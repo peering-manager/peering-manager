@@ -1,8 +1,8 @@
 from django.db.models import Q
 from django.utils.deconstruct import deconstructible
 
-from extras.enums import EXTRAS_FEATURES
-from extras.registry import registry
+from .enums import EXTRAS_FEATURES
+from .registry import registry
 
 
 @deconstructible

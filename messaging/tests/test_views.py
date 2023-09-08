@@ -1,5 +1,6 @@
-from messaging.models import Contact, ContactRole, Email
 from utils.testing import ViewTestCases
+
+from ..models import *
 
 
 class ContactRoleTestCase(ViewTestCases.PrimaryObjectViewTestCase):

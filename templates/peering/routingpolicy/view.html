@@ -11,6 +11,14 @@
           <td>{{ instance.name }}</td>
         </tr>
         <tr>
+          <td>Slug</td>
+          <td>{{ instance.slug }}</td>
+        </tr>
+        <tr>
+          <td>Description</td>
+          <td>{{ instance.description|render_none }}</td>
+        </tr>
+        <tr>
           <td>Type</td>
           <td>{{ instance.get_type_display }}</td>
         </tr>

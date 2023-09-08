@@ -1,6 +1,6 @@
 from django.urls import path
 
-from extras.views import ObjectChangeLog
+from peering_manager.views.generic import ObjectChangeLogView
 
 from . import models, views
 
@@ -12,7 +12,7 @@ urlpatterns = [
     path(
         "connections/<int:pk>/", views.ConnectionView.as_view(), name="connection_view"
     ),
-    path("connections/add/", views.ConnectionAdd.as_view(), name="connection_add"),
+    path("connections/add/", views.ConnectionEdit.as_view(), name="connection_add"),
     path(
         "connections/<int:pk>/config-context/",
         views.ConnectionContext.as_view(),
@@ -20,7 +20,7 @@ urlpatterns = [
     ),
     path(
         "connections/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
+        ObjectChangeLogView.as_view(),
         name="connection_changelog",
         kwargs={"model": models.Connection},
     ),

@@ -7,7 +7,7 @@
   </div>
   <div class="card-body">
     <form action="." method="get">
-      {% for field in filter_form %}
+      {% for field in filterset_form %}
       <div class="form-group form-row">
         {% if field.name == "q" %}
         <div class="input-group">

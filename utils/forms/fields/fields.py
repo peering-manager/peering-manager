@@ -3,33 +3,22 @@ from json import dumps as json_dumps
 from django import forms
 from django.core.validators import RegexValidator
 from django.db import models
+from django.db.models import Count
 from django.forms.fields import InvalidJSONInput
 from django.forms.fields import JSONField as _JSONField
 
-from utils.forms.widgets import ColorSelect
+from ..widgets import ColourSelect, StaticSelectMultiple
 
-
-def multivalue_field_factory(field_class):
-    """
-    Transforms a form field into one that accepts multiple values.
-
-    This is used to apply `or` logic when multiple filter values are given while
-    maintaining the field's built-in validation.
-
-    Example: /api/peering/autonomous-systems/?asn=64500&asn=64501
-    """
-
-    class MultiValueField(field_class):
-        widget = forms.SelectMultiple
-
-        def to_python(self, value):
-            if not value:
-                return []
-
-            # Only ignore `None` and `False`, `0` makes sense
-            return [super(field_class, self).to_python(v) for v in value if v or v == 0]
-
-    return type(f"MultiValue{field_class.__name__}", (MultiValueField,), dict())
+__all__ = (
+    "TextareaField",
+    "ColourField",
+    "CommentField",
+    "JSONField",
+    "PasswordField",
+    "SlugField",
+    "TagFilterField",
+    "TemplateField",
+)
 
 
 class TextareaField(forms.CharField):
@@ -44,7 +33,7 @@ class TextareaField(forms.CharField):
         super().__init__(required=required, *args, **kwargs)
 
 
-class ColorField(models.CharField):
+class ColourField(models.CharField):
     default_validators = [
         RegexValidator(
             regex="^[0-9a-f]{6}$",
@@ -59,7 +48,7 @@ class ColorField(models.CharField):
         super().__init__(*args, **kwargs)
 
     def formfield(self, **kwargs):
-        kwargs["widget"] = ColorSelect
+        kwargs["widget"] = ColourSelect
         return super().formfield(**kwargs)
 
 
@@ -126,13 +115,33 @@ class SlugField(forms.SlugField):
     field used as source.
     """
 
-    def __init__(self, slug_source="name", *args, **kwargs):
-        label = kwargs.pop("label", "Slug")
-        help_text = kwargs.pop(
-            "help_text", "Friendly unique shorthand used for URL and config"
-        )
-        super().__init__(label=label, help_text=help_text, *args, **kwargs)
+    help_text = "URL-friendly unique shorthand"
+
+    def __init__(self, *, slug_source="name", help_text=help_text, **kwargs):
+        super().__init__(help_text=help_text, **kwargs)
+
         self.widget.attrs["slug-source"] = slug_source
+
+
+class TagFilterField(forms.MultipleChoiceField):
+    """
+    A filter field for the tags of a model.
+    Only the tags used by a model are displayed.
+    """
+
+    widget = StaticSelectMultiple
+
+    def __init__(self, model, *args, **kwargs):
+        def get_choices():
+            tags = model.tags.annotate(count=Count("extras_taggeditem_items")).order_by(
+                "name"
+            )
+            return [(str(tag.slug), f"{tag.name} ({tag.count})") for tag in tags]
+
+        # Choices are fetched each time the form is initialized
+        super().__init__(
+            label="Tags", choices=get_choices, required=False, *args, **kwargs
+        )
 
 
 class TemplateField(TextareaField):

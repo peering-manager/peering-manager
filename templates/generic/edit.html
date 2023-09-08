@@ -1,0 +1,42 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% load form_helpers %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">
+  {% block title %}
+  {% if instance.pk %}Editing {{ instance|meta:"verbose_name" }} {{ instance }}{% else %}Add a new {{ instance|meta:"verbose_name" }}{% endif %}
+  {% endblock %}
+  {% if settings.DOCS_DIR %}
+  <button class="btn btn-link btn-xs text-white" type="button" data-toggle="modal" data-target="#docs_modal" title="Help">
+    <i class="fas fa-question-circle"></i>
+  </button>
+  {% endif %}
+</li>
+{% endblock %}
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  <div class="row justify-content-center">
+    <div class="col-8">
+      {% render_errors form %}
+      {% block form %}
+      {% include 'generic/form.html' %}
+      {% endblock form %}
+    </div>
+  </div>
+  <div class="row justify-content-center">
+    <div class="col-8 text-right">
+      {% if instance.pk %}
+      <button type="submit" class="btn btn-primary">Save</button>
+      {% else %}
+      <button type="submit" name="_create" class="btn btn-primary">Create</button>
+      <button type="submit" name="_addanother" class="btn btn-primary">Create &amp; Add Another</button>
+      {% endif %}
+      <a class="btn btn-secondary" href="{{ return_url }}">Cancel</a>
+    </div>
+  </div>
+</form>
+{% if instance and settings.DOCS_DIR %}
+{% include 'includes/modal.html' with name='docs' content=instance|get_docs %}
+{% endif %}
+{% endblock %}

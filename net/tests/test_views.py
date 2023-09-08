@@ -1,10 +1,11 @@
 import ipaddress
 
-from net.enums import ConnectionStatus
-from net.models import Connection
 from peering.enums import DeviceStatus
 from peering.models import AutonomousSystem, InternetExchange, Router
 from utils.testing import ViewTestCases
+
+from ..enums import *
+from ..models import *
 
 
 class ConnectionTestCase(ViewTestCases.ContextualObjectViewTestCase):

@@ -8,12 +8,7 @@ from peering_manager.api.serializers import ValidatedModelSerializer
 
 from .nested_serializers import *
 
-__all__ = (
-    "GroupSerializer",
-    "UserSerializer",
-    "NestedGroupSerializer",
-    "NestedUserSerializer",
-)
+__all__ = ("GroupSerializer", "UserSerializer")
 
 
 class UserSerializer(ValidatedModelSerializer):

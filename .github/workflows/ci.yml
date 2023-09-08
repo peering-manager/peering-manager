@@ -64,7 +64,7 @@ jobs:
             python-version: "3.11"
     services:
       postgres:
-        image: postgres:11
+        image: postgres:12
         ports:
           - 5432:5432
         env:

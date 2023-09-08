@@ -1,4 +1,4 @@
-class PolicyMixin(object):
+class PolicyMixin:
     """
     This mixin defines functions that needs to be implemented by classes having
     routing policies fields.

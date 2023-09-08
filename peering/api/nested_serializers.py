@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
-from peering.models import (
+from peering_manager.api.serializers import WritableNestedSerializer
+
+from ..models import (
     AutonomousSystem,
     BGPGroup,
     Community,
@@ -10,7 +12,6 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from peering_manager.api.serializers import WritableNestedSerializer
 
 
 class NestedAutonomousSystemSerializer(WritableNestedSerializer):

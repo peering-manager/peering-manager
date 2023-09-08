@@ -1,16 +1,16 @@
 import logging
 
-from cacheops.signals import cache_invalidated, cache_read
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import Signal, receiver
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 from prometheus_client import Counter
 
-from extras.enums import ObjectChangeAction
-from extras.models import ObjectChange
-from extras.webhooks import enqueue_object, get_snapshots, serialize_for_webhook
 from peering_manager.context import current_request, webhooks_queue
+
+from .enums import ObjectChangeAction
+from .models import ObjectChange
+from .webhooks import enqueue_object, get_snapshots, serialize_for_webhook
 
 # Define a custom signal that can be sent to clear any queued webhooks
 clear_webhooks = Signal()
@@ -125,25 +125,3 @@ def clear_webhook_queue(sender, **kwargs):
         f"clearing {len(webhooks_queue.get())} queued webhooks ({sender})"
     )
     webhooks_queue.set([])
-
-
-cacheops_cache_hit = Counter("cacheops_cache_hit", "Number of cache hits")
-cacheops_cache_miss = Counter("cacheops_cache_miss", "Number of cache misses")
-cacheops_cache_invalidated = Counter(
-    "cacheops_cache_invalidated", "Number of cache invalidations"
-)
-
-
-def cache_read_collector(sender, func, hit, **kwargs):
-    if hit:
-        cacheops_cache_hit.inc()
-    else:
-        cacheops_cache_miss.inc()
-
-
-def cache_invalidated_collector(sender, obj_dict, **kwargs):
-    cacheops_cache_invalidated.inc()
-
-
-cache_read.connect(cache_read_collector)
-cache_invalidated.connect(cache_invalidated_collector)

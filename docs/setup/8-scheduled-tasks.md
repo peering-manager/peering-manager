@@ -10,7 +10,7 @@ Python virtual environment if you have one for Peering Manager (you should).
 Most of actions that users make in Peering Manager are logged. There are two
 kind of logs: change logs and job results. The retention periods for these
 logs are defined with two configuration settings: `CHANGELOG_RETENTION` and
-`JOBRESULT_RETENTION`.
+`JOB_RETENTION`.
 
 By default, changelog and job results will not be cleaned unless users run
 the command for it. This command also checks the availability of new

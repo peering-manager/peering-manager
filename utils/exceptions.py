@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.exceptions import APIException
 
-__all__ = ("AbortException", "RQWorkerNotRunningException")
+__all__ = ("AbortException", "PermissionsViolation", "RQWorkerNotRunningException")
 
 
 class AbortRequest(Exception):
@@ -11,6 +11,15 @@ class AbortRequest(Exception):
 
     def __init__(self, message):
         self.message = message
+
+
+class PermissionsViolation(Exception):
+    """
+    Raised when an operation was prevented because it would violate the allowed
+    permissions.
+    """
+
+    message = "Operation failed due to permissions violation"
 
 
 class RQWorkerNotRunningException(APIException):

@@ -1,0 +1,108 @@
+{% extends 'extras/webhook/_base.html' %}
+{% load helpers %}
+{% block subcontent %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header"><strong>Details</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Name</td>
+          <td>{{ instance.name }}</td>
+        </tr>
+        <tr>
+          <td>Enabled</td>
+          <td>{{ instance.enabled|boolean_as_icon }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="card mb-2">
+      <div class="card-header"><strong>Events</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Create</td>
+          <td>{{ instance.type_create|boolean_as_icon }}</td>
+        </tr>
+        <tr>
+          <td>Update</td>
+          <td>{{ instance.type_update|boolean_as_icon }}</td>
+        </tr>
+        <tr>
+          <td>Delete</td>
+          <td>{{ instance.type_delete|boolean_as_icon }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="card mb-2">
+      <div class="card-header"><strong>HTTP Request</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>HTTP method</td>
+          <td>{{ instance.http_method }}</td>
+        </tr>
+        <tr>
+          <td>Payload URL</td>
+          <td>{{ instance.payload_url }}</td>
+        </tr>
+        <tr>
+          <td>HTTP content type</td>
+          <td>{{ instance.http_content_type }}</td>
+        </tr>
+        <tr>
+          <td>Secret</td>
+          <td>{{ instance.secret|render_none }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="card mb-2">
+      <div class="card-header"><strong>SSL</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>SSL verification</td>
+          <td>{{ instance.ssl_verification|boolean_as_icon }}</td>
+        </tr>
+        <tr>
+          <td>CA file path</td>
+          <td>{{ instance.ca_file_path|render_none }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header"><strong>Assigned Models</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        {% for model in instance.content_types.all %}
+        <tr>
+          <td>{{ model }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    <div class="card mb-2">
+      <div class="card-header"><strong>Conditions</strong></div>
+      {% if instance.conditions %}
+      <pre class="pre-scrollable">{{ instance.conditions|render_json }}</pre>
+      {% else %}
+      <div class="card-body"><span class="text-muted">None</span></div>
+      {% endif %}
+    </div>
+    <div class="card mb-2">
+      <div class="card-header"><strong>Additional Headers</strong></div>
+      {% if instance.additional_headers %}
+      <pre class="pre-scrollable">{{ instance.additional_headers }}</pre>
+      {% else %}
+      <div class="card-body"><span class="text-muted">None</span></div>
+      {% endif %}
+    </div>
+    <div class="card mb-2">
+      <div class="card-header"><strong>Body Template</strong></div>
+      {% if instance.body_template %}
+      <pre class="pre-scrollable">{{ instance.body_template }}</pre>
+      {% else %}
+      <div class="card-body"><span class="text-muted">None</span></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

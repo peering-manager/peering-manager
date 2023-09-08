@@ -1,8 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from users.models import UserPreferences
-
 
 class UserPreferencesTest(TestCase):
     def setUp(self):

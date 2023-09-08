@@ -6,13 +6,10 @@ from django.test import TestCase
 from bgp.models import Relationship
 from devices.models import PasswordAlgorithm, Platform
 from net.models import Connection
-from peering.enums import (
-    BGPSessionStatus,
-    CommunityType,
-    DeviceStatus,
-    RoutingPolicyType,
-)
-from peering.models import (
+from utils.testing import load_json
+
+from ..enums import BGPSessionStatus, CommunityType, DeviceStatus, RoutingPolicyType
+from ..models import (
     AutonomousSystem,
     BGPGroup,
     Community,
@@ -22,8 +19,7 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from peering.tests.mocked_data import load_peeringdb_data, mocked_subprocess_popen
-from utils.testing import load_json
+from .mocked_data import load_peeringdb_data, mocked_subprocess_popen
 
 
 class AutonomousSystemTest(TestCase):
@@ -269,10 +265,10 @@ class InternetExchangePeeringSessionTest(TestCase):
         self.assertIsNone(self.session.encrypted_password)
 
     def test_exists_in_peeringdb(self):
-        self.assertFalse(self.session.exists_in_peeringdb())
+        self.assertFalse(self.session.exists_in_peeringdb)
 
     def test_is_abandoned(self):
-        self.assertFalse(self.session.is_abandoned())
+        self.assertFalse(self.session.is_abandoned)
 
     def test_poll(self):
         with patch(
@@ -597,14 +593,3 @@ class RoutingPolicyTest(TestCase):
             RoutingPolicy(name="test-4", slug="test-4", type="unknown"),
         ]
         RoutingPolicy.objects.bulk_create(cls.routing_policies)
-
-    def test_get_type_html(self):
-        expected = [
-            '<span class="badge badge-primary">Export</span>',
-            '<span class="badge badge-info">Import</span>',
-            '<span class="badge badge-dark">Import+Export</span>',
-            '<span class="badge badge-secondary">Unknown</span>',
-        ]
-
-        for i in range(len(expected)):
-            self.assertEqual(expected[i], self.routing_policies[i].get_type_html())

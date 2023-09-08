@@ -1,7 +1,7 @@
 import django_filters
 from django.db.models import Q
 
-from utils.filters import BaseFilterSet
+from peering_manager.filtersets import BaseFilterSet
 
 from .enums import JobStatus
 from .models import Job

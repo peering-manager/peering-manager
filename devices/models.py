@@ -1,17 +1,9 @@
-import traceback
-
-from django.conf import settings
 from django.db import models
 from django.urls import reverse
-from jinja2 import Environment, TemplateSyntaxError
 
 from peering.models import Template
-from peering_manager.jinja2 import (
-    FILTER_DICT,
-    IncludeTemplateExtension,
-    PeeringManagerLoader,
-)
-from utils.models import ChangeLoggedMixin
+from peering_manager.jinja2 import render_jinja2
+from peering_manager.models import OrganisationalModel
 
 from .crypto import *
 from .enums import PasswordAlgorithm
@@ -23,34 +15,16 @@ class Configuration(Template):
     def get_absolute_url(self):
         return reverse("devices:configuration_view", args=[self.pk])
 
-    def render(self, variables):
+    def render(self, context):
         """
         Render the template using Jinja2.
         """
-        environment = Environment(
-            loader=PeeringManagerLoader(),
-            trim_blocks=self.jinja2_trim,
-            lstrip_blocks=self.jinja2_lstrip,
+        return render_jinja2(
+            self.template, context, trim=self.jinja2_trim, lstrip=self.jinja2_lstrip
         )
-        environment.add_extension(IncludeTemplateExtension)
-        for extension in settings.JINJA2_TEMPLATE_EXTENSIONS:
-            environment.add_extension(extension)
-
-        # Add custom filters to our environment
-        environment.filters.update(FILTER_DICT)
-
-        # Try rendering the template, return a message about syntax issues if there
-        # are any
-        try:
-            jinja2_template = environment.from_string(self.template)
-            return jinja2_template.render(variables)
-        except TemplateSyntaxError as e:
-            return f"Syntax error in template at line {e.lineno}: {e.message}"
-        except Exception:
-            return traceback.format_exc()
 
 
-class Platform(ChangeLoggedMixin):
+class Platform(OrganisationalModel):
     """
     Platform refers to the software or firmware running on a device.
 
@@ -60,12 +34,6 @@ class Platform(ChangeLoggedMixin):
     specifying a NAPALM driver.
     """
 
-    name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(
-        max_length=100,
-        unique=True,
-        help_text="Friendly unique shorthand used for URL and config",
-    )
     napalm_driver = models.CharField(
         max_length=50,
         blank=True,
@@ -84,13 +52,6 @@ class Platform(ChangeLoggedMixin):
         choices=PasswordAlgorithm,
         help_text="Algorithm to cipher password in configuration",
     )
-    description = models.CharField(max_length=200, blank=True)
-
-    class Meta:
-        ordering = ["name"]
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return f"{reverse('peering:router_list')}?platform={self.pk}"

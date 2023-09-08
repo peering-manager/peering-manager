@@ -3,8 +3,9 @@ from sys import stdin, stdout
 
 from django.core.management.base import BaseCommand
 
-from devices.models import Configuration
 from peering.models import Router
+
+from ...models import Configuration
 
 
 class Command(BaseCommand):

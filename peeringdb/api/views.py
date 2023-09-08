@@ -9,9 +9,10 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 
 from core.api.serializers import JobSerializer
 from core.models import Job
-from peeringdb.filters import NetworkFilterSet, SynchronisationFilterSet
-from peeringdb.jobs import synchronise
-from peeringdb.models import (
+
+from ..filtersets import NetworkFilterSet, SynchronisationFilterSet
+from ..jobs import synchronise
+from ..models import (
     Carrier,
     CarrierFacility,
     Facility,
@@ -26,9 +27,7 @@ from peeringdb.models import (
     Organization,
     Synchronisation,
 )
-from peeringdb.sync import PeeringDB
-from utils.api import get_serializer_for_model
-
+from ..sync import PeeringDB
 from .serializers import (
     FacilitySerializer,
     InternetExchangeFacilitySerializer,

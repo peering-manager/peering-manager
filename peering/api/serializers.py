@@ -9,8 +9,11 @@ from devices.api.serializers import (
 )
 from extras.api.serializers import NestedIXAPISerializer
 from net.api.serializers import NestedConnectionSerializer
-from peering.enums import BGPGroupStatus, BGPSessionStatus, DeviceStatus
-from peering.models import (
+from peering_manager.api.fields import ChoiceField, SerializedPKRelatedField
+from peering_manager.api.serializers import PeeringManagerModelSerializer
+
+from ..enums import BGPGroupStatus, BGPSessionStatus, DeviceStatus
+from ..models import (
     AutonomousSystem,
     BGPGroup,
     Community,
@@ -20,9 +23,6 @@ from peering.models import (
     Router,
     RoutingPolicy,
 )
-from peering_manager.api.fields import ChoiceField, SerializedPKRelatedField
-from peering_manager.api.serializers import PeeringManagerModelSerializer
-
 from .nested_serializers import *
 
 __all__ = (
@@ -88,6 +88,8 @@ class AutonomousSystemSerializer(PeeringManagerModelSerializer):
             "affiliated",
             "local_context_data",
             "tags",
+            "created",
+            "updated",
         ]
 
 
@@ -123,13 +125,15 @@ class BGPGroupSerializer(PeeringManagerModelSerializer):
             "display",
             "name",
             "slug",
+            "description",
             "status",
             "import_routing_policies",
             "export_routing_policies",
             "communities",
             "local_context_data",
-            "comments",
             "tags",
+            "created",
+            "updated",
         ]
 
 
@@ -141,11 +145,13 @@ class CommunitySerializer(PeeringManagerModelSerializer):
             "display",
             "name",
             "slug",
+            "description",
             "value",
             "type",
             "local_context_data",
-            "comments",
             "tags",
+            "created",
+            "updated",
         ]
 
 
@@ -202,6 +208,8 @@ class DirectPeeringSessionSerializer(PeeringManagerModelSerializer):
             "last_established_state",
             "comments",
             "tags",
+            "created",
+            "updated",
         ]
 
     def validate(self, attrs):
@@ -251,14 +259,16 @@ class InternetExchangeSerializer(PeeringManagerModelSerializer):
             "ixapi_endpoint",
             "name",
             "slug",
+            "description",
             "status",
             "local_autonomous_system",
-            "comments",
             "import_routing_policies",
             "export_routing_policies",
             "communities",
             "local_context_data",
             "tags",
+            "created",
+            "updated",
         ]
 
     @extend_schema_field(OpenApiTypes.OBJECT)
@@ -288,6 +298,8 @@ class InternetExchangePeeringSessionSerializer(PeeringManagerModelSerializer):
         required=False,
         many=True,
     )
+    exists_in_peeringdb = serializers.BooleanField(read_only=True)
+    is_abandoned = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = InternetExchangePeeringSession
@@ -307,12 +319,16 @@ class InternetExchangePeeringSessionSerializer(PeeringManagerModelSerializer):
             "export_routing_policies",
             "communities",
             "local_context_data",
+            "exists_in_peeringdb",
+            "is_abandoned",
             "bgp_state",
             "received_prefix_count",
             "advertised_prefix_count",
             "last_established_state",
             "comments",
             "tags",
+            "created",
+            "updated",
         ]
 
 
@@ -346,6 +362,8 @@ class RouterSerializer(PeeringManagerModelSerializer):
             "napalm_args",
             "comments",
             "tags",
+            "created",
+            "updated",
         ]
 
 
@@ -369,11 +387,13 @@ class RoutingPolicySerializer(PeeringManagerModelSerializer):
             "display",
             "name",
             "slug",
+            "description",
             "type",
             "weight",
             "address_family",
             "communities",
             "local_context_data",
-            "comments",
             "tags",
+            "created",
+            "updated",
         ]

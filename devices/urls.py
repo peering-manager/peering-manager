@@ -1,6 +1,6 @@
 from django.urls import path
 
-from extras.views import ObjectChangeLog
+from peering_manager.views.generic import ObjectChangeLogView
 
 from . import models, views
 
@@ -9,62 +9,58 @@ app_name = "devices"
 urlpatterns = [
     # Configurations
     path(
-        "devices/configurations/",
-        views.ConfigurationList.as_view(),
-        name="configuration_list",
+        "configurations/", views.ConfigurationList.as_view(), name="configuration_list"
     ),
     path(
-        "devices/configurations/add/",
-        views.ConfigurationAdd.as_view(),
+        "configurations/add/",
+        views.ConfigurationEdit.as_view(),
         name="configuration_add",
     ),
     path(
-        "devices/configurations/<int:pk>/",
+        "configurations/<int:pk>/",
         views.ConfigurationView.as_view(),
         name="configuration_view",
     ),
     path(
-        "devices/configurations/<int:pk>/edit/",
+        "configurations/<int:pk>/edit/",
         views.ConfigurationEdit.as_view(),
         name="configuration_edit",
     ),
     path(
-        "devices/configurations/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
+        "configurations/<int:pk>/changelog/",
+        ObjectChangeLogView.as_view(),
         name="configuration_changelog",
         kwargs={"model": models.Configuration},
     ),
     path(
-        "devices/configurations/<int:pk>/delete/",
+        "configurations/<int:pk>/delete/",
         views.ConfigurationDelete.as_view(),
         name="configuration_delete",
     ),
     path(
-        "devices/configurations/delete/",
+        "configurations/delete/",
         views.ConfigurationBulkDelete.as_view(),
         name="configuration_bulk_delete",
     ),
     # Platforms
-    path("devices/platforms/", views.PlatformList.as_view(), name="platform_list"),
-    path("devices/platforms/add/", views.PlatformAdd.as_view(), name="platform_add"),
+    path("platforms/", views.PlatformList.as_view(), name="platform_list"),
+    path("platforms/add/", views.PlatformEdit.as_view(), name="platform_add"),
     path(
-        "devices/platforms/<int:pk>/edit/",
-        views.PlatformEdit.as_view(),
-        name="platform_edit",
+        "platforms/<int:pk>/edit/", views.PlatformEdit.as_view(), name="platform_edit"
     ),
     path(
-        "devices/platforms/<int:pk>/changelog/",
-        ObjectChangeLog.as_view(),
+        "platforms/<int:pk>/changelog/",
+        ObjectChangeLogView.as_view(),
         name="platform_changelog",
         kwargs={"model": models.Platform},
     ),
     path(
-        "devices/platforms/<int:pk>/delete/",
+        "platforms/<int:pk>/delete/",
         views.PlatformDelete.as_view(),
         name="platform_delete",
     ),
     path(
-        "devices/platforms/delete/",
+        "platforms/delete/",
         views.PlatformBulkDelete.as_view(),
         name="platform_bulk_delete",
     ),

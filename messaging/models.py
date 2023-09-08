@@ -1,49 +1,30 @@
-import traceback
-
-from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
-from jinja2 import Environment, TemplateSyntaxError
 
 from peering.models import Template
-from peering_manager.jinja2 import (
-    FILTER_DICT,
-    IncludeTemplateExtension,
-    PeeringManagerLoader,
-)
-from utils.models import ChangeLoggedMixin, TagsMixin
+from peering_manager.jinja2 import render_jinja2
+from peering_manager.models import ChangeLoggedModel, OrganisationalModel, PrimaryModel
 
 __all__ = ("ContactRole", "Contact", "ContactAssignment", "Email")
 
 
-class ContactRole(ChangeLoggedMixin, TagsMixin):
+class ContactRole(OrganisationalModel):
     """
     Functional role for a `Contact` assigned to an object.
     """
-
-    name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(max_length=100, unique=True)
-    description = models.CharField(max_length=200, blank=True)
-
-    class Meta:
-        ordering = ["name"]
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse("messaging:contactrole_view", args=[self.pk])
 
 
-class Contact(ChangeLoggedMixin, TagsMixin):
+class Contact(PrimaryModel):
     name = models.CharField(max_length=100)
     title = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=50, blank=True)
     email = models.EmailField(blank=True)
     address = models.CharField(max_length=200, blank=True)
-    comments = models.TextField(blank=True)
 
     class Meta:
         ordering = ["name"]
@@ -55,7 +36,7 @@ class Contact(ChangeLoggedMixin, TagsMixin):
         return reverse("messaging:contact_view", args=[self.pk])
 
 
-class ContactAssignment(ChangeLoggedMixin):
+class ContactAssignment(ChangeLoggedModel):
     content_type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     object = GenericForeignKey(ct_field="content_type", fk_field="object_id")
@@ -92,35 +73,11 @@ class Email(Template):
         """
         Render the template using Jinja2.
         """
-        subject, body = "", ""
-        environment = Environment(
-            loader=PeeringManagerLoader(),
-            trim_blocks=self.jinja2_trim,
-            lstrip_blocks=self.jinja2_lstrip,
+        subject = render_jinja2(
+            self.subject, variables, trim=self.jinja2_trim, lstrip=self.jinja2_lstrip
         )
-        environment.add_extension(IncludeTemplateExtension)
-        for extension in settings.JINJA2_TEMPLATE_EXTENSIONS:
-            environment.add_extension(extension)
-
-        # Add custom filters to our environment
-        environment.filters.update(FILTER_DICT)
-
-        try:
-            jinja2_template = environment.from_string(self.subject)
-            subject = jinja2_template.render(variables)
-        except TemplateSyntaxError as e:
-            subject = (
-                f"Syntax error in subject template at line {e.lineno}: {e.message}"
-            )
-        except Exception as e:
-            subject = str(e)
-
-        try:
-            jinja2_template = environment.from_string(self.template)
-            body = jinja2_template.render(variables)
-        except TemplateSyntaxError as e:
-            body = f"Syntax error in body template at line {e.lineno}: {e.message}"
-        except Exception:
-            body = traceback.format_exc()
+        body = render_jinja2(
+            self.template, variables, trim=self.jinja2_trim, lstrip=self.jinja2_lstrip
+        )
 
         return subject, body

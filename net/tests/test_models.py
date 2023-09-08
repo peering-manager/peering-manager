@@ -1,9 +1,10 @@
 from django.test import TestCase
 
-from net.enums import ConnectionStatus
-from net.models import Connection
 from peering.enums import DeviceStatus
 from peering.models import AutonomousSystem, InternetExchange, Router
+
+from ..enums import *
+from ..models import *
 
 
 class ConnectionTest(TestCase):

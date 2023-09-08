@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
                 ("description", models.CharField(blank=True, max_length=200)),
                 (
                     "color",
-                    utils.forms.fields.ColorField(default="9e9e9e", max_length=6),
+                    utils.forms.fields.ColourField(default="9e9e9e", max_length=6),
                 ),
             ],
             options={"ordering": ["name"]},

@@ -3,25 +3,41 @@ from utils.enums import ChoiceSet
 
 class BGPGroupStatus(ChoiceSet):
     ENABLED = "enabled"
+    PRE_MAINTENANCE = "pre-maintenance"
     MAINTENANCE = "maintenance"
+    POST_MAINTENANCE = "post-maintenance"
     DISABLED = "disabled"
 
     CHOICES = (
         (ENABLED, "Enabled", "success"),
+        (PRE_MAINTENANCE, "Pre-maintenance", "warning"),
         (MAINTENANCE, "Maintenance", "warning"),
+        (POST_MAINTENANCE, "Post-maintenance", "warning"),
         (DISABLED, "Disabled", "danger"),
     )
 
 
 class BGPSessionStatus(ChoiceSet):
+    REQUESTED = "requested"
+    PROVISIONING = "provisioning"
     ENABLED = "enabled"
+    PRE_MAINTENANCE = "pre-maintenance"
     MAINTENANCE = "maintenance"
+    POST_MAINTENANCE = "post-maintenance"
     DISABLED = "disabled"
+    DECOMMISSIONING = "decommissioning"
+    DECOMMISSIONED = "decommissioned"
 
     CHOICES = (
+        (REQUESTED, "Requested", "info"),
+        (PROVISIONING, "Provisioning", "secondary"),
         (ENABLED, "Enabled", "success"),
+        (PRE_MAINTENANCE, "Pre-maintenance", "warning"),
         (MAINTENANCE, "Maintenance", "warning"),
+        (POST_MAINTENANCE, "Post-maintenance", "warning"),
         (DISABLED, "Disabled", "danger"),
+        (DECOMMISSIONING, "Decommissioning", "warning"),
+        (DECOMMISSIONED, "Decommissioned", "danger"),
     )
 
 
@@ -52,12 +68,16 @@ class CommunityType(ChoiceSet):
 
 class DeviceStatus(ChoiceSet):
     ENABLED = "enabled"
+    PRE_MAINTENANCE = "pre-maintenance"
     MAINTENANCE = "maintenance"
+    POST_MAINTENANCE = "post-maintenance"
     DISABLED = "disabled"
 
     CHOICES = (
         (ENABLED, "Enabled", "success"),
+        (PRE_MAINTENANCE, "Pre-maintenance", "warning"),
         (MAINTENANCE, "Maintenance", "warning"),
+        (POST_MAINTENANCE, "Post-maintenance", "warning"),
         (DISABLED, "Disabled", "danger"),
     )
 

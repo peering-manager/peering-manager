@@ -1,9 +1,8 @@
-from django.db.models import query
 from django.test import TestCase
 from django.utils import timezone
 
-from peeringdb.filters import SynchronisationFilterSet
-from peeringdb.models import Synchronisation
+from ..filtersets import *
+from ..models import *
 
 
 class SynchronisationTestCase(TestCase):

@@ -1,6 +1,6 @@
 import collections
 
-from extras.enums import EXTRAS_FEATURES
+from .enums import EXTRAS_FEATURES
 
 
 class Registry(dict):

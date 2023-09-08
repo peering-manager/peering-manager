@@ -6,7 +6,7 @@
 {% block content %}
 <div class="row">
   <div class="col-md-9">
-    {% include 'generic/object_list.html' %}
+    {% include 'generic/object_list.html' with table_modal='ConnectionTable_config' %}
   </div>
   <div class="col-md-3">
     {% include 'utils/search_form.html' %}

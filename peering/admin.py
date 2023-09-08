@@ -1,6 +1,6 @@
 from django.contrib.admin import site as admin_site
 
-from peering.models import (
+from .models import (
     AutonomousSystem,
     BGPGroup,
     Community,

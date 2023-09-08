@@ -1,11 +1,12 @@
 from django.urls import reverse
 from rest_framework import status
 
-from net.enums import ConnectionStatus
-from net.models import Connection
 from peering.enums import DeviceStatus
 from peering.models import AutonomousSystem, InternetExchange, Router
-from utils.testing import APITestCase, StandardAPITestCases
+from utils.testing import APITestCase, APIViewTestCases
+
+from ..enums import ConnectionStatus
+from ..models import Connection
 
 
 class AppTest(APITestCase):
@@ -14,7 +15,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class ConnectionTest(StandardAPITestCases.View):
+class ConnectionTest(APIViewTestCases.View):
     model = Connection
     brief_fields = [
         "id",

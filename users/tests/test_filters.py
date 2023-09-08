@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Group, User
 from django.test import TestCase
 
-from users.filters import GroupFilterSet, UserFilterSet
+from ..filtersets import GroupFilterSet, UserFilterSet
 
 
 class GroupTestCase(TestCase):

@@ -1,9 +1,11 @@
 import django_tables2 as tables
 
-from utils.tables import BaseTable, BooleanColumn, SelectColumn
+from peering_manager.tables import BaseTable, BooleanColumn, SelectColumn
 from utils.templatetags.helpers import render_bandwidth_speed
 
 from .models import NetworkContact, NetworkIXLan
+
+__all__ = ("NetworkContactTable", "NetworkIXLanTable")
 
 
 class NetworkContactTable(BaseTable):

@@ -2,9 +2,10 @@ from django.core.management.base import BaseCommand
 
 from core.models import Job
 from peering.models import AutonomousSystem
-from peeringdb.jobs import synchronise
-from peeringdb.models import Synchronisation
-from peeringdb.sync import PeeringDB
+
+from ...jobs import synchronise
+from ...models import Synchronisation
+from ...sync import PeeringDB
 
 
 class Command(BaseCommand):

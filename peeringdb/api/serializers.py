@@ -1,8 +1,9 @@
 from rest_framework import serializers
 
 from peering_manager.api.fields import ChoiceField
-from peeringdb.enums import Visibility
-from peeringdb.models import (
+
+from ..enums import Visibility
+from ..models import (
     Facility,
     InternetExchange,
     InternetExchangeFacility,

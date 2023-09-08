@@ -113,17 +113,12 @@
     </div>
     {% endif %}
     <div class="card mb-2">
-      <div class="card-header"><strong>Routing Policies</strong></div>
-      {% if instance.export_routing_policies.all.count > 0 or instance.import_routing_policies.all.count > 0 %}
+      <div class="card-header"><strong>Import Routing Policies</strong></div>
+      {% if instance.import_routing_policies.all.count > 0 %}
       <ul class="list-group list-group-flush">
-      {% for routing_policy in instance.export_routing_policies.all %}
-        <li class="list-group-item">
-          {{ routing_policy }} <span class="float-right"><code>{{ routing_policy.slug }}</code>&nbsp;{{ routing_policy.get_type_html }}</span>
-        </li>
-      {% endfor %}
       {% for routing_policy in instance.import_routing_policies.all %}
         <li class="list-group-item">
-          {{ routing_policy }} <span class="float-right"><code>{{ routing_policy.slug }}</code>&nbsp;{{ routing_policy.get_type_html }}</span>
+          {{ routing_policy|as_link }}
         </li>
       {% endfor %}
       </ul>
@@ -133,22 +128,40 @@
       </div>
       {% endif %}
     </div>
-    <div class="card">
-      <div class="card-header"><strong>BGP Communities</strong></div>
-        {% if instance.communities.all.count > 0 %}
-        <ul class="list-group list-group-flush">
-        {% for community in instance.communities.all %}
-          <li class="list-group-item">
-            {{ community|as_link }}{% if community.type %} <span class="float-right">{{ community.get_type_html }}{% endif %}</span>
-          </li>
-        {% endfor %}
-        </ul>
-        {% else %}
-        <div class="card-body">
-          <span class="text-muted">None</span>
-        </div>
-        {% endif %}
+    <div class="card mb-2">
+      <div class="card-header"><strong>Export Routing Policies</strong></div>
+      {% if instance.export_routing_policies.all.count > 0 %}
+      <ul class="list-group list-group-flush">
+      {% for routing_policy in instance.export_routing_policies.all %}
+        <li class="list-group-item">
+          {{ routing_policy|as_link }}</span>
+        </li>
+      {% endfor %}
+      </ul>
+      {% else %}
+      <div class="card-body">
+        <span class="text-muted">None</span>
       </div>
+      {% endif %}
+    </div>
+    <div class="card mb-2">
+      <div class="card-header">
+        <strong>BGP Communities</strong>
+      </div>
+      {% if instance.communities.all.count > 0 %}
+      <ul class="list-group list-group-flush">
+      {% for community in instance.communities.all %}
+        <li class="list-group-item">
+          {{ community|as_link }}{% if community.type %} <span class="float-right">{{ community.get_type_html }}{% endif %}</span>
+        </li>
+      {% endfor %}
+      </ul>
+      {% else %}
+      <div class="card-body">
+        <span class="text-muted">None</span>
+      </div>
+      {% endif %}
+    </div>
   </div>
 </div>
 {% endblock %}

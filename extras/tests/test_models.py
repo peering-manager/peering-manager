@@ -3,9 +3,10 @@ from unittest.mock import patch
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
-from extras.models import IXAPI, ExportTemplate
 from peering.models import AutonomousSystem
 from utils.testing import MockedResponse
+
+from ..models import IXAPI, ExportTemplate
 
 
 class ExportTemplateTest(TestCase):
@@ -107,6 +108,7 @@ class IXAPITest(TestCase):
             fixture="extras/tests/fixtures/ix_api/authenticate.json"
         ),
     )
+    @patch("pyixapi.core.api.API.version", return_value=1)
     def test_get_accounts(self, *_):
         with patch(
             "requests.sessions.Session.get",
@@ -123,6 +125,7 @@ class IXAPITest(TestCase):
             fixture="extras/tests/fixtures/ix_api/authenticate.json"
         ),
     )
+    @patch("pyixapi.core.api.API.version", return_value=1)
     def test_get_identity(self, *_):
         with patch(
             "requests.sessions.Session.get",
@@ -145,6 +148,7 @@ class IXAPITest(TestCase):
             fixture="extras/tests/fixtures/ix_api/authenticate.json"
         ),
     )
+    @patch("pyixapi.core.api.API.version", return_value=1)
     def test_get_network_service_configs(self, *_):
         with patch(
             "requests.sessions.Session.get",
@@ -173,6 +177,7 @@ class IXAPITest(TestCase):
             fixture="extras/tests/fixtures/ix_api/authenticate.json"
         ),
     )
+    @patch("pyixapi.core.api.API.version", return_value=1)
     def test_get_network_services(self, *_):
         with patch(
             "requests.sessions.Session.get",

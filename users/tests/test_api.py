@@ -2,9 +2,8 @@ from django.contrib.auth.models import Group, User
 from django.urls import reverse
 from rest_framework import status
 
-from peering.models import AutonomousSystem
 from utils.functions import merge_hash
-from utils.testing import APITestCase, StandardAPITestCases
+from utils.testing import APITestCase, APIViewTestCases
 
 
 class AppTest(APITestCase):
@@ -13,7 +12,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class GroupTest(StandardAPITestCases.View):
+class GroupTest(APIViewTestCases.View):
     model = Group
     view_namespace = "users"
     brief_fields = ["id", "name", "url"]
@@ -26,7 +25,7 @@ class GroupTest(StandardAPITestCases.View):
         )
 
 
-class UserTest(StandardAPITestCases.View):
+class UserTest(APIViewTestCases.View):
     model = User
     view_namespace = "users"
     brief_fields = ["display", "id", "url", "username"]

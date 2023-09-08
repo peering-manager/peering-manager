@@ -11,6 +11,9 @@ logger = logging.getLogger("peering.manager.peering.jobs")
 
 @job("default")
 def generate_configuration(router, job):
+    """
+    TODO: Rename to render_configuration
+    """
     job.mark_running("Generating router configuration.", object=router, logger=logger)
 
     config = router.generate_configuration()

@@ -1,6 +1,7 @@
-from bgp.models import Relationship
 from utils.enums import Colour
 from utils.testing import ViewTestCases
+
+from ..models import *
 
 
 class RelationshipTestCase(ViewTestCases.PrimaryObjectViewTestCase):

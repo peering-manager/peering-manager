@@ -9,12 +9,11 @@ from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ViewSet
 
-from peering.models import AutonomousSystem
 from peering_manager.api.viewsets import PeeringManagerModelViewSet
-from users.filters import GroupFilterSet, UserFilterSet
-from users.models import UserPreferences
 from utils.functions import merge_hash
 
+from ..filtersets import GroupFilterSet, UserFilterSet
+from ..models import UserPreferences
 from .serializers import GroupSerializer, UserSerializer
 
 

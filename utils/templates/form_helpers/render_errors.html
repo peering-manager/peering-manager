@@ -1,0 +1,29 @@
+{% load form_helpers %}
+{% load helpers %}
+
+{% if form.errors or form.non_field_errors %}
+<div class="card bg-danger text-white my-2">
+  <div class="card-header"><strong>Errors</strong></div>
+  <div class="card-body">
+    <div class="pb-2">
+      {% if form.errors and '__all__' not in form.errors %}
+      {% for field_name, errors in form.errors.items %}
+      {% if not field_name|startswith:'__' %}
+      {% with field=form|getfield:field_name %}
+      <strong>{{ field.label }}</strong>
+      <ul>
+        {% for error in errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endwith %}
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+      {% if form.non_field_errors %}
+      {{ form.non_field_errors }}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endif %}

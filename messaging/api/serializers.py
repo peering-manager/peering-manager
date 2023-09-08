@@ -1,28 +1,34 @@
 from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import extend_schema_field
+from rest_framework import serializers
 
-from messaging.models import Contact, ContactAssignment, ContactRole, Email
 from peering_manager.api.fields import ContentTypeField
 from peering_manager.api.serializers import PeeringManagerModelSerializer
 
+from ..models import Contact, ContactAssignment, ContactRole, Email
 from .nested_serializers import *
 
 __all__ = (
     "ContactSerializer",
-    "NestedContactSerializer",
     "ContactRoleSerializer",
-    "NestedContactRoleSerializer",
     "ContactAssignmentSerializer",
-    "NestedContactAssignmentSerializer",
     "EmailSerializer",
-    "NestedEmailSerializer",
 )
 
 
 class ContactRoleSerializer(PeeringManagerModelSerializer):
     class Meta:
         model = ContactRole
-        fields = ["id", "display", "name", "slug", "description", "tags"]
+        fields = [
+            "id",
+            "display",
+            "name",
+            "slug",
+            "description",
+            "tags",
+            "created",
+            "updated",
+        ]
 
 
 class ContactSerializer(PeeringManagerModelSerializer):
@@ -36,7 +42,9 @@ class ContactSerializer(PeeringManagerModelSerializer):
             "phone",
             "email",
             "address",
+            "description",
             "comments",
+            "tags",
             "created",
             "updated",
         ]
@@ -85,4 +93,6 @@ class EmailSerializer(PeeringManagerModelSerializer):
             "jinja2_lstrip",
             "comments",
             "tags",
+            "created",
+            "updated",
         ]

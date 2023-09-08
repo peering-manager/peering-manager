@@ -1,7 +1,8 @@
 from django.test import TestCase
 
-from bgp.models import Relationship
 from utils.enums import Colour
+
+from ..models import *
 
 
 class CommunityTest(TestCase):

@@ -1,15 +1,15 @@
 from collections import OrderedDict
 
-from devices.filters import ConfigurationFilterSet
+from devices.filtersets import ConfigurationFilterSet
 from devices.models import Configuration
 from devices.tables import ConfigurationTable
-from messaging.filters import ContactFilterSet, EmailFilterSet
+from messaging.filtersets import ContactFilterSet, EmailFilterSet
 from messaging.models import Contact, ContactAssignment, Email
 from messaging.tables import ContactTable, EmailTable
-from net.filters import ConnectionFilterSet
+from net.filtersets import ConnectionFilterSet
 from net.models import Connection
 from net.tables import ConnectionTable
-from peering.filters import (
+from peering.filtersets import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
     CommunityFilterSet,

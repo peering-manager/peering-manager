@@ -1,14 +1,15 @@
-from bgp.filters import RelationshipFilterSet
-from bgp.forms import RelationshipFilterForm, RelationshipForm
-from bgp.models import Relationship
-from bgp.tables import RelationshipTable
-from peering_manager.views.generics import (
+from peering_manager.views.generic import (
     BulkDeleteView,
     ObjectDeleteView,
     ObjectEditView,
     ObjectListView,
     ObjectView,
 )
+
+from .filtersets import RelationshipFilterSet
+from .forms import RelationshipFilterForm, RelationshipForm
+from .models import Relationship
+from .tables import RelationshipTable
 
 
 class RelationshipList(ObjectListView):
@@ -23,23 +24,12 @@ class RelationshipList(ObjectListView):
 class RelationshipView(ObjectView):
     permission_required = "bgp.view_relationship"
     queryset = Relationship.objects.all()
-
-    def get_extra_context(self, request, instance):
-        return {"active_tab": "main"}
-
-
-class RelationshipAdd(ObjectEditView):
-    permission_required = "bgp.add_relationship"
-    queryset = Relationship.objects.all()
-    model_form = RelationshipForm
-    template_name = "bgp/relationship/add_edit.html"
+    tab = "main"
 
 
 class RelationshipEdit(ObjectEditView):
-    permission_required = "bgp.change_relationship"
     queryset = Relationship.objects.all()
-    model_form = RelationshipForm
-    template_name = "bgp/relationship/add_edit.html"
+    form = RelationshipForm
 
 
 class RelationshipDelete(ObjectDeleteView):
@@ -48,7 +38,6 @@ class RelationshipDelete(ObjectDeleteView):
 
 
 class RelationshipBulkDelete(BulkDeleteView):
-    permission_required = "bgp.delete_relationship"
     queryset = Relationship.objects.all()
     filterset = RelationshipFilterSet
     table = RelationshipTable

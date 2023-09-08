@@ -1,7 +1,8 @@
 from django.test import TestCase
 
 from peering.models import AutonomousSystem, InternetExchange
-from utils.templatetags.helpers import *
+
+from ..templatetags.helpers import *
 
 
 class TemplateTagsTestCase(TestCase):

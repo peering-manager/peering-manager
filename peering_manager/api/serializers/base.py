@@ -19,7 +19,8 @@ class ValidatedModelSerializer(BaseModelSerializer):
     Extends the built-in `ModelSerializer` to enforce calling `full_clean()` on a copy
     of the associated instance during validation.
 
-    DRF does not do this by default: https://github.com/encode/django-rest-framework/issues/3144
+    DRF does not do this by default:
+    https://github.com/encode/django-rest-framework/issues/3144
     """
 
     def validate(self, data):

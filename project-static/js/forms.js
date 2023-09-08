@@ -114,25 +114,24 @@ $(document).ready(function () {
     }
   });
 
-  // Assign color picker selection classes
-  function colorPickerClassCopy(data, container) {
+  // Assign colour picker selection classes
+  function colourPickerClassCopy(data, container) {
     if (data.element) {
-      // Remove any existing color-selection classes
+      // Remove any existing colour-selection classes
       $(container).attr('class', function (i, c) {
-        return c.replace(/(^|\s)color-selection-\S+/g, '');
+        return c.replace(/(^|\s)colour-selection-\S+/g, '');
       });
-      console.log($(data.element).attr("class"));
       $(container).addClass($(data.element).attr("class"));
     }
     return data.text;
   }
 
-  // Color Picker
-  $('.custom-select2-color-picker').select2({
+  // Colour Picker
+  $('.custom-select2-colour-picker').select2({
     placeholder: "---------",
     allowClear: true,
-    templateResult: colorPickerClassCopy,
-    templateSelection: colorPickerClassCopy
+    templateResult: colourPickerClassCopy,
+    templateSelection: colourPickerClassCopy
   });
 
   function generateSlug(value) {

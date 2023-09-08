@@ -1,0 +1,11 @@
+{% extends base_template %}
+{% block title %}{% if instance %}{{ instance }}{% else %}{{ block.super }}{% endif %} - Jobs{% endblock %}
+{% block subcontent %}
+{% include 'includes/table.html' %}
+{% include 'includes/pagination.html' with paginator=table.paginator page=table.page %}
+{% if settings.JOB_RETENTION %}
+<div class="text-muted">
+    Jobs retention: {{ settings.JOB_RETENTION }} days
+</div>
+{% endif %}
+{% endblock %}
