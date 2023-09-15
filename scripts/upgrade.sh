@@ -101,10 +101,6 @@ $DRY python manage.py remove_stale_contenttypes --no-input || exit 1
 echo "🔄 Removing expired user sessions"
 $DRY python manage.py clearsessions || exit 1
 
-# Clear all cached data
-echo "🔄 Clearing cache data"
-$DRY python manage.py invalidate all || exit 1
-
 if [ -n "${WARN_MISSING_VENV}" ]; then
   echo "--------------------------------------------------------------------"
   echo "⚠️  No existing virtual environment was detected. A new one has"
