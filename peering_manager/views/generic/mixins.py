@@ -51,7 +51,7 @@ class TableMixin:
         form = TableConfigForm(table=table, data=request.POST)
 
         if form.is_valid():
-            preference = f"tables.{form.table_name}.ordering"
+            preference = f"tables.{form.table_name}.columns"
 
             if "save" in request.POST:
                 request.user.preferences.set(

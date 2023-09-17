@@ -90,7 +90,7 @@ class BaseTable(tables.Table):
         selected_columns = None
         if user is not None and not isinstance(user, AnonymousUser):
             selected_columns = user.preferences.get(
-                f"tables.{self.__class__.__name__}.ordering"
+                f"tables.{self.__class__.__name__}.columns"
             )
         if not selected_columns:
             selected_columns = getattr(self.Meta, "default_columns", self.Meta.fields)
@@ -187,7 +187,7 @@ class BaseTable(tables.Table):
                 else:
                     # If the ordering has been set to none (empty), clear any existing
                     # preference
-                    request.user.preferences.clear(
+                    request.user.preferences.delete(
                         f"tables.{table_name}.ordering", commit=True
                     )
             elif ordering := request.user.preferences.get(
