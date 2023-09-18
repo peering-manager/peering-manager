@@ -1,3 +1,17 @@
+## Version 1.8.1 | MARK I (Bug fixes release) | 2023-09-18
+
+### Bug Fixes
+
+* [#760](https://github.com/peering-manager/peering-manager/issues/760) Fix bug removing table columns when trying to order a column
+* [#763](https://github.com/peering-manager/peering-manager/issues/763) Fix regression preventing from using bulk edit views and forms
+* Fix upgrade script trying to invalidate cacheops cache which is not used anymore
+
+### Enhancements
+
+* [#761](https://github.com/peering-manager/peering-manager/issues/761) Allow filtering BGP sesions by BGP state
+* Add `passive` field to BGP sessions (IXP and direct) to denote a session that will wait for open messages
+* Add `multihop_ttl` column to BGP sessions (IXP and direct) tables
+
 ## Version 1.8.0 | MARK I (Features release) | 2023-09-15
 
 The 1.8.x releases require Python 3.8 or later as well as PostgreSQL 12 or later.
@@ -28,7 +42,7 @@ This global code refactoring is also the reason of the above mentioned API break
 
 Models have been normalised using common classes and now inherit automatically some fields. This means that some fields (`name`, `slug`, `description`) have been added to some models.
 
-All `name` fields have been limited to 100 characters as well as the the `slug` fields. If values in these fields exceed the 100 characters limit, you'll need to adjust them prior to the upgrade.
+All `name` fields have been limited to 100 characters as well as the `slug` fields. If values in these fields exceed the 100 characters limit, you'll need to adjust them prior to the upgrade.
 
 #### Move IX-API Code To `pyixapi`
 
@@ -80,7 +94,7 @@ requested to decommissioned. Possible statuses are now: requested, provisioning,
 * Add Jobs tab to router view
 * Add `exists_in_peeringdb` IXP session property and display as table column
 * Display PeeringDB last synchronisation time in PeeringDB view
-* User pyixapi 0.2.0 and allow changing MAC address for a connection via IX-API
+* Use pyixapi 0.2 and allow changing MAC address for a connection via IX-API
 
 ### Bug Fixes
 
