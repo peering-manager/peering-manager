@@ -1,1 +1,1 @@
-mkdocs-material=="9.3.*"
+mkdocs-material
