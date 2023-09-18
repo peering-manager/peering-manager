@@ -80,9 +80,6 @@ class ConnectionForm(PeeringManagerModelForm):
 
 
 class ConnectionBulkEditForm(PeeringManagerModelBulkEditForm):
-    pk = DynamicModelMultipleChoiceField(
-        queryset=Connection.objects.all(), widget=forms.MultipleHiddenInput
-    )
     status = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(ConnectionStatus),
@@ -100,10 +97,8 @@ class ConnectionBulkEditForm(PeeringManagerModelBulkEditForm):
     )
     local_context_data = JSONField(required=False)
 
-    class Meta:
-        model = Connection
-        fields = ("status", "internet_exchange_point", "router", "local_context_data")
-        nullable_fields = ("router",)
+    model = Connection
+    nullable_fields = ("router",)
 
 
 class ConnectionFilterForm(PeeringManagerModelFilterSetForm):

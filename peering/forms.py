@@ -206,9 +206,6 @@ class BGPGroupForm(PeeringManagerModelForm):
 
 
 class BGPGroupBulkEditForm(PeeringManagerModelBulkEditForm):
-    pk = DynamicModelMultipleChoiceField(
-        queryset=BGPGroup.objects.all(), widget=forms.MultipleHiddenInput
-    )
     status = forms.ChoiceField(
         required=False, choices=add_blank_choice(DeviceStatus), widget=StaticSelect
     )
@@ -226,13 +223,13 @@ class BGPGroupBulkEditForm(PeeringManagerModelBulkEditForm):
         required=False, queryset=Community.objects.all()
     )
 
-    class Meta:
-        nullable_fields = (
-            "description",
-            "import_routing_policies",
-            "export_routing_policies",
-            "communities",
-        )
+    model = BGPGroup
+    nullable_fields = (
+        "description",
+        "import_routing_policies",
+        "export_routing_policies",
+        "communities",
+    )
 
 
 class BGPGroupFilterForm(PeeringManagerModelFilterSetForm):
@@ -285,9 +282,6 @@ class CommunityForm(PeeringManagerModelForm):
 
 
 class CommunityBulkEditForm(PeeringManagerModelBulkEditForm):
-    pk = DynamicModelMultipleChoiceField(
-        queryset=Community.objects.all(), widget=forms.MultipleHiddenInput
-    )
     type = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(CommunityType),
@@ -295,8 +289,8 @@ class CommunityBulkEditForm(PeeringManagerModelBulkEditForm):
     )
     local_context_data = JSONField(required=False)
 
-    class Meta:
-        nullable_fields = ("type", "description", "local_context_data")
+    model = Community
+    nullable_fields = ("type", "description", "local_context_data")
 
 
 class CommunityFilterForm(PeeringManagerModelFilterSetForm):
@@ -421,9 +415,6 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
 
 
 class DirectPeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm):
-    pk = DynamicModelMultipleChoiceField(
-        queryset=DirectPeeringSession.objects.all(), widget=forms.MultipleHiddenInput
-    )
     local_autonomous_system = DynamicModelChoiceField(
         required=False,
         queryset=AutonomousSystem.objects.defer("prefixes"),
@@ -458,15 +449,15 @@ class DirectPeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm):
     local_context_data = JSONField(required=False)
     comments = CommentField()
 
-    class Meta:
-        nullable_fields = (
-            "import_routing_policies",
-            "export_routing_policies",
-            "communities",
-            "router",
-            "local_context_data",
-            "comments",
-        )
+    model = DirectPeeringSession
+    nullable_fields = (
+        "import_routing_policies",
+        "export_routing_policies",
+        "communities",
+        "router",
+        "local_context_data",
+        "comments",
+    )
 
 
 class DirectPeeringSessionFilterForm(PeeringManagerModelFilterSetForm):
@@ -577,9 +568,6 @@ class InternetExchangeForm(PeeringManagerModelForm):
 
 
 class InternetExchangeBulkEditForm(PeeringManagerModelBulkEditForm):
-    pk = DynamicModelMultipleChoiceField(
-        queryset=InternetExchange.objects.all(), widget=forms.MultipleHiddenInput
-    )
     status = forms.ChoiceField(
         required=False, choices=add_blank_choice(DeviceStatus), widget=StaticSelect
     )
@@ -607,15 +595,15 @@ class InternetExchangeBulkEditForm(PeeringManagerModelBulkEditForm):
         required=False, label="IX-API endpoint", queryset=IXAPI.objects.all()
     )
 
-    class Meta:
-        nullable_fields = (
-            "description",
-            "import_routing_policies",
-            "export_routing_policies",
-            "communities",
-            "local_context_data",
-            "ixapi_endpoint",
-        )
+    model = InternetExchange
+    nullable_fields = (
+        "description",
+        "import_routing_policies",
+        "export_routing_policies",
+        "communities",
+        "local_context_data",
+        "ixapi_endpoint",
+    )
 
 
 class InternetExchangePeeringDBForm(BootstrapMixin, forms.ModelForm):
@@ -661,10 +649,6 @@ class InternetExchangeFilterForm(PeeringManagerModelFilterSetForm):
 
 
 class InternetExchangePeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm):
-    pk = DynamicModelMultipleChoiceField(
-        queryset=InternetExchangePeeringSession.objects.all(),
-        widget=forms.MultipleHiddenInput,
-    )
     status = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(BGPSessionStatus),
@@ -691,14 +675,14 @@ class InternetExchangePeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm
     local_context_data = JSONField(required=False)
     comments = CommentField()
 
-    class Meta:
-        nullable_fields = (
-            "import_routing_policies",
-            "export_routing_policies",
-            "communities",
-            "local_context_data",
-            "comments",
-        )
+    model = InternetExchangePeeringSession
+    nullable_fields = (
+        "import_routing_policies",
+        "export_routing_policies",
+        "communities",
+        "local_context_data",
+        "comments",
+    )
 
 
 class InternetExchangePeeringSessionForm(PeeringManagerModelForm):
@@ -921,9 +905,6 @@ class RouterForm(PeeringManagerModelForm):
 
 
 class RouterBulkEditForm(PeeringManagerModelBulkEditForm):
-    pk = DynamicModelMultipleChoiceField(
-        queryset=Router.objects.all(), widget=forms.MultipleHiddenInput
-    )
     local_autonomous_system = DynamicModelChoiceField(
         required=False,
         queryset=AutonomousSystem.objects.defer("prefixes"),
@@ -951,8 +932,8 @@ class RouterBulkEditForm(PeeringManagerModelBulkEditForm):
     local_context_data = JSONField(required=False)
     comments = CommentField()
 
-    class Meta:
-        nullable_fields = ("local_context_data", "comments")
+    model = Router
+    nullable_fields = ("local_context_data", "comments")
 
 
 class RouterFilterForm(PeeringManagerModelFilterSetForm):
@@ -1029,9 +1010,6 @@ class RoutingPolicyForm(PeeringManagerModelForm):
 
 
 class RoutingPolicyBulkEditForm(PeeringManagerModelBulkEditForm):
-    pk = DynamicModelMultipleChoiceField(
-        queryset=RoutingPolicy.objects.all(), widget=forms.MultipleHiddenInput
-    )
     type = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(RoutingPolicyType),
@@ -1046,8 +1024,8 @@ class RoutingPolicyBulkEditForm(PeeringManagerModelBulkEditForm):
     )
     local_context_data = JSONField(required=False)
 
-    class Meta:
-        nullable_fields = ("description", "communities", "local_context_data")
+    model = RoutingPolicy
+    nullable_fields = ("description", "communities", "local_context_data")
 
 
 class RoutingPolicyFilterForm(PeeringManagerModelFilterSetForm):

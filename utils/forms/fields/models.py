@@ -1,5 +1,6 @@
 import django_filters
 from django import forms
+from django.conf import settings
 from django.forms import BoundField
 from django.urls import reverse
 
@@ -120,7 +121,7 @@ class DynamicModelChoiceField(DynamicModelChoiceMixin, forms.ModelChoiceField):
     """
 
     def clean(self, value):
-        if self.null_option is not None and value == "null":
+        if self.null_option is not None and value == settings.FILTERS_NULL_CHOICE_VALUE:
             return None
         return super().clean(value)
 
@@ -134,3 +135,15 @@ class DynamicModelMultipleChoiceField(
 
     filter = django_filters.ModelMultipleChoiceFilter
     widget = APISelectMultiple
+
+    def clean(self, value):
+        value = value or []
+
+        # When null option is enabled and "None" is sent as part of a form to be
+        # submitted, it is sent as the string 'null'. This will check for that
+        # condition and gracefully handle the conversion to a NoneType.
+        if self.null_option is not None and settings.FILTERS_NULL_CHOICE_VALUE in value:
+            value = [v for v in value if v != settings.FILTERS_NULL_CHOICE_VALUE]
+            return [None, *value]
+
+        return super().clean(value)

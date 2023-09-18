@@ -150,13 +150,10 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
         initial_data = {"pk": pk_list}
 
         if "_apply" in request.POST:
-            form = self.form(model, request.POST, initial=initial_data)
+            form = self.form(request.POST, initial=initial_data)
 
             if form.is_valid():
                 logger.debug("form validation was successful")
-                fields = [field for field in form.fields if field != "pk"]
-                nullified_fields = request.POST.getlist("_nullify")
-
                 try:
                     with transaction.atomic():
                         updated_objects = self._update_objects(form, request)
@@ -178,12 +175,12 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             else:
                 logger.debug("form validation failed")
         else:
-            form = self.form(model, initial=initial_data)
+            form = self.form(initial=initial_data)
 
         # Retrieve objects being edited
         table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
-        # if "actions" in table.base_columns:
-        #    table.columns.hide("actions")
+        if "actions" in table.base_columns:
+            table.columns.hide("actions")
         if not table.rows:
             messages.warning(
                 request, f"No {model._meta.verbose_name_plural} were selected."
@@ -283,8 +280,8 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
 
         # Retrieve objects being deleted
         table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
-        # if "actions" in table.base_columns:
-        #    table.columns.hide("actions")
+        if "actions" in table.base_columns:
+            table.columns.hide("actions")
         if not table.rows:
             messages.warning(
                 request,

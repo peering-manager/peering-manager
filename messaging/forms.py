@@ -10,7 +10,6 @@ from utils.forms import BootstrapMixin
 from utils.forms.fields import (
     CommentField,
     DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField,
     SlugField,
     TagFilterField,
     TemplateField,
@@ -42,14 +41,10 @@ class ContactRoleForm(PeeringManagerModelForm):
 
 
 class ContactRoleBulkEditForm(PeeringManagerModelBulkEditForm):
-    pk = DynamicModelMultipleChoiceField(
-        queryset=ContactRole.objects.all(), widget=forms.MultipleHiddenInput
-    )
     description = forms.CharField(max_length=200, required=False)
 
-    class Meta:
-        model = ContactRole
-        nullable_fields = ["description"]
+    model = ContactRole
+    nullable_fields = ("description",)
 
 
 class ContactRoleFilterForm(PeeringManagerModelFilterSetForm):
@@ -78,17 +73,13 @@ class ContactForm(PeeringManagerModelForm):
 
 
 class ContactBulkEditForm(PeeringManagerModelBulkEditForm):
-    pk = DynamicModelMultipleChoiceField(
-        queryset=Contact.objects.all(), widget=forms.MultipleHiddenInput
-    )
     title = forms.CharField(max_length=100, required=False)
     phone = forms.CharField(max_length=50, required=False)
     email = forms.EmailField(required=False)
     address = forms.CharField(max_length=200, required=False)
 
-    class Meta:
-        model = Contact
-        nullable_fields = ["title", "phone", "email", "address"]
+    model = Contact
+    nullable_fields = ("title", "phone", "email", "address")
 
 
 class ContactFilterForm(PeeringManagerModelFilterSetForm):
