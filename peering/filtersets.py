@@ -14,6 +14,7 @@ from peering_manager.filtersets import (
 from .enums import (
     BGPGroupStatus,
     BGPSessionStatus,
+    BGPState,
     CommunityType,
     DeviceStatus,
     RoutingPolicyType,
@@ -132,6 +133,7 @@ class DirectPeeringSessionFilterSet(PeeringManagerModelFilterSet):
         to_field_name="hostname",
         label="Router (Hostname)",
     )
+    bgp_state = django_filters.MultipleChoiceFilter(choices=BGPState, null_value="")
 
     class Meta:
         model = DirectPeeringSession
@@ -232,6 +234,7 @@ class InternetExchangePeeringSessionFilterSet(PeeringManagerModelFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=BGPSessionStatus, null_value=""
     )
+    bgp_state = django_filters.MultipleChoiceFilter(choices=BGPState, null_value="")
 
     class Meta:
         model = InternetExchangePeeringSession

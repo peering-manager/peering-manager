@@ -30,6 +30,7 @@ from utils.forms.widgets import StaticSelect, StaticSelectMultiple
 from .enums import (
     BGPGroupStatus,
     BGPSessionStatus,
+    BGPState,
     CommunityType,
     DeviceStatus,
     IPFamily,
@@ -513,6 +514,9 @@ class DirectPeeringSessionFilterForm(PeeringManagerModelFilterSetForm):
     passive = forms.NullBooleanField(
         required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES)
     )
+    bgp_state = forms.MultipleChoiceField(
+        required=False, choices=BGPState, widget=StaticSelectMultiple, label="BGP state"
+    )
     tag = TagFilterField(model)
 
 
@@ -817,6 +821,9 @@ class InternetExchangePeeringSessionFilterForm(PeeringManagerModelFilterSetForm)
         required=False,
         label="Route server",
         widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
+    )
+    bgp_state = forms.MultipleChoiceField(
+        required=False, choices=BGPState, widget=StaticSelectMultiple, label="BGP state"
     )
     tag = TagFilterField(model)
 
