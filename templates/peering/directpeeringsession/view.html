@@ -49,6 +49,10 @@
           <td>Status</td>
           <td>{{ instance|status_as_badge }}</td>
         </tr>
+        <tr>
+          <td>Passive</td>
+          <td>{{ instance.passive|boolean_as_icon }}</td>
+        </tr>
         {% if request.user.is_authenticated and instance.password %}
         <tr>
           <td>Password</td>

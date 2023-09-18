@@ -115,6 +115,7 @@ class BGPSession(PrimaryModel, PolicyMixin):
         verbose_name="Multihop TTL",
         help_text="Use a value greater than 1 for BGP multihop sessions",
     )
+    passive = models.BooleanField(blank=True, default=False)
     import_routing_policies = models.ManyToManyField(
         to="peering.RoutingPolicy",
         blank=True,

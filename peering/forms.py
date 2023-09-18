@@ -347,7 +347,10 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
     fieldsets = (
         ("Peer", ("bgp_group", "relationship", "autonomous_system", "ip_address")),
         ("Local", ("local_autonomous_system", "local_ip_address", "router")),
-        ("Properties", ("service_reference", "status", "password", "multihop_ttl")),
+        (
+            "Properties",
+            ("service_reference", "status", "password", "multihop_ttl", "passive"),
+        ),
         (
             "Routing Policies",
             ("import_routing_policies", "export_routing_policies", "communities"),
@@ -368,6 +371,7 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
             "ip_address",
             "password",
             "multihop_ttl",
+            "passive",
             "router",
             "import_routing_policies",
             "export_routing_policies",
@@ -383,6 +387,7 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
         help_texts = {
             "local_ip_address": "IPv6 or IPv4 address",
             "ip_address": "IPv6 or IPv4 address",
+            "passive": "Wait for the peer to issue an open request before a message is sent",
         }
 
     def clean(self):
@@ -431,6 +436,9 @@ class DirectPeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm):
     )
     bgp_group = DynamicModelChoiceField(
         required=False, queryset=BGPGroup.objects.all(), label="BGP group"
+    )
+    passive = forms.NullBooleanField(
+        required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES)
     )
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
@@ -501,6 +509,9 @@ class DirectPeeringSessionFilterForm(PeeringManagerModelFilterSetForm):
         to_field_name="pk",
         null_option="None",
         label="Router",
+    )
+    passive = forms.NullBooleanField(
+        required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES)
     )
     tag = TagFilterField(model)
 
@@ -659,6 +670,9 @@ class InternetExchangePeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm
         label="Route server",
         widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
+    passive = forms.NullBooleanField(
+        required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES)
+    )
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
@@ -723,7 +737,10 @@ class InternetExchangePeeringSessionForm(PeeringManagerModelForm):
     fieldsets = (
         ("Internet Exchange Point", ("internet_exchange", "ixp_connection")),
         ("Peer", ("autonomous_system", "ip_address", "is_route_server")),
-        ("Properties", ("service_reference", "status", "password", "multihop_ttl")),
+        (
+            "Properties",
+            ("service_reference", "status", "password", "multihop_ttl", "passive"),
+        ),
         (
             "Routing Policies",
             ("import_routing_policies", "export_routing_policies", "communities"),
@@ -741,6 +758,7 @@ class InternetExchangePeeringSessionForm(PeeringManagerModelForm):
             "ip_address",
             "password",
             "multihop_ttl",
+            "passive",
             "is_route_server",
             "import_routing_policies",
             "export_routing_policies",
@@ -751,6 +769,7 @@ class InternetExchangePeeringSessionForm(PeeringManagerModelForm):
         )
         help_texts = {
             "ip_address": "IPv6 or IPv4 address",
+            "passive": "Wait for the peer to issue an open request before a message is sent",
             "is_route_server": "Define if this session is with a route server",
         }
 
@@ -790,6 +809,9 @@ class InternetExchangePeeringSessionFilterForm(PeeringManagerModelFilterSetForm)
     )
     status = forms.MultipleChoiceField(
         required=False, choices=BGPSessionStatus, widget=StaticSelectMultiple
+    )
+    passive = forms.NullBooleanField(
+        required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES)
     )
     is_route_server = forms.NullBooleanField(
         required=False,

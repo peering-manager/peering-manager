@@ -135,7 +135,7 @@ class DirectPeeringSessionFilterSet(PeeringManagerModelFilterSet):
 
     class Meta:
         model = DirectPeeringSession
-        fields = ["id", "multihop_ttl"]
+        fields = ["id", "multihop_ttl", "passive"]
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -235,7 +235,7 @@ class InternetExchangePeeringSessionFilterSet(PeeringManagerModelFilterSet):
 
     class Meta:
         model = InternetExchangePeeringSession
-        fields = ["id", "multihop_ttl", "is_route_server"]
+        fields = ["id", "multihop_ttl", "passive", "is_route_server"]
 
     def search(self, queryset, name, value):
         if not value.strip():

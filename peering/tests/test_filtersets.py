@@ -226,6 +226,7 @@ class DirectPeeringSessionTestCase(TestCase, BaseFilterSetTests):
                     ip_address="192.0.2.3",
                     status=BGPSessionStatus.DISABLED,
                     relationship=relationship_customer,
+                    passive=True,
                 ),
             ]
         )
@@ -264,6 +265,12 @@ class DirectPeeringSessionTestCase(TestCase, BaseFilterSetTests):
         params = {"multihop_ttl": [1]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"multihop_ttl": [2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_passive(self):
+        params = {"passive": False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"passive": True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_status(self):
@@ -353,6 +360,7 @@ class InternetExchangePeeringSessionTestCase(TestCase, BaseFilterSetTests):
                     ixp_connection=cls.ixp_connection,
                     ip_address="192.0.2.2",
                     status=BGPSessionStatus.DISABLED,
+                    passive=True,
                 ),
                 InternetExchangePeeringSession(
                     autonomous_system=cls.a_s,
@@ -386,6 +394,12 @@ class InternetExchangePeeringSessionTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"status": [BGPSessionStatus.ENABLED, BGPSessionStatus.DISABLED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_passive(self):
+        params = {"passive": False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"passive": True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_is_route_server(self):
         params = {"is_route_server": False}

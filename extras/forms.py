@@ -160,11 +160,12 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
 
 
 class TagBulkEditForm(BulkEditForm):
-    model = Tag
     pk = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all(), widget=forms.MultipleHiddenInput
     )
     color = forms.CharField(max_length=6, required=False, widget=ColourSelect())
+
+    model = Tag
     nullable_fields = ["comments"]
 
 
