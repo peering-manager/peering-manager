@@ -49,16 +49,6 @@
     </div>
     {% endif %}
     {% include 'includes/contacts.html' %}
-    <div class="card">
-      <div class="card-header"><strong>Comments</strong></div>
-      <div class="card-body">
-        {% if instance.comments %}
-        {{ instance.comments|markdown }}
-        {% else %}
-        <span class="text-muted">None</span>
-        {% endif %}
-      </div>
-    </div>
     {% include 'includes/tags_card.html' with tags=instance.tags.all url='peering:internetexchange_list' %}
   </div>
   <div class="col-md-6">
