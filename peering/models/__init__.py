@@ -1739,3 +1739,22 @@ class RoutingPolicy(OrganisationalModel):
 
     def get_absolute_url(self):
         return reverse("peering:routingpolicy_view", args=[self.pk])
+
+    def get_type_html(self, display_name=False):
+        if self.type == RoutingPolicyType.EXPORT:
+            badge_type = "badge-primary"
+            text = self.get_type_display()
+        elif self.type == RoutingPolicyType.IMPORT:
+            badge_type = "badge-info"
+            text = self.get_type_display()
+        elif self.type == RoutingPolicyType.IMPORT_EXPORT:
+            badge_type = "badge-dark"
+            text = self.get_type_display()
+        else:
+            badge_type = "badge-secondary"
+            text = "Unknown"
+
+        if display_name:
+            text = self.name
+
+        return mark_safe(f'<span class="badge {badge_type}">{text}</span>')
