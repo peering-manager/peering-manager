@@ -54,7 +54,7 @@ class Platform(OrganisationalModel):
     )
 
     def get_absolute_url(self):
-        return f"{reverse('peering:router_list')}?platform={self.pk}"
+        return f"{reverse('peering:router_list')}?platform_id={self.pk}"
 
     def encrypt_password(self, password):
         """
