@@ -126,7 +126,7 @@ class ConfigContextAssignmentEditView(ObjectEditView):
     permission_required = "extras.edit_configcontextassignment"
     queryset = ConfigContextAssignment.objects.all()
     form = ConfigContextAssignmentForm
-    template_name = "extras/configcontextassignment/add_edit.html"
+    template_name = "extras/configcontextassignment/edit.html"
 
     def alter_object(self, instance, request, args, kwargs):
         if not instance.pk:
