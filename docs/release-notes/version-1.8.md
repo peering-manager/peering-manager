@@ -2,11 +2,11 @@
 
 ### Bug Fixes
 
-* [#768](https://github.com/peering-manager/peering-manager/issues/768) Fix broken config contact assigment view
+* [#768](https://github.com/peering-manager/peering-manager/issues/768) Fix broken config contact assignment view
 * [#775](https://github.com/peering-manager/peering-manager/issues/775) Fix NetBox display in router add/edit form
 * Fix crash when showing routing policies column in tables
 * Fix filtering by tags when clicking a tag (by @rwielk)
-* Fix platform main URL that redirectsto routers using the given platform (by @rwielk)
+* Fix platform main URL that redirects to routers using the given platform (by @rwielk)
 * Restore UNIX socket support for redis (by @yu-re-ka)
 
 ## Version 1.8.1 | MARK I (Bug fixes release) | 2023-09-18
