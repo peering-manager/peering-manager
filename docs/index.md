@@ -39,9 +39,5 @@ time to develop this project.
 
 ## Spreading The Word
 
-* [RIPE76 Peering Manager - Easing Peering Sessions Management](https://ripe76.ripe.net/archives/video/13/) by Guillaume Mazoyer (English)
-* [FRnOG32 Peering Automation and Documentation](https://www.dailymotion.com/video/x756n1e?playlist=x6c4hk) by Guillaume Mazoyer (French)
-* [LUNOG2 A better Internet thanks to peering and automation](https://drive.mazoyer.eu/index.php/s/3RiyrPQd3Tdwc96) by Guillaume Mazoyer (English)
-* [NetLdn16 Peering Manager - Your BGP Source Of Truth](https://drive.mazoyer.eu/s/EHj3pH87Pe55Rfa) by Guillaume Mazoyer (English)
-* [DE-CIX Tech Meeting 2021 - Keeping track of your BGP configuration](https://youtu.be/MoPr9ttIMwE) by Guillaume Mazoyer (English)
-* [RIPE84 An introduction to Peering Manager](https://ripe84.ripe.net/archives/video/790/) by Guillaume Mazoyer (English)
+Have a look at [the talks](https://peering-manager.net/talks.html) about
+Peering Manager if you want to know more about it and its use cases.
