@@ -12,7 +12,7 @@ version 3 (3.8 minimum) so we will setup the machine with this version.
 	Possible solutions are: using additional package repositories or
 	different packages like `python38` instead of `python3`.
 
-=== "Debian 10 / 11"
+=== "Debian 11 / 12"
 	```no-highlight
 	# apt install python3 python3-dev python3-venv python3-pip git vim
 	```

@@ -12,7 +12,7 @@ will fall back to built-in Django users in the event of a failure.
 
 ### Install Required Packages
 
-=== "Debian 10 / 11"
+=== "Debian 11 / 12"
 	```
 	# apt install python3-dev libldap2-dev libsasl2-dev libssl-dev
 	```

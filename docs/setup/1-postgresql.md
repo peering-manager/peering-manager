@@ -6,7 +6,7 @@ PostgreSQL.
 
 ## Installation
 
-=== "Debian 10 / 11"
+=== "Debian 11 / 12"
 	```no-highlight
 	# apt update
 	# apt install postgresql libpq-dev
