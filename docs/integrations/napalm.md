@@ -1,28 +1,4 @@
-# Integration of Peering Manager
-
-Peering Manager is more than a simple documentation tool. It can integrate
-itself with other tools such as [PeeringDB](https://peeringdb.com/) and
-[NAPALM](https://napalm.readthedocs.io/). Actually, integrating Peering Manager
-with these tools will allow you to get the most of it.
-
-## Working with PeeringDB
-
-We will consider that you are familiar with this well-known website. It allows
-people to document the details of their networks and where they can peer.
-PeeringDB exposes an API which allows other tools to use its data. Peering
-Manager can do that and if your network has a clean PeeringDB record, you can,
-for example, import automatically all the Internet Exchanges where your network
-can be found.
-
-To speed things up, a local PeeringDB cache can be built and kept up-to-date
-inside the Peering Manager's database. You can found how to do that in the
-_Setup > Scheduled Tasks_ documentation.
-
-If a valid `PEERINGDB_API_KEY` is configured, Peering Manager
-will sync Email Contacts from Networks in PeeringDB to be used in the builtin Email
-functionality.
-
-## Working with NAPALM
+# NAPALM
 
 NAPALM is a framework which can be used to interact with compatible network
 devices. Its strength is that it exposes functions that will automatically do

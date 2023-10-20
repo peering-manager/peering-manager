@@ -22,13 +22,15 @@ Peering Manager requires access to a PostgreSQL database service to store data.
 This service can run locally or on a remote system. The following parameters
 must be defined within the `DATABASE` dictionary:
 
-* NAME - Database name
-* USER - PostgreSQL username
-* PASSWORD - PostgreSQL password
-* HOST - Name or IP address of the database server (use `localhost` if
+* `NAME` - Database name
+* `USER` - PostgreSQL username
+* `PASSWORD` - PostgreSQL password
+* `HOST` - Name or IP address of the database server (use `localhost` if
   running locally)
-* PORT - TCP port of the PostgreSQL service; leave blank for default port
-  (5432)
+* `PORT` - TCP port of the PostgreSQL service; leave blank for default port
+  (TCP/5432)
+* `CONN_MAX_AGE` - Lifetime of a
+  [persistent database connection](https://docs.djangoproject.com/en/stable/ref/databases/#persistent-connections), in seconds (300 is the default)
 
 Example:
 
@@ -41,6 +43,11 @@ DATABASE = {
     'PORT': '',                       # Database port (leave blank for default)
 }
 ```
+
+!!! note
+    Peering Manager supports all PostgreSQL database options supported by the
+    underlying Django framework. For a complete list of available parameters,
+    please see [the Django documentation](https://docs.djangoproject.com/en/stable/ref/settings/#databases).
 
 ---
 
@@ -85,9 +92,10 @@ REDIS = {
 }
 ```
 
-It is highly recommended to keep the task and cache databases separate. Using
-the same database number on the same Redis instance for both may result in
-unexpected side-effects such as data loss.
+!!! warning
+    It is highly recommended to keep the task and cache databases separate.
+    Using the same database number on the same Redis instance for both may
+    result in unexpected side-effects such as data loss.
 
 If you are using [Redis Sentinel](https://redis.io/topics/sentinel) for
 high-availability purposes, there is minimal configuration necessary to
@@ -125,7 +133,8 @@ REDIS = {
 }
 ```
 
-It is possible to use Sentinel for only one database and not the other.
+!!! note
+    It is possible to use Sentinel for only one database and not the other.
 
 ---
 
