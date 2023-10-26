@@ -515,21 +515,18 @@ class Jinja2FilterTestCase(TestCase):
     def test_include_template_extension(self):
         Configuration.objects.create(name="test", template="this is a test")
         main = Configuration.objects.create(
-            name="main", template="{% include_configuration 'test' %}"
+            name="main",
+            template="{% include_configuration 'test' %} - {% include 'configuration::test' %}",
         )
-        self.assertEqual("this is a test", main.render({}))
-        main.template = "{% include 'configuration::test' %}"
-        main.save()
-        self.assertEqual("this is a test", main.render({}))
+        self.assertEqual("this is a test - this is a test", main.render({}))
 
         Email.objects.create(name="test", subject="test", template="this is a test")
         main = Email.objects.create(
-            name="main", subject="main", template="{% include_email 'test' %}"
+            name="main",
+            subject="main",
+            template="{% include_email 'test' %} - {% include 'email::test' %}",
         )
-        self.assertEqual(("main", "this is a test"), main.render({}))
-        main.template = "{% include 'email::test' %}"
-        main.save()
-        self.assertEqual(("main", "this is a test"), main.render({}))
+        self.assertEqual(("main", "this is a test - this is a test"), main.render({}))
 
         content_type = ContentType.objects.get_for_model(AutonomousSystem)
         ExportTemplate.objects.create(
@@ -538,12 +535,9 @@ class Jinja2FilterTestCase(TestCase):
         main = ExportTemplate.objects.create(
             name="main",
             content_type=content_type,
-            template="{% include_exporttemplate 'test' %}",
+            template="{% include_exporttemplate 'test' %} - {% include 'exporttemplate::test' %}",
         )
-        self.assertEqual("this is a test", main.render())
-        main.template = "{% include 'exporttemplate::test' %}"
-        main.save()
-        self.assertEqual("this is a test", main.render())
+        self.assertEqual("this is a test - this is a test", main.render())
 
     def test_context_has_key(self):
         self.assertEqual(True, FILTER_DICT["context_has_key"](self.router, "foo"))
