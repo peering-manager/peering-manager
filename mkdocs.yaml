@@ -73,6 +73,9 @@ nav:
     - Tools: "configuration/tools.md"
     - Miscellaneous: "configuration/miscellaneous.md"
     - Development: "configuration/development.md"
+  - Administration:
+    - Housekeeping: "administration/housekeeping.md"
+    - Replication: "administration/replication.md"
   - User Interface: "user-interface.md"
   - Integration:
     - REST API: "integrations/rest-api.md"
