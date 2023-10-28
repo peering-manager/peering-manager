@@ -62,7 +62,6 @@ nav:
     - 7. Prometheus (Optional): "setup/9-prometheus.md"
     - uWSGI: "setup/uwsgi.md"
     - Upgrading: "setup/upgrading.md"
-    - Migrate to systemd: "setup/migrate-to-systemd.md"
   - Container Installation: "container.md"
   - Ansible Installation: "ansible.md"
   - Configuration:
