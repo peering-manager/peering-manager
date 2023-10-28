@@ -59,6 +59,7 @@
       case 'errored':
       case 'failed':
       default:
+        $('#main-body').html('<p>An error occured while trying to commit the configuration changes.</p><p>You can find more details in the napalm logs or below.</p><pre class="pre-scrollable">' + r['data']['output']['log'][0][4] + '</pre>');
         PeeringManager.setFailedButton($('#commit'), 'Configuration not saved');
         break;
     }
