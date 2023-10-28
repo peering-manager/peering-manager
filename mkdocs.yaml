@@ -59,7 +59,6 @@ nav:
       - b. OIDC (Optional): "setup/6b-oidc.md"
       - c. SAML2 (Optional): "setup/6c-saml.md"
     - 6. Scheduled Tasks (Optional): "setup/8-scheduled-tasks.md"
-    - 7. Prometheus (Optional): "setup/9-prometheus.md"
     - uWSGI: "setup/uwsgi.md"
     - Upgrading: "setup/upgrading.md"
   - Container Installation: "container.md"
