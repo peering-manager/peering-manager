@@ -47,22 +47,21 @@ markdown_extensions:
 
 nav:
   - Introduction: "index.md"
-  - Manual installation:
+  - Installation & Upgrade:
     - 1. PostgreSQL: "setup/1-postgresql.md"
     - 2. Redis: "setup/2-redis.md"
     - 3. Peering Manager: "setup/3-peering-manager.md"
     - 4. Web Server:
       - a. Apache 2: "setup/4a-apache2.md"
       - b. nginx: "setup/4b-nginx.md"
-    - 5. External Authentication (Optional):
-      - a. LDAP (Optional): "setup/6a-ldap.md"
-      - b. OIDC (Optional): "setup/6b-oidc.md"
-      - c. SAML2 (Optional): "setup/6c-saml.md"
-    - 6. Scheduled Tasks (Optional): "setup/8-scheduled-tasks.md"
+    - 5. External Authentication:
+      - a. LDAP: "setup/5a-ldap.md"
+      - b. OIDC: "setup/5b-oidc.md"
+      - c. SAML2: "setup/5c-saml.md"
     - uWSGI: "setup/uwsgi.md"
     - Upgrading: "setup/upgrading.md"
-  - Container Installation: "container.md"
-  - Ansible Installation: "ansible.md"
+    - Container Installation: "setup/container.md"
+    - Ansible Installation: "setup/ansible.md"
   - Configuration:
     - "configuration/index.md"
     - Required Parameters: "configuration/required-parameters.md"
@@ -81,6 +80,7 @@ nav:
     - Webhooks: "integrations/webhooks.md"
     - PeeringDB: "integrations/peeringdb.md"
     - IX-API: "integrations/ix-api.md"
+    - Internet Routing Registries: "integrations/irr-prefixes.md"
     - NetBox: "integrations/netbox.md"
     - NAPALM: "integrations/napalm.md"
     - Prometheus Metrics: "integrations/prometheus-metrics.md"

@@ -61,8 +61,9 @@ When using Windows Server 2012, `AUTH_LDAP_USER_DN_TEMPLATE` should be set to
 `None`.
 
 When authenticating against MS Active Directory, you may want to change the
-LDAP search string to `"(|(sAMAccountName=%(user)s)(userPrincipalName=%(user)s))"`
-so that users can log in with their userid or their UPN in hybrid environments.
+LDAP search string to
+`"(|(sAMAccountName=%(user)s)(userPrincipalName=%(user)s))"` so that users can
+log in with their userid or their UPN in hybrid environments.
 
 ```python
 from django_auth_ldap.config import LDAPSearch
@@ -118,8 +119,8 @@ AUTH_LDAP_CACHE_GROUPS = True
 AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
 ```
 
-Users must be at least mapped to the `is_active` group. Otherwise they will not
-be able to log in.
+Users must be at least mapped to the `is_active` group. Otherwise they will
+not be able to log in.
 
 Users that need to access the administration tools must be mapped to the
 `is_staff` group.

@@ -237,7 +237,9 @@ Quit the server with CONTROL-C.
 ```
 
 ## Set up application server
-Before we can deliver Peering Manager with our web server of choice, we have to set up the application server.
+
+Before we can deliver Peering Manager with our web server of choice, we have
+to set up the application server.
 
 === "gunicorn"
 	Install **gunicorn** using **pip** inside the Python virtual environment.
