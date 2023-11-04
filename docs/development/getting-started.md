@@ -70,8 +70,7 @@ Within the `peering_manager/` directory, copy `configuration.example.py` to
 * `ALLOWED_HOSTS`: This can be set to `['*']` for development purposes
 * `DATABASE`: PostgreSQL database connection parameters
 * `REDIS`: Redis configuration, if different from the defaults
-* `SECRET_KEY`: Set to a random string (use `generate_secret_key.py` in the
-  parent directory to generate a suitable key)
+* `SECRET_KEY`: Set to a random string
 * `DEBUG`: Set to `True`
 
 ### Start the Development Server
