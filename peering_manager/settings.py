@@ -194,8 +194,9 @@ NETBOX_DEVICE_ROLES = getattr(
 NETBOX_TAGS = set(getattr(configuration, "NETBOX_TAGS", []))
 
 # PeeringDB URLs
-PEERINGDB_API = "https://www.peeringdb.com/api/"
-PEERINGDB = "https://www.peeringdb.com/asn/"
+PEERINGDB = "https://www.peeringdb.com/"
+PEERINGDB_API = f"{PEERINGDB}api/"
+PEERINGDB_ASN = f"{PEERINGDB}asn/"
 # To be removed in v2.0
 PEERINGDB_USERNAME = getattr(configuration, "PEERINGDB_USERNAME", "")
 PEERINGDB_PASSWORD = getattr(configuration, "PEERINGDB_PASSWORD", "")
@@ -430,10 +431,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "peering_manager.middleware.ExceptionCatchingMiddleware",
-    "peering_manager.middleware.RequireLoginMiddleware",
-    "peering_manager.middleware.ObjectChangeMiddleware",
-    "peering_manager.middleware.LastSearchMiddleware",
+    "peering_manager.middleware.CoreMiddleware",
 ]
 
 try:

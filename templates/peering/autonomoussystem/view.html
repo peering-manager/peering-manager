@@ -10,7 +10,7 @@
           {% if instance.is_private %}
           <span class="badge badge-warning">Private ASN</span>
           {% else %}
-          <a class="btn btn-xs btn-primary" href="{{ settings.PEERINGDB }}{{ instance.asn }}" target="_blank">
+          <a class="btn btn-xs btn-primary" href="{{ settings.PEERINGDB_ASN }}{{ instance.asn }}" target="_blank">
             <i class="fas fa-external-link-alt"></i> PeeringDB
           </a>
           {% if perms.peering.change_autonomoussystem and peeringdb_last_synchronisation %}
