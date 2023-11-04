@@ -361,7 +361,7 @@ class Network(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return f"AS{self.asn} - {self.name}"
 
 
 class InternetExchange(models.Model):
@@ -509,6 +509,11 @@ class NetworkContact(models.Model):
         verbose_name="Network",
         on_delete=models.CASCADE,
     )
+
+    def __str__(self):
+        if not self.email:
+            return self.name
+        return f"{self.name} <{self.email}>"
 
 
 class NetworkFacility(models.Model):
