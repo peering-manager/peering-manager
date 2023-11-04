@@ -49,6 +49,27 @@ var PeeringManager = {
     $.ajax({
       method: 'get', url: job['url']
     }).done(doneHandler).fail(failHandler);
+  },
+  populateSelect2: function (element, values, id_field = 'id', text_field = 'name') {
+    if (values.length < 1) {
+      return;
+    }
+
+    // Clear all options before re-populating them
+    element.empty().trigger('change');
+
+    for (var i = 0; i < values.length; i++) {
+      var item = values[i];
+      var id_value = item[id_field];
+      var text_value = item[text_field];
+
+      // Do not duplicate values
+      if (!element.find("option[value='" + id_value + "']").length) {
+        var opt = new Option(text_value, id_value, false, false);
+        element.append(opt);
+      }
+      element.trigger("change");
+    }
   }
 };
 
