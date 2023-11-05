@@ -920,19 +920,3 @@ class RoutingPolicyBulkDelete(BulkDeleteView):
     queryset = RoutingPolicy.objects.all()
     filterset = RoutingPolicyFilterSet
     table = RoutingPolicyTable
-
-
-class ProvisioningAvailableIXPeers(ObjectListView):
-    permission_required = "peering.view_internetexchange"
-    filterset = NetworkIXLanFilterSet
-    filterset_form = NetworkIXLanFilterForm
-    table = NetworkIXLanTable
-    template_name = "peering/provisioning/peers.html"
-
-    def get_queryset(self, request):
-        queryset = NetworkIXLan.objects.none()
-
-        for ixp in InternetExchange.objects.all():
-            queryset = queryset | ixp.get_available_peers()
-
-        return queryset

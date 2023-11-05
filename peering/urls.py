@@ -412,10 +412,4 @@ urlpatterns = [
         views.RoutingPolicyBulkEdit.as_view(),
         name="routingpolicy_bulk_edit",
     ),
-    # Provisioning
-    path(
-        "provisioning/available-ix-peers/",
-        views.ProvisioningAvailableIXPeers.as_view(),
-        name="provisioning_ixppeers",
-    ),
 ]
