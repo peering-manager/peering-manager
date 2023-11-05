@@ -205,8 +205,8 @@ class ChangeLoggedModelFilterSet(BaseFilterSet):
     def filter_by_request(self, queryset, name, value):
         content_type = ContentType.objects.get_for_model(self.Meta.model)
         action = {
-            "created_by_request": ObjectChangeAction.ACTION_CREATE,
-            "updated_by_request": ObjectChangeAction.ACTION_UPDATE,
+            "created_by_request": ObjectChangeAction.CREATE,
+            "updated_by_request": ObjectChangeAction.UPDATE,
         }.get(name)
         request_id = value
         pks = ObjectChange.objects.filter(
