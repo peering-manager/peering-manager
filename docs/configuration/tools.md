@@ -77,7 +77,7 @@ The host that will be used by BGPQ3 to look for IRR objects.
 
 ## BGPQ3_SOURCES
 
-Default: `RPKI,RIPE,ARIN,APNIC,AFRINIC,LACNIC`
+Default: `RPKI,RIPE,ARIN,APNIC,AFRINIC,LACNIC,RIPE-NONAUTH,RADB,ALTDB,NTTCOM,LEVEL3,TC`
 
 A list of comma separated sources from which we will accept IRR objects.
 
