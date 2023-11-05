@@ -98,7 +98,9 @@ HTTP_PROXIES = getattr(configuration, "HTTP_PROXIES", None)
 BGPQ3_PATH = getattr(configuration, "BGPQ3_PATH", "bgpq3")
 BGPQ3_HOST = getattr(configuration, "BGPQ3_HOST", "rr.ntt.net")
 BGPQ3_SOURCES = getattr(
-    configuration, "BGPQ3_SOURCES", "RPKI,RIPE,ARIN,APNIC,AFRINIC,LACNIC,RIPE-NONAUTH,RADB,ALTDB,NTTCOM,LEVEL3,TC"
+    configuration,
+    "BGPQ3_SOURCES",
+    "RPKI,RIPE,ARIN,APNIC,AFRINIC,LACNIC,RIPE-NONAUTH,RADB,ALTDB,NTTCOM,LEVEL3,TC",
 )
 BGPQ3_ARGS = getattr(
     configuration,
