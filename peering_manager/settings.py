@@ -5,6 +5,8 @@
 # every code releases.
 
 
+import importlib
+import os
 import platform
 import unicodedata
 import warnings
@@ -27,13 +29,16 @@ if (int(major), int(minor)) < (3, 8):
         f"Peering Manager requires Python 3.8 or higher (current: Python {platform.python_version()})"
     )
 
+# Import configuration parameters
+config_path = os.getenv("PEERINGMANAGER_CONFIGURATION", "peering_manager.configuration")
 try:
-    from peering_manager import configuration
-except ImportError:
-    raise ImproperlyConfigured(
-        "Configuration file is not present. "
-        "Please define peering_manager/configuration.py per the documentation."
-    )
+    configuration = importlib.import_module(config_path)
+except ModuleNotFoundError as e:
+    if getattr(e, "name") == config_path:
+        raise ImproperlyConfigured(
+            f"Specified configuration module ({config_path}) not found. Please define peering_manager/configuration.py per the documentation, or specify an alternate module in the PEERINGMANAGER_CONFIGURATION environment variable."
+        )
+    raise
 
 for setting in ["ALLOWED_HOSTS", "DATABASE", "SECRET_KEY"]:
     if not hasattr(configuration, setting):
@@ -58,6 +63,7 @@ CORS_ORIGIN_ALLOW_ALL = getattr(configuration, "CORS_ORIGIN_ALLOW_ALL", False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, "CORS_ORIGIN_REGEX_WHITELIST", [])
 CORS_ORIGIN_WHITELIST = getattr(configuration, "CORS_ORIGIN_WHITELIST", [])
 CSRF_COOKIE_NAME = getattr(configuration, "CSRF_COOKIE_NAME", "csrftoken")
+CSRF_COOKIE_SECURE = getattr(configuration, "CSRF_COOKIE_SECURE", False)
 CSRF_TRUSTED_ORIGINS = getattr(configuration, "CSRF_TRUSTED_ORIGINS", [])
 DEBUG = getattr(configuration, "DEBUG", False)
 LOGGING = getattr(configuration, "LOGGING", {})
