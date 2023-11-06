@@ -34,7 +34,15 @@ from .models import (
 class AutonomousSystemFilterSet(PeeringManagerModelFilterSet):
     class Meta:
         model = AutonomousSystem
-        fields = ["id", "asn", "ipv6_max_prefixes", "ipv4_max_prefixes", "affiliated"]
+        fields = [
+            "id",
+            "asn",
+            "name",
+            "irr_as_set",
+            "ipv6_max_prefixes",
+            "ipv4_max_prefixes",
+            "affiliated",
+        ]
 
     def search(self, queryset, name, value):
         if not value.strip():

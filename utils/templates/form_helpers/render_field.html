@@ -23,24 +23,6 @@
     </ul>
     {% endif %}
   </div>
-  {% elif field|widget_type == 'textarea' %}
-  {{ field }}
-  {% if bulk_nullable %}
-  <div class="custom-control custom-checkbox">
-    <input type="checkbox" class="custom-control-input" id="{{ field.name }}_set_null_checkbox" name="_nullify" value="{{ field.name }}">
-    <label class="custom-control-label" for="{{ field.name }}_set_null_checkbox">Set null</label>
-  </div>
-  {% endif %}
-  {% if field.help_text %}
-  <small class="form-text text-muted">{{ field.help_text|safe }}</small>
-  {% endif %}
-  {% if field.errors %}
-  <ul>
-    {% for error in field.errors %}
-    <li class="text-danger">{{ error }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
   {% else %}
   <label class="col-3{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
   <div class="col-9">

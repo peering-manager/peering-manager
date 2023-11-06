@@ -55,6 +55,9 @@ postgres=# CREATE USER peering_manager WITH PASSWORD 'DoNotUseMe';
 CREATE ROLE
 postgres=# GRANT ALL PRIVILEGES ON DATABASE peering_manager TO peering_manager;
 GRANT
+-- If running PostgreSQL v15 or above the following two commands are also necessary:
+\connect peering_manager
+GRANT CREATE ON SCHEMA public TO peering_manager;
 postgres=# \q
 ```
 

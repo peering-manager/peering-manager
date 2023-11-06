@@ -1,3 +1,5 @@
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from peering_manager.api.fields import ChoiceField
@@ -22,6 +24,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organization
         fields = [
+            "id",
             "address1",
             "address2",
             "city",
@@ -46,6 +49,7 @@ class InternetExchangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = InternetExchange
         fields = [
+            "id",
             "name",
             "name_long",
             "aka",
@@ -81,6 +85,7 @@ class FacilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Facility
         fields = [
+            "id",
             "address1",
             "address2",
             "city",
@@ -116,7 +121,7 @@ class InternetExchangeFacilitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InternetExchangeFacility
-        fields = ["ix", "fac"]
+        fields = ["id", "ix", "fac"]
 
 
 class IXLanSerializer(serializers.ModelSerializer):
@@ -125,6 +130,7 @@ class IXLanSerializer(serializers.ModelSerializer):
     class Meta:
         model = IXLan
         fields = [
+            "id",
             "name",
             "descr",
             "mtu",
@@ -143,15 +149,22 @@ class IXLanPrefixSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IXLanPrefix
-        fields = ["notes", "protocol", "prefix", "in_dfz", "ixlan"]
+        fields = ["id", "notes", "protocol", "prefix", "in_dfz", "ixlan"]
 
 
 class NetworkSerializer(serializers.ModelSerializer):
     org = OrganizationSerializer()
+    display = serializers.SerializerMethodField(read_only=True)
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_display(self, obj):
+        return str(obj)
 
     class Meta:
         model = Network
         fields = [
+            "id",
+            "display",
             "asn",
             "name",
             "name_long",
@@ -184,10 +197,25 @@ class NetworkSerializer(serializers.ModelSerializer):
 class NetworkContactSerializer(serializers.ModelSerializer):
     visible = ChoiceField(choices=Visibility.choices)
     net = NetworkSerializer()
+    display = serializers.SerializerMethodField(read_only=True)
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_display(self, obj):
+        return str(obj)
 
     class Meta:
         model = NetworkContact
-        fields = ["role", "visible", "name", "phone", "email", "url", "net"]
+        fields = [
+            "id",
+            "display",
+            "role",
+            "visible",
+            "name",
+            "phone",
+            "email",
+            "url",
+            "net",
+        ]
 
 
 class NetworkFacilitySerializer(serializers.ModelSerializer):
@@ -197,6 +225,7 @@ class NetworkFacilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = NetworkFacility
         fields = [
+            "id",
             "local_asn",
             "avail_sonet",
             "avail_ethernet",
@@ -210,6 +239,7 @@ class NetworkIXLanSerializer(serializers.ModelSerializer):
     class Meta:
         model = NetworkIXLan
         fields = [
+            "id",
             "asn",
             "ipaddr4",
             "ipaddr6",

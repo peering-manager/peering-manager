@@ -5,6 +5,8 @@
 # every code releases.
 
 
+import importlib
+import os
 import platform
 import unicodedata
 import warnings
@@ -19,7 +21,7 @@ HOSTNAME = platform.node()
 BASE_DIR = Path(__file__).resolve().parent.parent
 DOCS_DIR = BASE_DIR / "docs"
 
-VERSION = "1.8.2-dev"
+VERSION = "1.8.3-dev"
 
 major, minor, _ = platform.python_version_tuple()
 if (int(major), int(minor)) < (3, 8):
@@ -27,13 +29,16 @@ if (int(major), int(minor)) < (3, 8):
         f"Peering Manager requires Python 3.8 or higher (current: Python {platform.python_version()})"
     )
 
+# Import configuration parameters
+config_path = os.getenv("PEERINGMANAGER_CONFIGURATION", "peering_manager.configuration")
 try:
-    from peering_manager import configuration
-except ImportError:
-    raise ImproperlyConfigured(
-        "Configuration file is not present. "
-        "Please define peering_manager/configuration.py per the documentation."
-    )
+    configuration = importlib.import_module(config_path)
+except ModuleNotFoundError as e:
+    if getattr(e, "name") == config_path:
+        raise ImproperlyConfigured(
+            f"Specified configuration module ({config_path}) not found. Please define peering_manager/configuration.py per the documentation, or specify an alternate module in the PEERINGMANAGER_CONFIGURATION environment variable."
+        )
+    raise
 
 for setting in ["ALLOWED_HOSTS", "DATABASE", "SECRET_KEY"]:
     if not hasattr(configuration, setting):
@@ -58,6 +63,7 @@ CORS_ORIGIN_ALLOW_ALL = getattr(configuration, "CORS_ORIGIN_ALLOW_ALL", False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, "CORS_ORIGIN_REGEX_WHITELIST", [])
 CORS_ORIGIN_WHITELIST = getattr(configuration, "CORS_ORIGIN_WHITELIST", [])
 CSRF_COOKIE_NAME = getattr(configuration, "CSRF_COOKIE_NAME", "csrftoken")
+CSRF_COOKIE_SECURE = getattr(configuration, "CSRF_COOKIE_SECURE", False)
 CSRF_TRUSTED_ORIGINS = getattr(configuration, "CSRF_TRUSTED_ORIGINS", [])
 DEBUG = getattr(configuration, "DEBUG", False)
 LOGGING = getattr(configuration, "LOGGING", {})
@@ -98,7 +104,9 @@ HTTP_PROXIES = getattr(configuration, "HTTP_PROXIES", None)
 BGPQ3_PATH = getattr(configuration, "BGPQ3_PATH", "bgpq3")
 BGPQ3_HOST = getattr(configuration, "BGPQ3_HOST", "rr.ntt.net")
 BGPQ3_SOURCES = getattr(
-    configuration, "BGPQ3_SOURCES", "RPKI,RIPE,ARIN,APNIC,AFRINIC,LACNIC"
+    configuration,
+    "BGPQ3_SOURCES",
+    "RPKI,RIPE,ARIN,APNIC,AFRINIC,LACNIC,RIPE-NONAUTH,RADB,ALTDB,NTTCOM,LEVEL3,TC",
 )
 BGPQ3_ARGS = getattr(
     configuration,
@@ -194,8 +202,9 @@ NETBOX_DEVICE_ROLES = getattr(
 NETBOX_TAGS = set(getattr(configuration, "NETBOX_TAGS", []))
 
 # PeeringDB URLs
-PEERINGDB_API = "https://www.peeringdb.com/api/"
-PEERINGDB = "https://www.peeringdb.com/asn/"
+PEERINGDB = "https://www.peeringdb.com/"
+PEERINGDB_API = f"{PEERINGDB}api/"
+PEERINGDB_ASN = f"{PEERINGDB}asn/"
 # To be removed in v2.0
 PEERINGDB_USERNAME = getattr(configuration, "PEERINGDB_USERNAME", "")
 PEERINGDB_PASSWORD = getattr(configuration, "PEERINGDB_PASSWORD", "")
@@ -294,6 +303,7 @@ TASKS_REDIS_DATABASE = TASKS_REDIS.get("DATABASE", 0)
 TASKS_REDIS_SSL = TASKS_REDIS.get("SSL", False)
 TASKS_REDIS_SKIP_TLS_VERIFY = TASKS_REDIS.get("INSECURE_SKIP_TLS_VERIFY", False)
 TASKS_REDIS_CA_CERT_PATH = TASKS_REDIS.get("CA_CERT_PATH", False)
+TASKS_REDIS_UNIX_SOCKET_PATH = TASKS_REDIS.get("UNIX_SOCKET_PATH", "")
 
 # Caching
 if "caching" not in REDIS:
@@ -314,11 +324,20 @@ CACHING_REDIS_SENTINEL_SERVICE = CACHING_REDIS.get("SENTINEL_SERVICE", "default"
 CACHING_REDIS_PROTO = "rediss" if CACHING_REDIS.get("SSL", False) else "redis"
 CACHING_REDIS_SKIP_TLS_VERIFY = CACHING_REDIS.get("INSECURE_SKIP_TLS_VERIFY", False)
 CACHING_REDIS_CA_CERT_PATH = CACHING_REDIS.get("CA_CERT_PATH", False)
+CACHING_REDIS_UNIX_SOCKET_PATH = CACHING_REDIS.get("UNIX_SOCKET_PATH", "")
+
+
+if CACHING_REDIS_UNIX_SOCKET_PATH:
+    CACHING_REDIS_LOCATION = (
+        f"unix://{CACHING_REDIS_UNIX_SOCKET_PATH}?db={CACHING_REDIS_DATABASE}"
+    )
+else:
+    CACHING_REDIS_LOCATION = f"{CACHING_REDIS_PROTO}://{CACHING_REDIS_USERNAME_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}"
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"{CACHING_REDIS_PROTO}://{CACHING_REDIS_USERNAME_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}",
+        "LOCATION": CACHING_REDIS_LOCATION,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "PASSWORD": CACHING_REDIS_PASSWORD,
@@ -340,14 +359,21 @@ else:
         "SSL": TASKS_REDIS_SSL,
         "SSL_CERT_REQS": None if TASKS_REDIS_SKIP_TLS_VERIFY else "required",
     }
-RQ_PARAMS.update(
-    {
+
+if TASKS_REDIS_UNIX_SOCKET_PATH:
+    RQ_PARAMS = {
+        "UNIX_SOCKET_PATH": TASKS_REDIS_UNIX_SOCKET_PATH,
         "DB": TASKS_REDIS_DATABASE,
-        "USERNAME": TASKS_REDIS_USERNAME,
-        "PASSWORD": TASKS_REDIS_PASSWORD,
-        "DEFAULT_TIMEOUT": RQ_DEFAULT_TIMEOUT,
     }
-)
+else:
+    RQ_PARAMS.update(
+        {
+            "DB": TASKS_REDIS_DATABASE,
+            "USERNAME": TASKS_REDIS_USERNAME,
+            "PASSWORD": TASKS_REDIS_PASSWORD,
+            "DEFAULT_TIMEOUT": RQ_DEFAULT_TIMEOUT,
+        }
+    )
 
 if TASKS_REDIS_CA_CERT_PATH:
     RQ_PARAMS.setdefault("REDIS_CLIENT_KWARGS", {})
@@ -413,10 +439,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "peering_manager.middleware.ExceptionCatchingMiddleware",
-    "peering_manager.middleware.RequireLoginMiddleware",
-    "peering_manager.middleware.ObjectChangeMiddleware",
-    "peering_manager.middleware.LastSearchMiddleware",
+    "peering_manager.middleware.CoreMiddleware",
 ]
 
 try:

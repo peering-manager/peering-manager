@@ -21,7 +21,7 @@ def call_irr_as_set_resolver(irr_as_set, address_family=6):
         settings.BGPQ3_HOST,
         "-S",
         settings.BGPQ3_SOURCES,
-        "-{}".format(address_family),
+        f"-{address_family}",
         "-A",
         "-j",
         "-l",
@@ -40,9 +40,9 @@ def call_irr_as_set_resolver(irr_as_set, address_family=6):
     out, err = process.communicate()
 
     if process.returncode != 0:
-        error_log = "bgpq3 exit code is {}".format(process.returncode)
+        error_log = f"{settings.BGPQ3_PATH} exit code is {process.returncode}"
         if err and err.strip():
-            error_log += ", stderr: {}".format(err)
+            error_log += f", stderr: {err}"
         raise ValueError(error_log)
 
     prefixes.extend([p for p in json.loads(out.decode())["prefix_list"]])

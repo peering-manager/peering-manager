@@ -2,6 +2,11 @@ from django.contrib import messages
 from django.shortcuts import redirect, render, reverse
 from django.views.generic import View
 
+from peering.models import InternetExchange as IXP
+from peering_manager.views.generic import ObjectListView
+
+from .filtersets import NetworkIXLanFilterSet
+from .forms import NetworkIXLanFilterForm
 from .models import (
     Campus,
     Carrier,
@@ -18,6 +23,7 @@ from .models import (
     Organization,
 )
 from .sync import PeeringDB
+from .tables import NetworkIXLanTable
 
 
 class CacheManagementView(View):
@@ -57,3 +63,19 @@ class CacheManagementView(View):
         }
 
         return render(request, "peeringdb/cache.html", context)
+
+
+class AvailableIXPPeers(ObjectListView):
+    permission_required = "peering.view_internetexchange"
+    filterset = NetworkIXLanFilterSet
+    filterset_form = NetworkIXLanFilterForm
+    table = NetworkIXLanTable
+    template_name = "peering/provisioning/peers.html"
+
+    def get_queryset(self, request):
+        queryset = NetworkIXLan.objects.none()
+
+        for ixp in IXP.objects.all():
+            queryset = queryset | ixp.get_available_peers()
+
+        return queryset

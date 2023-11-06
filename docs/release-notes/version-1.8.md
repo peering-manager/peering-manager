@@ -1,3 +1,14 @@
+## Version 1.8.2 | MARK I (Bug fixes release) | 2023-09-29
+
+### Bug Fixes
+
+* [#768](https://github.com/peering-manager/peering-manager/issues/768) Fix broken config contact assignment view
+* [#775](https://github.com/peering-manager/peering-manager/issues/775) Fix NetBox display in router add/edit form
+* Fix crash when showing routing policies column in tables
+* Fix filtering by tags when clicking a tag (by @rwielk)
+* Fix platform main URL that redirects to routers using the given platform (by @rwielk)
+* Restore UNIX socket support for redis (by @yu-re-ka)
+
 ## Version 1.8.1 | MARK I (Bug fixes release) | 2023-09-18
 
 ### Bug Fixes
@@ -8,7 +19,7 @@
 
 ### Enhancements
 
-* [#761](https://github.com/peering-manager/peering-manager/issues/761) Allow filtering BGP sesions by BGP state
+* [#761](https://github.com/peering-manager/peering-manager/issues/761) Allow filtering BGP sessions by BGP state
 * Add `passive` field to BGP sessions (IXP and direct) to denote a session that will wait for open messages
 * Add `multihop_ttl` column to BGP sessions (IXP and direct) tables
 

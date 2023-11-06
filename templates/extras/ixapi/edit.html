@@ -21,15 +21,7 @@
       },
       url: "{% url 'extras-api:ixapi-accounts' %}"
     }).done(function (r) {
-      for (var i = 0; i < r.length; i++) {
-        if ($("#id_identity").find("option[value='" + r[i].id + "']").length) {
-          $("#id_identity").val(r[i].id);
-        } else {
-          var opt = new Option(r[i].name, r[i].id, i == 0, r[i].id == selectedIdentity);
-          $("#id_identity").append(opt);
-        }
-        $("#id_identity").trigger("change");
-      }
+      PeeringManager.populateSelect2($('#id_identity'), r);
     });
   }
 

@@ -864,13 +864,14 @@ class RouterForm(PeeringManagerModelForm):
         (
             "Router",
             (
-                # "netbox_device_id"
                 "name",
                 "hostname",
                 "encrypt_passwords",
                 "poll_bgp_sessions_state",
                 "configuration_template",
                 "local_autonomous_system",
+                "use_netbox",
+                "netbox_device_id",
             ),
         ),
         ("Management", ("platform", "status")),
@@ -906,6 +907,7 @@ class RouterForm(PeeringManagerModelForm):
                 ]
             ).strip()
         else:
+            self.fields["use_netbox"].widget = forms.HiddenInput()
             self.fields["netbox_device_id"].widget = forms.HiddenInput()
 
     class Meta:

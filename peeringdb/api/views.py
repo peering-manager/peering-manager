@@ -10,9 +10,22 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 from core.api.serializers import JobSerializer
 from core.models import Job
 
-from ..filtersets import NetworkFilterSet, SynchronisationFilterSet
+from ..filtersets import (
+    FacilityFilterSet,
+    InternetExchangeFacilityFilterSet,
+    InternetExchangeFilterSet,
+    IXLanFilterSet,
+    IXLanPrefixFilterSet,
+    NetworkContactFilterSet,
+    NetworkFacilityFilterSet,
+    NetworkFilterSet,
+    NetworkIXLanFilterSet,
+    OrganizationFilterSet,
+    SynchronisationFilterSet,
+)
 from ..jobs import synchronise
 from ..models import (
+    Campus,
     Carrier,
     CarrierFacility,
     Facility,
@@ -63,6 +76,7 @@ class CacheViewSet(ViewSet):
     def statistics(self, request):
         return Response(
             {
+                "campus-count": Campus.objects.count(),
                 "carrier-count": Carrier.objects.count(),
                 "carrierfac": CarrierFacility.objects.count(),
                 "fac-count": Facility.objects.count(),
@@ -111,26 +125,31 @@ class CacheViewSet(ViewSet):
 class FacilityViewSet(ReadOnlyModelViewSet):
     queryset = Facility.objects.all()
     serializer_class = FacilitySerializer
+    filterset_class = FacilityFilterSet
 
 
 class InternetExchangeViewSet(ReadOnlyModelViewSet):
     queryset = InternetExchange.objects.all()
     serializer_class = InternetExchangeSerializer
+    filterset_class = InternetExchangeFilterSet
 
 
 class InternetExchangeFacilityViewSet(ReadOnlyModelViewSet):
     queryset = InternetExchangeFacility.objects.all()
     serializer_class = InternetExchangeFacilitySerializer
+    filterset_class = InternetExchangeFacilityFilterSet
 
 
 class IXLanViewSet(ReadOnlyModelViewSet):
     queryset = IXLan.objects.all()
     serializer_class = IXLanSerializer
+    filterset_class = IXLanFilterSet
 
 
 class IXLanPrefixViewSet(ReadOnlyModelViewSet):
     queryset = IXLanPrefix.objects.all()
     serializer_class = IXLanPrefixSerializer
+    filterset_class = IXLanPrefixFilterSet
 
 
 class NetworkViewSet(ReadOnlyModelViewSet):
@@ -142,21 +161,25 @@ class NetworkViewSet(ReadOnlyModelViewSet):
 class NetworkContactViewSet(ReadOnlyModelViewSet):
     queryset = NetworkContact.objects.all()
     serializer_class = NetworkContactSerializer
+    filterset_class = NetworkContactFilterSet
 
 
 class NetworkFacilityViewSet(ReadOnlyModelViewSet):
     queryset = NetworkFacility.objects.all()
     serializer_class = NetworkFacilitySerializer
+    filterset_class = NetworkFacilityFilterSet
 
 
 class NetworkIXLanViewSet(ReadOnlyModelViewSet):
     queryset = NetworkIXLan.objects.all()
     serializer_class = NetworkIXLanSerializer
+    filterset_class = NetworkIXLanFilterSet
 
 
 class OrganizationViewSet(ReadOnlyModelViewSet):
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
+    filterset_class = OrganizationFilterSet
 
 
 class SynchronisationViewSet(ReadOnlyModelViewSet):
