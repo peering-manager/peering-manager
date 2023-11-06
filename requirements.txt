@@ -11,7 +11,7 @@ django-taggit==4.0.0
 drf-spectacular==0.26.5
 drf-spectacular-sidecar==2023.10.1
 Jinja2>=3.1.2
-Markdown==3.5
+Markdown==3.5.1
 napalm==4.1.0
 packaging==23.2
 psycopg[binary,pool]==3.1.12
