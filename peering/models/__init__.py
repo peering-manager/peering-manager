@@ -1627,13 +1627,17 @@ class Router(PrimaryModel):
         # Get BGP session detail
         bgp_neighbor_detail = self.get_bgp_neighbors_detail(ip_address=ip_address)
         if bgp_neighbor_detail:
-            received = bgp_neighbor_detail["received_prefix_count"]
-            advertised = bgp_neighbor_detail["advertised_prefix_count"]
-
             return {
                 "bgp_state": bgp_neighbor_detail["connection_state"].lower(),
-                "received_prefix_count": received if received > 0 else 0,
-                "advertised_prefix_count": advertised if advertised > 0 else 0,
+                "received_prefix_count": max(
+                    0, bgp_neighbor_detail["received_prefix_count"]
+                ),
+                "accepted_prefix_count": max(
+                    0, bgp_neighbor_detail["accepted_prefix_count"]
+                ),
+                "advertised_prefix_count": max(
+                    0, bgp_neighbor_detail["advertised_prefix_count"]
+                ),
             }
 
         return {}
@@ -1700,8 +1704,15 @@ class Router(PrimaryModel):
             # Update fields
             session = match.first()
             session.bgp_state = state
-            session.received_prefix_count = 0 if received < 0 else received
-            session.advertised_prefix_count = 0 if advertised < 0 else advertised
+            session.received_prefix_count = max(
+                0, neighbor_detail["received_prefix_count"]
+            )
+            session.accepted_prefix_count = max(
+                0, neighbor_detail["accepted_prefix_count"]
+            )
+            session.advertised_prefix_count = max(
+                0, neighbor_detail["advertised_prefix_count"]
+            )
             # Update the BGP state of the session
             if session.bgp_state == BGPState.ESTABLISHED:
                 session.last_established_state = timezone.now()
