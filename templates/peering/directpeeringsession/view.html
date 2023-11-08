@@ -110,6 +110,10 @@
           <td><span class="badge badge-pill badge-primary">{{ instance.received_prefix_count }}</span></td>
         </tr>
         <tr>
+          <td>Accepted Prefix Count</td>
+          <td><span class="badge badge-pill badge-primary">{{ instance.accepted_prefix_count }}</span></td>
+        </tr>
+        <tr>
           <td>Advertised Prefix Count</td>
           <td><span class="badge badge-pill badge-primary">{{ instance.advertised_prefix_count }}</span></td>
         </tr>
@@ -181,6 +185,7 @@
         "status": "disabled",
         "bgp_state": "idle",
         "received_prefix_count": 0,
+        "accepted_prefix_count": 0,
         "advertised_prefix_count": 0
       }
     }).done(function() {

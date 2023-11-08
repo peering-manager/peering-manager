@@ -517,6 +517,7 @@ class DirectPeeringSession(BGPSession):
         if state:
             self.bgp_state = state["bgp_state"]
             self.received_prefix_count = state["received_prefix_count"]
+            self.accepted_prefix_count = state["accepted_prefix_count"]
             self.advertised_prefix_count = state["advertised_prefix_count"]
             if self.bgp_state == BGPState.ESTABLISHED:
                 self.last_established_state = timezone.now()
@@ -941,6 +942,7 @@ class InternetExchangePeeringSession(BGPSession):
         if state:
             self.bgp_state = state["bgp_state"]
             self.received_prefix_count = state["received_prefix_count"]
+            self.accepted_prefix_count = state["accepted_prefix_count"]
             self.advertised_prefix_count = state["advertised_prefix_count"]
             if self.bgp_state == BGPState.ESTABLISHED:
                 self.last_established_state = timezone.now()
