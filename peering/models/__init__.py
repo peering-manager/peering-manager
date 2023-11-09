@@ -267,6 +267,48 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
                 return True
         return False
 
+    def divergence_from_peeringdb(self):
+        """
+        Find out fields with values that differ from PeeringDB.
+        """
+        if self.is_private:
+            return []
+
+        network = self.peeringdb_network
+        if not network:
+            return []
+
+        diff = []
+        key_map = {
+            "name": "name",
+            "irr_as_set": "irr_as_set",
+            "ipv6_max_prefixes": "info_prefixes6",
+            "ipv4_max_prefixes": "info_prefixes4",
+        }
+        label_map = {
+            "name": "Name",
+            "irr_as_set": "IRR AS-SET",
+            "ipv6_max_prefixes": "IPv6 Max Prefix",
+            "ipv4_max_prefixes": "IPv4 Max Prefix",
+        }
+
+        for local_key, peeringdb_key in key_map.items():
+            local_value = getattr(self, local_key)
+            peeringdb_value = getattr(network, peeringdb_key)
+
+            if local_value != peeringdb_value:
+                diff.append(
+                    {
+                        "label": label_map[local_key],
+                        "local_key": local_key,
+                        "peeringdb_key": peeringdb_key,
+                        "local_value": local_value,
+                        "peeringdb_value": peeringdb_value,
+                    }
+                )
+
+        return diff
+
     def synchronise_with_peeringdb(self):
         """
         Synchronises AS properties with those found in PeeringDB.
