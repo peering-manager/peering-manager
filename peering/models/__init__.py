@@ -267,6 +267,48 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
                 return True
         return False
 
+    def divergence_from_peeringdb(self):
+        """
+        Find out fields with values that differ from PeeringDB.
+        """
+        if self.is_private:
+            return []
+
+        network = self.peeringdb_network
+        if not network:
+            return []
+
+        diff = []
+        key_map = {
+            "name": "name",
+            "irr_as_set": "irr_as_set",
+            "ipv6_max_prefixes": "info_prefixes6",
+            "ipv4_max_prefixes": "info_prefixes4",
+        }
+        label_map = {
+            "name": "Name",
+            "irr_as_set": "IRR AS-SET",
+            "ipv6_max_prefixes": "IPv6 Max Prefix",
+            "ipv4_max_prefixes": "IPv4 Max Prefix",
+        }
+
+        for local_key, peeringdb_key in key_map.items():
+            local_value = getattr(self, local_key)
+            peeringdb_value = getattr(network, peeringdb_key)
+
+            if local_value != peeringdb_value:
+                diff.append(
+                    {
+                        "label": label_map[local_key],
+                        "local_key": local_key,
+                        "peeringdb_key": peeringdb_key,
+                        "local_value": local_value,
+                        "peeringdb_value": peeringdb_value,
+                    }
+                )
+
+        return diff
+
     def synchronise_with_peeringdb(self):
         """
         Synchronises AS properties with those found in PeeringDB.
@@ -517,6 +559,7 @@ class DirectPeeringSession(BGPSession):
         if state:
             self.bgp_state = state["bgp_state"]
             self.received_prefix_count = state["received_prefix_count"]
+            self.accepted_prefix_count = state["accepted_prefix_count"]
             self.advertised_prefix_count = state["advertised_prefix_count"]
             if self.bgp_state == BGPState.ESTABLISHED:
                 self.last_established_state = timezone.now()
@@ -941,6 +984,7 @@ class InternetExchangePeeringSession(BGPSession):
         if state:
             self.bgp_state = state["bgp_state"]
             self.received_prefix_count = state["received_prefix_count"]
+            self.accepted_prefix_count = state["accepted_prefix_count"]
             self.advertised_prefix_count = state["advertised_prefix_count"]
             if self.bgp_state == BGPState.ESTABLISHED:
                 self.last_established_state = timezone.now()
@@ -1625,13 +1669,17 @@ class Router(PrimaryModel):
         # Get BGP session detail
         bgp_neighbor_detail = self.get_bgp_neighbors_detail(ip_address=ip_address)
         if bgp_neighbor_detail:
-            received = bgp_neighbor_detail["received_prefix_count"]
-            advertised = bgp_neighbor_detail["advertised_prefix_count"]
-
             return {
                 "bgp_state": bgp_neighbor_detail["connection_state"].lower(),
-                "received_prefix_count": received if received > 0 else 0,
-                "advertised_prefix_count": advertised if advertised > 0 else 0,
+                "received_prefix_count": max(
+                    0, bgp_neighbor_detail["received_prefix_count"]
+                ),
+                "accepted_prefix_count": max(
+                    0, bgp_neighbor_detail["accepted_prefix_count"]
+                ),
+                "advertised_prefix_count": max(
+                    0, bgp_neighbor_detail["advertised_prefix_count"]
+                ),
             }
 
         return {}
@@ -1698,8 +1746,15 @@ class Router(PrimaryModel):
             # Update fields
             session = match.first()
             session.bgp_state = state
-            session.received_prefix_count = 0 if received < 0 else received
-            session.advertised_prefix_count = 0 if advertised < 0 else advertised
+            session.received_prefix_count = max(
+                0, neighbor_detail["received_prefix_count"]
+            )
+            session.accepted_prefix_count = max(
+                0, neighbor_detail["accepted_prefix_count"]
+            )
+            session.advertised_prefix_count = max(
+                0, neighbor_detail["advertised_prefix_count"]
+            )
             # Update the BGP state of the session
             if session.bgp_state == BGPState.ESTABLISHED:
                 session.last_established_state = timezone.now()

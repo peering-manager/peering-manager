@@ -129,6 +129,7 @@ class BGPSession(PrimaryModel, PolicyMixin):
     communities = models.ManyToManyField("Community", blank=True)
     bgp_state = models.CharField(max_length=50, choices=BGPState, blank=True, null=True)
     received_prefix_count = models.PositiveIntegerField(blank=True, default=0)
+    accepted_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     advertised_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     last_established_state = models.DateTimeField(blank=True, null=True)
 
