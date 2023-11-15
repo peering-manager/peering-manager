@@ -59,6 +59,7 @@
       case 'errored':
       case 'failed':
       default:
+        $('#main-body').html('<p>An error occured while trying to commit the configuration changes.</p><p>You can find more details in the napalm logs or below.</p><pre class="pre-scrollable">' + r['output'] + '</pre>');
         PeeringManager.setFailedButton($('#commit'), 'Configuration not saved');
         break;
     }
@@ -88,7 +89,7 @@
       case 'errored':
       case 'failed':
       default:
-        $('#main-body').html('<p>An error occured while trying to check for changes.</p><p>The router may be unreachable, the configuration may be locked by another user or the configuration may be invalid.</p><p>You can find more details in the <code>logs/napalm.log</code> logs file or below.</p><pre class="pre-scrollable">' + r['data']['output']['log'][0][4] + '</pre>');
+        $('#main-body').html('<p>An error occured while trying to check for changes.</p><p>The router may be unreachable, the configuration may be locked by another user or the configuration may be invalid.</p><p>You can find more details in the <code>logs/napalm.log</code> logs file or below.</p><pre class="pre-scrollable">' + r['output'] + '</pre>');
         break;
     }
   }
