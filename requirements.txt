@@ -14,7 +14,7 @@ Jinja2>=3.1.2
 Markdown==3.5.1
 napalm==4.1.0
 packaging==23.2
-psycopg[binary,pool]==3.1.12
+psycopg[binary,pool]==3.1.13
 pyixapi==0.2.1
 pynetbox==7.2.0
 PyYAML==6.0.1
