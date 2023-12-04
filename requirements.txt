@@ -9,7 +9,7 @@ django-rq==2.9.0
 django-tables2==2.6.0
 django-taggit==5.0.1
 drf-spectacular==0.26.5
-drf-spectacular-sidecar==2023.10.1
+drf-spectacular-sidecar==2023.12.1
 Jinja2>=3.1.2
 Markdown==3.5.1
 napalm==4.1.0
