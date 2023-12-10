@@ -1,11 +1,8 @@
-from django import template
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count, Q
+from django.db.models import Count
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import View
 
-from extras.forms import ObjectChangeFilterForm
-from extras.tables import ObjectChangeTable
 from peering.models import InternetExchange
 from peering_manager.views.generic import (
     BulkDeleteView,

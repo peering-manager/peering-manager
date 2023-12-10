@@ -6,7 +6,6 @@ from django.test import TestCase
 
 from peering.models import AutonomousSystem
 from utils.testing import BaseFilterSetTests
-from utils.testing.filtersets import BaseFilterSetTests
 
 from ..enums import ObjectChangeAction
 from ..filtersets import (

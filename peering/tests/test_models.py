@@ -560,7 +560,7 @@ class RouterTest(TestCase):
                 autonomous_system=autonomous_system,
                 bgp_group=group,
                 relationship=relationship,
-                ip_address=f"2001:db8::1/126",
+                ip_address="2001:db8::1/126",
                 status=BGPSessionStatus.ENABLED,
                 router=self.router,
             )

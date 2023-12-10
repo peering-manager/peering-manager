@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 from urllib.parse import quote
 
 import django_tables2 as tables

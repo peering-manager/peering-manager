@@ -10,7 +10,7 @@ from extras.signals import clear_webhooks
 from utils.exceptions import AbortRequest, PermissionsViolation
 from utils.forms import ConfirmationForm
 from utils.functions import get_permission_for_model, normalize_querydict
-from utils.views import GetReturnURLMixin, PermissionRequiredMixin
+from utils.views import GetReturnURLMixin
 
 from .base import BaseObjectView
 from .mixins import ActionsMixin, TableMixin

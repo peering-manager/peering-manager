@@ -22,7 +22,7 @@ def generate_configuration(router, job):
         job.set_output(config)
     else:
         job.log(
-            f"No configuration (or empty) generated.",
+            "No configuration (or empty) generated.",
             object=router,
             level_choice=LogLevel.INFO,
             logger=logger,

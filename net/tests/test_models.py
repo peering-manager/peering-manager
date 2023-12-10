@@ -37,11 +37,11 @@ class ConnectionTest(TestCase):
         self.assertIsNone(self.connection.link_to_peeringdb())
 
     def test__str__(self):
-        self.assertEqual(f"Test on Test", str(self.connection))
+        self.assertEqual("Test on Test", str(self.connection))
         self.connection.router = None
         self.connection.interface = ""
         self.connection.save()
-        self.assertEqual(f"Test", str(self.connection))
+        self.assertEqual("Test", str(self.connection))
         self.connection.internet_exchange_point = None
         self.connection.save()
         self.assertEqual(f"Connection #{self.connection.pk}", str(self.connection))

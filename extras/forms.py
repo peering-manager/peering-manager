@@ -4,7 +4,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from requests.exceptions import HTTPError
 
-from extras.models.configcontext import ConfigContextAssignment
 from utils.forms import BOOLEAN_WITH_BLANK_CHOICES, BootstrapMixin, BulkEditForm
 from utils.forms.fields import (
     ContentTypeChoiceField,
