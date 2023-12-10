@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.exceptions import APIException
 
-__all__ = ("AbortException", "PermissionsViolation", "RQWorkerNotRunningException")
+__all__ = ("AbortRequest", "PermissionsViolation", "RQWorkerNotRunningException")
 
 
 class AbortRequest(Exception):

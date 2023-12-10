@@ -19,7 +19,7 @@ def render_export_template(export_template, job):
         job.set_output(rendered)
     else:
         job.log(
-            f"No export (or empty) generated.",
+            "No export (or empty) generated.",
             object=export_template,
             level_choice=LogLevel.INFO,
             logger=logger,

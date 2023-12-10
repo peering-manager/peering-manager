@@ -4,8 +4,6 @@ from unittest.mock import patch
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from extras.enums import ObjectChangeAction
-from extras.models import IXAPI, ConfigContext, ExportTemplate, ObjectChange, Tag
 from peering.models import AutonomousSystem
 from utils.testing import ViewTestCases
 

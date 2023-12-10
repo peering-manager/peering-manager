@@ -50,7 +50,7 @@ class Command(BaseCommand):
             # If IPs belong to the same network, no need to fix prefix length
             if s.local_ip_address.network == s.ip_address.network:
                 self.stdout.write(
-                    self.style.SUCCESS(f"  - Session does not need to be fixed")
+                    self.style.SUCCESS("  - Session does not need to be fixed")
                 )
                 continue
 
@@ -58,7 +58,7 @@ class Command(BaseCommand):
                 network = get_subnet(s.local_ip_address, s.ip_address)
                 self.stdout.write(f"  - Found network {network}")
             except OutOfAddressSpace:
-                self.stdout.write(self.style.ERROR(f"  - Error finding out network"))
+                self.stdout.write(self.style.ERROR("  - Error finding out network"))
                 continue
 
             old_local = s.local_ip_address

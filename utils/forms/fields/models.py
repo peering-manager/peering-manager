@@ -91,27 +91,6 @@ class DynamicModelChoiceMixin:
 
         return bound_field
 
-    def widget_attrs(self, widget):
-        attrs = {"display-field": self.display_field}
-
-        # Set value-field attribute if the field specifies to_field_name
-        if self.to_field_name:
-            attrs["value-field"] = self.to_field_name
-
-        # Attach any static query parameters
-        for key, value in self.query_params.items():
-            widget.add_query_param(key, value)
-
-        # Set the string used to represent a null option
-        if self.null_option is not None:
-            attrs["data-null-option"] = self.null_option
-
-        # Set the disabled indicator
-        if self.disabled_indicator is not None:
-            attrs["disabled-indicator"] = self.disabled_indicator
-
-        return attrs
-
 
 class DynamicModelChoiceField(DynamicModelChoiceMixin, forms.ModelChoiceField):
     """
