@@ -796,7 +796,6 @@ FILTER_DICT = {
     "shared_ixps": shared_ixps,
     "missing_sessions": missing_sessions,
     "prefix_list": prefix_list,
-    "direct_sessions": direct_sessions,
     # BGP groups
     "local_ips": local_ips,
     # BGP sessions

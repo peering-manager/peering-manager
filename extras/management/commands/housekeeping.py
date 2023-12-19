@@ -140,7 +140,7 @@ class Command(BaseCommand):
                 self.stdout.write(f"    Request error: {e}", self.style.ERROR)
         else:
             if options["verbosity"]:
-                self.stdout.write(f"    Skipping: RELEASE_CHECK_URL not set")
+                self.stdout.write("    Skipping: RELEASE_CHECK_URL not set")
 
         if options["verbosity"]:
             self.stdout.write("Finished.", self.style.SUCCESS)

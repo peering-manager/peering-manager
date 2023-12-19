@@ -172,20 +172,6 @@ class TagViewSet(PeeringManagerModelViewSet):
     filterset_class = TagFilterSet
 
 
-class ObjectChangeViewSet(PeeringManagerModelViewSet):
-    queryset = ObjectChange.objects.all()
-    serializer_class = ObjectChangeSerializer
-    filterset_class = ObjectChangeFilterSet
-
-
-class TagViewSet(PeeringManagerModelViewSet):
-    queryset = Tag.objects.annotate(
-        tagged_items=Count("extras_taggeditem_items", distinct=True)
-    )
-    serializer_class = TagSerializer
-    filterset_class = TagFilterSet
-
-
 class WebhookViewSet(PeeringManagerModelViewSet):
     queryset = Webhook.objects.all()
     serializer_class = WebhookSerializer

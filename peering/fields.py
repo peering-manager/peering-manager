@@ -1,4 +1,4 @@
-from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from .constants import ASN_MAX, ASN_MIN, TTL_MAX, TTL_MIN

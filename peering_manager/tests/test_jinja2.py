@@ -288,9 +288,6 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(100, FILTER_DICT["max_prefix"](self.session6))
         self.assertEqual(0, FILTER_DICT["max_prefix"](self.session4))
 
-    def test_cisco_password(self):
-        pass
-
     def test_filter(self):
         sessions = InternetExchangePeeringSession.objects.all()
         filtered = FILTER_DICT["filter"](sessions, ip_address__family=6)

@@ -16,7 +16,6 @@ from utils.api import get_serializer_for_model
 __all__ = (
     "BriefModeMixin",
     "BulkUpdateModelMixin",
-    "CustomFieldsMixin",
     "ExportTemplatesMixin",
     "BulkDestroyModelMixin",
     "ObjectValidationMixin",

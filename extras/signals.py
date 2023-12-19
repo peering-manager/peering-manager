@@ -4,7 +4,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import Signal, receiver
 from django_prometheus.models import model_deletes, model_inserts, model_updates
-from prometheus_client import Counter
 
 from peering_manager.context import current_request, webhooks_queue
 

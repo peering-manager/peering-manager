@@ -96,7 +96,7 @@ class UserTestCase(ViewTestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-    def test_user_token_edit_view(self):
+    def test_user_token_delete_view(self):
         response = self.client.get(
             reverse("users:token_delete", kwargs={"pk": self.token.pk})
         )
