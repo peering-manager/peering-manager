@@ -41,6 +41,12 @@ class Migration(migrations.Migration):
                 napalm_driver="ios",
                 password_algorithm="cisco-type7",
             ),
+            Platform(
+                name="Nokia SR OS",
+                slug="nokia-sros",
+                napalm_driver="sros",
+                password_algorithm="nokia-bcrypt",
+            ),
         ]
         Platform.objects.using(db_alias).bulk_create(platforms)
 
@@ -94,6 +100,7 @@ class Migration(migrations.Migration):
                         choices=[
                             ("cisco-type7", "Cisco Type 7"),
                             ("juniper-type9", "Juniper Type 9"),
+                            ("nokia-bcrypt", "Nokia bcrypt"),
                         ],
                         help_text="Algorithm to cipher password in configuration",
                         max_length=16,
