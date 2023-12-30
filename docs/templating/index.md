@@ -50,3 +50,4 @@ and to change them at your convenience.
 * [Cisco IOS from template tutorial](examples/tutorial-cisco-ios.md)
 * [Arista EOS](examples/arista-eos.md)
 * [Peering Request E-mail](examples/peering-request-email.md)
+* [New Network E-mail](examples/new-network-email.md)

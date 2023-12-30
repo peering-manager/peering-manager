@@ -140,15 +140,17 @@ class AutonomousSystemFilterForm(PeeringManagerModelFilterSetForm):
 
 
 class AutonomousSystemEmailForm(BootstrapMixin, forms.Form):
-    email = DynamicModelChoiceField(required=False, queryset=Email.objects.all())
+    email = DynamicModelChoiceField(
+        required=False, queryset=Email.objects.all(), label="Template"
+    )
     recipient = forms.MultipleChoiceField(
-        widget=StaticSelectMultiple, label="E-mail recipient"
+        widget=StaticSelectMultiple, label="Recipients"
     )
     cc = forms.MultipleChoiceField(
-        widget=StaticSelectMultiple, label="E-mail CC", required=False
+        widget=StaticSelectMultiple, label="Carbon copy", required=False
     )
-    subject = forms.CharField(label="E-mail subject")
-    body = TextareaField(label="E-mail body")
+    subject = forms.CharField(label="Subject")
+    body = TextareaField(label="Body")
 
 
 class BGPGroupForm(PeeringManagerModelForm):

@@ -1,0 +1,78 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% load form_helpers %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">{% block title %}Email Network{% endblock %}</li>
+{% endblock %}
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  {% for field in form.hidden_fields %}
+  {{ field }}
+  {% endfor %}
+  <div class="row justify-content-center">
+    <div class="col-8">
+      {% if form.non_field_errors %}
+      <div class="card bg-danger text-white my-2">
+        <div class="card-header"><strong>Errors</strong></div>
+        <div class="card-body">
+          {{ form.non_field_errors }}
+        </div>
+      </div>
+      {% endif %}
+      {% block form %}
+      <div class="card my-2">
+        <div class="card-header"><strong>Network</strong></div>
+        <div class="card-body">
+          {% render_field form.affiliated %}
+          {% render_field form.network %}
+          {% render_field form.recipients %}
+          {% render_field form.cc %}
+        </div>
+      </div>
+      <div class="card my-2">
+        <div class="card-header"><strong>E-mail</strong></div>
+        <div class="card-body">
+          {% render_field form.email %}
+          {% render_field form.subject %}
+          {% render_field form.body %}
+        </div>
+      </div>
+      {% endblock %}
+    </div>
+  </div>
+  <div class="row justify-content-center">
+    <div class="col-8 text-right">
+      <button type="submit" class="btn btn-primary">Send</button>
+    </div>
+  </div>
+</form>
+{% endblock %}
+{% block javascript %}
+<script>
+  function renderEmail() {
+    var affiliated = $('#id_affiliated').select2('data')[0].id;
+    var network = $('#id_network').select2('data')[0].id;
+    var email = $('#id_email').select2('data')[0].id;
+
+    if (!affiliated || !network || !email) {
+      return;
+    }
+
+    $.ajax({
+      method: 'post',
+      url: "{% url 'peeringdb-api:network-render-email' %}",
+      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+      data: { 'email': email, 'autonomous_system': affiliated, 'network': network },
+    }).done(function(response) {
+      $('#id_subject').val(response['subject']);
+      $('#id_body').val(response['body']);
+    });
+  }
+
+  const selections = ['#id_email', '#id_affiliated', '#id_network'];
+  selections.forEach((select) => $(select).on('select2:select', function() {
+    renderEmail();
+  }));
+</script>
+{% endblock %}

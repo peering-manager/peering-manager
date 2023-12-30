@@ -84,7 +84,8 @@ nav:
             - Cisco IOS-XR from tutorial: "templating/examples/tutorial-cisco-iosxr.md"
             - Cisco IOS from tutorial: "templating/examples/tutorial-cisco-ios.md"
             - Juniper Junos OS: "templating/examples/juniper-junos.md"
-            - Peering Request E-Mail: "templating/examples/peering-request-email.md"
+            - Peering Request E-mail: "templating/examples/peering-request-email.md"
+            - New Network E-mail: "templating/examples/new-network-email.md"
     - Integration: "integration.md"
     - Development:
         - Getting Started: "development/getting-started.md"

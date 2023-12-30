@@ -3,7 +3,6 @@ import ipaddress
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.db import models
-from django.forms import MultipleChoiceField
 from netfields import CidrAddressField, InetAddressField, MACAddressField
 
 from peering.fields import ASNField
@@ -362,6 +361,12 @@ class Network(models.Model):
 
     def __str__(self):
         return f"AS{self.asn} - {self.name}"
+
+    def render_email(self, email, network):
+        """
+        Renders an e-mail from a template.
+        """
+        return email.render({"autonomous_systems": [network, self]})
 
 
 class InternetExchange(models.Model):

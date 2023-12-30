@@ -13,6 +13,7 @@ __all__ = (
     "ContactRoleSerializer",
     "ContactAssignmentSerializer",
     "EmailSerializer",
+    "EmailSendingSerializer",
 )
 
 
@@ -96,3 +97,9 @@ class EmailSerializer(PeeringManagerModelSerializer):
             "created",
             "updated",
         ]
+
+
+class EmailSendingSerializer(serializers.Serializer):
+    email = serializers.IntegerField()
+    autonomous_system = serializers.IntegerField(required=False)
+    network = serializers.IntegerField(required=False)

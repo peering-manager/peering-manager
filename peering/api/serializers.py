@@ -27,7 +27,6 @@ from .nested_serializers import *
 
 __all__ = (
     "AutonomousSystemSerializer",
-    "AutonomousSystemGenerateEmailSerializer",
     "BGPGroupSerializer",
     "CommunitySerializer",
     "DirectPeeringSessionSerializer",
@@ -91,10 +90,6 @@ class AutonomousSystemSerializer(PeeringManagerModelSerializer):
             "created",
             "updated",
         ]
-
-
-class AutonomousSystemGenerateEmailSerializer(serializers.Serializer):
-    email = serializers.IntegerField()
 
 
 class BGPGroupSerializer(PeeringManagerModelSerializer):
