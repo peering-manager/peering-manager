@@ -98,6 +98,9 @@ nav:
       - Juniper Junos OS: "templating/examples/juniper-junos.md"
       - Peering Request E-Mail: "templating/examples/peering-request-email.md"
       - New Network E-mail: "templating/examples/new-network-email.md"
+  - References:
+    - Conditions: "reference/conditions.md"
+    - Filtering: "reference/filtering.md"
     - Data Model:
       - Devices:
         - Configuration: "models/devices/configuration.md"
@@ -126,9 +129,6 @@ nav:
         - Tag: "models/extras/tag.md"
         - Webhook: "models/extras/webhook.md"
       - Token: "models/users/token.md"
-  - References:
-    - Conditions: "reference/conditions.md"
-    - Filtering: "reference/filtering.md"
   - Development:
     - Getting Started: "development/getting-started.md"
     - Style Guide: "development/style-guide.md"
