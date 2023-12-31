@@ -97,6 +97,7 @@ nav:
       - Cisco IOS from tutorial: "templating/examples/tutorial-cisco-ios.md"
       - Juniper Junos OS: "templating/examples/juniper-junos.md"
       - Peering Request E-Mail: "templating/examples/peering-request-email.md"
+      - New Network E-mail: "templating/examples/new-network-email.md"
     - Data Model:
       - Devices:
         - Configuration: "models/devices/configuration.md"
