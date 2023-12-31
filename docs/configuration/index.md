@@ -6,7 +6,7 @@ Peering Manager's configuration file contains all the important parameters
 which control how Peering Manager functions: database settings, security
 controls, and so on. While the default configuration suffices out of the box
 for most use cases, there are a few 
-required parameters](./required-parameters.md) which **must** be defined
+[required parameters](./required-parameters.md) which **must** be defined
 during installation. 
 
 The configuration file is loaded from
