@@ -308,7 +308,7 @@ Vary: Accept
 ```
 
 The default page is determined by the
-[`PAGINATE_COUNT`](../configuration/miscellaneous.md.md#paginate_count)
+[`PAGINATE_COUNT`](../configuration/miscellaneous.md#paginate_count)
 configuration parameter, which defaults to 50. However, this can be overridden
 per request by specifying the desired `offset` and `limit` query parameters.
 For example, if you wish to retrieve a hundred devices at a time, you would
