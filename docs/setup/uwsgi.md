@@ -1,19 +1,20 @@
 # uWSGI
-As an alternative to gunicorn, you can also use [uWSGI](https://uwsgi-docs.readthedocs.io/)
-as application server which is considered to be better than gunicorn by some
-community members.
+
+!!! warning
+    The uWSGI is now a maintenance-only project. No new features are expected
+    to be delivered, only bug fixes.
 
 ## Installation
 
 === "CentOS 7&8"
-	```no-highlight
-	# yum install mod_proxy_uwsgi
-	```
+    ```no-highlight
+    # yum install mod_proxy_uwsgi
+    ```
 
-=== "Debian 10 / 11"
-	```no-highlight
-	# a2enmod proxy_uwsgi
-	```
+=== "Debian 11 / 12"
+    ```no-highlight
+    # a2enmod proxy_uwsgi
+    ```
 
 In your Peering Manager folder (usually `/opt/peering-manager`), run the
 following command:
@@ -62,23 +63,24 @@ WantedBy=multi-user.target
 For uWSGI to work, you also have to adjust your webserver configuration with the following snippets.
 
 === "nginx"
-	```no-highlight
-	upstream django {
-		server unix:///run/peering-manager/peering-manager.sock;
-	}
-	server {
-		location /pm {
-			include /etc/nginx/uwsgi_params;
-			uwsgi_pass django;
-		}
-	}
-	```
+    ```no-highlight
+    upstream django {
+        server unix:///run/peering-manager/peering-manager.sock;
+    }
+    server {
+        location /pm {
+            include /etc/nginx/uwsgi_params;
+            uwsgi_pass django;
+        }
+    }
+    ```
 
 === "Apache"
-	Simply replace the proxy URL with `unix:/run/peering-manager/peering-manager.sock|uwsgi://peering-manager/`
-	and load the required module with `LoadModule proxy_uwsgi_module modules/mod_proxy_uwsgi.so`
-	when on CentOS.
+    Simply replace the proxy URL with `unix:/run/peering-manager/peering-manager.sock|uwsgi://peering-manager/`
+    and load the required module with `LoadModule proxy_uwsgi_module modules/mod_proxy_uwsgi.so`
+    when on CentOS.
 
-## Further tweaking
+## Further Tweaking
+
 If you have to handle more requests, you can increase the process or thread count.
 There are a lot more options, please see the uWSGI documentation for more.

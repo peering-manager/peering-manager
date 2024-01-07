@@ -51,12 +51,3 @@ You can help this project in many ways. Of course you can ask for features,
 give some ideas for future development, open issues if you found any and
 contribute to the code with pull requests and patches. You can also support the
 development of this project by donating some coins.
-
-### Spreading The Word
-
-* [RIPE76 Peering Manager - Easing Peering Sessions Management](https://ripe76.ripe.net/archives/video/13/) by Guillaume Mazoyer (English)
-* [FRnOG32 Peering Automation and Documentation](https://www.dailymotion.com/video/x756n1e?playlist=x6c4hk) by Guillaume Mazoyer (French)
-* [LUNOG2 A better Internet thanks to peering and automation](https://drive.mazoyer.eu/index.php/s/3RiyrPQd3Tdwc96) by Guillaume Mazoyer (English)
-* [NetLdn16 Peering Manager - Your BGP Source Of Truth](https://drive.mazoyer.eu/s/EHj3pH87Pe55Rfa) by Guillaume Mazoyer (English)
-* [DE-CIX Tech Meeting 2021 - Keeping track of your BGP configuration](https://youtu.be/MoPr9ttIMwE) by Guillaume Mazoyer (English)
-* [RIPE84 An introduction to Peering Manager](https://ripe84.ripe.net/archives/video/790/) by Guillaume Mazoyer (English)

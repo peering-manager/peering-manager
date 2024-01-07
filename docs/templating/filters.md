@@ -1,9 +1,9 @@
 # Jinja2 Filters
 
-Peering Manager exposes functions and filters in additional to existing Jinja2
-provided ones. These filters are used to parse, transform, fetch values of
-known types. If they are not used as expected, template processing may result
-in failure or half rendered texts.
+Peering Manager exposes functions and filters in addition to existing Jinja2
+provided ones. These filters are used to parse, to transform or to fetch
+values. If they are not used as expected, template processing may result in
+failure or half rendered texts.
 
 ## `include_configuration` / `include_email` / `include_exporttemplate`
 

@@ -11,7 +11,7 @@ can provide a compatible version.
 
 ## Installation
 
-=== "Debian 10 / 11"
+=== "Debian 11 / 12"
 	```no-highlight
 	# apt install redis-server
 	```
