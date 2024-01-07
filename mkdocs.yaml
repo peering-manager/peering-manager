@@ -46,8 +46,9 @@ markdown_extensions:
   - footnotes
 
 nav:
-  - Introduction: "index.md"
+  - Introduction: "introduction.md"
   - Installation & Upgrade:
+    - "setup/index.md"
     - 1. PostgreSQL: "setup/1-postgresql.md"
     - 2. Redis: "setup/2-redis.md"
     - 3. Peering Manager: "setup/3-peering-manager.md"
