@@ -5,4 +5,4 @@ class CoreConfig(AppConfig):
     name = "core"
 
     def ready(self):
-        from core.api import schema
+        from core.api import schema  # noqa: F401

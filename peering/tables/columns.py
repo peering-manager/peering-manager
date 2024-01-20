@@ -14,7 +14,7 @@ class BGPSessionStateColumn(tables.TemplateColumn):
             default=default,
             verbose_name=verbose_name,
             template_code=template_code,
-            **kwargs
+            **kwargs,
         )
 
 
@@ -25,5 +25,5 @@ class RoutingPolicyColumn(tables.ManyToManyColumn):
             default=mark_safe('<span class="text-muted">&mdash;</span>'),
             separator=" ",
             transform=lambda p: p.get_type_html(display_name=True),
-            **kwargs
+            **kwargs,
         )

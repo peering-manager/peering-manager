@@ -49,7 +49,8 @@ class PeeringManagerModelBulkEditForm(BootstrapMixin, forms.Form):
     nullable_fields = ()
 
     pk = forms.ModelMultipleChoiceField(
-        queryset=None, widget=forms.MultipleHiddenInput  # Set from self.model on init
+        queryset=None,
+        widget=forms.MultipleHiddenInput,  # Set from self.model on init
     )
     add_tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(), required=False
