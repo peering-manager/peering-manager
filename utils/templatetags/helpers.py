@@ -42,7 +42,7 @@ def status_as_badge(value):
 def as_link(value):
     if not hasattr(value, "get_absolute_url"):
         return value
-    return mark_safe(f'<a href="{value.get_absolute_url()}">{value}</a>')
+    return mark_safe(f'<a href="{value.get_absolute_url()}">{escape(value)}</a>')
 
 
 @register.filter()
