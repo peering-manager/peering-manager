@@ -1539,7 +1539,7 @@ class Router(PrimaryModel):
         Finds and returns a single BGP neighbor amongst others.
         """
         # NAPALM dict expected
-        if type(bgp_neighbors) is not dict:
+        if not isinstance(bgp_neighbors, dict):
             return None
 
         # Make sure to use an IP object

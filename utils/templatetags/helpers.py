@@ -240,7 +240,7 @@ def date_span(date_value):
     if not date_value:
         return ""
 
-    if type(date_value) is str:
+    if isinstance(date_value, str):
         date_value = datetime.datetime.strptime(date_value, "%Y-%m-%d").date()
 
     if type(date_value) is datetime.date:

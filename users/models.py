@@ -76,7 +76,7 @@ class UserPreferences(models.Model):
             r = {}
             for k, v in d.items():
                 key = separator.join([prefix, k]) if prefix else k
-                if type(v) == dict:
+                if isinstance(v, dict):
                     r.update(flatten(v, prefix=key))
                 else:
                     r[key] = v
@@ -94,7 +94,7 @@ class UserPreferences(models.Model):
         keys = path.split(separator)
 
         for key in keys:
-            if type(data) == dict and key in data:
+            if isinstance(data, dict) and key in data:
                 # Step by step down the dicts
                 data = data.get(key)
             else:
@@ -120,7 +120,7 @@ class UserPreferences(models.Model):
 
         # Look only for categories for now, excluding the name of the value
         for i, key in enumerate(keys[:-1]):
-            if key in data and type(data[key]) == dict:
+            if key in data and isinstance(data[key], dict):
                 # Step by step down the dicts
                 data = data[key]
             elif key in data:
@@ -132,7 +132,7 @@ class UserPreferences(models.Model):
 
         # Now set the actual value of the preference
         key = keys[-1]
-        if key in data and type(data[key]) == dict:
+        if key in data and isinstance(data[key], dict):
             raise TypeError(
                 f"'{path}' is a category, it cannot be converted to a value."
             )
@@ -155,7 +155,7 @@ class UserPreferences(models.Model):
         for i, key in enumerate(keys[:-1]):
             if key not in data:
                 break
-            if type(data[key]) == dict:
+            if isinstance(data[key], dict):
                 # Step by step down the dicts
                 data = data[key]
 
