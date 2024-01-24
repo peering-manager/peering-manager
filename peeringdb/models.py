@@ -16,6 +16,7 @@ from .enums import (
     LocationsPolicy,
     Media,
     NetType,
+    NetTypeMultiChoice,
     POCRole,
     Property,
     Protocol,
@@ -314,6 +315,9 @@ class Network(models.Model):
     )
     info_scope = models.CharField(
         max_length=39, blank=True, choices=Scope.choices, default=Scope.NOT_DISCLOSED
+    )
+    info_types = MultipleChoiceField(
+        max_length=255, null=True, blank=True, choices=NetTypeMultiChoice.choices
     )
     info_type = models.CharField(
         max_length=60,

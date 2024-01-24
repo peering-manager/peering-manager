@@ -14,6 +14,7 @@ from messaging.models import Email
 from peering.models import AutonomousSystem
 
 from ..filtersets import (
+    CampusFilterSet,
     FacilityFilterSet,
     InternetExchangeFacilityFilterSet,
     InternetExchangeFilterSet,
@@ -45,6 +46,7 @@ from ..models import (
 )
 from ..sync import PeeringDB
 from .serializers import (
+    CampusSerializer,
     FacilitySerializer,
     InternetExchangeFacilitySerializer,
     InternetExchangeSerializer,
@@ -123,6 +125,12 @@ class CacheViewSet(ViewSet):
     def clear_local(self, request):
         PeeringDB().clear_local_database()
         return Response({"status": "success"})
+
+
+class CampusViewSet(ReadOnlyModelViewSet):
+    queryset = Campus.objects.all()
+    serializer_class = CampusSerializer
+    filterset_class = CampusFilterSet
 
 
 class FacilityViewSet(ReadOnlyModelViewSet):

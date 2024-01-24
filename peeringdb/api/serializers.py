@@ -6,6 +6,7 @@ from peering_manager.api.fields import ChoiceField
 
 from ..enums import Visibility
 from ..models import (
+    Campus,
     Facility,
     InternetExchange,
     InternetExchangeFacility,
@@ -41,6 +42,14 @@ class OrganizationSerializer(serializers.ModelSerializer):
             "website",
             "notes",
         ]
+
+
+class CampusSerializer(serializers.ModelSerializer):
+    org = OrganizationSerializer()
+
+    class Meta:
+        model = Campus
+        fields = ["name", "name_long", "aka", "website", "social_media", "notes", "org"]
 
 
 class InternetExchangeSerializer(serializers.ModelSerializer):
@@ -179,6 +188,7 @@ class NetworkSerializer(serializers.ModelSerializer):
             "info_ratio",
             "info_scope",
             "info_type",
+            "info_types",
             "info_prefixes4",
             "info_prefixes6",
             "info_unicast",
