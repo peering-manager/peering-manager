@@ -3,6 +3,12 @@
 Peering Manager comes with a built-in templating feature. This feature can be
 used to generate configuration for routers as well as e-mails.
 
+!!! warning
+    Even though Peering Manager uses a sandboxed environment to run Jinja2
+    logic, the language is powerful enough to do things that can potentially
+    leak confidential details or even harm the machine. Be extremely careful
+    when using code from someone else.
+
 ## Jinja2
 
 The templating feature is based on
