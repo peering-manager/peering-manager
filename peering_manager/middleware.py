@@ -41,9 +41,9 @@ class CoreMiddleware:
             and request.path_info != settings.LOGIN_URL
             and request.META["QUERY_STRING"]
         ):
-            request.session[
-                "last_search"
-            ] = f"{request.path_info}?{request.META['QUERY_STRING']}"
+            request.session["last_search"] = (
+                f"{request.path_info}?{request.META['QUERY_STRING']}"
+            )
 
         # Enable the change_logging context manager and process the request.
         with change_logging(request):

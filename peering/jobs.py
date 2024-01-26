@@ -124,9 +124,11 @@ def set_napalm_configuration(router, commit, job):
     else:
         job.set_output(changes)
         job.mark_completed(
-            "Configuration installed."
-            if commit
-            else "Configuration differences found.",
+            (
+                "Configuration installed."
+                if commit
+                else "Configuration differences found."
+            ),
             object=router,
             logger=logger,
         )

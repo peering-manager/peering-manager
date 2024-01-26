@@ -318,9 +318,11 @@ class RouterTest(TestCase):
                 bgp_group=bgp_group,
                 relationship=relationship_private_peering,
                 ip_address=f"10.0.0.{i}",
-                status=BGPSessionStatus.ENABLED
-                if bool(i % 2)
-                else BGPSessionStatus.DISABLED,
+                status=(
+                    BGPSessionStatus.ENABLED
+                    if bool(i % 2)
+                    else BGPSessionStatus.DISABLED
+                ),
                 router=self.router,
             )
         ixp = InternetExchange.objects.create(
@@ -334,17 +336,21 @@ class RouterTest(TestCase):
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
                 ixp_connection=ixp_connection,
                 ip_address=f"2001:db8::{i}",
-                status=BGPSessionStatus.ENABLED
-                if bool(i % 2)
-                else BGPSessionStatus.DISABLED,
+                status=(
+                    BGPSessionStatus.ENABLED
+                    if bool(i % 2)
+                    else BGPSessionStatus.DISABLED
+                ),
             )
             InternetExchangePeeringSession.objects.create(
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
                 ixp_connection=ixp_connection,
                 ip_address=f"192.0.2.{i}",
-                status=BGPSessionStatus.ENABLED
-                if bool(i % 2)
-                else BGPSessionStatus.DISABLED,
+                status=(
+                    BGPSessionStatus.ENABLED
+                    if bool(i % 2)
+                    else BGPSessionStatus.DISABLED
+                ),
             )
 
         # Generate expected result

@@ -301,9 +301,9 @@ class DirectPeeringSessionViewSet(PeeringManagerModelViewSet):
 
         success = self.get_object().encrypt_password(commit=True)
         return Response(
-            status=status.HTTP_200_OK
-            if success
-            else status.HTTP_503_SERVICE_UNAVAILABLE
+            status=(
+                status.HTTP_200_OK if success else status.HTTP_503_SERVICE_UNAVAILABLE
+            )
         )
 
     @extend_schema(
@@ -335,9 +335,9 @@ class DirectPeeringSessionViewSet(PeeringManagerModelViewSet):
 
         success = self.get_object().poll()
         return Response(
-            status=status.HTTP_200_OK
-            if success
-            else status.HTTP_503_SERVICE_UNAVAILABLE
+            status=(
+                status.HTTP_200_OK if success else status.HTTP_503_SERVICE_UNAVAILABLE
+            )
         )
 
 
@@ -374,9 +374,11 @@ class InternetExchangeViewSet(PeeringManagerModelViewSet):
 
         ixlan = self.get_object().link_to_peeringdb()
         return Response(
-            status=status.HTTP_200_OK
-            if ixlan is not None
-            else status.HTTP_503_SERVICE_UNAVAILABLE
+            status=(
+                status.HTTP_200_OK
+                if ixlan is not None
+                else status.HTTP_503_SERVICE_UNAVAILABLE
+            )
         )
 
     @extend_schema(
@@ -537,9 +539,9 @@ class InternetExchangePeeringSessionViewSet(PeeringManagerModelViewSet):
 
         success = self.get_object().encrypt_password(commit=True)
         return Response(
-            status=status.HTTP_200_OK
-            if success
-            else status.HTTP_503_SERVICE_UNAVAILABLE
+            status=(
+                status.HTTP_200_OK if success else status.HTTP_503_SERVICE_UNAVAILABLE
+            )
         )
 
     @extend_schema(
@@ -571,9 +573,9 @@ class InternetExchangePeeringSessionViewSet(PeeringManagerModelViewSet):
 
         success = self.get_object().poll()
         return Response(
-            status=status.HTTP_200_OK
-            if success
-            else status.HTTP_503_SERVICE_UNAVAILABLE
+            status=(
+                status.HTTP_200_OK if success else status.HTTP_503_SERVICE_UNAVAILABLE
+            )
         )
 
 
