@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 from django.conf import settings
 from django.contrib.auth.mixins import (
     PermissionRequiredMixin as _PermissionRequiredMixin,
@@ -37,9 +39,9 @@ class GetReturnURLMixin:
 
     def get_return_url(self, request, instance=None):
         # Check if `return_url` was specified as a query parameter or form
-        # data, use this URL only if it's safe
+        # data, use this URL only if it's not absolute
         return_url = request.GET.get("return_url") or request.POST.get("return_url")
-        if return_url and return_url.startswith("/"):
+        if return_url and not bool(urlparse(return_url).netloc):
             return return_url
 
         # Check if the object being modified (if any) has an absolute URL
