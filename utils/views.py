@@ -7,8 +7,6 @@ from django.contrib.auth.mixins import (
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 
-from peering_manager.registry import registry
-
 __all__ = ("PermissionRequiredMixin", "GetReturnURLMixin")
 
 
@@ -37,11 +35,17 @@ class GetReturnURLMixin:
 
     default_return_url = None
 
+    @staticmethod
+    def is_relative_url(url):
+        is_absolute = bool(urlparse(url).netloc)
+        count_leading_slash = len(url) - len(url.lstrip("/"))
+        return url and not is_absolute and count_leading_slash <= 1
+
     def get_return_url(self, request, instance=None):
         # Check if `return_url` was specified as a query parameter or form
         # data, use this URL only if it's not absolute
         return_url = request.GET.get("return_url") or request.POST.get("return_url")
-        if return_url and not bool(urlparse(return_url).netloc):
+        if return_url and self.is_relative_url(return_url):
             return return_url
 
         # Check if the object being modified (if any) has an absolute URL
