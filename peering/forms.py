@@ -872,14 +872,13 @@ class RouterForm(PeeringManagerModelForm):
                 "poll_bgp_sessions_state",
                 "configuration_template",
                 "local_autonomous_system",
-                "use_netbox",
                 "netbox_device_id",
+                "use_netbox",
             ),
         ),
         ("Management", ("platform", "status")),
         (
             "NAPALM",
-            # "use_netbox"
             ("napalm_username", "napalm_password", "napalm_timeout", "napalm_args"),
         ),
         ("Config Context", ("local_context_data",)),
