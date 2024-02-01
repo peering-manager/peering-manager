@@ -11,7 +11,7 @@ other whitespace (spaces, tabs, newlines etc.) is returned unchanged. You can
 tweak this behavior by enabling/disabling the trim and lstrip options.
 
 Examples of configuration are provided in the Peering Manager's
-[documentation](../../../templating).
+[documentation](../../templating/index.md).
 
 For each configuration that you create, the following properties can be
 configured (n.b. some are optional):

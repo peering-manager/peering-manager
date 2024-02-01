@@ -27,9 +27,9 @@ def serialize_for_webhook(instance):
 def get_snapshots(instance, action):
     return {
         "prechange": getattr(instance, "_prechange_snapshot", None),
-        "postchange": serialize_object(instance)
-        if action != ObjectChangeAction.DELETE
-        else None,
+        "postchange": (
+            serialize_object(instance) if action != ObjectChangeAction.DELETE else None
+        ),
     }
 
 

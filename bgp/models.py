@@ -1,4 +1,5 @@
 from django.urls import reverse
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from peering_manager.models import OrganisationalModel
@@ -17,5 +18,5 @@ class Relationship(OrganisationalModel):
 
     def get_html(self):
         return mark_safe(
-            f'<span class="badge" style="color: {foreground_colour(self.color)}; background-color: #{self.color}">{self.name}</span>'
+            f'<span class="badge" style="color: {foreground_colour(self.color)}; background-color: #{self.color}">{escape(self.name)}</span>'
         )

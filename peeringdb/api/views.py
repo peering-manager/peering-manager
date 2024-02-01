@@ -1,5 +1,5 @@
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
@@ -9,8 +9,12 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 
 from core.api.serializers import JobSerializer
 from core.models import Job
+from messaging.api.serializers import EmailSendingSerializer
+from messaging.models import Email
+from peering.models import AutonomousSystem
 
 from ..filtersets import (
+    CampusFilterSet,
     FacilityFilterSet,
     InternetExchangeFacilityFilterSet,
     InternetExchangeFilterSet,
@@ -42,6 +46,7 @@ from ..models import (
 )
 from ..sync import PeeringDB
 from .serializers import (
+    CampusSerializer,
     FacilitySerializer,
     InternetExchangeFacilitySerializer,
     InternetExchangeSerializer,
@@ -78,12 +83,12 @@ class CacheViewSet(ViewSet):
             {
                 "campus-count": Campus.objects.count(),
                 "carrier-count": Carrier.objects.count(),
-                "carrierfac": CarrierFacility.objects.count(),
+                "carrierfac-count": CarrierFacility.objects.count(),
                 "fac-count": Facility.objects.count(),
                 "ix-count": InternetExchange.objects.count(),
                 "ixfac-count": InternetExchangeFacility.objects.count(),
                 "ixlan-count": IXLan.objects.count(),
-                "ixlanpfx-count": IXLanPrefix.objects.count(),
+                "ixpfx-count": IXLanPrefix.objects.count(),
                 "net-count": Network.objects.count(),
                 "poc-count": NetworkContact.objects.count(),
                 "netfac-count": NetworkFacility.objects.count(),
@@ -122,6 +127,12 @@ class CacheViewSet(ViewSet):
         return Response({"status": "success"})
 
 
+class CampusViewSet(ReadOnlyModelViewSet):
+    queryset = Campus.objects.all()
+    serializer_class = CampusSerializer
+    filterset_class = CampusFilterSet
+
+
 class FacilityViewSet(ReadOnlyModelViewSet):
     queryset = Facility.objects.all()
     serializer_class = FacilitySerializer
@@ -156,6 +167,35 @@ class NetworkViewSet(ReadOnlyModelViewSet):
     queryset = Network.objects.all()
     serializer_class = NetworkSerializer
     filterset_class = NetworkFilterSet
+
+    @extend_schema(
+        operation_id="peeringdb_networks_render_email",
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.OBJECT, description="Renders the e-mail template."
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The network or e-mail template does not exist.",
+            ),
+        },
+    )
+    @action(detail=False, methods=["post"], url_path="render-email")
+    def render_email(self, request, pk=None):
+        # Make sure request is valid
+        serializer = EmailSendingSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            template = Email.objects.get(pk=serializer.validated_data.get("email"))
+            autonomous_system = AutonomousSystem.objects.get(
+                pk=serializer.validated_data.get("autonomous_system")
+            )
+            network = Network.objects.get(pk=serializer.validated_data.get("network"))
+            rendered = network.render_email(template, autonomous_system)
+            return Response(data={"subject": rendered[0], "body": rendered[1]})
+        except Email.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class NetworkContactViewSet(ReadOnlyModelViewSet):

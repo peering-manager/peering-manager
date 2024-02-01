@@ -3,7 +3,6 @@ import ipaddress
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.db import models
-from django.forms import MultipleChoiceField
 from netfields import CidrAddressField, InetAddressField, MACAddressField
 
 from peering.fields import ASNField
@@ -17,6 +16,7 @@ from .enums import (
     LocationsPolicy,
     Media,
     NetType,
+    NetTypeMultiChoice,
     POCRole,
     Property,
     Protocol,
@@ -316,6 +316,9 @@ class Network(models.Model):
     info_scope = models.CharField(
         max_length=39, blank=True, choices=Scope.choices, default=Scope.NOT_DISCLOSED
     )
+    info_types = MultipleChoiceField(
+        max_length=255, null=True, blank=True, choices=NetTypeMultiChoice.choices
+    )
     info_type = models.CharField(
         max_length=60,
         blank=True,
@@ -362,6 +365,12 @@ class Network(models.Model):
 
     def __str__(self):
         return f"AS{self.asn} - {self.name}"
+
+    def render_email(self, email, network):
+        """
+        Renders an e-mail from a template.
+        """
+        return email.render({"autonomous_systems": [network, self]})
 
 
 class InternetExchange(models.Model):

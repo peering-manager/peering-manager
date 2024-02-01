@@ -131,6 +131,19 @@ class NetType(models.TextChoices):
     GOVERNMENT = "Government", "Government"
 
 
+class NetTypeMultiChoice(models.TextChoices):
+    NSP = "NSP", "NSP"
+    CONTENT = "Content", "Content"
+    CABLE_DSL_ISP = "Cable/DSL/ISP", "Cable/DSL/ISP"
+    ENTREPRISE = "Enterprise", "Enterprise"
+    EDUCATIONAL_RESEARCH = "Educational/Research", "Educational/Research"
+    NON_PROFIT = "Non-Profit", "Non-Profit"
+    ROUTE_SERVER = "Route Server", "Route Server"
+    NETWORK_SERVICES = "Network Services", "Network Services"
+    ROUTE_COLLECTOR = "Route Collector", "Route Collector"
+    GOVERNMENT = "Government", "Government"
+
+
 class Visibility(models.TextChoices):
     PRIVATE = "Private"
     USERS = "Users"
@@ -148,6 +161,7 @@ class AvailableVoltage(models.TextChoices):
     VAC_120 = "120 VAC", "120 VAC"
     VAC_208 = "208 VAC", "208 VAC"
     VAC_240 = "240 VAC", "240 VAC"
+    VAC_400 = "400 VAC", "400 VAC"
     VAC_480 = "480 VAC", "480 VAC"
 
 

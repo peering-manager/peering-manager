@@ -9,7 +9,7 @@ the most recent changes of the main branch with:
 ```no-highlight
 # cd /opt/peering-manager
 # git fetch
-# git checkout versionWanted
+# git checkout v1.8.2 # Replace by the version to use
 ```
 
 ## Run the Upgrade Script
@@ -22,22 +22,22 @@ are still correct after running the script.
 # ./scripts/upgrade.sh
 ```
 
-What does this script do?
+Here is a list of what this script does to perform the upgrade:
 
-* creates a Python virtual environment if none is found
-* installs or upgrades any new required Python dependencies
-* applies any database migrations when required
-* collects static files to be served over HTTP
-* remove stale content types
-* clear expired sessions
-* invalidate the cache to avoid getting out-dated data
+* Create a Python virtual environment if none is found
+* Install or upgrades any new required Python dependencies
+* Apply database migrations when required
+* Collect static files to be served over HTTP
+* Remove stale content types
+* Clear expired sessions
 
 ## Restart the WSGI Service
 
-The WSGI service needs to be restart in order to run the new code. Assuming
-that you are using **systemd** like in the setup guide, you can use the
-following command to restart **gunicorn**:
+The WSGI and RQ services need to be restart in order to run the new code.
+Assuming that you are using systemd like in the setup guide, you can use the
+following commands to restart both services:
 
 ```no-highlight
 # systemctl restart peering-manager
+# systemctl restart peering-manager-rqworker
 ```

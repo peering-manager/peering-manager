@@ -10,9 +10,10 @@ def render_jinja2(template, context, trim=False, lstrip=False):
     import traceback
 
     from django.conf import settings
-    from jinja2 import Environment, TemplateSyntaxError
+    from jinja2 import TemplateSyntaxError
+    from jinja2.sandbox import SandboxedEnvironment
 
-    environment = Environment(
+    environment = SandboxedEnvironment(
         loader=PeeringManagerLoader(), trim_blocks=trim, lstrip_blocks=lstrip
     )
     environment.add_extension(IncludeTemplateExtension)

@@ -6,6 +6,7 @@ router = PeeringManagerRouter()
 router.APIRootView = views.PeeringDBRootView
 
 router.register("cache", views.CacheViewSet, basename="cache")
+router.register("campuses", views.CampusViewSet)
 router.register("facilities", views.FacilityViewSet)
 router.register("internet-exchanges", views.InternetExchangeViewSet)
 router.register("internet-exchange-facilities", views.InternetExchangeFacilityViewSet)

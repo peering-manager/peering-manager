@@ -10,6 +10,7 @@ from rest_framework.routers import APIRootView
 from core.api.serializers import JobSerializer
 from core.models import Job
 from devices.models import Platform
+from messaging.api.serializers import EmailSendingSerializer
 from messaging.models import Email
 from peering_manager.api.exceptions import ServiceUnavailable
 from peering_manager.api.viewsets import PeeringManagerModelViewSet
@@ -44,7 +45,6 @@ from ..models import (
     RoutingPolicy,
 )
 from .serializers import (
-    AutonomousSystemGenerateEmailSerializer,
     AutonomousSystemSerializer,
     BGPGroupSerializer,
     CommunitySerializer,
@@ -189,8 +189,9 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
             ).data
         )
 
+    # TODO: Rename from generate to render in URL in next release
     @extend_schema(
-        operation_id="peering_autonomous_systems_generate_email",
+        operation_id="peering_autonomous_systems_render_email",
         responses={
             200: OpenApiResponse(
                 response=OpenApiTypes.OBJECT, description="Renders the e-mail template."
@@ -204,12 +205,12 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
     @action(detail=True, methods=["post"], url_path="generate-email")
     def generate_email(self, request, pk=None):
         # Make sure request is valid
-        serializer = AutonomousSystemGenerateEmailSerializer(data=request.data)
+        serializer = EmailSendingSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         try:
             template = Email.objects.get(pk=serializer.validated_data.get("email"))
-            rendered = self.get_object().generate_email(template)
+            rendered = self.get_object().render_email(template)
             return Response(data={"subject": rendered[0], "body": rendered[1]})
         except Email.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -300,9 +301,9 @@ class DirectPeeringSessionViewSet(PeeringManagerModelViewSet):
 
         success = self.get_object().encrypt_password(commit=True)
         return Response(
-            status=status.HTTP_200_OK
-            if success
-            else status.HTTP_503_SERVICE_UNAVAILABLE
+            status=(
+                status.HTTP_200_OK if success else status.HTTP_503_SERVICE_UNAVAILABLE
+            )
         )
 
     @extend_schema(
@@ -334,9 +335,9 @@ class DirectPeeringSessionViewSet(PeeringManagerModelViewSet):
 
         success = self.get_object().poll()
         return Response(
-            status=status.HTTP_200_OK
-            if success
-            else status.HTTP_503_SERVICE_UNAVAILABLE
+            status=(
+                status.HTTP_200_OK if success else status.HTTP_503_SERVICE_UNAVAILABLE
+            )
         )
 
 
@@ -373,9 +374,11 @@ class InternetExchangeViewSet(PeeringManagerModelViewSet):
 
         ixlan = self.get_object().link_to_peeringdb()
         return Response(
-            status=status.HTTP_200_OK
-            if ixlan is not None
-            else status.HTTP_503_SERVICE_UNAVAILABLE
+            status=(
+                status.HTTP_200_OK
+                if ixlan is not None
+                else status.HTTP_503_SERVICE_UNAVAILABLE
+            )
         )
 
     @extend_schema(
@@ -536,9 +539,9 @@ class InternetExchangePeeringSessionViewSet(PeeringManagerModelViewSet):
 
         success = self.get_object().encrypt_password(commit=True)
         return Response(
-            status=status.HTTP_200_OK
-            if success
-            else status.HTTP_503_SERVICE_UNAVAILABLE
+            status=(
+                status.HTTP_200_OK if success else status.HTTP_503_SERVICE_UNAVAILABLE
+            )
         )
 
     @extend_schema(
@@ -570,9 +573,9 @@ class InternetExchangePeeringSessionViewSet(PeeringManagerModelViewSet):
 
         success = self.get_object().poll()
         return Response(
-            status=status.HTTP_200_OK
-            if success
-            else status.HTTP_503_SERVICE_UNAVAILABLE
+            status=(
+                status.HTTP_200_OK if success else status.HTTP_503_SERVICE_UNAVAILABLE
+            )
         )
 
 

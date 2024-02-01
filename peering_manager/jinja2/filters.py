@@ -22,6 +22,8 @@ from peering.models import (
     Router,
 )
 from peering_manager.models.features import ConfigContextMixin, TagsMixin
+from peeringdb.functions import get_shared_facilities
+from peeringdb.models import Network
 from utils.functions import get_key_in_hash, serialize_object
 
 __all__ = ("FILTER_DICT",)
@@ -603,16 +605,42 @@ def ixp_peers(value, ixp=""):
 
 def ixps(value, other):
     """
-    Returns all IXPs on which both AS are peering together.
+    Returns all IXPs on which both autonomous systems are peering together.
     """
     return value.get_internet_exchange_points(other)
 
 
 def shared_ixps(value, other):
     """
-    Returns shared IXPs where both ASNs are present without a bilateral session.
+    Returns shared IXPs where both autonomous systems are present.
     """
-    return value.get_shared_internet_exchange_points(other)
+    if isinstance(value, AutonomousSystem):
+        return value.get_shared_internet_exchange_points(other)
+    if isinstance(other, AutonomousSystem):
+        return other.get_shared_internet_exchange_points(value)
+
+    raise ValueError("one of the values must be an autonomous system")
+
+
+def shared_facilities(value, other):
+    """
+    Returns shared facilities (according to PeeringDB) between two autonomous systems.
+    """
+    if isinstance(value, AutonomousSystem):
+        network_a = value.peeringdb_network
+    elif isinstance(value, Network):
+        network_a = value
+    else:
+        raise ValueError(f"{value} is not an autonomous system or a peeringdb network")
+
+    if isinstance(other, AutonomousSystem):
+        network_b = other.peeringdb_network
+    elif isinstance(other, Network):
+        network_b = other
+    else:
+        raise ValueError(f"{other} is not an autonomous system or a peeringdb network")
+
+    return get_shared_facilities(network_a, network_b)
 
 
 def missing_sessions(value, other, ixp=None):
@@ -794,6 +822,7 @@ FILTER_DICT = {
     # Autonomous system
     "ixps": ixps,
     "shared_ixps": shared_ixps,
+    "shared_facilities": shared_facilities,
     "missing_sessions": missing_sessions,
     "prefix_list": prefix_list,
     # BGP groups

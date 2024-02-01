@@ -154,9 +154,11 @@ class Job(models.Model):
                 timezone.now().isoformat(),
                 level_choice,
                 str(object) if object else None,
-                object.get_absolute_url()
-                if hasattr(object, "get_absolute_url")
-                else None,
+                (
+                    object.get_absolute_url()
+                    if hasattr(object, "get_absolute_url")
+                    else None
+                ),
                 str(message),
             ]
         )

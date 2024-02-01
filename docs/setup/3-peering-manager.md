@@ -7,20 +7,20 @@ code, and Python to run it. Peering Manager is mostly tested with Python
 version 3 (3.8 minimum) so we will setup the machine with this version.
 
 !!! attention
-	Note that your favourite distribution may not have Python's required
-	version packaged. In that case, the following commands are applicable.
-	Possible solutions are: using additional package repositories or
-	different packages like `python38` instead of `python3`.
+    Note that your favourite distribution may not have Python's required
+    version packaged. In that case, the following commands are applicable.
+    Possible solutions are: using additional package repositories or
+    different packages like `python38` instead of `python3`.
 
-=== "Debian 10 / 11"
-	```no-highlight
-	# apt install python3 python3-dev python3-venv python3-pip git vim
-	```
+=== "Debian 11 / 12"
+    ```no-highlight
+    # apt install python3 python3-dev python3-venv python3-pip git vim
+    ```
 
 === "CentOS 7 & 8"
-	```no-highlight
-	# yum install python3 git
-	```
+    ```no-highlight
+    # yum install python3 git
+    ```
 
 Select a base directory for the peering-manager installation.  ie: `/opt`
 
@@ -78,8 +78,8 @@ You can see all releases by running `git tag`, then check out the release by
 running `git checkout versionWanted`.
 
 !!! info "Development version"
-        If you are feeling adventurous, you can skip this step and stay on main,
-        the bleeding edge of development. But beware, things may break.
+    If you are feeling adventurous, you can skip this step and stay on main,
+    the bleeding edge of development. But beware, things may break.
 
 ## Create the Peering Manager User
 
@@ -132,7 +132,7 @@ file.
 
 Modify `configuration.py` according to your requirements.
 
-```no-highlight
+```python
 # allow any hosts
 ALLOWED_HOSTS = ['*']
 
@@ -237,113 +237,115 @@ Quit the server with CONTROL-C.
 ```
 
 ## Set up application server
-Before we can deliver Peering Manager with our web server of choice, we have to set up the application server.
+
+Before we can deliver Peering Manager with our web server of choice, we have
+to set up the application server.
 
 === "gunicorn"
-	Install **gunicorn** using **pip** inside the Python virtual environment.
-	```no-highlight
-	(venv) # echo 'gunicorn' >> local_requirements.txt
-	(venv) # pip3 install -r local_requirements.txt
-	```
+    Install **gunicorn** using **pip** inside the Python virtual environment.
+    ```no-highlight
+    (venv) # echo 'gunicorn' >> local_requirements.txt
+    (venv) # pip3 install -r local_requirements.txt
+    ```
 
-	Save the following configuration in the root of the Peering Manager
-	installation path as `gunicorn.py`. Be sure to verify the location of the
-	**gunicorn** executable on your server (e.g. `which gunicorn`) and to update
-	the pythonpath variable if needed. Note that some tasks such as importing
-	existing peering sessions or generating prefix lists can take a lot of time to
-	complete so setting a timeout greater than 30 seconds can be helpful.
+    Save the following configuration in the root of the Peering Manager
+    installation path as `gunicorn.py`. Be sure to verify the location of the
+    **gunicorn** executable on your server (e.g. `which gunicorn`) and to update
+    the pythonpath variable if needed. Note that some tasks such as importing
+    existing peering sessions or generating prefix lists can take a lot of time to
+    complete so setting a timeout greater than 30 seconds can be helpful.
 
-	!!! info "IPv6"
-		Replace `http://127.0.0.1:8001` with `http://[::1]:8001` if you have
-		configured gunicorn to listen on the IPv6 loopback address.
+    !!! info "IPv6"
+        Replace `http://127.0.0.1:8001` with `http://[::1]:8001` if you have
+        configured gunicorn to listen on the IPv6 loopback address.
 
-	```no-highlight
-	bind = '127.0.0.1:8001'
-	workers = 5
-	threads = 3
-	timeout = 300
-	max_requests = 5000
-	max_requests_jitter = 500
-	user = 'peering-manager'
-	```
+    ```no-highlight
+    bind = '127.0.0.1:8001'
+    workers = 5
+    threads = 3
+    timeout = 300
+    max_requests = 5000
+    max_requests_jitter = 500
+    user = 'peering-manager'
+    ```
 
-	We can test if the configuration is correct by running (note the _ instead of -
-	in the WSGI name):
-	```no-highlight
-	(venv) # ./venv/bin/gunicorn -c /opt/peering-manager/gunicorn.py peering_manager.wsgi
-	[2017-09-27 22:49:02 +0200] [7214] [INFO] Starting gunicorn 19.7.1
-	[2017-09-27 22:49:02 +0200] [7214] [INFO] Listening at: http://127.0.0.1:8001 (7214)
-	[2017-09-27 22:49:02 +0200] [7214] [INFO] Using worker: sync
-	[2017-09-27 22:49:02 +0200] [7217] [INFO] Booting worker with pid: 7217
-	[2017-09-27 22:49:02 +0200] [7219] [INFO] Booting worker with pid: 7219
-	[2017-09-27 22:49:02 +0200] [7220] [INFO] Booting worker with pid: 7220
-	[2017-09-27 22:49:03 +0200] [7222] [INFO] Booting worker with pid: 7222
-	```
+    We can test if the configuration is correct by running (note the _ instead of -
+    in the WSGI name):
+    ```no-highlight
+    (venv) # ./venv/bin/gunicorn -c /opt/peering-manager/gunicorn.py peering_manager.wsgi
+    [2017-09-27 22:49:02 +0200] [7214] [INFO] Starting gunicorn 19.7.1
+    [2017-09-27 22:49:02 +0200] [7214] [INFO] Listening at: http://127.0.0.1:8001 (7214)
+    [2017-09-27 22:49:02 +0200] [7214] [INFO] Using worker: sync
+    [2017-09-27 22:49:02 +0200] [7217] [INFO] Booting worker with pid: 7217
+    [2017-09-27 22:49:02 +0200] [7219] [INFO] Booting worker with pid: 7219
+    [2017-09-27 22:49:02 +0200] [7220] [INFO] Booting worker with pid: 7220
+    [2017-09-27 22:49:03 +0200] [7222] [INFO] Booting worker with pid: 7222
+    ```
 
-	Create a service file `/etc/systemd/system/peering-manager.service` and
-	set its content.
-	```no-highlight
-	[Unit]
-	Description=Peering Manager WSGI Service
-	Documentation=https://peering-manager.readthedocs.io/
-	After=network-online.target
-	Wants=network-online.target
+    Create a service file `/etc/systemd/system/peering-manager.service` and
+    set its content.
+    ```no-highlight
+    [Unit]
+    Description=Peering Manager WSGI Service
+    Documentation=https://peering-manager.readthedocs.io/
+    After=network-online.target
+    Wants=network-online.target
 
-	[Service]
-	Type=simple
+    [Service]
+    Type=simple
 
-	User=peering-manager
-	Group=peering-manager
-	PIDFile=/var/tmp/peering-manager.pid
-	WorkingDirectory=/opt/peering-manager
+    User=peering-manager
+    Group=peering-manager
+    PIDFile=/var/tmp/peering-manager.pid
+    WorkingDirectory=/opt/peering-manager
 
-	ExecStart=/opt/peering-manager/venv/bin/gunicorn --pid /var/tmp/peering-manager.pid --pythonpath /opt/peering-manager --config /opt/peering-manager/gunicorn.py peering_manager.wsgi
+    ExecStart=/opt/peering-manager/venv/bin/gunicorn --pid /var/tmp/peering-manager.pid --pythonpath /opt/peering-manager --config /opt/peering-manager/gunicorn.py peering_manager.wsgi
 
-	Restart=on-failure
-	RestartSec=30
-	PrivateTmp=true
+    Restart=on-failure
+    RestartSec=30
+    PrivateTmp=true
 
-	[Install]
-	WantedBy=multi-user.target
-	```
+    [Install]
+    WantedBy=multi-user.target
+    ```
 
-	Create another service file `/etc/systemd/system/peering-manager-rqworker@.service`
-	and set its content.
-	```no-highlight
-	[Unit]
-	Description=Peering Manager Request Queue Worker
-	Documentation=https://peering-manager.readthedocs.io/
-	After=network-online.target
-	Wants=network-online.target
+    Create another service file `/etc/systemd/system/peering-manager-rqworker@.service`
+    and set its content.
+    ```no-highlight
+    [Unit]
+    Description=Peering Manager Request Queue Worker
+    Documentation=https://peering-manager.readthedocs.io/
+    After=network-online.target
+    Wants=network-online.target
 
-	[Service]
-	Type=simple
+    [Service]
+    Type=simple
 
-	User=peering-manager
-	Group=peering-manager
-	WorkingDirectory=/opt/peering-manager
+    User=peering-manager
+    Group=peering-manager
+    WorkingDirectory=/opt/peering-manager
 
-	ExecStart=/opt/peering-manager/venv/bin/python3 /opt/peering-manager/manage.py rqworker
+    ExecStart=/opt/peering-manager/venv/bin/python3 /opt/peering-manager/manage.py rqworker
 
-	Restart=on-failure
-	RestartSec=30
-	PrivateTmp=true
+    Restart=on-failure
+    RestartSec=30
+    PrivateTmp=true
 
-	[Install]
-	WantedBy=multi-user.target
-	```
+    [Install]
+    WantedBy=multi-user.target
+    ```
 
-	Reload **systemd** to load the services, start them and enable them at boot
-	time.
-	```no-highlight
-	# systemctl daemon-reload
-	# systemctl enable peering-manager --now
-	# systemctl enable peering-manager-rqworker@1 --now
-	```
+    Reload **systemd** to load the services, start them and enable them at boot
+    time.
+    ```no-highlight
+    # systemctl daemon-reload
+    # systemctl enable peering-manager --now
+    # systemctl enable peering-manager-rqworker@1 --now
+    ```
 
-	You can use the `systemctl status peering-manager` and
-	`systemctl status peering-manager-rqworker@1` to verify that the WSGI service and the
-	request queue worker service are respectively running.
+    You can use the `systemctl status peering-manager` and
+    `systemctl status peering-manager-rqworker@1` to verify that the WSGI service and the
+    request queue worker service are respectively running.
 
     !!! attention
         The rqworker unit is prepared to run multiple worker instances but the documentation
@@ -351,6 +353,8 @@ Before we can deliver Peering Manager with our web server of choice, we have to 
         units by replacing the 1 after the @ with something else, it can also be a string. So you
         could have `peering-manager-rqworker@something` or similar.
 
-
 === "uWSGI"
-    Please see the extra page for [uWSGI](uwsgi.md) for further details.
+    As an alternative to gunicorn, you can also use [uWSGI](https://uwsgi-docs.readthedocs.io/)
+    as application server. It is now a maintenance mode only project.
+
+    Please see the [uWSGI extra page](uwsgi.md) for further details.

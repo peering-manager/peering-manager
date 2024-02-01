@@ -1,7 +1,7 @@
 # OpenID Connect
 
-This guide explains how to setup OpenID Connect authentication.
-Local authentication will continue to work.
+This guide explains how to setup OpenID Connect authentication. Local
+authentication will continue to work.
 
 ## Verified compatibility
 
@@ -19,11 +19,10 @@ Local authentication will continue to work.
 ## Configuration
 
 Create a new configuration file called `oidc_config.py` in the same directory
-as the `configuration.py`.
-Define all of the following settings in this file.
-Usually, OpenID connect providers offer an endpoint 
-like `.well-known/openid-configuration` where you can find most of the 
-required endpoints.
+as the `configuration.py`. Define all of the following settings in this file.
+Usually, OpenID connect providers offer an endpoint like
+`.well-known/openid-configuration` where you can find most of the required
+endpoints.
 
 ```python
 # CLIENT_ID and SECRET are required to authenticate against the provider
@@ -48,4 +47,6 @@ LOGOUT_REDIRECT_URL = "https://example.com:8443/"
 OIDC_CREATE_USER = True
 ```
 
-Further settings are available, please see [Mozillas documentation](https://mozilla-django-oidc.readthedocs.io/en/stable/settings.html), if needed.
+Further settings are available, please see [Mozillas
+documentation](https://mozilla-django-oidc.readthedocs.io/en/stable/settings.html),
+if needed.

@@ -4,6 +4,7 @@ import django_filters
 from django.db.models import Q
 
 from .models import (
+    Campus,
     Facility,
     InternetExchange,
     InternetExchangeFacility,
@@ -18,6 +19,7 @@ from .models import (
 )
 
 __all__ = (
+    "CampusFilterSet",
     "FacilityFilterSet",
     "InternetExchangeFilterSet",
     "InternetExchangeFacilityFilterSet",
@@ -30,6 +32,23 @@ __all__ = (
     "OrganizationFilterSet",
     "SynchronisationFilterSet",
 )
+
+
+class CampusFilterSet(django_filters.FilterSet):
+    q = django_filters.CharFilter(method="search", label="Search")
+    org_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Organization.objects.all(), label="Org (ID)"
+    )
+
+    class Meta:
+        model = Campus
+        fields = ["id", "name"]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+
+        return queryset.filter(Q(name__icontains=value))
 
 
 class FacilityFilterSet(django_filters.FilterSet):

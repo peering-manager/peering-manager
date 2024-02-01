@@ -190,11 +190,17 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
         """
         Returns all IXPs this AS has with the other one.
         """
+        peeringdb_network_record = other
+        local_autonomous_system = self
+        if isinstance(other, self.__class__):
+            peeringdb_network_record = other.peeringdb_network
+            local_autonomous_system = other
+
         return InternetExchange.objects.filter(
             peeringdb_ixlan__id__in=get_shared_internet_exchanges(
-                self.peeringdb_network, other.peeringdb_network
+                self.peeringdb_network, peeringdb_network_record
             ).values_list("id", flat=True),
-            local_autonomous_system=other,
+            local_autonomous_system=local_autonomous_system,
         )
 
     def get_missing_peering_sessions(self, other, internet_exchange_point=None):
@@ -211,9 +217,9 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
 
         filter = {"autonomous_system": self}
         if internet_exchange_point:
-            filter[
-                "ixp_connection__id__in"
-            ] = internet_exchange_point.get_connections().values_list("id", flat=True)
+            filter["ixp_connection__id__in"] = (
+                internet_exchange_point.get_connections().values_list("id", flat=True)
+            )
         ip_addresses = InternetExchangePeeringSession.objects.filter(
             **filter
         ).values_list("ip_address", flat=True)
@@ -416,9 +422,11 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
                 addresses.append(
                     (
                         contact.email,
-                        f"{contact.name} - {contact.email}"
-                        if contact.name
-                        else contact.email,
+                        (
+                            f"{contact.name} - {contact.email}"
+                            if contact.name
+                            else contact.email
+                        ),
                     )
                 )
         return addresses
@@ -450,7 +458,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
         affiliated = AutonomousSystem.objects.filter(affiliated=True)
         return {"affiliated_autonomous_systems": affiliated, "autonomous_system": self}
 
-    def generate_email(self, email):
+    def render_email(self, email):
         """
         Renders an e-mail from a template.
         """
@@ -1737,8 +1745,6 @@ class Router(PrimaryModel):
 
             # Get info that we are actually looking for
             state = neighbor_detail["connection_state"].lower()
-            received = neighbor_detail["received_prefix_count"]
-            advertised = neighbor_detail["advertised_prefix_count"]
             self.logger.debug(
                 f"found session {ip_address} on {self.hostname} in {state} state"
             )

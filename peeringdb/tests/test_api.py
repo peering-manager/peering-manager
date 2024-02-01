@@ -5,23 +5,15 @@ from rest_framework import status
 from utils.testing import APITestCase
 
 from ..models import *
+from ..sync import NAMESPACES
 
 
 class CacheTest(APITestCase):
     def test_statistics(self):
         url = reverse("peeringdb-api:cache-statistics")
         response = self.client.get(url, **self.header)
-        self.assertEqual(response.data["fac-count"], 0)
-        self.assertEqual(response.data["ix-count"], 0)
-        self.assertEqual(response.data["ixfac-count"], 0)
-        self.assertEqual(response.data["ixlan-count"], 0)
-        self.assertEqual(response.data["ixlanpfx-count"], 0)
-        self.assertEqual(response.data["net-count"], 0)
-        self.assertEqual(response.data["poc-count"], 0)
-        self.assertEqual(response.data["netfac-count"], 0)
-        self.assertEqual(response.data["netixlan-count"], 0)
-        self.assertEqual(response.data["org-count"], 0)
-        self.assertEqual(response.data["sync-count"], 0)
+        for namespace in list(NAMESPACES.keys()) + ["sync"]:
+            self.assertEqual(response.data[f"{namespace}-count"], 0)
 
     def test_update_local(self):
         url = reverse("peeringdb-api:cache-update-local")

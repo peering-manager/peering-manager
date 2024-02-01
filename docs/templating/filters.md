@@ -1,9 +1,9 @@
 # Jinja2 Filters
 
-Peering Manager exposes functions and filters in additional to existing Jinja2
-provided ones. These filters are used to parse, transform, fetch values of
-known types. If they are not used as expected, template processing may result
-in failure or half rendered texts.
+Peering Manager exposes functions and filters in addition to existing Jinja2
+provided ones. These filters are used to parse, to transform or to fetch
+values. If they are not used as expected, template processing may result in
+failure or half rendered texts.
 
 ## `include_configuration` / `include_email` / `include_exporttemplate`
 
@@ -237,6 +237,21 @@ Example:
 
 ```no-highlight
 {% for ixp in autonomous_system | shared_ixps(local_as) %}
+```
+
+## `shared_facilities`
+
+On an autonomous system, it will return all facilities in which both the AS
+and another local (affiliated) AS are according to their respective PeeringDB
+records. If one of the autonomous systems has not PeeringDB record or if no
+PeeringDB local cache is present, this filter will return an empty iterable.
+
+Example:
+
+```no-highlight
+{% for facility in autonomous_system | shared_facilities(local_as) %}
+- {{ facility }}
+{% endfor %}
 ```
 
 ## `missing_sessions`

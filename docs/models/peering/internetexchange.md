@@ -40,4 +40,4 @@ attached to a single router. This means that if you are connected more than
 once to an IX, you'll have to create one IX object per connection.
 
 [^1]: This is no longer user edible
-[^2]: This moved to the [Connection](../../net/connection/) tab
+[^2]: This moved to the [Connection](../net/connection.md) tab

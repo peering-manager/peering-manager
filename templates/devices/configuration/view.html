@@ -11,20 +11,28 @@
           <td>{{ instance.name }}</td>
         </tr>
         <tr>
+          <td>Last update</td>
+          <td>{{ instance.updated | date_span }}</td>
+        </tr>
+        <tr>
+          <td>Utilisation</td>
+          <td>Used by {{ routers|length }} router{{ routers|length|pluralize }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="card mb-2">
+      <div class="card-header">
+        <strong>Jinja2</strong>
+        <a href="https://peering-manager.readthedocs.io/en/{{ settings.VERSION | doc_version }}/templating/" target="_blank"><i class="fa fa-info-circle"></i></a>
+      </div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
           <td>Trim</td>
           <td>{{ instance.jinja2_trim|boolean_as_icon }}</td>
         </tr>
         <tr>
           <td>Lstrip</td>
           <td>{{ instance.jinja2_lstrip|boolean_as_icon }}</td>
-        </tr>
-        <tr>
-          <td>Last update</td>
-          <td>{{ instance.updated | date_span }}</td>
-        </tr>
-        <tr>
-          <td>Utilization</td>
-          <td>Used by {{ routers|length }} router{{ routers|length|pluralize }}</td>
         </tr>
       </table>
     </div>
@@ -48,10 +56,6 @@
     <div class="card mt-2">
       <div class="card-header"><strong>Template</strong></div>
       <pre class="pre-scrollable">{{ instance.template }}</pre>
-      <div class="card-footer">
-        <i class="fa fa-info-circle"></i>
-        <a href="https://peering-manager.readthedocs.io/en/{{ settings.VERSION | doc_version }}/templating/" target="_blank">Jinja2 template</a> syntax
-      </div>
     </div>
   </div>
 </div>

@@ -10,8 +10,8 @@ logic building. By default, a single trailing newline is stripped if present
 other whitespace (spaces, tabs, newlines etc.) is returned unchanged. You can
 tweak this behavior by enabling/disabling the trim and lstrip options.
 
-Examples of e-mails are provided in the Peering Manager's
-[documentation](../../../templating).
+Examples of e-mails are provided in the Peering Manager's templating
+[documentation](../../templating/index.md).
 
 For each e-mail that you create, the following properties can be configured
 (n.b. some are optional):
