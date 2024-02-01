@@ -1,3 +1,29 @@
+## Version 1.8.3 | MARK I (Bug fixes release) | 2024-02-01
+
+### Bug Fixes
+
+* Fix use of multiple `include_*` directive in templates (by @rwielk)
+* Fix cosmetic issue with PeeringDB synchronisation button in AS view
+* Fix filtering based on `created_by_request` and `updated_by_request` fields
+* Fix XSS security issue when rendering link to objects
+* Fix redirection issue where form could redirect to absolute URLs
+* Use sandboxed Jinja2 environment to render templates to avoid obvious security issues
+
+### Enhancements
+
+* [#687](https://github.com/peering-manager/peering-manager/issues/687) Add filtering capabilities for PeeringDB objects in the API
+* [#742](https://github.com/peering-manager/peering-manager/issues/742) Add view to be able to send an e-mail to a PeeringDB network which has not been added as an AS (see example in documentation)
+* [#766](https://github.com/peering-manager/peering-manager/issues/766) Bring back RADB, ALTDB, NTTCOM, LEVEL3, TC and RIPE-NONAUTH as default sources for prefix lookup
+* [#786](https://github.com/peering-manager/peering-manager/issues/786) Support PeeringDB validated update feature for affiliated autonomous systems
+* Consolidate middlewares into a single one
+* Allow filtering autonomous systems by ASN and/or name in the API
+* Move `/provisioning/available-ix-peers/` to `/peeringdb/available-ixp-peers/`
+* Add `PEERINGMANAGER_CONFIGURATION` environment variable to change configuration module to load
+* Record accepted prefix count in addition to received prefix count when polling BGP sessions
+* Add `shared_facilities` Jinja2 filter to get a list of facilities in which both networks are, according to PeeringDB records
+* Autonomous system e-mail view has been tweaked to make it consistent with the new Provisioning > Send E-mail To Network view
+* Refactoring of the documentation which is also available at https://docs.peering-manager.net
+
 ## Version 1.8.2 | MARK I (Bug fixes release) | 2023-09-29
 
 ### Bug Fixes
