@@ -78,6 +78,7 @@ jobs:
         run: |
           pipx install poetry
           poetry config virtualenvs.prefer-active-python true
+          cp peering_manager/configuration.example.py peering_manager/configuration.py
       - name: Install dependencies
         run: poetry install --no-root --with dev,docs
       - name: Build documentation
