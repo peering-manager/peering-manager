@@ -81,14 +81,14 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-root --with dev,docs
       - name: Build documentation
-        run: mkdocs build
+        run: poetry run mkdocs build
       - name: Collect static files
         run: poetry run python manage.py collectstatic --no-input
       - name: Check for missing migrations
         run: poetry run python manage.py migrate --check
       - name: Run tests
         run: >-
-          coverage run
+          poetry run coverage run
           --source=.
           --omit=*/apps.py,*/migrations/*,peering_manager/asgi.py,peering_manager/wsgi.py,peering_manager/settings.py,peering_manager/configuration.*,manage.py
           manage.py test
