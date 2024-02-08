@@ -30,7 +30,7 @@ class Command(BaseCommand):
             "-c",
             "--config",
             type=str,
-            help="Override default config to use for config generation/deployment. Give the name of the config template",
+            help="Override default configuration to use for config generation/deployment. Give the name of the configuration.",
         )
 
     def process(
