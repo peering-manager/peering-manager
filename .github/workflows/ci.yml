@@ -86,7 +86,7 @@ jobs:
       - name: Collect static files
         run: poetry run python manage.py collectstatic --no-input
       - name: Check for missing migrations
-        run: poetry run python manage.py migrate --check
+        run: poetry run python manage.py makemigrations --check
       - name: Run tests
         run: >-
           poetry run coverage run
