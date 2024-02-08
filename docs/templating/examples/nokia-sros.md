@@ -633,7 +633,7 @@ configure {
             action {
                 action-type next-entry
                 as-path-prepend {
-                    as-path 15435
+                    as-path 65543
                     repeat 1
                 }
             }
@@ -643,7 +643,7 @@ configure {
             action-type next-policy
             {%- if pol_var['asprepend'] is defined and pol_var['asprepend'] | int > 0 %}
             as-path-prepend {
-                as-path 15435
+                as-path 65543
                 repeat {{pol_var['asprepend']}}
             }
             {%- endif %}
