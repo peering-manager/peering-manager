@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
 
+from devices.models import Configuration
+from django.shortcuts import get_object_or_404
 from core.models import Job
 from peering.jobs import set_napalm_configuration
 from peering.models import Router
@@ -25,8 +27,23 @@ class Command(BaseCommand):
             action="store_true",
             help="Delegate router configuration to Redis worker process.",
         )
+        parser.add_argument(
+            "-c",
+            "--config",
+            type=str,
+            help="Override default config to use for config generation/deployment. Give the name of the config template",
+        )
 
-    def process(self, router, quiet=False, as_task=False, no_commit_check=False):
+    def process(self, router, quiet=False, as_task=False, no_commit_check=False, config_override=False):
+        
+        # Override default configuration linked in the Router object
+        if config_override:
+            try:
+                router.configuration_template = Configuration.objects.get(name=config_override)
+            except:
+                router.configuration_template = None
+                self.stdout.write(self.style.ERROR(f"Configuration object with name '{config_override}' not found"))
+
         if not quiet:
             self.stdout.write(f"  - {router.hostname} ... ", ending="")
 
@@ -64,8 +81,13 @@ class Command(BaseCommand):
         )
         if options["limit"]:
             routers = routers.filter(hostname__in=options["limit"].split(","))
-
+        
+        
+        
         if not quiet:
+            if options["config"]:
+                self.stdout.write(f"[*] Selecting configuration template '{options['config']}'")
+           
             self.stdout.write("[*] Deploying configurations")
 
         for r in routers:
@@ -74,4 +96,5 @@ class Command(BaseCommand):
                 quiet=quiet,
                 as_task=options["tasks"],
                 no_commit_check=options["no_commit_check"],
+                config_override=options["config"],
             )
