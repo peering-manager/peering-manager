@@ -217,9 +217,9 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
 
         filter = {"autonomous_system": self}
         if internet_exchange_point:
-            filter["ixp_connection__id__in"] = (
-                internet_exchange_point.get_connections().values_list("id", flat=True)
-            )
+            filter[
+                "ixp_connection__id__in"
+            ] = internet_exchange_point.get_connections().values_list("id", flat=True)
         ip_addresses = InternetExchangePeeringSession.objects.filter(
             **filter
         ).values_list("ip_address", flat=True)
