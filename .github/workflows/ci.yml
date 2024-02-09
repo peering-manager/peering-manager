@@ -88,11 +88,9 @@ jobs:
       - name: Check for missing migrations
         run: poetry run python manage.py makemigrations --check
       - name: Run tests
-        run: >-
-          poetry run coverage run
-          --source=.
-          --omit=*/apps.py,*/migrations/*,peering_manager/asgi.py,peering_manager/wsgi.py,peering_manager/settings.py,peering_manager/configuration.*,manage.py
-          manage.py test
+        run: poetry run coverage run manage.py test
+      - name: Generate coverage report
+        run: poetry run coverage xml -i
       - name: Report coverage
         uses: coverallsapp/github-action@v2
         with:
