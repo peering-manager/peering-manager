@@ -39,7 +39,7 @@ class Command(BaseCommand):
         quiet=False,
         as_task=False,
         no_commit_check=False,
-        config_override=False,
+        config_override="",
     ):
 
         # Override default configuration linked in the Router object
