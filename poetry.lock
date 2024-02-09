@@ -1240,13 +1240,13 @@ setuptools = "*"
 
 [[package]]
 name = "ntc-templates"
-version = "4.2.0"
+version = "4.3.0"
 description = "TextFSM Templates for Network Devices, and Python wrapper for TextFSM's CliTable."
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "ntc_templates-4.2.0-py3-none-any.whl", hash = "sha256:f41471c1375c1a86bb5958358339efe9e95d908ea33866125adafe36fbfe11dd"},
-    {file = "ntc_templates-4.2.0.tar.gz", hash = "sha256:a06c0e786aa3aea429d345ea67f59cb6da43557c31aa65914969d0cd6b0c0dde"},
+    {file = "ntc_templates-4.3.0-py3-none-any.whl", hash = "sha256:f9b4805dfd9d1516a29ae9f505409c17c7f14c958d47f1c1f57c9486af6164db"},
+    {file = "ntc_templates-4.3.0.tar.gz", hash = "sha256:b6902389e86b868d76b64ea55c8225a0aa7aafe910b3a02b2a33b7b18fb27ef1"},
 ]
 
 [package.dependencies]
