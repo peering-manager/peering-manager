@@ -1094,13 +1094,13 @@ min-versions = ["babel (==2.9.0)", "click (==7.0)", "colorama (==0.4)", "ghp-imp
 
 [[package]]
 name = "mkdocs-material"
-version = "9.5.8"
+version = "9.5.9"
 description = "Documentation that simply works"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "mkdocs_material-9.5.8-py3-none-any.whl", hash = "sha256:14563314bbf97da4bfafc69053772341babfaeb3329cde01d3e63cec03997af8"},
-    {file = "mkdocs_material-9.5.8.tar.gz", hash = "sha256:2a429213e83f84eda7a588e2b186316d806aac602b7f93990042f7a1f3d3cf65"},
+    {file = "mkdocs_material-9.5.9-py3-none-any.whl", hash = "sha256:a5d62b73b3b74349e45472bfadc129c871dd2d4add68d84819580597b2f50d5d"},
+    {file = "mkdocs_material-9.5.9.tar.gz", hash = "sha256:635df543c01c25c412d6c22991872267723737d5a2f062490f33b2da1c013c6d"},
 ]
 
 [package.dependencies]
@@ -1182,13 +1182,13 @@ six = "*"
 
 [[package]]
 name = "netaddr"
-version = "0.10.1"
+version = "1.0.0"
 description = "A network address manipulation library for Python"
 optional = false
 python-versions = "*"
 files = [
-    {file = "netaddr-0.10.1-py2.py3-none-any.whl", hash = "sha256:9822305b42ea1020d54fee322d43cee5622b044c07a1f0130b459bb467efcf88"},
-    {file = "netaddr-0.10.1.tar.gz", hash = "sha256:f4da4222ca8c3f43c8e18a8263e5426c750a3a837fdfeccf74c68d0408eaa3bf"},
+    {file = "netaddr-1.0.0-py3-none-any.whl", hash = "sha256:0dbf1263166c8daec9a6c990a9ae32804657963a1bba1387a755a4edf5ef93bc"},
+    {file = "netaddr-1.0.0.tar.gz", hash = "sha256:eb046b55354e7a5bf801c04902ae923bd699190242d89b099e896f9b2724b4d3"},
 ]
 
 [[package]]
