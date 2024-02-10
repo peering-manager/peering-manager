@@ -33,7 +33,7 @@ class ConfigContext(ChangeLoggedModel):
         super().clean()
 
         # Verify that JSON data is provided as an object
-        if type(self.data) is not dict:
+        if not isinstance(self.data, dict):
             raise ValidationError(
                 {"data": 'JSON data must be in object form. Example: {"foo": 123}'}
             )

@@ -76,7 +76,7 @@ def ip(value):
         ipaddress.IPv6Address,
     ):
         address = value
-    elif type(value) is list:
+    elif isinstance(value, list):
         return [ip(i) for i in value]
     else:
         try:
@@ -121,7 +121,7 @@ def mac(value, format=""):
     if hasattr(value, "mac_address"):
         return mac(value.mac_address, format=format)
 
-    if type(value) is str:
+    if isinstance(value, str):
         try:
             v = netaddr.EUI(value)
         except netaddr.core.AddrFormatError:
@@ -336,7 +336,7 @@ def iter_export_policies(value, field="", family=-1):
     if not hasattr(value, "export_policies"):
         raise AttributeError(f"{value} has not export policies")
 
-    if type(field) is not str:
+    if not isinstance(field, str):
         raise AttributeError("field must be a string'")
 
     policies = value.export_policies()
@@ -360,7 +360,7 @@ def iter_import_policies(value, field="", family=-1):
     if not hasattr(value, "import_policies"):
         raise AttributeError(f"{value} has not import policies")
 
-    if type(field) is not str:
+    if not isinstance(field, str):
         raise AttributeError("field must be a string'")
 
     policies = value.import_policies()
@@ -680,7 +680,7 @@ def quote(value, char='"'):
     """
     if not value:
         return ""
-    if type(value) is not str:
+    if not isinstance(value, str):
         value = str(value)
     return f"{char}{value}{char}"
 

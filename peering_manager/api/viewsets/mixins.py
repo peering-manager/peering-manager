@@ -187,7 +187,7 @@ class ObjectValidationMixin:
         This confirms that any newly created or modified objects abide by the
         attributes granted by any applicable permissions.
         """
-        if type(instance) is list:
+        if isinstance(instance, list):
             # Check that all instances are still included in the view's queryset
             conforming_count = self.queryset.filter(
                 pk__in=[obj.pk for obj in instance]

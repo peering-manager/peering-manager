@@ -79,7 +79,7 @@ class MultipleChoiceField(models.CharField):
                     exists = True
                     break
 
-            if not exists and type(value) is not list:
+            if not exists and not isinstance(value, list):
                 raise ValidationError(f"Invalid value: {value}")
 
     def validate(self, value, model_instance):

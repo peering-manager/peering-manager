@@ -217,9 +217,9 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
 
         filter = {"autonomous_system": self}
         if internet_exchange_point:
-            filter["ixp_connection__id__in"] = (
-                internet_exchange_point.get_connections().values_list("id", flat=True)
-            )
+            filter[
+                "ixp_connection__id__in"
+            ] = internet_exchange_point.get_connections().values_list("id", flat=True)
         ip_addresses = InternetExchangePeeringSession.objects.filter(
             **filter
         ).values_list("ip_address", flat=True)
@@ -1539,7 +1539,7 @@ class Router(PrimaryModel):
         Finds and returns a single BGP neighbor amongst others.
         """
         # NAPALM dict expected
-        if type(bgp_neighbors) is not dict:
+        if not isinstance(bgp_neighbors, dict):
             return None
 
         # Make sure to use an IP object

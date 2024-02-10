@@ -12,7 +12,9 @@ def is_ruleset(data):
     """
     Determine whether the given dictionary looks like a rule set.
     """
-    return type(data) is dict and len(data) == 1 and list(data.keys())[0] in (AND, OR)
+    return (
+        isinstance(data, dict) and len(data) == 1 and list(data.keys())[0] in (AND, OR)
+    )
 
 
 class Condition:
@@ -128,7 +130,7 @@ class ConditionSet:
     """
 
     def __init__(self, ruleset):
-        if type(ruleset) is not dict:
+        if not isinstance(ruleset, dict):
             raise ValueError(f"Ruleset must be a dictionary, not {type(ruleset)}.")
         if len(ruleset) != 1:
             raise ValueError(
@@ -137,7 +139,7 @@ class ConditionSet:
 
         # Determine the logic type
         logic = list(ruleset.keys())[0]
-        if type(logic) is not str or logic.lower() not in (AND, OR):
+        if not isinstance(logic, str) or logic.lower() not in (AND, OR):
             raise ValueError(f"Invalid logic type: {logic} (must be '{AND}' or '{OR}')")
         self.logic = logic.lower()
 
