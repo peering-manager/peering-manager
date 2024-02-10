@@ -41,14 +41,13 @@ class Command(BaseCommand):
         no_commit_check=False,
         config_override="",
     ):
-
         # Override default configuration linked in the Router object
         if config_override:
             try:
                 router.configuration_template = Configuration.objects.get(
                     name=config_override
                 )
-            except:
+            except Configuration.DoesNotExist:
                 router.configuration_template = None
                 self.stdout.write(
                     self.style.ERROR(
