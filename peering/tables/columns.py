@@ -36,5 +36,5 @@ class CommunityColumn(tables.ManyToManyColumn):
             default=mark_safe('<span class="text-muted">&mdash;</span>'),
             separator=" ",
             transform=lambda p: p.get_type_html(display_name=True),
-            **kwargs
+            **kwargs,
         )

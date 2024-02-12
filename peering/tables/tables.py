@@ -11,7 +11,7 @@ from ..models import (
     InternetExchange,
     InternetExchangePeeringSession,
     Router,
-    RoutingPolicy
+    RoutingPolicy,
 )
 from .columns import BGPSessionStateColumn, RoutingPolicyColumn, CommunityColumn
 
