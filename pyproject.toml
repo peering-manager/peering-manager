@@ -39,7 +39,7 @@ requests = "~2.31"
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "~2.21"
+pre-commit = "~3.5"
 ruff = "~0.2"
 coverage = { version = "~7.4", extras = ["toml"] }
 
