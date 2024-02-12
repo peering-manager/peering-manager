@@ -252,7 +252,7 @@ def get_key_in_hash(hash, key, default=None, recursive=True):
             return v, True
 
         # Lookup nested hash
-        if recursive and type(v) is dict:
+        if recursive and isinstance(v, dict):
             value, found = get_key_in_hash(v, key, default=default, recursive=recursive)
             if found:
                 return value, True
@@ -280,7 +280,7 @@ def merge_hash(a, b, recursive=True, list_merge="replace"):
         )
 
     # Check that a and b are dicts
-    if type(a) is not dict or type(b) is not dict:
+    if not isinstance(a, dict) or not isinstance(b, dict):
         raise ValueError(
             f"Failed to combine variables, expected dicts but got '{type(a)}' and '{type(b)}'"
         )
@@ -310,7 +310,7 @@ def merge_hash(a, b, recursive=True, list_merge="replace"):
 
         # Both a's element and b's element are dicts recursively merge them or
         # override depending on the `recursive` argument and move on
-        if type(a_value) is dict and type(b_value) is dict:
+        if isinstance(a_value, dict) and isinstance(b_value, dict):
             if recursive:
                 a[key] = merge_hash(a_value, b_value, recursive, list_merge)
             else:
@@ -319,7 +319,7 @@ def merge_hash(a, b, recursive=True, list_merge="replace"):
 
         # Both a's element and b's element are lists merge them depending on the
         # `list_merge` argument and move on
-        if type(a_value) is list and type(b_value) is list:
+        if isinstance(a_value, list) and isinstance(b_value, list):
             if list_merge == "replace":
                 a[key] = b_value
             elif list_merge == "append":

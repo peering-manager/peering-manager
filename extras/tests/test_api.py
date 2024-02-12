@@ -232,7 +232,7 @@ class IXAPITest(APIViewTestCases.View):
                     "api_secret": ixapi.api_secret,
                 },
                 format="json",
-                **self.header
+                **self.header,
             )
             self.assertHttpStatus(response, status.HTTP_200_OK)
 

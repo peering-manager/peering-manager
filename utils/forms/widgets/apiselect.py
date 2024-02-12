@@ -25,7 +25,7 @@ class APISelect(forms.Select):
         key = f"data-query-param-{name}"
 
         values = json_loads(self.attrs.get(key, "[]"))
-        if type(value) is list:
+        if isinstance(value, list):
             values.extend([str(v) for v in value])
         else:
             values.append(str(value))

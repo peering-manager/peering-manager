@@ -81,7 +81,7 @@ class ConfigContextMixin(models.Model):
         super().clean()
 
         # Verify that JSON data is provided as an object
-        if self.local_context_data and type(self.local_context_data) is not dict:
+        if self.local_context_data and not isinstance(self.local_context_data, dict):
             raise ValidationError(
                 {
                     "local_context_data": 'JSON data must be in object form. Example: {"foo": 123}'
