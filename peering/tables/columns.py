@@ -27,6 +27,8 @@ class RoutingPolicyColumn(tables.ManyToManyColumn):
             transform=lambda p: p.get_type_html(display_name=True),
             **kwargs
         )
+
+
 class CommunityColumn(tables.ManyToManyColumn):
     def __init__(self, *args, **kwargs):
         super().__init__(
@@ -36,4 +38,3 @@ class CommunityColumn(tables.ManyToManyColumn):
             transform=lambda p: p.get_type_html(display_name=True),
             **kwargs
         )
-
