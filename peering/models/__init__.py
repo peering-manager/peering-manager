@@ -502,7 +502,7 @@ class Community(OrganisationalModel):
     def get_absolute_url(self):
         return reverse("peering:community_view", args=[self.pk])
 
-    def get_type_html(self):
+    def get_type_html(self, display_name=False):
         if self.type == CommunityType.EGRESS:
             badge_type = "badge-primary"
             text = self.get_type_display()
@@ -512,6 +512,9 @@ class Community(OrganisationalModel):
         else:
             badge_type = "badge-secondary"
             text = "Not set"
+
+        if display_name:
+            text = self.name
 
         return mark_safe(f'<span class="badge {badge_type}">{text}</span>')
 
