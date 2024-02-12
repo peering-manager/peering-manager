@@ -62,7 +62,7 @@ requests==2.31.0
 rpds-py==0.17.1
 rq==1.15.1
 scp==0.14.5
-setuptools==69.0.3
+setuptools==69.1.0
 six==1.16.0
 sqlparse==0.4.4
 textfsm==1.1.3
