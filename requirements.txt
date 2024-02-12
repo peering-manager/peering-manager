@@ -70,7 +70,7 @@ transitions==0.9.0
 ttp-templates==0.3.6
 ttp==0.9.5
 typing-extensions==4.9.0
-tzdata==2023.4
+tzdata==2024.1
 uritemplate==4.1.1
 urllib3==2.2.0
 yamlordereddictloader==0.4.2
