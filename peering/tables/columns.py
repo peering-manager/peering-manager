@@ -28,6 +28,7 @@ class RoutingPolicyColumn(tables.ManyToManyColumn):
             **kwargs,
         )
 
+
 class CommunityColumn(tables.ManyToManyColumn):
     def __init__(self, *args, **kwargs):
         super().__init__(
