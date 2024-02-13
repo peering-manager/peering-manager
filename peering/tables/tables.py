@@ -13,7 +13,7 @@ from ..models import (
     Router,
     RoutingPolicy,
 )
-from .columns import BGPSessionStateColumn, RoutingPolicyColumn
+from .columns import BGPSessionStateColumn, CommunityColumn, RoutingPolicyColumn
 
 BGP_RELATIONSHIP = "{{ record.relationship.get_html }}"
 COMMUNITY_TYPE = "{{ record.get_type_html }}"
@@ -28,6 +28,7 @@ class AutonomousSystemTable(PeeringManagerTable):
     ipv4_max_prefixes = tables.Column(verbose_name="IPv4 Max Prefixes")
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
+    communities = CommunityColumn()
     directpeeringsession_count = columns.LinkedCountColumn(
         viewname="peering:autonomoussystem_direct_peering_sessions",
         view_kwargs={"pk": True},
@@ -56,6 +57,7 @@ class AutonomousSystemTable(PeeringManagerTable):
             "general_policy",
             "import_routing_policies",
             "export_routing_policies",
+            "communities",
             "directpeeringsession_count",
             "internetexchangepeeringsession_count",
             "affiliated",
@@ -78,6 +80,7 @@ class BGPGroupTable(PeeringManagerTable):
     status = columns.ChoiceFieldColumn()
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
+    communities = CommunityColumn()
     directpeeringsession_count = tables.Column(
         verbose_name="Direct Sessions",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
@@ -94,6 +97,7 @@ class BGPGroupTable(PeeringManagerTable):
             "status",
             "import_routing_policies",
             "export_routing_policies",
+            "communities",
             "directpeeringsession_count",
             "tags",
             "actions",
@@ -143,6 +147,7 @@ class DirectPeeringSessionTable(PeeringManagerTable):
     service_reference = tables.Column(verbose_name="Service ID", linkify=True)
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
+    communities = CommunityColumn()
     state = BGPSessionStateColumn(accessor="bgp_state")
     router = tables.Column(verbose_name="Router", accessor="router", linkify=True)
     tags = columns.TagColumn(url_name="peering:directpeeringsession_list")
@@ -164,6 +169,7 @@ class DirectPeeringSessionTable(PeeringManagerTable):
             "passive",
             "import_routing_policies",
             "export_routing_policies",
+            "communities",
             "state",
             "last_established_state",
             "received_prefix_count",
@@ -192,6 +198,7 @@ class InternetExchangeTable(PeeringManagerTable):
     status = columns.ChoiceFieldColumn()
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
+    communities = CommunityColumn()
     connection_count = tables.Column(
         verbose_name="Connections",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
@@ -209,6 +216,7 @@ class InternetExchangeTable(PeeringManagerTable):
             "status",
             "import_routing_policies",
             "export_routing_policies",
+            "communities",
             "connection_count",
             "tags",
             "actions",
@@ -246,6 +254,7 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
     is_route_server = columns.BooleanColumn(verbose_name="Route Server")
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
+    communities = CommunityColumn()
     exists_in_peeringdb = columns.BooleanColumn(
         accessor="exists_in_peeringdb", verbose_name="In PeeringDB", orderable=False
     )
@@ -269,6 +278,7 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
             "is_route_server",
             "import_routing_policies",
             "export_routing_policies",
+            "communities",
             "exists_in_peeringdb",
             "state",
             "last_established_state",
