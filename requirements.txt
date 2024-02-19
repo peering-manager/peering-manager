@@ -48,7 +48,7 @@ psycopg-pool==3.2.1
 psycopg[binary,pool]==3.1.18
 pycparser==2.21
 pyeapi==1.0.2
-pyixapi==0.2.1
+pyixapi==0.2.2
 pyjwt==2.8.0
 pynacl==1.5.0
 pynetbox==7.3.3
