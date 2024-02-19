@@ -35,7 +35,7 @@ markdown==3.5.2
 markupsafe==2.1.5
 napalm==4.1.0
 ncclient==0.6.15
-netaddr==1.0.0
+netaddr==1.2.1
 netmiko==4.3.0
 netutils==1.6.0
 ntc-templates==4.3.0
