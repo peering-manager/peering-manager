@@ -1,14 +1,6 @@
 ---
 version: 2
 updates:
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    assignees:
-      - "gmazoyer"
-    labels:
-      - "type: housekeeping"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
