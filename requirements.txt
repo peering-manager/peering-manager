@@ -59,7 +59,7 @@ pyyaml==6.0.1
 redis==5.0.1
 referencing==0.33.0
 requests==2.31.0
-rpds-py==0.17.1
+rpds-py==0.18.0
 rq==1.15.1
 scp==0.14.5
 setuptools==69.1.0
