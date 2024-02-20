@@ -93,6 +93,11 @@ def notcontains(value, arg):
     return True
 
 
+@register.filter
+def get_key(value, arg):
+    return value.get(arg, None)
+
+
 @register.filter(is_safe=True)
 def markdown(value, escape_html=False):
     """

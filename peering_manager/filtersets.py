@@ -138,7 +138,12 @@ class BaseFilterSet(django_filters.FilterSet):
                     resolve_field(
                         field, lookup_expr
                     )  # Will raise FieldLookupError if the lookup is invalid
-                    new_filter = type(existing_filter)(
+                    filter_cls = (
+                        django_filters.BooleanFilter
+                        if lookup_expr == "empty"
+                        else type(existing_filter)
+                    )
+                    new_filter = filter_cls(
                         field_name=field_name,
                         lookup_expr=lookup_expr,
                         label=existing_filter.label,
@@ -146,10 +151,6 @@ class BaseFilterSet(django_filters.FilterSet):
                         distinct=existing_filter.distinct,
                         **existing_filter.extra,
                     )
-                elif hasattr(existing_filter, "custom_field"):
-                    # Filter is for a custom field
-                    custom_field = existing_filter.custom_field
-                    new_filter = custom_field.to_filter(lookup_expr=lookup_expr)
                 else:
                     # The filter field is listed in Meta.fields so we can safely rely
                     # on default behaviour
@@ -208,9 +209,8 @@ class ChangeLoggedModelFilterSet(BaseFilterSet):
             "created_by_request": ObjectChangeAction.CREATE,
             "updated_by_request": ObjectChangeAction.UPDATE,
         }.get(name)
-        request_id = value
         pks = ObjectChange.objects.filter(
-            changed_object_type=content_type, action=action, request_id=request_id
+            changed_object_type=content_type, action=action, request_id=value
         ).values_list("changed_object_id", flat=True)
         return queryset.filter(pk__in=pks)
 

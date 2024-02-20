@@ -89,7 +89,7 @@ class ExportTemplateViewSet(PeeringManagerModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         export_template = self.get_object()
-        job = Job.enqueue_job(
+        job = Job.enqueue(
             render_export_template,
             export_template,
             name="extras.exporttemplate.render",

@@ -35,7 +35,7 @@ class Command(BaseCommand):
             return
 
         if options["tasks"]:
-            job = Job.enqueue_job(
+            job = Job.enqueue(
                 synchronise, name="peeringdb.synchronise", object_model=Synchronisation
             )
             if not quiet:

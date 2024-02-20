@@ -105,7 +105,7 @@ class CacheViewSet(ViewSet):
     )
     @action(detail=False, methods=["post"], url_path="update-local")
     def update_local(self, request):
-        job = Job.enqueue_job(
+        job = Job.enqueue(
             synchronise,
             name="peeringdb.synchronise",
             object_model=Synchronisation,

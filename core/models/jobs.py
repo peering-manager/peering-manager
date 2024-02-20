@@ -49,7 +49,7 @@ class Job(models.Model):
         ordering = ["-created"]
 
     @classmethod
-    def enqueue_job(
+    def enqueue(
         cls, func, *args, name="", object=None, object_model=None, user=None, **kwargs
     ):
         """

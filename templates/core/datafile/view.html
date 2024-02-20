@@ -1,0 +1,48 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block actions %}
+{% if perms.core.delete_datafile %}
+<a href="{% url 'core:datafile_delete' pk=instance.pk %}" class="btn btn-danger">
+  <i class="fas fa-trash"></i> Delete
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'core:datafile_list' %}">Data Files</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header"><strong>Details</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Source</td>
+          <td>{{ instance.source|as_link }}</td>
+        </tr>
+        <tr>
+          <td>Path</td>
+          <td><span class="text-monospace">{{ instance.path }}</span></td>
+        </tr>
+        <tr>
+          <td>Updated</td>
+          <td>{{ instance.updated|date_span|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Size</td>
+          <td>{{ instance.size }} byte{{ instance.size|pluralize }}</td>
+        </tr>
+        <tr>
+          <td>SHA256 hash</td>
+          <td><span class="text-monospace">{{ instance.hash }}</span></td>
+        </tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-header"><strong>Content</strong></div>
+      <div class="card-body"><pre>{{ instance.data_as_string }}</pre></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

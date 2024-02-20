@@ -34,7 +34,7 @@ class Command(BaseCommand):
                 else:
                     self.stdout.write(self.style.ERROR("failed"))
         else:
-            job = Job.enqueue_job(
+            job = Job.enqueue(
                 poll_bgp_sessions,
                 router,
                 name="commands.poll_bgp_sessions",

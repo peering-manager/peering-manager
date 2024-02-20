@@ -96,7 +96,7 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
         jobs = []
         for router in self.get_object().get_routers():
             jobs.append(
-                Job.enqueue_job(
+                Job.enqueue(
                     poll_bgp_sessions,
                     router,
                     name="peering.router.poll_bgp_sessions",
@@ -247,7 +247,7 @@ class BGPGroupViewSet(PeeringManagerModelViewSet):
         jobs = []
         for router in self.get_object().get_routers():
             jobs.append(
-                Job.enqueue_job(
+                Job.enqueue(
                     poll_bgp_sessions,
                     router,
                     name="peering.router.poll_bgp_sessions",
@@ -425,7 +425,7 @@ class InternetExchangeViewSet(PeeringManagerModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         ixp = self.get_object()
-        job = Job.enqueue_job(
+        job = Job.enqueue(
             import_sessions_to_internet_exchange,
             ixp,
             name="peering.internet_exchange.import_sessions",
@@ -491,7 +491,7 @@ class InternetExchangeViewSet(PeeringManagerModelViewSet):
         jobs = []
         for router in self.get_object().get_routers():
             jobs.append(
-                Job.enqueue_job(
+                Job.enqueue(
                     poll_bgp_sessions,
                     router,
                     name="peering.router.poll_bgp_sessions",
@@ -607,7 +607,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         router = self.get_object()
-        job = Job.enqueue_job(
+        job = Job.enqueue(
             generate_configuration,
             router,
             name="peering.router.generate_configuration",
@@ -661,7 +661,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
 
         jobs = []
         for router in routers:
-            job = Job.enqueue_job(
+            job = Job.enqueue(
                 set_napalm_configuration,
                 router,
                 commit,
@@ -702,7 +702,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         router = self.get_object()
-        job = Job.enqueue_job(
+        job = Job.enqueue(
             poll_bgp_sessions,
             router,
             name="peering.router.poll_bgp_sessions",
@@ -730,7 +730,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
     @action(detail=True, methods=["get"], url_path="test-napalm-connection")
     def test_napalm_connection(self, request, pk=None):
         router = self.get_object()
-        job = Job.enqueue_job(
+        job = Job.enqueue(
             test_napalm_connection,
             router,
             name="peering.router.test_napalm_connection",

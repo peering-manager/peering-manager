@@ -19,7 +19,9 @@ class Registry(dict):
         raise TypeError("Cannot delete stores from registry")
 
 
+DATA_BACKENDS_KEY = "data_backends"
+
 # Initialize the global registry
 registry = Registry(
-    {"data_backends": dict(), "model_features": dict(), "views": dict()}
+    {DATA_BACKENDS_KEY: dict(), "model_features": dict(), "views": dict()}
 )

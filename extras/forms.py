@@ -218,9 +218,9 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
             "type_delete": "Deletions",
         }
         widgets = {
-            "additional_headers": forms.Textarea(attrs={"class": "font-monospace"}),
-            "body_template": forms.Textarea(attrs={"class": "font-monospace"}),
-            "conditions": forms.Textarea(attrs={"class": "font-monospace"}),
+            "additional_headers": forms.Textarea(attrs={"class": "text-monospace"}),
+            "body_template": forms.Textarea(attrs={"class": "text-monospace"}),
+            "conditions": forms.Textarea(attrs={"class": "text-monospace"}),
         }
 
 

@@ -72,7 +72,7 @@ class Command(BaseCommand):
                 else:
                     self.stdout.write(self.style.ERROR("failed"))
         else:
-            job = Job.enqueue_job(
+            job = Job.enqueue(
                 set_napalm_configuration,
                 router,
                 True,
