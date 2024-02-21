@@ -7,7 +7,6 @@ from django.core.cache import cache
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
-from django.utils.timezone import make_aware
 
 from peering_manager.models import ChangeLoggedModel
 
@@ -117,9 +116,9 @@ class IXAPI(ChangeLoggedModel):
         if auth:
             # Save tokens if they've changed
             self.access_token = api.access_token.encoded
-            self.access_token_expiration = make_aware(api.access_token.expires_at)
+            self.access_token_expiration = api.access_token.expires_at
             self.refresh_token = api.refresh_token.encoded
-            self.refresh_token_expiration = make_aware(api.refresh_token.expires_at)
+            self.refresh_token_expiration = api.refresh_token.expires_at
             self.save()
 
         return api

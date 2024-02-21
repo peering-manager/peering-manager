@@ -1526,13 +1526,13 @@ windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
 name = "pyixapi"
-version = "0.2.2"
+version = "0.2.3"
 description = "Python API client library for IX-API"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "pyixapi-0.2.2-py3-none-any.whl", hash = "sha256:87c7b85a7746c02d3930e38afb7ab17c8886441809a3d39d0f222ebab28acb76"},
-    {file = "pyixapi-0.2.2.tar.gz", hash = "sha256:37f34d2d7b56b277cf99dc5185bcdd2cd3faea4c0f941731494b63368144f922"},
+    {file = "pyixapi-0.2.3-py3-none-any.whl", hash = "sha256:9ebcfdfe6850de997a6a10bfdb9e93f4f2c2b2c639ada4c1d1a38b12ff1b7b1b"},
+    {file = "pyixapi-0.2.3.tar.gz", hash = "sha256:aa480f04862ff71cc66b6f5188f014df3361732bad4d45f55649a977d61d7895"},
 ]
 
 [package.dependencies]
