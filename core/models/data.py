@@ -5,6 +5,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import yaml
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
@@ -23,7 +24,7 @@ from .jobs import Job
 
 logger = logging.getLogger("peering.manager.core.data")
 
-__all__ = ("DataSource", "DataFile")
+__all__ = ("DataSource", "DataFile", "AutoSynchronisationRecord")
 
 CENSORSHIP_STRING = "*************"
 CENSORSHIP_STRING_CHANGED = "***CHANGED***"
@@ -331,3 +332,26 @@ class DataFile(models.Model):
             raise FileExistsError()
 
         file_path.write_bytes(self.data)
+
+
+class AutoSynchronisationRecord(models.Model):
+    """
+    Map a `DataFile` to a synchronised object to update it automatically.
+    """
+
+    data_file = models.ForeignKey(
+        to="DataFile", on_delete=models.CASCADE, related_name="+"
+    )
+    object_type = models.ForeignKey(
+        to="contenttypes.ContentType", on_delete=models.CASCADE, related_name="+"
+    )
+    object_id = models.PositiveBigIntegerField()
+    object = GenericForeignKey(ct_field="object_type", fk_field="object_id")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("object_type", "object_id"),
+                name="%(app_label)s_%(class)s_object",
+            ),
+        ]

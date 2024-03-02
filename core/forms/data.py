@@ -9,14 +9,19 @@ from peering_manager.forms import (
 )
 from peering_manager.registry import DATA_BACKENDS_KEY, registry
 from utils.forms import get_field_value
-from utils.forms.fields import DynamicModelMultipleChoiceField
+from utils.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utils.forms.fields.fields import CommentField
 from utils.forms.widgets import BulkEditNullBooleanSelect, StaticSelect
 
 from ..models import DataFile, DataSource
 from ..utils import get_data_backend_choices
 
-__all__ = ("DataFileFilterForm", "DataSourceForm", "DataSourceBulkEditForm")
+__all__ = (
+    "DataFileFilterForm",
+    "DataSourceForm",
+    "DataSourceBulkEditForm",
+    "SynchronisedDataMixin",
+)
 
 
 class DataFileFilterForm(PeeringManagerModelFilterSetForm):
@@ -113,3 +118,15 @@ class DataSourceBulkEditForm(PeeringManagerModelBulkEditForm):
         ("type", "enabled", "description", "comments", "parameters", "ignore_rules"),
     )
     nullable_fields = ("description", "parameters", "comments", "ignore_rules")
+
+
+class SynchronisedDataMixin(forms.Form):
+    data_source = DynamicModelChoiceField(
+        required=False, queryset=DataSource.objects.all()
+    )
+    data_file = DynamicModelChoiceField(
+        required=False,
+        queryset=DataFile.objects.all(),
+        label="File",
+        query_params={"source_id": "$data_source"},
+    )

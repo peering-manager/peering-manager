@@ -128,10 +128,48 @@ class Migration(migrations.Migration):
             ],
             options={"ordering": ["source", "path"]},
         ),
+        migrations.CreateModel(
+            name="AutoSynchronisationRecord",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("object_id", models.PositiveBigIntegerField()),
+                (
+                    "data_file",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="+",
+                        to="core.datafile",
+                    ),
+                ),
+                (
+                    "object_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="+",
+                        to="contenttypes.contenttype",
+                    ),
+                ),
+            ],
+        ),
         migrations.AddConstraint(
             model_name="datafile",
             constraint=models.UniqueConstraint(
                 fields=("source", "path"), name="core_datafile_unique_source_path"
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name="autosynchronisationrecord",
+            constraint=models.UniqueConstraint(
+                fields=("object_type", "object_id"),
+                name="core_autosynchronisationrecord_object",
             ),
         ),
     ]
