@@ -1,6 +1,8 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
+from core.forms import SynchronisedDataMixin
 from peering_manager.forms import (
     PeeringManagerModelFilterSetForm,
     PeeringManagerModelForm,
@@ -21,8 +23,8 @@ from .models import Configuration, Platform
 __all__ = ("ConfigurationForm", "ConfigurationFilterForm", "PlatformForm")
 
 
-class ConfigurationForm(PeeringManagerModelForm):
-    template = TemplateField()
+class ConfigurationForm(PeeringManagerModelForm, SynchronisedDataMixin):
+    template = TemplateField(required=False)
     comments = CommentField()
     tags = TagField(required=False)
     fieldsets = (
@@ -30,6 +32,7 @@ class ConfigurationForm(PeeringManagerModelForm):
             "Configuration",
             ("name", "description", "jinja2_trim", "jinja2_lstrip", "template"),
         ),
+        ("Data Source", ("data_source", "data_file", "auto_synchronisation_enabled")),
     )
 
     class Meta:
@@ -42,7 +45,17 @@ class ConfigurationForm(PeeringManagerModelForm):
             "jinja2_lstrip",
             "comments",
             "tags",
+            "data_source",
+            "data_file",
+            "auto_synchronisation_enabled",
         )
+
+    def clean(self):
+        if not self.cleaned_data["template"] and not self.cleaned_data["data_file"]:
+            raise ValidationError(
+                "Either the template code or a file from a data source must be provided"
+            )
+        return super().clean()
 
 
 class ConfigurationFilterForm(PeeringManagerModelFilterSetForm):

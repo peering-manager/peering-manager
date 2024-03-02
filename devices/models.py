@@ -3,7 +3,7 @@ from django.urls import reverse
 
 from peering.models import Template
 from peering_manager.jinja2 import render_jinja2
-from peering_manager.models import OrganisationalModel
+from peering_manager.models import OrganisationalModel, SynchronisedDataMixin
 
 from .crypto import *
 from .enums import PasswordAlgorithm
@@ -11,9 +11,12 @@ from .enums import PasswordAlgorithm
 __all__ = ("Configuration", "Platform")
 
 
-class Configuration(Template):
+class Configuration(SynchronisedDataMixin, Template):
     def get_absolute_url(self):
         return reverse("devices:configuration_view", args=[self.pk])
+
+    def synchronise_data(self):
+        self.template = self.data_file.data_as_string
 
     def render(self, context):
         """
