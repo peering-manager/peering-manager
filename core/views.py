@@ -103,9 +103,6 @@ class DataSourceFilesView(ObjectChildrenView):
             .prefetch_related("source")
         )
 
-    def get_extra_context(self, request, instance):
-        return {"datafile_count": self.get_children(request, instance).count()}
-
 
 class JobListView(ObjectListView):
     permission_required = "core.view_job"

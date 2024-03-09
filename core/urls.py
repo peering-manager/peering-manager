@@ -1,6 +1,7 @@
 from django.urls import path
 
 from peering_manager.views.generic import ObjectChangeLogView
+from peering_manager.views.generic.feature_views import ObjectJobsView
 
 from . import models, views
 
@@ -36,15 +37,21 @@ urlpatterns = [
         name="datasource_edit",
     ),
     path(
+        "data-sources/<int:pk>/delete/",
+        views.DataSourceDeleteView.as_view(),
+        name="datasource_delete",
+    ),
+    path(
+        "data-sources/<int:pk>/jobs/",
+        ObjectJobsView.as_view(),
+        name="datasource_jobs",
+        kwargs={"model": models.DataSource},
+    ),
+    path(
         "data-sources/<int:pk>/changelog/",
         ObjectChangeLogView.as_view(),
         name="datasource_changelog",
         kwargs={"model": models.DataSource},
-    ),
-    path(
-        "data-sources/<int:pk>/delete/",
-        views.DataSourceDeleteView.as_view(),
-        name="datasource_delete",
     ),
     # Data files
     path("data-files/", views.DataFileListView.as_view(), name="datafile_list"),
