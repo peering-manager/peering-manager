@@ -80,7 +80,7 @@ def flush_webhooks(queue):
         # Cache applicable Webhooks
         if content_type not in webhooks_cache[action_flag]:
             webhooks_cache[action_flag][content_type] = Webhook.objects.filter(
-                **{action_flag: True}, enabled=True
+                content_types=content_type, **{action_flag: True}, enabled=True
             )
         webhooks = webhooks_cache[action_flag][content_type]
 
