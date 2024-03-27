@@ -124,7 +124,7 @@ class GitRepositoryBackend(DataBackend):
         except BaseException as e:
             raise SynchronisationError(
                 f"Fetching remote data failed ({type(e).__name__})"
-            )
+            ) from e
 
         yield local_path.name
 
