@@ -14,6 +14,27 @@
           <td>Last update</td>
           <td>{{ instance.updated | date_span }}</td>
         </tr>
+        {% if instance.data_source %}
+        <tr>
+          <td>Data source</td>
+          <td>{{ instance.data_source|as_link }}</td>
+        </tr>
+        {% endif %}
+        {% if instance.data_file or instance.data_path %}
+        <tr>
+          <td>Data file</td>
+          <td>
+            {% if instance.data_file %}
+            {{ instance.data_file|as_link }}
+            {% elif instance.data_path %}
+            <div class="float-right text-warning">
+              <i class="fa-solid fa-triangle-exclamation" title="The data file associated with this configuration has been deleted."></i>
+            </div>
+            <span class="text-monospace">{{ instance.data_path }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endif %}
       </table>
     </div>
     <div class="card mb-2">

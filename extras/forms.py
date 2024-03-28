@@ -12,6 +12,7 @@ from utils.forms.fields import (
     DynamicModelMultipleChoiceField,
     JSONField,
     SlugField,
+    TemplateField,
 )
 from utils.forms.widgets import (
     APISelectMultiple,
@@ -38,11 +39,19 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
     fieldsets = (
         ("Config Context", ("name", "description", "is_active")),
         ("Data", ("data",)),
+        ("Data Source", ("data_source", "data_file", "auto_synchronisation_enabled")),
     )
 
     class Meta:
         model = ConfigContext
         fields = "__all__"
+
+    def clean(self):
+        if not self.cleaned_data["data"] and not self.cleaned_data["data_file"]:
+            raise ValidationError(
+                "Either data or a file from a data source must be provided"
+            )
+        return super().clean()
 
 
 class ConfigContextFilterForm(BootstrapMixin, forms.Form):
@@ -66,6 +75,7 @@ class ConfigContextAssignmentForm(BootstrapMixin, forms.ModelForm):
 
 
 class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
+    template = TemplateField(required=False)
     content_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery("export-templates"),
@@ -83,6 +93,7 @@ class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
                 "template",
             ),
         ),
+        ("Data Source", ("data_source", "data_file", "auto_synchronisation_enabled")),
     )
 
     class Meta:
@@ -91,6 +102,13 @@ class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
         widgets = {
             "template": forms.Textarea(attrs={"class": "text-monospace"}),
         }
+
+    def clean(self):
+        if not self.cleaned_data["template"] and not self.cleaned_data["data_file"]:
+            raise ValidationError(
+                "Either the template code or a file from a data source must be provided"
+            )
+        return super().clean()
 
 
 class ExportTemplateFilterForm(BootstrapMixin, forms.Form):

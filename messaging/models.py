@@ -5,7 +5,12 @@ from django.urls import reverse
 
 from peering.models import Template
 from peering_manager.jinja2 import render_jinja2
-from peering_manager.models import ChangeLoggedModel, OrganisationalModel, PrimaryModel
+from peering_manager.models import (
+    ChangeLoggedModel,
+    OrganisationalModel,
+    PrimaryModel,
+    SynchronisedDataMixin,
+)
 
 __all__ = ("ContactRole", "Contact", "ContactAssignment", "Email")
 
@@ -60,7 +65,7 @@ class ContactAssignment(ChangeLoggedModel):
         return str(self.contact)
 
 
-class Email(Template):
+class Email(SynchronisedDataMixin, Template):
     # While a line length should not exceed 78 characters (as per RFC2822), we allow
     # user more characters for templating and let the user to decide what he wants to
     # with this recommended limit, including not respecting it
@@ -68,6 +73,9 @@ class Email(Template):
 
     def get_absolute_url(self):
         return reverse("messaging:email_view", args=[self.pk])
+
+    def synchronise_data(self):
+        self.template = self.data_file.data_as_string
 
     def render(self, variables):
         """

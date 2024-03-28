@@ -4,12 +4,12 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 
-from peering_manager.models import ChangeLoggedModel
+from peering_manager.models import ChangeLoggedModel, SynchronisedDataMixin
 
 __all__ = ("ConfigContext", "ConfigContextAssignment")
 
 
-class ConfigContext(ChangeLoggedModel):
+class ConfigContext(SynchronisedDataMixin, ChangeLoggedModel):
     """
     This model represents a set of arbitrary data available to an object type. Data is
     stored in JSON format.
@@ -37,6 +37,9 @@ class ConfigContext(ChangeLoggedModel):
             raise ValidationError(
                 {"data": 'JSON data must be in object form. Example: {"foo": 123}'}
             )
+
+    def synchronise_data(self):
+        self.data = self.data_file.get_data()
 
 
 class ConfigContextAssignment(ChangeLoggedModel):
