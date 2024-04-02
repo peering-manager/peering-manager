@@ -1,7 +1,7 @@
 # Prometheus Metrics
 
-NetBox supports optionally exposing native Prometheus metrics from the
-application. [Prometheus](https://prometheus.io/) is a popular time series
+Peering Manager supports optionally exposing native Prometheus metrics from
+the application. [Prometheus](https://prometheus.io/) is a popular time series
 metric platform used for monitoring.
 
 Peering Manager exposes metrics at the `/metrics` HTTP endpoint, e.g.

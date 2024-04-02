@@ -30,12 +30,10 @@ core features it provides.
 
 ## What Peering Manager Is Not
 
-While NetBox strives to cover many areas of network management, the scope of its feature set is necessarily limited. This ensures that development focuses on core functionality and that scope creep is reasonably contained. To that end, it might help to provide some examples of functionality that NetBox **does not** provide:
-
-* BGP monitoring
-* Configuration management
-* Replacement for PeeringDB, IX-API or IXP Manager
-* Autonomous system ranking and discovery
+* A BGP monitoring system
+* A configuration management system
+* A replacement for PeeringDB, IX-API or IXP Manager
+* An autonomous system ranking and discovery
 
 That said, Peering Manager _can_ be used to great effect in populating external tools with the data they need to perform these functions.
 
