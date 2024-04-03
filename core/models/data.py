@@ -178,6 +178,10 @@ class DataSource(PrimaryModel, JobsMixin):
             raise SynchronisationError(
                 "Synchronisation already in progress, not starting a new one."
             )
+        if self.status == DataSourceStatus.PUSHING:
+            raise SynchronisationError(
+                "Push in progress, not starting a new synchronisation."
+            )
 
         pre_synchronisation.send(sender=self.__class__, instance=self)
 
@@ -238,6 +242,50 @@ class DataSource(PrimaryModel, JobsMixin):
         self.save()
 
         post_synchronisation.send(sender=self.__class__, instance=self)
+
+    def push(self, file_path, content: str):
+        """
+        Push a file to a data source given its file path and content.
+        """
+        if self.status == DataSourceStatus.SYNCHRONISING:
+            raise SynchronisationError(
+                "Synchronisation in progress, not starting a new push."
+            )
+        if self.status == DataSourceStatus.PUSHING:
+            raise SynchronisationError(
+                "Pushing already in progress, not starting a new one."
+            )
+
+        self.status = DataSourceStatus.PUSHING
+        self.save()
+
+        try:
+            backend = self.get_backend()
+        except ModuleNotFoundError as e:
+            raise SynchronisationError(
+                f"Unable to initialise the backend. A dependency needs to be installed: {e}"
+            )
+
+        with backend.push(file_path) as local_path:
+            logger.debug(f"pushing {file_path} to {local_path}")
+
+            try:
+                data_file = self.datafiles.get(path=file_path)
+            except DataFile.DoesNotExist:
+                logger.debug(f"creating new file {file_path} to {local_path}")
+                data_file = DataFile(source=self, path=file_path)
+
+            data_file.data = content.encode()
+            data_file.updated = timezone.now()
+            data_file.write_to_disk(source_root=local_path, overwrite=True)
+            data_file.refresh_from_disk(source_root=local_path)
+            data_file.save()
+
+            logger.debug(f"{file_path} written to {local_path}")
+
+        self.status = DataSourceStatus.COMPLETED
+        self.last_synchronised = timezone.now()
+        self.save()
 
 
 class DataFile(models.Model):
@@ -312,7 +360,7 @@ class DataFile(models.Model):
         file_path = Path(source_root) / self.path
         file_hash = sha256_hash(file_path).hexdigest()
 
-        has_changed = file_path != self.hash
+        has_changed = file_hash != self.hash
         if has_changed:
             self.updated = timezone.now()
             self.size = file_path.stat().st_size
@@ -321,12 +369,12 @@ class DataFile(models.Model):
 
         return has_changed
 
-    def write_to_disk(self, path, overwrite=False):
+    def write_to_disk(self, source_root, overwrite=False):
         """
         Write data stored in the database for this file into a corresponding file on
         disk.
         """
-        file_path = Path(path)
+        file_path = Path(source_root) / self.path
 
         if file_path.is_file() and not overwrite:
             raise FileExistsError()

@@ -118,7 +118,12 @@ CONFIG_CONTEXT_MERGE_STRATEGY = {
     "recursive": getattr(configuration, "CONFIG_CONTEXT_RECURSIVE_MERGE", True),
     "list_merge": getattr(configuration, "CONFIG_CONTEXT_LIST_MERGE", "replace"),
 }
-
+GIT_COMMIT_AUTHOR = getattr(
+    configuration, "GIT_COMMIT_AUTHOR", "Peering Manager <no-reply@peering-manager.net>"
+)
+GIT_COMMIT_MESSAGE = getattr(
+    configuration, "GIT_COMMIT_MESSAGE", "Committed using Peering Manager"
+)
 
 # Django filters
 FILTERS_NULL_CHOICE_LABEL = "-- None --"

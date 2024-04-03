@@ -1,7 +1,7 @@
 import logging
 import traceback
 
-__all__ = ("exception_handler", "SynchronisationError")
+__all__ = ("exception_handler", "PushError", "SynchronisationError")
 
 
 def exception_handler(rq_job, exc_type, exc_value, trace):
@@ -21,6 +21,10 @@ def exception_handler(rq_job, exc_type, exc_value, trace):
     job.mark_errored(
         "An exception occurred, see output for more details.", logger=logger
     )
+
+
+class PushError(Exception):
+    pass
 
 
 class SynchronisationError(Exception):

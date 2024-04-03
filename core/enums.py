@@ -5,6 +5,7 @@ class DataSourceStatus(ChoiceSet):
     NEW = "new"
     QUEUED = "queued"
     SYNCHRONISING = "synchronising"
+    PUSHING = "pushing"
     COMPLETED = "completed"
     FAILED = "failed"
 
@@ -12,6 +13,7 @@ class DataSourceStatus(ChoiceSet):
         (NEW, "New", "primary"),
         (QUEUED, "Queued", "secondary"),
         (SYNCHRONISING, "Synchronising", "warning"),
+        (PUSHING, "Pushing", "warning"),
         (COMPLETED, "Completed", "success"),
         (FAILED, "Failed", "danger"),
     )

@@ -64,10 +64,10 @@
         {% for name, field in backend.parameters.items %}
         <tr>
           <td>{{ field.label }}</td>
-          {% if name in brand.sensitive_parameters and not perms.core.change_datasource %}
+          {% if name in backend.sensitive_parameters and not perms.core.change_datasource %}
           <td>********</td>
           {% else %}
-          <td>{{ instance.parameters|get_key:name|render_none }}</td>
+          <td>{{ instance.parameters|get_key:name|render_none|truncatechars:60 }}</td>
           {% endif %}
         </tr>
         {% empty %}
