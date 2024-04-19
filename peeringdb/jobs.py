@@ -3,6 +3,7 @@ import logging
 from django_rq import job
 
 from core.enums import LogLevel
+from peering.models import AutonomousSystem
 
 from .sync import PeeringDB
 
@@ -35,6 +36,17 @@ def synchronise(job):
     )
     job.log(
         f"Deleted {synchronisation.deleted} objects",
+        level_choice=LogLevel.INFO,
+        logger=logger,
+    )
+
+    updated_as_count = 0
+    for autonomous_system in AutonomousSystem.objects.defer("prefixes"):
+        if autonomous_system.synchronise_with_peeringdb():
+            updated_as_count += 1
+
+    job.log(
+        f"Updating values for {updated_as_count} autonomous systems",
         level_choice=LogLevel.INFO,
         logger=logger,
     )
