@@ -16,6 +16,7 @@ from net.models import Connection
 from netbox.api import NetBox
 from peering_manager.models import OrganisationalModel, PrimaryModel
 from peering_manager.models.features import PushedDataMixin
+from peeringdb.functions import get_shared_internet_exchanges
 from peeringdb.models import IXLanPrefix, Network, NetworkContact, NetworkIXLan
 
 from .. import call_irr_as_set_resolver, parse_irr_as_set
