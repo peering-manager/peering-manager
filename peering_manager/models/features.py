@@ -154,6 +154,87 @@ class JobsMixin(models.Model):
         }
 
 
+class PushedDataMixin(models.Model):
+    data_source = models.ForeignKey(
+        to="core.DataSource",
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        related_name="+",
+        help_text="Remote data source",
+    )
+    data_file = models.ForeignKey(
+        to="core.DataFile",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="+",
+        editable=False,
+    )
+    data_path = models.CharField(
+        max_length=1000,
+        blank=True,
+        null=True,
+        help_text="Path to the remote file, relative to its data source root",
+    )
+    data_pushed = models.DateTimeField(blank=True, null=True, editable=False)
+
+    class Meta:
+        abstract = True
+
+    @property
+    def is_pushed(self):
+        return self.data_file and self.data_pushed >= self.data_file.updated
+
+    def clean(self, *args, **kwargs):
+        if not self.data_source:
+            self.data_source = None
+            self.data_path = ""
+            self.data_pushed = None
+
+        super().clean()
+
+    def resolve_data_file(self):
+        """
+        Determine the designated `DataFile` object identified by its parent
+        `DataSource` and its path, create it if it does not exist. Return `None` if
+        either attribute is unset.
+        """
+        from core.models import DataFile
+
+        if self.data_source and self.data_path:
+            try:
+                return DataFile.objects.get(
+                    source=self.data_source, path=self.data_path
+                )
+            except DataFile.DoesNotExist:
+                pass
+        return None
+
+    def push_data(self):
+        """
+        Inheriting models must override this method with specific logic to copy data
+        from the assigned `DataFile` to the local instance. This method should *NOT*
+        call `save()` on the instance.
+        """
+        raise NotImplementedError()
+
+    def push(self, save=False):
+        """
+        Push the object from it's assigned `DataFile` (if any). This wraps
+        `push_data()` and updates the `data_pushed` timestamp.
+        """
+        self.push_data()
+        self.data_pushed = timezone.now()
+
+        data_file = self.resolve_data_file()
+        if self.data_file != data_file:
+            self.data_file = data_file
+
+        if save:
+            self.save()
+
+
 class SynchronisedDataMixin(models.Model):
     data_source = models.ForeignKey(
         to="core.DataSource",
@@ -249,15 +330,16 @@ class SynchronisedDataMixin(models.Model):
 
     def synchronise_data(self):
         """
-        Inheriting models must override this method with specific logic to copy data from the assigned DataFile
-        to the local instance. This method should *NOT* call save() on the instance.
+        Inheriting models must override this method with specific logic to copy data
+        from the assigned `DataFile` to the local instance. This method should *NOT*
+        call `save()` on the instance.
         """
         raise NotImplementedError()
 
     def synchronise(self, save=False):
         """
         Synchronize the object from it's assigned `DataFile` (if any). This wraps
-        `synchronise_data()` and updates the `synchronised_data` timestamp.
+        `synchronise_data()` and updates the `data_synchronised` timestamp.
         """
         self.synchronise_data()
         self.data_synchronised = timezone.now()

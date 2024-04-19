@@ -20,6 +20,7 @@ __all__ = (
     "DataFileFilterForm",
     "DataSourceForm",
     "DataSourceBulkEditForm",
+    "PushedDataMixin",
     "SynchronisedDataMixin",
 )
 
@@ -118,6 +119,17 @@ class DataSourceBulkEditForm(PeeringManagerModelBulkEditForm):
         ("type", "enabled", "description", "comments", "parameters", "ignore_rules"),
     )
     nullable_fields = ("description", "parameters", "comments", "ignore_rules")
+
+
+class PushedDataMixin(forms.Form):
+    data_source = DynamicModelChoiceField(
+        required=False, queryset=DataSource.objects.all()
+    )
+    data_path = forms.CharField(
+        required=False,
+        max_length=200,
+        help_text="Relative path of the file (filename included) to create or update",
+    )
 
 
 class SynchronisedDataMixin(forms.Form):

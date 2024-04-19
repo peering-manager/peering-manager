@@ -2,7 +2,8 @@
 {% block subcontent %}
 <div class="row">
   <div class="col-md-2">
-    {% if perms.peering.deploy_router_configuration and instance.is_usable_for_task %}
+    {% if perms.peering.deploy_router_configuration %}
+    {% if instance.is_usable_for_task %}
     <div class="custom-control custom-switch btn-block">
       <input type="checkbox" class="custom-control-input" id="compare-switch" checked>
       <label class="custom-control-label" for="compare-switch">Compare before commit</label>
@@ -11,11 +12,15 @@
       <i class="fa fa-cogs"></i> Deploy
     </button>
     {% endif %}
+    <button type="button" class="btn btn-primary btn-block" id="push-datasource">
+      <i class="fa fa-cogs"></i> Push to data source
+    </button>
+    {% endif %}
     <button type="button" class="btn btn-secondary btn-block" id="copy-config">
       <i class="fa fa-clipboard"></i> Copy
     </button>
     <a href=".?raw" class="btn btn-dark btn-block">
-      <i class="fas fa-file-alt"></i> Raw Output
+      <i class="fas fa-file-alt"></i> Raw output
     </a>
   </div>
   <div class="col" id="configuration"></div>
@@ -118,6 +123,24 @@
         break;
     }
   }
+  function configPushDataSourceHandler(r) {
+    switch (r['status']['value']) {
+      case 'pending':
+      case 'running':
+        setTimeout(function() {
+          PeeringManager.pollJob(r, configPushDataSourceHandler);
+        }, 2000);
+        break;
+      case 'completed':
+        PeeringManager.setSuccessButton($('#push-datasource'), 'Pushed to data source');
+        break;
+      case 'errored':
+      case 'failed':
+      default:
+        PeeringManager.setFailedButton($('#push-datasource'), 'Failed data source push');
+        break;
+    }
+  }
 
   $(document).ready(function () {
     $.ajax({
@@ -179,6 +202,18 @@
     }).done(function (r) {
       PeeringManager.setWorkingButton($('#commit'));
       deployDoneHandler(r[0]);
+    });
+  });
+
+  $('#push-datasource').click(function () {
+    $.ajax({
+      method: 'post',
+      url: "{% url 'peering-api:router-push-datasource' %}",
+      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+      data: { 'routers': [{{ instance.pk }}] },
+    }).done(function (r) {
+      PeeringManager.setWorkingButton($('#push-datasource'));
+      configPushDataSourceHandler(r[0]);
     });
   });
 </script>

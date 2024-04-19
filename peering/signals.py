@@ -1,7 +1,19 @@
 from django.db.models.signals import pre_save
-from django.dispatch import receiver
+from django.dispatch import Signal, receiver
 
 from .models import DirectPeeringSession, InternetExchangePeeringSession, Router
+
+__all__ = (
+    "post_configuration_rendering",
+    "pre_configuration_rendering",
+    "post_device_configuration",
+    "pre_device_configuration",
+)
+
+post_configuration_rendering = Signal()
+pre_configuration_rendering = Signal()
+post_device_configuration = Signal()
+pre_device_configuration = Signal()
 
 
 @receiver(pre_save, sender=DirectPeeringSession)

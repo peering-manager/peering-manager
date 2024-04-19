@@ -63,5 +63,5 @@ class Command(BaseCommand):
                 self.stdout.write(f"  - Rendering {r.hostname} configuration")
 
             r.configuration_template = t
-            configuration = r.generate_configuration()
+            configuration = r.render_configuration()
             self.stdout.write(configuration)

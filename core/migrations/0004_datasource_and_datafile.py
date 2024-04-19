@@ -40,6 +40,7 @@ class Migration(migrations.Migration):
                             ("new", "New"),
                             ("queued", "Queued"),
                             ("synchronising", "Synchronising"),
+                            ("pushing", "Pushing"),
                             ("completed", "Completed"),
                             ("failed", "Failed"),
                         ],

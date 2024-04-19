@@ -59,7 +59,7 @@ class Command(BaseCommand):
             self.stdout.write(f"  - {router.hostname} ... ", ending="")
 
         if not as_task:
-            configuration = router.generate_configuration()
+            configuration = router.render_configuration()
             error, changes = router.set_napalm_configuration(
                 configuration, commit=no_commit_check
             )

@@ -368,7 +368,7 @@ class RouterSerializer(PeeringManagerModelSerializer):
 
 class RouterConfigureSerializer(serializers.Serializer):
     routers = serializers.ListField(child=serializers.IntegerField())
-    commit = serializers.BooleanField()
+    commit = serializers.BooleanField(required=False, default=False)
 
 
 class RoutingPolicySerializer(PeeringManagerModelSerializer):

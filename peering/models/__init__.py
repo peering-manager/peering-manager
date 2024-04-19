@@ -15,7 +15,7 @@ from netfields import InetAddressField
 from net.models import Connection
 from netbox.api import NetBox
 from peering_manager.models import OrganisationalModel, PrimaryModel
-from peeringdb.functions import get_shared_internet_exchanges
+from peering_manager.models.features import PushedDataMixin
 from peeringdb.models import IXLanPrefix, Network, NetworkContact, NetworkIXLan
 
 from .. import call_irr_as_set_resolver, parse_irr_as_set
@@ -1005,7 +1005,7 @@ class InternetExchangePeeringSession(BGPSession):
         return False
 
 
-class Router(PrimaryModel):
+class Router(PushedDataMixin, PrimaryModel):
     local_autonomous_system = models.ForeignKey(
         to="peering.AutonomousSystem", on_delete=models.CASCADE, null=True
     )
@@ -1206,19 +1206,27 @@ class Router(PrimaryModel):
             "router": self,
         }
 
-    def generate_configuration(self):
+    def render_configuration(self):
         """
         Returns the configuration of a router according to the template in use.
 
         If no template is used, an empty string is returned.
-
-        TODO: Rename to render_configuration
         """
+        from ..signals import post_configuration_rendering, pre_configuration_rendering
+
+        pre_configuration_rendering.send(sender=self.__class__, instance=self)
+
         if self.configuration_template:
             context = self.get_configuration_context()
-            return self.configuration_template.render(context)
+            rendered = self.configuration_template.render(context)
         else:
-            return ""
+            rendered = ""
+
+        post_configuration_rendering.send(
+            sender=self.__class__, instance=self, configuration=rendered
+        )
+
+        return rendered
 
     def get_napalm_device(self):
         """
@@ -1345,6 +1353,8 @@ class Router(PrimaryModel):
         changes must be commited or discarded. The default value is `False` which
         means that the changes will be discarded.
         """
+        from ..signals import post_device_configuration, pre_device_configuration
+
         error, changes = None, None
 
         # Ensure device is enabled, we allow maintenance mode to force a config push
@@ -1384,8 +1394,14 @@ class Router(PrimaryModel):
 
                     # Commit the config if required
                     if commit:
+                        pre_device_configuration.send(
+                            sender=self.__class__, instance=self
+                        )
                         self.logger.debug(f"commiting configuration on {self.hostname}")
                         device.commit_config()
+                        post_device_configuration.send(
+                            sender=self.__class__, instance=self, configuration=config
+                        )
                     else:
                         self.logger.debug(
                             f"discarding configuration on {self.hostname}"
@@ -1778,6 +1794,9 @@ class Router(PrimaryModel):
         self.save()
 
         return True, count
+
+    def push_data(self):
+        self.data_source.push(self.data_path, self.render_configuration())
 
 
 class RoutingPolicy(OrganisationalModel):
