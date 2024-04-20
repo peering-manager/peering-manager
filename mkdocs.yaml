@@ -85,6 +85,7 @@ nav:
     - NetBox: "integrations/netbox.md"
     - NAPALM: "integrations/napalm.md"
     - Prometheus Metrics: "integrations/prometheus-metrics.md"
+    - Synchronised Data: "integrations/synchronised-data.md"
   - Templating:
     - "templating/index.md"
     - Jinja Filters: "templating/filters.md"

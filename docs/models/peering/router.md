@@ -78,10 +78,35 @@ slower router, increasing the global timeout might be a solution:
 }
 ```
 
-
 ## Connecting to your router
 
 Peering Manager uses [NAPALM](https://napalm.readthedocs.io) to connect to
 devices. The *Ping* button at the top checks if NAPALM can access your router.
 If you run into problems try connecting to your router from the command line
 using NAPALM.
+
+## Deploying configuration to a data source
+
+Keeping the router configuration in a remote location, other than the router
+itself, can be useful in some cases. This can be achieved by using the
+following fields and the
+[synchronised data feature](../../integrations/synchronised-data.md):
+
+* `Data source`: the remote location in which to store the rendered
+  configuration file recorded as a [data source](../core/datasource.md)
+* `Data path`: the path (relative to the data source) of the file in which the
+  rendered configuration will be stored, it will create a
+  [data file](../core/datafile.md) on first push
+
+!!! note "Permissions"
+    A user must be assigned the
+    `peering | routing | Can push router's configuraion to data source`
+    permission in order to push a new file to a remote data source
+
+Pushing a device rendered configuration can be triggered in 3 ways:
+
+* In the user interface, with the "Push to data source" button, in the
+  router's configuration view
+* With the `push_to_data_source` CLI command
+* By sending a `POST` request to the `/api/peering/routers/push-datasource/`
+  API endpoint

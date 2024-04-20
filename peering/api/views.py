@@ -879,7 +879,9 @@ class RouterViewSet(PeeringManagerModelViewSet):
     @action(detail=False, methods=["post"], url_path="push-datasource")
     def push_datasource(self, request):
         # Check user permission first
-        if not request.user.has_perm("peering.deploy_router_configuration"):
+        if not request.user.has_perm(
+            "peering.push_router_configuration_to_data_source"
+        ):
             return Response(None, status=status.HTTP_403_FORBIDDEN)
 
         # Make sure request is valid

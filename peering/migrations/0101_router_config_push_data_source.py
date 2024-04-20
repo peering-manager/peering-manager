@@ -50,4 +50,21 @@ class Migration(migrations.Migration):
                 to="core.datasource",
             ),
         ),
+        migrations.AlterModelOptions(
+            name="router",
+            options={
+                "ordering": ["local_autonomous_system", "name"],
+                "permissions": [
+                    ("view_router_configuration", "Can view router's configuration"),
+                    (
+                        "deploy_router_configuration",
+                        "Can deploy router's configuration",
+                    ),
+                    (
+                        "push_router_configuration_to_data_source",
+                        "Can push router's configuration on a data source",
+                    ),
+                ],
+            },
+        ),
     ]

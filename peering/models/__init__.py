@@ -1058,6 +1058,10 @@ class Router(PushedDataMixin, PrimaryModel):
         permissions = [
             ("view_router_configuration", "Can view router's configuration"),
             ("deploy_router_configuration", "Can deploy router's configuration"),
+            (
+                "push_router_configuration_to_data_source",
+                "Can push router's configuration on a data source",
+            ),
         ]
 
     def __str__(self):
@@ -1797,7 +1801,8 @@ class Router(PushedDataMixin, PrimaryModel):
         return True, count
 
     def push_data(self):
-        self.data_source.push(self.data_path, self.render_configuration())
+        if self.data_source and self.data_path:
+            self.data_source.push(self.data_path, self.render_configuration())
 
 
 class RoutingPolicy(OrganisationalModel):

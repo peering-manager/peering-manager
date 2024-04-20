@@ -12,6 +12,8 @@
       <i class="fa fa-cogs"></i> Deploy
     </button>
     {% endif %}
+    {% endif %}
+    {% if perms.peering.push_router_configuration_to_data_source %}
     <button type="button" class="btn btn-primary btn-block" id="push-datasource">
       <i class="fa fa-cogs"></i> Push to data source
     </button>
@@ -44,9 +46,56 @@
 </div>
 {% endif %}
 {% endblock %}
-{% if perms.peering.deploy_router_configuration and instance.is_usable_for_task %}
 {% block javascript %}
 <script>
+  $(document).ready(function () {
+    $.ajax({
+      method: 'get',
+      url: "{% url 'peering-api:router-configuration' pk=instance.pk %}"
+    }).done(function (r) {
+      $('#configuration').html('<div class="text-center" style="font-size: 2rem;"><i class="fas fa-sync fa-spin fa-fw"></i> Working</div>');
+      configDoneHandler(r);
+    }).fail(function () {
+      $('#configuration').html('<p>Unable to render router configuration.</p>');
+    });
+  });
+
+  // Bind copy to clipboard function to the button
+  $('#copy-config').click(function () {
+    var temp = $('<textarea>');
+    $('body').append(temp);
+    temp.val($('.pre-scrollable').text()).select();
+    document.execCommand('copy');
+    temp.remove();
+  });
+
+  function configDoneHandler(r) {
+    switch (r['status']['value']) {
+      case 'pending':
+      case 'running':
+        setTimeout(function() {
+          PeeringManager.pollJob(r, configDoneHandler);
+        }, 2000);
+        break;
+      case 'completed':
+        var formatted;
+        var config = r['output'];
+        if (config == "") {
+          formatted = '<p>Configuration is empty.</p>';
+        } else {
+          formatted = '<pre class="pre-scrollable"><code>' + PeeringManager.escapeHTML(config) + '</code></pre>';
+        }
+        $('#configuration').html(formatted);
+        break;
+      case 'errored':
+      case 'failed':
+      default:
+        $('#configuration').html('<p>An error occured while generating the configuration.</p>');
+        break;
+    }
+  }
+
+  {% if perms.peering.deploy_router_configuration and instance.is_usable_for_task %}
   function deployFailHandler() {
     PeeringManager.setFailedButton($('#commit'), 'An error occurred');
   }
@@ -98,61 +147,6 @@
         break;
     }
   }
-  function configDoneHandler(r) {
-    switch (r['status']['value']) {
-      case 'pending':
-      case 'running':
-        setTimeout(function() {
-          PeeringManager.pollJob(r, configDoneHandler);
-        }, 2000);
-        break;
-      case 'completed':
-        var formatted;
-        var config = r['output'];
-        if (config == "") {
-          formatted = '<p>Configuration is empty.</p>';
-        } else {
-          formatted = '<pre class="pre-scrollable"><code>' + PeeringManager.escapeHTML(config) + '</code></pre>';
-        }
-        $('#configuration').html(formatted);
-        break;
-      case 'errored':
-      case 'failed':
-      default:
-        $('#configuration').html('<p>An error occured while generating the configuration.</p>');
-        break;
-    }
-  }
-  function configPushDataSourceHandler(r) {
-    switch (r['status']['value']) {
-      case 'pending':
-      case 'running':
-        setTimeout(function() {
-          PeeringManager.pollJob(r, configPushDataSourceHandler);
-        }, 2000);
-        break;
-      case 'completed':
-        PeeringManager.setSuccessButton($('#push-datasource'), 'Pushed to data source');
-        break;
-      case 'errored':
-      case 'failed':
-      default:
-        PeeringManager.setFailedButton($('#push-datasource'), 'Failed data source push');
-        break;
-    }
-  }
-
-  $(document).ready(function () {
-    $.ajax({
-      method: 'get',
-      url: "{% url 'peering-api:router-configuration' pk=instance.pk %}"
-    }).done(function (r) {
-      $('#configuration').html('<div class="text-center" style="font-size: 2rem;"><i class="fas fa-sync fa-spin fa-fw"></i> Working</div>');
-      configDoneHandler(r);
-    }).fail(function () {
-      $('#configuration').html('<p>Unable to generate router configuration.</p>');
-    });
-  });
 
   // When the modal is closed, reset the button back to its defaults
   $('#main-modal').on('hidden.bs.modal', function (e) {
@@ -160,15 +154,6 @@
                 .removeClass('btn-warning', 'btn-danger', 'btn-success')
                 .addClass('btn-primary')
                 .html('Commit changes').show();
-  });
-
-  // Bind copy to clipboard function to the button
-  $('#copy-config').click(function () {
-    var temp = $('<textarea>');
-    $('body').append(temp);
-    temp.val($('.pre-scrollable').text()).select();
-    document.execCommand('copy');
-    temp.remove();
   });
 
   var maintenance = {% if instance.status == 'maintenance' %}true{% else %}false{% endif %};
@@ -204,7 +189,26 @@
       deployDoneHandler(r[0]);
     });
   });
-
+  {% endif %}
+  {% if perms.peering.push_router_configuration_to_data_source %}
+  function configPushDataSourceHandler(r) {
+    switch (r['status']['value']) {
+      case 'pending':
+      case 'running':
+        setTimeout(function() {
+          PeeringManager.pollJob(r, configPushDataSourceHandler);
+        }, 2000);
+        break;
+      case 'completed':
+        PeeringManager.setSuccessButton($('#push-datasource'), 'Pushed to data source');
+        break;
+      case 'errored':
+      case 'failed':
+      default:
+        PeeringManager.setFailedButton($('#push-datasource'), 'Failed data source push');
+        break;
+    }
+  }
   $('#push-datasource').click(function () {
     $.ajax({
       method: 'post',
@@ -216,6 +220,6 @@
       configPushDataSourceHandler(r[0]);
     });
   });
+  {% endif %}
 </script>
 {% endblock %}
-{% endif %}

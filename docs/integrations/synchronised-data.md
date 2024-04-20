@@ -1,4 +1,4 @@
-# Synchronized Data
+# Synchronised Data
 
 Some Peering Manager models support automatic synchronisation of certain
 attributes from remote [data sources](../models/core/datasource.md), such as a
@@ -15,7 +15,7 @@ locally in Peering Manager as [data files](../models/core/datafile.md).
     can be used to perform authentication. A personal access token should be
     set into the password field when creating/editing a data source.
 
-The following features support the use of synchronized data:
+The following features support the use of synchronised data:
 
 * [Configuration and e-mail templates](../templating/index.md)
 * [Configuration context data](../models/extras/configcontext.md)
@@ -24,5 +24,9 @@ The following features support the use of synchronized data:
 Device configuration supports retrieving template via a data source, but it
 also supports committing and pushing a rendered configuration to a data
 source.
+
+A convenient CLI command called `datasource` is provided to synchronise data
+sources regularly. It takes a `--all` to synchronise all known data sources or
+the individual names of each data source to synchronise, space delimited.
 
 [1]: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
