@@ -2,6 +2,7 @@ import copy
 
 from django import forms
 
+from core.enums import DataSourceStatus
 from peering_manager.forms import (
     PeeringManagerModelBulkEditForm,
     PeeringManagerModelFilterSetForm,
@@ -9,9 +10,14 @@ from peering_manager.forms import (
 )
 from peering_manager.registry import DATA_BACKENDS_KEY, registry
 from utils.forms import get_field_value
+from utils.forms.constants import BOOLEAN_WITH_BLANK_CHOICES
 from utils.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utils.forms.fields.fields import CommentField
-from utils.forms.widgets import BulkEditNullBooleanSelect, StaticSelect
+from utils.forms.widgets import (
+    BulkEditNullBooleanSelect,
+    StaticSelect,
+    StaticSelectMultiple,
+)
 
 from ..models import DataFile, DataSource
 from ..utils import get_data_backend_choices
@@ -20,6 +26,7 @@ __all__ = (
     "DataFileFilterForm",
     "DataSourceForm",
     "DataSourceBulkEditForm",
+    "DataSourceFilterForm",
     "PushedDataMixin",
     "SynchronisedDataMixin",
 )
@@ -119,6 +126,19 @@ class DataSourceBulkEditForm(PeeringManagerModelBulkEditForm):
         ("type", "enabled", "description", "comments", "parameters", "ignore_rules"),
     )
     nullable_fields = ("description", "parameters", "comments", "ignore_rules")
+
+
+class DataSourceFilterForm(PeeringManagerModelFilterSetForm):
+    model = DataSource
+    type = forms.MultipleChoiceField(
+        required=False, choices=get_data_backend_choices, widget=StaticSelectMultiple
+    )
+    status = forms.MultipleChoiceField(
+        required=False, choices=DataSourceStatus, widget=StaticSelectMultiple
+    )
+    enabled = forms.NullBooleanField(
+        required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES)
+    )
 
 
 class PushedDataMixin(forms.Form):

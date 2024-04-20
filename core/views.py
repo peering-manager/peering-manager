@@ -43,7 +43,7 @@ class DataSourceListView(ObjectListView):
     permission_required = "core.view_datasource"
     queryset = DataSource.objects.all()
     filterset = filtersets.DataSourceFilterSet
-    filterset_form = forms.DataSourceForm
+    filterset_form = forms.DataSourceFilterForm
     table = tables.DataSourceTable
     template_name = "core/datasource/list.html"
 
