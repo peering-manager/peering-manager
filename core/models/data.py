@@ -72,6 +72,13 @@ class DataSource(PrimaryModel, JobsMixin):
             DataSourceStatus.SYNCHRONISING,
         )
 
+    @property
+    def ready_for_push(self):
+        return self.enabled and self.status not in (
+            DataSourceStatus.QUEUED,
+            DataSourceStatus.PUSHING,
+        )
+
     def __str__(self):
         return self.name
 
@@ -174,6 +181,10 @@ class DataSource(PrimaryModel, JobsMixin):
         Perform `DataFile` creation/update/deletion according to the synchronisation
         process.
         """
+        if not self.enabled:
+            raise SynchronisationError(
+                "Data source if disabled, synchronisation aborted."
+            )
         if self.status == DataSourceStatus.SYNCHRONISING:
             raise SynchronisationError(
                 "Synchronisation already in progress, not starting a new one."
@@ -247,6 +258,8 @@ class DataSource(PrimaryModel, JobsMixin):
         """
         Push a file to a data source given its file path and content.
         """
+        if not self.enabled:
+            raise SynchronisationError("Data source if disabled, push aborted.")
         if self.status == DataSourceStatus.SYNCHRONISING:
             raise SynchronisationError(
                 "Synchronisation in progress, not starting a new push."
