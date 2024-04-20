@@ -1,0 +1,129 @@
+{% extends 'core/datasource/_base.html' %}
+{% load helpers %}
+{% block subcontent %}
+{% include 'includes/alerts_success_danger.html' %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <strong>Details</strong>
+      </div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Name</td>
+          <td>{{ instance.name }}</td>
+        </tr>
+        <tr>
+          <td>Type</td>
+          <td>{{ instance.get_type_display }}</td>
+        </tr>
+        <tr>
+          <td>Enabled</td>
+          <td>{{ instance.enabled|boolean_as_icon }}</td>
+        </tr>
+        <tr>
+          <td>Synchronisation status</td>
+          <td>{{ instance | status_as_badge }}</td>
+        </tr>
+        <tr>
+          <td>Last synchronised</td>
+          <td>{{ instance.last_synchronised|date_span|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Description</td>
+          <td>{{ instance.description|render_none }}</td>
+        </tr>
+        <tr>
+          <td>URL</td>
+          <td>{{ instance.source_url }}</td>
+        </tr>
+        <tr>
+          <td>Ignore rules</td>
+          <td>
+            {% if instance.ignore_rules %}
+            <pre>{{ instance.ignore_rules }}</pre>
+            {% else %}
+            {{ ''|render_none }}
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td>File count</td>
+          <td>{{ datafile_count }}</td>
+        </tr>
+      </table>
+    </div>
+    {% include 'includes/comments_card.html' %}
+    {% include 'includes/tags_card.html' with tags=instance.tags.all url='core:datasource_list' %}
+  </div>
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header"><strong>Backend</strong></div>
+      {% with backend=instance.get_backend %}
+      <table class="card-body table table-hover attr-table mb-0">
+        {% for name, field in backend.parameters.items %}
+        <tr>
+          <td>{{ field.label }}</td>
+          {% if name in backend.sensitive_parameters and not perms.core.change_datasource %}
+          <td>********</td>
+          {% else %}
+          <td>{{ instance.parameters|get_key:name|render_none|truncatechars:60 }}</td>
+          {% endif %}
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="2" class="text-muted">No parameters defined</td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% endwith %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script>
+  $('.alert').hide();
+  $('.alert').on('click', '.close', function () {
+    $(this).closest('.alert').slideUp();
+  });
+
+  {% if instance.ready_for_synchronisation %}
+  function synchronisationFailHandler() {
+    PeeringManager.resetSynchroniseButton($('#id_synchronise'), "btn-primary");
+  }
+  function synchronisationDoneHandler(r) {
+    switch (r['status']['value']) {
+      case 'pending':
+      case 'running':
+        setTimeout(function () {
+          PeeringManager.pollJob(r, synchronisationDoneHandler, synchronisationFailHandler);
+        }, 2000);
+        break;
+      case 'completed':
+        $('#id_message_success').html('Successfully synchronised data source.');
+        $('#id_alert_success').slideDown();
+        PeeringManager.resetSynchroniseButton($('#id_synchronise'), "btn-primary");
+        break;
+      case 'errored':
+      case 'failed':
+      default:
+        $('#id_message_danger').html('Unable to synchronise data source.');
+        $('#id_alert_danger').slideDown();
+        PeeringManager.resetSynchroniseButton($('#id_synchronise'), "btn-primary");
+        break;
+    }
+  }
+  $("#id_synchronise").click(function () {
+    $.ajax({
+      method: "post",
+      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+      url: "{% url 'core-api:datasource-synchronise' pk=instance.pk %}",
+    }).done(function(r) {
+      PeeringManager.setWorkingButton($('#id_synchronise'));
+      PeeringManager.pollJob(r, synchronisationDoneHandler, synchronisationFailHandler);
+    });
+  });
+  {% endif %}
+</script>
+{% endblock %}

@@ -1,7 +1,7 @@
 import logging
 import traceback
 
-__all__ = ("exception_handler", "SyncError")
+__all__ = ("exception_handler", "PushError", "SynchronisationError")
 
 
 def exception_handler(rq_job, exc_type, exc_value, trace):
@@ -23,5 +23,9 @@ def exception_handler(rq_job, exc_type, exc_value, trace):
     )
 
 
-class SyncError(Exception):
+class PushError(Exception):
+    pass
+
+
+class SynchronisationError(Exception):
     pass

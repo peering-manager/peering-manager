@@ -827,7 +827,7 @@ class RouterConfiguration(PermissionRequiredMixin, View):
 
         if "raw" in request.GET:
             return HttpResponse(
-                instance.generate_configuration(), content_type="text/plain"
+                instance.render_configuration(), content_type="text/plain"
             )
 
         return render(

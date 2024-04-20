@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
 from bgp.models import Relationship
+from core.forms import PushedDataMixin
 from devices.models import Configuration, Platform
 from extras.models import IXAPI
 from messaging.models import Email
@@ -830,7 +831,7 @@ class InternetExchangePeeringSessionFilterForm(PeeringManagerModelFilterSetForm)
     tag = TagFilterField(model)
 
 
-class RouterForm(PeeringManagerModelForm):
+class RouterForm(PushedDataMixin, PeeringManagerModelForm):
     netbox_device_id = forms.IntegerField(label="NetBox device", initial=0)
     platform = DynamicModelChoiceField(required=False, queryset=Platform.objects.all())
     status = forms.ChoiceField(
@@ -881,6 +882,7 @@ class RouterForm(PeeringManagerModelForm):
             "NAPALM",
             ("napalm_username", "napalm_password", "napalm_timeout", "napalm_args"),
         ),
+        ("Data Source", ("data_source", "data_path")),
         ("Config Context", ("local_context_data",)),
     )
 
@@ -932,6 +934,8 @@ class RouterForm(PeeringManagerModelForm):
             "napalm_args",
             "comments",
             "tags",
+            "data_source",
+            "data_path",
         )
         help_texts = {"hostname": "Router hostname (must be resolvable) or IP address"}
 

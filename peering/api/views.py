@@ -28,9 +28,10 @@ from ..filtersets import (
     RoutingPolicyFilterSet,
 )
 from ..jobs import (
-    generate_configuration,
     import_sessions_to_internet_exchange,
     poll_bgp_sessions,
+    push_configuration_to_data_source,
+    render_configuration,
     set_napalm_configuration,
     test_napalm_connection,
 )
@@ -96,7 +97,7 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
         jobs = []
         for router in self.get_object().get_routers():
             jobs.append(
-                Job.enqueue_job(
+                Job.enqueue(
                     poll_bgp_sessions,
                     router,
                     name="peering.router.poll_bgp_sessions",
@@ -247,7 +248,7 @@ class BGPGroupViewSet(PeeringManagerModelViewSet):
         jobs = []
         for router in self.get_object().get_routers():
             jobs.append(
-                Job.enqueue_job(
+                Job.enqueue(
                     poll_bgp_sessions,
                     router,
                     name="peering.router.poll_bgp_sessions",
@@ -425,7 +426,7 @@ class InternetExchangeViewSet(PeeringManagerModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         ixp = self.get_object()
-        job = Job.enqueue_job(
+        job = Job.enqueue(
             import_sessions_to_internet_exchange,
             ixp,
             name="peering.internet_exchange.import_sessions",
@@ -491,7 +492,7 @@ class InternetExchangeViewSet(PeeringManagerModelViewSet):
         jobs = []
         for router in self.get_object().get_routers():
             jobs.append(
-                Job.enqueue_job(
+                Job.enqueue(
                     poll_bgp_sessions,
                     router,
                     name="peering.router.poll_bgp_sessions",
@@ -589,11 +590,11 @@ class RouterViewSet(PeeringManagerModelViewSet):
         responses={
             202: OpenApiResponse(
                 response=JobSerializer,
-                description="Job scheduled to generate the router configuration.",
+                description="Job scheduled to render the router configuration.",
             ),
             403: OpenApiResponse(
                 response=OpenApiTypes.NONE,
-                description="The user does not have the permission to generate a configuration.",
+                description="The user does not have the permission to render a configuration.",
             ),
             404: OpenApiResponse(
                 response=OpenApiTypes.OBJECT, description="The router does not exist."
@@ -607,10 +608,10 @@ class RouterViewSet(PeeringManagerModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         router = self.get_object()
-        job = Job.enqueue_job(
-            generate_configuration,
+        job = Job.enqueue(
+            render_configuration,
             router,
-            name="peering.router.generate_configuration",
+            name="peering.router.render_configuration",
             object=router,
             user=request.user,
         )
@@ -625,7 +626,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
         responses={
             202: OpenApiResponse(
                 response=JobSerializer,
-                description="Job scheduled to generate configure routers.",
+                description="Job scheduled to render configure routers.",
             ),
             400: OpenApiResponse(
                 response=OpenApiTypes.NONE,
@@ -661,7 +662,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
 
         jobs = []
         for router in routers:
-            job = Job.enqueue_job(
+            job = Job.enqueue(
                 set_napalm_configuration,
                 router,
                 commit,
@@ -702,7 +703,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         router = self.get_object()
-        job = Job.enqueue_job(
+        job = Job.enqueue(
             poll_bgp_sessions,
             router,
             name="peering.router.poll_bgp_sessions",
@@ -730,7 +731,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
     @action(detail=True, methods=["get"], url_path="test-napalm-connection")
     def test_napalm_connection(self, request, pk=None):
         router = self.get_object()
-        job = Job.enqueue_job(
+        job = Job.enqueue(
             test_napalm_connection,
             router,
             name="peering.router.test_napalm_connection",
@@ -853,6 +854,63 @@ class RouterViewSet(PeeringManagerModelViewSet):
             router.status = device_status
             router.save()
             return Response(status=status.HTTP_200_OK)
+
+    @extend_schema(
+        operation_id="peering_routers_push_datasource",
+        request=RouterConfigureSerializer,
+        responses={
+            202: OpenApiResponse(
+                response=JobSerializer,
+                description="Job scheduled to push router configurations to data sources.",
+            ),
+            400: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="Invalid list of routers provided.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to push router configurations to data sources.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT, description="The router does not exist."
+            ),
+        },
+    )
+    @action(detail=False, methods=["post"], url_path="push-datasource")
+    def push_datasource(self, request):
+        # Check user permission first
+        if not request.user.has_perm(
+            "peering.push_router_configuration_to_data_source"
+        ):
+            return Response(None, status=status.HTTP_403_FORBIDDEN)
+
+        # Make sure request is valid
+        serializer = RouterConfigureSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        router_ids = serializer.validated_data.get("routers")
+        if len(router_ids) < 1:
+            raise ValidationError("routers list must not be empty")
+
+        routers = Router.objects.filter(pk__in=router_ids)
+        if not routers:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        jobs = []
+        for router in routers:
+            job = Job.enqueue(
+                push_configuration_to_data_source,
+                router,
+                name="peering.router.push_to_data_source",
+                object=router,
+                user=request.user,
+            )
+            jobs.append(job)
+
+        return Response(
+            JobSerializer(jobs, many=True, context={"request": request}).data,
+            status=status.HTTP_202_ACCEPTED,
+        )
 
 
 class RoutingPolicyViewSet(PeeringManagerModelViewSet):

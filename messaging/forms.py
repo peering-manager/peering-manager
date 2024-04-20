@@ -1,6 +1,8 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
+from core.forms import SynchronisedDataMixin
 from peering_manager.forms import (
     PeeringManagerModelBulkEditForm,
     PeeringManagerModelFilterSetForm,
@@ -97,28 +99,28 @@ class ContactAssignmentForm(BootstrapMixin, forms.ModelForm):
         fields = ("contact", "role")
 
 
-class EmailForm(BootstrapMixin, forms.ModelForm):
+class EmailForm(PeeringManagerModelForm, SynchronisedDataMixin):
     subject = forms.CharField(
         help_text='<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/templating/" target="_blank">Jinja2 template</a> syntax is supported'
     )
-    template = TemplateField(label="Body")
+    template = TemplateField(required=False, label="Body")
     comments = CommentField()
     tags = TagField(required=False)
     fieldsets = (
         ("E-mail", ("name", "subject", "jinja2_trim", "jinja2_lstrip", "template")),
+        ("Data Source", ("data_source", "data_file", "auto_synchronisation_enabled")),
     )
 
     class Meta:
         model = Email
-        fields = (
-            "name",
-            "subject",
-            "template",
-            "jinja2_trim",
-            "jinja2_lstrip",
-            "comments",
-            "tags",
-        )
+        fields = "__all__"
+
+    def clean(self):
+        if not self.cleaned_data["template"] and not self.cleaned_data["data_file"]:
+            raise ValidationError(
+                "Either the template code or a file from a data source must be provided"
+            )
+        return super().clean()
 
 
 class EmailFilterForm(BootstrapMixin, forms.Form):

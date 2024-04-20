@@ -3,6 +3,7 @@ from django.db.models import Count
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import View
 
+from extras.enums import ObjectChangeAction
 from peering.models import InternetExchange
 from peering_manager.views.generic import (
     BulkDeleteView,
@@ -268,7 +269,8 @@ class ObjectChangeView(PermissionRequiredMixin, View):
 
         if (
             not instance.prechange_data
-            and instance.action in ["update", "delete"]
+            and instance.action
+            in [ObjectChangeAction.UPDATE, ObjectChangeAction.DELETE]
             and previous_change
         ):
             non_atomic_change = True

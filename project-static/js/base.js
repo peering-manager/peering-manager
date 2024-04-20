@@ -5,17 +5,17 @@ var PeeringManager = {
       c => '&#' + ('000' + c.charCodeAt(0)).slice(-4) + ';'
     )
   },
-  setWorkingButton: function (button, text = "Working") {
+  setWorkingButton: function (button, text = 'Working') {
     button.attr('disabled', 'disabled');
     button.removeClass('btn-primary').addClass('btn-warning');
     button.html('<i class="fas fa-sync fa-spin fa-fw"></i> ' + text);
   },
-  setFailedButton: function (button, text = "Failed") {
+  setFailedButton: function (button, text = 'Failed') {
     button.attr('disabled', 'disabled');
     button.removeClass('btn-primary').addClass('btn-danger');
     button.html('<i class="fas fa-times fa-fw"></i> ' + text);
   },
-  setSuccessButton: function (button, text = "Successful") {
+  setSuccessButton: function (button, text = 'Successful') {
     button.attr('disabled', 'disabled');
     button.removeClass('btn-warning').addClass('btn-success');
     button.html('<i class="fas fa-check"></i> ' + text);
@@ -30,10 +30,10 @@ var PeeringManager = {
     button.removeClass('btn-warning', 'btn-danger', 'btn-success');
     button.addClass('btn-primary').html('<i class="fas fa-cogs"></i> Deploy');
   },
-  resetSyncPeeringDBButton: function (button) {
+  resetSynchroniseButton: function (button, css_class = "btn-success") {
     button.removeAttr('disabled');
     button.removeClass('btn-warning', 'btn-danger');
-    button.addClass('btn-success').html('<i class="fas fa-sync"></i> Synchronise');
+    button.addClass(css_class).html('<i class="fas fa-sync"></i> Synchronise');
   },
   resetPollSessionsButton: function (button) {
     button.removeAttr('disabled');

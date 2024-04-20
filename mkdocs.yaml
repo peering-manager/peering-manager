@@ -85,6 +85,7 @@ nav:
     - NetBox: "integrations/netbox.md"
     - NAPALM: "integrations/napalm.md"
     - Prometheus Metrics: "integrations/prometheus-metrics.md"
+    - Synchronised Data: "integrations/synchronised-data.md"
   - Templating:
     - "templating/index.md"
     - Jinja Filters: "templating/filters.md"
@@ -103,6 +104,9 @@ nav:
     - Conditions: "reference/conditions.md"
     - Filtering: "reference/filtering.md"
     - Data Model:
+      - Core:
+        - Data Source: "models/core/datasource.md"
+        - Data File: "models/core/datafile.md"
       - Devices:
         - Configuration: "models/devices/configuration.md"
         - Platform: "models/devices/platform.md"

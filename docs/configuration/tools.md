@@ -22,7 +22,7 @@ e-mail contacts).
 
 ## PEERINGDB_USERNAME / PEERINGDB_PASSWORD
 
-!!! warn
+!!! warning
     These settings are deprecated, use `PEERINGDB_API_KEY` instead.
 
 Username and password used for PeeringDB API authentication.

@@ -1,6 +1,24 @@
 from utils.enums import ChoiceSet
 
 
+class DataSourceStatus(ChoiceSet):
+    NEW = "new"
+    QUEUED = "queued"
+    SYNCHRONISING = "synchronising"
+    PUSHING = "pushing"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+    CHOICES = (
+        (NEW, "New", "primary"),
+        (QUEUED, "Queued", "secondary"),
+        (SYNCHRONISING, "Synchronising", "warning"),
+        (PUSHING, "Pushing", "warning"),
+        (COMPLETED, "Completed", "success"),
+        (FAILED, "Failed", "danger"),
+    )
+
+
 class JobStatus(ChoiceSet):
     PENDING = "pending"
     RUNNING = "running"

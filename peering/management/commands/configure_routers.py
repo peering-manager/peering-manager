@@ -59,7 +59,7 @@ class Command(BaseCommand):
             self.stdout.write(f"  - {router.hostname} ... ", ending="")
 
         if not as_task:
-            configuration = router.generate_configuration()
+            configuration = router.render_configuration()
             error, changes = router.set_napalm_configuration(
                 configuration, commit=no_commit_check
             )
@@ -72,7 +72,7 @@ class Command(BaseCommand):
                 else:
                     self.stdout.write(self.style.ERROR("failed"))
         else:
-            job = Job.enqueue_job(
+            job = Job.enqueue(
                 set_napalm_configuration,
                 router,
                 True,

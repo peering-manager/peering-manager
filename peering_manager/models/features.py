@@ -2,10 +2,12 @@ from collections import defaultdict
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
 from django.db import models
 from django.db.models.signals import class_prepared
 from django.dispatch import receiver
+from django.utils import timezone
 from taggit.managers import TaggableManager
 
 from core.enums import JobStatus
@@ -20,6 +22,7 @@ __all__ = (
     "ConfigContextMixin",
     "ExportTemplatesMixin",
     "JobsMixin",
+    "SynchronisedDataMixin",
     "TagsMixin",
     "WebhooksMixin",
 )
@@ -151,6 +154,199 @@ class JobsMixin(models.Model):
         }
 
 
+class PushedDataMixin(models.Model):
+    data_source = models.ForeignKey(
+        to="core.DataSource",
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        related_name="+",
+        help_text="Remote data source",
+    )
+    data_file = models.ForeignKey(
+        to="core.DataFile",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="+",
+        editable=False,
+    )
+    data_path = models.CharField(
+        max_length=1000,
+        blank=True,
+        null=True,
+        help_text="Path to the remote file, relative to its data source root",
+    )
+    data_pushed = models.DateTimeField(blank=True, null=True, editable=False)
+
+    class Meta:
+        abstract = True
+
+    @property
+    def is_pushed(self):
+        return self.data_file and self.data_pushed >= self.data_file.updated
+
+    def clean(self, *args, **kwargs):
+        if not self.data_source:
+            self.data_source = None
+            self.data_path = ""
+            self.data_pushed = None
+
+        super().clean()
+
+    def resolve_data_file(self):
+        """
+        Determine the designated `DataFile` object identified by its parent
+        `DataSource` and its path, create it if it does not exist. Return `None` if
+        either attribute is unset.
+        """
+        from core.models import DataFile
+
+        if self.data_source and self.data_path:
+            try:
+                return DataFile.objects.get(
+                    source=self.data_source, path=self.data_path
+                )
+            except DataFile.DoesNotExist:
+                pass
+        return None
+
+    def push_data(self):
+        """
+        Inheriting models must override this method with specific logic to copy data
+        from the assigned `DataFile` to the local instance. This method should *NOT*
+        call `save()` on the instance.
+        """
+        raise NotImplementedError()
+
+    def push(self, save=False):
+        """
+        Push the object from it's assigned `DataFile` (if any). This wraps
+        `push_data()` and updates the `data_pushed` timestamp.
+        """
+        self.push_data()
+        self.data_pushed = timezone.now()
+
+        data_file = self.resolve_data_file()
+        if self.data_file != data_file:
+            self.data_file = data_file
+
+        if save:
+            self.save()
+
+
+class SynchronisedDataMixin(models.Model):
+    data_source = models.ForeignKey(
+        to="core.DataSource",
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        related_name="+",
+        help_text="Remote data source",
+    )
+    data_file = models.ForeignKey(
+        to="core.DataFile",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="+",
+    )
+    data_path = models.CharField(
+        max_length=1000,
+        blank=True,
+        editable=False,
+        help_text="Path to the remote file, relative to its data source root",
+    )
+    auto_synchronisation_enabled = models.BooleanField(
+        default=True,
+        help_text="Enable automatic synchronisation of data when the data file is updated",
+    )
+    data_synchronised = models.DateTimeField(blank=True, null=True, editable=False)
+
+    class Meta:
+        abstract = True
+
+    @property
+    def is_synchronised(self):
+        return self.data_file and self.data_synchronised >= self.data_file.updated
+
+    def clean(self, *args, **kwargs):
+        if self.data_file:
+            self.data_source = self.data_file.source
+            self.data_path = self.data_file.path
+            self.synchronise()
+        else:
+            self.data_source = None
+            self.data_path = ""
+            self.auto_synchronisation_enabled = False
+            self.data_synchronised = None
+
+        super().clean()
+
+    def save(self, *args, **kwargs):
+        from core.models import AutoSynchronisationRecord
+
+        r = super().save(*args, **kwargs)
+
+        content_type = ContentType.objects.get_for_model(self)
+        if self.auto_synchronisation_enabled and self.data_file:
+            AutoSynchronisationRecord.objects.update_or_create(
+                object_type=content_type,
+                object_id=self.pk,
+                defaults={"data_file": self.data_file},
+            )
+        else:
+            AutoSynchronisationRecord.objects.filter(
+                data_file=self.data_file, object_type=content_type, object_id=self.pk
+            ).delete()
+
+        return r
+
+    def delete(self, *args, **kwargs):
+        from core.models import AutoSynchronisationRecord
+
+        content_type = ContentType.objects.get_for_model(self)
+        AutoSynchronisationRecord.objects.filter(
+            data_file=self.data_file, object_type=content_type, object_id=self.pk
+        ).delete()
+
+        return super().delete(*args, **kwargs)
+
+    def resolve_data_file(self):
+        """
+        Determine the designated `DataFile` object identified by its parent
+        `DataSource` and its path. Returns `None` if either attribute is unset, or if
+        no matching `DataFile` is found.
+        """
+        from core.models import DataFile
+
+        if self.data_source and self.data_path:
+            try:
+                return DataFile.objects.get(
+                    source=self.data_source, path=self.data_path
+                )
+            except DataFile.DoesNotExist:
+                return None
+
+    def synchronise_data(self):
+        """
+        Inheriting models must override this method with specific logic to copy data
+        from the assigned `DataFile` to the local instance. This method should *NOT*
+        call `save()` on the instance.
+        """
+        raise NotImplementedError()
+
+    def synchronise(self, save=False):
+        """
+        Synchronize the object from it's assigned `DataFile` (if any). This wraps
+        `synchronise_data()` and updates the `data_synchronised` timestamp.
+        """
+        self.synchronise_data()
+        self.data_synchronised = timezone.now()
+        if save:
+            self.save()
+
+
 class TagsMixin(models.Model):
     """
     Abstract class that just provides tags to its subclasses.
@@ -176,6 +372,7 @@ FEATURES_MAP = {
     "export-templates": ExportTemplatesMixin,
     "jobs": JobsMixin,
     "tags": TagsMixin,
+    "synchronised_data": SynchronisedDataMixin,
     "webhooks": WebhooksMixin,
 }
 registry["model_features"].update(

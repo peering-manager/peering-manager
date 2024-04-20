@@ -7,7 +7,7 @@ from django.urls import reverse
 from rest_framework.utils.encoders import JSONEncoder
 
 from peering_manager.jinja2 import render_jinja2
-from peering_manager.models import ChangeLoggedModel
+from peering_manager.models import ChangeLoggedModel, SynchronisedDataMixin
 
 from ..conditions import ConditionSet
 from ..enums import WEBHOOK_HTTP_CONTENT_TYPE_JSON, HttpMethod
@@ -16,7 +16,7 @@ from ..utils import FeatureQuery
 __all__ = ("ExportTemplate", "Webhook")
 
 
-class ExportTemplate(ChangeLoggedModel):
+class ExportTemplate(SynchronisedDataMixin, ChangeLoggedModel):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
@@ -61,6 +61,9 @@ class ExportTemplate(ChangeLoggedModel):
                     "name": f'"{self.name}" is a reserved name. Please choose a different name.'
                 }
             )
+
+    def synchronise_data(self):
+        self.template = self.data_file.data_as_string
 
     def render(self):
         """

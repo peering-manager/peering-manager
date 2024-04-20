@@ -3,20 +3,18 @@ import logging
 from django.template.defaultfilters import pluralize
 from django_rq import job
 
-from core.enums import LogLevel
+from core.enums import DataSourceStatus, LogLevel
+from core.exceptions import SynchronisationError
 from net.models import Connection
 
 logger = logging.getLogger("peering.manager.peering.jobs")
 
 
 @job("default")
-def generate_configuration(router, job):
-    """
-    TODO: Rename to render_configuration
-    """
-    job.mark_running("Generating router configuration.", object=router, logger=logger)
+def render_configuration(router, job):
+    job.mark_running("Rendering router configuration.", object=router, logger=logger)
 
-    config = router.generate_configuration()
+    config = router.render_configuration()
 
     if config:
         job.set_output(config)
@@ -28,7 +26,7 @@ def generate_configuration(router, job):
             logger=logger,
         )
 
-    job.mark_completed("Router configuration generated.", object=router, logger=logger)
+    job.mark_completed("Router configuration rendered.", object=router, logger=logger)
 
 
 @job("default")
@@ -109,7 +107,7 @@ def set_napalm_configuration(router, commit, job):
     job.mark_running("Trying to install configuration.", object=router, logger=logger)
 
     error, changes = router.set_napalm_configuration(
-        router.generate_configuration(), commit=commit
+        router.render_configuration(), commit=commit
     )
 
     if error:
@@ -152,3 +150,33 @@ def test_napalm_connection(router, job):
         job.mark_failed("Connection failure.", object=router, logger=logger)
 
     return success
+
+
+@job("default")
+def push_configuration_to_data_source(router, job):
+    if not router.data_source or not router.data_path:
+        job.mark_completed("No data source and file to push configuration to")
+        return False
+
+    job.mark_running(
+        f"Pushing router configuration to {router.data_source}:{router.data_path}.",
+        object=router,
+        logger=logger,
+    )
+
+    try:
+        router.push(save=True)
+        job.mark_completed("Router configuration pushed.", object=router, logger=logger)
+    except Exception as e:
+        job.set_output(str(e))
+        job.mark_failed("Failed to push to data source.", object=router, logger=logger)
+        router.data_source.status = DataSourceStatus.FAILED
+        router.data_source.save()
+
+        if isinstance(e, SynchronisationError):
+            logger.error(e)
+            return
+
+        raise e
+
+    return True

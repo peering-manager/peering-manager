@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from extras.enums import ObjectChangeAction
 from extras.models import ObjectChange
+from peering_manager.models import ChangeLoggingMixin
 
 from .base import ModelTestCase
 from .functions import disable_warnings, post_data
@@ -134,12 +135,13 @@ class ViewTestCases:
             self.assertInstanceEqual(instance, self.form_data)
 
             # Verify ObjectChange creation
-            objectchanges = ObjectChange.objects.filter(
-                changed_object_type=ContentType.objects.get_for_model(instance),
-                changed_object_id=instance.pk,
-            )
-            self.assertEqual(len(objectchanges), 1)
-            self.assertEqual(objectchanges[0].action, ObjectChangeAction.CREATE)
+            if issubclass(instance.__class__, ChangeLoggingMixin):
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(instance),
+                    changed_object_id=instance.pk,
+                )
+                self.assertEqual(len(objectchanges), 1)
+                self.assertEqual(objectchanges[0].action, ObjectChangeAction.CREATE)
 
     class EditObjectViewTestCase(ModelViewTestCase):
         """
@@ -184,12 +186,13 @@ class ViewTestCases:
             )
 
             # Verify ObjectChange creation
-            objectchanges = ObjectChange.objects.filter(
-                changed_object_type=ContentType.objects.get_for_model(instance),
-                changed_object_id=instance.pk,
-            )
-            self.assertEqual(len(objectchanges), 1)
-            self.assertEqual(objectchanges[0].action, ObjectChangeAction.UPDATE)
+            if issubclass(instance.__class__, ChangeLoggingMixin):
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(instance),
+                    changed_object_id=instance.pk,
+                )
+                self.assertEqual(len(objectchanges), 1)
+                self.assertEqual(objectchanges[0].action, ObjectChangeAction.UPDATE)
 
     class DeleteObjectViewTestCase(ModelViewTestCase):
         """
@@ -232,13 +235,14 @@ class ViewTestCases:
             with self.assertRaises(ObjectDoesNotExist):
                 self._get_queryset().get(pk=instance.pk)
 
-            # Verify ObjectChange creation
-            objectchanges = ObjectChange.objects.filter(
-                changed_object_type=ContentType.objects.get_for_model(instance),
-                changed_object_id=instance.pk,
-            )
-            self.assertEqual(len(objectchanges), 1)
-            self.assertEqual(objectchanges[0].action, ObjectChangeAction.DELETE)
+            # Verify ObjectChange deletion
+            if issubclass(instance.__class__, ChangeLoggingMixin):
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(instance),
+                    changed_object_id=instance.pk,
+                )
+                self.assertEqual(len(objectchanges), 1)
+                self.assertEqual(objectchanges[0].action, ObjectChangeAction.DELETE)
 
     class ListObjectsViewTestCase(ModelViewTestCase):
         """

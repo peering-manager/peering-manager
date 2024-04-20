@@ -8,14 +8,16 @@ from utils.forms.widgets import APISelectMultiple, StaticSelect
 from ..enums import JobStatus
 from ..models import Job
 
+__all__ = ("JobFilterForm",)
+
 
 class JobFilterForm(BootstrapMixin, forms.Form):
     model = Job
     q = forms.CharField(required=False, label="Search")
     name = forms.CharField(required=False)
     user = DynamicModelMultipleChoiceField(
-        queryset=User.objects.all(),
         required=False,
+        queryset=User.objects.all(),
         widget=APISelectMultiple(api_url="/api/users/users/"),
     )
     status = forms.ChoiceField(

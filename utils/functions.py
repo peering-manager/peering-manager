@@ -75,8 +75,7 @@ def sha256_hash(filepath):
     """
     Returns the SHA256 hash of the file at the specified path.
     """
-    with open(filepath, "rb") as f:
-        return hashlib.sha256(f.read())
+    return hashlib.sha256(filepath.read_bytes())
 
 
 def is_taggable(instance):

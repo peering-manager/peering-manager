@@ -3,7 +3,12 @@ from django import forms
 from ...enums import Colour
 from ..utils import add_blank_choice
 
-__all__ = ("ColourSelect", "StaticSelect", "StaticSelectMultiple")
+__all__ = (
+    "BulkEditNullBooleanSelect",
+    "ColourSelect",
+    "StaticSelect",
+    "StaticSelectMultiple",
+)
 
 
 class BulkEditNullBooleanSelect(forms.NullBooleanSelect):
