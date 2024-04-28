@@ -1,11 +1,11 @@
 import logging
+from datetime import datetime, timezone
 
 import requests
 from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import transaction
 from django.db.utils import DEFAULT_DB_ALIAS
-from django.utils import timezone
 
 from extras.enums import ObjectChangeAction
 from net.models import Connection
@@ -54,6 +54,9 @@ class PeeringDB:
     """
     Class used to interact with the PeeringDB API.
     """
+
+    def __init__(self):
+        self._caching_timestamps = []
 
     def lookup(self, namespace, search):
         """
@@ -255,6 +258,13 @@ class PeeringDB:
         if not result:
             return (created, updated, deleted)
 
+        if "generated" in result["meta"]:
+            peeringdb_cache_timestamp = datetime.fromtimestamp(
+                result["meta"]["generated"], tz=timezone.utc
+            )
+            self._caching_timestamps.append(peeringdb_cache_timestamp)
+            logger.debug(f"peeringdb {namespace} cached at {peeringdb_cache_timestamp}")
+
         for data in result["data"]:
             try:
                 local_object, action = self._process_object(model, data)
@@ -290,8 +300,6 @@ class PeeringDB:
         Updates the local database by synchronising all PeeringDB API's namespaces
         that we are caring about.
         """
-        # Set time of sync
-        time_of_sync = timezone.now()
         list_of_changes = []
 
         # Make a single transaction, avoid too much database commits (poor
@@ -310,8 +318,12 @@ class PeeringDB:
             "deleted": sum(deleted for _, _, deleted in list_of_changes),
         }
 
-        # Save the last sync time
-        return self.record_last_sync(time_of_sync, objects_changes)
+        # Save the last sync time based on the oldest PeeringDB cache timestamp
+        last_sync_at = min(
+            self._caching_timestamps, default=datetime.now(tz=timezone.utc)
+        )
+        logger.debug(f"last peeringdb synchronisation time set at {last_sync_at}")
+        return self.record_last_sync(last_sync_at, objects_changes)
 
     def clear_local_database(self):
         """
