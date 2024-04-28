@@ -62,8 +62,8 @@ def parse_irr_as_set(asn, irr_as_set):
         return [f"AS{asn}"]
 
     unparsed = re.split(r"[/,&\s]", irr_as_set)
-    for value in unparsed:
-        value = value.strip()
+    for element in unparsed:
+        value = element.strip()
 
         if not value:
             continue

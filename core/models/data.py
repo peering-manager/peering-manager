@@ -96,12 +96,12 @@ class DataSource(PrimaryModel, JobsMixin):
         paths = set()
 
         for path, _, file_names in os.walk(root):
-            path = path.split(root)[1].lstrip("/")
-            if path.startswith("."):
+            p = path.split(root)[1].lstrip("/")
+            if p.startswith("."):
                 continue
             for file_name in file_names:
                 if not self._ignore(file_name):
-                    paths.add(os.path.join(path, file_name))
+                    paths.add(os.path.join(p, file_name))
 
         logger.debug(f"found {len(paths)} files")
         return paths

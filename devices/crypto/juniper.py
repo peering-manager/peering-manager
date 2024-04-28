@@ -75,8 +75,8 @@ def __gap_encode(pc, prev, encode):
         gaps.insert(0, int(__ord / mod))
         __ord %= mod
 
-    for gap in gaps:
-        gap += ALPHA_NUM[prev] + 1
+    for g in gaps:
+        gap = g + ALPHA_NUM[prev] + 1
         prev = NUM_ALPHA[gap % len(NUM_ALPHA)]
         crypt += prev
 
