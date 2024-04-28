@@ -17,7 +17,6 @@ class WebhookHandler(BaseHTTPRequestHandler):
         raise AttributeError
 
     def log_message(self, format_str, *args):
-        global request_counter
         print(
             f"[{request_counter}] {self.date_time_string()} {self.address_string()} {format_str % args}"
         )
