@@ -330,7 +330,7 @@ class Jinja2FilterTestCase(TestCase):
 
     def test_iterate(self):
         routing_policies = RoutingPolicy.objects.all()
-        slugs = [s for s in FILTER_DICT["iterate"](routing_policies, "slug")]
+        slugs = list(FILTER_DICT["iterate"](routing_policies, "slug"))
         self.assertListEqual([rp.slug for rp in routing_policies], slugs)
 
     def test_length(self):

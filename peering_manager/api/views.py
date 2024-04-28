@@ -73,7 +73,7 @@ class StatusView(APIView):
                 if type(version) is tuple:
                     version = ".".join(str(n) for n in version)
                 installed_apps[app_config.name] = version
-        installed_apps = {k: v for k, v in sorted(installed_apps.items())}
+        installed_apps = dict(sorted(installed_apps.items()))
 
         return Response(
             {

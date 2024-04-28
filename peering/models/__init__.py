@@ -650,14 +650,12 @@ class InternetExchange(AbstractGroup):
 
     def merged_export_policies(self, reverse=False):
         # Get own policies
-        policies = [p for p in self.export_policies()]
-
+        policies = list(self.export_policies())
         return list(reversed(policies)) if reverse else policies
 
     def merged_import_policies(self, reverse=False):
         # Get own policies
-        policies = [p for p in self.import_policies()]
-
+        policies = list(self.import_policies())
         return list(reversed(policies)) if reverse else policies
 
     def link_to_peeringdb(self):

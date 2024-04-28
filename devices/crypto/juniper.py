@@ -20,7 +20,7 @@ for counter, value in enumerate(FAMILY):
     for character in value:
         EXTRA[character] = 3 - counter
 
-NUM_ALPHA = [x for x in "".join(FAMILY)]
+NUM_ALPHA = list("".join(FAMILY))
 ALPHA_NUM = {NUM_ALPHA[x]: x for x in range(0, len(NUM_ALPHA))}
 
 ENCODING = [

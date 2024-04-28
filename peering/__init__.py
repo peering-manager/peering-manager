@@ -45,7 +45,7 @@ def call_irr_as_set_resolver(irr_as_set, address_family=6):
             error_log += f", stderr: {err}"
         raise ValueError(error_log)
 
-    prefixes.extend([p for p in json.loads(out.decode())["prefix_list"]])
+    prefixes.extend(list(json.loads(out.decode())["prefix_list"]))
 
     return prefixes
 
