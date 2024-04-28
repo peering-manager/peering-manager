@@ -246,7 +246,9 @@ def date_span(date_value):
         return ""
 
     if isinstance(date_value, str):
-        date_value = datetime.datetime.strptime(date_value, "%Y-%m-%d").date()
+        date_value = datetime.datetime.strptime(date_value, "%Y-%m-%d").astimezone(
+            tz=settings.TIME_ZONE
+        )
 
     if type(date_value) is datetime.date:
         long = date(date_value, settings.DATE_FORMAT)
