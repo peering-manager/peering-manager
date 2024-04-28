@@ -21,7 +21,7 @@ for counter, value in enumerate(FAMILY):
         EXTRA[character] = 3 - counter
 
 NUM_ALPHA = list("".join(FAMILY))
-ALPHA_NUM = {NUM_ALPHA[x]: x for x in range(0, len(NUM_ALPHA))}
+ALPHA_NUM = {NUM_ALPHA[x]: x for x in range(len(NUM_ALPHA))}
 
 ENCODING = [
     [1, 4, 32],
@@ -54,7 +54,7 @@ def __gap_decode(gaps, dec):
     if len(gaps) != len(dec):
         raise Exception("Nibble and decode size not the same.")
 
-    for x in range(0, len(gaps)):
+    for x in range(len(gaps)):
         num += gaps[x] * dec[x]
 
     return chr(num % 256)
