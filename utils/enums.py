@@ -37,7 +37,7 @@ class ChoiceSet(metaclass=ChoiceSetMeta):
     field.
     """
 
-    CHOICES = list()
+    CHOICES = []
 
     @classmethod
     def values(cls):

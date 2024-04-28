@@ -49,7 +49,7 @@ def multivalue_field_factory(field_class):
             for v in value:
                 super().validate(v)
 
-    return type(f"MultiValue{field_class.__name__}", (NewField,), dict())
+    return type(f"MultiValue{field_class.__name__}", (NewField,), {})
 
 
 @extend_schema_field(OpenApiTypes.STR)

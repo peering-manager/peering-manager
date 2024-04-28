@@ -22,6 +22,4 @@ class Registry(dict):
 DATA_BACKENDS_KEY = "data_backends"
 
 # Initialize the global registry
-registry = Registry(
-    {DATA_BACKENDS_KEY: dict(), "model_features": dict(), "views": dict()}
-)
+registry = Registry({DATA_BACKENDS_KEY: {}, "model_features": {}, "views": {}})
