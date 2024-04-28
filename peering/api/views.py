@@ -809,7 +809,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
         ):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         if settings.NETBOX_TAGS:
-            tags = set([t.slug for t in data["tags"]])
+            tags = {t.slug for t in data["tags"]}
             if not tags.intersection(settings.NETBOX_TAGS):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
 
