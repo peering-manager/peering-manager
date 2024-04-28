@@ -53,16 +53,95 @@ mkdocs-material = "*"
 [tool.ruff]
 line-length = 88
 indent-width = 4
-target-version = "py38"
+target-version = "py310"
+
+[tool.ruff.lint]
+ignore = [
+    "B006",    # Do not use mutable data structures for argument defaults
+    "B007",    # Loop control variable not used within loop body
+    "B009",    # Do not call `getattr` with a constant attribute value. It is not any safer than normal property access
+    "B010",    # Do not call `setattr` with a constant attribute value. It is not any safer than normal property access
+    "B012",    # `return` inside `finally` blocks cause exceptions to be silenced
+    "B017",    # Should be considered evil
+    "B026",    # Star-arg unpacking after a keyword argument is strongly discouraged
+    "B028",    #  No explicit `stacklevel` keyword argument found
+    "B904",    # Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+    "B905",    # `zip()` without an explicit `strict=` parameter
+    "C403",    # Unnecessary `list` comprehension (rewrite as a `set` comprehension)
+    "C408",    # Unnecessary `dict` call (rewrite as a literal)
+    "C416",    # Unnecessary `list` comprehension (rewrite using `list()`)
+    "C419",    # Unnecessary list comprehension
+    "C901",    # Is too complex
+    "DJ001",   # Avoid using `null=True` on string-based fields such as `CharField`
+    "DJ007",   # Do not use `__all__` with `ModelForm`, use `fields` instead
+    "DJ008",   # Model does not define `__str__` method
+    "DJ012",   # Order of model's inner classes, methods, and fields does not follow the Django Style Guide: `__str__` method should come before custom method
+    "DTZ007",  # Naive datetime constructed using `datetime.datetime.strptime()` without %z
+    "E501",    # Line too long
+    "F401",    # Imported but unused; consider using `importlib.util.find_spec` to test for availability
+    "F403",    # Unable to detect undefined names
+    "F405",    # May be undefined, or defined from star imports
+    "N802",    # Function name should be lowercase
+    "N804",    # First argument of a class method should be named `cls`
+    "N805",    # First argument of a method should be named `self`
+    "N806",    # Variable in function should be lowercase
+    "N812",    # Lowercase imported as non-lowercase
+    "N814",    # Camelcase imported as constant
+    "N817",    # CamelCase imported as acronym
+    "N818",    # Exception name should be named with an Error suffix
+    "N999",    # Invalid module name
+    "PIE790",  # Unnecessary `pass` statement
+    "PIE794",  # Class field is defined multiple times
+    "PIE804",  # Unnecessary `dict` kwargs
+    "PIE808",  # Unnecessary `start` argument in `range`
+    "PLR0911", # Too many return statements
+    "PLR0912", # Too many branches
+    "PLR0913", # Too many arguments in function definition
+    "PLR0915", # Too many statements
+    "PLR1714", # Consider merging multiple comparisons: `a in ({}, b)`. Use a `set` if the elements are hashable.
+    "PLR2004", # Magic value used in comparison, consider replacing with a constant variable
+    "PLR5501", # Use `elif` instead of `else` then `if`, to reduce indentation
+    "PLW0602", # Using global but no assignment is done
+    "PLW0603", # Using the global statement to update `request_counter` is discouraged
+    "PLW2901", # `for` loop variable overwritten by assignment target
+    "PTH118",  # `os.path.join()` should be replaced by `Path` with `/` operator
+    "PTH123",  # `open()` should be replaced by `Path.open()`
+    "RET502",  # Do not implicitly `return None` in function able to return non-`None` value
+    "RET503",  # Missing explicit `return` at the end of function able to return non-`None` value
+    "RET504",  # Unnecessary assignment before `return` statement
+    "RET505",  # Unnecessary `elif` after `return` statement
+    "RET506",  # Unnecessary `else` after `raise` statement
+]
+select = [
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "C90",  # mccabe complexity
+    "DJ",   # flake8-django
+    "DTZ",  # flake8-datetimez
+    "E",    # pycodestyle errors
+    "EXE",  # flake8-executable
+    "F",    # pyflakes
+    "I",    # isort-like checks
+    "ICN",  # flake8-import-conventions
+    "INP",  # flake8-no-pep420
+    "N",    # pep8-naming
+    "PIE",  # flake8-pie
+    "PL",   # pylint
+    "PTH",  # flake8-use-pathlib
+    "PYI",  # flake8-pyi
+    "Q",    # flake8-quotes
+    "RET",  # flake8-return
+    "TCH",  # flake8-type-checking
+    "TRIO", # flake8-trio
+    "T10",  # flake8-debugger
+    "W",    # pycodestyle warnings
+]
 
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
-
-[tool.ruff.lint]
-ignore = ["F403", "F405"]
 
 [tool.coverage.run]
 branch = true
