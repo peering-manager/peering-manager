@@ -11,8 +11,6 @@ class PeeringManagerModelSerializer(TaggableModelSerializer, ValidatedModelSeria
     Adds support for tags.
     """
 
-    pass
-
 
 class BulkOperationSerializer(serializers.Serializer):
     id = serializers.IntegerField()

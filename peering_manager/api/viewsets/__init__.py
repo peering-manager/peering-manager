@@ -22,8 +22,6 @@ class BaseViewSet(GenericViewSet):
     common logics to all view sets.
     """
 
-    pass
-
 
 class PeeringManagerReadOnlyModelViewSet(
     mixins.BriefModeMixin,
