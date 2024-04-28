@@ -48,6 +48,10 @@ versus its _operational_ state. All data created in Peering Manager should
 first be vetted by a human to ensure its integrity. Peering Manager can then
 be used by provisioning systems with a high degree of confidence.
 
+Peering Manager is also more than just another source of truth. It aims to
+automate day-to-day BGP operations by providing sensible workflows and
+capabilities to engineers who want the best while doing the least.
+
 ## Application Stack
 
 Peering Manager is built on the [Django](https://djangoproject.com/) Python

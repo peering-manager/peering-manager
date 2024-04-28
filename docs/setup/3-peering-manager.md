@@ -4,7 +4,7 @@
 
 First we need a proper text editor, Git and Python. We will use Git to get the
 code, and Python to run it. Peering Manager is mostly tested with Python
-version 3 (3.8 minimum) so we will setup the machine with this version.
+version 3 (3.10 minimum) so we will setup the machine with this version.
 
 !!! attention
     Note that your favourite distribution may not have Python's required
