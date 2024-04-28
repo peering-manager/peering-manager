@@ -21,12 +21,12 @@ HOSTNAME = platform.node()
 BASE_DIR = Path(__file__).resolve().parent.parent
 DOCS_DIR = BASE_DIR / "docs"
 
-VERSION = "1.8.4-dev"
+VERSION = "1.9.0-dev"
 
 major, minor, _ = platform.python_version_tuple()
-if (int(major), int(minor)) < (3, 8):
+if (int(major), int(minor)) < (3, 10):
     raise RuntimeError(
-        f"Peering Manager requires Python 3.8 or higher (current: Python {platform.python_version()})"
+        f"Peering Manager requires Python 3.10 or higher (current: Python {platform.python_version()})"
     )
 
 # Import configuration parameters
