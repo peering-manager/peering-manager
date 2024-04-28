@@ -14,7 +14,7 @@ body:
     attributes:
       label: Peering Manager version
       description: What version of Peering Manager are you currently running?
-      placeholder: v1.4.5
+      placeholder: v1.9.0
     validations:
       required: true
   - type: dropdown
@@ -22,10 +22,9 @@ body:
       label: Python version
       description: What version of Python are you currently running?
       options:
-        - "3.8"
-        - "3.9"
         - "3.10"
         - "3.11"
+        - "3.12"
     validations:
       required: true
   - type: textarea
