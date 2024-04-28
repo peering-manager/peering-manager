@@ -672,10 +672,9 @@ class InternetExchange(AbstractGroup):
             if connection.linked_to_peeringdb:
                 if peeringdb_ixlan is None:
                     peeringdb_ixlan = connection.peeringdb_netixlan.ixlan
-                else:
-                    if peeringdb_ixlan != connection.peeringdb_netixlan.ixlan:
-                        # Connections not belonging to the same IX
-                        return None
+                elif peeringdb_ixlan != connection.peeringdb_netixlan.ixlan:
+                    # Connections not belonging to the same IX
+                    return None
 
         if peeringdb_ixlan is not None:
             self.peeringdb_ixlan = peeringdb_ixlan
@@ -842,12 +841,11 @@ class InternetExchange(AbstractGroup):
             if autonomous_system:
                 logger.debug(f"as{remote_asn} created")
                 asn_number += 1
-            else:
-                if remote_asn not in ignored_autonomous_systems:
-                    ignored_autonomous_systems.append(remote_asn)
-                    logger.debug(
-                        f"could not create as{remote_asn}, session {str(ip)} ignored"
-                    )
+            elif remote_asn not in ignored_autonomous_systems:
+                ignored_autonomous_systems.append(remote_asn)
+                logger.debug(
+                    f"could not create as{remote_asn}, session {str(ip)} ignored"
+                )
 
             # Only add a session if we can use the AS it is linked to
             if autonomous_system:

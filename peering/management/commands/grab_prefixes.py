@@ -35,11 +35,8 @@ class Command(BaseCommand):
                             f"    {count:>6} {family} (ignored)", self.style.WARNING
                         )
                     prefixes[family] = []
-                else:
-                    if not quiet:
-                        self.stdout.write(
-                            f"    {count:>6} {family}", self.style.SUCCESS
-                        )
+                elif not quiet:
+                    self.stdout.write(f"    {count:>6} {family}", self.style.SUCCESS)
 
             autonomous_system.prefixes = prefixes
             autonomous_system.save()

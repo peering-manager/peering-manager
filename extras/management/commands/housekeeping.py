@@ -138,9 +138,8 @@ class Command(BaseCommand):
                 cache.set("latest_release", latest_release, None)
             except requests.exceptions.RequestException as e:
                 self.stdout.write(f"    Request error: {e}", self.style.ERROR)
-        else:
-            if options["verbosity"]:
-                self.stdout.write("    Skipping: RELEASE_CHECK_URL not set")
+        elif options["verbosity"]:
+            self.stdout.write("    Skipping: RELEASE_CHECK_URL not set")
 
         if options["verbosity"]:
             self.stdout.write("Finished.", self.style.SUCCESS)
