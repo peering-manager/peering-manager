@@ -22,7 +22,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
         )
 
     def do_ANY(self):
-        global request_counter
+        global request_counter  # noqa: PLW0603
 
         self.send_response(200)
         self.end_headers()
