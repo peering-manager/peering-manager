@@ -43,7 +43,6 @@ class NetworkIXLanTable(BaseTable):
     ipv4_max_prefix = tables.Column(
         verbose_name="IPv4 Max Prefix", accessor="net__info_prefixes4"
     )
-    name = tables.Column(verbose_name="AS Name", accessor="net__name")
     is_rs_peer = BooleanColumn(
         verbose_name="On RS",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
