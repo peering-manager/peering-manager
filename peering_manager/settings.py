@@ -59,6 +59,9 @@ if MY_ASN:
 BASE_PATH = getattr(configuration, "BASE_PATH", "")
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip("/") + "/"  # Enforce trailing slash only
+CSRF_COOKIE_PATH = LANGUAGE_COOKIE_PATH = SESSION_COOKIE_PATH = (
+    f'/{BASE_PATH.rstrip("/")}'
+)
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, "CORS_ORIGIN_ALLOW_ALL", False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, "CORS_ORIGIN_REGEX_WHITELIST", [])
 CORS_ORIGIN_WHITELIST = getattr(configuration, "CORS_ORIGIN_WHITELIST", [])
@@ -72,7 +75,9 @@ RQ_DEFAULT_TIMEOUT = getattr(configuration, "RQ_DEFAULT_TIMEOUT", 300)
 CACHE_BGP_DETAIL_TIMEOUT = getattr(configuration, "CACHE_BGP_DETAIL_TIMEOUT", 900)
 CHANGELOG_RETENTION = getattr(configuration, "CHANGELOG_RETENTION", 90)
 JOB_RETENTION = getattr(configuration, "JOB_RETENTION", 90)
+LOGIN_PERSISTENCE = getattr(configuration, "LOGIN_PERSISTENCE", False)
 LOGIN_REQUIRED = getattr(configuration, "LOGIN_REQUIRED", False)
+LOGIN_TIMEOUT = getattr(configuration, "LOGIN_TIMEOUT", None)
 BANNER_LOGIN = getattr(configuration, "BANNER_LOGIN", "")
 NAPALM_USERNAME = getattr(configuration, "NAPALM_USERNAME", "")
 NAPALM_PASSWORD = getattr(configuration, "NAPALM_PASSWORD", "")
@@ -81,6 +86,10 @@ NAPALM_ARGS = getattr(configuration, "NAPALM_ARGS", {})
 PAGINATE_COUNT = getattr(configuration, "PAGINATE_COUNT", 20)
 MAX_PAGE_SIZE = getattr(configuration, "MAX_PAGE_SIZE", 1000)
 METRICS_ENABLED = getattr(configuration, "METRICS_ENABLED", False)
+
+SESSION_FILE_PATH = getattr(configuration, "SESSION_FILE_PATH", None)
+SESSION_COOKIE_NAME = getattr(configuration, "SESSION_COOKIE_NAME", "sessionid")
+SESSION_COOKIE_SECURE = getattr(configuration, "SESSION_COOKIE_SECURE", False)
 
 DATE_FORMAT = getattr(configuration, "DATE_FORMAT", "jS F, Y")
 DATETIME_FORMAT = getattr(configuration, "DATETIME_FORMAT", "jS F, Y G:i")
@@ -387,6 +396,13 @@ if TASKS_REDIS_CA_CERT_PATH:
 
 RQ_QUEUES = {"high": RQ_PARAMS, "default": RQ_PARAMS, "low": RQ_PARAMS}
 RQ_EXCEPTION_HANDLERS = ["core.exceptions.exception_handler"]
+
+if LOGIN_TIMEOUT is not None:
+    # Django default is 1209600 seconds (14 days)
+    SESSION_COOKIE_AGE = LOGIN_TIMEOUT
+SESSION_SAVE_EVERY_REQUEST = bool(LOGIN_PERSISTENCE)
+if SESSION_FILE_PATH is not None:
+    SESSION_ENGINE = "django.contrib.sessions.backends.file"
 
 
 # Email

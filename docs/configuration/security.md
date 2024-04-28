@@ -85,6 +85,24 @@ CSRF_TRUSTED_ORIGINS = (
     'https://peering-manager.local',
 )
 ```
+---
+
+## LOGIN_PERSISTENCE
+
+Default: `False`
+
+If true, the lifetime of a user's authentication session will be automatically
+reset upon each valid request. For example, if
+[`LOGIN_TIMEOUT`](#login_timeout) is configured to 14 days (the default), and
+a user whose session is due to expire in five days makes a Peering Manager
+request (with a valid session cookie), the session's lifetime will be reset to
+14 days.
+
+Note that enabling this setting causes Peering Manager to update a user's
+session in the database (or file, as configured per
+[`SESSION_FILE_PATH`](#session_file_path)) with each request, which may
+introduce significant overhead in very active environments. It also permits an
+active user to remain authenticated to Peering Manager indefinitely.
 
 ---
 
@@ -95,3 +113,44 @@ Default: `False`
 Setting this to `True` will permit only authenticated users to access any part
 of Peering Manager. By default, anonymous users are permitted to access most
 data in Peering Manager but not make any changes.
+---
+
+## LOGIN_TIMEOUT
+
+Default: `1209600` seconds (2 weeks, in seconds)
+
+The lifetime (in seconds) of the authentication cookie issued to a Peering
+Manager user upon login. This setting is actually a wrapper around Django's
+[`SESSION_COOKIE_AGE`](https://docs.djangoproject.com/en/stable/ref/settings/#session-cookie-age)
+
+---
+
+## SESSION_COOKIE_NAME
+
+Default: `sessionid`
+
+The name used for the session cookie. See the
+[Django documentation](https://docs.djangoproject.com/en/stable/ref/settings/#session-cookie-name)
+for more detail.
+
+---
+
+## SESSION_COOKIE_SECURE
+
+Default: `False`
+
+If true, the cookie employed for session authentication will be marked as
+secure, meaning that it can only be sent across an HTTPS connection.
+
+---
+
+## SESSION_FILE_PATH
+
+Default: None
+
+HTTP session data is used to track authenticated users when they access
+Peering Manager. By default, Peering Manager stores session data in its
+PostgreSQL database. Alternatively, a local file path may be specified here
+and Peering Manager will store session data as files instead of using the
+database. Note that the Peering Manager system user must have read and write
+permissions to this path.
