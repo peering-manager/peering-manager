@@ -13,7 +13,9 @@ class ActionsMixin:
     actions = ("add", "bulk_edit", "bulk_delete")
     action_perms = defaultdict(
         set,
-        **{"add": {"add"}, "bulk_edit": {"change"}, "bulk_delete": {"delete"}},
+        add={"add"},
+        bulk_edit={"change"},
+        bulk_delete={"delete"},
     )
 
     def get_permitted_actions(self, user, model=None):
