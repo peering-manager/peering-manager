@@ -101,7 +101,7 @@ class DataSource(PrimaryModel, JobsMixin):
                 continue
             for file_name in file_names:
                 if not self._ignore(file_name):
-                    paths.add(os.path.join(p, file_name))
+                    paths.add(str(Path(p, file_name)))
 
         logger.debug(f"found {len(paths)} files")
         return paths
