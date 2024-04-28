@@ -1,6 +1,7 @@
 import datetime
 import json
 import re
+from pathlib import Path
 
 import yaml
 from django import template
@@ -224,14 +225,19 @@ def get_docs(model):
     """
     Render and return documentation for the given model.
     """
-    path = f"{settings.DOCS_DIR}/models/{model._meta.app_label}/{model._meta.model_name}.md"
+    path = Path(
+        settings.DOCS_DIR,
+        "models",
+        model._meta.app_label,
+        f"{model._meta.model_name}.md",
+    )
     try:
-        with open(path, encoding="utf-8") as docfile:
+        with path.open(encoding="utf-8") as docfile:
             content = docfile.read()
     except FileNotFoundError:
-        return f"Unable to load documentation, file not found: {path}"
+        return f"Unable to load documentation, file not found: {str(path)}"
     except IOError:
-        return f"Unable to load documentation, error reading file: {path}"
+        return f"Unable to load documentation, error reading file: {str(path)}"
 
     return mark_safe(markdown(content))
 

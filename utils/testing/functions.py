@@ -2,6 +2,7 @@ import json
 import logging
 import re
 from contextlib import contextmanager
+from pathlib import Path
 
 
 @contextmanager
@@ -20,7 +21,7 @@ def load_json(filename):
     """
     Loads and return JSON from a file.
     """
-    with open(filename, mode="r") as f:
+    with Path(filename).open() as f:
         return json.load(f)
 
 

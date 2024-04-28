@@ -89,7 +89,7 @@ SHORT_DATETIME_FORMAT = getattr(configuration, "SHORT_DATETIME_FORMAT", "Y-m-d H
 SHORT_TIME_FORMAT = getattr(configuration, "SHORT_TIME_FORMAT", "H:i:s")
 TIME_FORMAT = getattr(configuration, "TIME_FORMAT", "G:i")
 try:
-    with open("/etc/timezone", "r") as f:
+    with Path("/etc/timezone").open() as f:
         BASE_TZ = f.readline()
 
     # For some reasons, Django does not seem to be happy about this particular value

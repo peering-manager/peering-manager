@@ -2,6 +2,7 @@
 
 import argparse
 import json
+from pathlib import Path
 
 import requests
 
@@ -18,7 +19,7 @@ def setup_cli():
 
 
 def read_json(filename):
-    with open(filename, "r") as json_file:
+    with Path(filename).open() as json_file:
         return json.load(json_file)
 
 

@@ -1,5 +1,6 @@
 import json
 from ipaddress import IPv4Address, IPv4Interface, IPv6Address, IPv6Interface
+from pathlib import Path
 
 from django.contrib.auth.models import Permission, User
 from django.contrib.contenttypes.models import ContentType
@@ -32,7 +33,7 @@ class MockedResponse:
         self.ok = ok
 
     def load_fixture(self, path):
-        with open(path, "r") as f:
+        with Path(path).open() as f:
             return f.read()
 
     def json(self):
