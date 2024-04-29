@@ -62,7 +62,6 @@ ignore = [
     "B009",    # Do not call `getattr` with a constant attribute value. It is not any safer than normal property access
     "B010",    # Do not call `setattr` with a constant attribute value. It is not any safer than normal property access
     "B012",    # `return` inside `finally` blocks cause exceptions to be silenced
-    "B017",    # Should be considered evil
     "C901",    # Is too complex
     "DJ001",   # Avoid using `null=True` on string-based fields such as `CharField`
     "DJ007",   # Do not use `__all__` with `ModelForm`, use `fields` instead

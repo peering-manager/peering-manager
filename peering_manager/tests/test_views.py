@@ -17,5 +17,5 @@ class PeeringManagerViewsTestCase(ViewTestCase):
 
     @override_settings(LOGIN_REQUIRED=False)
     def test_error500_view(self):
-        with self.assertRaises(Exception):
+        with self.assertRaises(Exception):  # noqa: B017
             self.client.get("/error500/")
