@@ -1286,8 +1286,8 @@ class Router(PushedDataMixin, PrimaryModel):
         else:
             self.logger.debug(f"successfully connected to {self.hostname}")
             success = True
-        finally:
-            return success
+
+        return success
 
     def close_napalm_device(self, device):
         """
