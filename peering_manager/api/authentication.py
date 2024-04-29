@@ -22,7 +22,7 @@ class TokenAuthentication(authentication.TokenAuthentication):
         try:
             token = model.objects.select_related("user").get(key=key)
         except model.DoesNotExist:
-            raise exceptions.AuthenticationFailed("Invalid token")
+            raise exceptions.AuthenticationFailed("Invalid token") from None
 
         # Enforce the Token's expiration time
         if token.is_expired:

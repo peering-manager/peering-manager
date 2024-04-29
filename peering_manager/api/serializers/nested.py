@@ -33,33 +33,33 @@ class WritableNestedSerializer(BaseModelSerializer):
             queryset = self.Meta.model.objects
             try:
                 return queryset.get(**params)
-            except ObjectDoesNotExist:
+            except ObjectDoesNotExist as e1:
                 raise ValidationError(
                     f"Related object not found using the provided attributes: {params}"
-                )
-            except MultipleObjectsReturned:
+                ) from e1
+            except MultipleObjectsReturned as e2:
                 raise ValidationError(
                     f"Multiple objects match the provided attributes: {params}"
-                )
-            except FieldError as e:
-                raise ValidationError(e)
+                ) from e2
+            except FieldError as e3:
+                raise ValidationError(e3) from e3
 
         # Integer PK of related object
         try:
             # Cast as integer in case a PK was mistakenly sent as a string
             pk = int(data)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError) as e:
             raise ValidationError(
                 f"Related objects must be referenced by numeric ID or by dictionary of attributes. Received an unrecognized value: {data}"
-            )
+            ) from e
 
         # Look up object by PK
         try:
             return self.Meta.model.objects.get(pk=pk)
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as e:
             raise ValidationError(
                 f"Related object not found using the provided numeric ID: {pk}"
-            )
+            ) from e
 
 
 # Declared here for use by PeeringManagerModelSerializer, but should be imported from

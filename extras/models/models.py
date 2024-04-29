@@ -168,7 +168,7 @@ class Webhook(ChangeLoggedModel):
             try:
                 ConditionSet(self.conditions)
             except ValueError as e:
-                raise ValidationError({"conditions": e})
+                raise ValidationError({"conditions": e}) from e
         if not self.ssl_verification and self.ca_file_path:
             raise ValidationError(
                 {

@@ -132,18 +132,18 @@ class IXAPIForm(BootstrapMixin, forms.ModelForm):
             IXAPI.test_connectivity(
                 cleaned_data["url"], cleaned_data["api_key"], cleaned_data["api_secret"]
             )
-        except HTTPError as e:
+        except HTTPError as e1:
             # Fail form validation on HTTP error to provide a feedback to the user
-            if e.response.status_code >= 400 and e.response.status_code < 500:
+            if e1.response.status_code >= 400 and e1.response.status_code < 500:
                 possible_issue = "make sure the URL, key and secret are correct"
             else:
                 possible_issue = "the server is malfunctioning or unavailable"
             raise ValidationError(
-                f"Unable to connect to IX-API ({e.response.status_code} {e.response.reason}), {possible_issue}."
-            )
-        except Exception as e:
+                f"Unable to connect to IX-API ({e1.response.status_code} {e1.response.reason}), {possible_issue}."
+            ) from e1
+        except Exception as e2:
             # Raised by pyixapi
-            raise ValidationError(str(e))
+            raise ValidationError(str(e2)) from e2
 
 
 class IXAPIFilterForm(BootstrapMixin, forms.Form):

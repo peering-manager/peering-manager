@@ -103,7 +103,7 @@ class PeeringManagerModelViewSet(
                 instance = serializer.save()
                 self._validate_objects(instance)
         except ObjectDoesNotExist:
-            raise PermissionDenied()
+            raise PermissionDenied() from None
 
     # Updates
 
@@ -127,7 +127,7 @@ class PeeringManagerModelViewSet(
                 instance = serializer.save()
                 self._validate_objects(instance)
         except ObjectDoesNotExist:
-            raise PermissionDenied()
+            raise PermissionDenied() from None
 
     # Deletes
 

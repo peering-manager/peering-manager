@@ -38,8 +38,8 @@ class PeeringManagerLoader(BaseLoader):
 
         try:
             o = model.objects.get(**lookup)
-        except model.DoesNotExist:
-            raise TemplateNotFound(identifier)
+        except model.DoesNotExist as e:
+            raise TemplateNotFound(identifier) from e
 
         return getattr(o, attribute)
 

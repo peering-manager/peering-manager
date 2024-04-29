@@ -123,8 +123,8 @@ def mac(value, format=""):
     if isinstance(value, str):
         try:
             v = netaddr.EUI(value)
-        except netaddr.core.AddrFormatError:
-            raise ValueError("value is not a valid mac address")
+        except netaddr.core.AddrFormatError as e:
+            raise ValueError("value is not a valid mac address") from e
     else:
         v = value
 
@@ -247,8 +247,8 @@ def filter(value, **kwargs):
 
     try:
         iter(value)
-    except TypeError:
-        raise ValueError("value cannot be filtered (not iterable)")
+    except TypeError as e:
+        raise ValueError("value cannot be filtered (not iterable)") from e
 
     # Build a list with items matching all provided criteria
     # Fail validation of an item if it does not have one of the attributes
@@ -291,8 +291,8 @@ def unique_items(value, field):
 
     try:
         iter(value)
-    except TypeError:
-        raise ValueError("value cannot be filtered (not iterable)")
+    except TypeError as e:
+        raise ValueError("value cannot be filtered (not iterable)") from e
 
     unique_items = []
     seen_values = []

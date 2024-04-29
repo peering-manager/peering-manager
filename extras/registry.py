@@ -13,7 +13,7 @@ class Registry(dict):
         try:
             return super().__getitem__(key)
         except KeyError:
-            raise KeyError(f"Invalid store: {key}")
+            raise KeyError(f"Invalid store: {key}") from None
 
     def __setitem__(self, key, value):
         if key in self:

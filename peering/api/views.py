@@ -180,7 +180,7 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
                 pk=request.user.preferences.get("context.as")
             )
         except AutonomousSystem.DoesNotExist:
-            raise ServiceUnavailable("User did not choose an affiliated AS.")
+            raise ServiceUnavailable("User did not choose an affiliated AS.") from None
 
         return Response(
             data=NestedInternetExchangeSerializer(

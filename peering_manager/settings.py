@@ -37,7 +37,7 @@ except ModuleNotFoundError as e:
     if getattr(e, "name") == config_path:
         raise ImproperlyConfigured(
             f"Specified configuration module ({config_path}) not found. Please define peering_manager/configuration.py per the documentation, or specify an alternate module in the PEERINGMANAGER_CONFIGURATION environment variable."
-        )
+        ) from e
     raise
 
 for setting in ["ALLOWED_HOSTS", "DATABASE", "SECRET_KEY"]:
@@ -240,7 +240,7 @@ if RELEASE_CHECK_URL:
         raise ImproperlyConfigured(
             "RELEASE_CHECK_URL must be a valid API URL. "
             "Example: https://api.github.com/repos/peering-manager/peering-manager"
-        )
+        ) from e
 
 
 try:

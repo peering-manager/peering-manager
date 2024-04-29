@@ -34,10 +34,10 @@ def get_serializer_for_model(model, prefix="", suffix=""):
         for c in components[1:]:
             mod = getattr(mod, c)
         return mod
-    except AttributeError:
+    except AttributeError as e:
         raise SerializerNotFound(
             f"Could not determine serializer for {app_name}.{model_name} with prefix '{prefix}' and suffix '{suffix}'"
-        )
+        ) from e
 
 
 def get_view_name(view, suffix=None):

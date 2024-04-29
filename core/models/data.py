@@ -203,7 +203,7 @@ class DataSource(PrimaryModel, JobsMixin):
         except ModuleNotFoundError as e:
             raise SynchronisationError(
                 f"Unable to initialise the backend. A dependency needs to be installed: {e}"
-            )
+            ) from e
 
         with backend.fetch() as local_path:
             logger.debug(f"synchronising files from source root {local_path}")
@@ -276,7 +276,7 @@ class DataSource(PrimaryModel, JobsMixin):
         except ModuleNotFoundError as e:
             raise SynchronisationError(
                 f"Unable to initialise the backend. A dependency needs to be installed: {e}"
-            )
+            ) from e
 
         with backend.push(file_path) as local_path:
             logger.debug(f"pushing {file_path} to {local_path}")
