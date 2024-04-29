@@ -62,11 +62,11 @@ class CoreMiddleware:
     def process_exception(self, request, exception):
         # Ignore exception catching if debug mode is on
         if settings.DEBUG:
-            return
+            return None
 
         # Lets Django handling 404
         if isinstance(exception, Http404):
-            return
+            return None
 
         # Handle exceptions that occur from REST API requests
         if is_api_request(request):

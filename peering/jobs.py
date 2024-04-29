@@ -175,7 +175,7 @@ def push_configuration_to_data_source(router, job):
 
         if isinstance(e, SynchronisationError):
             logger.error(e)
-            return
+            return False
 
         raise e
 

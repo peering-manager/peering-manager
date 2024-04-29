@@ -37,7 +37,7 @@ def process_webhook(
     """
     # Evaluate webhook conditions (if any)
     if not eval_conditions(webhook, data):
-        return
+        return None
 
     context = {
         "event": event.lower(),
