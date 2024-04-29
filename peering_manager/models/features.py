@@ -326,7 +326,9 @@ class SynchronisedDataMixin(models.Model):
                     source=self.data_source, path=self.data_path
                 )
             except DataFile.DoesNotExist:
-                return None
+                pass
+
+        return None
 
     def synchronise_data(self):
         """

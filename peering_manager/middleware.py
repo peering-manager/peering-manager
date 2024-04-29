@@ -80,3 +80,5 @@ class CoreMiddleware:
 
         if template:
             return handler_500(request, template_name=template)
+
+        return None

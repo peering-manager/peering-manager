@@ -27,13 +27,14 @@ class ChoiceFieldFix(OpenApiSerializerFieldExtension):
     def map_serializer_field(self, auto_schema, direction):
         if direction == "request":
             return build_choice_field(self.target)
-        elif direction == "response":
+        if direction == "response":
             return build_object_type(
                 properties={
                     "value": build_basic_type(OpenApiTypes.STR),
                     "label": build_basic_type(OpenApiTypes.STR),
                 }
             )
+        return None
 
 
 class CidrAddressFieldFix(OpenApiSerializerFieldExtension):

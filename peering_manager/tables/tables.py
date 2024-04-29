@@ -27,6 +27,7 @@ class DateColumn(tables.DateColumn):
     def render(self, value):
         if value:
             return date_format(value, format="SHORT_DATE_FORMAT")
+        return ""
 
     def value(self, value):
         return value
@@ -35,6 +36,7 @@ class DateColumn(tables.DateColumn):
     def from_field(cls, field, **kwargs):
         if isinstance(field, DateField):
             return cls(**kwargs)
+        return None
 
 
 @library.register
@@ -55,6 +57,7 @@ class DateTimeColumn(tables.DateTimeColumn):
     def from_field(cls, field, **kwargs):
         if isinstance(field, DateTimeField):
             return cls(**kwargs)
+        return None
 
 
 def linkify_phone(value):
