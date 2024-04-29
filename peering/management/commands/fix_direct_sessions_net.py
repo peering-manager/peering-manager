@@ -24,8 +24,7 @@ def get_subnet(a, b):
     while network.prefixlen > 0:
         if a in network and b in network:
             return network
-        else:
-            network = network.supernet()
+        network = network.supernet()
 
     raise OutOfAddressSpace("Address space exceeded, probably a bug")
 

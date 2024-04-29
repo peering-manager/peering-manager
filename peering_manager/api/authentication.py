@@ -60,7 +60,4 @@ class IsAuthenticatedOrLoginNotRequired(BasePermission):
     """
 
     def has_permission(self, request, view):
-        if not settings.LOGIN_REQUIRED:
-            return True
-        else:
-            return request.user.is_authenticated
+        return not settings.LOGIN_REQUIRED or request.user.is_authenticated

@@ -849,11 +849,11 @@ class RouterViewSet(PeeringManagerModelViewSet):
 
         if created:
             return Response(status=status.HTTP_201_CREATED)
-        else:
-            router.platform = platform
-            router.status = device_status
-            router.save()
-            return Response(status=status.HTTP_200_OK)
+
+        router.platform = platform
+        router.status = device_status
+        router.save()
+        return Response(status=status.HTTP_200_OK)
 
     @extend_schema(
         operation_id="peering_routers_push_datasource",

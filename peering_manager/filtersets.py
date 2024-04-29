@@ -76,7 +76,7 @@ class BaseFilterSet(django_filters.FilterSet):
             ),
         ):
             return FILTER_NUMERIC_BASED_LOOKUP_MAP
-        elif isinstance(
+        if isinstance(
             existing_filter,
             (
                 django_filters.ModelChoiceFilter,
@@ -86,7 +86,7 @@ class BaseFilterSet(django_filters.FilterSet):
         ) or existing_filter.extra.get("choices"):
             # These filter types support only negation
             return FILTER_NEGATION_LOOKUP_MAP
-        elif isinstance(
+        if isinstance(
             existing_filter,
             (
                 django_filters.filters.CharFilter,

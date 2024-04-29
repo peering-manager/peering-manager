@@ -55,12 +55,11 @@ def render_bandwidth_speed(speed):
         return ""
     if speed >= 1000000 and speed % 1000000 == 0:
         return f"{int(speed / 1000000)} Tbps"
-    elif speed >= 1000 and speed % 1000 == 0:
+    if speed >= 1000 and speed % 1000 == 0:
         return f"{int(speed / 1000)} Gbps"
-    elif speed >= 1000:
+    if speed >= 1000:
         return f"{float(speed) / 1000} Gbps"
-    else:
-        return f"{speed} Mbps"
+    return f"{speed} Mbps"
 
 
 @register.filter()
@@ -191,8 +190,7 @@ def content_type_id(instance):
     content_type = ContentType.objects.get_for_model(instance)
     if content_type:
         return content_type.pk
-    else:
-        return None
+    return None
 
 
 @register.inclusion_tag("utils/templatetags/tag.html")
@@ -216,8 +214,7 @@ def foreground_colour(value):
     r, g, b = [int(value[c : c + 2], 16) for c in (0, 2, 4)]
     if r * 0.299 + g * 0.587 + b * 0.114 > 186:
         return "#000000"
-    else:
-        return "#ffffff"
+    return "#ffffff"
 
 
 @register.filter()
@@ -285,8 +282,7 @@ def missing_sessions(context, autonomous_system):
 def doc_version(version):
     if "-dev" in version:
         return "latest"
-    else:
-        return f"v{version}"
+    return f"v{version}"
 
 
 @register.inclusion_tag("helpers/table_config_form.html")

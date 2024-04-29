@@ -100,15 +100,13 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
     def general_policy(self):
         if self.peeringdb_network:
             return self.peeringdb_network.policy_general
-        else:
-            return None
+        return None
 
     @property
     def peeringdb_contacts(self):
         if self.peeringdb_network:
             return NetworkContact.objects.filter(net=self.peeringdb_network)
-        else:
-            return NetworkContact.objects.none()
+        return NetworkContact.objects.none()
 
     @property
     def can_receive_email(self):
@@ -171,8 +169,8 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
             return sessions.filter(
                 ixp_connection__internet_exchange_point=internet_exchange_point
             )
-        else:
-            return sessions
+
+        return sessions
 
     def get_internet_exchange_points(self, other):
         """
@@ -259,8 +257,8 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
                     pk__in=connections.values_list("router", flat=True)
                 )
             )
-        else:
-            return routers
+
+        return routers
 
     def are_bgp_sessions_pollable(self):
         """
@@ -398,10 +396,9 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
 
         if address_family == 6:
             return prefixes["ipv6"]
-        elif address_family == 4:
+        if address_family == 4:
             return prefixes["ipv4"]
-        else:
-            return prefixes
+        return prefixes
 
     def get_contact_email_addresses(self):
         """
@@ -693,8 +690,7 @@ class InternetExchange(AbstractGroup):
         prefixes = IXLanPrefix.objects.filter(ixlan=self.peeringdb_ixlan)
         if family in (4, 6):
             return prefixes.filter(prefix__family=family)
-        else:
-            return prefixes
+        return prefixes
 
     def get_connections(self):
         """
@@ -1126,8 +1122,7 @@ class Router(PushedDataMixin, PrimaryModel):
             return Connection.objects.filter(
                 internet_exchange_point=internet_exchange_point, router=self
             )
-        else:
-            return Connection.objects.filter(router=self)
+        return Connection.objects.filter(router=self)
 
     def get_internet_exchange_points(self):
         """
@@ -1179,8 +1174,7 @@ class Router(PushedDataMixin, PrimaryModel):
         """
         if bgp_group:
             return DirectPeeringSession.objects.filter(bgp_group=bgp_group, router=self)
-        else:
-            return DirectPeeringSession.objects.filter(router=self)
+        return DirectPeeringSession.objects.filter(router=self)
 
     def get_ixp_peering_sessions(self, internet_exchange_point=None):
         """
@@ -1551,8 +1545,7 @@ class Router(PushedDataMixin, PrimaryModel):
         """
         if self.use_netbox:
             return self.get_netbox_bgp_neighbors()
-        else:
-            return self.get_napalm_bgp_neighbors()
+        return self.get_napalm_bgp_neighbors()
 
     def find_bgp_neighbor_detail(self, bgp_neighbors, ip_address):
         """

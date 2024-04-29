@@ -72,10 +72,7 @@ class PeeringManagerAutoSchema(AutoSchema):
 
     @property
     def is_bulk_action(self):
-        if hasattr(self.view, "action") and self.view.action in BULK_ACTIONS:
-            return True
-        else:
-            return False
+        return hasattr(self.view, "action") and self.view.action in BULK_ACTIONS
 
     def get_operation_id(self):
         """

@@ -101,10 +101,10 @@ def process_webhook(
     if response.status_code == requests.codes.ok:
         logger.info(f"request succeeded; response status {response.status_code}")
         return f"status {response.status_code} returned, webhook successfully processed"
-    else:
-        logger.warning(
-            f"request failed; response status {response.status_code}: {response.content}"
-        )
-        raise requests.exceptions.RequestException(
-            f"status {response.status_code} returned with content '{response.content}', webhook FAILED to process"
-        )
+
+    logger.warning(
+        f"request failed; response status {response.status_code}: {response.content}"
+    )
+    raise requests.exceptions.RequestException(
+        f"status {response.status_code} returned with content '{response.content}', webhook FAILED to process"
+    )

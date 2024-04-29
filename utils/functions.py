@@ -161,8 +161,7 @@ def content_type_name(ct, include_app=True):
 
         if include_app:
             return f"{app_label} > {model_name}"
-        else:
-            return model_name
+        return model_name
     except AttributeError:
         # Model no longer exists
         return f"{ct.app_label} > {ct.model}"

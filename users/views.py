@@ -74,11 +74,10 @@ class LoginView(View):
             messages.info(request, f"Logged in as {request.user}.")
 
             return self.redirect_to_next(request)
-        else:
-            logger.debug(
-                f"Login form validation failed for username: {form['username'].value()}"
-            )
 
+        logger.debug(
+            f"Login form validation failed for username: {form['username'].value()}"
+        )
         return render(request, self.template, {"form": form})
 
 
@@ -218,8 +217,7 @@ class TokenAddEdit(LoginRequiredMixin, View):
 
             if "_addanother" in request.POST:
                 return redirect(request.path)
-            else:
-                return redirect("users:token_list")
+            return redirect("users:token_list")
 
         return render(
             request,

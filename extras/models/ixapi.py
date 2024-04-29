@@ -136,10 +136,9 @@ class IXAPI(ChangeLoggedModel):
 
         if health["status"] in ("pass", "ok", "up"):
             return "healthy"
-        elif health["status"] == "warn":
+        if health["status"] == "warn":
             return "degraded"
-        else:
-            return "unhealthy"
+        return "unhealthy"
 
     def get_accounts(self, id=""):
         """
@@ -151,8 +150,7 @@ class IXAPI(ChangeLoggedModel):
         accounts = self.dial().accounts
         if id:
             return accounts.filter(id=id)
-        else:
-            return accounts.all()
+        return accounts.all()
 
     def get_identity(self):
         """
@@ -160,11 +158,11 @@ class IXAPI(ChangeLoggedModel):
         """
         if not self.identity:
             return None
-        else:
-            # If we have none or more than one account, we cannot decide which one is
-            # the correct one; it should not happen though
-            accounts = self.get_accounts(id=self.identity)
-            return next(accounts) if len(accounts) == 1 else None
+
+        # If we have none or more than one account, we cannot decide which one is
+        # the correct one; it should not happen though
+        accounts = self.get_accounts(id=self.identity)
+        return next(accounts) if len(accounts) == 1 else None
 
     def search_in_list(self, items, value, key="id"):
         """

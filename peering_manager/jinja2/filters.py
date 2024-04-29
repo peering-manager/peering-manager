@@ -86,10 +86,9 @@ def ip(value):
 
     if type(address) in (ipaddress.IPv4Interface, ipaddress.IPv6Interface):
         return str(address.ip)
-    elif type(address) in (ipaddress.IPv4Address, ipaddress.IPv6Address):
+    if type(address) in (ipaddress.IPv4Address, ipaddress.IPv6Address):
         return str(address)
-    else:
-        return address
+    return address
 
 
 def ip_version(value):
@@ -227,8 +226,7 @@ def max_prefix(value):
 
     if ipv6(value.ip_address):
         return value.autonomous_system.ipv6_max_prefixes
-    else:
-        return value.autonomous_system.ipv4_max_prefixes
+    return value.autonomous_system.ipv4_max_prefixes
 
 
 def cisco_password(password):
@@ -237,8 +235,7 @@ def cisco_password(password):
     """
     if password.startswith(CISCO_MAGIC):
         return password[2:]
-    else:
-        return password
+    return password
 
 
 def filter(value, **kwargs):
@@ -282,8 +279,7 @@ def get(queryset, **kwargs):
 
     if q.count() == 1:
         return q.get()
-    else:
-        return q
+    return q
 
 
 def unique_items(value, field):
@@ -421,8 +417,7 @@ def contact(value, role, field=""):
         if assignement:
             if not field:
                 return assignement.contact
-            else:
-                return getattr(assignement.contact, field)
+            return getattr(assignement.contact, field)
 
     return None
 
@@ -482,8 +477,7 @@ def local_ips(value, family=0):
     if isinstance(value, InternetExchangePeeringSession):
         if value.ip_address.version == 6:
             return value.ixp_connection.ipv6_address
-        else:
-            return value.ixp_connection.ipv4_address
+        return value.ixp_connection.ipv4_address
 
     if isinstance(value, InternetExchange):
         ips = []
@@ -512,8 +506,7 @@ def direct_sessions(value, family=0, group=None):
 
     if family not in (4, 6):
         return s
-    else:
-        return s.filter(ip_address__family=family)
+    return s.filter(ip_address__family=family)
 
 
 def ixp_sessions(value, family=0, ixp=None):
@@ -534,8 +527,7 @@ def ixp_sessions(value, family=0, ixp=None):
 
     if family not in (4, 6):
         return s
-    else:
-        return s.filter(ip_address__family=family)
+    return s.filter(ip_address__family=family)
 
 
 def sessions(value, family=0):
@@ -553,8 +545,7 @@ def sessions(value, family=0):
 
     if family not in (4, 6):
         return value.get_peering_sessions()
-    else:
-        return value.get_peering_sessions().filter(ip_address__family=family)
+    return value.get_peering_sessions().filter(ip_address__family=family)
 
 
 def route_server(value, family=0):
@@ -660,8 +651,7 @@ def prefix_list(value, family=0):
     if type(value) is InternetExchange:
         if family in (4, 6):
             return value.peeringdb_prefixes.get(f"ipv{family}", [])
-        else:
-            return value.peeringdb_prefixes
+        return value.peeringdb_prefixes
 
     raise ValueError("value has no prefixes")
 

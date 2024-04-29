@@ -273,8 +273,8 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                 logger.info(msg)
                 messages.success(request, msg)
                 return redirect(self.get_return_url(request))
-            else:
-                logger.debug("form validation failed")
+
+            logger.debug("form validation failed")
         else:
             form = form_cls(
                 initial={"pk": pk_list, "return_url": self.get_return_url(request)}
@@ -316,8 +316,7 @@ class ImportFromObjectView(GetReturnURLMixin, PermissionRequiredMixin, View):
         """
         if not self.queryset:
             return []
-        else:
-            return list(self.queryset.filter(pk__in=pk_list))
+        return list(self.queryset.filter(pk__in=pk_list))
 
     def process_base_object(self, request, base):
         return None
@@ -381,9 +380,8 @@ class ImportFromObjectView(GetReturnURLMixin, PermissionRequiredMixin, View):
                 messages.success(request, msg)
 
             return redirect(self.get_return_url(request))
-        else:
-            logger.debug("formset validation failed")
 
+        logger.debug("formset validation failed")
         return render(
             request,
             self.template_name,

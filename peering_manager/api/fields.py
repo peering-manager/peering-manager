@@ -40,8 +40,7 @@ class ChoiceField(serializers.Field):
         if data is None:
             if self.allow_null:
                 return True, None
-            else:
-                data = ""
+            data = ""
         return super().validate_empty_values(data)
 
     def to_representation(self, obj):

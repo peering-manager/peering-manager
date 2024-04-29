@@ -33,8 +33,7 @@ class ModelViewTestCase(ModelTestCase):
         # If no instance was provided, assume we don't need a unique identifier
         if instance is None:
             return reverse(url_format.format(action))
-        else:
-            return reverse(url_format.format(action), kwargs={"pk": instance.pk})
+        return reverse(url_format.format(action), kwargs={"pk": instance.pk})
 
 
 class ViewTestCases:

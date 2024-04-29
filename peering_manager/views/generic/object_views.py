@@ -146,8 +146,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         """
         if not kwargs:
             return self.queryset.model()
-        else:
-            return super().get_object(**kwargs)
+        return super().get_object(**kwargs)
 
     def alter_object(self, instance, request, url_args, url_kwargs):
         """
@@ -223,8 +222,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
 
                 if "_addanother" in request.POST:
                     return redirect(request.path)
-                else:
-                    return redirect(self.get_return_url(request, instance))
+                return redirect(self.get_return_url(request, instance))
             except (AbortRequest, PermissionsViolation) as e:
                 logger.debug(e.message)
                 form.add_error(None, e.message)
@@ -286,11 +284,9 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             return_url = form.cleaned_data.get("return_url")
             if return_url and return_url.startswith("/"):
                 return redirect(return_url)
-            else:
-                return redirect(self.get_return_url(request, instance=o))
-        else:
-            logger.debug("form validation failed")
+            return redirect(self.get_return_url(request, instance=o))
 
+        logger.debug("form validation failed")
         return render(
             request,
             self.template_name,

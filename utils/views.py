@@ -23,8 +23,7 @@ class PermissionRequiredMixin(_PermissionRequiredMixin):
             and ".view_" in self.permission_required
         ):
             return True
-        else:
-            return super().has_permission()
+        return super().has_permission()
 
 
 class GetReturnURLMixin:
