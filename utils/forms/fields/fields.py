@@ -30,7 +30,7 @@ class TextareaField(forms.CharField):
 
     def __init__(self, *args, **kwargs):
         required = kwargs.pop("required", False)
-        super().__init__(required=required, *args, **kwargs)
+        super().__init__(*args, required=required, **kwargs)
 
 
 class ColourField(models.CharField):
@@ -60,9 +60,9 @@ class CommentField(TextareaField):
 
     def __init__(self, *args, **kwargs):
         super().__init__(
+            *args,
             label="Comments",
             help_text='Styling with <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank"><i class="fab fa-markdown"></i> Markdown</a> is supported',
-            *args,
             **kwargs,
         )
 
@@ -104,7 +104,7 @@ class PasswordField(forms.CharField):
         label = kwargs.pop("label", "Password")
         empty_value = kwargs.pop("empty_value", None)
         super().__init__(
-            widget=widget, label=label, empty_value=empty_value, *args, **kwargs
+            *args, widget=widget, label=label, empty_value=empty_value, **kwargs
         )
         self.widget.attrs["password-source"] = password_source
 
@@ -140,7 +140,7 @@ class TagFilterField(forms.MultipleChoiceField):
 
         # Choices are fetched each time the form is initialized
         super().__init__(
-            label="Tags", choices=get_choices, required=False, *args, **kwargs
+            *args, label="Tags", choices=get_choices, required=False, **kwargs
         )
 
 
@@ -153,7 +153,7 @@ class TemplateField(TextareaField):
     def __init__(self, *args, **kwargs):
         widget = kwargs.pop("widget", forms.Textarea(attrs={"class": "text-monospace"}))
         label = kwargs.pop("label", "Template")
-        super().__init__(widget=widget, label=label, *args, **kwargs)
+        super().__init__(*args, widget=widget, label=label, **kwargs)
 
         if not self.help_text:
             self.help_text = '<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/templating/" target="_blank">Jinja2 template</a> syntax is supported.'

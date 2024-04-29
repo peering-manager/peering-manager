@@ -230,7 +230,7 @@ class ContentTypesColumn(tables.ManyToManyColumn):
         # Use a line break as the default separator
         if separator is None:
             separator = mark_safe("<br />")
-        super().__init__(separator=separator, *args, **kwargs)
+        super().__init__(*args, separator=separator, **kwargs)
 
     def transform(self, obj):
         return content_type_name(obj, include_app=False)
