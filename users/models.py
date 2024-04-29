@@ -136,9 +136,8 @@ class UserPreferences(models.Model):
             raise TypeError(
                 f"'{path}' is a category, it cannot be converted to a value."
             )
-        else:
-            data[key] = value
 
+        data[key] = value
         if commit:
             self.save()
 
