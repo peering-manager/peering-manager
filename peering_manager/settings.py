@@ -54,7 +54,9 @@ SECRET_KEY = getattr(configuration, "SECRET_KEY")
 # Deprecated, to be removed in 2.0.0
 MY_ASN = getattr(configuration, "MY_ASN", None)
 if MY_ASN:
-    warnings.warn("MY_ASN is no longer supported and will be removed in 2.0.")
+    warnings.warn(
+        "MY_ASN is no longer supported and will be removed in 2.0.", stacklevel=1
+    )
 
 BASE_PATH = getattr(configuration, "BASE_PATH", "")
 if BASE_PATH:
@@ -223,6 +225,11 @@ PEERINGDB_ASN = f"{PEERINGDB}asn/"
 # To be removed in v2.0
 PEERINGDB_USERNAME = getattr(configuration, "PEERINGDB_USERNAME", "")
 PEERINGDB_PASSWORD = getattr(configuration, "PEERINGDB_PASSWORD", "")
+if PEERINGDB_USERNAME or PEERINGDB_PASSWORD:
+    warnings.warn(
+        "PEERINGDB_USERNAME and PEERINGDB_PASSWORD are deprecated and will be removed in 2.0. Use PEERINGDB_API_KEY instead.",
+        stacklevel=1,
+    )
 PEERINGDB_API_KEY = getattr(configuration, "PEERINGDB_API_KEY", "")
 
 # GitHub releases check

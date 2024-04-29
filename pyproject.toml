@@ -64,7 +64,6 @@ ignore = [
     "B012",    # `return` inside `finally` blocks cause exceptions to be silenced
     "B017",    # Should be considered evil
     "B026",    # Star-arg unpacking after a keyword argument is strongly discouraged
-    "B028",    #  No explicit `stacklevel` keyword argument found
     "C901",    # Is too complex
     "DJ001",   # Avoid using `null=True` on string-based fields such as `CharField`
     "DJ007",   # Do not use `__all__` with `ModelForm`, use `fields` instead
