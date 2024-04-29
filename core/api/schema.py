@@ -196,8 +196,7 @@ class PeeringManagerAutoSchema(AutoSchema):
                 writable_name, (type(serializer),), properties
             )
 
-        writable_class = self.writable_serializers[type(serializer)]
-        return writable_class
+        return self.writable_serializers[type(serializer)]
 
     def get_filter_backends(self):
         # bulk operations don't have filter params

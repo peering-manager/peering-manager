@@ -149,9 +149,7 @@ class ObjectChangeSerializer(BaseModelSerializer):
             return o.object_repr
 
         context = {"request": self.context["request"]}
-        data = serializer(o.changed_object, context=context).data
-
-        return data
+        return serializer(o.changed_object, context=context).data
 
 
 class TagSerializer(ValidatedModelSerializer):
