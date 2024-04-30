@@ -1,8 +1,8 @@
 from django.conf import settings
-from django_rq.management.commands.rqworker import Command as C
+from django_rq.management.commands.rqworker import Command as BuiltinCommand
 
 
-class Command(C):
+class Command(BuiltinCommand):
     """
     Subclass django_rq's built-in rqworker to listen on all configured queues if none
     are specified (instead of only the 'default' queue).

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.admin import site as admin_site
-from django.contrib.auth.admin import UserAdmin as UA
+from django.contrib.auth.admin import UserAdmin as BuiltinUserAdmin
 from django.contrib.auth.models import User
 
 from .models import Token, UserPreferences
@@ -34,7 +34,7 @@ class UserPreferencesInline(admin.TabularInline):
 
 
 @admin.register(User, site=admin_site)
-class UserAdmin(UA):
+class UserAdmin(BuiltinUserAdmin):
     list_display = [
         "username",
         "email",
