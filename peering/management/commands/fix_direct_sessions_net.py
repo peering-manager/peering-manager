@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 from peering.models import DirectPeeringSession
 
 
-class OutOfAddressSpace(Exception):
+class OutOfAddressSpaceError(Exception):
     pass
 
 
@@ -26,7 +26,7 @@ def get_subnet(a, b):
             return network
         network = network.supernet()
 
-    raise OutOfAddressSpace("Address space exceeded, probably a bug")
+    raise OutOfAddressSpaceError("Address space exceeded, probably a bug")
 
 
 class Command(BaseCommand):
@@ -56,7 +56,7 @@ class Command(BaseCommand):
             try:
                 network = get_subnet(s.local_ip_address, s.ip_address)
                 self.stdout.write(f"  - Found network {network}")
-            except OutOfAddressSpace:
+            except OutOfAddressSpaceError:
                 self.stdout.write(self.style.ERROR("  - Error finding out network"))
                 continue
 

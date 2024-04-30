@@ -6,5 +6,5 @@ class ServiceUnavailable(APIException):
     default_detail = "Service temporarily unavailable, please try again later."
 
 
-class SerializerNotFound(Exception):
+class SerializerNotFoundError(Exception):
     pass

@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from extras.models import ExportTemplate
-from peering_manager.api.exceptions import SerializerNotFound
+from peering_manager.api.exceptions import SerializerNotFoundError
 from peering_manager.api.serializers import BulkOperationSerializer
 from peering_manager.constants import NESTED_SERIALIZER_PREFIX
 from utils.api import get_serializer_for_model
@@ -53,7 +53,7 @@ class BriefModeMixin:
                 return get_serializer_for_model(
                     self.queryset.model, prefix=NESTED_SERIALIZER_PREFIX
                 )
-            except SerializerNotFound:
+            except SerializerNotFoundError:
                 logger.debug(
                     f"Nested serializer for {self.queryset.model} not found. Using serializer {self.serializer_class}"
                 )

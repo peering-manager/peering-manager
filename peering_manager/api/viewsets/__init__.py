@@ -7,7 +7,7 @@ from rest_framework import mixins as drf_mixins
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from utils.exceptions import AbortRequest
+from utils.exceptions import AbortRequestError
 
 from . import mixins
 
@@ -82,7 +82,7 @@ class PeeringManagerModelViewSet(
             return self.finalize_response(
                 request, Response({"detail": msg}, status=409), *args, **kwargs
             )
-        except AbortRequest as e:
+        except AbortRequestError as e:
             logger.debug(e.message)
             return self.finalize_response(
                 request, Response({"detail": e.message}, status=400), *args, **kwargs

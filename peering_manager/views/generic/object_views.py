@@ -7,7 +7,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from extras.signals import clear_webhooks
-from utils.exceptions import AbortRequest, PermissionsViolation
+from utils.exceptions import AbortRequestError, PermissionsViolationError
 from utils.forms import ConfirmationForm
 from utils.functions import get_permission_for_model, normalize_querydict
 from utils.views import GetReturnURLMixin
@@ -205,7 +205,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
 
                     # Check that the new object conforms with any permissions
                     if not self.queryset.filter(pk=instance.pk).exists():
-                        raise PermissionsViolation()
+                        raise PermissionsViolationError()
 
                 msg = "{} {}".format(
                     "Created" if object_created else "Modified",
@@ -223,7 +223,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
                 if "_addanother" in request.POST:
                     return redirect(request.path)
                 return redirect(self.get_return_url(request, instance))
-            except (AbortRequest, PermissionsViolation) as e:
+            except (AbortRequestError, PermissionsViolationError) as e:
                 logger.debug(e.message)
                 form.add_error(None, e.message)
                 clear_webhooks.send(sender=self)

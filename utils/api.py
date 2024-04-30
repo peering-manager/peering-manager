@@ -7,7 +7,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.utils import formatting
 
-from peering_manager.api.exceptions import SerializerNotFound
+from peering_manager.api.exceptions import SerializerNotFoundError
 
 __all__ = (
     "get_serializer_for_model",
@@ -35,7 +35,7 @@ def get_serializer_for_model(model, prefix="", suffix=""):
             mod = getattr(mod, c)
         return mod
     except AttributeError as e:
-        raise SerializerNotFound(
+        raise SerializerNotFoundError(
             f"Could not determine serializer for {app_name}.{model_name} with prefix '{prefix}' and suffix '{suffix}'"
         ) from e
 

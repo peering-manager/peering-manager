@@ -13,7 +13,7 @@ from django.views.generic import View
 
 from extras.signals import clear_webhooks
 from peering_manager.forms import HiddenControlFormSet
-from utils.exceptions import AbortRequest, PermissionsViolation
+from utils.exceptions import AbortRequestError, PermissionsViolationError
 from utils.forms import ConfirmationForm
 from utils.functions import get_permission_for_model, handle_protectederror
 from utils.views import GetReturnURLMixin, PermissionRequiredMixin
@@ -170,7 +170,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                 except ValidationError as e:
                     messages.error(self.request, ", ".join(e.messages))
                     clear_webhooks.send(sender=self)
-                except (AbortRequest, PermissionsViolation) as e:
+                except (AbortRequestError, PermissionsViolationError) as e:
                     logger.debug(e.message)
                     form.add_error(None, e.message)
                     clear_webhooks.send(sender=self)
@@ -264,7 +264,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                     )
                     handle_protectederror(queryset, request, e)
                     return redirect(self.get_return_url(request))
-                except AbortRequest as e:
+                except AbortRequestError as e:
                     logger.debug(e.message)
                     messages.error(request, mark_safe(e.message))
                     return redirect(self.get_return_url(request))
