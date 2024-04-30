@@ -9,7 +9,7 @@ from django.db.utils import DEFAULT_DB_ALIAS
 
 from extras.enums import ObjectChangeAction
 from net.models import Connection
-from peering.models import InternetExchange as IXP
+from peering.models import InternetExchange as Ixp
 
 from .models import (
     Campus,
@@ -231,7 +231,7 @@ class PeeringDB:
         """
         for c in Connection.objects.all():
             c.link_to_peeringdb()
-        for i in IXP.objects.all():
+        for i in Ixp.objects.all():
             i.link_to_peeringdb()
 
     def synchronise_objects(self, last_sync, namespace, model):
@@ -334,7 +334,7 @@ class PeeringDB:
         Connection.objects.filter(peeringdb_netixlan__isnull=False).update(
             peeringdb_netixlan=None
         )
-        IXP.objects.filter(peeringdb_ixlan__isnull=False).update(peeringdb_ixlan=None)
+        Ixp.objects.filter(peeringdb_ixlan__isnull=False).update(peeringdb_ixlan=None)
 
         # The use of reversed is important to avoid fk issues
         for model in reversed(list(NAMESPACES.values())):

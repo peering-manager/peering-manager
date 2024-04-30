@@ -67,7 +67,6 @@ ignore = [
     "F403",    # Unable to detect undefined names
     "F405",    # May be undefined, or defined from star imports
     "N812",    # Lowercase imported as non-lowercase
-    "N814",    # Camelcase imported as constant
     "N999",    # Invalid module name
     "PLR0911", # Too many return statements
     "PLR0912", # Too many branches

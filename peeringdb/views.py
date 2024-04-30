@@ -4,7 +4,7 @@ from django.core.mail import EmailMessage
 from django.shortcuts import redirect, render, reverse
 from django.views.generic import View
 
-from peering.models import InternetExchange as IXP
+from peering.models import InternetExchange as Ixp
 from peering_manager.views.generic import ObjectListView, PermissionRequiredMixin
 
 from .filtersets import NetworkIXLanFilterSet
@@ -77,7 +77,7 @@ class AvailableIXPPeers(ObjectListView):
     def get_queryset(self, request):
         queryset = NetworkIXLan.objects.none()
 
-        for ixp in IXP.objects.all():
+        for ixp in Ixp.objects.all():
             queryset = queryset | ixp.get_available_peers()
 
         return queryset
