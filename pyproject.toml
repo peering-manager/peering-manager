@@ -61,7 +61,6 @@ ignore = [
     "DJ001",   # Avoid using `null=True` on string-based fields such as `CharField`
     "DJ007",   # Do not use `__all__` with `ModelForm`, use `fields` instead
     "DJ008",   # Model does not define `__str__` method
-    "DJ012",   # Order of model's inner classes, methods, and fields does not follow the Django Style Guide: `__str__` method should come before custom method
     "E501",    # Line too long
     "F401",    # Imported but unused; consider using `importlib.util.find_spec` to test for availability
     "F403",    # Unable to detect undefined names

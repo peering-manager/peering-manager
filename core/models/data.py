@@ -342,6 +342,12 @@ class DataFile(models.Model):
             )
         ]
 
+    def __str__(self):
+        return self.path
+
+    def get_absolute_url(self):
+        return reverse("core:datafile_view", args=[self.pk])
+
     @property
     def data_as_string(self):
         if not self.data:
@@ -351,12 +357,6 @@ class DataFile(models.Model):
             return self.data.decode("utf-8")
         except UnicodeDecodeError:
             return None
-
-    def __str__(self):
-        return self.path
-
-    def get_absolute_url(self):
-        return reverse("core:datafile_view", args=[self.pk])
 
     def get_data(self):
         """

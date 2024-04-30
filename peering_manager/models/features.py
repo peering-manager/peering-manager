@@ -266,23 +266,6 @@ class SynchronisedDataMixin(models.Model):
     class Meta:
         abstract = True
 
-    @property
-    def is_synchronised(self):
-        return self.data_file and self.data_synchronised >= self.data_file.updated
-
-    def clean(self, *args, **kwargs):
-        if self.data_file:
-            self.data_source = self.data_file.source
-            self.data_path = self.data_file.path
-            self.synchronise()
-        else:
-            self.data_source = None
-            self.data_path = ""
-            self.auto_synchronisation_enabled = False
-            self.data_synchronised = None
-
-        super().clean()
-
     def save(self, *args, **kwargs):
         from core.models import AutoSynchronisationRecord
 
@@ -301,6 +284,23 @@ class SynchronisedDataMixin(models.Model):
             ).delete()
 
         return r
+
+    @property
+    def is_synchronised(self):
+        return self.data_file and self.data_synchronised >= self.data_file.updated
+
+    def clean(self, *args, **kwargs):
+        if self.data_file:
+            self.data_source = self.data_file.source
+            self.data_path = self.data_file.path
+            self.synchronise()
+        else:
+            self.data_source = None
+            self.data_path = ""
+            self.auto_synchronisation_enabled = False
+            self.data_synchronised = None
+
+        super().clean()
 
     def delete(self, *args, **kwargs):
         from core.models import AutoSynchronisationRecord

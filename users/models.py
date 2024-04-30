@@ -35,6 +35,12 @@ class Token(models.Model):
         # Prevent exposure of the complete key
         return f"{self.key[-6:]} ({self.user})"
 
+    def save(self, *args, **kwargs):
+        if not self.key:
+            # Generate a key if none is given
+            self.key = self.__generate_key()
+        return super().save(*args, **kwargs)
+
     def __generate_key(self):
         # Random 160-bit key in hexadecimal
         return binascii.hexlify(os.urandom(20)).decode()
@@ -45,12 +51,6 @@ class Token(models.Model):
         Says if this token is expired if it has an expiration date.
         """
         return (self.expires is not None) and (timezone.now() >= self.expires)
-
-    def save(self, *args, **kwargs):
-        if not self.key:
-            # Generate a key if none is given
-            self.key = self.__generate_key()
-        return super().save(*args, **kwargs)
 
 
 class UserPreferences(models.Model):

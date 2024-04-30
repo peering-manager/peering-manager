@@ -417,12 +417,12 @@ class InternetExchange(models.Model):
         verbose_name = "Internet Exchange"
         verbose_name_plural = "Internet Exchanges"
 
+    def __str__(self):
+        return self.name
+
     @property
     def fac_set(self):
         return [ixfac.fac for ixfac in self.ixfac_set]
-
-    def __str__(self):
-        return self.name
 
 
 class InternetExchangeFacility(models.Model):

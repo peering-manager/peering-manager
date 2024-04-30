@@ -48,6 +48,12 @@ class Job(models.Model):
     class Meta:
         ordering = ["-created"]
 
+    def __str__(self):
+        return str(self.job_id)
+
+    def get_absolute_url(self):
+        return reverse("core:job_view", args=[self.pk])
+
     @classmethod
     def enqueue(
         cls, func, *args, name="", object=None, object_model=None, user=None, **kwargs
@@ -102,12 +108,6 @@ class Job(models.Model):
     @property
     def is_over(self):
         return self.status in [JobStatus.COMPLETED, JobStatus.ERRORED, JobStatus.FAILED]
-
-    def __str__(self):
-        return str(self.job_id)
-
-    def get_absolute_url(self):
-        return reverse("core:job_view", args=[self.pk])
 
     def get_status_colour(self):
         return JobStatus.colours.get(self.status)
