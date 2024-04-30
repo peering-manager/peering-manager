@@ -83,6 +83,6 @@ class ViewTestCase(TestCase):
         self.assertEqual(expected_status_code, response.status_code)
 
     def test_add_blank_choice(self):
-        CHOICES = ((1, "One"), (2, "Two"))
-        CHOICES_WITH_BLANK = ((None, "---------"), (1, "One"), (2, "Two"))
-        self.assertEqual(CHOICES_WITH_BLANK, add_blank_choice(CHOICES))
+        choices = ((1, "One"), (2, "Two"))
+        choices_with_blank = ((None, "---------"), (1, "One"), (2, "Two"))
+        self.assertEqual(choices_with_blank, add_blank_choice(choices))

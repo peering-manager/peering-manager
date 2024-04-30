@@ -13,7 +13,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
         Returns the same method ignoring the HTTP request type.
         """
         if item.startswith("do_"):
-            return self.do_ANY
+            return self.do_any
         raise AttributeError
 
     def log_message(self, format_str, *args):
@@ -21,7 +21,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
             f"[{request_counter}] {self.date_time_string()} {self.address_string()} {format_str % args}"
         )
 
-    def do_ANY(self):
+    def do_any(self):
         global request_counter  # noqa: PLW0603
 
         self.send_response(200)

@@ -29,8 +29,8 @@ def extract_form_failures(html):
     """
     Given raw HTML content from an HTTP response, returns a list of form errors.
     """
-    FORM_ERROR_REGEX = r"<!-- FORM-ERROR (.*) -->"
-    return re.findall(FORM_ERROR_REGEX, str(html))
+    form_error_regex = r"<!-- FORM-ERROR (.*) -->"
+    return re.findall(form_error_regex, str(html))
 
 
 def post_data(data):

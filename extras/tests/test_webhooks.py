@@ -29,29 +29,29 @@ class WebhookTest(APITestCase):
     @classmethod
     def setUpTestData(cls):
         as_ct = ContentType.objects.get_for_model(AutonomousSystem)
-        TEST_URL = "http://localhost/"
-        TEST_SECRET = "thisisaverystrongsecret"
+        test_url = "http://localhost/"
+        test_secret = "thisisaverystrongsecret"
 
         webhooks = Webhook.objects.bulk_create(
             [
                 Webhook(
                     name="Create Webhook",
                     type_create=True,
-                    payload_url=TEST_URL,
-                    secret=TEST_SECRET,
+                    payload_url=test_url,
+                    secret=test_secret,
                     additional_headers="X-Foo: Bar",
                 ),
                 Webhook(
                     name="Update Webhook",
                     type_update=True,
-                    payload_url=TEST_URL,
-                    secret=TEST_SECRET,
+                    payload_url=test_url,
+                    secret=test_secret,
                 ),
                 Webhook(
                     name="Delete Webhook",
                     type_delete=True,
-                    payload_url=TEST_URL,
-                    secret=TEST_SECRET,
+                    payload_url=test_url,
+                    secret=test_secret,
                 ),
             ]
         )

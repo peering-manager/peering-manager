@@ -340,11 +340,11 @@ class ImportFromObjectView(GetReturnURLMixin, PermissionRequiredMixin, View):
 
         # Prepare the form
         if not self.custom_formset:
-            ObjectFormSet = formset_factory(
+            object_form_set = formset_factory(
                 self.form_model, formset=HiddenControlFormSet, extra=0, can_delete=True
             )
         else:
-            ObjectFormSet = formset_factory(
+            object_form_set = formset_factory(
                 self.form_model, formset=self.custom_formset, extra=0, can_delete=True
             )
 
@@ -353,13 +353,13 @@ class ImportFromObjectView(GetReturnURLMixin, PermissionRequiredMixin, View):
         if not base_objects:
             # We don't have base objects to handle, proceed as if we were in the next
             # step of the form (object creation)
-            formset = ObjectFormSet(data=request.POST)
+            formset = object_form_set(data=request.POST)
         else:
             # Proceed base object and fill in the form
             processed_base_objects = [
                 self.process_base_object(request, o) for o in base_objects
             ]
-            formset = ObjectFormSet(initial=self.sort_objects(processed_base_objects))
+            formset = object_form_set(initial=self.sort_objects(processed_base_objects))
 
         created_objects = []
         if formset.is_valid():

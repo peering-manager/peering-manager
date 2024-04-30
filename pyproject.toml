@@ -67,7 +67,6 @@ ignore = [
     "F403",    # Unable to detect undefined names
     "F405",    # May be undefined, or defined from star imports
     "N804",    # First argument of a class method should be named `cls`
-    "N806",    # Variable in function should be lowercase
     "N812",    # Lowercase imported as non-lowercase
     "N814",    # Camelcase imported as constant
     "N817",    # CamelCase imported as acronym
