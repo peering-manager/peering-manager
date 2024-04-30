@@ -83,7 +83,7 @@ class TestCase(_TestCase):
             )
             self.user.user_permissions.remove(perm)
 
-    def assertHttpStatus(self, response, expected_status):
+    def assertHttpStatus(self, response, expected_status):  # noqa: N802
         """
         Provide detail when receiving an unexpected HTTP response.
         """
@@ -180,7 +180,9 @@ class ModelTestCase(TestCase):
 
         return model_dict
 
-    def assertInstanceEqual(self, instance, data, exclude=None, api=False):
+    def assertInstanceEqual(  # noqa: N802
+        self, instance, data, exclude=None, api=False
+    ):
         """
         Compares a model instance to a dictionary, checking that its attribute values
         match those specified in the dictionary.
