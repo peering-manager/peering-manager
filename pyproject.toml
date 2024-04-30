@@ -68,7 +68,6 @@ ignore = [
     "F405",    # May be undefined, or defined from star imports
     "N802",    # Function name should be lowercase
     "N804",    # First argument of a class method should be named `cls`
-    "N805",    # First argument of a method should be named `self`
     "N806",    # Variable in function should be lowercase
     "N812",    # Lowercase imported as non-lowercase
     "N814",    # Camelcase imported as constant
@@ -108,7 +107,7 @@ select = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"*/migrations/*" = ["B007"]
+"*/migrations/*" = ["B007", "N805", "N806"]
 
 [tool.ruff.format]
 quote-style = "double"
