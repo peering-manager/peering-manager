@@ -166,7 +166,7 @@ class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
         tag.save()
 
         user = User.objects.create_user(username="testuser2")
-        for i in range(1, 4):
+        for _ in range(3):
             uid = uuid.uuid4()
             cls.uuids.append(uid)
             change = tag.to_objectchange(ObjectChangeAction.UPDATE)

@@ -153,7 +153,7 @@ class ObjectChangeTestCase(ViewTestCases.ReadOnlyObjectViewTestCase):
         tag.save()
 
         user = User.objects.create_user(username="testuser2")
-        for i in range(1, 4):
+        for _ in range(3):
             uid = uuid.uuid4()
             change = tag.to_objectchange(ObjectChangeAction.UPDATE)
             change.user = user

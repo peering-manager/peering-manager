@@ -58,7 +58,6 @@ target-version = "py310"
 [tool.ruff.lint]
 ignore = [
     "B006",    # Do not use mutable data structures for argument defaults
-    "B007",    # Loop control variable not used within loop body
     "B009",    # Do not call `getattr` with a constant attribute value. It is not any safer than normal property access
     "B010",    # Do not call `setattr` with a constant attribute value. It is not any safer than normal property access
     "C901",    # Is too complex

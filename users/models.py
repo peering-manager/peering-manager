@@ -151,7 +151,7 @@ class UserPreferences(models.Model):
         keys = path.split(separator)
 
         # Look only for categories for now, excluding the name of the value
-        for i, key in enumerate(keys[:-1]):
+        for key in keys[:-1]:
             if key not in data:
                 break
             if isinstance(data[key], dict):
