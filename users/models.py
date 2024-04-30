@@ -67,6 +67,9 @@ class UserPreferences(models.Model):
         ordering = ["user"]
         verbose_name = verbose_name_plural = "User Preferences"
 
+    def __str__(self):
+        return f"{str(self.user)} preferences"
+
     def all(self):
         """
         Returns a dictionary of all defined keys and their values.

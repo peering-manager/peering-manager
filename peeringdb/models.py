@@ -445,6 +445,9 @@ class InternetExchangeFacility(models.Model):
         verbose_name = "Internet Exchange facility"
         verbose_name_plural = "Internet Exchange facilities"
 
+    def __str__(self):
+        return f"{str(self.ix)} at {str(self.fac)}"
+
 
 class IXLan(models.Model):
     name = models.CharField(max_length=255, blank=True)
@@ -483,6 +486,9 @@ class IXLan(models.Model):
         verbose_name = "Internet Exchange LAN"
         verbose_name_plural = "Internet Exchange LANs"
 
+    def __str__(self):
+        return self.name
+
 
 class IXLanPrefix(models.Model):
     notes = models.CharField(max_length=255, blank=True)
@@ -500,6 +506,9 @@ class IXLanPrefix(models.Model):
     class Meta:
         verbose_name = "Internet Exchange LAN prefix"
         verbose_name_plural = "Internet Exchange LAN prefixes"
+
+    def __str__(self):
+        return f"{str(self.ixlan)} - {self.prefix}"
 
 
 class NetworkContact(models.Model):
@@ -552,6 +561,9 @@ class NetworkFacility(models.Model):
         verbose_name = "Network Facility"
         verbose_name_plural = "Network Facilities"
 
+    def __str__(self):
+        return f"{str(self.net)} at {str(self.fac)}"
+
 
 class NetworkIXLan(models.Model):
     asn = ASNField(verbose_name="ASN")
@@ -591,6 +603,9 @@ class NetworkIXLan(models.Model):
     class Meta:
         verbose_name = "Public Peering Exchange Point"
         verbose_name_plural = "Public Peering Exchange Points"
+
+    def __str__(self):
+        return f"{str(self.net)} on {str(self.ixlan)}"
 
     @property
     def cidr4(self):
