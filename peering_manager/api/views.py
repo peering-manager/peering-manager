@@ -1,7 +1,7 @@
 import platform
 from collections import OrderedDict
 
-from django import __version__ as DJANGO_VERSION
+from django import __version__ as django_version
 from django.apps import apps
 from django.conf import settings
 from django_rq.queues import get_connection
@@ -77,7 +77,7 @@ class StatusView(APIView):
 
         return Response(
             {
-                "django-version": DJANGO_VERSION,
+                "django-version": django_version,
                 "installed-apps": installed_apps,
                 "peering-manager-version": settings.VERSION,
                 "python-version": platform.python_version(),
