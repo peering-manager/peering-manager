@@ -57,7 +57,6 @@ target-version = "py310"
 
 [tool.ruff.lint]
 ignore = [
-    "B006",    # Do not use mutable data structures for argument defaults
     "B009",    # Do not call `getattr` with a constant attribute value. It is not any safer than normal property access
     "B010",    # Do not call `setattr` with a constant attribute value. It is not any safer than normal property access
     "C901",    # Is too complex
@@ -109,6 +108,9 @@ select = [
     "T10",  # flake8-debugger
     "W",    # pycodestyle warnings
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"*/migrations/*" = ["B007"]
 
 [tool.ruff.format]
 quote-style = "double"

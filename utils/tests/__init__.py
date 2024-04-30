@@ -43,12 +43,17 @@ class ViewTestCase(TestCase):
     def get_request(
         self,
         path,
-        params={},
-        data={},
+        params=None,
+        data=None,
         expected_status_code=200,
         contains=None,
         notcontains=None,
     ):
+        if data is None:
+            data = {}
+        if params is None:
+            params = {}
+
         # Perform the GET request
         response = self.client.get(reverse(path, kwargs=params), data=data)
 
@@ -63,7 +68,12 @@ class ViewTestCase(TestCase):
         if notcontains:
             self.assertNotContains(response, notcontains)
 
-    def post_request(self, path, params={}, data={}, expected_status_code=200):
+    def post_request(self, path, params=None, data=None, expected_status_code=200):
+        if data is None:
+            data = {}
+        if params is None:
+            params = {}
+
         # Perform the POST request
         response = self.client.post(
             reverse(path, kwargs=params), data=data, follow=True
