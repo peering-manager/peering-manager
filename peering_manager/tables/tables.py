@@ -126,7 +126,7 @@ class BaseTable(tables.Table):
             prefetch_fields = []
             for column in self.columns:
                 if column.visible:
-                    model = getattr(self.Meta, "model")
+                    model = self.Meta.model
                     accessor = column.accessor
                     prefetch_path = []
                     for field_name in accessor.split(accessor.SEPARATOR):

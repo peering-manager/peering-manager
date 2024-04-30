@@ -263,10 +263,10 @@ class BGPSession(PrimaryModel, PolicyMixin):
 
         Returns `True` if the encrypted password has been changed, `False` otherwise.
         """
-        try:
-            router = getattr(self, "router")
-        except AttributeError:
-            router = getattr(self.ixp_connection, "router", None)
+        if hasattr(self, "router"):
+            router = self.router
+        else:
+            router = self.ixp_connection.router
 
         if not router or not router.platform or not router.encrypt_passwords:
             return False

@@ -47,9 +47,9 @@ for setting in ["ALLOWED_HOSTS", "DATABASE", "SECRET_KEY"]:
         )
 
 # Set required parameters
-ALLOWED_HOSTS = getattr(configuration, "ALLOWED_HOSTS")
-DATABASE = getattr(configuration, "DATABASE")
-SECRET_KEY = getattr(configuration, "SECRET_KEY")
+ALLOWED_HOSTS = configuration.ALLOWED_HOSTS
+DATABASE = configuration.DATABASE
+SECRET_KEY = configuration.SECRET_KEY
 
 # Deprecated, to be removed in 2.0.0
 MY_ASN = getattr(configuration, "MY_ASN", None)
@@ -243,7 +243,7 @@ RELEASE_CHECK_URL = getattr(
 if RELEASE_CHECK_URL:
     try:
         URLValidator(RELEASE_CHECK_URL)
-    except ValidationError:
+    except ValidationError as e:
         raise ImproperlyConfigured(
             "RELEASE_CHECK_URL must be a valid API URL. "
             "Example: https://api.github.com/repos/peering-manager/peering-manager"

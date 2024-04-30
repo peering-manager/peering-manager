@@ -71,7 +71,7 @@ class DynamicModelChoiceMixin:
         # widget
         data = bound_field.value()
         if data:
-            field_name = getattr(self, "to_field_name") or "pk"
+            field_name = self.to_field_name or "pk"
             filter = self.filter(field_name=field_name)
             try:
                 self.queryset = filter.filter(self.queryset, data)
