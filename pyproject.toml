@@ -57,7 +57,6 @@ target-version = "py310"
 
 [tool.ruff.lint]
 ignore = [
-    "B010",    # Do not call `setattr` with a constant attribute value. It is not any safer than normal property access
     "C901",    # Is too complex
     "DJ001",   # Avoid using `null=True` on string-based fields such as `CharField`
     "DJ007",   # Do not use `__all__` with `ModelForm`, use `fields` instead

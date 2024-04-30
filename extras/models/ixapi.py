@@ -235,7 +235,7 @@ class IXAPI(ChangeLoggedModel):
                 i = self.search_in_list(self.get_cached_data("ips"), ip)
                 if i:
                     ips.append(i.cidr)
-            setattr(nsc, "ips", ips)
+            nsc.ips = ips
             for ip in nsc.ips:
                 setattr(nsc, f"ipv{ip.version}_address", ip)
 
@@ -245,7 +245,7 @@ class IXAPI(ChangeLoggedModel):
                 m = self.search_in_list(self.get_cached_data("macs"), mac)
                 if m:
                     macs.append(m.address.lower())
-            setattr(nsc, "macs", macs)
+            nsc.macs = macs
 
             # Check if it matches a known connection
             Connection = apps.get_model("net", "Connection")
@@ -256,9 +256,9 @@ class IXAPI(ChangeLoggedModel):
                 qs_filter |= Q(ipv4_address=nsc.ipv4_address)
             if qs_filter:
                 try:
-                    setattr(nsc, "connection", Connection.objects.get(qs_filter))
+                    nsc.connection = Connection.objects.get(qs_filter)
                 except (Connection.DoesNotExist, Connection.MultipleObjectsReturned):
-                    setattr(nsc, "connection", None)
+                    nsc.connectin = None
 
             c.append(nsc)
 
@@ -272,20 +272,12 @@ class IXAPI(ChangeLoggedModel):
         for ns in network_services:
             # Product IX-APi v1/v2 compatibility
             if hasattr(ns, "product"):
-                setattr(
-                    ns,
-                    "product",
-                    self.search_in_list(
-                        self.get_cached_data("product_offerings"), ns.product
-                    ),
+                ns.product = self.search_in_list(
+                    self.get_cached_data("product_offerings"), ns.product
                 )
             if hasattr(ns, "product_offering"):
-                setattr(
-                    ns,
-                    "product_offering",
-                    self.search_in_list(
-                        self.get_cached_data("product_offerings"), ns.product_offering
-                    ),
+                ns.product_offering = self.search_in_list(
+                    self.get_cached_data("product_offerings"), ns.product_offering
                 )
             if hasattr(ns, "ips"):
                 for ip in ns.ips:
@@ -300,11 +292,9 @@ class IXAPI(ChangeLoggedModel):
                     )
                     if f:
                         features.append(f)
-                setattr(ns, "network_features", features)
+                ns.network_features = features
             if not hasattr(ns, "network_service_configs"):
-                setattr(
-                    ns, "network_service_configs", self.get_network_service_configs(ns)
-                )
+                ns.network_service_configs = self.get_network_service_configs(ns)
 
         return network_services
 
