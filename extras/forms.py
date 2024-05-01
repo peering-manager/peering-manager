@@ -44,7 +44,15 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = ConfigContext
-        fields = "__all__"
+        fields = (
+            "name",
+            "description",
+            "is_active",
+            "data",
+            "data_source",
+            "data_file",
+            "auto_synchronisation_enabled",
+        )
 
     def clean(self):
         if not self.cleaned_data["data"] and not self.cleaned_data["data_file"]:
@@ -98,7 +106,17 @@ class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = ExportTemplate
-        fields = "__all__"
+        fields = (
+            "name",
+            "content_type",
+            "description",
+            "jinja2_trim",
+            "jinja2_lstrip",
+            "template",
+            "data_source",
+            "data_file",
+            "auto_synchronisation_enabled",
+        )
         widgets = {
             "template": forms.Textarea(attrs={"class": "text-monospace"}),
         }
@@ -229,7 +247,23 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Webhook
-        fields = "__all__"
+        fields = (
+            "name",
+            "content_types",
+            "enabled",
+            "type_create",
+            "type_update",
+            "type_delete",
+            "payload_url",
+            "http_method",
+            "http_content_type",
+            "additional_headers",
+            "body_template",
+            "secret",
+            "conditions",
+            "ssl_verification",
+            "ca_file_path",
+        )
         labels = {
             "type_create": "Creations",
             "type_update": "Updates",
