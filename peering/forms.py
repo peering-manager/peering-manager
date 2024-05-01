@@ -414,10 +414,7 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
         for policy in cleaned_data["import_routing_policies"].union(
             cleaned_data["export_routing_policies"]
         ):
-            if (
-                policy.address_family != IPFamily.ALL
-                and policy.address_family != ip_dst.version
-            ):
+            if policy.address_family not in (IPFamily.ALL, ip_dst.version):
                 raise ValidationError(
                     f"Routing policy '{policy.name}' cannot be used for this session, address families mismatch."
                 )
@@ -788,9 +785,9 @@ class InternetExchangePeeringSessionForm(PeeringManagerModelForm):
             cleaned_data["import_routing_policies"]
             | cleaned_data["export_routing_policies"]
         ):
-            if (
-                policy.address_family != IPFamily.ALL
-                and policy.address_family != cleaned_data["ip_address"].version
+            if policy.address_family not in (
+                IPFamily.ALL,
+                cleaned_data["ip_address"].version,
             ):
                 raise ValidationError(
                     f"Routing policy '{policy.name}' cannot be used for this session, address families mismatch."

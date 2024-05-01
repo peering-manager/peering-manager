@@ -284,7 +284,7 @@ def merge_hash(a, b, recursive=True, list_merge="replace"):
         )
 
     # Performance tweak: if a is empty or equal to b, return b
-    if a == {} or a == b:
+    if a in ({}, b):
         return b.copy()
 
     # Create a copy of a to avoid modifying it
