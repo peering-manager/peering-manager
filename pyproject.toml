@@ -28,7 +28,7 @@ drf-spectacular-sidecar = "^2024"
 dulwich = "~0.21"
 Jinja2 = "~3.1"
 Markdown = "~3.5"
-napalm = "~4.1"
+napalm = "~5.0"
 packaging = "23.2"
 psycopg = { version = "~3.1", extras = ["binary", "pool"] }
 pyixapi = "^0.2"
