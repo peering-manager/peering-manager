@@ -18,7 +18,7 @@ class RelationshipForm(PeeringManagerModelForm):
 
     class Meta:
         model = Relationship
-        fields = "__all__"
+        fields = ("name", "slug", "description", "color")
 
 
 class RelationshipFilterForm(PeeringManagerModelFilterSetForm):

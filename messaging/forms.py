@@ -113,7 +113,16 @@ class EmailForm(PeeringManagerModelForm, SynchronisedDataMixin):
 
     class Meta:
         model = Email
-        fields = "__all__"
+        fields = (
+            "name",
+            "subject",
+            "jinja2_trim",
+            "jinja2_lstrip",
+            "template",
+            "data_source",
+            "data_file",
+            "auto_synchronisation_enabled",
+        )
 
     def clean(self):
         if not self.cleaned_data["template"] and not self.cleaned_data["data_file"]:
