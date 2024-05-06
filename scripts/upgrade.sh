@@ -21,13 +21,13 @@ PYTHON="${PYTHON:-python3}"
 
 # Validate the Python required version
 PYTHON_VERSION=$(${PYTHON} -V)
-${PYTHON} -c 'import sys; exit(1 if sys.version_info < (3, 8) else 0)' || {
+${PYTHON} -c 'import sys; exit(1 if sys.version_info < (3, 10) else 0)' || {
   echo "--------------------------------------------------------------------"
   echo "ERROR: Unsupported Python version: ${PYTHON_VERSION}. Peering"
-  echo "Manager requires Python 3.8 or later. To specify an alternate Python"
+  echo "Manager requires Python 3.10 or later. To specify an alternate Python"
   echo "executable, set the PYTHON environment variable. For example:"
   echo ""
-  echo "  PYTHON=/usr/bin/python3.8 ./upgrade.sh"
+  echo "  PYTHON=/usr/bin/python3.10 ./upgrade.sh"
   echo ""
   echo "To show your current Python version: ${PYTHON} -V"
   echo "--------------------------------------------------------------------"
