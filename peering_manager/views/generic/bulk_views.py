@@ -121,7 +121,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             for name in m2m_fields:
                 if name in form.nullable_fields and name in nullified_fields:
                     getattr(o, name).clear()
-                else:
+                elif form.cleaned_data[name]:
                     getattr(o, name).set(form.cleaned_data[name])
 
             # Add/remove tags
