@@ -95,9 +95,9 @@ and HTTP services to run under this account.
 ## Set Up Python Environment
 
 First create a Python
-[virtual environment](https://docs.python.org/3.8/tutorial/venv.html) to ensure
-Peering Manager's required packages don't conflict with anything in the system.
-This will create a directory named `venv` in the Peering Manager root
+[virtual environment](https://docs.python.org/3.10/tutorial/venv.html) to
+ensure Peering Manager's required packages don't conflict with anything in the
+system. This will create a directory named `venv` in the Peering Manager root
 directory.
 
 ```no-highlight

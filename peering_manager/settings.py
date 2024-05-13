@@ -34,7 +34,7 @@ config_path = os.getenv("PEERINGMANAGER_CONFIGURATION", "peering_manager.configu
 try:
     configuration = importlib.import_module(config_path)
 except ModuleNotFoundError as e:
-    if getattr(e, "name") == config_path:
+    if e.name == config_path:
         raise ImproperlyConfigured(
             f"Specified configuration module ({config_path}) not found. Please define peering_manager/configuration.py per the documentation, or specify an alternate module in the PEERINGMANAGER_CONFIGURATION environment variable."
         ) from e
