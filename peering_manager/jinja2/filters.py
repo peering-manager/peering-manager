@@ -638,7 +638,16 @@ def missing_sessions(value, other, ixp=None):
     """
     Returns all missing sessions between two ASNs, optionally on an IXP.
     """
-    return value.get_missing_peering_sessions(other, internet_exchange_point=ixp)
+    if isinstance(value, AutonomousSystem):
+        as1 = value
+        as2 = other
+    elif isinstance(other, AutonomousSystem):
+        as1 = other
+        as2 = value
+    else:
+        raise ValueError(f"at least {value} or {other} must be an autonomous system")
+
+    return as1.get_missing_peering_sessions(as2, internet_exchange_point=ixp)
 
 
 def prefix_list(value, family=0):
