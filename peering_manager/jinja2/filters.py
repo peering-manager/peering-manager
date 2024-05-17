@@ -22,7 +22,7 @@ from peering.models import (
     Router,
 )
 from peering_manager.models.features import ConfigContextMixin, TagsMixin
-from peeringdb.functions import get_shared_facilities
+from peeringdb.functions import get_possible_peering_sessions, get_shared_facilities
 from peeringdb.models import Network
 from utils.functions import get_key_in_hash, serialize_object
 
@@ -637,17 +637,32 @@ def shared_facilities(value, other):
 def missing_sessions(value, other, ixp=None):
     """
     Returns all missing sessions between two ASNs, optionally on an IXP.
-    """
-    if isinstance(value, AutonomousSystem):
-        as1 = value
-        as2 = other
-    elif isinstance(other, AutonomousSystem):
-        as1 = other
-        as2 = value
-    else:
-        raise ValueError(f"at least {value} or {other} must be an autonomous system")
 
-    return as1.get_missing_peering_sessions(as2, internet_exchange_point=ixp)
+    When used with a PeeringDB network record, this will return possible
+    sessions between the two networks without excluding already existing
+    sessions (known limitation).
+    """
+    # Comparing two autonomous systems
+    if isinstance(value, AutonomousSystem) and isinstance(other, AutonomousSystem):
+        return value.get_missing_peering_sessions(other, internet_exchange_point=ixp)
+
+    ixlan = ixp.peeringdb_ixlan if ixp is not None else None
+
+    if isinstance(value, AutonomousSystem):
+        network_a = value.peeringdb_network
+    elif isinstance(value, Network):
+        network_a = value
+    else:
+        raise ValueError(f"{value} is not an autonomous system or a peeringdb network")
+
+    if isinstance(other, AutonomousSystem):
+        network_b = other.peeringdb_network
+    elif isinstance(other, Network):
+        network_b = other
+    else:
+        raise ValueError(f"{other} is not an autonomous system or a peeringdb network")
+
+    return get_possible_peering_sessions(network_a, network_b, ixlan=ixlan)
 
 
 def prefix_list(value, family=0):

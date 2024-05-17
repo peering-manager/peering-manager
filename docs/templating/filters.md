@@ -260,6 +260,10 @@ On an autonomous system, it will return all sessions that can be configured
 between two autonomous systems. You must provide a second AS, providing an IXP
 is optional.
 
+When one of the parameters is a PeeringDB network object, e.g. when used to
+send an e-mail to an AS unknown to Peering Manager, all possible sessions will
+be returned (according to PeeringDB).
+
 Example:
 
 ```no-highlight
