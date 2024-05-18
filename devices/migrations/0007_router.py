@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("core", "0004_datasource_and_datafile"),
         ("devices", "0006_configuration_sync_data"),
