@@ -1,8 +1,9 @@
 from django.core.management.base import BaseCommand
 
 from core.models import Job
-from peering.jobs import poll_bgp_sessions
-from peering.models import Router
+
+from ...jobs import poll_bgp_sessions
+from ...models import Router
 
 
 class Command(BaseCommand):

@@ -106,7 +106,7 @@
                 <span class="ml-4">Routing Policies</span>
               </a>
             </div>
-            <a href="#devices_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/devices/,/routers/' %} active{% endif %}">
+            <a href="#devices_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/devices/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
                 Devices <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
               </div>
@@ -115,7 +115,7 @@
               <a href="{% url 'devices:configuration_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/devices/configurations/' %} active{% endif %}">
                 <span class="ml-4">Configurations</span>
               </a>
-              <a href="{% url 'peering:router_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/routers/' %} active{% endif %}">
+              <a href="{% url 'devices:router_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/devices/routers/' %} active{% endif %}">
                 <span class="ml-4">Routers</span>
               </a>
               <a href="{% url 'devices:platform_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/devices/platforms/' %} active{% endif %}">

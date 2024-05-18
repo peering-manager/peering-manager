@@ -111,7 +111,7 @@ class NullableCharFieldFilter(django_filters.CharFilter):
 
 class ContentTypeFilter(django_filters.CharFilter):
     """
-    Allows giving a ContentType by <app_label>.<model> like "peering.router".
+    Allows giving a ContentType by <app_label>.<model> like "devices.router".
     """
 
     def filter(self, qs, value):

@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand
 
 from core.models import Job
-from devices.models import Configuration
-from peering.jobs import set_napalm_configuration
-from peering.models import Router
+
+from ...jobs import set_napalm_configuration
+from ...models import Configuration, Router
 
 
 class Command(BaseCommand):

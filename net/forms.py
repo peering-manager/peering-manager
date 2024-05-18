@@ -1,7 +1,8 @@
 from django import forms
 from taggit.forms import TagField
 
-from peering.models import InternetExchange, Router
+from devices.models import Router
+from peering.models import InternetExchange
 from peering_manager.forms import (
     PeeringManagerModelBulkEditForm,
     PeeringManagerModelFilterSetForm,

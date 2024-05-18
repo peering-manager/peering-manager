@@ -29,8 +29,6 @@ can be configured (n.b. some are optional):
   context for e.g. tooling that accesses Peering Manager programmatically.
 * `NetBox Device`: an valid ID inside a NetBox instance where the router is
   also referenced.
-* `Use NetBox`: an option to use NetBox NAPALM capabilities to reach the
-  router. Features requiring NAPALM will use NetBox API as a proxy.
 * `NAPALM Username`: a username for Peering Manager to use for connecting to
   the router. It overrides the `NAPALM_USERNAME` global setting.
 * `NAPALM Password`: a password for Peering Manager to use for connecting to

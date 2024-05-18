@@ -1,5 +1,7 @@
+from peering.models import AutonomousSystem
 from utils.testing import ViewTestCases
 
+from ..enums import *
 from ..models import *
 
 
@@ -51,3 +53,54 @@ class PlatformTestCase(
             "password_algorithm": "",
             "description": "",
         }
+
+
+class RouterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = Router
+
+    @classmethod
+    def setUpTestData(cls):
+        local_as = AutonomousSystem.objects.create(
+            asn=64500, name="Autonomous System", affiliated=True
+        )
+
+        Router.objects.bulk_create(
+            [
+                Router(
+                    name="Router 1",
+                    hostname="router1.example.net",
+                    local_autonomous_system=local_as,
+                    status=DeviceStatus.ENABLED,
+                ),
+                Router(
+                    name="Router 2",
+                    hostname="router2.example.net",
+                    local_autonomous_system=local_as,
+                    status=DeviceStatus.ENABLED,
+                ),
+                Router(
+                    name="Router 3",
+                    hostname="router3.example.net",
+                    local_autonomous_system=local_as,
+                    status=DeviceStatus.ENABLED,
+                ),
+            ]
+        )
+
+        cls.form_data = {
+            "name": "Router 4",
+            "hostname": "router4.example.net",
+            "configuration_template": None,
+            "local_autonomous_system": local_as.pk,
+            "encrypt_passwords": False,
+            "platform": None,
+            "status": DeviceStatus.ENABLED,
+            "netbox_device_id": 0,
+            "comments": "",
+            "tags": [],
+            "napalm_args": None,
+            "napalm_password": None,
+            "napalm_timeout": 30,
+            "napalm_username": "",
+        }
+        cls.bulk_edit_data = {"comments": "New comments"}

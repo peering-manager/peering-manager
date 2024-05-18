@@ -45,13 +45,3 @@ class NetBox:
             )
             filter["tag"] = settings.NETBOX_TAGS
         return self.api.dcim.devices.filter(**filter)
-
-    def napalm(self, device_id, method):
-        """
-        Runs the given NAPALM method on the device via the NetBox API.
-        """
-        self.logger.debug(f"calling dcim.devices.get: {device_id}")
-        device = self.api.dcim.devices.get(device_id)
-        self.logger.debug(f"calling napalm: {method}")
-        result = device.napalm.list(method=method)
-        return next(result)[method]

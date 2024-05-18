@@ -3,9 +3,7 @@ from sys import stdin, stdout
 
 from django.core.management.base import BaseCommand
 
-from peering.models import Router
-
-from ...models import Configuration
+from ...models import Configuration, Router
 
 
 class Command(BaseCommand):

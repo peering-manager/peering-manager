@@ -1,7 +1,8 @@
 from django.test import TestCase
 
-from peering.enums import DeviceStatus
-from peering.models import AutonomousSystem, InternetExchange, Router
+from devices.enums import DeviceStatus
+from devices.models import Router
+from peering.models import AutonomousSystem, InternetExchange
 from utils.testing import BaseFilterSetTests
 
 from ..enums import *

@@ -13,7 +13,6 @@ router.register("internet-exchanges", views.InternetExchangeViewSet)
 router.register(
     "internet-exchange-peering-sessions", views.InternetExchangePeeringSessionViewSet
 )
-router.register("routers", views.RouterViewSet)
 router.register("routing-policies", views.RoutingPolicyViewSet)
 
 app_name = "peering-api"

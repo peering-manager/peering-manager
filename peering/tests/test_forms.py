@@ -5,7 +5,7 @@ from messaging.models import Email
 from net.models import Connection
 
 from ..constants import *
-from ..enums import CommunityType, DeviceStatus, RoutingPolicyType
+from ..enums import *
 from ..forms import (
     AutonomousSystemEmailForm,
     AutonomousSystemForm,
@@ -13,7 +13,6 @@ from ..forms import (
     DirectPeeringSessionForm,
     InternetExchangeForm,
     InternetExchangePeeringSessionForm,
-    RouterForm,
     RoutingPolicyForm,
 )
 from ..models import AutonomousSystem, InternetExchange
@@ -124,28 +123,6 @@ class InternetExchangePeeringSessionTest(TestCase):
                 "autonomous_system": self.autonomous_system.pk,
                 "ixp_connection": self.ixp_connection.pk,
                 "ip_address": "2001:db8::1",
-            }
-        )
-        self.assertTrue(test.is_valid())
-        self.assertTrue(test.save())
-
-
-class RouterTest(TestCase):
-    def test_router_form(self):
-        test = RouterForm(
-            data={
-                "netbox_device_id": 0,
-                "name": "test",
-                "hostname": "test.example.com",
-                "status": DeviceStatus.ENABLED,
-                "local_autonomous_system": AutonomousSystem.objects.create(
-                    asn=64501,
-                    name="Autonomous System 1",
-                    irr_as_set="AS-SET-1",
-                    ipv6_max_prefixes=1,
-                    ipv4_max_prefixes=0,
-                    affiliated=True,
-                ).pk,
             }
         )
         self.assertTrue(test.is_valid())

@@ -1,9 +1,7 @@
 from rest_framework import serializers
 
-from peering.api.nested_serializers import (
-    NestedInternetExchangeSerializer,
-    NestedRouterSerializer,
-)
+from devices.api.nested_serializers import NestedRouterSerializer
+from peering.api.nested_serializers import NestedInternetExchangeSerializer
 from peering_manager.api.fields import ChoiceField
 from peering_manager.api.serializers import PeeringManagerModelSerializer
 

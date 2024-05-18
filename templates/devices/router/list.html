@@ -1,8 +1,8 @@
 {% extends '_base.html' %}
 {% load render_table from django_tables2 %}
 {% block actions %}
-{% if perms.peering.add_router %}
-<a href="{% url 'peering:router_add' %}" class="btn btn-primary">
+{% if perms.devices.add_router %}
+<a href="{% url 'devices:router_add' %}" class="btn btn-primary">
   <i class="fas fa-plus"></i> Add
 </a>
 {% endif %}
@@ -13,7 +13,7 @@
 {% block content %}
 <div class="row">
   <div class="col-md-9">
-    {% include 'peering/router/inc/routers_table.html' with table_modal='RouterTable_config' bulk_edit_url='peering:router_bulk_edit' bulk_delete_url='peering:router_bulk_delete' %}
+    {% include 'devices/router/inc/routers_table.html' with table_modal='RouterTable_config' bulk_edit_url='devices:router_bulk_edit' bulk_delete_url='devices:router_bulk_delete' %}
   </div>
   <div class="col-md-3">
     {% include 'utils/search_form.html' %}
@@ -56,7 +56,7 @@
 
     $.ajax({
       method: 'post',
-      url: "{% url 'peering-api:router-configure' %}",
+      url: "{% url 'devices-api:router-configure' %}",
       headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
       data: { 'routers': routerIDs, 'commit': true },
     }).done(function () {

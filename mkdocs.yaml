@@ -110,6 +110,7 @@ nav:
       - Devices:
         - Configuration: "models/devices/configuration.md"
         - Platform: "models/devices/platform.md"
+        - Router: "models/devices/router.md"
       - Peering:
         - Autonomous System: "models/peering/autonomoussystem.md"
         - BGP Group: "models/peering/bgpgroup.md"
@@ -117,7 +118,6 @@ nav:
         - Direct Peering Session: "models/peering/directpeeringsession.md"
         - Internet Exchange: "models/peering/internetexchange.md"
         - Internet Exchange Peering Session: "models/peering/internetexchangepeeringsession.md"
-        - Router: "models/peering/router.md"
         - Routing Policy: "models/peering/routingpolicy.md"
         - Connection: "models/net/connection.md"
         - Relationship: "models/bgp/relationship.md"

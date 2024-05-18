@@ -120,7 +120,7 @@ def decrypt(value):
     return decrypted
 
 
-def encrypt(value, salt=None):
+def encrypt(value, salt=None, rand=None):
     if not value:
         return ""
 
@@ -129,7 +129,8 @@ def encrypt(value, salt=None):
 
     if not salt:
         salt = __randc(1)
-    rand = __randc(EXTRA[salt])
+    if not rand:
+        rand = __randc(EXTRA[salt])
 
     position = 0
     previous = salt

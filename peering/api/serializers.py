@@ -3,16 +3,13 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from bgp.api.serializers import NestedRelationshipSerializer
-from devices.api.serializers import (
-    NestedConfigurationSerializer,
-    NestedPlatformSerializer,
-)
+from devices.api.serializers import NestedRouterSerializer
 from extras.api.serializers import NestedIXAPISerializer
 from net.api.serializers import NestedConnectionSerializer
 from peering_manager.api.fields import ChoiceField, SerializedPKRelatedField
 from peering_manager.api.serializers import PeeringManagerModelSerializer
 
-from ..enums import BGPGroupStatus, BGPSessionStatus, DeviceStatus
+from ..enums import BGPGroupStatus, BGPSessionStatus
 from ..models import (
     AutonomousSystem,
     BGPGroup,
@@ -20,7 +17,6 @@ from ..models import (
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
-    Router,
     RoutingPolicy,
 )
 from .nested_serializers import *
@@ -41,7 +37,6 @@ __all__ = (
     "NestedDirectPeeringSessionSerializer",
     "NestedInternetExchangeSerializer",
     "NestedInternetExchangePeeringSessionSerializer",
-    "NestedRouterSerializer",
     "NestedRoutingPolicySerializer",
 )
 
@@ -329,46 +324,6 @@ class InternetExchangePeeringSessionSerializer(PeeringManagerModelSerializer):
             "created",
             "updated",
         ]
-
-
-class RouterSerializer(PeeringManagerModelSerializer):
-    poll_bgp_sessions_last_updated = serializers.DateTimeField(read_only=True)
-    configuration_template = NestedConfigurationSerializer(required=False)
-    local_autonomous_system = NestedAutonomousSystemSerializer()
-    platform = NestedPlatformSerializer()
-    status = ChoiceField(required=False, choices=DeviceStatus)
-
-    class Meta:
-        model = Router
-        fields = [
-            "id",
-            "display",
-            "name",
-            "hostname",
-            "platform",
-            "status",
-            "encrypt_passwords",
-            "poll_bgp_sessions_state",
-            "poll_bgp_sessions_last_updated",
-            "configuration_template",
-            "local_autonomous_system",
-            "netbox_device_id",
-            "use_netbox",
-            "local_context_data",
-            "napalm_username",
-            "napalm_password",
-            "napalm_timeout",
-            "napalm_args",
-            "comments",
-            "tags",
-            "created",
-            "updated",
-        ]
-
-
-class RouterConfigureSerializer(serializers.Serializer):
-    routers = serializers.ListField(child=serializers.IntegerField())
-    commit = serializers.BooleanField(required=False, default=False)
 
 
 class RoutingPolicySerializer(PeeringManagerModelSerializer):

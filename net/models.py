@@ -46,7 +46,7 @@ class Connection(PrimaryModel):
         to="peering.InternetExchange", blank=True, null=True, on_delete=models.CASCADE
     )
     router = models.ForeignKey(
-        to="peering.Router", blank=True, null=True, on_delete=models.SET_NULL
+        to="devices.Router", blank=True, null=True, on_delete=models.SET_NULL
     )
     interface = models.CharField(max_length=200, blank=True)
 

@@ -66,22 +66,6 @@ class CommunityType(ChoiceSet):
     CHOICES = ((EGRESS, "Egress"), (INGRESS, "Ingress"))
 
 
-class DeviceStatus(ChoiceSet):
-    ENABLED = "enabled"
-    PRE_MAINTENANCE = "pre-maintenance"
-    MAINTENANCE = "maintenance"
-    POST_MAINTENANCE = "post-maintenance"
-    DISABLED = "disabled"
-
-    CHOICES = (
-        (ENABLED, "Enabled", "success"),
-        (PRE_MAINTENANCE, "Pre-maintenance", "warning"),
-        (MAINTENANCE, "Maintenance", "warning"),
-        (POST_MAINTENANCE, "Post-maintenance", "warning"),
-        (DISABLED, "Disabled", "danger"),
-    )
-
-
 class IPFamily(ChoiceSet):
     ALL = 0
     IPV4 = 4
