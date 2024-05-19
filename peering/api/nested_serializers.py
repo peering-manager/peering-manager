@@ -9,7 +9,6 @@ from ..models import (
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
-    Router,
     RoutingPolicy,
 )
 
@@ -76,14 +75,6 @@ class NestedInternetExchangePeeringSessionSerializer(WritableNestedSerializer):
     class Meta:
         model = InternetExchangePeeringSession
         fields = ["id", "url", "display", "ip_address", "status", "is_route_server"]
-
-
-class NestedRouterSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="peering-api:router-detail")
-
-    class Meta:
-        model = Router
-        fields = ["id", "url", "display", "name", "hostname"]
 
 
 class NestedRoutingPolicySerializer(WritableNestedSerializer):

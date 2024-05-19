@@ -5,7 +5,8 @@ import yaml
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
-from devices.models import Configuration
+from devices.enums import DeviceStatus
+from devices.models import Configuration, Router
 from extras.models import ExportTemplate, Tag
 from messaging.models import Contact, ContactAssignment, ContactRole, Email
 from net.enums import ConnectionStatus
@@ -14,7 +15,6 @@ from peering.enums import (
     BGPGroupStatus,
     BGPSessionStatus,
     CommunityType,
-    DeviceStatus,
     IPFamily,
 )
 from peering.models import (
@@ -22,7 +22,6 @@ from peering.models import (
     Community,
     InternetExchange,
     InternetExchangePeeringSession,
-    Router,
     RoutingPolicy,
 )
 from peering_manager.jinja2 import FILTER_DICT

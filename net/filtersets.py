@@ -3,7 +3,8 @@ import ipaddress
 import django_filters
 from django.db.models import Q
 
-from peering.models import InternetExchange, Router
+from devices.models import Router
+from peering.models import InternetExchange
 from peering_manager.filtersets import PeeringManagerModelFilterSet
 
 from .enums import ConnectionStatus

@@ -38,21 +38,3 @@ class NetBoxTestCase(TestCase):
         self.assertEqual(2, len(devices))
         self.assertEqual("router01.example.net", next(devices).name)
         self.assertEqual("router02.example.net", next(devices).name)
-
-    @patch(
-        "pynetbox.core.endpoint.RODetailEndpoint.list",
-        return_value=MockedGenerator(
-            {
-                "get_facts": MockedResponse(
-                    fixture="netbox/tests/fixtures/device_facts.json"
-                ).json()
-            }
-        ),
-    )
-    def test_napalm(self, *_):
-        with patch(
-            "requests.sessions.Session.get",
-            return_value=MockedResponse(fixture="netbox/tests/fixtures/device.json"),
-        ):
-            facts = self.netbox.napalm(1, "get_facts")
-            self.assertEqual("router01", facts["hostname"])

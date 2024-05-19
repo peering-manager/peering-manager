@@ -1,26 +1,33 @@
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
-from core.forms import SynchronisedDataMixin
+from core.forms import PushedDataMixin, SynchronisedDataMixin
+from netbox.api import NetBox
+from peering.models import AutonomousSystem
 from peering_manager.forms import (
     PeeringManagerModelFilterSetForm,
     PeeringManagerModelForm,
 )
-from utils.forms import add_blank_choice
+from peering_manager.forms.base import PeeringManagerModelBulkEditForm
+from utils.forms import BOOLEAN_WITH_BLANK_CHOICES, add_blank_choice
 from utils.forms.fields import (
     CommentField,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
     JSONField,
+    PasswordField,
     SlugField,
     TagFilterField,
     TemplateField,
 )
-from utils.forms.widgets import StaticSelect
+from utils.forms.widgets import StaticSelect, StaticSelectMultiple
 
-from .enums import PasswordAlgorithm
-from .models import Configuration, Platform
+from .enums import DeviceStatus, PasswordAlgorithm
+from .models import Configuration, Platform, Router
 
-__all__ = ("ConfigurationForm", "ConfigurationFilterForm", "PlatformForm")
+__all__ = ("ConfigurationForm", "ConfigurationFilterForm", "PlatformForm", "RouterForm")
 
 
 class ConfigurationForm(PeeringManagerModelForm, SynchronisedDataMixin):
@@ -99,3 +106,173 @@ class PlatformForm(PeeringManagerModelForm):
             "napalm_args",
             "tags",
         )
+
+
+class RouterForm(PushedDataMixin, PeeringManagerModelForm):
+    netbox_device_id = forms.IntegerField(label="NetBox device", initial=0)
+    platform = DynamicModelChoiceField(required=False, queryset=Platform.objects.all())
+    status = forms.ChoiceField(
+        required=False, choices=DeviceStatus, widget=StaticSelect
+    )
+    configuration_template = DynamicModelChoiceField(
+        required=False,
+        queryset=Configuration.objects.all(),
+        label="Configuration",
+        help_text="Template used to generate device configuration",
+    )
+    local_autonomous_system = DynamicModelChoiceField(
+        queryset=AutonomousSystem.objects.defer("prefixes"),
+        query_params={"affiliated": True},
+        label="Local AS",
+    )
+    local_context_data = JSONField(required=False)
+    napalm_username = forms.CharField(required=False, label="Username")
+    napalm_password = PasswordField(required=False, render_value=True, label="Password")
+    napalm_timeout = forms.IntegerField(
+        required=False,
+        label="Timeout",
+        help_text="The maximum time to wait for a connection in seconds",
+    )
+    napalm_args = JSONField(
+        required=False,
+        label="Optional arguments",
+        help_text="See NAPALM's <a href='http://napalm.readthedocs.io/en/latest/support/#optional-arguments'>documentation</a> for a complete list of optional arguments",
+    )
+    comments = CommentField()
+    tags = TagField(required=False)
+    fieldsets = (
+        (
+            "Router",
+            (
+                "name",
+                "hostname",
+                "encrypt_passwords",
+                "poll_bgp_sessions_state",
+                "configuration_template",
+                "local_autonomous_system",
+                "netbox_device_id",
+            ),
+        ),
+        ("Management", ("platform", "status")),
+        (
+            "NAPALM",
+            ("napalm_username", "napalm_password", "napalm_timeout", "napalm_args"),
+        ),
+        ("Data Source", ("data_source", "data_path")),
+        ("Config Context", ("local_context_data",)),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if settings.NETBOX_API:
+            choices = []
+            for device in NetBox().get_devices():
+                try:
+                    choices.append((device.id, device.display))
+                except AttributeError:
+                    # Fallback to hold API attribute
+                    choices.append((device.id, device.display_name))
+
+            self.fields["netbox_device_id"] = forms.ChoiceField(
+                label="NetBox device",
+                choices=[(0, "---------")] + choices,
+                widget=StaticSelect,
+            )
+            self.fields["netbox_device_id"].widget.attrs["class"] = " ".join(
+                [
+                    self.fields["netbox_device_id"].widget.attrs.get("class", ""),
+                    "form-control",
+                ]
+            ).strip()
+        else:
+            self.fields["netbox_device_id"].widget = forms.HiddenInput()
+
+    class Meta:
+        model = Router
+
+        fields = (
+            "netbox_device_id",
+            "name",
+            "hostname",
+            "platform",
+            "status",
+            "encrypt_passwords",
+            "poll_bgp_sessions_state",
+            "configuration_template",
+            "local_autonomous_system",
+            "local_context_data",
+            "napalm_username",
+            "napalm_password",
+            "napalm_timeout",
+            "napalm_args",
+            "comments",
+            "tags",
+            "data_source",
+            "data_path",
+        )
+        help_texts = {"hostname": "Router hostname (must be resolvable) or IP address"}
+
+
+class RouterBulkEditForm(PeeringManagerModelBulkEditForm):
+    local_autonomous_system = DynamicModelChoiceField(
+        required=False,
+        queryset=AutonomousSystem.objects.defer("prefixes"),
+        query_params={"affiliated": True},
+        label="Local AS",
+    )
+    platform = DynamicModelChoiceField(required=False, queryset=Platform.objects.all())
+    status = forms.ChoiceField(
+        required=False,
+        choices=add_blank_choice(DeviceStatus),
+        widget=StaticSelect,
+    )
+    encrypt_passwords = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
+    )
+    poll_bgp_sessions_state = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
+        label="Poll BGP sessions state",
+    )
+    configuration_template = DynamicModelChoiceField(
+        required=False, queryset=Configuration.objects.all()
+    )
+    local_context_data = JSONField(required=False)
+    comments = CommentField()
+
+    model = Router
+    nullable_fields = ("local_context_data", "comments")
+
+
+class RouterFilterForm(PeeringManagerModelFilterSetForm):
+    model = Router
+    local_autonomous_system_id = DynamicModelChoiceField(
+        required=False,
+        queryset=AutonomousSystem.objects.defer("prefixes"),
+        query_params={"affiliated": True},
+        label="Local AS",
+    )
+    platform_id = DynamicModelMultipleChoiceField(
+        required=False,
+        queryset=Platform.objects.all(),
+        to_field_name="pk",
+        null_option="None",
+        label="Platform",
+    )
+    status = forms.MultipleChoiceField(
+        required=False, choices=DeviceStatus, widget=StaticSelectMultiple
+    )
+    encrypt_passwords = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
+    )
+    configuration_template_id = DynamicModelMultipleChoiceField(
+        required=False,
+        queryset=Configuration.objects.all(),
+        to_field_name="pk",
+        null_option="None",
+        label="Configuration",
+    )
+    tag = TagFilterField(model)

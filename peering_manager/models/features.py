@@ -22,6 +22,7 @@ __all__ = (
     "ConfigContextMixin",
     "ExportTemplatesMixin",
     "JobsMixin",
+    "PushedDataMixin",
     "SynchronisedDataMixin",
     "TagsMixin",
     "WebhooksMixin",

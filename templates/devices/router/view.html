@@ -1,4 +1,4 @@
-{% extends 'peering/router/_base.html' %}
+{% extends 'devices/router/_base.html' %}
 {% load helpers %}
 {% block subcontent %}
 {% include 'includes/alerts_success_danger.html' %}
@@ -150,7 +150,7 @@
         {% endif %}
       </div>
     </div>
-    {% include 'includes/tags_card.html' with tags=instance.tags.all url='peering:router_list' %}
+    {% include 'includes/tags_card.html' with tags=instance.tags.all url='devices:router_list' %}
   </div>
 </div>
 {% endblock %}
@@ -190,7 +190,7 @@
   $("#id_router_ping").click(function () {
     $.ajax({
       method: "get",
-      url: "{% url 'peering-api:router-test-napalm-connection' pk=instance.pk %}",
+      url: "{% url 'devices-api:router-test-napalm-connection' pk=instance.pk %}",
     }).done(function(r) {
       PeeringManager.setWorkingButton($('#id_router_ping'));
       PeeringManager.pollJob(r, pingDoneHandler, pingFailHandler);
@@ -227,7 +227,7 @@
     $.ajax({
       method: 'post',
       headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
-      url: "{% url 'peering-api:router-poll-bgp-sessions' pk=instance.pk %}",
+      url: "{% url 'devices-api:router-poll-bgp-sessions' pk=instance.pk %}",
     }).done(function (r) {
       PeeringManager.setWorkingButton($('#id_poll_sessions_state'));
       PeeringManager.pollJob(r, pollSessionsDoneHandler, pollSessionsFailHandler);

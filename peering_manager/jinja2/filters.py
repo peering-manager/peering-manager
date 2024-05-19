@@ -9,9 +9,11 @@ from django.db.models import Q
 from django.db.models.query import QuerySet
 
 from devices.crypto.cisco import MAGIC as CISCO_MAGIC
+from devices.enums import DeviceStatus
+from devices.models import Router
 from net.enums import ConnectionStatus
 from net.models import Connection
-from peering.enums import BGPGroupStatus, BGPSessionStatus, DeviceStatus, IPFamily
+from peering.enums import BGPGroupStatus, BGPSessionStatus, IPFamily
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -19,7 +21,6 @@ from peering.models import (
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
-    Router,
 )
 from peering_manager.models.features import ConfigContextMixin, TagsMixin
 from peeringdb.functions import get_possible_peering_sessions, get_shared_facilities

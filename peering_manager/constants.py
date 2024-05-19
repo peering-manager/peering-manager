@@ -1,8 +1,8 @@
 from collections import OrderedDict
 
-from devices.filtersets import ConfigurationFilterSet
-from devices.models import Configuration
-from devices.tables import ConfigurationTable
+from devices.filtersets import ConfigurationFilterSet, RouterFilterSet
+from devices.models import Configuration, Router
+from devices.tables import ConfigurationTable, RouterTable
 from messaging.filtersets import ContactFilterSet, EmailFilterSet
 from messaging.models import Contact, ContactAssignment, Email
 from messaging.tables import ContactTable, EmailTable
@@ -16,7 +16,6 @@ from peering.filtersets import (
     DirectPeeringSessionFilterSet,
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
-    RouterFilterSet,
     RoutingPolicyFilterSet,
 )
 from peering.models import (
@@ -26,7 +25,6 @@ from peering.models import (
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
-    Router,
     RoutingPolicy,
 )
 from peering.tables import (
@@ -36,7 +34,6 @@ from peering.tables import (
     DirectPeeringSessionTable,
     InternetExchangePeeringSessionTable,
     InternetExchangeTable,
-    RouterTable,
     RoutingPolicyTable,
 )
 from utils.functions import count_related
@@ -172,7 +169,7 @@ SEARCH_TYPES = OrderedDict(
                 ),
                 "filterset": RouterFilterSet,
                 "table": RouterTable,
-                "url": "peering:router_list",
+                "url": "devices:router_list",
             },
         ),
         (

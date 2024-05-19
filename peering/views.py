@@ -3,7 +3,6 @@ from django.contrib import messages
 from django.core.mail import EmailMessage
 from django.db import transaction
 from django.db.models import Count
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import pluralize
 from django.utils.text import slugify
@@ -28,7 +27,7 @@ from peering_manager.views.generic import (
 )
 from peeringdb.filtersets import NetworkIXLanFilterSet
 from peeringdb.forms import NetworkIXLanFilterForm
-from peeringdb.tables import NetworkContactTable, NetworkIXLanTable
+from peeringdb.tables import NetworkIXLanTable
 from utils.forms import ConfirmationForm
 from utils.functions import count_related
 
@@ -39,7 +38,6 @@ from .filtersets import (
     DirectPeeringSessionFilterSet,
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
-    RouterFilterSet,
     RoutingPolicyFilterSet,
 )
 from .forms import (
@@ -61,9 +59,6 @@ from .forms import (
     InternetExchangePeeringSessionBulkEditForm,
     InternetExchangePeeringSessionFilterForm,
     InternetExchangePeeringSessionForm,
-    RouterBulkEditForm,
-    RouterFilterForm,
-    RouterForm,
     RoutingPolicyBulkEditForm,
     RoutingPolicyFilterForm,
     RoutingPolicyForm,
@@ -75,9 +70,7 @@ from .models import (
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
-    NetworkContact,
     NetworkIXLan,
-    Router,
     RoutingPolicy,
 )
 from .tables import (
@@ -87,8 +80,6 @@ from .tables import (
     DirectPeeringSessionTable,
     InternetExchangePeeringSessionTable,
     InternetExchangeTable,
-    RouterConnectionTable,
-    RouterTable,
     RoutingPolicyTable,
 )
 
@@ -158,16 +149,22 @@ class AutonomousSystemBulkDelete(BulkDeleteView):
     table = AutonomousSystemTable
 
 
-class AutonomousSystemPeeringDB(ObjectChildrenView):
+class AutonomousSystemPeeringDB(ObjectView):
     permission_required = "peering.view_autonomoussystem"
     queryset = AutonomousSystem.objects.defer("prefixes")
-    child_model = NetworkContact
-    table = NetworkContactTable
     template_name = "peering/autonomoussystem/peeringdb.html"
     tab = "peeringdb"
 
-    def get_children(self, request, parent):
-        return parent.peeringdb_contacts
+    def get_extra_context(self, request, instance):
+        try:
+            affiliated = AutonomousSystem.objects.get(
+                pk=request.user.preferences.get("context.as")
+            )
+            facilities = instance.get_peeringdb_shared_facilities(affiliated)
+        except AutonomousSystem.DoesNotExist:
+            facilities = []
+
+        return {"contacts": instance.peeringdb_contacts, "facilities": facilities}
 
 
 class AutonomousSystemDirectPeeringSessions(ObjectChildrenView):
@@ -758,123 +755,6 @@ class InternetExchangePeeringSessionImportFromPeeringDB(ImportFromObjectView):
                         }
                     )
         return objects
-
-
-class RouterList(ObjectListView):
-    permission_required = "peering.view_router"
-    queryset = (
-        Router.objects.annotate(
-            connection_count=Count("connection", distinct=True),
-            directpeeringsession_count=Count("directpeeringsession", distinct=True),
-            internetexchangepeeringsession_count=Count(
-                "connection__internetexchangepeeringsession", distinct=True
-            ),
-        )
-        .prefetch_related("configuration_template")
-        .order_by("local_autonomous_system", "name")
-    )
-    filterset = RouterFilterSet
-    filterset_form = RouterFilterForm
-    table = RouterTable
-    template_name = "peering/router/list.html"
-
-
-class RouterView(ObjectView):
-    permission_required = "peering.view_router"
-    queryset = Router.objects.all()
-    tab = "main"
-
-    def get_extra_context(self, request, instance):
-        return {"connections": Connection.objects.filter(router=instance)}
-
-
-class RouterConfigContext(ObjectConfigContextView):
-    permission_required = "peering.view_router"
-    queryset = Router.objects.all()
-    base_template = "peering/router/_base.html"
-
-
-class RouterEdit(ObjectEditView):
-    queryset = Router.objects.all()
-    form = RouterForm
-
-
-class RouterBulkEdit(BulkEditView):
-    permission_required = "peering.change_router"
-    queryset = Router.objects.all()
-    filterset = RouterFilterSet
-    table = RouterTable
-    form = RouterBulkEditForm
-
-
-class RouterDelete(ObjectDeleteView):
-    permission_required = "peering.delete_router"
-    queryset = Router.objects.all()
-
-
-class RouterBulkDelete(BulkDeleteView):
-    queryset = Router.objects.all()
-    filterset = RouterFilterSet
-    table = RouterTable
-
-
-class RouterConfiguration(PermissionRequiredMixin, View):
-    permission_required = "peering.view_router_configuration"
-    tab = "configuration"
-
-    def get(self, request, pk):
-        instance = get_object_or_404(Router, pk=pk)
-
-        if "raw" in request.GET:
-            return HttpResponse(
-                instance.render_configuration(), content_type="text/plain"
-            )
-
-        return render(
-            request, "peering/router/configuration.html", {"instance": instance}
-        )
-
-
-class RouterConnections(ObjectChildrenView):
-    permission_required = ("peering.view_router", "net.view_connection")
-    queryset = Router.objects.all()
-    child_model = Connection
-    table = RouterConnectionTable
-    template_name = "peering/router/connections.html"
-    tab = "connections"
-
-    def get_children(self, request, parent):
-        return Connection.objects.filter(router=parent)
-
-
-class RouterDirectPeeringSessions(ObjectChildrenView):
-    permission_required = ("peering.view_router", "peering.view_directpeeringsession")
-    queryset = Router.objects.all()
-    child_model = DirectPeeringSession
-    filterset = DirectPeeringSessionFilterSet
-    filterset_form = DirectPeeringSessionFilterForm
-    table = DirectPeeringSessionTable
-    template_name = "peering/router/direct_peering_sessions.html"
-    tab = "direct-sessions"
-
-    def get_children(self, request, parent):
-        return parent.directpeeringsession_set.order_by("relationship", "ip_address")
-
-
-class RouterInternetExchangesPeeringSessions(ObjectChildrenView):
-    permission_required = "peering.view_router"
-    queryset = Router.objects.all()
-    child_model = InternetExchangePeeringSession
-    filterset = InternetExchangePeeringSessionFilterSet
-    filterset_form = InternetExchangePeeringSessionFilterForm
-    table = InternetExchangePeeringSessionTable
-    template_name = "peering/router/internet_exchange_peering_sessions.html"
-    tab = "ixp-sessions"
-
-    def get_children(self, request, parent):
-        return InternetExchangePeeringSession.objects.filter(
-            internet_exchange__router=parent
-        ).order_by("internet_exchange", "ip_address")
 
 
 class RoutingPolicyList(ObjectListView):

@@ -264,19 +264,19 @@ class WebhookTest(APIViewTestCases.View):
     create_data = [
         {
             "name": "Webhook 4",
-            "content_types": ["peering.autonomoussystem", "peering.router"],
+            "content_types": ["devices.router", "peering.autonomoussystem"],
             "type_create": True,
             "payload_url": "http://example.com/4",
         },
         {
             "name": "Webhook 5",
-            "content_types": ["peering.autonomoussystem", "peering.router"],
+            "content_types": ["devices.router", "peering.autonomoussystem"],
             "type_update": True,
             "payload_url": "http://example.com/5",
         },
         {
             "name": "Webhook 6",
-            "content_types": ["peering.autonomoussystem", "peering.router"],
+            "content_types": ["devices.router", "peering.autonomoussystem"],
             "type_delete": True,
             "payload_url": "http://example.com/6",
         },

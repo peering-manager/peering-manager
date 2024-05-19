@@ -1,6 +1,5 @@
 import django_tables2 as tables
 
-from net.models import Connection
 from peering_manager.tables import PeeringManagerTable, columns
 
 from ..models import (
@@ -10,7 +9,6 @@ from ..models import (
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
-    Router,
     RoutingPolicy,
 )
 from .columns import BGPSessionStateColumn, CommunityColumn, RoutingPolicyColumn
@@ -295,91 +293,6 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
             "ip_address",
             "status",
             "is_route_server",
-            "actions",
-        )
-
-
-class RouterConnectionTable(PeeringManagerTable):
-    status = columns.ChoiceFieldColumn()
-    ipv6_address = tables.Column(linkify=True, verbose_name="IPv6")
-    ipv4_address = tables.Column(linkify=True, verbose_name="IPv4")
-    internet_exchange_point = tables.Column(linkify=True)
-
-    class Meta(PeeringManagerTable.Meta):
-        model = Connection
-        fields = (
-            "pk",
-            "status",
-            "vlan",
-            "ipv6_address",
-            "ipv4_address",
-            "internet_exchange_point",
-            "interface",
-            "actions",
-        )
-        default_columns = (
-            "pk",
-            "status",
-            "vlan",
-            "ipv6_address",
-            "ipv4_address",
-            "internet_exchange_point",
-            "actions",
-        )
-
-
-class RouterTable(PeeringManagerTable):
-    local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
-    name = tables.Column(linkify=True)
-    platform = tables.Column(linkify=True)
-    status = columns.ChoiceFieldColumn()
-    encrypt_passwords = columns.BooleanColumn(verbose_name="Encrypt Password")
-    poll_bgp_sessions_state = columns.BooleanColumn(verbose_name="Poll BGP Sessions")
-    configuration_template = tables.Column(linkify=True, verbose_name="Configuration")
-    connection_count = tables.Column(
-        verbose_name="Connections",
-        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
-    )
-    directpeeringsession_count = tables.Column(
-        verbose_name="Direct Sessions",
-        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
-    )
-    internetexchangepeeringsession_count = tables.Column(
-        verbose_name="IX Sessions",
-        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
-    )
-    tags = columns.TagColumn(url_name="peering:router_list")
-
-    class Meta(PeeringManagerTable.Meta):
-        model = Router
-        fields = (
-            "pk",
-            "id",
-            "local_autonomous_system",
-            "name",
-            "hostname",
-            "platform",
-            "status",
-            "encrypt_passwords",
-            "poll_bgp_sessions_state",
-            "poll_bgp_sessions_last_updated",
-            "configuration_template",
-            "connection_count",
-            "directpeeringsession_count",
-            "internetexchangepeeringsession_count",
-            "tags",
-            "actions",
-        )
-        default_columns = (
-            "pk",
-            "name",
-            "hostname",
-            "platform",
-            "status",
-            "encrypt_passwords",
-            "poll_bgp_sessions_state",
-            "configuration_template",
-            "connection_count",
             "actions",
         )
 

@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.views.generic import View
 from packaging import version
 
-from devices.models import Configuration
+from devices.models import Configuration, Router
 from extras.models import ObjectChange
 from messaging.models import Contact, Email
 from peering.models import (
@@ -15,7 +15,6 @@ from peering.models import (
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
-    Router,
     RoutingPolicy,
 )
 from peering_manager.constants import SEARCH_MAX_RESULTS, SEARCH_TYPES

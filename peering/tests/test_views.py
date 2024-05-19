@@ -4,7 +4,7 @@ from bgp.models import Relationship
 from net.models import Connection
 from utils.testing import ViewTestCases
 
-from ..enums import BGPSessionStatus, CommunityType, DeviceStatus, RoutingPolicyType
+from ..enums import BGPSessionStatus, CommunityType, RoutingPolicyType
 from ..models import (
     AutonomousSystem,
     BGPGroup,
@@ -12,7 +12,6 @@ from ..models import (
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
-    Router,
     RoutingPolicy,
 )
 
@@ -264,58 +263,6 @@ class InternetExchangePeeringSessionTestCase(ViewTestCases.PrimaryObjectViewTest
             "enabled": False,
             "comments": "New comments",
         }
-
-
-class RouterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
-    model = Router
-
-    @classmethod
-    def setUpTestData(cls):
-        local_as = AutonomousSystem.objects.create(
-            asn=64500, name="Autonomous System", affiliated=True
-        )
-
-        Router.objects.bulk_create(
-            [
-                Router(
-                    name="Router 1",
-                    hostname="router1.example.net",
-                    local_autonomous_system=local_as,
-                    status=DeviceStatus.ENABLED,
-                ),
-                Router(
-                    name="Router 2",
-                    hostname="router2.example.net",
-                    local_autonomous_system=local_as,
-                    status=DeviceStatus.ENABLED,
-                ),
-                Router(
-                    name="Router 3",
-                    hostname="router3.example.net",
-                    local_autonomous_system=local_as,
-                    status=DeviceStatus.ENABLED,
-                ),
-            ]
-        )
-
-        cls.form_data = {
-            "name": "Router 4",
-            "hostname": "router4.example.net",
-            "configuration_template": None,
-            "local_autonomous_system": local_as.pk,
-            "encrypt_passwords": False,
-            "platform": None,
-            "status": DeviceStatus.ENABLED,
-            "netbox_device_id": 0,
-            "use_netbox": False,
-            "comments": "",
-            "tags": [],
-            "napalm_args": None,
-            "napalm_password": None,
-            "napalm_timeout": 30,
-            "napalm_username": "",
-        }
-        cls.bulk_edit_data = {"comments": "New comments"}
 
 
 class RoutingPolicyTestCase(ViewTestCases.PrimaryObjectViewTestCase):
