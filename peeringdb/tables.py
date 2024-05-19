@@ -5,7 +5,7 @@ from utils.templatetags.helpers import render_bandwidth_speed
 
 from .models import NetworkIXLan
 
-__all__ = "NetworkIXLanTable"
+__all__ = ("NetworkIXLanTable",)
 
 
 class NetworkIXLanTable(BaseTable):
