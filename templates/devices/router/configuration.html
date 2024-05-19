@@ -51,7 +51,7 @@
   $(document).ready(function () {
     $.ajax({
       method: 'get',
-      url: "{% url 'peering-api:router-configuration' pk=instance.pk %}"
+      url: "{% url 'devices-api:router-configuration' pk=instance.pk %}"
     }).done(function (r) {
       $('#configuration').html('<div class="text-center" style="font-size: 2rem;"><i class="fas fa-sync fa-spin fa-fw"></i> Working</div>');
       configDoneHandler(r);
@@ -166,7 +166,7 @@
 
     $.ajax({
       method: 'post',
-      url: "{% url 'peering-api:router-configure' %}",
+      url: "{% url 'devices-api:router-configure' %}",
       headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
       data: { 'routers': [{{ instance.pk }}], 'commit': commit },
     }).done(function (r) {
@@ -181,7 +181,7 @@
   $('#commit').click(function () {
     $.ajax({
       method: 'post',
-      url: "{% url 'peering-api:router-configure' %}",
+      url: "{% url 'devices-api:router-configure' %}",
       headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
       data: { 'routers': [{{ instance.pk }}], 'commit': true },
     }).done(function (r) {
@@ -212,7 +212,7 @@
   $('#push-datasource').click(function () {
     $.ajax({
       method: 'post',
-      url: "{% url 'peering-api:router-push-datasource' %}",
+      url: "{% url 'devices-api:router-push-datasource' %}",
       headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
       data: { 'routers': [{{ instance.pk }}] },
     }).done(function (r) {
