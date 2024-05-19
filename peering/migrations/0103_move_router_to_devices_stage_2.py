@@ -44,6 +44,26 @@ class Migration(migrations.Migration):
                 # exist and therefore cannot be migrated
                 o.delete()
 
+    def fix_jobs(apps, schema_editor, mapping):
+        db_alias = schema_editor.connection.alias
+
+        ContentType = apps.get_model("contenttypes", "ContentType")
+        Router = apps.get_model("peering.Router")
+        RouterType = ContentType.objects.get_for_model(Router)
+        NewRouter = apps.get_model("devices.Router")
+        NewRouterType = ContentType.objects.get_for_model(NewRouter)
+
+        Job = apps.get_model("core.Job")
+        for j in Job.objects.using(db_alias).filter(object_type=RouterType):
+            try:
+                j.object_type = NewRouterType
+                j.object_id = mapping[j.object_id]
+                j.save()
+            except KeyError:
+                # Cannot update job record, object_id probably does not exist and
+                # therefore cannot be migrated
+                j.delete()
+
     def duplicate_routers(apps, schema_editor):
         db_alias = schema_editor.connection.alias
         Router = apps.get_model("peering.Router")
@@ -76,6 +96,7 @@ class Migration(migrations.Migration):
         mapping = Migration.duplicate_routers(apps, schema_editor)
         Migration.fix_router_dependant_objects(apps, schema_editor, mapping)
         Migration.fix_changelog(apps, schema_editor, mapping)
+        Migration.fix_jobs(apps, schema_editor, mapping)
 
     operations = [
         migrations.RunPython(move_router_to_devices, migrations.RunPython.noop)
