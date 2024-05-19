@@ -3,24 +3,9 @@ import django_tables2 as tables
 from peering_manager.tables import BaseTable, BooleanColumn, SelectColumn
 from utils.templatetags.helpers import render_bandwidth_speed
 
-from .models import NetworkContact, NetworkIXLan
+from .models import NetworkIXLan
 
-__all__ = ("NetworkContactTable", "NetworkIXLanTable")
-
-
-class NetworkContactTable(BaseTable):
-    """
-    Table for Contact lists
-    """
-
-    empty_text = "No contacts found."
-    email = tables.Column(verbose_name="E-mail")
-    url = tables.Column(verbose_name="URL")
-
-    class Meta(BaseTable.Meta):
-        model = NetworkContact
-        fields = ("role", "name", "phone", "email", "url")
-        default_columns = ("role", "name", "phone", "email")
+__all__ = "NetworkIXLanTable"
 
 
 class NetworkIXLanTable(BaseTable):

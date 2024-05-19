@@ -12,7 +12,7 @@ from netfields import InetAddressField
 
 from net.models import Connection
 from peering_manager.models import OrganisationalModel, PrimaryModel
-from peeringdb.functions import get_shared_internet_exchanges
+from peeringdb.functions import get_shared_facilities, get_shared_internet_exchanges
 from peeringdb.models import IXLanPrefix, Network, NetworkContact, NetworkIXLan
 
 from .. import call_irr_as_set_resolver, parse_irr_as_set
@@ -196,6 +196,13 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
             ).values_list("id", flat=True),
             local_autonomous_system=local_autonomous_system,
         )
+
+    def get_peeringdb_shared_facilities(self, other):
+        peeringdb_network_record = other
+        if type(other) == type(self):
+            peeringdb_network_record = other.peeringdb_network
+
+        return get_shared_facilities(self.peeringdb_network, peeringdb_network_record)
 
     def get_missing_peering_sessions(self, other, internet_exchange_point=None):
         """

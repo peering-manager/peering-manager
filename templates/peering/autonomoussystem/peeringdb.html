@@ -83,6 +83,20 @@
     </div>
     {% endif %}
     {% endwith %}
+    {% if contacts or facilities %}
+    <div class="mb-2">
+      {% if contacts %}
+      <button type="button" class="btn btn-outline-secondary btn-block" data-toggle="modal" data-target="#contacts-modal">
+        <i class="fa-solid fa-address-book"></i> Show contacts
+      </button>
+      {% endif %}
+      {% if facilities %}
+      <button type="button" class="btn btn-outline-secondary btn-block" data-toggle="modal" data-target="#facilities-modal">
+        <i class="fa-solid fa-building"></i> Show facilities
+      </button>
+      {% endif %}
+    </div>
+    {% endif %}
   </div>
   <div class="col-md-6">
     <div class="card mb-2">
@@ -151,11 +165,67 @@
     </div>
   </div>
 </div>
-{% if instance.peeringdb_contacts %}
-<div class="row">
-  <div class="col">
-    {% include 'utils/responsive_table.html' %}
-    {% include 'includes/pagination.html' with paginator=table.paginator page=table.page %}
+{% if contacts %}
+<div class="modal fade" id="contacts-modal" tabindex="-1" aria-labelledby="contactsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="contactsModalLabel">Contacts</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <table class="modal-body table table-hover attr-table mb-0">
+        <tr>
+          <th>Role</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>E-mail</th>
+        </tr>
+        {% for contact in contacts %}
+        <tr>
+          <td>{{ contact.role }}</td>
+          <td>{{ contact.name }}</td>
+          <td>{{ contact.phone }}</td>
+          <td>{{ contact.email }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% if facilities %}
+<div class="modal fade" id="facilities-modal" tabindex="-1" aria-labelledby="facilitiesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="facilitiesModalLabel">Facilities</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <table class="modal-body table table-hover attr-table mb-0">
+        <tr>
+          <th>Name</th>
+          <th>Also Known As</th>
+          <th>Region</th>
+        </tr>
+        {% for facility in facilities %}
+        <tr>
+          <td>{{ facility.name }}</td>
+          <td>{{ facility.aka }}</td>
+          <td>{{ facility.region_continent }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
   </div>
 </div>
 {% endif %}
