@@ -737,8 +737,19 @@ class InternetExchange(AbstractGroup):
         if not self.linked_to_peeringdb:
             return NetworkIXLan.objects.none()
 
-        # Get all session IPs already setup
-        ip_addresses = self.get_peering_sessions().values_list("ip_address", flat=True)
+        # To rule out an IP from the list it *must* appear one time per connection
+        # Maybe the following code block can be optimised for better performances
+        # First, fetch all sessions for each connection
+        ip_addresses_per_connection = []
+        for connection in self.get_connections():
+            ip_addresses_per_connection.append(
+                InternetExchangePeeringSession.objects.filter(
+                    ixp_connection=connection
+                ).values_list("ip_address", flat=True)
+            )
+        # Intersect all lists to find common sessions, these sessions can be excluded
+        # from the lookup performed after this
+        ip_addresses = list(set.intersection(*map(set, ip_addresses_per_connection)))
 
         return NetworkIXLan.objects.filter(
             ~Q(asn=self.local_autonomous_system.asn)
