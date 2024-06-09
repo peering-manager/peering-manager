@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.urls import include, path
+from django.views.decorators.cache import cache_page
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
@@ -42,7 +43,13 @@ __patterns = [
     path("api/users/", include("users.api.urls")),
     path("api/status/", StatusView.as_view(), name="api-status"),
     # API Schema and docs
-    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "api/schema/",
+        cache_page(timeout=86400, key_prefix=f"api_schema_{settings.VERSION}")(
+            SpectacularAPIView.as_view()
+        ),
+        name="schema",
+    ),
     path(
         "api/schema/swagger-ui/",
         SpectacularSwaggerView.as_view(url_name="schema"),

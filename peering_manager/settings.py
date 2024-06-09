@@ -106,7 +106,7 @@ try:
     # For some reasons, Django does not seem to be happy about this particular value
     if "Etc/UTC" in BASE_TZ:
         raise Exception("Unsupported TZ")
-except (IOError, Exception):
+except (OSError, Exception):
     BASE_TZ = "UTC"
 TIME_ZONE = getattr(configuration, "TIME_ZONE", BASE_TZ).rstrip()
 
@@ -567,8 +567,14 @@ USE_I18N = True
 USE_L10N = True
 
 
-# Authentication URL
 LOGIN_URL = f"/{BASE_PATH}login/"
+# URLs exempt from login enforcement
+AUTH_EXEMPT_PATHS = (
+    LOGIN_URL,
+    f"/{BASE_PATH}api/",
+    f"/{BASE_PATH}oauth/",
+    f"/{BASE_PATH}metrics",
+)
 
 
 # Messages

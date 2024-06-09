@@ -23,22 +23,19 @@ class CoreMiddleware:
         request.id = uuid.uuid4()
 
         # Enforce the LOGIN_REQUIRED config parameter.
-        if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
-            if (
-                not request.path_info.startswith(reverse("api-root"))
-                and request.path_info != settings.LOGIN_URL
-                and not request.path.startswith("/oidc/")
-                and not request.path.startswith("/sso/")
-            ):
-                return HttpResponseRedirect(
-                    f"{settings.LOGIN_URL}?next={parse.quote(request.get_full_path_info())}"
-                )
+        if (
+            settings.LOGIN_REQUIRED
+            and not request.user.is_authenticated
+            and not request.path_info.startswith(settings.AUTH_EXEMPT_PATHS)
+        ):
+            return HttpResponseRedirect(
+                f"{settings.LOGIN_URL}?next={parse.quote(request.get_full_path_info())}"
+            )
 
         # Set last search path if the user just performed a search (query string not
         # empty), this variable will last all the session life time
         if (
-            not is_api_request(request)
-            and request.path_info != settings.LOGIN_URL
+            not request.path_info.startswith(settings.AUTH_EXEMPT_PATHS)
             and request.META["QUERY_STRING"]
         ):
             request.session["last_search"] = (
