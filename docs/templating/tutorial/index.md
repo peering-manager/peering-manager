@@ -354,7 +354,7 @@ To enable filtering for a peering AS, we use a _tag_.
     {%-endfor %}
     ```
 === "Juniper"
-    In this Juniper exampe we handle IPv4 and IPv6 separately.
+    In this Juniper example we handle IPv4 and IPv6 separately.
     We create two _route filter lists_ which we later attach to the
     peering session(s) for tagged ASes.
     In case we do not want to filter we also create a prefix list allowing
