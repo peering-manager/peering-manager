@@ -353,7 +353,34 @@ To enable filtering for a peering AS, we use a _tag_.
       {%-endfor %}
     {%-endfor %}
     ```
-
+=== "Juniper"
+    In this Juniper exampe we handle IPv4 and IPv6 separately.
+    We create two _route filter lists_ which we later attach to the
+    peering session(s) for tagged ASes.
+    In case we do not want to filter we also create a prefix list allowing
+    everything - this makes the templating for the BGP session easier.
+```
+policy-options {
+{#- Build route-filter-lists for each peer ASN  #}
+{%- for as in autonomous_systems %}
+{%- for tag in as.tags.all() if tag.slug == "filter-prefixes" and as.prefixes %}
+{#- If you want prefix filtering for an as, apply a tag  #}
+replace:
+    route-filter-list AS{{as.asn}} {
+{%- for prefix in as.prefixes.ipv4 %}
+     {{ prefix.prefix }} {%- if not prefix.exact %} upto {{prefix['less-equal']}}{%-endif%}; 
+{%-endfor %}
+    }
+replace:
+    route-filter-list AS{{as.asn}}-INET6 {
+{%- for prefix in as.prefixes.ipv6 %}
+     {{ prefix.prefix }} {%- if not prefix.exact %} upto {{prefix['less-equal']}}{%-endif%};  
+{%-endfor %}
+    }
+{%-endfor %}
+{%-endfor %}
+}
+```
 
 ## Routing Policies
 With Communities and Prefix Lists/Sets in place, we can now define some routing
