@@ -121,6 +121,24 @@ protocols {
     }
 }
 policy-options {
+{#- Build route-filter-lists for each peer ASN  #}
+{%- for as in autonomous_systems %}
+{%- for tag in as.tags.all() if tag.slug == "filter-prefixes" and as.prefixes %}
+{#- If you want prefix filtering for an as, apply a tag  #}
+replace:
+    route-filter-list AS{{as.asn}} {
+{%- for prefix in as.prefixes.ipv4 %}
+     {{ prefix.prefix }} {%- if not prefix.exact %} upto {{prefix['less-equal']}}{%-endif%}; 
+{%-endfor %}
+    }
+replace:
+    route-filter-list AS{{as.asn}}-INET6 {
+{%- for prefix in as.prefixes.ipv6 %}
+     {{ prefix.prefix }} {%- if not prefix.exact %} upto {{prefix['less-equal']}}{%-endif%};  
+{%-endfor %}
+    }
+{%-endfor %}
+{%-endfor %}
 {%- for c in communities %}
     community {{ c.name }} members {{ c.value }};
 {%- endfor %}
