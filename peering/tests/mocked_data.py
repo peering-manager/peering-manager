@@ -58,10 +58,10 @@ def mocked_subprocess_popen(*args, **kwargs):
 
     if "AS-MOCKED" in args[0] or "AS65537" in args[0]:
         if "-6" in args[0]:
-            return MockResponse(0, PREFIXES6.encode(), "".encode())
+            return MockResponse(0, PREFIXES6.encode(), b"")
         if "-4" in args[0]:
-            return MockResponse(0, PREFIXES4.encode(), "".encode())
+            return MockResponse(0, PREFIXES4.encode(), b"")
     if "AS-ERROR" in args[0]:
-        return MockResponse(1, "".encode(), "Exit with error".encode())
+        return MockResponse(1, b"", b"Exit with error")
 
-    return MockResponse(-1, "".encode(), "Something went wrong".encode())
+    return MockResponse(-1, b"", b"Something went wrong")
