@@ -10,9 +10,12 @@ from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
+from social_core.backends.utils import load_backends
 
+from peering_manager.authentication import get_auth_backend_display, get_saml_idps
 from utils.forms import ConfirmationForm
 
 from .forms import LoginForm, TokenForm, UserPasswordChangeForm
@@ -40,20 +43,33 @@ class LoginView(View):
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
-    def redirect_to_next(self, request):
-        data = request.POST if request.method == "POST" else request.GET
-        redirect_url = data.get("next", settings.BASE_PATH)
+    def generate_auth_data(self, name, url, params):
+        display_name, icon_name = get_auth_backend_display(name)
+        return {
+            "display_name": display_name,
+            "icon_name": icon_name,
+            "url": f"{url}?{urlencode(params)}",
+        }
 
-        if redirect_url and redirect_url.startswith("/"):
-            logger.debug(f"Redirecting user to {redirect_url}")
-        else:
-            if redirect_url:
-                logger.warning(
-                    f"Ignoring unsafe 'next' URL passed to login form: {redirect_url}"
-                )
-            redirect_url = reverse("home")
+    def get_auth_backends(self, request):
+        auth_backends = []
+        saml_idps = get_saml_idps()
 
-        return HttpResponseRedirect(redirect_url)
+        for name in load_backends(settings.AUTHENTICATION_BACKENDS).keys():
+            url = reverse("social:begin", args=[name])
+            params = {}
+            if next := request.GET.get("next"):
+                params["next"] = next
+            if name.lower() == "saml" and saml_idps:
+                for idp in saml_idps:
+                    params["idp"] = idp
+                    data = self.generate_auth_data(name, url, params)
+                    data["display_name"] = f'{data["display_name"]} ({idp})'
+                    auth_backends.append(data)
+            else:
+                auth_backends.append(self.generate_auth_data(name, url, params))
+
+        return auth_backends
 
     def get(self, request):
         form = LoginForm(request)
@@ -61,16 +77,20 @@ class LoginView(View):
         if request.user.is_authenticated:
             return self.redirect_to_next(request)
 
-        return render(request, self.template, {"form": form})
+        return render(
+            request,
+            self.template,
+            {"form": form, "auth_backends": self.get_auth_backends(request)},
+        )
 
     def post(self, request):
         form = LoginForm(request, data=request.POST)
 
         if form.is_valid():
-            logger.debug("Login form validation was successful")
+            logger.debug("login form validation was successful")
 
             auth_login(request, form.get_user())
-            logger.info(f"User {request.user} successfully authenticated")
+            logger.info(f"user {request.user} successfully authenticated")
             messages.info(request, f"Logged in as {request.user}.")
 
             return self.redirect_to_next(request)
@@ -79,6 +99,23 @@ class LoginView(View):
             f"Login form validation failed for username: {form['username'].value()}"
         )
         return render(request, self.template, {"form": form})
+
+    def redirect_to_next(self, request):
+        data = request.POST if request.method == "POST" else request.GET
+        redirect_url = data.get("next", settings.BASE_PATH)
+
+        if redirect_url and url_has_allowed_host_and_scheme(
+            redirect_url, allowed_hosts=None
+        ):
+            logger.debug(f"Redirecting user to {redirect_url}")
+        else:
+            if redirect_url:
+                logger.warning(
+                    f"ignoring unsafe 'next' URL passed to login form: {redirect_url}"
+                )
+            redirect_url = reverse("home")
+
+        return HttpResponseRedirect(redirect_url)
 
 
 class LogoutView(View):
@@ -208,12 +245,9 @@ class TokenAddEdit(LoginRequiredMixin, View):
             token.user = request.user
             token.save()
 
-            msg = (
-                "Modified token {}".format(token)
-                if pk
-                else "Created token {}".format(token)
+            messages.success(
+                request, f"{'Modified' if pk else 'Created'} token {token}"
             )
-            messages.success(request, msg)
 
             if "_addanother" in request.POST:
                 return redirect(request.path)

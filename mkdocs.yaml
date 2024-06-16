@@ -55,10 +55,6 @@ nav:
     - 4. Web Server:
       - a. Apache 2: "setup/4a-apache2.md"
       - b. nginx: "setup/4b-nginx.md"
-    - 5. External Authentication:
-      - a. LDAP: "setup/5a-ldap.md"
-      - b. OIDC: "setup/5b-oidc.md"
-      - c. SAML2: "setup/5c-saml.md"
     - uWSGI: "setup/uwsgi.md"
     - Upgrading: "setup/upgrading.md"
     - Container Installation: "setup/container.md"
@@ -68,11 +64,16 @@ nav:
     - Required Parameters: "configuration/required-parameters.md"
     - System: "configuration/system.md"
     - Security: "configuration/security.md"
+    - Remote Authentication: "configuration/remote-authentication.md"
     - Date & Time: "configuration/date-time.md"
     - Tools: "configuration/tools.md"
     - Miscellaneous: "configuration/miscellaneous.md"
     - Development: "configuration/development.md"
   - Administration:
+    - Authentication:
+      - "administration/authentication/index.md"
+      - LDAP: "administration/authentication/ldap.md"
+      - RADIUS: "administration/authentication/radius.md"
     - Housekeeping: "administration/housekeeping.md"
     - Replication: "administration/replication.md"
   - User Interface: "user-interface.md"
