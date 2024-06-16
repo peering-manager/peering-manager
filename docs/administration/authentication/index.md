@@ -25,8 +25,7 @@ REMOTE_AUTH_BACKEND = "peering_manager.authentication.LDAPBackend"
 ```
 
 Peering Manager includes an authentication backend which supports LDAP. See
-the [LDAP installation docs](../../installation/6-ldap.md) for more detail
-about this backend.
+the [LDAP installation docs](./ldap.md) for more detail about this backend.
 
 ### HTTP Header Authentication
 
