@@ -68,6 +68,12 @@ ignore = [
     "PLR0913", # Too many arguments in function definition
     "PLR0915", # Too many statements
     "PLR2004", # Magic value used in comparison, consider replacing with a constant variable
+    "UP009",   # UTF-8 encoding declaration is unnecessary
+    "UP012",   # Unnecessary call to `encode` as UTF-8
+    "UP024",   # Replace aliased errors with `OSError`
+    "UP027",   # Replace unpacked list comprehension with a generator expression
+    "UP032",   # Use f-string instead of `format` call
+    "UP038",   # Use `X | Y` in `isinstance` call instead of `(X, Y)`
 ]
 select = [
     "B",    # flake8-bugbear
@@ -91,6 +97,7 @@ select = [
     "TCH",  # flake8-type-checking
     "TRIO", # flake8-trio
     "T10",  # flake8-debugger
+    "UP",   # pyupgrade
     "W",    # pycodestyle warnings
 ]
 
