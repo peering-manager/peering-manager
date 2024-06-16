@@ -5,6 +5,7 @@ from .backends import (
     get_auth_backend_display,
     get_saml_idps,
 )
+from .utils import user_default_groups_handler
 
 __all__ = (
     "LDAPBackend",
@@ -12,4 +13,5 @@ __all__ = (
     "RemoteUserBackend",
     "get_auth_backend_display",
     "get_saml_idps",
+    "user_default_groups_handler",
 )

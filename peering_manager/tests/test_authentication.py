@@ -11,7 +11,6 @@ User = get_user_model()
 
 
 class ExternalAuthenticationTestCase(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         cls.user = User.objects.create(username="remoteuser1")
