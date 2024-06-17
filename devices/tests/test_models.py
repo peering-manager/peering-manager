@@ -101,7 +101,6 @@ class RouterTest(TestCase):
         self.assertFalse(self.router.is_usable_for_task())
 
     def test_get_configuration_context(self):
-        # self.maxDiff = None
         for i in range(1, 6):
             AutonomousSystem.objects.create(asn=i, name=f"Test {i}")
         bgp_group = BGPGroup.objects.create(name="Test Group", slug="testgroup")

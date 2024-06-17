@@ -90,7 +90,6 @@ class PeeringManagerAutoSchema(AutoSchema):
                 # this shouldn't happen, but keeping it here to follow base code
                 action = "list"
             else:
-                # action = self.method_mapping[self.method.lower()]
                 # use bulk name so partial_update -> bulk_partial_update
                 action = self.view.action.lower()
 
