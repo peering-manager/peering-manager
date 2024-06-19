@@ -8,8 +8,8 @@
 import importlib
 import os
 import platform
-import unicodedata
 import warnings
+from importlib.util import find_spec
 from pathlib import Path
 
 from django.contrib.messages import constants as messages
@@ -92,6 +92,46 @@ METRICS_ENABLED = getattr(configuration, "METRICS_ENABLED", False)
 SESSION_FILE_PATH = getattr(configuration, "SESSION_FILE_PATH", None)
 SESSION_COOKIE_NAME = getattr(configuration, "SESSION_COOKIE_NAME", "sessionid")
 SESSION_COOKIE_SECURE = getattr(configuration, "SESSION_COOKIE_SECURE", False)
+
+REMOTE_AUTH_ENABLED = getattr(configuration, "REMOTE_AUTH_ENABLED", False)
+REMOTE_AUTH_AUTO_CREATE_GROUPS = getattr(
+    configuration, "REMOTE_AUTH_AUTO_CREATE_GROUPS", False
+)
+REMOTE_AUTH_AUTO_CREATE_USER = getattr(
+    configuration, "REMOTE_AUTH_AUTO_CREATE_USER", False
+)
+REMOTE_AUTH_BACKEND = getattr(
+    configuration,
+    "REMOTE_AUTH_BACKEND",
+    "peering_manager.authentication.RemoteUserBackend",
+)
+REMOTE_AUTH_DEFAULT_GROUPS = getattr(configuration, "REMOTE_AUTH_DEFAULT_GROUPS", [])
+REMOTE_AUTH_DEFAULT_PERMISSIONS = getattr(
+    configuration, "REMOTE_AUTH_DEFAULT_PERMISSIONS", []
+)
+REMOTE_AUTH_GROUP_HEADER = getattr(
+    configuration, "REMOTE_AUTH_GROUP_HEADER", "HTTP_REMOTE_USER_GROUP"
+)
+REMOTE_AUTH_GROUP_SEPARATOR = getattr(configuration, "REMOTE_AUTH_GROUP_SEPARATOR", "|")
+REMOTE_AUTH_GROUP_SYNC_ENABLED = getattr(
+    configuration, "REMOTE_AUTH_GROUP_SYNC_ENABLED", False
+)
+REMOTE_AUTH_HEADER = getattr(configuration, "REMOTE_AUTH_HEADER", "HTTP_REMOTE_USER")
+REMOTE_AUTH_SUPERUSER_GROUPS = getattr(
+    configuration, "REMOTE_AUTH_SUPERUSER_GROUPS", []
+)
+REMOTE_AUTH_SUPERUSERS = getattr(configuration, "REMOTE_AUTH_SUPERUSERS", [])
+REMOTE_AUTH_USER_EMAIL = getattr(
+    configuration, "REMOTE_AUTH_USER_EMAIL", "HTTP_REMOTE_USER_EMAIL"
+)
+REMOTE_AUTH_USER_FIRST_NAME = getattr(
+    configuration, "REMOTE_AUTH_USER_FIRST_NAME", "HTTP_REMOTE_USER_FIRST_NAME"
+)
+REMOTE_AUTH_USER_LAST_NAME = getattr(
+    configuration, "REMOTE_AUTH_USER_LAST_NAME", "HTTP_REMOTE_USER_LAST_NAME"
+)
+REMOTE_AUTH_STAFF_GROUPS = getattr(configuration, "REMOTE_AUTH_STAFF_GROUPS", [])
+REMOTE_AUTH_STAFF_USERS = getattr(configuration, "REMOTE_AUTH_STAFF_USERS", [])
 
 DATE_FORMAT = getattr(configuration, "DATE_FORMAT", "jS F, Y")
 DATETIME_FORMAT = getattr(configuration, "DATETIME_FORMAT", "jS F, Y G:i")
@@ -249,54 +289,27 @@ if RELEASE_CHECK_URL:
             "Example: https://api.github.com/repos/peering-manager/peering-manager"
         ) from e
 
+# Set up authentication backends
+if not isinstance(REMOTE_AUTH_BACKEND, list | tuple):
+    REMOTE_AUTH_BACKEND = [REMOTE_AUTH_BACKEND]
+AUTHENTICATION_BACKENDS = [
+    *REMOTE_AUTH_BACKEND,
+    "peering_manager.authentication.ModelBackend",
+]
 
-try:
-    from peering_manager.ldap_config import *
-
-    LDAP_CONFIGURED = True
-except ImportError:
-    LDAP_CONFIGURED = False
-
-# If LDAP is configured, load the config
-if LDAP_CONFIGURED:
-    try:
-        import django_auth_ldap
-        import ldap
-
-        # Prepend LDAPBackend to the default ModelBackend
-        AUTHENTICATION_BACKENDS = [
-            "django_auth_ldap.backend.LDAPBackend",
-            "django.contrib.auth.backends.ModelBackend",
-        ]
-    except ImportError:
+# If RADIUS auth has been configured, make sure it can be used
+if "radiusauth.backends.RADIUSBackend" in AUTHENTICATION_BACKENDS:
+    if find_spec("radiusauth") is None:
         raise ImproperlyConfigured(
-            "LDAP authentication has been configured, but django-auth-ldap is not "
-            "installed. You can remove peering_manager/ldap_config.py to disable "
-            "LDAP."
+            "RADIUS authentication has been configured, but django-radius is not installed."
         )
-
-try:
-    from peering_manager.radius_config import *
-
-    RADIUS_CONFIGURED = True
-except ImportError:
-    RADIUS_CONFIGURED = False
-
-if RADIUS_CONFIGURED:
     try:
-        import radiusauth
-
-        # Prepend RADIUSBackend to the default ModelBackend
-        AUTHENTICATION_BACKENDS = [
-            "radiusauth.backends.RADIUSBackend",
-            "django.contrib.auth.backends.ModelBackend",
-        ]
-    except ImportError:
+        from peering_manager.radius_config import *
+    except ModuleNotFoundError as e:
         raise ImproperlyConfigured(
-            "RADIUS authentication has been configured, but django-radius is not "
-            "installed. You can remove peering_manager/radius_config.py to disable "
-            "RADIUS."
-        )
+            "LDAP configuration file not found: Check that radius_config.py has been created alongside configuration.py."
+        ) from e
+
 
 # Force PostgreSQL to be used as database backend
 configuration.DATABASE.update({"ENGINE": "django.db.backends.postgresql"})
@@ -442,6 +455,7 @@ INSTALLED_APPS = [
     "django_tables2",
     "rest_framework",
     "netfields",
+    "social_django",
     "taggit",
     "bgp",
     "core",
@@ -468,46 +482,33 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "peering_manager.middleware.RemoteUserMiddleware",
     "peering_manager.middleware.CoreMiddleware",
 ]
 
-try:
-    from peering_manager.oidc_config import *
+# Django social auth
+SOCIAL_AUTH_PIPELINE = (
+    "social_core.pipeline.social_auth.social_details",
+    "social_core.pipeline.social_auth.social_uid",
+    "social_core.pipeline.social_auth.social_user",
+    "social_core.pipeline.user.get_username",
+    "social_core.pipeline.user.create_user",
+    "social_core.pipeline.social_auth.associate_user",
+    "peering_manager.authentication.user_default_groups_handler",
+    "social_core.pipeline.social_auth.load_extra_data",
+    "social_core.pipeline.user.user_details",
+)
 
-    OIDC_CONFIGURED = True
-except ImportError:
-    OIDC_CONFIGURED = False
+# Load all SOCIAL_AUTH_* settings from the user configuration
+for param in dir(configuration):
+    if param.startswith("SOCIAL_AUTH_"):
+        globals()[param] = getattr(configuration, param)
 
-
-def generate_username(email):
-    return unicodedata.normalize("NFKC", email)[:150]
-
-
-OIDC_USERNAME_ALGO = generate_username
-
-if OIDC_CONFIGURED:
-    AUTHENTICATION_BACKENDS = [
-        "mozilla_django_oidc.auth.OIDCAuthenticationBackend",
-        "django.contrib.auth.backends.ModelBackend",
-    ]
-    INSTALLED_APPS.insert(2, "mozilla_django_oidc")
-    MIDDLEWARE.insert(5, "mozilla_django_oidc.middleware.SessionRefresh")
-
-# SAML2
-
-try:
-    from peering_manager.saml2_config import *
-
-    SAML2_CONFIGURED = True
-except ImportError:
-    SAML2_CONFIGURED = False
-
-if SAML2_CONFIGURED:
-    AUTHENTICATION_BACKENDS = [
-        SAML2_AUTH_CONFIG["AUTHENTICATION_BACKEND"],
-        "django.contrib.auth.backends.ModelBackend",
-    ]
-    INSTALLED_APPS.insert(2, "django3_auth_saml2")
+# Force usage of PostgreSQL's JSONB field for extra data
+SOCIAL_AUTH_JSONFIELD_ENABLED = True
+SOCIAL_AUTH_CLEAN_USERNAME_FUNCTION = (
+    "peering_manager.authentication.utils.clean_username"
+)
 
 # Prometheus setup
 if METRICS_ENABLED:

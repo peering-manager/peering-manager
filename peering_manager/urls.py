@@ -20,6 +20,7 @@ __patterns = [
     # Login/Logout
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
+    path("oauth/", include("social_django.urls", namespace="social")),
     # Apps
     path("bgp/", include("bgp.urls")),
     path("core/", include("core.urls")),
@@ -66,18 +67,6 @@ __patterns = [
     # Error triggering
     path("error500/", trigger_500),
 ]
-
-if settings.OIDC_CONFIGURED:
-    __patterns.insert(
-        2,
-        path("oidc/", include("mozilla_django_oidc.urls")),
-    )
-
-if settings.SAML2_CONFIGURED:
-    __patterns.insert(
-        2,
-        path("sso/", include("django3_auth_saml2.urls")),
-    )
 
 # Add debug_toolbar in debug mode
 if settings.DEBUG:

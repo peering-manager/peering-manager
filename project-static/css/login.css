@@ -12,3 +12,20 @@ body {
   width: 100%;
   margin: auto;
 }
+.hr-text {
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+.hr-text::before,
+.hr-text::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #000;
+}
+.hr-text:not(:empty)::before {
+  margin-right: .25em;
+}
+.hr-text:not(:empty)::after {
+  margin-left: .25em;
+}

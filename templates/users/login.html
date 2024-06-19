@@ -53,20 +53,26 @@
             {% render_field form.username %}
             {% render_field form.password %}
             <button type="submit" class="btn btn-lg btn-block btn-primary">Log In</button>
-            {% if settings.OIDC_CONFIGURED %}
-            <p class="font-weight-bolder mt-3">OR</p>
-            <a class="btn btn-lg btn-block btn-secondary" href="{% url 'oidc_authentication_init' %}"><i class="fas fab fa-openid"></i> OpenID Connect Login</a>
-            {% endif %}
-            {% if settings.SAML2_CONFIGURED %}
-            <p class="font-weight-bolder mt-3">OR</p>
-            <a class="btn btn-lg btn-block btn-secondary" href="/sso/login/"><i class="fas fa-sign-in-alt"></i> SAML2 SSO Login</a>
-            {% endif %}
-            <p class="mt-5 mb-3 text-muted">
-              <i class="fas fa-fw fa-cloud"></i> <a class="text-muted" href="{% url 'api-root' %}">API</a> &middot;
-              <i class="fas fa-fw fa-book"></i> <a class="text-muted" href="http://peering-manager.readthedocs.io/">Docs</a> &middot;
-              <i class="fab fa-fw fa-github"></i> <a class="text-muted" href="https://github.com/peering-manager/peering-manager">GitHub</a>
-            </p>
           </form>
+          {% if auth_backends %}
+          <div class="hr-text">OR</div>
+            <div class="row">
+              {% for backend in auth_backends %}
+                <div class="col">
+                  <a href="{{ backend.url }}" class="btn btn-lg btn-block btn-outline-secondary">
+                    {% if backend.icon_name %}<i class="fa-brands {{ backend.icon_name }}"></i>{% endif %}
+                    {{ backend.display_name }}
+                  </a>
+                </div>
+              {% endfor %}
+            </div>
+
+          {% endif %}
+          <p class="mt-5 mb-3 text-muted">
+            <i class="fas fa-fw fa-cloud"></i> <a class="text-muted" href="{% url 'api-root' %}">API</a> &middot;
+            <i class="fas fa-fw fa-book"></i> <a class="text-muted" href="http://peering-manager.readthedocs.io/">Docs</a> &middot;
+            <i class="fab fa-fw fa-github"></i> <a class="text-muted" href="https://github.com/peering-manager/peering-manager">GitHub</a>
+          </p>
         </div>
         <div class="col"></div>
       </div>

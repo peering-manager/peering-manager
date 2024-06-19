@@ -35,6 +35,7 @@ pyixapi = "^0.2"
 pynetbox = "~7.3"
 PyYAML = "~6.0"
 requests = "~2.32"
+social-auth-app-django = "^5.4"
 
 [tool.poetry.group.dev]
 optional = true
