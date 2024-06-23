@@ -18,7 +18,7 @@ django-rq==2.10.2
 django-tables2==2.7.0
 django-taggit==5.0.1
 django==5.0.6
-djangorestframework==3.15.1
+djangorestframework==3.15.2
 drf-spectacular-sidecar==2024.6.1
 drf-spectacular==0.27.2
 dulwich==0.21.7
@@ -62,7 +62,7 @@ requests==2.32.3
 rpds-py==0.18.1
 rq==1.16.2
 scp==0.15.0
-setuptools==70.0.0
+setuptools==70.1.0
 six==1.16.0
 social-auth-app-django==5.4.1
 social-auth-core==4.5.4

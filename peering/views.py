@@ -549,6 +549,7 @@ class InternetExchangeIXAPI(PermissionRequiredMixin, View):
                 request,
                 "peering/internetexchange/ixapi.html",
                 {
+                    "tab": self.tab,
                     "instance": instance,
                     "ixapi_service": instance.get_ixapi_network_service(),
                 },
@@ -557,7 +558,7 @@ class InternetExchangeIXAPI(PermissionRequiredMixin, View):
             return render(
                 request,
                 "peering/internetexchange/ixapi_error.html",
-                {"instance": instance, "error": str(e)},
+                {"tab": self.tab, "instance": instance, "error": str(e)},
             )
 
 
