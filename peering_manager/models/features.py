@@ -40,11 +40,15 @@ class ChangeLoggingMixin(models.Model):
     class Meta:
         abstract = True
 
+    @property
+    def excluded_fields(self):
+        return ["updated"] + getattr(self, "changelog_excluded_fields", [])
+
     def snapshot(self):
         """
         Save a snapshot of the object's current state in preparation for modification.
         """
-        self._prechange_snapshot = serialize_object(self)
+        self._prechange_snapshot = serialize_object(self, exclude=self.excluded_fields)
 
     def to_objectchange(self, action, related_object=None):
         """
@@ -62,7 +66,9 @@ class ChangeLoggingMixin(models.Model):
         if hasattr(self, "_prechange_snapshot"):
             object_change.prechange_data = self._prechange_snapshot
         if action in (ObjectChangeAction.CREATE, ObjectChangeAction.UPDATE):
-            object_change.postchange_data = serialize_object(self)
+            object_change.postchange_data = serialize_object(
+                self, exclude=self.excluded_fields
+            )
 
         return object_change
 

@@ -63,9 +63,10 @@ def handle_changed_object(sender, instance, **kwargs):
     else:
         # Record an object change
         change = instance.to_objectchange(action)
-        change.user = request.user
-        change.request_id = request.id
-        change.save()
+        if change.has_changes:
+            change.user = request.user
+            change.request_id = request.id
+            change.save()
 
     # If this is an M2M change, update the previously queued webhook (from post_save)
     queue = webhooks_queue.get()
