@@ -114,6 +114,7 @@ class IXAPI(ChangeLoggedModel):
         # Perform an authentication
         auth = api.authenticate()
         if auth:
+            self.snapshot()
             # Save tokens if they've changed
             self.access_token = api.access_token.encoded
             self.access_token_expiration = api.access_token.expires_at
