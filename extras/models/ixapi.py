@@ -8,6 +8,7 @@ from django.db import models
 from django.db.models import Q
 from django.urls import reverse
 
+from core.constants import CENSORSHIP_STRING, CENSORSHIP_STRING_CHANGED
 from peering_manager.models import ChangeLoggedModel
 
 logger = logging.getLogger("peering.manager.extras.ixapi")
@@ -31,6 +32,12 @@ class IXAPI(ChangeLoggedModel):
     access_token_expiration = models.DateTimeField(blank=True, null=True)
     refresh_token = models.TextField(blank=True, null=True)
     refresh_token_expiration = models.DateTimeField(blank=True, null=True)
+    changelog_excluded_fields = [
+        "access_token",
+        "access_token_expiration",
+        "refresh_token",
+        "refresh_token_expiration",
+    ]
 
     class Meta:
         verbose_name = "IX-API"
@@ -67,6 +74,28 @@ class IXAPI(ChangeLoggedModel):
 
     def get_absolute_url(self):
         return reverse("extras:ixapi_view", args=[self.pk])
+
+    def to_objectchange(self, action):
+        object_change = super().to_objectchange(action)
+
+        prechange_data = {}
+        postchange_data = {}
+
+        if object_change.prechange_data:
+            prechange_data = object_change.prechange_data or {}
+        if object_change.postchange_data:
+            postchange_data = object_change.postchange_data or {}
+
+        for param in ["api_key", "api_secret"]:
+            if param in postchange_data:
+                if postchange_data.get(param) != prechange_data.get(param):
+                    postchange_data[param] = CENSORSHIP_STRING_CHANGED
+                else:
+                    postchange_data[param] = CENSORSHIP_STRING
+            if param in prechange_data:
+                prechange_data[param] = CENSORSHIP_STRING
+
+        return object_change
 
     @staticmethod
     def test_connectivity(url, api_key, api_secret):

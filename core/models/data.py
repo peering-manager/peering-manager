@@ -17,6 +17,7 @@ from peering_manager.models import JobsMixin, PrimaryModel
 from peering_manager.registry import DATA_BACKENDS_KEY, registry
 from utils.functions import sha256_hash
 
+from ..constants import CENSORSHIP_STRING, CENSORSHIP_STRING_CHANGED
 from ..enums import DataSourceStatus
 from ..exceptions import SynchronisationError
 from ..signals import post_synchronisation, pre_synchronisation
@@ -25,9 +26,6 @@ from .jobs import Job
 logger = logging.getLogger("peering.manager.core.data")
 
 __all__ = ("DataSource", "DataFile", "AutoSynchronisationRecord")
-
-CENSORSHIP_STRING = "*************"
-CENSORSHIP_STRING_CHANGED = "***CHANGED***"
 
 
 class DataSource(PrimaryModel, JobsMixin):
