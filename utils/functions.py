@@ -126,7 +126,7 @@ def serialize_object(instance, extra=None, exclude=None):
             data.pop(key)
 
         # Explicitly excluded keys
-        if isinstance(exclude, (list, tuple)) and key in exclude:
+        if isinstance(exclude, list | tuple) and key in exclude:
             data.pop(key)
 
     return data
@@ -143,7 +143,7 @@ def shallow_compare_dict(first_dict, second_dict, exclude=None):
 
     for key in second_dict:
         if first_dict.get(key) != second_dict[key]:
-            if isinstance(exclude, (list, tuple)) and key in exclude:
+            if isinstance(exclude, list | tuple) and key in exclude:
                 continue
             difference[key] = second_dict[key]
 

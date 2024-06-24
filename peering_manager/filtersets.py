@@ -66,34 +66,28 @@ class BaseFilterSet(django_filters.FilterSet):
         # Choose the lookup expression map based on the filter type
         if isinstance(
             existing_filter,
-            (
-                django_filters.NumberFilter,
-                filters.MultiValueDateFilter,
-                filters.MultiValueDateTimeFilter,
-                filters.MultiValueNumberFilter,
-                filters.MultiValueDecimalFilter,
-                filters.MultiValueTimeFilter,
-            ),
+            django_filters.NumberFilter
+            | filters.MultiValueDateFilter
+            | filters.MultiValueDateTimeFilter
+            | filters.MultiValueNumberFilter
+            | filters.MultiValueDecimalFilter
+            | filters.MultiValueTimeFilter,
         ):
             return FILTER_NUMERIC_BASED_LOOKUP_MAP
         if isinstance(
             existing_filter,
-            (
-                django_filters.ModelChoiceFilter,
-                django_filters.ModelMultipleChoiceFilter,
-                TagFilter,
-            ),
+            django_filters.ModelChoiceFilter
+            | django_filters.ModelMultipleChoiceFilter
+            | TagFilter,
         ) or existing_filter.extra.get("choices"):
             # These filter types support only negation
             return FILTER_NEGATION_LOOKUP_MAP
         if isinstance(
             existing_filter,
-            (
-                django_filters.filters.CharFilter,
-                django_filters.MultipleChoiceFilter,
-                filters.MultiValueCharFilter,
-                filters.MultiValueMACAddressFilter,
-            ),
+            django_filters.filters.CharFilter
+            | django_filters.MultipleChoiceFilter
+            | filters.MultiValueCharFilter
+            | filters.MultiValueMACAddressFilter,
         ):
             return FILTER_CHAR_BASED_LOOKUP_MAP
 

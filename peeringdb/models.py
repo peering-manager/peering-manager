@@ -119,7 +119,7 @@ class MultipleChoiceField(models.CharField):
         return ",".join(picked)
 
     def to_python(self, value):
-        if isinstance(value, (list, set, tuple)):
+        if isinstance(value, list | set | tuple):
             return value
 
         if value is None:

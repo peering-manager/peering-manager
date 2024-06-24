@@ -8,7 +8,7 @@ class ChoiceSetMeta(type):
         attrs["_choices"] = []
         attrs["colours"] = {}
         for choice in attrs["CHOICES"]:
-            if isinstance(choice[1], (list, tuple)):
+            if isinstance(choice[1], list | tuple):
                 grouped_choices = []
                 for c in choice[1]:
                     grouped_choices.append((c[0], c[1]))

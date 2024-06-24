@@ -163,7 +163,7 @@ class PeeringManagerAutoSchema(AutoSchema):
             # read_only fields don't need to be in writable (write only) serializers
             if "read_only" in dir(child) and child.read_only:
                 remove_fields.append(child_name)
-            if isinstance(child, (ChoiceField, WritableNestedSerializer)):
+            if isinstance(child, ChoiceField | WritableNestedSerializer):
                 properties[child_name] = None
             elif isinstance(child, ManyRelatedField) and isinstance(
                 child.child_relation, SerializedPKRelatedField

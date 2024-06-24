@@ -72,7 +72,6 @@ ignore = [
     "UP024",   # Replace aliased errors with `OSError`
     "UP027",   # Replace unpacked list comprehension with a generator expression
     "UP032",   # Use f-string instead of `format` call
-    "UP038",   # Use `X | Y` in `isinstance` call instead of `(X, Y)`
 ]
 select = [
     "B",    # flake8-bugbear

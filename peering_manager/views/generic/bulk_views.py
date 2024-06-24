@@ -89,7 +89,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
         for name in standard_fields:
             try:
                 model_field = self.queryset.model._meta.get_field(name)
-                if isinstance(model_field, (ManyToManyField, ManyToManyRel)):
+                if isinstance(model_field, ManyToManyField | ManyToManyRel):
                     m2m_fields[name] = model_field
                 else:
                     model_fields[name] = model_field
