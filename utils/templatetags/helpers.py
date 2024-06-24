@@ -211,7 +211,7 @@ def foreground_colour(value):
     if not re.match("^[0-9a-f]{6}$", value):
         return ""
 
-    r, g, b = [int(value[c : c + 2], 16) for c in (0, 2, 4)]
+    r, g, b = (int(value[c : c + 2], 16) for c in (0, 2, 4))
     if r * 0.299 + g * 0.587 + b * 0.114 > 186:
         return "#000000"
     return "#ffffff"
