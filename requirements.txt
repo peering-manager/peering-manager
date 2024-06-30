@@ -55,14 +55,14 @@ pyparsing==3.1.2
 pyserial==3.5
 python3-openid==3.2.0
 pyyaml==6.0.1
-redis==5.0.6
+redis==5.0.7
 referencing==0.35.1
 requests-oauthlib==2.0.0
 requests==2.32.3
 rpds-py==0.18.1
 rq==1.16.2
 scp==0.15.0
-setuptools==70.1.0
+setuptools==70.1.1
 six==1.16.0
 social-auth-app-django==5.4.1
 social-auth-core==4.5.4
