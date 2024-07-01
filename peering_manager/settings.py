@@ -5,13 +5,16 @@
 # every code releases.
 
 
+import hashlib
 import importlib
 import os
 import platform
+import sys
 import warnings
 from importlib.util import find_spec
 from pathlib import Path
 
+import requests
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
@@ -61,6 +64,7 @@ if MY_ASN:
 BASE_PATH = getattr(configuration, "BASE_PATH", "")
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip("/") + "/"  # Enforce trailing slash only
+CENSUS_REPORTING_ENABLED = getattr(configuration, "CENSUS_REPORTING_ENABLED", True)
 CSRF_COOKIE_PATH = LANGUAGE_COOKIE_PATH = SESSION_COOKIE_PATH = (
     f'/{BASE_PATH.rstrip("/")}'
 )
@@ -589,3 +593,19 @@ STATICFILES_DIRS = (BASE_DIR / "project-static",)
 
 # Django debug toolbar
 INTERNAL_IPS = ["127.0.0.1", "::1"]
+
+# Census collection
+DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode("utf-8")).hexdigest()[:16]
+CENSUS_URL = "https://census.peering-manager.net/api/v1/records/"
+CENSUS_PARAMETERS = {
+    "deployment_id": DEPLOYMENT_ID,
+    "version": VERSION,
+    "python_version": platform.python_version(),
+}
+if CENSUS_REPORTING_ENABLED and not DEBUG and "test" not in sys.argv:
+    try:
+        requests.post(
+            CENSUS_URL, json=CENSUS_PARAMETERS, timeout=3, proxies=HTTP_PROXIES
+        )
+    except requests.RequestException:
+        pass
