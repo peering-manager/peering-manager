@@ -153,6 +153,10 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
         """
         Returns all direct peering sessions with this AS.
         """
+        if bgp_group:
+            return DirectPeeringSession.objects.filter(
+                autonomous_system=self, bgp_group=bgp_group
+            )
         return DirectPeeringSession.objects.filter(autonomous_system=self)
 
     def get_ixp_peering_sessions(self, internet_exchange_point=None):
