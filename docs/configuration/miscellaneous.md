@@ -21,6 +21,26 @@ form. HTML is allowed.
 
 ---
 
+### CENSUS_REPORTING_ENABLED
+
+Default: `True`
+
+Enables anonymous census reporting. To opt out, set this to `False`.
+
+This data enables the project maintainer to estimate how many Peering Manager
+deployments exist and track adoption of new versions over times.
+
+Census reporting performs a single HTTP POST request each time a worker
+starts.
+
+The reported data includes:
+
+* Pseudorandom unique identifier
+* Peering Manager version
+* Python version
+
+---
+
 ## CHANGELOG_RETENTION
 
 Default: `90`
