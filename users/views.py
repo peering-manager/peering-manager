@@ -1,4 +1,5 @@
 import logging
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib import messages
@@ -45,9 +46,11 @@ class LoginView(View):
 
     def generate_auth_data(self, name, url, params):
         display_name, icon_name = get_auth_backend_display(name)
+
         return {
             "display_name": display_name,
             "icon_name": icon_name,
+            "icon_is_url": bool(urlparse(icon_name).scheme),
             "url": f"{url}?{urlencode(params)}",
         }
 

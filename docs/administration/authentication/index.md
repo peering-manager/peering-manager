@@ -73,3 +73,22 @@ imported from Peering Manager's `configuration.py` file. Additionally, the
 can be customized via the `SOCIAL_AUTH_PIPELINE` parameter. (Peering Manager's
 default pipeline is defined in `peering_manager/settings.py` for your
 reference.)
+
+### Configuring SSO Module's Appearance
+
+The way a remote authentication backend is displayed to the user on the login
+page may be adjusted via the `SOCIAL_AUTH_BACKEND_ATTRS` parameter, defaulting
+to an empty dictionary. This dictionary maps a `social_core` module's name (ie.
+`REMOTE_AUTH_BACKEND.name`) to a couple of parameters, `(display_name, icon)`.
+
+The `display_name` is the name displayed to the user on the login page. The
+icon may either be the URL of an icon, a [Font Awesome
+Icons](https://fontawesome.com/) icon's name, or `None` for no icon.
+
+For instance, the OIDC backend may be customised with the following:
+
+```python
+SOCIAL_AUTH_BACKEND_ATTRS = {
+    "oidc": ("My company SSO", "fa-solid fa-right-to-bracket")
+}
+```
