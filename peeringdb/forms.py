@@ -32,6 +32,11 @@ class NetworkIXLanFilterForm(BootstrapMixin, forms.Form):
         label="On Route Server",
         widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
+    bfd_support = forms.NullBooleanField(
+        required=False,
+        label="BFD Support",
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
+    )
     net__info_traffic = forms.ChoiceField(
         label="Traffic",
         required=False,

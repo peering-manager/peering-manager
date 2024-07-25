@@ -32,6 +32,10 @@ class NetworkIXLanTable(BaseTable):
         verbose_name="On RS",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
+    bfd_support = BooleanColumn(
+        verbose_name="BFD Support",
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
+    )
     operational = BooleanColumn(
         verbose_name="Operational",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},

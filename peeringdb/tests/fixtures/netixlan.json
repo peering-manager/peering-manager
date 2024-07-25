@@ -12,6 +12,7 @@
       "ipaddr4": "188.93.170.9",
       "ipaddr6": "2001:7f8:4c::a2a:1",
       "is_rs_peer": true,
+      "bfd_support": false,
       "operational": true,
       "created": "2012-06-26T00:00:00Z",
       "updated": "2021-10-15T12:59:47Z",

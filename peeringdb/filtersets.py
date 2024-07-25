@@ -198,6 +198,7 @@ class NetworkIXLanFilterSet(django_filters.FilterSet):
             "id",
             "asn",
             "is_rs_peer",
+            "bfd_support",
             "net__info_traffic",
             "net__info_scope",
             "net__info_type",

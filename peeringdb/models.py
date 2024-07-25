@@ -580,6 +580,7 @@ class NetworkIXLan(models.Model):
         null=True,
     )
     is_rs_peer = models.BooleanField(default=False)
+    bfd_support = models.BooleanField(default=False)
     notes = models.CharField(max_length=255, blank=True)
     speed = models.PositiveIntegerField()
     operational = models.BooleanField(default=True)

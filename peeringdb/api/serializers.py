@@ -254,6 +254,7 @@ class NetworkIXLanSerializer(serializers.ModelSerializer):
             "ipaddr4",
             "ipaddr6",
             "is_rs_peer",
+            "bfd_support",
             "notes",
             "speed",
             "operational",
