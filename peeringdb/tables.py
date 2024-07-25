@@ -69,6 +69,7 @@ class NetworkIXLanTable(BaseTable):
             "ipv6_max_prefix",
             "ipv4_max_prefix",
             "is_rs_peer",
+            "bfd_support",
             "speed",
             "operational",
             "info_traffic",
