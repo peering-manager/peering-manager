@@ -12,7 +12,7 @@ from messaging.api.serializers import EmailSendingSerializer
 from messaging.models import Email
 from peering_manager.api.exceptions import ServiceUnavailable
 from peering_manager.api.viewsets import PeeringManagerModelViewSet
-from peeringdb.api.serializers import NetworkIXLanSerializer
+from peeringdb.api.serializers import FacilitySerializer, NetworkIXLanSerializer
 
 from ..filtersets import (
     AutonomousSystemFilterSet,
@@ -171,6 +171,39 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
         return Response(
             data=NestedInternetExchangeSerializer(
                 self.get_object().get_shared_internet_exchange_points(affiliated),
+                many=True,
+                context={"request": request},
+            ).data
+        )
+
+    @extend_schema(
+        operation_id="peering_autonomous_systems_shared_facilities",
+        responses={
+            200: OpenApiResponse(
+                response=NestedInternetExchangeSerializer(many=True),
+                description="Retrieves the shared facilities with the AS.",
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.OBJECT, description="The AS does not exist."
+            ),
+            503: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="The user has no affiliated AS.",
+            ),
+        },
+    )
+    @action(detail=True, methods=["get"], url_path="shared-facilities")
+    def shared_facilities(self, request, pk=None):
+        try:
+            affiliated = AutonomousSystem.objects.get(
+                pk=request.user.preferences.get("context.as")
+            )
+        except AutonomousSystem.DoesNotExist:
+            raise ServiceUnavailable("User did not choose an affiliated AS.") from None
+
+        return Response(
+            data=FacilitySerializer(
+                self.get_object().get_peeringdb_shared_facilities(affiliated),
                 many=True,
                 context={"request": request},
             ).data
