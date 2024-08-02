@@ -10,7 +10,7 @@ class OutOfAddressSpaceError(Exception):
 
 
 def get_subnet(a, b):
-    if type(a) != type(b):
+    if type(a) is not type(b):
         raise ValueError("Parameters must be of the same type")
     if type(a) not in (ipaddress.IPv4Interface, ipaddress.IPv6Interface):
         raise ValueError("Parameters must be IPv4Address or IPv6Address")

@@ -70,15 +70,13 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
     @property
     def is_private(self):
         return (
-            self.asn == 0  # RFC 7607
-            or self.asn == 23456  # RFC 4893
+            self.asn
+            in (0, 23456, 65535, 4294967295)  # RFC 7607, RFC 4893, RFC 7300, RFC 7300
             or (self.asn >= 64496 and self.asn <= 64511)  # RFC 5398
             or (self.asn >= 64512 and self.asn <= 65534)  # RFC 6996
-            or self.asn == 65535  # RFC 7300
             or (self.asn >= 65536 and self.asn <= 65551)  # RFC 5398
             or (self.asn >= 65552 and self.asn <= 131071)  # RFC IANA
             or (self.asn >= 4200000000 and self.asn <= 4294967294)  # RFC 6996
-            or self.asn == 4294967295  # RFC 7300
         )
 
     @property
@@ -203,7 +201,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
 
     def get_peeringdb_shared_facilities(self, other):
         peeringdb_network_record = other
-        if type(other) == type(self):
+        if type(other) is type(self):
             peeringdb_network_record = other.peeringdb_network
 
         return get_shared_facilities(self.peeringdb_network, peeringdb_network_record)
