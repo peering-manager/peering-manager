@@ -69,6 +69,7 @@ class AutonomousSystemForm(PeeringManagerModelForm):
             (
                 "asn",
                 "name",
+                "description",
                 "affiliated",
                 "irr_as_set",
                 "ipv6_max_prefixes",
@@ -97,6 +98,7 @@ class AutonomousSystemForm(PeeringManagerModelForm):
             "asn",
             "name",
             "name_peeringdb_sync",
+            "description",
             "irr_as_set",
             "irr_as_set_peeringdb_sync",
             "ipv6_max_prefixes",

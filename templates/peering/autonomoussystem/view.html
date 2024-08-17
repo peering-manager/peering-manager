@@ -30,6 +30,10 @@
           <td>Name</td>
           <td>{{ instance.name }}</td>
         </tr>
+        <tr>
+          <td>Description</td>
+          <td>{{ instance.description|render_none }}</td>
+        </tr>
         <tr{% if not instance.is_private and instance.irr_as_set_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
           <td>IRR AS-SET</td>
           <td id="id_irr_as_set">{{ instance.irr_as_set|render_none }}</td>

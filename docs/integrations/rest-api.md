@@ -186,27 +186,24 @@ object to a user. When performing write API actions (`POST`, `PUT`, and
 `PATCH`), related objects may be specified by either numeric ID (primary key),
 or by a set of attributes sufficiently unique to return the desired object.
 
-For example, when creating a new device, its rack can be specified by Peering
-Manager ID (PK):
+For example, when creating a new direct session, its AS can be specified by
+Peering Manager ID (PK):
 
 ```json
 {
-    "name": "MyNewDevice",
-    "rack": 123,
+    "ip_address": "192.0.2.1",
+    "autonomous_system": 123,
     ...
 }
 ```
 
-Or by a set of nested attributes which uniquely identify the rack:
+Or by a set of nested attributes which uniquely identifies the AS:
 
 ```json
 {
-    "name": "MyNewDevice",
-    "rack": {
-        "site": {
-            "name": "Equinix DC6"
-        },
-        "name": "R204"
+    "ip_address": "192.0.2.1",
+    "autonomous_system": {
+        "asn": "64500"
     },
     ...
 }

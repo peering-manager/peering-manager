@@ -49,6 +49,7 @@ class AutonomousSystemTable(PeeringManagerTable):
             "id",
             "asn",
             "name",
+            "description",
             "irr_as_set",
             "ipv6_max_prefixes",
             "ipv4_max_prefixes",

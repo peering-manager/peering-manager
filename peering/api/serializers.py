@@ -68,6 +68,7 @@ class AutonomousSystemSerializer(PeeringManagerModelSerializer):
             "display",
             "asn",
             "name",
+            "description",
             "comments",
             "irr_as_set",
             "irr_as_set_peeringdb_sync",
