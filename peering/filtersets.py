@@ -46,7 +46,11 @@ class AutonomousSystemFilterSet(PeeringManagerModelFilterSet):
         if not value.strip():
             return queryset
 
-        qs_filter = Q(name__icontains=value) | Q(irr_as_set__icontains=value)
+        qs_filter = (
+            Q(name__icontains=value)
+            | Q(description__icontains=value)
+            | Q(irr_as_set__icontains=value)
+        )
         try:
             qs_filter |= Q(asn=int(value.strip()))
         except ValueError:
