@@ -331,7 +331,7 @@ def iter_export_policies(value, field="", family=-1):
     family.
     """
     if not hasattr(value, "export_policies"):
-        raise AttributeError(f"{value} has not export policies")
+        raise AttributeError(f"{value} has no export policies")
 
     if not isinstance(field, str):
         raise AttributeError("field must be a string'")
@@ -355,7 +355,7 @@ def iter_import_policies(value, field="", family=-1):
     family.
     """
     if not hasattr(value, "import_policies"):
-        raise AttributeError(f"{value} has not import policies")
+        raise AttributeError(f"{value} has no import policies")
 
     if not isinstance(field, str):
         raise AttributeError("field must be a string'")
@@ -441,7 +441,7 @@ def merge_export_policies(value, order=""):
     If duplicates are found, only the most specific one will be kept.
     """
     if not hasattr(value, "merged_export_policies"):
-        raise AttributeError(f"{value} has not merged export policies")
+        raise AttributeError(f"{value} has no merged export policies")
 
     return value.merged_export_policies(order == "reverse")
 
@@ -453,7 +453,7 @@ def merge_import_policies(value, order=""):
     If duplicates are found, only the most specific one will be kept.
     """
     if not hasattr(value, "merged_import_policies"):
-        raise AttributeError(f"{value} has not merged import policies")
+        raise AttributeError(f"{value} has no merged import policies")
 
     return value.merged_import_policies(order == "reverse")
 
