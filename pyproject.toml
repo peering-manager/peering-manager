@@ -43,7 +43,7 @@ optional = true
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "~3.5"
-ruff = "~0.5"
+ruff = "~0.6"
 coverage = { version = "~7.4", extras = ["toml"] }
 
 [tool.poetry.group.docs]
