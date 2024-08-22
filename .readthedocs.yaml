@@ -7,8 +7,7 @@ build:
   jobs:
     post_create_environment:
     - pip install poetry
-    - poetry config virtualenvs.create false
     post_install:
-    - poetry install --no-root --only docs
+    - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --no-root --only docs
 mkdocs:
   configuration: mkdocs.yaml
