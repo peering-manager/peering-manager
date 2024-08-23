@@ -31,11 +31,10 @@ The following default config context are used in these templates
 - Routing Policy V6 OUT:	Routing Policy Defaults IPv6 Peers and Transits Output
 - Filter Transit ASN:       Filter out routes that contain transit ASN
 
-In this Routing Policy contexts we store the default asfilter, local-preference and med settings.
+In this Routing Policy contexts we store the default local-preference and med settings.
 ```
 {
     "policy-variables": {
-        "asfilter": "ANY",
         "local-preference": 100,
         "med": 0
         
@@ -230,6 +229,9 @@ configure {
         }
         community "GRACEFUL-SHUTDOWN" {
             member "65535:0" { }
+        }
+        as-path "LARGE-TRANSIT-ASNS" {
+            expression ".*(174|209|286|701|702|1239|1299|2828|2914|3257|3320|3356|3491|3549|3561|3908|3910|4134|5511|6453|6461|6762|7018|8928|12956) .*"
         }
 
         policy-statement "BGP-ACCEPT-IN" {
