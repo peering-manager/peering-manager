@@ -22,6 +22,37 @@ This TAG can be set on an AS Number. It will mean we do Prefix Filtering for thi
 #### FILTER-PREFIXES-V6
 This TAG can be set on an AS Number. It will mean we do Prefix Filtering for this AS number for all V6 prefides and will generate the prefix lists and policies to enable this
 
+### Config Context
+
+The following default config context are used in these templates
+- Routing Policy V4 IN:	    Routing Policy Defaults IPv4 Peers and Transits Import		
+- Routing Policy V4 OUT:	Routing Policy Defaults IPv4 Peers and Transits Export		
+- Routing Policy V6 IN:	    Routing Policy Defaults IPv6 Peers and Transits Import		
+- Routing Policy V6 OUT:	Routing Policy Defaults IPv6 Peers and Transits Output
+- Filter Transit ASN:       Filter out routes that contain transit ASN
+
+In this Routing Policy contexts we store the default asfilter, local-preference and med settings.
+```
+{
+    "policy-variables": {
+        "asfilter": "ANY",
+        "local-preference": 100,
+        "med": 0
+        
+    }
+}
+```
+
+In Filter Transit ASN we have this settings:. as-path-filter is the reference to the filter we use to filter out TRANSIT ASN's in the AS-PATH.
+
+```
+{
+    "policy-variables": {
+        "as-path-filter": "LARGE-TRANSIT-ASNS"
+    }
+}
+```
+
 # Configuration templates
 To make the template a bit more readable, I decided to split it up in different sub templates. Just create configuration templates for every code part in your peering manager installation with the exact same name as the header.
 
@@ -582,6 +613,7 @@ The second loop is for the groups in Peering Manager. In our case we have Two gr
 This config part creates the individual BGP Neighbors. We have two seperate loops for the IX neighbours and the Transit/Private Peer neighbors.
 
 
+
 ```
 {%- for ixp in internet_exchange_points %}
       {%- for family in (6, 4) %}
@@ -749,7 +781,7 @@ This config part creates the individual BGP Neighbors. We have two seperate loop
 
 ## Nokia SROS Sub - Route Policy
 
-The part does the creation of the Route Policies. If a route-policy has the tag dont-export, we will not export the policy to the router
+The part does the creation of the Route Policies. If a route-policy has the tag DONT-EXPORT, we will not export the policy to the router
 
 
 ```
