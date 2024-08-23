@@ -3,10 +3,6 @@
 This template has been created during rollout of Nokia 7750 peering routers by  [AS15435](https://peeringdb.com/asn/15435).
 I have tried to remove all AS specific code and make a generic template you can use as a starting point to automate the configuration generation of your Nokia router.
 
-
-## Configuration templates
-To make the template a bit more readable, I decided to split it up in different sub templates. 
-
 ## Configurable Options
 
 ### Tags
@@ -26,8 +22,8 @@ This TAG can be set on an AS Number. It will mean we do Prefix Filtering for thi
 #### FILTER-PREFIXES-V6
 This TAG can be set on an AS Number. It will mean we do Prefix Filtering for this AS number for all V6 prefides and will generate the prefix lists and policies to enable this
 
-
-## Examples
+# Configuration templates
+To make the template a bit more readable, I decided to split it up in different sub templates. Just create configuration templates for every code part in your peering manager installation with the exact same name as the header.
 
 
 ## Nokia SROS Main template
