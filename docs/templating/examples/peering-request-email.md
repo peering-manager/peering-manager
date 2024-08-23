@@ -1,5 +1,13 @@
 # Peering Request E-mail
 
+!!! warning
+    If you intend to send an e-mail via the "Provisioning > Send E-mail To
+    Network" view, this e-mail template won't work. It is intended to be used
+    within the "E-mail" tab of autonomous systems.
+
+    A template compatible with the "Provisioning > Send E-mail To Network"
+    view is available [here](./new-network-email.md)
+
 Change the AS number from `64500` to one of your affiliated AS numbers.
 
 ```no-highlight
