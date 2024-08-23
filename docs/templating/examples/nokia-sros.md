@@ -1,7 +1,7 @@
 # Noia SROS MD CLI templated as used by Nokia 7750 Peering routers
 
 This template has been created during rollout of Nokia 7750 peering routers by  [AS15435](https://peeringdb.com/asn/15435).
-I have tried to remove all AS specific code and make a generic template you can use as a starting point to automate the configuration generation of your Nokia router.
+I have removed all AS specific code and make a generic template you can use as a starting point to automate the configuration generation of your Nokia router.
 
 ## Configurable Options
 
