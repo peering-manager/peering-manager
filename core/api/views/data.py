@@ -1,8 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.routers import APIRootView
-from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from peering_manager.api.viewsets import (
     PeeringManagerModelViewSet,
@@ -10,17 +8,10 @@ from peering_manager.api.viewsets import (
 )
 from utils.functions import count_related
 
-from .. import filtersets, models
-from . import serializers
+from ... import filtersets, models
+from .. import serializers
 
-
-class CoreRootView(APIRootView):
-    """
-    Core API root view.
-    """
-
-    def get_view_name(self):
-        return "Core"
+__all__ = ("DataFileViewSet", "DataSourceViewSet")
 
 
 class DataFileViewSet(PeeringManagerReadOnlyModelViewSet):
@@ -48,19 +39,3 @@ class DataSourceViewSet(PeeringManagerModelViewSet):
             serializers.JobSerializer(instance=job, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
-
-
-class JobViewSet(ReadOnlyModelViewSet):
-    """
-    Retrieve a list of jobs.
-    """
-
-    queryset = models.Job.objects.prefetch_related("user")
-    serializer_class = serializers.JobSerializer
-    filterset_class = filtersets.JobFilterSet
-
-
-class ObjectChangeViewSet(PeeringManagerModelViewSet):
-    queryset = models.ObjectChange.objects.all()
-    serializer_class = serializers.ObjectChangeSerializer
-    filterset_class = filtersets.ObjectChangeFilterSet
