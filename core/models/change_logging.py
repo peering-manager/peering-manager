@@ -62,7 +62,7 @@ class ObjectChange(models.Model):
         return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("extras:objectchange_view", args=[self.pk])
+        return reverse("core:objectchange_view", args=[self.pk])
 
     def get_action_colour(self):
         return ObjectChangeAction.colours.get(self.action)

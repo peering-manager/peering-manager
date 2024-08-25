@@ -5,10 +5,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django_rq import get_queue
 
+from core.enums import ObjectChangeAction
 from utils.api import get_serializer_for_model
 from utils.functions import serialize_object
 
-from .enums import ObjectChangeAction
 from .models import Webhook
 
 

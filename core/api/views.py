@@ -10,8 +10,7 @@ from peering_manager.api.viewsets import (
 )
 from utils.functions import count_related
 
-from .. import filtersets
-from ..models import *
+from .. import filtersets, models
 from . import serializers
 
 
@@ -25,13 +24,15 @@ class CoreRootView(APIRootView):
 
 
 class DataFileViewSet(PeeringManagerReadOnlyModelViewSet):
-    queryset = DataFile.objects.defer("data").prefetch_related("source")
+    queryset = models.DataFile.objects.defer("data").prefetch_related("source")
     serializer_class = serializers.DataFileSerializer
     filterset_class = filtersets.DataFileFilterSet
 
 
 class DataSourceViewSet(PeeringManagerModelViewSet):
-    queryset = DataSource.objects.annotate(file_count=count_related(DataFile, "source"))
+    queryset = models.DataSource.objects.annotate(
+        file_count=count_related(models.DataFile, "source")
+    )
     serializer_class = serializers.DataSourceSerializer
     filterset_class = filtersets.DataSourceFilterSet
 
@@ -54,6 +55,12 @@ class JobViewSet(ReadOnlyModelViewSet):
     Retrieve a list of jobs.
     """
 
-    queryset = Job.objects.prefetch_related("user")
+    queryset = models.Job.objects.prefetch_related("user")
     serializer_class = serializers.JobSerializer
     filterset_class = filtersets.JobFilterSet
+
+
+class ObjectChangeViewSet(PeeringManagerModelViewSet):
+    queryset = models.ObjectChange.objects.all()
+    serializer_class = serializers.ObjectChangeSerializer
+    filterset_class = filtersets.ObjectChangeFilterSet

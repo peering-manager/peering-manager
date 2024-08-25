@@ -5,8 +5,8 @@ from django.urls import reverse
 from django.views.generic import View
 from packaging import version
 
+from core.models import ObjectChange
 from devices.models import Configuration, Router
-from extras.models import ObjectChange
 from messaging.models import Contact, Email
 from peering.models import (
     AutonomousSystem,

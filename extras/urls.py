@@ -111,13 +111,6 @@ urlpatterns = [
         name="ixapi_changelog",
         kwargs={"model": models.IXAPI},
     ),
-    # Change logging
-    path("changelog/", views.ObjectChangeList.as_view(), name="objectchange_list"),
-    path(
-        "changelog/<int:pk>/",
-        views.ObjectChangeView.as_view(),
-        name="objectchange_view",
-    ),
     # Tags
     path("tags/", views.TagList.as_view(), name="tag_list"),
     path("tags/add/", views.TagAdd.as_view(), name="tag_add"),

@@ -10,8 +10,7 @@ from django.template.defaultfilters import pluralize
 from django.utils import timezone
 from packaging import version
 
-from core.models import Job
-from extras.models import ObjectChange
+from core.models import Job, ObjectChange
 
 
 class Command(BaseCommand):

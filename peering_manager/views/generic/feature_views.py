@@ -4,10 +4,8 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import View
 
-from core.models import Job
-from core.tables import JobTable
-from extras import tables
-from extras.models import *
+from core.models import Job, ObjectChange
+from core.tables import JobTable, ObjectChangeTable
 
 __all__ = ("ObjectChangeLogView", "ObjectJobsView")
 
@@ -41,7 +39,7 @@ class ObjectChangeLogView(View):
             Q(changed_object_type=content_type, changed_object_id=obj.pk)
             | Q(related_object_type=content_type, related_object_id=obj.pk)
         )
-        objectchanges_table = tables.ObjectChangeTable(
+        objectchanges_table = ObjectChangeTable(
             data=objectchanges, orderable=False, user=request.user
         )
         objectchanges_table.configure(request)
