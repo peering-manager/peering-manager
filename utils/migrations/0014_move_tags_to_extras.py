@@ -8,29 +8,20 @@ class Migration(migrations.Migration):
 
     @transaction.atomic()
     def delete_old_tags_changelog(apps, schema_editor):
-        ObjectChange = apps.get_model("extras", "ObjectChange")
+        try:
+            ObjectChange = apps.get_model("extras", "ObjectChange")
+        except LookupError:
+            ObjectChange = apps.get_model("core", "ObjectChange")
+
         ObjectChange.objects.using(schema_editor.connection.alias).filter(
             changed_object_type__model="tag"
         ).delete()
 
     operations = [
         migrations.RunPython(delete_old_tags_changelog),
-        migrations.AlterIndexTogether(
-            name="taggeditem",
-            index_together=None,
-        ),
-        migrations.RemoveField(
-            model_name="taggeditem",
-            name="content_type",
-        ),
-        migrations.RemoveField(
-            model_name="taggeditem",
-            name="tag",
-        ),
-        migrations.DeleteModel(
-            name="Tag",
-        ),
-        migrations.DeleteModel(
-            name="TaggedItem",
-        ),
+        migrations.AlterIndexTogether(name="taggeditem", index_together=None),
+        migrations.RemoveField(model_name="taggeditem", name="content_type"),
+        migrations.RemoveField(model_name="taggeditem", name="tag"),
+        migrations.DeleteModel(name="Tag"),
+        migrations.DeleteModel(name="TaggedItem"),
     ]
