@@ -7,7 +7,7 @@ from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import transaction
 from django.db.utils import DEFAULT_DB_ALIAS
 
-from extras.enums import ObjectChangeAction
+from core.enums import ObjectChangeAction
 from net.models import Connection
 from peering.models import InternetExchange as Ixp
 

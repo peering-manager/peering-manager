@@ -1,8 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.routers import APIRootView
-from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from peering_manager.api.viewsets import (
     PeeringManagerModelViewSet,
@@ -10,28 +8,22 @@ from peering_manager.api.viewsets import (
 )
 from utils.functions import count_related
 
-from .. import filtersets
-from ..models import *
-from . import serializers
+from ... import filtersets, models
+from .. import serializers
 
-
-class CoreRootView(APIRootView):
-    """
-    Core API root view.
-    """
-
-    def get_view_name(self):
-        return "Core"
+__all__ = ("DataFileViewSet", "DataSourceViewSet")
 
 
 class DataFileViewSet(PeeringManagerReadOnlyModelViewSet):
-    queryset = DataFile.objects.defer("data").prefetch_related("source")
+    queryset = models.DataFile.objects.defer("data").prefetch_related("source")
     serializer_class = serializers.DataFileSerializer
     filterset_class = filtersets.DataFileFilterSet
 
 
 class DataSourceViewSet(PeeringManagerModelViewSet):
-    queryset = DataSource.objects.annotate(file_count=count_related(DataFile, "source"))
+    queryset = models.DataSource.objects.annotate(
+        file_count=count_related(models.DataFile, "source")
+    )
     serializer_class = serializers.DataSourceSerializer
     filterset_class = filtersets.DataSourceFilterSet
 
@@ -47,13 +39,3 @@ class DataSourceViewSet(PeeringManagerModelViewSet):
             serializers.JobSerializer(instance=job, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
-
-
-class JobViewSet(ReadOnlyModelViewSet):
-    """
-    Retrieve a list of jobs.
-    """
-
-    queryset = Job.objects.prefetch_related("user")
-    serializer_class = serializers.JobSerializer
-    filterset_class = filtersets.JobFilterSet

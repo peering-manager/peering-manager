@@ -1,18 +1,13 @@
-import uuid
-
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from peering.models import AutonomousSystem
 from utils.testing import BaseFilterSetTests
 
-from ..enums import ObjectChangeAction
 from ..filtersets import (
     ConfigContextAssignmentFilterSet,
     ConfigContextFilterSet,
     ExportTemplateFilterSet,
-    ObjectChangeFilterSet,
     TagFilterSet,
     WebhookFilterSet,
 )
@@ -20,7 +15,6 @@ from ..models import (
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
-    ObjectChange,
     Tag,
     Webhook,
 )
@@ -151,49 +145,6 @@ class ExportTemplateTestCase(TestCase):
 
     def test_description(self):
         params = {"description": ["Foo"]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-
-class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
-    queryset = ObjectChange.objects.all()
-    filterset = ObjectChangeFilterSet
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.uuids = []
-
-        tag = Tag(name="Tag 1", slug="tag-1")
-        tag.save()
-
-        user = User.objects.create_user(username="testuser2")
-        for _ in range(3):
-            uid = uuid.uuid4()
-            cls.uuids.append(uid)
-            change = tag.to_objectchange(ObjectChangeAction.UPDATE)
-            change.user = user
-            change.request_id = uid
-            change.save()
-
-    def test_q(self):
-        params = {"q": ""}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-        params = {"q": "testuser2"}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
-    def test_action(self):
-        params = {"action": ObjectChangeAction.UPDATE}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
-    def test_user_id(self):
-        params = {"user_id": User.objects.get(username="testuser2").id}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
-    def test_user_name(self):
-        params = {"user": "testuser2"}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
-    def test_request_id(self):
-        params = {"request_id": self.uuids[0]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 

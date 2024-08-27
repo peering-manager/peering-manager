@@ -9,7 +9,6 @@ router.register("config-contexts", views.ConfigContextViewSet)
 router.register("config-context-assignments", views.ConfigContextAssignmentViewSet)
 router.register("export-templates", views.ExportTemplateViewSet)
 router.register("ix-api", views.IXAPIViewSet)
-router.register("object-changes", views.ObjectChangeViewSet)
 router.register("tags", views.TagViewSet)
 router.register("webhooks", views.WebhookViewSet)
 

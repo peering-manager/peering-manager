@@ -8,6 +8,13 @@ from . import models, views
 app_name = "core"
 
 urlpatterns = [
+    # Change logging
+    path("changelog/", views.ObjectChangeList.as_view(), name="objectchange_list"),
+    path(
+        "changelog/<int:pk>/",
+        views.ObjectChangeView.as_view(),
+        name="objectchange_view",
+    ),
     # Data sources
     path("data-sources/", views.DataSourceListView.as_view(), name="datasource_list"),
     path(
