@@ -12,7 +12,7 @@ class CacheTest(APITestCase):
     def test_statistics(self):
         url = reverse("peeringdb-api:cache-statistics")
         response = self.client.get(url, **self.header)
-        for namespace in list(NAMESPACES.keys()) + ["sync"]:
+        for namespace in [*list(NAMESPACES.keys()), "sync"]:
             self.assertEqual(response.data[f"{namespace}-count"], 0)
 
     def test_update_local(self):

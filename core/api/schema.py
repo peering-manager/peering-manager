@@ -99,7 +99,7 @@ class PeeringManagerAutoSchema(AutoSchema):
             if re.search(r"<drf_format_suffix\w*:\w+>", self.path_regex):
                 tokenized_path.append("formatted")
 
-            return "_".join(tokenized_path + [action])
+            return "_".join([*tokenized_path, action])
 
         # if not bulk - just return normal id
         return super().get_operation_id()

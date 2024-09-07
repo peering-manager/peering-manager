@@ -176,7 +176,7 @@ class RouterForm(PushedDataMixin, PeeringManagerModelForm):
 
             self.fields["netbox_device_id"] = forms.ChoiceField(
                 label="NetBox device",
-                choices=[(0, "---------")] + choices,
+                choices=[(0, "---------"), *choices],
                 widget=StaticSelect,
             )
             self.fields["netbox_device_id"].widget.attrs["class"] = " ".join(

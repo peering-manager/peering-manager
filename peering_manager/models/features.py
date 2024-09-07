@@ -41,7 +41,7 @@ class ChangeLoggingMixin(models.Model):
 
     @property
     def excluded_fields(self):
-        return ["updated"] + getattr(self, "changelog_excluded_fields", [])
+        return ["updated", *getattr(self, "changelog_excluded_fields", [])]
 
     def snapshot(self):
         """

@@ -519,11 +519,11 @@ SOCIAL_AUTH_CLEAN_USERNAME_FUNCTION = (
 if METRICS_ENABLED:
     PROMETHEUS_EXPORT_MIGRATIONS = False
     INSTALLED_APPS.append("django_prometheus")
-    MIDDLEWARE = (
-        ["django_prometheus.middleware.PrometheusBeforeMiddleware"]
-        + MIDDLEWARE
-        + ["django_prometheus.middleware.PrometheusAfterMiddleware"]
-    )
+    MIDDLEWARE = [
+        "django_prometheus.middleware.PrometheusBeforeMiddleware",
+        *MIDDLEWARE,
+        "django_prometheus.middleware.PrometheusAfterMiddleware",
+    ]
     configuration.DATABASE.update(
         {"ENGINE": "django_prometheus.db.backends.postgresql"}
     )
