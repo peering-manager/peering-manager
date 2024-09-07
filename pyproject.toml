@@ -74,7 +74,6 @@ ignore = [
     "RUF007",  # Prefer `itertools.pairwise()` over `zip()` when iterating over successive pairs
     "RUF010",  # Use explicit conversion flag
     "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
-    "RUF015",  # Prefer `expression` over single element slice
 ]
 select = [
     "ASYNC", # flake8-async
