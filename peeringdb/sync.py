@@ -192,7 +192,7 @@ class PeeringDB:
         """
         action = (
             ObjectChangeAction.DELETE
-            if "deleted" == data["status"]
+            if data["status"] == "deleted"
             else ObjectChangeAction.UPDATE
         )
 

@@ -78,7 +78,6 @@ ignore = [
     "RUF015",  # Prefer `expression` over single element slice
     "RUF100",  # Unused `noqa` directive (non-enabled: `F401`)
     "SIM105",  # Use `contextlib.suppress()` instead of `try`-`except`-`pass`
-    "SIM300",  # Yoda condition detected
 ]
 select = [
     "ASYNC", # flake8-async
