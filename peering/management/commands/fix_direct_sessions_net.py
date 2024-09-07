@@ -15,7 +15,7 @@ def get_subnet(a, b):
     if type(a) not in (ipaddress.IPv4Interface, ipaddress.IPv6Interface):
         raise ValueError("Parameters must be IPv4Address or IPv6Address")
 
-    first_address = a if a < b else b
+    first_address = min(b, a)
     if type(first_address) in (ipaddress.IPv4Interface, ipaddress.IPv6Interface):
         network = first_address.network
     else:

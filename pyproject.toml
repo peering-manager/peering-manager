@@ -65,7 +65,6 @@ ignore = [
     "F401",    # Imported but unused; consider using `importlib.util.find_spec` to test for availability
     "F403",    # Unable to detect undefined names
     "F405",    # May be undefined, or defined from star imports
-    "FURB136", #  Replace `expression` with `min(b, a)`
     "PLR0911", # Too many return statements
     "PLR0912", # Too many branches
     "PLR0913", # Too many arguments in function definition
