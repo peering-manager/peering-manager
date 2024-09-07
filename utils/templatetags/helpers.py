@@ -229,9 +229,9 @@ def get_docs(model):
         with path.open(encoding="utf-8") as docfile:
             content = docfile.read()
     except FileNotFoundError:
-        return f"Unable to load documentation, file not found: {str(path)}"
+        return f"Unable to load documentation, file not found: {path!s}"
     except OSError:
-        return f"Unable to load documentation, error reading file: {str(path)}"
+        return f"Unable to load documentation, error reading file: {path!s}"
 
     return mark_safe(markdown(content))
 

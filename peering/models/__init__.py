@@ -827,25 +827,21 @@ class InternetExchange(AbstractGroup):
             ip = ipaddress.ip_address(session["ip_address"])
             if not is_valid(ip):
                 logger.debug(
-                    f"ignoring ixp session, {str(ip)} does not fit in any prefixes"
+                    f"ignoring ixp session, {ip!s} does not fit in any prefixes"
                 )
                 continue
 
-            logger.debug(f"processing ixp session {str(ip)}")
+            logger.debug(f"processing ixp session {ip!s}")
             remote_asn = session["remote_asn"]
 
             try:
                 InternetExchangePeeringSession.objects.get(
                     ixp_connection=connection, ip_address=ip
                 )
-                logger.debug(
-                    f"ixp session {str(ip)} with as{remote_asn} already exists"
-                )
+                logger.debug(f"ixp session {ip!s} with as{remote_asn} already exists")
                 continue
             except InternetExchangePeeringSession.DoesNotExist:
-                logger.debug(
-                    f"ixp session {str(ip)} with as{remote_asn} does not exist"
-                )
+                logger.debug(f"ixp session {ip!s} with as{remote_asn} does not exist")
 
             # Get the AS, create it if needed
             autonomous_system = AutonomousSystem.create_from_peeringdb(remote_asn)
@@ -856,20 +852,18 @@ class InternetExchange(AbstractGroup):
                 asn_number += 1
             elif remote_asn not in ignored_autonomous_systems:
                 ignored_autonomous_systems.append(remote_asn)
-                logger.debug(
-                    f"could not create as{remote_asn}, session {str(ip)} ignored"
-                )
+                logger.debug(f"could not create as{remote_asn}, session {ip!s} ignored")
 
             # Only add a session if we can use the AS it is linked to
             if autonomous_system:
-                logger.debug(f"creating session {str(ip)}")
+                logger.debug(f"creating session {ip!s}")
                 InternetExchangePeeringSession.objects.create(
                     autonomous_system=autonomous_system,
                     ixp_connection=connection,
                     ip_address=ip,
                 )
                 session_number += 1
-                logger.debug(f"session {str(ip)} created")
+                logger.debug(f"session {ip!s} created")
 
         return session_number, asn_number
 

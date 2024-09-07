@@ -68,7 +68,7 @@ class UserPreferences(models.Model):
         verbose_name = verbose_name_plural = "User Preferences"
 
     def __str__(self):
-        return f"{str(self.user)} preferences"
+        return f"{self.user!s} preferences"
 
     def all(self):
         """
