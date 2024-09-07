@@ -1,3 +1,4 @@
+import contextlib
 import ipaddress
 
 import django_filters
@@ -51,10 +52,8 @@ class AutonomousSystemFilterSet(PeeringManagerModelFilterSet):
             | Q(description__icontains=value)
             | Q(irr_as_set__icontains=value)
         )
-        try:
+        with contextlib.suppress(ValueError):
             qs_filter |= Q(asn=int(value.strip()))
-        except ValueError:
-            pass
 
         return queryset.filter(qs_filter)
 
@@ -203,10 +202,8 @@ class InternetExchangeFilterSet(OrganisationalModelFilterSet):
             | Q(slug__icontains=value)
             | Q(local_autonomous_system__name__icontains=value)
         )
-        try:
+        with contextlib.suppress(ValueError):
             qs_filter |= Q(local_autonomous_system__asn=int(value.strip()))
-        except ValueError:
-            pass
         return queryset.filter(qs_filter)
 
 

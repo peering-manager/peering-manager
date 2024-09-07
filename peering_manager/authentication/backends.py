@@ -1,3 +1,4 @@
+import contextlib
 import logging
 
 from django.conf import settings
@@ -189,10 +190,8 @@ class RemoteUserBackend(DjangoRemoteUserBackend):
             if created:
                 user = self.configure_user(request, user)
         else:
-            try:
+            with contextlib.suppress(User.DoesNotExist):
                 user = User._default_manager.get_by_natural_key(username)
-            except User.DoesNotExist:
-                pass
 
         if self.user_can_authenticate(user):
             if (

@@ -1,3 +1,5 @@
+import contextlib
+
 from django.core.exceptions import ObjectDoesNotExist
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
@@ -67,10 +69,8 @@ class ChoiceField(serializers.Field):
             elif data.lower() == "false":
                 data = False
             else:
-                try:
+                with contextlib.suppress(ValueError):
                     data = int(data)
-                except ValueError:
-                    pass
 
         try:
             if data in self._choices:

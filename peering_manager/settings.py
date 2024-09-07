@@ -5,6 +5,7 @@
 # every code releases.
 
 
+import contextlib
 import hashlib
 import importlib
 import os
@@ -603,9 +604,7 @@ CENSUS_PARAMETERS = {
     "python_version": platform.python_version(),
 }
 if CENSUS_REPORTING_ENABLED and not DEBUG and "test" not in sys.argv:
-    try:
+    with contextlib.suppress(requests.RequestException):
         requests.post(
             CENSUS_URL, json=CENSUS_PARAMETERS, timeout=3, proxies=HTTP_PROXIES
         )
-    except requests.RequestException:
-        pass

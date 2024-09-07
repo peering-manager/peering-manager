@@ -1,3 +1,4 @@
+import contextlib
 import ipaddress
 import json
 import unicodedata
@@ -570,10 +571,8 @@ def direct_peers(value, group=""):
 
     g = None
     if group:
-        try:
+        with contextlib.suppress(BGPGroup.DoesNotExist):
             g = BGPGroup.objects.get(slug=group)
-        except BGPGroup.DoesNotExist:
-            pass
 
     return value.get_direct_autonomous_systems(bgp_group=g)
 
@@ -587,10 +586,8 @@ def ixp_peers(value, ixp=""):
 
     i = None
     if ixp:
-        try:
+        with contextlib.suppress(InternetExchange.DoesNotExist):
             i = InternetExchange.objects.get(slug=ixp)
-        except InternetExchange.DoesNotExist:
-            pass
 
     return value.get_ixp_autonomous_systems(internet_exchange_point=i)
 

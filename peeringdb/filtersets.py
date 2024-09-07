@@ -1,3 +1,4 @@
+import contextlib
 import ipaddress
 
 import django_filters
@@ -146,10 +147,8 @@ class NetworkFilterSet(django_filters.FilterSet):
             return queryset
 
         qs_filter = Q(name__icontains=value) | Q(irr_as_set__icontains=value)
-        try:
+        with contextlib.suppress(ValueError):
             qs_filter |= Q(asn=int(value.strip()))
-        except ValueError:
-            pass
 
         return queryset.filter(qs_filter)
 
@@ -213,10 +212,8 @@ class NetworkIXLanFilterSet(django_filters.FilterSet):
             return queryset
 
         qs_filter = Q(net__name__icontains=value)
-        try:
+        with contextlib.suppress(ValueError):
             qs_filter |= Q(asn=int(value.strip()))
-        except ValueError:
-            pass
         try:
             ip = ipaddress.ip_address(value.strip())
             if ip.version == 6:
