@@ -65,11 +65,27 @@ ignore = [
     "F401",    # Imported but unused; consider using `importlib.util.find_spec` to test for availability
     "F403",    # Unable to detect undefined names
     "F405",    # May be undefined, or defined from star imports
+    "FURB136", #  Replace `expression` with `min(b, a)`
     "PLR0911", # Too many return statements
     "PLR0912", # Too many branches
     "PLR0913", # Too many arguments in function definition
     "PLR0915", # Too many statements
     "PLR2004", # Magic value used in comparison, consider replacing with a constant variable
+    "RUF005",  # Consider `expression` instead of concatenation
+    "RUF007",  # Prefer `itertools.pairwise()` over `zip()` when iterating over successive pairs
+    "RUF010",  # Use explicit conversion flag
+    "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
+    "RUF015",  # Prefer `expression` over single element slice
+    "RUF100",  # Unused `noqa` directive (non-enabled: `F401`)
+    "SIM102",  # Use a single `if` statement instead of nested `if` statements
+    "SIM103",  # Return the negated condition directly
+    "SIM105",  # Use `contextlib.suppress()` instead of `try`-`except`-`pass`
+    "SIM108",  # Use ternary operator instead of `if`-`else`-block
+    "SIM110",  # Use `expression` instead of `for` loop
+    "SIM113",  # Use `enumerate()` for index variable in `for` loop
+    "SIM114",  # Combine `if` branches using logical `or` operator
+    "SIM118",  # Use `key in dict` instead of `key in dict.keys()`
+    "SIM300",  # Yoda condition detected
 ]
 select = [
     "ASYNC", # flake8-async
@@ -81,6 +97,7 @@ select = [
     "E",     # pycodestyle errors
     "EXE",   # flake8-executable
     "F",     # pyflakes
+    "FURB",  # refurb
     "I",     # isort-like checks
     "ICN",   # flake8-import-conventions
     "INP",   # flake8-no-pep420
@@ -91,6 +108,8 @@ select = [
     "PYI",   # flake8-pyi
     "Q",     # flake8-quotes
     "RET",   # flake8-return
+    "RUF",   # Ruff specific rules
+    "SIM",   # flake8-simplify
     "TCH",   # flake8-type-checking
     "T10",   # flake8-debugger
     "UP",    # pyupgrade
