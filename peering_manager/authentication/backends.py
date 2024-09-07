@@ -195,9 +195,12 @@ class RemoteUserBackend(DjangoRemoteUserBackend):
                 pass
 
         if self.user_can_authenticate(user):
-            if settings.REMOTE_AUTH_GROUP_SYNC_ENABLED:
-                if user is not None and not isinstance(user, AnonymousUser):
-                    return self.configure_groups(user, remote_groups)
+            if (
+                settings.REMOTE_AUTH_GROUP_SYNC_ENABLED
+                and user is not None
+                and not isinstance(user, AnonymousUser)
+            ):
+                return self.configure_groups(user, remote_groups)
             return user
 
         return None

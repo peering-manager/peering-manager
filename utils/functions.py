@@ -82,10 +82,9 @@ def is_taggable(instance):
     """
     Returns `True` if the instance can have tags, `False` otherwise.
     """
-    if hasattr(instance, "tags"):
-        if issubclass(instance.tags.__class__, _TaggableManager):
-            return True
-    return False
+    return hasattr(instance, "tags") and issubclass(
+        instance.tags.__class__, _TaggableManager
+    )
 
 
 def count_related(model, field):

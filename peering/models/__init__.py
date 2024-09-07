@@ -822,9 +822,8 @@ class InternetExchange(AbstractGroup):
 
         def is_valid(ip_address):
             for p in allowed_prefixes:
-                if p.prefix.version == ip_address.version:
-                    if ip_address in p.prefix:
-                        return True
+                if p.prefix.version == ip_address.version and ip_address in p.prefix:
+                    return True
             return False
 
         for session in sessions:

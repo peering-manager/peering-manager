@@ -15,8 +15,12 @@ def get_field_value(form, field_name):
     """
     field = form.fields[field_name]
 
-    if form.is_bound and (data := form.data.get(field_name)):
-        if hasattr(field, "valid_value") and field.valid_value(data):
-            return data
+    if (
+        form.is_bound
+        and (data := form.data.get(field_name))
+        and hasattr(field, "valid_value")
+        and field.valid_value(data)
+    ):
+        return data
 
     return form.get_initial_for_field(field, field_name)

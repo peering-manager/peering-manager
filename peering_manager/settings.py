@@ -308,7 +308,7 @@ if "radiusauth.backends.RADIUSBackend" in AUTHENTICATION_BACKENDS:
             "RADIUS authentication has been configured, but django-radius is not installed."
         )
     try:
-        from peering_manager.radius_config import *
+        from peering_manager.radius_config import *  # type: ignore
     except ModuleNotFoundError as e:
         raise ImproperlyConfigured(
             "LDAP configuration file not found: Check that radius_config.py has been created alongside configuration.py."
