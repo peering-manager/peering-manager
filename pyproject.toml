@@ -82,6 +82,7 @@ select = [
     "E",     # pycodestyle errors
     "EXE",   # flake8-executable
     "F",     # pyflakes
+    "FLY",   # flynt
     "FURB",  # refurb
     "I",     # isort-like checks
     "ICN",   # flake8-import-conventions
