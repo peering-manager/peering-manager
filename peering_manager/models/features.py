@@ -384,7 +384,7 @@ FEATURES_MAP = {
     "webhooks": WebhooksMixin,
 }
 registry["model_features"].update(
-    {feature: defaultdict(set) for feature in FEATURES_MAP.keys()}
+    {feature: defaultdict(set) for feature in FEATURES_MAP}
 )
 
 

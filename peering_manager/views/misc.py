@@ -66,7 +66,7 @@ class SearchView(View):
         results = []
 
         if form.is_valid():
-            for obj_type in SEARCH_TYPES.keys():
+            for obj_type in SEARCH_TYPES:
                 queryset = SEARCH_TYPES[obj_type]["queryset"]
                 filterset = SEARCH_TYPES[obj_type]["filterset"]
                 table = SEARCH_TYPES[obj_type]["table"]

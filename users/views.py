@@ -58,7 +58,7 @@ class LoginView(View):
         auth_backends = []
         saml_idps = get_saml_idps()
 
-        for name in load_backends(settings.AUTHENTICATION_BACKENDS).keys():
+        for name in load_backends(settings.AUTHENTICATION_BACKENDS):
             url = reverse("social:begin", args=[name])
             params = {}
             if next := request.GET.get("next"):
