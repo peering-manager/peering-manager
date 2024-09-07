@@ -273,10 +273,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
         If a router has its `poll_bgp_sessions_state` property set to a boolan true,
         BGP sessions are considered as pollable.
         """
-        for router in self.get_routers():
-            if router.poll_bgp_sessions_state:
-                return True
-        return False
+        return any(router.poll_bgp_sessions_state for router in self.get_routers())
 
     def divergence_from_peeringdb(self):
         """

@@ -87,10 +87,7 @@ def notcontains(value, arg):
     Test whether a value does not contain any of a given set of strings.
     `arg` should be a comma-separated list of strings.
     """
-    for s in arg.split(","):
-        if s in value:
-            return False
-    return True
+    return all(s not in value for s in arg.split(","))
 
 
 @register.filter
