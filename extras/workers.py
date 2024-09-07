@@ -22,10 +22,7 @@ def eval_conditions(webhook, data):
         return True
 
     logger.debug(f"evaluating webhook conditions: {webhook.conditions}")
-    if ConditionSet(webhook.conditions).eval(data):
-        return True
-
-    return False
+    return ConditionSet(webhook.conditions).eval(data)
 
 
 @job("default")
