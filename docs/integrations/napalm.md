@@ -12,7 +12,7 @@ Peering Manager uses NAPALM for features such as:
 * Discovering BGP sessions setup on a device for an IXP
 * Polling BGP state for known BGP sessions
 
-MAPALM uses a concept of driver to interact with devices. Drivers for some
+NAPALM uses a concept of driver to interact with devices. Drivers for some
 well known network operating systems (Junos, IOS-XR, …) are provided out of
 the box. If the hardware is not supported, installing third-party drivers is
 required. Most people do it by adding Python packages corresponding to drivers
