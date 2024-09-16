@@ -237,6 +237,11 @@ class Facility(Address):
         blank=True,
     )
 
+    # There seems to be inconsistencies in PeeringDB exposed data
+    # Campuses set as status=pending are not exposed on the list endpoint which
+    # breaks synchronisation for other objects
+    ignored_fields = ["campus", "campus_id"]
+
     class Meta:
         verbose_name_plural = "facilities"
 
