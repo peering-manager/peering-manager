@@ -1,7 +1,6 @@
 import logging
 
 from django.db import models
-from django.template.defaultfilters import truncatechars
 from django.urls import reverse
 from netfields import InetAddressField, MACAddressField, NetManager
 
@@ -9,39 +8,12 @@ from peering_manager.models import PrimaryModel
 from peeringdb.models import NetworkIXLan
 from utils.validators import AddressFamilyValidator, MACAddressValidator
 
-from .enums import ConnectionStatus
-from .fields import VLANField
+from ..enums import ConnectionStatus
+from ..fields import VLANField
 
 logger = logging.getLogger("peering.manager.net")
 
-__all__ = ("BidirectionalForwardingDetection", "Connection")
-
-
-class BidirectionalForwardingDetection(PrimaryModel):
-    minimum_transmit_interval = models.PositiveIntegerField(
-        help_text="Minimum transmit interval in milliseconds",
-        default=300,
-    )
-    minimum_receive_interval = models.PositiveIntegerField(
-        help_text="Minimum receive interval in milliseconds",
-        default=300,
-    )
-    detection_multiplier = models.PositiveSmallIntegerField(
-        help_text="Number of missed messages before declaring a session down",
-        default=3,
-    )
-    hold_time = models.PositiveIntegerField(
-        help_text="How long a session must remain up in milliseconds before state change",
-        default=0,
-    )
-
-    class Meta:
-        verbose_name = "BFD configuration"
-
-    def __str__(self):
-        s = "BFD configuration"
-        s += f" - {self.description}" if self.description else f"#{self.pk}"
-        return truncatechars(s, 32)
+__all__ = ("Connection",)
 
 
 class Connection(PrimaryModel):

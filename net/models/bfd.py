@@ -1,0 +1,31 @@
+from django.db import models
+from django.urls import reverse
+
+from peering_manager.models import OrganisationalModel
+
+__all__ = ("BFD",)
+
+
+class BFD(OrganisationalModel):
+    minimum_transmit_interval = models.PositiveIntegerField(
+        help_text="Minimum transmit interval in milliseconds",
+        default=300,
+    )
+    minimum_receive_interval = models.PositiveIntegerField(
+        help_text="Minimum receive interval in milliseconds",
+        default=300,
+    )
+    detection_multiplier = models.PositiveSmallIntegerField(
+        help_text="Number of missed messages before declaring a session down",
+        default=3,
+    )
+    hold_time = models.PositiveIntegerField(
+        help_text="How long a session must remain up in milliseconds before state change",
+        default=0,
+    )
+
+    class Meta:
+        verbose_name = "BFD configuration"
+
+    def get_absolute_url(self):
+        return reverse("net:bfd_view", args=[self.pk])
