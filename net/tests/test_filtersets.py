@@ -10,6 +10,95 @@ from ..filtersets import *
 from ..models import *
 
 
+class BFDTestCase(TestCase, BaseFilterSetTests):
+    queryset = BFD.objects.all()
+    filterset = BFDFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        BFD.objects.bulk_create(
+            [
+                BFD(
+                    name="Default",
+                    slug="default",
+                    description="Default timers and detection",
+                    minimum_transmit_interval=300,
+                    minimum_receive_interval=300,
+                    detection_multiplier=3,
+                    hold_time=0,
+                ),
+                BFD(
+                    name="Double",
+                    slug="double",
+                    description="Double timers and detection",
+                    minimum_transmit_interval=600,
+                    minimum_receive_interval=600,
+                    detection_multiplier=6,
+                    hold_time=600,
+                ),
+                BFD(
+                    name="Ones",
+                    slug="ones",
+                    description="All ones",
+                    minimum_transmit_interval=1,
+                    minimum_receive_interval=1,
+                    detection_multiplier=1,
+                    hold_time=1,
+                ),
+            ]
+        )
+
+    def test_q(self):
+        params = {"q": "default"}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"q": "Double"}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"q": "timers"}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"q": "foo"}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+    def test_minimum_transmit_interval(self):
+        params = {"minimum_transmit_interval": [300]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"minimum_transmit_interval": [600]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"minimum_transmit_interval__gt": [0]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {"minimum_transmit_interval__lt": [100]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_minimum_receive_interval(self):
+        params = {"minimum_receive_interval": [300]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"minimum_receive_interval": [600]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"minimum_receive_interval__gt": [0]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {"minimum_receive_interval__lt": [100]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_detection_multiplier(self):
+        params = {"detection_multiplier": [3]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"detection_multiplier": [6]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"detection_multiplier__gte": [0]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {"detection_multiplier__lt": [0]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+    def test_hold_time(self):
+        params = {"hold_time": [0]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"hold_time": [600]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"hold_time__gte": [0]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {"hold_time__lt": [0]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+
 class ConnectionTestCase(TestCase, BaseFilterSetTests):
     queryset = Connection.objects.all()
     filterset = ConnectionFilterSet

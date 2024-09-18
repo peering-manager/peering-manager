@@ -7,8 +7,8 @@ from devices.models import Router
 from peering.models import InternetExchange
 from peering_manager.filtersets import PeeringManagerModelFilterSet
 
-from .enums import ConnectionStatus
-from .models import Connection
+from ..enums import ConnectionStatus
+from ..models import Connection
 
 __all__ = ("ConnectionFilterSet",)
 
