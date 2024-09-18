@@ -18,8 +18,8 @@ from utils.forms.fields import (
 )
 from utils.forms.widgets import StaticSelect, StaticSelectMultiple
 
-from .enums import ConnectionStatus
-from .models import Connection
+from ..enums import ConnectionStatus
+from ..models import Connection
 
 __all__ = ("ConnectionForm", "ConnectionBulkEditForm", "ConnectionFilterForm")
 
@@ -81,6 +81,7 @@ class ConnectionForm(PeeringManagerModelForm):
 
 
 class ConnectionBulkEditForm(PeeringManagerModelBulkEditForm):
+    model = Connection
     status = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(ConnectionStatus),
@@ -97,8 +98,6 @@ class ConnectionBulkEditForm(PeeringManagerModelBulkEditForm):
         help_text="Router on which this connection is setup",
     )
     local_context_data = JSONField(required=False)
-
-    model = Connection
     nullable_fields = ("router",)
 
 
