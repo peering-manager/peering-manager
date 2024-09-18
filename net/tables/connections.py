@@ -2,7 +2,7 @@ import django_tables2 as tables
 
 from peering_manager.tables import PeeringManagerTable, columns
 
-from .models import Connection
+from ..models import Connection
 
 __all__ = ("ConnectionTable",)
 
