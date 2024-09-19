@@ -163,6 +163,7 @@ class DirectPeeringSessionFilterSet(PeeringManagerModelFilterSet):
             return queryset
         qs_filter = (
             Q(service_reference__icontains=value)
+            | Q(comments__icontains=value)
             | Q(autonomous_system__name__icontains=value)
             | Q(bgp_group__name__icontains=value)
             | Q(bgp_group__slug__icontains=value)
@@ -262,6 +263,7 @@ class InternetExchangePeeringSessionFilterSet(PeeringManagerModelFilterSet):
             return queryset
         qs_filter = (
             Q(service_reference__icontains=value)
+            | Q(comments__icontains=value)
             | Q(autonomous_system__name__icontains=value)
             | Q(ixp_connection__router__name__icontains=value)
             | Q(ixp_connection__router__hostname__icontains=value)
