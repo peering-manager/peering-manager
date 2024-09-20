@@ -1,0 +1,42 @@
+{% extends 'net/bfd/_base.html' %}
+{% load helpers %}
+{% block subcontent %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header"><strong>BFD</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Name</td>
+          <td>{{ instance.name }}</td>
+        </tr>
+        <tr>
+          <td>Slug</td>
+          <td>{{ instance.slug }}</td>
+        </tr>
+        <tr>
+          <td>Description</td>
+          <td>{{ instance.description|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Minimum TX Interval</td>
+          <td>{{ instance.minimum_transmit_interval }} ms</td>
+        </tr>
+        <tr>
+          <td>Minimum RX Interval</td>
+          <td>{{ instance.minimum_receive_interval }} ms</td>
+        </tr>
+        <tr>
+          <td>Detection Multiplier</td>
+          <td>{{ instance.detection_multiplier }}</td>
+        </tr>
+        <tr>
+          <td>Hold Time</td>
+          <td>{{ instance.hold_time }} ms</td>
+        </tr>
+      </table>
+    </div>
+    {% include 'includes/tags_card.html' with tags=instance.tags.all url='net:bfd_list' %}
+  </div>
+</div>
+{% endblock %}

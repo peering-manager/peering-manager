@@ -8,10 +8,20 @@ from peering_manager.views.generic import (
     ObjectView,
 )
 
-from .filtersets import ConnectionFilterSet
-from .forms import ConnectionBulkEditForm, ConnectionFilterForm, ConnectionForm
-from .models import Connection
-from .tables import ConnectionTable
+from ..filtersets import ConnectionFilterSet
+from ..forms import ConnectionBulkEditForm, ConnectionFilterForm, ConnectionForm
+from ..models import Connection
+from ..tables import ConnectionTable
+
+__all__ = (
+    "ConnectionList",
+    "ConnectionView",
+    "ConnectionContext",
+    "ConnectionEdit",
+    "ConnectionBulkEdit",
+    "ConnectionDelete",
+    "ConnectionBulkDelete",
+)
 
 
 class ConnectionList(ObjectListView):

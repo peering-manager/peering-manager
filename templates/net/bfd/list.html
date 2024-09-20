@@ -1,0 +1,22 @@
+{% extends '_base.html' %}
+{% load render_table from django_tables2 %}
+{% block actions %}
+{% if perms.net.add_bfd %}
+<a href="{% url 'net:bfd_add' %}" class="btn btn-primary">
+  <i class="fas fa-plus"></i> Add
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">{% block title %}BFD Configurations{% endblock %}</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-9">
+    {% include 'generic/object_list.html' with table_modal='BFDTable_config' bulk_edit_url='net:bfd_bulk_edit' bulk_delete_url='net:bfd_bulk_delete' %}
+  </div>
+  <div class="col-md-3">
+    {% include 'utils/search_form.html' %}
+  </div>
+</div>
+{% endblock %}

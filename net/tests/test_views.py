@@ -9,6 +9,56 @@ from ..enums import *
 from ..models import *
 
 
+class BFDTestCase(ViewTestCases.ContextualObjectViewTestCase):
+    model = BFD
+
+    @classmethod
+    def setUpTestData(cls):
+        BFD.objects.bulk_create(
+            [
+                BFD(
+                    name="Default",
+                    slug="default",
+                    description="Default timers and detection",
+                    minimum_transmit_interval=300,
+                    minimum_receive_interval=300,
+                    detection_multiplier=3,
+                    hold_time=0,
+                ),
+                BFD(
+                    name="Double",
+                    slug="double",
+                    description="Double timers and detection",
+                    minimum_transmit_interval=600,
+                    minimum_receive_interval=600,
+                    detection_multiplier=6,
+                    hold_time=600,
+                ),
+                BFD(
+                    name="Ones",
+                    slug="ones",
+                    description="All ones",
+                    minimum_transmit_interval=1,
+                    minimum_receive_interval=1,
+                    detection_multiplier=1,
+                    hold_time=1,
+                ),
+            ]
+        )
+
+        cls.form_data = {
+            "name": "Test",
+            "slug": "test",
+            "minimum_transmit_interval": 300,
+            "minimum_receive_interval": 300,
+            "detection_multiplier": 3,
+            "hold_time": 0,
+            "tags": [],
+        }
+
+        cls.bulk_edit_data = {"description": "Foo"}
+
+
 class ConnectionTestCase(ViewTestCases.ContextualObjectViewTestCase):
     model = Connection
 
