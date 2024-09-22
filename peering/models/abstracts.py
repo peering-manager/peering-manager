@@ -126,7 +126,10 @@ class BGPSession(PrimaryModel, PolicyMixin):
         blank=True,
         related_name="%(class)s_export_routing_policies",
     )
-    communities = models.ManyToManyField("Community", blank=True)
+    communities = models.ManyToManyField(to="Community", blank=True)
+    bfd = models.ForeignKey(
+        to="net.BFD", on_delete=models.SET_NULL, blank=True, null=True
+    )
     bgp_state = models.CharField(max_length=50, choices=BGPState, blank=True, null=True)
     received_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     accepted_prefix_count = models.PositiveIntegerField(blank=True, default=0)

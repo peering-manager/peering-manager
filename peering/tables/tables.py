@@ -147,6 +147,7 @@ class DirectPeeringSessionTable(PeeringManagerTable):
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     communities = CommunityColumn()
+    bfd = tables.Column(verbose_name="BFD", linkify=True)
     state = BGPSessionStateColumn(accessor="bgp_state")
     router = tables.Column(verbose_name="Router", accessor="router", linkify=True)
     tags = columns.TagColumn(url_name="peering:directpeeringsession_list")
@@ -169,6 +170,7 @@ class DirectPeeringSessionTable(PeeringManagerTable):
             "import_routing_policies",
             "export_routing_policies",
             "communities",
+            "bfd",
             "state",
             "last_established_state",
             "received_prefix_count",
@@ -254,6 +256,7 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     communities = CommunityColumn()
+    bfd = tables.Column(verbose_name="BFD", linkify=True)
     exists_in_peeringdb = columns.BooleanColumn(
         accessor="exists_in_peeringdb", verbose_name="In PeeringDB", orderable=False
     )
@@ -278,6 +281,7 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
             "import_routing_policies",
             "export_routing_policies",
             "communities",
+            "bfd",
             "exists_in_peeringdb",
             "state",
             "last_established_state",
