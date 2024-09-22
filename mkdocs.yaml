@@ -112,6 +112,9 @@ nav:
         - Configuration: "models/devices/configuration.md"
         - Platform: "models/devices/platform.md"
         - Router: "models/devices/router.md"
+      - Network:
+        - BFD: "models/net/bfd.md"
+        - Connection: "models/net/connection.md"
       - Peering:
         - Autonomous System: "models/peering/autonomoussystem.md"
         - BGP Group: "models/peering/bgpgroup.md"
@@ -120,7 +123,6 @@ nav:
         - Internet Exchange: "models/peering/internetexchange.md"
         - Internet Exchange Peering Session: "models/peering/internetexchangepeeringsession.md"
         - Routing Policy: "models/peering/routingpolicy.md"
-        - Connection: "models/net/connection.md"
         - Relationship: "models/bgp/relationship.md"
       - Messaging:
         - Contact: "models/messaging/contact.md"
