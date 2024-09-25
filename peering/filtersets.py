@@ -6,7 +6,7 @@ from django.db.models import Q
 
 from bgp.models import Relationship
 from devices.models import Router
-from net.models import Connection
+from net.models import BFD, Connection
 from peering_manager.filtersets import (
     OrganisationalModelFilterSet,
     PeeringManagerModelFilterSet,
@@ -128,6 +128,15 @@ class DirectPeeringSessionFilterSet(PeeringManagerModelFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=BGPSessionStatus, null_value=""
     )
+    bfd_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=BFD.objects.all(), label="BFD (ID)"
+    )
+    bfd = django_filters.ModelMultipleChoiceFilter(
+        field_name="bfd__name",
+        queryset=BFD.objects.all(),
+        to_field_name="name",
+        label="BFD (Name)",
+    )
     relationship_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Relationship.objects.all(), label="Relationship (ID)"
     )
@@ -247,6 +256,15 @@ class InternetExchangePeeringSessionFilterSet(PeeringManagerModelFilterSet):
         queryset=InternetExchange.objects.all(),
         to_field_name="name",
         label="IX (Name)",
+    )
+    bfd_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=BFD.objects.all(), label="BFD (ID)"
+    )
+    bfd = django_filters.ModelMultipleChoiceFilter(
+        field_name="bfd__name",
+        queryset=BFD.objects.all(),
+        to_field_name="name",
+        label="BFD (Name)",
     )
     address_family = django_filters.NumberFilter(method="address_family_search")
     status = django_filters.MultipleChoiceFilter(

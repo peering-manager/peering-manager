@@ -8,6 +8,23 @@ from ..enums import *
 from ..models import *
 
 
+class BFDTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.bfd = BFD(
+            name="Default",
+            slug="default",
+            description="Default timers and detection",
+            minimum_transmit_interval=300,
+            minimum_receive_interval=300,
+            detection_multiplier=3,
+            hold_time=0,
+        )
+
+    def test__str__(self):
+        self.assertEqual(self.bfd.name, str(self.bfd))
+
+
 class ConnectionTest(TestCase):
     @classmethod
     def setUpTestData(cls):

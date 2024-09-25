@@ -7,6 +7,25 @@ from . import models, views
 app_name = "net"
 
 urlpatterns = [
+    # BFD configurations
+    path("bfd/", views.BFDList.as_view(), name="bfd_list"),
+    path("bfd/<int:pk>/", views.BFDView.as_view(), name="bfd_view"),
+    path("bfd/add/", views.BFDEdit.as_view(), name="bfd_add"),
+    path(
+        "bfd/<int:pk>/config-context/",
+        views.BFDContext.as_view(),
+        name="bfd_configcontext",
+    ),
+    path(
+        "bfd/<int:pk>/changelog/",
+        ObjectChangeLogView.as_view(),
+        name="bfd_changelog",
+        kwargs={"model": models.BFD},
+    ),
+    path("bfd/<int:pk>/delete/", views.BFDDelete.as_view(), name="bfd_delete"),
+    path("bfd/<int:pk>/edit/", views.BFDEdit.as_view(), name="bfd_edit"),
+    path("bfd/edit/", views.BFDBulkEdit.as_view(), name="bfd_bulk_edit"),
+    path("bfd/delete/", views.BFDBulkDelete.as_view(), name="bfd_bulk_delete"),
     # Connections
     path("connections/", views.ConnectionList.as_view(), name="connection_list"),
     path(

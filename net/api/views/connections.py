@@ -3,18 +3,14 @@ from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.routers import APIRootView
 
 from peering_manager.api.viewsets import PeeringManagerModelViewSet
 
-from ..filtersets import ConnectionFilterSet
-from ..models import Connection
-from .serializers import ConnectionSerializer
+from ...filtersets import ConnectionFilterSet
+from ...models import Connection
+from ..serializers import ConnectionSerializer
 
-
-class NetRootView(APIRootView):
-    def get_view_name(self):
-        return "Net"
+__all__ = ("ConnectionViewSet",)
 
 
 class ConnectionViewSet(PeeringManagerModelViewSet):

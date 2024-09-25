@@ -5,7 +5,7 @@ from rest_framework import serializers
 from bgp.api.serializers import NestedRelationshipSerializer
 from devices.api.serializers import NestedRouterSerializer
 from extras.api.serializers import NestedIXAPISerializer
-from net.api.serializers import NestedConnectionSerializer
+from net.api.serializers import NestedBFDSerializer, NestedConnectionSerializer
 from peering_manager.api.fields import ChoiceField, SerializedPKRelatedField
 from peering_manager.api.serializers import PeeringManagerModelSerializer
 
@@ -170,6 +170,7 @@ class DirectPeeringSessionSerializer(PeeringManagerModelSerializer):
         required=False,
         many=True,
     )
+    bfd = NestedBFDSerializer(required=False, allow_null=True)
     router = NestedRouterSerializer(required=False, allow_null=True)
 
     class Meta:
@@ -192,6 +193,7 @@ class DirectPeeringSessionSerializer(PeeringManagerModelSerializer):
             "import_routing_policies",
             "export_routing_policies",
             "communities",
+            "bfd",
             "router",
             "local_context_data",
             "bgp_state",
@@ -291,6 +293,7 @@ class InternetExchangePeeringSessionSerializer(PeeringManagerModelSerializer):
         required=False,
         many=True,
     )
+    bfd = NestedBFDSerializer(required=False, allow_null=True)
     exists_in_peeringdb = serializers.BooleanField(read_only=True)
     is_abandoned = serializers.BooleanField(read_only=True)
 
@@ -312,6 +315,7 @@ class InternetExchangePeeringSessionSerializer(PeeringManagerModelSerializer):
             "import_routing_policies",
             "export_routing_policies",
             "communities",
+            "bfd",
             "local_context_data",
             "exists_in_peeringdb",
             "is_abandoned",

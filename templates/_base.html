@@ -80,6 +80,19 @@
             <a href="{% url 'peering:internetexchange_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/internet-exchanges/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">Internet Exchanges</div>
             </a>
+            <a href="#net_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/net/' %} active{% endif %}">
+              <div class="d-flex w-100 justify-content-start align-items-center">
+                Network <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
+              </div>
+            </a>
+            <div id="net_menu_id" class="collapse sidebar-submenu">
+              <a href="{% url 'net:connection_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/connections/' %} active{% endif %}">
+                <span class="ml-4">Connections</span>
+              </a>
+              <a href="{% url 'net:bfd_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/bfd/' %} active{% endif %}">
+                <span class="ml-4">BFD</span>
+              </a>
+            </div>
             <a href="#provisioning_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/peeringdb/available-ixp-peers/,/peeringdb/email-network/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
                 Provisioning <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>

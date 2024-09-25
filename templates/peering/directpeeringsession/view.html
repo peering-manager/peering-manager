@@ -72,6 +72,12 @@
           <td>{{ instance.multihop_ttl }}</td>
         </tr>
         {% endif %}
+        {% if instance.bfd %}
+        <tr>
+          <td>BFD</td>
+          <td>{{ instance.bfd|as_link }}</td>
+        </tr>
+        {% endif %}
         {% if instance.router %}
         <tr>
           <td>Router</td>

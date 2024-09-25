@@ -8,8 +8,8 @@ from peering_manager.models import PrimaryModel
 from peeringdb.models import NetworkIXLan
 from utils.validators import AddressFamilyValidator, MACAddressValidator
 
-from .enums import ConnectionStatus
-from .fields import VLANField
+from ..enums import ConnectionStatus
+from ..fields import VLANField
 
 logger = logging.getLogger("peering.manager.net")
 
