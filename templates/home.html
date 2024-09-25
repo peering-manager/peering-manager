@@ -76,21 +76,21 @@
             </div>
           </div>
           <div class="card mb-4 shadow-sm">
-            <h4 class="card-header">Messaging</h4>
+            <h4 class="card-header">Network</h4>
             <div class="list-group list-group-flush">
               <div class="list-group-item">
-                <h1 class="display-4 float-right">{{ statistics.contacts_count }}</h1>
+                <h1 class="display-4 float-right">{{ statistics.connections_count }}</h1>
                 <h5 class="list-group-item-heading">
-                  <a href="{% url 'messaging:contact_list' %}">Contacts</a>
+                  <a href="{% url 'net:connection_list' %}">Connections</a>
                 </h5>
-                <p class="list-group-item-textn text-muted">People to discuss peering with</p>
+                <p class="list-group-item-textn text-muted">Connections to IXPs</p>
               </div>
               <div class="list-group-item">
-                <h1 class="display-4 float-right">{{ statistics.emails_count }}</h1>
+                <h1 class="display-4 float-right">{{ statistics.bfd_count }}</h1>
                 <h5 class="list-group-item-heading">
-                  <a href="{% url 'messaging:email_list' %}">E-mails</a>
+                  <a href="{% url 'net:bfd_list' %}">BFD</a>
                 </h5>
-                <p class="list-group-item-textn text-muted">Templates to build e-mails</p>
+                <p class="list-group-item-textn text-muted">Protocol for fast failure detection</p>
               </div>
             </div>
           </div>
@@ -112,6 +112,25 @@
                   <a href="{% url 'peering:community_list' %}">Communities</a>
                 </h5>
                 <p class="list-group-item-textn text-muted">Tags for traffic engineering</p>
+              </div>
+            </div>
+          </div>
+          <div class="card mb-4 shadow-sm">
+            <h4 class="card-header">Messaging</h4>
+            <div class="list-group list-group-flush">
+              <div class="list-group-item">
+                <h1 class="display-4 float-right">{{ statistics.contacts_count }}</h1>
+                <h5 class="list-group-item-heading">
+                  <a href="{% url 'messaging:contact_list' %}">Contacts</a>
+                </h5>
+                <p class="list-group-item-textn text-muted">People to discuss peering with</p>
+              </div>
+              <div class="list-group-item">
+                <h1 class="display-4 float-right">{{ statistics.emails_count }}</h1>
+                <h5 class="list-group-item-heading">
+                  <a href="{% url 'messaging:email_list' %}">E-mails</a>
+                </h5>
+                <p class="list-group-item-textn text-muted">Templates to build e-mails</p>
               </div>
             </div>
           </div>
