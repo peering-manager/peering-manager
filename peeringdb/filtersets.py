@@ -157,6 +157,12 @@ class NetworkContactFilterSet(django_filters.FilterSet):
     net_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Network.objects.all(), label="Network (ID)"
     )
+    net_asn = django_filters.ModelMultipleChoiceFilter(
+        field_name="net__asn",
+        queryset=Network.objects.all(),
+        to_field_name="asn",
+        label="Network (ASN)",
+    )
 
     class Meta:
         model = NetworkContact
