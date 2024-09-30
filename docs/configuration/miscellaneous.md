@@ -126,3 +126,22 @@ Default: `300`
 
 The maximum execution time of a background task (such as running a PeeringDB
 synchronisation), in seconds.
+
+---
+
+## GIT_COMMIT_AUTHOR
+
+Default: `"Peering Manager <no-reply@peering-manager.net>"`
+
+Git commit author that will be used when committing changes in Git
+repositories when used as data sources. It must be compliant with the Git
+format.
+
+---
+
+## GIT_COMMIT_MESSAGE
+
+Default: `"Committed using Peering Manager"`
+
+Message to log in commits that will be performed using Peering Manager in Git
+repositories when used as data sources.
