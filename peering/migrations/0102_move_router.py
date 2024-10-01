@@ -16,6 +16,7 @@ def update_content_types(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ("devices", "0007_move_router"),
+        ("net", "0010_move_router"),
         ("peering", "0101_router_config_push_data_source"),
     ]
 
