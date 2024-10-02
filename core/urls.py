@@ -78,4 +78,6 @@ urlpatterns = [
     path("jobs/delete/", views.JobBulkDeleteView.as_view(), name="job_bulk_delete"),
     path("jobs/<int:pk>/", views.JobView.as_view(), name="job_view"),
     path("jobs/<int:pk>/delete/", views.JobDeleteView.as_view(), name="job_delete"),
+    # System
+    path("system/", views.SystemView.as_view(), name="system"),
 ]

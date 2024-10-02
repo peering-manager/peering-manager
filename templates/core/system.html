@@ -1,0 +1,47 @@
+{% extends '_base.html' %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">{% block title %}System{% endblock %}</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header"><strong>Status</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Peering Manager release</td>
+          <td>{{ stats.peering_manager_release }}</td>
+        </tr>
+        <tr>
+          <td>Python version</td>
+          <td>{{ stats.python_version }}</td>
+        </tr>
+        <tr>
+          <td>Django version</td>
+          <td>{{ stats.django_version }}</td>
+        </tr>
+        <tr>
+          <td>PostgreSQL version</td>
+          <td>{{ stats.postgresql_version }}</td>
+        </tr>
+        <tr>
+          <td>Database name</td>
+          <td>{{ stats.database_name }}</td>
+        </tr>
+        <tr>
+          <td>Database size</td>
+          <td>{{ stats.database_size }}</td>
+        </tr>
+        <tr>
+          <td>RQ workers</td>
+          <td>{{ stats.rq_worker_count }}</td>
+        </tr>
+        <tr>
+          <td>System time</td>
+          <td>{% now 'Y-m-d H:i:s T' %}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

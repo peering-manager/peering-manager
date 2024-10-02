@@ -55,6 +55,7 @@
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="{% url 'users:profile' %}"><i class="far fa-id-card"></i> Profile</a>
               {% if request.user.is_staff %}
+              <a class="dropdown-item" href="{% url 'core:system' %}"><i class="fa fa-gear"></i> System</a>
               <a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fa fa-cogs"></i> Admin</a>
               {% endif %}
               <div class="dropdown-divider"></div>
