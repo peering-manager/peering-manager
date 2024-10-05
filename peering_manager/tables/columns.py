@@ -1,12 +1,15 @@
+import zoneinfo
 from dataclasses import dataclass
 from urllib.parse import quote
 
 import django_tables2 as tables
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
+from django.forms import DateTimeField
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django_tables2.columns import library
 
 from utils.functions import content_type_identifier, content_type_name, get_viewname
 
@@ -17,6 +20,7 @@ __all__ = (
     "ColourColumn",
     "ContentTypeColumn",
     "ContentTypesColumn",
+    "DateTimeColumn",
     "LinkedCountColumn",
     "SelectColumn",
     "TagColumn",
@@ -237,6 +241,35 @@ class ContentTypesColumn(tables.ManyToManyColumn):
 
     def value(self, value):
         return ",".join([content_type_identifier(ct) for ct in self.filter(value)])
+
+
+@library.register
+class DateTimeColumn(tables.Column):
+    """
+    Render a datetime.datetime in ISO 8601 format.
+    """
+
+    def __init__(self, *args, timespec="seconds", **kwargs):
+        self.timespec = timespec
+        super().__init__(*args, **kwargs)
+
+    def render(self, value):
+        if value:
+            current_tz = zoneinfo.ZoneInfo(settings.TIME_ZONE)
+            value = value.astimezone(current_tz)
+            return f"{value.date().isoformat()} {value.time().isoformat(timespec=self.timespec)}"
+        return None
+
+    def value(self, value):
+        if value:
+            return value.isoformat()
+        return None
+
+    @classmethod
+    def from_field(cls, field, **kwargs):
+        if isinstance(field, DateTimeField):
+            return cls(**kwargs)
+        return None
 
 
 class LinkedCountColumn(tables.Column):

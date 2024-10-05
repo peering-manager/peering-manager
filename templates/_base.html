@@ -55,7 +55,6 @@
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="{% url 'users:profile' %}"><i class="far fa-id-card"></i> Profile</a>
               {% if request.user.is_staff %}
-              <a class="dropdown-item" href="{% url 'core:system' %}"><i class="fa fa-gear"></i> System</a>
               <a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fa fa-cogs"></i> Admin</a>
               {% endif %}
               <div class="dropdown-divider"></div>
@@ -167,7 +166,7 @@
                 <span class="ml-4">IX-API</span>
               </a>
             </div>
-            <a href="#operations_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/core/,/webhooks/,/extras/changelog/' %} active{% endif %}">
+            <a href="#operations_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/core/data-sources/,/core/jobs/,/webhooks/,/core/changelog/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
                 Operations <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
               </div>
@@ -182,7 +181,7 @@
               <a href="{% url 'extras:webhook_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/webhooks/' %} active{% endif %}">
                 <span class="ml-4">Webhooks</span>
               </a>
-              <a href="{% url 'core:objectchange_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/extras/changelog/' %} active{% endif %}">
+              <a href="{% url 'core:objectchange_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/core/changelog/' %} active{% endif %}">
                 <span class="ml-4">Change Log</span>
               </a>
             </div>
@@ -204,8 +203,22 @@
               <a href="{% url 'extras:tag_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/tags/' %} active{% endif %}">
                 <div class="ml-4">Tags</div>
               </a>
-              
             </div>
+            {% if request.user.is_staff %}
+            <a href="#admin_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/core/system/,/core/background-queues/,/core/background-workers/,/core/background-tasks/' %} active{% endif %}">
+              <div class="d-flex w-100 justify-content-start align-items-center">
+                Admin <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
+              </div>
+            </a>
+            <div id="admin_menu_id" class="collapse sidebar-submenu">
+              <a href="{% url 'core:system' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/core/system/' %} active{% endif %}">
+                <span class="ml-4">System</span>
+              </a>
+              <a href="{% url 'core:background_queue_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/core/background-queues/,/core/background-workers/,/core/background-tasks/' %} active{% endif %}">
+                <span class="ml-4">Background Tasks</span>
+              </a>
+            </div>
+            {% endif %}
           </ul>
           <div class="footer">
             <p>{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
@@ -222,7 +235,7 @@
         <div class="justify-content-between flex-wrap flex-md-nowrap align-items-center">
           {% if request.user.is_authenticated and not context_as %}
           <div class="alert alert-warning text-center" role="alert">
-            <i class="fas fa-exclamation-triangle"></i> No preferred affiliated autonomous system selected.
+            <i class="fas fa-exclamation-triangle"></i> No affiliated autonomous system selected.
           </div>
           {% endif %}
           {% for message in messages %}
@@ -256,4 +269,4 @@
     <script src="{% static 'js/forms.js' %}?{{ settings.VERSION }}"></script>
     {% block javascript %}{% endblock %}
   </body>
-  </html>
+</html>
