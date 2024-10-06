@@ -62,7 +62,6 @@ __patterns = [
         name="api-redocs",
     ),
     # Admin
-    path("admin/background-tasks/", include("django_rq.urls")),
     path("admin/", admin_site.urls),
     # Error triggering
     path("error500/", trigger_500),
