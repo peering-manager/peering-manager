@@ -24,7 +24,7 @@
     {% endif %}
   </div>
   {% else %}
-  <label class="col-3{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
+  <label class="col-3 form-label{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
   <div class="col-9">
     {% if field|widget_type == 'passwordinput' %}
     <div class="input-group">

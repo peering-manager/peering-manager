@@ -14,7 +14,7 @@
           <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
         </div>
         {% else %}
-        <label for="{{ field.id_for_label }}"><strong>{{ field.label_tag }}</strong></label>
+        <label for="{{ field.id_for_label }}" class="form-label"><strong>{{ field.label_tag }}</strong></label>
         {{ field }}
         {% endif %}
       </div>
