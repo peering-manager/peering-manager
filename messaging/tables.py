@@ -8,6 +8,7 @@ __all__ = ("ContactTable", "ContactRoleTable", "ContactAssignmentTable", "EmailT
 
 
 class ContactRoleTable(PeeringManagerTable):
+    pk = columns.SelectColumn()
     name = tables.Column(linkify=True)
 
     class Meta(PeeringManagerTable.Meta):
@@ -17,6 +18,7 @@ class ContactRoleTable(PeeringManagerTable):
 
 
 class ContactTable(PeeringManagerTable):
+    pk = columns.SelectColumn()
     name = tables.Column(linkify=True)
     phone = tables.Column(linkify=linkify_phone)
     assignment_count = tables.Column(verbose_name="Assignments")
@@ -61,6 +63,7 @@ class ContactAssignmentTable(PeeringManagerTable):
 
 
 class EmailTable(PeeringManagerTable):
+    pk = columns.SelectColumn()
     name = tables.Column(linkify=True)
     jinja2_trim = columns.BooleanColumn(verbose_name="Trim")
     jinja2_lstrip = columns.BooleanColumn(verbose_name="Lstrip")

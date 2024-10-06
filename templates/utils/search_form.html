@@ -2,31 +2,24 @@
 
 <div class="card">
   <div class="card-header">
-    <i class="fas fa-search"></i>
-    <strong>Search</strong>
+    <i class="fas fa-search"></i> <strong>Search</strong>
   </div>
   <div class="card-body">
     <form action="." method="get">
       {% for field in filterset_form %}
-      <div class="form-group form-row">
+      <div class="row mb-3">
         {% if field.name == "q" %}
         <div class="input-group">
           <input type="text" name="q" class="form-control" placeholder="Search" {% if request.GET.q %}value="{{ request.GET.q }}" {% endif %}/>
-          <div class="input-group-append">
-            <button type="submit" class="btn btn-primary">
-              <i class="fas fa-search"></i>
-            </button>
-          </div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
         </div>
-        {% elif field|widget_type == 'checkboxinput' %}
-        <label for="{{ field.id_for_label }}">{{ field }} <strong>{{ field.label }}</strong></label>
         {% else %}
-        <strong>{{ field.label_tag }}</strong>
+        <label for="{{ field.id_for_label }}"><strong>{{ field.label_tag }}</strong></label>
         {{ field }}
         {% endif %}
       </div>
       {% endfor %}
-      <div class="text-right">
+      <div class="text-end">
         <button type="submit" class="btn btn-primary">
           <i class="fas fa-search"></i> Apply
         </button>

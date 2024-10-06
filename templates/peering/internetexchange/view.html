@@ -7,7 +7,7 @@
       <div class="card-header">
         <strong>IX Details</strong>
         {% if instance.linked_to_peeringdb %}
-        <span class="float-right" data-toggle="tooltip" data-placement="right" title="Linked to PeeringDB">
+        <span class="float-end" data-bs-toggle="tooltip" data-placement="right" title="Linked to PeeringDB">
           <i class="fas fa-check-circle text-success"></i>
         </span>
         {% endif %}
@@ -92,7 +92,7 @@
       <ul class="list-group list-group-flush">
       {% for community in instance.communities.all %}
         <li class="list-group-item">
-          {{ community|as_link }}{% if community.type %} <span class="float-right">{{ community.get_type_html }}{% endif %}</span>
+          {{ community|as_link }}{% if community.type %} <span class="float-end">{{ community.get_type_html }}{% endif %}</span>
         </li>
       {% endfor %}
       </ul>
@@ -108,7 +108,7 @@
 {% block javascript %}
 <script>
   $(function() {
-    $('[data-toggle="tooltip"]').tooltip();
+    $('[data-bs-toggle="tooltip"]').tooltip();
   });
 </script>
 {% endblock %}

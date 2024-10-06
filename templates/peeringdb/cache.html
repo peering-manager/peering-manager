@@ -12,9 +12,9 @@
 {% endblock %}
 {% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}PeeringDB Local Cache{% if last_sync_time %} ({{ last_sync_time }}){% endif %}{% endblock %}</li>{% endblock %}
 {% block content %}
-<div class="alert alert-dismissible" role="alert" id="id_cache_operation">
-  <button type="button" class="close" aria-label="Close"><span>&times;</span></button>
+<div class="alert alert-dismissible fade show" role="alert" id="id_cache_operation">
   <span id="id_cache_operation_text"></span>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {% for c in counts %}
 <div class="row text-center">

@@ -1,11 +1,11 @@
 {% load form_helpers %}
 
-<div class="form-group form-row{% if field.errors %} invalid{% endif %}">
+<div class="row mb-3{% if field.errors %} is-invalid{% endif %}">
   {% if field|widget_type == 'checkboxinput' %}
   <div class="col-9 offset-3">
-    <div class="custom-control custom-checkbox{% if field.errors %} invalid{% endif %}">
+    <div class="form-check{% if field.errors %} is-invalid{% endif %}">
       {{ field }}
-      <label class="custom-control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
     </div>
     {% if field.help_text %}
     <small class="form-text text-muted">{{ field.help_text|safe }}</small>
@@ -29,16 +29,14 @@
     {% if field|widget_type == 'passwordinput' %}
     <div class="input-group">
       {{ field }}
-      <div class="input-group-append">
-        <button type="button" class="btn btn-outline-secondary" id="{{ field.id_for_label }}_reveal"><i class="fas fa-eye"></i> Show</button>
-      </div>
+      <button type="button" class="btn btn-outline-secondary" id="{{ field.id_for_label }}_reveal"><i class="fas fa-eye"></i> Show</button>
     </div>
     {% else %}
     {{ field }}
     {% if bulk_nullable %}
-    <div class="custom-control custom-checkbox">
-      <input type="checkbox" class="custom-control-input" id="{{ field.name }}_set_null_checkbox" name="_nullify" value="{{ field.name }}">
-      <label class="custom-control-label" for="{{ field.name }}_set_null_checkbox">Set null</label>
+    <div class="form-check">
+      <input type="checkbox" class="form-check-input" id="{{ field.name }}_set_null_checkbox" name="_nullify" value="{{ field.name }}">
+      <label class="form-check-label" for="{{ field.name }}_set_null_checkbox">Set null</label>
     </div>
     {% endif %}
     {% endif %}

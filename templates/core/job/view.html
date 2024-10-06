@@ -73,7 +73,7 @@
           {% if instance.output %}
           <tr>
             <th colspan="4" class="text-monospace">
-              <a name="output" href="#output" data-toggle="collapse" aria-expanded="false" aria-controls="output">output</a>
+              <a class="btn btn-primary" name="output" href="#output" data-bs-toggle="collapse" aria-expanded="false" aria-controls="output">Toggle output</a>
             </th>
           </tr>
           <tr class="collapse" id="output">
@@ -86,11 +86,11 @@
             <th colspan="3" class="text-monospace">
               <a name="{{ grouping }}"></a>{{ grouping }}
             </th>
-            <td class="text-right text-monospace">
-              <span class="badge badge-success">{{ data.success }}</span>
-              <span class="badge badge-info">{{ data.info }}</span>
-              <span class="badge badge-warning">{{ data.warning }}</span>
-              <span class="badge badge-danger">{{ data.failure }}</span>
+            <td class="text-end text-monospace">
+              <span class="badge text-bg-success">{{ data.success }}</span>
+              <span class="badge text-bg-info">{{ data.info }}</span>
+              <span class="badge text-bg-warning">{{ data.warning }}</span>
+              <span class="badge text-bg-danger">{{ data.failure }}</span>
             </td>
           </tr>
           {% for time, level, obj, url, message in data.log %}

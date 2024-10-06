@@ -48,7 +48,7 @@
         {% if ixapi_service.network_features %}
         <tr>
           <td>Features</td>
-          <td><a href="#" role="button" data-toggle="modal" data-target="#features-modal">Show</a></td>
+          <td><a href="#" role="button" data-bs-toggle="modal" data-bs-target="#features-modal">Show</a></td>
         </tr>
         {% endif %}
       </table>
@@ -60,12 +60,12 @@
       <div class="card-header">
         <strong>{{ config.id }} - {{ config.state | title }}</strong>
         {% if config.connection %}
-        <a class="btn btn-xs btn-success float-right" href="{{ config.connection.get_absolute_url }}">
+        <a class="btn btn-xs btn-success float-end" href="{{ config.connection.get_absolute_url }}">
           <i class="fas fa-check"></i> Configured
         </a>
         {% else %}
         {% if perms.peering.change_internetexchange and perms.net.add_connection %}
-        <a class="btn btn-xs btn-primary float-right"
+        <a class="btn btn-xs btn-primary float-end"
            href="{% url 'net:connection_add' %}?internet_exchange_point={{ instance.pk }}&vlan={{ config.outer_vlan }}{% if config.ipv6_address %}&ipv6_address={{ config.ipv6_address }}{% endif %}{% if config.ipv4_address %}&ipv4_address={{ config.ipv4_address }}{% endif %}{% if config.macs %}&mac_address={{ config.macs.0 }}{% endif %}&return_url={% url 'peering:internetexchange_ixapi' pk=instance.pk %}">
           <i class="fas fa-plug"></i> Setup
         </a>
@@ -106,9 +106,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="featuresModalLabel">Available Features</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <table class="modal-body table table-hover attr-table mb-0">
         {% for f in ixapi_service.network_features %}
@@ -122,14 +120,14 @@
             {% if f.ip_v4 %}{{ f.ip_v4 }}{% endif %}
           </td>
           {% if f.required is True %}
-          <td data-toggle="tooltip" data-placement="left" title="Required"><i class="fas fa-asterisk text-danger"></i></td>
+          <td data-bs-toggle="tooltip" data-placement="left" title="Required"><i class="fas fa-asterisk text-danger"></i></td>
           {% endif %}
           {% endif %}
         </tr>
         {% endfor %}
       </table>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
@@ -140,7 +138,7 @@
 <script>
   // Init tooltip if there are any
   $(function() {
-    $('[data-toggle="tooltip"]').tooltip();
+    $('[data-bs-toggle="tooltip"]').tooltip();
   });
 </script>
 {% endblock %}

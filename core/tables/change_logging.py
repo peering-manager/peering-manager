@@ -9,11 +9,11 @@ __all__ = ("ObjectChangeTable",)
 
 OBJECT_CHANGE_ACTION = """
 {% if record.action == "create" %}
-<span class="badge badge-success">Created</span>
+<span class="badge text-bg-success">Created</span>
 {% elif record.action == "update" %}
-<span class="badge badge-primary">Updated</span>
+<span class="badge text-bg-primary">Updated</span>
 {% elif record.action == "delete" %}
-<span class="badge badge-danger">Deleted</span>
+<span class="badge text-bg-danger">Deleted</span>
 {% endif %}
 """
 

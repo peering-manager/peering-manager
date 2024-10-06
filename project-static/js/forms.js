@@ -19,7 +19,7 @@ $(document).ready(function () {
   }
 
   // Select2
-  $.fn.select2.defaults.set('theme', 'bootstrap');
+  $.fn.select2.defaults.set('theme', 'bootstrap-5');
   $('.custom-select2-static').select2({
     placeholder: '---------',
     allowClear: true

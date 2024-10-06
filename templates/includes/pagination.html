@@ -1,6 +1,6 @@
 {% load helpers %}
 
-<div class="paginator float-right text-right">
+<div class="paginator float-end text-end">
   {% if paginator.num_pages > 1 %}
   <div class="d-flex flex-row-reverse">
     <nav>
@@ -24,7 +24,7 @@
   {% endif %}
   {% if page %}
   <div class="btn-group dropup">
-    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
       Per Page
     </button>
     <ul class="dropdown-menu">

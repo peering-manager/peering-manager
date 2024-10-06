@@ -507,13 +507,13 @@ class Community(OrganisationalModel):
 
     def get_type_html(self, display_name=False):
         if self.type == CommunityType.EGRESS:
-            badge_type = "badge-primary"
+            badge_type = "text-bg-primary"
             text = self.get_type_display()
         elif self.type == CommunityType.INGRESS:
-            badge_type = "badge-info"
+            badge_type = "text-bg-info"
             text = self.get_type_display()
         else:
-            badge_type = "badge-secondary"
+            badge_type = "text-bg-secondary"
             text = "Not set"
 
         if display_name:
@@ -1031,16 +1031,16 @@ class RoutingPolicy(OrganisationalModel):
 
     def get_type_html(self, display_name=False):
         if self.type == RoutingPolicyType.EXPORT:
-            badge_type = "badge-primary"
+            badge_type = "text-bg-primary"
             text = self.get_type_display()
         elif self.type == RoutingPolicyType.IMPORT:
-            badge_type = "badge-info"
+            badge_type = "text-bg-info"
             text = self.get_type_display()
         elif self.type == RoutingPolicyType.IMPORT_EXPORT:
-            badge_type = "badge-dark"
+            badge_type = "text-bg-dark"
             text = self.get_type_display()
         else:
-            badge_type = "badge-secondary"
+            badge_type = "text-bg-secondary"
             text = "Unknown"
 
         if display_name:

@@ -7,7 +7,7 @@
     {% for token in tokens %}
     <div class="card{% if token.is_expired %} card-danger{% endif %} mb-2">
       <div class="card-header">
-        <div class="float-right">
+        <div class="float-end">
           {% if perms.users.change_token %}
           <a href="{% url 'users:token_edit' pk=token.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i> Edit</a>
           {% endif %}
@@ -17,7 +17,7 @@
         </div>
         <i class="fas fa-key"></i> {{ token.key }}
         {% if token.is_expired %}
-        <span class="badge badge-danger">Expired</span>
+        <span class="badge text-bg-danger">Expired</span>
         {% endif %}
       </div>
       <div class="card-body">

@@ -19,6 +19,7 @@ ROUTING_POLICY_TYPE = "{{ record.get_type_html }}"
 
 
 class AutonomousSystemTable(PeeringManagerTable):
+    pk = columns.SelectColumn()
     asn = tables.Column(verbose_name="ASN")
     name = tables.Column(linkify=True)
     irr_as_set = tables.Column(verbose_name="IRR AS-SET", orderable=False)
@@ -75,6 +76,7 @@ class AutonomousSystemTable(PeeringManagerTable):
 
 
 class BGPGroupTable(PeeringManagerTable):
+    pk = columns.SelectColumn()
     name = tables.Column(linkify=True)
     status = columns.ChoiceFieldColumn()
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
@@ -111,6 +113,7 @@ class BGPGroupTable(PeeringManagerTable):
 
 
 class CommunityTable(PeeringManagerTable):
+    pk = columns.SelectColumn()
     name = tables.Column(linkify=True)
     type = tables.TemplateColumn(template_code=COMMUNITY_TYPE)
     tags = columns.TagColumn(url_name="peering:community_list")
@@ -125,13 +128,14 @@ class DirectPeeringSessionTable(PeeringManagerTable):
     append_template = """
     {% load helpers %}
     {% if record.comments %}
-    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-toggle="popover" data-html="true" title="Session Comments" data-content="{{ record.comments | markdown:True }}"><i class="fas fa-comment"></i></button>
+    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="Session Comments" data-bs-content="{{ record.comments | markdown:True }}"><i class="fas fa-comment"></i></button>
     {% endif %}
     {% if record.autonomous_system.comments %}
-    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-toggle="popover" data-html="true" title="AS Comments" data-content="{{ record.autonomous_system.comments | markdown:True }}"><i class="fas fa-comments"></i></button>
+    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="AS Comments" data-bs-content="{{ record.autonomous_system.comments | markdown:True }}"><i class="fas fa-comments"></i></button>
     {% endif %}
     """
 
+    pk = columns.SelectColumn()
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     autonomous_system = tables.Column(verbose_name="AS", linkify=True)
     ip_address = tables.Column(verbose_name="IP Address", linkify=True)
@@ -194,6 +198,7 @@ class DirectPeeringSessionTable(PeeringManagerTable):
 
 
 class InternetExchangeTable(PeeringManagerTable):
+    pk = columns.SelectColumn()
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     name = tables.Column(linkify=True)
     status = columns.ChoiceFieldColumn()
@@ -229,16 +234,17 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
     append_template = """
     {% load helpers %}
     {% if record.comments %}
-    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-toggle="popover" data-html="true" title="Session Comments" data-content="{{ record.comments | markdown:True }}"><i class="fas fa-comment"></i></button>
+    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="Session Comments" data-bs-content="{{ record.comments | markdown:True }}"><i class="fas fa-comment"></i></button>
     {% endif %}
     {% if record.autonomous_system.comments %}
-    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-toggle="popover" data-html="true" title="AS Comments" data-content="{{ record.autonomous_system.comments | markdown:True }}"><i class="fas fa-comments"></i></button>
+    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="AS Comments" data-bs-content="{{ record.autonomous_system.comments | markdown:True }}"><i class="fas fa-comments"></i></button>
     {% endif %}
     {% if record.internet_exchange.comments %}
-    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-toggle="popover" data-html="true" title="IXP Comments" data-content="{{ record.internet_exchange.comments | markdown:True }}"><i class="fas fa-comment-dots"></i></button>
+    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="IXP Comments" data-bs-content="{{ record.internet_exchange.comments | markdown:True }}"><i class="fas fa-comment-dots"></i></button>
     {% endif %}
     """
 
+    pk = columns.SelectColumn()
     autonomous_system = tables.Column(
         verbose_name="AS", accessor="autonomous_system", linkify=True
     )
@@ -303,6 +309,7 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
 
 
 class RoutingPolicyTable(PeeringManagerTable):
+    pk = columns.SelectColumn()
     name = tables.Column(linkify=True)
     type = tables.TemplateColumn(template_code=ROUTING_POLICY_TYPE)
     tags = columns.TagColumn(url_name="peering:routingpolicy_list")

@@ -93,5 +93,9 @@ $(document).ready(function () {
   $('.collapse').on('hidden.bs.collapse', toggleIcon);
   $('.collapse').on('shown.bs.collapse', toggleIcon);
 
-  $('.nav > .list-group-item.active').click();
+  // Make sure menu is expanded when sub-item is selected
+  const active_collapse = $('.nav > .list-group-item.active[data-bs-toggle="collapse"]');
+  if (active_collapse.length == 1) {
+    active_collapse[0].click();
+  }
 });

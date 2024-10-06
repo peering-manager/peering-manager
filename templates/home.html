@@ -18,39 +18,29 @@
             <h4 class="card-header">Peering Data</h4>
             <div class="list-group list-group-flush">
               <div class="list-group-item">
-                <h1 class="display-4 float-right">{{ statistics.autonomous_systems_count }}</h1>
-                <h5 class="list-group-item-heading">
-                  <a href="{% url 'peering:autonomoussystem_list' %}">Autonomous Systems</a>
-                </h5>
-                <p class="list-group-item-textn text-muted">Networks to peer with</p>
+                <h1 class="display-4 float-end">{{ statistics.autonomous_systems_count }}</h1>
+                <h5><a href="{% url 'peering:autonomoussystem_list' %}">Autonomous Systems</a></h5>
+                <p class="text-muted">Networks to peer with</p>
               </div>
               <div class="list-group-item">
-                <h1 class="display-4 float-right">{{ statistics.bgp_groups_count }}</h1>
-                <h5 class="list-group-item-heading">
-                  <a href="{% url 'peering:bgpgroup_list' %}">BGP Groups</a>
-                </h5>
-                <p class="list-group-item-textn text-muted">Groups of BGP sessions</p>
+                <h1 class="display-4 float-end">{{ statistics.bgp_groups_count }}</h1>
+                <h5><a href="{% url 'peering:bgpgroup_list' %}">BGP Groups</a></h5>
+                <p class="text-muted">Groups of BGP sessions</p>
               </div>
               <div class="list-group-item">
-                <h1 class="display-4 float-right">{{ statistics.internet_exchanges_count }}</h1>
-                <h5 class="list-group-item-heading">
-                  <a href="{% url 'peering:internetexchange_list' %}">Internet Exchange Points</a>
-                </h5>
-                <p class="list-group-item-textn text-muted">Infrastructures allowing peering</p>
+                <h1 class="display-4 float-end">{{ statistics.internet_exchanges_count }}</h1>
+                <h5><a href="{% url 'peering:internetexchange_list' %}">Internet Exchange Points</a></h5>
+                <p class="text-muted">Infrastructures allowing peering</p>
               </div>
               <div class="list-group-item">
-                <h1 class="display-4 float-right">{{ statistics.direct_peering_sessions_count }}</h1>
-                <h5 class="list-group-item-heading">
-                  <a href="{% url 'peering:directpeeringsession_list' %}">Direct Peering Sessions</a>
-                </h5>
-                <p class="list-group-item-textn text-muted">BGP sessions for transit, PNIs, etc.</p>
+                <h1 class="display-4 float-end">{{ statistics.direct_peering_sessions_count }}</h1>
+                <h5><a href="{% url 'peering:directpeeringsession_list' %}">Direct Peering Sessions</a></h5>
+                <p class="text-muted">BGP sessions for transit, PNIs, etc.</p>
               </div>
               <div class="list-group-item">
-                <h1 class="display-4 float-right">{{ statistics.internet_exchange_peering_sessions_count }}</h1>
-                <h5 class="list-group-item-heading">
-                  <a href="{% url 'peering:internetexchangepeeringsession_list' %}">IXP Peering Sessions</a>
-                </h5>
-                <p class="list-group-item-textn text-muted">BGP sessions setup over IXPs</p>
+                <h1 class="display-4 float-end">{{ statistics.internet_exchange_peering_sessions_count }}</h1>
+                <h5><a href="{% url 'peering:internetexchangepeeringsession_list' %}">IXP Peering Sessions</a></h5>
+                <p class="text-muted">BGP sessions setup over IXPs</p>
               </div>
             </div>
           </div>
@@ -60,18 +50,14 @@
             <h4 class="card-header">Devices</h4>
             <div class="list-group list-group-flush">
               <div class="list-group-item">
-                <h1 class="display-4 float-right">{{ statistics.configurations_count }}</h1>
-                <h5 class="list-group-item-heading">
-                  <a href="{% url 'devices:configuration_list' %}">Configurations</a>
-                </h5>
-                <p class="list-group-item-textn text-muted">Templates to build router configurations</p>
+                <h1 class="display-4 float-end">{{ statistics.configurations_count }}</h1>
+                <h5><a href="{% url 'devices:configuration_list' %}">Configurations</a></h5>
+                <p class="text-muted">Templates to build router configurations</p>
               </div>
               <div class="list-group-item">
-                <h1 class="display-4 float-right">{{ statistics.routers_count }}</h1>
-                <h5 class="list-group-item-heading">
-                  <a href="{% url 'devices:router_list' %}">Routers</a>
-                </h5>
-                <p class="list-group-item-textn text-muted">Network devices running BGP</p>
+                <h1 class="display-4 float-end">{{ statistics.routers_count }}</h1>
+                <h5><a href="{% url 'devices:router_list' %}">Routers</a></h5>
+                <p class="text-muted">Network devices running BGP</p>
               </div>
             </div>
           </div>
@@ -79,18 +65,14 @@
             <h4 class="card-header">Network</h4>
             <div class="list-group list-group-flush">
               <div class="list-group-item">
-                <h1 class="display-4 float-right">{{ statistics.connections_count }}</h1>
-                <h5 class="list-group-item-heading">
-                  <a href="{% url 'net:connection_list' %}">Connections</a>
-                </h5>
-                <p class="list-group-item-textn text-muted">Connections to IXPs</p>
+                <h1 class="display-4 float-end">{{ statistics.connections_count }}</h1>
+                <h5><a href="{% url 'net:connection_list' %}">Connections</a></h5>
+                <p class="text-muted">Connections to IXPs</p>
               </div>
               <div class="list-group-item">
-                <h1 class="display-4 float-right">{{ statistics.bfd_count }}</h1>
-                <h5 class="list-group-item-heading">
-                  <a href="{% url 'net:bfd_list' %}">BFD</a>
-                </h5>
-                <p class="list-group-item-textn text-muted">Protocol for fast failure detection</p>
+                <h1 class="display-4 float-end">{{ statistics.bfd_count }}</h1>
+                <h5><a href="{% url 'net:bfd_list' %}">BFD</a></h5>
+                <p class="text-muted">Protocol for fast failure detection</p>
               </div>
             </div>
           </div>
@@ -100,18 +82,14 @@
             <h4 class="card-header">Policy Options</h4>
             <div class="list-group list-group-flush">
               <div class="list-group-item">
-                <h1 class="display-4 float-right">{{ statistics.routing_policies_count }}</h1>
-                <h5 class="list-group-item-heading">
-                  <a href="{% url 'peering:routingpolicy_list' %}">Routing Policies</a>
-                </h5>
-                <p class="list-group-item-textn text-muted">Policies filtering advertised/received routes</p>
+                <h1 class="display-4 float-end">{{ statistics.routing_policies_count }}</h1>
+                <h5><a href="{% url 'peering:routingpolicy_list' %}">Routing Policies</a></h5>
+                <p class="text-muted">Policies filtering advertised/received routes</p>
               </div>
               <div class="list-group-item">
-                <h1 class="display-4 float-right">{{ statistics.communities_count }}</h1>
-                <h5 class="list-group-item-heading">
-                  <a href="{% url 'peering:community_list' %}">Communities</a>
-                </h5>
-                <p class="list-group-item-textn text-muted">Tags for traffic engineering</p>
+                <h1 class="display-4 float-end">{{ statistics.communities_count }}</h1>
+                <h5><a href="{% url 'peering:community_list' %}">Communities</a></h5>
+                <p class="text-muted">Tags for traffic engineering</p>
               </div>
             </div>
           </div>
@@ -119,18 +97,14 @@
             <h4 class="card-header">Messaging</h4>
             <div class="list-group list-group-flush">
               <div class="list-group-item">
-                <h1 class="display-4 float-right">{{ statistics.contacts_count }}</h1>
-                <h5 class="list-group-item-heading">
-                  <a href="{% url 'messaging:contact_list' %}">Contacts</a>
-                </h5>
-                <p class="list-group-item-textn text-muted">People to discuss peering with</p>
+                <h1 class="display-4 float-end">{{ statistics.contacts_count }}</h1>
+                <h5><a href="{% url 'messaging:contact_list' %}">Contacts</a></h5>
+                <p class="text-muted">People to discuss peering with</p>
               </div>
               <div class="list-group-item">
-                <h1 class="display-4 float-right">{{ statistics.emails_count }}</h1>
-                <h5 class="list-group-item-heading">
-                  <a href="{% url 'messaging:email_list' %}">E-mails</a>
-                </h5>
-                <p class="list-group-item-textn text-muted">Templates to build e-mails</p>
+                <h1 class="display-4 float-end">{{ statistics.emails_count }}</h1>
+                <h5><a href="{% url 'messaging:email_list' %}">E-mails</a></h5>
+                <p class="text-muted">Templates to build e-mails</p>
               </div>
             </div>
           </div>
@@ -154,9 +128,9 @@
               </thead>
               <tbody>
                 {% for change in changelog %}
-                <tr class="table-{{ change.get_action_colour }}">
+                <tr>
                   <th scope="row">{{ change.user | default:change.user_name }}</th>
-                  <td>{{ change.get_action_display | title_with_uppers }}</td>
+                  <td>{{ change.get_action_html }}</td>
                   <td>{{ change.changed_object_type.name | title_with_uppers }}</td>
                   <td>
                     {% if change.changed_object.get_absolute_url %}
@@ -168,7 +142,7 @@
                   <td>{{ change.time | date:settings.SHORT_DATETIME_FORMAT }}</td>
                   <td>
                     <a role="button" class="text-body" href="{{ change.get_absolute_url }}">
-                      <i class="fas fa-ellipsis-h" data-toggle="tooltip" data-placement="left" title="View Change Details"></i>
+                      <i class="fas fa-ellipsis-h" data-bs-toggle="tooltip" data-placement="left" title="View Change Details"></i>
                     </a>
                   </td>
                 </tr>
@@ -181,5 +155,5 @@
       {% endif %}
 {% endblock %}
 {% block javascript %}
-<script>$(function() { $('[data-toggle="tooltip"]').tooltip(); });</script>
+<script>$(function() { $('[data-bs-toggle="tooltip"]').tooltip(); });</script>
 {% endblock %}

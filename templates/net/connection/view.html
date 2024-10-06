@@ -7,7 +7,7 @@
       <div class="card-header">
         <strong>Details</strong>
         {% if instance.linked_to_peeringdb %}
-        <span class="float-right" data-toggle="tooltip" data-placement="right" title="Linked to PeeringDB">
+        <span class="float-end" data-bs-toggle="tooltip" data-placement="right" title="Linked to PeeringDB">
           <i class="fas fa-check-circle text-success"></i>
         </span>
         {% endif %}
@@ -26,8 +26,8 @@
           <td>
             {{ instance.mac_address|render_none }}
             {% if ixapi_network_service_config and instance.mac_address and instance.mac_address != ixapi_mac_address %}
-            <span class="float-right" data-toggle="tooltip" data-placement="top" title="Use this MAC in IX-API">
-              <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#update_ixapi_mac_modal"><i class="fas fa-upload"></i> Set in IX-API</button>
+            <span class="float-end" data-bs-toggle="tooltip" data-placement="top" title="Use this MAC in IX-API">
+              <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#update_ixapi_mac_modal"><i class="fas fa-upload"></i> Set in IX-API</button>
             </span>
             {% endif %}
           </td>
@@ -62,7 +62,7 @@
     <div class="card mb-2">
       <div class="card-header">
         <strong>IX-API</strong>
-        <span class="float-right" data-toggle="tooltip" data-placement="right" title="Found in IX-API">
+        <span class="float-end" data-bs-toggle="tooltip" data-placement="right" title="Found in IX-API">
           <i class="fas fa-check-circle text-success"></i>
         </span>
       </div>
@@ -90,7 +90,7 @@
         {% for ip in ixapi_network_service_config.ips %}
         <tr>
           <td>IPv{{ ip.version }} address</td>
-          <td{% if ip.fqdn %} data-toggle="tooltip" data-placement="top" title="{{ ip.fqdn }}"{% endif %}>{{ ip }}</td>
+          <td{% if ip.fqdn %} data-bs-toggle="tooltip" data-placement="top" title="{{ ip.fqdn }}"{% endif %}>{{ ip }}</td>
         </tr>
         {% endfor %}
         <tr>
@@ -98,8 +98,8 @@
           <td>
             {{ ixapi_mac_address|render_none }}
             {% if ixapi_mac_address and instance.mac_address != ixapi_mac_address %}
-            <span class="float-right" data-toggle="tooltip" data-placement="top" title="Set this MAC as the one of the connection">
-              <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#use_ixapi_mac_modal"><i class="fas fa-download"></i> Use this MAC</button>
+            <span class="float-end" data-bs-toggle="tooltip" data-placement="top" title="Set this MAC as the one of the connection">
+              <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#use_ixapi_mac_modal"><i class="fas fa-download"></i> Use this MAC</button>
             </span>
             {% endif %}
           </td>
@@ -128,16 +128,14 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="update_ixapi_mac_label">Update IX-API MAC Address</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         Do you really want to use <code>{{ instance.mac_address }}</code> as MAC address for this IXP connection in IX-API?
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" id="update_ixapi_mac">Update</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
@@ -149,16 +147,14 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="use_ixapi_mac_label">Use IX-API MAC Address</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         Do you really want to use <code>{{ ixapi_mac_address }}</code> (which has been found in IX-API) as MAC address for this IXP connection?
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" id="use_ixapi_mac">Update</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
@@ -168,7 +164,7 @@
 {% block javascript %}
 <script>
   $(function() {
-    $('[data-toggle="tooltip"]').tooltip();
+    $('[data-bs-toggle="tooltip"]').tooltip();
   });
   {% if ixapi_network_service_config and instance.mac_address and instance.mac_address != ixapi_mac_address %}
   $("#update_ixapi_mac").click(function() {

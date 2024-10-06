@@ -54,7 +54,7 @@
           <div class="card">
             <div class="card-header">
               <strong>Difference</strong>
-              <div class="btn-group float-right" role="group" aria-label="Change Navigation">
+              <div class="btn-group float-end" role="group" aria-label="Change Navigation">
                 <a {% if previous_change %}href="{% url 'core:objectchange_view' pk=previous_change.pk %}"{% endif %} class="btn btn-xs btn-secondary{% if not previous_change %} disabled{% endif %}">
                   <i class="fas fa-chevron-left"></i> Previous
                 </a>
@@ -118,7 +118,7 @@
         <div class="col-md-12">
           {% include 'utils/card_table.html' with table=related_changes_table header='Related Changes' %}
           {% if related_changes_count > related_changes_table.rows|length %}
-          <div class="float-right mt-2">
+          <div class="float-end mt-2">
             <a href="{% url 'core:objectchange_list' %}?request_id={{ instance.request_id }}" class="btn btn-primary">See all {{ related_changes_count | add:"1" }} changes</a>
           </div>
           {% endif %}

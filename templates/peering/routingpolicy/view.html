@@ -40,7 +40,7 @@
       <ul class="list-group list-group-flush">
       {% for community in instance.communities.all %}
         <li class="list-group-item">
-          {{ community|as_link }}{% if community.type %} <span class="float-right">{{ community.get_type_html }}{% endif %}</span>
+          {{ community|as_link }}{% if community.type %} <span class="float-end">{{ community.get_type_html }}{% endif %}</span>
         </li>
       {% endfor %}
       </ul>

@@ -3,6 +3,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 from ..enums import ObjectChangeAction
 
@@ -64,8 +65,23 @@ class ObjectChange(models.Model):
     def get_absolute_url(self):
         return reverse("core:objectchange_view", args=[self.pk])
 
-    def get_action_colour(self):
-        return ObjectChangeAction.colours.get(self.action)
+    def get_action_html(self):
+        """
+        Return an HTML element based on the action.
+        """
+        match self.action:
+            case ObjectChangeAction.CREATE:
+                badge = "success"
+            case ObjectChangeAction.UPDATE:
+                badge = "primary"
+            case ObjectChangeAction.DELETE:
+                badge = "danger"
+            case _:
+                badge = "secondary"
+
+        return mark_safe(
+            f'<span class="badge text-bg-{badge}">{self.get_action_display() or "Unknown"}</span>'
+        )
 
     @property
     def has_changes(self):

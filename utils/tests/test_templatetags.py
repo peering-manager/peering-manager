@@ -21,7 +21,7 @@ class TemplateTagsTestCase(TestCase):
 
     def test_status_as_badge(self):
         self.assertEqual(
-            '<span class="badge badge-success">Enabled</span>',
+            '<span class="badge text-bg-success">Enabled</span>',
             status_as_badge(self.ixp),
         )
 

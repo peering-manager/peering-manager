@@ -7,7 +7,7 @@
       {% if column.orderable %}
       <th scope="col" {{ column.attrs.th.as_html }}>
         {% if column.is_ordered %}
-        <div class="float-right">
+        <div class="float-end">
           <a href="{% querystring table.prefixed_order_by_field='' %}" class="text-danger"><i class="fas fa-times"></i></a>
         </div>
         {% endif %}

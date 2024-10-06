@@ -35,7 +35,7 @@ def status_as_badge(value):
         return ""
 
     return mark_safe(
-        f'<span class="badge badge-{value.get_status_colour()}">{value.get_status_display()}</span>'
+        f'<span class="badge text-bg-{value.get_status_colour()}">{value.get_status_display()}</span>'
     )
 
 
