@@ -33,7 +33,7 @@ OBJECT_CHANGE_REQUEST_ID = """
 
 
 class ObjectChangeTable(PeeringManagerTable):
-    time = tables.DateTimeColumn(linkify=True, format=settings.SHORT_DATETIME_FORMAT)
+    time = columns.DateTimeColumn(linkify=True)
     action = tables.TemplateColumn(template_code=OBJECT_CHANGE_ACTION)
     changed_object_type = tables.Column(verbose_name="Type")
     object_repr = tables.TemplateColumn(

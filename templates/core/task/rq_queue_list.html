@@ -1,0 +1,10 @@
+{% extends '_base.html' %}
+{% load render_table from django_tables2 %}
+{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}Background Queues{% endblock %}</li>{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col">
+    {% include 'generic/object_list.html' with table_modal='BackgroundQueueTable_config' %}
+  </div>
+</div>
+{% endblock %}

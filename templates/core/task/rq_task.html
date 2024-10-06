@@ -1,0 +1,66 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'core:background_queue_list' %}">Background Tasks</a></li>
+<li class="breadcrumb-item"><a href="{% url 'core:background_task_list' queue_index=queue_index status=job.get_status %}">{{ queue.name }}</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}Job {{ job.id }}{% endblock %}</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-2">
+      <div class="card-header"><strong>Details</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Queue</td>
+          <td>{{ job.origin|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Timeout</td>
+          <td>{{ job.timeout|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Result TTL</td>
+          <td>{{ job.result_ttl|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Created</td>
+          <td>{{ job.created_at|date_span }}</td>
+        </tr>
+        <tr>
+          <td>Status</td>
+          <td>{{ job.get_status|render_none|capfirst }}</td>
+        </tr>
+        <tr>
+          <td>Callable</td>
+          <td>{{ object.get_type_display|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Meta</td>
+          <td>{{ job.meta|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Arguments</td>
+          <td>{{ jobs.args|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Keyword Arguments</td>
+          <td>{{ job.kwargs }}</td>
+        </tr>
+        {% if dependency_id %}
+        <tr>
+          <td>Depends on</td>
+          <td><a href="{% url 'core:background_task' job.id %}">{{ dependency_id }}</a></td>
+        </tr>
+        {% endif %}
+        {% if exc_info %}
+        <tr>
+          <td>Exception</td>
+          <td><pre>{% if job.exc_info %}{{ job.exc_info|linebreaks }}{% endif %}</pre></td>
+        </tr>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -5,16 +5,16 @@ from peering_manager.tables import BaseTable, columns
 
 from ..models import Job
 
+__all__ = ("JobTable",)
+
 
 class JobTable(BaseTable):
     pk = columns.SelectColumn()
     object_type = columns.ContentTypeColumn(verbose_name="Object type")
     object = tables.Column(linkify=True)
-    created = tables.DateTimeColumn(linkify=True, format=settings.SHORT_DATETIME_FORMAT)
-    started = tables.DateTimeColumn(linkify=True, format=settings.SHORT_DATETIME_FORMAT)
-    completed = tables.DateTimeColumn(
-        linkify=True, format=settings.SHORT_DATETIME_FORMAT
-    )
+    created = columns.DateTimeColumn(linkify=True)
+    started = columns.DateTimeColumn(linkify=True)
+    completed = columns.DateTimeColumn(linkify=True)
     status = columns.ChoiceFieldColumn()
     data = tables.TemplateColumn(
         """
