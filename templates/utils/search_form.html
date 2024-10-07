@@ -7,7 +7,7 @@
   <div class="card-body">
     <form action="." method="get">
       {% for field in filterset_form %}
-      <div class="row mb-3">
+      <div class="mb-3">
         {% if field.name == "q" %}
         <div class="input-group">
           <input type="text" name="q" class="form-control" placeholder="Search" {% if request.GET.q %}value="{{ request.GET.q }}" {% endif %}/>
