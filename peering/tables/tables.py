@@ -19,7 +19,6 @@ ROUTING_POLICY_TYPE = "{{ record.get_type_html }}"
 
 
 class AutonomousSystemTable(PeeringManagerTable):
-    pk = columns.SelectColumn()
     asn = tables.Column(verbose_name="ASN")
     name = tables.Column(linkify=True)
     irr_as_set = tables.Column(verbose_name="IRR AS-SET", orderable=False)
@@ -76,7 +75,6 @@ class AutonomousSystemTable(PeeringManagerTable):
 
 
 class BGPGroupTable(PeeringManagerTable):
-    pk = columns.SelectColumn()
     name = tables.Column(linkify=True)
     status = columns.ChoiceFieldColumn()
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
@@ -113,7 +111,6 @@ class BGPGroupTable(PeeringManagerTable):
 
 
 class CommunityTable(PeeringManagerTable):
-    pk = columns.SelectColumn()
     name = tables.Column(linkify=True)
     type = tables.TemplateColumn(template_code=COMMUNITY_TYPE)
     tags = columns.TagColumn(url_name="peering:community_list")
@@ -135,7 +132,6 @@ class DirectPeeringSessionTable(PeeringManagerTable):
     {% endif %}
     """
 
-    pk = columns.SelectColumn()
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     autonomous_system = tables.Column(verbose_name="AS", linkify=True)
     ip_address = tables.Column(verbose_name="IP Address", linkify=True)
@@ -198,7 +194,6 @@ class DirectPeeringSessionTable(PeeringManagerTable):
 
 
 class InternetExchangeTable(PeeringManagerTable):
-    pk = columns.SelectColumn()
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     name = tables.Column(linkify=True)
     status = columns.ChoiceFieldColumn()
@@ -244,7 +239,6 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
     {% endif %}
     """
 
-    pk = columns.SelectColumn()
     autonomous_system = tables.Column(
         verbose_name="AS", accessor="autonomous_system", linkify=True
     )
@@ -309,7 +303,6 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
 
 
 class RoutingPolicyTable(PeeringManagerTable):
-    pk = columns.SelectColumn()
     name = tables.Column(linkify=True)
     type = tables.TemplateColumn(template_code=ROUTING_POLICY_TYPE)
     tags = columns.TagColumn(url_name="peering:routingpolicy_list")

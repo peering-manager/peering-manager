@@ -6,7 +6,7 @@ from peering_manager.forms import (
     PeeringManagerModelFilterSetForm,
     PeeringManagerModelForm,
 )
-from utils.forms.fields import CommentField, JSONField, SlugField, TagFilterField
+from utils.forms.fields import JSONField, SlugField, TagFilterField
 
 from ..models import BFD
 

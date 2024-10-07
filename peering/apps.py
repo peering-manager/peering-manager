@@ -5,4 +5,4 @@ class PeeringConfig(AppConfig):
     name = "peering"
 
     def ready(self):
-        import peering.signals
+        import peering.signals  # noqa: F401

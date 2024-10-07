@@ -9,7 +9,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from net.models import Connection
-from netbox.api import NetBox
 from peering.enums import BGPState
 from peering.models import (
     AutonomousSystem,

@@ -14,7 +14,6 @@ from .models import (
 
 
 class ConfigContextTable(PeeringManagerTable):
-    pk = columns.SelectColumn()
     name = tables.Column(linkify=True)
     is_active = columns.BooleanColumn(verbose_name="Active")
 
@@ -51,6 +50,7 @@ class ExportTemplateTable(PeeringManagerTable):
     class Meta(PeeringManagerTable.Meta):
         model = ExportTemplate
         fields = (
+            "pk",
             "id",
             "name",
             "content_type",
@@ -78,7 +78,6 @@ class IXAPITable(PeeringManagerTable):
 
 
 class TagTable(PeeringManagerTable):
-    pk = columns.SelectColumn()
     name = tables.Column(linkify=True)
     color = columns.ColourColumn()
 
@@ -104,7 +103,6 @@ class TaggedItemTable(PeeringManagerTable):
 
 
 class WebhookTable(PeeringManagerTable):
-    pk = columns.SelectColumn()
     name = tables.Column(linkify=True)
     content_types = columns.ContentTypesColumn()
     enabled = columns.BooleanColumn()

@@ -1,5 +1,4 @@
 import django_tables2 as tables
-from django.conf import settings
 
 from peering_manager.tables import BaseTable, columns
 

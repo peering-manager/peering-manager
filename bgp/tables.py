@@ -8,7 +8,6 @@ __all__ = ("RelationshipTable",)
 
 
 class RelationshipTable(PeeringManagerTable):
-    pk = columns.SelectColumn()
     name = tables.Column(linkify=True)
     color = columns.ColourColumn()
 

@@ -62,7 +62,6 @@ ignore = [
     "C901",    # Is too complex
     "DJ001",   # Avoid using `null=True` on string-based fields such as `CharField`
     "E501",    # Line too long
-    "F401",    # Imported but unused; consider using `importlib.util.find_spec` to test for availability
     "F403",    # Unable to detect undefined names
     "F405",    # May be undefined, or defined from star imports
     "PLR0911", # Too many return statements

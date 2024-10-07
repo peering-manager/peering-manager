@@ -15,7 +15,6 @@ __all__ = (
 
 
 class ConfigurationTable(PeeringManagerTable):
-    pk = columns.SelectColumn()
     name = tables.Column(linkify=True)
     jinja2_trim = columns.BooleanColumn(verbose_name="Trim")
     jinja2_lstrip = columns.BooleanColumn(verbose_name="Lstrip")
@@ -37,7 +36,6 @@ class ConfigurationTable(PeeringManagerTable):
 
 
 class PlatformTable(PeeringManagerTable):
-    pk = columns.SelectColumn()
     router_count = tables.Column(
         verbose_name="Routers",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
@@ -70,7 +68,6 @@ class PlatformTable(PeeringManagerTable):
 
 
 class RouterTable(PeeringManagerTable):
-    pk = columns.SelectColumn()
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     name = tables.Column(linkify=True)
     platform = tables.Column(linkify=True)
@@ -129,7 +126,6 @@ class RouterTable(PeeringManagerTable):
 
 
 class RouterConnectionTable(PeeringManagerTable):
-    pk = columns.SelectColumn()
     status = columns.ChoiceFieldColumn()
     ipv6_address = tables.Column(linkify=True, verbose_name="IPv6")
     ipv4_address = tables.Column(linkify=True, verbose_name="IPv4")
