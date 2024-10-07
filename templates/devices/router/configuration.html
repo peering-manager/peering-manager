@@ -4,24 +4,24 @@
   <div class="col-md-2">
     {% if perms.devices.deploy_router_configuration %}
     {% if instance.is_usable_for_task %}
-    <div class="custom-control custom-switch btn-block">
-      <input type="checkbox" class="custom-control-input" id="compare-switch" checked>
-      <label class="custom-control-label" for="compare-switch">Compare before commit</label>
+    <div class="form-check form-switch w-100 mb-3">
+      <input class="form-check-input" type="checkbox" id="compare-switch" checked>
+      <label class="form-check-label" for="compare-switch">Compare before commit</label>
     </div>
-    <button type="button" class="btn btn-primary btn-block" id="deploy"{% if not instance.is_usable_for_task %} disabled{% endif %}>
+    <button type="button" class="btn btn-primary w-100 mb-3" id="deploy"{% if not instance.is_usable_for_task %} disabled{% endif %}>
       <i class="fa fa-cogs"></i> Deploy
     </button>
     {% endif %}
     {% endif %}
     {% if perms.devices.push_router_configuration_to_data_source %}
-    <button type="button" class="btn btn-primary btn-block" id="push-datasource">
+    <button type="button" class="btn btn-primary w-100 mb-3" id="push-datasource">
       <i class="fa fa-cogs"></i> Push to data source
     </button>
     {% endif %}
-    <button type="button" class="btn btn-secondary btn-block" id="copy-config">
+    <button type="button" class="btn btn-secondary w-100 mb-3" id="copy-config">
       <i class="fa fa-clipboard"></i> Copy
     </button>
-    <a href=".?raw" class="btn btn-dark btn-block">
+    <a href=".?raw" class="btn btn-dark w-100">
       <i class="fas fa-file-alt"></i> Raw output
     </a>
   </div>
