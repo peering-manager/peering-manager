@@ -142,6 +142,7 @@ class Router(PushedDataMixin, PrimaryModel):
     configuration_template = models.ForeignKey(
         "devices.Configuration", blank=True, null=True, on_delete=models.SET_NULL
     )
+    communities = models.ManyToManyField(to="peering.Community", blank=True)
     netbox_device_id = models.PositiveIntegerField(
         blank=True, default=0, verbose_name="NetBox device"
     )
@@ -149,7 +150,6 @@ class Router(PushedDataMixin, PrimaryModel):
     napalm_password = models.CharField(blank=True, null=True, max_length=256)
     napalm_timeout = models.PositiveIntegerField(blank=True, default=0)
     napalm_args = models.JSONField(blank=True, null=True)
-    communities = models.ManyToManyField(to="peering.Community", blank=True)
 
     logger = logging.getLogger("peering.manager.napalm")
 

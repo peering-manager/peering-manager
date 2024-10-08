@@ -4,10 +4,7 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-    dependencies = [
-        ("peering", "0103_session_bfd"),
-        ("devices", "0007_move_router"),
-    ]
+    dependencies = [("peering", "0103_session_bfd"), ("devices", "0007_move_router")]
 
     operations = [
         migrations.AddField(

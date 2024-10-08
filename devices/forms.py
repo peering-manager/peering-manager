@@ -120,6 +120,9 @@ class RouterForm(PushedDataMixin, PeeringManagerModelForm):
         label="Configuration",
         help_text="Template used to generate device configuration",
     )
+    communities = DynamicModelMultipleChoiceField(
+        required=False, queryset=Community.objects.all()
+    )
     local_autonomous_system = DynamicModelChoiceField(
         queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
@@ -140,9 +143,6 @@ class RouterForm(PushedDataMixin, PeeringManagerModelForm):
     )
     comments = CommentField()
     tags = TagField(required=False)
-    communities = DynamicModelMultipleChoiceField(
-        required=False, queryset=Community.objects.all()
-    )
     fieldsets = (
         (
             "Router",
@@ -163,7 +163,7 @@ class RouterForm(PushedDataMixin, PeeringManagerModelForm):
         ),
         ("Data Source", ("data_source", "data_path")),
         ("Config Context", ("local_context_data",)),
-        ("Communities", ("communities",)),
+        ("Policy Options", ("communities",)),
     )
 
     def __init__(self, *args, **kwargs):
@@ -210,11 +210,11 @@ class RouterForm(PushedDataMixin, PeeringManagerModelForm):
             "napalm_password",
             "napalm_timeout",
             "napalm_args",
+            "communities",
             "comments",
             "tags",
             "data_source",
             "data_path",
-            "communities",
         )
         help_texts = {"hostname": "Router hostname (must be resolvable) or IP address"}
 
@@ -232,9 +232,6 @@ class RouterBulkEditForm(PeeringManagerModelBulkEditForm):
         choices=add_blank_choice(DeviceStatus),
         widget=StaticSelect,
     )
-    communities = DynamicModelMultipleChoiceField(
-        required=False, queryset=Community.objects.all()
-    )
     encrypt_passwords = forms.NullBooleanField(
         required=False,
         widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
@@ -246,6 +243,9 @@ class RouterBulkEditForm(PeeringManagerModelBulkEditForm):
     )
     configuration_template = DynamicModelChoiceField(
         required=False, queryset=Configuration.objects.all()
+    )
+    communities = DynamicModelMultipleChoiceField(
+        required=False, queryset=Community.objects.all()
     )
     local_context_data = JSONField(required=False)
     comments = CommentField()

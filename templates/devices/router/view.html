@@ -100,7 +100,7 @@
     </div>
     {% if request.user.is_authenticated %}
     {% if instance.napalm_username or instance.napalm_password or instance.napalm_timeout or instance.napalm_args %}
-    <div class="card">
+    <div class="card mb-2">
       <div class="card-header"><strong>NAPALM</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         {% if instance.napalm_username %}
@@ -137,9 +137,6 @@
       </table>
     </div>
     {% endif %}
-    {% endif %}
-  </div>
-  <div class="col-md-6">
     <div class="card">
       <div class="card-header"><strong>Comments</strong></div>
       <div class="card-body">
@@ -150,8 +147,10 @@
         {% endif %}
       </div>
     </div>
-    {% include 'includes/tags_card.html' with tags=instance.tags.all url='devices:router_list' %}
-    <div class="card mt-2">
+    {% endif %}
+  </div>
+  <div class="col-md-6">
+    <div class="card mb-2">
       <div class="card-header">
         <strong>BGP Communities</strong>
       </div>
@@ -169,6 +168,7 @@
       </div>
       {% endif %}
     </div>
+    {% include 'includes/tags_card.html' with tags=instance.tags.all url='devices:router_list' %}
   </div>
 </div>
 {% endblock %}

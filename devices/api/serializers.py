@@ -54,14 +54,14 @@ class PlatformSerializer(PeeringManagerModelSerializer):
 class RouterSerializer(PeeringManagerModelSerializer):
     poll_bgp_sessions_last_updated = serializers.DateTimeField(read_only=True)
     configuration_template = NestedConfigurationSerializer(required=False)
-    local_autonomous_system = NestedAutonomousSystemSerializer()
-    platform = NestedPlatformSerializer()
     communities = SerializedPKRelatedField(
         queryset=Community.objects.all(),
         serializer=NestedCommunitySerializer,
         required=False,
         many=True,
     )
+    local_autonomous_system = NestedAutonomousSystemSerializer()
+    platform = NestedPlatformSerializer()
     status = ChoiceField(required=False, choices=DeviceStatus)
 
     class Meta:
@@ -72,12 +72,12 @@ class RouterSerializer(PeeringManagerModelSerializer):
             "name",
             "hostname",
             "platform",
-            "communities",
             "status",
             "encrypt_passwords",
             "poll_bgp_sessions_state",
             "poll_bgp_sessions_last_updated",
             "configuration_template",
+            "communities",
             "local_autonomous_system",
             "netbox_device_id",
             "local_context_data",
