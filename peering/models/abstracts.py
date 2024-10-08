@@ -226,13 +226,21 @@ class BGPSession(PrimaryModel, PolicyMixin):
                 merged.append(c)
 
         group = None
+        router = None
         if hasattr(self, "ixp_connection"):
             group = self.ixp_connection.internet_exchange_point
+            router = self.ixp_connection.router
         else:
             group = self.bgp_group
+            router = self.router
 
         if group:
             for c in group.communities.all():
+                if c not in merged:
+                    merged.append(c)
+
+        if router:
+            for c in router.communities.all():
                 if c not in merged:
                     merged.append(c)
 

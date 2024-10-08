@@ -149,6 +149,7 @@ class Router(PushedDataMixin, PrimaryModel):
     napalm_password = models.CharField(blank=True, null=True, max_length=256)
     napalm_timeout = models.PositiveIntegerField(blank=True, default=0)
     napalm_args = models.JSONField(blank=True, null=True)
+    communities = models.ManyToManyField(to="peering.Community", blank=True)
 
     logger = logging.getLogger("peering.manager.napalm")
 

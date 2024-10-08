@@ -5,7 +5,7 @@ from taggit.forms import TagField
 
 from core.forms import PushedDataMixin, SynchronisedDataMixin
 from netbox.api import NetBox
-from peering.models import AutonomousSystem
+from peering.models import AutonomousSystem, Community
 from peering_manager.forms import (
     PeeringManagerModelFilterSetForm,
     PeeringManagerModelForm,
@@ -140,6 +140,9 @@ class RouterForm(PushedDataMixin, PeeringManagerModelForm):
     )
     comments = CommentField()
     tags = TagField(required=False)
+    communities = DynamicModelMultipleChoiceField(
+        required=False, queryset=Community.objects.all()
+    )
     fieldsets = (
         (
             "Router",
@@ -160,6 +163,7 @@ class RouterForm(PushedDataMixin, PeeringManagerModelForm):
         ),
         ("Data Source", ("data_source", "data_path")),
         ("Config Context", ("local_context_data",)),
+        ("Communities", ("communities",)),
     )
 
     def __init__(self, *args, **kwargs):
@@ -210,6 +214,7 @@ class RouterForm(PushedDataMixin, PeeringManagerModelForm):
             "tags",
             "data_source",
             "data_path",
+            "communities",
         )
         help_texts = {"hostname": "Router hostname (must be resolvable) or IP address"}
 
@@ -227,6 +232,9 @@ class RouterBulkEditForm(PeeringManagerModelBulkEditForm):
         choices=add_blank_choice(DeviceStatus),
         widget=StaticSelect,
     )
+    communities = DynamicModelMultipleChoiceField(
+        required=False, queryset=Community.objects.all()
+    )
     encrypt_passwords = forms.NullBooleanField(
         required=False,
         widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
@@ -243,7 +251,7 @@ class RouterBulkEditForm(PeeringManagerModelBulkEditForm):
     comments = CommentField()
 
     model = Router
-    nullable_fields = ("local_context_data", "comments")
+    nullable_fields = ("communities", "local_context_data", "comments")
 
 
 class RouterFilterForm(PeeringManagerModelFilterSetForm):

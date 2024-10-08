@@ -1,7 +1,11 @@
 from rest_framework import serializers
 
-from peering.api.nested_serializers import NestedAutonomousSystemSerializer
-from peering_manager.api.fields import ChoiceField
+from peering.api.nested_serializers import (
+    NestedAutonomousSystemSerializer,
+    NestedCommunitySerializer,
+)
+from peering.models import Community
+from peering_manager.api.fields import ChoiceField, SerializedPKRelatedField
 from peering_manager.api.serializers import PeeringManagerModelSerializer
 
 from ..enums import DeviceStatus
@@ -52,6 +56,12 @@ class RouterSerializer(PeeringManagerModelSerializer):
     configuration_template = NestedConfigurationSerializer(required=False)
     local_autonomous_system = NestedAutonomousSystemSerializer()
     platform = NestedPlatformSerializer()
+    communities = SerializedPKRelatedField(
+        queryset=Community.objects.all(),
+        serializer=NestedCommunitySerializer,
+        required=False,
+        many=True,
+    )
     status = ChoiceField(required=False, choices=DeviceStatus)
 
     class Meta:
@@ -62,6 +72,7 @@ class RouterSerializer(PeeringManagerModelSerializer):
             "name",
             "hostname",
             "platform",
+            "communities",
             "status",
             "encrypt_passwords",
             "poll_bgp_sessions_state",

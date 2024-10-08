@@ -1,6 +1,7 @@
 import django_tables2 as tables
 
 from net.models import Connection
+from peering.tables.columns import CommunityColumn
 from peering_manager.tables import PeeringManagerTable, columns
 
 from .models import Configuration, Platform, Router
@@ -70,6 +71,7 @@ class RouterTable(PeeringManagerTable):
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     name = tables.Column(linkify=True)
     platform = tables.Column(linkify=True)
+    communities = CommunityColumn()
     status = columns.ChoiceFieldColumn()
     encrypt_passwords = columns.BooleanColumn(verbose_name="Encrypt Password")
     poll_bgp_sessions_state = columns.BooleanColumn(verbose_name="Poll BGP Sessions")
@@ -97,6 +99,7 @@ class RouterTable(PeeringManagerTable):
             "name",
             "hostname",
             "platform",
+            "communities",
             "status",
             "encrypt_passwords",
             "poll_bgp_sessions_state",

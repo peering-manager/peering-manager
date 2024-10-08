@@ -468,7 +468,7 @@ communities [ {{ ixp | communities | join(' ') }} ];
 ## `merge_communities`
 
 Merges all communities from an object into a single list. For BGP session,
-group's and autonomous system's communities will be merged together, avoiding
+group's, router's and autonomous system's communities will be merged together, avoiding
 duplicates.
 
 Example:
