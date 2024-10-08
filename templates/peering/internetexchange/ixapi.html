@@ -3,7 +3,7 @@
 {% block subcontent %}
 <div class="row">
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Endpoint</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
@@ -18,7 +18,7 @@
         {% endif %}
       </table>
     </div>
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Network service</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
@@ -56,7 +56,7 @@
   </div>
   <div class="col-md-6">
     {% for config in ixapi_service.network_service_configs %}
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header">
         <strong>{{ config.id }} - {{ config.state | title }}</strong>
         {% if config.connection %}

@@ -3,7 +3,7 @@
 {% block subcontent %}
 <div class="row">
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header">
         <strong>BGP Group Details</strong>
       </div>
@@ -29,7 +29,7 @@
     {% include 'includes/tags_card.html' with tags=instance.tags.all url='peering:bgpgroup_list' %}
   </div>
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Import Routing Policies</strong></div>
       {% if instance.import_routing_policies.all.count > 0 %}
       <ul class="list-group list-group-flush">
@@ -45,7 +45,7 @@
       </div>
       {% endif %}
     </div>
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Export Routing Policies</strong></div>
       {% if instance.export_routing_policies.all.count > 0 %}
       <ul class="list-group list-group-flush">
@@ -61,7 +61,7 @@
       </div>
       {% endif %}
     </div>
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header">
         <strong>BGP Communities</strong>
       </div>

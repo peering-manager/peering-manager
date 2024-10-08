@@ -4,7 +4,7 @@
 {% include 'includes/alerts_success_danger.html' %}
 <div class="row">
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header">
         <strong>Router Details</strong>
         {% if instance.is_usable_for_task %}
@@ -100,7 +100,7 @@
     </div>
     {% if request.user.is_authenticated %}
     {% if instance.napalm_username or instance.napalm_password or instance.napalm_timeout or instance.napalm_args %}
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>NAPALM</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         {% if instance.napalm_username %}
@@ -148,7 +148,7 @@
     {% endif %}
   </div>
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header">
         <strong>BGP Communities</strong>
       </div>

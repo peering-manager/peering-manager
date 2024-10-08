@@ -3,7 +3,7 @@
 {% block subcontent %}
 <div class="row">
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Info</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         {% if instance.peeringdb_network.name %}
@@ -53,7 +53,7 @@
     </div>
     {% with differences=instance.divergence_from_peeringdb %}
     {% if instance.affiliated and differences %}
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header">
         <strong>Differences</strong>
         <form class="float-end" id="proposal-form" action="{{ settings.PEERINGDB }}verified-update/" method="get" target="_blank">
@@ -99,7 +99,7 @@
     {% endif %}
   </div>
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Traffic</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         {% if instance.peeringdb_network.info_type %}
@@ -128,7 +128,7 @@
         {% endif %}
       </table>
     </div>
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Policy</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         {% if instance.peeringdb_network.policy_url %}

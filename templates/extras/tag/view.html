@@ -4,7 +4,7 @@
 {% block subcontent %}
 <div class="row">
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Details</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
@@ -36,7 +36,7 @@
   </div>
   {% if object_types %}
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Tagged Item Types</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         {% for object_type in object_types %}
@@ -52,7 +52,7 @@
 </div>
 <div class="row">
   <div class="col">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Tagged Objects</strong></div>
       {% render_table taggeditem_table 'includes/table.html' %}
     </div>

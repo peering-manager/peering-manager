@@ -3,7 +3,7 @@
 {% block subcontent %}
 <div class="row">
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header">
         <strong>AS Details</strong>
         <div class="float-end">
@@ -76,7 +76,7 @@
     {% endif %}
   </div>
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Import Routing Policies</strong></div>
       {% if instance.import_routing_policies.all.count > 0 %}
       <ul class="list-group list-group-flush">
@@ -92,7 +92,7 @@
       </div>
       {% endif %}
     </div>
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Export Routing Policies</strong></div>
       {% if instance.export_routing_policies.all.count > 0 %}
       <ul class="list-group list-group-flush">
@@ -108,7 +108,7 @@
       </div>
       {% endif %}
     </div>
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>BGP Communities</strong></div>
       {% if instance.communities.all.count > 0 %}
       <ul class="list-group list-group-flush">
