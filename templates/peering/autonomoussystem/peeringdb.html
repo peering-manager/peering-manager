@@ -230,9 +230,6 @@
 {% if instance.affiliated %}
 {{ instance.divergence_from_peeringdb | json_script:'peeringdb-diff' }}
 <script>
-$(function() {
-  $('[data-bs-toggle="tooltip"]').tooltip();
-});
 $('#proposal-form').on('submit', function() {
   const value = JSON.parse(document.getElementById('peeringdb-diff').textContent);
   var updates = {};

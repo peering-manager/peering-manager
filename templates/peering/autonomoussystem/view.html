@@ -131,10 +131,6 @@
 {% endblock %}
 {% block javascript %}
 <script>
-  // Init tooltip if there are any
-  $(function() {
-    $('[data-bs-toggle="tooltip"]').tooltip();
-  });
   {% if not instance.is_private %}
   // Bind function to button click
   $('#synchronise-with-peeringdb').click(function() {

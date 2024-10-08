@@ -154,9 +154,6 @@
 {% endblock %}
 {% block javascript %}
 <script>
-  $(function() {
-    $('[data-bs-toggle="tooltip"]').tooltip();
-  });
   {% if ixapi_network_service_config and instance.mac_address and instance.mac_address != ixapi_mac_address %}
   $("#update_ixapi_mac").click(function() {
     $.ajax({

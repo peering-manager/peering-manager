@@ -78,8 +78,12 @@ $(document).ready(function () {
   // to varname[] instead of staying as varname
   $.ajaxSettings.traditional = true;
 
-  // Trigger popover on hover
-  $('.popover-hover').popover({ trigger: 'hover' });
+  // Popovers
+  const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+  [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));
+  // Tooltips
+  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+  [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 
   // Toggle icon when a submenu is clicked
   function toggleIcon(e) {
