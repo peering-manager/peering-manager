@@ -18,70 +18,78 @@
     <link rel="icon" type="image/svg" href="{% static 'img/peering-manager.svg' %}">
   </head>
   <body>
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col"></div>
-        <div class="col-6 text-center">
-          {% if settings.BANNER_LOGIN %}
-          <div class="mb-4">
-            {{ settings.BANNER_LOGIN|safe }}
+    <section class="vh-100 w-100">
+      <div class="container-fluid h-custom">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+          <div class="col-md-9 col-lg-6 col-xl-5">
+            <img class="img-fluid" src="{% static 'img/peering-manager.svg' %}" alt="Peering Manager Logo">
           </div>
-          {% endif %}
-          {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} alert-dismissable" role="alert">
-            <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
-              <span>&times;</span>
-            </button>
-            {{ message }}
-          </div>
-          {% endfor %}
-          {% if form.non_field_errors %}
-          <div class="card bg-danger text-white mb-2">
-            <div class="card-header"><strong>Errors</strong></div>
-            <div class="card-body">
-              {{ form.non_field_errors }}
+          <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+            {% if settings.BANNER_LOGIN %}
+            <div class="mb-3">
+              {{ settings.BANNER_LOGIN|safe }}
             </div>
-          </div>
-          {% endif %}
-          <form class="form-login" action="{% url 'login' %}" method="post">
-            <img class="mb-4" width="360" src="{% static 'img/peering-manager.svg' %}" alt="">
-            <h1 class="h3 mb-3 font-weight-normal">Please log in</h1>
-            {% csrf_token %}
-            {% if 'next' in request.GET %}
-            <input type="hidden" name="next" value="{{ request.GET.next }}" />
             {% endif %}
-            {% render_field form.username %}
-            {% render_field form.password %}
-            <button type="submit" class="btn btn-lg btn-primary w-100">Log In</button>
-          </form>
-          {% if auth_backends %}
-          <div class="hr-text">OR</div>
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+              <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+                <span>&times;</span>
+              </button>
+              {{ message }}
+            </div>
+            {% endfor %}
+            {% if form.non_field_errors %}
+            <div class="card bg-danger text-white mb-3">
+              <div class="card-header"><strong>Errors</strong></div>
+              <div class="card-body">{{ form.non_field_errors }}</div>
+            </div>
+            {% endif %}
+            {% if auth_backends %}
             <div class="row">
               {% for backend in auth_backends %}
-                <div class="col">
-                  <a href="{{ backend.url }}" class="btn btn-lg btn-outline-secondary w-100">
-                    {% if backend.icon_name %}
-                    {% if backend.icon_is_url %}
-                    <img src="{{ backend.icon_name }}" height="24" class="me-2" />
-                    {% else %}
-                    <i class="{{ backend.icon_name }}"></i>
-                    {% endif %}
-                    {% endif %}
-                    {{ backend.display_name }}
-                  </a>
-                </div>
+              <div class="col">
+                <a href="{{ backend.url }}" class="btn btn-lg btn-outline-secondary w-100">
+                  {% if backend.icon_name %}
+                  {% if backend.icon_is_url %}
+                  <img src="{{ backend.icon_name }}" height="24" class="me-2" />
+                  {% else %}
+                  <i class="{{ backend.icon_name }}"></i>
+                  {% endif %}
+                  {% endif %}
+                  {{ backend.display_name }}
+                </a>
+              </div>
               {% endfor %}
             </div>
-          {% endif %}
-          <p class="mt-5 mb-3 text-muted">
-            <i class="fas fa-fw fa-cloud"></i> <a class="text-muted" href="{% url 'api-root' %}">API</a> &middot;
-            <i class="fas fa-fw fa-book"></i> <a class="text-muted" href="http://peering-manager.readthedocs.io/">Docs</a> &middot;
-            <i class="fab fa-fw fa-github"></i> <a class="text-muted" href="https://github.com/peering-manager/peering-manager">GitHub</a>
-          </p>
+            <div class="divider d-flex align-items-center my-4">
+              <p class="text-center fw-bold mx-3 mb-0">Or</p>
+            </div>
+            {% endif %}
+            <form class="form-login" action="{% url 'login' %}" method="post">
+              {% csrf_token %}
+              {% if 'next' in request.GET %}
+              <input type="hidden" name="next" value="{{ request.GET.next }}" />
+              {% endif %}
+              {% render_field form.username %}
+              {% render_field form.password %}
+              <div class="text-center text-lg-start mt-4 pt-2">
+                <button type="submit" class="btn btn-primary btn-lg w-100">Login</button>
+              </div>
+            </form>
+          </div>
         </div>
-        <div class="col"></div>
       </div>
-    </div>
+      <div class="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5 bg-body-tertiary">
+        <div class="text-body-secondary mb-3 mb-md-0">
+          {{ settings.HOSTNAME }} (v{{ settings.VERSION }})
+        </div>
+        <div>
+          <a href="https://peering-manager.net" class="text-body-secondary me-4" data-bs-toggle="tooltip" data-bs-title="Website"><i class="fa-solid fa-globe"></i></a>
+          <a href="https://docs.peering-manager.net" class="text-body-secondary me-4" data-bs-toggle="tooltip" data-bs-title="Documentation"><i class="fa-solid fa-book"></i></a>
+          <a href="https://github.com/peering-manager/peering-manager" class="text-body-secondary me-4" data-bs-toggle="tooltip" data-bs-title="GitHub"><i class="fa-brands fa-github"></i></a>
+        </div>
+      </div>
+    </section>
     <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
     <script src="{% static 'bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'select2-4.0.13/js/select2.full.min.js' %}"></script>
