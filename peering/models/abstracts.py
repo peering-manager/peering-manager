@@ -231,9 +231,10 @@ class BGPSession(PrimaryModel, PolicyMixin):
         else:
             group = self.bgp_group
 
-        for c in group.communities.all():
-            if c not in merged:
-                merged.append(c)
+        if group:
+            for c in group.communities.all():
+                if c not in merged:
+                    merged.append(c)
 
         return merged
 
