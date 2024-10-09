@@ -29,7 +29,7 @@
     {% if field|widget_type == 'passwordinput' %}
     <div class="input-group">
       {{ field }}
-      <button type="button" class="btn btn-outline-secondary" id="{{ field.id_for_label }}_reveal"><i class="fas fa-eye"></i> Show</button>
+      <button type="button" class="btn btn-outline-secondary" id="{{ field.id_for_label }}_reveal" aria-label="Show/hide password"><i class="fa-fw fa-solid fa-eye"></i></button>
     </div>
     {% else %}
     {{ field }}

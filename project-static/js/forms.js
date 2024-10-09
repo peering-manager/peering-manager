@@ -163,10 +163,10 @@ $(document).ready(function () {
     inputType = $(passwordInputID).attr('type');
     if (inputType == 'password') {
       $(passwordInputID).attr('type', 'text');
-      $(this).html('<i class="fas fa-eye-slash"></i> Hide');
+      $(this).html('<i class="fa-fw fa-solid fa-eye-slash"></i>');
     } else {
       $(passwordInputID).attr('type', 'password');
-      $(this).html('<i class="fas fa-eye"></i> Show');
+      $(this).html('<i class="fa-fw fa-solid fa-eye"></i>');
     }
   });
 
