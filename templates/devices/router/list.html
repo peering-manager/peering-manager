@@ -3,7 +3,7 @@
 {% block actions %}
 {% if perms.devices.add_router %}
 <a href="{% url 'devices:router_add' %}" class="btn btn-primary">
-  <i class="fas fa-plus"></i> Add
+  <i class="fa-fw fa-solid fa-plus"></i> Add
 </a>
 {% endif %}
 {% endblock %}
@@ -25,7 +25,7 @@
       <div class="modal-header"><h5 class="modal-title">Deployment</h5></div>
       <div class="modal-body">
         <div class="p-3 mb-2">
-          <div class="alert alert-danger" role="alert"><i class="fas fa-exclamation-triangle"></i> Dangerous action</div>
+          <div class="alert alert-danger" role="alert"><i class="fa-fw fa-solid fa-exclamation-triangle"></i> Dangerous action</div>
           No syntax check will be performed. Configurations will be deployed without confirmations.<br>
           Do you want to install the configurations for the selected routers?
         </div>

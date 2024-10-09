@@ -4,7 +4,7 @@
       {{ block.super }}
       {% if new_release %}
       <div class="alert alert-info text-center" role="alert">
-        <i class="fas fa-info-circle"></i>
+        <i class="fa-fw fa-solid fa-info-circle"></i>
         A new release is available: <a href="{{ new_release.url }}">Peering Manager v{{ new_release.version }}</a> |
         <a href="https://peering-manager.readthedocs.io/en/v{{ new_release.version }}/setup/upgrading/">Upgrade instructions</a>
       </div>
@@ -142,7 +142,7 @@
                   <td>{{ change.time | date:settings.SHORT_DATETIME_FORMAT }}</td>
                   <td>
                     <a role="button" class="text-body" href="{{ change.get_absolute_url }}">
-                      <i class="fas fa-ellipsis-h" data-bs-toggle="tooltip" data-placement="left" title="View Change Details"></i>
+                      <i class="fa-fw fa-solid fa-ellipsis-h" data-bs-toggle="tooltip" data-placement="left" title="View Change Details"></i>
                     </a>
                   </td>
                 </tr>

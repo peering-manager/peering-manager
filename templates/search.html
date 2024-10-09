@@ -16,7 +16,7 @@
     {% render_table obj_type.table 'includes/table.html' %}
     <div class="text-end">
       <a href="{{ obj_type.url }}" class="btn btn-sm btn-primary">
-        <i class="fas fa-arrow-right"></i>
+        <i class="fa-fw fa-solid fa-arrow-right"></i>
         {% if obj_type.table.page.has_next %}
         See All {{ obj_type.table.page.paginator.count }} Results
         {% else %}
@@ -61,7 +61,7 @@
         </div>
         <div class="card-footer text-end">
           <button type="submit" class="btn btn-primary">
-            <i class="fas fa-search"></i> Search
+            <i class="fa-fw fa-solid fa-search"></i> Search
           </button>
         </div>
       </div>

@@ -61,13 +61,13 @@
         <strong>{{ config.id }} - {{ config.state | title }}</strong>
         {% if config.connection %}
         <a class="btn btn-xs btn-success float-end" href="{{ config.connection.get_absolute_url }}">
-          <i class="fas fa-check"></i> Configured
+          <i class="fa-fw fa-solid fa-check"></i> Configured
         </a>
         {% else %}
         {% if perms.peering.change_internetexchange and perms.net.add_connection %}
         <a class="btn btn-xs btn-primary float-end"
            href="{% url 'net:connection_add' %}?internet_exchange_point={{ instance.pk }}&vlan={{ config.outer_vlan }}{% if config.ipv6_address %}&ipv6_address={{ config.ipv6_address }}{% endif %}{% if config.ipv4_address %}&ipv4_address={{ config.ipv4_address }}{% endif %}{% if config.macs %}&mac_address={{ config.macs.0 }}{% endif %}&return_url={% url 'peering:internetexchange_ixapi' pk=instance.pk %}">
-          <i class="fas fa-plug"></i> Setup
+          <i class="fa-fw fa-solid fa-plug"></i> Setup
         </a>
         {% endif %}
         {% endif %}
@@ -120,7 +120,7 @@
             {% if f.ip_v4 %}{{ f.ip_v4 }}{% endif %}
           </td>
           {% if f.required is True %}
-          <td data-bs-toggle="tooltip" data-placement="left" title="Required"><i class="fas fa-asterisk text-danger"></i></td>
+          <td data-bs-toggle="tooltip" data-placement="left" title="Required"><i class="fa-fw fa-solid fa-asterisk text-danger"></i></td>
           {% endif %}
           {% endif %}
         </tr>

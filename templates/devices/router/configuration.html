@@ -22,7 +22,7 @@
       <i class="fa fa-clipboard"></i> Copy
     </button>
     <a href=".?raw" class="btn btn-dark w-100">
-      <i class="fas fa-file-alt"></i> Raw output
+      <i class="fa-fw fa-solid fa-file-alt"></i> Raw output
     </a>
   </div>
   <div class="col" id="configuration"></div>
@@ -53,7 +53,7 @@
       method: 'get',
       url: "{% url 'devices-api:router-configuration' pk=instance.pk %}"
     }).done(function (r) {
-      $('#configuration').html('<div class="text-center" style="font-size: 2rem;"><i class="fas fa-sync fa-spin fa-fw"></i> Working</div>');
+      $('#configuration').html('<div class="text-center" style="font-size: 2rem;"><i class="fa-fw fa-solid fa-sync fa-spin fa-fw"></i> Working</div>');
       configDoneHandler(r);
     }).fail(function () {
       $('#configuration').html('<p>Unable to render router configuration.</p>');
@@ -170,7 +170,7 @@
       headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
       data: { 'routers': [{{ instance.pk }}], 'commit': commit },
     }).done(function (r) {
-      $('#main-body').html('<div class="text-center" style="font-size: 2rem;"><i class="fas fa-sync fa-spin fa-fw"></i> Working</div>');
+      $('#main-body').html('<div class="text-center" style="font-size: 2rem;"><i class="fa-fw fa-solid fa-sync fa-spin fa-fw"></i> Working</div>');
       $('#main-modal').modal('show');
       checkDoneHandler(r[0]);
     }).fail(function (r) {

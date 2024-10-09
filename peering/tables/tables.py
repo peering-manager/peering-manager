@@ -125,10 +125,10 @@ class DirectPeeringSessionTable(PeeringManagerTable):
     append_template = """
     {% load helpers %}
     {% if record.comments %}
-    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="Session Comments" data-bs-content="{{ record.comments | markdown:True }}"><i class="fas fa-comment"></i></button>
+    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="Session Comments" data-bs-content="{{ record.comments | markdown:True }}"><i class="fa-fw fa-solid fa-comment"></i></button>
     {% endif %}
     {% if record.autonomous_system.comments %}
-    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="AS Comments" data-bs-content="{{ record.autonomous_system.comments | markdown:True }}"><i class="fas fa-comments"></i></button>
+    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="AS Comments" data-bs-content="{{ record.autonomous_system.comments | markdown:True }}"><i class="fa-fw fa-solid fa-comments"></i></button>
     {% endif %}
     """
 
@@ -229,13 +229,13 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
     append_template = """
     {% load helpers %}
     {% if record.comments %}
-    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="Session Comments" data-bs-content="{{ record.comments | markdown:True }}"><i class="fas fa-comment"></i></button>
+    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="Session Comments" data-bs-content="{{ record.comments | markdown:True }}"><i class="fa-fw fa-solid fa-comment"></i></button>
     {% endif %}
     {% if record.autonomous_system.comments %}
-    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="AS Comments" data-bs-content="{{ record.autonomous_system.comments | markdown:True }}"><i class="fas fa-comments"></i></button>
+    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="AS Comments" data-bs-content="{{ record.autonomous_system.comments | markdown:True }}"><i class="fa-fw fa-solid fa-comments"></i></button>
     {% endif %}
     {% if record.internet_exchange.comments %}
-    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="IXP Comments" data-bs-content="{{ record.internet_exchange.comments | markdown:True }}"><i class="fas fa-comment-dots"></i></button>
+    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="IXP Comments" data-bs-content="{{ record.internet_exchange.comments | markdown:True }}"><i class="fa-fw fa-solid fa-comment-dots"></i></button>
     {% endif %}
     """
 

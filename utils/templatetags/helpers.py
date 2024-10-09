@@ -23,7 +23,7 @@ def boolean_as_icon(value):
         icon, colour = "check", "success"
     else:
         icon, colour = "times", "danger"
-    return mark_safe(f'<i class="fas fa-{icon} text-{colour}"></i>')
+    return mark_safe(f'<i class="fa-fw fa-solid fa-{icon} text-{colour}"></i>')
 
 
 @register.filter()

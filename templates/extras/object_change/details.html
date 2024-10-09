@@ -56,10 +56,10 @@
               <strong>Difference</strong>
               <div class="btn-group float-end" role="group" aria-label="Change Navigation">
                 <a {% if previous_change %}href="{% url 'core:objectchange_view' pk=previous_change.pk %}"{% endif %} class="btn btn-xs btn-secondary{% if not previous_change %} disabled{% endif %}">
-                  <i class="fas fa-chevron-left"></i> Previous
+                  <i class="fa-fw fa-solid fa-chevron-left"></i> Previous
                 </a>
                 <a {% if next_change %}href="{% url 'core:objectchange_view' pk=next_change.pk %}"{% endif %} class="btn btn-xs btn-secondary{% if not next_change %} disabled{% endif %}">
-                  Next <i class="fas fa-chevron-right"></i>
+                  Next <i class="fa-fw fa-solid fa-chevron-right"></i>
                 </a>
               </div>
             </div>

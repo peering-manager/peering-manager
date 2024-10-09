@@ -124,7 +124,7 @@
       method: 'get',
       url: "{% url 'extras-api:exporttemplate-render' pk=instance.pk %}"
     }).done(function (r) {
-      $('#rendered').html('<div class="text-center" style="font-size: 2rem;"><i class="fas fa-sync fa-spin fa-fw"></i> Working</div>');
+      $('#rendered').html('<div class="text-center" style="font-size: 2rem;"><i class="fa-fw fa-solid fa-sync fa-spin fa-fw"></i> Working</div>');
       exportDoneHandler(r);
     }).fail(function () {
       $('#rendered').html('<div class="card-body"><p class="card-text">Unable to render the export template.</p></div>');

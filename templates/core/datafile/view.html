@@ -3,7 +3,7 @@
 {% block actions %}
 {% if perms.core.delete_datafile %}
 <a href="{% url 'core:datafile_delete' pk=instance.pk %}" class="btn btn-danger">
-  <i class="fas fa-trash"></i> Delete
+  <i class="fa-fw fa-solid fa-trash"></i> Delete
 </a>
 {% endif %}
 {% endblock %}

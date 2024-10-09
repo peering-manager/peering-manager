@@ -11,11 +11,11 @@
           <span class="badge text-bg-warning">Private ASN</span>
           {% else %}
           <a class="btn btn-xs btn-primary" href="{{ settings.PEERINGDB_ASN }}{{ instance.asn }}" target="_blank">
-            <i class="fas fa-external-link-alt"></i> PeeringDB
+            <i class="fa-fw fa-solid fa-external-link-alt"></i> PeeringDB
           </a>
           {% if perms.peering.change_autonomoussystem and peeringdb_last_synchronisation %}
           <button class="btn btn-xs btn-success" id="synchronise-with-peeringdb">
-            <i class="fas fa-sync"></i> Synchronise
+            <i class="fa-fw fa-solid fa-sync"></i> Synchronise
           </button>
           {% endif %}
           {% endif %}
@@ -67,7 +67,7 @@
         <li class="list-group-item d-flex justify-content-between align-items-center">
           {{ ix|as_link }}
           {% if missing_sessions %}
-          <a href="{% url 'peering:internetexchange_peers' pk=ix.pk %}?asn={{ instance.asn }}" class="text-warning" data-bs-toggle="tooltip" title="Missing Peering Sessions"><i class="fas fa-exclamation-circle"></i></a>
+          <a href="{% url 'peering:internetexchange_peers' pk=ix.pk %}?asn={{ instance.asn }}" class="text-warning" data-bs-toggle="tooltip" title="Missing Peering Sessions"><i class="fa-fw fa-solid fa-exclamation-circle"></i></a>
           {% endif %}
         </li>
         {% endfor %}

@@ -3,12 +3,12 @@
 {% block actions %}
 {% if perms.peering.change_routingpolicy %}
 <a href="{% url 'peering:routingpolicy_edit' pk=instance.pk %}" class="btn btn-warning">
-  <i class="fas fa-edit"></i> Edit
+  <i class="fa-fw fa-solid fa-edit"></i> Edit
 </a>
 {% endif %}
 {% if perms.peering.delete_routingpolicy %}
 <a href="{% url 'peering:routingpolicy_delete' pk=instance.pk %}" class="btn btn-danger">
-  <i class="fas fa-trash"></i> Delete
+  <i class="fa-fw fa-solid fa-trash"></i> Delete
 </a>
 {% endif %}
 {% endblock %}
@@ -20,17 +20,17 @@
 <ul class="nav nav-tabs mb-3">
   <li class="nav-item">
     <a class="nav-link{% if tab == 'main' %} active{% endif %}" href="{% url 'peering:routingpolicy_view' pk=instance.pk %}">
-      <i class="fas fa-info-circle"></i> Info
+      <i class="fa-fw fa-solid fa-info-circle"></i> Info
     </a>
   </li>
   <li class="nav-item">
     <a class="nav-link{% if tab == 'config-context' %} active{% endif %}" href="{% url 'peering:routingpolicy_configcontext' pk=instance.pk %}">
-      <i class="fas fa-code"></i> Config Context
+      <i class="fa-fw fa-solid fa-code"></i> Config Context
     </a>
   </li>
   <li class="nav-item">
     <a class="nav-link{% if tab == 'changelog' %} active{% endif %}" href="{% url 'peering:routingpolicy_changelog' pk=instance.pk %}">
-      <i class="fas fa-history"></i> Changelog
+      <i class="fa-fw fa-solid fa-history"></i> Changelog
     </a>
   </li>
   <li class="nav-item">

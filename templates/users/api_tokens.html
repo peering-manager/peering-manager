@@ -9,13 +9,13 @@
       <div class="card-header">
         <div class="float-end">
           {% if perms.users.change_token %}
-          <a href="{% url 'users:token_edit' pk=token.pk %}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i> Edit</a>
+          <a href="{% url 'users:token_edit' pk=token.pk %}" class="btn btn-xs btn-warning"><i class="fa-fw fa-solid fa-edit"></i> Edit</a>
           {% endif %}
           {% if perms.users.delete_token %}
-          <a href="{% url 'users:token_delete' pk=token.pk %}" class="btn btn-xs btn-danger"><i class="fas fa-trash"></i> Delete</a>
+          <a href="{% url 'users:token_delete' pk=token.pk %}" class="btn btn-xs btn-danger"><i class="fa-fw fa-solid fa-trash"></i> Delete</a>
           {% endif %}
         </div>
-        <i class="fas fa-key"></i> {{ token.key }}
+        <i class="fa-fw fa-solid fa-key"></i> {{ token.key }}
         {% if token.is_expired %}
         <span class="badge text-bg-danger">Expired</span>
         {% endif %}
@@ -53,7 +53,7 @@
     {% endfor %}
     {% if perms.users.add_token %}
     <a href="{% url 'users:token_add' %}" class="btn btn-primary">
-      <i class="fas fa-plus""></i> Add a token
+      <i class="fa-fw fa-solid fa-plus""></i> Add a token
     </a>
     {% else %}
     <div class="alert alert-info text-center" role="alert">

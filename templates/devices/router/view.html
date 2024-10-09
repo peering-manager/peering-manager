@@ -14,7 +14,7 @@
           </button>
           {% if perms.peering.change_directpeeringsession and perms.peering.change_internetexchangepeeringsession and instance.poll_bgp_sessions_state %}
           <button type="button" class="btn btn-xs btn-success" id="id_poll_sessions_state" title="Poll BGP sessions state on this router.">
-            <i class="fas fa-sync"></i> Poll Sessions
+            <i class="fa-fw fa-solid fa-sync"></i> Poll Sessions
           </button>
           {% endif %}
         </div>
@@ -115,7 +115,7 @@
           <td>
             <div class="input-group">
               <input type="password" class="form-control" id="id_password" value="{{ instance.napalm_password }}" disabled>
-              <button type="button" class="btn btn-secondary" id="id_password_reveal"><i class="fas fa-eye"></i> Show</button>
+              <button type="button" class="btn btn-secondary" id="id_password_reveal"><i class="fa-fw fa-solid fa-eye"></i></button>
             </div>
           </td>
         </tr>

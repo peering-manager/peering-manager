@@ -13,10 +13,12 @@ class TemplateTagsTestCase(TestCase):
 
     def test_boolean_as_icon(self):
         self.assertEqual(
-            '<i class="fas fa-check text-success"></i>', boolean_as_icon(True)
+            '<i class="fa-fw fa-solid fa-check text-success"></i>',
+            boolean_as_icon(True),
         )
         self.assertEqual(
-            '<i class="fas fa-times text-danger"></i>', boolean_as_icon(False)
+            '<i class="fa-fw fa-solid fa-times text-danger"></i>',
+            boolean_as_icon(False),
         )
 
     def test_status_as_badge(self):

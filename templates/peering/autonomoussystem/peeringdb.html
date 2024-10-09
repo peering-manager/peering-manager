@@ -45,7 +45,7 @@
         <tr>
           <td colspan="2" class="text-center">
             <a class="btn btn-outline-primary" href="{{ settings.PEERINGDB_ASN }}{{ instance.asn }}" target="_blank">
-              <i class="fas fa-external-link-alt"></i> See on PeeringDB
+              <i class="fa-fw fa-solid fa-external-link-alt"></i> See on PeeringDB
             </a>
           </td>
         </tr>
@@ -59,7 +59,7 @@
         <form class="float-end" id="proposal-form" action="{{ settings.PEERINGDB }}verified-update/" method="get" target="_blank">
           <input type="hidden" id="encoded-data" name="p">
           <button type="submit" class="btn btn-xs btn-primary" id="update-peeringdb" data-bs-toggle="tooltip" data-placement="bottom" title="Propose Peering Manager values to PeeringDB">
-            <i class="fas fa-upload"></i> Push
+            <i class="fa-fw fa-solid fa-upload"></i> Push
           </button>
         </form>
       </div>

@@ -12,12 +12,12 @@
       <td class="text-end">
         {% if perms.messaging.change_contactassignment %}
           <a href="{% url 'messaging:contactassignment_edit' pk=contact.pk %}?return_url={{ instance.get_absolute_url }}" class="btn btn-warning btn-sm lh-1" title="Edit">
-            <i class="fas fa-edit"></i>
+            <i class="fa-fw fa-solid fa-edit"></i>
           </a>
         {% endif %}
         {% if perms.messaging.delete_contactassignment %}
           <a href="{% url 'messaging:contactassignment_delete' pk=contact.pk %}?return_url={{ instance.get_absolute_url }}" class="btn btn-danger btn-sm lh-1" title="Delete">
-            <i class="fas fa-trash-alt"></i>
+            <i class="fa-fw fa-solid fa-trash-alt"></i>
           </a>
         {% endif %}
       </td>
@@ -31,7 +31,7 @@
   {% if perms.messaging.add_contactassignment %}
   <div class="card-footer text-end">
     <a href="{% url 'messaging:contactassignment_add' %}?content_type={{ instance|content_type_id }}&object_id={{ instance.pk }}&return_url={{ instance.get_absolute_url }}" class="btn btn-primary btn-sm">
-      <i class="fas fa-plus"></i> Add a contact
+      <i class="fa-fw fa-solid fa-plus"></i> Add a contact
     </a>
   </div>
   {% endif %}

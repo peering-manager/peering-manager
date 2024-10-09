@@ -32,12 +32,12 @@
         <ul class="navbar-nav ms-auto px-3">
           {% if request.user.is_authenticated %}
           {% if request.session.last_search %}
-          <a href="{{ request.session.last_search }}" class="nav-link" title="Return to Last Search"><i class="fas fa-search"></i> Last Search</a>
+          <a href="{{ request.session.last_search }}" class="nav-link" title="Return to Last Search"><i class="fa-fw fa-solid fa-search"></i> Last Search</a>
           {% endif %}
           {% if affiliated_autonomous_systems %}
           <li class="nav-item dropdown">
             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" title="Affiliated Autonomous Systems" role="button" aria-haspopup="true" aria-expanded="false">
-              <i class="fas fa-server"></i>&nbsp;{% if context_as %}AS{{ context_as.asn }}{% else %}Select affiliated AS{% endif %}
+              <i class="fa-fw fa-solid fa-server"></i>&nbsp;{% if context_as %}AS{{ context_as.asn }}{% else %}Select affiliated AS{% endif %}
             </a>
             <div class="dropdown-menu dropdown-menu-end">
               {% for a in affiliated_autonomous_systems %}
@@ -48,7 +48,7 @@
           {% endif %}
           <li class="nav-item dropdown">
             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" title="{{ request.user }}" role="button" aria-haspopup="true" aria-expanded="false">
-              <i class="fas fa-user"></i>
+              <i class="fa-fw fa-solid fa-user"></i>
             </a>
             <div class="dropdown-menu dropdown-menu-end">
               <span class="dropdown-item-text text-muted">Logged in as {{ request.user|truncatechars:"30" }}</span>
@@ -58,11 +58,11 @@
               <a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fa fa-cogs"></i> Admin</a>
               {% endif %}
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Log out</a>
+              <a class="dropdown-item" href="{% url 'logout' %}"><i class="fa-fw fa-solid fa-sign-out-alt"></i> Log out</a>
             </div>
           </li>
           {% else %}
-          <li class="nav-item"><a class="nav-link" href="{% url 'login' %}?next={{ request.path }}"><i class="fas fa-sign-in-alt"></i> Log in</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'login' %}?next={{ request.path }}"><i class="fa-fw fa-solid fa-sign-in-alt"></i> Log in</a></li>
           {% endif %}
         </ul>
       </div>
@@ -82,7 +82,7 @@
             </a>
             <a href="#net_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/net/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                Network <span class="submenu-icon ms-auto"><i class="fas fa-caret-right"></i></span>
+                Network <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
             <div id="net_menu_id" class="collapse">
@@ -95,7 +95,7 @@
             </div>
             <a href="#provisioning_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/peeringdb/available-ixp-peers/,/peeringdb/email-network/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                Provisioning <span class="submenu-icon ms-auto"><i class="fas fa-caret-right"></i></span>
+                Provisioning <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
             <div id="provisioning_menu_id" class="collapse">
@@ -108,7 +108,7 @@
             </div>
             <a href="#policy_options_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/communities/,/routing-policies/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                Policy Options <span class="submenu-icon ms-auto"><i class="fas fa-caret-right"></i></span>
+                Policy Options <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
             <div id="policy_options_menu_id" class="collapse">
@@ -121,7 +121,7 @@
             </div>
             <a href="#devices_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/devices/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                Devices <span class="submenu-icon ms-auto"><i class="fas fa-caret-right"></i></span>
+                Devices <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
             <div id="devices_menu_id" class="collapse">
@@ -137,7 +137,7 @@
             </div>
             <a href="#messaging_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/messaging/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                Messaging <span class="submenu-icon ms-auto"><i class="fas fa-caret-right"></i></span>
+                Messaging <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
             <div id="messaging_menu_id" class="collapse">
@@ -153,7 +153,7 @@
             </div>
             <a href="#third_party_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/peeringdb/cache/,/ix-api/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                3rd Party <span class="submenu-icon ms-auto"><i class="fas fa-caret-right"></i></span>
+                3rd Party <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
             <div id="third_party_menu_id" class="collapse">
@@ -168,7 +168,7 @@
             </div>
             <a href="#operations_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/core/data-sources/,/core/jobs/,/webhooks/,/core/changelog/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                Operations <span class="submenu-icon ms-auto"><i class="fas fa-caret-right"></i></span>
+                Operations <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
             <div id="operations_menu_id" class="collapse">
@@ -187,7 +187,7 @@
             </div>
             <a href="#other_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/bgp/relationships/,/extras/config-contexts/,/extras/export-templates/,/tags/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                Other <span class="submenu-icon ms-auto"><i class="fas fa-caret-right"></i></span>
+                Other <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
             <div id="other_menu_id" class="collapse">
@@ -207,7 +207,7 @@
             {% if request.user.is_staff %}
             <a href="#admin_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/core/system/,/core/background-queues/,/core/background-workers/,/core/background-tasks/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                Admin <span class="submenu-icon ms-auto"><i class="fas fa-caret-right"></i></span>
+                Admin <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
             <div id="admin_menu_id" class="collapse">
@@ -224,8 +224,8 @@
             <p>{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
             <p>{% now 'Y-m-d H:i:s T' %}</p>
             <p>
-              <i class="fas fa-fw fa-cloud"></i> <a href="{% url 'api-root' %}">API</a> &middot;
-              <i class="fas fa-fw fa-book"></i> <a href="http://peering-manager.readthedocs.io/en/{{ settings.VERSION | doc_version }}">Docs</a> &middot;
+              <i class="fa-fw fa-solid fa-fw fa-cloud"></i> <a href="{% url 'api-root' %}">API</a> &middot;
+              <i class="fa-fw fa-solid fa-fw fa-book"></i> <a href="http://peering-manager.readthedocs.io/en/{{ settings.VERSION | doc_version }}">Docs</a> &middot;
               <i class="fab fa-fw fa-github"></i> <a href="https://github.com/peering-manager/peering-manager">GitHub</a>
             </p>
         </div>
@@ -235,7 +235,7 @@
         <div class="justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
           {% if request.user.is_authenticated and not context_as %}
           <div class="alert alert-warning text-center" role="alert">
-            <i class="fas fa-exclamation-triangle"></i> No affiliated autonomous system selected.
+            <i class="fa-fw fa-solid fa-exclamation-triangle"></i> No affiliated autonomous system selected.
           </div>
           {% endif %}
           {% for message in messages %}

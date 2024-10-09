@@ -118,11 +118,11 @@ class ActionsColumn(tables.Column):
             # b) if split_actions is True
             if len(self.actions) == 1 or (self.split_actions and idx == 0):
                 dropdown_class = attrs.css_class
-                button = f'<a class="btn btn-sm btn-{attrs.css_class}" href="{url}{url_appendix}" type="button"><i class="fas fa-{attrs.icon}"></i></a>'
+                button = f'<a class="btn btn-sm btn-{attrs.css_class}" href="{url}{url_appendix}" type="button"><i class="fa-fw fa-solid fa-{attrs.icon}"></i></a>'
             # Add dropdown menu items
             else:
                 dropdown_links.append(
-                    f'<li><a class="dropdown-item" href="{url}{url_appendix}"><i class="fas fa-{attrs.icon}"></i> {attrs.title}</a></li>'
+                    f'<li><a class="dropdown-item" href="{url}{url_appendix}"><i class="fa-fw fa-solid fa-{attrs.icon}"></i> {attrs.title}</a></li>'
                 )
 
         # Create the actions dropdown menu
@@ -173,11 +173,11 @@ class BooleanColumn(tables.BooleanColumn):
 
     def render(self, value, record, bound_column):
         if not self._get_bool_value(record, value, bound_column):
-            html = '<i class="fas fa-times text-danger"></i>'
+            html = '<i class="fa-fw fa-solid fa-times text-danger"></i>'
         elif value is None:
             html = '<span class="text-muted">&mdash;</span>'
         else:
-            html = '<i class="fas fa-check text-success"></i>'
+            html = '<i class="fa-fw fa-solid fa-check text-success"></i>'
 
         return mark_safe(html)
 

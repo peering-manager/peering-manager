@@ -8,7 +8,7 @@
         <strong>Details</strong>
         {% if instance.linked_to_peeringdb %}
         <span class="float-end" data-bs-toggle="tooltip" data-placement="right" title="Linked to PeeringDB">
-          <i class="fas fa-check-circle text-success"></i>
+          <i class="fa-fw fa-solid fa-check-circle text-success"></i>
         </span>
         {% endif %}
       </div>
@@ -27,7 +27,7 @@
             {{ instance.mac_address|render_none }}
             {% if ixapi_network_service_config and instance.mac_address and instance.mac_address != ixapi_mac_address %}
             <span class="float-end" data-bs-toggle="tooltip" data-placement="top" title="Use this MAC in IX-API">
-              <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#update_ixapi_mac_modal"><i class="fas fa-upload"></i> Set in IX-API</button>
+              <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#update_ixapi_mac_modal"><i class="fa-fw fa-solid fa-upload"></i> Set in IX-API</button>
             </span>
             {% endif %}
           </td>
@@ -63,7 +63,7 @@
       <div class="card-header">
         <strong>IX-API</strong>
         <span class="float-end" data-bs-toggle="tooltip" data-placement="right" title="Found in IX-API">
-          <i class="fas fa-check-circle text-success"></i>
+          <i class="fa-fw fa-solid fa-check-circle text-success"></i>
         </span>
       </div>
       <table class="card-body table table-hover attr-table mb-0">
@@ -99,7 +99,7 @@
             {{ ixapi_mac_address|render_none }}
             {% if ixapi_mac_address and instance.mac_address != ixapi_mac_address %}
             <span class="float-end" data-bs-toggle="tooltip" data-placement="top" title="Set this MAC as the one of the connection">
-              <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#use_ixapi_mac_modal"><i class="fas fa-download"></i> Use this MAC</button>
+              <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#use_ixapi_mac_modal"><i class="fa-fw fa-solid fa-download"></i> Use this MAC</button>
             </span>
             {% endif %}
           </td>
