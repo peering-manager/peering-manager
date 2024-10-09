@@ -51,7 +51,7 @@ class ActionsColumn(tables.Column):
     `True`).
     """
 
-    attrs = {"td": {"class": "text-right text-nowrap"}}
+    attrs = {"td": {"class": "text-end text-nowrap"}}
     empty_values = ()
     actions = {
         "edit": ActionsItem("Edit", "edit", "change", "warning"),
