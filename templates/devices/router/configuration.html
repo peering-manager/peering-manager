@@ -2,7 +2,7 @@
 {% block subcontent %}
 <div class="row">
   <div class="col-md-2">
-    {% if perms.peering.deploy_router_configuration %}
+    {% if perms.devices.deploy_router_configuration %}
     {% if instance.is_usable_for_task %}
     <div class="custom-control custom-switch btn-block">
       <input type="checkbox" class="custom-control-input" id="compare-switch" checked>
@@ -13,7 +13,7 @@
     </button>
     {% endif %}
     {% endif %}
-    {% if perms.peering.push_router_configuration_to_data_source %}
+    {% if perms.devices.push_router_configuration_to_data_source %}
     <button type="button" class="btn btn-primary btn-block" id="push-datasource">
       <i class="fa fa-cogs"></i> Push to data source
     </button>
@@ -27,7 +27,7 @@
   </div>
   <div class="col" id="configuration"></div>
 </div>
-{% if perms.peering.deploy_router_configuration and instance.is_usable_for_task %}
+{% if perms.devices.deploy_router_configuration and instance.is_usable_for_task %}
 <div class="modal fade" id="main-modal" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-lg" id="main-dialog" role="document">
     <div class="modal-content" id="main-content">
@@ -95,7 +95,7 @@
     }
   }
 
-  {% if perms.peering.deploy_router_configuration and instance.is_usable_for_task %}
+  {% if perms.devices.deploy_router_configuration and instance.is_usable_for_task %}
   function deployFailHandler() {
     PeeringManager.setFailedButton($('#commit'), 'An error occurred');
   }
@@ -190,7 +190,7 @@
     });
   });
   {% endif %}
-  {% if perms.peering.push_router_configuration_to_data_source %}
+  {% if perms.devices.push_router_configuration_to_data_source %}
   function configPushDataSourceHandler(r) {
     switch (r['status']['value']) {
       case 'pending':

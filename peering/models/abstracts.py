@@ -76,13 +76,15 @@ class BGPSession(PrimaryModel, PolicyMixin):
       * a unique service reference, blank or user defined
       * an autonomous system, it can also be called a peer
       * an IP address used to establish the session
+      * a status telling if the session should be administratively up/down, or
+        denoting other configuration status
       * a plain text password
       * an encrypted version of the password if the user asked for encryption
       * a TTL for multihoping
-      * an enabled or disabled status telling if the session should be
-        administratively up or down
       * import routing policies to apply to prefixes sent by the remote device
       * export routing policies to apply to prefixed sent to the remote device
+      * communities to apply to routes received or advertised over this session
+      * BFD configuration to check session liveness
       * a BGP state giving the current operational state of session (it will
         remain to unkown if the is disabled)
       * a received prefix count (it will stay none if polling is disabled)
