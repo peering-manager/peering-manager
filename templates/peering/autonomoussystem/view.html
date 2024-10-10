@@ -3,19 +3,19 @@
 {% block subcontent %}
 <div class="row">
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header">
         <strong>AS Details</strong>
-        <div class="float-right">
+        <div class="float-end">
           {% if instance.is_private %}
-          <span class="badge badge-warning">Private ASN</span>
+          <span class="badge text-bg-warning">Private ASN</span>
           {% else %}
           <a class="btn btn-xs btn-primary" href="{{ settings.PEERINGDB_ASN }}{{ instance.asn }}" target="_blank">
-            <i class="fas fa-external-link-alt"></i> PeeringDB
+            <i class="fa-fw fa-solid fa-external-link-alt"></i> PeeringDB
           </a>
           {% if perms.peering.change_autonomoussystem and peeringdb_last_synchronisation %}
           <button class="btn btn-xs btn-success" id="synchronise-with-peeringdb">
-            <i class="fas fa-sync"></i> Synchronise
+            <i class="fa-fw fa-solid fa-sync"></i> Synchronise
           </button>
           {% endif %}
           {% endif %}
@@ -34,20 +34,20 @@
           <td>Description</td>
           <td>{{ instance.description|render_none }}</td>
         </tr>
-        <tr{% if not instance.is_private and instance.irr_as_set_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
+        <tr{% if not instance.is_private and instance.irr_as_set_peeringdb_sync %} data-bs-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
           <td>IRR AS-SET</td>
           <td id="id_irr_as_set">{{ instance.irr_as_set|render_none }}</td>
         </tr>
-        <tr{% if not instance.is_private and instance.ipv6_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
+        <tr{% if not instance.is_private and instance.ipv6_max_prefixes_peeringdb_sync %} data-bs-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
           <td>IPv6 Max Prefixes</td>
           <td id="id_ipv6_max_prefixes">{{ instance.ipv6_max_prefixes|render_none }}</td>
         </tr>
-        <tr{% if not instance.is_private and instance.ipv4_max_prefixes_peeringdb_sync %} data-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
+        <tr{% if not instance.is_private and instance.ipv4_max_prefixes_peeringdb_sync %} data-bs-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
           <td>IPv4 Max Prefixes</td>
           <td id="id_ipv4_max_prefixes">{{ instance.ipv4_max_prefixes|render_none }}</td>
         </tr>
         {% if not instance.is_private and instance.general_policy %}
-        <tr data-toggle="tooltip" data-placement="right" title="From PeeringDB">
+        <tr data-bs-toggle="tooltip" data-placement="right" title="From PeeringDB">
           <td>General Policy</td>
           <td id="peering_policy">{{ instance.general_policy }}</td>
         </tr>
@@ -58,7 +58,7 @@
         </tr>
       </table>
     </div>
-    {% include 'includes/contacts.html' %}
+    {% include 'includes/contacts_card.html' %}
     {% if shared_internet_exchanges %}
     <div class="card">
       <div class="card-header"><strong>Shared Internet Exchanges</strong></div>
@@ -67,7 +67,7 @@
         <li class="list-group-item d-flex justify-content-between align-items-center">
           {{ ix|as_link }}
           {% if missing_sessions %}
-          <a href="{% url 'peering:internetexchange_peers' pk=ix.pk %}?asn={{ instance.asn }}" class="text-warning" data-toggle="tooltip" title="Missing Peering Sessions"><i class="fas fa-exclamation-circle"></i></a>
+          <a href="{% url 'peering:internetexchange_peers' pk=ix.pk %}?asn={{ instance.asn }}" class="text-warning" data-bs-toggle="tooltip" title="Missing Peering Sessions"><i class="fa-fw fa-solid fa-exclamation-circle"></i></a>
           {% endif %}
         </li>
         {% endfor %}
@@ -76,7 +76,7 @@
     {% endif %}
   </div>
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Import Routing Policies</strong></div>
       {% if instance.import_routing_policies.all.count > 0 %}
       <ul class="list-group list-group-flush">
@@ -92,7 +92,7 @@
       </div>
       {% endif %}
     </div>
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Export Routing Policies</strong></div>
       {% if instance.export_routing_policies.all.count > 0 %}
       <ul class="list-group list-group-flush">
@@ -108,42 +108,14 @@
       </div>
       {% endif %}
     </div>
-    <div class="card mb-2">
-      <div class="card-header"><strong>BGP Communities</strong></div>
-      {% if instance.communities.all.count > 0 %}
-      <ul class="list-group list-group-flush">
-      {% for community in instance.communities.all %}
-        <li class="list-group-item">
-          {{ community|as_link }}{% if community.type %} <span class="float-right">{{ community.get_type_html }}{% endif %}</span>
-        </li>
-      {% endfor %}
-      </ul>
-      {% else %}
-      <div class="card-body">
-        <span class="text-muted">None</span>
-      </div>
-      {% endif %}
-    </div>
-    <div class="card">
-      <div class="card-header"><strong>Comments</strong></div>
-      <div class="card-body">
-        {% if instance.comments %}
-        {{ instance.comments|markdown }}
-        {% else %}
-        <span class="text-muted">None</span>
-        {% endif %}
-      </div>
-    </div>
+    {% include 'includes/communities_card.html' %}
+    {% include 'includes/comments_card.html' %}
     {% include 'includes/tags_card.html' with tags=instance.tags.all url='peering:autonomoussystem_list' %}
   </div>
 </div>
 {% endblock %}
 {% block javascript %}
 <script>
-  // Init tooltip if there are any
-  $(function() {
-    $('[data-toggle="tooltip"]').tooltip();
-  });
   {% if not instance.is_private %}
   // Bind function to button click
   $('#synchronise-with-peeringdb').click(function() {

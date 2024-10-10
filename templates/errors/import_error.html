@@ -2,10 +2,10 @@
 
 {% block message %}
     <p class="card-text">A module import error occurred during this request. It can come from:</p>
-    <p class="card-text"><i class="fas fa-exclamation-triangle"></i>
+    <p class="card-text"><i class="fa-fw fa-solid fa-exclamation-triangle"></i>
       <strong>Missing required packages</strong> - This installation of Peering Manager might be missing one or more required Python packages. These packages are listed in <code>requirements.txt</code> and are normally installed as part of the installation or upgrade process. To verify installed packages, run <code>pip freeze</code> from the console and compare the output to the list of required packages.
     </p>
-    <p class="card-text"><i class="fas fa-exclamation-triangle"></i>
+    <p class="card-text"><i class="fa-fw fa-solid fa-exclamation-triangle"></i>
       <strong>WSGI service not restarted after upgrade</strong> - If this installation has recently been upgraded, check that the WSGI service (e.g. gunicorn or uWSGI) has been restarted. This ensures that the new code is running.
     </p>
 {% endblock %}

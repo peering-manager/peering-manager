@@ -4,7 +4,7 @@
 {% block subcontent %}
 <div class="row">
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Details</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
@@ -24,9 +24,9 @@
           <td>{{ tagged_item_count }}</td>
         </tr>
         <tr>
-          <td>Color</td>
+          <td>Colour</td>
           <td>
-            <span class="label color-block" style="background-color: #{{ instance.color }}">
+            <span class="label colour-block" style="background-color: #{{ instance.color }}">
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             </span>
           </td>
@@ -34,8 +34,9 @@
       </table>
     </div>
   </div>
+  {% if object_types %}
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Tagged Item Types</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         {% for object_type in object_types %}
@@ -47,10 +48,11 @@
       </table>
     </div>
   </div>
+  {% endif %}
 </div>
 <div class="row">
   <div class="col">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Tagged Objects</strong></div>
       {% render_table taggeditem_table 'includes/table.html' %}
     </div>

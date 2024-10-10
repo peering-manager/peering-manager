@@ -57,7 +57,7 @@
     {% include 'includes/tags_card.html' with tags=instance.tags.all url='core:datasource_list' %}
   </div>
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Backend</strong></div>
       {% with backend=instance.get_backend %}
       <table class="card-body table table-hover attr-table mb-0">

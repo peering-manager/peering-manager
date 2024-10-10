@@ -3,18 +3,18 @@
 {% block actions %}
 {% if request.user.is_staff %}
 <button type="button" class="btn btn-primary" id="update_cache">
-  <i class="fas fa-sync"></i> Update
+  <i class="fa-fw fa-solid fa-sync"></i> Update
 </button>
 <button type="button" class="btn btn-danger" id="clear_cache">
-  <i class="fas fa-broom"></i> Clear
+  <i class="fa-fw fa-solid fa-broom"></i> Clear
 </button>
 {% endif %}
 {% endblock %}
 {% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}PeeringDB Local Cache{% if last_sync_time %} ({{ last_sync_time }}){% endif %}{% endblock %}</li>{% endblock %}
 {% block content %}
-<div class="alert alert-dismissible" role="alert" id="id_cache_operation">
-  <button type="button" class="close" aria-label="Close"><span>&times;</span></button>
+<div class="alert alert-dismissible fade show" role="alert" id="id_cache_operation">
   <span id="id_cache_operation_text"></span>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {% for c in counts %}
 <div class="row text-center">
@@ -32,12 +32,12 @@
   function resetSyncButton(button) {
     button.removeAttr('disabled');
     button.removeClass('btn-warning', 'btn-danger', 'btn-success');
-    button.addClass('btn-primary').html('<i class="fas fa-sync"></i> Update');
+    button.addClass('btn-primary').html('<i class="fa-fw fa-solid fa-sync"></i> Update');
   }
   function resetClearButton(button) {
     button.removeAttr('disabled');
     button.removeClass('btn-warning', 'btn-primary', 'btn-success');
-    button.addClass('btn-danger').html('<i class="fas fa-broom"></i> Clear');
+    button.addClass('btn-danger').html('<i class="fa-fw fa-solid fa-broom"></i> Clear');
   }
 
   $('.alert').hide();

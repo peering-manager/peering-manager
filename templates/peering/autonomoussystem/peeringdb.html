@@ -3,7 +3,7 @@
 {% block subcontent %}
 <div class="row">
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Info</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         {% if instance.peeringdb_network.name %}
@@ -44,8 +44,8 @@
         {% endif %}
         <tr>
           <td colspan="2" class="text-center">
-            <a href="{{ settings.PEERINGDB_ASN }}{{ instance.asn }}" target="_blank">
-              <i class="fas fa-external-link-alt"></i> See on PeeringDB
+            <a class="btn btn-outline-primary" href="{{ settings.PEERINGDB_ASN }}{{ instance.asn }}" target="_blank">
+              <i class="fa-fw fa-solid fa-external-link-alt"></i> See on PeeringDB
             </a>
           </td>
         </tr>
@@ -53,13 +53,13 @@
     </div>
     {% with differences=instance.divergence_from_peeringdb %}
     {% if instance.affiliated and differences %}
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header">
         <strong>Differences</strong>
-        <form class="float-right" id="proposal-form" action="{{ settings.PEERINGDB }}verified-update/" method="get" target="_blank">
+        <form class="float-end" id="proposal-form" action="{{ settings.PEERINGDB }}verified-update/" method="get" target="_blank">
           <input type="hidden" id="encoded-data" name="p">
-          <button type="submit" class="btn btn-xs btn-primary" id="update-peeringdb" data-toggle="tooltip" data-placement="bottom" title="Propose Peering Manager values to PeeringDB">
-            <i class="fas fa-upload"></i> Push
+          <button type="submit" class="btn btn-xs btn-primary" id="update-peeringdb" data-bs-toggle="tooltip" data-placement="bottom" title="Propose Peering Manager values to PeeringDB">
+            <i class="fa-fw fa-solid fa-upload"></i> Push
           </button>
         </form>
       </div>
@@ -86,12 +86,12 @@
     {% if contacts or facilities %}
     <div class="mb-2">
       {% if contacts %}
-      <button type="button" class="btn btn-outline-secondary btn-block" data-toggle="modal" data-target="#contacts-modal">
+      <button type="button" class="btn btn-outline-secondary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#contacts-modal">
         <i class="fa-solid fa-address-book"></i> Show contacts
       </button>
       {% endif %}
       {% if facilities %}
-      <button type="button" class="btn btn-outline-secondary btn-block" data-toggle="modal" data-target="#facilities-modal">
+      <button type="button" class="btn btn-outline-secondary w-100" data-bs-toggle="modal" data-bs-target="#facilities-modal">
         <i class="fa-solid fa-building"></i> Show facilities
       </button>
       {% endif %}
@@ -99,7 +99,7 @@
     {% endif %}
   </div>
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Traffic</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         {% if instance.peeringdb_network.info_type %}
@@ -128,7 +128,7 @@
         {% endif %}
       </table>
     </div>
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Policy</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         {% if instance.peeringdb_network.policy_url %}
@@ -171,9 +171,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="contactsModalLabel">Contacts</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <table class="modal-body table table-hover attr-table mb-0">
         <tr>
@@ -192,7 +190,7 @@
         {% endfor %}
       </table>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
@@ -204,9 +202,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="facilitiesModalLabel">Facilities</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <table class="modal-body table table-hover attr-table mb-0">
         <tr>
@@ -223,7 +219,7 @@
         {% endfor %}
       </table>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
@@ -234,9 +230,6 @@
 {% if instance.affiliated %}
 {{ instance.divergence_from_peeringdb | json_script:'peeringdb-diff' }}
 <script>
-$(function() {
-  $('[data-toggle="tooltip"]').tooltip();
-});
 $('#proposal-form').on('submit', function() {
   const value = JSON.parse(document.getElementById('peeringdb-diff').textContent);
   var updates = {};

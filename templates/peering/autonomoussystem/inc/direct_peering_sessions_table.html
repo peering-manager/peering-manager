@@ -2,12 +2,12 @@
 {% block extra_buttons %}
 {% if perms.peering.change_directpeeringsession and instance.are_bgp_sessions_pollable %}
 <button type="button" class="btn btn-sm btn-success" id="id_poll_sessions_state">
-  <i class="fas fa-sync"></i> Poll Sessions
+  <i class="fa-fw fa-solid fa-sync"></i> Poll Sessions
 </button>
 {% endif %}
 {% if perms.peering.add_directpeeringsession %}
 <a href="{% url 'peering:directpeeringsession_add' %}?autonomous_system={{ instance.pk }}{% if context_as %}&local_autonomous_system={{ context_as.pk }}{% endif %}&return_url={{ instance.get_direct_peering_sessions_list_url }}" class="btn btn-sm btn-primary">
-  <i class="fas fa-plus"></i> Add
+  <i class="fa-fw fa-solid fa-plus"></i> Add
 </a>
 {% endif %}
 {% endblock %}

@@ -176,7 +176,9 @@ class RouterConfiguration(PermissionRequiredMixin, View):
             )
 
         return render(
-            request, "devices/router/configuration.html", {"instance": instance}
+            request,
+            "devices/router/configuration.html",
+            {"instance": instance, "tab": self.tab},
         )
 
 

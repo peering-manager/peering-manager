@@ -2,7 +2,7 @@
 
 {% block message %}
     <p class="card-text">A database programming error was detected while processing this request. It can come from:</p>
-    <p class="card-text"><i class="fas fa-exclamation-triangle"></i>
+    <p class="card-text"><i class="fa-fw fa-solid fa-exclamation-triangle"></i>
       <strong>Database migrations missing</strong> - When upgrading to a new Peering Manager release, the upgrade script must be run to apply any new database migrations. You can run migrations manually by executing <code>python3 manage.py migrate</code> from the command line.
     </p>
 {% endblock %}

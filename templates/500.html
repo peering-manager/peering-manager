@@ -3,8 +3,8 @@
 <html lang="en">
 <head>
   <title>Server Error</title>
-  <script defer src="{% static 'fontawesome-6.4.2/js/all.js' %}"></script>
-  <link rel="stylesheet" href="{% static 'bootstrap-4.6.2-dist/css/bootstrap.min.css' %}">
+  <script defer src="{% static 'fontawesome-6.6.0/js/all.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'bootstrap-5.3.3-dist/css/bootstrap.min.css' %}">
 </head>
 <body>
   <div class="container-fluid">
@@ -12,7 +12,7 @@
       <div class="col-md-4">
         <div class="card border border-danger" style="margin-top: 200px">
           <div class="card-header bg-danger text-white">
-            <i class="fas fa-exclamation-triangle"></i> <strong>Server Error</strong>
+            <i class="fa-fw fa-solid fa-exclamation-triangle"></i> <strong>Server Error</strong>
           </div>
           <div class="card-body">
             {% block message %}
@@ -25,7 +25,7 @@
 
 Python version: {{ python_version }}
 Peering Manager version: {{ peering_manager_version }}</pre>
-            <div class="text-right">
+            <div class="text-end">
               <a href="{% url 'home' %}" class="btn btn-primary">Home Page</a>
             </div>
           </div>

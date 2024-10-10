@@ -9,10 +9,10 @@
 
     <title>{% block title %}Home{% endblock %} - Peering Manager</title>
 
-    <script defer src="{% static 'fontawesome-6.4.2/js/all.js' %}"></script>
+    <script defer src="{% static 'fontawesome-6.6.0/js/all.js' %}"></script>
 
-    <link rel="stylesheet" href="{% static 'bootstrap-4.6.2-dist/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'fontawesome-6.4.2/css/all.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-5.3.3-dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'fontawesome-6.6.0/css/all.css' %}">
     <link rel="stylesheet" href="{% static 'select2-4.0.13/css/select2.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/select2-bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?{{ settings.VERSION }}">
@@ -20,37 +20,37 @@
   </head>
   <body>
     <nav class="navbar fixed-top navbar-expand-md navbar-dark bg-dark shadow p-0 flex-md-nowrap">
-      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="{% url 'home' %}">Peering Manager</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <a class="navbar-brand col-sm-3 col-md-2 me-0" href="{% url 'home' %}">Peering Manager</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarCollapse">
-        <div id="action_buttons">{% block actions %}{% endblock %}</div>
+        <div id="action_buttons" class="me-2">{% block actions %}{% endblock %}</div>
         <nav aria-label="breadcrumb">
-          <ol class="breadcrumb">{% block breadcrumb %}{% endblock %}</ol>
+          <ol class="breadcrumb breadcrumb-divider-colour">{% block breadcrumb %}{% endblock %}</ol>
         </nav>
-        <ul class="navbar-nav ml-auto px-3">
+        <ul class="navbar-nav ms-auto px-3">
           {% if request.user.is_authenticated %}
           {% if request.session.last_search %}
-          <a href="{{ request.session.last_search }}" class="nav-link" title="Return to Last Search"><i class="fas fa-search"></i> Last Search</a>
+          <a href="{{ request.session.last_search }}" class="nav-link" title="Return to Last Search"><i class="fa-fw fa-solid fa-search"></i> Last Search</a>
           {% endif %}
           {% if affiliated_autonomous_systems %}
           <li class="nav-item dropdown">
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" title="Affiliated Autonomous Systems" role="button" aria-haspopup="true" aria-expanded="false">
-              <i class="fas fa-server"></i>&nbsp;{% if context_as %}AS{{ context_as.asn }}{% else %}Select affiliated AS{% endif %}
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" title="Affiliated Autonomous Systems" role="button" aria-haspopup="true" aria-expanded="false">
+              <i class="fa-fw fa-solid fa-server"></i>&nbsp;{% if context_as %}AS{{ context_as.asn }}{% else %}Select affiliated AS{% endif %}
             </a>
-            <div class="dropdown-menu dropdown-menu-right">
+            <div class="dropdown-menu dropdown-menu-end">
               {% for a in affiliated_autonomous_systems %}
-              <a role="button" class="dropdown-item text-truncate{% if a.pk == context_as.pk %} active{% endif %} context-as" data-as-id="{{ a.pk }}">AS{{ a.asn }} - {{ a.name }}</a>
+              <a role="button" class="dropdown-item text-truncate{% if a.pk == context_as.pk %} active{% endif %} context-as" data-as-id="{{ a.pk }}">AS{{ a.asn }} - {{ a.name }}</a>
               {% endfor %}
             </div>
           </li>
           {% endif %}
           <li class="nav-item dropdown">
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" title="{{ request.user }}" role="button" aria-haspopup="true" aria-expanded="false">
-              <i class="fas fa-user"></i>
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" title="{{ request.user }}" role="button" aria-haspopup="true" aria-expanded="false">
+              <i class="fa-fw fa-solid fa-user"></i>
             </a>
-            <div class="dropdown-menu dropdown-menu-right">
+            <div class="dropdown-menu dropdown-menu-end">
               <span class="dropdown-item-text text-muted">Logged in as {{ request.user|truncatechars:"30" }}</span>
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="{% url 'users:profile' %}"><i class="far fa-id-card"></i> Profile</a>
@@ -58,18 +58,18 @@
               <a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fa fa-cogs"></i> Admin</a>
               {% endif %}
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Log out</a>
+              <a class="dropdown-item" href="{% url 'logout' %}"><i class="fa-fw fa-solid fa-sign-out-alt"></i> Log out</a>
             </div>
           </li>
           {% else %}
-          <li class="nav-item"><a class="nav-link" href="{% url 'login' %}?next={{ request.path }}"><i class="fas fa-sign-in-alt"></i> Log in</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'login' %}?next={{ request.path }}"><i class="fa-fw fa-solid fa-sign-in-alt"></i> Log in</a></li>
           {% endif %}
         </ul>
       </div>
     </nav>
     <div class="container-fluid">
       <nav class="col-md-2 d-none d-md-block bg-dark sidebar">
-        <div class="sidebar-sticky">
+        <div class="position-sticky">
           <ul class="nav flex-column list-group">
             <a href="{% url 'peering:autonomoussystem_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/autonomous-systems/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">Autonomous Systems</div>
@@ -80,142 +80,142 @@
             <a href="{% url 'peering:internetexchange_list' %}" class="bg-dark text-white list-group-item{% if request.path|contains:'/internet-exchanges/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">Internet Exchanges</div>
             </a>
-            <a href="#net_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/net/' %} active{% endif %}">
+            <a href="#net_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/net/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                Network <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
+                Network <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
-            <div id="net_menu_id" class="collapse sidebar-submenu">
+            <div id="net_menu_id" class="collapse">
               <a href="{% url 'net:connection_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/connections/' %} active{% endif %}">
-                <span class="ml-4">Connections</span>
+                <span class="ms-4">Connections</span>
               </a>
               <a href="{% url 'net:bfd_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/bfd/' %} active{% endif %}">
-                <span class="ml-4">BFD</span>
+                <span class="ms-4">BFD</span>
               </a>
             </div>
-            <a href="#provisioning_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/peeringdb/available-ixp-peers/,/peeringdb/email-network/' %} active{% endif %}">
+            <a href="#provisioning_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/peeringdb/available-ixp-peers/,/peeringdb/email-network/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                Provisioning <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
+                Provisioning <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
-            <div id="provisioning_menu_id" class="collapse sidebar-submenu">
+            <div id="provisioning_menu_id" class="collapse">
               <a href="{% url 'peeringdb:ixp_peers' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/peeringdb/available-ixp-peers/' %} active{% endif %}">
-                <span class="ml-4">Available IXP Peers</span>
+                <span class="ms-4">Available IXP Peers</span>
               </a>
               <a href="{% url 'peeringdb:email_network' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/peeringdb/email-network/' %} active{% endif %}">
-                <span class="ml-4">Send E-mail To Network</span>
+                <span class="ms-4">Send E-mail To Network</span>
               </a>
             </div>
-            <a href="#policy_options_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/communities/,/routing-policies/' %} active{% endif %}">
+            <a href="#policy_options_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/communities/,/routing-policies/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                Policy Options <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
+                Policy Options <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
-            <div id="policy_options_menu_id" class="collapse sidebar-submenu">
+            <div id="policy_options_menu_id" class="collapse">
               <a href="{% url 'peering:community_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/communities/' %} active{% endif %}">
-                <span class="ml-4">Communities</span>
+                <span class="ms-4">Communities</span>
               </a>
               <a href="{% url 'peering:routingpolicy_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/routing-policies/' %} active{% endif %}">
-                <span class="ml-4">Routing Policies</span>
+                <span class="ms-4">Routing Policies</span>
               </a>
             </div>
-            <a href="#devices_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/devices/' %} active{% endif %}">
+            <a href="#devices_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/devices/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                Devices <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
+                Devices <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
-            <div id="devices_menu_id" class="collapse sidebar-submenu">
+            <div id="devices_menu_id" class="collapse">
               <a href="{% url 'devices:configuration_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/devices/configurations/' %} active{% endif %}">
-                <span class="ml-4">Configurations</span>
+                <span class="ms-4">Configurations</span>
               </a>
               <a href="{% url 'devices:router_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/devices/routers/' %} active{% endif %}">
-                <span class="ml-4">Routers</span>
+                <span class="ms-4">Routers</span>
               </a>
               <a href="{% url 'devices:platform_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/devices/platforms/' %} active{% endif %}">
-                <span class="ml-4">Platforms</span>
+                <span class="ms-4">Platforms</span>
               </a>
             </div>
-            <a href="#messaging_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/messaging/' %} active{% endif %}">
+            <a href="#messaging_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/messaging/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                Messaging <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
+                Messaging <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
-            <div id="messaging_menu_id" class="collapse sidebar-submenu">
+            <div id="messaging_menu_id" class="collapse">
               <a href="{% url 'messaging:contact_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/messaging/contacts/' %} active{% endif %}">
-                <span class="ml-4">Contacts</span>
+                <span class="ms-4">Contacts</span>
               </a>
               <a href="{% url 'messaging:contactrole_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/messaging/contact-roles/' %} active{% endif %}">
-                <div class="ml-4">Contact Roles</div>
+                <div class="ms-4">Contact Roles</div>
               </a>
               <a href="{% url 'messaging:email_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/messaging/emails/' %} active{% endif %}">
-                <span class="ml-4">E-mails</span>
+                <span class="ms-4">E-mails</span>
               </a>
             </div>
-            <a href="#third_party_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/peeringdb/cache/,/ix-api/' %} active{% endif %}">
+            <a href="#third_party_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/peeringdb/cache/,/ix-api/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                3rd Party <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
+                3rd Party <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
-            <div id="third_party_menu_id" class="collapse sidebar-submenu">
+            <div id="third_party_menu_id" class="collapse">
               {% if request.user.is_staff %}
               <a href="{% url 'peeringdb:cache_management' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/peeringdb/cache/' %} active{% endif %}">
-                <span class="ml-4">PeeringDB</span>
+                <span class="ms-4">PeeringDB</span>
               </a>
               {% endif %}
               <a href="{% url 'extras:ixapi_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/ix-api/' %} active{% endif %}">
-                <span class="ml-4">IX-API</span>
+                <span class="ms-4">IX-API</span>
               </a>
             </div>
-            <a href="#operations_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/core/data-sources/,/core/jobs/,/webhooks/,/core/changelog/' %} active{% endif %}">
+            <a href="#operations_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/core/data-sources/,/core/jobs/,/webhooks/,/core/changelog/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                Operations <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
+                Operations <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
-            <div id="operations_menu_id" class="collapse sidebar-submenu">
+            <div id="operations_menu_id" class="collapse">
               <a href="{% url 'core:datasource_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/core/data-sources/' %} active{% endif %}">
-                <span class="ml-4">Data Sources</span>
+                <span class="ms-4">Data Sources</span>
               </a>
               <a href="{% url 'core:job_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/core/jobs/' %} active{% endif %}">
-                <span class="ml-4">Jobs</span>
+                <span class="ms-4">Jobs</span>
               </a>
               <a href="{% url 'extras:webhook_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/webhooks/' %} active{% endif %}">
-                <span class="ml-4">Webhooks</span>
+                <span class="ms-4">Webhooks</span>
               </a>
               <a href="{% url 'core:objectchange_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/core/changelog/' %} active{% endif %}">
-                <span class="ml-4">Change Log</span>
+                <span class="ms-4">Change Log</span>
               </a>
             </div>
-            <a href="#other_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/bgp/relationships/,/extras/config-contexts/,/extras/export-templates/,/tags/' %} active{% endif %}">
+            <a href="#other_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/bgp/relationships/,/extras/config-contexts/,/extras/export-templates/,/tags/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                Other <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
+                Other <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
-            <div id="other_menu_id" class="collapse sidebar-submenu">
+            <div id="other_menu_id" class="collapse">
               <a href="{% url 'bgp:relationship_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/bgp/relationships/' %} active{% endif %}">
-                <span class="ml-4">Relationships</span>
+                <span class="ms-4">Relationships</span>
               </a>
               <a href="{% url 'extras:configcontext_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/extras/config-contexts/' %} active{% endif %}">
-                <span class="ml-4">Config Contexts</span>
+                <span class="ms-4">Config Contexts</span>
               </a>
               <a href="{% url 'extras:exporttemplate_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/extras/export-templates/' %} active{% endif %}">
-                <span class="ml-4">Export Templates</span>
+                <span class="ms-4">Export Templates</span>
               </a>
               <a href="{% url 'extras:tag_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/tags/' %} active{% endif %}">
-                <div class="ml-4">Tags</div>
+                <div class="ms-4">Tags</div>
               </a>
             </div>
             {% if request.user.is_staff %}
-            <a href="#admin_menu_id" data-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/core/system/,/core/background-queues/,/core/background-workers/,/core/background-tasks/' %} active{% endif %}">
+            <a href="#admin_menu_id" data-bs-toggle="collapse" aria-expanded="false" class="bg-dark text-white list-group-item{% if request.path|contains:'/core/system/,/core/background-queues/,/core/background-workers/,/core/background-tasks/' %} active{% endif %}">
               <div class="d-flex w-100 justify-content-start align-items-center">
-                Admin <span class="submenu-icon ml-auto"><i class="fas fa-caret-right"></i></span>
+                Admin <span class="submenu-icon ms-auto"><i class="fa-fw fa-solid fa-caret-right"></i></span>
               </div>
             </a>
-            <div id="admin_menu_id" class="collapse sidebar-submenu">
+            <div id="admin_menu_id" class="collapse">
               <a href="{% url 'core:system' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/core/system/' %} active{% endif %}">
-                <span class="ml-4">System</span>
+                <span class="ms-4">System</span>
               </a>
               <a href="{% url 'core:background_queue_list' %}" class="list-group-item bg-dark text-white{% if request.path|contains:'/core/background-queues/,/core/background-workers/,/core/background-tasks/' %} active{% endif %}">
-                <span class="ml-4">Background Tasks</span>
+                <span class="ms-4">Background Tasks</span>
               </a>
             </div>
             {% endif %}
@@ -224,26 +224,24 @@
             <p>{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
             <p>{% now 'Y-m-d H:i:s T' %}</p>
             <p>
-              <i class="fas fa-fw fa-cloud"></i> <a href="{% url 'api-root' %}">API</a> &middot;
-              <i class="fas fa-fw fa-book"></i> <a href="http://peering-manager.readthedocs.io/en/{{ settings.VERSION | doc_version }}">Docs</a> &middot;
+              <i class="fa-fw fa-solid fa-fw fa-cloud"></i> <a href="{% url 'api-root' %}">API</a> &middot;
+              <i class="fa-fw fa-solid fa-fw fa-book"></i> <a href="http://peering-manager.readthedocs.io/en/{{ settings.VERSION | doc_version }}">Docs</a> &middot;
               <i class="fab fa-fw fa-github"></i> <a href="https://github.com/peering-manager/peering-manager">GitHub</a>
             </p>
         </div>
         </div>
       </nav>
-      <main role="main" class="ml-sm-auto col-md-9 col-lg-10" style="padding-left: 0; padding-right: 0;">
-        <div class="justify-content-between flex-wrap flex-md-nowrap align-items-center">
+      <main role="main" class="ms-sm-auto col-md-9 col-lg-10">
+        <div class="justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
           {% if request.user.is_authenticated and not context_as %}
           <div class="alert alert-warning text-center" role="alert">
-            <i class="fas fa-exclamation-triangle"></i> No affiliated autonomous system selected.
+            <i class="fa-fw fa-solid fa-exclamation-triangle"></i> No affiliated autonomous system selected.
           </div>
           {% endif %}
           {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} alert-dismissable" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-              <span>&times;</span>
-            </button>
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
             {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
           {% endfor %}
           {% block header %}{% endblock %}
@@ -252,8 +250,8 @@
       </main>
     </div>
 
-    <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
-    <script src="{% static 'bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'select2-4.0.13/js/select2.full.min.js' %}"></script>
     <script type="text/javascript">
       var our_api_path = "/{{ settings.BASE_PATH }}api/";

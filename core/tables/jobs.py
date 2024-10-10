@@ -1,5 +1,4 @@
 import django_tables2 as tables
-from django.conf import settings
 
 from peering_manager.tables import BaseTable, columns
 
@@ -18,10 +17,10 @@ class JobTable(BaseTable):
     status = columns.ChoiceFieldColumn()
     data = tables.TemplateColumn(
         """
-        <span class="badge badge-success">{{ value.total.success }}</span>
-        <span class="badge badge-info">{{ value.total.info }}</span>
-        <span class="badge badge-warning">{{ value.total.warning }}</span>
-        <span class="badge badge-danger">{{ value.total.failure }}</span>
+        <span class="badge text-bg-success">{{ value.total.success }}</span>
+        <span class="badge text-bg-info">{{ value.total.info }}</span>
+        <span class="badge text-bg-warning">{{ value.total.warning }}</span>
+        <span class="badge text-bg-danger">{{ value.total.failure }}</span>
         """,
         verbose_name="Results",
         orderable=False,

@@ -1,0 +1,17 @@
+{% load helpers %}
+<div class="card mb-3">
+  <div class="card-header"><strong>BGP Communities</strong></div>
+  {% if instance.communities.all.count > 0 %}
+  <ul class="list-group list-group-flush">
+    {% for community in instance.communities.all %}
+    <li class="list-group-item">
+      {{ community|as_link }}{% if community.type %} <span class="float-end">{{ community.get_type_html }}{% endif %}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="card-body">
+    <span class="text-muted">No communities assigned</span>
+  </div>
+  {% endif %}
+</div>

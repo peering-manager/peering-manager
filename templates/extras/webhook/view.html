@@ -3,7 +3,7 @@
 {% block subcontent %}
 <div class="row">
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Details</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
@@ -16,7 +16,7 @@
         </tr>
       </table>
     </div>
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Events</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
@@ -33,7 +33,7 @@
         </tr>
       </table>
     </div>
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>HTTP Request</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
@@ -54,7 +54,7 @@
         </tr>
       </table>
     </div>
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>SSL</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
@@ -69,7 +69,7 @@
     </div>
   </div>
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Assigned Models</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         {% for model in instance.content_types.all %}
@@ -79,7 +79,7 @@
         {% endfor %}
       </table>
     </div>
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Conditions</strong></div>
       {% if instance.conditions %}
       <pre class="pre-scrollable">{{ instance.conditions|render_json }}</pre>
@@ -87,7 +87,7 @@
       <div class="card-body"><span class="text-muted">None</span></div>
       {% endif %}
     </div>
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Additional Headers</strong></div>
       {% if instance.additional_headers %}
       <pre class="pre-scrollable">{{ instance.additional_headers }}</pre>
@@ -95,7 +95,7 @@
       <div class="card-body"><span class="text-muted">None</span></div>
       {% endif %}
     </div>
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Body Template</strong></div>
       {% if instance.body_template %}
       <pre class="pre-scrollable">{{ instance.body_template }}</pre>

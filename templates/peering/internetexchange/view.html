@@ -3,12 +3,12 @@
 {% block subcontent %}
 <div class="row">
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header">
         <strong>IX Details</strong>
         {% if instance.linked_to_peeringdb %}
-        <span class="float-right" data-toggle="tooltip" data-placement="right" title="Linked to PeeringDB">
-          <i class="fas fa-check-circle text-success"></i>
+        <span class="float-end" data-bs-toggle="tooltip" data-placement="right" title="Linked to PeeringDB">
+          <i class="fa-fw fa-solid fa-check-circle text-success"></i>
         </span>
         {% endif %}
       </div>
@@ -36,7 +36,7 @@
       </table>
     </div>
     {% if instance.linked_to_peeringdb %}
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>IXP Prefixes</strong></div>
       <ul class="list-group list-group-flush">
         {% for ixlan_prefix in instance.get_prefixes %}
@@ -48,11 +48,11 @@
       </div>
     </div>
     {% endif %}
-    {% include 'includes/contacts.html' %}
+    {% include 'includes/contacts_card.html' %}
     {% include 'includes/tags_card.html' with tags=instance.tags.all url='peering:internetexchange_list' %}
   </div>
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Import Routing Policies</strong></div>
       {% if instance.import_routing_policies.all.count > 0 %}
       <ul class="list-group list-group-flush">
@@ -68,7 +68,7 @@
       </div>
       {% endif %}
     </div>
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Export Routing Policies</strong></div>
       {% if instance.export_routing_policies.all.count > 0 %}
       <ul class="list-group list-group-flush">
@@ -84,31 +84,7 @@
       </div>
       {% endif %}
     </div>
-    <div class="card mb-2">
-      <div class="card-header">
-        <strong>BGP Communities</strong>
-      </div>
-      {% if instance.communities.all.count > 0 %}
-      <ul class="list-group list-group-flush">
-      {% for community in instance.communities.all %}
-        <li class="list-group-item">
-          {{ community|as_link }}{% if community.type %} <span class="float-right">{{ community.get_type_html }}{% endif %}</span>
-        </li>
-      {% endfor %}
-      </ul>
-      {% else %}
-      <div class="card-body">
-        <span class="text-muted">None</span>
-      </div>
-      {% endif %}
-    </div>
+    {% include 'includes/communities_card.html' %}
   </div>
 </div>
-{% endblock %}
-{% block javascript %}
-<script>
-  $(function() {
-    $('[data-toggle="tooltip"]').tooltip();
-  });
-</script>
 {% endblock %}

@@ -101,7 +101,7 @@ class ContactAssignmentForm(BootstrapMixin, forms.ModelForm):
 
 class EmailForm(PeeringManagerModelForm, SynchronisedDataMixin):
     subject = forms.CharField(
-        help_text='<i class="fas fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/templating/" target="_blank">Jinja2 template</a> syntax is supported'
+        help_text='<i class="fa-fw fa-solid fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/templating/" target="_blank">Jinja2 template</a> syntax is supported'
     )
     template = TemplateField(required=False, label="Body")
     comments = CommentField()

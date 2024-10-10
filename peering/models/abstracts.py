@@ -267,7 +267,7 @@ class BGPSession(PrimaryModel, PolicyMixin):
             badge = "secondary"
 
         return mark_safe(
-            f'<span class="badge badge-{badge}">{self.get_bgp_state_display() or "Unknown"}</span>'
+            f'<span class="badge text-bg-{badge}">{self.get_bgp_state_display() or "Unknown"}</span>'
         )
 
     def encrypt_password(self, commit=True):

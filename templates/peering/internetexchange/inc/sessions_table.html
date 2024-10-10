@@ -2,17 +2,17 @@
 {% block extra_buttons %}
 {% if perms.peering.change_internetexchangepeeringsession and instance.are_bgp_sessions_pollable %}
 <button type="button" class="btn btn-sm btn-success" id="id_poll_sessions_state">
-  <i class="fas fa-sync"></i> Poll Sessions
+  <i class="fa-fw fa-solid fa-sync"></i> Poll Sessions
 </button>
 {% endif %}
 {% if perms.peering.add_internetexchangepeeringsession %}
 {% if instance.has_connected_routers %}
-<button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#import_sessions_modal">
-  <i class="fas fa-upload"></i> Import Sessions
+<button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#import_sessions_modal">
+  <i class="fa-fw fa-solid fa-upload"></i> Import Sessions
 </button>
 {% endif %}
 <a href="{% url 'peering:internetexchangepeeringsession_add' %}?internet_exchange={{ instance.pk }}&return_url={{ instance.get_peering_sessions_list_url }}" class="btn btn-sm btn-primary">
-  <i class="fas fa-plus"></i> Add
+  <i class="fa-fw fa-solid fa-plus"></i> Add
 </a>
 {% endif %}
 {% endblock %}

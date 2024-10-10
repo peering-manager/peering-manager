@@ -50,6 +50,7 @@ class ExportTemplateTable(PeeringManagerTable):
     class Meta(PeeringManagerTable.Meta):
         model = ExportTemplate
         fields = (
+            "pk",
             "id",
             "name",
             "content_type",

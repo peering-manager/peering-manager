@@ -3,10 +3,10 @@
 {% block actions %}
 {% if perms.core.add_datasource %}
 <a href="{% url 'core:datasource_add' %}?type=git" class="btn btn-primary">
-  <i class="fas fa-plus"></i> Add Git Repository
+  <i class="fa-fw fa-solid fa-plus"></i> Add Git Repository
 </a>
 <a href="{% url 'core:datasource_add' %}?type=local" class="btn btn-primary">
-  <i class="fas fa-plus"></i> Add Directory
+  <i class="fa-fw fa-solid fa-plus"></i> Add Directory
 </a>
 {% endif %}
 {% endblock %}
