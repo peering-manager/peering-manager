@@ -85,7 +85,9 @@ $(document).ready(function () {
   }));
   // Tooltips
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+  [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl, {
+    trigger: 'hover'
+  }));
 
   // Toggle icon when a submenu is clicked
   function toggleIcon(e) {
