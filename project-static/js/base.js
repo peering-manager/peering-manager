@@ -8,12 +8,12 @@ var PeeringManager = {
   setWorkingButton: function (button, text = 'Working') {
     button.attr('disabled', 'disabled');
     button.removeClass('btn-primary').addClass('btn-warning');
-    button.html('<i class="fa-fw fa-solid fa-sync fa-spin fa-fw"></i> ' + text);
+    button.html('<i class="fa-fw fa-solid fa-spin"></i> ' + text);
   },
   setFailedButton: function (button, text = 'Failed') {
     button.attr('disabled', 'disabled');
     button.removeClass('btn-primary').addClass('btn-danger');
-    button.html('<i class="fa-fw fa-solid fa-times fa-fw"></i> ' + text);
+    button.html('<i class="fa-fw fa-solid fa-times"></i> ' + text);
   },
   setSuccessButton: function (button, text = 'Successful') {
     button.attr('disabled', 'disabled');
