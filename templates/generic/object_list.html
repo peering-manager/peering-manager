@@ -31,7 +31,7 @@
     {% include 'utils/responsive_table.html' %}
     <div class="float-start">
       {% if request.user.is_authenticated and table_modal %}
-      <button type="button" class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#{{ table_modal }}">
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#{{ table_modal }}">
         <i class="fa-fw fa-solid fa-cog"></i> Configure Table
       </button>
       {% endif %}
