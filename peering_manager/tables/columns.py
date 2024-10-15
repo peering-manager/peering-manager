@@ -51,7 +51,7 @@ class ActionsColumn(tables.Column):
     `True`).
     """
 
-    attrs = {"td": {"class": "text-right text-nowrap"}}
+    attrs = {"td": {"class": "text-end text-nowrap"}}
     empty_values = ()
     actions = {
         "edit": ActionsItem("Edit", "edit", "change", "warning"),
@@ -75,6 +75,19 @@ class ActionsColumn(tables.Column):
         # Determine which actions to enable
         self.actions = {name: self.actions[name] for name in actions}
 
+    def filter_actions(self, user, model):
+        """Remove actions that a user cannot perform."""
+        filtered = {}
+
+        for action, attrs in self.actions.items():
+            permission = (
+                f"{model._meta.app_label}.{attrs.permission}_{model._meta.model_name}"
+            )
+            if attrs.permission is None or user.has_perm(permission):
+                filtered[action] = attrs
+
+        return filtered
+
     def header(self):
         return ""
 
@@ -97,31 +110,27 @@ class ActionsColumn(tables.Column):
         dropdown_class = "secondary"
         dropdown_links = []
         user = getattr(request, "user", AnonymousUser())
-        for idx, (action, attrs) in enumerate(self.actions.items()):
-            permission = (
-                f"{model._meta.app_label}.{attrs.permission}_{model._meta.model_name}"
-            )
-            if attrs.permission is None or user.has_perm(permission):
-                url = reverse(get_viewname(model, action), kwargs={"pk": record.pk})
+        for idx, (action, attrs) in enumerate(self.filter_actions(user, model).items()):
+            url = reverse(get_viewname(model, action), kwargs={"pk": record.pk})
 
-                # Render a separate button if:
-                # a) only one action exists, or
-                # b) if split_actions is True
-                if len(self.actions) == 1 or (self.split_actions and idx == 0):
-                    dropdown_class = attrs.css_class
-                    button = f'<a class="btn btn-sm btn-{attrs.css_class}" href="{url}{url_appendix}" type="button"><i class="fas fa-{attrs.icon}"></i></a>'
-                # Add dropdown menu items
-                else:
-                    dropdown_links.append(
-                        f'<li><a class="dropdown-item" href="{url}{url_appendix}"><i class="fas fa-{attrs.icon}"></i> {attrs.title}</a></li>'
-                    )
+            # Render a separate button if:
+            # a) only one action exists, or
+            # b) if split_actions is True
+            if len(self.actions) == 1 or (self.split_actions and idx == 0):
+                dropdown_class = attrs.css_class
+                button = f'<a class="btn btn-sm btn-{attrs.css_class}" href="{url}{url_appendix}" type="button"><i class="fa-fw fa-solid fa-{attrs.icon}"></i></a>'
+            # Add dropdown menu items
+            else:
+                dropdown_links.append(
+                    f'<li><a class="dropdown-item" href="{url}{url_appendix}"><i class="fa-fw fa-solid fa-{attrs.icon}"></i> {attrs.title}</a></li>'
+                )
 
         # Create the actions dropdown menu
         if button and dropdown_links:
             html += (
                 f'<span class="btn-group">'
                 f"  {button}"
-                f'  <a class="btn btn-sm btn-{dropdown_class} dropdown-toggle dropdown-toggle-split" type="button" data-toggle="dropdown" style="padding-left: 2px">'
+                f'  <a class="btn btn-sm btn-{dropdown_class} dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown" style="padding-left: 2px">'
                 f'  <span class="sr-only">Toggle Dropdown</span></a>'
                 f'  <ul class="dropdown-menu">{"".join(dropdown_links)}</ul>'
                 f"</span>"
@@ -131,7 +140,7 @@ class ActionsColumn(tables.Column):
         elif dropdown_links:
             html += (
                 f'<span class="btn-group dropdown">'
-                f'  <a class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">'
+                f'  <a class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">'
                 f'  <span class="sr-only">Toggle Dropdown</span></a>'
                 f'  <ul class="dropdown-menu">{"".join(dropdown_links)}</ul>'
                 f"</span>"
@@ -164,11 +173,11 @@ class BooleanColumn(tables.BooleanColumn):
 
     def render(self, value, record, bound_column):
         if not self._get_bool_value(record, value, bound_column):
-            html = '<i class="fas fa-times text-danger"></i>'
+            html = '<i class="fa-fw fa-solid fa-times text-danger"></i>'
         elif value is None:
             html = '<span class="text-muted">&mdash;</span>'
         else:
-            html = '<i class="fas fa-check text-success"></i>'
+            html = '<i class="fa-fw fa-solid fa-check text-success"></i>'
 
         return mark_safe(html)
 
@@ -192,7 +201,7 @@ class ChoiceFieldColumn(tables.Column):
             bg_colour = getattr(record, f"get_{bound_column.name}_colour")()
         except AttributeError:
             bg_colour = self.DEFAULT_BG_COLOUR
-        return mark_safe(f'<span class="badge badge-{bg_colour}">{value}</span>')
+        return mark_safe(f'<span class="badge text-bg-{bg_colour}">{value}</span>')
 
     def value(self, value):
         return value
@@ -205,7 +214,7 @@ class ColourColumn(tables.Column):
 
     def render(self, value):
         return mark_safe(
-            f'<span class="label color-block" style="background-color: #{value}">&nbsp;</span>'
+            f'<span class="label colour-block" style="background-color: #{value}">&nbsp;</span>'
         )
 
 
@@ -313,11 +322,20 @@ class SelectColumn(tables.CheckBoxColumn):
     def __init__(self, *args, **kwargs):
         default = kwargs.pop("default", "")
         visible = kwargs.pop("visible", False)
+        if "attrs" not in kwargs:
+            kwargs["attrs"] = {
+                "th": {"class": "w-1", "aria-label": "Select all"},
+                "td": {"class": "w-1"},
+                "input": {"class": "form-check-input"},
+            }
+
         super().__init__(*args, default=default, visible=visible, **kwargs)
 
     @property
     def header(self):
-        return mark_safe('<input type="checkbox" class="toggle" title="Select all" />')
+        return mark_safe(
+            '<input type="checkbox" class="toggle form-check-input" title="Select all" />'
+        )
 
 
 class TagColumn(tables.TemplateColumn):

@@ -2,14 +2,37 @@
 {% load helpers %}
 {% block title %}User Profile{% endblock %}
 {% block user_content %}
-<small class="text-muted">User login</small>
-<h5>{{ request.user.username }}</h5>
-<small class="text-muted">Full name</small>
-<h5>{{ request.user.first_name }} {{ request.user.last_name }}</h5>
-<small class="text-muted">Email</small>
-<h5>{{ request.user.email }}</h5>
-<small class="text-muted">Registered</small>
-<h5>{{ request.user.date_joined | date_span }}</h5>
-<small class="text-muted">Admin access</small>
-<h5>{{ request.user.is_staff | yesno | capfirst }}</h5>
+<div class="card">
+  <div class="card-header"><strong>Account Details</strong></div>
+  <table class="card-body table table-hover attr-table mb-0">
+    <tr>
+      <td>Username</td>
+      <td>{{ request.user.username }}</td>
+    </tr>
+    <tr>
+      <td>Full Name</td>
+      <td>{{ request.user.first_name }} {{ request.user.last_name }}</td>
+    </tr>
+    <tr>
+      <td>E-mail</td>
+      <td>{{ request.user.email }}</td>
+    </tr>
+    <tr>
+      <td>Account Created</td>
+      <td>{{ request.user.date_joined|date_span }}</td>
+    </tr>
+    <tr>
+      <td>Last Login</td>
+      <td>{{ request.user.last_login|date_span }}</td>
+    </tr>
+    <tr>
+      <td>Superuser</td>
+      <td>{{ request.user.is_superuser|boolean_as_icon }}</td>
+    </tr>
+    <tr>
+      <td>Staff</td>
+      <td>{{ request.user.is_staff|boolean_as_icon }}</td>
+    </tr>
+  </table>
+</div>
 {% endblock %}

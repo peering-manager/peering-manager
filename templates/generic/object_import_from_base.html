@@ -12,9 +12,9 @@
           <div class="col-10">
             <h3>{% block title %}{{ object_type|title_with_uppers }} Import{% endblock %}</h3>
             {% for error in formset.non_form_errors %}
-            <div class="alert alert-danger alert-dismissible" role="alert">
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
               <i class="fa fa-exclamation-triangle"></i> {{ error }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
             {% endfor %}
             {% for form in formset %}
@@ -58,7 +58,7 @@
           </div>
         </div>
         <div class="row justify-content-center">
-          <div class="col-10 text-right">
+          <div class="col-10 text-end">
             <button type="submit" class="btn btn-primary">Import</button>
             <a class="btn btn-secondary" href="{{ return_url }}">Cancel</a>
           </div>

@@ -4,11 +4,18 @@ html {
   font-size: 14px;
 }
 body {
-  padding-top: 64px;
+  padding-top: 48px;
+}
+a:not([class*="btn"]) {
+  text-decoration: none;
+}
+a:not([class*="btn"]):hover {
+  text-decoration: underline;
 }
 .navbar-brand {
   padding-top: .75rem;
   padding-bottom: .75rem;
+  padding-left: 1rem;
   background-color: rgba(0, 0, 0, .25);
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
 }
@@ -16,13 +23,19 @@ nav > ol.breadcrumb {
   padding-top: 0rem;
   padding-bottom: 0rem;
   margin-bottom: 0rem;
-  background-color: #343a40;
 }
 .breadcrumb-item.active {
   color: white;
 }
+.breadcrumb-divider-colour {
+  --bs-breadcrumb-divider-color: white;
+}
 nav > ol.breadcrumb > li.breadcrumb-item > a {
   color: white;
+  text-decoration: none;
+}
+a.navbar-brand:hover, a.nav-link:hover, a.dropdown-item:hover {
+  text-decoration: none;
 }
 .sidebar {
   position: fixed;
@@ -33,26 +46,27 @@ nav > ol.breadcrumb > li.breadcrumb-item > a {
   padding: 48px 0 0; /* Height of navbar */
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
 }
-.sidebar-sticky {
-  background-color: #333;
+.position-sticky {
   position: relative;
   top: 0;
   height: calc(100vh - 48px);
   overflow-x: hidden;
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content */
 }
-.sidebar .nav-link, .sidebar .list-group-item {
+.sidebar .list-group-item {
   font-weight: 500;
-  color: #f8f9fa;
+  border: none;
 }
 .sidebar a:hover.list-group-item {
   text-decoration: none;
+  background-color: #393d40!important;
+  border-color: #393d40!important;
 }
 .sidebar .list-group-item.active {
-  background-color: #1d2124!important;
-  border-color: #1d2124!important;
+  background-color: #393d40!important;
+  border-color: #393d40!important;
 }
-.sidebar-sticky .footer {
+.position-sticky .footer {
   position: absolute;
   bottom: 0;
 }
@@ -95,9 +109,6 @@ table.table thead th.asc.orderable > a::after {
 table.table thead th.desc.orderable > a::after {
   content: " \f0de";
   font-family: "Font Awesome 5 Free";
-}
-ul.nav-tabs, ul.nav-pills {
-  margin-bottom: 20px;
 }
 .min-width {
   width: 1%;
@@ -150,7 +161,6 @@ div#action_buttons {
   position: inherit !important;
 }
 
-/* Color Selections */
 .colour-selection-aa1409 {
   background-color: #aa1409;
   color: #ffffff;
@@ -259,7 +269,7 @@ div#action_buttons {
   background-color: #ffffff;
   color: #000000;
 }
-.color-block {
+.colour-block {
   display: block;
   width: 40px;
   border: 1px solid #9e9e9e;

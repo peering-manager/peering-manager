@@ -8,7 +8,7 @@
 
 {# Render grouped fields according to form #}
 {% for group, fields in form.fieldsets %}
-<div class="card mb-2">
+<div class="card mb-3">
   {% if group %}
   <div class="card-header"><strong>{{ group }}</strong></div>
   {% endif %}
@@ -24,7 +24,7 @@
 </div>
 {% endfor %}
 {% if form.tags %}
-<div class="card mb-2">
+<div class="card mb-3">
   <div class="card-header"><strong>Tags</strong></div>
   <div class="card-body">
     {% render_field form.tags %}
@@ -32,7 +32,7 @@
 </div>
 {% endif %}
 {% if form.comments %}
-<div class="card mb-2">
+<div class="card mb-3">
   <div class="card-header"><strong>Comments</strong></div>
   <div class="card-body">
     {% render_field form.comments %}
@@ -41,7 +41,7 @@
 {% endif %}
 {% else %}
 {# Render all fields in a single group #}
-<div class="card mb-2">
+<div class="card mb-3">
   <div class="card-body">
     {% render_form form %}
   </div>

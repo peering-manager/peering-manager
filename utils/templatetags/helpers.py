@@ -23,7 +23,7 @@ def boolean_as_icon(value):
         icon, colour = "check", "success"
     else:
         icon, colour = "times", "danger"
-    return mark_safe(f'<i class="fas fa-{icon} text-{colour}"></i>')
+    return mark_safe(f'<i class="fa-fw fa-solid fa-{icon} text-{colour}"></i>')
 
 
 @register.filter()
@@ -35,7 +35,7 @@ def status_as_badge(value):
         return ""
 
     return mark_safe(
-        f'<span class="badge badge-{value.get_status_colour()}">{value.get_status_display()}</span>'
+        f'<span class="badge text-bg-{value.get_status_colour()}">{value.get_status_display()}</span>'
     )
 
 

@@ -2,10 +2,7 @@ import django_tables2 as tables
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models import DateField, DateTimeField
 from django.db.models.fields.related import RelatedField
-from django.utils.formats import date_format
-from django_tables2.columns import library
 from django_tables2.data import TableQuerysetData
 
 from utils.paginators import EnhancedPaginator, get_paginate_count
@@ -163,7 +160,7 @@ class BaseTable(tables.Table):
 
 
 class PeeringManagerTable(BaseTable):
-    pk = columns.ToggleColumn(visible=False)
+    pk = columns.SelectColumn(visible=False)
     id = tables.Column(linkify=True, verbose_name="ID")
     actions = columns.ActionsColumn()
 

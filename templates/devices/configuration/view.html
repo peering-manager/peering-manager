@@ -3,7 +3,7 @@
 {% block subcontent %}
 <div class="row">
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Details</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
@@ -31,7 +31,7 @@
             {% if instance.data_file %}
             {{ instance.data_file|as_link }}
             {% elif instance.data_path %}
-            <div class="float-right text-warning">
+            <div class="float-end text-warning">
               <i class="fa-solid fa-triangle-exclamation" title="The data file associated with this configuration has been deleted."></i>
             </div>
             <span class="text-monospace">{{ instance.data_path }}</span>
@@ -41,10 +41,10 @@
         {% endif %}
       </table>
     </div>
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header">
         <strong>Jinja2 Properties</strong>
-        <div class="float-right">
+        <div class="float-end">
           <a href="https://peering-manager.readthedocs.io/en/{{ settings.VERSION | doc_version }}/templating/" target="_blank"><i class="fa fa-info-circle"></i></a>
         </div>
       </div>
@@ -61,22 +61,13 @@
     </div>
   </div>
   <div class="col-md-6">
-    <div class="card">
-      <div class="card-header"><strong>Comments</strong></div>
-      <div class="card-body">
-        {% if instance.comments %}
-        {{ instance.comments|markdown }}
-        {% else %}
-        <span class="text-muted">None</span>
-        {% endif %}
-      </div>
-    </div>
+    {% include 'includes/comments_card.html' %}
     {% include 'includes/tags_card.html' with tags=instance.tags.all url='devices:configuration_list' %}
   </div>
 </div>
 <div class="row">
   <div class="col">
-    <div class="card mt-2">
+    <div class="card">
       <div class="card-header"><strong>Template</strong></div>
       <pre class="pre-scrollable">{{ instance.template }}</pre>
     </div>

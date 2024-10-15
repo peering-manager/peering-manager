@@ -8,37 +8,37 @@ var PeeringManager = {
   setWorkingButton: function (button, text = 'Working') {
     button.attr('disabled', 'disabled');
     button.removeClass('btn-primary').addClass('btn-warning');
-    button.html('<i class="fas fa-sync fa-spin fa-fw"></i> ' + text);
+    button.html('<i class="fa-fw fa-solid fa-spin"></i> ' + text);
   },
   setFailedButton: function (button, text = 'Failed') {
     button.attr('disabled', 'disabled');
     button.removeClass('btn-primary').addClass('btn-danger');
-    button.html('<i class="fas fa-times fa-fw"></i> ' + text);
+    button.html('<i class="fa-fw fa-solid fa-times"></i> ' + text);
   },
   setSuccessButton: function (button, text = 'Successful') {
     button.attr('disabled', 'disabled');
     button.removeClass('btn-warning').addClass('btn-success');
-    button.html('<i class="fas fa-check"></i> ' + text);
+    button.html('<i class="fa-fw fa-solid fa-check"></i> ' + text);
   },
   resetPingButton: function (button) {
     button.removeAttr('disabled');
     button.removeClass('btn-warning', 'btn-danger', 'btn-success');
-    button.addClass('btn-primary').html('<i class="fas fa-plug"></i> Ping');
+    button.addClass('btn-primary').html('<i class="fa-fw fa-solid fa-plug"></i> Ping');
   },
   resetDeployButton: function (button) {
     button.removeAttr('disabled');
     button.removeClass('btn-warning', 'btn-danger', 'btn-success');
-    button.addClass('btn-primary').html('<i class="fas fa-cogs"></i> Deploy');
+    button.addClass('btn-primary').html('<i class="fa-fw fa-solid fa-cogs"></i> Deploy');
   },
   resetSynchroniseButton: function (button, css_class = "btn-success") {
     button.removeAttr('disabled');
     button.removeClass('btn-warning', 'btn-danger');
-    button.addClass(css_class).html('<i class="fas fa-sync"></i> Synchronise');
+    button.addClass(css_class).html('<i class="fa-fw fa-solid fa-sync"></i> Synchronise');
   },
   resetPollSessionsButton: function (button) {
     button.removeAttr('disabled');
     button.removeClass('btn-warning', 'btn-danger', 'btn-primary');
-    button.addClass('btn-success').html('<i class="fas fa-sync"></i> Poll Sessions');
+    button.addClass('btn-success').html('<i class="fa-fw fa-solid fa-sync"></i> Poll Sessions');
   },
   resetConfirmButton: function (button) {
     button.removeAttr('disabled');
@@ -78,20 +78,32 @@ $(document).ready(function () {
   // to varname[] instead of staying as varname
   $.ajaxSettings.traditional = true;
 
-  // Trigger popover on hover
-  $('.popover-hover').popover({ trigger: 'hover' });
+  // Popovers
+  const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+  [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl, {
+    html: true
+  }));
+  // Tooltips
+  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+  [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl, {
+    trigger: 'hover'
+  }));
 
   // Toggle icon when a submenu is clicked
   function toggleIcon(e) {
     icon = $(e.target).prev().find('.submenu-icon');
     if (icon.html().indexOf('caret-right') !== -1) {
-      icon.html('<i class="fas fa-caret-down"></i>');
+      icon.html('<i class="fa-fw fa-solid fa-caret-down"></i>');
     } else {
-      icon.html('<i class="fas fa-caret-right"></i>');
+      icon.html('<i class="fa-fw fa-solid fa-caret-right"></i>');
     }
   }
   $('.collapse').on('hidden.bs.collapse', toggleIcon);
   $('.collapse').on('shown.bs.collapse', toggleIcon);
 
-  $('.nav > .list-group-item.active').click();
+  // Make sure menu is expanded when sub-item is selected
+  const active_collapse = $('.nav > .list-group-item.active[data-bs-toggle="collapse"]');
+  if (active_collapse.length == 1) {
+    active_collapse[0].click();
+  }
 });

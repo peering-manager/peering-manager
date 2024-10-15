@@ -12,7 +12,7 @@
               <div class="card-header bg-danger text-white">{% block title %}Delete {{ object_type|title_with_uppers }}?{% endblock %}</div>
               <div class="card-body">
                 <p>Are you sure that you want to delete <strong>{{ object }}</strong>?</p>
-                <div class="text-right">
+                <div class="text-end">
                   <button type="submit" class="btn btn-danger">Confirm</button>
                   <a class="btn btn-secondary" href="{{ return_url }}">Cancel</a>
                 </div>
