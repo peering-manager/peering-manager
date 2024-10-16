@@ -11,13 +11,13 @@ I have removed all AS specific code and make a generic template you can use as a
 This TAG can be set on a neighbor, IX or BGP group level. If set we enable Origin Validation for this neighbor or BGP Group.
 
 #### ROUTER-POLICY
-This TAG  can be set on a Policy. When set the policy is a router policy and uses the specific policy-variables from config context data from a router. The two variables can be set are comm-deny-to and comm-depref-to. These can be used to depref or deny routes on specific roouters if this community is set on the router.
+This TAG  can be set on a Policy. When set the policy is a router policy and uses the specific policy-variables from config context data from a router. The two variables can be set are comm-deny-to and comm-depref-to. These can be used to depref or deny routes on specific routers if this community is set on the router.
 
 #### DONT-EXPORT
 This TAG can be set on a Policy. It will note export the policy to the router and gives you the option to define a policy local on the router and use it in Peering Manager to set on a peer or group.
 
 #### FILTER-PREFIXES-V4
-This TAG can be set on an AS Number. It will mean we do Prefix Filtering for this AS number for all V4 prefides and will generate the prefix lists and policies to enable this
+This TAG can be set on an AS Number. It will mean we do Prefix Filtering for this AS number for all V4 prefixes and will generate the prefix lists and policies to enable this
 
 #### FILTER-PREFIXES-V6
 This TAG can be set on an AS Number. It will mean we do Prefix Filtering for this AS number for all V6 prefides and will generate the prefix lists and policies to enable this
@@ -612,8 +612,6 @@ The second loop is for the groups in Peering Manager. In our case we have Two gr
 
 This config part creates the individual BGP Neighbors. We have two seperate loops for the IX neighbours and the Transit/Private Peer neighbors.
 
-
-
 ```
 {%- for ixp in internet_exchange_points %}
       {%- for family in (6, 4) %}
@@ -648,7 +646,7 @@ This config part creates the individual BGP Neighbors. We have two seperate loop
               threshold 90
             }
             {%- endif %}
-            {%- if family == 4 and session.autonomous_system.ipv6_max_prefixes > 0 %}
+            {%- if family == 4 and session.autonomous_system.ipv4_max_prefixes > 0 %}
             prefix-limit ipv4 {
               maximum {{ session.autonomous_system.ipv4_max_prefixes }}
               threshold 90
