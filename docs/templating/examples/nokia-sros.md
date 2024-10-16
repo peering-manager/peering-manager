@@ -72,8 +72,6 @@ To make the template a bit more readable, I decided to split it up in different 
 {% include_configuration "GITHUB Nokia SROS Default config" %}
 
 configure {
-  ############### DEFAULT FILTERS ###############
-  {% include_configuration "GITHUB Nokia SROS Sub - Filters" %}
   router "Base" {
         {#- START OF BGP CONFIG #}
         bgp {
@@ -104,12 +102,6 @@ configure {
         {#- Prefix Lists#}
         ############### PREFIX LISTS###############
         {%- include_configuration "GITHUB Nokia SROS Sub - Route Policy Prefix Lists" %}
-      }
-     
-      ############### IPV4/IPV6 FILTERING ###############
-      filter {
-        {# FILTER IPv4/IPV6 PART #}
-        {%- include_configuration "GITHUB Nokia SROS Sub - Interface Filters" %}
       }
     }
 ```
@@ -199,20 +191,6 @@ configure {
                             maximum 10
                             log-only false
                             idle-timeout 90
-                        }
-                    }
-                }
-            }
-        }
-        group "External_Interface" {
-            router "Base" {
-                description "Common and generic settings for Peering/PNI/Transit IP interfaces"
-                interface "<.*>" {
-                    admin-state enable
-                    ingress {
-                        filter {
-                            ip "A-X-PEERING-TRANSIT-1-X-X-I"
-                            ipv6 "A-X-PEERING-TRANSIT-1-X-X-I"
                         }
                     }
                 }
@@ -382,129 +360,6 @@ configure {
 }
 ```
 
-
-## Nokia SROS Sub - Filters
-
-This config part adds the input filters for external interfaces. the prefix lists referenced in these filters are filled by peering manager.
-The filters are added by the apply group "External Interfaces" 
-We do have the assumption that we have 2 groups (TRANSIT and PRIVATE PEER)
-
-```
-filter {
-    ip-filter "A-X-PEERING-TRANSIT-1-X-X-I" {
-        description "IPv4 Input Filter for External Interfaces"
-        default-action accept
-        entry 100 {
-            description "Allow traffic from Transit peers to our Transit interfaces"
-            match {
-                src-ip {
-                    ip-prefix-list "PMGR-TRANSIT-NETWORKS-V4"
-                }
-                dst-ip {
-                    ip-prefix-list "PMGR-TRANSIT-NETWORKS-V4"
-                }
-            }
-            action {
-                accept
-            }
-        }
-        entry 101 {
-            description "Deny other traffic to Transit Interfaces"
-            match {
-                dst-ip {
-                    ip-prefix-list "PMGR-TRANSIT-NETWORKS-V4"
-                }
-            }
-            action {
-                drop
-            }
-        }
-        entry 110 {
-            description "Allow traffic from Private peers to our Transit interfaces"
-            match {
-                src-ip {
-                    ip-prefix-list "PMGR-PRIVATE-PEER-NETWORKS-V4"
-                }
-                dst-ip {
-                    ip-prefix-list "PMGR-PRIVATE-PEER-NETWORKS-V4"
-                }
-            }
-            action {
-                accept
-            }
-        }
-        entry 111 {
-            description "Drop all other traffic from Private peers to our interfaces"
-            match {
-                dst-ip {
-                    ip-prefix-list "PMGR-PRIVATE-PEER-NETWORKS-V4"
-                }
-            }
-            action {
-                drop
-            }
-        }
-    }
-    ipv6-filter "A-X-PEERING-TRANSIT-1-X-X-I" {
-         entry 100 {
-            description "Allow traffic from Transit peers to our Transit interfaces"
-            match {
-                src-ip {
-                    ipv6-prefix-list "PMGR-TRANSIT-NETWORKS-V6"
-                }
-                dst-ip {
-                    ipv6-prefix-list "PMGR-TRANSIT-NETWORKS-V6"
-                }
-            }
-            action {
-                accept
-            }
-        }
-        entry 101 {
-            description "Deny other traffic to Transit Interfaces"
-            match {
-                dst-ip {
-                    ipv6-prefix-list "PMGR-TRANSIT-NETWORKS-V6"
-                }
-            }
-            action {
-                drop
-            }
-        }
-        entry 110 {
-            description "Allow traffic from Private peers to our Transit interfaces"
-            match {
-                src-ip {
-                    ipv6-prefix-list "PMGR-PRIVATE-PEER-NETWORKS-V6"
-                }
-                dst-ip {
-                    ipv6-prefix-list "PMGR-PRIVATE-PEER-NETWORKS-V6"
-                }
-            }
-            action {
-                accept
-            }
-        }
-        entry 111 {
-            description "Block traffic from anywhere to our PNI interfaces"
-            match {
-                dst-ip {
-                    ipv6-prefix-list "PMGR-PRIVATE-PEER-NETWORKS-V6"
-                }
-            }
-            action {
-                drop
-            }
-        }
-    }
-    md-auto-id {
-        filter-id-range {
-            start 100
-            end 999
-        }
-    }
-  }
-```
 
 ## Nokia SROS Sub - BGP Groups
 
@@ -1032,101 +887,4 @@ This part is the creation of communities. For every community we want to set on 
        {%- endfor %}
        {%- endfor %}
 
-```
-
-## Nokia SROS Sub - Interface Filters
-```
-match-list {
-
-          {%- for family in (6, 4) %}
-          {%- for group in bgp_groups %}
-          delete ip{%- if family == 6 %}v6{%- endif %}-prefix-list "{{p}}{{group}}-NETWORKS-V{{family }}"
-          ip{%- if family == 6 %}v6{%- endif %}-prefix-list "{{p}}{{group}}-NETWORKS-V{{family }}" {  
-            {%- for session in router | direct_sessions(family=family ,group=group) %}
-            {%- if session.enabled or 'maintenance' in session.status or 'provisioning' in session.status %}
-              prefix  {{ session.local_ip_address.network }} { }
-            {%- endif %}
-            {%- endfor %}
-          }
-          {%- endfor %}
-          {%- endfor %}
-
-          {%- for ixp in internet_exchange_points %}
-          {%- for family in (6, 4) %}
-          ip{%- if family == 6 %}v6{%- endif %}-prefix-list {{p}}BGPFILTER-IXP-{{ ixp.name }}-V{{ family }} {
-	    apply-path {
-              bgp-peers 10 {
-                group "{{p}}IXP-{{ ixp.name }}-V{{ family }}"
-                neighbor ".*"
-                router-instance "Base"
-              }
-            }
-          }
-          port-list "BGP" {
-            port 179 { }
-          }
-        {%- endfor %}
-        {%- endfor %}
-
-        }
-        
-        {%- set ns = namespace(entry_num=10000) %}
-        {%- for family in (6, 4) %}
-        {%- set ns.entry_num = 10000 %}
-        ip{%- if family == 6 %}v6{%- endif %}-filter "A-X-PEERING-TRANSIT-1-X-X-I" {
-          {%- for ixp in internet_exchange_points %}
-	  entry {{ ns.entry_num }} {
-            description "List of IPv{{family }} peers on {{ ixp.name }} we allow BGP from to our BGP IPv{{family }} on port 179"
-            match {
-                {%- if family == 4 %}
-                protocol tcp
-                {%- elif family == 6 %}
-                next-header tcp
-                {%-endif%}
-                src-ip {
-                    ip{%- if family == 6 %}v6{%- endif %}-prefix-list "{{p}}BGPFILTER-IXP-{{ ixp.name }}-V{{family}}"
-                }
-                dst-ip {
-                {%- for connection in router | connections %}
-                {%- if connection.internet_exchange_point == ixp %}
-                    address  {%- if family == 6 %} {{ connection.ipv6_address | ip }}/128{%elif family == 4 %} {{ connection.ipv4_address | ip }}/32{%-endif%}
-                {%- endif %}
-                {%- endfor %}
-                }
-                dst-port {
-                    eq 179
-                }
-            }
-            action {
-                accept
-            }
-          }
-          {%- set entry_num_sub = ns.entry_num + 1 %}
-          entry {{ entry_num_sub }} {
-            description "Drop to BGP IPv{{family }} address on {{ ixp.name }} on port 179"
-            match {
-                {%- if family == 4 %}
-                protocol tcp
-                {%- elif family == 6 %}
-                next-header tcp
-                {%-endif%}
-                dst-ip {
-                {%- for connection in router | connections %}
-                {%- if connection.internet_exchange_point == ixp %}
-                    address {%- if family == 6 %} {{ connection.ipv6_address | ip}}/128{%elif family == 4 %} {{ connection.ipv4_address | ip }}/32{%-endif%}
-                {%- endif %}
-                {%- endfor %}
-                }
-                dst-port {
-                    eq 179
-                }
-            }
-            action {
-                drop
-            }
-         }
-         {%- set ns.entry_num = ns.entry_num + 10 %}
-         {%- endfor %}
-       }
-       {%- endfor %}
 ```
