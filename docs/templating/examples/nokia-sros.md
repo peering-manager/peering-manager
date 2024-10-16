@@ -63,6 +63,19 @@ In Filter Transit ASN we have this settings:. as-path-filter is the reference to
 }
 ```
 
+### Status
+
+This is the explanation how we have implemented the status setting of a peer/group:
+
+- Provisioning: Session is created but will not be provisioned to the router
+- Enabled: Session will be fully operational to the router
+- Disabled: Session will be provisioned with admin-state disable
+- Pre-Maintenance: Session will be created and will be up, but will be created with low local pref and routes will be send with Graceful Shutdown communities (PEER-OUT-GSHUT / PEER-IN-GSHUT)
+- Maintenance: Session will be created and will be up, but no routes will be sent (BGP-REJECT-IN/BGP-REJECT-OUT)
+- Decommissioning/Decommissioned: Session will be deleted from the router in the next config deployment. This is always the first step to delete a peering session. After this has been done a peer can safely be deleted from peering maanger
+
+All other statusses are not officially supported and will result in peering to be deleted if it was active or it won't get provisioned.
+
 # Configuration templates
 To make the template a bit more readable, I decided to split it up in different sub templates. Just create configuration templates for every code part in your peering manager installation with the exact same name as the header.
 
