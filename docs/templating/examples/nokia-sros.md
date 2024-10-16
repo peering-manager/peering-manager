@@ -32,13 +32,23 @@ The following default config context are used in these templates
 - Routing Policy V6 OUT:	Routing Policy Defaults IPv6 Peers and Transits Output
 - Filter Transit ASN:       Filter out routes that contain transit ASN
 
-In this Routing Policy contexts we store the default local-preference and med settings.
+In this Routing Policy IN (V4/V4) contexts we store the default local-preference and med settings.
 ```
 {
     "policy-variables": {
         "local-preference": 100,
         "med": 0
         
+    }
+}
+```
+
+In this Routing Policy OUT (V4/V4) contexts we store the default med and asprepend settings (How many prepends we want to apply on outgoing advertisements)
+```
+{
+    "policy-variables": {
+        "asprepend": 0,
+        "med": 0
     }
 }
 ```
