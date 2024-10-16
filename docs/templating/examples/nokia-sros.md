@@ -531,8 +531,7 @@ The second loop is for the groups in Peering Manager. In our case we have Two gr
 
             {%- for tag in ixp.tags.all() if tag.slug == "origin-validation" %}
             origin-validation {
-              ipv4 true
-              ipv6 true
+              ipv{{ family }} true
             }
             {%- endfor %}
              
@@ -578,8 +577,7 @@ The second loop is for the groups in Peering Manager. In our case we have Two gr
             {%- endif %}
             {%- for tag in group.tags.all() if tag.slug == "origin-validation" %}
             origin-validation {
-              ipv4 true
-              ipv6 true
+              ipv{{ family }} true
             }
             {%- endfor %}
             
@@ -641,8 +639,7 @@ This config part creates the individual BGP Neighbors. We have two seperate loop
             peer-as {{ session.autonomous_system.asn }}
             {%- for tag in session.tags.all() if tag.slug == "origin-validation" %}
             origin-validation {
-              ipv4 true
-              ipv6 true
+              ipv{{ family }} true
             }
             {%- endfor %}
             {%- if family == 6 and session.autonomous_system.ipv6_max_prefixes > 0 %}
@@ -723,8 +720,7 @@ This config part creates the individual BGP Neighbors. We have two seperate loop
             peer-as {{ session.autonomous_system.asn }}
             {%- for tag in session.tags.all() if tag.slug == "origin-validation" %}
             origin-validation {
-              ipv4 true
-              ipv6 true
+              ipv{{ family }} true
             }
             {%- endfor %}
             {%- if family == 6 and session.autonomous_system.ipv6_max_prefixes > 0 %}
