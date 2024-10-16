@@ -13,7 +13,9 @@ def is_ruleset(data):
     Determine whether the given dictionary looks like a rule set.
     """
     return (
-        isinstance(data, dict) and len(data) == 1 and list(data.keys())[0] in (AND, OR)
+        isinstance(data, dict)
+        and len(data) == 1
+        and next(iter(data.keys())) in (AND, OR)
     )
 
 
@@ -138,7 +140,7 @@ class ConditionSet:
             )
 
         # Determine the logic type
-        logic = list(ruleset.keys())[0]
+        logic = next(iter(ruleset.keys()))
         if not isinstance(logic, str) or logic.lower() not in (AND, OR):
             raise ValueError(f"Invalid logic type: {logic} (must be '{AND}' or '{OR}')")
         self.logic = logic.lower()

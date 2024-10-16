@@ -4,6 +4,36 @@ from ..enums import *
 from ..forms import *
 
 
+class BFDTest(TestCase):
+    def test_bfd_form(self):
+        test = BFDForm(
+            data={
+                "name": "Test 1",
+                "slug": "test-1",
+                "minimum_transmit_interval": 300,
+                "minimum_receive_interval": 300,
+                "detection_multiplier": 3,
+                "hold_time": 0,
+            }
+        )
+        self.assertTrue(test.is_valid())
+        self.assertTrue(test.save())
+
+        test = BFDForm(
+            data={
+                "name": "Test 2",
+                "slug": "test-2",
+                "minimum_transmit_interval": 0,
+                "minimum_receive_interval": 0,
+                "detection_multiplier": 0,
+                "hold_time": 0,
+            }
+        )
+        self.assertFalse(test.is_valid())
+        with self.assertRaises(ValueError):
+            self.assertFalse(test.save())
+
+
 class ConnectionTest(TestCase):
     def test_connection_form(self):
         test = ConnectionForm(

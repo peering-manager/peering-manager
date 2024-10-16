@@ -1,3 +1,4 @@
+import contextlib
 import ipaddress
 
 import django_filters
@@ -5,7 +6,7 @@ from django.db.models import Q
 
 from bgp.models import Relationship
 from devices.models import Router
-from net.models import Connection
+from net.models import BFD, Connection
 from peering_manager.filtersets import (
     OrganisationalModelFilterSet,
     PeeringManagerModelFilterSet,
@@ -51,10 +52,8 @@ class AutonomousSystemFilterSet(PeeringManagerModelFilterSet):
             | Q(description__icontains=value)
             | Q(irr_as_set__icontains=value)
         )
-        try:
+        with contextlib.suppress(ValueError):
             qs_filter |= Q(asn=int(value.strip()))
-        except ValueError:
-            pass
 
         return queryset.filter(qs_filter)
 
@@ -67,12 +66,22 @@ class BGPGroupFilterSet(OrganisationalModelFilterSet):
         fields = ["id"]
 
 
-class CommunityFilterSet(OrganisationalModelFilterSet):
+class CommunityFilterSet(PeeringManagerModelFilterSet):
     type = django_filters.MultipleChoiceFilter(choices=CommunityType, null_value="")
 
     class Meta:
         model = Community
         fields = ["id", "value", "type"]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value)
+            | Q(value__icontains=value)
+            | Q(slug__icontains=value)
+            | Q(description__icontains=value)
+        )
 
 
 class DirectPeeringSessionFilterSet(PeeringManagerModelFilterSet):
@@ -119,6 +128,15 @@ class DirectPeeringSessionFilterSet(PeeringManagerModelFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=BGPSessionStatus, null_value=""
     )
+    bfd_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=BFD.objects.all(), label="BFD (ID)"
+    )
+    bfd = django_filters.ModelMultipleChoiceFilter(
+        field_name="bfd__name",
+        queryset=BFD.objects.all(),
+        to_field_name="name",
+        label="BFD (Name)",
+    )
     relationship_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Relationship.objects.all(), label="Relationship (ID)"
     )
@@ -154,6 +172,7 @@ class DirectPeeringSessionFilterSet(PeeringManagerModelFilterSet):
             return queryset
         qs_filter = (
             Q(service_reference__icontains=value)
+            | Q(comments__icontains=value)
             | Q(autonomous_system__name__icontains=value)
             | Q(bgp_group__name__icontains=value)
             | Q(bgp_group__slug__icontains=value)
@@ -203,10 +222,8 @@ class InternetExchangeFilterSet(OrganisationalModelFilterSet):
             | Q(slug__icontains=value)
             | Q(local_autonomous_system__name__icontains=value)
         )
-        try:
+        with contextlib.suppress(ValueError):
             qs_filter |= Q(local_autonomous_system__asn=int(value.strip()))
-        except ValueError:
-            pass
         return queryset.filter(qs_filter)
 
 
@@ -240,6 +257,15 @@ class InternetExchangePeeringSessionFilterSet(PeeringManagerModelFilterSet):
         to_field_name="name",
         label="IX (Name)",
     )
+    bfd_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=BFD.objects.all(), label="BFD (ID)"
+    )
+    bfd = django_filters.ModelMultipleChoiceFilter(
+        field_name="bfd__name",
+        queryset=BFD.objects.all(),
+        to_field_name="name",
+        label="BFD (Name)",
+    )
     address_family = django_filters.NumberFilter(method="address_family_search")
     status = django_filters.MultipleChoiceFilter(
         choices=BGPSessionStatus, null_value=""
@@ -255,6 +281,7 @@ class InternetExchangePeeringSessionFilterSet(PeeringManagerModelFilterSet):
             return queryset
         qs_filter = (
             Q(service_reference__icontains=value)
+            | Q(comments__icontains=value)
             | Q(autonomous_system__name__icontains=value)
             | Q(ixp_connection__router__name__icontains=value)
             | Q(ixp_connection__router__hostname__icontains=value)

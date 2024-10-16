@@ -7,7 +7,7 @@ from devices.enums import DeviceStatus
 from devices.models import Router
 from extras.models import IXAPI
 from messaging.models import Email
-from net.models import Connection
+from net.models import BFD, Connection
 from peering_manager.forms import (
     PeeringManagerModelBulkEditForm,
     PeeringManagerModelFilterSetForm,
@@ -342,6 +342,12 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
     communities = DynamicModelMultipleChoiceField(
         required=False, queryset=Community.objects.all()
     )
+    bfd = DynamicModelChoiceField(
+        required=False,
+        queryset=BFD.objects.all(),
+        label="BFD",
+        help_text="BFD configuration to use for liveness detection",
+    )
     password = PasswordField(required=False, render_value=True)
     local_context_data = JSONField(required=False)
     comments = CommentField()
@@ -351,7 +357,14 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
         ("Local", ("local_autonomous_system", "local_ip_address", "router")),
         (
             "Properties",
-            ("service_reference", "status", "password", "multihop_ttl", "passive"),
+            (
+                "service_reference",
+                "status",
+                "password",
+                "multihop_ttl",
+                "passive",
+                "bfd",
+            ),
         ),
         (
             "Routing Policies",
@@ -378,14 +391,12 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
             "import_routing_policies",
             "export_routing_policies",
             "communities",
+            "bfd",
             "local_context_data",
             "comments",
             "tags",
         )
-        labels = {
-            "local_ip_address": "Local IP Address",
-            "ip_address": "IP Address",
-        }
+        labels = {"local_ip_address": "Local IP Address", "ip_address": "IP Address"}
         help_texts = {
             "local_ip_address": "IPv6 or IPv4 address",
             "ip_address": "IPv6 or IPv4 address",
@@ -452,6 +463,9 @@ class DirectPeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm):
     communities = DynamicModelMultipleChoiceField(
         required=False, queryset=Community.objects.all()
     )
+    bfd = DynamicModelChoiceField(
+        required=False, queryset=BFD.objects.all(), label="BFD"
+    )
     router = DynamicModelChoiceField(required=False, queryset=Router.objects.all())
     local_context_data = JSONField(required=False)
     comments = CommentField()
@@ -461,6 +475,7 @@ class DirectPeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm):
         "import_routing_policies",
         "export_routing_policies",
         "communities",
+        "bfd",
         "router",
         "local_context_data",
         "comments",
@@ -501,6 +516,9 @@ class DirectPeeringSessionFilterForm(PeeringManagerModelFilterSetForm):
         to_field_name="pk",
         null_option="None",
         label="Relationship",
+    )
+    bfd_id = DynamicModelMultipleChoiceField(
+        required=False, queryset=BFD.objects.all(), to_field_name="pk", label="BFD"
     )
     router_id = DynamicModelMultipleChoiceField(
         required=False,
@@ -688,6 +706,9 @@ class InternetExchangePeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm
     communities = DynamicModelMultipleChoiceField(
         required=False, queryset=Community.objects.all()
     )
+    bfd = DynamicModelChoiceField(
+        required=False, queryset=BFD.objects.all(), label="BFD"
+    )
     local_context_data = JSONField(required=False)
     comments = CommentField()
 
@@ -696,6 +717,7 @@ class InternetExchangePeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm
         "import_routing_policies",
         "export_routing_policies",
         "communities",
+        "bfd",
         "local_context_data",
         "comments",
     )
@@ -733,6 +755,12 @@ class InternetExchangePeeringSessionForm(PeeringManagerModelForm):
     communities = DynamicModelMultipleChoiceField(
         required=False, queryset=Community.objects.all()
     )
+    bfd = DynamicModelChoiceField(
+        required=False,
+        queryset=BFD.objects.all(),
+        label="BFD",
+        help_text="BFD configuration to use for liveness detection",
+    )
     local_context_data = JSONField(required=False)
     comments = CommentField()
     tags = TagField(required=False)
@@ -741,7 +769,14 @@ class InternetExchangePeeringSessionForm(PeeringManagerModelForm):
         ("Peer", ("autonomous_system", "ip_address", "is_route_server")),
         (
             "Properties",
-            ("service_reference", "status", "password", "multihop_ttl", "passive"),
+            (
+                "service_reference",
+                "status",
+                "password",
+                "multihop_ttl",
+                "passive",
+                "bfd",
+            ),
         ),
         (
             "Routing Policies",
@@ -765,6 +800,7 @@ class InternetExchangePeeringSessionForm(PeeringManagerModelForm):
             "import_routing_policies",
             "export_routing_policies",
             "communities",
+            "bfd",
             "local_context_data",
             "comments",
             "tags",
@@ -805,6 +841,9 @@ class InternetExchangePeeringSessionFilterForm(PeeringManagerModelFilterSetForm)
         queryset=Connection.objects.all(),
         to_field_name="pk",
         label="IXP connection",
+    )
+    bfd_id = DynamicModelMultipleChoiceField(
+        required=False, queryset=BFD.objects.all(), to_field_name="pk", label="BFD"
     )
     address_family = forms.ChoiceField(
         required=False, choices=IPFamily, widget=StaticSelect

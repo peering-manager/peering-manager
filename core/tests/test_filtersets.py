@@ -1,6 +1,11 @@
+import uuid
 from datetime import datetime, timezone
 
+from django.contrib.auth.models import User
 from django.test import TestCase
+
+from extras.models import Tag
+from utils.testing import BaseFilterSetTests
 
 from ..enums import *
 from ..filtersets import *
@@ -144,3 +149,46 @@ class DataFileTestCase(TestCase):
             ]
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
+    queryset = ObjectChange.objects.all()
+    filterset = ObjectChangeFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.uuids = []
+
+        tag = Tag(name="Tag 1", slug="tag-1")
+        tag.save()
+
+        user = User.objects.create_user(username="testuser2")
+        for _ in range(3):
+            uid = uuid.uuid4()
+            cls.uuids.append(uid)
+            change = tag.to_objectchange(ObjectChangeAction.UPDATE)
+            change.user = user
+            change.request_id = uid
+            change.save()
+
+    def test_q(self):
+        params = {"q": ""}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {"q": "testuser2"}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_action(self):
+        params = {"action": ObjectChangeAction.UPDATE}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_user_id(self):
+        params = {"user_id": User.objects.get(username="testuser2").id}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_user_name(self):
+        params = {"user": "testuser2"}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_request_id(self):
+        params = {"request_id": self.uuids[0]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)

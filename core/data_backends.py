@@ -124,14 +124,13 @@ class GitRepositoryBackend(DataBackend):
             "quiet": True,
         }
 
-        if self.url_scheme in ("http", "https"):
-            if self.params.get("username"):
-                clone_args.update(
-                    {
-                        "username": self.params.get("username"),
-                        "password": self.params.get("password"),
-                    }
-                )
+        if self.url_scheme in ("http", "https") and self.params.get("username"):
+            clone_args.update(
+                {
+                    "username": self.params.get("username"),
+                    "password": self.params.get("password"),
+                }
+            )
 
         logger.debug(f"cloning git repository: {self.url}")
         try:

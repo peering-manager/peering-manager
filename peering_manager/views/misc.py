@@ -5,9 +5,10 @@ from django.urls import reverse
 from django.views.generic import View
 from packaging import version
 
+from core.models import ObjectChange
 from devices.models import Configuration, Router
-from extras.models import ObjectChange
 from messaging.models import Contact, Email
+from net.models import BFD, Connection
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -28,8 +29,10 @@ class HomeView(View):
     def get(self, request):
         statistics = {
             "autonomous_systems_count": AutonomousSystem.objects.count(),
+            "bfd_count": BFD.objects.count(),
             "bgp_groups_count": BGPGroup.objects.count(),
             "communities_count": Community.objects.count(),
+            "connections_count": Connection.objects.count(),
             "direct_peering_sessions_count": DirectPeeringSession.objects.count(),
             "internet_exchanges_count": InternetExchange.objects.count(),
             "internet_exchange_peering_sessions_count": InternetExchangePeeringSession.objects.count(),
@@ -66,7 +69,7 @@ class SearchView(View):
         results = []
 
         if form.is_valid():
-            for obj_type in SEARCH_TYPES.keys():
+            for obj_type in SEARCH_TYPES:
                 queryset = SEARCH_TYPES[obj_type]["queryset"]
                 filterset = SEARCH_TYPES[obj_type]["filterset"]
                 table = SEARCH_TYPES[obj_type]["table"]

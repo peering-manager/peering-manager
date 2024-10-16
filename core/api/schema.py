@@ -99,7 +99,7 @@ class PeeringManagerAutoSchema(AutoSchema):
             if re.search(r"<drf_format_suffix\w*:\w+>", self.path_regex):
                 tokenized_path.append("formatted")
 
-            return "_".join(tokenized_path + [action])
+            return "_".join([*tokenized_path, action])
 
         # if not bulk - just return normal id
         return super().get_operation_id()
@@ -163,10 +163,10 @@ class PeeringManagerAutoSchema(AutoSchema):
             # read_only fields don't need to be in writable (write only) serializers
             if "read_only" in dir(child) and child.read_only:
                 remove_fields.append(child_name)
-            if isinstance(child, ChoiceField | WritableNestedSerializer):
-                properties[child_name] = None
-            elif isinstance(child, ManyRelatedField) and isinstance(
-                child.child_relation, SerializedPKRelatedField
+            if (
+                isinstance(child, ChoiceField | WritableNestedSerializer)
+                or isinstance(child, ManyRelatedField)
+                and isinstance(child.child_relation, SerializedPKRelatedField)
             ):
                 properties[child_name] = None
 

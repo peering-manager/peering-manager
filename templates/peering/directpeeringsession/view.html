@@ -3,7 +3,7 @@
 {% block subcontent %}
 <div class="row">
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>BGP Details</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         {% if instance.service_reference %}
@@ -37,7 +37,7 @@
           <td>
             {{ instance.autonomous_system|as_link }}
             {% if instance.autonomous_system.comments %}
-            <span class="float-right badge badge-info popover-hover" data-toggle="popover" data-html="true" data-content="{{ instance.autonomous_system.comments | markdown:True }}"><i class="fas fa-comment"></i></span>
+            <span class="float-end badge text-bg-info popover-hover" data-bs-toggle="popover" data-html="true" data-content="{{ instance.autonomous_system.comments | markdown:True }}"><i class="fa-fw fa-solid fa-comment"></i></span>
             {% endif %}
           </td>
         </tr>
@@ -59,9 +59,7 @@
           <td>
             <div class="input-group">
               <input type="password" class="form-control" id="id_password" value="{{ instance.password }}" disabled>
-              <div class="input-group-append">
-                <button type="button" class="btn btn-secondary" id="id_password_reveal"><i class="fas fa-eye"></i> Show</button>
-              </div>
+              <button type="button" class="btn btn-secondary" id="id_password_reveal"><i class="fa-fw fa-solid fa-eye"></i></button>
             </div>
           </td>
         </tr>
@@ -72,6 +70,12 @@
           <td>{{ instance.multihop_ttl }}</td>
         </tr>
         {% endif %}
+        {% if instance.bfd %}
+        <tr>
+          <td>BFD</td>
+          <td>{{ instance.bfd|as_link }}</td>
+        </tr>
+        {% endif %}
         {% if instance.router %}
         <tr>
           <td>Router</td>
@@ -80,21 +84,12 @@
         {% endif %}
       </table>
     </div>
-    <div class="card">
-      <div class="card-header"><strong>Comments</strong></div>
-      <div class="card-body">
-        {% if instance.comments %}
-        {{ instance.comments|markdown }}
-        {% else %}
-        <span class="text-muted">None</span>
-        {% endif %}
-      </div>
-    </div>
+    {% include 'includes/comments_card.html' %}
     {% include 'includes/tags_card.html' with tags=instance.tags.all url='peering:directpeeringsession_list' %}
   </div>
   <div class="col-md-6">
     {% if instance.last_established_state != None %}
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>BGP State</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         <tr>
@@ -107,20 +102,20 @@
         </tr>
         <tr>
           <td>Received Prefix Count</td>
-          <td><span class="badge badge-pill badge-primary">{{ instance.received_prefix_count }}</span></td>
+          <td><span class="badge text-bg-pill text-bg-primary">{{ instance.received_prefix_count }}</span></td>
         </tr>
         <tr>
           <td>Accepted Prefix Count</td>
-          <td><span class="badge badge-pill badge-primary">{{ instance.accepted_prefix_count }}</span></td>
+          <td><span class="badge text-bg-pill text-bg-primary">{{ instance.accepted_prefix_count }}</span></td>
         </tr>
         <tr>
           <td>Advertised Prefix Count</td>
-          <td><span class="badge badge-pill badge-primary">{{ instance.advertised_prefix_count }}</span></td>
+          <td><span class="badge text-bg-pill text-bg-primary">{{ instance.advertised_prefix_count }}</span></td>
         </tr>
       </table>
     </div>
     {% endif %}
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Import Routing Policies</strong></div>
       {% if instance.import_routing_policies.all.count > 0 %}
       <ul class="list-group list-group-flush">
@@ -136,7 +131,7 @@
       </div>
       {% endif %}
     </div>
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header"><strong>Export Routing Policies</strong></div>
       {% if instance.export_routing_policies.all.count > 0 %}
       <ul class="list-group list-group-flush">
@@ -152,24 +147,7 @@
       </div>
       {% endif %}
     </div>
-    <div class="card mb-2">
-      <div class="card-header">
-        <strong>BGP Communities</strong>
-      </div>
-      {% if instance.communities.all.count > 0 %}
-      <ul class="list-group list-group-flush">
-      {% for community in instance.communities.all %}
-        <li class="list-group-item">
-          {{ community|as_link }}{% if community.type %} <span class="float-right">{{ community.get_type_html }}{% endif %}</span>
-        </li>
-      {% endfor %}
-      </ul>
-      {% else %}
-      <div class="card-body">
-        <span class="text-muted">None</span>
-      </div>
-      {% endif %}
-    </div>
+    {% include 'includes/communities_card.html' %}
   </div>
 </div>
 {% endblock %}

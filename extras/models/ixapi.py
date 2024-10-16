@@ -116,12 +116,7 @@ class IXAPI(ChangeLoggedModel):
         If the API version is 1, it'll use the `_customer` suffix. It'll use
         `_account` for all other versions.
         """
-
-        if self.version == 1:
-            suffix = "_customer"
-        else:
-            suffix = "_account"
-
+        suffix = "_customer" if self.version == 1 else "_account"
         return {
             f"managing_{suffix}": self.identity,
             f"consuming_{suffix}": self.identity,

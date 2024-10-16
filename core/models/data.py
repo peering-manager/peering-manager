@@ -415,4 +415,4 @@ class AutoSynchronisationRecord(models.Model):
         ]
 
     def __str__(self):
-        return f"Auto synchronisation of {str(self.data_file)} for {str(self.object)}"
+        return f"Auto synchronisation of {self.data_file!s} for {self.object!s}"

@@ -190,7 +190,7 @@ class ModelTestCase(TestCase):
         if exclude is None:
             exclude = []
 
-        fields = [k for k in data.keys() if k not in exclude]
+        fields = [k for k in data if k not in exclude]
         model_dict = self.model_to_dict(instance, fields=fields, api=api)
 
         # Omit any dictionary keys which are not instance attributes or have been excluded

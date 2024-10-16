@@ -125,10 +125,10 @@ class DirectPeeringSessionTable(PeeringManagerTable):
     append_template = """
     {% load helpers %}
     {% if record.comments %}
-    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-toggle="popover" data-html="true" title="Session Comments" data-content="{{ record.comments | markdown:True }}"><i class="fas fa-comment"></i></button>
+    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="Session Comments" data-bs-content="{{ record.comments | markdown:True }}"><i class="fa-fw fa-solid fa-comment"></i></button>
     {% endif %}
     {% if record.autonomous_system.comments %}
-    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-toggle="popover" data-html="true" title="AS Comments" data-content="{{ record.autonomous_system.comments | markdown:True }}"><i class="fas fa-comments"></i></button>
+    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="AS Comments" data-bs-content="{{ record.autonomous_system.comments | markdown:True }}"><i class="fa-fw fa-solid fa-comments"></i></button>
     {% endif %}
     """
 
@@ -147,6 +147,7 @@ class DirectPeeringSessionTable(PeeringManagerTable):
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     communities = CommunityColumn()
+    bfd = tables.Column(verbose_name="BFD", linkify=True)
     state = BGPSessionStateColumn(accessor="bgp_state")
     router = tables.Column(verbose_name="Router", accessor="router", linkify=True)
     tags = columns.TagColumn(url_name="peering:directpeeringsession_list")
@@ -169,6 +170,7 @@ class DirectPeeringSessionTable(PeeringManagerTable):
             "import_routing_policies",
             "export_routing_policies",
             "communities",
+            "bfd",
             "state",
             "last_established_state",
             "received_prefix_count",
@@ -227,13 +229,13 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
     append_template = """
     {% load helpers %}
     {% if record.comments %}
-    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-toggle="popover" data-html="true" title="Session Comments" data-content="{{ record.comments | markdown:True }}"><i class="fas fa-comment"></i></button>
+    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="Session Comments" data-bs-content="{{ record.comments | markdown:True }}"><i class="fa-fw fa-solid fa-comment"></i></button>
     {% endif %}
     {% if record.autonomous_system.comments %}
-    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-toggle="popover" data-html="true" title="AS Comments" data-content="{{ record.autonomous_system.comments | markdown:True }}"><i class="fas fa-comments"></i></button>
+    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="AS Comments" data-bs-content="{{ record.autonomous_system.comments | markdown:True }}"><i class="fa-fw fa-solid fa-comments"></i></button>
     {% endif %}
     {% if record.internet_exchange.comments %}
-    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-toggle="popover" data-html="true" title="IXP Comments" data-content="{{ record.internet_exchange.comments | markdown:True }}"><i class="fas fa-comment-dots"></i></button>
+    <button type="button" class="btn btn-sm btn-secondary popover-hover" data-bs-toggle="popover" data-html="true" title="IXP Comments" data-bs-content="{{ record.internet_exchange.comments | markdown:True }}"><i class="fa-fw fa-solid fa-comment-dots"></i></button>
     {% endif %}
     """
 
@@ -254,6 +256,7 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
     export_routing_policies = RoutingPolicyColumn(verbose_name="Export Policies")
     communities = CommunityColumn()
+    bfd = tables.Column(verbose_name="BFD", linkify=True)
     exists_in_peeringdb = columns.BooleanColumn(
         accessor="exists_in_peeringdb", verbose_name="In PeeringDB", orderable=False
     )
@@ -278,6 +281,7 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
             "import_routing_policies",
             "export_routing_policies",
             "communities",
+            "bfd",
             "exists_in_peeringdb",
             "state",
             "last_established_state",

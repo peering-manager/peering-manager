@@ -10,8 +10,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from taggit.managers import TaggableManager
 
-from core.enums import JobStatus
-from extras.enums import ObjectChangeAction
+from core.enums import JobStatus, ObjectChangeAction
 from extras.utils import register_features
 from utils.functions import merge_hash, serialize_object
 
@@ -42,7 +41,7 @@ class ChangeLoggingMixin(models.Model):
 
     @property
     def excluded_fields(self):
-        return ["updated"] + getattr(self, "changelog_excluded_fields", [])
+        return ["updated", *getattr(self, "changelog_excluded_fields", [])]
 
     def snapshot(self):
         """
@@ -54,7 +53,7 @@ class ChangeLoggingMixin(models.Model):
         """
         Return a new `ObjectChange` representing a change made to this object.
         """
-        from extras.models import ObjectChange
+        from core.models import ObjectChange
 
         object_change = ObjectChange(
             changed_object=self,
@@ -385,7 +384,7 @@ FEATURES_MAP = {
     "webhooks": WebhooksMixin,
 }
 registry["model_features"].update(
-    {feature: defaultdict(set) for feature in FEATURES_MAP.keys()}
+    {feature: defaultdict(set) for feature in FEATURES_MAP}
 )
 
 

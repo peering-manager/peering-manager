@@ -1,14 +1,11 @@
-import uuid
 from unittest.mock import patch
 
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from peering.models import AutonomousSystem
 from utils.testing import ViewTestCases
 
-from ..enums import ObjectChangeAction
-from ..models import IXAPI, ConfigContext, ExportTemplate, ObjectChange, Tag
+from ..models import IXAPI, ConfigContext, ExportTemplate, Tag
 
 
 class ConfigContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -135,30 +132,6 @@ class IXAPITestCase(ViewTestCases.PrimaryObjectViewTestCase):
     def test_edit_object_with_permission(self):
         with patch("extras.models.ixapi.IXAPI.test_connectivity", return_value=True):
             super().test_edit_object_with_permission()
-
-
-class ObjectChangeTestCase(ViewTestCases.ReadOnlyObjectViewTestCase):
-    model = ObjectChange
-
-    test_changelog_object = None
-    test_create_object = None
-    test_edit_object = None
-    test_delete_object = None
-    test_bulk_edit_objects = None
-    test_bulk_delete_objects = None
-
-    @classmethod
-    def setUpTestData(cls):
-        tag = Tag(name="Tag 1", slug="tag-1")
-        tag.save()
-
-        user = User.objects.create_user(username="testuser2")
-        for _ in range(3):
-            uid = uuid.uuid4()
-            change = tag.to_objectchange(ObjectChangeAction.UPDATE)
-            change.user = user
-            change.request_id = uid
-            change.save()
 
 
 class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):

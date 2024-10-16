@@ -9,10 +9,10 @@ from django.urls import reverse
 from requests import Session
 from rest_framework import status
 
+from core.enums import ObjectChangeAction
 from peering.models import AutonomousSystem
 from utils.testing import APITestCase
 
-from ..enums import ObjectChangeAction
 from ..models import Tag, Webhook
 from ..webhooks import enqueue_object, flush_webhooks, generate_signature
 from ..workers import process_webhook

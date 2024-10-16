@@ -2,10 +2,7 @@ import django_tables2 as tables
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models import DateField, DateTimeField
 from django.db.models.fields.related import RelatedField
-from django.utils.formats import date_format
-from django_tables2.columns import library
 from django_tables2.data import TableQuerysetData
 
 from utils.paginators import EnhancedPaginator, get_paginate_count
@@ -13,51 +10,6 @@ from utils.paginators import EnhancedPaginator, get_paginate_count
 from . import columns
 
 __all__ = ("linkify_phone", "BaseTable", "PeeringManagerTable")
-
-
-@library.register
-class DateColumn(tables.DateColumn):
-    """
-    Overrides the default implementation of `DateColumn` to better handle null values,
-    returning a default value for tables and null when exporting data. It is
-    registered in the tables library to use this class instead of the default, making
-    this behaviour consistent in all fields of type `DateField`.
-    """
-
-    def render(self, value):
-        if value:
-            return date_format(value, format="SHORT_DATE_FORMAT")
-        return ""
-
-    def value(self, value):
-        return value
-
-    @classmethod
-    def from_field(cls, field, **kwargs):
-        if isinstance(field, DateField):
-            return cls(**kwargs)
-        return None
-
-
-@library.register
-class DateTimeColumn(tables.DateTimeColumn):
-    """
-    Overrides the default implementation of `DateTimeColumn` to better handle null
-    values, returning a default value for tables and null when exporting data. It is
-    registered in the tables library to use this class instead of the default, making
-    this behaviour consistent in all fields of type `DateTimeField`.
-    """
-
-    def value(self, value):
-        if value:
-            return date_format(value, format="SHORT_DATETIME_FORMAT")
-        return None
-
-    @classmethod
-    def from_field(cls, field, **kwargs):
-        if isinstance(field, DateTimeField):
-            return cls(**kwargs)
-        return None
 
 
 def linkify_phone(value):
@@ -208,7 +160,7 @@ class BaseTable(tables.Table):
 
 
 class PeeringManagerTable(BaseTable):
-    pk = columns.ToggleColumn(visible=False)
+    pk = columns.SelectColumn(visible=False)
     id = tables.Column(linkify=True, verbose_name="ID")
     actions = columns.ActionsColumn()
 

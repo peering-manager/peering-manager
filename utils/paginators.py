@@ -1,3 +1,5 @@
+from itertools import pairwise
+
 from django.conf import settings
 from django.core.paginator import Page, Paginator
 
@@ -42,11 +44,7 @@ class EnhancedPage(Page):
         pages_list = sorted(set(self.paginator.page_range).intersection(pages_wanted))
 
         # Skip markers
-        skip_pages = [
-            x[1]
-            for x in zip(pages_list[:-1], pages_list[1:], strict=True)
-            if (x[1] - x[0] != 1)
-        ]
+        skip_pages = [x[1] for x in pairwise(pages_list) if (x[1] - x[0] != 1)]
         for i in skip_pages:
             pages_list.insert(pages_list.index(i), False)
 

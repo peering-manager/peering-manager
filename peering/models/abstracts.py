@@ -76,13 +76,15 @@ class BGPSession(PrimaryModel, PolicyMixin):
       * a unique service reference, blank or user defined
       * an autonomous system, it can also be called a peer
       * an IP address used to establish the session
+      * a status telling if the session should be administratively up/down, or
+        denoting other configuration status
       * a plain text password
       * an encrypted version of the password if the user asked for encryption
       * a TTL for multihoping
-      * an enabled or disabled status telling if the session should be
-        administratively up or down
       * import routing policies to apply to prefixes sent by the remote device
       * export routing policies to apply to prefixed sent to the remote device
+      * communities to apply to routes received or advertised over this session
+      * BFD configuration to check session liveness
       * a BGP state giving the current operational state of session (it will
         remain to unkown if the is disabled)
       * a received prefix count (it will stay none if polling is disabled)
@@ -126,7 +128,10 @@ class BGPSession(PrimaryModel, PolicyMixin):
         blank=True,
         related_name="%(class)s_export_routing_policies",
     )
-    communities = models.ManyToManyField("Community", blank=True)
+    communities = models.ManyToManyField(to="Community", blank=True)
+    bfd = models.ForeignKey(
+        to="net.BFD", on_delete=models.SET_NULL, blank=True, null=True
+    )
     bgp_state = models.CharField(max_length=50, choices=BGPState, blank=True, null=True)
     received_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     accepted_prefix_count = models.PositiveIntegerField(blank=True, default=0)
@@ -223,14 +228,23 @@ class BGPSession(PrimaryModel, PolicyMixin):
                 merged.append(c)
 
         group = None
+        router = None
         if hasattr(self, "ixp_connection"):
             group = self.ixp_connection.internet_exchange_point
+            router = self.ixp_connection.router
         else:
             group = self.bgp_group
+            router = self.router
 
-        for c in group.communities.all():
-            if c not in merged:
-                merged.append(c)
+        if group:
+            for c in group.communities.all():
+                if c not in merged:
+                    merged.append(c)
+
+        if router:
+            for c in router.communities.all():
+                if c not in merged:
+                    merged.append(c)
 
         return merged
 
@@ -253,7 +267,7 @@ class BGPSession(PrimaryModel, PolicyMixin):
             badge = "secondary"
 
         return mark_safe(
-            f'<span class="badge badge-{badge}">{self.get_bgp_state_display() or "Unknown"}</span>'
+            f'<span class="badge text-bg-{badge}">{self.get_bgp_state_display() or "Unknown"}</span>'
         )
 
     def encrypt_password(self, commit=True):
@@ -263,10 +277,7 @@ class BGPSession(PrimaryModel, PolicyMixin):
 
         Returns `True` if the encrypted password has been changed, `False` otherwise.
         """
-        if hasattr(self, "router"):
-            router = self.router
-        else:
-            router = self.ixp_connection.router
+        router = self.router if hasattr(self, "router") else self.ixp_connection.router
 
         if not router or not router.platform or not router.encrypt_passwords:
             return False

@@ -6,9 +6,9 @@ from devices.tables import ConfigurationTable, RouterTable
 from messaging.filtersets import ContactFilterSet, EmailFilterSet
 from messaging.models import Contact, ContactAssignment, Email
 from messaging.tables import ContactTable, EmailTable
-from net.filtersets import ConnectionFilterSet
-from net.models import Connection
-from net.tables import ConnectionTable
+from net.filtersets import BFDFilterSet, ConnectionFilterSet
+from net.models import BFD, Connection
+from net.tables import BFDTable, ConnectionTable
 from peering.filtersets import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
@@ -78,6 +78,15 @@ SEARCH_TYPES = OrderedDict(
             },
         ),
         # net
+        (
+            "bfd",
+            {
+                "queryset": BFD.objects.all(),
+                "filterset": BFDFilterSet,
+                "table": BFDTable,
+                "url": "net:bfd_list",
+            },
+        ),
         (
             "connection",
             {

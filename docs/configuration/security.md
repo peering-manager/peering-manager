@@ -85,6 +85,7 @@ CSRF_TRUSTED_ORIGINS = (
     'https://peering-manager.local',
 )
 ```
+
 ---
 
 ## LOGIN_PERSISTENCE

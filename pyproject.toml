@@ -16,19 +16,19 @@ repository = "https://github.com/peering-manager/peering-manager.git"
 python = ">=3.10,<3.13"
 Django = ">=5.0,<5.1"
 djangorestframework = "~3.15"
-django-debug-toolbar = "~4.3"
-django-filter = "~24.2"
+django-debug-toolbar = "~4.4"
+django-filter = "~24.3"
 django-netfields = "~1.3"
 django-prometheus = "~2.3"
 django-redis = "~5.4"
 django-rq = "~2.10"
 django-tables2 = "~2.7"
-django-taggit = "~5.0"
+django-taggit = "~6.0"
 drf-spectacular = "~0.27"
 drf-spectacular-sidecar = "^2024"
-dulwich = "~0.21"
+dulwich = "~0.22"
 Jinja2 = "~3.1"
-Markdown = "~3.5"
+Markdown = "~3.7"
 napalm = "~5.0"
 packaging = "23.2"
 psycopg = { version = "~3.1", extras = ["binary", "pool"] }
@@ -42,9 +42,9 @@ social-auth-app-django = "^5.4"
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "~3.5"
+pre-commit = "~3.8"
 ruff = "~0.6"
-coverage = { version = "~7.4", extras = ["toml"] }
+coverage = { version = "~7.6", extras = ["toml"] }
 
 [tool.poetry.group.docs]
 optional = true
@@ -62,7 +62,6 @@ ignore = [
     "C901",    # Is too complex
     "DJ001",   # Avoid using `null=True` on string-based fields such as `CharField`
     "E501",    # Line too long
-    "F401",    # Imported but unused; consider using `importlib.util.find_spec` to test for availability
     "F403",    # Unable to detect undefined names
     "F405",    # May be undefined, or defined from star imports
     "PLR0911", # Too many return statements
@@ -70,6 +69,7 @@ ignore = [
     "PLR0913", # Too many arguments in function definition
     "PLR0915", # Too many statements
     "PLR2004", # Magic value used in comparison, consider replacing with a constant variable
+    "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
 ]
 select = [
     "ASYNC", # flake8-async
@@ -81,6 +81,8 @@ select = [
     "E",     # pycodestyle errors
     "EXE",   # flake8-executable
     "F",     # pyflakes
+    "FLY",   # flynt
+    "FURB",  # refurb
     "I",     # isort-like checks
     "ICN",   # flake8-import-conventions
     "INP",   # flake8-no-pep420
@@ -91,6 +93,8 @@ select = [
     "PYI",   # flake8-pyi
     "Q",     # flake8-quotes
     "RET",   # flake8-return
+    "RUF",   # Ruff specific rules
+    "SIM",   # flake8-simplify
     "TCH",   # flake8-type-checking
     "T10",   # flake8-debugger
     "UP",    # pyupgrade

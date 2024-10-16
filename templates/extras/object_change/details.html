@@ -1,7 +1,7 @@
 {% extends '_base.html' %}
 {% load helpers %}
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'extras:objectchange_list' %}">Change Log</a></li>
+<li class="breadcrumb-item"><a href="{% url 'core:objectchange_list' %}">Change Log</a></li>
 {% if instance.related_object.get_absolute_url %}
 <li class="breadcrumb-item"><a href="{{ instance.related_object.get_absolute_url }}changelog/">{{ instance.related_object }}</a></li>
 {% elif instance.changed_object.get_absolute_url %}
@@ -12,7 +12,7 @@
 <li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
-      <div class="row">
+      <div class="row mb-3">
         <div class="col-md-5">
           <div class="card">
             <div class="card-header"><strong>Change</strong></div>
@@ -54,12 +54,12 @@
           <div class="card">
             <div class="card-header">
               <strong>Difference</strong>
-              <div class="btn-group float-right" role="group" aria-label="Change Navigation">
-                <a {% if previous_change %}href="{% url 'extras:objectchange_view' pk=previous_change.pk %}"{% endif %} class="btn btn-xs btn-secondary{% if not previous_change %} disabled{% endif %}">
-                  <i class="fas fa-chevron-left"></i> Previous
+              <div class="btn-group float-end" role="group" aria-label="Change Navigation">
+                <a {% if previous_change %}href="{% url 'core:objectchange_view' pk=previous_change.pk %}"{% endif %} class="btn btn-xs btn-secondary{% if not previous_change %} disabled{% endif %}">
+                  <i class="fa-fw fa-solid fa-chevron-left"></i> Previous
                 </a>
-                <a {% if next_change %}href="{% url 'extras:objectchange_view' pk=next_change.pk %}"{% endif %} class="btn btn-xs btn-secondary{% if not next_change %} disabled{% endif %}">
-                  Next <i class="fas fa-chevron-right"></i>
+                <a {% if next_change %}href="{% url 'core:objectchange_view' pk=next_change.pk %}"{% endif %} class="btn btn-xs btn-secondary{% if not next_change %} disabled{% endif %}">
+                  Next <i class="fa-fw fa-solid fa-chevron-right"></i>
                 </a>
               </div>
             </div>
@@ -80,7 +80,7 @@
           </div>
         </div>
       </div>
-      <div class="row mt-2">
+      <div class="row mb-3">
         <div class="col-md-6">
           <div class="card">
             <div class="card-header"><strong>Pre-Change Data</strong></div>
@@ -91,7 +91,7 @@
                 {% endspaceless %}
 {% endfor %}</pre>
               {% elif non_atomic_change %}
-              Warning: Comparing non-atomic change to previous change record (<a href="{% url 'extras:objectchange_view' pk=previous_change.pk %}">{{ previous_change.pk }}</a>)
+              Warning: Comparing non-atomic change to previous change record (<a href="{% url 'core:objectchange_view' pk=previous_change.pk %}">{{ previous_change.pk }}</a>)
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}
@@ -114,12 +114,12 @@
           </div>
         </div>
       </div>
-      <div class="row mt-2">
+      <div class="row">
         <div class="col-md-12">
           {% include 'utils/card_table.html' with table=related_changes_table header='Related Changes' %}
           {% if related_changes_count > related_changes_table.rows|length %}
-          <div class="float-right mt-2">
-            <a href="{% url 'extras:objectchange_list' %}?request_id={{ instance.request_id }}" class="btn btn-primary">See all {{ related_changes_count | add:"1" }} changes</a>
+          <div class="float-end mt-3">
+            <a href="{% url 'core:objectchange_list' %}?request_id={{ instance.request_id }}" class="btn btn-primary">See all {{ related_changes_count | add:"1" }} changes</a>
           </div>
           {% endif %}
         </div>

@@ -3,8 +3,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from extras.enums import ObjectChangeAction
-from extras.models import ObjectChange
+from core.enums import ObjectChangeAction
+from core.models import ObjectChange
 from peering_manager.models import ChangeLoggingMixin
 
 from .base import ModelTestCase

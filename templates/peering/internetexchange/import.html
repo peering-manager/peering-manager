@@ -10,7 +10,7 @@
 <div>
   <p class="h5">{{ ixp.ix.name }}</p>
   {% for connection in connections %}
-  <div class="form-row align-items-center">
+  <div class="row align-items-center mb-3">
     <div class="col-2">
       <input type="text" readonly class="form-control-plaintext mb-2" value="Connection #{{ forloop.counter }} - {{ connection.speed|render_bandwidth_speed }}" disabled>
     </div>
@@ -32,7 +32,7 @@
   {{ field }}
   {% endfor %}
   <input type="hidden" name="return_url" value="{{ return_url }}" />
-  <div class="text-right">
+  <div class="text-end">
     <button type="submit" class="btn btn-primary">Import</button>
     <a href="{{ return_url }}" class="btn btn-secondary">Cancel</a>
   </div>

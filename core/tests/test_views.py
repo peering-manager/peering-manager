@@ -1,7 +1,12 @@
+import uuid
+
+from django.contrib.auth.models import User
 from django.utils import timezone
 
+from extras.models import Tag
 from utils.testing import ViewTestCases
 
+from ..enums import *
 from ..models import *
 
 
@@ -77,3 +82,27 @@ class DataFileTestCase(
             ),
         ]
         DataFile.objects.bulk_create(data_files)
+
+
+class ObjectChangeTestCase(ViewTestCases.ReadOnlyObjectViewTestCase):
+    model = ObjectChange
+
+    test_changelog_object = None
+    test_create_object = None
+    test_edit_object = None
+    test_delete_object = None
+    test_bulk_edit_objects = None
+    test_bulk_delete_objects = None
+
+    @classmethod
+    def setUpTestData(cls):
+        tag = Tag(name="Tag 1", slug="tag-1")
+        tag.save()
+
+        user = User.objects.create_user(username="testuser2")
+        for _ in range(3):
+            uid = uuid.uuid4()
+            change = tag.to_objectchange(ObjectChangeAction.UPDATE)
+            change.user = user
+            change.request_id = uid
+            change.save()

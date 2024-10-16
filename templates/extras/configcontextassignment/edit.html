@@ -5,11 +5,9 @@
 <div class="card my-2">
   <div class="card-header"><strong>Config Context Assignment</strong></div>
   <div class="card-body">
-    <div class="form-group form-row">
+    <div class="row mb-3">
       <label class="col-3" for="object"><strong>{{ form.instance.object|meta:'verbose_name'|title_with_uppers }}</strong></label>
-      <div class="col-9">
-        <input class="form-control" value="{{ form.instance.object }}" disabled />
-      </div>
+      <div class="col-9"><input class="form-control" value="{{ form.instance.object }}" disabled /></div>
     </div>
     {% render_field form.config_context %}
     {% render_field form.weight %}

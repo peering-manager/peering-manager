@@ -132,14 +132,12 @@ def encrypt(value, salt=None, rand=None):
     if not rand:
         rand = __randc(EXTRA[salt])
 
-    position = 0
     previous = salt
     crypted = MAGIC + salt + rand
 
-    for x in value:
+    for position, x in enumerate(value):
         encode = ENCODING[position % len(ENCODING)]
         crypted += __gap_encode(x, previous, encode)
         previous = crypted[-1]
-        position += 1
 
     return crypted

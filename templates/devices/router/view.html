@@ -4,17 +4,17 @@
 {% include 'includes/alerts_success_danger.html' %}
 <div class="row">
   <div class="col-md-6">
-    <div class="card mb-2">
+    <div class="card mb-3">
       <div class="card-header">
         <strong>Router Details</strong>
         {% if instance.is_usable_for_task %}
-        <div class="float-right">
+        <div class="float-end">
           <button type="button" class="btn btn-xs btn-primary" id="id_router_ping" title="Check if the router is usable.">
             <i class="fa fa-plug"></i> Ping
           </button>
           {% if perms.peering.change_directpeeringsession and perms.peering.change_internetexchangepeeringsession and instance.poll_bgp_sessions_state %}
           <button type="button" class="btn btn-xs btn-success" id="id_poll_sessions_state" title="Poll BGP sessions state on this router.">
-            <i class="fas fa-sync"></i> Poll Sessions
+            <i class="fa-fw fa-solid fa-sync"></i> Poll Sessions
           </button>
           {% endif %}
         </div>
@@ -88,7 +88,7 @@
             {% if instance.data_file %}
             {{ instance.data_file|as_link }}
             {% elif instance.data_path %}
-            <div class="float-right text-warning">
+            <div class="float-end text-warning">
               <i class="fa-solid fa-triangle-exclamation" title="The data file associated with this configuration has been deleted."></i>
             </div>
             <span class="text-monospace">{{ instance.data_path }}</span>
@@ -100,7 +100,7 @@
     </div>
     {% if request.user.is_authenticated %}
     {% if instance.napalm_username or instance.napalm_password or instance.napalm_timeout or instance.napalm_args %}
-    <div class="card">
+    <div class="card mb-3">
       <div class="card-header"><strong>NAPALM</strong></div>
       <table class="card-body table table-hover attr-table mb-0">
         {% if instance.napalm_username %}
@@ -115,9 +115,7 @@
           <td>
             <div class="input-group">
               <input type="password" class="form-control" id="id_password" value="{{ instance.napalm_password }}" disabled>
-              <div class="input-group-append">
-                <button type="button" class="btn btn-secondary" id="id_password_reveal"><i class="fas fa-eye"></i> Show</button>
-              </div>
+              <button type="button" class="btn btn-secondary" id="id_password_reveal"><i class="fa-fw fa-solid fa-eye"></i></button>
             </div>
           </td>
         </tr>
@@ -140,16 +138,8 @@
     {% endif %}
   </div>
   <div class="col-md-6">
-    <div class="card">
-      <div class="card-header"><strong>Comments</strong></div>
-      <div class="card-body">
-        {% if instance.comments %}
-        {{ instance.comments|markdown }}
-        {% else %}
-        <span class="text-muted">None</span>
-        {% endif %}
-      </div>
-    </div>
+    {% include 'includes/communities_card.html' %}
+    {% include 'includes/comments_card.html' %}
     {% include 'includes/tags_card.html' with tags=instance.tags.all url='devices:router_list' %}
   </div>
 </div>

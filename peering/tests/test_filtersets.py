@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from bgp.models import Relationship
 from devices.models import Router
-from net.models import Connection
+from net.models import BFD, Connection
 from utils.testing import BaseFilterSetTests
 
 from ..constants import *
@@ -195,6 +195,13 @@ class DirectPeeringSessionTestCase(TestCase, BaseFilterSetTests):
         relationship_customer = Relationship.objects.create(
             name="Customer", slug="customer"
         )
+        cls.bfd = BFD.objects.create(
+            name="Default",
+            slug="default",
+            minimum_transmit_interval=300,
+            minimum_receive_interval=300,
+            detection_multiplier=3,
+        )
         DirectPeeringSession.objects.bulk_create(
             [
                 DirectPeeringSession(
@@ -211,6 +218,7 @@ class DirectPeeringSessionTestCase(TestCase, BaseFilterSetTests):
                     ip_address="192.0.2.2",
                     relationship=relationship_private_peering,
                     multihop_ttl=2,
+                    bfd=cls.bfd,
                 ),
                 DirectPeeringSession(
                     local_autonomous_system=cls.local_as,
@@ -252,6 +260,14 @@ class DirectPeeringSessionTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
         params = {"autonomous_system_id": [self.a_s.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_bfd_id(self):
+        params = {"bfd_id": [self.bfd.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_bfd(self):
+        params = {"bfd": [self.bfd.name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_multihop_ttl(self):
         params = {"multihop_ttl": [1]}
@@ -338,6 +354,13 @@ class InternetExchangePeeringSessionTestCase(TestCase, BaseFilterSetTests):
         cls.ixp_connection = Connection.objects.create(
             vlan=2000, internet_exchange_point=cls.ixp
         )
+        cls.bfd = BFD.objects.create(
+            name="Default",
+            slug="default",
+            minimum_transmit_interval=300,
+            minimum_receive_interval=300,
+            detection_multiplier=3,
+        )
         InternetExchangePeeringSession.objects.bulk_create(
             [
                 InternetExchangePeeringSession(
@@ -353,6 +376,7 @@ class InternetExchangePeeringSessionTestCase(TestCase, BaseFilterSetTests):
                     ip_address="192.0.2.2",
                     status=BGPSessionStatus.DISABLED,
                     passive=True,
+                    bfd=cls.bfd,
                 ),
                 InternetExchangePeeringSession(
                     autonomous_system=cls.a_s,
@@ -432,6 +456,14 @@ class InternetExchangePeeringSessionTestCase(TestCase, BaseFilterSetTests):
     def test_connection_id(self):
         params = {"connection_id": [self.ixp_connection.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_bfd_id(self):
+        params = {"bfd_id": [self.bfd.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_bfd(self):
+        params = {"bfd": [self.bfd.name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class RoutingPolicyTestCase(TestCase, BaseFilterSetTests):

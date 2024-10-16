@@ -1,19 +1,31 @@
 {% extends '_base.html' %}
 {% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}{% endblock %}</li>{% endblock %}
 {% block content %}
-      <div class="row">
-        <div class="col-md-2">
-          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
-            <a class="nav-link {% if tab == "profile" %} active{% endif %}" role="tab" href="{% url 'users:profile' %}">Profile</a>
-            <a class="nav-link {% if tab == "preferences" %} active{% endif %}" role="tab" href="{% url 'users:preferences' %}">Preferences</a>
-            {% if not request.user.ldap_username %}
-            <a class="nav-link {% if tab == "password" %} active{% endif %}" role="tab" href="{% url 'users:change_password' %}">Change Password</a>
-            {% endif %}
-            <a class="nav-link {% if tab == "api_tokens" %} active{% endif %}" role="tab" href="{% url 'users:token_list' %}">API Tokens</a>
-          </div>
-        </div>
-        <div class="col-md-8">
-          {% block user_content %}{% endblock %}
-        </div>
-      </div>
+<ul class="nav nav-tabs mb-3">
+  <li class="nav-item">
+    <a class="nav-link{% if tab == 'profile' %} active{% endif %}" href="{% url 'users:profile' %}">
+      <i class="fa-fw fa-solid fa-user"></i> Profile
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link{% if tab == 'preferences' %} active{% endif %}" href="{% url 'users:preferences' %}">
+      <i class="fa-fw fa-solid fa-sliders"></i> Preferences
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link{% if tab == 'password' %} active{% endif %}" href="{% url 'users:change_password' %}">
+      <i class="fa-fw fa-solid fa-lock"></i> Password
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link{% if tab == 'api_tokens' %} active{% endif %}" href="{% url 'users:token_list' %}">
+      <i class="fa-fw fa-solid fa-key"></i> API Tokens
+    </a>
+  </li>
+</ul>
+<div class="row">
+  <div class="col-6 offset-md-3">
+    {% block user_content %}{% endblock %}
+  </div>
+</div>
 {% endblock %}

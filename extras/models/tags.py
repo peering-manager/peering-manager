@@ -34,4 +34,4 @@ class TaggedItem(GenericTaggedItemBase):
     )
 
     class Meta:
-        index_together = ("content_type", "object_id")
+        indexes = [models.Index(fields=["content_type", "object_id"])]

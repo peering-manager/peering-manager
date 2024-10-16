@@ -10,15 +10,15 @@
       <td><a href="{{ assignment.config_context.get_absolute_url }}">{{ assignment.config_context }}</a></td>
       <td>{{ assignment.weight }}</td>
       <td class="text-center">{{ assignment.config_context.is_active|boolean_as_icon }}</td>
-      <td class="text-right">
+      <td class="text-end">
         {% if perms.extras.change_configcontextassignment %}
           <a href="{% url 'extras:configcontextassignment_edit' pk=assignment.pk %}?return_url={{ instance.get_absolute_url }}" class="btn btn-warning btn-sm lh-1" title="Edit">
-            <i class="fas fa-edit"></i>
+            <i class="fa-fw fa-solid fa-edit"></i>
           </a>
         {% endif %}
         {% if perms.extras.delete_configcontextassignment %}
           <a href="{% url 'extras:configcontextassignment_delete' pk=assignment.pk %}?return_url={{ instance.get_absolute_url }}" class="btn btn-danger btn-sm lh-1" title="Delete">
-            <i class="fas fa-trash-alt"></i>
+            <i class="fa-fw fa-solid fa-trash-alt"></i>
           </a>
         {% endif %}
       </td>
@@ -30,9 +30,9 @@
   {% endif %}
   {% endwith %}
   {% if perms.extras.add_configcontextassignment %}
-  <div class="card-footer text-right">
+  <div class="card-footer text-end">
     <a href="{% url 'extras:configcontextassignment_add' %}?content_type={{ instance|content_type_id }}&object_id={{ instance.pk }}&return_url={{ instance.get_absolute_url }}" class="btn btn-primary btn-sm">
-      <i class="fas fa-plus"></i> Add a config context
+      <i class="fa-fw fa-solid fa-plus"></i> Add a config context
     </a>
   </div>
   {% endif %}

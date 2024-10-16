@@ -424,6 +424,14 @@ class NetworkContactTestCase(TestCase):
         params = {"net_id": [self.networks[2].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
+    def test_net_asn(self):
+        params = {"net_asn": [self.networks[0].asn]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"net_asn": [self.networks[1].asn]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"net_asn": [self.networks[2].asn]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
 
 class NetworkFacilityTestCase(TestCase):
     queryset = NetworkFacility.objects.all()

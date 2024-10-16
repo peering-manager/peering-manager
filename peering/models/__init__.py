@@ -273,10 +273,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
         If a router has its `poll_bgp_sessions_state` property set to a boolan true,
         BGP sessions are considered as pollable.
         """
-        for router in self.get_routers():
-            if router.poll_bgp_sessions_state:
-                return True
-        return False
+        return any(router.poll_bgp_sessions_state for router in self.get_routers())
 
     def divergence_from_peeringdb(self):
         """
@@ -510,13 +507,13 @@ class Community(OrganisationalModel):
 
     def get_type_html(self, display_name=False):
         if self.type == CommunityType.EGRESS:
-            badge_type = "badge-primary"
+            badge_type = "text-bg-primary"
             text = self.get_type_display()
         elif self.type == CommunityType.INGRESS:
-            badge_type = "badge-info"
+            badge_type = "text-bg-info"
             text = self.get_type_display()
         else:
-            badge_type = "badge-secondary"
+            badge_type = "text-bg-secondary"
             text = "Not set"
 
         if display_name:
@@ -822,34 +819,29 @@ class InternetExchange(AbstractGroup):
 
         def is_valid(ip_address):
             for p in allowed_prefixes:
-                if p.prefix.version == ip_address.version:
-                    if ip_address in p.prefix:
-                        return True
+                if p.prefix.version == ip_address.version and ip_address in p.prefix:
+                    return True
             return False
 
         for session in sessions:
             ip = ipaddress.ip_address(session["ip_address"])
             if not is_valid(ip):
                 logger.debug(
-                    f"ignoring ixp session, {str(ip)} does not fit in any prefixes"
+                    f"ignoring ixp session, {ip!s} does not fit in any prefixes"
                 )
                 continue
 
-            logger.debug(f"processing ixp session {str(ip)}")
+            logger.debug(f"processing ixp session {ip!s}")
             remote_asn = session["remote_asn"]
 
             try:
                 InternetExchangePeeringSession.objects.get(
                     ixp_connection=connection, ip_address=ip
                 )
-                logger.debug(
-                    f"ixp session {str(ip)} with as{remote_asn} already exists"
-                )
+                logger.debug(f"ixp session {ip!s} with as{remote_asn} already exists")
                 continue
             except InternetExchangePeeringSession.DoesNotExist:
-                logger.debug(
-                    f"ixp session {str(ip)} with as{remote_asn} does not exist"
-                )
+                logger.debug(f"ixp session {ip!s} with as{remote_asn} does not exist")
 
             # Get the AS, create it if needed
             autonomous_system = AutonomousSystem.create_from_peeringdb(remote_asn)
@@ -860,20 +852,18 @@ class InternetExchange(AbstractGroup):
                 asn_number += 1
             elif remote_asn not in ignored_autonomous_systems:
                 ignored_autonomous_systems.append(remote_asn)
-                logger.debug(
-                    f"could not create as{remote_asn}, session {str(ip)} ignored"
-                )
+                logger.debug(f"could not create as{remote_asn}, session {ip!s} ignored")
 
             # Only add a session if we can use the AS it is linked to
             if autonomous_system:
-                logger.debug(f"creating session {str(ip)}")
+                logger.debug(f"creating session {ip!s}")
                 InternetExchangePeeringSession.objects.create(
                     autonomous_system=autonomous_system,
                     ixp_connection=connection,
                     ip_address=ip,
                 )
                 session_number += 1
-                logger.debug(f"session {str(ip)} created")
+                logger.debug(f"session {ip!s} created")
 
         return session_number, asn_number
 
@@ -938,18 +928,14 @@ class InternetExchangePeeringSession(BGPSession):
           * The peer AS has a cached PeeringDB record with the session IP address
           * The BGP state for the session is not idle or active
         """
-        if (
+        return not (
             not self.ixp_connection.linked_to_peeringdb
-            or (
-                self.ixp_connection.router
-                and not self.ixp_connection.router.poll_bgp_sessions_state
-            )
+            or self.ixp_connection.router
+            and not self.ixp_connection.router.poll_bgp_sessions_state
             or not self.autonomous_system.peeringdb_network
             or self.exists_in_peeringdb
             or self.bgp_state not in [BGPState.IDLE, BGPState.ACTIVE]
-        ):
-            return False
-        return True
+        )
 
     @staticmethod
     def create_from_peeringdb(affiliated, internet_exchange, netixlan):
@@ -1045,16 +1031,16 @@ class RoutingPolicy(OrganisationalModel):
 
     def get_type_html(self, display_name=False):
         if self.type == RoutingPolicyType.EXPORT:
-            badge_type = "badge-primary"
+            badge_type = "text-bg-primary"
             text = self.get_type_display()
         elif self.type == RoutingPolicyType.IMPORT:
-            badge_type = "badge-info"
+            badge_type = "text-bg-info"
             text = self.get_type_display()
         elif self.type == RoutingPolicyType.IMPORT_EXPORT:
-            badge_type = "badge-dark"
+            badge_type = "text-bg-dark"
             text = self.get_type_display()
         else:
-            badge_type = "badge-secondary"
+            badge_type = "text-bg-secondary"
             text = "Unknown"
 
         if display_name:

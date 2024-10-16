@@ -5,6 +5,7 @@
 # every code releases.
 
 
+import contextlib
 import hashlib
 import importlib
 import os
@@ -308,7 +309,7 @@ if "radiusauth.backends.RADIUSBackend" in AUTHENTICATION_BACKENDS:
             "RADIUS authentication has been configured, but django-radius is not installed."
         )
     try:
-        from peering_manager.radius_config import *
+        from peering_manager.radius_config import *  # type: ignore
     except ModuleNotFoundError as e:
         raise ImproperlyConfigured(
             "LDAP configuration file not found: Check that radius_config.py has been created alongside configuration.py."
@@ -518,11 +519,11 @@ SOCIAL_AUTH_CLEAN_USERNAME_FUNCTION = (
 if METRICS_ENABLED:
     PROMETHEUS_EXPORT_MIGRATIONS = False
     INSTALLED_APPS.append("django_prometheus")
-    MIDDLEWARE = (
-        ["django_prometheus.middleware.PrometheusBeforeMiddleware"]
-        + MIDDLEWARE
-        + ["django_prometheus.middleware.PrometheusAfterMiddleware"]
-    )
+    MIDDLEWARE = [
+        "django_prometheus.middleware.PrometheusBeforeMiddleware",
+        *MIDDLEWARE,
+        "django_prometheus.middleware.PrometheusAfterMiddleware",
+    ]
     configuration.DATABASE.update(
         {"ENGINE": "django_prometheus.db.backends.postgresql"}
     )
@@ -603,9 +604,7 @@ CENSUS_PARAMETERS = {
     "python_version": platform.python_version(),
 }
 if CENSUS_REPORTING_ENABLED and not DEBUG and "test" not in sys.argv:
-    try:
+    with contextlib.suppress(requests.RequestException):
         requests.post(
             CENSUS_URL, json=CENSUS_PARAMETERS, timeout=3, proxies=HTTP_PROXIES
         )
-    except requests.RequestException:
-        pass

@@ -5,10 +5,7 @@ from peering_manager.tables import PeeringManagerTable, columns
 
 from ..models import DataFile, DataSource
 
-__all__ = (
-    "DataFileTable",
-    "DataSourceTable",
-)
+__all__ = ("DataFileTable", "DataSourceTable")
 
 
 class BackendTypeColumn(tables.Column):
@@ -25,7 +22,7 @@ class BackendTypeColumn(tables.Column):
 class DataFileTable(PeeringManagerTable):
     source = tables.Column(linkify=True)
     path = tables.Column(linkify=True)
-    updated = tables.DateTimeColumn()
+    updated = columns.DateTimeColumn()
     actions = columns.ActionsColumn(actions=("delete",))
 
     class Meta(PeeringManagerTable.Meta):

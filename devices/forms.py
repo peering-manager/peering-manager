@@ -5,7 +5,7 @@ from taggit.forms import TagField
 
 from core.forms import PushedDataMixin, SynchronisedDataMixin
 from netbox.api import NetBox
-from peering.models import AutonomousSystem
+from peering.models import AutonomousSystem, Community
 from peering_manager.forms import (
     PeeringManagerModelFilterSetForm,
     PeeringManagerModelForm,
@@ -120,6 +120,9 @@ class RouterForm(PushedDataMixin, PeeringManagerModelForm):
         label="Configuration",
         help_text="Template used to generate device configuration",
     )
+    communities = DynamicModelMultipleChoiceField(
+        required=False, queryset=Community.objects.all()
+    )
     local_autonomous_system = DynamicModelChoiceField(
         queryset=AutonomousSystem.objects.defer("prefixes"),
         query_params={"affiliated": True},
@@ -160,6 +163,7 @@ class RouterForm(PushedDataMixin, PeeringManagerModelForm):
         ),
         ("Data Source", ("data_source", "data_path")),
         ("Config Context", ("local_context_data",)),
+        ("Policy Options", ("communities",)),
     )
 
     def __init__(self, *args, **kwargs):
@@ -176,7 +180,7 @@ class RouterForm(PushedDataMixin, PeeringManagerModelForm):
 
             self.fields["netbox_device_id"] = forms.ChoiceField(
                 label="NetBox device",
-                choices=[(0, "---------")] + choices,
+                choices=[(0, "---------"), *choices],
                 widget=StaticSelect,
             )
             self.fields["netbox_device_id"].widget.attrs["class"] = " ".join(
@@ -206,6 +210,7 @@ class RouterForm(PushedDataMixin, PeeringManagerModelForm):
             "napalm_password",
             "napalm_timeout",
             "napalm_args",
+            "communities",
             "comments",
             "tags",
             "data_source",
@@ -239,11 +244,14 @@ class RouterBulkEditForm(PeeringManagerModelBulkEditForm):
     configuration_template = DynamicModelChoiceField(
         required=False, queryset=Configuration.objects.all()
     )
+    communities = DynamicModelMultipleChoiceField(
+        required=False, queryset=Community.objects.all()
+    )
     local_context_data = JSONField(required=False)
     comments = CommentField()
 
     model = Router
-    nullable_fields = ("local_context_data", "comments")
+    nullable_fields = ("communities", "local_context_data", "comments")
 
 
 class RouterFilterForm(PeeringManagerModelFilterSetForm):

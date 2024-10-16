@@ -133,9 +133,9 @@ class CommunityTest(TestCase):
 
     def test_get_type_html(self):
         expected = [
-            '<span class="badge badge-primary">Egress</span>',
-            '<span class="badge badge-info">Ingress</span>',
-            '<span class="badge badge-secondary">Not set</span>',
+            '<span class="badge text-bg-primary">Egress</span>',
+            '<span class="badge text-bg-info">Ingress</span>',
+            '<span class="badge text-bg-secondary">Not set</span>',
         ]
 
         for i in range(len(expected)):

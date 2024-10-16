@@ -23,7 +23,7 @@ def boolean_as_icon(value):
         icon, colour = "check", "success"
     else:
         icon, colour = "times", "danger"
-    return mark_safe(f'<i class="fas fa-{icon} text-{colour}"></i>')
+    return mark_safe(f'<i class="fa-fw fa-solid fa-{icon} text-{colour}"></i>')
 
 
 @register.filter()
@@ -35,7 +35,7 @@ def status_as_badge(value):
         return ""
 
     return mark_safe(
-        f'<span class="badge badge-{value.get_status_colour()}">{value.get_status_display()}</span>'
+        f'<span class="badge text-bg-{value.get_status_colour()}">{value.get_status_display()}</span>'
     )
 
 
@@ -87,10 +87,7 @@ def notcontains(value, arg):
     Test whether a value does not contain any of a given set of strings.
     `arg` should be a comma-separated list of strings.
     """
-    for s in arg.split(","):
-        if s in value:
-            return False
-    return True
+    return all(s not in value for s in arg.split(","))
 
 
 @register.filter
@@ -232,9 +229,9 @@ def get_docs(model):
         with path.open(encoding="utf-8") as docfile:
             content = docfile.read()
     except FileNotFoundError:
-        return f"Unable to load documentation, file not found: {str(path)}"
+        return f"Unable to load documentation, file not found: {path!s}"
     except OSError:
-        return f"Unable to load documentation, error reading file: {str(path)}"
+        return f"Unable to load documentation, error reading file: {path!s}"
 
     return mark_safe(markdown(content))
 

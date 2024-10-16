@@ -1,3 +1,5 @@
+import logging
+
 from django.core.management.base import BaseCommand
 
 from core.models import Job
@@ -6,6 +8,8 @@ from peering.models import AutonomousSystem
 from ...jobs import synchronise
 from ...models import Synchronisation
 from ...sync import PeeringDB
+
+VERBOSITY_TO_LOG_LEVEL = {1: logging.INFO, 2: logging.ERROR, 3: logging.DEBUG}
 
 
 class Command(BaseCommand):
@@ -22,9 +26,24 @@ class Command(BaseCommand):
             help="Delegate PeeringDB synchronisation to Redis worker process.",
         )
 
+    def setup_logging(self, verbosity):
+        logging_handler = logging.StreamHandler()
+        logging_handler.setFormatter(
+            logging.Formatter(
+                fmt="%(asctime)s | %(levelname)s | %(message)s",
+                datefmt="%Y-%m-%d %H:%M:%S",
+            )
+        )
+        logger = logging.getLogger("peering.manager.peeringdb")
+        logger.addHandler(logging_handler)
+        logger.setLevel(VERBOSITY_TO_LOG_LEVEL[verbosity])
+
     def handle(self, *args, **options):
         quiet = options["verbosity"] == 0
         api = PeeringDB()
+
+        if not quiet:
+            self.setup_logging(options["verbosity"])
 
         if options["flush"]:
             if not quiet:

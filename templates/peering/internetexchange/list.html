@@ -3,11 +3,11 @@
 {% block actions %}
 {% if perms.peering.add_internetexchange %}
 <a href="{% url 'peering:internetexchange_add' %}" class="btn btn-primary">
-  <i class="fas fa-plus"></i> Add
+  <i class="fa-fw fa-solid fa-plus"></i> Add
 </a>
 {% if peeringdb_last_synchronisation and context_as %}
-<a href="{% url 'peering:internetexchange_peeringdb_import' %}" class="btn btn-info">
-  <i class="fas fa-cloud-upload-alt"></i> Import from PeeringDB
+<a href="{% url 'peering:internetexchange_peeringdb_import' %}" class="btn btn-secondary">
+  <i class="fa-fw fa-solid fa-file-export"></i> Import from PeeringDB
 </a>
 {% endif %}
 {% endif %}

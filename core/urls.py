@@ -8,6 +8,13 @@ from . import models, views
 app_name = "core"
 
 urlpatterns = [
+    # Change logging
+    path("changelog/", views.ObjectChangeList.as_view(), name="objectchange_list"),
+    path(
+        "changelog/<int:pk>/",
+        views.ObjectChangeView.as_view(),
+        name="objectchange_view",
+    ),
     # Data sources
     path("data-sources/", views.DataSourceListView.as_view(), name="datasource_list"),
     path(
@@ -71,4 +78,28 @@ urlpatterns = [
     path("jobs/delete/", views.JobBulkDeleteView.as_view(), name="job_bulk_delete"),
     path("jobs/<int:pk>/", views.JobView.as_view(), name="job_view"),
     path("jobs/<int:pk>/delete/", views.JobDeleteView.as_view(), name="job_delete"),
+    # Background Tasks
+    path(
+        "background-queues/",
+        views.BackgroundQueueListView.as_view(),
+        name="background_queue_list",
+    ),
+    path(
+        "background-queues/<int:queue_index>/<str:status>/",
+        views.BackgroundTaskListView.as_view(),
+        name="background_task_list",
+    ),
+    path(
+        "background-tasks/<str:job_id>/",
+        views.BackgroundTaskView.as_view(),
+        name="background_task",
+    ),
+    path(
+        "background-workers/<int:queue_index>/",
+        views.WorkerListView.as_view(),
+        name="worker_list",
+    ),
+    path("background-workers/<str:key>/", views.WorkerView.as_view(), name="worker"),
+    # System
+    path("system/", views.SystemView.as_view(), name="system"),
 ]

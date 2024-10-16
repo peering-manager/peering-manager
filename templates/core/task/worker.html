@@ -1,0 +1,53 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'core:background_queue_list' %}">Background Queues</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}Worker Info {{ job.id }}{% endblock %}</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header"><strong>Details</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Name</td>
+          <td>{{ worker.name|render_none }}</td>
+        </tr>
+        <tr>
+          <td>State</td>
+          <td>{{ worker.state|render_none|capfirst }}</td>
+        </tr>
+        <tr>
+          <td>Birth</td>
+          <td>{{ worker.birth|date_span|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Queues</td>
+          <td>{{ worker.queue_names|join:", " }}</td>
+        </tr>
+        <tr>
+          <td>PID</td>
+          <td>{{ worker.pid|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Curent job</td>
+          <td>{{ job.func_name|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Successful job count</td>
+          <td>{{ worker.successful_job_count|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Failed job count</td>
+          <td>{{ worker.failed_job_count }}</td>
+        </tr>
+        <tr>
+          <td>Total working time</td>
+          <td>{{ total_working_time }} seconds</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

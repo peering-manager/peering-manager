@@ -1,12 +1,12 @@
 {% load helpers %}
 
-<div class="paginator float-right text-right">
+<div class="paginator float-end text-end">
   {% if paginator.num_pages > 1 %}
   <div class="d-flex flex-row-reverse">
     <nav>
       <ul class="pagination pagination-sm">
         {% if page.has_previous %}
-        <li class="page-item"><a class="page-link" href="{% querystring request page=page.previous_page_number %}"><i class="fas fa-angle-double-left"></i></a></li>
+        <li class="page-item"><a class="page-link" href="{% querystring request page=page.previous_page_number %}"><i class="fa-fw fa-solid fa-angle-double-left"></i></a></li>
         {% endif %}
         {% for p in page.smart_pages %}
         {% if p %}
@@ -16,7 +16,7 @@
         {% endif %}
         {% endfor %}
         {% if page.has_next %}
-        <li class="page-item"><a class="page-link" href="{% querystring request page=page.next_page_number %}"><i class="fas fa-angle-double-right"></i></a></li>
+        <li class="page-item"><a class="page-link" href="{% querystring request page=page.next_page_number %}"><i class="fa-fw fa-solid fa-angle-double-right"></i></a></li>
         {% endif %}
       </ul>
     </nav>
@@ -24,7 +24,7 @@
   {% endif %}
   {% if page %}
   <div class="btn-group dropup">
-    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
       Per Page
     </button>
     <ul class="dropdown-menu">

@@ -32,6 +32,7 @@ properties can be configured (n.b. some are optional):
    receiving prefixes though the BGP session.
 * `Export Routing Policies`: a list of routing policies to apply when
    advertising prefixes though the BGP session.
+* `BFD`: an optional BFD configuration to check BGP session liveness.
 * `Comments`: text to explain the purposes of the BGP session. Can use
   Markdown formatting.
 * `Tags`: a list of tags to help identifying and searching for a BGP session.

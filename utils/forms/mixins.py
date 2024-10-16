@@ -12,12 +12,10 @@ class BootstrapMixin(forms.BaseForm):
         for _, field in self.fields.items():
             if field.widget.__class__ in custom_widgets:
                 css = field.widget.attrs.get("class", "")
-                field.widget.attrs["class"] = " ".join(
-                    [css, "custom-control-input"]
-                ).strip()
+                field.widget.attrs["class"] = f"{css} form-check-input".strip()
             else:
                 css = field.widget.attrs.get("class", "")
-                field.widget.attrs["class"] = " ".join([css, "form-control"]).strip()
+                field.widget.attrs["class"] = f"{css} form-control".strip()
 
             if field.required:
                 field.widget.attrs["required"] = "required"

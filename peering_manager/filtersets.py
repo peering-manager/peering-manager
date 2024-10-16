@@ -7,9 +7,9 @@ from django_filters.exceptions import FieldLookupError
 from django_filters.utils import get_model_field, resolve_field
 from netfields import MACAddressField
 
-from extras.enums import ObjectChangeAction
+from core.enums import ObjectChangeAction
+from core.models import ObjectChange
 from extras.filters import TagFilter
-from extras.models import ObjectChange
 from utils import filters
 from utils.constants import (
     FILTER_CHAR_BASED_LOOKUP_MAP,

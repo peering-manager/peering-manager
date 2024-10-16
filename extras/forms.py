@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from requests.exceptions import HTTPError
@@ -9,25 +8,22 @@ from utils.forms.fields import (
     ContentTypeChoiceField,
     ContentTypeMultipleChoiceField,
     DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField,
     JSONField,
     SlugField,
     TemplateField,
 )
 from utils.forms.widgets import (
-    APISelectMultiple,
     ColourSelect,
     StaticSelect,
     StaticSelectMultiple,
 )
 
-from .enums import HttpMethod, ObjectChangeAction
+from .enums import HttpMethod
 from .models import (
     IXAPI,
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
-    ObjectChange,
     Tag,
     Webhook,
 )
@@ -167,31 +163,6 @@ class IXAPIForm(BootstrapMixin, forms.ModelForm):
 class IXAPIFilterForm(BootstrapMixin, forms.Form):
     model = IXAPI
     q = forms.CharField(required=False, label="Search")
-
-
-class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
-    model = ObjectChange
-    q = forms.CharField(required=False, label="Search")
-    time_after = forms.DateTimeField(
-        label="After",
-        required=False,
-        widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
-    )
-    time_before = forms.DateTimeField(
-        label="Before",
-        required=False,
-        widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
-    )
-    action = forms.ChoiceField(
-        required=False, choices=ObjectChangeAction, widget=StaticSelectMultiple
-    )
-    user_id = DynamicModelMultipleChoiceField(
-        queryset=User.objects.all(),
-        required=False,
-        display_field="username",
-        label="User",
-        widget=APISelectMultiple(api_url="/api/users/users/"),
-    )
 
 
 class TagBulkEditForm(BulkEditForm):

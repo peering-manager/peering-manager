@@ -9,7 +9,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from net.models import Connection
-from netbox.api import NetBox
 from peering.enums import BGPState
 from peering.models import (
     AutonomousSystem,
@@ -142,6 +141,7 @@ class Router(PushedDataMixin, PrimaryModel):
     configuration_template = models.ForeignKey(
         "devices.Configuration", blank=True, null=True, on_delete=models.SET_NULL
     )
+    communities = models.ManyToManyField(to="peering.Community", blank=True)
     netbox_device_id = models.PositiveIntegerField(
         blank=True, default=0, verbose_name="NetBox device"
     )
