@@ -53,7 +53,7 @@
       method: 'get',
       url: "{% url 'devices-api:router-configuration' pk=instance.pk %}"
     }).done(function (r) {
-      $('#configuration').html('<div class="text-center" style="font-size: 2rem;"><i class="fa-fw fa-solid fa-sync fa-spin fa-fw"></i> Working</div>');
+      $('#configuration').html('<div class="text-center" style="font-size: 2rem;"><i class="fa-fw fa-solid fa-rotate fa-spin"></i> Working</div>');
       configDoneHandler(r);
     }).fail(function () {
       $('#configuration').html('<p>Unable to render router configuration.</p>');
@@ -170,7 +170,7 @@
       headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
       data: { 'routers': [{{ instance.pk }}], 'commit': commit },
     }).done(function (r) {
-      $('#main-body').html('<div class="text-center" style="font-size: 2rem;"><i class="fa-fw fa-solid fa-sync fa-spin fa-fw"></i> Working</div>');
+      $('#main-body').html('<div class="text-center" style="font-size: 2rem;"><i class="fa-fw fa-solid fa-rotate fa-spin"></i> Working</div>');
       $('#main-modal').modal('show');
       checkDoneHandler(r[0]);
     }).fail(function (r) {

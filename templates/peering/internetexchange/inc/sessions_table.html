@@ -2,7 +2,7 @@
 {% block extra_buttons %}
 {% if perms.peering.change_internetexchangepeeringsession and instance.are_bgp_sessions_pollable %}
 <button type="button" class="btn btn-sm btn-success" id="id_poll_sessions_state">
-  <i class="fa-fw fa-solid fa-sync"></i> Poll Sessions
+  <i class="fa-fw fa-solid fa-rotate"></i> Poll Sessions
 </button>
 {% endif %}
 {% if perms.peering.add_internetexchangepeeringsession %}
