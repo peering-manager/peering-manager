@@ -603,6 +603,22 @@ class NetworkIXLan(models.Model):
         verbose_name="Internet Exchange LAN",
         on_delete=models.CASCADE,
     )
+    net_side = models.ForeignKey(
+        to="peeringdb.Facility",
+        null=True,
+        blank=True,
+        related_name="net_side_set",
+        verbose_name="Network side",
+        on_delete=models.SET_NULL,
+    )
+    ix_side = models.ForeignKey(
+        to="peeringdb.Facility",
+        null=True,
+        blank=True,
+        related_name="ix_side_set",
+        verbose_name="IXP side",
+        on_delete=models.SET_NULL,
+    )
 
     ignored_fields = ["ix_id", "name"]
 
@@ -626,6 +642,10 @@ class NetworkIXLan(models.Model):
             return self.cidr(address_family=6)
         except ValueError:
             return None
+
+    @property
+    def is_remote_peer(self):
+        return self.net_side and self.ix_side and self.net_side != self.ix_side
 
     def get_ixlan_prefix(self, address_family=0):
         """

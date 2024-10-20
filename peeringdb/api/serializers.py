@@ -246,6 +246,9 @@ class NetworkFacilitySerializer(serializers.ModelSerializer):
 
 
 class NetworkIXLanSerializer(serializers.ModelSerializer):
+    net_side = FacilitySerializer()
+    ix_side = FacilitySerializer()
+
     class Meta:
         model = NetworkIXLan
         fields = [
@@ -260,6 +263,8 @@ class NetworkIXLanSerializer(serializers.ModelSerializer):
             "operational",
             "net",
             "ixlan",
+            "net_side",
+            "ix_side",
         ]
 
 

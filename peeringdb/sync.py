@@ -163,6 +163,9 @@ class PeeringDB:
         # If the field looks like one of the FK
         for f in foreign_keys:
             if f in name:
+                # Handle special case where PeeringDB does not suffix with _id
+                if f in ("net_side", "ix_side"):
+                    name = f"{f}_id"
                 # The field is the FK ID so set it
                 if name == f"{f}_id":
                     setattr(obj, name, value)
