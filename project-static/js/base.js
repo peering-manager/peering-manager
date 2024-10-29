@@ -33,12 +33,12 @@ var PeeringManager = {
   resetSynchroniseButton: function (button, css_class = "btn-success") {
     button.removeAttr('disabled');
     button.removeClass('btn-warning', 'btn-danger');
-    button.addClass(css_class).html('<i class="fa-fw fa-solid fa-sync"></i> Synchronise');
+    button.addClass(css_class).html('<i class="fa-fw fa-solid fa-rotate"></i> Synchronise');
   },
   resetPollSessionsButton: function (button) {
     button.removeAttr('disabled');
     button.removeClass('btn-warning', 'btn-danger', 'btn-primary');
-    button.addClass('btn-success').html('<i class="fa-fw fa-solid fa-sync"></i> Poll Sessions');
+    button.addClass('btn-success').html('<i class="fa-fw fa-solid fa-rotate"></i> Poll Sessions');
   },
   resetConfirmButton: function (button) {
     button.removeAttr('disabled');
