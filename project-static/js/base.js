@@ -78,6 +78,13 @@ $(document).ready(function () {
   // to varname[] instead of staying as varname
   $.ajaxSettings.traditional = true;
 
+  const colourModeButton = document.getElementById('colour-mode-button');
+  colourModeButton.addEventListener('click', function () {
+    const currentMode = getCurrentColourMode();
+    setColourMode(currentMode === 'dark' ? 'light' : 'dark', colourModeButton);
+  });
+  setColourMode(getCurrentColourMode(), colourModeButton, true);
+
   // Popovers
   const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
   [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl, {
@@ -98,11 +105,11 @@ $(document).ready(function () {
       icon.html('<i class="fa-fw fa-solid fa-caret-right"></i>');
     }
   }
-  $('.collapse').on('hidden.bs.collapse', toggleIcon);
-  $('.collapse').on('shown.bs.collapse', toggleIcon);
+  $('nav > div > ul > li > .collapse').on('hidden.bs.collapse', toggleIcon);
+  $('nav > div > ul > li > .collapse').on('shown.bs.collapse', toggleIcon);
 
   // Make sure menu is expanded when sub-item is selected
-  const active_collapse = $('.nav > .list-group-item.active[data-bs-toggle="collapse"]');
+  const active_collapse = $('#sidebarMenu > ul > li:has(.nav-link.active) > a[data-bs-toggle="collapse"]');
   if (active_collapse.length == 1) {
     active_collapse[0].click();
   }
