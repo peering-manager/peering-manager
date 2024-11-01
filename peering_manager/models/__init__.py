@@ -10,6 +10,7 @@ __all__ = (
     "PeeringManagerModel",
     "OrganisationalModel",
     "PrimaryModel",
+    "TemplateModel",
 )
 
 
@@ -110,3 +111,24 @@ class OrganisationalModel(PeeringManagerFeatureSet, models.Model):
 
     def __str__(self):
         return self.name
+
+
+class TemplateModel(PrimaryModel):
+    name = models.CharField(max_length=100)
+    template = models.TextField()
+    jinja2_trim = models.BooleanField(
+        default=False, help_text="Removes new line after tag"
+    )
+    jinja2_lstrip = models.BooleanField(
+        default=False, help_text="Strips whitespaces before block"
+    )
+
+    class Meta:
+        abstract = True
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+    def render(self, variables):
+        raise NotImplementedError()

@@ -3,13 +3,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
 
-from peering.models import Template
 from peering_manager.jinja2 import render_jinja2
 from peering_manager.models import (
     ChangeLoggedModel,
     OrganisationalModel,
     PrimaryModel,
     SynchronisedDataMixin,
+    TemplateModel,
 )
 
 __all__ = ("ContactRole", "Contact", "ContactAssignment", "Email")
@@ -65,7 +65,7 @@ class ContactAssignment(ChangeLoggedModel):
         return str(self.contact)
 
 
-class Email(SynchronisedDataMixin, Template):
+class Email(SynchronisedDataMixin, TemplateModel):
     # While a line length should not exceed 78 characters (as per RFC2822), we allow
     # user more characters for templating and let the user to decide what he wants to
     # with this recommended limit, including not respecting it

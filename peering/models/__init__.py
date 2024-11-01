@@ -30,7 +30,6 @@ __all__ = (
     "InternetExchange",
     "InternetExchangePeeringSession",
     "RoutingPolicy",
-    "Template",
 )
 
 logger = logging.getLogger("peering.manager.peering")

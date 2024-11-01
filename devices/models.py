@@ -18,13 +18,13 @@ from peering.models import (
     InternetExchange,
     InternetExchangePeeringSession,
     RoutingPolicy,
-    Template,
 )
 from peering_manager.models import (
     OrganisationalModel,
     PrimaryModel,
     PushedDataMixin,
     SynchronisedDataMixin,
+    TemplateModel,
 )
 
 from .crypto import *
@@ -33,7 +33,7 @@ from .enums import DeviceStatus, PasswordAlgorithm
 __all__ = ("Configuration", "Platform", "Router")
 
 
-class Configuration(SynchronisedDataMixin, Template):
+class Configuration(SynchronisedDataMixin, TemplateModel):
     def get_absolute_url(self):
         return reverse("devices:configuration_view", args=[self.pk])
 
