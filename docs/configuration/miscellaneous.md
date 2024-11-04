@@ -152,7 +152,7 @@ repositories when used as data sources.
 
 Default: `True`
 
-Perform validation for of the value when creating or updating a BGP community.
+Perform validation of the value when creating or updating a BGP community.
 This ensures that a value is a valid standard, extended or large community.
 This validation can be disabled if Peering Manager enforced notations do not
 fit the user needs.
