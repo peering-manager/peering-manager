@@ -17,7 +17,7 @@ from peeringdb.models import IXLanPrefix, Network, NetworkContact, NetworkIXLan
 
 from .. import call_irr_as_set_resolver, parse_irr_as_set
 from ..enums import BGPState, CommunityType, IPFamily, RoutingPolicyType
-from ..fields import ASNField, get_community_kind, validate_bgp_community
+from ..fields import ASNField, CommunityField, get_community_kind
 from .abstracts import *
 from .mixins import *
 
@@ -491,7 +491,7 @@ class BGPGroup(AbstractGroup):
 
 
 class Community(OrganisationalModel):
-    value = models.CharField(max_length=50, validators=[validate_bgp_community])
+    value = CommunityField(max_length=50)
     type = models.CharField(max_length=50, choices=CommunityType, blank=True, null=True)
 
     class Meta:
