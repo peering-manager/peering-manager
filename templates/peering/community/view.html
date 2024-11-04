@@ -18,6 +18,14 @@
           <td>Description</td>
           <td>{{ instance.description|render_none }}</td>
         </tr>
+        {% with kind=instance.get_kind %}
+        {% if kind %}
+        <tr>
+          <td>Kind</td>
+          <td>{{ kind|title }}</td>
+        </tr>
+        {% endif %}
+        {% endwith %}
         {% if instance.type %}
         <tr>
           <td>Type</td>

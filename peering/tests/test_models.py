@@ -1,10 +1,12 @@
 from unittest.mock import patch
 
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from bgp.models import Relationship
 from devices.models import PasswordAlgorithm, Platform, Router
 from net.models import Connection
+from peering.fields import validate_bgp_community
 from utils.testing import load_json
 
 from ..enums import CommunityType, RoutingPolicyType
@@ -140,6 +142,47 @@ class CommunityTest(TestCase):
 
         for i in range(len(expected)):
             self.assertEqual(expected[i], self.communities[i].get_type_html())
+
+    def test_community_validator(self):
+        valid = [
+            "65000:400",
+            "100:200",
+            "1:1",
+            "target:65000:100",
+            "origin:65000:200",
+            "target:192.168.0.1:500",
+            "65000:100:200",
+            "1:0:0",
+            "4294967295:4294967295:4294967295",
+        ]
+        for community in valid:
+            try:
+                validate_bgp_community(community)
+            except ValidationError:
+                self.fail(
+                    f"validate_bgp_community raised ValidationError unexpectedly for {community}"
+                )
+
+        invalid = [
+            "65000",
+            "65536:100",
+            "65000:65536",
+            "65000:abc",
+            "65000:-1",
+            "target:65000:5000000000",
+            "target::500",
+            "target:192.168.0.1:-1",
+            "65000:100:100:100",
+            "65000:4294967296:0",
+            "4294967296:100:100",
+            "65000:100:abc",
+            "65000:-1:100",
+        ]
+        for community in invalid:
+            with self.assertRaises(
+                ValidationError, msg=f"{community} should be invalid"
+            ):
+                validate_bgp_community(community)
 
 
 class DirectPeeringSessionTest(TestCase):

@@ -145,3 +145,14 @@ Default: `"Committed using Peering Manager"`
 
 Message to log in commits that will be performed using Peering Manager in Git
 repositories when used as data sources.
+
+---
+
+## VALIDATE_BGP_COMMUNITY_VALUE
+
+Default: `True`
+
+Perform validation for of the value when creating or updating a BGP community.
+This ensures that a value is a valid standard, extended or large community.
+This validation can be disabled if Peering Manager enforced notations do not
+fit the user needs.

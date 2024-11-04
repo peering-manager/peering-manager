@@ -180,6 +180,9 @@ GIT_COMMIT_AUTHOR = getattr(
 GIT_COMMIT_MESSAGE = getattr(
     configuration, "GIT_COMMIT_MESSAGE", "Committed using Peering Manager"
 )
+VALIDATE_BGP_COMMUNITY_VALUE = getattr(
+    configuration, "VALIDATE_BGP_COMMUNITY_VALUE", True
+)
 
 # Django filters
 FILTERS_NULL_CHOICE_LABEL = "-- None --"
