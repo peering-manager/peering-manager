@@ -12,7 +12,7 @@ The following sections detail how to set up a new instance of Peering Manager:
 1. [Redis](2-redis.md)
 3. [Peering Manager components](3-peering-manager.md)
 4. HTTP server like [Apache 2](4a-apache2.md) or [nginx](4b-nginx.md)
-6. [LDAP authentication](5a-ldap.md) (optional)
+6. [Remote authentication](../administration/authentication/index.md) (optional)
 
 ## Requirements
 

@@ -8,8 +8,7 @@ to users with the "staff" permission enabled.
 
 At a minimum, each user account must have a username and password set. User
 accounts may also denote a first name, last name, and email address.
-[Permissions](../permissions.md) may also be assigned to individual users
-and/or groups as needed.
+Permissions may also be assigned to individual users and/or groups as needed.
 
 ## Remote Authentication
 

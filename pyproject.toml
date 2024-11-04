@@ -37,7 +37,6 @@ pynetbox = "~7.3"
 PyYAML = "~6.0"
 requests = "~2.32"
 social-auth-app-django = "^5.4"
-rq = "<2.0"                                                 # https://github.com/rq/django-rq/issues/682
 
 [tool.poetry.group.dev]
 optional = true
