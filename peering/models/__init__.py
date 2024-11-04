@@ -498,16 +498,17 @@ class Community(OrganisationalModel):
         verbose_name_plural = "communities"
         ordering = ["value", "name"]
 
+    @property
+    def kind(self):
+        if not settings.VALIDATE_BGP_COMMUNITY_VALUE:
+            return None
+        return get_community_kind(self.value)
+
     def __str__(self):
         return self.name
 
     def get_absolute_url(self):
         return reverse("peering:community_view", args=[self.pk])
-
-    def get_kind(self):
-        if not settings.VALIDATE_BGP_COMMUNITY_VALUE:
-            return None
-        return get_community_kind(self.value)
 
     def get_type_html(self, display_name=False):
         if self.type == CommunityType.EGRESS:

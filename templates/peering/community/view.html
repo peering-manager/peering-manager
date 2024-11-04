@@ -18,7 +18,7 @@
           <td>Description</td>
           <td>{{ instance.description|render_none }}</td>
         </tr>
-        {% with kind=instance.get_kind %}
+        {% with kind=instance.kind %}
         {% if kind %}
         <tr>
           <td>Kind</td>
