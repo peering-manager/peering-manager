@@ -502,7 +502,10 @@ class Community(OrganisationalModel):
     def kind(self):
         if not settings.VALIDATE_BGP_COMMUNITY_VALUE:
             return None
-        return get_community_kind(self.value)
+        try:
+            return get_community_kind(self.value)
+        except ValueError:
+            return None
 
     def __str__(self):
         return self.name
