@@ -81,7 +81,9 @@ class AutonomousSystemTest(APIViewTestCases.View):
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
     def test_get_irr_as_set_prefixes(self):
-        with patch("peering.subprocess.Popen", side_effect=mocked_subprocess_popen):
+        with patch(
+            "peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen
+        ):
             url = reverse(
                 "peering-api:autonomoussystem-as-set-prefixes",
                 kwargs={"pk": self.autonomous_system.pk},

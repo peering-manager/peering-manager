@@ -15,9 +15,9 @@ from peering_manager.models import OrganisationalModel, PrimaryModel
 from peeringdb.functions import get_shared_facilities, get_shared_internet_exchanges
 from peeringdb.models import IXLanPrefix, Network, NetworkContact, NetworkIXLan
 
-from .. import call_irr_as_set_resolver, parse_irr_as_set
 from ..enums import BGPState, CommunityType, IPFamily, RoutingPolicyType
-from ..fields import ASNField, CommunityField, get_community_kind
+from ..fields import ASNField, CommunityField
+from ..functions import call_irr_as_set_resolver, get_community_kind, parse_irr_as_set
 from .abstracts import *
 from .mixins import *
 
