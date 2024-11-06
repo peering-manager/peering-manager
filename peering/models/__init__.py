@@ -499,7 +499,7 @@ class Community(OrganisationalModel):
         ordering = ["value", "name"]
 
     @property
-    def kind(self):
+    def kind(self) -> str | None:
         if not settings.VALIDATE_BGP_COMMUNITY_VALUE:
             return None
         try:
