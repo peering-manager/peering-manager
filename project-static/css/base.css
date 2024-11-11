@@ -9,16 +9,52 @@ a:not([class*="btn"]) {
 a:not([class*="btn"]):hover {
   text-decoration: underline;
 }
-.navbar-brand {
-  padding-top: .75rem;
-  padding-bottom: .75rem;
+.page {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 100%;
 }
-#sidebarMenu > ul > li:has(.nav-link.active) {
+.page-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.navbar-brand-image {
+  height: 3rem;
+  width: auto;
+  max-width: 100%;
+}
+html[data-bs-theme="dark"] .hide-theme-dark {
+  display: none !important;
+}
+html[data-bs-theme="light"] .hide-theme-light {
+  display: none !important;
+}
+header.navbar {
+  box-shadow: inset 0 calc(-1 * 1px) 0 0 var(--bs-border-color);
+  background: var(--bs-body-bg);
+}
+.navbar-vertical {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  box-shadow: inset calc(-1 * 1px) 0 0 0 var(--bs-border-color);
+  overflow-y: scroll;
+  padding: 0;
+}
+.navbar-brand {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  justify-content: center;
+}
+#sidebar-menu > ul > li:has(.nav-link.active) {
   border-left: solid;
   border-left-width: 0.3rem;
   border-left-color: var(--bs-primary);
 }
-#sidebarMenu > ul > li > ul > li > .nav-link.active {
+#sidebar-menu > ul > li > ul > li > .nav-link.active {
   background-color: var(--bs-secondary-bg);
 }
 nav > ol.breadcrumb {
