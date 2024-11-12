@@ -140,6 +140,7 @@ class CommunitySerializer(PeeringManagerModelSerializer):
             "description",
             "value",
             "type",
+            "kind",
             "local_context_data",
             "tags",
             "created",

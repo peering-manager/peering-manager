@@ -2,6 +2,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from .constants import ASN_MAX, ASN_MIN, TTL_MAX, TTL_MIN
+from .functions import validate_bgp_community
 
 
 class ASNField(models.BigIntegerField):
@@ -23,10 +24,7 @@ class ASNField(models.BigIntegerField):
 
 class CommunityField(models.CharField):
     description = "Community, Extended Community, or Large Community field"
-    # TODO: make validators that actually match real community values
-    # default_validators = [
-    #     RegexValidator(r"^(\d{1,5}:\d{1,5})|(\d{1,10}:\d{1,10}:\d{1,10}:\d{1,10})$")
-    # ]
+    default_validators = [validate_bgp_community]
 
 
 class TTLField(models.PositiveSmallIntegerField):

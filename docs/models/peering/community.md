@@ -29,3 +29,15 @@ optional):
 * `Comments`: text to explain what the community is for. Can use Markdown
   formatting.
 * `Tags`: a list of tags to help identifying and searching for a community.
+
+Since version 1.9.0, the BGP community value is validated to ensure a
+consistent notations. Accepted values are like:
+
+* `<16-bit number>:<16-bit number>` for BGP communities
+* `(origin|target):(<16-bit number>|<32-bit number>):(<16-bit number>|<32-bit number>)`
+  for BGP extended communities
+* `<32-bit number>:<32-bit number>:<32-bit number>` for BGP large communities
+
+The validation can be turned off by setting
+[`VALIDATE_BGP_COMMUNITY_VALUE`](../../configuration/miscellaneous.md#validate_bgp_community_value)
+to `False`.
