@@ -1,10 +1,12 @@
 import uuid
 
 from django.contrib.auth.models import User
+from django.urls import reverse
 from django.utils import timezone
+from rest_framework import status
 
 from extras.models import Tag
-from utils.testing import ViewTestCases
+from utils.testing import TestCase, ViewTestCases
 
 from ..enums import *
 from ..models import *
@@ -106,3 +108,15 @@ class ObjectChangeTestCase(ViewTestCases.ReadOnlyObjectViewTestCase):
             change.user = user
             change.request_id = uid
             change.save()
+
+
+class SystemTestCase(TestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.user.is_staff = True
+        self.user.save()
+
+    def test_system_view(self):
+        response = self.client.get(reverse("core:system"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
