@@ -105,11 +105,11 @@ $(document).ready(function () {
       icon.html('<i class="fa-fw fa-solid fa-caret-right"></i>');
     }
   }
-  $('nav > div > ul > li > .collapse').on('hidden.bs.collapse', toggleIcon);
-  $('nav > div > ul > li > .collapse').on('shown.bs.collapse', toggleIcon);
+  $('aside > div > div > ul > li > .collapse').on('hidden.bs.collapse', toggleIcon);
+  $('aside > div > div > ul > li > .collapse').on('show.bs.collapse', toggleIcon);
 
   // Make sure menu is expanded when sub-item is selected
-  const active_collapse = $('#sidebarMenu > ul > li:has(.nav-link.active) > a[data-bs-toggle="collapse"]');
+  const active_collapse = $('#sidebar-menu > ul > li:has(.nav-link.active) > a[data-bs-toggle="collapse"]');
   if (active_collapse.length == 1) {
     active_collapse[0].click();
   }

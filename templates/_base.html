@@ -7,7 +7,7 @@
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
 
     <title>{% block title %}Home{% endblock %} - Peering Manager</title>
 
@@ -27,67 +27,21 @@
     <script src="{% static 'js/forms.js' %}?{{ settings.VERSION }}"></script>
   </head>
   <body>
-    <header class="navbar sticky-top navbar-expand-md flex-md-nowrap p-0 border-bottom bg-body">
-      <div class="container-fluid">
-        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-5" href="{% url 'home' %}">Peering Manager</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse w-100" id="navbar-collapse">
-          <div id="action_buttons" class="me-2">{% block actions %}{% endblock %}</div>
-          <nav aria-label="breadcrumb">
-            <ol class="breadcrumb breadcrumb-divider-colour">{% block breadcrumb %}{% endblock %}</ol>
-          </nav>
-          <ul class="navbar-nav ms-auto px-3">
-            <button class="btn btn-outline-secondary me-3" type="button" id="colour-mode-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Set colour mode"><i class="fa-fw fa-solid fa-sun"></i></button>
-            {% if request.user.is_authenticated %}
-            {% if request.session.last_search %}
-            <a href="{{ request.session.last_search }}" class="btn btn-outline-secondary me-3" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Return to Last Search"><i class="fa-fw fa-solid fa-search"></i> Last Search</a>
-            {% endif %}
-            {% if affiliated_autonomous_systems %}
-            <div class="dropdown me-3">
-              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-fw fa-solid fa-server"></i>&nbsp;{% if context_as %}AS{{ context_as.asn }}{% else %}Select affiliated AS{% endif %}
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end">
-                {% for a in affiliated_autonomous_systems %}
-                <li><a role="button" class="dropdown-item text-truncate{% if a.pk == context_as.pk %} active{% endif %} context-as" data-as-id="{{ a.pk }}">AS{{ a.asn }} - {{ a.name }}</a></li>
-                {% endfor %}
-              </ul>
-            </div>
-            {% endif %}
-            <div class="dropdown">
-              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-fw fa-solid fa-user"></i> {{ request.user|truncatechars:"30" }}
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'users:profile' %}"><i class="fa-fw fa-solid fa-id-card"></i> Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'users:preferences' %}"><i class="fa-fw fa-solid fa-wrench"></i> Preferences</a></li>
-                <li><a class="dropdown-item" href="{% url 'users:token_list' %}"><i class="fa-fw fa-solid fa-key"></i> API Tokens</a></li>
-                {% if request.user.is_staff %}
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fa-fw fa-solid fa-cogs"></i> Admin</a></li>
-                {% endif %}
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fa-fw fa-solid fa-sign-out-alt"></i> Log out</a></li>
-              </ul>
-            </div>
-            {% else %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'login' %}?next={{ request.path }}"><i class="fa-fw fa-solid fa-sign-in-alt"></i> Log in</a></li>
-            {% endif %}
-          </ul>
-        </div>
-      </div>
-    </header>
-    <div class="container-fluid">
-      <div class="row">
-        {% with request.path as url_path %}
-        <nav class="navbar navbar-expand-md flex-column align-items-start vh-100 col-md-3 col-lg-2 me-0 pt-0">
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+    <div class="page">
+      <aside class="navbar navbar-vertical navbar-expand-lg col-md-3 col-lg-2 position-fixed">
+        <div class="container-fluid flex-column align-items-stretch justify-content-start p-0" style="min-height: 100%">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
-          <div class="collapse navbar-collapse w-100" id="sidebarMenu">
-            <ul class="navbar-nav flex-column w-100 vh-100">
+          <h1 class="navbar-brand">
+            <a href="{% url 'home' %}">
+              <img class="navbar-brand-image hide-theme-light" src="{% static 'img/inline-dark.svg' %}" alt="Peering Manager Logo">
+              <img class="navbar-brand-image hide-theme-dark" src="{% static 'img/inline-light.svg' %}" alt="Peering Manager Logo">
+            </a>
+          </h1>
+          {% with request.path as url_path %}
+          <div class="collapse navbar-collapse flex-column align-items-stretch" id="sidebar-menu">
+            <ul class="navbar-nav flex-column pt-lg-2">
               <li class="nav-item">
                 <a href="{% url 'peering:autonomoussystem_list' %}" class="nav-link{% if url_path|contains:'/autonomous-systems/' %} active{% endif %}">
                   <i class="fa-fw fa-solid fa-building me-2"></i>
@@ -110,7 +64,7 @@
                 <a href="#net-menu" data-bs-toggle="collapse" aria-expanded="false" class="nav-link">
                   <i class="fa-fw fa-solid fa-network-wired me-2"></i>
                   Network
-                  <span class="submenu-icon ml-auto float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
+                  <span class="submenu-icon float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
                 </a>
                 <ul id="net-menu" class="collapse list-unstyled">
                   <li class="nav-item"><a href="{% url 'net:connection_list' %}" class="nav-link{% if url_path|contains:'/net/connections/' %} active{% endif %}">Connections</a></li>
@@ -121,7 +75,7 @@
                 <a href="#provisioning-menu" data-bs-toggle="collapse" aria-expanded="false" class="nav-link">
                   <i class="fa-fw fa-solid fa-folder-tree me-2"></i>
                   Provisioning
-                  <span class="submenu-icon ml-auto float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
+                  <span class="submenu-icon float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
                 </a>
                 <ul id="provisioning-menu" class="collapse list-unstyled">
                   <li class="nav-item"><a href="{% url 'peeringdb:ixp_peers' %}" class="nav-link{% if url_path|contains:'/peeringdb/available-ixp-peers/' %} active{% endif %}">Available IXP Peers</a></li>
@@ -132,7 +86,7 @@
                 <a href="#policyoptions-menu" data-bs-toggle="collapse" aria-expanded="false" class="nav-link">
                   <i class="fa-fw fa-solid fa-filter me-2"></i>
                   Policy Options
-                  <span class="submenu-icon ml-auto float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
+                  <span class="submenu-icon float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
                 </a>
                 <ul id="policyoptions-menu" class="collapse list-unstyled">
                   <li class="nav-item"><a href="{% url 'peering:community_list' %}" class="nav-link{% if url_path|contains:'/communities/' %} active{% endif %}">Communities</a></li>
@@ -143,7 +97,7 @@
                 <a href="#devices-menu" data-bs-toggle="collapse" aria-expanded="false" class="nav-link">
                   <i class="fa-fw fa-solid fa-server me-2"></i>
                   Devices
-                  <span class="submenu-icon ml-auto float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
+                  <span class="submenu-icon float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
                 </a>
                 <ul id="devices-menu" class="collapse list-unstyled">
                   <li class="nav-item"><a href="{% url 'devices:configuration_list' %}" class="nav-link{% if url_path|contains:'/devices/configurations/' %} active{% endif %}">Configurations</a></li>
@@ -155,7 +109,7 @@
                 <a href="#messaging-menu" data-bs-toggle="collapse" aria-expanded="false" class="nav-link">
                   <i class="fa-fw fa-solid fa-message me-2"></i>
                   Messaging
-                  <span class="submenu-icon ml-auto float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
+                  <span class="submenu-icon float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
                 </a>
                 <ul id="messaging-menu" class="collapse list-unstyled">
                   <li class="nav-item"><a href="{% url 'messaging:contact_list' %}" class="nav-link{% if url_path|contains:'/messaging/contacts/' %} active{% endif %}">Contacts</a></li>
@@ -167,7 +121,7 @@
                 <a href="#thirdparty-menu" data-bs-toggle="collapse" aria-expanded="false" class="nav-link">
                   <i class="fa-fw fa-solid fa-sliders me-2"></i>
                   3rd Party
-                  <span class="submenu-icon ml-auto float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
+                  <span class="submenu-icon float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
                 </a>
                 <ul id="thirdparty-menu" class="collapse list-unstyled">
                   <li class="nav-item"><a href="{% url 'peeringdb:cache_management' %}" class="nav-link{% if url_path|contains:'/peeringdb/cache/' %} active{% endif %}">PeeringDB</a></li>
@@ -178,7 +132,7 @@
                 <a href="#operations-menu" data-bs-toggle="collapse" aria-expanded="false" class="nav-link">
                   <i class="fa-fw fa-solid fa-gears me-2"></i>
                   Operations
-                  <span class="submenu-icon ml-auto float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
+                  <span class="submenu-icon float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
                 </a>
                 <ul id="operations-menu" class="collapse list-unstyled">
                   <li class="nav-item"><a href="{% url 'core:datasource_list' %}" class="nav-link{% if url_path|contains:'/core/data-sources/' %} active{% endif %}">Data Sources</a></li>
@@ -191,7 +145,7 @@
                 <a href="#customisation-menu" data-bs-toggle="collapse" aria-expanded="false" class="nav-link">
                   <i class="fa-fw fa-solid fa-toolbox me-2"></i>
                   Customisation
-                  <span class="submenu-icon ml-auto float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
+                  <span class="submenu-icon float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
                 </a>
                 <ul id="customisation-menu" class="collapse list-unstyled">
                   <li class="nav-item"><a href="{% url 'bgp:relationship_list' %}" class="nav-link{% if url_path|contains:'/bgp/relationships/' %} active{% endif %}">Relationships</a></li>
@@ -204,7 +158,7 @@
                 <a href="#admin-menu" data-bs-toggle="collapse" aria-expanded="false" class="nav-link">
                   <i class="fa-fw fa-solid fa-user-group me-2"></i>
                   Admin
-                  <span class="submenu-icon ml-auto float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
+                  <span class="submenu-icon float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
                 </a>
                 <ul id="admin-menu" class="collapse list-unstyled">
                   <li class="nav-item"><a href="{% url 'core:system' %}" class="nav-link{% if url_path|contains:'/core/system/' %} active{% endif %}">System</a></li>
@@ -213,10 +167,60 @@
               </li>
             </ul>
           </div>
-        </nav>
-        {% endwith %}
-        <main class="ms-sm-auto col-md-9 col-lg-10 border-start">
-          <div class="justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+          {% endwith %}
+        </div>
+      </aside>
+      <header class="navbar navbar-expand-md sticky-top d-lg-flex offset-md-3 offset-lg-2">
+        <div class="container-fluid">
+          <div class="collapse navbar-collapse" id="navbar-collapse">
+            <div id="action_buttons" class="me-2">{% block actions %}{% endblock %}</div>
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb breadcrumb-divider-colour">{% block breadcrumb %}{% endblock %}</ol>
+            </nav>
+            <ul class="navbar-nav ms-auto">
+              <button class="btn btn-outline-secondary me-3" type="button" id="colour-mode-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Set colour mode"><i class="fa-fw fa-solid fa-sun"></i></button>
+              {% if request.user.is_authenticated %}
+              {% if request.session.last_search %}
+              <a href="{{ request.session.last_search }}" class="btn btn-outline-secondary me-3" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Return to Last Search"><i class="fa-fw fa-solid fa-search"></i> Last Search</a>
+              {% endif %}
+              {% if affiliated_autonomous_systems %}
+              <div class="dropdown me-3">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fa-fw fa-solid fa-server"></i>&nbsp;{% if context_as %}AS{{ context_as.asn }}{% else %}Select affiliated AS{% endif %}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  {% for a in affiliated_autonomous_systems %}
+                  <li><a role="button" class="dropdown-item text-truncate{% if a.pk == context_as.pk %} active{% endif %} context-as" data-as-id="{{ a.pk }}">AS{{ a.asn }} - {{ a.name }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fa-fw fa-solid fa-user"></i> {{ request.user|truncatechars:"30" }}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a class="dropdown-item" href="{% url 'users:profile' %}"><i class="fa-fw fa-solid fa-id-card"></i> Profile</a></li>
+                  <li><a class="dropdown-item" href="{% url 'users:preferences' %}"><i class="fa-fw fa-solid fa-wrench"></i> Preferences</a></li>
+                  <li><a class="dropdown-item" href="{% url 'users:token_list' %}"><i class="fa-fw fa-solid fa-key"></i> API Tokens</a></li>
+                  {% if request.user.is_staff %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fa-fw fa-solid fa-cogs"></i> Admin</a></li>
+                  {% endif %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fa-fw fa-solid fa-sign-out-alt"></i> Log out</a></li>
+                </ul>
+              </div>
+              {% else %}
+              <li class="nav-item"><a class="nav-link" href="{% url 'login' %}?next={{ request.path }}"><i class="fa-fw fa-solid fa-sign-in-alt"></i> Log in</a></li>
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="page-wrapper">
+        <main class="ms-sm-auto col-md-9 col-lg-10 px-2">
+          <div class="justify-content-between align-items-center pt-3 flex-shrink-0">
             {% if request.user.is_authenticated and not context_as %}
             <div class="alert alert-warning text-center" role="alert">
               <i class="fa-fw fa-solid fa-exclamation-triangle"></i> No affiliated autonomous system selected.
@@ -231,6 +235,19 @@
             {% block header %}{% endblock %}
             {% block content %}{% endblock %}
           </div>
+          <footer class="d-flex flex-wrap justify-content-between align-items-center mt-auto">
+            <ul class="nav col-md-6 justify-content-start fs-5">
+              <li class="nav-item"><a href="{% url 'api-root' %}" class="nav-link px-2 text-body-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="REST API"><i class="fa-fw fa-solid fa-cloud"></i></a></li>
+              <li class="nav-item"><a href="{% url 'api-docs' %}" class="nav-link px-2 text-body-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="REST API documentation"><i class="fa-fw fa-solid fa-book-bookmark"></i></a></li>
+              <li class="nav-item"><a href="https://github.com/peering-manager/peering-manager" class="nav-link px-2 text-body-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Source code"><i class="fa-fw fa-brands fa-github"></i></a></li>
+              <li class="nav-item"><a href="https://netdev.chat" class="nav-link px-2 text-body-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Community"><i class="fa-fw fa-brands fa-slack"></i></a></li>
+            </ul>
+            <ul class="nav col-md-6 justify-content-end">
+              <li class="nav-item text-body-secondary px-2">{% now 'Y-m-d H:i:s T' %}</li>
+              <li class="nav-item text-body-secondary px-2">{{ settings.HOSTNAME }}</li>
+              <li class="nav-item text-body-secondary px-2">Peering Manager {{ settings.VERSION }}</li>
+            </ul>
+          </footer>
         </main>
       </div>
     </div>
