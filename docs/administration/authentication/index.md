@@ -73,6 +73,9 @@ can be customized via the `SOCIAL_AUTH_PIPELINE` parameter. (Peering Manager's
 default pipeline is defined in `peering_manager/settings.py` for your
 reference.)
 
+An example of SSO configuration using OIDC with Authentik is also
+[available](./oidc.md) in this documenation.
+
 ### Configuring SSO Module's Appearance
 
 The way a remote authentication backend is displayed to the user on the login

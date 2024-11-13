@@ -73,6 +73,7 @@ nav:
     - Authentication:
       - "administration/authentication/index.md"
       - LDAP: "administration/authentication/ldap.md"
+      - OIDC: "administration/authentication/oidc.md"
       - RADIUS: "administration/authentication/radius.md"
     - Housekeeping: "administration/housekeeping.md"
     - Replication: "administration/replication.md"
