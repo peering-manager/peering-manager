@@ -48,7 +48,7 @@ authenticate by using Authentik.
 To manage groups in Peering Manager custom social auth pipelines are required.
 To create them the `SOCIAL_AUTH_PIPELINE` setting must be set like below.
 
-```python
+```python hl_lines="40 41 42 43 44"
 SOCIAL_AUTH_PIPELINE = (
     ###################
     # Default pipelines
