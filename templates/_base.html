@@ -154,6 +154,7 @@
                   <li class="nav-item"><a href="{% url 'extras:tag_list' %}" class="nav-link{% if url_path|contains:'/extras/tags/' %} active{% endif %}">Tags</a></li>
                 </ul>
               </li>
+              {% if request.user.is_staff %}
               <li class="nav-item">
                 <a href="#admin-menu" data-bs-toggle="collapse" aria-expanded="false" class="nav-link">
                   <i class="fa-fw fa-solid fa-user-group me-2"></i>
@@ -165,6 +166,7 @@
                   <li class="nav-item"><a href="{% url 'core:background_queue_list' %}" class="nav-link{% if url_path|contains:'/core/background-queues/,/core/background-workers/,/core/background-tasks/' %} active{% endif %}">Background Tasks</a></li>
                 </ul>
               </li>
+              {% endif %}
             </ul>
           </div>
           {% endwith %}
