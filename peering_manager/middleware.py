@@ -8,13 +8,10 @@ from django.contrib.auth.middleware import (
     RemoteUserMiddleware as DjangoRemoteUserMiddleware,
 )
 from django.core.exceptions import ImproperlyConfigured
-from django.db import ProgrammingError
-from django.http import Http404, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 
 from core.context_managers import change_logging
-from utils.api import is_api_request, rest_api_server_error
-
-from .views import handler_500
+from utils.api import is_api_request
 
 __all__ = ("CoreMiddleware",)
 
@@ -60,30 +57,6 @@ class CoreMiddleware:
             response["API-Version"] = settings.REST_FRAMEWORK_VERSION
 
         return response
-
-    def process_exception(self, request, exception):
-        # Ignore exception catching if debug mode is on
-        if settings.DEBUG:
-            return None
-
-        # Lets Django handling 404
-        if isinstance(exception, Http404):
-            return None
-
-        # Handle exceptions that occur from REST API requests
-        if is_api_request(request):
-            return rest_api_server_error(request)
-
-        template = None
-        if isinstance(exception, ProgrammingError):
-            template = "errors/programming_error.html"
-        elif isinstance(exception, ImportError):
-            template = "errors/import_error.html"
-
-        if template:
-            return handler_500(request, template_name=template)
-
-        return None
 
 
 class RemoteUserMiddleware(DjangoRemoteUserMiddleware):
