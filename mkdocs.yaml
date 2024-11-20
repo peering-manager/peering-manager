@@ -144,6 +144,7 @@ nav:
     - Release Engineering: "development/release-engineering.md"
   - Release Notes:
     - "release-notes/index.md"
+    - Version 1.9: "release-notes/version-1.9.md"
     - Version 1.8: "release-notes/version-1.8.md"
     - Version 1.7: "release-notes/version-1.7.md"
     - Version 1.6: "release-notes/version-1.6.md"
