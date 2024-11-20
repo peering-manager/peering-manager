@@ -1,4 +1,4 @@
-## Version 1.9.0 | MARK I (Features release) | 2024-MM-DD
+## Version 1.9.0 | MARK I (Features release) | 2024-11-20
 
 The 1.9.x releases require Python 3.10 or later as well as PostgreSQL 13 or later.
 
