@@ -19,8 +19,8 @@ The following sections detail how to set up a new instance of Peering Manager:
 | Dependency | Minimum Version |
 |------------|-----------------|
 | Python     | 3.10            |
-| PostgreSQL | 12              |
-| Redis      | 4.0             |
+| PostgreSQL | 13              |
+| Redis      | 6               |
 
 ![Peering Manager application stack](../media/setup/application_stack.png)
 

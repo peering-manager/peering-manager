@@ -9,23 +9,27 @@ service. If you already have a Redis service in place, you can skip this step.
 Redis version 6+ is required so you may wish to check that your distribution
 can provide a compatible version.
 
+!!! info
+    You may use any drop-in replacement, such as [Valkey](https://valkey.io/),
+    to Redis for licensing reasons.
+
 ## Installation
 
 === "Debian 11 / 12"
-	```no-highlight
-	# apt install redis-server
-	```
+    ```no-highlight
+    # apt install redis-server
+    ```
 
 === "CentOS 7"
-	```no-highlight
-	# yum install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
-	# yum --enablerepo=remi install redis
-	```
+    ```no-highlight
+    # yum install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+    # yum --enablerepo=remi install redis
+    ```
 
 === "CentOS 8"
-	```no-highlight
-	# yum install redis
-	```
+    ```no-highlight
+    # yum install redis
+    ```
 
 You may wish to modify the Redis configuration at `/etc/redis.conf` or
 `/etc/redis/redis.conf`, however in most cases the default configuration is
