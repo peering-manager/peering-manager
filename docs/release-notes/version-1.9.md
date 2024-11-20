@@ -2,9 +2,6 @@
 
 The 1.9.x releases require Python 3.10 or later as well as PostgreSQL 13 or later.
 
-> [!WARNING]
-> If you used to run a development version of 1.9.0, please read carefully the end of this release note.
-
 ### API Breaking Changes
 
 * The `Router` model has been moved from the `peering` app to `devices`. Accordingly, its REST API endpoint has been moved from `/api/peering/routers/` to `/api/devices/routers/`
@@ -30,7 +27,7 @@ In addition to fetching templates from data sources, these same sources can be u
 To improve authentication for remote users or by using external authentication methods, Peering Manager now integrates with [`python-social-auth`](https://github.com/python-social-auth). This enables Single Sign-On (SSO).
 
 !!! warning
-   People using legacy OIDC or SAML2 Peering Manager implementations need to migrate to the new SSO implementation.
+    People using legacy OIDC or SAML2 Peering Manager implementations need to migrate to the new SSO implementation.
 
 To provide user authenticate via a remote backend in addition to local authentication, the `REMOTE_AUTH_BACKEND` configuration parameter must be set to a suitable backend class. The following classes are available by default:
 
@@ -64,7 +61,7 @@ Validating BGP community values consist of making sure that they follow a patter
 As this behaviour can break the way a user expresses communities, the validation can be turned off by setting `VALIDATE_BGP_COMMUNITY_VALUE = False` in the configuration if needed.
 
 
-#### Dark and Light Modes ([#380]](https://github.com/peering-manager/peering-manager/issues/380))
+#### Dark and Light Modes ([#380](https://github.com/peering-manager/peering-manager/issues/380))
 
 Stop burning you eyes in the middle of the night when looking at your BGP toolbox during your on-call rotation. Upgrading Bootstrap to version 5.3 allows to take advantage of the dark and light themes provided out of the box by the popular frontend toolkit. This work has been missing for quite a while and provide an updated user experience when using Peering Manager user interface.
 
@@ -130,42 +127,3 @@ autonomous system object
 
 * Warn user about e-mail template incompatibility
 * New Nokia SR-OS template using Peering Manager extensively (by @rinsekloek)
-
-### Upgrade Notes For Development Version
-
-The database migration path has been altered while developing version 1.9.0. The migration files to move the router objects under the devices namespace have been rewritten to optimise them. If you already applied the previous migrations listed below, you will need to be careful while applying the new migrations.
-
-Here are a few steps to follow to fix Django's migration records. In a PostgreSQL shell, in the Peering Manager database, run the following SQL queries:
-
-```sql
-DELETE FROM django_migrations WHERE app = 'devices' AND name = '0007_router';
-DELETE FROM django_migrations WHERE app = 'peering' AND name = '0102_move_router_to_devices_stage_1';
-DELETE FROM django_migrations WHERE app = 'peering' AND name = '0103_move_router_to_devices_stage_2';
-DELETE FROM django_migrations WHERE app = 'peering' AND name = '0104_move_router_to_devices_stage_3';
-DELETE FROM django_migrations WHERE app = 'net' AND name = '0010_move_router_to_devices_stage_1';
-DELETE FROM django_migrations WHERE app = 'net' AND name = '0011_move_router_to_devices_stage_2';
-```
-
-You can then try to apply the new migrations.
-```shell
-python manage.py migrate
-```
-
-Some of them, suffixed `_move_router` might fail. Don't worry if they do. Just run in the Peering Manager Python virtual environment the following command:
-
-```shell
-python manage.py migrate --fake
-```
-
-This will mark migrations as applied. This should be enough, the actual database schema should already be correct. You can now verify that no migrations are left to apply with:
-
-```shell
-python manage.py migrate --plan
-```
-
-This should yield:
-
-```
-Planned operations:
-  No planned migration operations.
-```
