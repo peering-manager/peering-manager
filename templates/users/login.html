@@ -34,10 +34,8 @@
             {% endif %}
             {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
-              <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
-                <span>&times;</span>
-              </button>
               {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
             {% endfor %}
             {% if form.non_field_errors %}
