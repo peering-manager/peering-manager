@@ -8,7 +8,7 @@ from peering_manager.views.generic import (
 from .. import filtersets, forms, tables
 from ..models import Job
 
-__all__ = ("JobListView", "JobDeleteView", "JobBulkDeleteView", "JobView")
+__all__ = ("JobBulkDeleteView", "JobDeleteView", "JobListView", "JobView")
 
 
 class JobListView(ObjectListView):

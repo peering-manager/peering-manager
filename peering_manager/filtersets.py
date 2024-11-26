@@ -20,8 +20,8 @@ from utils.constants import (
 __all__ = (
     "BaseFilterSet",
     "ChangeLoggedModelFilterSet",
-    "PeeringManagerModelFilterSet",
     "OrganisationalModelFilterSet",
+    "PeeringManagerModelFilterSet",
 )
 
 

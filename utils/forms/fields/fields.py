@@ -10,7 +10,6 @@ from django.forms.fields import JSONField as _JSONField
 from ..widgets import ColourSelect, StaticSelectMultiple
 
 __all__ = (
-    "TextareaField",
     "ColourField",
     "CommentField",
     "JSONField",
@@ -18,6 +17,7 @@ __all__ = (
     "SlugField",
     "TagFilterField",
     "TemplateField",
+    "TextareaField",
 )
 
 

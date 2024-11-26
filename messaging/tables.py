@@ -4,7 +4,7 @@ from peering_manager.tables import PeeringManagerTable, columns, linkify_phone
 
 from .models import Contact, ContactAssignment, ContactRole, Email
 
-__all__ = ("ContactTable", "ContactRoleTable", "ContactAssignmentTable", "EmailTable")
+__all__ = ("ContactAssignmentTable", "ContactRoleTable", "ContactTable", "EmailTable")
 
 
 class ContactRoleTable(PeeringManagerTable):

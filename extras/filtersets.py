@@ -20,8 +20,8 @@ from .models import (
 )
 
 __all__ = (
-    "ConfigContextFilterSet",
     "ConfigContextAssignmentFilterSet",
+    "ConfigContextFilterSet",
     "ExportTemplateFilterSet",
     "IXAPIFilterSet",
     "TagFilterSet",

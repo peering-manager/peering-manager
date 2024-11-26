@@ -5,8 +5,8 @@ from .models import Router
 
 __all__ = (
     "post_configuration_rendering",
-    "pre_configuration_rendering",
     "post_device_configuration",
+    "pre_configuration_rendering",
     "pre_device_configuration",
 )
 

@@ -7,10 +7,10 @@ from utils.forms import BootstrapMixin
 from utils.forms.fields import DynamicModelMultipleChoiceField
 
 __all__ = (
-    "PeeringManagerModelForm",
+    "HiddenControlFormSet",
     "PeeringManagerModelBulkEditForm",
     "PeeringManagerModelFilterSetForm",
-    "HiddenControlFormSet",
+    "PeeringManagerModelForm",
 )
 
 

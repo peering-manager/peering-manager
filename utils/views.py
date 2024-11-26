@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import (
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 
-__all__ = ("PermissionRequiredMixin", "GetReturnURLMixin")
+__all__ = ("GetReturnURLMixin", "PermissionRequiredMixin")
 
 
 class PermissionRequiredMixin(_PermissionRequiredMixin):

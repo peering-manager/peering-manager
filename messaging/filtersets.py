@@ -11,9 +11,9 @@ from utils.filters import ContentTypeFilter
 from .models import Contact, ContactAssignment, ContactRole, Email
 
 __all__ = (
+    "ContactAssignmentFilterSet",
     "ContactFilterSet",
     "ContactRoleFilterSet",
-    "ContactAssignmentFilterSet",
     "EmailFilterSet",
 )
 

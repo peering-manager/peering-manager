@@ -1,7 +1,7 @@
 import logging
 import traceback
 
-__all__ = ("exception_handler", "PushError", "SynchronisationError")
+__all__ = ("PushError", "SynchronisationError", "exception_handler")
 
 
 def exception_handler(rq_job, exc_type, exc_value, trace):

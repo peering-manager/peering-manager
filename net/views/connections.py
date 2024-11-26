@@ -14,13 +14,13 @@ from ..models import Connection
 from ..tables import ConnectionTable
 
 __all__ = (
+    "ConnectionBulkDelete",
+    "ConnectionBulkEdit",
+    "ConnectionContext",
+    "ConnectionDelete",
+    "ConnectionEdit",
     "ConnectionList",
     "ConnectionView",
-    "ConnectionContext",
-    "ConnectionEdit",
-    "ConnectionBulkEdit",
-    "ConnectionDelete",
-    "ConnectionBulkDelete",
 )
 
 

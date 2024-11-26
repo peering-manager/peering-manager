@@ -4,7 +4,7 @@ from django.views.generic import View
 
 from utils.views import PermissionRequiredMixin
 
-__all__ = ("BaseObjectView", "BaseMultiObjectView")
+__all__ = ("BaseMultiObjectView", "BaseObjectView")
 
 
 class BaseObjectView(PermissionRequiredMixin, View):

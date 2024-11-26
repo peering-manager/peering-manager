@@ -5,7 +5,7 @@ from utils.forms import BootstrapMixin
 
 from .models import Token
 
-__all__ = ("LoginForm", "UserPasswordChangeForm", "TokenForm")
+__all__ = ("LoginForm", "TokenForm", "UserPasswordChangeForm")
 
 
 class LoginForm(BootstrapMixin, AuthenticationForm):

@@ -12,7 +12,7 @@ from dulwich.config import ConfigDict
 from .exceptions import PushError, SynchronisationError
 from .utils import register_data_backend
 
-__all__ = ("LocalBackend", "GitRepositoryBackend")
+__all__ = ("GitRepositoryBackend", "LocalBackend")
 
 logger = logging.getLogger("peering.manager.core.data_backends")
 

@@ -5,7 +5,7 @@ import random
 #
 # https://metacpan.org/pod/Crypt::Juniper
 
-__all__ = ("is_encrypted", "decrypt", "encrypt")
+__all__ = ("decrypt", "encrypt", "is_encrypted")
 
 MAGIC = "$9$"
 

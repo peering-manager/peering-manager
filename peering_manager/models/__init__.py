@@ -7,8 +7,8 @@ from .features import *
 
 __all__ = (
     "ChangeLoggedModel",
-    "PeeringManagerModel",
     "OrganisationalModel",
+    "PeeringManagerModel",
     "PrimaryModel",
     "TemplateModel",
 )

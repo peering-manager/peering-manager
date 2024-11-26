@@ -10,7 +10,7 @@ from utils.forms.fields import JSONField, SlugField, TagFilterField
 
 from ..models import BFD
 
-__all__ = ("BFDForm", "BFDBulkEditForm", "BFDFilterForm")
+__all__ = ("BFDBulkEditForm", "BFDFilterForm", "BFDForm")
 
 
 class BFDForm(PeeringManagerModelForm):

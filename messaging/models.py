@@ -12,7 +12,7 @@ from peering_manager.models import (
     TemplateModel,
 )
 
-__all__ = ("ContactRole", "Contact", "ContactAssignment", "Email")
+__all__ = ("Contact", "ContactAssignment", "ContactRole", "Email")
 
 
 class ContactRole(OrganisationalModel):

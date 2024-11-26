@@ -2,8 +2,8 @@ from .models import Facility, IXLan, NetworkFacility, NetworkIXLan
 
 __all__ = (
     "get_possible_peering_sessions",
-    "get_shared_internet_exchanges",
     "get_shared_facilities",
+    "get_shared_internet_exchanges",
 )
 
 

@@ -9,7 +9,7 @@ from utils.paginators import EnhancedPaginator, get_paginate_count
 
 from . import columns
 
-__all__ = ("linkify_phone", "BaseTable", "PeeringManagerTable")
+__all__ = ("BaseTable", "PeeringManagerTable", "linkify_phone")
 
 
 def linkify_phone(value):

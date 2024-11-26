@@ -13,21 +13,21 @@ from taggit.managers import _TaggableManager
 from .templatetags.helpers import title_with_uppers
 
 __all__ = (
-    "dict_to_filter_params",
-    "normalize_querydict",
-    "generate_signature",
-    "sha256_hash",
-    "is_taggable",
-    "count_related",
-    "serialize_object",
-    "shallow_compare_dict",
-    "content_type_name",
     "content_type_identifier",
+    "content_type_name",
+    "count_related",
+    "dict_to_filter_params",
+    "generate_signature",
+    "get_key_in_hash",
     "get_permission_for_model",
     "get_viewname",
     "handle_protectederror",
-    "get_key_in_hash",
+    "is_taggable",
     "merge_hash",
+    "normalize_querydict",
+    "serialize_object",
+    "sha256_hash",
+    "shallow_compare_dict",
 )
 
 

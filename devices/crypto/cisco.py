@@ -6,7 +6,7 @@ import re
 # https://pen-testing.sans.org/resources/papers/gcih/cisco-ios-type-7-password-vulnerability-100566
 # http://wiki.nil.com/Deobfuscating_Cisco_IOS_Passwords
 
-__all__ = ("is_encrypted", "decrypt", "encrypt")
+__all__ = ("decrypt", "encrypt", "is_encrypted")
 
 MAGIC = "7 "
 XLAT = [

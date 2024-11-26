@@ -26,18 +26,18 @@ __all__ = (
     "BGPGroupSerializer",
     "CommunitySerializer",
     "DirectPeeringSessionSerializer",
-    "InternetExchangeSerializer",
     "InternetExchangePeeringSessionSerializer",
-    "RouterSerializer",
-    "RouterConfigureSerializer",
-    "RoutingPolicySerializer",
+    "InternetExchangeSerializer",
     "NestedAutonomousSystemSerializer",
     "NestedBGPGroupSerializer",
     "NestedCommunitySerializer",
     "NestedDirectPeeringSessionSerializer",
-    "NestedInternetExchangeSerializer",
     "NestedInternetExchangePeeringSessionSerializer",
+    "NestedInternetExchangeSerializer",
     "NestedRoutingPolicySerializer",
+    "RouterConfigureSerializer",
+    "RouterSerializer",
+    "RoutingPolicySerializer",
 )
 
 

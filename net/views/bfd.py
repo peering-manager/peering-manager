@@ -14,13 +14,13 @@ from ..models import BFD
 from ..tables import BFDTable
 
 __all__ = (
+    "BFDBulkDelete",
+    "BFDBulkEdit",
+    "BFDContext",
+    "BFDDelete",
+    "BFDEdit",
     "BFDList",
     "BFDView",
-    "BFDContext",
-    "BFDEdit",
-    "BFDBulkEdit",
-    "BFDDelete",
-    "BFDBulkDelete",
 )
 
 

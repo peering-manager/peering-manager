@@ -16,7 +16,7 @@ from taggit.managers import TaggableManager
 from ..functions import content_type_identifier
 from .functions import extract_form_failures
 
-__all__ = ("MockedResponse", "TestCase", "ModelTestCase")
+__all__ = ("MockedResponse", "ModelTestCase", "TestCase")
 
 
 class MockedResponse:

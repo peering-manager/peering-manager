@@ -8,7 +8,7 @@ from utils.forms.fields import SlugField, TagFilterField
 
 from .models import Relationship
 
-__all__ = ("RelationshipForm", "RelationshipFilterForm")
+__all__ = ("RelationshipFilterForm", "RelationshipForm")
 
 
 class RelationshipForm(PeeringManagerModelForm):

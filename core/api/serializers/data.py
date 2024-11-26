@@ -12,8 +12,8 @@ from ...utils import get_data_backend_choices
 
 __all__ = (
     "DataFileSerializer",
-    "NestedDataFileSerializer",
     "DataSourceSerializer",
+    "NestedDataFileSerializer",
     "NestedDataSourceSerializer",
 )
 

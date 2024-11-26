@@ -27,7 +27,7 @@ from utils.forms.widgets import StaticSelect, StaticSelectMultiple
 from .enums import DeviceStatus, PasswordAlgorithm
 from .models import Configuration, Platform, Router
 
-__all__ = ("ConfigurationForm", "ConfigurationFilterForm", "PlatformForm", "RouterForm")
+__all__ = ("ConfigurationFilterForm", "ConfigurationForm", "PlatformForm", "RouterForm")
 
 
 class ConfigurationForm(PeeringManagerModelForm, SynchronisedDataMixin):

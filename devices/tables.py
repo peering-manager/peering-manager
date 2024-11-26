@@ -9,8 +9,8 @@ from .models import Configuration, Platform, Router
 __all__ = (
     "ConfigurationTable",
     "PlatformTable",
-    "RouterTable",
     "RouterConnectionTable",
+    "RouterTable",
 )
 
 

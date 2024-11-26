@@ -9,11 +9,11 @@ from ..models import Contact, ContactAssignment, ContactRole, Email
 from .nested_serializers import *
 
 __all__ = (
-    "ContactSerializer",
-    "ContactRoleSerializer",
     "ContactAssignmentSerializer",
-    "EmailSerializer",
+    "ContactRoleSerializer",
+    "ContactSerializer",
     "EmailSendingSerializer",
+    "EmailSerializer",
 )
 
 

@@ -20,15 +20,15 @@ from utils.forms.fields import (
 from .models import Contact, ContactAssignment, ContactRole, Email
 
 __all__ = (
-    "ContactForm",
+    "ContactAssignmentForm",
     "ContactBulkEditForm",
     "ContactFilterForm",
-    "ContactRoleForm",
+    "ContactForm",
     "ContactRoleBulkEditForm",
     "ContactRoleFilterForm",
-    "ContactAssignmentForm",
-    "EmailForm",
+    "ContactRoleForm",
     "EmailFilterForm",
+    "EmailForm",
 )
 
 

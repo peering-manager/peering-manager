@@ -11,7 +11,7 @@ from utils.exceptions import AbortRequestError
 
 from . import mixins
 
-__all__ = ("PeeringManagerReadOnlyModelViewSet", "PeeringManagerModelViewSet")
+__all__ = ("PeeringManagerModelViewSet", "PeeringManagerReadOnlyModelViewSet")
 
 
 class BaseViewSet(GenericViewSet):

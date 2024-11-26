@@ -21,7 +21,7 @@ from utils.forms.widgets import StaticSelect, StaticSelectMultiple
 from ..enums import ConnectionStatus
 from ..models import Connection
 
-__all__ = ("ConnectionForm", "ConnectionBulkEditForm", "ConnectionFilterForm")
+__all__ = ("ConnectionBulkEditForm", "ConnectionFilterForm", "ConnectionForm")
 
 
 class ConnectionForm(PeeringManagerModelForm):

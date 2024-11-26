@@ -369,7 +369,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
             fallback = True
 
         # If fallback is triggered or no prefixes found, try prefix lookup by ASN
-        if fallback or not prefixes["ipv6"] and not prefixes["ipv4"]:
+        if fallback or (not prefixes["ipv6"] and not prefixes["ipv4"]):
             logger.debug(
                 f"falling back to AS number lookup to search for AS{self.asn} prefixes"
             )
@@ -938,8 +938,8 @@ class InternetExchangePeeringSession(BGPSession):
         """
         return not (
             not self.ixp_connection.linked_to_peeringdb
-            or self.ixp_connection.router
-            and not self.ixp_connection.router.poll_bgp_sessions_state
+            or (self.ixp_connection.router
+            and not self.ixp_connection.router.poll_bgp_sessions_state)
             or not self.autonomous_system.peeringdb_network
             or self.exists_in_peeringdb
             or self.bgp_state not in [BGPState.IDLE, BGPState.ACTIVE]

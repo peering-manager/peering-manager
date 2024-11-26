@@ -25,7 +25,7 @@ from .jobs import Job
 
 logger = logging.getLogger("peering.manager.core.data")
 
-__all__ = ("DataSource", "DataFile", "AutoSynchronisationRecord")
+__all__ = ("AutoSynchronisationRecord", "DataFile", "DataSource")
 
 
 class DataSource(PrimaryModel, JobsMixin):

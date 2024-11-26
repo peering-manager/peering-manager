@@ -12,17 +12,17 @@ from .. import filtersets, forms, tables
 from ..models import DataFile, DataSource
 
 __all__ = (
+    "DataFileBulkDeleteView",
+    "DataFileDeleteView",
     "DataFileListView",
     "DataFileView",
-    "DataFileDeleteView",
-    "DataFileBulkDeleteView",
-    "DataSourceListView",
-    "DataSourceEditView",
+    "DataSourceBulkDeleteView",
     "DataSourceBulkEdit",
     "DataSourceDeleteView",
-    "DataSourceBulkDeleteView",
-    "DataSourceView",
+    "DataSourceEditView",
     "DataSourceFilesView",
+    "DataSourceListView",
+    "DataSourceView",
 )
 
 
