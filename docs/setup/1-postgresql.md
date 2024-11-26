@@ -7,36 +7,36 @@ PostgreSQL.
 ## Installation
 
 === "Debian 11 / 12"
-	```no-highlight
-	# apt update
-	# apt install postgresql libpq-dev
-	```
+    ```no-highlight
+    # apt update
+    # apt install postgresql libpq-dev
+    ```
 
 === "CentOS 7"
-	```no-highlight
-	# yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-	# yum install postgresql13-server
-	# /usr/pgsql-13/bin/postgresql-13-setup initdb
-	# systemctl enable postgresql-13 --now
-	```
+    ```no-highlight
+    # yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+    # yum install postgresql13-server
+    # /usr/pgsql-13/bin/postgresql-13-setup initdb
+    # systemctl enable postgresql-13 --now
+    ```
 
 === "CentOS 8"
-	```no-highlight
-	# yum install postgresql-server
-	# postgresql-setup --initdb --unit postgresql
-	# systemctl enable postgresql --now
-	```
+    ```no-highlight
+    # yum install postgresql-server
+    # postgresql-setup --initdb --unit postgresql
+    # systemctl enable postgresql --now
+    ```
 
 !!! attention
-	Depending on your distribution, you may have to edit your PostgreSQL
-	configuration to allow logging in with a supported mechanism.
-	The configuration file is usually located at `/var/lib/pgsql/version/data/pg_hba.conf`
-	and has to allow `password`, `trust` or `peer` authentication. Others may work but
-	the previously mentioned are the most trivial to use. Please note that especially
-	`trust` can result in security risks and should only be used if you
-	know what you are doing.
-	Please see the [PostgreSQL documentation](https://www.postgresql.org/docs/11/auth-pg-hba-conf.html)
-	for more information.
+    Depending on your distribution, you may have to edit your PostgreSQL
+    configuration to allow logging in with a supported mechanism.
+    The configuration file is usually located at `/var/lib/pgsql/version/data/pg_hba.conf`
+    and has to allow `password`, `trust` or `peer` authentication. Others may work but
+    the previously mentioned are the most trivial to use. Please note that especially
+    `trust` can result in security risks and should only be used if you
+    know what you are doing.
+    Please see the [PostgreSQL documentation](https://www.postgresql.org/docs/11/auth-pg-hba-conf.html)
+    for more information.
 
 
 ## Database Creation
@@ -46,7 +46,7 @@ username and password for authentication.
 
 ```no-highlight
 # sudo -u postgres psql
-psql (12.15)
+psql (13.15)
 Type "help" for help.
 
 postgres=# CREATE DATABASE peering_manager ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TEMPLATE template0;
@@ -57,15 +57,15 @@ postgres=# GRANT ALL PRIVILEGES ON DATABASE peering_manager TO peering_manager;
 GRANT
 -- If running PostgreSQL v15 or above the following two commands are also necessary:
 \connect peering_manager
-GRANT CREATE ON SCHEMA public TO peering_manager;
+GRANT ALL ON SCHEMA public TO peering_manager;
 postgres=# \q
 ```
 
 !!! attention
-	When creating the database on Debian fails with the message
-	`ERROR:  invalid locale name: "en_US.UTF-8"`, you are missing the locale.
-	Run `dpkg-reconfigure locales` and select `en_US.UTF-8` to generate it.
-	Then restart the database server by running `systemctl restart postgresql.service`.
+    When creating the database on Debian fails with the message
+    `ERROR:  invalid locale name: "en_US.UTF-8"`, you are missing the locale.
+    Run `dpkg-reconfigure locales` and select `en_US.UTF-8` to generate it.
+    Then restart the database server by running `systemctl restart postgresql.service`.
 
 You can test that authentication works with the following command. (Replace
 `localhost` with your database server if using a remote database.)
