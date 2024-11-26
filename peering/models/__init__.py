@@ -938,8 +938,10 @@ class InternetExchangePeeringSession(BGPSession):
         """
         return not (
             not self.ixp_connection.linked_to_peeringdb
-            or (self.ixp_connection.router
-            and not self.ixp_connection.router.poll_bgp_sessions_state)
+            or (
+                self.ixp_connection.router
+                and not self.ixp_connection.router.poll_bgp_sessions_state
+            )
             or not self.autonomous_system.peeringdb_network
             or self.exists_in_peeringdb
             or self.bgp_state not in [BGPState.IDLE, BGPState.ACTIVE]
