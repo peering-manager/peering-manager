@@ -189,20 +189,22 @@ class Router(PushedDataMixin, PrimaryModel):
         # Ensure device is not in disabled state
         if self.status == DeviceStatus.DISABLED:
             if job:
-                job.log_warning("Router is disabled.", obj=self, logger=logger)
+                job.log_warning("Router is disabled.", object=self, logger=logger)
             return False
 
         # Check if the router runs on a supported platform
         if not self.platform:
             if job:
                 job.log_warning(
-                    "Router has no assigned platform.", obj=self, logger=logger
+                    "Router has no assigned platform.", object=self, logger=logger
                 )
             return False
         if not self.platform.napalm_driver:
             if job:
                 job.log_warning(
-                    "Router's platform has no NAPALM driver.", obj=self, logger=logger
+                    "Router's platform has no NAPALM driver.",
+                    object=self,
+                    logger=logger,
                 )
             return False
 
