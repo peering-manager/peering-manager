@@ -58,5 +58,6 @@ intended as they are maintained by the community.
 * [Cisco IOS from template tutorial](examples/tutorial-cisco-ios.md)
 * [Arista EOS](examples/arista-eos.md)
 * [Nokia SROS](examples/nokia-sros.md)
+* [VyOS](examples/tutorial-vyos.md)
 * [Peering Request E-mail](examples/peering-request-email.md)
 * [New Network E-mail](examples/new-network-email.md)
