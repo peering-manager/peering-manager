@@ -101,6 +101,7 @@ nav:
       - Cisco IOS from tutorial: "templating/examples/tutorial-cisco-ios.md"
       - Juniper Junos OS: "templating/examples/juniper-junos.md"
       - Nokia SROS: "templating/examples/nokia-sros.md"
+      - VyOS: "templating/examples/tutorial-vyos.md"
       - Peering Request E-Mail: "templating/examples/peering-request-email.md"
       - New Network E-mail: "templating/examples/new-network-email.md"
   - References:
