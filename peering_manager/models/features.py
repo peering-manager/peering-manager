@@ -21,6 +21,7 @@ __all__ = (
     "ConfigContextMixin",
     "ExportTemplatesMixin",
     "JobsMixin",
+    "JournalingMixin",
     "PushedDataMixin",
     "SynchronisedDataMixin",
     "TagsMixin",
@@ -158,6 +159,22 @@ class JobsMixin(models.Model):
             .distinct("name")
             .defer("data")
         }
+
+
+class JournalingMixin(models.Model):
+    """
+    Enables support for object journaling. Adds a generic relation
+    `journal_entries` pointing to `JournalEntry` model.
+    """
+
+    journal_entries = GenericRelation(
+        to="extras.JournalEntry",
+        object_id_field="assigned_object_id",
+        content_type_field="assigned_object_type",
+    )
+
+    class Meta:
+        abstract = True
 
 
 class PushedDataMixin(models.Model):
@@ -379,6 +396,7 @@ FEATURES_MAP = {
     "config-contexts": ConfigContextMixin,
     "export-templates": ExportTemplatesMixin,
     "jobs": JobsMixin,
+    "journaling": JournalingMixin,
     "tags": TagsMixin,
     "synchronised_data": SynchronisedDataMixin,
     "webhooks": WebhooksMixin,
