@@ -6,6 +6,9 @@
 ALLOWED_HOSTS = ["*"]
 
 # Must be unique to each setup (CHANGE IT!).
+# A random one can be generated with Python in the Peering Manager venv with
+# from django.core.management.utils import get_random_secret_key
+# get_random_secret_key()
 SECRET_KEY = "ef7npku*djrj_r4jt4cojo8^j@2($$@05e(eq_mn!ywx*jg0vy"
 
 # Base URL path if accessing Peering Manager within a directory.

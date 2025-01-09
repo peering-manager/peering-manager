@@ -133,44 +133,47 @@ file.
 Modify `configuration.py` according to your requirements.
 
 ```python
-# allow any hosts
-ALLOWED_HOSTS = ['*']
+# Allow any hosts
+ALLOWED_HOSTS = ["*"]
 
-# key that must be unique to each install
-SECRET_KEY = 'comeonebabylightmyfire'
+# Key that must be unique to each install
+# A random one can be generated with Python in the Peering Manager venv with
+# from django.core.management.utils import get_random_secret_key
+# get_random_secret_key()
+SECRET_KEY = "comeonebabylightmyfire"
 
-# base URL path if accessing Peering Manager within a directory.
-BASE_PATH = ''
+# Base URL path if accessing Peering Manager within a directory
+BASE_PATH = ""
 
-# time zone to use for date.
-TIME_ZONE = 'Europe/Paris'
+# Time zone to use for date
+TIME_ZONE = "Europe/Paris"
 
 # PostgreSQL database configuration
 DATABASE = {
-    "NAME": "peering_manager",  # Database name
-    "USER": "peering_manager",  # PostgreSQL username
-    "PASSWORD": "DoNotUseMe",  # PostgreSQL password
-    "HOST": "localhost",  # Database server
-    "PORT": "",  # Database port (leave blank for default)
+    "NAME": "peering_manager",           # Database name
+    "USER": "peering_manager",           # PostgreSQL username
+    "PASSWORD": "DoNotUseThisPassword",  # PostgreSQL password
+    "HOST": "localhost",                 # Database server
+    "PORT": "",                          # Database port (leave blank for default)
 }
 
 # Redis configuration
 REDIS = {
-    'tasks': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'PASSWORD': '',
-        'CACHE_DATABASE': 0,
-        'DEFAULT_TIMEOUT': 300,
-        'SSL': False,
+    "tasks": {
+        "HOST": "localhost",
+        "PORT": 6379,
+        "PASSWORD": "",
+        "CACHE_DATABASE": 0,
+        "DEFAULT_TIMEOUT": 300,
+        "SSL": False,
     },
-    'caching': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'PASSWORD': '',
-        'CACHE_DATABASE': 1,
-        'DEFAULT_TIMEOUT': 300,
-        'SSL': False,
+    "caching": {
+        "HOST": "localhost",
+        "PORT": 6379,
+        "PASSWORD": "",
+        "CACHE_DATABASE": 1,
+        "DEFAULT_TIMEOUT": 300,
+        "SSL": False,
     }
 }
 ```
