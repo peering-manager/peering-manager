@@ -1,5 +1,6 @@
 from .extensions import *
 from .filters import *
+from .functions import *
 from .loaders import *
 
 
@@ -22,6 +23,7 @@ def render_jinja2(template, context, trim=False, lstrip=False):
 
     # Add custom filters to our environment
     environment.filters.update(FILTER_DICT)
+    environment.globals.update(FUNCTION_DICT)
 
     # Try rendering the template, return a message about syntax issues if there
     # are any

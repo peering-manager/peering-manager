@@ -13,10 +13,12 @@ used to generate configuration for routers as well as e-mails.
 
 The templating feature is based on
 [Jinja2](https://jinja.palletsprojects.com/). To simplify template writing,
-Peering Manager exposes [variables](variables.md) and [filters](filters.md).
-While exposed filters are always the same, variables depends on the context in
-which the template is rendered. Rendering a device configuration uses a
-context different from the one used when rendering an e-mail.
+Peering Manager exposes [variables](./jinja2/variables.md) as well as
+[filters](./jinja2/filters.md) and [functions](./jinja2/functions.md).
+While exposed filters and functions are always the same, variables depends on
+the context in which the template is rendered. Rendering a device
+configuration uses a context different from the one used when rendering an
+e-mail.
 
 You can also use Jinja2 extensions by installing them in the Python
 environment and asking Peering Manager to load them using the

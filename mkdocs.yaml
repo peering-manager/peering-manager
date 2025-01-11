@@ -90,8 +90,9 @@ nav:
     - Synchronised Data: "integrations/synchronised-data.md"
   - Templating:
     - "templating/index.md"
-    - Jinja Filters: "templating/filters.md"
-    - Exposed Variables: "templating/variables.md"
+    - Jinja2 Functions: "templating/jinja2/functions.md"
+    - Jinja2 Filters: "templating/jinja2/filters.md"
+    - Exposed Variables: "templating/jinja2/variables.md"
     - Templating Tutorial: "templating/tutorial/index.md"
     - Examples:
       - Arista EOS: "templating/examples/arista-eos.md"
