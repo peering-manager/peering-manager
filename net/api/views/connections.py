@@ -29,6 +29,10 @@ class ConnectionViewSet(PeeringManagerModelViewSet):
                 response=OpenApiTypes.NONE,
                 description="The user does not have the permission update the IX-API MAC address.",
             ),
+            400: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="IX-API did not update the MAC address.",
+            ),
             404: OpenApiResponse(
                 response=OpenApiTypes.OBJECT,
                 description="The connection does not exist.",
@@ -42,4 +46,6 @@ class ConnectionViewSet(PeeringManagerModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         success = self.get_object().set_ixapi_mac_address()
-        return Response(status=status.HTTP_200_OK if success else status.HTTP_200_OK)
+        return Response(
+            status=status.HTTP_200_OK if success else status.HTTP_400_BAD_REQUEST
+        )
