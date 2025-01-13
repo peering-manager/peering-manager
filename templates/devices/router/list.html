@@ -47,7 +47,7 @@
       routerIDs.push(parseInt($(this).val()));
     });
     if (routerIDs.length > 0) {
-      $('#deployment-confirmation').modal();
+      $('#deployment-confirmation').modal('show');
     }
   });
   $('#confirm-deployment').click(function () {
