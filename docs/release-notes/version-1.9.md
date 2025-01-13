@@ -1,3 +1,21 @@
+## Version 1.9.1 | MARK I (Bug fixes release) | 2025-01-14
+
+### Bug Fixes
+
+* Fix login page HTML for alert closing button
+* Fix response when IX-API MAC update fails
+* [#888](https://github.com/peering-manager/peering-manager/issues/888) Fix call logging when checking if a router can be used with NAPALM (by @rwielk)
+* [#902](https://github.com/peering-manager/peering-manager/issues/902) Fix bulk deploy on routers modal now showing
+
+### Enhancements
+
+* [#900](https://github.com/peering-manager/peering-manager/issues/900) Add `now` Jinja2 function that can be called in templates like `{{ now() }}`
+
+### Documentation
+
+* Minor tweaks in setup instructions to make them a bit more clear regarding PostgreSQL
+* Add VyOS template (by @Charlie-Root)
+
 ## Version 1.9.0 | MARK I (Features release) | 2024-11-20
 
 The 1.9.x releases require Python 3.10 or later as well as PostgreSQL 13 or later.
