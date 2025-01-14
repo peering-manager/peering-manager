@@ -67,7 +67,7 @@ if BASE_PATH:
     BASE_PATH = BASE_PATH.strip("/") + "/"  # Enforce trailing slash only
 CENSUS_REPORTING_ENABLED = getattr(configuration, "CENSUS_REPORTING_ENABLED", True)
 CSRF_COOKIE_PATH = LANGUAGE_COOKIE_PATH = SESSION_COOKIE_PATH = (
-    f'/{BASE_PATH.rstrip("/")}'
+    f"/{BASE_PATH.rstrip('/')}"
 )
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, "CORS_ORIGIN_ALLOW_ALL", False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, "CORS_ORIGIN_REGEX_WHITELIST", [])
