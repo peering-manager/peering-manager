@@ -67,7 +67,7 @@ class LoginView(View):
                 for idp in saml_idps:
                     params["idp"] = idp
                     data = self.generate_auth_data(name, url, params)
-                    data["display_name"] = f'{data["display_name"]} ({idp})'
+                    data["display_name"] = f"{data['display_name']} ({idp})"
                     auth_backends.append(data)
             else:
                 auth_backends.append(self.generate_auth_data(name, url, params))
