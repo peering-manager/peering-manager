@@ -22,8 +22,6 @@ __all__ = (
     "ConfigContextAssignmentSerializer",
     "ConfigContextSerializer",
     "ExportTemplateSerializer",
-    "TagSerializer",
-    "WebhookSerializer",
     "NestedTagSerializer",
     "NestedWebhookSerializer",
     "TagSerializer",
