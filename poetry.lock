@@ -478,13 +478,13 @@ files = [
 
 [[package]]
 name = "django"
-version = "5.0.10"
+version = "5.0.11"
 description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "Django-5.0.10-py3-none-any.whl", hash = "sha256:c8fab2c553750933c8e7f5f95e5507e138e6acf6c2b4581cb691e70fe3ed747b"},
-    {file = "Django-5.0.10.tar.gz", hash = "sha256:0f6cbc56cc298b0451d20a5120c6a8731e9073330fb5d84295c23c151a1eb300"},
+    {file = "Django-5.0.11-py3-none-any.whl", hash = "sha256:09e8128f717266bf382d82ffa4933f13da05d82579abf008ede86acb15dec88b"},
+    {file = "Django-5.0.11.tar.gz", hash = "sha256:e7d98fa05ce09cb3e8d5ad6472fb602322acd1740bfdadc29c8404182d664f65"},
 ]
 
 [package.dependencies]
@@ -1373,13 +1373,13 @@ files = [
 
 [[package]]
 name = "ntc-templates"
-version = "7.5.0"
+version = "7.6.0"
 description = "TextFSM Templates for Network Devices, and Python wrapper for TextFSM's CliTable."
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "ntc_templates-7.5.0-py3-none-any.whl", hash = "sha256:9d7fb6467ccaaedf8e93e12106e4c46b1610e88d1bcae396b8c2f6a786d9db1c"},
-    {file = "ntc_templates-7.5.0.tar.gz", hash = "sha256:b4b1693cd79ef0da5be0c66d58e3c6285d8d264d46832545765c0d394afed0aa"},
+    {file = "ntc_templates-7.6.0-py3-none-any.whl", hash = "sha256:6e855a443cd9ad28192bc766994cbfef58bcaae3ebaf19005a55c6f76e9ab6b5"},
+    {file = "ntc_templates-7.6.0.tar.gz", hash = "sha256:b70ccaaf74014344a8446f13744691cfbf2e603101481c71decc8ee53eefea5d"},
 ]
 
 [package.dependencies]
@@ -2566,13 +2566,13 @@ zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
 name = "virtualenv"
-version = "20.28.1"
+version = "20.29.0"
 description = "Virtual Python Environment builder"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "virtualenv-20.28.1-py3-none-any.whl", hash = "sha256:412773c85d4dab0409b83ec36f7a6499e72eaf08c80e81e9576bca61831c71cb"},
-    {file = "virtualenv-20.28.1.tar.gz", hash = "sha256:5d34ab240fdb5d21549b76f9e8ff3af28252f5499fb6d6f031adac4e5a8c5329"},
+    {file = "virtualenv-20.29.0-py3-none-any.whl", hash = "sha256:c12311863497992dc4b8644f8ea82d3b35bb7ef8ee82e6630d76d0197c39baf9"},
+    {file = "virtualenv-20.29.0.tar.gz", hash = "sha256:6345e1ff19d4b1296954cee076baaf58ff2a12a84a338c62b02eda39f20aa982"},
 ]
 
 [package.dependencies]
