@@ -1,0 +1,24 @@
+<div class="d-flex align-items-end">
+  <span class="sensitive-value" id="sensitive-field-{{ field_name }}">••••••••</span>
+  <button type="button" class="ms-auto btn btn-link text-secondary p-0 toggle-visibility" data-target="#sensitive-field-{{ field_name }}" data-icon="#icon-{{ field_name }}" data-value="{{ value }}">
+    <i id="icon-{{ field_name }}" class="fa-fw fa-solid fa-eye"></i>
+  </button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.toggle-visibility').forEach(function(button) {
+    button.addEventListener('click', function() {
+      const target = document.querySelector(this.getAttribute('data-target'));
+      const icon = document.querySelector(this.getAttribute('data-icon'));
+      const value = this.getAttribute('data-value');
+      if (target && icon) {
+        const isHidden = target.textContent === '••••••••';
+        target.textContent = isHidden ? value : '••••••••';
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+      }
+    });
+  });
+});
+</script>

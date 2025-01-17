@@ -64,8 +64,8 @@
         {% for name, field in backend.parameters.items %}
         <tr>
           <td>{{ field.label }}</td>
-          {% if name in backend.sensitive_parameters and not perms.core.change_datasource %}
-          <td>********</td>
+          {% if name in backend.sensitive_parameters %}
+          <td>{% sensitive_field name instance.parameters|get_key:name %}</td>
           {% else %}
           <td>{{ instance.parameters|get_key:name|render_none|truncatechars:60 }}</td>
           {% endif %}

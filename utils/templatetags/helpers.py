@@ -288,3 +288,11 @@ def table_config_form(table, table_name=None):
         "table_name": table_name or table.__class__.__name__,
         "form": TableConfigForm(table=table),
     }
+
+
+@register.inclusion_tag("helpers/sensitive_field.html")
+def sensitive_field(name, value):
+    """
+    Render a value to be hidden by default, with a button to display it if needed.
+    """
+    return {"name": name, "value": value}
