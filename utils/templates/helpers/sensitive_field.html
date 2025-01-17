@@ -1,3 +1,6 @@
+{% if not value %}
+<span class="text-muted">&mdash;</span>
+{% else %}
 <div class="d-flex align-items-end">
   <span class="sensitive-value" id="sensitive-field-{{ field_name }}">••••••••</span>
   <button type="button" class="ms-auto btn btn-link text-secondary p-0 toggle-visibility" data-target="#sensitive-field-{{ field_name }}" data-icon="#icon-{{ field_name }}" data-value="{{ value }}">
@@ -22,3 +25,4 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
+{% endif %}
