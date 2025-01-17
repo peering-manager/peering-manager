@@ -109,7 +109,7 @@ class PlatformForm(PeeringManagerModelForm):
 
 
 class RouterForm(PushedDataMixin, PeeringManagerModelForm):
-    netbox_device_id = forms.IntegerField(label="NetBox device", initial=0)
+    netbox_device_id = forms.IntegerField(required=False, label="NetBox device")
     platform = DynamicModelChoiceField(required=False, queryset=Platform.objects.all())
     status = forms.ChoiceField(
         required=False, choices=DeviceStatus, widget=StaticSelect
@@ -179,6 +179,7 @@ class RouterForm(PushedDataMixin, PeeringManagerModelForm):
                     choices.append((device.id, device.display_name))
 
             self.fields["netbox_device_id"] = forms.ChoiceField(
+                required=False,
                 label="NetBox device",
                 choices=[(0, "---------"), *choices],
                 widget=StaticSelect,

@@ -64,12 +64,6 @@
           <td>NetBox</td>
           <td><a href="{{ settings.NETBOX_URL }}/dcim/devices/{{ instance.netbox_device_id }}">Device #{{ instance.netbox_device_id }}</a></td>
         </tr>
-        {% if instance.use_netbox %}
-        <tr>
-          <td>Proxy NAPALM via NetBox</td>
-          <td>{{ instance.use_netbox|boolean_as_icon }}</td>
-        </tr>
-        {% endif %}
         {% endif %}
         <tr>
           <td>Utilization</td>
