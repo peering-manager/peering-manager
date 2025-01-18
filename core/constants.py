@@ -2,7 +2,12 @@ from dataclasses import dataclass
 
 from rq.job import JobStatus
 
-__all__ = ("CENSORSHIP_STRING", "CENSORSHIP_STRING_CHANGED", "RQ_TASK_STATUSES")
+__all__ = (
+    "CENSORSHIP_STRING",
+    "CENSORSHIP_STRING_CHANGED",
+    "GIT_ERROR_MATCHES",
+    "RQ_TASK_STATUSES",
+)
 
 CENSORSHIP_STRING = "*************"
 CENSORSHIP_STRING_CHANGED = "***CHANGED***"
@@ -24,3 +29,10 @@ RQ_TASK_STATUSES = {
     JobStatus.STOPPED: Status("Stopped", "danger"),
     JobStatus.CANCELED: Status("Cancelled", "warning"),
 }
+
+GIT_ERROR_MATCHES = (
+    # GitHub
+    "push declined due to repository rule violations",
+    # GitLab
+    "not allowed to push code to protected branches",
+)

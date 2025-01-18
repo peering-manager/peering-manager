@@ -1,5 +1,7 @@
+import io
 import logging
 import tempfile
+import unicodedata
 from contextlib import contextmanager
 from pathlib import Path
 from urllib.parse import urlparse
@@ -9,6 +11,7 @@ from django.conf import settings
 from dulwich import porcelain
 from dulwich.config import ConfigDict
 
+from .constants import GIT_ERROR_MATCHES
 from .exceptions import PushError, SynchronisationError
 from .utils import register_data_backend
 
@@ -134,7 +137,7 @@ class GitRepositoryBackend(DataBackend):
 
         logger.debug(f"cloning git repository: {self.url}")
         try:
-            porcelain.clone(self.url, target=local_path.name, **clone_args)
+            porcelain.clone(source=self.url, target=local_path.name, **clone_args)
         except BaseException as e:
             raise SynchronisationError(
                 f"Fetching remote data failed ({type(e).__name__})"
@@ -165,7 +168,7 @@ class GitRepositoryBackend(DataBackend):
             logger.debug(f"staging files for git repository: {self.url}")
             added, ignored = porcelain.add(repo=local_path, paths=paths)
 
-            changes = porcelain.get_tree_changes(local_path)
+            changes = porcelain.get_tree_changes(repo=local_path)
             if all(not v for v in changes.values()):
                 logger.debug(f"no changes found for git repository: {self.url}")
                 return
@@ -182,12 +185,26 @@ class GitRepositoryBackend(DataBackend):
             logger.debug(
                 f"pushing commit {commit_sha.decode()} to remote git repository: {self.url}"
             )
+
             try:
+                # Fetch stderr to catch errors not raising exceptions
+                errstream = io.BytesIO()
                 porcelain.push(
-                    local_path,
+                    repo=local_path,
                     remote_location=self.url,
                     refspecs=self.params.get("branch") or "main",
+                    errstream=errstream,
                     **auth_args,
                 )
+
+                # This does not feel really robust, but that's the best we can do
+                if err := errstream.getvalue().decode(errors="replace"):
+                    err_output = unicodedata.normalize("NFKC", err).replace(
+                        "\u0000", ""
+                    )
+                    if any(match in err_output for match in GIT_ERROR_MATCHES):
+                        raise PushError(err_output)
             except BaseException as e:
-                raise PushError(f"Pushing to remote failed ({type(e).__name__})") from e
+                raise PushError(
+                    f"Pushing to remote failed ({type(e).__name__}): {e!s}"
+                ) from e

@@ -200,12 +200,12 @@
         }, 2000);
         break;
       case 'completed':
-        PeeringManager.setSuccessButton($('#push-datasource'), 'Pushed to data source');
+        PeeringManager.setSuccessOutlineButton($('#push-datasource'), 'Pushed to data source');
         break;
       case 'errored':
       case 'failed':
       default:
-        PeeringManager.setFailedButton($('#push-datasource'), 'Failed data source push');
+        PeeringManager.setFailedOutlineButton($('#push-datasource'), 'Failed data source push');
         break;
     }
   }
@@ -216,7 +216,7 @@
       headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
       data: { 'routers': [{{ instance.pk }}] },
     }).done(function (r) {
-      PeeringManager.setWorkingButton($('#push-datasource'));
+      PeeringManager.setWorkingOutlineButton($('#push-datasource'));
       configPushDataSourceHandler(r[0]);
     });
   });

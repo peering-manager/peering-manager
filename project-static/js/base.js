@@ -20,6 +20,21 @@ var PeeringManager = {
     button.removeClass('btn-warning').addClass('btn-success');
     button.html('<i class="fa-fw fa-solid fa-check"></i> ' + text);
   },
+  setWorkingOutlineButton: function (button, text = 'Working') {
+    button.attr('disabled', 'disabled');
+    button.removeClass('btn-outline-primary').addClass('btn-outline-warning');
+    button.html('<i class="fa-fw fa-solid fa-sync fa-spin"></i> ' + text);
+  },
+  setFailedOutlineButton: function (button, text = 'Failed') {
+    button.attr('disabled', 'disabled');
+    button.removeClass('btn-outline-primary').addClass('btn-outline-danger');
+    button.html('<i class="fa-fw fa-solid fa-times"></i> ' + text);
+  },
+  setSuccessOutlineButton: function (button, text = 'Successful') {
+    button.attr('disabled', 'disabled');
+    button.removeClass('btn-outline-warning').addClass('btn-outline-success');
+    button.html('<i class="fa-fw fa-solid fa-check"></i> ' + text);
+  },
   resetPingButton: function (button) {
     button.removeAttr('disabled');
     button.removeClass('btn-warning', 'btn-danger', 'btn-success');
