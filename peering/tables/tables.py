@@ -315,8 +315,9 @@ class RoutingPolicyTable(PeeringManagerTable):
             "name",
             "type",
             "weight",
+            "communities",
             "address_family",
             "tags",
             "actions",
         )
-        default_columns = ("pk", "name", "type", "weight", "address_family", "actions")
+        default_columns = ("pk", "name", "type", "weight", "communities", "address_family", "actions")
