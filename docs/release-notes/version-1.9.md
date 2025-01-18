@@ -1,3 +1,13 @@
+## Version 1.9.2 | MARK I (Bug fixes release) | 2025-01-18
+
+### Bug Fixes
+
+* [#901](https://github.com/peering-manager/peering-manager/issues/901) Hide data source sensitive data and allow showing it using a button
+* [#903](https://github.com/peering-manager/peering-manager/issues/903) Catch git push silent errors when trying to push to a protected branch
+* [#905](https://github.com/peering-manager/peering-manager/issues/905) Fix table configure moveup/down buttons not updating the column list
+* Fix spinning icons for some buttons
+* Fix NetBox device field wrongly marked as mandatory
+
 ## Version 1.9.1 | MARK I (Bug fixes release) | 2025-01-14
 
 ### Bug Fixes

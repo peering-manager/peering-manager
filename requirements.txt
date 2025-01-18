@@ -59,7 +59,7 @@ pyserial==3.5
 python3-openid==3.2.0
 pyyaml==6.0.2
 redis==5.2.1
-referencing==0.35.1
+referencing==0.36.1
 requests-oauthlib==2.0.0
 requests==2.32.3
 rich==13.9.4
