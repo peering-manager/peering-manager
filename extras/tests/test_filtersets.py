@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from devices.models import Router
 from peering.models import AutonomousSystem
-from utils.testing import BaseFilterSetTests, ChangeLoggedFilterSetTests
+from utils.testing import BaseFilterSetTests
 
 from ..enums import JournalEntryKind
 from ..filtersets import (
