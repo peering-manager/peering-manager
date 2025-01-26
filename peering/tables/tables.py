@@ -305,6 +305,7 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
 class RoutingPolicyTable(PeeringManagerTable):
     name = tables.Column(linkify=True)
     type = tables.TemplateColumn(template_code=ROUTING_POLICY_TYPE)
+    communities = CommunityColumn()
     tags = columns.TagColumn(url_name="peering:routingpolicy_list")
 
     class Meta(PeeringManagerTable.Meta):
@@ -316,6 +317,7 @@ class RoutingPolicyTable(PeeringManagerTable):
             "type",
             "weight",
             "address_family",
+            "communities",
             "tags",
             "actions",
         )
