@@ -1,13 +1,17 @@
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
+from devices.models import Router
 from peering.models import AutonomousSystem
-from utils.testing import BaseFilterSetTests
+from utils.testing import BaseFilterSetTests, ChangeLoggedFilterSetTests
 
+from ..enums import JournalEntryKind
 from ..filtersets import (
     ConfigContextAssignmentFilterSet,
     ConfigContextFilterSet,
     ExportTemplateFilterSet,
+    JournalEntryFilterSet,
     TagFilterSet,
     WebhookFilterSet,
 )
@@ -15,12 +19,13 @@ from ..models import (
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
+    JournalEntry,
     Tag,
     Webhook,
 )
 
 
-class ConfigContextTestCase(TestCase):
+class ConfigContextTestCase(TestCase, BaseFilterSetTests):
     queryset = ConfigContext.objects.all()
     filterset = ConfigContextFilterSet
 
@@ -61,7 +66,7 @@ class ConfigContextTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class ConfigContextAssignmentTestCase(TestCase):
+class ConfigContextAssignmentTestCase(TestCase, BaseFilterSetTests):
     queryset = ConfigContextAssignment.objects.all()
     filterset = ConfigContextAssignmentFilterSet
 
@@ -108,7 +113,7 @@ class ConfigContextAssignmentTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class ExportTemplateTestCase(TestCase):
+class ExportTemplateTestCase(TestCase, BaseFilterSetTests):
     queryset = ExportTemplate.objects.all()
     filterset = ExportTemplateFilterSet
 
@@ -146,6 +151,104 @@ class ExportTemplateTestCase(TestCase):
     def test_description(self):
         params = {"description": ["Foo"]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+
+class JournalEntryTestCase(TestCase, BaseFilterSetTests):
+    queryset = JournalEntry.objects.all()
+    filterset = JournalEntryFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        autonomous_systems = (
+            AutonomousSystem(name="AS 1", asn=65001),
+            AutonomousSystem(name="AS 2", asn=65002),
+        )
+        AutonomousSystem.objects.bulk_create(autonomous_systems)
+
+        routers = (
+            Router(name="AS 1 router", hostname="as1.example.net"),
+            Router(name="AS 2 router", hostname="as2.example.net"),
+        )
+        Router.objects.bulk_create(routers)
+
+        users = (
+            User(username="Alice"),
+            User(username="Bob"),
+            User(username="Charlie"),
+        )
+        User.objects.bulk_create(users)
+
+        journal_entries = (
+            JournalEntry(
+                assigned_object=autonomous_systems[0],
+                created_by=users[0],
+                kind=JournalEntryKind.INFO,
+                comments="foobar1",
+            ),
+            JournalEntry(
+                assigned_object=autonomous_systems[0],
+                created_by=users[1],
+                kind=JournalEntryKind.SUCCESS,
+                comments="foobar2",
+            ),
+            JournalEntry(
+                assigned_object=autonomous_systems[1],
+                created_by=users[2],
+                kind=JournalEntryKind.WARNING,
+                comments="foobar3",
+            ),
+            JournalEntry(
+                assigned_object=routers[0],
+                created_by=users[0],
+                kind=JournalEntryKind.INFO,
+                comments="foobar4",
+            ),
+            JournalEntry(
+                assigned_object=routers[0],
+                created_by=users[1],
+                kind=JournalEntryKind.SUCCESS,
+                comments="foobar5",
+            ),
+            JournalEntry(
+                assigned_object=routers[1],
+                created_by=users[2],
+                kind=JournalEntryKind.WARNING,
+                comments="foobar6",
+            ),
+        )
+        JournalEntry.objects.bulk_create(journal_entries)
+
+    def test_q(self):
+        params = {"q": "foobar1"}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_created_by(self):
+        users = User.objects.filter(username__in=["Alice", "Bob"])
+        params = {"created_by": [users[0].username, users[1].username]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {"created_by_id": [users[0].pk, users[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_assigned_object_type(self):
+        params = {"assigned_object_type": "peering.autonomoussystem"}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {
+            "assigned_object_type_id": [
+                ContentType.objects.get_for_model(AutonomousSystem).pk
+            ]
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_assigned_object(self):
+        params = {
+            "assigned_object_type": "peering.autonomoussystem",
+            "assigned_object_id": [AutonomousSystem.objects.first().pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_kind(self):
+        params = {"kind": [JournalEntryKind.INFO, JournalEntryKind.SUCCESS]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
 class TagTestCase(TestCase, BaseFilterSetTests):
