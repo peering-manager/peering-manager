@@ -1,8 +1,8 @@
 asgiref==3.8.1
 async-timeout==5.0.1
-attrs==24.3.0
+attrs==25.1.0
 bcrypt==4.2.1
-certifi==2024.12.14
+certifi==2025.1.31
 cffi==1.17.1
 charset-normalizer==3.4.1
 click==8.1.8
@@ -59,7 +59,7 @@ pyserial==3.5
 python3-openid==3.2.0
 pyyaml==6.0.2
 redis==5.2.1
-referencing==0.36.1
+referencing==0.36.2
 requests-oauthlib==2.0.0
 requests==2.32.3
 rich==13.9.4
@@ -78,7 +78,7 @@ transitions==0.9.2
 ttp-templates==0.3.7
 ttp==0.9.5
 typing-extensions==4.12.2
-tzdata==2024.2
+tzdata==2025.1
 uritemplate==4.1.1
 urllib3==2.3.0
 yamlordereddictloader==0.4.2
