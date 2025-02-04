@@ -16,6 +16,7 @@ from .filtersets import (
     ConfigContextFilterSet,
     ExportTemplateFilterSet,
     IXAPIFilterSet,
+    JournalEntryFilterSet,
     TagFilterSet,
     WebhookFilterSet,
 )
@@ -27,6 +28,9 @@ from .forms import (
     ExportTemplateForm,
     IXAPIFilterForm,
     IXAPIForm,
+    JournalEntryBulkEditForm,
+    JournalEntryFilterForm,
+    JournalEntryForm,
     TagBulkEditForm,
     TagFilterForm,
     TagForm,
@@ -38,6 +42,7 @@ from .models import (
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
+    JournalEntry,
     Tag,
     TaggedItem,
     Webhook,
@@ -47,6 +52,7 @@ from .tables import (
     ConfigContextTable,
     ExportTemplateTable,
     IXAPITable,
+    JournalEntryTable,
     TaggedItemTable,
     TagTable,
     WebhookTable,
@@ -221,6 +227,46 @@ class IXAPIEditView(ObjectEditView):
 class IXAPIDeleteView(ObjectDeleteView):
     permission_required = "extras.delete_ixapi"
     queryset = IXAPI.objects.all()
+
+
+class JournalEntryListView(ObjectListView):
+    permission_required = "extras.view_journalentry"
+    queryset = JournalEntry.objects.all()
+    filterset = JournalEntryFilterSet
+    filterset_form = JournalEntryFilterForm
+    table = JournalEntryTable
+    template_name = "extras/journalentry/list.html"
+
+
+class JournalEntryView(ObjectView):
+    permission_required = "extras.view_journalentry"
+    queryset = JournalEntry.objects.all()
+    tab = "main"
+
+
+class JournalEntryEditView(ObjectEditView):
+    queryset = JournalEntry.objects.all()
+    form = JournalEntryForm
+
+
+class JournalEntryBulkEditView(BulkEditView):
+    permission_required = "extras.change_journalentry"
+    queryset = JournalEntry.objects.all()
+    filterset = JournalEntryFilterSet
+    table = JournalEntryTable
+    form = JournalEntryBulkEditForm
+
+
+class JournalEntryDeleteView(ObjectDeleteView):
+    permission_required = "extras.delete_journalentry"
+    queryset = JournalEntry.objects.all()
+
+
+class JournalEntryBulkDeleteView(BulkDeleteView):
+    permission_required = "extras.delete_journalentry"
+    queryset = JournalEntry.objects.all()
+    filterset = JournalEntryFilterSet
+    table = JournalEntryTable
 
 
 class TagList(ObjectListView):
