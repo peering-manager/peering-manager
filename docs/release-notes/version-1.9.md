@@ -1,3 +1,15 @@
+## Version 1.9.3 | MARK I (Bug fixes release) | 2025-02-04
+
+### Bug Fixes
+
+* Fix issue preventing many-to-many relations to be recorded in changelog (affected tags and other changes)
+* Fix unreadable breadcrumbs in light mode
+
+### Enhancements
+
+* Add communities column to routing policy table
+* Add link to documentation in footer and change some icons
+
 ## Version 1.9.2 | MARK I (Bug fixes release) | 2025-01-18
 
 ### Bug Fixes
