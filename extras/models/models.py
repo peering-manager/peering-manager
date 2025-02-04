@@ -124,7 +124,7 @@ class JournalEntry(TagsMixin, ExportTemplatesMixin, ChangeLoggedModel):
         return f"{created.date().isoformat()} {created.time().isoformat(timespec='minutes')} ({self.get_kind_display()})"
 
     def get_absolute_url(self) -> str:
-        return reverse("extras:journalentry_view", args=[self.pk])
+        return reverse("extras:journalentry", args=[self.pk])
 
     def get_kind_colour(self) -> str:
         return self.kind

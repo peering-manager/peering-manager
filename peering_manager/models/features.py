@@ -432,3 +432,7 @@ def register_models(*models: type[models.Model]) -> None:
             register_model_view(model=model, name="jobs", kwargs={"model": model})(
                 "peering_manager.views.generic.ObjectJobsView"
             )
+        if issubclass(model, JournalingMixin):
+            register_model_view(model=model, name="journal", kwargs={"model": model})(
+                "peering_manager.views.generic.ObjectJournalView"
+            )

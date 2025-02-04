@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 from netfields import InetAddressField
 
 from net.models import Connection
-from peering_manager.models import OrganisationalModel, PrimaryModel
+from peering_manager.models import JournalingMixin, OrganisationalModel, PrimaryModel
 from peeringdb.functions import get_shared_facilities, get_shared_internet_exchanges
 from peeringdb.models import IXLanPrefix, Network, NetworkContact, NetworkIXLan
 
@@ -35,7 +35,7 @@ __all__ = (
 logger = logging.getLogger("peering.manager.peering")
 
 
-class AutonomousSystem(PrimaryModel, PolicyMixin):
+class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
     asn = ASNField(unique=True, verbose_name="ASN")
     name = models.CharField(max_length=200)
     name_peeringdb_sync = models.BooleanField(default=True)
