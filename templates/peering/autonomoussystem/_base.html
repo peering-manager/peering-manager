@@ -61,6 +61,11 @@
     </a>
   </li>
   <li class="nav-item">
+    <a class="nav-link{% if tab == 'journal' %} active{% endif %}" href="{% url 'peering:autonomoussystem_journal' pk=instance.pk %}">
+      <i class="fa-fw fa-solid fa-newspaper"></i> Journal
+    </a>
+  </li>
+  <li class="nav-item">
     <a class="nav-link{% if tab == 'changelog' %} active{% endif %}" href="{% url 'peering:autonomoussystem_changelog' pk=instance.pk %}">
       <i class="fa-fw fa-solid fa-history"></i> Changelog
     </a>
