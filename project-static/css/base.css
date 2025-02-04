@@ -63,13 +63,13 @@ nav > ol.breadcrumb {
   margin-bottom: 0rem;
 }
 .breadcrumb-item.active {
-  color: white;
+  color: var(--bs-text-body-emphasis);
 }
 .breadcrumb-divider-colour {
-  --bs-breadcrumb-divider-color: white;
+  --bs-breadcrumb-divider-color: var(--bs-text-body-emphasis);
 }
 nav > ol.breadcrumb > li.breadcrumb-item > a {
-  color: white;
+  color: var(--bs-text-body-emphasis);
   text-decoration: none;
 }
 a.navbar-brand:hover, a.nav-link:hover, a.dropdown-item:hover {
