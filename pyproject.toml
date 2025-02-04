@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "Peering Manager"
 description = "BGP sessions management tool"
-version = "1.9.3"
+version = "1.9.4-dev"
 authors = ["Guillaume Mazoyer <pm@mazoyer.eu>"]
 readme = "README.md"
 license = "Apache-2.0"
