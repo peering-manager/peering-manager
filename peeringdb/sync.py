@@ -12,6 +12,7 @@ from net.models import Connection
 from peering.models import InternetExchange as Ixp
 
 from .models import (
+    BaseModel,
     Campus,
     Carrier,
     CarrierFacility,
@@ -71,16 +72,12 @@ class PeeringDB:
 
         # Authenticate with API Key if present
         q = {
-            "headers": {
-                "User-Agent": settings.REQUESTS_USER_AGENT,
-            },
+            "headers": {"User-Agent": settings.REQUESTS_USER_AGENT},
             "params": search,
         }
 
         if settings.PEERINGDB_API_KEY:
-            q["headers"].update(
-                {"AUTHORIZATION": f"Api-Key {settings.PEERINGDB_API_KEY}"}
-            )
+            q["headers"]["AUTHORIZATION"] = f"Api-Key {settings.PEERINGDB_API_KEY}"
         # To be removed in v2.0
         elif settings.PEERINGDB_USERNAME:
             logger.warning(
@@ -124,30 +121,26 @@ class PeeringDB:
 
         return last_sync
 
-    def get_last_synchronisation(self):
+    def get_last_synchronisation_for_model(self, model: BaseModel) -> int:
+        """
+        Returns the last synchronisation time for a given model. The time is based on
+        the latest record updated field.
+        """
+        try:
+            time = model.objects.latest("updated").updated.timestamp()
+        except model.DoesNotExist:
+            time = 0
+
+        return int(time)
+
+    def get_last_synchronisation(self) -> Synchronisation | None:
         """
         Returns the last recorded synchronisation.
         """
         try:
             return Synchronisation.objects.latest("time")
         except Synchronisation.DoesNotExist:
-            pass
-
-        return None
-
-    def get_last_sync_time(self):
-        """
-        Returns the last synchronisation time based on the latest record.
-        The time is returned as a UNIX timestamp.
-        """
-        # Assume first sync
-        last_sync_time = 0
-        last_sync = self.get_last_synchronisation()
-
-        if last_sync:
-            last_sync_time = last_sync.time.timestamp()
-
-        return int(last_sync_time)
+            return None
 
     def _process_field(self, model, foreign_keys, obj, name, value):
         """
@@ -237,7 +230,7 @@ class PeeringDB:
         for i in Ixp.objects.all():
             i.link_to_peeringdb()
 
-    def synchronise_objects(self, last_sync, namespace, model):
+    def synchronise_objects(self, namespace, model):
         """
         Synchronises all the objects of a namespace of the PeeringDB to the
         local database. This function is meant to be run regularly to update
@@ -254,8 +247,8 @@ class PeeringDB:
         """
         created, updated, deleted = 0, 0, 0
 
-        # Get all network changes since the last sync
-        search = {"since": last_sync, "depth": 0}
+        # Get all changes since the last sync
+        search = {"since": self.get_last_synchronisation_for_model(model), "depth": 0}
         result = self.lookup(namespace, search)
 
         if not result:
@@ -298,7 +291,7 @@ class PeeringDB:
 
         return (created, updated, deleted)
 
-    def update_local_database(self, last_sync):
+    def update_local_database(self):
         """
         Updates the local database by synchronising all PeeringDB API's namespaces
         that we are caring about.
@@ -310,7 +303,7 @@ class PeeringDB:
         with transaction.atomic():
             # Try to sync objects
             for namespace, object_type in NAMESPACES.items():
-                changes = self.synchronise_objects(last_sync, namespace, object_type)
+                changes = self.synchronise_objects(namespace, object_type)
                 list_of_changes.append(changes)
 
             self._fix_related_objects()

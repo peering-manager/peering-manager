@@ -26,7 +26,7 @@ class PeeringDBSyncTestCase(TestCase):
         # Test of sync record with no objects
         time_of_sync = timezone.now()
         api.record_last_sync(time_of_sync, {"created": 0, "updated": 0, "deleted": 0})
-        self.assertEqual(api.get_last_sync_time(), 0)
+        self.assertIsNone(api.get_last_synchronisation())
 
         # Test of sync record with one object
         time_of_sync = timezone.now()
@@ -36,25 +36,9 @@ class PeeringDBSyncTestCase(TestCase):
             int(time_of_sync.timestamp()),
         )
 
-    def test_time_last_sync(self):
-        api = PeeringDB()
-
-        # Test when no sync has been done
-        self.assertEqual(api.get_last_sync_time(), 0)
-
-        # Test of sync record with no objects
-        time_of_sync = timezone.now()
-        api.record_last_sync(time_of_sync, {"created": 0, "updated": 0, "deleted": 0})
-        self.assertEqual(api.get_last_sync_time(), 0)
-
-        # Test of sync record with one object
-        time_of_sync = timezone.now()
-        api.record_last_sync(time_of_sync, {"created": 1, "updated": 0, "deleted": 0})
-        self.assertEqual(api.get_last_sync_time(), int(time_of_sync.timestamp()))
-
     @patch("peeringdb.sync.requests.get", side_effect=mocked_synchronisation)
     def test_update_local_database(self, *_):
-        sync_result = PeeringDB().update_local_database(0)
+        sync_result = PeeringDB().update_local_database()
         self.assertEqual(24, sync_result.created)
         self.assertEqual(0, sync_result.updated)
         self.assertEqual(0, sync_result.deleted)

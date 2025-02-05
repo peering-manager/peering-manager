@@ -62,7 +62,7 @@ class Command(BaseCommand):
         else:
             if not quiet:
                 self.stdout.write("[*] Caching data locally ... ", ending="")
-            api.update_local_database(api.get_last_sync_time())
+            api.update_local_database()
             if not quiet:
                 self.stdout.write("done", self.style.SUCCESS)
 

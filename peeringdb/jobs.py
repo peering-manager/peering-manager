@@ -16,9 +16,7 @@ logger = logging.getLogger("peering.manager.peeringdb.jobs")
 def synchronise(job):
     job.mark_running("Synchronising PeeringDB local data.", logger=logger)
 
-    api = PeeringDB()
-    last_sync = api.get_last_sync_time()
-    synchronisation = api.update_local_database(last_sync)
+    synchronisation = PeeringDB().update_local_database()
 
     if not synchronisation:
         job.mark_completed("Nothing to synchronise.", logger=logger)
