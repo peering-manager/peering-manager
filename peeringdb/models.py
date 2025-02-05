@@ -137,7 +137,16 @@ class MultipleChoiceField(models.CharField):
         return super().formfield(**defaults)
 
 
-class Address(models.Model):
+class BaseModel(models.Model):
+    # No auto_add in this case as we want to keep PeeringDB's values
+    created = models.DateTimeField()
+    updated = models.DateTimeField()
+
+    class Meta:
+        abstract = True
+
+
+class Address(BaseModel):
     address1 = models.CharField(max_length=255, blank=True)
     address2 = models.CharField(max_length=255, blank=True)
     city = models.CharField(max_length=255, blank=True)
@@ -172,7 +181,7 @@ class Organization(Address):
         return self.name
 
 
-class Campus(models.Model):
+class Campus(BaseModel):
     name = models.CharField(max_length=255, unique=True)
     name_long = models.CharField(max_length=255, blank=True, null=True)
     aka = models.CharField(max_length=255, blank=True, null=True)
@@ -249,7 +258,7 @@ class Facility(Address):
         return self.name
 
 
-class Carrier(models.Model):
+class Carrier(BaseModel):
     name = models.CharField("Name", max_length=255, unique=True)
     aka = models.CharField("Also Known As", max_length=255, blank=True)
     name_long = models.CharField("Long Name", max_length=255, blank=True)
@@ -267,7 +276,7 @@ class Carrier(models.Model):
         return self.name
 
 
-class CarrierFacility(models.Model):
+class CarrierFacility(BaseModel):
     carrier = models.ForeignKey(
         to="peeringdb.Carrier",
         related_name="carrierfac_set",
@@ -297,7 +306,7 @@ class CarrierFacility(models.Model):
         return f"{self.carrier} @ {self.fac}"
 
 
-class Network(models.Model):
+class Network(BaseModel):
     asn = ASNField(unique=True, verbose_name="ASN")
     name = models.CharField(max_length=255, unique=True)
     name_long = models.CharField(max_length=255, blank=True)
@@ -378,7 +387,7 @@ class Network(models.Model):
         return email.render({"autonomous_systems": [network, self]})
 
 
-class InternetExchange(models.Model):
+class InternetExchange(BaseModel):
     name = models.CharField(max_length=64, unique=True)
     name_long = models.CharField(max_length=255, blank=True)
     aka = models.CharField(max_length=255, blank=True, verbose_name="Also Known As")
@@ -430,7 +439,7 @@ class InternetExchange(models.Model):
         return [ixfac.fac for ixfac in self.ixfac_set]
 
 
-class InternetExchangeFacility(models.Model):
+class InternetExchangeFacility(BaseModel):
     ix = models.ForeignKey(
         to="peeringdb.InternetExchange",
         related_name="ixfac_set",
@@ -454,7 +463,7 @@ class InternetExchangeFacility(models.Model):
         return f"{self.ix!s} at {self.fac!s}"
 
 
-class IXLan(models.Model):
+class IXLan(BaseModel):
     name = models.CharField(max_length=255, blank=True)
     descr = models.TextField(blank=True)
     mtu = models.PositiveIntegerField(null=True, blank=True, choices=MTU.choices)
@@ -495,7 +504,7 @@ class IXLan(models.Model):
         return self.name
 
 
-class IXLanPrefix(models.Model):
+class IXLanPrefix(BaseModel):
     notes = models.CharField(max_length=255, blank=True)
     protocol = models.CharField(max_length=64, choices=Protocol.choices)
     prefix = CidrAddressField(unique=True)
@@ -516,7 +525,7 @@ class IXLanPrefix(models.Model):
         return f"{self.ixlan!s} - {self.prefix}"
 
 
-class NetworkContact(models.Model):
+class NetworkContact(BaseModel):
     role = models.CharField(max_length=27, choices=POCRole.choices)
     visible = models.CharField(
         max_length=64, choices=Visibility.choices, default=Visibility.PUBLIC
@@ -539,7 +548,7 @@ class NetworkContact(models.Model):
         return f"{self.name} <{self.email}>"
 
 
-class NetworkFacility(models.Model):
+class NetworkFacility(BaseModel):
     local_asn = ASNField(verbose_name="Local ASN", null=True, blank=True)
     avail_sonet = models.BooleanField(default=False)
     avail_ethernet = models.BooleanField(default=False)
@@ -570,7 +579,7 @@ class NetworkFacility(models.Model):
         return f"{self.net!s} at {self.fac!s}"
 
 
-class NetworkIXLan(models.Model):
+class NetworkIXLan(BaseModel):
     asn = ASNField(verbose_name="ASN")
     ipaddr4 = InetAddressField(
         verbose_name="IPv4",
