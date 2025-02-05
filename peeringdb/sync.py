@@ -154,7 +154,7 @@ class PeeringDB:
         Sets the value for a single field of an object.
         """
         # Fields not to process
-        if name in ["created", "updated", "status"] or (
+        if name == "status" or (
             hasattr(obj, "ignored_fields") and name in model.ignored_fields
         ):
             return

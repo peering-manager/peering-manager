@@ -17,7 +17,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="campus",
@@ -27,7 +26,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="carrier",
@@ -37,7 +35,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="carrier",
@@ -47,7 +44,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="carrierfacility",
@@ -57,7 +53,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="carrierfacility",
@@ -67,7 +62,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="facility",
@@ -77,7 +71,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="facility",
@@ -87,7 +80,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="internetexchange",
@@ -97,7 +89,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="internetexchange",
@@ -107,7 +98,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="internetexchangefacility",
@@ -117,7 +107,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="internetexchangefacility",
@@ -127,7 +116,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="ixlan",
@@ -137,7 +125,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="ixlan",
@@ -147,7 +134,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="ixlanprefix",
@@ -157,7 +143,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="ixlanprefix",
@@ -167,7 +152,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="network",
@@ -177,7 +161,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="network",
@@ -187,7 +170,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="networkcontact",
@@ -197,7 +179,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="networkcontact",
@@ -207,7 +188,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="networkfacility",
@@ -217,7 +197,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="networkfacility",
@@ -227,7 +206,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="networkixlan",
@@ -237,7 +215,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="networkixlan",
@@ -247,7 +224,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="organization",
@@ -257,7 +233,6 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="organization",
@@ -267,6 +242,5 @@ class Migration(migrations.Migration):
                     1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
                 )
             ),
-            preserve_default=False,
         ),
     ]

@@ -1,3 +1,4 @@
+import datetime
 import ipaddress
 
 from django.core.exceptions import ValidationError
@@ -139,8 +140,12 @@ class MultipleChoiceField(models.CharField):
 
 class BaseModel(models.Model):
     # No auto_add in this case as we want to keep PeeringDB's values
-    created = models.DateTimeField()
-    updated = models.DateTimeField()
+    created = models.DateTimeField(
+        default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
+    )
+    updated = models.DateTimeField(
+        default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
+    )
 
     class Meta:
         abstract = True
