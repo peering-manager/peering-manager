@@ -21,12 +21,12 @@ def call_irr_as_set_resolver(irr_as_set, address_family=6):
 
     # Call bgpq with arguments to get a JSON result;
     # only include option if argument is not null
-    command = [ settings.BGPQ3_PATH, ]
+    command = [settings.BGPQ3_PATH]
     if settings.BGPQ3_HOST and len(settings.BGPQ3_HOST) > 0:
-        command += [ "-h", settings.BGPQ3_HOST ]
+        command += ["-h", settings.BGPQ3_HOST]
     if settings.BGPQ3_SOURCES and len(settings.BGPQ3_SOURCES) > 0:
-        command += [ "-S", settings.BGPQ3_SOURCES ]
-    command += [ f"-{address_family}", "-A", "-j", "-l", "prefix_list", irr_as_set ]
+        command += ["-S", settings.BGPQ3_SOURCES]
+    command += [f"-{address_family}", "-A", "-j", "-l", "prefix_list", irr_as_set]
 
     # Merge user settings to command line right before the name of the prefix list
     if settings.BGPQ3_ARGS:
