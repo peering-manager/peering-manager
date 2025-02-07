@@ -30,7 +30,7 @@ following items can be defined within the `EMAIL` configuration parameter:
 * `SSL_KEYFILE` - Path to the PEM-formatted SSL private key file (optional)
 * `TIMEOUT` - Amount of time to wait for a connection, in seconds
   (default: `10`)
-* `FROM_EMAIL` - Sender address for emails sent by Peering Manager
+* `FROM_ADDRESS` - Sender address for emails sent by Peering Manager
 * `CC_CONTACTS` - Carbon copy contacts when sending emails. This should be a
   list of (email, name) tuples like:
   `[("noc@example.com", "NOC"), ("netops@example.com", "NetOps Team")]`
