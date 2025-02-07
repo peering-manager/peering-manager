@@ -5,7 +5,7 @@
 {% block content %}
 <div class="row">
   <div class="col-md-9">
-    {% include 'generic/object_list.html' with table_modal='InternetExchangePeeringSessionTable_config' bulk_delete_url='peering:internetexchangepeeringsession_bulk_delete' %}
+    {% include 'generic/object_list.html' with table_modal='InternetExchangePeeringSessionTable_config' bulk_edit_url='peering:internetexchangepeeringsession_bulk_edit' bulk_delete_url='peering:internetexchangepeeringsession_bulk_delete' %}
   </div>
   <div class="col-md-3">
     {% include 'utils/search_form.html' %}
