@@ -1,33 +1,64 @@
 from django import forms
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from requests.exceptions import HTTPError
 
-from utils.forms import BOOLEAN_WITH_BLANK_CHOICES, BootstrapMixin, BulkEditForm
+from peering_manager.forms import (
+    PeeringManagerModelFilterSetForm,
+    PeeringManagerModelForm,
+)
+from utils.forms import (
+    BOOLEAN_WITH_BLANK_CHOICES,
+    BootstrapMixin,
+    BulkEditForm,
+    add_blank_choice,
+)
 from utils.forms.fields import (
+    CommentField,
     ContentTypeChoiceField,
     ContentTypeMultipleChoiceField,
     DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
     JSONField,
     SlugField,
+    TagFilterField,
     TemplateField,
 )
 from utils.forms.widgets import (
+    APISelectMultiple,
     ColourSelect,
     StaticSelect,
     StaticSelectMultiple,
 )
 
-from .enums import HttpMethod
+from .enums import HttpMethod, JournalEntryKind
 from .models import (
     IXAPI,
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
+    JournalEntry,
     Tag,
     Webhook,
 )
 from .utils import FeatureQuery
+
+__all__ = (
+    "ConfigContextAssignmentForm",
+    "ConfigContextFilterForm",
+    "ConfigContextForm",
+    "ExportTemplateFilterForm",
+    "ExportTemplateForm",
+    "IXAPIFilterForm",
+    "IXAPIForm",
+    "JournalEntryBulkEditForm",
+    "JournalEntryForm",
+    "TagBulkEditForm",
+    "TagFilterForm",
+    "TagForm",
+    "WebhookForm",
+)
 
 
 class ConfigContextForm(BootstrapMixin, forms.ModelForm):
@@ -163,6 +194,62 @@ class IXAPIForm(BootstrapMixin, forms.ModelForm):
 class IXAPIFilterForm(BootstrapMixin, forms.Form):
     model = IXAPI
     q = forms.CharField(required=False, label="Search")
+
+
+class JournalEntryBulkEditForm(BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=JournalEntry.objects.all(), widget=forms.MultipleHiddenInput
+    )
+    kind = forms.ChoiceField(
+        choices=add_blank_choice(JournalEntryKind), widget=StaticSelect, required=False
+    )
+    comments = CommentField()
+
+    model = JournalEntry
+
+
+class JournalEntryFilterForm(PeeringManagerModelFilterSetForm):
+    model = JournalEntry
+    created_after = forms.DateTimeField(required=False, label="After")
+    created_before = forms.DateTimeField(required=False, label="Before")
+    created_by_id = DynamicModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        required=False,
+        display_field="username",
+        label="User",
+        widget=APISelectMultiple(api_url="/api/users/users/"),
+    )
+    assigned_object_type_id = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery("journaling"),
+        required=False,
+        label="Object Type",
+    )
+    kind = forms.ChoiceField(
+        choices=add_blank_choice(JournalEntryKind), widget=StaticSelect, required=False
+    )
+    tag = TagFilterField(model)
+
+
+class JournalEntryForm(PeeringManagerModelForm):
+    kind = forms.ChoiceField(
+        choices=add_blank_choice(JournalEntryKind), widget=StaticSelect, required=False
+    )
+    comments = CommentField()
+
+    class Meta:
+        model = JournalEntry
+        fields = [
+            "assigned_object_type",
+            "assigned_object_id",
+            "kind",
+            "tags",
+            "comments",
+        ]
+        widgets = {
+            "assigned_object_type": forms.HiddenInput,
+            "assigned_object_id": forms.HiddenInput,
+        }
 
 
 class TagBulkEditForm(BulkEditForm):

@@ -15,6 +15,8 @@ from ..filtersets import (
     ConfigContextAssignmentFilterSet,
     ConfigContextFilterSet,
     ExportTemplateFilterSet,
+    IXAPIFilterSet,
+    JournalEntryFilterSet,
     TagFilterSet,
     WebhookFilterSet,
 )
@@ -24,6 +26,7 @@ from ..models import (
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
+    JournalEntry,
     Tag,
     Webhook,
 )
@@ -33,6 +36,7 @@ from .serializers import (
     ExportTemplateSerializer,
     IXAPIAccountSerializer,
     IXAPISerializer,
+    JournalEntrySerializer,
     TagSerializer,
     WebhookSerializer,
 )
@@ -127,6 +131,7 @@ class ExportTemplateViewSet(PeeringManagerModelViewSet):
 class IXAPIViewSet(PeeringManagerModelViewSet):
     queryset = IXAPI.objects.all()
     serializer_class = IXAPISerializer
+    filterset_class = IXAPIFilterSet
 
     @extend_schema(
         operation_id="extras_ix_api_accounts",
@@ -153,6 +158,12 @@ class IXAPIViewSet(PeeringManagerModelViewSet):
         api.authenticate()
 
         return Response(data=api.accounts.all())
+
+
+class JournalEntryViewSet(PeeringManagerModelViewSet):
+    queryset = JournalEntry.objects.all()
+    serializer_class = JournalEntrySerializer
+    filterset_class = JournalEntryFilterSet
 
 
 class TagViewSet(PeeringManagerModelViewSet):
