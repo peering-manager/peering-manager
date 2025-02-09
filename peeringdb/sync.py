@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import logging
 from datetime import datetime, timezone
+from typing import Any, TypedDict
 
 import requests
 from django.conf import settings
@@ -51,15 +54,21 @@ NAMESPACES = {
 logger = logging.getLogger("peering.manager.peeringdb")
 
 
+class SyncChanges(TypedDict):
+    created: int
+    updated: int
+    deleted: int
+
+
 class PeeringDB:
     """
     Class used to interact with the PeeringDB API.
     """
 
     def __init__(self):
-        self._caching_timestamps = []
+        self._caching_timestamps: list[datetime] = []
 
-    def lookup(self, namespace, search):
+    def lookup(self, namespace: str, search: dict[str, int]) -> dict[str, Any] | None:
         """
         Sends a get request to the API given a namespace and some parameters.
         """
@@ -97,7 +106,9 @@ class PeeringDB:
 
         return response.json()
 
-    def record_last_sync(self, time, changes):
+    def record_last_sync(
+        self, time: int, changes: SyncChanges
+    ) -> Synchronisation | None:
         """
         Saves the last synchronisation details (number of objects and time) for later
         use (and logs).
@@ -107,21 +118,19 @@ class PeeringDB:
 
         # Save the last sync time only if objects were retrieved
         if changes_number > 0:
-            values = {
-                "time": time,
-                "created": changes["created"],
-                "updated": changes["updated"],
-                "deleted": changes["deleted"],
-            }
-
-            last_sync = Synchronisation(**values)
+            last_sync = Synchronisation(
+                time=time,
+                created=changes["created"],
+                updated=changes["updated"],
+                deleted=changes["deleted"],
+            )
             last_sync.save()
 
             logger.debug(f"synchronised {changes_number} objects at {last_sync.time}")
 
         return last_sync
 
-    def get_last_synchronisation_for_model(self, model: BaseModel) -> int:
+    def get_last_synchronisation_for_model(self, model: type[BaseModel]) -> int:
         """
         Returns the last synchronisation time for a given model. The time is based on
         the latest record updated field.
@@ -142,7 +151,14 @@ class PeeringDB:
         except Synchronisation.DoesNotExist:
             return None
 
-    def _process_field(self, model, foreign_keys, obj, name, value):
+    def _process_field(
+        self,
+        model: type[BaseModel],
+        foreign_keys: list[str],
+        obj: BaseModel,
+        name: str,
+        value: Any,
+    ):
         """
         Sets the value for a single field of an object.
         """
@@ -152,12 +168,11 @@ class PeeringDB:
         ):
             return
 
-        stop_processing = False
         # If the field looks like one of the FK
         for f in foreign_keys:
             if f in name:
                 # Handle special case where PeeringDB does not suffix with _id
-                if f in ("net_side", "ix_side"):
+                if f in {"net_side", "ix_side"}:
                     name = f"{f}_id"
                 # The field is the FK ID so set it
                 if name == f"{f}_id":
@@ -165,15 +180,12 @@ class PeeringDB:
                 # If the field starts with a foreign key name but is not
                 # suffixed by _id, just ignore it (it can be its name or
                 # something else)
-                stop_processing = True
-
-        if stop_processing:
-            return
+                return
 
         try:
             # Latitude and longitude are special decimal values that must be
             # casted to string before using them
-            if name in ["latitude", "longitude"] and value is not None:
+            if name in {"latitude", "longitude"} and value is not None:
                 value = str(value)
 
             setattr(obj, name, value)
@@ -182,7 +194,9 @@ class PeeringDB:
                 f"field: {name} not in model: {model._meta.verbose_name.lower()}"
             )
 
-    def _process_object(self, model, data):
+    def _process_object(
+        self, model: type[BaseModel], data: dict[str, Any]
+    ) -> tuple[BaseModel, ObjectChangeAction]:
         """
         Synchronises a single object.
         """
@@ -220,7 +234,7 @@ class PeeringDB:
 
         return local_object, action
 
-    def _fix_related_objects(self):
+    def _fix_related_objects(self) -> None:
         """
         Fixes main connections and IXPs objects linking them with PeeringDB's if
         possible.
@@ -230,7 +244,9 @@ class PeeringDB:
         for i in Ixp.objects.all():
             i.link_to_peeringdb()
 
-    def synchronise_objects(self, namespace, model):
+    def synchronise_objects(
+        self, namespace: str, model: type[BaseModel]
+    ) -> tuple[int, int, int]:
         """
         Synchronises all the objects of a namespace of the PeeringDB to the
         local database. This function is meant to be run regularly to update
@@ -262,11 +278,10 @@ class PeeringDB:
             logger.debug(f"peeringdb {namespace} cached at {peeringdb_cache_timestamp}")
 
         for data in result["data"]:
-            try:
-                local_object, action = self._process_object(model, data)
+            local_object, action = self._process_object(model, data)
 
-                if action != ObjectChangeAction.DELETE:
-                    # Save the local object
+            try:
+                if local_object:
                     local_object.full_clean()
                     local_object.save()
             except ValidationError as e:
@@ -275,44 +290,44 @@ class PeeringDB:
                 )
                 continue
 
-            # Update counters
-            if action == ObjectChangeAction.CREATE:
-                created += 1
-                logger.debug(
-                    f"created {model._meta.verbose_name.lower()} #{local_object.pk} from peeringdb"
-                )
-            elif action == ObjectChangeAction.UPDATE:
-                updated += 1
-                logger.debug(
-                    f"updated {model._meta.verbose_name.lower()} #{local_object.pk} from peeringdb"
-                )
-            else:
-                deleted += 1
+            match action:
+                case ObjectChangeAction.CREATE:
+                    created += 1
+                    logger.debug(
+                        f"created {model._meta.verbose_name.lower()} #{local_object.pk} from peeringdb"
+                    )
+                case ObjectChangeAction.UPDATE:
+                    updated += 1
+                    logger.debug(
+                        f"updated {model._meta.verbose_name.lower()} #{local_object.pk} from peeringdb"
+                    )
+                case ObjectChangeAction.DELETE:
+                    deleted += 1
 
         return (created, updated, deleted)
 
-    def update_local_database(self):
+    def update_local_database(self) -> Synchronisation | None:
         """
         Updates the local database by synchronising all PeeringDB API's namespaces
         that we are caring about.
         """
-        list_of_changes = []
+        list_of_changes: list[tuple[int, int, int]] = []
 
-        # Make a single transaction, avoid too much database commits (poor
-        # speed) and fail the whole synchronisation if something goes wrong
-        with transaction.atomic():
-            # Try to sync objects
-            for namespace, object_type in NAMESPACES.items():
+        # Try to sync objects
+        for namespace, object_type in NAMESPACES.items():
+            # Make a single transaction, avoid too much database commits (poor
+            # speed) and fail the whole synchronisation if something goes wrong
+            with transaction.atomic():
                 changes = self.synchronise_objects(namespace, object_type)
                 list_of_changes.append(changes)
 
             self._fix_related_objects()
 
-        objects_changes = {
-            "created": sum(created for created, _, _ in list_of_changes),
-            "updated": sum(updated for _, updated, _ in list_of_changes),
-            "deleted": sum(deleted for _, _, deleted in list_of_changes),
-        }
+        objects_changes = SyncChanges(
+            created=sum(created for created, _, _ in list_of_changes),
+            updated=sum(updated for _, updated, _ in list_of_changes),
+            deleted=sum(deleted for _, _, deleted in list_of_changes),
+        )
 
         # Save the last sync time based on the oldest PeeringDB cache timestamp
         last_sync_at = min(
@@ -321,7 +336,7 @@ class PeeringDB:
         logger.debug(f"last peeringdb synchronisation time set at {last_sync_at}")
         return self.record_last_sync(last_sync_at, objects_changes)
 
-    def clear_local_database(self):
+    def clear_local_database(self) -> None:
         """
         Deletes all data related to the local database. This can be used to get a
         fresh start.
