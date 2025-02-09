@@ -9,7 +9,9 @@
       "phone": "",
       "email": "jdoe@restena.lu",
       "url": "",
-      "status": "ok"
+      "status": "ok",
+      "created": "2023-01-25T07:37:46.340405Z",
+      "updated": "2023-01-25T09:18:50.878926Z"
     }
   ],
   "meta": {

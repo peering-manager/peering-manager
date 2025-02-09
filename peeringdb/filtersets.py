@@ -1,8 +1,14 @@
+from __future__ import annotations
+
 import contextlib
 import ipaddress
+from typing import TYPE_CHECKING, Any
 
 import django_filters
 from django.db.models import Q
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
 
 from .models import (
     Campus,
@@ -45,7 +51,7 @@ class CampusFilterSet(django_filters.FilterSet):
         model = Campus
         fields = ["id", "name"]
 
-    def search(self, queryset, name, value):
+    def search(self, queryset: QuerySet, name: str, value: Any) -> QuerySet[Campus]:
         if not value.strip():
             return queryset
 
@@ -62,7 +68,7 @@ class FacilityFilterSet(django_filters.FilterSet):
         model = Facility
         fields = ["id", "name"]
 
-    def search(self, queryset, name, value):
+    def search(self, queryset: QuerySet, name: str, value: Any) -> QuerySet[Facility]:
         if not value.strip():
             return queryset
 
@@ -79,7 +85,9 @@ class InternetExchangeFilterSet(django_filters.FilterSet):
         model = InternetExchange
         fields = ["id", "name"]
 
-    def search(self, queryset, name, value):
+    def search(
+        self, queryset: QuerySet, name: str, value: Any
+    ) -> QuerySet[InternetExchange]:
         if not value.strip():
             return queryset
 
@@ -119,7 +127,9 @@ class IXLanPrefixFilterSet(django_filters.FilterSet):
         model = IXLanPrefix
         fields = ["id", "in_dfz"]
 
-    def search(self, queryset, name, value):
+    def search(
+        self, queryset: QuerySet, name: str, value: Any
+    ) -> QuerySet[IXLanPrefix]:
         if not value.strip():
             return queryset
 
@@ -142,7 +152,7 @@ class NetworkFilterSet(django_filters.FilterSet):
         model = Network
         fields = ["id", "asn", "name"]
 
-    def search(self, queryset, name, value):
+    def search(self, queryset: QuerySet, name: str, value: Any) -> QuerySet[Network]:
         if not value.strip():
             return queryset
 
@@ -213,7 +223,9 @@ class NetworkIXLanFilterSet(django_filters.FilterSet):
             "net__policy_contracts",
         ]
 
-    def search(self, queryset, name, value):
+    def search(
+        self, queryset: QuerySet, name: str, value: Any
+    ) -> QuerySet[NetworkIXLan]:
         if not value.strip():
             return queryset
 
@@ -239,7 +251,9 @@ class OrganizationFilterSet(django_filters.FilterSet):
         model = Organization
         fields = ["id", "name"]
 
-    def search(self, queryset, name, value):
+    def search(
+        self, queryset: QuerySet, name: str, value: Any
+    ) -> QuerySet[Organization]:
         if not value.strip():
             return queryset
 

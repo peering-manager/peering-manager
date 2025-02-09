@@ -1,4 +1,8 @@
+from __future__ import annotations
+
+import datetime
 import ipaddress
+from typing import TYPE_CHECKING
 
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
@@ -28,6 +32,9 @@ from .enums import (
     Traffic,
     Visibility,
 )
+
+if TYPE_CHECKING:
+    from messaging.models import Email
 
 __all__ = (
     "Campus",
@@ -137,7 +144,20 @@ class MultipleChoiceField(models.CharField):
         return super().formfield(**defaults)
 
 
-class Address(models.Model):
+class BaseModel(models.Model):
+    # No auto_add in this case as we want to keep PeeringDB's values
+    created = models.DateTimeField(
+        default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
+    )
+    updated = models.DateTimeField(
+        default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
+    )
+
+    class Meta:
+        abstract = True
+
+
+class Address(BaseModel):
     address1 = models.CharField(max_length=255, blank=True)
     address2 = models.CharField(max_length=255, blank=True)
     city = models.CharField(max_length=255, blank=True)
@@ -156,7 +176,7 @@ class Address(models.Model):
     class Meta:
         abstract = True
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.address1} {self.zipcode} {self.country}"
 
 
@@ -168,11 +188,11 @@ class Organization(Address):
     social_media = models.JSONField(default=dict, blank=True, null=True)
     notes = models.TextField(blank=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
-class Campus(models.Model):
+class Campus(BaseModel):
     name = models.CharField(max_length=255, unique=True)
     name_long = models.CharField(max_length=255, blank=True, null=True)
     aka = models.CharField(max_length=255, blank=True, null=True)
@@ -189,7 +209,7 @@ class Campus(models.Model):
     class Meta:
         verbose_name_plural = "campuses"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -245,11 +265,11 @@ class Facility(Address):
     class Meta:
         verbose_name_plural = "facilities"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
-class Carrier(models.Model):
+class Carrier(BaseModel):
     name = models.CharField("Name", max_length=255, unique=True)
     aka = models.CharField("Also Known As", max_length=255, blank=True)
     name_long = models.CharField("Long Name", max_length=255, blank=True)
@@ -263,11 +283,11 @@ class Carrier(models.Model):
         on_delete=models.CASCADE,
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
-class CarrierFacility(models.Model):
+class CarrierFacility(BaseModel):
     carrier = models.ForeignKey(
         to="peeringdb.Carrier",
         related_name="carrierfac_set",
@@ -293,11 +313,11 @@ class CarrierFacility(models.Model):
     class Meta:
         unique_together = ("carrier", "fac")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.carrier} @ {self.fac}"
 
 
-class Network(models.Model):
+class Network(BaseModel):
     asn = ASNField(unique=True, verbose_name="ASN")
     name = models.CharField(max_length=255, unique=True)
     name_long = models.CharField(max_length=255, blank=True)
@@ -368,17 +388,17 @@ class Network(models.Model):
         on_delete=models.CASCADE,
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"AS{self.asn} - {self.name}"
 
-    def render_email(self, email, network):
+    def render_email(self, email: Email, network: Network):
         """
         Renders an e-mail from a template.
         """
         return email.render({"autonomous_systems": [network, self]})
 
 
-class InternetExchange(models.Model):
+class InternetExchange(BaseModel):
     name = models.CharField(max_length=64, unique=True)
     name_long = models.CharField(max_length=255, blank=True)
     aka = models.CharField(max_length=255, blank=True, verbose_name="Also Known As")
@@ -422,15 +442,15 @@ class InternetExchange(models.Model):
         verbose_name = "Internet Exchange"
         verbose_name_plural = "Internet Exchanges"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     @property
-    def fac_set(self):
+    def fac_set(self) -> list[Facility]:
         return [ixfac.fac for ixfac in self.ixfac_set]
 
 
-class InternetExchangeFacility(models.Model):
+class InternetExchangeFacility(BaseModel):
     ix = models.ForeignKey(
         to="peeringdb.InternetExchange",
         related_name="ixfac_set",
@@ -450,11 +470,11 @@ class InternetExchangeFacility(models.Model):
         verbose_name = "Internet Exchange facility"
         verbose_name_plural = "Internet Exchange facilities"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.ix!s} at {self.fac!s}"
 
 
-class IXLan(models.Model):
+class IXLan(BaseModel):
     name = models.CharField(max_length=255, blank=True)
     descr = models.TextField(blank=True)
     mtu = models.PositiveIntegerField(null=True, blank=True, choices=MTU.choices)
@@ -491,11 +511,11 @@ class IXLan(models.Model):
         verbose_name = "Internet Exchange LAN"
         verbose_name_plural = "Internet Exchange LANs"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
-class IXLanPrefix(models.Model):
+class IXLanPrefix(BaseModel):
     notes = models.CharField(max_length=255, blank=True)
     protocol = models.CharField(max_length=64, choices=Protocol.choices)
     prefix = CidrAddressField(unique=True)
@@ -512,11 +532,11 @@ class IXLanPrefix(models.Model):
         verbose_name = "Internet Exchange LAN prefix"
         verbose_name_plural = "Internet Exchange LAN prefixes"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.ixlan!s} - {self.prefix}"
 
 
-class NetworkContact(models.Model):
+class NetworkContact(BaseModel):
     role = models.CharField(max_length=27, choices=POCRole.choices)
     visible = models.CharField(
         max_length=64, choices=Visibility.choices, default=Visibility.PUBLIC
@@ -533,13 +553,13 @@ class NetworkContact(models.Model):
         on_delete=models.CASCADE,
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         if not self.email:
             return self.name
         return f"{self.name} <{self.email}>"
 
 
-class NetworkFacility(models.Model):
+class NetworkFacility(BaseModel):
     local_asn = ASNField(verbose_name="Local ASN", null=True, blank=True)
     avail_sonet = models.BooleanField(default=False)
     avail_ethernet = models.BooleanField(default=False)
@@ -566,11 +586,11 @@ class NetworkFacility(models.Model):
         verbose_name = "Network Facility"
         verbose_name_plural = "Network Facilities"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.net!s} at {self.fac!s}"
 
 
-class NetworkIXLan(models.Model):
+class NetworkIXLan(BaseModel):
     asn = ASNField(verbose_name="ASN")
     ipaddr4 = InetAddressField(
         verbose_name="IPv4",
@@ -626,28 +646,28 @@ class NetworkIXLan(models.Model):
         verbose_name = "Public Peering Exchange Point"
         verbose_name_plural = "Public Peering Exchange Points"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.net!s} on {self.ixlan!s}"
 
     @property
-    def cidr4(self):
+    def cidr4(self) -> ipaddress.IPv4Interface | None:
         try:
             return self.cidr(address_family=4)
         except ValueError:
             return None
 
     @property
-    def cidr6(self):
+    def cidr6(self) -> ipaddress.IPv6Interface | None:
         try:
             return self.cidr(address_family=6)
         except ValueError:
             return None
 
     @property
-    def is_remote_peer(self):
+    def is_remote_peer(self) -> bool:
         return self.net_side and self.ix_side and self.net_side != self.ix_side
 
-    def get_ixlan_prefix(self, address_family=0):
+    def get_ixlan_prefix(self, address_family=0) -> list[CidrAddressField]:
         """
         Returns matching `CidrAddressField` containing this `NetworkIXLan`'s IP
         addresses. When `address_family` is set to `4` or `6` only the prefix also
@@ -671,7 +691,9 @@ class NetworkIXLan(models.Model):
 
         return r
 
-    def cidr(self, address_family=4):
+    def cidr(
+        self, address_family=4
+    ) -> ipaddress.IPv4Interface | ipaddress.IPv6Interface:
         """
         Returns a Python IP interface object with the IP address and prefix length
         set.
@@ -700,5 +722,5 @@ class Synchronisation(models.Model):
     class Meta:
         ordering = ["-time"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Synchronised {(self.created + self.deleted + self.updated)} objects at {self.time}"

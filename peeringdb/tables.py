@@ -1,9 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import django_tables2 as tables
 
 from peering_manager.tables import BaseTable, BooleanColumn, SelectColumn
 from utils.templatetags.helpers import render_bandwidth_speed
 
 from .models import NetworkIXLan
+
+if TYPE_CHECKING:
+    from ipaddress import IPv4Address, IPv4Interface, IPv6Address, IPv6Interface
 
 __all__ = ("NetworkIXLanTable",)
 
@@ -91,11 +98,11 @@ class NetworkIXLanTable(BaseTable):
             "speed",
         )
 
-    def render_ipaddr6(self, value):
+    def render_ipaddr6(self, value: IPv6Interface) -> IPv6Address | None:
         return value.ip if value else None
 
-    def render_ipaddr4(self, value):
+    def render_ipaddr4(self, value: IPv4Interface) -> IPv4Address | None:
         return value.ip if value else None
 
-    def render_speed(self, value):
+    def render_speed(self, value) -> str:
         return render_bandwidth_speed(value)
