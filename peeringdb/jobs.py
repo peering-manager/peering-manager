@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import logging
+from typing import TYPE_CHECKING
 
 from django_rq import job
 
@@ -7,13 +10,16 @@ from peering.models import AutonomousSystem
 
 from .sync import PeeringDB
 
+if TYPE_CHECKING:
+    from core.models import Job
+
 logger = logging.getLogger("peering.manager.peeringdb.jobs")
 
 
 # One hour and 30 minutes timeout as this process can take long depending on the host
 # properties
 @job("default", timeout=5400)
-def synchronise(job):
+def synchronise(job: Job) -> None:
     job.mark_running("Synchronising PeeringDB local data.", logger=logger)
 
     synchronisation = PeeringDB().update_local_database()

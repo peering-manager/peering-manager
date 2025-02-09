@@ -1,4 +1,13 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from .models import Facility, IXLan, NetworkFacility, NetworkIXLan
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
+
+    from .models import Network
 
 __all__ = (
     "get_possible_peering_sessions",
@@ -7,7 +16,7 @@ __all__ = (
 )
 
 
-def get_shared_internet_exchanges(as1, as2):
+def get_shared_internet_exchanges(as1: Network, as2: Network) -> QuerySet[IXLan]:
     """
     Returns shared IXPs (via PeeringDB IXLAN objects) between two autonomous systems
     based on PeeringDB data.
@@ -27,7 +36,9 @@ def get_shared_internet_exchanges(as1, as2):
     )
 
 
-def get_possible_peering_sessions(as1, as2, ixlan=None):
+def get_possible_peering_sessions(
+    as1: Network, as2: Network, ixlan: IXLan | None = None
+) -> QuerySet[NetworkIXLan]:
     # If both AS are the same or one of each has no PeeringDB record
     # Cannot find sessions for AS1 to peer with AS2
     if as1 is None or as2 is None or as1 == as2:
@@ -44,7 +55,7 @@ def get_possible_peering_sessions(as1, as2, ixlan=None):
     return NetworkIXLan.objects.filter(net=as2, ixlan__in=ixlan_ids)
 
 
-def get_shared_facilities(as1, as2):
+def get_shared_facilities(as1: Network, as2: Network) -> QuerySet[Facility]:
     """
     Returns shared facilities between two autonomous systems based on PeeringDB data.
     """
