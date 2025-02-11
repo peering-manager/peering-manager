@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from requests.exceptions import HTTPError
 
+from core.forms import SynchronisedDataMixin
 from utils.forms import BOOLEAN_WITH_BLANK_CHOICES, BootstrapMixin, BulkEditForm
 from utils.forms.fields import (
     ContentTypeChoiceField,
@@ -78,7 +79,7 @@ class ConfigContextAssignmentForm(BootstrapMixin, forms.ModelForm):
         fields = ("config_context", "weight")
 
 
-class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
+class ExportTemplateForm(BootstrapMixin, SynchronisedDataMixin, forms.ModelForm):
     template = TemplateField(required=False)
     content_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
