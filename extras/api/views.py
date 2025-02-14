@@ -1,4 +1,5 @@
 import pyixapi
+from django.conf import settings
 from django.db.models import Count
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema
@@ -146,9 +147,11 @@ class IXAPIViewSet(PeeringManagerModelViewSet):
 
         # Query IX-API with given parameters
         api = pyixapi.api(
-            serializer.validated_data["url"],
-            serializer.validated_data["api_key"],
-            serializer.validated_data["api_secret"],
+            url=serializer.validated_data["url"],
+            key=serializer.validated_data["api_key"],
+            secret=serializer.validated_data["api_secret"],
+            user_agent=settings.REQUESTS_USER_AGENT,
+            proxies=settings.HTTP_PROXIES,
         )
         api.authenticate()
 

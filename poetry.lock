@@ -1664,34 +1664,37 @@ windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
 name = "pyixapi"
-version = "0.2.3"
+version = "0.2.5"
 description = "Python API client library for IX-API"
 optional = false
-python-versions = ">=3.8,<4.0"
+python-versions = ">=3.9"
 files = [
-    {file = "pyixapi-0.2.3-py3-none-any.whl", hash = "sha256:9ebcfdfe6850de997a6a10bfdb9e93f4f2c2b2c639ada4c1d1a38b12ff1b7b1b"},
-    {file = "pyixapi-0.2.3.tar.gz", hash = "sha256:aa480f04862ff71cc66b6f5188f014df3361732bad4d45f55649a977d61d7895"},
+    {file = "pyixapi-0.2.5-py3-none-any.whl", hash = "sha256:1d5fd67dac40ba806f6b7c8d626a1b50c08eddb6bb29830899457c5c23460b00"},
+    {file = "pyixapi-0.2.5.tar.gz", hash = "sha256:2d4109cacc623ffdb7e493e722daac11823b1b43b4f5cfe5578bf2cad8db9cc5"},
 ]
 
 [package.dependencies]
-PyJWT = ">=2.4.0,<2.9"
+PyJWT = ">=2.4.0,<2.11"
 requests = ">=2.20.0,<3.0"
+
+[package.extras]
+dev = ["pytest", "ruff (>=0.9,<0.10)"]
 
 [[package]]
 name = "pyjwt"
-version = "2.8.0"
+version = "2.10.1"
 description = "JSON Web Token implementation in Python"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.9"
 files = [
-    {file = "PyJWT-2.8.0-py3-none-any.whl", hash = "sha256:59127c392cc44c2da5bb3192169a91f429924e17aff6534d70fdc02ab3e04320"},
-    {file = "PyJWT-2.8.0.tar.gz", hash = "sha256:57e28d156e3d5c10088e0c68abb90bfac3df82b40a71bd0daa20c65ccd5c23de"},
+    {file = "PyJWT-2.10.1-py3-none-any.whl", hash = "sha256:dcdd193e30abefd5debf142f9adfcdd2b58004e644f25406ffaebd50bd98dacb"},
+    {file = "pyjwt-2.10.1.tar.gz", hash = "sha256:3cc5772eb20009233caf06e9d8a0577824723b44e6648ee0a2aedb6cf9381953"},
 ]
 
 [package.extras]
 crypto = ["cryptography (>=3.4.0)"]
-dev = ["coverage[toml] (==5.0.4)", "cryptography (>=3.4.0)", "pre-commit", "pytest (>=6.0.0,<7.0.0)", "sphinx (>=4.5.0,<5.0.0)", "sphinx-rtd-theme", "zope.interface"]
-docs = ["sphinx (>=4.5.0,<5.0.0)", "sphinx-rtd-theme", "zope.interface"]
+dev = ["coverage[toml] (==5.0.4)", "cryptography (>=3.4.0)", "pre-commit", "pytest (>=6.0.0,<7.0.0)", "sphinx", "sphinx-rtd-theme", "zope.interface"]
+docs = ["sphinx", "sphinx-rtd-theme", "zope.interface"]
 tests = ["coverage[toml] (==5.0.4)", "pytest (>=6.0.0,<7.0.0)"]
 
 [[package]]
@@ -2358,33 +2361,36 @@ files = [
 
 [[package]]
 name = "social-auth-app-django"
-version = "5.4.2"
+version = "5.4.3"
 description = "Python Social Authentication, Django integration."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "social-auth-app-django-5.4.2.tar.gz", hash = "sha256:c8832c6cf13da6ad76f5613bcda2647d89ae7cfbc5217fadd13477a3406feaa8"},
-    {file = "social_auth_app_django-5.4.2-py3-none-any.whl", hash = "sha256:0c041a31707921aef9a930f143183c65d8c7b364381364a50f3f7c6fcc9d62f6"},
+    {file = "social_auth_app_django-5.4.3-py3-none-any.whl", hash = "sha256:db70b972faeb10ee1ec83d0dc7dbd0558d5f5830417bba317b712b10ff58d031"},
+    {file = "social_auth_app_django-5.4.3.tar.gz", hash = "sha256:d1f4286d5ca1e512c9b2f686e7ecb2a0128148f1a33d853b69dc07b58508362e"},
 ]
 
 [package.dependencies]
 Django = ">=3.2"
-social-auth-core = ">=4.4.1"
+social-auth-core = ">=4.4,<5.0"
+
+[package.extras]
+dev = ["coverage (>=3.6)"]
 
 [[package]]
 name = "social-auth-core"
-version = "4.5.4"
+version = "4.5.6"
 description = "Python social authentication made simple."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "social-auth-core-4.5.4.tar.gz", hash = "sha256:d3dbeb0999ffd0e68aa4bd73f2ac698a18133fd11b3fc890e1366f18c8889fac"},
-    {file = "social_auth_core-4.5.4-py3-none-any.whl", hash = "sha256:33cf970a623c442376f9d4a86fb187579e4438649daa5b5be993d05e74d7b2db"},
+    {file = "social_auth_core-4.5.6-py3-none-any.whl", hash = "sha256:43114bbc50f99789f7aadfd4943c2e15aee5e2f8c8612ad67fc4115b70b46ee1"},
+    {file = "social_auth_core-4.5.6.tar.gz", hash = "sha256:14753d4cf870b820918729ce8a2dfe51f332075528fb13bed908701a8486da80"},
 ]
 
 [package.dependencies]
 cryptography = ">=1.4"
-defusedxml = ">=0.5.0rc1"
+defusedxml = ">=0.5.0"
 oauthlib = ">=1.0.3"
 PyJWT = ">=2.7.0"
 python3-openid = ">=3.0.10"
@@ -2392,10 +2398,13 @@ requests = ">=2.9.1"
 requests-oauthlib = ">=0.6.1"
 
 [package.extras]
-all = ["cryptography (>=2.1.1)", "python3-saml (>=1.5.0)"]
-allpy3 = ["cryptography (>=2.1.1)", "python3-saml (>=1.5.0)"]
+all = ["social-auth-core[azuread]", "social-auth-core[google-onetap]", "social-auth-core[saml]", "social-auth-core[shopify]"]
+allpy3 = ["social-auth-core[all]"]
 azuread = ["cryptography (>=2.1.1)"]
-saml = ["python3-saml (>=1.5.0)"]
+dev = ["coverage (>=3.6)", "flake8 (>=5.0.4)", "httpretty (>=1.1.0,<1.2.0)", "pyright (>=1.1.391)", "pytest (>=4.5)", "pytest-cov (>=2.7.1)", "urllib3 (>=2.2.0,<2.3.0)"]
+google-onetap = ["google-auth (>=2.38.0,<2.39.0)"]
+saml = ["lxml (>=5.2.1,<5.3.0)", "python3-saml (>=1.5.0)"]
+shopify = ["ShopifyAPI"]
 
 [[package]]
 name = "sqlparse"

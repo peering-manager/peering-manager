@@ -103,7 +103,11 @@ class IXAPI(ChangeLoggedModel):
         Performs a authentication and see if it succeeds.
         """
         api = pyixapi.api(
-            url, api_key, api_secret, user_agent=settings.REQUESTS_USER_AGENT
+            url=url,
+            key=api_key,
+            secret=api_secret,
+            user_agent=settings.REQUESTS_USER_AGENT,
+            proxies=settings.HTTP_PROXIES,
         )
 
         # Perform an authentication
@@ -127,12 +131,13 @@ class IXAPI(ChangeLoggedModel):
         Returns a API client to use for queries.
         """
         api = pyixapi.api(
-            self.url,
-            self.api_key,
-            self.api_secret,
+            url=self.url,
+            key=self.api_key,
+            secret=self.api_secret,
             access_token=self.access_token,
             refresh_token=self.refresh_token,
             user_agent=settings.REQUESTS_USER_AGENT,
+            proxies=settings.HTTP_PROXIES,
         )
 
         # Perform an authentication
