@@ -11,6 +11,8 @@ DEFAULT_USER_PREFERENCES = {"pagination": {"per_page": 250}}
 
 
 class UserPreferencesTest(TestCase):
+    user_permissions = ("peering.view_autonomoussystem",)
+
     @override_settings(DEFAULT_USER_PREFERENCES=DEFAULT_USER_PREFERENCES)
     def test_default_preferences(self):
         user = User.objects.create(username="User 1")
