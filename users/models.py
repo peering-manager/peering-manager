@@ -1,11 +1,10 @@
 import binascii
 import os
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import MinLengthValidator
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.utils import timezone
 
 __all__ = ("Token", "UserPreferences")
@@ -96,15 +95,16 @@ class UserPreferences(models.Model):
         data = self.data
         keys = path.split(separator)
 
-        for key in keys:
-            if isinstance(data, dict) and key in data:
-                # Step by step down the dicts
-                data = data.get(key)
-            else:
-                # Not found
-                return default
+        # Try to find value in the recorded data returning the default value
+        # if any invalid key is encountered
+        try:
+            for key in keys:
+                data = data[key]
+            return data
+        except (TypeError, KeyError):
+            pass
 
-        return data
+        return default
 
     def set(self, path, value, separator=".", commit=False):
         """
@@ -167,12 +167,3 @@ class UserPreferences(models.Model):
 
         if commit:
             self.save()
-
-
-@receiver(post_save, sender=User)
-def create_userpreferences(instance, created, **kwargs):
-    """
-    Creates a new `UserPreferences` when a new `User` is created.
-    """
-    if created:
-        UserPreferences(user=instance).save()

@@ -20,7 +20,7 @@ from peering_manager.authentication import get_auth_backend_display, get_saml_id
 from utils.forms import ConfirmationForm
 
 from .forms import LoginForm, TokenForm, UserPasswordChangeForm
-from .models import Token
+from .models import Token, UserPreferences
 
 logger = logging.getLogger("peering.manager.users")
 
@@ -95,6 +95,12 @@ class LoginView(View):
             auth_login(request, form.get_user())
             logger.info(f"user {request.user} successfully authenticated")
             messages.info(request, f"Logged in as {request.user}.")
+
+            # Back fill user preferences with defined defaults
+            if not hasattr(request.user, "preferences"):
+                UserPreferences(
+                    user=request.user, data=settings.DEFAULT_USER_PREFERENCES
+                ).save()
 
             return self.redirect_to_next(request)
 

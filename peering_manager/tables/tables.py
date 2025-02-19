@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import FieldDoesNotExist
@@ -34,6 +35,8 @@ class BaseTable(tables.Table):
     def __init__(self, *args, user=None, no_actions=False, **kwargs):
         super().__init__(*args, **kwargs)
 
+        name = self.__class__.__name__
+
         # Set default empty_text if none was provided
         if self.empty_text is None:
             self.empty_text = f"No {self._meta.model._meta.verbose_name_plural} found."
@@ -44,8 +47,14 @@ class BaseTable(tables.Table):
         #   3. Meta.fields
         selected_columns = None
         if user is not None and not isinstance(user, AnonymousUser):
-            selected_columns = user.preferences.get(
-                f"tables.{self.__class__.__name__}.columns"
+            selected_columns = user.preferences.get(f"tables.{name}.columns")
+        elif isinstance(user, AnonymousUser) and hasattr(
+            settings, "DEFAULT_USER_PREFERENCES"
+        ):
+            selected_columns = (
+                settings.DEFAULT_USER_PREFERENCES.get("tables", {})
+                .get(name, {})
+                .get("columns")
             )
         if not selected_columns:
             selected_columns = getattr(self.Meta, "default_columns", self.Meta.fields)

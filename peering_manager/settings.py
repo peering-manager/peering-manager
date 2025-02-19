@@ -92,6 +92,7 @@ NAPALM_TIMEOUT = getattr(configuration, "NAPALM_TIMEOUT", 30)
 NAPALM_ARGS = getattr(configuration, "NAPALM_ARGS", {})
 PAGINATE_COUNT = getattr(configuration, "PAGINATE_COUNT", 20)
 MAX_PAGE_SIZE = getattr(configuration, "MAX_PAGE_SIZE", 1000)
+DEFAULT_USER_PREFERENCES = getattr(configuration, "DEFAULT_USER_PREFERENCES", {})
 METRICS_ENABLED = getattr(configuration, "METRICS_ENABLED", False)
 
 SESSION_FILE_PATH = getattr(configuration, "SESSION_FILE_PATH", None)

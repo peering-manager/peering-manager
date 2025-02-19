@@ -105,6 +105,8 @@ class AutonomousSystemTest(APIViewTestCases.View):
         response = self.client.get(url, format="json", **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data, [])
+        # To avoid side effects in other tests
+        self.user.preferences.delete("context")
 
 
 class BGPGroupTest(APIViewTestCases.View):

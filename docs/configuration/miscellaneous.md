@@ -156,3 +156,33 @@ Perform validation of the value when creating or updating a BGP community.
 This ensures that a value is a valid standard, extended or large community.
 This validation can be disabled if Peering Manager enforced notations do not
 fit the user needs.
+
+---
+
+## DEFAULT_USER_PREFERENCES
+
+Default: `{}` (empty dictionary)
+
+This is a dictionary defining the default preferences to be set for
+newly-created user accounts. For example, to set the default page size for all
+users to 100, define the following:
+
+```python
+DEFAULT_USER_PREFERENCES = {
+    "pagination": {
+        "per_page": 100
+    },
+    "tables": {
+        "AutonomousSystemTable" : {
+            "columns": ["asn", "name", "irr_as_set"],
+            "ordering": ["-asn"]
+        }
+    }
+}
+```
+
+Preferences for a user are displayed in `/user/preferences/`. A period in a
+preference name indicates a level of nesting in the JSON data. The first
+example above maps to `pagination.per_page`. The second one shows how to
+customise a table. The best way to find out the name of a table is to change
+its displayed columns and have a look at the preferences page.
