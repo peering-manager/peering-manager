@@ -111,6 +111,48 @@ urlpatterns = [
         name="ixapi_changelog",
         kwargs={"model": models.IXAPI},
     ),
+    # Journal entries
+    path(
+        "journal-entries/",
+        views.JournalEntryListView.as_view(),
+        name="journalentry_list",
+    ),
+    path(
+        "journal-entries/add/",
+        views.JournalEntryEditView.as_view(),
+        name="journalentry_add",
+    ),
+    path(
+        "journal-entries/edit/",
+        views.JournalEntryBulkEditView.as_view(),
+        name="journalentry_bulk_edit",
+    ),
+    path(
+        "journal-entries/delete/",
+        views.JournalEntryBulkDeleteView.as_view(),
+        name="journalentry_bulk_delete",
+    ),
+    path(
+        "journal-entries/<int:pk>/",
+        views.JournalEntryView.as_view(),
+        name="journalentry_view",
+    ),
+    path(
+        "journal-entries/<int:pk>/edit/",
+        views.JournalEntryEditView.as_view(),
+        name="journalentry_edit",
+    ),
+    path(
+        "journal-entries/<int:pk>/delete/",
+        views.JournalEntryDeleteView.as_view(),
+        name="journalentry_delete",
+    ),
+    path(
+        "journal-entries/<int:pk>/changelog/",
+        ObjectChangeLogView.as_view(),
+        name="journalentry_changelog",
+        kwargs={"model": models.JournalEntry},
+    ),
     # Tags
     path("tags/", views.TagList.as_view(), name="tag_list"),
     path("tags/add/", views.TagAdd.as_view(), name="tag_add"),
