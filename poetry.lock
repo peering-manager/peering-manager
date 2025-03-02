@@ -1348,12 +1348,12 @@ typing-extensions = ">=4.3.0"
 
 [[package]]
 name = "ncclient"
-version = "0.6.18"
+version = "0.6.17"
 description = "Python library for NETCONF clients"
 optional = false
 python-versions = ">=3.5"
 files = [
-    {file = "ncclient-0.6.18.tar.gz", hash = "sha256:c32bca80e38dfac2b469ce09d9b80135b6b3082d9ff04cbdd483a17c93b638a8"},
+    {file = "ncclient-0.6.17.tar.gz", hash = "sha256:cc8eb9d4e0abf0ae715fbc95d365e2fb39347a188f828d5e84ceb7444df10b02"},
 ]
 
 [package.dependencies]
@@ -2599,4 +2599,4 @@ pyyaml = "*"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "809cf59a9d3d9d4afb4be59bb9deadf9502f38343477f1a878c2d8a137e9bf9d"
+content-hash = "16934520fb362acd8726dcbd78337535e73045eac244f412c2784074542fd9f2"
