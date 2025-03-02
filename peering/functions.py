@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import json
 import re
 import subprocess
 from ipaddress import IPv4Address
+from typing import Any
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -10,11 +13,13 @@ from .constants import ASN_MAX, ASN_MAX_2_OCTETS
 from .enums import CommunityKind
 
 
-def call_irr_as_set_resolver(irr_as_set, address_family=6):
+def call_irr_as_set_resolver(
+    irr_as_set: str, address_family: int = 6
+) -> list[dict[str, Any]]:
     """
     Call a subprocess to expand the given AS-SET for an IP version.
     """
-    prefixes = []
+    prefixes: list[dict[str, Any]] = []
 
     if not irr_as_set:
         return prefixes
@@ -49,12 +54,12 @@ def call_irr_as_set_resolver(irr_as_set, address_family=6):
     return prefixes
 
 
-def parse_irr_as_set(asn, irr_as_set):
+def parse_irr_as_set(asn: int, irr_as_set: str) -> list[str]:
     """
     Validate that an AS-SET is usable and split it into smaller part if it is actually
     composed of several AS-SETs.
     """
-    as_sets = []
+    as_sets: list[str] = []
 
     # Can't work with empty or whitespace only AS-SET
     if not irr_as_set or not irr_as_set.strip():
