@@ -2322,18 +2322,18 @@ dev = ["coverage (>=3.6)"]
 
 [[package]]
 name = "social-auth-core"
-version = "4.5.6"
+version = "4.5.4"
 description = "Python social authentication made simple."
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.8"
 files = [
-    {file = "social_auth_core-4.5.6-py3-none-any.whl", hash = "sha256:43114bbc50f99789f7aadfd4943c2e15aee5e2f8c8612ad67fc4115b70b46ee1"},
-    {file = "social_auth_core-4.5.6.tar.gz", hash = "sha256:14753d4cf870b820918729ce8a2dfe51f332075528fb13bed908701a8486da80"},
+    {file = "social-auth-core-4.5.4.tar.gz", hash = "sha256:d3dbeb0999ffd0e68aa4bd73f2ac698a18133fd11b3fc890e1366f18c8889fac"},
+    {file = "social_auth_core-4.5.4-py3-none-any.whl", hash = "sha256:33cf970a623c442376f9d4a86fb187579e4438649daa5b5be993d05e74d7b2db"},
 ]
 
 [package.dependencies]
 cryptography = ">=1.4"
-defusedxml = ">=0.5.0"
+defusedxml = ">=0.5.0rc1"
 oauthlib = ">=1.0.3"
 PyJWT = ">=2.7.0"
 python3-openid = ">=3.0.10"
@@ -2341,13 +2341,10 @@ requests = ">=2.9.1"
 requests-oauthlib = ">=0.6.1"
 
 [package.extras]
-all = ["social-auth-core[azuread]", "social-auth-core[google-onetap]", "social-auth-core[saml]", "social-auth-core[shopify]"]
-allpy3 = ["social-auth-core[all]"]
+all = ["cryptography (>=2.1.1)", "python3-saml (>=1.5.0)"]
+allpy3 = ["cryptography (>=2.1.1)", "python3-saml (>=1.5.0)"]
 azuread = ["cryptography (>=2.1.1)"]
-dev = ["coverage (>=3.6)", "flake8 (>=5.0.4)", "httpretty (>=1.1.0,<1.2.0)", "pyright (>=1.1.391)", "pytest (>=4.5)", "pytest-cov (>=2.7.1)", "urllib3 (>=2.2.0,<2.3.0)"]
-google-onetap = ["google-auth (>=2.38.0,<2.39.0)"]
-saml = ["lxml (>=5.2.1,<5.3.0)", "python3-saml (>=1.5.0)"]
-shopify = ["ShopifyAPI"]
+saml = ["python3-saml (>=1.5.0)"]
 
 [[package]]
 name = "sqlparse"
@@ -2599,4 +2596,4 @@ pyyaml = "*"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "16934520fb362acd8726dcbd78337535e73045eac244f412c2784074542fd9f2"
+content-hash = "eb325fe68155862941e685101eb50fe7242dbb1383b1e0659f7be661db105ae1"
