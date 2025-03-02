@@ -149,9 +149,7 @@ class PeeringManagerAutoSchema(AutoSchema):
         ):
             ref_name = None
         else:
-            ref_name = serializer_name
-            if ref_name.endswith("Serializer"):
-                ref_name = ref_name[: -len("Serializer")]
+            ref_name = serializer_name.removesuffix("Serializer")
         return ref_name
 
     def get_writable_class(self, serializer):

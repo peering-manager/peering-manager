@@ -101,7 +101,7 @@ select = [
     "RET",   # flake8-return
     "RUF",   # Ruff specific rules
     "SIM",   # flake8-simplify
-    "TCH",   # flake8-type-checking
+    "TC",    # flake8-type-checking
     "T10",   # flake8-debugger
     "UP",    # pyupgrade
     "W",     # pycodestyle warnings
