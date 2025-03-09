@@ -68,7 +68,7 @@ rq==1.16.2
 ruamel-yaml-clib==0.2.12
 ruamel-yaml==0.18.10
 scp==0.15.0
-setuptools==75.8.2
+setuptools==76.0.0
 six==1.17.0
 social-auth-app-django==5.4.3
 social-auth-core==4.5.4

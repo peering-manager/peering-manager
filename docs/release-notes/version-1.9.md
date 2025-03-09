@@ -1,3 +1,19 @@
+## Version 1.9.4 | MARK I (Bug fixes release) | 2025-03-09
+
+### Bug Fixes
+
+* [#911](https://github.com/peering-manager/peering-manager/issues/911) Fix email from address config in docs
+* [#916](https://github.com/peering-manager/peering-manager/issues/916) Fix export template data file form fields
+* [#909](https://github.com/peering-manager/peering-manager/issues/909) Handle empty host/sources for bgpq arguments (by @jford00)
+* Set local AS initial value when adding an IXP
+
+### Enhancements
+
+* Add bulk edit to session list views (by @rwielk)
+* Prevent data drift for PeeringDB cache by synchronising each type of records based on its last update time
+* Use HTTP proxies for IX-API if configured
+* Add support for default user preferences by setting the `DEFAULT_USER_PREFERENCES` value in the configuration
+
 ## Version 1.9.3 | MARK I (Bug fixes release) | 2025-02-04
 
 ### Bug Fixes
