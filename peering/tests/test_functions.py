@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from ..functions import call_irr_as_set_resolver, parse_irr_as_set
 from .mocked_data import *
@@ -24,15 +24,31 @@ class IRRASSetFunctions(TestCase):
 
     def test_parse_irr_as_set(self):
         self.assertEqual(
-            ["AS201281:AS-MAZOYER-EU"],
-            parse_irr_as_set(201281, "RIPE::AS201281:AS-MAZOYER-EU"),
+            [("RIPE", "AS65535:AS-FOO")],
+            parse_irr_as_set(65535, "RIPE::AS65535:AS-FOO"),
         )
         self.assertEqual(
-            ["AS-HURRICANE", "AS-HURRICANEv6"],
-            parse_irr_as_set(6939, "AS-HURRICANE AS-HURRICANEv6"),
+            [("", "AS-BAR"), ("", "AS-BARv6")],
+            parse_irr_as_set(65535, "AS-BAR AS-BARv6"),
         )
         self.assertEqual(
-            ["AS51706:AS-MEMBERS"], parse_irr_as_set(51706, "AS51706:AS-MEMBERS")
+            [("", "AS65535:AS-MEMBERS")], parse_irr_as_set(65535, "AS65535:AS-MEMBERS")
         )
-        self.assertEqual(["AS3333"], parse_irr_as_set(3333, ""))
-        self.assertEqual(["AS3333"], parse_irr_as_set(3333, None))
+        self.assertEqual([("", "AS65535")], parse_irr_as_set(65535, ""))
+        self.assertEqual([("", "AS65535")], parse_irr_as_set(65535, None))
+
+    @override_settings(BGPQ3_PATH="/bin/bgpq4")
+    def test_parse_irr_as_set_bgpq4(self):
+        self.assertEqual(
+            [("RIPE", "RIPE::AS65535:AS-FOO")],
+            parse_irr_as_set(65535, "RIPE::AS65535:AS-FOO"),
+        )
+        self.assertEqual(
+            [("", "AS-BAR"), ("", "AS-BARv6")],
+            parse_irr_as_set(65535, "AS-BAR AS-BARv6"),
+        )
+        self.assertEqual(
+            [("", "AS65535:AS-MEMBERS")], parse_irr_as_set(65535, "AS65535:AS-MEMBERS")
+        )
+        self.assertEqual([("", "AS65535")], parse_irr_as_set(65535, ""))
+        self.assertEqual([("", "AS65535")], parse_irr_as_set(65535, None))

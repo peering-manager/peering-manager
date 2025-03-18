@@ -357,12 +357,20 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
 
         try:
             # For each AS-SET try getting IPv6 and IPv4 prefixes
-            for as_set in as_sets:
+            for as_set_source, as_set in as_sets:
                 prefixes["ipv6"].extend(
-                    call_irr_as_set_resolver(as_set, address_family=6)
+                    call_irr_as_set_resolver(
+                        irr_as_set=as_set,
+                        irr_as_set_source=as_set_source,
+                        address_family=6,
+                    )
                 )
                 prefixes["ipv4"].extend(
-                    call_irr_as_set_resolver(as_set, address_family=4)
+                    call_irr_as_set_resolver(
+                        irr_as_set=as_set,
+                        irr_as_set_source=as_set_source,
+                        address_family=4,
+                    )
                 )
         except ValueError:
             # Error parsing AS-SETs

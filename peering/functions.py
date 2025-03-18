@@ -4,6 +4,7 @@ import json
 import re
 import subprocess
 from ipaddress import IPv4Address
+from pathlib import Path
 from typing import Any
 
 from django.conf import settings
@@ -13,8 +14,12 @@ from .constants import ASN_MAX, ASN_MAX_2_OCTETS
 from .enums import CommunityKind
 
 
+def _is_using_bgpq4() -> bool:
+    return Path(settings.BGPQ3_PATH).name == "bgpq4"
+
+
 def call_irr_as_set_resolver(
-    irr_as_set: str, address_family: int = 6
+    irr_as_set: str, irr_as_set_source: str = "", address_family: int = 6
 ) -> list[dict[str, Any]]:
     """
     Call a subprocess to expand the given AS-SET for an IP version.
@@ -29,7 +34,13 @@ def call_irr_as_set_resolver(
     command = [settings.BGPQ3_PATH]
     if settings.BGPQ3_HOST:
         command += ["-h", settings.BGPQ3_HOST]
-    if settings.BGPQ3_SOURCES:
+    if (
+        irr_as_set_source
+        and irr_as_set_source in settings.BGPQ3_SOURCES
+        and not _is_using_bgpq4()
+    ):
+        command += ["-S", irr_as_set_source]
+    elif settings.BGPQ3_SOURCES:
         command += ["-S", settings.BGPQ3_SOURCES]
     command += [f"-{address_family}", "-A", "-j", "-l", "prefix_list", irr_as_set]
 
@@ -54,16 +65,17 @@ def call_irr_as_set_resolver(
     return prefixes
 
 
-def parse_irr_as_set(asn: int, irr_as_set: str) -> list[str]:
+def parse_irr_as_set(asn: int, irr_as_set: str) -> list[tuple[str, str]]:
     """
-    Validate that an AS-SET is usable and split it into smaller part if it is actually
-    composed of several AS-SETs.
+    Validate that an AS-SET is usable and split it into smaller parts if it is
+    actually composed of several AS-SETs. This will return a list of tuples like
+    `(<AS-SET source>,<AS-SET name>)`.
     """
-    as_sets: list[str] = []
+    as_sets: list[tuple[str, str]] = []
 
     # Can't work with empty or whitespace only AS-SET
     if not irr_as_set or not irr_as_set.strip():
-        return [f"AS{asn}"]
+        return [("", f"AS{asn}")]
 
     unparsed = re.split(r"[/,&\s]", irr_as_set)
     for element in unparsed:
@@ -72,19 +84,21 @@ def parse_irr_as_set(asn: int, irr_as_set: str) -> list[str]:
         if not value:
             continue
 
-        for regexp in [
-            # Remove registry prefix if any
-            r"^(?:{}):[:\s]".format(settings.BGPQ3_SOURCES.replace(",", "|")),
-            # Removing "ipv4:" and "ipv6:"
-            r"^(?:ipv4|ipv6):",
-        ]:
-            pattern = re.compile(regexp, flags=re.IGNORECASE)
-            value, number_of_subs_made = pattern.subn("", value)
-            # If some substitutions have been made, make sure to clean things up
-            if number_of_subs_made > 0:
-                value = value.strip()
+        match = re.match(
+            r"^(?P<source>{}):+\s*(?P<as_set>.+)$".format(
+                settings.BGPQ3_SOURCES.replace(",", "|")
+            ),
+            value,
+        )
+        if match:
+            source = match.group("source")
+            as_set = value if _is_using_bgpq4() else match.group("as_set").strip()
+        else:
+            source = ""
+            as_set = value
 
-        as_sets.append(value)
+        as_set = re.sub(r"^(?:ipv4|ipv6):", "", as_set).strip()
+        as_sets.append((source, as_set))
 
     return as_sets
 
