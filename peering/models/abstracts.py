@@ -73,7 +73,7 @@ class BGPSession(PrimaryModel, PolicyMixin):
     Abstract class used to define common caracteristics of BGP sessions.
 
     A BGP session is always defined with the following fields:
-      * a unique service reference, blank or user defined
+      * a service reference, blank or user defined
       * an autonomous system, it can also be called a peer
       * an IP address used to establish the session
       * a status telling if the session should be administratively up/down, or
@@ -95,7 +95,6 @@ class BGPSession(PrimaryModel, PolicyMixin):
 
     service_reference = models.CharField(
         max_length=255,
-        unique=True,
         blank=True,
         null=True,
         help_text="Optional internal service reference",
