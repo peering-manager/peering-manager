@@ -15,7 +15,7 @@ LANs. For each Internet exchange peering session that you create, the following
 properties can be configured (n.b. some are optional):
 
 * `Service Reference`: Optional internal service reference that can be used as
-  a unique field to identify a session.
+  a field to identify a session.
 * `Autonomous System`: autonomous system of the remote peer.
 * `Internet Exchange`: Internet exchange providing a LAN and IP addresses
   for autonomous systems to peer.

@@ -14,7 +14,7 @@ exchange LANs. For each direct peering session that you create, the following
 properties can be configured (n.b. some are optional):
 
 * `Service Reference`: Optional internal service reference that can be used as
-  a unique field to identify a session.
+  a field to identify a session.
 * `Local Autonomous System`: autonomous system owning the session.
 * `Local IP Address`: local IPv6 or IPv4 address to be bounded on a local
   router.
