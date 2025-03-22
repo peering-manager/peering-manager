@@ -1,6 +1,6 @@
 from django.urls import path
 
-from peering_manager.views.generic import ObjectChangeLogView
+from peering_manager.views.generic import ObjectChangeLogView, ObjectJournalView
 
 from . import models, views
 
@@ -47,6 +47,12 @@ urlpatterns = [
         "autonomous-systems/<int:pk>/changelog/",
         ObjectChangeLogView.as_view(),
         name="autonomoussystem_changelog",
+        kwargs={"model": models.AutonomousSystem},
+    ),
+    path(
+        "autonomous-systems/<int:pk>/journal/",
+        ObjectJournalView.as_view(),
+        name="autonomoussystem_journal",
         kwargs={"model": models.AutonomousSystem},
     ),
     path(
