@@ -54,6 +54,17 @@ class TokenPermissions(DjangoModelPermissions):
             and not request.auth.write_enabled
         ):
             return False
+        # If action is not part of default CRUD, allow it
+        # Restriction must be performed in the view itself
+        if hasattr(view, "action") and view.action not in [
+            "list",
+            "retrieve",
+            "create",
+            "update",
+            "partial_update",
+            "destroy",
+        ]:
+            return True
         return super().has_permission(request, view)
 
 
