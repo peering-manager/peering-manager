@@ -563,6 +563,13 @@ class DirectPeeringSession(BGPSession):
     router = models.ForeignKey(
         to="devices.Router", blank=True, null=True, on_delete=models.SET_NULL
     )
+    connection = models.ForeignKey(
+        to="net.Connection",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name="Network connection on which this session lives",
+    )
 
     class Meta(BGPSession.Meta):
         ordering = [

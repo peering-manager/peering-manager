@@ -329,6 +329,11 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
         queryset=Router.objects.all(),
         help_text="Router on which this session is configured",
     )
+    connection = DynamicModelChoiceField(
+        required=False,
+        queryset=Connection.objects.all(),
+        help_text="Network connection on which this session lives",
+    )
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
@@ -354,7 +359,10 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
     tags = TagField(required=False)
     fieldsets = (
         ("Peer", ("bgp_group", "relationship", "autonomous_system", "ip_address")),
-        ("Local", ("local_autonomous_system", "local_ip_address", "router")),
+        (
+            "Local",
+            ("local_autonomous_system", "local_ip_address", "router", "connection"),
+        ),
         (
             "Properties",
             (
@@ -388,6 +396,7 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
             "multihop_ttl",
             "passive",
             "router",
+            "connection",
             "import_routing_policies",
             "export_routing_policies",
             "communities",
@@ -477,6 +486,7 @@ class DirectPeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm):
         "communities",
         "bfd",
         "router",
+        "connection",
         "local_context_data",
         "comments",
     )
@@ -526,6 +536,13 @@ class DirectPeeringSessionFilterForm(PeeringManagerModelFilterSetForm):
         to_field_name="pk",
         null_option="None",
         label="Router",
+    )
+    connection_id = DynamicModelMultipleChoiceField(
+        required=False,
+        queryset=Connection.objects.all(),
+        to_field_name="pk",
+        null_option="None",
+        label="Connection",
     )
     passive = forms.NullBooleanField(
         required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES)
