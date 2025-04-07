@@ -161,6 +161,9 @@ class DirectPeeringSessionFilterSet(PeeringManagerModelFilterSet):
         to_field_name="hostname",
         label="Router (Hostname)",
     )
+    connection_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Connection.objects.all(), label="Connection (ID)"
+    )
     bgp_state = django_filters.MultipleChoiceFilter(choices=BGPState, null_value="")
 
     class Meta:
