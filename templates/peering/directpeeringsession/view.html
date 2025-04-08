@@ -82,6 +82,12 @@
           <td>{{ instance.router|as_link }}</td>
         </tr>
         {% endif %}
+        {% if instance.connection %}
+        <tr>
+          <td>Connection</td>
+          <td>{{ instance.connection|as_link }}</td>
+        </tr>
+        {% endif %}
       </table>
     </div>
     {% include 'includes/comments_card.html' %}
