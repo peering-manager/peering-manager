@@ -150,6 +150,7 @@ class DirectPeeringSessionTable(PeeringManagerTable):
     bfd = tables.Column(verbose_name="BFD", linkify=True)
     state = BGPSessionStateColumn(accessor="bgp_state")
     router = tables.Column(verbose_name="Router", accessor="router", linkify=True)
+    connection = tables.Column(verbose_name="Connection", linkify=True)
     tags = columns.TagColumn(url_name="peering:directpeeringsession_list")
     actions = columns.ActionsColumn(extra_buttons=append_template)
 
@@ -177,6 +178,7 @@ class DirectPeeringSessionTable(PeeringManagerTable):
             "accepted_prefix_count",
             "advertised_prefix_count",
             "router",
+            "connection",
             "tags",
             "actions",
         )
@@ -189,6 +191,7 @@ class DirectPeeringSessionTable(PeeringManagerTable):
             "bgp_group",
             "relationship",
             "router",
+            "connection",
             "actions",
         )
 

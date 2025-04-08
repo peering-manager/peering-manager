@@ -203,6 +203,7 @@ class DirectPeeringSessionTest(APIViewTestCases.View):
         relationship_private_peering = Relationship.objects.create(
             name="Private Peering", slug="private-peering"
         )
+        connection = Connection.objects.create(vlan=2000)
         DirectPeeringSession.objects.bulk_create(
             [
                 DirectPeeringSession(
@@ -223,6 +224,7 @@ class DirectPeeringSessionTest(APIViewTestCases.View):
                     autonomous_system=autonomous_system,
                     relationship=relationship_private_peering,
                     ip_address="2001:db8::3",
+                    connection=connection,
                 ),
             ]
         )
@@ -245,6 +247,7 @@ class DirectPeeringSessionTest(APIViewTestCases.View):
                 "autonomous_system": autonomous_system.pk,
                 "relationship": relationship_private_peering.pk,
                 "ip_address": "198.51.100.3/32",
+                "connection": connection.pk,
             },
         ]
 

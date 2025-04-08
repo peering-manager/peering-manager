@@ -202,6 +202,7 @@ class DirectPeeringSessionTestCase(TestCase, BaseFilterSetTests):
             minimum_receive_interval=300,
             detection_multiplier=3,
         )
+        cls.connection = Connection.objects.create(vlan=2000)
         DirectPeeringSession.objects.bulk_create(
             [
                 DirectPeeringSession(
@@ -227,6 +228,7 @@ class DirectPeeringSessionTestCase(TestCase, BaseFilterSetTests):
                     status=BGPSessionStatus.DISABLED,
                     relationship=relationship_customer,
                     passive=True,
+                    connection=cls.connection,
                 ),
             ]
         )
@@ -267,6 +269,10 @@ class DirectPeeringSessionTestCase(TestCase, BaseFilterSetTests):
 
     def test_bfd(self):
         params = {"bfd": [self.bfd.name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_connection_id(self):
+        params = {"connection_id": [self.connection.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_multihop_ttl(self):

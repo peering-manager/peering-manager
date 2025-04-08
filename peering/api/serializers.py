@@ -174,6 +174,7 @@ class DirectPeeringSessionSerializer(PeeringManagerModelSerializer):
     )
     bfd = NestedBFDSerializer(required=False, allow_null=True)
     router = NestedRouterSerializer(required=False, allow_null=True)
+    connection = NestedConnectionSerializer(required=False, allow_null=True)
 
     class Meta:
         model = DirectPeeringSession
@@ -197,6 +198,7 @@ class DirectPeeringSessionSerializer(PeeringManagerModelSerializer):
             "communities",
             "bfd",
             "router",
+            "connection",
             "local_context_data",
             "bgp_state",
             "received_prefix_count",
