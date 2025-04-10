@@ -53,7 +53,7 @@ class AutonomousSystemFilterSet(PeeringManagerModelFilterSet):
             | Q(irr_as_set__icontains=value)
         )
         with contextlib.suppress(ValueError):
-            qs_filter |= Q(asn=int(value.strip()))
+            qs_filter |= Q(asn__startswith=int(value.strip()))
 
         return queryset.filter(qs_filter)
 
