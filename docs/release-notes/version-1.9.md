@@ -1,3 +1,18 @@
+## Version 1.9.5 | MARK I (Bug fixes release) | 2025-04-10
+
+### Bug Fixes
+
+* Remove pin of ncclient, this should solve an issue when using SSH key for NAPALM without a
+password
+* [#920](https://github.com/peering-manager/peering-manager/issues/920) Fix non-CRUD API actions permissions
+
+### Enhancements
+
+* Keep IRR source in AS-SET for bgpq4, if bgpq3 is used, query will try to limit itself to the given IRR source if available
+* Remove uniqueness constraint for service reference
+* Support "starts with" filter for AS lookup by ASN
+* [#854](https://github.com/peering-manager/peering-manager/issues/854) Allow referencing connections in direct sessions
+
 ## Version 1.9.4 | MARK I (Bug fixes release) | 2025-03-09
 
 ### Bug Fixes
