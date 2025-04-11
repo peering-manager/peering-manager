@@ -38,6 +38,7 @@ class IRRASSetFunctions(TestCase):
         self.assertEqual([("", "AS65535")], parse_irr_as_set(65535, None))
 
     @override_settings(BGPQ3_PATH="/bin/bgpq4")
+    @override_settings(BGPQ4_KEEP_SOURCE_IN_SET=True)
     def test_parse_irr_as_set_bgpq4(self):
         self.assertEqual(
             [("RIPE", "RIPE::AS65535:AS-FOO")],
