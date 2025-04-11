@@ -1,3 +1,9 @@
+## Version 1.9.6 | MARK I (Bug fixes release) | 2025-04-11
+
+### Bug Fixes
+
+* Add `BGPQ4_KEEP_SOURCE_IN_SET` setting to opt in for bgpq4 keep IRR source. The setting is set to `False` by default to go back to the previous behaviour. Setting it to `True` affects the AS-SET or ROUTE-SET resolution which can lead to a drop in the number of routes found.
+
 ## Version 1.9.5 | MARK I (Bug fixes release) | 2025-04-10
 
 ### Bug Fixes
