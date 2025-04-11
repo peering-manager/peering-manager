@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 import subprocess
 from ipaddress import IPv4Address
@@ -12,6 +13,8 @@ from django.core.exceptions import ValidationError
 
 from .constants import ASN_MAX, ASN_MAX_2_OCTETS
 from .enums import CommunityKind
+
+logger = logging.getLogger("peering.manager.peering")
 
 
 def _is_using_bgpq4() -> bool:
@@ -34,13 +37,7 @@ def call_irr_as_set_resolver(
     command = [settings.BGPQ3_PATH]
     if settings.BGPQ3_HOST:
         command += ["-h", settings.BGPQ3_HOST]
-    if (
-        irr_as_set_source
-        and irr_as_set_source in settings.BGPQ3_SOURCES
-        and not _is_using_bgpq4()
-    ):
-        command += ["-S", irr_as_set_source]
-    elif settings.BGPQ3_SOURCES:
+    if settings.BGPQ3_SOURCES:
         command += ["-S", settings.BGPQ3_SOURCES]
     command += [f"-{address_family}", "-A", "-j", "-l", "prefix_list", irr_as_set]
 
@@ -51,6 +48,7 @@ def call_irr_as_set_resolver(
             "ipv6" if address_family == 6 else "ipv4"
         ]
 
+    logger.debug(f"calling {settings.BGPQ3_PATH} with command: {command}")
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = process.communicate()
 
@@ -92,7 +90,11 @@ def parse_irr_as_set(asn: int, irr_as_set: str) -> list[tuple[str, str]]:
         )
         if match:
             source = match.group("source")
-            as_set = value if _is_using_bgpq4() else match.group("as_set").strip()
+            as_set = (
+                value
+                if _is_using_bgpq4() and settings.BGPQ4_KEEP_SOURCE_IN_SET
+                else match.group("as_set").strip()
+            )
         else:
             source = ""
             as_set = value

@@ -96,6 +96,18 @@ mask length greater than or equal to 16 and less than or equal to 48 and for
 IPv4 prefixes with a mask length greater than or equal to 8 and less than or
 equal to 24.
 
+--
+
+## BGPQ4_KEEP_SOURCE_IN_SET
+
+Default: `False`
+
+If set to `True` and if the AS-SET or the route-set of an autonomous system is
+prefixed by the resource source, such as `RIPE::`, the source will be retained
+and passed to `bgpq4` for set resolution. By default, the resource source will
+be removed, and the set will be resolved against all specified sources set in
+`BGPQ3_SOURCE`.
+
 ---
 
 ## NETBOX_API

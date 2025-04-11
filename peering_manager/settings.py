@@ -170,6 +170,7 @@ BGPQ3_ARGS = getattr(
     "BGPQ3_ARGS",
     {"ipv6": ["-r", "16", "-R", "48"], "ipv4": ["-r", "8", "-R", "24"]},
 )
+BGPQ4_KEEP_SOURCE_IN_SET = getattr(configuration, "BGPQ4_KEEP_SOURCE_IN_SET", False)
 JINJA2_TEMPLATE_EXTENSIONS = getattr(configuration, "JINJA2_TEMPLATE_EXTENSIONS", [])
 CONFIG_CONTEXT_MERGE_STRATEGY = {
     "recursive": getattr(configuration, "CONFIG_CONTEXT_RECURSIVE_MERGE", True),
