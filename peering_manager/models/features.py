@@ -5,16 +5,13 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
 from django.db import models
-from django.db.models.signals import class_prepared
-from django.dispatch import receiver
 from django.utils import timezone
 from taggit.managers import TaggableManager
 
 from core.enums import JobStatus, ObjectChangeAction
-from extras.utils import register_features
 from utils.functions import merge_hash, serialize_object
 
-from ..registry import registry
+from ..registry import MODEL_FEATURES_KEY, MODELS_KEY, registry
 
 __all__ = (
     "ChangeLoggingMixin",
@@ -25,6 +22,7 @@ __all__ = (
     "SynchronisedDataMixin",
     "TagsMixin",
     "WebhooksMixin",
+    "register_models",
 )
 
 
@@ -375,22 +373,32 @@ class WebhooksMixin(models.Model):
         abstract = True
 
 
-FEATURES_MAP = {
+FEATURES_MAP: dict[str, type[models.Model]] = {
     "config-contexts": ConfigContextMixin,
     "export-templates": ExportTemplatesMixin,
     "jobs": JobsMixin,
     "tags": TagsMixin,
-    "synchronised_data": SynchronisedDataMixin,
+    "synchronised-data": SynchronisedDataMixin,
     "webhooks": WebhooksMixin,
 }
-registry["model_features"].update(
-    {feature: defaultdict(set) for feature in FEATURES_MAP}
-)
+registry[MODEL_FEATURES_KEY].update({f: defaultdict(set) for f in FEATURES_MAP})
 
 
-@receiver(class_prepared)
-def _register_features(sender, **kwargs):
-    features = {
-        feature for feature, cls in FEATURES_MAP.items() if issubclass(sender, cls)
-    }
-    register_features(sender, features)
+def register_models(*models: type[models.Model]) -> None:
+    """
+    Register one or more models in Peering Manager.
+
+    This should be called for each relevant model when an app config calls `ready()`.
+    """
+    for model in models:
+        app_label, model_name = model._meta.label_lower.split(".")
+        registry[MODELS_KEY][app_label].add(model_name)
+
+        features = {f for f, cls in FEATURES_MAP.items() if issubclass(model, cls)}
+        for feature in features:
+            try:
+                registry[MODEL_FEATURES_KEY][feature][app_label].add(model_name)
+            except KeyError as exc:
+                raise KeyError(
+                    f"{feature} is not a valid model feature. Valid keys are {registry[MODEL_FEATURES_KEY].keys()}"
+                ) from exc
