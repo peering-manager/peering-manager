@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -7,7 +10,14 @@ from django.contrib.auth.mixins import (
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 
-__all__ = ("GetReturnURLMixin", "PermissionRequiredMixin")
+from peering_manager.registry import VIEWS_KEY, registry
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from django.db import models
+
+__all__ = ("GetReturnURLMixin", "PermissionRequiredMixin", "register_model_view")
 
 
 class PermissionRequiredMixin(_PermissionRequiredMixin):
@@ -69,3 +79,66 @@ class GetReturnURLMixin:
 
         # If all fails, send the user to the homepage
         return reverse("home")
+
+
+def get_viewname(
+    model: type[models.Model], action: str | None = None, rest_api: bool = False
+) -> str:
+    """
+    Return the view name for a given model and action.
+    """
+    app_label = model._meta.app_label
+    model_name = model._meta.model_name
+
+    if rest_api:
+        viewname = f"{app_label}-api:{model_name}"
+        if action:
+            viewname += f"-{action}"
+    else:
+        viewname = f"{app_label}:{model_name}"
+        if action:
+            viewname += f"_{action}"
+
+    return viewname
+
+
+def register_model_view(
+    model: type[models.Model],
+    name: str = "",
+    path: str | None = None,
+    detail: bool = True,
+    kwargs: Any | None = None,
+) -> Callable[..., Any]:
+    """
+    A decorator to reguster a view for any model. This is mostly used to inject tabs
+    within a model detail view. This can be used like:
+
+        @register_model_view(AutonomousSystem, "myview", path="my-own-view")
+        class MyView(ObjectView):
+            ...
+
+    This will automatically create a URL path for the view like
+    `/peering/autonomoussystem/<pk>/my-own-view/` resolvable by the name
+    `peering:autonomoussystem_myview`.
+    """
+
+    def _wrapper(cls):
+        app_label = model._meta.app_label
+        model_name = model._meta.model_name
+
+        if model_name not in registry[VIEWS_KEY][app_label]:
+            registry[VIEWS_KEY][app_label][model_name] = []
+
+        registry[VIEWS_KEY][app_label][model_name].append(
+            {
+                "name": name,
+                "view": cls,
+                "path": path if path is not None else name,
+                "detail": detail,
+                "kwargs": kwargs or {},
+            }
+        )
+
+        return cls
+
+    return _wrapper
