@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections import defaultdict
 
 from django.conf import settings
@@ -10,6 +12,7 @@ from taggit.managers import TaggableManager
 
 from core.enums import JobStatus, ObjectChangeAction
 from utils.functions import merge_hash, serialize_object
+from utils.views import register_model_view
 
 from ..registry import MODEL_FEATURES_KEY, MODELS_KEY, registry
 
@@ -402,3 +405,12 @@ def register_models(*models: type[models.Model]) -> None:
                 raise KeyError(
                     f"{feature} is not a valid model feature. Valid keys are {registry[MODEL_FEATURES_KEY].keys()}"
                 ) from exc
+
+        if issubclass(model, ChangeLoggingMixin):
+            register_model_view(model=model, name="changelog", kwargs={"model": model})(
+                "peering_manager.views.generic.ObjectChangeLogView"
+            )
+        if issubclass(model, JobsMixin):
+            register_model_view(model=model, name="jobs", kwargs={"model": model})(
+                "peering_manager.views.generic.ObjectJobsView"
+            )
