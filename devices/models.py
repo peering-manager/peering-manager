@@ -20,6 +20,7 @@ from peering.models import (
     RoutingPolicy,
 )
 from peering_manager.models import (
+    JobsMixin,
     OrganisationalModel,
     PrimaryModel,
     PushedDataMixin,
@@ -110,7 +111,7 @@ class Platform(OrganisationalModel):
         return DECRYPTERS[self.password_algorithm](password)
 
 
-class Router(PushedDataMixin, PrimaryModel):
+class Router(JobsMixin, PushedDataMixin, PrimaryModel):
     local_autonomous_system = models.ForeignKey(
         to="peering.AutonomousSystem", on_delete=models.CASCADE, null=True
     )
