@@ -5,9 +5,14 @@ from django.db import transaction
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import pluralize
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from django.views.generic import View
 
+from extras.constants import EMAIL_SENT_JOURNAL_TEMPLATE
+from extras.enums import JournalEntryKind
+from extras.models import JournalEntry
 from extras.views import ObjectConfigContextView
 from net.filtersets import ConnectionFilterSet
 from net.forms import ConnectionFilterForm
@@ -265,11 +270,43 @@ class AutonomousSystemEmail(PermissionRequiredMixin, View):
                 to=form.cleaned_data["recipient"],
                 cc=form.cleaned_data["cc"],
             )
-            sent = mail.send()
-            if sent == 1:
-                messages.success(request, "Email sent.")
+
+            try:
+                sent = mail.send()
+                error_message = None
+            except Exception as exc:
+                sent = 0
+                error_message = f"Unable to send e-mail: {exc!s}"
+
+            if error_message:
+                message = mark_safe(
+                    "Unable to send the e-mail, see "
+                    f'<a href="{reverse("peering:autonomoussystem_journal", kwargs={"pk": instance.pk})}">'
+                    "journal</a> for more details."
+                )
+                messages.error(request, message)
+            elif not sent:
+                message = "E-mail not sent, no recipients."
+                messages.warning(request, message)
             else:
-                messages.error(request, "Unable to send the email.")
+                message = "E-mail sent."
+                messages.success(request, message)
+
+            JournalEntry.log(
+                object=instance,
+                comments=EMAIL_SENT_JOURNAL_TEMPLATE.format(
+                    message=error_message or message,
+                    recipients=", ".join(mail.to),
+                    cc=", ".join(mail.cc),
+                    sender=mail.from_email,
+                    subject=mail.subject,
+                    body=mail.body,
+                ),
+                user=request.user,
+                kind=(
+                    JournalEntryKind.DANGER if error_message else JournalEntryKind.INFO
+                ),
+            )
 
         return redirect(instance.get_absolute_url())
 

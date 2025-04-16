@@ -6,8 +6,11 @@ from django.views.generic import View
 
 from core.models import Job, ObjectChange
 from core.tables import JobTable, ObjectChangeTable
+from extras.forms import JournalEntryForm
+from extras.models import JournalEntry
+from extras.tables import JournalEntryTable
 
-__all__ = ("ObjectChangeLogView", "ObjectJobsView")
+__all__ = ("ObjectChangeLogView", "ObjectJobsView", "ObjectJournalView")
 
 
 class ObjectChangeLogView(View):
@@ -22,22 +25,20 @@ class ObjectChangeLogView(View):
             name='autonomoussystem_changelog',
             kwargs={'model': AutonomousSystem},
         ),
-
-    The `base_template` parameter is the name of the template to extend.
     """
 
     tab = "changelog"
 
     def get(self, request, model, **kwargs):
-        obj = get_object_or_404(model, **kwargs)
+        instance = get_object_or_404(model, **kwargs)
 
         # Gather all changes for this object (and its related objects)
         content_type = ContentType.objects.get_for_model(model)
         objectchanges = ObjectChange.objects.prefetch_related(
             "user", "changed_object_type"
         ).filter(
-            Q(changed_object_type=content_type, changed_object_id=obj.pk)
-            | Q(related_object_type=content_type, related_object_id=obj.pk)
+            Q(changed_object_type=content_type, changed_object_id=instance.pk)
+            | Q(related_object_type=content_type, related_object_id=instance.pk)
         )
         objectchanges_table = ObjectChangeTable(
             data=objectchanges, orderable=False, user=request.user
@@ -55,7 +56,7 @@ class ObjectChangeLogView(View):
             request,
             "extras/object_changelog.html",
             {
-                "instance": obj,
+                "instance": instance,
                 "table": objectchanges_table,
                 "base_template": base_template,
                 "tab": self.tab,
@@ -73,8 +74,6 @@ class ObjectJobsView(View):
             name='router_jobs',
             kwargs={'model': Router}
         ),
-
-    The `base_template` parameter is the name of the template to extend.
     """
 
     tab = "jobs"
@@ -88,10 +87,10 @@ class ObjectJobsView(View):
 
     def get(self, request, model, **kwargs):
         self.model = model
-        obj = self.get_object(request, **kwargs)
+        instance = self.get_object(request, **kwargs)
 
         # Gather all Jobs for this object
-        jobs = self.get_jobs(obj)
+        jobs = self.get_jobs(instance)
         jobs_table = JobTable(data=jobs, orderable=False, user=request.user)
         jobs_table.configure(request)
 
@@ -106,8 +105,66 @@ class ObjectJobsView(View):
             request,
             "core/object_jobs.html",
             {
-                "instance": obj,
+                "instance": instance,
                 "table": jobs_table,
+                "base_template": base_template,
+                "tab": self.tab,
+            },
+        )
+
+
+class ObjectJournalView(View):
+    """
+    Show all journal entries for an object. The model class must be passed as
+    a keyword argument when referencing this view in a URL path. For example:
+
+        path(
+            'autonomous-systems/<int:pk>/journal/',
+            ObjectJournalView.as_view(),
+            name='autonomoussystem_journal',
+            kwargs={'model': AutonomousSystem}
+        ),
+    """
+
+    tab = "journal"
+
+    def get(self, request, model, **kwargs):
+        instance = get_object_or_404(model, **kwargs)
+
+        # Gather all journal entries for this object
+        content_type = ContentType.objects.get_for_model(model)
+        journalentries = JournalEntry.objects.prefetch_related("created_by").filter(
+            assigned_object_type=content_type, assigned_object_id=instance.pk
+        )
+        journalentry_table = JournalEntryTable(journalentries, user=request.user)
+        journalentry_table.configure(request)
+        journalentry_table.columns.hide("assigned_object_type")
+        journalentry_table.columns.hide("assigned_object")
+
+        if request.user.has_perm("extras.add_journalentry"):
+            form = JournalEntryForm(
+                initial={
+                    "assigned_object_type": ContentType.objects.get_for_model(instance),
+                    "assigned_object_id": instance.pk,
+                }
+            )
+        else:
+            form = None
+
+        # Check whether a header template exists for this model
+        base_template = f"{model._meta.app_label}/{model._meta.model_name}/_base.html"
+        try:
+            template.loader.get_template(base_template)
+        except template.TemplateDoesNotExist:
+            base_template = "_base.html"
+
+        return render(
+            request,
+            "extras/object_journal.html",
+            {
+                "instance": instance,
+                "form": form,
+                "table": journalentry_table,
                 "base_template": base_template,
                 "tab": self.tab,
             },

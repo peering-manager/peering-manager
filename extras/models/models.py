@@ -1,19 +1,33 @@
-import json
+from __future__ import annotations
 
+import json
+from typing import TYPE_CHECKING
+
+from django.conf import settings
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework.utils.encoders import JSONEncoder
 
 from peering_manager.jinja2 import render_jinja2
-from peering_manager.models import ChangeLoggedModel, SynchronisedDataMixin
+from peering_manager.models import (
+    ChangeLoggedModel,
+    ExportTemplatesMixin,
+    SynchronisedDataMixin,
+    TagsMixin,
+)
 
 from ..conditions import ConditionSet
-from ..enums import WEBHOOK_HTTP_CONTENT_TYPE_JSON, HttpMethod
+from ..enums import WEBHOOK_HTTP_CONTENT_TYPE_JSON, HttpMethod, JournalEntryKind
 from ..utils import FeatureQuery
 
-__all__ = ("ExportTemplate", "Webhook")
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
+
+__all__ = ("ExportTemplate", "JournalEntry", "Webhook")
 
 
 class ExportTemplate(SynchronisedDataMixin, ChangeLoggedModel):
@@ -71,6 +85,63 @@ class ExportTemplate(SynchronisedDataMixin, ChangeLoggedModel):
         """
         return render_jinja2(
             self.template, {"dataset": self.content_type.model_class().objects.all()}
+        )
+
+
+class JournalEntry(TagsMixin, ExportTemplatesMixin, ChangeLoggedModel):
+    """
+    A remark for an object at a given time that completes change logging.
+
+    Journal entries are not used to track state changes of an object but to
+    record something that happened to the object which is not a data change.
+
+    For example, it can be used to record when an e-mail has been sent to an
+    autonomous system.
+    """
+
+    assigned_object_type = models.ForeignKey(
+        to="contenttypes.ContentType", on_delete=models.CASCADE
+    )
+    assigned_object_id = models.PositiveBigIntegerField()
+    assigned_object = GenericForeignKey(
+        ct_field="assigned_object_type", fk_field="assigned_object_id"
+    )
+    created_by = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True
+    )
+    kind = models.CharField(
+        max_length=30, choices=JournalEntryKind, default=JournalEntryKind.INFO
+    )
+    comments = models.TextField()
+
+    class Meta:
+        ordering = ["-created"]
+        indexes = [models.Index(fields=["assigned_object_type", "assigned_object_id"])]
+        verbose_name_plural = "journal entries"
+
+    def __str__(self) -> str:
+        created = timezone.localtime(self.created)
+        return f"{created.date().isoformat()} {created.time().isoformat(timespec='minutes')} ({self.get_kind_display()})"
+
+    def get_absolute_url(self) -> str:
+        return reverse("extras:journalentry_view", args=[self.pk])
+
+    def get_kind_colour(self) -> str:
+        return self.kind
+
+    @classmethod
+    def log(
+        cls,
+        object: models.Model,
+        comments: str,
+        user: User | None = None,
+        kind: JournalEntryKind = JournalEntryKind.INFO,
+    ) -> JournalEntry:
+        """
+        Creates and saves a new journal entry for an object.
+        """
+        return cls.objects.create(
+            assigned_object=object, created_by=user, kind=kind, comments=comments
         )
 
 

@@ -22,6 +22,7 @@ __all__ = (
     "ContentTypesColumn",
     "DateTimeColumn",
     "LinkedCountColumn",
+    "MarkdownColumn",
     "SelectColumn",
     "TagColumn",
     "ToggleColumn",
@@ -313,6 +314,27 @@ class LinkedCountColumn(tables.Column):
                 )
             return mark_safe(f'<a href="{url}">{value}</a>')
         return value
+
+    def value(self, value):
+        return value
+
+
+class MarkdownColumn(tables.TemplateColumn):
+    """
+    Render a Markdown string as a column.
+    """
+
+    template_code = """
+    {% load helpers %}
+    {% if value %}
+    {{ value|markdown }}
+    {% else %}
+    &mdash;
+    {% endif %}
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(template_code=self.template_code, **kwargs)
 
     def value(self, value):
         return value

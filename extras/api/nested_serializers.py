@@ -7,6 +7,7 @@ from ..models import (
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
+    JournalEntry,
     Tag,
     Webhook,
 )
@@ -47,6 +48,16 @@ class NestedIXAPISerializer(WritableNestedSerializer):
     class Meta:
         model = IXAPI
         fields = ["id", "display", "name", "url"]
+
+
+class NestedJournalEntrySerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name="extras-api:journalentry-detail"
+    )
+
+    class Meta:
+        model = JournalEntry
+        fields = ["id", "url", "display", "created"]
 
 
 class NestedTagSerializer(WritableNestedSerializer):

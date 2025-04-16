@@ -1,0 +1,31 @@
+{% extends 'extras/journalentry/_base.html' %}
+{% load helpers %}
+{% block subcontent %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header"><strong>Details</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Object</td>
+          <td>{{ instance.assigned_object | as_link }}</td>
+        </tr>
+        <tr>
+          <td>Created</td>
+          <td>{{ instance.created | date_span }}</td>
+        </tr>
+        <tr>
+          <td>Created by</td>
+          <td><code>{{ instance.created_by }}</code></td>
+        </tr>
+        <tr>
+          <td>Kind</td>
+          <td><span class="badge text-bg-{{ instance.get_kind_colour }}">{{ instance.kind }}</span></td>
+        </tr>
+      </table>
+    </div>
+    {% include 'includes/tags_card.html' with tags=instance.tags.all url='extras:tag_list' %}
+  </div>
+  <div class="col-md-6">{% include 'includes/comments_card.html' %}</div>
+</div>
+{% endblock %}

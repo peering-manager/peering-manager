@@ -138,6 +138,7 @@
                   <li class="nav-item"><a href="{% url 'core:datasource_list' %}" class="nav-link{% if url_path|contains:'/core/data-sources/' %} active{% endif %}">Data Sources</a></li>
                   <li class="nav-item"><a href="{% url 'core:job_list' %}" class="nav-link{% if url_path|contains:'/core/jobs/' %} active{% endif %}">Jobs</a></li>
                   <li class="nav-item"><a href="{% url 'extras:webhook_list' %}" class="nav-link{% if url_path|contains:'/extras/webhooks/' %} active{% endif %}">Webhooks</a></li>
+                  <li class="nav-item"><a href="{% url 'extras:journalentry_list' %}" class="nav-link{% if url_path|contains:'/extras/journal-entries/' %} active{% endif %}">Journal Entries</a></li>
                   <li class="nav-item"><a href="{% url 'core:objectchange_list' %}" class="nav-link{% if url_path|contains:'/core/changelog/' %} active{% endif %}">Change Log</a></li>
                 </ul>
               </li>
