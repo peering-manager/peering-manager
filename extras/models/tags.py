@@ -17,10 +17,10 @@ class Tag(TagBase, ChangeLoggedModel):
     class Meta:
         ordering = ["name"]
 
-    def get_absolute_url(self):
-        return reverse("extras:tag_view", args=[self.pk])
+    def get_absolute_url(self) -> str:
+        return reverse("extras:tag", args=[self.pk])
 
-    def slugify(self, tag, i=None):
+    def slugify(self, tag, i=None) -> str:
         # Allow Unicode in Tag slugs (avoids empty slugs for Tags with all-Unicode names)
         slug = slugify(tag, allow_unicode=True)
         if i is not None:

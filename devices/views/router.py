@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.views import View
 
-from extras.views import BulkEditView, ObjectConfigContextView
+from extras.views import ObjectConfigContextView
 from net.models import Connection
 from peering.filtersets import (
     DirectPeeringSessionFilterSet,
@@ -20,6 +20,7 @@ from peering.tables import (
 )
 from peering_manager.views.generic import (
     BulkDeleteView,
+    BulkEditView,
     ObjectChildrenView,
     ObjectDeleteView,
     ObjectEditView,
