@@ -26,85 +26,29 @@ from peering_manager.views.generic import (
     ObjectListView,
     ObjectView,
 )
-from utils.views import PermissionRequiredMixin
+from utils.views import PermissionRequiredMixin, register_model_view
 
-from .filtersets import ConfigurationFilterSet, PlatformFilterSet, RouterFilterSet
-from .forms import (
-    ConfigurationFilterForm,
-    ConfigurationForm,
-    PlatformForm,
-    RouterBulkEditForm,
-    RouterFilterForm,
-    RouterForm,
+from ..filtersets import RouterFilterSet
+from ..forms import RouterBulkEditForm, RouterFilterForm, RouterForm
+from ..models import Router
+from ..tables import RouterConnectionTable, RouterTable
+
+__all__ = (
+    "RouterBulkDelete",
+    "RouterBulkEdit",
+    "RouterConfigContext",
+    "RouterConfiguration",
+    "RouterConnections",
+    "RouterDelete",
+    "RouterDirectPeeringSessions",
+    "RouterEdit",
+    "RouterInternetExchangesPeeringSessions",
+    "RouterList",
+    "RouterView",
 )
-from .models import Configuration, Platform, Router
-from .tables import (
-    ConfigurationTable,
-    PlatformTable,
-    RouterConnectionTable,
-    RouterTable,
-)
 
 
-class ConfigurationList(ObjectListView):
-    permission_required = "devices.view_configuration"
-    queryset = Configuration.objects.all()
-    filterset = ConfigurationFilterSet
-    filterset_form = ConfigurationFilterForm
-    table = ConfigurationTable
-    template_name = "devices/configuration/list.html"
-
-
-class ConfigurationView(ObjectView):
-    permission_required = "devices.view_configuration"
-    queryset = Configuration.objects.all()
-    tab = "main"
-
-    def get_extra_context(self, request, instance):
-        return {"routers": Router.objects.filter(configuration_template=instance)}
-
-
-class ConfigurationEdit(ObjectEditView):
-    queryset = Configuration.objects.all()
-    form = ConfigurationForm
-
-
-class ConfigurationDelete(ObjectDeleteView):
-    permission_required = "devices.delete_configuration"
-    queryset = Configuration.objects.all()
-
-
-class ConfigurationBulkDelete(BulkDeleteView):
-    queryset = Configuration.objects.all()
-    filterset = ConfigurationFilterSet
-    table = ConfigurationTable
-
-
-class PlatformList(ObjectListView):
-    permission_required = "devices.view_platform"
-    queryset = Platform.objects.annotate(
-        router_count=Count("router", distinct=True)
-    ).order_by("name")
-    table = PlatformTable
-    template_name = "devices/platform/list.html"
-
-
-class PlatformEdit(ObjectEditView):
-    queryset = Platform.objects.all()
-    form = PlatformForm
-
-
-class PlatformDelete(ObjectDeleteView):
-    permission_required = "devices.delete_platform"
-    queryset = Platform.objects.all()
-
-
-class PlatformBulkDelete(BulkDeleteView):
-    queryset = Platform.objects.all()
-    filterset = PlatformFilterSet
-    table = PlatformTable
-
-
+@register_model_view(model=Router, name="list", path="", detail=False)
 class RouterList(ObjectListView):
     permission_required = "devices.view_router"
     queryset = (
@@ -124,6 +68,7 @@ class RouterList(ObjectListView):
     template_name = "devices/router/list.html"
 
 
+@register_model_view(model=Router)
 class RouterView(ObjectView):
     permission_required = "devices.view_router"
     queryset = Router.objects.all()
@@ -133,17 +78,20 @@ class RouterView(ObjectView):
         return {"connections": Connection.objects.filter(router=instance)}
 
 
-class RouterConfigContext(ObjectConfigContextView):
-    permission_required = "devices.view_router"
-    queryset = Router.objects.all()
-    base_template = "devices/router/_base.html"
-
-
+@register_model_view(model=Router, name="add", detail=False)
+@register_model_view(model=Router, name="edit")
 class RouterEdit(ObjectEditView):
     queryset = Router.objects.all()
     form = RouterForm
 
 
+@register_model_view(model=Router, name="delete")
+class RouterDelete(ObjectDeleteView):
+    permission_required = "devices.delete_router"
+    queryset = Router.objects.all()
+
+
+@register_model_view(model=Router, name="bulk_edit", path="edit", detail=False)
 class RouterBulkEdit(BulkEditView):
     permission_required = "devices.change_router"
     queryset = Router.objects.all()
@@ -152,17 +100,21 @@ class RouterBulkEdit(BulkEditView):
     form = RouterBulkEditForm
 
 
-class RouterDelete(ObjectDeleteView):
-    permission_required = "devices.delete_router"
-    queryset = Router.objects.all()
-
-
+@register_model_view(model=Router, name="bulk_delete", path="delete", detail=False)
 class RouterBulkDelete(BulkDeleteView):
     queryset = Router.objects.all()
     filterset = RouterFilterSet
     table = RouterTable
 
 
+@register_model_view(model=Router, name="configcontext", path="config-context")
+class RouterConfigContext(ObjectConfigContextView):
+    permission_required = "devices.view_router"
+    queryset = Router.objects.all()
+    base_template = "devices/router/_base.html"
+
+
+@register_model_view(model=Router, name="configuration", path="configuration")
 class RouterConfiguration(PermissionRequiredMixin, View):
     permission_required = "devices.view_router_configuration"
     tab = "configuration"
@@ -182,6 +134,7 @@ class RouterConfiguration(PermissionRequiredMixin, View):
         )
 
 
+@register_model_view(model=Router, name="connections", path="connections")
 class RouterConnections(ObjectChildrenView):
     permission_required = ("devices.view_router", "net.view_connection")
     queryset = Router.objects.all()
@@ -194,6 +147,9 @@ class RouterConnections(ObjectChildrenView):
         return Connection.objects.filter(router=parent)
 
 
+@register_model_view(
+    model=Router, name="direct_peering_sessions", path="direct-peering-sessions"
+)
 class RouterDirectPeeringSessions(ObjectChildrenView):
     permission_required = ("devices.view_router", "peering.view_directpeeringsession")
     queryset = Router.objects.all()
@@ -208,6 +164,9 @@ class RouterDirectPeeringSessions(ObjectChildrenView):
         return parent.directpeeringsession_set.order_by("relationship", "ip_address")
 
 
+@register_model_view(
+    model=Router, name="internet_exchange_peering_sessions", path="ix-peering-sessions"
+)
 class RouterInternetExchangesPeeringSessions(ObjectChildrenView):
     permission_required = "devices.view_router"
     queryset = Router.objects.all()

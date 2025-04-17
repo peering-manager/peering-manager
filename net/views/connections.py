@@ -51,13 +51,6 @@ class ConnectionView(ObjectView):
         }
 
 
-@register_model_view(model=Connection, name="configcontext", path="config-context")
-class ConnectionConfigContext(ObjectConfigContextView):
-    permission_required = "net.view_connection"
-    queryset = Connection.objects.all()
-    base_template = "net/connection/_base.html"
-
-
 @register_model_view(model=Connection, name="add", detail=False)
 @register_model_view(model=Connection, name="edit")
 class ConnectionEdit(ObjectEditView):
@@ -85,3 +78,10 @@ class ConnectionBulkDelete(BulkDeleteView):
     queryset = Connection.objects.all()
     filterset = ConnectionFilterSet
     table = ConnectionTable
+
+
+@register_model_view(model=Connection, name="configcontext", path="config-context")
+class ConnectionConfigContext(ObjectConfigContextView):
+    permission_required = "net.view_connection"
+    queryset = Connection.objects.all()
+    base_template = "net/connection/_base.html"
