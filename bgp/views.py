@@ -12,6 +12,14 @@ from .forms import RelationshipFilterForm, RelationshipForm
 from .models import Relationship
 from .tables import RelationshipTable
 
+__all__ = (
+    "RelationshipBulkDelete",
+    "RelationshipDelete",
+    "RelationshipEdit",
+    "RelationshipList",
+    "RelationshipView",
+)
+
 
 @register_model_view(model=Relationship, name="list", path="", detail=False)
 class RelationshipList(ObjectListView):
