@@ -19,7 +19,7 @@
 {% block content %}
 <ul class="nav nav-tabs mb-3">
   <li class="nav-item">
-    <a class="nav-link{% if tab == 'main' %} active{% endif %}" href="{% url 'peering:community_view' pk=instance.pk %}">
+    <a class="nav-link{% if tab == 'main' %} active{% endif %}" href="{% url 'peering:community' pk=instance.pk %}">
       <i class="fa-fw fa-solid fa-info-circle"></i> Info
     </a>
   </li>

@@ -19,14 +19,14 @@
 {% endif %}
 {% endblock %}
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'peering:autonomoussystem_view' pk=instance.autonomous_system.pk %}">{{ instance.autonomous_system }}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'peering:autonomoussystem' pk=instance.autonomous_system.pk %}">{{ instance.autonomous_system }}</a></li>
 <li class="breadcrumb-item"><a href="{% url 'peering:autonomoussystem_direct_peering_sessions' pk=instance.autonomous_system.pk %}">Direct Peering Sessions</a></li>
 <li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
 <ul class="nav nav-tabs mb-3">
   <li class="nav-item">
-    <a class="nav-link{% if tab == 'main' %} active{% endif %}" href="{% url 'peering:directpeeringsession_view' pk=instance.pk %}">
+    <a class="nav-link{% if tab == 'main' %} active{% endif %}" href="{% url 'peering:directpeeringsession' pk=instance.pk %}">
       <i class="fa-fw fa-solid fa-info-circle"></i> Info
     </a>
   </li>
