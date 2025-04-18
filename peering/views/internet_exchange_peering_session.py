@@ -99,7 +99,9 @@ class InternetExchangePeeringSessionConfigContext(ObjectConfigContextView):
     base_template = "peering/internetexchangepeeringsession/_base.html"
 
 
-@register_model_view(InternetExchange, name="add_from_peeringdb", detail=False)
+@register_model_view(
+    InternetExchangePeeringSession, name="add_from_peeringdb", detail=False
+)
 class InternetExchangePeeringSessionImportFromPeeringDB(ImportFromObjectView):
     permission_required = "peering.add_internetexchangepeeringsession"
     queryset = NetworkIXLan.objects.all()

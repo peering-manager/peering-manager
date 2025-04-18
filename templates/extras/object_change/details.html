@@ -55,10 +55,10 @@
             <div class="card-header">
               <strong>Difference</strong>
               <div class="btn-group float-end" role="group" aria-label="Change Navigation">
-                <a {% if previous_change %}href="{% url 'core:objectchange_view' pk=previous_change.pk %}"{% endif %} class="btn btn-xs btn-secondary{% if not previous_change %} disabled{% endif %}">
+                <a {% if previous_change %}href="{% url 'core:objectchange' pk=previous_change.pk %}"{% endif %} class="btn btn-xs btn-secondary{% if not previous_change %} disabled{% endif %}">
                   <i class="fa-fw fa-solid fa-chevron-left"></i> Previous
                 </a>
-                <a {% if next_change %}href="{% url 'core:objectchange_view' pk=next_change.pk %}"{% endif %} class="btn btn-xs btn-secondary{% if not next_change %} disabled{% endif %}">
+                <a {% if next_change %}href="{% url 'core:objectchange' pk=next_change.pk %}"{% endif %} class="btn btn-xs btn-secondary{% if not next_change %} disabled{% endif %}">
                   Next <i class="fa-fw fa-solid fa-chevron-right"></i>
                 </a>
               </div>
@@ -91,7 +91,7 @@
                 {% endspaceless %}
 {% endfor %}</pre>
               {% elif non_atomic_change %}
-              Warning: Comparing non-atomic change to previous change record (<a href="{% url 'core:objectchange_view' pk=previous_change.pk %}">{{ previous_change.pk }}</a>)
+              Warning: Comparing non-atomic change to previous change record (<a href="{% url 'core:objectchange' pk=previous_change.pk %}">{{ previous_change.pk }}</a>)
               {% else %}
               <span class="text-muted">None</span>
               {% endif %}
