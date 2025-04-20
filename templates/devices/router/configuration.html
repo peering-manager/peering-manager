@@ -150,10 +150,11 @@
 
   // When the modal is closed, reset the button back to its defaults
   $('#main-modal').on('hidden.bs.modal', function (e) {
-    $('#commit').removeAttr('disabled')
-                .removeClass('btn-warning', 'btn-danger', 'btn-success')
-                .addClass('btn-primary')
-                .html('Commit changes').show();
+    var button = $('#commit');
+    button.removeAttr('disabled');
+    button.removeClass(['btn-warning', 'btn-danger', 'btn-success']).addClass(['btn-primary', 'invisible']);
+    button.html('Commit changes');
+    console.log(button);
   });
 
   var maintenance = {% if instance.status == 'maintenance' %}true{% else %}false{% endif %};

@@ -37,27 +37,27 @@ var PeeringManager = {
   },
   resetPingButton: function (button) {
     button.removeAttr('disabled');
-    button.removeClass('btn-warning', 'btn-danger', 'btn-success');
+    button.removeClass(['btn-warning', 'btn-danger', 'btn-success']);
     button.addClass('btn-primary').html('<i class="fa-fw fa-solid fa-plug"></i> Ping');
   },
   resetDeployButton: function (button) {
     button.removeAttr('disabled');
-    button.removeClass('btn-warning', 'btn-danger', 'btn-success');
+    button.removeClass(['btn-warning', 'btn-danger', 'btn-success']);
     button.addClass('btn-primary').html('<i class="fa-fw fa-solid fa-cogs"></i> Deploy');
   },
   resetSynchroniseButton: function (button, css_class = "btn-success") {
     button.removeAttr('disabled');
-    button.removeClass('btn-warning', 'btn-danger');
+    button.removeClass(['btn-warning', 'btn-danger']);
     button.addClass(css_class).html('<i class="fa-fw fa-solid fa-rotate"></i> Synchronise');
   },
   resetPollSessionsButton: function (button) {
     button.removeAttr('disabled');
-    button.removeClass('btn-warning', 'btn-danger', 'btn-primary');
+    button.removeClass(['btn-warning', 'btn-danger', 'btn-primary']);
     button.addClass('btn-success').html('<i class="fa-fw fa-solid fa-rotate"></i> Poll Sessions');
   },
   resetConfirmButton: function (button) {
     button.removeAttr('disabled');
-    button.removeClass('btn-warning', 'btn-danger', 'btn-success');
+    button.removeClass(['btn-warning', 'btn-danger', 'btn-success']);
     button.addClass('btn-primary').html('Confirm');
   },
   pollJob: function (job, doneHandler, failHandler = undefined) {
