@@ -20,7 +20,6 @@ __all__ = (
     "generate_signature",
     "get_key_in_hash",
     "get_permission_for_model",
-    "get_viewname",
     "handle_protectederror",
     "is_taggable",
     "merge_hash",
@@ -181,30 +180,6 @@ def get_permission_for_model(model, action):
         raise ValueError(f"Unsupported action: {action}")
 
     return f"{model._meta.app_label}.{action}_{model._meta.model_name}"
-
-
-def get_viewname(model, action=None, rest_api=False):
-    """
-    Return the view name for the given model and action, if valid.
-    """
-    app_label = model._meta.app_label
-    model_name = model._meta.model_name
-
-    if rest_api:
-        # Alter the app_label for group and user model_name to point to users app
-        if app_label == "auth" and model_name in ["group", "user"]:
-            app_label = "users"
-        viewname = f"{app_label}-api:{model_name}"
-        # Append the action, if any
-        if action:
-            viewname = f"{viewname}-{action}"
-    else:
-        viewname = f"{app_label}:{model_name}"
-        # Append the action, if any
-        if action:
-            viewname = f"{viewname}_{action}"
-
-    return viewname
 
 
 def handle_protectederror(obj_list, request, e):
