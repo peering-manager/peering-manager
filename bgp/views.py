@@ -35,7 +35,6 @@ class RelationshipList(ObjectListView):
 class RelationshipView(ObjectView):
     permission_required = "bgp.view_relationship"
     queryset = Relationship.objects.all()
-    tab = "main"
 
 
 @register_model_view(model=Relationship, name="add", detail=False)

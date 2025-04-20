@@ -26,7 +26,7 @@ from peeringdb.forms import NetworkIXLanFilterForm
 from peeringdb.tables import NetworkIXLanTable
 from utils.forms import ConfirmationForm
 from utils.functions import count_related
-from utils.views import register_model_view
+from utils.views import ViewTab, register_model_view
 
 from ..filtersets import (
     InternetExchangeFilterSet,
@@ -80,7 +80,6 @@ class InternetExchangeList(ObjectListView):
 class InternetExchangeView(ObjectView):
     permission_required = "peering.view_internetexchange"
     queryset = InternetExchange.objects.all()
-    tab = "main"
 
     def get_extra_context(self, request, instance):
         if not instance.linked_to_peeringdb:
@@ -140,7 +139,7 @@ class InternetExchangeConnections(ObjectChildrenView):
     filterset = ConnectionFilterSet
     filterset_form = ConnectionFilterForm
     template_name = "peering/internetexchange/connections.html"
-    tab = "connections"
+    tab = ViewTab(label="Connections", permission="peering.view_connection")
 
     def get_children(self, request, parent):
         return Connection.objects.filter(internet_exchange_point=parent)
@@ -158,7 +157,11 @@ class InternetExchangePeeringSessions(ObjectChildrenView):
     filterset_form = InternetExchangePeeringSessionFilterForm
     table = InternetExchangePeeringSessionTable
     template_name = "peering/internetexchange/sessions.html"
-    tab = "sessions"
+    tab = ViewTab(
+        label="Peering Sessions",
+        permission="peering.view_internetexchangepeeringsession",
+        weight=2000,
+    )
 
     def get_children(self, request, parent):
         return parent.get_peering_sessions()
@@ -173,7 +176,7 @@ class InternetExchangePeers(ObjectChildrenView):
     filterset_form = NetworkIXLanFilterForm
     table = NetworkIXLanTable
     template_name = "peering/internetexchange/peers.html"
-    tab = "peers"
+    tab = ViewTab(label="Available Peers", weight=3000)
 
     def get_children(self, request, parent):
         return parent.get_available_peers()
@@ -185,7 +188,11 @@ class InternetExchangePeers(ObjectChildrenView):
 @register_model_view(InternetExchange, name="ixapi")
 class InternetExchangeIXAPI(PermissionRequiredMixin, View):
     permission_required = "peering.view_internet_exchange_point_ixapi"
-    tab = "ixapi"
+    tab = ViewTab(
+        label="IX-API",
+        permission="peering.view_internet_exchange_point_ixapi",
+        weight=4000,
+    )
 
     def get(self, request, pk):
         instance = get_object_or_404(InternetExchange, pk=pk)

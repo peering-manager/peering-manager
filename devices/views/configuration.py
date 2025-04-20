@@ -38,7 +38,6 @@ class ConfigurationList(ObjectListView):
 class ConfigurationView(ObjectView):
     permission_required = "devices.view_configuration"
     queryset = Configuration.objects.all()
-    tab = "main"
 
     def get_extra_context(self, request, instance):
         return {"routers": Router.objects.filter(configuration_template=instance)}

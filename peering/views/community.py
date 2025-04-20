@@ -39,7 +39,6 @@ class CommunityList(ObjectListView):
 class CommunityView(ObjectView):
     permission_required = "peering.view_community"
     queryset = Community.objects.all()
-    tab = "main"
 
 
 @register_model_view(model=Community, name="add", detail=False)

@@ -28,7 +28,6 @@ class WebhookList(ObjectListView):
 class WebhookView(ObjectView):
     permission_required = "extras.view_webhook"
     queryset = Webhook.objects.all()
-    tab = "main"
 
 
 @register_model_view(model=Webhook, name="add", detail=False)

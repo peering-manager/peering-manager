@@ -39,7 +39,6 @@ class ConnectionList(ObjectListView):
 class ConnectionView(ObjectView):
     permission_required = "net.view_connection"
     queryset = Connection.objects.all()
-    tab = "main"
 
     def get_extra_context(self, request, instance):
         ixapi_network_service_config = instance.ixapi_network_service_config()

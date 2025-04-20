@@ -5,19 +5,10 @@ from django.views import View
 
 from extras.views import ObjectConfigContextView
 from net.models import Connection
-from peering.filtersets import (
-    DirectPeeringSessionFilterSet,
-    InternetExchangePeeringSessionFilterSet,
-)
-from peering.forms import (
-    DirectPeeringSessionFilterForm,
-    InternetExchangePeeringSessionFilterForm,
-)
-from peering.models import DirectPeeringSession, InternetExchangePeeringSession
-from peering.tables import (
-    DirectPeeringSessionTable,
-    InternetExchangePeeringSessionTable,
-)
+from peering.filtersets import DirectPeeringSessionFilterSet
+from peering.forms import DirectPeeringSessionFilterForm
+from peering.models import DirectPeeringSession
+from peering.tables import DirectPeeringSessionTable
 from peering_manager.views.generic import (
     BulkDeleteView,
     BulkEditView,
@@ -27,7 +18,7 @@ from peering_manager.views.generic import (
     ObjectListView,
     ObjectView,
 )
-from utils.views import PermissionRequiredMixin, register_model_view
+from utils.views import PermissionRequiredMixin, ViewTab, register_model_view
 
 from ..filtersets import RouterFilterSet
 from ..forms import RouterBulkEditForm, RouterFilterForm, RouterForm
@@ -43,7 +34,6 @@ __all__ = (
     "RouterDelete",
     "RouterDirectPeeringSessions",
     "RouterEdit",
-    "RouterInternetExchangesPeeringSessions",
     "RouterList",
     "RouterView",
 )
@@ -73,7 +63,6 @@ class RouterList(ObjectListView):
 class RouterView(ObjectView):
     permission_required = "devices.view_router"
     queryset = Router.objects.all()
-    tab = "main"
 
     def get_extra_context(self, request, instance):
         return {"connections": Connection.objects.filter(router=instance)}
@@ -118,7 +107,7 @@ class RouterConfigContext(ObjectConfigContextView):
 @register_model_view(model=Router, name="configuration", path="configuration")
 class RouterConfiguration(PermissionRequiredMixin, View):
     permission_required = "devices.view_router_configuration"
-    tab = "configuration"
+    tab = ViewTab(label="Configuration", permission="devices.view_router_configuration")
 
     def get(self, request, pk):
         instance = get_object_or_404(Router, pk=pk)
@@ -142,7 +131,7 @@ class RouterConnections(ObjectChildrenView):
     child_model = Connection
     table = RouterConnectionTable
     template_name = "devices/router/connections.html"
-    tab = "connections"
+    tab = ViewTab(label="Connections", permission="net.view_connection", weight=2000)
 
     def get_children(self, request, parent):
         return Connection.objects.filter(router=parent)
@@ -159,26 +148,11 @@ class RouterDirectPeeringSessions(ObjectChildrenView):
     filterset_form = DirectPeeringSessionFilterForm
     table = DirectPeeringSessionTable
     template_name = "devices/router/direct_peering_sessions.html"
-    tab = "direct-sessions"
+    tab = ViewTab(
+        label="Direct Peering Sessions",
+        permission="peering.view_directpeeringsession",
+        weight=3000,
+    )
 
     def get_children(self, request, parent):
         return parent.directpeeringsession_set.order_by("relationship", "ip_address")
-
-
-@register_model_view(
-    model=Router, name="internet_exchange_peering_sessions", path="ix-peering-sessions"
-)
-class RouterInternetExchangesPeeringSessions(ObjectChildrenView):
-    permission_required = "devices.view_router"
-    queryset = Router.objects.all()
-    child_model = InternetExchangePeeringSession
-    filterset = InternetExchangePeeringSessionFilterSet
-    filterset_form = InternetExchangePeeringSessionFilterForm
-    table = InternetExchangePeeringSessionTable
-    template_name = "devices/router/internet_exchange_peering_sessions.html"
-    tab = "ixp-sessions"
-
-    def get_children(self, request, parent):
-        return InternetExchangePeeringSession.objects.filter(
-            internet_exchange__router=parent
-        ).order_by("internet_exchange", "ip_address")

@@ -40,7 +40,6 @@ class ContactList(ObjectListView):
 class ContactView(ObjectView):
     permission_required = "messaging.view_contact"
     queryset = Contact.objects.all()
-    tab = "main"
 
     def get_extra_context(self, request, instance):
         contact_assignments = ContactAssignment.objects.filter(contact=instance)

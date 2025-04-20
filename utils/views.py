@@ -17,7 +17,13 @@ if TYPE_CHECKING:
 
     from django.db import models
 
-__all__ = ("GetReturnURLMixin", "PermissionRequiredMixin", "register_model_view")
+__all__ = (
+    "GetReturnURLMixin",
+    "PermissionRequiredMixin",
+    "ViewTab",
+    "get_viewname",
+    "register_model_view",
+)
 
 
 class PermissionRequiredMixin(_PermissionRequiredMixin):
@@ -79,6 +85,41 @@ class GetReturnURLMixin:
 
         # If all fails, send the user to the homepage
         return reverse("home")
+
+
+class ViewTab:
+    """
+    ViewTabs are used for navigation among multiple object-specific views, such as the
+    changelog or journal for a particular object.
+    """
+
+    def __init__(
+        self,
+        label: str,
+        badge: str | None = None,
+        weight: int = 1000,
+        permission: str | None = None,
+        hide_if_empty: bool = False,
+    ) -> None:
+        self.label = label
+        self.badge = badge
+        self.weight = weight
+        self.permission = permission
+        self.hide_if_empty = hide_if_empty
+
+    def render(self, instance: models.Model) -> dict[str, Any] | None:
+        """Return the attributes needed to render a tab in HTML."""
+        badge_value = self._get_badge_value(instance)
+        if self.badge and self.hide_if_empty and not badge_value:
+            return None
+        return {"label": self.label, "badge": badge_value, "weight": self.weight}
+
+    def _get_badge_value(self, instance: models.Model) -> str | None:
+        if not self.badge:
+            return None
+        if callable(self.badge):
+            return self.badge(instance)
+        return self.badge
 
 
 def get_viewname(

@@ -5,7 +5,7 @@ from peering_manager.views.generic import (
     ObjectListView,
     ObjectView,
 )
-from utils.views import register_model_view
+from utils.views import ViewTab, register_model_view
 
 from ..filtersets import ConfigContextFilterSet
 from ..forms import ConfigContextFilterForm, ConfigContextForm
@@ -36,7 +36,6 @@ class ConfigContextListView(ObjectListView):
 class ConfigContextView(ObjectView):
     permission_required = "extras.view_configcontext"
     queryset = ConfigContext.objects.all()
-    tab = "main"
 
     def get_extra_context(self, request, instance):
         if request.GET.get("format") in ("json", "yaml"):
@@ -90,7 +89,9 @@ class ConfigContextBulkDeleteView(BulkDeleteView):
 class ObjectConfigContextView(ObjectView):
     base_template = None
     template_name = "extras/object_configcontext.html"
-    tab = "config-context"
+    tab = ViewTab(
+        label="Config Context", permission="extras.view_configcontext", weight=9900
+    )
 
     def get_extra_context(self, request, instance):
         if request.GET.get("format") in ("json", "yaml"):

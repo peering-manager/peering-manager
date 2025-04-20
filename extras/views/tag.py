@@ -35,7 +35,6 @@ class TagList(ObjectListView):
 class TagView(ObjectView):
     permission_required = "extras.view_tag"
     queryset = Tag.objects.all()
-    tab = "main"
 
     def get_extra_context(self, request, instance):
         tagged_items = TaggedItem.objects.filter(tag=instance)

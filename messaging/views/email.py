@@ -27,7 +27,6 @@ class EmailList(ObjectListView):
 class EmailView(ObjectView):
     permission_required = "messaging.view_email"
     queryset = Email.objects.all()
-    tab = "main"
 
 
 @register_model_view(model=Email, name="add", detail=False)

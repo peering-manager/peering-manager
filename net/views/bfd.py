@@ -39,7 +39,6 @@ class BFDList(ObjectListView):
 class BFDView(ObjectView):
     permission_required = "net.view_bfd"
     queryset = BFD.objects.all()
-    tab = "main"
 
 
 @register_model_view(model=BFD, name="configcontext", path="config-context")

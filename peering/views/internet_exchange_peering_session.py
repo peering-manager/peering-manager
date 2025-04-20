@@ -52,7 +52,6 @@ class InternetExchangePeeringSessionList(ObjectListView):
 class InternetExchangePeeringSessionView(ObjectView):
     permission_required = "peering.view_internetexchangepeeringsession"
     queryset = InternetExchangePeeringSession.objects.all()
-    tab = "main"
 
 
 @register_model_view(model=InternetExchangePeeringSession, name="add", detail=False)

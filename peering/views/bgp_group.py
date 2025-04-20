@@ -10,7 +10,7 @@ from peering_manager.views.generic import (
     ObjectListView,
     ObjectView,
 )
-from utils.views import register_model_view
+from utils.views import ViewTab, register_model_view
 
 from ..filtersets import BGPGroupFilterSet, DirectPeeringSessionFilterSet
 from ..forms import (
@@ -50,7 +50,6 @@ class BGPGroupList(ObjectListView):
 class BGPGroupView(ObjectView):
     permission_required = "peering.view_bgpgroup"
     queryset = BGPGroup.objects.all()
-    tab = "main"
 
 
 @register_model_view(model=BGPGroup, name="add", detail=False)
@@ -98,7 +97,9 @@ class BGPGroupPeeringSessions(ObjectChildrenView):
     filterset_form = DirectPeeringSessionFilterForm
     table = DirectPeeringSessionTable
     template_name = "peering/bgpgroup/sessions.html"
-    tab = "direct-sessions"
+    tab = ViewTab(
+        label="Direct Peering Sessions", permission="peering.view_directpeeringsession"
+    )
 
     def get_children(self, request, parent):
         return parent.directpeeringsession_set.prefetch_related(

@@ -43,7 +43,6 @@ class RoutingPolicyList(ObjectListView):
 class RoutingPolicyView(ObjectView):
     permission_required = "peering.view_routingpolicy"
     queryset = RoutingPolicy.objects.all()
-    tab = "main"
 
 
 @register_model_view(model=RoutingPolicy, name="add", detail=False)

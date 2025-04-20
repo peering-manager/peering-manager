@@ -16,7 +16,7 @@ from peering_manager.views.generic import (
     PermissionRequiredMixin,
 )
 from peeringdb.tables import NetworkIXLanTable
-from utils.views import register_model_view
+from utils.views import ViewTab, register_model_view
 
 from ..filtersets import (
     AutonomousSystemFilterSet,
@@ -80,7 +80,6 @@ class AutonomousSystemList(ObjectListView):
 class AutonomousSystemView(ObjectView):
     permission_required = "peering.view_autonomoussystem"
     queryset = AutonomousSystem.objects.defer("prefixes")
-    tab = "main"
 
     def get_extra_context(self, request, instance):
         shared_internet_exchanges = {}
@@ -134,7 +133,7 @@ class AutonomousSystemPeeringDB(ObjectView):
     permission_required = "peering.view_autonomoussystem"
     queryset = AutonomousSystem.objects.defer("prefixes")
     template_name = "peering/autonomoussystem/peeringdb.html"
-    tab = "peeringdb"
+    tab = ViewTab(label="PeeringDB")
 
     def get_extra_context(self, request, instance):
         try:
@@ -162,7 +161,11 @@ class AutonomousSystemDirectPeeringSessions(ObjectChildrenView):
     filterset_form = DirectPeeringSessionFilterForm
     table = DirectPeeringSessionTable
     template_name = "peering/autonomoussystem/direct_peering_sessions.html"
-    tab = "direct-sessions"
+    tab = ViewTab(
+        label="Direct Peering Sessions",
+        permission="peering.view_directpeeringsession",
+        weight=2000,
+    )
 
     def get_children(self, request, parent):
         return (
@@ -188,7 +191,11 @@ class AutonomousSystemInternetExchangesPeeringSessions(ObjectChildrenView):
     filterset_form = InternetExchangePeeringSessionFilterForm
     table = InternetExchangePeeringSessionTable
     template_name = "peering/autonomoussystem/internet_exchange_peering_sessions.html"
-    tab = "ixp-sessions"
+    tab = ViewTab(
+        label="IX Peering Sessions",
+        permission="peering.view_internetexchangepeeringsession",
+        weight=3000,
+    )
 
     def get_children(self, request, parent):
         return (
@@ -205,7 +212,7 @@ class AutonomousSystemPeers(ObjectChildrenView):
     child_model = NetworkIXLan
     table = NetworkIXLanTable
     template_name = "peering/autonomoussystem/peers.html"
-    tab = "peers"
+    tab = ViewTab(label="Available Sessions", weight=4000)
 
     def get_children(self, request, parent):
         try:
@@ -221,7 +228,7 @@ class AutonomousSystemPeers(ObjectChildrenView):
 @register_model_view(AutonomousSystem, name="email")
 class AutonomousSystemEmail(PermissionRequiredMixin, View):
     permission_required = "peering.send_email"
-    tab = "email"
+    tab = ViewTab(label="E-mail", permission="peering.send_email", weight=5000)
 
     def get(self, request, *args, **kwargs):
         instance = get_object_or_404(AutonomousSystem, pk=kwargs["pk"])

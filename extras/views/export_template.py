@@ -35,7 +35,6 @@ class ExportTemplateListView(ObjectListView):
 class ExportTemplateView(ObjectView):
     permission_required = "extras.view_exporttemplate"
     queryset = ExportTemplate.objects.all()
-    tab = "main"
 
 
 @register_model_view(model=ExportTemplate, name="add", detail=False)

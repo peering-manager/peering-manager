@@ -45,7 +45,6 @@ class DirectPeeringSessionList(ObjectListView):
 class DirectPeeringSessionView(ObjectView):
     permission_required = "peering.view_directpeeringsession"
     queryset = DirectPeeringSession.objects.all()
-    tab = "main"
 
 
 @register_model_view(model=DirectPeeringSession, name="add", detail=False)

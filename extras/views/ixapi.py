@@ -29,7 +29,6 @@ class IXAPIListView(ObjectListView):
 class IXAPIView(ObjectView):
     permission_required = "extras.view_ixapi"
     queryset = IXAPI.objects.all()
-    tab = "main"
 
     def get_extra_context(self, request, instance):
         return {

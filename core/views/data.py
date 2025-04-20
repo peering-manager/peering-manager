@@ -7,7 +7,7 @@ from peering_manager.views.generic import (
     ObjectListView,
     ObjectView,
 )
-from utils.views import register_model_view
+from utils.views import ViewTab, register_model_view
 
 from .. import filtersets, forms, tables
 from ..models import DataFile, DataSource
@@ -41,7 +41,6 @@ class DataFileListView(ObjectListView):
 class DataFileView(ObjectView):
     permission_required = "core.view_datafile"
     queryset = DataFile.objects.all()
-    tab = "main"
 
 
 @register_model_view(DataFile, name="delete")
@@ -72,7 +71,6 @@ class DataSourceListView(ObjectListView):
 class DataSourceView(ObjectView):
     permission_required = "core.view_datasource"
     queryset = DataSource.objects.all()
-    tab = "main"
 
     def get_extra_context(self, request, instance):
         return {
@@ -121,7 +119,7 @@ class DataSourceFilesView(ObjectChildrenView):
     filterset_form = forms.DataFileFilterForm
     table = tables.DataFileTable
     template_name = "core/datasource/files.html"
-    tab = "files"
+    tab = ViewTab(label="Files", permission="core.view_datafile")
 
     def get_children(self, request, parent):
         return (

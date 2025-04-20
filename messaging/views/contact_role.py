@@ -37,7 +37,6 @@ class ContactRoleList(ObjectListView):
 class ContactRoleView(ObjectView):
     permission_required = "messaging.view_contactrole"
     queryset = ContactRole.objects.all()
-    tab = "main"
 
 
 @register_model_view(model=ContactRole, name="add", detail=False)
