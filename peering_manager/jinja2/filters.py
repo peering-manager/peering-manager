@@ -814,7 +814,9 @@ def bfds(value):
     """
     if not isinstance(value, Router):
         raise ValueError("value is not a router")
-    r = BFD.objects.filter(Q(directpeeringsession__router=value) | Q(internetexchangepeeringsession__ixp_connection__router=value))
+    r = BFD.objects.filter(
+        Q(directpeeringsession__router=value) | Q(internetexchangepeeringsession__ixp_connection__router=value)
+    ).distinct()
     return r
 
 FILTER_DICT = {
