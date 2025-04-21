@@ -13,7 +13,7 @@ from devices.crypto.cisco import MAGIC as CISCO_MAGIC
 from devices.enums import DeviceStatus
 from devices.models import Router
 from net.enums import ConnectionStatus
-from net.models import Connection, BFD
+from net.models import Connection
 from peering.enums import BGPGroupStatus, BGPSessionStatus, IPFamily
 from peering.models import (
     AutonomousSystem,
@@ -814,10 +814,7 @@ def bfds(value):
     """
     if not isinstance(value, Router):
         raise ValueError("value is not a router")
-    r = BFD.objects.filter(
-        Q(directpeeringsession__router=value) | Q(internetexchangepeeringsession__ixp_connection__router=value)
-    ).distinct()
-    return r
+    return value.get_bfd_configs()
 
 FILTER_DICT = {
     # Generics
