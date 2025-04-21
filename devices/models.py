@@ -301,7 +301,8 @@ class Router(PushedDataMixin, PrimaryModel):
         Returns all the BFDs that have at least one session configured on the router.
         """
         return BFD.objects.filter(
-            Q(directpeeringsession__router=self) | Q(internetexchangepeeringsession__ixp_connection__router=self)
+            Q(directpeeringsession__router=self)
+            | Q(internetexchangepeeringsession__ixp_connection__router=self)
         ).distinct()
 
     def get_configuration_context(self):

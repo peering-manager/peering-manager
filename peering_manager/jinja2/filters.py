@@ -808,6 +808,7 @@ def indent(value, n, chars=" ", reset=False):
 
     return r
 
+
 def bfds(value):
     """
     Returns all the BFDs that have at least one session configured on the router.
@@ -815,6 +816,7 @@ def bfds(value):
     if not isinstance(value, Router):
         raise ValueError("value is not a router")
     return value.get_bfd_configs()
+
 
 FILTER_DICT = {
     # Generics
