@@ -23,7 +23,7 @@ class ObjectChangeList(ObjectListView):
     filterset = ObjectChangeFilterSet
     filterset_form = ObjectChangeFilterForm
     table = ObjectChangeTable
-    template_name = "extras/object_change/list.html"
+    template_name = "core/object_change/list.html"
 
 
 @register_model_view(ObjectChange)
@@ -79,7 +79,7 @@ class ObjectChangeView(PermissionRequiredMixin, View):
 
         return render(
             request,
-            "extras/object_change/details.html",
+            "core/object_change/details.html",
             {
                 "instance": instance,
                 "diff_added": diff_added,

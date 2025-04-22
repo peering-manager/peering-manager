@@ -673,7 +673,7 @@ after creating several new objects, you can filter against the object changes
 API endpoint to retrieve the resulting change records:
 
 ```
-GET /api/extras/object-changes/?request_id=6fc8a28c-83f0-4d88-a017-3d44de9046ee
+GET /api/core/object-changes/?request_id=6fc8a28c-83f0-4d88-a017-3d44de9046ee
 ```
 
 The request ID can also be used to filter many objects directly, to return
