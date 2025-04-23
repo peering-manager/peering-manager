@@ -434,7 +434,18 @@ Examples:
     {%- endfor %}
   {%- endif %}
 {%- endfor %}
+```
 
+## `bfds`
+
+For a router, fetches all BFD profiles used on this router.
+
+Examples:
+
+```no-highlight
+{%- for bfd in router | bfds %}
+...
+{%- endfor %}
 ```
 
 ## `iter_export_policies` / `iter_import_policies`

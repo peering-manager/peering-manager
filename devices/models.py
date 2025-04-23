@@ -9,7 +9,7 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 
-from net.models import Connection
+from net.models import BFD, Connection
 from peering.enums import BGPState
 from peering.models import (
     AutonomousSystem,
@@ -360,6 +360,15 @@ class Router(PushedDataMixin, PrimaryModel):
             .union(bgp_group_policies)
             .union(ix_policies)
         )
+
+    def get_bfd_configs(self):
+        """
+        Returns all the BFDs that have at least one session configured on the router.
+        """
+        return BFD.objects.filter(
+            Q(directpeeringsession__router=self)
+            | Q(internetexchangepeeringsession__ixp_connection__router=self)
+        ).distinct()
 
     def get_configuration_context(self):
         """

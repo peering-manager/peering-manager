@@ -817,6 +817,14 @@ def routing_policies(value, detailed=False):
         raise ValueError("value is not a router")
     return value.get_routing_policies(detailed)
 
+def bfds(value):
+    """
+    Returns all the BFDs that have at least one session configured on the router.
+    """
+    if not isinstance(value, Router):
+        raise ValueError("value is not a router")
+    return value.get_bfd_configs()
+
 
 FILTER_DICT = {
     # Generics
@@ -863,6 +871,7 @@ FILTER_DICT = {
     "direct_peers": direct_peers,
     "ixp_peers": ixp_peers,
     "routing_policies": routing_policies,
+    "bfds": bfds,
     # Communities
     "communities": communities,
     "merge_communities": merge_communities,
