@@ -817,6 +817,7 @@ def routing_policies(value, detailed=False):
         raise ValueError("value is not a router")
     return value.get_routing_policies(detailed)
 
+
 def bfds(value):
     """
     Returns all the BFDs that have at least one session configured on the router.
