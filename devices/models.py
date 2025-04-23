@@ -5,10 +5,11 @@ import napalm
 from django.conf import settings
 from django.core.cache import cache
 from django.db import models, transaction
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 
-from net.models import Connection
+from net.models import BFD, Connection
 from peering.enums import BGPState
 from peering.models import (
     AutonomousSystem,
@@ -294,6 +295,15 @@ class Router(PushedDataMixin, PrimaryModel):
                 internet_exchange_point=internet_exchange_point
             )
         )
+
+    def get_bfd_configs(self):
+        """
+        Returns all the BFDs that have at least one session configured on the router.
+        """
+        return BFD.objects.filter(
+            Q(directpeeringsession__router=self)
+            | Q(internetexchangepeeringsession__ixp_connection__router=self)
+        ).distinct()
 
     def get_configuration_context(self):
         """
