@@ -809,6 +809,7 @@ def indent(value, n, chars=" ", reset=False):
     return r
 
 
+
 def routing_policies(value, detailed=False):
     """
     Returns all the routing policies that are applied to the router.
