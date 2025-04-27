@@ -258,7 +258,7 @@ REQUESTS_USER_AGENT = getattr(
 NETBOX_API = getattr(configuration, "NETBOX_API", "")
 NETBOX_URL = NETBOX_API.strip("/")
 if NETBOX_URL.endswith("/api"):
-    NETBOX_URL = NETBOX_URL[:-3]
+    NETBOX_URL = NETBOX_URL[:-4]
 NETBOX_API_TOKEN = getattr(configuration, "NETBOX_API_TOKEN", "")
 NETBOX_API_THREADING = getattr(configuration, "NETBOX_API_THREADING", False)
 NETBOX_API_VERIFY_SSL = getattr(configuration, "NETBOX_API_VERIFY_SSL", True)
