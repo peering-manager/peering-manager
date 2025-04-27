@@ -296,6 +296,71 @@ class Router(PushedDataMixin, PrimaryModel):
             )
         )
 
+    def get_routing_policies(self, detailed=False):
+        """
+        Returns all routing policies that are attached to this router.
+        """
+
+        sessions_policies = RoutingPolicy.objects.filter(
+            Q(directpeeringsession_import_routing_policies__router=self)
+            | Q(directpeeringsession_export_routing_policies__router=self)
+            | Q(
+                internetexchangepeeringsession_import_routing_policies__ixp_connection__router=self
+            )
+            | Q(
+                internetexchangepeeringsession_export_routing_policies__ixp_connection__router=self
+            )
+        ).distinct()
+
+        asn_policies = RoutingPolicy.objects.filter(
+            Q(autonomoussystem_import_routing_policies__router=self)
+            | Q(autonomoussystem_export_routing_policies__router=self)
+        ).distinct()
+
+        bgp_groups_on_router = []
+
+        for group in BGPGroup.objects.all():
+            routers = group.get_routers().filter(id=self.id)
+
+            if routers.exists():
+                bgp_groups_on_router.append(group.id)
+
+        bgp_group_policies = RoutingPolicy.objects.filter(
+            Q(bgpgroup_import_routing_policies__id__in=bgp_groups_on_router)
+            | Q(bgpgroup_export_routing_policies__id__in=bgp_groups_on_router)
+        ).distinct()
+
+        # Get all IXPs that this router is connected to
+
+        ixps_on_router = []
+
+        for ixp in InternetExchange.objects.all():
+            routers = ixp.get_routers().filter(id=self.id)
+
+            if routers.exists():
+                ixps_on_router.append(ixp.id)
+
+        ix_policies = RoutingPolicy.objects.filter(
+            Q(internetexchange_import_routing_policies__id__in=ixps_on_router)
+            | Q(internetexchange_export_routing_policies__id__in=ixps_on_router)
+        ).distinct()
+
+        if detailed:
+            # Get all policies that are used by the router
+
+            return {
+                "sessions_policies": sessions_policies,
+                "asn_policies": asn_policies,
+                "bgp_group_policies": bgp_group_policies,
+                "ix_policies": ix_policies,
+            }
+
+        return (
+            sessions_policies.union(asn_policies)
+            .union(bgp_group_policies)
+            .union(ix_policies)
+        )
+
     def get_bfd_configs(self):
         """
         Returns all the BFDs that have at least one session configured on the router.
