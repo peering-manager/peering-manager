@@ -98,7 +98,9 @@ class BGPGroupPeeringSessions(ObjectChildrenView):
     table = DirectPeeringSessionTable
     template_name = "peering/bgpgroup/sessions.html"
     tab = ViewTab(
-        label="Direct Peering Sessions", permission="peering.view_directpeeringsession"
+        label="Direct Peering Sessions",
+        badge=lambda instance: instance.get_peering_sessions().count(),
+        permission="peering.view_directpeeringsession",
     )
 
     def get_children(self, request, parent):

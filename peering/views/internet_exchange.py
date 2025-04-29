@@ -139,7 +139,11 @@ class InternetExchangeConnections(ObjectChildrenView):
     filterset = ConnectionFilterSet
     filterset_form = ConnectionFilterForm
     template_name = "peering/internetexchange/connections.html"
-    tab = ViewTab(label="Connections", permission="peering.view_connection")
+    tab = ViewTab(
+        label="Connections",
+        badge=lambda instance: instance.get_connections().count(),
+        permission="peering.view_connection",
+    )
 
     def get_children(self, request, parent):
         return Connection.objects.filter(internet_exchange_point=parent)
@@ -159,6 +163,7 @@ class InternetExchangePeeringSessions(ObjectChildrenView):
     template_name = "peering/internetexchange/sessions.html"
     tab = ViewTab(
         label="Peering Sessions",
+        badge=lambda instance: instance.get_peering_sessions().count(),
         permission="peering.view_internetexchangepeeringsession",
         weight=2000,
     )

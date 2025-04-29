@@ -131,7 +131,12 @@ class RouterConnections(ObjectChildrenView):
     child_model = Connection
     table = RouterConnectionTable
     template_name = "devices/router/connections.html"
-    tab = ViewTab(label="Connections", permission="net.view_connection", weight=2000)
+    tab = ViewTab(
+        label="Connections",
+        permission="net.view_connection",
+        weight=2000,
+        badge=lambda instance: instance.get_connections().count(),
+    )
 
     def get_children(self, request, parent):
         return Connection.objects.filter(router=parent)
@@ -150,6 +155,7 @@ class RouterDirectPeeringSessions(ObjectChildrenView):
     template_name = "devices/router/direct_peering_sessions.html"
     tab = ViewTab(
         label="Direct Peering Sessions",
+        badge=lambda instance: instance.get_direct_peering_sessions().count(),
         permission="peering.view_directpeeringsession",
         weight=3000,
     )

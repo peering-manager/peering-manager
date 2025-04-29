@@ -163,6 +163,7 @@ class AutonomousSystemDirectPeeringSessions(ObjectChildrenView):
     template_name = "peering/autonomoussystem/direct_peering_sessions.html"
     tab = ViewTab(
         label="Direct Peering Sessions",
+        badge=lambda instance: instance.get_direct_peering_sessions().count(),
         permission="peering.view_directpeeringsession",
         weight=2000,
     )
@@ -193,6 +194,7 @@ class AutonomousSystemInternetExchangesPeeringSessions(ObjectChildrenView):
     template_name = "peering/autonomoussystem/internet_exchange_peering_sessions.html"
     tab = ViewTab(
         label="IX Peering Sessions",
+        badge=lambda instance: instance.get_ixp_peering_sessions().count(),
         permission="peering.view_internetexchangepeeringsession",
         weight=3000,
     )
