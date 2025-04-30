@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import logging
 import os
 from fnmatch import fnmatchcase
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
 import yaml
@@ -22,6 +25,9 @@ from ..enums import DataSourceStatus
 from ..exceptions import SynchronisationError
 from ..signals import post_synchronisation, pre_synchronisation
 from .jobs import Job
+
+if TYPE_CHECKING:
+    from core.models import ObjectChange
 
 logger = logging.getLogger("peering.manager.core.data")
 
@@ -104,10 +110,10 @@ class DataSource(PrimaryModel, JobsMixin):
         logger.debug(f"found {len(paths)} files")
         return paths
 
-    def get_absolute_url(self):
-        return reverse("core:datasource_view", args=[self.pk])
+    def get_absolute_url(self) -> str:
+        return reverse("core:datasource", args=[self.pk])
 
-    def clean(self):
+    def clean(self) -> None:
         super().clean()
 
         # Make sure the data backend type is supported
@@ -122,7 +128,7 @@ class DataSource(PrimaryModel, JobsMixin):
                 }
             )
 
-    def to_objectchange(self, action):
+    def to_objectchange(self, action) -> ObjectChange:
         object_change = super().to_objectchange(action)
 
         pre_change_params = {}
@@ -340,14 +346,14 @@ class DataFile(models.Model):
             )
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.path
 
-    def get_absolute_url(self):
-        return reverse("core:datafile_view", args=[self.pk])
+    def get_absolute_url(self) -> str:
+        return reverse("core:datafile", args=[self.pk])
 
     @property
-    def data_as_string(self):
+    def data_as_string(self) -> str | None:
         if not self.data:
             return None
 
@@ -356,13 +362,13 @@ class DataFile(models.Model):
         except UnicodeDecodeError:
             return None
 
-    def get_data(self):
+    def get_data(self) -> Any:
         """
         Return a native Python object from either YAML or JSON.
         """
         return yaml.safe_load(self.data_as_string)
 
-    def refresh_from_disk(self, source_root):
+    def refresh_from_disk(self, source_root) -> bool:
         """
         Update attributes of an instance based on the file on disk. If any attribute
         has changed, this function will return `True`.
@@ -379,7 +385,7 @@ class DataFile(models.Model):
 
         return has_changed
 
-    def write_to_disk(self, source_root, overwrite=False):
+    def write_to_disk(self, source_root, overwrite=False) -> None:
         """
         Write data stored in the database for this file into a corresponding file on
         disk.
@@ -414,5 +420,5 @@ class AutoSynchronisationRecord(models.Model):
             ),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Auto synchronisation of {self.data_file!s} for {self.object!s}"

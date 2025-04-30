@@ -6,6 +6,7 @@ from django.views.generic import View
 
 from core.models import Job, ObjectChange
 from core.tables import JobTable, ObjectChangeTable
+from utils.views import ViewTab
 
 __all__ = ("ObjectChangeLogView", "ObjectJobsView")
 
@@ -26,7 +27,7 @@ class ObjectChangeLogView(View):
     The `base_template` parameter is the name of the template to extend.
     """
 
-    tab = "changelog"
+    tab = ViewTab(label="Changelog", permission="core.view_objectchange", weight=10000)
 
     def get(self, request, model, **kwargs):
         obj = get_object_or_404(model, **kwargs)
@@ -53,7 +54,7 @@ class ObjectChangeLogView(View):
 
         return render(
             request,
-            "extras/object_changelog.html",
+            "core/object_changelog.html",
             {
                 "instance": obj,
                 "table": objectchanges_table,
@@ -77,7 +78,7 @@ class ObjectJobsView(View):
     The `base_template` parameter is the name of the template to extend.
     """
 
-    tab = "jobs"
+    tab = ViewTab(label="Jobs", permission="core.view_job", weight=10100)
 
     def get_object(self, request, **kwargs):
         return get_object_or_404(self.model, **kwargs)

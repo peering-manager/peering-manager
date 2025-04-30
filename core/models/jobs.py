@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 import uuid
 from collections import OrderedDict
@@ -48,16 +50,16 @@ class Job(models.Model):
     class Meta:
         ordering = ["-created"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.job_id)
 
-    def get_absolute_url(self):
-        return reverse("core:job_view", args=[self.pk])
+    def get_absolute_url(self) -> str:
+        return reverse("core:job", args=[self.pk])
 
     @classmethod
     def enqueue(
         cls, func, *args, name="", object=None, object_model=None, user=None, **kwargs
-    ):
+    ) -> Job:
         """
         Creates a Job instance and enqueue it using the given callable.
         """
@@ -81,7 +83,7 @@ class Job(models.Model):
         )
 
     @property
-    def output(self):
+    def output(self) -> str:
         if not self.data or "output" not in self.data or not self.data["output"]:
             return ""
 
@@ -92,7 +94,7 @@ class Job(models.Model):
         return "\n".join(lines)
 
     @property
-    def duration(self):
+    def duration(self) -> str:
         if not self.completed:
             return ""
 
@@ -106,7 +108,7 @@ class Job(models.Model):
         return f"{int(minutes)} minutes, {seconds:.2f} seconds"
 
     @property
-    def is_over(self):
+    def is_over(self) -> bool:
         return self.status in [JobStatus.COMPLETED, JobStatus.ERRORED, JobStatus.FAILED]
 
     def get_status_colour(self):

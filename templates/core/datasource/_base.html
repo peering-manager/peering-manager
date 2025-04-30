@@ -1,5 +1,6 @@
 {% extends '_base.html' %}
 {% load helpers %}
+{% load tabs %}
 {% block actions %}
 {% if perms.core.change_datasource %}
 <a href="{% url 'core:datasource_edit' pk=instance.pk %}" class="btn btn-warning">
@@ -22,27 +23,16 @@
 <li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
-<ul class="nav nav-tabs mb-3">
+{% block tabs %}
+<ul class="nav nav-tabs mb-3" role="presentation">
+  {# Primary tab #}
   <li class="nav-item">
-    <a class="nav-link{% if tab == 'main' %} active{% endif %}" href="{% url 'core:datasource_view' pk=instance.pk %}">
-      <i class="fa-fw fa-solid fa-info-circle"></i> Info
-    </a>
+    <a class="nav-link{% if not tab %} active{% endif %}" href="{{ instance.get_absolute_url }}">{{ instance|meta:"verbose_name"|title_with_uppers }}</a>
   </li>
-  <li class="nav-item">
-    <a class="nav-link{% if tab == 'files' %} active{% endif %}" href="{% url 'core:datasource_files' pk=instance.pk %}">
-      <i class="fa-solid fa-file"></i> Files
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link{% if tab == 'changelog' %} active{% endif %}" href="{% url 'core:datasource_changelog' pk=instance.pk %}">
-      <i class="fa-fw fa-solid fa-history"></i> Changelog
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link{% if tab == 'jobs' %} active{% endif %}" href="{% url 'core:datasource_jobs' pk=instance.pk %}">
-      <i class="fa-fw fa-solid fa-cogs"></i> Jobs
-    </a>
-  </li>
+
+  {# Include tabs for registered model views #}
+  {% model_view_tabs instance %}
 </ul>
+{% endblock tabs %}
 {% block subcontent %}{% endblock %}
 {% endblock %}

@@ -11,7 +11,8 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django_tables2.columns import library
 
-from utils.functions import content_type_identifier, content_type_name, get_viewname
+from utils.functions import content_type_identifier, content_type_name
+from utils.views import get_viewname
 
 __all__ = (
     "ActionsColumn",

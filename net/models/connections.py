@@ -56,17 +56,17 @@ class Connection(PrimaryModel):
         ordering = ["internet_exchange_point", "router"]
 
     @property
-    def name(self):
+    def name(self) -> str:
         return str(self)
 
     @property
-    def linked_to_peeringdb(self):
+    def linked_to_peeringdb(self) -> bool:
         """
         Tells if the PeeringDB object for this connection still exists.
         """
         return self.peeringdb_netixlan is not None
 
-    def __str__(self):
+    def __str__(self) -> str:
         s = ""
 
         if self.internet_exchange_point:
@@ -82,13 +82,13 @@ class Connection(PrimaryModel):
 
         return s or f"Connection #{self.pk}"
 
-    def get_status_colour(self):
+    def get_status_colour(self) -> str:
         return ConnectionStatus.colours.get(self.status)
 
-    def get_absolute_url(self):
-        return reverse("net:connection_view", args=[self.pk])
+    def get_absolute_url(self) -> str:
+        return reverse("net:connection", args=[self.pk])
 
-    def link_to_peeringdb(self):
+    def link_to_peeringdb(self) -> NetworkIXLan | None:
         """
         Retrieves the PeeringDB ID for this IX connection based on the IP addresses
         that have been recorded. The PeeringDB record will be returned on success. In

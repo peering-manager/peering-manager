@@ -43,16 +43,16 @@ class ExportTemplate(SynchronisedDataMixin, ChangeLoggedModel):
         ]
 
     @property
-    def rendered(self):
+    def rendered(self) -> str:
         return self.render()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def get_absolute_url(self):
-        return reverse("extras:exporttemplate_view", args=[self.pk])
+    def get_absolute_url(self) -> str:
+        return reverse("extras:exporttemplate", args=[self.pk])
 
-    def clean(self):
+    def clean(self) -> None:
         super().clean()
 
         if self.name.lower() == "table":
@@ -62,10 +62,10 @@ class ExportTemplate(SynchronisedDataMixin, ChangeLoggedModel):
                 }
             )
 
-    def synchronise_data(self):
+    def synchronise_data(self) -> None:
         self.template = self.data_file.data_as_string
 
-    def render(self):
+    def render(self) -> str:
         """
         Renders the content of the export template.
         """
@@ -151,13 +151,13 @@ class Webhook(ChangeLoggedModel):
         ordering = ["name"]
         unique_together = ["type_create", "type_update", "type_delete", "payload_url"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def get_absolute_url(self):
-        return reverse("extras:webhook_view", args=[self.pk])
+    def get_absolute_url(self) -> str:
+        return reverse("extras:webhook", args=[self.pk])
 
-    def clean(self):
+    def clean(self) -> None:
         super().clean()
 
         if not any([self.type_create, self.type_update, self.type_delete]):
@@ -176,7 +176,7 @@ class Webhook(ChangeLoggedModel):
                 }
             )
 
-    def render_headers(self, context):
+    def render_headers(self, context) -> dict[str, str]:
         """
         Render `additional_headers` and return a dict of `Header: Value`
         pairs.
@@ -191,7 +191,7 @@ class Webhook(ChangeLoggedModel):
             r[header.strip()] = value.strip()
         return r
 
-    def render_body(self, context):
+    def render_body(self, context) -> str:
         """
         Render the body template, if defined. Otherwise, jump the context as a JSON
         object.
@@ -200,7 +200,7 @@ class Webhook(ChangeLoggedModel):
             return render_jinja2(self.body_template, context)
         return json.dumps(context, cls=JSONEncoder)
 
-    def render_payload_url(self, context):
+    def render_payload_url(self, context) -> str:
         """
         Render the payload URL.
         """

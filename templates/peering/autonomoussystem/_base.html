@@ -1,5 +1,6 @@
 {% extends '_base.html' %}
 {% load helpers %}
+{% load tabs %}
 {% block actions %}
 {% if perms.peering.change_autonomoussystem %}
 <a href="{% url 'peering:autonomoussystem_edit' pk=instance.pk %}" class="btn btn-warning">
@@ -17,57 +18,20 @@
 <li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
-<ul class="nav nav-tabs mb-3">
+{% block tabs %}
+<ul class="nav nav-tabs mb-3" role="presentation">
+  {# Primary tab #}
   <li class="nav-item">
-    <a class="nav-link{% if tab == 'main' %} active{% endif %}" href="{% url 'peering:autonomoussystem_view' pk=instance.pk %}">
-      <i class="fa-fw fa-solid fa-info-circle"></i> Details
-    </a>
+    <a class="nav-link{% if not tab %} active{% endif %}" href="{{ instance.get_absolute_url }}">{{ instance|meta:"verbose_name"|title_with_uppers }}</a>
   </li>
-  {% if instance.peeringdb_network %}
-  <li class="nav-item">
-    <a class="nav-link{% if tab == 'peeringdb' %} active{% endif %}" href="{% url 'peering:autonomoussystem_peeringdb' pk=instance.pk %}">
-      <i class="fa-fw fa-solid fa-database"></i> PeeringDB
-    </a>
-  </li>
-  {% endif %}
-  <li class="nav-item">
-    <a class="nav-link{% if tab == 'direct-sessions' %} active{% endif %}" href="{% url 'peering:autonomoussystem_direct_peering_sessions' pk=instance.pk %}">
-      <i class="fa-fw fa-solid fa-ethernet"></i> Direct Peering Sessions
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link{% if tab == 'ixp-sessions' %} active{% endif %}" href="{% url 'peering:autonomoussystem_internet_exchange_peering_sessions' pk=instance.pk %}">
-      <i class="fa-fw fa-solid fa-network-wired"></i> IX Peering Sessions
-    </a>
-  </li>
-  {% missing_sessions instance as has_missing_sessions %}
-  {% if has_missing_sessions %}
-  <li class="nav-item">
-    <a class="nav-link{% if tab == 'peers' %} active{% endif %}" href="{% url 'peering:autonomoussystem_peers' pk=instance.pk %}">
-      <i class="fa-fw fa-solid fa-link"></i> Available Sessions
-    </a>
-  </li>
-  {% endif %}
-  {% if perms.peering.send_email and instance.can_receive_email %}
-  <li class="nav-item">
-    <a class="nav-link{% if tab == 'email' %} active{% endif %}" href="{% url 'peering:autonomoussystem_email' pk=instance.pk %}">
-      <i class="fa-fw fa-solid fa-envelope-open-text"></i> Send E-mail
-    </a>
-  </li>
-  {% endif %}
-  <li class="nav-item">
-    <a class="nav-link{% if tab == 'config-context' %} active{% endif %}" href="{% url 'peering:autonomoussystem_configcontext' pk=instance.pk %}">
-      <i class="fa-fw fa-solid fa-code"></i> Config Context
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link{% if tab == 'changelog' %} active{% endif %}" href="{% url 'peering:autonomoussystem_changelog' pk=instance.pk %}">
-      <i class="fa-fw fa-solid fa-history"></i> Changelog
-    </a>
-  </li>
+
+  {# Include tabs for registered model views #}
+  {% model_view_tabs instance %}
+
   <li class="nav-item">
     <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Last updated: {{ instance.updated | date_span }}</a>
   </li>
 </ul>
+{% endblock tabs %}
 {% block subcontent %}{% endblock %}
 {% endblock %}
