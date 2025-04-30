@@ -1,9 +1,17 @@
 {% extends '_base.html' %}
-{% load actions %}
 {% load helpers %}
 {% load tabs %}
 {% block actions %}
-{% model_view_buttons instance %}
+{% if perms.peering.change_autonomoussystem %}
+<a href="{% url 'peering:autonomoussystem_edit' pk=instance.pk %}" class="btn btn-warning">
+  <i class="fa-fw fa-solid fa-edit"></i> Edit
+</a>
+{% endif %}
+{% if perms.peering.delete_autonomoussystem %}
+<a href="{% url 'peering:autonomoussystem_delete' pk=instance.pk %}" class="btn btn-danger">
+  <i class="fa-fw fa-solid fa-trash"></i> Delete
+</a>
+{% endif %}
 {% endblock %}
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'peering:autonomoussystem_list' %}">Autonomous Systems</a></li>
