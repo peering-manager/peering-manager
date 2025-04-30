@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import logging
 import uuid
 from collections import OrderedDict
-from typing import Self
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -58,7 +59,7 @@ class Job(models.Model):
     @classmethod
     def enqueue(
         cls, func, *args, name="", object=None, object_model=None, user=None, **kwargs
-    ) -> Self:
+    ) -> Job:
         """
         Creates a Job instance and enqueue it using the given callable.
         """
