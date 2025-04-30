@@ -54,7 +54,7 @@ class ObjectChangeLogView(View):
 
         return render(
             request,
-            "extras/object_changelog.html",
+            "core/object_changelog.html",
             {
                 "instance": obj,
                 "table": objectchanges_table,
