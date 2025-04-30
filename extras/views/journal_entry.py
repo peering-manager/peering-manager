@@ -37,7 +37,6 @@ class JournalEntryListView(ObjectListView):
 class JournalEntryView(ObjectView):
     permission_required = "extras.view_journalentry"
     queryset = JournalEntry.objects.all()
-    tab = "main"
 
 
 @register_model_view(model=JournalEntry, name="add", detail=False)
