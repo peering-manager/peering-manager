@@ -51,6 +51,16 @@ urlpatterns = [
         include(get_model_urls(app_label="extras", model_name="ixapi")),
     ),
     path(
+        "journal-entries/",
+        include(
+            get_model_urls(app_label="extras", model_name="journalentry", detail=False)
+        ),
+    ),
+    path(
+        "journal-entries/<int:pk>/",
+        include(get_model_urls(app_label="extras", model_name="journalentry")),
+    ),
+    path(
         "tags/",
         include(get_model_urls(app_label="extras", model_name="tag", detail=False)),
     ),

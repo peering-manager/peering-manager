@@ -1,0 +1,6 @@
+{% extends base_template %}
+{% block title %}{% if instance %}{{ instance }}{% else %}{{ block.super }}{% endif %} - Journal{% endblock %}
+{% block subcontent %}
+{% include 'includes/table.html' %}
+{% include 'includes/pagination.html' with paginator=table.paginator page=table.page %}
+{% endblock %}

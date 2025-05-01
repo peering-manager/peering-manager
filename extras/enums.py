@@ -17,3 +17,17 @@ class HttpMethod(ChoiceSet):
         (PATCH, "PATCH"),
         (DELETE, "DELETE"),
     )
+
+
+class JournalEntryKind(ChoiceSet):
+    INFO = "info"
+    SUCCESS = "success"
+    WARNING = "warning"
+    DANGER = "danger"
+
+    CHOICES = [
+        (INFO, "Info"),
+        (SUCCESS, "Success"),
+        (WARNING, "Warning"),
+        (DANGER, "Danger"),
+    ]

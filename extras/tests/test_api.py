@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from rest_framework import status
@@ -12,6 +13,7 @@ from ..models import (
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
+    JournalEntry,
     Tag,
     Webhook,
 )
@@ -235,6 +237,54 @@ class IXAPITest(APIViewTestCases.View):
                 **self.header,
             )
             self.assertHttpStatus(response, status.HTTP_200_OK)
+
+
+class JournalEntryTest(APIViewTestCases.View):
+    model = JournalEntry
+    brief_fields = ["created", "display", "id", "url"]
+    bulk_update_data = {"comments": "Overwritten"}
+
+    @classmethod
+    def setUpTestData(cls):
+        user = User.objects.first()
+        autonomous_system = AutonomousSystem.objects.create(name="AS 1", asn=65535)
+
+        journal_entries = (
+            JournalEntry(
+                created_by=user,
+                assigned_object=autonomous_system,
+                comments="Fourth entry",
+            ),
+            JournalEntry(
+                created_by=user,
+                assigned_object=autonomous_system,
+                comments="Fifth entry",
+            ),
+            JournalEntry(
+                created_by=user,
+                assigned_object=autonomous_system,
+                comments="Sixth entry",
+            ),
+        )
+        JournalEntry.objects.bulk_create(journal_entries)
+
+        cls.create_data = [
+            {
+                "assigned_object_type": "peering.autonomoussystem",
+                "assigned_object_id": autonomous_system.pk,
+                "comments": "First entry",
+            },
+            {
+                "assigned_object_type": "peering.autonomoussystem",
+                "assigned_object_id": autonomous_system.pk,
+                "comments": "Second entry",
+            },
+            {
+                "assigned_object_type": "peering.autonomoussystem",
+                "assigned_object_id": autonomous_system.pk,
+                "comments": "Third entry",
+            },
+        ]
 
 
 class TagTest(APIViewTestCases.View):

@@ -90,7 +90,7 @@ class ObjectConfigContextView(ObjectView):
     base_template = None
     template_name = "extras/object_configcontext.html"
     tab = ViewTab(
-        label="Config Context", permission="extras.view_configcontext", weight=9900
+        label="Config Context", permission="extras.view_configcontext", weight=9800
     )
 
     def get_extra_context(self, request, instance):

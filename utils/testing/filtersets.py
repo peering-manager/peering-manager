@@ -17,12 +17,17 @@ class BaseFilterSetTests:
 
 
 class ChangeLoggedFilterSetTests(BaseFilterSetTests):
+    """
+    These tests do not work because the created and updated fields do not update when
+    calling `update()`.
+    """
+
     def test_created(self):
         pk_list = self.queryset.values_list("pk", flat=True)[:2]
         self.queryset.filter(pk__in=pk_list).update(
-            created=datetime(2021, 1, 1, tzinfo=timezone.utc)
+            created=datetime(2021, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
         )
-        params = {"created": "2021-01-01"}
+        params = {"created": ["2021-01-01T00:00:00"]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_updated(self):
@@ -30,5 +35,5 @@ class ChangeLoggedFilterSetTests(BaseFilterSetTests):
         self.queryset.filter(pk__in=pk_list).update(
             updated=datetime(2021, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
         )
-        params = {"updated": "2021-01-01T00:00:00"}
+        params = {"updated": ["2021-01-01T00:00:00"]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
