@@ -270,7 +270,6 @@ class AutonomousSystemEmail(PermissionRequiredMixin, View):
                 to=form.cleaned_data["recipient"],
                 cc=form.cleaned_data["cc"],
             )
-            sent = mail.send()
 
             try:
                 sent = mail.send()
