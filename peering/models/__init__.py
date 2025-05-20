@@ -771,7 +771,11 @@ class InternetExchange(AbstractGroup):
             )
         # Intersect all lists to find common sessions, these sessions can be excluded
         # from the lookup performed after this
-        ip_addresses = list(set.intersection(*map(set, ip_addresses_per_connection)))
+        ip_addresses = (
+            list(set.intersection(*map(set, ip_addresses_per_connection)))
+            if ip_addresses_per_connection
+            else []
+        )
 
         return NetworkIXLan.objects.filter(
             ~Q(asn=self.local_autonomous_system.asn)

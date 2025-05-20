@@ -111,8 +111,10 @@ class GitRepositoryBackend(DataBackend):
     def init_config(self):
         config = ConfigDict()
 
-        if settings.HTTP_PROXIES and self.url_scheme in settings.HTTP_PROXIES:
-            config.set("http", "proxy", settings.HTTP_PROXIES[self.url_scheme])
+        if settings.HTTP_PROXIES and (
+            proxy := settings.HTTP_PROXIES.get(self.url_scheme, None)
+        ):
+            config.set("http", "proxy", proxy)
 
         return config
 
