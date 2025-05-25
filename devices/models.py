@@ -116,7 +116,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
     local_autonomous_system = models.ForeignKey(
         to="peering.AutonomousSystem", on_delete=models.CASCADE, null=True
     )
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=128, unique=True)
     hostname = models.CharField(max_length=256)
     platform = models.ForeignKey(
         to="devices.Platform",
