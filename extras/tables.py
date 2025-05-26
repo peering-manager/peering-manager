@@ -7,9 +7,21 @@ from .models import (
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
+    JournalEntry,
     Tag,
     TaggedItem,
     Webhook,
+)
+
+__all__ = (
+    "ConfigContextAssignmentTable",
+    "ConfigContextTable",
+    "ExportTemplateTable",
+    "IXAPITable",
+    "JournalEntryTable",
+    "TagTable",
+    "TaggedItemTable",
+    "WebhookTable",
 )
 
 
@@ -75,6 +87,47 @@ class IXAPITable(PeeringManagerTable):
         model = IXAPI
         fields = ("id", "name", "url", "api_key", "actions")
         default_columns = ("name", "url", "api_key", "actions")
+
+
+class JournalEntryTable(PeeringManagerTable):
+    created = columns.DateTimeColumn(timespec="minutes", linkify=True)
+    assigned_object_type = columns.ContentTypeColumn(verbose_name="Object Type")
+    assigned_object = tables.Column(
+        linkify=True, orderable=False, verbose_name="Object"
+    )
+    kind = columns.ChoiceFieldColumn()
+    comments = columns.MarkdownColumn()
+    comments_short = tables.TemplateColumn(
+        accessor=tables.A("comments"),
+        template_code="{% load helpers %}{{ value|markdown|truncatewords_html:50 }}",
+        verbose_name="Comments (Short)",
+    )
+    tags = columns.TagColumn(url_name="extras:journalentry_list")
+
+    class Meta(PeeringManagerTable.Meta):
+        model = JournalEntry
+        fields = (
+            "pk",
+            "id",
+            "created",
+            "created_by",
+            "assigned_object_type",
+            "assigned_object",
+            "kind",
+            "comments",
+            "comments_short",
+            "tags",
+            "actions",
+        )
+        default_columns = (
+            "pk",
+            "created",
+            "created_by",
+            "assigned_object_type",
+            "assigned_object",
+            "kind",
+            "comments",
+        )
 
 
 class TagTable(PeeringManagerTable):

@@ -2,15 +2,6 @@ from utils.enums import ChoiceSet
 
 WEBHOOK_HTTP_CONTENT_TYPE_JSON = "application/json"
 
-EXTRAS_FEATURES = (
-    "config-contexts",
-    "export-templates",
-    "jobs",
-    "synchronised_data",
-    "tags",
-    "webhooks",
-)
-
 
 class HttpMethod(ChoiceSet):
     GET = "GET"
@@ -26,3 +17,17 @@ class HttpMethod(ChoiceSet):
         (PATCH, "PATCH"),
         (DELETE, "DELETE"),
     )
+
+
+class JournalEntryKind(ChoiceSet):
+    INFO = "info"
+    SUCCESS = "success"
+    WARNING = "warning"
+    DANGER = "danger"
+
+    CHOICES = [
+        (INFO, "Info"),
+        (SUCCESS, "Success"),
+        (WARNING, "Warning"),
+        (DANGER, "Danger"),
+    ]

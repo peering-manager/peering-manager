@@ -1,0 +1,37 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% load tabs %}
+{% block actions %}
+{% if perms.extras.change_journalentry %}
+<a href="{% url 'extras:journalentry_edit' pk=instance.pk %}" class="btn btn-warning">
+  <i class="fa-fw fa-solid fa-edit"></i> Edit
+</a>
+{% endif %}
+{% if perms.extras.delete_journalentry %}
+<a href="{% url 'extras:journalentry_delete' pk=instance.pk %}" class="btn btn-danger">
+  <i class="fa-fw fa-solid fa-trash"></i> Delete
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'extras:journalentry_list' %}">Journal Entries</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
+{% endblock %}
+{% block content %}
+{% block tabs %}
+<ul class="nav nav-tabs mb-3" role="presentation">
+  {# Primary tab #}
+  <li class="nav-item">
+    <a class="nav-link{% if not tab %} active{% endif %}" href="{{ instance.get_absolute_url }}">{{ instance|meta:"verbose_name"|title_with_uppers }}</a>
+  </li>
+
+  {# Include tabs for registered model views #}
+  {% model_view_tabs instance %}
+
+  <li class="nav-item">
+    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Last updated: {{ instance.updated | date_span }}</a>
+  </li>
+</ul>
+{% endblock tabs %}
+{% block subcontent %}{% endblock %}
+{% endblock %}

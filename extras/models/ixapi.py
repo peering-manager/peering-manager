@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import logging
+from typing import TYPE_CHECKING
 
 import pyixapi
 from django.apps import apps
@@ -10,6 +13,9 @@ from django.urls import reverse
 
 from core.constants import CENSORSHIP_STRING, CENSORSHIP_STRING_CHANGED
 from peering_manager.models import ChangeLoggedModel
+
+if TYPE_CHECKING:
+    from core.models import ObjectChange
 
 logger = logging.getLogger("peering.manager.extras.ixapi")
 
@@ -49,11 +55,11 @@ class IXAPI(ChangeLoggedModel):
         ]
 
     @property
-    def _cache_key(self):
+    def _cache_key(self) -> str:
         return f"ixapi_data__{self.pk}"
 
     @property
-    def version(self):
+    def version(self) -> int:
         """
         Returns the API version based on the URL.
         """
@@ -69,13 +75,13 @@ class IXAPI(ChangeLoggedModel):
 
         return value
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def get_absolute_url(self):
-        return reverse("extras:ixapi_view", args=[self.pk])
+    def get_absolute_url(self) -> str:
+        return reverse("extras:ixapi", args=[self.pk])
 
-    def to_objectchange(self, action):
+    def to_objectchange(self, action) -> ObjectChange:
         object_change = super().to_objectchange(action)
 
         prechange_data = {}

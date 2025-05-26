@@ -3,6 +3,7 @@ from django.views.generic import View
 
 from peering_manager.views.generic import ObjectListView, PermissionRequiredMixin
 from utils.functions import shallow_compare_dict
+from utils.views import register_model_view
 
 from ..enums import ObjectChangeAction
 from ..filtersets import ObjectChangeFilterSet
@@ -13,6 +14,7 @@ from ..tables import ObjectChangeTable
 __all__ = ("ObjectChangeList", "ObjectChangeView")
 
 
+@register_model_view(ObjectChange, name="list", path="", detail=False)
 class ObjectChangeList(ObjectListView):
     permission_required = "core.view_objectchange"
     queryset = ObjectChange.objects.select_related("user").prefetch_related(
@@ -21,9 +23,10 @@ class ObjectChangeList(ObjectListView):
     filterset = ObjectChangeFilterSet
     filterset_form = ObjectChangeFilterForm
     table = ObjectChangeTable
-    template_name = "extras/object_change/list.html"
+    template_name = "core/object_change/list.html"
 
 
+@register_model_view(ObjectChange)
 class ObjectChangeView(PermissionRequiredMixin, View):
     permission_required = "core.view_objectchange"
 
@@ -76,7 +79,7 @@ class ObjectChangeView(PermissionRequiredMixin, View):
 
         return render(
             request,
-            "extras/object_change/details.html",
+            "core/object_change/details.html",
             {
                 "instance": instance,
                 "diff_added": diff_added,

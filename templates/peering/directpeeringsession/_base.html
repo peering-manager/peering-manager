@@ -1,5 +1,6 @@
 {% extends '_base.html' %}
 {% load helpers %}
+{% load tabs %}
 {% block actions %}
 {% if perms.peering.change_directpeeringsession %}
 <button type="button" class="btn btn-danger{% if not instance.enabled %} d-none{% endif %}" id="id_session_disable">
@@ -19,32 +20,27 @@
 {% endif %}
 {% endblock %}
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'peering:autonomoussystem_view' pk=instance.autonomous_system.pk %}">{{ instance.autonomous_system }}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'peering:autonomoussystem' pk=instance.autonomous_system.pk %}">{{ instance.autonomous_system }}</a></li>
 <li class="breadcrumb-item"><a href="{% url 'peering:autonomoussystem_direct_peering_sessions' pk=instance.autonomous_system.pk %}">Direct Peering Sessions</a></li>
 <li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
 {% endblock %}
 {% block content %}
-<ul class="nav nav-tabs mb-3">
+{% block tabs %}
+<ul class="nav nav-tabs mb-3" role="presentation">
+  {# Primary tab #}
   <li class="nav-item">
-    <a class="nav-link{% if tab == 'main' %} active{% endif %}" href="{% url 'peering:directpeeringsession_view' pk=instance.pk %}">
-      <i class="fa-fw fa-solid fa-info-circle"></i> Info
-    </a>
+    <a class="nav-link{% if not tab %} active{% endif %}" href="{{ instance.get_absolute_url }}">{{ instance|meta:"verbose_name"|title_with_uppers }}</a>
   </li>
-  <li class="nav-item">
-    <a class="nav-link{% if tab == 'config-context' %} active{% endif %}" href="{% url 'peering:directpeeringsession_configcontext' pk=instance.pk %}">
-      <i class="fa-fw fa-solid fa-code"></i> Config Context
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link{% if tab == 'changelog' %} active{% endif %}" href="{% url 'peering:directpeeringsession_changelog' pk=instance.pk %}">
-      <i class="fa-fw fa-solid fa-history"></i> Changelog
-    </a>
-  </li>
+
+  {# Include tabs for registered model views #}
+  {% model_view_tabs instance %}
+
   <li class="nav-item">
     <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">
       Last updated: {{ instance.updated | date_span }}
     </a>
   </li>
 </ul>
+{% endblock tabs %}
 {% block subcontent %}{% endblock %}
 {% endblock %}

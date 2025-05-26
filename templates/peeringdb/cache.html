@@ -31,12 +31,12 @@
 <script>
   function resetSyncButton(button) {
     button.removeAttr('disabled');
-    button.removeClass('btn-warning', 'btn-danger', 'btn-success');
+    button.removeClass(['btn-warning', 'btn-danger', 'btn-success']);
     button.addClass('btn-primary').html('<i class="fa-fw fa-solid fa-rotate"></i> Update');
   }
   function resetClearButton(button) {
     button.removeAttr('disabled');
-    button.removeClass('btn-warning', 'btn-primary', 'btn-success');
+    button.removeClass(['btn-warning', 'btn-primary', 'btn-success']);
     button.addClass('btn-danger').html('<i class="fa-fw fa-solid fa-broom"></i> Clear');
   }
 

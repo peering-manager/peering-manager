@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -6,6 +10,9 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from ..enums import ObjectChangeAction
+
+if TYPE_CHECKING:
+    from django.utils.safestring import SafeText
 
 __all__ = ("ObjectChange",)
 
@@ -51,10 +58,10 @@ class ObjectChange(models.Model):
     class Meta:
         ordering = ["-time"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.changed_object_type} {self.object_repr} {self.get_action_display().lower()} by {self.user_name}"
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         if not self.user_name:
             self.user_name = self.user.username
         if not self.object_repr:
@@ -62,10 +69,10 @@ class ObjectChange(models.Model):
 
         return super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
-        return reverse("core:objectchange_view", args=[self.pk])
+    def get_absolute_url(self) -> str:
+        return reverse("core:objectchange", args=[self.pk])
 
-    def get_action_html(self):
+    def get_action_html(self) -> SafeText:
         """
         Return an HTML element based on the action.
         """
@@ -84,5 +91,5 @@ class ObjectChange(models.Model):
         )
 
     @property
-    def has_changes(self):
+    def has_changes(self) -> bool:
         return self.prechange_data != self.postchange_data

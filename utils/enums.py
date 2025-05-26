@@ -3,7 +3,7 @@ class ChoiceSetMeta(type):
     Metaclass for `ChoiceSet`.
     """
 
-    def __new__(mcs, name, bases, attrs):  # noqa: N804
+    def __new__(mcs, name, bases, attrs):
         # Define choice tuples and colour maps
         attrs["_choices"] = []
         attrs["colours"] = {}

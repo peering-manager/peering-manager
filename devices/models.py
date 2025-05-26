@@ -21,6 +21,7 @@ from peering.models import (
     RoutingPolicy,
 )
 from peering_manager.models import (
+    JobsMixin,
     OrganisationalModel,
     PrimaryModel,
     PushedDataMixin,
@@ -35,13 +36,13 @@ __all__ = ("Configuration", "Platform", "Router")
 
 
 class Configuration(SynchronisedDataMixin, TemplateModel):
-    def get_absolute_url(self):
-        return reverse("devices:configuration_view", args=[self.pk])
+    def get_absolute_url(self) -> str:
+        return reverse("devices:configuration", args=[self.pk])
 
-    def synchronise_data(self):
+    def synchronise_data(self) -> None:
         self.template = self.data_file.data_as_string
 
-    def render(self, context):
+    def render(self, context) -> str:
         """
         Render the template using Jinja2.
         """
@@ -81,10 +82,10 @@ class Platform(OrganisationalModel):
         help_text="Algorithm to cipher password in configuration",
     )
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return f"{reverse('devices:router_list')}?platform_id={self.pk}"
 
-    def encrypt_password(self, password):
+    def encrypt_password(self, password) -> str:
         """
         Encrypts a password using the defined algorithm.
 
@@ -97,7 +98,7 @@ class Platform(OrganisationalModel):
 
         return ENCRYPTERS[self.password_algorithm](password)
 
-    def decrypt_password(self, password):
+    def decrypt_password(self, password) -> str:
         """
         Decrypts a password using the defined algorithm.
 
@@ -111,11 +112,11 @@ class Platform(OrganisationalModel):
         return DECRYPTERS[self.password_algorithm](password)
 
 
-class Router(PushedDataMixin, PrimaryModel):
+class Router(JobsMixin, PushedDataMixin, PrimaryModel):
     local_autonomous_system = models.ForeignKey(
         to="peering.AutonomousSystem", on_delete=models.CASCADE, null=True
     )
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=128, unique=True)
     hostname = models.CharField(max_length=256)
     platform = models.ForeignKey(
         to="devices.Platform",
@@ -164,13 +165,13 @@ class Router(PushedDataMixin, PrimaryModel):
             ),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def get_absolute_url(self):
-        return reverse("devices:router_view", args=[self.pk])
+    def get_absolute_url(self) -> str:
+        return reverse("devices:router", args=[self.pk])
 
-    def get_direct_peering_sessions_list_url(self):
+    def get_direct_peering_sessions_list_url(self) -> str:
         return reverse("devices:router_direct_peering_sessions", args=[self.pk])
 
     def get_status_colour(self):

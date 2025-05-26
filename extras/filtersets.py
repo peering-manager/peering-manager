@@ -1,4 +1,5 @@
 import django_filters
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
@@ -9,12 +10,13 @@ from utils.filters import (
     MultiValueNumberFilter,
 )
 
-from .enums import HttpMethod
+from .enums import HttpMethod, JournalEntryKind
 from .models import (
     IXAPI,
     ConfigContext,
     ConfigContextAssignment,
     ExportTemplate,
+    JournalEntry,
     Tag,
     Webhook,
 )
@@ -24,6 +26,7 @@ __all__ = (
     "ConfigContextFilterSet",
     "ExportTemplateFilterSet",
     "IXAPIFilterSet",
+    "JournalEntryFilterSet",
     "TagFilterSet",
     "WebhookFilterSet",
 )
@@ -85,6 +88,33 @@ class IXAPIFilterSet(ChangeLoggedModelFilterSet):
             | Q(url__icontains=value)
             | Q(api_key__icontains=value)
         )
+
+
+class JournalEntryFilterSet(ChangeLoggedModelFilterSet):
+    q = django_filters.CharFilter(method="search", label="Search")
+    assigned_object_type = ContentTypeFilter()
+    assigned_object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ContentType.objects.all(),
+    )
+    created_by_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=User.objects.all(), label="User (ID)"
+    )
+    created_by = django_filters.ModelMultipleChoiceFilter(
+        field_name="created_by__username",
+        queryset=User.objects.all(),
+        to_field_name="username",
+        label="User (name)",
+    )
+    kind = django_filters.MultipleChoiceFilter(choices=JournalEntryKind)
+
+    class Meta:
+        model = JournalEntry
+        fields = ["id", "assigned_object_type_id", "assigned_object_id", "kind"]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(comments__icontains=value)
 
 
 class TagFilterSet(ChangeLoggedModelFilterSet):

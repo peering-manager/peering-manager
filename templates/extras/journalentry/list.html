@@ -1,0 +1,15 @@
+{% extends '_base.html' %}
+{% load render_table from django_tables2 %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">{% block title %}Journal Entries{% endblock %}</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-9">
+    {% include 'generic/object_list.html' with table_modal='JournalEntryTable_config' bulk_edit_url='extras:journalentry_bulk_edit' bulk_delete_url='extras:journalentry_bulk_delete' %}
+  </div>
+  <div class="col-md-3">
+    {% include 'utils/search_form.html' %}
+  </div>
+</div>
+{% endblock %}

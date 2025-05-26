@@ -11,7 +11,8 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django_tables2.columns import library
 
-from utils.functions import content_type_identifier, content_type_name, get_viewname
+from utils.functions import content_type_identifier, content_type_name
+from utils.views import get_viewname
 
 __all__ = (
     "ActionsColumn",
@@ -22,6 +23,7 @@ __all__ = (
     "ContentTypesColumn",
     "DateTimeColumn",
     "LinkedCountColumn",
+    "MarkdownColumn",
     "SelectColumn",
     "TagColumn",
     "ToggleColumn",
@@ -313,6 +315,27 @@ class LinkedCountColumn(tables.Column):
                 )
             return mark_safe(f'<a href="{url}">{value}</a>')
         return value
+
+    def value(self, value):
+        return value
+
+
+class MarkdownColumn(tables.TemplateColumn):
+    """
+    Render a Markdown string as a column.
+    """
+
+    template_code = """
+    {% load helpers %}
+    {% if value %}
+    {{ value|markdown }}
+    {% else %}
+    &mdash;
+    {% endif %}
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(template_code=self.template_code, **kwargs)
 
     def value(self, value):
         return value

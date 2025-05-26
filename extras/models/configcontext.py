@@ -23,13 +23,13 @@ class ConfigContext(SynchronisedDataMixin, ChangeLoggedModel):
     class Meta:
         ordering = ["name"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def get_absolute_url(self):
-        return reverse("extras:configcontext_view", kwargs={"pk": self.pk})
+    def get_absolute_url(self) -> str:
+        return reverse("extras:configcontext", kwargs={"pk": self.pk})
 
-    def clean(self):
+    def clean(self) -> None:
         super().clean()
 
         # Verify that JSON data is provided as an object
@@ -38,7 +38,7 @@ class ConfigContext(SynchronisedDataMixin, ChangeLoggedModel):
                 {"data": 'JSON data must be in object form. Example: {"foo": 123}'}
             )
 
-    def synchronise_data(self):
+    def synchronise_data(self) -> None:
         self.data = self.data_file.get_data()
 
 
@@ -60,5 +60,5 @@ class ConfigContextAssignment(ChangeLoggedModel):
             )
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.config_context)

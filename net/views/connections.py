@@ -7,6 +7,7 @@ from peering_manager.views.generic import (
     ObjectListView,
     ObjectView,
 )
+from utils.views import register_model_view
 
 from ..filtersets import ConnectionFilterSet
 from ..forms import ConnectionBulkEditForm, ConnectionFilterForm, ConnectionForm
@@ -16,7 +17,7 @@ from ..tables import ConnectionTable
 __all__ = (
     "ConnectionBulkDelete",
     "ConnectionBulkEdit",
-    "ConnectionContext",
+    "ConnectionConfigContext",
     "ConnectionDelete",
     "ConnectionEdit",
     "ConnectionList",
@@ -24,6 +25,7 @@ __all__ = (
 )
 
 
+@register_model_view(model=Connection, name="list", path="", detail=False)
 class ConnectionList(ObjectListView):
     permission_required = "net.view_connection"
     queryset = Connection.objects.prefetch_related("internet_exchange_point", "router")
@@ -33,10 +35,10 @@ class ConnectionList(ObjectListView):
     template_name = "net/connection/list.html"
 
 
+@register_model_view(model=Connection)
 class ConnectionView(ObjectView):
     permission_required = "net.view_connection"
     queryset = Connection.objects.all()
-    tab = "main"
 
     def get_extra_context(self, request, instance):
         ixapi_network_service_config = instance.ixapi_network_service_config()
@@ -48,17 +50,20 @@ class ConnectionView(ObjectView):
         }
 
 
-class ConnectionContext(ObjectConfigContextView):
-    permission_required = "net.view_connection"
-    queryset = Connection.objects.all()
-    base_template = "net/connection/_base.html"
-
-
+@register_model_view(model=Connection, name="add", detail=False)
+@register_model_view(model=Connection, name="edit")
 class ConnectionEdit(ObjectEditView):
     queryset = Connection.objects.all()
     form = ConnectionForm
 
 
+@register_model_view(model=Connection, name="delete")
+class ConnectionDelete(ObjectDeleteView):
+    permission_required = "net.delete_connection"
+    queryset = Connection.objects.all()
+
+
+@register_model_view(model=Connection, name="bulk_edit", path="edit", detail=False)
 class ConnectionBulkEdit(BulkEditView):
     permission_required = "net.change_connection"
     queryset = Connection.objects.select_related("internet_exchange_point", "router")
@@ -67,12 +72,15 @@ class ConnectionBulkEdit(BulkEditView):
     form = ConnectionBulkEditForm
 
 
-class ConnectionDelete(ObjectDeleteView):
-    permission_required = "net.delete_connection"
-    queryset = Connection.objects.all()
-
-
+@register_model_view(model=Connection, name="bulk_delete", path="delete", detail=False)
 class ConnectionBulkDelete(BulkDeleteView):
     queryset = Connection.objects.all()
     filterset = ConnectionFilterSet
     table = ConnectionTable
+
+
+@register_model_view(model=Connection, name="configcontext", path="config-context")
+class ConnectionConfigContext(ObjectConfigContextView):
+    permission_required = "net.view_connection"
+    queryset = Connection.objects.all()
+    base_template = "net/connection/_base.html"

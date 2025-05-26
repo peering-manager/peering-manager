@@ -20,8 +20,8 @@ class ContactRole(OrganisationalModel):
     Functional role for a `Contact` assigned to an object.
     """
 
-    def get_absolute_url(self):
-        return reverse("messaging:contactrole_view", args=[self.pk])
+    def get_absolute_url(self) -> str:
+        return reverse("messaging:contactrole", args=[self.pk])
 
 
 class Contact(PrimaryModel):
@@ -34,11 +34,11 @@ class Contact(PrimaryModel):
     class Meta:
         ordering = ["name"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def get_absolute_url(self):
-        return reverse("messaging:contact_view", args=[self.pk])
+    def get_absolute_url(self) -> str:
+        return reverse("messaging:contact", args=[self.pk])
 
 
 class ContactAssignment(ChangeLoggedModel):
@@ -61,7 +61,7 @@ class ContactAssignment(ChangeLoggedModel):
             )
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.contact)
 
 
@@ -71,13 +71,13 @@ class Email(SynchronisedDataMixin, TemplateModel):
     # with this recommended limit, including not respecting it
     subject = models.CharField(max_length=512)
 
-    def get_absolute_url(self):
-        return reverse("messaging:email_view", args=[self.pk])
+    def get_absolute_url(self) -> str:
+        return reverse("messaging:email", args=[self.pk])
 
-    def synchronise_data(self):
+    def synchronise_data(self) -> None:
         self.template = self.data_file.data_as_string
 
-    def render(self, variables):
+    def render(self, variables) -> tuple[str, str]:
         """
         Render the template using Jinja2.
         """

@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import logging
+from typing import TYPE_CHECKING
 
 from django.contrib import messages
 from django.db import transaction
@@ -16,13 +19,16 @@ from .base import BaseObjectView
 from .mixins import ActionsMixin, TableMixin
 from .utils import get_prerequisite_model
 
+if TYPE_CHECKING:
+    from utils.views import ViewTab
+
 
 class ObjectView(BaseObjectView):
     """
     Retrieves a single object for display.
     """
 
-    tab = None
+    tab: ViewTab | None = None
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, "view")

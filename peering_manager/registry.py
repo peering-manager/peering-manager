@@ -1,3 +1,14 @@
+from collections import defaultdict
+
+__all__ = (
+    "DATA_BACKENDS_KEY",
+    "MODELS_KEY",
+    "MODEL_FEATURES_KEY",
+    "VIEWS_KEY",
+    "registry",
+)
+
+
 class Registry(dict):
     """
     Central registry for registration of functionality.
@@ -20,6 +31,16 @@ class Registry(dict):
 
 
 DATA_BACKENDS_KEY = "data_backends"
+MODEL_FEATURES_KEY = "model_features"
+MODELS_KEY = "models"
+VIEWS_KEY = "views"
 
 # Initialize the global registry
-registry = Registry({DATA_BACKENDS_KEY: {}, "model_features": {}, "views": {}})
+registry = Registry(
+    {
+        DATA_BACKENDS_KEY: {},
+        MODEL_FEATURES_KEY: {},
+        MODELS_KEY: defaultdict(set),
+        VIEWS_KEY: defaultdict(dict),
+    }
+)

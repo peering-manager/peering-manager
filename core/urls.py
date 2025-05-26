@@ -1,83 +1,47 @@
-from django.urls import path
+from django.urls import include, path
 
-from peering_manager.views.generic import ObjectChangeLogView
-from peering_manager.views.generic.feature_views import ObjectJobsView
+from utils.urls import get_model_urls
 
-from . import models, views
+from . import views
 
 app_name = "core"
-
 urlpatterns = [
-    # Change logging
-    path("changelog/", views.ObjectChangeList.as_view(), name="objectchange_list"),
+    path(
+        "changelog/",
+        include(
+            get_model_urls(app_label="core", model_name="objectchange", detail=False)
+        ),
+    ),
     path(
         "changelog/<int:pk>/",
-        views.ObjectChangeView.as_view(),
-        name="objectchange_view",
-    ),
-    # Data sources
-    path("data-sources/", views.DataSourceListView.as_view(), name="datasource_list"),
-    path(
-        "data-sources/add/", views.DataSourceEditView.as_view(), name="datasource_add"
+        include(get_model_urls(app_label="core", model_name="objectchange")),
     ),
     path(
-        "data-sources/delete/",
-        views.DataSourceBulkDeleteView.as_view(),
-        name="datasource_bulk_delete",
+        "data-sources/",
+        include(
+            get_model_urls(app_label="core", model_name="datasource", detail=False)
+        ),
     ),
     path(
-        "data-sources/edit/",
-        views.DataSourceBulkEdit.as_view(),
-        name="datasource_bulk_edit",
+        "data-sources/<int:pk>/",
+        include(get_model_urls(app_label="core", model_name="datasource")),
     ),
     path(
-        "data-sources/<int:pk>/", views.DataSourceView.as_view(), name="datasource_view"
+        "data-files/",
+        include(get_model_urls(app_label="core", model_name="datafile", detail=False)),
     ),
     path(
-        "data-sources/<int:pk>/files/",
-        views.DataSourceFilesView.as_view(),
-        name="datasource_files",
+        "data-files/<int:pk>/",
+        include(get_model_urls(app_label="core", model_name="datafile")),
     ),
     path(
-        "data-sources/<int:pk>/edit/",
-        views.DataSourceEditView.as_view(),
-        name="datasource_edit",
+        "jobs/",
+        include(get_model_urls(app_label="core", model_name="job", detail=False)),
     ),
     path(
-        "data-sources/<int:pk>/delete/",
-        views.DataSourceDeleteView.as_view(),
-        name="datasource_delete",
+        "jobs/<int:pk>/",
+        include(get_model_urls(app_label="core", model_name="job")),
     ),
-    path(
-        "data-sources/<int:pk>/jobs/",
-        ObjectJobsView.as_view(),
-        name="datasource_jobs",
-        kwargs={"model": models.DataSource},
-    ),
-    path(
-        "data-sources/<int:pk>/changelog/",
-        ObjectChangeLogView.as_view(),
-        name="datasource_changelog",
-        kwargs={"model": models.DataSource},
-    ),
-    # Data files
-    path("data-files/", views.DataFileListView.as_view(), name="datafile_list"),
-    path(
-        "data-files/delete/",
-        views.DataFileBulkDeleteView.as_view(),
-        name="datafile_bulk_delete",
-    ),
-    path("data-files/<int:pk>/", views.DataFileView.as_view(), name="datafile_view"),
-    path(
-        "data-files/<int:pk>/delete/",
-        views.DataFileDeleteView.as_view(),
-        name="datafile_delete",
-    ),
-    # Jobs
-    path("jobs/", views.JobListView.as_view(), name="job_list"),
-    path("jobs/delete/", views.JobBulkDeleteView.as_view(), name="job_bulk_delete"),
-    path("jobs/<int:pk>/", views.JobView.as_view(), name="job_view"),
-    path("jobs/<int:pk>/delete/", views.JobDeleteView.as_view(), name="job_delete"),
     # Background Tasks
     path(
         "background-queues/",
