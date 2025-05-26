@@ -413,6 +413,29 @@ Examples:
 {% for session in router | direct_peers('transit') %}
 ```
 
+## `routing_policies`
+For a router, fetches all routing policies used on this router. This includes sessions policies, asn policies, bgp group policies and ixp policies.
+
+You can use the argument `detailed` to ask for the policies to be detailed, this will result in a dict with the type of policy as key and the queryset of policies as value.
+
+Key list : `sessions_policies`, `asn_policies`, `bgp_group_policies`, `ix_policies`
+
+Examples:
+```no-highlight
+{%- for policy in router | routing_policies %}
+...
+{%- endfor %}
+
+{%- set policies = router | routing_policies('detailed') %}
+{%- for category, pols in policies.items() %}
+  {%- if category == 'sessions_policies' %}
+    {%- for policy in pols.filter(type='import-policy') %}
+    ...
+    {%- endfor %}
+  {%- endif %}
+{%- endfor %}
+```
+
 ## `bfds`
 
 For a router, fetches all BFD profiles used on this router.
