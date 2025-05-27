@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
 from core.forms import PushedDataMixin, SynchronisedDataMixin
-from netbox.api import NetBox
+from extras.netbox import NetBox
 from peering.models import AutonomousSystem, Community
 from peering_manager.forms import (
     PeeringManagerModelFilterSetForm,

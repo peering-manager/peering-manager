@@ -3,8 +3,9 @@ from unittest.mock import patch
 import pynetbox
 from django.test import TestCase
 
-from netbox.api import NetBox
 from utils.testing import MockedResponse
+
+from ..netbox import NetBox
 
 
 class MockedGenerator:
@@ -30,7 +31,9 @@ class NetBoxTestCase(TestCase):
 
     @patch(
         "requests.sessions.Session.get",
-        return_value=MockedResponse(fixture="netbox/tests/fixtures/devices.json"),
+        return_value=MockedResponse(
+            fixture="extras/tests/fixtures/netbox/devices.json"
+        ),
     )
     def test_get_devices(self, *_):
         devices = self.netbox.get_devices()
