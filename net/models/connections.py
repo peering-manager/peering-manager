@@ -85,9 +85,6 @@ class Connection(PrimaryModel):
     def get_status_colour(self) -> str:
         return ConnectionStatus.colours.get(self.status)
 
-    def get_absolute_url(self) -> str:
-        return reverse("net:connection", args=[self.pk])
-
     def link_to_peeringdb(self) -> NetworkIXLan | None:
         """
         Retrieves the PeeringDB ID for this IX connection based on the IP addresses

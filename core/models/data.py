@@ -110,9 +110,6 @@ class DataSource(PrimaryModel, JobsMixin):
         logger.debug(f"found {len(paths)} files")
         return paths
 
-    def get_absolute_url(self) -> str:
-        return reverse("core:datasource", args=[self.pk])
-
     def clean(self) -> None:
         super().clean()
 

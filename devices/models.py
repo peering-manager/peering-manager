@@ -36,9 +36,6 @@ __all__ = ("Configuration", "Platform", "Router")
 
 
 class Configuration(SynchronisedDataMixin, TemplateModel):
-    def get_absolute_url(self) -> str:
-        return reverse("devices:configuration", args=[self.pk])
-
     def synchronise_data(self) -> None:
         self.template = self.data_file.data_as_string
 
@@ -167,9 +164,6 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
 
     def __str__(self) -> str:
         return self.name
-
-    def get_absolute_url(self) -> str:
-        return reverse("devices:router", args=[self.pk])
 
     def get_direct_peering_sessions_list_url(self) -> str:
         return reverse("devices:router_direct_peering_sessions", args=[self.pk])

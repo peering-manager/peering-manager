@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.validators import ValidationError
 from django.db import models
+from django.urls import reverse
 
 from .features import *
 
@@ -29,8 +30,13 @@ class PeeringManagerFeatureSet(
         abstract = True
 
     @property
-    def docs_url(self):
+    def docs_url(self) -> str:
         return f"{settings.STATIC_URL}docs/models/{self._meta.app_label}/{self._meta.model_name}/"
+
+    def get_absolute_url(self) -> str:
+        return reverse(
+            f"{self._meta.app_label}:{self._meta.model_name}", kwargs={"pk": self.pk}
+        )
 
 
 class ChangeLoggedModel(ChangeLoggingMixin, models.Model):

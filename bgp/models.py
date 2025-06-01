@@ -21,9 +21,6 @@ __all__ = ("Relationship",)
 class Relationship(OrganisationalModel):
     color = ColourField(default=Colour.GREY)
 
-    def get_absolute_url(self) -> str:
-        return reverse("bgp:relationship", args=[self.pk])
-
     def get_html(self) -> SafeText:
         return mark_safe(
             f'<span class="badge" style="color: {foreground_colour(self.color)}; background-color: #{self.color}">{escape(self.name)}</span>'

@@ -31,6 +31,3 @@ class BFD(OrganisationalModel):
 
     class Meta:
         verbose_name = "BFD configuration"
-
-    def get_absolute_url(self) -> str:
-        return reverse("net:bfd", args=[self.pk])
