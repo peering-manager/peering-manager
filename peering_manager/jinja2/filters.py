@@ -809,6 +809,15 @@ def indent(value, n, chars=" ", reset=False):
     return r
 
 
+def routing_policies(value, detailed=False):
+    """
+    Returns all the routing policies that are applied to the router.
+    """
+    if not isinstance(value, Router):
+        raise ValueError("value is not a router")
+    return value.get_routing_policies(detailed)
+
+
 def bfds(value):
     """
     Returns all the BFDs that have at least one session configured on the router.
@@ -862,6 +871,7 @@ FILTER_DICT = {
     # Routers
     "direct_peers": direct_peers,
     "ixp_peers": ixp_peers,
+    "routing_policies": routing_policies,
     "bfds": bfds,
     # Communities
     "communities": communities,
