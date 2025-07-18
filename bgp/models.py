@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 

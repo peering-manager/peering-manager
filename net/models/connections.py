@@ -1,7 +1,6 @@
 import logging
 
 from django.db import models
-from django.urls import reverse
 from netfields import InetAddressField, MACAddressField, NetManager
 
 from peering_manager.models import PrimaryModel

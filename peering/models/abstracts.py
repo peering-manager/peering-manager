@@ -46,6 +46,9 @@ class AbstractGroup(OrganisationalModel, PolicyMixin):
     def get_peering_sessions(self):
         raise NotImplementedError()
 
+    def get_routers(self):
+        raise NotImplementedError()
+
     def are_bgp_sessions_pollable(self):
         """
         Returns whether or not BGP sessions can be polled for the group.
