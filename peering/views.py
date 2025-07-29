@@ -87,7 +87,7 @@ from .tables import (
 class AutonomousSystemList(ObjectListView):
     permission_required = "peering.view_autonomoussystem"
     queryset = (
-        AutonomousSystem.objects.defer("prefixes")
+        AutonomousSystem.objects.all()
         .annotate(
             directpeeringsession_count=Count("directpeeringsession", distinct=True),
             internetexchangepeeringsession_count=Count(
@@ -104,7 +104,7 @@ class AutonomousSystemList(ObjectListView):
 
 class AutonomousSystemView(ObjectView):
     permission_required = "peering.view_autonomoussystem"
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
     tab = "main"
 
     def get_extra_context(self, request, instance):
@@ -128,30 +128,30 @@ class AutonomousSystemView(ObjectView):
 
 class AutonomousSystemConfigContext(ObjectConfigContextView):
     permission_required = "peering.view_autonomoussystem"
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
     base_template = "peering/autonomoussystem/_base.html"
 
 
 class AutonomousSystemEdit(ObjectEditView):
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
     form = AutonomousSystemForm
     template_name = "peering/autonomoussystem/edit.html"
 
 
 class AutonomousSystemDelete(ObjectDeleteView):
     permission_required = "peering.delete_autonomoussystem"
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
 
 
 class AutonomousSystemBulkDelete(BulkDeleteView):
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
     filterset = AutonomousSystemFilterSet
     table = AutonomousSystemTable
 
 
 class AutonomousSystemPeeringDB(ObjectView):
     permission_required = "peering.view_autonomoussystem"
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
     template_name = "peering/autonomoussystem/peeringdb.html"
     tab = "peeringdb"
 
@@ -172,7 +172,7 @@ class AutonomousSystemDirectPeeringSessions(ObjectChildrenView):
         "peering.view_autonomoussystem",
         "peering.view_directpeeringsession",
     )
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
     child_model = DirectPeeringSession
     filterset = DirectPeeringSessionFilterSet
     filterset_form = DirectPeeringSessionFilterForm
@@ -193,7 +193,7 @@ class AutonomousSystemInternetExchangesPeeringSessions(ObjectChildrenView):
         "peering.view_autonomoussystem",
         "peering.view_internetexchangepeeringsession",
     )
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
     child_model = InternetExchangePeeringSession
     filterset = InternetExchangePeeringSessionFilterSet
     filterset_form = InternetExchangePeeringSessionFilterForm
@@ -211,7 +211,7 @@ class AutonomousSystemInternetExchangesPeeringSessions(ObjectChildrenView):
 
 class AutonomousSystemPeers(ObjectChildrenView):
     permission_required = "peering.view_autonomoussystem"
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
     child_model = NetworkIXLan
     table = NetworkIXLanTable
     template_name = "peering/autonomoussystem/peers.html"

@@ -45,7 +45,7 @@ def synchronise(job: Job) -> None:
     )
 
     updated_as_count = 0
-    for autonomous_system in AutonomousSystem.objects.defer("prefixes"):
+    for autonomous_system in AutonomousSystem.objects.all():
         if autonomous_system.synchronise_with_peeringdb():
             updated_as_count += 1
 

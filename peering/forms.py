@@ -307,13 +307,11 @@ class CommunityFilterForm(PeeringManagerModelFilterSetForm):
 
 class DirectPeeringSessionForm(PeeringManagerModelForm):
     local_autonomous_system = DynamicModelChoiceField(
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
         label="Local AS",
     )
-    autonomous_system = DynamicModelChoiceField(
-        queryset=AutonomousSystem.objects.defer("prefixes")
-    )
+    autonomous_system = DynamicModelChoiceField(queryset=AutonomousSystem.objects.all())
     bgp_group = DynamicModelChoiceField(
         required=False, queryset=BGPGroup.objects.all(), label="BGP Group"
     )
@@ -441,7 +439,7 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
 class DirectPeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm):
     local_autonomous_system = DynamicModelChoiceField(
         required=False,
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
         label="Local AS",
     )
@@ -496,14 +494,14 @@ class DirectPeeringSessionFilterForm(PeeringManagerModelFilterSetForm):
     model = DirectPeeringSession
     local_autonomous_system_id = DynamicModelChoiceField(
         required=False,
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
         to_field_name="pk",
         label="Local AS",
     )
     autonomous_system_id = DynamicModelChoiceField(
         required=False,
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         to_field_name="pk",
         label="Autonomous system",
     )
@@ -562,7 +560,7 @@ class InternetExchangeForm(PeeringManagerModelForm):
         required=False, choices=DeviceStatus, widget=StaticSelect
     )
     local_autonomous_system = DynamicModelChoiceField(
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
         label="Local AS",
     )
@@ -621,7 +619,7 @@ class InternetExchangeBulkEditForm(PeeringManagerModelBulkEditForm):
     )
     local_autonomous_system = DynamicModelChoiceField(
         required=False,
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
         label="Local AS",
     )
@@ -675,7 +673,7 @@ class InternetExchangeFilterForm(PeeringManagerModelFilterSetForm):
     )
     local_autonomous_system_id = DynamicModelChoiceField(
         required=False,
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
         label="Local AS",
     )
@@ -741,9 +739,7 @@ class InternetExchangePeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm
 
 
 class InternetExchangePeeringSessionForm(PeeringManagerModelForm):
-    autonomous_system = DynamicModelChoiceField(
-        queryset=AutonomousSystem.objects.defer("prefixes")
-    )
+    autonomous_system = DynamicModelChoiceField(queryset=AutonomousSystem.objects.all())
     internet_exchange = DynamicModelChoiceField(
         required=False, queryset=InternetExchange.objects.all(), label="IXP"
     )
@@ -849,7 +845,7 @@ class InternetExchangePeeringSessionFilterForm(PeeringManagerModelFilterSetForm)
     model = InternetExchangePeeringSession
     autonomous_system_id = DynamicModelMultipleChoiceField(
         required=False,
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         to_field_name="pk",
         label="Autonomous system",
     )

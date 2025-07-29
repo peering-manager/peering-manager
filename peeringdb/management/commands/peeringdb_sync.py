@@ -67,7 +67,7 @@ class Command(BaseCommand):
                 self.stdout.write("done", self.style.SUCCESS)
 
             self.stdout.write("[*] Updating AS details")
-            for autonomous_system in AutonomousSystem.objects.defer("prefixes"):
+            for autonomous_system in AutonomousSystem.objects.all():
                 if autonomous_system.is_private:
                     continue
                 if not quiet:

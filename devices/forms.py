@@ -124,7 +124,7 @@ class RouterForm(PushedDataMixin, PeeringManagerModelForm):
         required=False, queryset=Community.objects.all()
     )
     local_autonomous_system = DynamicModelChoiceField(
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
         label="Local AS",
     )
@@ -223,7 +223,7 @@ class RouterForm(PushedDataMixin, PeeringManagerModelForm):
 class RouterBulkEditForm(PeeringManagerModelBulkEditForm):
     local_autonomous_system = DynamicModelChoiceField(
         required=False,
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
         label="Local AS",
     )
@@ -259,7 +259,7 @@ class RouterFilterForm(PeeringManagerModelFilterSetForm):
     model = Router
     local_autonomous_system_id = DynamicModelChoiceField(
         required=False,
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
         label="Local AS",
     )
