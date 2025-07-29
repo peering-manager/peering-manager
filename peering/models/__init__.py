@@ -35,6 +35,11 @@ __all__ = (
 logger = logging.getLogger("peering.manager.peering")
 
 
+class AutonomousSystemManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().defer("prefixes")
+
+
 class AutonomousSystem(PrimaryModel, PolicyMixin):
     asn = ASNField(unique=True, verbose_name="ASN")
     name = models.CharField(max_length=200)
@@ -61,6 +66,8 @@ class AutonomousSystem(PrimaryModel, PolicyMixin):
     prefixes = models.JSONField(blank=True, null=True, editable=False)
     affiliated = models.BooleanField(default=False)
     contacts = GenericRelation(to="messaging.ContactAssignment")
+
+    objects = AutonomousSystemManager()
 
     class Meta:
         ordering = ["asn", "affiliated"]
