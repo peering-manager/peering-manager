@@ -102,7 +102,7 @@ SEARCH_TYPES = OrderedDict(
         (
             "autonomousystem",
             {
-                "queryset": AutonomousSystem.objects.defer("prefixes").annotate(
+                "queryset": AutonomousSystem.objects.all().annotate(
                     directpeeringsession_count=count_related(
                         DirectPeeringSession, "autonomous_system"
                     ),

@@ -255,13 +255,13 @@ class Router(PushedDataMixin, PrimaryModel):
             sessions = DirectPeeringSession.objects.filter(router=self).values_list(
                 "autonomous_system", flat=True
             )
-        return AutonomousSystem.objects.defer("prefixes").filter(pk__in=sessions)
+        return AutonomousSystem.objects.filter(pk__in=sessions)
 
     def get_ixp_autonomous_systems(self, internet_exchange_point=None):
         """
         Returns autonomous systems with which this router peers over IXPs.
         """
-        return AutonomousSystem.objects.defer("prefixes").filter(
+        return AutonomousSystem.objects.filter(
             pk__in=InternetExchangePeeringSession.objects.filter(
                 ixp_connection__in=self.get_connections(
                     internet_exchange_point=internet_exchange_point

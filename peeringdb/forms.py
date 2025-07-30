@@ -82,7 +82,7 @@ class NetworkIXLanFilterForm(BootstrapMixin, forms.Form):
 
 class SendEmailToNetwork(BootstrapMixin, forms.Form):
     affiliated = DynamicModelChoiceField(
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
         label="Local AS",
     )

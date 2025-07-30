@@ -21,7 +21,7 @@ class Command(BaseCommand):
         if not quiet:
             self.stdout.write("[*] Fetching prefixes for autonomous systems")
 
-        for autonomous_system in AutonomousSystem.objects.defer("prefixes"):
+        for autonomous_system in AutonomousSystem.objects.all():
             if not quiet:
                 self.stdout.write(f"  - AS{autonomous_system.asn}:")
 

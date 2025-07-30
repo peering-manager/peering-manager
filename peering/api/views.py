@@ -51,7 +51,7 @@ class PeeringRootView(APIRootView):
 
 
 class AutonomousSystemViewSet(PeeringManagerModelViewSet):
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
     serializer_class = AutonomousSystemSerializer
     filterset_class = AutonomousSystemFilterSet
 
