@@ -1,14 +1,14 @@
 import logging
 import traceback
 
-__all__ = ("PushError", "SynchronisationError", "exception_handler")
+__all__ = ("FetchError", "PushError", "SynchronisationError", "exception_handler")
 
 
 def exception_handler(rq_job, exc_type, exc_value, trace):
     """
     Sets result's details according to the exception that occurred while running the job.
     """
-    from .models import Job
+    from .models import Job  # noqa: PLC0415
 
     logger = logging.getLogger("peering.manager.core.jobs")
 
@@ -21,6 +21,10 @@ def exception_handler(rq_job, exc_type, exc_value, trace):
     job.mark_errored(
         "An exception occurred, see output for more details.", logger=logger
     )
+
+
+class FetchError(Exception):
+    pass
 
 
 class PushError(Exception):
