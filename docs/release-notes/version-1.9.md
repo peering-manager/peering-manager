@@ -1,3 +1,13 @@
+## Version 1.9.7 | MARK I (Bug fixes release) | 2025-07-31
+
+### Bug Fixes
+
+* [#925](https://github.com/peering-manager/peering-manager/issues/925) Fix button styling when transitioning from an error state
+* [#933](https://github.com/peering-manager/peering-manager/issues/933) Fix git data source backend operations when `HTTP_PROXIES` where defined but without actual values
+* [#938](https://github.com/peering-manager/peering-manager/issues/938) Fix performance issue when accessing session list views (both direct and IXP)
+* Fix IXP available peer list when no connections are configured
+* Raise an error when trying to use a directory based data source that does not exist
+
 ## Version 1.9.6 | MARK I (Bug fixes release) | 2025-04-11
 
 ### Bug Fixes

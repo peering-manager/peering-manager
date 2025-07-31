@@ -66,7 +66,7 @@ __all__ = (
 class AutonomousSystemList(ObjectListView):
     permission_required = "peering.view_autonomoussystem"
     queryset = (
-        AutonomousSystem.objects.defer("prefixes")
+        AutonomousSystem.objects.all()
         .annotate(
             directpeeringsession_count=Count("directpeeringsession", distinct=True),
             internetexchangepeeringsession_count=Count(
@@ -84,7 +84,7 @@ class AutonomousSystemList(ObjectListView):
 @register_model_view(AutonomousSystem)
 class AutonomousSystemView(ObjectView):
     permission_required = "peering.view_autonomoussystem"
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
 
     def get_extra_context(self, request, instance):
         shared_internet_exchanges = {}
@@ -108,7 +108,7 @@ class AutonomousSystemView(ObjectView):
 @register_model_view(model=AutonomousSystem, name="add", detail=False)
 @register_model_view(model=AutonomousSystem, name="edit")
 class AutonomousSystemEdit(ObjectEditView):
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
     form = AutonomousSystemForm
     template_name = "peering/autonomoussystem/edit.html"
 
@@ -116,12 +116,12 @@ class AutonomousSystemEdit(ObjectEditView):
 @register_model_view(AutonomousSystem, name="delete")
 class AutonomousSystemDelete(ObjectDeleteView):
     permission_required = "peering.delete_autonomoussystem"
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
 
 
 @register_model_view(AutonomousSystem, name="bulk_delete", path="delete", detail=False)
 class AutonomousSystemBulkDelete(BulkDeleteView):
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
     filterset = AutonomousSystemFilterSet
     table = AutonomousSystemTable
 
@@ -129,14 +129,14 @@ class AutonomousSystemBulkDelete(BulkDeleteView):
 @register_model_view(AutonomousSystem, name="configcontext", path="config-context")
 class AutonomousSystemConfigContext(ObjectConfigContextView):
     permission_required = "peering.view_autonomoussystem"
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
     base_template = "peering/autonomoussystem/_base.html"
 
 
 @register_model_view(AutonomousSystem, name="peeringdb")
 class AutonomousSystemPeeringDB(ObjectView):
     permission_required = "peering.view_autonomoussystem"
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
     template_name = "peering/autonomoussystem/peeringdb.html"
     tab = ViewTab(label="PeeringDB")
 
@@ -160,7 +160,7 @@ class AutonomousSystemDirectPeeringSessions(ObjectChildrenView):
         "peering.view_autonomoussystem",
         "peering.view_directpeeringsession",
     )
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
     child_model = DirectPeeringSession
     filterset = DirectPeeringSessionFilterSet
     filterset_form = DirectPeeringSessionFilterForm
@@ -191,7 +191,7 @@ class AutonomousSystemInternetExchangesPeeringSessions(ObjectChildrenView):
         "peering.view_autonomoussystem",
         "peering.view_internetexchangepeeringsession",
     )
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
     child_model = InternetExchangePeeringSession
     filterset = InternetExchangePeeringSessionFilterSet
     filterset_form = InternetExchangePeeringSessionFilterForm
@@ -215,7 +215,7 @@ class AutonomousSystemInternetExchangesPeeringSessions(ObjectChildrenView):
 @register_model_view(AutonomousSystem, name="peers")
 class AutonomousSystemPeers(ObjectChildrenView):
     permission_required = "peering.view_autonomoussystem"
-    queryset = AutonomousSystem.objects.defer("prefixes")
+    queryset = AutonomousSystem.objects.all()
     child_model = NetworkIXLan
     table = NetworkIXLanTable
     template_name = "peering/autonomoussystem/peers.html"

@@ -36,17 +36,17 @@ class PlatformFilterSet(OrganisationalModelFilterSet):
 
 class RouterFilterSet(PeeringManagerModelFilterSet):
     local_autonomous_system_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=AutonomousSystem.objects.defer("prefixes"), label="Local AS (ID)"
+        queryset=AutonomousSystem.objects.all(), label="Local AS (ID)"
     )
     local_autonomous_system_asn = django_filters.ModelMultipleChoiceFilter(
         field_name="local_autonomous_system__asn",
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         to_field_name="asn",
         label="Local AS (ASN)",
     )
     local_autonomous_system = django_filters.ModelMultipleChoiceFilter(
         field_name="local_autonomous_system__name",
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         to_field_name="name",
         label="Local AS (Name)",
     )

@@ -39,8 +39,12 @@ __all__ = (
 @register_model_view(InternetExchangePeeringSession, name="list", path="", detail=False)
 class InternetExchangePeeringSessionList(ObjectListView):
     permission_required = "peering.view_internetexchangepeeringsession"
-    queryset = InternetExchangePeeringSession.objects.order_by(
-        "autonomous_system", "ip_address"
+    queryset = (
+        InternetExchangePeeringSession.objects.order_by(
+            "autonomous_system", "ip_address"
+        )
+        .select_related("autonomous_system")
+        .defer("autonomous_system__prefixes")
     )
     table = InternetExchangePeeringSessionTable
     filterset = InternetExchangePeeringSessionFilterSet
@@ -74,7 +78,7 @@ class InternetExchangePeeringSessionBulkEdit(BulkEditView):
     permission_required = "peering.change_internetexchangepeeringsession"
     queryset = InternetExchangePeeringSession.objects.select_related(
         "autonomous_system"
-    )
+    ).defer("autonomous_system__prefixes")
     filterset = InternetExchangePeeringSessionFilterSet
     table = InternetExchangePeeringSessionTable
     form = InternetExchangePeeringSessionBulkEditForm

@@ -86,32 +86,32 @@ class CommunityFilterSet(PeeringManagerModelFilterSet):
 
 class DirectPeeringSessionFilterSet(PeeringManagerModelFilterSet):
     local_autonomous_system_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=AutonomousSystem.objects.defer("prefixes"), label="Local AS (ID)"
+        queryset=AutonomousSystem.objects.all(), label="Local AS (ID)"
     )
     local_autonomous_system_asn = django_filters.ModelMultipleChoiceFilter(
         field_name="local_autonomous_system__asn",
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         to_field_name="asn",
         label="Local AS (ASN)",
     )
     local_autonomous_system = django_filters.ModelMultipleChoiceFilter(
         field_name="local_autonomous_system__name",
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         to_field_name="name",
         label="Local AS (Name)",
     )
     autonomous_system_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=AutonomousSystem.objects.defer("prefixes"), label="Remote AS (ID)"
+        queryset=AutonomousSystem.objects.all(), label="Remote AS (ID)"
     )
     autonomous_system_asn = django_filters.ModelMultipleChoiceFilter(
         field_name="autonomous_system__asn",
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         to_field_name="asn",
         label="Remote AS (ASN)",
     )
     autonomous_system = django_filters.ModelMultipleChoiceFilter(
         field_name="autonomous_system__name",
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         to_field_name="name",
         label="Remote AS (Name)",
     )
@@ -198,17 +198,17 @@ class DirectPeeringSessionFilterSet(PeeringManagerModelFilterSet):
 class InternetExchangeFilterSet(OrganisationalModelFilterSet):
     status = django_filters.MultipleChoiceFilter(choices=BGPGroupStatus, null_value="")
     local_autonomous_system_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=AutonomousSystem.objects.defer("prefixes"), label="Local AS (ID)"
+        queryset=AutonomousSystem.objects.all(), label="Local AS (ID)"
     )
     local_autonomous_system_asn = django_filters.ModelMultipleChoiceFilter(
         field_name="local_autonomous_system__asn",
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         to_field_name="asn",
         label="Local AS (ASN)",
     )
     local_autonomous_system = django_filters.ModelMultipleChoiceFilter(
         field_name="local_autonomous_system__name",
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         to_field_name="name",
         label="Local AS (Name)",
     )
@@ -232,17 +232,17 @@ class InternetExchangeFilterSet(OrganisationalModelFilterSet):
 
 class InternetExchangePeeringSessionFilterSet(PeeringManagerModelFilterSet):
     autonomous_system_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=AutonomousSystem.objects.defer("prefixes"), label="Remote AS (ID)"
+        queryset=AutonomousSystem.objects.all(), label="Remote AS (ID)"
     )
     autonomous_system_asn = django_filters.ModelMultipleChoiceFilter(
         field_name="autonomous_system__asn",
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         to_field_name="asn",
         label="Remote AS (ASN)",
     )
     autonomous_system = django_filters.ModelMultipleChoiceFilter(
         field_name="autonomous_system__name",
-        queryset=AutonomousSystem.objects.defer("prefixes"),
+        queryset=AutonomousSystem.objects.all(),
         to_field_name="name",
         label="Remote AS (Name)",
     )
