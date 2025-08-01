@@ -152,7 +152,7 @@ class IXAPIViewSet(PeeringManagerModelViewSet):
 
         # Query IX-API with given parameters
         api = pyixapi.api(
-            url=serializer.validated_data["url"],
+            url=serializer.validated_data["api_url"],
             key=serializer.validated_data["api_key"],
             secret=serializer.validated_data["api_secret"],
             user_agent=settings.REQUESTS_USER_AGENT,

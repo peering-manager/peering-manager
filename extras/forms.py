@@ -164,11 +164,11 @@ class ExportTemplateFilterForm(BootstrapMixin, forms.Form):
 
 class IXAPIForm(BootstrapMixin, forms.ModelForm):
     identity = forms.CharField(widget=StaticSelect)
-    fieldsets = (("IX-API", ("name", "url", "api_key", "api_secret", "identity")),)
+    fieldsets = (("IX-API", ("name", "api_url", "api_key", "api_secret", "identity")),)
 
     class Meta:
         model = IXAPI
-        fields = ("name", "url", "api_key", "api_secret", "identity")
+        fields = ("name", "api_url", "api_key", "api_secret", "identity")
 
     def clean(self):
         cleaned_data = super().clean()
@@ -176,7 +176,9 @@ class IXAPIForm(BootstrapMixin, forms.ModelForm):
         try:
             # Try to query API and see if it raises an error
             IXAPI.test_connectivity(
-                cleaned_data["url"], cleaned_data["api_key"], cleaned_data["api_secret"]
+                cleaned_data["api_url"],
+                cleaned_data["api_key"],
+                cleaned_data["api_secret"],
             )
         except HTTPError as e1:
             # Fail form validation on HTTP error to provide a feedback to the user

@@ -28,7 +28,7 @@ class IXAPI(ChangeLoggedModel):
     """
 
     name = models.CharField(max_length=100)
-    url = models.CharField(max_length=2000, verbose_name="URL")
+    api_url = models.CharField(max_length=2000, verbose_name="URL")
     api_key = models.CharField(max_length=2000, verbose_name="API key")
     api_secret = models.CharField(max_length=2000, verbose_name="API secret")
     identity = models.CharField(
@@ -47,10 +47,10 @@ class IXAPI(ChangeLoggedModel):
 
     class Meta:
         verbose_name = "IX-API"
-        ordering = ["name", "url", "-created"]
+        ordering = ["name", "api_url", "-created"]
         constraints = [
             models.UniqueConstraint(
-                fields=["url", "api_key"], name="unique_ixapi_url_key"
+                fields=["api_url", "api_key"], name="unique_ixapi_url_key"
             )
         ]
 
@@ -104,12 +104,12 @@ class IXAPI(ChangeLoggedModel):
         return object_change
 
     @staticmethod
-    def test_connectivity(url, api_key, api_secret):
+    def test_connectivity(api_url, api_key, api_secret):
         """
         Performs a authentication and see if it succeeds.
         """
         api = pyixapi.api(
-            url=url,
+            url=api_url,
             key=api_key,
             secret=api_secret,
             user_agent=settings.REQUESTS_USER_AGENT,
@@ -137,7 +137,7 @@ class IXAPI(ChangeLoggedModel):
         Returns a API client to use for queries.
         """
         api = pyixapi.api(
-            url=self.url,
+            url=self.api_url,
             key=self.api_key,
             secret=self.api_secret,
             access_token=self.access_token,

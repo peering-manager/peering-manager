@@ -78,14 +78,14 @@ class IXAPIFilterSet(ChangeLoggedModelFilterSet):
 
     class Meta:
         model = IXAPI
-        fields = ["id", "name", "url", "api_key"]
+        fields = ["id", "name", "api_url", "api_key"]
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
             Q(name__icontains=value)
-            | Q(url__icontains=value)
+            | Q(api_url__icontains=value)
             | Q(api_key__icontains=value)
         )
 

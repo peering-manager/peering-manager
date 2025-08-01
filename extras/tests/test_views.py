@@ -76,21 +76,21 @@ class IXAPITestCase(ViewTestCases.PrimaryObjectViewTestCase):
             [
                 IXAPI(
                     name="IXP 1",
-                    url="https://ixp1-ixapi.example.net/v1/",
+                    api_url="https://ixp1-ixapi.example.net/v1/",
                     api_key="key-ixp1",
                     api_secret="secret-ixp1",
                     identity="1234",
                 ),
                 IXAPI(
                     name="IXP 2",
-                    url="https://ixp2-ixapi.example.net/v2/",
+                    api_url="https://ixp2-ixapi.example.net/v2/",
                     api_key="key-ixp2",
                     api_secret="secret-ixp2",
                     identity="1234",
                 ),
                 IXAPI(
                     name="IXP 3",
-                    url="https://ixp3-ixapi.example.net/v3/",
+                    api_url="https://ixp3-ixapi.example.net/v3/",
                     api_key="key-ixp3",
                     api_secret="secret-ixp3",
                     identity="1234",
@@ -100,7 +100,7 @@ class IXAPITestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.form_data = {
             "name": "IXP 4",
-            "url": "https://ixp4-ixapi.example.net/v1/",
+            "api_url": "https://ixp4-ixapi.example.net/v1/",
             "api_key": "key-ixp4",
             "api_secret": "secret-ixp4",
             "identity": "1234",

@@ -1,7 +1,7 @@
 {% extends 'generic/edit.html' %}
 {% block javascript %}
 <script>
-  var api_url = document.getElementById("id_url");
+  var api_url = document.getElementById("id_api_url");
   var api_key = document.getElementById("id_api_key");
   var api_secret = document.getElementById("id_api_secret");
   var timeout = null;
@@ -15,7 +15,7 @@
     $.ajax({
       method: "get",
       data: {
-        url: api_url.value,
+        api_url: api_url.value,
         api_key: api_key.value,
         api_secret: api_secret.value,
       },

@@ -45,6 +45,8 @@ class NestedExportTemplateSerializer(WritableNestedSerializer):
 
 
 class NestedIXAPISerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name="extras-api:ixapi-detail")
+
     class Meta:
         model = IXAPI
         fields = ["id", "display", "name", "url"]

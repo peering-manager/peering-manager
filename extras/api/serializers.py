@@ -99,13 +99,24 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
 
 
 class IXAPISerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name="extras-api:ixapi-detail")
+
     class Meta:
         model = IXAPI
-        fields = ["id", "display", "name", "url", "api_key", "api_secret", "identity"]
+        fields = [
+            "id",
+            "url",
+            "display",
+            "name",
+            "api_url",
+            "api_key",
+            "api_secret",
+            "identity",
+        ]
 
 
 class IXAPIAccountSerializer(serializers.Serializer):
-    url = serializers.CharField()
+    api_url = serializers.CharField()
     api_key = serializers.CharField()
     api_secret = serializers.CharField()
 
