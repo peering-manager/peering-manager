@@ -31,7 +31,7 @@ Jinja2 = "~3.1"
 Markdown = "~3.7"
 napalm = "~5.0"
 packaging = "23.2"
-psycopg = { version = "~3.1", extras = ["binary", "pool"] }
+psycopg = { version = "~3.2", extras = ["binary", "pool"] }
 pyixapi = "^0.2"
 pynetbox = "~7.3"
 PyYAML = "~6.0"

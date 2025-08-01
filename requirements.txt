@@ -19,7 +19,7 @@ django-tables2==2.7.5
 django-taggit==6.1.0
 django==5.2.4
 djangorestframework==3.15.2
-drf-spectacular-sidecar==2025.7.1
+drf-spectacular-sidecar==2025.8.1
 drf-spectacular==0.28.0
 dulwich==0.22.8
 future==1.0.0
@@ -44,9 +44,9 @@ oauthlib==3.3.1
 packaging==23.2
 paramiko==3.5.1
 prometheus-client==0.22.1
-psycopg-binary==3.1.20
+psycopg-binary==3.2.9
 psycopg-pool==3.2.6
-psycopg[binary,pool]==3.1.20
+psycopg[binary,pool]==3.2.9
 pycparser==2.22
 pyeapi==1.0.4
 pygments==2.19.2
