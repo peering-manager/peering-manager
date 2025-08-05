@@ -2,6 +2,7 @@ from peeringdb.models import Network, Organization
 
 PREFIXES6 = '{"prefix_list": [{"prefix": "2001:db8::/32", "exact": true}]}'
 PREFIXES4 = '{"prefix_list": [{"prefix": "203.0.113.0/24", "exact": true}]}'
+AS_LIST = '{"as_list": [65537, 65538, 65539]}'
 
 
 def load_peeringdb_data():
@@ -61,6 +62,24 @@ def mocked_subprocess_popen(*args, **kwargs):
             return MockResponse(0, PREFIXES6.encode(), b"")
         if "-4" in args[0]:
             return MockResponse(0, PREFIXES4.encode(), b"")
+    if "AS-ERROR" in args[0]:
+        return MockResponse(1, b"", b"Exit with error")
+
+    return MockResponse(-1, b"", b"Something went wrong")
+
+
+def mocked_subprocess_popen_as_list(*args, **kwargs):
+    class MockResponse:
+        def __init__(self, returncode, out, err):
+            self.returncode = returncode
+            self.out = out
+            self.err = err
+
+        def communicate(self):
+            return self.out, self.err
+
+    if "AS-MOCKED" in args[0]:
+        return MockResponse(0, AS_LIST.encode(), b"")
     if "AS-ERROR" in args[0]:
         return MockResponse(1, b"", b"Exit with error")
 

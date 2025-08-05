@@ -44,7 +44,7 @@ class InternetExchangePeeringSessionList(ObjectListView):
             "autonomous_system", "ip_address"
         )
         .select_related("autonomous_system")
-        .defer("autonomous_system__prefixes")
+        .defer("autonomous_system__prefixes", "autonomous_system__as_list")
     )
     table = InternetExchangePeeringSessionTable
     filterset = InternetExchangePeeringSessionFilterSet
@@ -78,7 +78,7 @@ class InternetExchangePeeringSessionBulkEdit(BulkEditView):
     permission_required = "peering.change_internetexchangepeeringsession"
     queryset = InternetExchangePeeringSession.objects.select_related(
         "autonomous_system"
-    ).defer("autonomous_system__prefixes")
+    ).defer("autonomous_system__prefixes", "autonomous_system__as_list")
     filterset = InternetExchangePeeringSessionFilterSet
     table = InternetExchangePeeringSessionTable
     form = InternetExchangePeeringSessionBulkEditForm

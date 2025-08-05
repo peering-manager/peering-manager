@@ -678,6 +678,16 @@ def prefix_list(value, family=0):
     raise ValueError("value has no prefixes")
 
 
+def as_list(value, family=0):
+    """
+    Returns the AS list for the given AS.
+    """
+    if type(value) is AutonomousSystem:
+        return value.get_irr_as_set_as_list()
+
+    raise ValueError("value has no AS list")
+
+
 def safe_string(value):
     """
     Returns a safe string (retaining only ASCII characters).
@@ -846,6 +856,7 @@ FILTER_DICT = {
     "shared_facilities": shared_facilities,
     "missing_sessions": missing_sessions,
     "prefix_list": prefix_list,
+    "as_list": as_list,
     # BGP groups
     "local_ips": local_ips,
     # BGP sessions

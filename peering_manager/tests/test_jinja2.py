@@ -482,6 +482,9 @@ class Jinja2FilterTestCase(TestCase):
     def test_prefix_list(self):
         pass
 
+    def test_as_list(self):
+        pass
+
     def test_safe_string(self):
         self.assertEqual("Tele_a_ciu", FILTER_DICT["safe_string"]("Téle_à_çiu"))
 

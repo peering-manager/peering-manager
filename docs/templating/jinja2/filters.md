@@ -289,6 +289,18 @@ Example:
 {% set prefixes = autonomous_system | prefix_list %}
 ```
 
+## `as_list`
+
+Fetches the AS list of an autonomous system and returns it as a list of
+integers. It is fetched using `bgpq3` (or `bgpq4`) but can come from the local
+cache if present.
+
+Example:
+
+```no-highlight
+{% set as_list = autonomous_system | as_list %}
+```
+
 ## `connections`
 
 On an IXP or a router, it will return all connections attached to it.

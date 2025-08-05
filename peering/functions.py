@@ -6,13 +6,16 @@ import re
 import subprocess
 from ipaddress import IPv4Address
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from .constants import ASN_MAX, ASN_MAX_2_OCTETS
 from .enums import CommunityKind
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 logger = logging.getLogger("peering.manager.peering")
 
@@ -21,34 +24,9 @@ def _is_using_bgpq4() -> bool:
     return Path(settings.BGPQ3_PATH).name == "bgpq4"
 
 
-def call_irr_as_set_resolver(
-    irr_as_set: str, irr_as_set_source: str = "", address_family: int = 6
-) -> list[dict[str, Any]]:
-    """
-    Call a subprocess to expand the given AS-SET for an IP version.
-    """
-    prefixes: list[dict[str, Any]] = []
-
-    if not irr_as_set:
-        return prefixes
-
-    # Call bgpq with arguments to get a JSON result;
-    # only include option if argument is not null
-    command = [settings.BGPQ3_PATH]
-    if settings.BGPQ3_HOST:
-        command += ["-h", settings.BGPQ3_HOST]
-    if settings.BGPQ3_SOURCES:
-        command += ["-S", settings.BGPQ3_SOURCES]
-    command += [f"-{address_family}", "-A", "-j", "-l", "prefix_list", irr_as_set]
-
-    # Merge user settings to command line right before the name of the prefix list
-    if settings.BGPQ3_ARGS:
-        index = len(command) - 3
-        command[index:index] = settings.BGPQ3_ARGS[
-            "ipv6" if address_family == 6 else "ipv4"
-        ]
-
+def _call_bgpq_binary(command: Sequence[str]) -> bytes:
     logger.debug(f"calling {settings.BGPQ3_PATH} with command: {command}")
+
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = process.communicate()
 
@@ -58,9 +36,7 @@ def call_irr_as_set_resolver(
             error_log += f", stderr: {err}"
         raise ValueError(error_log)
 
-    prefixes.extend(list(json.loads(out.decode())["prefix_list"]))
-
-    return prefixes
+    return out
 
 
 def parse_irr_as_set(asn: int, irr_as_set: str) -> list[tuple[str, str]]:
@@ -82,27 +58,91 @@ def parse_irr_as_set(asn: int, irr_as_set: str) -> list[tuple[str, str]]:
         if not value:
             continue
 
-        match = re.match(
+        source = ""
+        as_set = value
+
+        if match := re.match(
             r"^(?P<source>{}):+\s*(?P<as_set>.+)$".format(
                 settings.BGPQ3_SOURCES.replace(",", "|")
             ),
             value,
-        )
-        if match:
+        ):
             source = match.group("source")
-            as_set = (
-                value
-                if _is_using_bgpq4() and settings.BGPQ4_KEEP_SOURCE_IN_SET
-                else match.group("as_set").strip()
-            )
-        else:
-            source = ""
-            as_set = value
+            as_set = match.group("as_set")
 
         as_set = re.sub(r"^(?:ipv4|ipv6):", "", as_set).strip()
         as_sets.append((source, as_set))
 
     return as_sets
+
+
+def call_irr_as_set_resolver(
+    as_set: str, source: str = "", address_family: Literal[4, 6] = 6
+) -> list[dict[str, Any]]:
+    """
+    Call a subprocess to expand the given AS-SET for an IP version.
+    """
+    if not as_set:
+        return []
+
+    if _is_using_bgpq4() and settings.BGPQ4_KEEP_SOURCE_IN_SET and source:
+        as_set = f"{source}:{as_set}"
+
+    # Call bgpq with arguments to get a JSON result;
+    # only include option if argument is not null
+    command = [settings.BGPQ3_PATH]
+    if settings.BGPQ3_HOST:
+        command += ["-h", settings.BGPQ3_HOST]
+    if settings.BGPQ3_SOURCES:
+        command += ["-S", settings.BGPQ3_SOURCES]
+    command += [f"-{address_family}", "-A", "-j", "-l", "prefix_list", as_set]
+
+    # Merge user settings to command line right before the name of the prefix list
+    if settings.BGPQ3_ARGS:
+        index = len(command) - 3
+        command[index:index] = settings.BGPQ3_ARGS[
+            "ipv6" if address_family == 6 else "ipv4"
+        ]
+
+    try:
+        out = _call_bgpq_binary(command)
+    except ValueError:
+        raise
+
+    return list(json.loads(out.decode())["prefix_list"])
+
+
+def call_irr_as_set_as_list_resolver(
+    first_as: int, as_set: str, source: str = ""
+) -> list[int]:
+    """
+    Call a subprocess to expand the given AS-SET for an IP version into an AS path
+    list. The `first_as` parameter is only used to please bgpq3/bgpq4 as the JSON
+    output does not have a use for it.
+    """
+    if not as_set:
+        return [first_as]
+
+    if _is_using_bgpq4() and settings.BGPQ4_KEEP_SOURCE_IN_SET and source:
+        as_set = f"{source}::{as_set}"
+
+    # Call bgpq with arguments to get a JSON result;
+    # only include option if argument is not null
+    command = [settings.BGPQ3_PATH]
+    if settings.BGPQ3_HOST:
+        command += ["-h", settings.BGPQ3_HOST]
+    if settings.BGPQ3_SOURCES:
+        command += ["-S", settings.BGPQ3_SOURCES]
+    command += ["-j", "-l", "as_list", "-f", str(first_as), as_set]
+
+    try:
+        out = _call_bgpq_binary(command)
+    except ValueError:
+        raise
+
+    return sorted(
+        {first_as} | {int(i) for i in list(json.loads(out.decode())["as_list"])}
+    )
 
 
 COMMUNITY_FIELD_SEPARATOR = ":"

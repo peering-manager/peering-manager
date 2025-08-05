@@ -1,8 +1,10 @@
 import ipaddress
 import logging
+from typing import Any
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
@@ -17,7 +19,12 @@ from peeringdb.models import IXLanPrefix, Network, NetworkContact, NetworkIXLan
 
 from ..enums import BGPState, CommunityType, IPFamily, RoutingPolicyType
 from ..fields import ASNField, CommunityField
-from ..functions import call_irr_as_set_resolver, get_community_kind, parse_irr_as_set
+from ..functions import (
+    call_irr_as_set_as_list_resolver,
+    call_irr_as_set_resolver,
+    get_community_kind,
+    parse_irr_as_set,
+)
 from .abstracts import *
 from .mixins import *
 
@@ -37,7 +44,7 @@ logger = logging.getLogger("peering.manager.peering")
 
 class AutonomousSystemManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().defer("prefixes")
+        return super().get_queryset().defer("prefixes", "as_list")
 
 
 class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
@@ -64,6 +71,9 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
     )
     communities = models.ManyToManyField("Community", blank=True)
     prefixes = models.JSONField(blank=True, null=True, editable=False)
+    as_list = ArrayField(
+        models.PositiveIntegerField(), default=list, blank=True, editable=False
+    )
     affiliated = models.BooleanField(default=False)
     contacts = GenericRelation(to="messaging.ContactAssignment")
 
@@ -346,7 +356,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         except Exception:
             return False
 
-    def retrieve_irr_as_set_prefixes(self):
+    def retrieve_irr_as_set_prefixes(self) -> dict[str, list[dict[str, Any]]]:
         """
         Returns a prefix list for this AS' IRR AS-SET. If none is provided the
         function will try to look for a prefix list based on the AS number.
@@ -356,24 +366,21 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         data to process.
         """
         fallback = False
-        as_sets = parse_irr_as_set(self.asn, self.irr_as_set)
         prefixes = {"ipv6": [], "ipv4": []}
 
         try:
             # For each AS-SET try getting IPv6 and IPv4 prefixes
-            for as_set_source, as_set in as_sets:
+            for source, as_set in parse_irr_as_set(
+                asn=self.asn, irr_as_set=self.irr_as_set
+            ):
                 prefixes["ipv6"].extend(
                     call_irr_as_set_resolver(
-                        irr_as_set=as_set,
-                        irr_as_set_source=as_set_source,
-                        address_family=6,
+                        as_set=as_set, source=source, address_family=6
                     )
                 )
                 prefixes["ipv4"].extend(
                     call_irr_as_set_resolver(
-                        irr_as_set=as_set,
-                        irr_as_set_source=as_set_source,
-                        address_family=4,
+                        as_set=as_set, source=source, address_family=4
                     )
                 )
         except ValueError:
@@ -386,10 +393,10 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
                 f"falling back to AS number lookup to search for AS{self.asn} prefixes"
             )
             prefixes["ipv6"].extend(
-                call_irr_as_set_resolver(f"AS{self.asn}", address_family=6)
+                call_irr_as_set_resolver(as_set=f"AS{self.asn}", address_family=6)
             )
             prefixes["ipv4"].extend(
-                call_irr_as_set_resolver(f"AS{self.asn}", address_family=4)
+                call_irr_as_set_resolver(as_set=f"AS{self.asn}", address_family=4)
             )
 
         return prefixes
@@ -407,12 +414,60 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         prefixes = (
             self.prefixes if self.prefixes else self.retrieve_irr_as_set_prefixes()
         )
+        self.save(update_fields=["prefixes"])
 
         if address_family == 6:
             return prefixes["ipv6"]
         if address_family == 4:
             return prefixes["ipv4"]
         return prefixes
+
+    def retrieve_irr_as_set_as_list(self) -> list[int]:
+        """
+        Returns a list of ASN that are included in this AS' AS-SETs. If no AS-SET is
+        defined, the list will be empty.
+
+        This function will actually retrieve data from IRR online sources. It is
+        expected to be slow due to network operations and depending on the size of the
+        data to process.
+        """
+        if not self.irr_as_set:
+            return []
+
+        as_list: list[int] = []
+        for source, as_set in parse_irr_as_set(
+            asn=self.asn, irr_as_set=self.irr_as_set
+        ):
+            as_list.extend(
+                call_irr_as_set_as_list_resolver(
+                    first_as=self.asn, as_set=as_set, source=source
+                )
+            )
+
+        return as_list
+
+    def get_irr_as_set_as_list(self) -> list[int]:
+        """
+        Returns a list of ASN that are included in this AS' AS-SETs. If no AS-SET is
+        defined, the list will be empty.
+
+        The stored database value will be used if it exists. If not, the value will be
+        retrieved from the IRR online sources and saved in the database.
+        """
+        if not self.as_list:
+            self.as_list = self.retrieve_irr_as_set_as_list()
+            self.save(update_fields=["as_list"])
+
+        return self.as_list
+
+    def update_data_from_irr(self) -> None:
+        """
+        Update prefixes and AS list for this autonomous system from IRR sources.
+        """
+        self.prefixes = self.retrieve_irr_as_set_prefixes()
+        self.as_list = self.retrieve_irr_as_set_as_list()
+
+        self.save(update_fields=["prefixes", "as_list"])
 
     def get_contact_email_addresses(self):
         """

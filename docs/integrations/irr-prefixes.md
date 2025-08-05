@@ -1,4 +1,4 @@
-# Prefix Lists From IRR Objects
+# Prefix Lists And AS Lists From IRR Objects
 
 Each AS can originate or advertise routes depending on prefixes assigned to it
 and the relationship it has with other networks. For instance, a network
@@ -7,9 +7,10 @@ of its customers back to other networks it is peering with. It will also most
 likely advertise its own routes.
 
 For security reasons, autonomous systems tend to setup BGP filters with prefix
-lists to prevent them from learning routes advertised by peers which are not
-supposed to. To know which prefix an AS is allowed to advertise, networks use
-Internet Routing Registries (IRR) and the objects they hold.
+lists and allowed AS paths to prevent them from learning routes advertised by
+peers which are not supposed to. To know which prefix an AS is allowed to
+advertise, networks use Internet Routing Registries (IRR) and the objects they
+hold.
 
 Networks that are used to peer with other networks usually publish AS-SET
 objects. These objects define which other AS-SETs or autonomous systems a
@@ -24,18 +25,31 @@ engine. One of the mentioned tools must be installed on the same host and the
 possible to influence the way bgpq3/bgpq4 is going to be called by changing
 the [BGPQ3_ARGS](../configuration/tools.md#bgpq3_args) value.
 
-To resolve autonomous system or AS-SET into a prefix list, bgpq3/bgpq4 needs
-to query a host and to ask for values found in one or more sources. Both of
-these parameters can be tweaked by changing
+To resolve autonomous system or AS-SET into a prefix list or an AS list,
+bgpq3/bgpq4 needs to query a host and to ask for values found in one or more
+sources. Both of these parameters can be tweaked by changing
 [BGPQ3_HOST](../configuration/tools.md#bgpq3_host) and
 [BGPQ3_SOURCES](../configuration/tools.md#bgpq3_sources) respectively.
 
-To store prefixes in the database, Peering Manager provides a command. It can
-be run regularly, like housekeeping. It will take care of fetching prefixes
-for each autonomous system for both IPv4 and IPv6 address families.
+When bgpq4 is used as a tool to fetch IRR objects, Peering Manager is able to
+leverage bgpq4 capability to identify the source of an AS-SET if it is
+prefixed with one like `RIPE::AS201281:AS-MAZOYER-EU`. bgpq4 will look for the
+`::` and identify the root source to use. By default, this feature is disabled
+by Peering Manager, but it needs to be enabled, this can be done by setting
+[BGPQ4_KEEP_SOURCE_IN_SET](../configuration/tools.md#bgpq4_keep_source_in_set)
+value to `True` in the configuration.
+
+!!! warning
+    `get_irr_data` replaces `grab_prefixes`. While `grab_prefixes` still
+    works, it is deprecated and will be removed in a future version.
+
+To store prefixes and AS lists in the database, Peering Manager provides a
+command. It can be run regularly, like housekeeping. It will take care of
+fetching the prefixes for both IPv4 and IPv6 address families as well as the
+AS list for each autonomous system.
 
 ```no-highlight
-# venv/bin/python3 manage.py grab_prefixes
+# venv/bin/python3 manage.py get_irr_data
 ```
 
 History is not kept when it comes to prefixes. It means that each run of this
@@ -49,5 +63,5 @@ the `--limit=N` parameter can be passed to the command, which, as a result,
 will not store prefix lists exceeding _N_ prefixes.
 
 ```no-highlight
-# venv/bin/python3 manage.py grab_prefixes --limit=1000
+# venv/bin/python3 manage.py get_irr_data --limit=1000
 ```

@@ -81,6 +81,7 @@ class AutonomousSystemSerializer(PeeringManagerModelSerializer):
             "export_routing_policies",
             "communities",
             "prefixes",
+            "as_list",
             "affiliated",
             "local_context_data",
             "tags",
