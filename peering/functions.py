@@ -81,6 +81,8 @@ def call_irr_as_set_resolver(
     source: str = "",
     address_family: Literal[4, 6] = 6,
     irr_sources_override: str = "",
+    irr_ipv6_prefixes_args_override: str = "",
+    irr_ipv4_prefixes_args_override: str = "",
 ) -> list[dict[str, Any]]:
     """
     Call a subprocess to expand the given AS-SET for an IP version.
@@ -90,6 +92,19 @@ def call_irr_as_set_resolver(
 
     if _is_using_bgpq4() and settings.BGPQ4_KEEP_SOURCE_IN_SET and source:
         as_set = f"{source}:{as_set}"
+
+    # Set the arguments to pass to bgpq3/bgpq4
+    command_args = []
+    if address_family == 6:
+        if irr_ipv6_prefixes_args_override:
+            command_args = irr_ipv6_prefixes_args_override.split()
+        elif settings.BGPQ3_ARGS and "ipv6" in settings.BGPQ3_ARGS:
+            command_args = settings.BGPQ3_ARGS["ipv6"]
+    if address_family == 4:
+        if irr_ipv4_prefixes_args_override:
+            command_args = irr_ipv4_prefixes_args_override.split()
+        elif settings.BGPQ3_ARGS and "ipv4" in settings.BGPQ3_ARGS:
+            command_args = settings.BGPQ3_ARGS["ipv4"]
 
     # Call bgpq with arguments to get a JSON result;
     # only include option if argument is not null
@@ -104,19 +119,16 @@ def call_irr_as_set_resolver(
         command += ["-S", irr_sources_override]
     elif settings.BGPQ3_SOURCES:
         command += ["-S", settings.BGPQ3_SOURCES]
-    command += [f"-{address_family}", "-A", "-j", "-l", "prefix_list", as_set]
 
-    # Merge user settings to command line right before the name of the prefix list
-    if settings.BGPQ3_ARGS:
-        index = len(command) - 3
-        command[index:index] = settings.BGPQ3_ARGS[
-            "ipv6" if address_family == 6 else "ipv4"
-        ]
+    command += [f"-{address_family}", *command_args, "-j", "-l", "prefix_list", as_set]
 
     try:
         out = _call_bgpq_binary(command)
-    except ValueError:
-        raise
+    except ValueError as exc:
+        logger.error(
+            f"calling {settings.BGPQ3_PATH} with command '{' '.join(command)}' failed: {exc!s}"
+        )
+        raise exc
 
     return list(json.loads(out.decode())["prefix_list"])
 
@@ -150,8 +162,11 @@ def call_irr_as_set_as_list_resolver(
 
     try:
         out = _call_bgpq_binary(command)
-    except ValueError:
-        raise
+    except ValueError as exc:
+        logger.error(
+            f"calling {settings.BGPQ3_PATH} with command '{' '.join(command)}' failed: {exc!s}"
+        )
+        raise exc
 
     # Always add the first ASN, and remove AS_TRANS
     return sorted(

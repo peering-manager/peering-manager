@@ -85,6 +85,18 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
             "sources, e.g. RIPE,RADB"
         ),
     )
+    irr_ipv6_prefixes_args_override = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="IRR IPv6 prefix arguments override",
+        help_text="Override for BGPQ3_ARGS['ipv6']",
+    )
+    irr_ipv4_prefixes_args_override = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="IRR IPv4 prefix arguments override",
+        help_text="Override for BGPQ3_ARGS['ipv4']",
+    )
     affiliated = models.BooleanField(default=False)
     contacts = GenericRelation(to="messaging.ContactAssignment")
 
@@ -393,6 +405,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
                         source=source,
                         address_family=6,
                         irr_sources_override=self.irr_sources_override,
+                        irr_ipv6_prefixes_args_override=self.irr_ipv6_prefixes_args_override,
                     )
                 )
                 prefixes["ipv4"].extend(
@@ -401,6 +414,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
                         source=source,
                         address_family=4,
                         irr_sources_override=self.irr_sources_override,
+                        irr_ipv4_prefixes_args_override=self.irr_ipv4_prefixes_args_override,
                     )
                 )
         except ValueError:

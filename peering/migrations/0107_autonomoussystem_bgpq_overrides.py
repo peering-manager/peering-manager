@@ -22,4 +22,14 @@ class Migration(migrations.Migration):
             name="irr_sources_override",
             field=models.CharField(blank=True, max_length=255),
         ),
+        migrations.AddField(
+            model_name="autonomoussystem",
+            name="irr_ipv4_prefixes_args_override",
+            field=models.CharField(blank=True, max_length=255),
+        ),
+        migrations.AddField(
+            model_name="autonomoussystem",
+            name="irr_ipv6_prefixes_args_override",
+            field=models.CharField(blank=True, max_length=255),
+        ),
     ]

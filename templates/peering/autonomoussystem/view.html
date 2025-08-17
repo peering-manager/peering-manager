@@ -70,6 +70,18 @@
           <td><code>{{ instance.irr_sources_override }}</code></td>
         </tr>
         {% endif %}
+        {% if instance.irr_ipv6_prefixes_args_override %}
+        <tr>
+          <td>IRR IPv6 Prefixes Override</td>
+          <td><code>{{ instance.irr_ipv6_prefixes_args_override }}</code></td>
+        </tr>
+        {% endif %}
+        {% if instance.irr_ipv4_prefixes_args_override %}
+        <tr>
+          <td>IRR IPv4 Prefixes Override</td>
+          <td><code>{{ instance.irr_ipv4_prefixes_args_override }}</code></td>
+        </tr>
+        {% endif %}
       </table>
     </div>
     {% include 'includes/contacts_card.html' %}

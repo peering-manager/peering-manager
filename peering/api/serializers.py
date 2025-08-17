@@ -85,6 +85,8 @@ class AutonomousSystemSerializer(PeeringManagerModelSerializer):
             "as_list",
             "retrieve_as_list",
             "irr_sources_override",
+            "irr_ipv6_prefixes_args_override",
+            "irr_ipv4_prefixes_args_override",
             "affiliated",
             "local_context_data",
             "tags",

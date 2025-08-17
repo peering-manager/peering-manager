@@ -92,7 +92,13 @@ class AutonomousSystemForm(PeeringManagerModelForm):
         ),
         (
             "IRR Objects Retrieval",
-            ("retrieve_prefixes", "retrieve_as_list", "irr_sources_override"),
+            (
+                "retrieve_prefixes",
+                "retrieve_as_list",
+                "irr_sources_override",
+                "irr_ipv6_prefixes_args_override",
+                "irr_ipv4_prefixes_args_override",
+            ),
         ),
         ("Config Context", ("local_context_data",)),
     )
@@ -118,6 +124,8 @@ class AutonomousSystemForm(PeeringManagerModelForm):
             "retrieve_prefixes",
             "retrieve_as_list",
             "irr_sources_override",
+            "irr_ipv6_prefixes_args_override",
+            "irr_ipv4_prefixes_args_override",
             "affiliated",
             "tags",
         )
@@ -127,6 +135,8 @@ class AutonomousSystemForm(PeeringManagerModelForm):
             "ipv6_max_prefixes_peeringdb_sync": "IPv6 max prefixes",
             "ipv4_max_prefixes_peeringdb_sync": "IPv4 max prefixes",
             "irr_sources_override": "IRR sources override",
+            "irr_ipv6_prefixes_args_override": "IRR IPv6 prefixes override",
+            "irr_ipv4_prefixes_args_override": "IRR IPv4 prefixes override",
         }
         help_texts = {
             "asn": "BGP autonomous system number (32-bit capable)",
@@ -135,8 +145,18 @@ class AutonomousSystemForm(PeeringManagerModelForm):
             "retrieve_prefixes": "Retrieve and cache prefixes from IRR sources",
             "retrieve_as_list": "Retrieve and cache AS list from IRR sources",
             "irr_sources_override": (
-                "Override the IRR sources to use for this AS. If empty, "
-                f"<code>{settings.BGPQ3_SOURCES}</code> setting will be used."
+                "Override the IRR sources to use for this AS; if empty, "
+                f"<code>{settings.BGPQ3_SOURCES}</code> will be used"
+            ),
+            "irr_ipv6_prefixes_args_override": (
+                "Override the arguments to pass to bgpq3/bgpq4 for IPv6 prefixes; "
+                f"if empty, <code>{' '.join(settings.BGPQ3_ARGS['ipv6'])}</code> "
+                "will be used"
+            ),
+            "irr_ipv4_prefixes_args_override": (
+                "Override the arguments to pass to bgpq3/bgpq4 for IPv4 prefixes; "
+                f"if empty, <code>{' '.join(settings.BGPQ3_ARGS['ipv4'])}</code> "
+                "will be used"
             ),
         }
 

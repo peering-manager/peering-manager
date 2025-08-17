@@ -168,7 +168,7 @@ BGPQ3_SOURCES = getattr(
 BGPQ3_ARGS = getattr(
     configuration,
     "BGPQ3_ARGS",
-    {"ipv6": ["-r", "16", "-R", "48"], "ipv4": ["-r", "8", "-R", "24"]},
+    {"ipv6": ["-A", "-r", "16", "-R", "48"], "ipv4": ["-A", "-r", "8", "-R", "24"]},
 )
 BGPQ4_KEEP_SOURCE_IN_SET = getattr(configuration, "BGPQ4_KEEP_SOURCE_IN_SET", False)
 JINJA2_TEMPLATE_EXTENSIONS = getattr(configuration, "JINJA2_TEMPLATE_EXTENSIONS", [])
