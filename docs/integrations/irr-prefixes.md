@@ -65,3 +65,12 @@ will not store prefix lists exceeding _N_ prefixes.
 ```no-highlight
 # venv/bin/python3 manage.py get_irr_data --limit=1000
 ```
+
+Finally, the `get_irr_data` command has a `-a` / `--asn` flag which takes a
+comma separated list of autonomous system numbers as value. It can be used
+to limit the scope of the command by fetching IRR data only for the AS numbers
+given. in the list.
+
+```no-highlight
+# venv/bin/python3 manage.py get_irr_data --asn 65535,65536
+```

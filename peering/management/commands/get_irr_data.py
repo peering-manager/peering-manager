@@ -1,6 +1,6 @@
 from typing import Any
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 
 from peering.models import AutonomousSystem
 
@@ -20,6 +20,12 @@ class Command(BaseCommand):
                 "Limit the number of prefixes to store. If the prefix count is over "
                 "the given value, prefixes will be ignored."
             ),
+        )
+        parser.add_argument(
+            "-a",
+            "--asn",
+            nargs="?",
+            help="Comma seprated list of ASN to get IRR data for.",
         )
 
     def retrieve_prefixes(
@@ -73,7 +79,16 @@ class Command(BaseCommand):
         if not quiet:
             self.stdout.write("[*] Fetching IRR data for autonomous systems")
 
-        for autonomous_system in AutonomousSystem.objects.all():
+        autonomous_systems = AutonomousSystem.objects.all()
+        if asn := options.get("asn"):
+            try:
+                asns = [int(a) for a in asn.split(",")]
+            except ValueError as exc:
+                raise CommandError(f"{asn} is not a valid list of AS numbers") from exc
+
+            autonomous_systems = autonomous_systems.filter(asn__in=asns)
+
+        for autonomous_system in autonomous_systems:
             if not quiet:
                 self.stdout.write(f"  - AS{autonomous_system.asn}:")
 
