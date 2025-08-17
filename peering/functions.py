@@ -20,6 +20,15 @@ if TYPE_CHECKING:
 logger = logging.getLogger("peering.manager.peering")
 
 
+class NoPrefixesFoundError(Exception):
+    """Exception raised when no prefixes are found for an IRR object."""
+
+    def __init__(self, object: str, address_family: Literal[4, 6]):
+        super().__init__()
+        self.object = object
+        self.address_family = address_family
+
+
 def _is_using_bgpq4() -> bool:
     return Path(settings.BGPQ3_PATH).name == "bgpq4"
 
@@ -32,8 +41,8 @@ def _call_bgpq_binary(command: Sequence[str]) -> bytes:
 
     if process.returncode != 0:
         error_log = f"{settings.BGPQ3_PATH} exit code is {process.returncode}"
-        if err and err.strip():
-            error_log += f", stderr: {err}"
+        if error_message := err.decode().strip():
+            error_log += f", stderr: {error_message}"
         raise ValueError(error_log)
 
     return out
@@ -129,6 +138,10 @@ def call_irr_as_set_resolver(
             f"calling {settings.BGPQ3_PATH} with command '{' '.join(command)}' failed: {exc!s}"
         )
         raise exc
+
+    prefix_list = json.loads(out.decode())["prefix_list"]
+    if not prefix_list:
+        raise NoPrefixesFoundError(object=as_set, address_family=address_family)
 
     return list(json.loads(out.decode())["prefix_list"])
 

@@ -20,6 +20,7 @@ from peeringdb.models import IXLanPrefix, Network, NetworkContact, NetworkIXLan
 from ..enums import BGPState, CommunityType, IPFamily, RoutingPolicyType
 from ..fields import ASNField, CommunityField
 from ..functions import (
+    NoPrefixesFoundError,
     call_irr_as_set_as_list_resolver,
     call_irr_as_set_resolver,
     get_community_kind,
@@ -417,8 +418,8 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
                         irr_ipv4_prefixes_args_override=self.irr_ipv4_prefixes_args_override,
                     )
                 )
-        except ValueError:
-            # Error parsing AS-SETs
+        except NoPrefixesFoundError:
+            # The AS-SET came back empty, we will try to fallback to the AS number
             fallback = True
 
         # If fallback is triggered or no prefixes found, try prefix lookup by ASN
@@ -426,12 +427,16 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
             logger.debug(
                 f"falling back to AS number lookup to search for AS{self.asn} prefixes"
             )
-            prefixes["ipv6"].extend(
-                call_irr_as_set_resolver(as_set=f"AS{self.asn}", address_family=6)
-            )
-            prefixes["ipv4"].extend(
-                call_irr_as_set_resolver(as_set=f"AS{self.asn}", address_family=4)
-            )
+            try:
+                prefixes["ipv6"].extend(
+                    call_irr_as_set_resolver(as_set=f"AS{self.asn}", address_family=6)
+                )
+                prefixes["ipv4"].extend(
+                    call_irr_as_set_resolver(as_set=f"AS{self.asn}", address_family=4)
+                )
+            except NoPrefixesFoundError:
+                # No prefixes found for the AS number, ignore it
+                pass
 
         return prefixes
 

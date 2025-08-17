@@ -1,4 +1,4 @@
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 
 from peering.models import AutonomousSystem
 
@@ -38,7 +38,11 @@ class Command(BaseCommand):
                     )
                 continue
 
-            prefixes = autonomous_system.retrieve_irr_as_set_prefixes()
+            try:
+                prefixes = autonomous_system.retrieve_irr_as_set_prefixes()
+            except ValueError as exc:
+                raise CommandError(str(exc)) from exc
+
             for family in ("ipv6", "ipv4"):
                 count = len(prefixes[family])
 

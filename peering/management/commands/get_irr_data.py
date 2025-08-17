@@ -92,11 +92,14 @@ class Command(BaseCommand):
             if not quiet:
                 self.stdout.write(f"  - AS{autonomous_system.asn}:")
 
-            autonomous_system.prefixes = self.retrieve_prefixes(
-                autonomous_system=autonomous_system, limit=limit, quiet=quiet
-            )
-            autonomous_system.as_list = self.retrieve_as_list(
-                autonomous_system=autonomous_system, quiet=quiet
-            )
+            try:
+                autonomous_system.prefixes = self.retrieve_prefixes(
+                    autonomous_system=autonomous_system, limit=limit, quiet=quiet
+                )
+                autonomous_system.as_list = self.retrieve_as_list(
+                    autonomous_system=autonomous_system, quiet=quiet
+                )
+            except ValueError as exc:
+                raise CommandError(str(exc)) from exc
 
             autonomous_system.save(update_fields=["prefixes", "as_list"])
