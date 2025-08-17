@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.core.management.base import BaseCommand
 
 from peering.models import AutonomousSystem
@@ -20,6 +22,50 @@ class Command(BaseCommand):
             ),
         )
 
+    def retrieve_prefixes(
+        self, autonomous_system: AutonomousSystem, limit: int, quiet: bool
+    ) -> dict[str, list[dict[str, Any]]]:
+        if not autonomous_system.retrieve_prefixes:
+            if not quiet:
+                self.stdout.write(
+                    "    skipped (prefixes retrieval disabled)", self.style.WARNING
+                )
+            return {"ipv6": [], "ipv4": []}
+
+        prefixes = autonomous_system.retrieve_irr_as_set_prefixes()
+        for family in ("ipv6", "ipv4"):
+            count = len(prefixes[family])
+
+            if limit and count > limit:
+                if not quiet:
+                    self.stdout.write(
+                        f"    {count:>6} {family} (ignored)", self.style.WARNING
+                    )
+                prefixes[family] = []
+            elif not quiet:
+                self.stdout.write(f"    {count:>6} {family}", self.style.SUCCESS)
+
+        return prefixes
+
+    def retrieve_as_list(
+        self, autonomous_system: AutonomousSystem, quiet: bool
+    ) -> list[int]:
+        if not autonomous_system.retrieve_as_list:
+            if not quiet:
+                self.stdout.write(
+                    "    skipped (AS list retrieval disabled)", self.style.WARNING
+                )
+            return []
+
+        as_list = autonomous_system.retrieve_irr_as_set_as_list()
+        if not quiet:
+            self.stdout.write(
+                f"    {len(autonomous_system.as_list):>6} ASNs in list",
+                self.style.SUCCESS,
+            )
+
+        return as_list
+
     def handle(self, *args, **options):
         limit = int(options.get("limit") or 0)
         quiet = options["verbosity"] == 0
@@ -31,26 +77,11 @@ class Command(BaseCommand):
             if not quiet:
                 self.stdout.write(f"  - AS{autonomous_system.asn}:")
 
-            prefixes = autonomous_system.retrieve_irr_as_set_prefixes()
-            for family in ("ipv6", "ipv4"):
-                count = len(prefixes[family])
-
-                if limit and count > limit:
-                    if not quiet:
-                        self.stdout.write(
-                            f"    {count:>6} {family} (ignored)", self.style.WARNING
-                        )
-                    prefixes[family] = []
-                elif not quiet:
-                    self.stdout.write(f"    {count:>6} {family}", self.style.SUCCESS)
-
-            autonomous_system.prefixes = prefixes
-
-            autonomous_system.as_list = autonomous_system.retrieve_irr_as_set_as_list()
-            if not quiet:
-                self.stdout.write(
-                    f"    {len(autonomous_system.as_list):>6} ASNs in list",
-                    self.style.SUCCESS,
-                )
+            autonomous_system.prefixes = self.retrieve_prefixes(
+                autonomous_system=autonomous_system, limit=limit, quiet=quiet
+            )
+            autonomous_system.as_list = self.retrieve_as_list(
+                autonomous_system=autonomous_system, quiet=quiet
+            )
 
             autonomous_system.save(update_fields=["prefixes", "as_list"])

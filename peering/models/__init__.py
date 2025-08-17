@@ -71,8 +71,19 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
     )
     communities = models.ManyToManyField("Community", blank=True)
     prefixes = models.JSONField(blank=True, null=True, editable=False)
+    retrieve_prefixes = models.BooleanField(blank=True, default=True)
     as_list = ArrayField(
         models.PositiveIntegerField(), default=list, blank=True, editable=False
+    )
+    retrieve_as_list = models.BooleanField(blank=True, default=True)
+    irr_sources_override = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="IRR sources override",
+        help_text=(
+            "Override for BGPQ3_SOURCES, use a comma separated list of "
+            "sources, e.g. RIPE,RADB"
+        ),
     )
     affiliated = models.BooleanField(default=False)
     contacts = GenericRelation(to="messaging.ContactAssignment")
@@ -368,6 +379,9 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         fallback = False
         prefixes = {"ipv6": [], "ipv4": []}
 
+        if not self.retrieve_prefixes:
+            return prefixes
+
         try:
             # For each AS-SET try getting IPv6 and IPv4 prefixes
             for source, as_set in parse_irr_as_set(
@@ -375,12 +389,18 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
             ):
                 prefixes["ipv6"].extend(
                     call_irr_as_set_resolver(
-                        as_set=as_set, source=source, address_family=6
+                        as_set=as_set,
+                        source=source,
+                        address_family=6,
+                        irr_sources_override=self.irr_sources_override,
                     )
                 )
                 prefixes["ipv4"].extend(
                     call_irr_as_set_resolver(
-                        as_set=as_set, source=source, address_family=4
+                        as_set=as_set,
+                        source=source,
+                        address_family=4,
+                        irr_sources_override=self.irr_sources_override,
                     )
                 )
         except ValueError:
@@ -431,7 +451,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         expected to be slow due to network operations and depending on the size of the
         data to process.
         """
-        if not self.irr_as_set:
+        if not self.irr_as_set or not self.retrieve_as_list:
             return []
 
         as_list: list[int] = []
@@ -440,7 +460,10 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         ):
             as_list.extend(
                 call_irr_as_set_as_list_resolver(
-                    first_as=self.asn, as_set=as_set, source=source
+                    first_as=self.asn,
+                    as_set=as_set,
+                    source=source,
+                    irr_sources_override=self.irr_sources_override,
                 )
             )
 

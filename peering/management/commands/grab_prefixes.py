@@ -31,6 +31,13 @@ class Command(BaseCommand):
             if not quiet:
                 self.stdout.write(f"  - AS{autonomous_system.asn}:")
 
+            if not autonomous_system.retrieve_prefixes:
+                if not quiet:
+                    self.stdout.write(
+                        "    skipped (prefixes retrieval disabled)", self.style.WARNING
+                    )
+                continue
+
             prefixes = autonomous_system.retrieve_irr_as_set_prefixes()
             for family in ("ipv6", "ipv4"):
                 count = len(prefixes[family])
