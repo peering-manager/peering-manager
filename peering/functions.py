@@ -77,7 +77,10 @@ def parse_irr_as_set(asn: int, irr_as_set: str) -> list[tuple[str, str]]:
 
 
 def call_irr_as_set_resolver(
-    as_set: str, source: str = "", address_family: Literal[4, 6] = 6
+    as_set: str,
+    source: str = "",
+    address_family: Literal[4, 6] = 6,
+    irr_sources_override: str = "",
 ) -> list[dict[str, Any]]:
     """
     Call a subprocess to expand the given AS-SET for an IP version.
@@ -91,9 +94,15 @@ def call_irr_as_set_resolver(
     # Call bgpq with arguments to get a JSON result;
     # only include option if argument is not null
     command = [settings.BGPQ3_PATH]
+
+    # Set host to query
     if settings.BGPQ3_HOST:
         command += ["-h", settings.BGPQ3_HOST]
-    if settings.BGPQ3_SOURCES:
+
+    # Set sources to query
+    if irr_sources_override:
+        command += ["-S", irr_sources_override]
+    elif settings.BGPQ3_SOURCES:
         command += ["-S", settings.BGPQ3_SOURCES]
     command += [f"-{address_family}", "-A", "-j", "-l", "prefix_list", as_set]
 
@@ -113,7 +122,7 @@ def call_irr_as_set_resolver(
 
 
 def call_irr_as_set_as_list_resolver(
-    first_as: int, as_set: str, source: str = ""
+    first_as: int, as_set: str, source: str = "", irr_sources_override: str = ""
 ) -> list[int]:
     """
     Call a subprocess to expand the given AS-SET for an IP version into an AS path
@@ -126,13 +135,17 @@ def call_irr_as_set_as_list_resolver(
     if _is_using_bgpq4() and settings.BGPQ4_KEEP_SOURCE_IN_SET and source:
         as_set = f"{source}::{as_set}"
 
-    # Call bgpq with arguments to get a JSON result;
-    # only include option if argument is not null
+    # Set host to query
     command = [settings.BGPQ3_PATH]
     if settings.BGPQ3_HOST:
         command += ["-h", settings.BGPQ3_HOST]
-    if settings.BGPQ3_SOURCES:
+
+    # Set sources to query
+    if irr_sources_override:
+        command += ["-S", irr_sources_override]
+    elif settings.BGPQ3_SOURCES:
         command += ["-S", settings.BGPQ3_SOURCES]
+
     command += ["-j", "-l", "as_list", "-f", str(first_as), as_set]
 
     try:
@@ -140,8 +153,10 @@ def call_irr_as_set_as_list_resolver(
     except ValueError:
         raise
 
+    # Always add the first ASN, and remove AS_TRANS
     return sorted(
-        {first_as} | {int(i) for i in list(json.loads(out.decode())["as_list"])}
+        {first_as}
+        | {int(i) for i in list(json.loads(out.decode())["as_list"])} - {23456}
     )
 
 
