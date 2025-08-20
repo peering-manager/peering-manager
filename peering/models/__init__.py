@@ -20,6 +20,7 @@ from peeringdb.models import IXLanPrefix, Network, NetworkContact, NetworkIXLan
 from ..enums import BGPState, CommunityType, IPFamily, RoutingPolicyType
 from ..fields import ASNField, CommunityField
 from ..functions import (
+    NoPrefixesFoundError,
     call_irr_as_set_as_list_resolver,
     call_irr_as_set_resolver,
     get_community_kind,
@@ -71,8 +72,31 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
     )
     communities = models.ManyToManyField("Community", blank=True)
     prefixes = models.JSONField(blank=True, null=True, editable=False)
+    retrieve_prefixes = models.BooleanField(blank=True, default=True)
     as_list = ArrayField(
         models.PositiveIntegerField(), default=list, blank=True, editable=False
+    )
+    retrieve_as_list = models.BooleanField(blank=True, default=True)
+    irr_sources_override = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="IRR sources override",
+        help_text=(
+            "Override for BGPQ3_SOURCES, use a comma separated list of "
+            "sources, e.g. RIPE,RADB"
+        ),
+    )
+    irr_ipv6_prefixes_args_override = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="IRR IPv6 prefix arguments override",
+        help_text="Override for BGPQ3_ARGS['ipv6']",
+    )
+    irr_ipv4_prefixes_args_override = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="IRR IPv4 prefix arguments override",
+        help_text="Override for BGPQ3_ARGS['ipv4']",
     )
     affiliated = models.BooleanField(default=False)
     contacts = GenericRelation(to="messaging.ContactAssignment")
@@ -368,6 +392,9 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         fallback = False
         prefixes = {"ipv6": [], "ipv4": []}
 
+        if not self.retrieve_prefixes:
+            return prefixes
+
         try:
             # For each AS-SET try getting IPv6 and IPv4 prefixes
             for source, as_set in parse_irr_as_set(
@@ -375,16 +402,24 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
             ):
                 prefixes["ipv6"].extend(
                     call_irr_as_set_resolver(
-                        as_set=as_set, source=source, address_family=6
+                        as_set=as_set,
+                        source=source,
+                        address_family=6,
+                        irr_sources_override=self.irr_sources_override,
+                        irr_ipv6_prefixes_args_override=self.irr_ipv6_prefixes_args_override,
                     )
                 )
                 prefixes["ipv4"].extend(
                     call_irr_as_set_resolver(
-                        as_set=as_set, source=source, address_family=4
+                        as_set=as_set,
+                        source=source,
+                        address_family=4,
+                        irr_sources_override=self.irr_sources_override,
+                        irr_ipv4_prefixes_args_override=self.irr_ipv4_prefixes_args_override,
                     )
                 )
-        except ValueError:
-            # Error parsing AS-SETs
+        except NoPrefixesFoundError:
+            # The AS-SET came back empty, we will try to fallback to the AS number
             fallback = True
 
         # If fallback is triggered or no prefixes found, try prefix lookup by ASN
@@ -392,12 +427,16 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
             logger.debug(
                 f"falling back to AS number lookup to search for AS{self.asn} prefixes"
             )
-            prefixes["ipv6"].extend(
-                call_irr_as_set_resolver(as_set=f"AS{self.asn}", address_family=6)
-            )
-            prefixes["ipv4"].extend(
-                call_irr_as_set_resolver(as_set=f"AS{self.asn}", address_family=4)
-            )
+            try:
+                prefixes["ipv6"].extend(
+                    call_irr_as_set_resolver(as_set=f"AS{self.asn}", address_family=6)
+                )
+                prefixes["ipv4"].extend(
+                    call_irr_as_set_resolver(as_set=f"AS{self.asn}", address_family=4)
+                )
+            except NoPrefixesFoundError:
+                # No prefixes found for the AS number, ignore it
+                pass
 
         return prefixes
 
@@ -431,7 +470,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         expected to be slow due to network operations and depending on the size of the
         data to process.
         """
-        if not self.irr_as_set:
+        if not self.irr_as_set or not self.retrieve_as_list:
             return []
 
         as_list: list[int] = []
@@ -440,7 +479,10 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         ):
             as_list.extend(
                 call_irr_as_set_as_list_resolver(
-                    first_as=self.asn, as_set=as_set, source=source
+                    first_as=self.asn,
+                    as_set=as_set,
+                    source=source,
+                    irr_sources_override=self.irr_sources_override,
                 )
             )
 

@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
@@ -89,6 +90,16 @@ class AutonomousSystemForm(PeeringManagerModelForm):
                 "ipv4_max_prefixes_peeringdb_sync",
             ),
         ),
+        (
+            "IRR Objects Retrieval",
+            (
+                "retrieve_prefixes",
+                "retrieve_as_list",
+                "irr_sources_override",
+                "irr_ipv6_prefixes_args_override",
+                "irr_ipv4_prefixes_args_override",
+            ),
+        ),
         ("Config Context", ("local_context_data",)),
     )
 
@@ -110,6 +121,11 @@ class AutonomousSystemForm(PeeringManagerModelForm):
             "communities",
             "local_context_data",
             "comments",
+            "retrieve_prefixes",
+            "retrieve_as_list",
+            "irr_sources_override",
+            "irr_ipv6_prefixes_args_override",
+            "irr_ipv4_prefixes_args_override",
             "affiliated",
             "tags",
         )
@@ -118,11 +134,30 @@ class AutonomousSystemForm(PeeringManagerModelForm):
             "irr_as_set_peeringdb_sync": "IRR AS-SET",
             "ipv6_max_prefixes_peeringdb_sync": "IPv6 max prefixes",
             "ipv4_max_prefixes_peeringdb_sync": "IPv4 max prefixes",
+            "irr_sources_override": "IRR sources override",
+            "irr_ipv6_prefixes_args_override": "IRR IPv6 prefixes override",
+            "irr_ipv4_prefixes_args_override": "IRR IPv4 prefixes override",
         }
         help_texts = {
             "asn": "BGP autonomous system number (32-bit capable)",
             "name": "Full name of the AS",
             "affiliated": "Check if you own/manage this AS",
+            "retrieve_prefixes": "Retrieve and cache prefixes from IRR sources",
+            "retrieve_as_list": "Retrieve and cache AS list from IRR sources",
+            "irr_sources_override": (
+                "Override the IRR sources to use for this AS; if empty, "
+                f"<code>{settings.BGPQ3_SOURCES}</code> will be used"
+            ),
+            "irr_ipv6_prefixes_args_override": (
+                "Override the arguments to pass to bgpq3/bgpq4 for IPv6 prefixes; "
+                f"if empty, <code>{' '.join(settings.BGPQ3_ARGS['ipv6'])}</code> "
+                "will be used"
+            ),
+            "irr_ipv4_prefixes_args_override": (
+                "Override the arguments to pass to bgpq3/bgpq4 for IPv4 prefixes; "
+                f"if empty, <code>{' '.join(settings.BGPQ3_ARGS['ipv4'])}</code> "
+                "will be used"
+            ),
         }
 
 

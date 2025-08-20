@@ -56,6 +56,32 @@
           <td>Affiliated</td>
           <td>{{ instance.affiliated|boolean_as_icon }}</td>
         </tr>
+        <tr>
+          <td>Retrieve prefixes</td>
+          <td>{{ instance.retrieve_prefixes|boolean_as_icon }}</td>
+        </tr>
+        <tr>
+          <td>Retrieve AS List</td>
+          <td>{{ instance.retrieve_as_list|boolean_as_icon }}</td>
+        </tr>
+        {% if instance.irr_sources_override %}
+        <tr>
+          <td>IRR Sources Override</td>
+          <td><code>{{ instance.irr_sources_override }}</code></td>
+        </tr>
+        {% endif %}
+        {% if instance.irr_ipv6_prefixes_args_override %}
+        <tr>
+          <td>IRR IPv6 Prefixes Override</td>
+          <td><code>{{ instance.irr_ipv6_prefixes_args_override }}</code></td>
+        </tr>
+        {% endif %}
+        {% if instance.irr_ipv4_prefixes_args_override %}
+        <tr>
+          <td>IRR IPv4 Prefixes Override</td>
+          <td><code>{{ instance.irr_ipv4_prefixes_args_override }}</code></td>
+        </tr>
+        {% endif %}
       </table>
     </div>
     {% include 'includes/contacts_card.html' %}
