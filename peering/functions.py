@@ -4,7 +4,7 @@ import json
 import logging
 import re
 import subprocess
-from ipaddress import IPv4Address
+from ipaddress import IPv4Address, IPv4Interface, IPv6Interface
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -284,3 +284,30 @@ def validate_bgp_community(value: str) -> None:
             "BGP community does not match the standard, extended or large notation",
             params={"value": value},
         ) from e
+
+
+def validate_ip_address_not_network(value: IPv6Interface | IPv4Interface) -> None:
+    if value.version == 6 or value.network.prefixlen >= 31:
+        return
+
+    if value.ip == value.network.network_address:
+        raise ValidationError(
+            f"IP address {value} is a network address, please use a host address."
+        )
+
+
+def validate_ip_address_not_broadcast(value: IPv6Interface | IPv4Interface) -> None:
+    if value.version == 6 or value.network.prefixlen >= 31:
+        return
+
+    if value.ip == value.network.broadcast_address:
+        raise ValidationError(
+            f"IP address {value} is a broadcast address, please use a host address."
+        )
+
+
+def validate_ip_address_not_network_nor_broadcast(
+    value: IPv6Interface | IPv4Interface,
+) -> None:
+    validate_ip_address_not_network(value)
+    validate_ip_address_not_broadcast(value)

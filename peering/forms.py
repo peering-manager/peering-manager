@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -44,6 +48,9 @@ from .models import (
     InternetExchangePeeringSession,
     RoutingPolicy,
 )
+
+if TYPE_CHECKING:
+    from ipaddress import IPv4Interface, IPv6Interface
 
 
 class AutonomousSystemForm(PeeringManagerModelForm):
@@ -448,18 +455,11 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        ip_src = cleaned_data["local_ip_address"]
-        ip_dst = cleaned_data["ip_address"]
+        # Invalid IP address, let the field validator handle it
+        if "ip_address" not in cleaned_data:
+            return
 
-        # Make sure that both local qnd remote IP addresses belong in the same subnet
-        if (
-            cleaned_data["multihop_ttl"] == 1
-            and ip_src
-            and (ip_src.network != ip_dst.network)
-        ):
-            raise ValidationError(
-                f"{ip_src} and {ip_dst} don't belong to the same subnet."
-            )
+        ip_dst: IPv6Interface | IPv4Interface = cleaned_data["ip_address"]
 
         # Make sure that routing policies are compatible (address family)
         for policy in cleaned_data["import_routing_policies"].union(

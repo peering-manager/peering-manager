@@ -204,6 +204,9 @@ class DirectPeeringSessionTest(APIViewTestCases.View):
             name="Private Peering", slug="private-peering"
         )
         connection = Connection.objects.create(vlan=2000)
+        routing_policy = RoutingPolicy.objects.create(
+            name="Import", slug="import", type=RoutingPolicyType.IMPORT, weight=0
+        )
         DirectPeeringSession.objects.bulk_create(
             [
                 DirectPeeringSession(
@@ -234,20 +237,21 @@ class DirectPeeringSessionTest(APIViewTestCases.View):
                 "local_autonomous_system": local_autonomous_system.pk,
                 "autonomous_system": autonomous_system.pk,
                 "relationship": relationship_private_peering.pk,
-                "ip_address": "198.51.100.1/32",
+                "ip_address": "192.0.2.1/32",
             },
             {
                 "local_autonomous_system": local_autonomous_system.pk,
                 "autonomous_system": autonomous_system.pk,
                 "relationship": relationship_private_peering.pk,
-                "ip_address": "198.51.100.2/32",
+                "ip_address": "192.0.2.2/32",
             },
             {
                 "local_autonomous_system": local_autonomous_system.pk,
                 "autonomous_system": autonomous_system.pk,
                 "relationship": relationship_private_peering.pk,
-                "ip_address": "198.51.100.3/32",
+                "ip_address": "192.0.2.3/32",
                 "connection": connection.pk,
+                "import_routing_policies": [routing_policy.pk],
             },
         ]
 

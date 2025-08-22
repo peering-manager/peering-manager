@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -9,7 +13,7 @@ from net.api.serializers import NestedBFDSerializer, NestedConnectionSerializer
 from peering_manager.api.fields import ChoiceField, SerializedPKRelatedField
 from peering_manager.api.serializers import PeeringManagerModelSerializer
 
-from ..enums import BGPGroupStatus, BGPSessionStatus
+from ..enums import BGPGroupStatus, BGPSessionStatus, IPFamily
 from ..models import (
     AutonomousSystem,
     BGPGroup,
@@ -20,6 +24,9 @@ from ..models import (
     RoutingPolicy,
 )
 from .nested_serializers import *
+
+if TYPE_CHECKING:
+    from ipaddress import IPv4Interface, IPv6Interface
 
 __all__ = (
     "AutonomousSystemSerializer",
@@ -217,17 +224,26 @@ class DirectPeeringSessionSerializer(PeeringManagerModelSerializer):
             "updated",
         ]
 
-    def validate(self, attrs):
-        multihop_ttl = attrs.get("multihop_ttl")
-        ip_src = attrs.get("local_ip_address")
-        ip_dst = attrs.get("ip_address")
+    def validate(self, data):
+        # Invalid IP address, let the field validator handle it
+        if "ip_address" not in data:
+            return super().validate(data)
 
-        if multihop_ttl == 1 and ip_src and (ip_src.network != ip_dst.network):
-            raise serializers.ValidationError(
-                f"{ip_src} and {ip_dst} don't belong to the same subnet."
-            )
+        ip_dst: IPv6Interface | IPv4Interface = data["ip_address"]
+        policies: list[RoutingPolicy] = []
+        if "import_routing_policies" in data:
+            policies += data["import_routing_policies"]
+        if "export_routing_policies" in data:
+            policies += data["export_routing_policies"]
 
-        return super().validate(attrs)
+        # Make sure that routing policies are compatible (address family)
+        for policy in policies:
+            if policy.address_family not in (IPFamily.ALL, ip_dst.version):
+                raise serializers.ValidationError(
+                    f"Routing policy '{policy.name}' cannot be used for this session, address families mismatch."
+                )
+
+        return super().validate(data)
 
 
 class InternetExchangeSerializer(PeeringManagerModelSerializer):

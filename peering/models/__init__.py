@@ -7,6 +7,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
 from django.db.models import Q
+from django.forms import ValidationError
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -25,6 +26,7 @@ from ..functions import (
     call_irr_as_set_resolver,
     get_community_kind,
     parse_irr_as_set,
+    validate_ip_address_not_network_nor_broadcast,
 )
 from .abstracts import *
 from .mixins import *
@@ -676,6 +678,34 @@ class DirectPeeringSession(BGPSession):
 
     def __str__(self) -> str:
         return f"{self.relationship} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
+
+    def clean(self):
+        super().clean()
+
+        # Invalid IP address, let the field validator handle it
+        if not self.ip_address:
+            return
+
+        ip_dst = ipaddress.ip_interface(self.ip_address)
+        validate_ip_address_not_network_nor_broadcast(value=ip_dst)
+
+        if not self.local_ip_address:
+            return
+
+        ip_src = ipaddress.ip_interface(self.local_ip_address)
+
+        # Make sure that local and remote IP addresses are not the same
+        if ip_src == ip_dst:
+            raise ValidationError(
+                f"Local IP address {ip_src} cannot be the same as remote IP address {ip_dst}."
+            )
+
+        if self.multihop_ttl == 1 and ip_src.network != ip_dst.network:
+            raise ValidationError(
+                f"{ip_src} and {ip_dst} don't belong to the same subnet."
+            )
+
+        validate_ip_address_not_network_nor_broadcast(value=ip_src)
 
     def poll(self):
         if not self.router:

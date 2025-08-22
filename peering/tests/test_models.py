@@ -226,6 +226,70 @@ class DirectPeeringSessionTest(TestCase):
             self.assertTrue(self.session.poll())
             self.assertEqual(567_257, self.session.received_prefix_count)
 
+    def test_verify_ip_addresses_inputs(self):
+        with self.assertRaises(
+            ValidationError, msg="cannot be the same as remote IP address"
+        ):
+            DirectPeeringSession(
+                local_autonomous_system=self.local_as,
+                autonomous_system=self.autonomous_system,
+                bgp_group=self.group,
+                local_ip_address="2001:db8:1::1/64",
+                ip_address="2001:db8:1::1/64",
+            ).clean()
+
+        with self.assertRaises(ValidationError, msg="don't belong to the same subnet"):
+            DirectPeeringSession(
+                local_autonomous_system=self.local_as,
+                autonomous_system=self.autonomous_system,
+                bgp_group=self.group,
+                local_ip_address="2001:db8:1::1/64",
+                ip_address="2001:db8:0:1::1:1/64",
+            ).clean()
+
+        with self.assertRaises(ValidationError, msg="is a network address"):
+            DirectPeeringSession(
+                local_autonomous_system=self.local_as,
+                autonomous_system=self.autonomous_system,
+                bgp_group=self.group,
+                local_ip_address="192.0.2.0/24",
+                ip_address="192.0.2.1/24",
+            ).clean()
+
+        with self.assertRaises(ValidationError, msg="is a network address"):
+            DirectPeeringSession(
+                local_autonomous_system=self.local_as,
+                autonomous_system=self.autonomous_system,
+                bgp_group=self.group,
+                local_ip_address="192.0.2.1/24",
+                ip_address="192.0.2.0/24",
+            ).clean()
+
+        with self.assertRaises(ValidationError, msg="is a broadcast address"):
+            DirectPeeringSession(
+                local_autonomous_system=self.local_as,
+                autonomous_system=self.autonomous_system,
+                bgp_group=self.group,
+                local_ip_address="192.0.2.255/24",
+                ip_address="192.0.2.1/24",
+            ).clean()
+
+        with self.assertRaises(ValidationError, msg="is a broadcast address"):
+            DirectPeeringSession(
+                local_autonomous_system=self.local_as,
+                autonomous_system=self.autonomous_system,
+                bgp_group=self.group,
+                local_ip_address="192.0.2.1/24",
+                ip_address="192.0.2.255/24",
+            ).clean()
+
+        DirectPeeringSession(
+            local_autonomous_system=self.local_as,
+            autonomous_system=self.autonomous_system,
+            bgp_group=self.group,
+            ip_address="192.0.2.1/24",
+        ).clean()
+
 
 class InternetExchangeTest(TestCase):
     @classmethod
