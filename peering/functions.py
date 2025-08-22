@@ -33,7 +33,7 @@ def _is_using_bgpq4() -> bool:
     return Path(settings.BGPQ3_PATH).name == "bgpq4"
 
 
-def _call_bgpq_binary(command: Sequence[str]) -> bytes:
+def _call_bgpq_binary(command: Sequence[str]) -> str:
     logger.debug(f"calling {settings.BGPQ3_PATH} with command: {command}")
 
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -45,7 +45,7 @@ def _call_bgpq_binary(command: Sequence[str]) -> bytes:
             error_log += f", stderr: {error_message}"
         raise ValueError(error_log)
 
-    return out
+    return out.decode()
 
 
 def parse_irr_as_set(asn: int, irr_as_set: str) -> list[tuple[str, str]]:
@@ -139,11 +139,11 @@ def call_irr_as_set_resolver(
         )
         raise exc
 
-    prefix_list = json.loads(out.decode())["prefix_list"]
+    prefix_list = json.loads(out)["prefix_list"]
     if not prefix_list:
         raise NoPrefixesFoundError(object=as_set, address_family=address_family)
 
-    return list(json.loads(out.decode())["prefix_list"])
+    return list(prefix_list)
 
 
 def call_irr_as_set_as_list_resolver(
@@ -183,8 +183,7 @@ def call_irr_as_set_as_list_resolver(
 
     # Always add the first ASN, and remove AS_TRANS
     return sorted(
-        {first_as}
-        | {int(i) for i in list(json.loads(out.decode())["as_list"])} - {23456}
+        {first_as} | {int(i) for i in list(json.loads(out)["as_list"])} - {23456}
     )
 
 
