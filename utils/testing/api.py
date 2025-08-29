@@ -70,6 +70,29 @@ class APIViewTestCases:
             )
 
         @override_settings(LOGIN_REQUIRED=True)
+        def test_get_object_fields(self):
+            """
+            GET a single object using the "fields" parameter.
+            """
+            self.assertGreaterEqual(
+                self._get_queryset().count(),
+                1,
+                f"Test requires the creation of at least one {self.model} instance",
+            )
+            instance = self._get_queryset()[0]
+
+            self.add_permissions("view")
+
+            fields = getattr(
+                self, "query_fields", ["id", "url", "display_url", "display"]
+            )
+            url = f"{self._get_detail_url(instance)}?fields={','.join(fields)}"
+            response = self.client.get(url, **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            self.assertEqual(sorted(response.data), sorted(fields))
+
+        @override_settings(LOGIN_REQUIRED=True)
         def test_options_object(self):
             """
             Make an OPTIONS request for a single object.
@@ -101,6 +124,19 @@ class APIViewTestCases:
             self.assertEqual(
                 sorted(response.data["results"][0]), sorted(self.brief_fields)
             )
+
+        def test_list_objects_fields(self):
+            """
+            GET a list of objects using the "fields" parameter.
+            """
+            fields = getattr(
+                self, "query_fields", ["id", "url", "display_url", "display"]
+            )
+            url = f"{self._get_list_url()}?fields={','.join(fields)}"
+            response = self.client.get(url, **self.header)
+
+            self.assertEqual(len(response.data["results"]), self.model.objects.count())
+            self.assertEqual(sorted(response.data["results"][0]), sorted(fields))
 
     class CreateObjectView(APITestCase):
         create_data = []

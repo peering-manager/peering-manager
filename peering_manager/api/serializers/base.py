@@ -1,12 +1,20 @@
-from django.db.models import ManyToManyField
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema_field
+from __future__ import annotations
+
+from functools import cached_property
+from typing import TYPE_CHECKING, Any
+
+from django.db.models import ManyToManyField, Model
 from rest_framework import serializers
+from rest_framework.utils.serializer_helpers import BindingDict
 
 from .fields import (
     PeeringManagerAPIHyperlinkedIdentityField,
     PeeringManagerURLHyperlinkedIdentityField,
 )
+
+if TYPE_CHECKING:
+    from django.db.models import Model
+
 
 __all__ = ("BaseModelSerializer", "ValidatedModelSerializer")
 
@@ -16,8 +24,34 @@ class BaseModelSerializer(serializers.ModelSerializer):
     display_url = PeeringManagerURLHyperlinkedIdentityField()
     display = serializers.SerializerMethodField(read_only=True)
 
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_display(self, obj):
+    def __init__(
+        self,
+        *args: Any,
+        nested: bool = False,
+        fields: list[str] | None = None,
+        **kwargs: Any,
+    ) -> None:
+        self.nested = nested
+        self._requested_fields = fields
+
+        super().__init__(*args, **kwargs)
+
+    @cached_property
+    def fields(self) -> BindingDict:
+        """
+        Override the fields property to check for requested fields. If defined,
+        return only the applicable fields.
+        """
+        if not self._requested_fields:
+            return super().fields
+
+        fields = BindingDict(self)
+        for key, value in self.get_fields().items():
+            if key in self._requested_fields:
+                fields[key] = value
+        return fields
+
+    def get_display(self, obj: Model) -> str:
         return str(obj)
 
 
@@ -30,7 +64,7 @@ class ValidatedModelSerializer(BaseModelSerializer):
     https://github.com/encode/django-rest-framework/issues/3144
     """
 
-    def validate(self, data):
+    def validate(self, data: dict[str, Any]) -> dict[str, Any]:
         # Remove tags (if any) prior to model validation
         attrs = data.copy()
         attrs.pop("tags", None)
