@@ -18,7 +18,7 @@ class AppTest(APITestCase):
 
 class BFDTest(APIViewTestCases.View):
     model = BFD
-    brief_fields = ["id", "url", "display", "name", "slug"]
+    brief_fields = ["id", "url", "display_url", "display", "name", "slug"]
     bulk_update_data = {"description": "Foo"}
 
     @classmethod
@@ -87,6 +87,7 @@ class ConnectionTest(APIViewTestCases.View):
     brief_fields = [
         "id",
         "url",
+        "display_url",
         "display",
         "name",
         "mac_address",

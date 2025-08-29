@@ -15,7 +15,7 @@ class AppTest(APITestCase):
 
 class RelationshipTest(APIViewTestCases.View):
     model = Relationship
-    brief_fields = ["id", "url", "display", "name", "slug"]
+    brief_fields = ["id", "url", "display_url", "display", "name", "slug"]
     create_data = [
         {"name": "Test4", "slug": "test4", "color": Colour.RED},
         {"name": "Test5", "slug": "test5", "color": Colour.GREEN},

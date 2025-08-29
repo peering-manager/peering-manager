@@ -3,10 +3,17 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from .fields import (
+    PeeringManagerAPIHyperlinkedIdentityField,
+    PeeringManagerURLHyperlinkedIdentityField,
+)
+
 __all__ = ("BaseModelSerializer", "ValidatedModelSerializer")
 
 
 class BaseModelSerializer(serializers.ModelSerializer):
+    url = PeeringManagerAPIHyperlinkedIdentityField()
+    display_url = PeeringManagerURLHyperlinkedIdentityField()
     display = serializers.SerializerMethodField(read_only=True)
 
     @extend_schema_field(OpenApiTypes.STR)

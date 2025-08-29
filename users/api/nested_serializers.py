@@ -13,7 +13,7 @@ class NestedGroupSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Group
-        fields = ["id", "url", "name"]
+        fields = ["id", "url", "display", "name"]
 
 
 class NestedUserSerializer(WritableNestedSerializer):

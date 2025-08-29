@@ -3,7 +3,6 @@ from django.core.exceptions import (
     MultipleObjectsReturned,
     ObjectDoesNotExist,
 )
-from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from extras.models import Tag
@@ -65,8 +64,6 @@ class WritableNestedSerializer(BaseModelSerializer):
 # Declared here for use by PeeringManagerModelSerializer, but should be imported from
 # extras.api.nested_serializers
 class NestedTagSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="extras-api:tag-detail")
-
     class Meta:
         model = Tag
-        fields = ["id", "url", "display", "name", "slug", "color"]
+        fields = ["id", "url", "display_url", "display", "name", "slug", "color"]

@@ -72,6 +72,8 @@ class AutonomousSystemSerializer(PeeringManagerModelSerializer):
         model = AutonomousSystem
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "asn",
             "name",
@@ -127,6 +129,8 @@ class BGPGroupSerializer(PeeringManagerModelSerializer):
         model = BGPGroup
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "name",
             "slug",
@@ -147,6 +151,8 @@ class CommunitySerializer(PeeringManagerModelSerializer):
         model = Community
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "name",
             "slug",
@@ -193,6 +199,8 @@ class DirectPeeringSessionSerializer(PeeringManagerModelSerializer):
         model = DirectPeeringSession
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "service_reference",
             "local_autonomous_system",
@@ -274,6 +282,8 @@ class InternetExchangeSerializer(PeeringManagerModelSerializer):
         model = InternetExchange
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "peeringdb_ixlan",
             "peeringdb_prefixes",
@@ -327,6 +337,8 @@ class InternetExchangePeeringSessionSerializer(PeeringManagerModelSerializer):
         model = InternetExchangePeeringSession
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "service_reference",
             "autonomous_system",
@@ -369,6 +381,8 @@ class RoutingPolicySerializer(PeeringManagerModelSerializer):
         model = RoutingPolicy
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "name",
             "slug",

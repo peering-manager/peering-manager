@@ -16,7 +16,7 @@ class AppTest(APITestCase):
 
 class ConfigurationTest(APIViewTestCases.View):
     model = Configuration
-    brief_fields = ["id", "url", "display", "name"]
+    brief_fields = ["id", "url", "display_url", "display", "name"]
     create_data = [
         {"name": "Test1", "template": "test1_template"},
         {"name": "Test2", "template": "test2_template"},
@@ -37,6 +37,7 @@ class ConfigurationTest(APIViewTestCases.View):
 
 class PlatformTest(APIViewTestCases.View):
     model = Platform
+    query_fields = ["id", "url", "display"]
     brief_fields = ["id", "url", "display", "name", "slug"]
     create_data = [
         {"name": "Test OS", "slug": "test-os"},
@@ -51,7 +52,7 @@ class PlatformTest(APIViewTestCases.View):
 
 class RouterTest(APIViewTestCases.View):
     model = Router
-    brief_fields = ["id", "url", "display", "name", "hostname"]
+    brief_fields = ["id", "url", "display_url", "display", "name", "hostname"]
     bulk_update_data = {"status": DeviceStatus.MAINTENANCE}
 
     @classmethod

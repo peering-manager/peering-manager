@@ -20,6 +20,8 @@ class ConfigurationSerializer(PeeringManagerModelSerializer):
         model = Configuration
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "name",
             "description",
@@ -38,6 +40,7 @@ class PlatformSerializer(PeeringManagerModelSerializer):
         model = Platform
         fields = [
             "id",
+            "url",
             "display",
             "name",
             "slug",
@@ -68,6 +71,8 @@ class RouterSerializer(PeeringManagerModelSerializer):
         model = Router
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "name",
             "hostname",
