@@ -92,6 +92,18 @@ class PeeringManagerModelViewSet(
             obj.snapshot()
         return obj
 
+    def get_serializer_class(self):
+        serializer = self.serializer_class
+        context = self.get_serializer_context()
+
+        if excludes := context["request"].query_params.get("exclude", []):
+            serializer.Meta.fields = [
+                f for f in serializer.Meta.fields if f not in excludes
+            ]
+            return serializer
+
+        return self.serializer_class
+
     def get_serializer(self, *args, **kwargs):
         # If a list of objects has been provided, initialize the serializer with many=True
         if isinstance(kwargs.get("data", {}), list):
