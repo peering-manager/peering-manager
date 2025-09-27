@@ -1,4 +1,3 @@
-from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from utils.views import get_viewname
@@ -38,9 +37,7 @@ class BaseHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
 
     def get_view_name(self, model):
         raise NotImplementedError(
-            _("{class_name} must implement get_view_name()").format(
-                class_name=self.__class__.__name__
-            )
+            f"{self.__class__.__name__} must implement get_view_name()"
         )
 
 
