@@ -24,6 +24,7 @@ class BFDSerializer(PeeringManagerModelSerializer):
             "detection_multiplier",
             "hold_time",
             "local_context_data",
+            "config_context",
             "tags",
             "created",
             "updated",

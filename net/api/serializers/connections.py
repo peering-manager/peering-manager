@@ -39,6 +39,7 @@ class ConnectionSerializer(PeeringManagerModelSerializer):
             "interface",
             "description",
             "local_context_data",
+            "config_context",
             "comments",
             "tags",
             "created",

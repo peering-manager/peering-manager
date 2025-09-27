@@ -4,8 +4,11 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any
 
 from django.db.models import ManyToManyField, Model
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.utils.serializer_helpers import BindingDict
+
+from peering_manager.registry import MODEL_FEATURES_KEY, registry
 
 from .fields import (
     PeeringManagerAPIHyperlinkedIdentityField,
@@ -23,6 +26,7 @@ class BaseModelSerializer(serializers.ModelSerializer):
     url = PeeringManagerAPIHyperlinkedIdentityField()
     display_url = PeeringManagerURLHyperlinkedIdentityField()
     display = serializers.SerializerMethodField(read_only=True)
+    config_context = serializers.SerializerMethodField(read_only=True, allow_null=True)
 
     def __init__(
         self,
@@ -53,6 +57,14 @@ class BaseModelSerializer(serializers.ModelSerializer):
 
     def get_display(self, obj: Model) -> str:
         return str(obj)
+
+    @extend_schema_field(serializers.JSONField(allow_null=True))
+    def get_config_context(self, obj: type[Model]):
+        if obj._meta.model_name not in registry[MODEL_FEATURES_KEY][
+            "config-contexts"
+        ].get(obj._meta.app_label, []):
+            return None
+        return obj.get_config_context()
 
 
 class ValidatedModelSerializer(BaseModelSerializer):
