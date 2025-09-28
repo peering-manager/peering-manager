@@ -133,7 +133,7 @@ class ActionsColumn(tables.Column):
                 f'<span class="btn-group">'
                 f"  {button}"
                 f'  <a class="btn btn-sm btn-{dropdown_class} dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown" style="padding-left: 2px">'
-                f'  <span class="sr-only">Toggle Dropdown</span></a>'
+                f'  <span class="visually-hidden">Toggle Dropdown</span></a>'
                 f'  <ul class="dropdown-menu">{"".join(dropdown_links)}</ul>'
                 f"</span>"
             )
@@ -143,7 +143,7 @@ class ActionsColumn(tables.Column):
             html += (
                 f'<span class="btn-group dropdown">'
                 f'  <a class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">'
-                f'  <span class="sr-only">Toggle Dropdown</span></a>'
+                f'  <span class="visually-hidden">Toggle Dropdown</span></a>'
                 f'  <ul class="dropdown-menu">{"".join(dropdown_links)}</ul>'
                 f"</span>"
             )

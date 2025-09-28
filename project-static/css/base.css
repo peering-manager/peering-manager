@@ -97,11 +97,11 @@ table.attr-table tr:first-child td {
 }
 table.table thead th.asc.orderable > a::after {
   content: " \f107";
-  font-family: "Font Awesome 6 Free";
+  font-family: "Font Awesome 7 Free";
 }
 table.table thead th.desc.orderable > a::after {
   content: " \f106";
-  font-family: "Font Awesome 6 Free";
+  font-family: "Font Awesome 7 Free";
 }
 .min-width {
   width: 1%;
