@@ -26,7 +26,14 @@
         {% endif %}
         <tr>
           <td>Version</td>
-          <td>{{ instance.version }}</td>
+          <td>
+            {{ instance.version }}
+            {% if instance.version == 1 %}
+            <span class="float-end" data-bs-toggle="tooltip" data-placement="top" title="IX-API version 1 is deprecated and will be phased out on 2026-07-01.">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </span>
+            {% endif %}
+          </td>
         </tr>
         <tr>
           <td>Created</td>
