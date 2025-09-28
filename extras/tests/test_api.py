@@ -27,7 +27,7 @@ class AppTest(APITestCase):
 
 class ConfigContextTest(APIViewTestCases.View):
     model = ConfigContext
-    brief_fields = ["id", "url", "display", "name"]
+    brief_fields = ["id", "url", "display_url", "display", "name"]
 
     @classmethod
     def setUpTestData(cls):
@@ -45,8 +45,9 @@ class ConfigContextTest(APIViewTestCases.View):
         ]
 
 
-class ConfigContextAssignmentAssignmentTest(APIViewTestCases.View):
+class ConfigContextAssignmentTest(APIViewTestCases.View):
     model = ConfigContextAssignment
+    query_fields = ["id", "url", "display"]
     brief_fields = ["id", "url", "display", "config_context"]
 
     @classmethod
@@ -104,7 +105,7 @@ class ConfigContextAssignmentAssignmentTest(APIViewTestCases.View):
 
 class ExportTemplateTest(APIViewTestCases.View):
     model = ExportTemplate
-    brief_fields = ["id", "url", "display", "name"]
+    brief_fields = ["id", "url", "display_url", "display", "name"]
 
     @classmethod
     def setUpTestData(cls):
@@ -149,7 +150,7 @@ class ExportTemplateTest(APIViewTestCases.View):
 
 class IXAPITest(APIViewTestCases.View):
     model = IXAPI
-    brief_fields = ["id", "display", "name", "url"]
+    brief_fields = ["id", "url", "display_url", "display", "name"]
     create_data = [
         {
             "name": "IXP 4",
@@ -241,7 +242,7 @@ class IXAPITest(APIViewTestCases.View):
 
 class JournalEntryTest(APIViewTestCases.View):
     model = JournalEntry
-    brief_fields = ["created", "display", "id", "url"]
+    brief_fields = ["id", "url", "display_url", "display", "created"]
     bulk_update_data = {"comments": "Overwritten"}
 
     @classmethod
@@ -289,7 +290,7 @@ class JournalEntryTest(APIViewTestCases.View):
 
 class TagTest(APIViewTestCases.View):
     model = Tag
-    brief_fields = ["id", "url", "name", "slug", "color"]
+    brief_fields = ["id", "url", "display_url", "display", "name", "slug", "color"]
     create_data = [
         {"name": "Test 4", "slug": "test-4"},
         {"name": "Test 5", "slug": "test-5"},
@@ -310,7 +311,7 @@ class TagTest(APIViewTestCases.View):
 
 class WebhookTest(APIViewTestCases.View):
     model = Webhook
-    brief_fields = ["id", "name", "url"]
+    brief_fields = ["id", "url", "display_url", "display", "name"]
     create_data = [
         {
             "name": "Webhook 4",

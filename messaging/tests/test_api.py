@@ -15,7 +15,7 @@ class AppTest(APITestCase):
 
 class ContactRoleTest(APIViewTestCases.View):
     model = ContactRole
-    brief_fields = ["display", "id", "name", "slug", "url"]
+    brief_fields = ["id", "url", "display_url", "display", "name", "slug"]
     create_data = [
         {"name": "Contact Role 4", "slug": "contact-role-4"},
         {"name": "Contact Role 5", "slug": "contact-role-5"},
@@ -35,7 +35,7 @@ class ContactRoleTest(APIViewTestCases.View):
 
 class ContactTest(APIViewTestCases.View):
     model = Contact
-    brief_fields = ["display", "id", "name", "url"]
+    brief_fields = ["id", "url", "display_url", "display", "name"]
     bulk_update_data = {"comments": "Foo"}
 
     @classmethod
@@ -56,7 +56,8 @@ class ContactTest(APIViewTestCases.View):
 
 class ContactAssignmentTest(APIViewTestCases.View):
     model = ContactAssignment
-    brief_fields = ["contact", "display", "id", "role", "url"]
+    query_fields = ["id", "url", "display"]
+    brief_fields = ["id", "url", "display", "contact", "role"]
 
     @classmethod
     def setUpTestData(cls):
@@ -120,7 +121,7 @@ class ContactAssignmentTest(APIViewTestCases.View):
 
 class EmailTest(APIViewTestCases.View):
     model = Email
-    brief_fields = ["id", "url", "display", "name"]
+    brief_fields = ["id", "url", "display_url", "display", "name"]
     create_data = [
         {"name": "Test1", "subject": "test1_subject", "template": "test1_template"},
         {"name": "Test2", "subject": "test2_subject", "template": "test2_template"},

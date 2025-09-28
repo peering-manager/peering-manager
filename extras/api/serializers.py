@@ -43,6 +43,8 @@ class ConfigContextSerializer(ValidatedModelSerializer):
         model = ConfigContext
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "name",
             "description",
@@ -52,9 +54,6 @@ class ConfigContextSerializer(ValidatedModelSerializer):
 
 
 class ConfigContextAssignmentSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="extras-api:configcontextassignment-detail"
-    )
     content_type = ContentTypeField(queryset=ContentType.objects.all())
     object = serializers.SerializerMethodField(read_only=True)
     config_context = NestedConfigContextSerializer()
@@ -89,6 +88,8 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
         fields = [
             "id",
             "display",
+            "display_url",
+            "url",
             "name",
             "content_type",
             "description",
@@ -99,13 +100,12 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
 
 
 class IXAPISerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="extras-api:ixapi-detail")
-
     class Meta:
         model = IXAPI
         fields = [
             "id",
             "url",
+            "display_url",
             "display",
             "name",
             "api_url",
@@ -122,9 +122,6 @@ class IXAPIAccountSerializer(serializers.Serializer):
 
 
 class JournalEntrySerializer(PeeringManagerModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="extras-api:journalentry-detail"
-    )
     assigned_object_type = ContentTypeField(queryset=ContentType.objects.all())
     assigned_object = serializers.SerializerMethodField(read_only=True)
     created_by = serializers.PrimaryKeyRelatedField(
@@ -140,6 +137,7 @@ class JournalEntrySerializer(PeeringManagerModelSerializer):
         fields = [
             "id",
             "url",
+            "display_url",
             "display",
             "assigned_object_type",
             "assigned_object_id",
@@ -178,7 +176,6 @@ class JournalEntrySerializer(PeeringManagerModelSerializer):
 
 
 class TagSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="extras-api:tag-detail")
     tagged_items = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -186,6 +183,7 @@ class TagSerializer(ValidatedModelSerializer):
         fields = [
             "id",
             "url",
+            "display_url",
             "display",
             "name",
             "slug",
@@ -196,7 +194,6 @@ class TagSerializer(ValidatedModelSerializer):
 
 
 class WebhookSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="extras-api:webhook-detail")
     content_types = ContentTypeField(
         queryset=ContentType.objects.filter(FeatureQuery("webhooks").get_query()),
         many=True,
@@ -207,6 +204,7 @@ class WebhookSerializer(ValidatedModelSerializer):
         fields = [
             "id",
             "url",
+            "display_url",
             "display",
             "content_types",
             "name",

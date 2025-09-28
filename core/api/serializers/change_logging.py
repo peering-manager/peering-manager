@@ -13,9 +13,6 @@ __all__ = ("ObjectChangeSerializer",)
 
 
 class ObjectChangeSerializer(BaseModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="extras-api:objectchange-detail"
-    )
     user = NestedUserSerializer(read_only=True)
     action = ChoiceField(choices=ObjectChangeAction, read_only=True)
     changed_object_type = ContentTypeField(read_only=True)
@@ -26,6 +23,7 @@ class ObjectChangeSerializer(BaseModelSerializer):
         fields = [
             "id",
             "url",
+            "display_url",
             "display",
             "time",
             "user",

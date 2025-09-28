@@ -24,6 +24,8 @@ class ConnectionSerializer(PeeringManagerModelSerializer):
         model = Connection
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "name",
             "peeringdb_netixlan",
@@ -37,6 +39,7 @@ class ConnectionSerializer(PeeringManagerModelSerializer):
             "interface",
             "description",
             "local_context_data",
+            "config_context",
             "comments",
             "tags",
             "created",
@@ -45,7 +48,6 @@ class ConnectionSerializer(PeeringManagerModelSerializer):
 
 
 class NestedConnectionSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="net-api:connection-detail")
     name = serializers.CharField(read_only=True)
 
     class Meta:
@@ -53,6 +55,7 @@ class NestedConnectionSerializer(WritableNestedSerializer):
         fields = [
             "id",
             "url",
+            "display_url",
             "display",
             "name",
             "mac_address",

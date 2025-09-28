@@ -1,10 +1,12 @@
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
+from peering_manager.api.viewsets import BaseViewSet
+
 from ... import filtersets, models
 from .. import serializers
 
 
-class JobViewSet(ReadOnlyModelViewSet):
+class JobViewSet(BaseViewSet, ReadOnlyModelViewSet):
     """
     Retrieve a list of jobs.
     """

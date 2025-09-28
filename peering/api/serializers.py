@@ -72,6 +72,8 @@ class AutonomousSystemSerializer(PeeringManagerModelSerializer):
         model = AutonomousSystem
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "asn",
             "name",
@@ -96,6 +98,7 @@ class AutonomousSystemSerializer(PeeringManagerModelSerializer):
             "irr_ipv4_prefixes_args_override",
             "affiliated",
             "local_context_data",
+            "config_context",
             "tags",
             "created",
             "updated",
@@ -127,6 +130,8 @@ class BGPGroupSerializer(PeeringManagerModelSerializer):
         model = BGPGroup
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "name",
             "slug",
@@ -136,6 +141,7 @@ class BGPGroupSerializer(PeeringManagerModelSerializer):
             "export_routing_policies",
             "communities",
             "local_context_data",
+            "config_context",
             "tags",
             "created",
             "updated",
@@ -147,6 +153,8 @@ class CommunitySerializer(PeeringManagerModelSerializer):
         model = Community
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "name",
             "slug",
@@ -155,6 +163,7 @@ class CommunitySerializer(PeeringManagerModelSerializer):
             "type",
             "kind",
             "local_context_data",
+            "config_context",
             "tags",
             "created",
             "updated",
@@ -193,6 +202,8 @@ class DirectPeeringSessionSerializer(PeeringManagerModelSerializer):
         model = DirectPeeringSession
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "service_reference",
             "local_autonomous_system",
@@ -213,6 +224,7 @@ class DirectPeeringSessionSerializer(PeeringManagerModelSerializer):
             "router",
             "connection",
             "local_context_data",
+            "config_context",
             "bgp_state",
             "received_prefix_count",
             "accepted_prefix_count",
@@ -274,6 +286,8 @@ class InternetExchangeSerializer(PeeringManagerModelSerializer):
         model = InternetExchange
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "peeringdb_ixlan",
             "peeringdb_prefixes",
@@ -287,6 +301,7 @@ class InternetExchangeSerializer(PeeringManagerModelSerializer):
             "export_routing_policies",
             "communities",
             "local_context_data",
+            "config_context",
             "tags",
             "created",
             "updated",
@@ -327,6 +342,8 @@ class InternetExchangePeeringSessionSerializer(PeeringManagerModelSerializer):
         model = InternetExchangePeeringSession
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "service_reference",
             "autonomous_system",
@@ -343,6 +360,7 @@ class InternetExchangePeeringSessionSerializer(PeeringManagerModelSerializer):
             "communities",
             "bfd",
             "local_context_data",
+            "config_context",
             "exists_in_peeringdb",
             "is_abandoned",
             "bgp_state",
@@ -369,6 +387,8 @@ class RoutingPolicySerializer(PeeringManagerModelSerializer):
         model = RoutingPolicy
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "name",
             "slug",
@@ -378,6 +398,7 @@ class RoutingPolicySerializer(PeeringManagerModelSerializer):
             "address_family",
             "communities",
             "local_context_data",
+            "config_context",
             "tags",
             "created",
             "updated",

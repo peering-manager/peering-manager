@@ -32,6 +32,7 @@ class AutonomousSystemTest(APIViewTestCases.View):
     brief_fields = [
         "id",
         "url",
+        "display_url",
         "display",
         "asn",
         "name",
@@ -111,7 +112,7 @@ class AutonomousSystemTest(APIViewTestCases.View):
 
 class BGPGroupTest(APIViewTestCases.View):
     model = BGPGroup
-    brief_fields = ["id", "url", "display", "name", "slug", "status"]
+    brief_fields = ["id", "url", "display_url", "display", "name", "slug", "status"]
     create_data = [
         {"name": "Test 1", "slug": "test-1"},
         {"name": "Test 2", "slug": "test-2"},
@@ -140,7 +141,16 @@ class BGPGroupTest(APIViewTestCases.View):
 
 class CommunityTest(APIViewTestCases.View):
     model = Community
-    brief_fields = ["id", "url", "display", "name", "slug", "value", "type"]
+    brief_fields = [
+        "id",
+        "url",
+        "display_url",
+        "display",
+        "name",
+        "slug",
+        "value",
+        "type",
+    ]
     create_data = [
         {
             "name": "Test1",
@@ -191,7 +201,7 @@ class CommunityTest(APIViewTestCases.View):
 
 class DirectPeeringSessionTest(APIViewTestCases.View):
     model = DirectPeeringSession
-    brief_fields = ["id", "url", "display", "ip_address", "status"]
+    brief_fields = ["id", "url", "display_url", "display", "ip_address", "status"]
     bulk_update_data = {"status": BGPSessionStatus.DISABLED}
 
     @classmethod
@@ -258,7 +268,7 @@ class DirectPeeringSessionTest(APIViewTestCases.View):
 
 class InternetExchangeTest(APIViewTestCases.View):
     model = InternetExchange
-    brief_fields = ["id", "url", "display", "name", "slug", "status"]
+    brief_fields = ["id", "url", "display_url", "display", "name", "slug", "status"]
     bulk_update_data = {"description": "Awesome IXP"}
 
     @classmethod
@@ -341,7 +351,15 @@ class InternetExchangeTest(APIViewTestCases.View):
 
 class InternetExchangePeeringSessionTest(APIViewTestCases.View):
     model = InternetExchangePeeringSession
-    brief_fields = ["id", "url", "display", "ip_address", "status", "is_route_server"]
+    brief_fields = [
+        "id",
+        "url",
+        "display_url",
+        "display",
+        "ip_address",
+        "status",
+        "is_route_server",
+    ]
     bulk_update_data = {"status": BGPSessionStatus.DISABLED}
 
     @classmethod
@@ -399,7 +417,7 @@ class InternetExchangePeeringSessionTest(APIViewTestCases.View):
 
 class RoutingPolicyTest(APIViewTestCases.View):
     model = RoutingPolicy
-    brief_fields = ["id", "url", "display", "name", "slug", "type"]
+    brief_fields = ["id", "url", "display_url", "display", "name", "slug", "type"]
     create_data = [
         {
             "name": "Test1",

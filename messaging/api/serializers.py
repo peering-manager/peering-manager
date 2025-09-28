@@ -22,6 +22,8 @@ class ContactRoleSerializer(PeeringManagerModelSerializer):
         model = ContactRole
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "name",
             "slug",
@@ -37,6 +39,8 @@ class ContactSerializer(PeeringManagerModelSerializer):
         model = Contact
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "name",
             "title",
@@ -52,9 +56,6 @@ class ContactSerializer(PeeringManagerModelSerializer):
 
 
 class ContactAssignmentSerializer(PeeringManagerModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="messaging-api:contactassignment-detail"
-    )
     content_type = ContentTypeField(queryset=ContentType.objects.all())
     object = serializers.SerializerMethodField(read_only=True)
     contact = NestedContactSerializer()
@@ -86,6 +87,8 @@ class EmailSerializer(PeeringManagerModelSerializer):
         model = Email
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "name",
             "subject",

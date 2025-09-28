@@ -18,7 +18,7 @@ class AppTest(APITestCase):
 
 class DataSourceTest(APIViewTestCases.View):
     model = DataSource
-    brief_fields = ["display", "id", "name", "url"]
+    brief_fields = ["id", "url", "display_url", "display", "name"]
     create_data = [
         {
             "name": "Data Source 4",
@@ -63,7 +63,7 @@ class DataSourceTest(APIViewTestCases.View):
 
 class DataFileTest(APIViewTestCases.GetObjectView, APIViewTestCases.ListObjectsView):
     model = DataFile
-    brief_fields = ["display", "id", "path", "url"]
+    brief_fields = ["id", "url", "display_url", "display", "path"]
 
     @classmethod
     def setUpTestData(cls):
@@ -99,7 +99,16 @@ class DataFileTest(APIViewTestCases.GetObjectView, APIViewTestCases.ListObjectsV
 
 class JobTest(APIViewTestCases.GetObjectView, APIViewTestCases.ListObjectsView):
     model = Job
-    test_list_objects_brief = None
+    brief_fields = [
+        "id",
+        "url",
+        "display_url",
+        "display",
+        "created",
+        "completed",
+        "user",
+        "status",
+    ]
 
     @classmethod
     def setUpTestData(cls):

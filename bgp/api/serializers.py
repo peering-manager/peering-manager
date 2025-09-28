@@ -11,6 +11,8 @@ class RelationshipSerializer(PeeringManagerModelSerializer):
         model = Relationship
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "name",
             "slug",

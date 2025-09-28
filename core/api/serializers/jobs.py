@@ -11,7 +11,6 @@ __all__ = ("JobSerializer", "NestedJobSerializer")
 
 
 class JobSerializer(BaseModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="core-api:job-detail")
     user = NestedUserSerializer(read_only=True)
     status = ChoiceField(choices=JobStatus, read_only=True)
     object_type = ContentTypeField(read_only=True)
@@ -22,6 +21,7 @@ class JobSerializer(BaseModelSerializer):
         fields = [
             "id",
             "url",
+            "display_url",
             "display",
             "object_type",
             "object_id",
@@ -37,11 +37,19 @@ class JobSerializer(BaseModelSerializer):
         ]
 
 
-class NestedJobSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="core-api:job-detail")
+class NestedJobSerializer(BaseModelSerializer):
     status = ChoiceField(choices=JobStatus)
     user = NestedUserSerializer(read_only=True)
 
     class Meta:
         model = Job
-        fields = ["url", "created", "completed", "user", "status"]
+        fields = [
+            "id",
+            "url",
+            "display_url",
+            "display",
+            "created",
+            "completed",
+            "user",
+            "status",
+        ]

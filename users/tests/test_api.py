@@ -15,7 +15,8 @@ class AppTest(APITestCase):
 class GroupTest(APIViewTestCases.View):
     model = Group
     view_namespace = "users"
-    brief_fields = ["id", "name", "url"]
+    query_fields = ["id", "url", "display"]
+    brief_fields = ["id", "url", "display", "name"]
     create_data = [{"name": "Group 4"}, {"name": "Group 5"}, {"name": "Group 6"}]
 
     @classmethod
@@ -28,7 +29,8 @@ class GroupTest(APIViewTestCases.View):
 class UserTest(APIViewTestCases.View):
     model = User
     view_namespace = "users"
-    brief_fields = ["display", "id", "url", "username"]
+    query_fields = ["id", "url", "display"]
+    brief_fields = ["id", "url", "display", "username"]
     validation_excluded_fields = ["password"]
     create_data = [
         {"username": "user4", "password": "password4"},

@@ -1,4 +1,5 @@
 import logging
+from functools import cached_property
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
@@ -7,6 +8,7 @@ from rest_framework import mixins as drf_mixins
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from utils.api import get_serializer_for_model
 from utils.exceptions import AbortRequestError
 
 from . import mixins
@@ -21,6 +23,36 @@ class BaseViewSet(GenericViewSet):
     It is currently an empty shell, but it might become useful in the future to add
     common logics to all view sets.
     """
+
+    brief = False
+
+    def initialize_request(self, request, *args, **kwargs):
+        self.brief = request.method == "GET" and request.GET.get("brief")
+        return super().initialize_request(request, *args, **kwargs)
+
+    def get_serializer(self, *args, **kwargs):
+        if self.requested_fields:
+            kwargs["fields"] = self.requested_fields
+
+        # if self.brief:
+        #   return get_serializer_for_model(serializer.Meta.model, prefix="Nested")
+        return super().get_serializer(*args, **kwargs)
+
+    @cached_property
+    def requested_fields(self) -> list[str] | None:
+        if requested_fields := self.request.query_params.get("fields"):
+            return requested_fields.split(",")
+
+        if self.brief:
+            serializer_class = self.get_serializer_class()
+            if brief_fields := getattr(serializer_class.Meta, "brief_fields", None):
+                return brief_fields
+
+            model = serializer_class.Meta.model
+            serializer_class = get_serializer_for_model(model, prefix="Nested")
+            return getattr(serializer_class.Meta, "fields", None)
+
+        return None
 
 
 class PeeringManagerReadOnlyModelViewSet(
@@ -59,6 +91,18 @@ class PeeringManagerModelViewSet(
         if hasattr(obj, "snapshot"):
             obj.snapshot()
         return obj
+
+    def get_serializer_class(self):
+        serializer = self.serializer_class
+        context = self.get_serializer_context()
+
+        if excludes := context["request"].query_params.get("exclude", []):
+            serializer.Meta.fields = [
+                f for f in serializer.Meta.fields if f not in excludes
+            ]
+            return serializer
+
+        return self.serializer_class
 
     def get_serializer(self, *args, **kwargs):
         # If a list of objects has been provided, initialize the serializer with many=True

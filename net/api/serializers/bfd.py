@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from peering_manager.api.serializers import (
     PeeringManagerModelSerializer,
     WritableNestedSerializer,
@@ -15,6 +13,8 @@ class BFDSerializer(PeeringManagerModelSerializer):
         model = BFD
         fields = [
             "id",
+            "url",
+            "display_url",
             "display",
             "name",
             "slug",
@@ -24,6 +24,7 @@ class BFDSerializer(PeeringManagerModelSerializer):
             "detection_multiplier",
             "hold_time",
             "local_context_data",
+            "config_context",
             "tags",
             "created",
             "updated",
@@ -31,8 +32,6 @@ class BFDSerializer(PeeringManagerModelSerializer):
 
 
 class NestedBFDSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="net-api:bfd-detail")
-
     class Meta:
         model = BFD
-        fields = ["id", "url", "display", "name", "slug"]
+        fields = ["id", "url", "display_url", "display", "name", "slug"]
