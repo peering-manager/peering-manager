@@ -10,7 +10,7 @@ from django.db.models import Q
 if TYPE_CHECKING:
     from django.db.models import QuerySet
 
-from .models import (
+from ..models import (
     Campus,
     Facility,
     InternetExchange,
