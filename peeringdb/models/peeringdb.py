@@ -12,7 +12,7 @@ from netfields import CidrAddressField, InetAddressField, MACAddressField
 from peering.fields import ASNField
 from utils.validators import AddressFamilyValidator
 
-from .enums import (
+from ..enums import (
     MTU,
     AvailableVoltage,
     ContractsPolicy,
@@ -37,6 +37,7 @@ if TYPE_CHECKING:
     from messaging.models import Email
 
 __all__ = (
+    "BaseModel",
     "Campus",
     "Carrier",
     "CarrierFacility",
@@ -45,12 +46,14 @@ __all__ = (
     "IXLanPrefix",
     "InternetExchange",
     "InternetExchangeFacility",
+    "MultipleChoiceField",
     "Network",
     "NetworkContact",
     "NetworkFacility",
     "NetworkIXLan",
     "Organization",
     "Synchronisation",
+    "URLField",
 )
 
 # A huge part of this code comes from the django_peeringdb library.
@@ -81,13 +84,14 @@ class MultipleChoiceField(models.CharField):
                 continue
 
             exists = False
-            for choice, _ in self.choices:
-                if choice == value:
-                    exists = True
-                    break
+            if self.choices:
+                for choice, _ in self.choices:
+                    if choice == value:
+                        exists = True
+                        break
 
-            if not exists and not isinstance(value, list):
-                raise ValidationError(f"Invalid value: {value}")
+                if not exists and not isinstance(value, list):
+                    raise ValidationError(f"Invalid value: {value}")
 
     def validate(self, value, model_instance):
         if not self.editable:
@@ -120,9 +124,10 @@ class MultipleChoiceField(models.CharField):
             return ""
 
         picked = []
-        for choice, _ in self.choices:
-            if choice in value:
-                picked.append(choice)
+        if self.choices:
+            for choice, _ in self.choices:
+                if choice in value:
+                    picked.append(choice)
         return ",".join(picked)
 
     def to_python(self, value):
@@ -138,8 +143,10 @@ class MultipleChoiceField(models.CharField):
 
         return values
 
-    def formfield(self, **kwargs):
-        defaults = {"form_class": MultipleChoiceField}
+    def formfield(self, form_class=None, choices_form_class=None, **kwargs):
+        from django.forms import MultipleChoiceField
+
+        defaults = {"form_class": form_class or MultipleChoiceField}
         defaults.update(**kwargs)
         return super().formfield(**defaults)
 
@@ -512,7 +519,9 @@ class IXLan(BaseModel):
         verbose_name_plural = "Internet Exchange LANs"
 
     def __str__(self) -> str:
-        return self.name
+        if self.name:
+            return f"{self.ix} - {self.name}"
+        return str(self.ix)
 
 
 class IXLanPrefix(BaseModel):
