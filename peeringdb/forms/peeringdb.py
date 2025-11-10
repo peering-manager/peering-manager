@@ -1,16 +1,9 @@
 from django import forms
 
-from messaging.models import Email
-from peering.models import AutonomousSystem
 from utils.forms import BOOLEAN_WITH_BLANK_CHOICES, BootstrapMixin, add_blank_choice
-from utils.forms.fields import (
-    DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField,
-    TextareaField,
-)
 from utils.forms.widgets import StaticSelect, StaticSelectMultiple
 
-from .enums import (
+from ..enums import (
     ContractsPolicy,
     GeneralPolicy,
     LocationsPolicy,
@@ -18,9 +11,9 @@ from .enums import (
     Scope,
     Traffic,
 )
-from .models import Network, NetworkContact, NetworkIXLan
+from ..models import NetworkIXLan
 
-__all__ = ("NetworkIXLanFilterForm", "SendEmailToNetwork")
+__all__ = ("NetworkIXLanFilterForm",)
 
 
 class NetworkIXLanFilterForm(BootstrapMixin, forms.Form):
@@ -78,26 +71,3 @@ class NetworkIXLanFilterForm(BootstrapMixin, forms.Form):
         choices=add_blank_choice(ContractsPolicy.choices),
         widget=StaticSelectMultiple,
     )
-
-
-class SendEmailToNetwork(BootstrapMixin, forms.Form):
-    affiliated = DynamicModelChoiceField(
-        queryset=AutonomousSystem.objects.all(),
-        query_params={"affiliated": True},
-        label="Local AS",
-    )
-    network = DynamicModelChoiceField(
-        queryset=Network.objects.all(), label="Autonomous system"
-    )
-    email = DynamicModelChoiceField(
-        required=False, queryset=Email.objects.all(), label="Template"
-    )
-    recipients = DynamicModelMultipleChoiceField(
-        queryset=NetworkContact.objects.exclude(email=""),
-        query_params={"net_id": "$network"},
-    )
-    cc = forms.MultipleChoiceField(
-        widget=StaticSelectMultiple, label="Carbon copy", required=False
-    )
-    subject = forms.CharField(label="Subject")
-    body = TextareaField(label="Body", required=True)
