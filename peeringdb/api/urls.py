@@ -8,6 +8,7 @@ router.APIRootView = views.PeeringDBRootView
 router.register("cache", views.CacheViewSet, basename="cache")
 router.register("campuses", views.CampusViewSet)
 router.register("facilities", views.FacilityViewSet)
+router.register("hidden-peers", views.HiddenPeerViewSet)
 router.register("internet-exchanges", views.InternetExchangeViewSet)
 router.register("internet-exchange-facilities", views.InternetExchangeFacilityViewSet)
 router.register("ixlans", views.IXLanViewSet)
