@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import django_tables2 as tables
 
-from peering_manager.tables import BaseTable, BooleanColumn, SelectColumn
+from peering_manager.tables import ActionsColumn, BaseTable, BooleanColumn, SelectColumn
 from utils.templatetags.helpers import render_bandwidth_speed
 
 from ..models import NetworkIXLan
@@ -21,6 +21,14 @@ class NetworkIXLanTable(BaseTable):
     """
 
     empty_text = "No peers found."
+    append_template = """
+    {% if instance %}
+    {% load helpers %}
+    <a href="{% url 'peeringdb:hiddenpeer_add' %}?peeringdb_network={{ record.net.pk }}&peeringdb_ixlan={{ record.ixlan.pk }}&return_url={% url 'peering:internetexchange_peers' pk=instance.pk %}" class="btn btn-secondary btn-sm">
+      <i class="fa-solid fa-square-minus"></i>Hide
+    </a>
+    {% endif %}
+    """
     pk = SelectColumn()
     name = tables.Column(verbose_name="AS Name", accessor="net__name")
     internet_exchange = tables.Column(
@@ -62,6 +70,7 @@ class NetworkIXLanTable(BaseTable):
     policy_contracts = tables.Column(
         verbose_name="Contract Requirement", accessor="net__policy_contracts"
     )
+    actions = ActionsColumn(actions=(), extra_buttons=append_template)
 
     class Meta(BaseTable.Meta):
         model = NetworkIXLan
@@ -86,6 +95,7 @@ class NetworkIXLanTable(BaseTable):
             "policy_locations",
             "policy_ratio",
             "policy_contracts",
+            "actions",
         )
         default_columns = (
             "pk",
@@ -96,6 +106,7 @@ class NetworkIXLanTable(BaseTable):
             "ipaddr4",
             "is_rs_peer",
             "speed",
+            "actions",
         )
 
     def render_ipaddr6(self, value: IPv6Interface) -> IPv6Address | None:
