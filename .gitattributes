@@ -1,4 +1,7 @@
-project-static/bootstrap-5.3.7-dist/* linguist-vendored
-project-static/fontawesome-6.7.2/* linguist-vendored
-project-static/js/jquery-3.7.1.min.js linguist-vendored
+project-static/bootstrap-5.3.8-dist/* linguist-vendored
+project-static/fontawesome-7.0.1/* linguist-vendored
+project-static/js/flatpicker-*.js linguist-vendored
+project-static/js/jquery-*.js linguist-vendored
 project-static/select2-4.0.13/* linguist-vendored
+project-static/css/flatpickr.*.css linguist-vendored
+project-static/css/select2-bootstrap.min.css linguist-vendored
