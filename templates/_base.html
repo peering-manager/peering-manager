@@ -82,6 +82,7 @@
                 </a>
                 <ul id="provisioning-menu" class="collapse list-unstyled">
                   <li class="nav-item"><a href="{% url 'peeringdb:ixp_peers' %}" class="nav-link{% if url_path|contains:'/peeringdb/available-ixp-peers/' %} active{% endif %}">Available IXP Peers</a></li>
+                  <li class="nav-item"><a href="{% url 'peeringdb:hiddenpeer_list' %}" class="nav-link{% if url_path|contains:'/peeringdb/hidden-peers/' %} active{% endif %}">Hidden Peers</a></li>
                   <li class="nav-item"><a href="{% url 'peeringdb:email_network' %}" class="nav-link{% if url_path|contains:'/peeringdb/email-network/' %} active{% endif %}">Send E-mail to Network</a></li>
                 </ul>
               </li>

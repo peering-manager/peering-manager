@@ -1,0 +1,34 @@
+{% extends '_base.html' %}
+{% load render_table from django_tables2 %}
+{% load helpers %}
+{% load tabs %}
+{% block actions %}
+{% if perms.peeringdb.change_hiddenpeer %}
+<a href="{% url 'peeringdb:hiddenpeer_edit' pk=instance.pk %}" class="btn btn-warning">
+  <i class="fa-fw fa-solid fa-edit"></i> Edit
+</a>
+{% endif %}
+{% if perms.peeringdb.delete_hiddenpeer %}
+<a href="{% url 'peeringdb:hiddenpeer_delete' pk=instance.pk %}" class="btn btn-danger">
+  <i class="fa-fw fa-solid fa-trash"></i> Delete
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'peeringdb:hiddenpeer_list' %}">Hidden Peers</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
+{% endblock %}
+{% block content %}
+{% block tabs %}
+<ul class="nav nav-tabs mb-3" role="presentation">
+  {# Primary tab #}
+  <li class="nav-item">
+    <a class="nav-link{% if not tab %} active{% endif %}" href="{{ instance.get_absolute_url }}">{{ instance|meta:"verbose_name"|title_with_uppers }}</a>
+  </li>
+
+  {# Include tabs for registered model views #}
+  {% model_view_tabs instance %}
+</ul>
+{% endblock tabs %}
+{% block subcontent %}{% endblock %}
+{% endblock %}

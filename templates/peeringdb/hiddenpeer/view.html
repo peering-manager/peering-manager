@@ -1,0 +1,33 @@
+{% extends 'peeringdb/hiddenpeer/_base.html' %}
+{% load render_table from django_tables2 %}
+{% load helpers %}
+{% block subcontent %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header"><strong>Details</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>AS</td>
+          <td>{{ instance.peeringdb_network }}</td>
+        </tr>
+        <tr>
+          <td>IXP LAN</td>
+          <td>{{ instance.peeringdb_ixlan }}</td>
+        </tr>
+        <tr>
+          <td>Until</td>
+          <td>{{ instance.until|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Expired</td>
+          <td>{{ instance.is_expired|boolean_as_icon }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="col-md-6">
+    {% include 'includes/comments_card.html' %}
+  </div>
+</div>
+{% endblock %}
