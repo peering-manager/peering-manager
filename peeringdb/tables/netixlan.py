@@ -7,7 +7,7 @@ import django_tables2 as tables
 from peering_manager.tables import BaseTable, BooleanColumn, SelectColumn
 from utils.templatetags.helpers import render_bandwidth_speed
 
-from .models import NetworkIXLan
+from ..models import NetworkIXLan
 
 if TYPE_CHECKING:
     from ipaddress import IPv4Address, IPv4Interface, IPv6Address, IPv6Interface
