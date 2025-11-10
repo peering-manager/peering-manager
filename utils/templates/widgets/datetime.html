@@ -1,0 +1,9 @@
+<div class="input-group datetime-picker">
+  <input id="id_{{ widget.name }}" name="{{ widget.name }}" type="text" class="form-control"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %} data-input>
+  <a class="input-button input-group-text" data-toggle>
+    <i class="fa-calendar fa-solid"></i>
+  </a>
+  <a class="input-button input-group-text text-danger" data-clear>
+    <i class="fa-solid fa-xmark "></i>
+  </a>
+</div>
