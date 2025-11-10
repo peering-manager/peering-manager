@@ -1,5 +1,12 @@
 {% extends 'peering/internetexchange/_base.html' %}
 {% block subcontent %}
+{% if hidden_peers %}
+<div class="alert alert-warning" role="alert">
+  There {{ hidden_peers|pluralize:"is,are" }}
+  <a class="alert-link" href="{% url 'peeringdb:hiddenpeer_list' %}?peeringdb_ixlan={{ instance.peeringdb_ixlan.id }}&is_expired=False">{{ hidden_peers|length }} hidden peer{{ hidden_peers|pluralize }}</a>
+  on this IXP.
+</div>
+{% endif %}
 <div class="row">
   <div class="col-md-9">
     {% include 'generic/object_list.html' with bulk_add_url='peering:internetexchangepeeringsession_add_from_peeringdb' %}
