@@ -207,6 +207,10 @@ class InternetExchangeTable(PeeringManagerTable):
         verbose_name="Connections",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
+    session_count = tables.Column(
+        verbose_name="Sessions",
+        attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
+    )
     tags = columns.TagColumn(url_name="peering:internetexchange_list")
 
     class Meta(PeeringManagerTable.Meta):
@@ -222,10 +226,18 @@ class InternetExchangeTable(PeeringManagerTable):
             "export_routing_policies",
             "communities",
             "connection_count",
+            "session_count",
             "tags",
             "actions",
         )
-        default_columns = ("pk", "name", "status", "connection_count", "actions")
+        default_columns = (
+            "pk",
+            "name",
+            "status",
+            "connection_count",
+            "session_count",
+            "actions",
+        )
 
 
 class InternetExchangePeeringSessionTable(PeeringManagerTable):

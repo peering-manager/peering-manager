@@ -68,7 +68,13 @@ class InternetExchangeList(ObjectListView):
     queryset = (
         InternetExchange.objects.all()
         .order_by("local_autonomous_system", "name", "slug")
-        .annotate(connection_count=count_related(Connection, "internet_exchange_point"))
+        .annotate(
+            connection_count=count_related(Connection, "internet_exchange_point"),
+            session_count=count_related(
+                InternetExchangePeeringSession,
+                "ixp_connection__internet_exchange_point",
+            ),
+        )
     )
     table = InternetExchangeTable
     filterset = InternetExchangeFilterSet
