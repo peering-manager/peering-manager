@@ -12,6 +12,7 @@ router.register("ix-api", views.IXAPIViewSet)
 router.register("journal-entries", views.JournalEntryViewSet)
 router.register("tags", views.TagViewSet)
 router.register("webhooks", views.WebhookViewSet)
+router.register("bgpq4", views.BGPq4ViewSet, basename="bgpq4")
 
 app_name = "extras-api"
 urlpatterns = router.urls
