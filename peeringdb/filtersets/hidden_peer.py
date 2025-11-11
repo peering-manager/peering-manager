@@ -4,7 +4,7 @@ import contextlib
 from typing import TYPE_CHECKING, Any
 
 import django_filters
-from django.db.models import BooleanField, Case, Q, Value, When
+from django.db.models import Q
 from django.utils import timezone
 
 if TYPE_CHECKING:
@@ -57,12 +57,8 @@ class HiddenPeerFilterSet(django_filters.FilterSet):
         """
         Annotate queryset with an `is_expired` boolean and filter by it.
         """
-        qs = queryset.annotate(
-            _is_expired=Case(
-                When(until__isnull=False, until__lt=timezone.now(), then=Value(True)),
-                default=Value(False),
-                output_field=BooleanField(),
-            )
-        )
-
-        return qs.filter(_is_expired=value)
+        if value:
+            q = Q(until__isnull=False) & Q(until__lt=timezone.now())
+        else:
+            q = Q(until__isnull=True) | Q(until__gte=timezone.now())
+        return queryset.filter(q)
