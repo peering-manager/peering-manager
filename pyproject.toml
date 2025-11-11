@@ -13,7 +13,7 @@ documentation = "https://docs.peering-manager.net"
 repository = "https://github.com/peering-manager/peering-manager.git"
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.14"
+python = ">=3.10,<3.15"
 Django = ">=5.2,<5.3"
 djangorestframework = "~3.16"
 django-debug-toolbar = "~6.0"
@@ -36,7 +36,7 @@ pyixapi = "^0.2"
 pynetbox = "~7.5"
 PyYAML = "~6.0"
 requests = "~2.32"
-social-auth-app-django = "~5.5"
+social-auth-app-django = "~5.6"
 
 [tool.poetry.group.dev]
 optional = true
