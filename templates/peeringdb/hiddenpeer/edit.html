@@ -1,0 +1,17 @@
+{% extends 'generic/edit.html' %}
+{% load form_helpers %}
+{% load helpers %}
+{% block form %}
+{% for field in form.hidden_fields %}
+{{ field }}
+{% endfor %}
+<div class="card mb-3">
+  <div class="card-header"><strong>Hide Peer AS</strong></div>
+  <div class="card-body">
+    {% render_field form.peeringdb_network %}
+    {% render_field form.peeringdb_ixlan %}
+    {% render_field form.until %}
+    {% render_field form.comments %}
+  </div>
+</div>
+{% endblock %}

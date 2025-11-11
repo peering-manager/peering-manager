@@ -16,7 +16,13 @@ from netfields import InetAddressField
 from net.models import Connection
 from peering_manager.models import JournalingMixin, OrganisationalModel, PrimaryModel
 from peeringdb.functions import get_shared_facilities, get_shared_internet_exchanges
-from peeringdb.models import IXLanPrefix, Network, NetworkContact, NetworkIXLan
+from peeringdb.models import (
+    HiddenPeer,
+    IXLanPrefix,
+    Network,
+    NetworkContact,
+    NetworkIXLan,
+)
 
 from ..enums import BGPState, CommunityType, IPFamily, RoutingPolicyType
 from ..fields import ASNField, CommunityField
@@ -870,7 +876,16 @@ class InternetExchange(AbstractGroup):
             )
         )
 
-    def get_available_peers(self):
+    def get_hidden_peers(self):
+        """
+        Return all potential peers that are hidden on this IXP.
+        """
+        return HiddenPeer.objects.filter(
+            Q(peeringdb_ixlan=self.peeringdb_ixlan)
+            & (Q(until__isnull=True) | Q(until__gt=timezone.now()))
+        )
+
+    def get_available_peers(self, show_hidden=False):
         """
         Finds available peers for the AS connected to this IX.
         """
@@ -896,8 +911,14 @@ class InternetExchange(AbstractGroup):
             else []
         )
 
+        hidden_peer_asn = [self.local_autonomous_system.asn]
+        if not show_hidden:
+            hidden_peer_asn += list(
+                self.get_hidden_peers().values_list("peeringdb_network__asn", flat=True)
+            )
+
         return NetworkIXLan.objects.filter(
-            ~Q(asn=self.local_autonomous_system.asn)
+            ~Q(asn__in=hidden_peer_asn)
             & Q(ixlan=self.peeringdb_ixlan)
             & (
                 (Q(ipaddr6__isnull=False) & ~Q(ipaddr6__in=ip_addresses))
@@ -1063,8 +1084,7 @@ class InternetExchangePeeringSession(BGPSession):
     @property
     def is_abandoned(self):
         """
-        Returns `True` if a session is considered as abandoned. Returns
-        `False` otherwise.
+        Returns whether a session is considered as abandoned.
 
         A session is *not* considered as abandoned if it matches one of the following
         criteria:

@@ -18,6 +18,17 @@ $(document).ready(function () {
     return rendered_url;
   }
 
+  // DateTime Picker
+  flatpickr(".datetime-picker", {
+    wrap: true,
+    enableTime: true,
+    time_24hr: true,
+    dateFormat: "Y-m-d H:i",
+    minDate: "today",
+    prevArrow: "<i class='fa-solid fa-chevron-left'></i>",
+    nextArrow: "<i class='fa-solid fa-chevron-right'></i>"
+  });
+
   // Select2
   $.fn.select2.defaults.set('theme', 'bootstrap-5');
   $('.custom-select2-static').select2({

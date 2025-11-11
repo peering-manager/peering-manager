@@ -187,7 +187,7 @@ class InternetExchangePeers(ObjectChildrenView):
         return parent.get_available_peers()
 
     def get_extra_context(self, request, instance):
-        return {"internet_exchange_id": instance.pk}
+        return {"hidden_peers": instance.get_hidden_peers()}
 
 
 @register_model_view(InternetExchange, name="ixapi")

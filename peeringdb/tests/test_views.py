@@ -1,67 +1,23 @@
 from datetime import datetime
 
 import pytz
-from django.urls import reverse
-from django.utils import timezone
-from rest_framework import status
 
-from utils.testing import APITestCase
-from utils.testing.api import APIViewTestCases
+from utils.testing import ViewTestCases
 
-from ..models import *
-from ..sync import NAMESPACES
-
-
-class CacheTest(APITestCase):
-    def test_statistics(self):
-        url = reverse("peeringdb-api:cache-statistics")
-        response = self.client.get(url, **self.header)
-        for namespace in [*list(NAMESPACES.keys()), "sync"]:
-            self.assertEqual(response.data[f"{namespace}-count"], 0)
-
-    def test_update_local(self):
-        url = reverse("peeringdb-api:cache-update-local")
-        response = self.client.post(url, **self.header)
-        self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
-
-    def test_clear_local(self):
-        url = reverse("peeringdb-api:cache-clear-local")
-        response = self.client.post(url, **self.header)
-        self.assertEqual(response.data["status"], "success")
+from ..models import (
+    HiddenPeer,
+    InternetExchange,
+    IXLan,
+    Network,
+    NetworkIXLan,
+    Organization,
+)
 
 
-class SynchronisationTest(APITestCase):
-    def setUp(self):
-        super().setUp()
-
-        for i in range(1, 10):
-            Synchronisation.objects.create(
-                time=timezone.now(), created=i, updated=i, deleted=i
-            )
-
-    def test_get_synchronisation(self):
-        url = reverse("peeringdb-api:synchronisation-detail", kwargs={"pk": 1})
-        response = self.client.get(url, **self.header)
-        self.assertEqual(response.data["created"], 1)
-
-    def test_list_synchronisations(self):
-        url = reverse("peeringdb-api:synchronisation-list")
-        response = self.client.get(url, **self.header)
-        self.assertEqual(response.data["count"], 9)
-
-
-class HiddenPeerTest(APIViewTestCases.View):
+class AutonomousSystemTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = HiddenPeer
-    brief_fields = [
-        "id",
-        "url",
-        "display_url",
-        "display",
-        "peeringdb_network",
-        "peeringdb_ixlan",
-        "until",
-    ]
-    bulk_update_data = {"comments": "Bad peer"}
+
+    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -123,7 +79,7 @@ class HiddenPeerTest(APIViewTestCases.View):
             ]
         )
 
-        cls.hidden_peers = HiddenPeer.objects.bulk_create(
+        HiddenPeer.objects.bulk_create(
             [
                 HiddenPeer(
                     peeringdb_network=cls.networks[0],
@@ -142,17 +98,8 @@ class HiddenPeerTest(APIViewTestCases.View):
             ]
         )
 
-        cls.create_data = [
-            {
-                "peeringdb_network": cls.networks[0].pk,
-                "peeringdb_ixlan": cls.ixlans[1].pk,
-            },
-            {
-                "peeringdb_network": cls.networks[1].pk,
-                "peeringdb_ixlan": cls.ixlans[1].pk,
-            },
-            {
-                "peeringdb_network": cls.networks[2].pk,
-                "peeringdb_ixlan": cls.ixlans[1].pk,
-            },
-        ]
+        cls.form_data = {
+            "peeringdb_network": cls.networks[0].pk,
+            "peeringdb_ixlan": cls.ixlans[1].pk,
+            "comments": "Bad peer",
+        }

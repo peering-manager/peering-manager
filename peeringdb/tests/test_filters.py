@@ -1,3 +1,6 @@
+from datetime import datetime
+
+import pytz
 from django.test import TestCase
 from django.utils import timezone
 
@@ -671,4 +674,112 @@ class SynchronisationTestCase(TestCase):
         params = {"deleted": 1}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"deleted": 0}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class HiddenPeerTestCase(TestCase):
+    queryset = HiddenPeer.objects.all()
+    filterset = HiddenPeerFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.names = ["The Avengers", "S.H.I.E.L.D.", "Stark Industries"]
+        cls.organisations = Organization.objects.bulk_create(
+            [
+                Organization(name=cls.names[0]),
+                Organization(name=cls.names[1]),
+                Organization(name=cls.names[2]),
+            ]
+        )
+        cls.ixps = InternetExchange.objects.bulk_create(
+            [
+                InternetExchange(name=cls.names[0], org=cls.organisations[0]),
+                InternetExchange(name=cls.names[1], org=cls.organisations[1]),
+                InternetExchange(name=cls.names[2], org=cls.organisations[2]),
+            ]
+        )
+        cls.ixlans = IXLan.objects.bulk_create(
+            [
+                IXLan(name=cls.names[0], rs_asn=64501, ix=cls.ixps[0], vlan=100),
+                IXLan(name=cls.names[1], rs_asn=64502, ix=cls.ixps[1], vlan=200),
+                IXLan(name=cls.names[2], rs_asn=64503, ix=cls.ixps[2], vlan=300),
+            ]
+        )
+        cls.asns = [64500, 64496, 64498]
+        cls.networks = Network.objects.bulk_create(
+            [
+                Network(asn=cls.asns[0], name=cls.names[0], org=cls.organisations[0]),
+                Network(asn=cls.asns[1], name=cls.names[1], org=cls.organisations[1]),
+                Network(asn=cls.asns[2], name=cls.names[2], org=cls.organisations[2]),
+            ]
+        )
+
+        cls.netixlans = NetworkIXLan.objects.bulk_create(
+            [
+                NetworkIXLan(
+                    net=cls.networks[0],
+                    ixlan=cls.ixlans[0],
+                    asn=cls.asns[0],
+                    ipaddr6="2001:db8:100::1/64",
+                    speed=1000,
+                ),
+                NetworkIXLan(
+                    net=cls.networks[1],
+                    ixlan=cls.ixlans[1],
+                    asn=cls.asns[1],
+                    ipaddr6="2001:db8:200::1/64",
+                    speed=1000,
+                ),
+                NetworkIXLan(
+                    net=cls.networks[2],
+                    ixlan=cls.ixlans[2],
+                    asn=cls.asns[2],
+                    ipaddr6="2001:db8:300::1/64",
+                    speed=1000,
+                    is_rs_peer=True,
+                ),
+            ]
+        )
+
+        cls.hidden_peers = HiddenPeer.objects.bulk_create(
+            [
+                HiddenPeer(
+                    peeringdb_network=cls.networks[0],
+                    peeringdb_ixlan=cls.ixlans[0],
+                    comments="Foo",
+                ),
+                HiddenPeer(
+                    peeringdb_network=cls.networks[1],
+                    peeringdb_ixlan=cls.ixlans[1],
+                    until=str(datetime(2025, 1, 1, 0, 0, tzinfo=pytz.UTC)),
+                    comments="Bar",
+                ),
+            ]
+        )
+
+    def test_q(self):
+        self.assertEqual(self.filterset({"q": "64500"}, self.queryset).qs.count(), 1)
+        self.assertEqual(
+            self.filterset({"q": "The Avengers"}, self.queryset).qs.count(), 1
+        )
+        self.assertEqual(self.filterset({"q": "unknown"}, self.queryset).qs.count(), 0)
+
+    def test_peeringdb_network_id(self):
+        params = {"peeringdb_network_id": [self.networks[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_peeringdb_network_asn(self):
+        params = {"peeringdb_network_asn": [self.asns[0]]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_peeringdb_ixlan_id(self):
+        params = {"peeringdb_ixlan_id": [self.ixlans[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_is_expired(self):
+        params = {"is_expired": True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"is_expired": False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"is_expired": None}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
