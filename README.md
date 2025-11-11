@@ -35,7 +35,7 @@ with a [PostgreSQL](https://www.postgresql.org) database,
 with some dependencies to run. For a complete list of requirements, see
 `requirements.txt`.
 
-Tested Python versions are 3.10, 3.11, 3.12 and 3.13.
+Tested Python versions are 3.10, 3.11, 3.12, 3.13 and 3.14.
 
 The best way to start setting up this tool is to use **pip** within a
 **virtualenv**.

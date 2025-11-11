@@ -55,6 +55,7 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
+          - "3.14"
     services:
       postgres:
         image: postgres:14
@@ -117,5 +118,5 @@ jobs:
         uses: coverallsapp/github-action@v2
         with:
           parallel-finished: true
-          carryforward: run-3.10,run-3.11,run-3.12,run-3.13
+          carryforward: run-3.10,run-3.11,run-3.12,run-3.13,run-3.14
           github-token: ${{ secrets.GITHUB_TOKEN }}
