@@ -907,6 +907,16 @@ class InternetExchangePeeringSessionFilterForm(PeeringManagerModelFilterSetForm)
         label="Route server",
         widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
+    exists_in_peeringdb = forms.NullBooleanField(
+        required=False,
+        label="In PeeringDB",
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
+    )
+    is_abandoned = forms.NullBooleanField(
+        required=False,
+        label="Is Abandoned",
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
+    )
     bgp_state = forms.MultipleChoiceField(
         required=False, choices=BGPState, widget=StaticSelectMultiple, label="BGP state"
     )

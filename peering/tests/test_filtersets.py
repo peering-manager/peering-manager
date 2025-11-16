@@ -1,8 +1,12 @@
+from unittest.mock import PropertyMock, patch
+
 from django.test import TestCase
 
 from bgp.models import Relationship
 from devices.models import Router
 from net.models import BFD, Connection
+from peeringdb.models import InternetExchange as Ix
+from peeringdb.models import IXLan, Network, NetworkIXLan, Organization
 from utils.testing import BaseFilterSetTests
 
 from ..constants import *
@@ -358,7 +362,15 @@ class InternetExchangePeeringSessionTestCase(TestCase, BaseFilterSetTests):
             slug="ix-2",
         )
         cls.ixp_connection = Connection.objects.create(
-            vlan=2000, internet_exchange_point=cls.ixp
+            vlan=2000,
+            ipv4_address="192.0.2.128/24",
+            internet_exchange_point=cls.ixp,
+            router=Router.objects.create(
+                name="Router 1",
+                hostname="router1.example.net",
+                local_autonomous_system=cls.local_as,
+                poll_bgp_sessions_state=True,
+            ),
         )
         cls.bfd = BFD.objects.create(
             name="Default",
@@ -470,6 +482,85 @@ class InternetExchangePeeringSessionTestCase(TestCase, BaseFilterSetTests):
     def test_bfd(self):
         params = {"bfd": [self.bfd.name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_exists_in_peeringdb(self):
+        params = {"exists_in_peeringdb": True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {"exists_in_peeringdb": False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+        session = InternetExchangePeeringSession.objects.first()
+        NetworkIXLan.objects.create(
+            asn=session.autonomous_system.asn,
+            ipaddr4=str(session.ip_address),
+            speed=1000,
+            ixlan=IXLan.objects.create(
+                name="TestIXLan",
+                ix=Ix.objects.create(
+                    name="TestIX", org=Organization.objects.create(name="TestIXOrg")
+                ),
+            ),
+            net=Network.objects.create(
+                name="TestNet",
+                asn=session.autonomous_system.asn,
+                org=Organization.objects.create(name="TestOrg"),
+            ),
+        )
+        for t in (NetworkIXLan, IXLan, Network, Organization):
+            self.addCleanup(t.objects.all().delete)
+
+        self.assertTrue(session.exists_in_peeringdb)
+
+        params = {"exists_in_peeringdb": True}
+        self.assertEqual(1, self.filterset(params, self.queryset).qs.count())
+
+    def test_is_abandoned(self):
+        params = {"is_abandoned": True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {"is_abandoned": False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+        session = InternetExchangePeeringSession.objects.first()
+        ixlan = IXLan.objects.create(
+            name="TestIXLan",
+            ix=Ix.objects.create(
+                name="TestIX", org=Organization.objects.create(name="TestIXOrg")
+            ),
+        )
+        netixlan = NetworkIXLan.objects.create(
+            asn=self.local_as.asn,
+            ipaddr4=str(self.ixp_connection.ipv4_address),
+            speed=1000,
+            ixlan=ixlan,
+            net=Network.objects.create(
+                name="TestLocalNet",
+                asn=self.local_as.asn,
+                org=Organization.objects.create(name="TestLocalOrg"),
+            ),
+        )
+        net = Network.objects.create(
+            name="TestNet",
+            asn=session.autonomous_system.asn,
+            org=Organization.objects.create(name="TestOrg"),
+        )
+        for t in (NetworkIXLan, IXLan, Network, Organization):
+            self.addCleanup(t.objects.all().delete)
+
+        self.ixp_connection.peeringdb_netixlan = netixlan
+        self.ixp_connection.save()
+        session.bgp_state = BGPState.IDLE
+        session.save()
+
+        # Mocking because peeringdb_network property would return None due to the
+        # private ASN
+        with patch(
+            "peering.models.AutonomousSystem.peeringdb_network",
+            new_callable=PropertyMock,
+        ) as mock:
+            mock.return_value = net
+            self.assertTrue(session.is_abandoned)
+            params = {"is_abandoned": True}
+            self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class RoutingPolicyTestCase(TestCase, BaseFilterSetTests):
