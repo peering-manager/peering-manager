@@ -2,7 +2,15 @@ import contextlib
 import ipaddress
 
 import django_filters
-from django.db.models import Q
+from django.db.models import (
+    BooleanField,
+    Case,
+    Exists,
+    OuterRef,
+    Q,
+    Value,
+    When,
+)
 
 from bgp.models import Relationship
 from devices.models import Router
@@ -11,6 +19,7 @@ from peering_manager.filtersets import (
     OrganisationalModelFilterSet,
     PeeringManagerModelFilterSet,
 )
+from peeringdb.models import Network, NetworkIXLan
 
 from .enums import (
     BGPGroupStatus,
@@ -273,6 +282,10 @@ class InternetExchangePeeringSessionFilterSet(PeeringManagerModelFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=BGPSessionStatus, null_value=""
     )
+    exists_in_peeringdb = django_filters.BooleanFilter(
+        method="exists_in_peeringdb_search"
+    )
+    is_abandoned = django_filters.BooleanFilter(method="is_abandoned_search")
     bgp_state = django_filters.MultipleChoiceFilter(choices=BGPState, null_value="")
 
     class Meta:
@@ -302,6 +315,75 @@ class InternetExchangePeeringSessionFilterSet(PeeringManagerModelFilterSet):
         if value in [4, 6]:
             return queryset.filter(Q(ip_address__family=value))
         return queryset
+
+    def exists_in_peeringdb_search(self, queryset, name, value):
+        if value is None:
+            return queryset
+
+        # Lookup subquery to check for existence in PeeringDB
+        netixlan_exists = NetworkIXLan.objects.filter(
+            (Q(ipaddr4=OuterRef("ip_address")) | Q(ipaddr6=OuterRef("ip_address"))),
+            net__asn=OuterRef("autonomous_system__asn"),
+        )
+
+        # Check for a matching netixlan record existence
+        return queryset.annotate(_netixlan_exists=Exists(netixlan_exists)).filter(
+            _netixlan_exists=bool(value)
+        )
+
+    def is_abandoned_search(self, queryset, name, value):
+        if value is None:
+            return queryset
+
+        # netixlan subquery to check for existence in PeeringDB
+        netixlan_exists = NetworkIXLan.objects.filter(
+            (Q(ipaddr4=OuterRef("ip_address")) | Q(ipaddr6=OuterRef("ip_address"))),
+            net__asn=OuterRef("autonomous_system__asn"),
+        )
+        # net subquery to check for existence in PeeringDB
+        net_peeringdb_subquery = Network.objects.filter(
+            asn=OuterRef("autonomous_system__asn")
+        )
+
+        qs = queryset.annotate(
+            _session_in_peeringdb=Exists(netixlan_exists),
+            _ixp_linked=Case(
+                When(
+                    ixp_connection__peeringdb_netixlan__isnull=False,
+                    then=Value(True),
+                ),
+                default=Value(False),
+                output_field=BooleanField(),
+            ),
+            _router_ok=Case(
+                When(
+                    Q(ixp_connection__router__isnull=True)
+                    | Q(ixp_connection__router__poll_bgp_sessions_state=True),
+                    then=Value(True),
+                ),
+                default=Value(False),
+                output_field=BooleanField(),
+            ),
+            _net_in_peeringdb=Exists(net_peeringdb_subquery),
+            _bgp_down=Case(
+                When(bgp_state__in=[BGPState.IDLE, BGPState.ACTIVE], then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            ),
+        )
+
+        # Match the `is_abandoned` property of the model
+        abandoned_filter = (
+            Q(_ixp_linked=True)
+            & Q(_router_ok=True)
+            & Q(_net_in_peeringdb=True)
+            & Q(_session_in_peeringdb=False)
+            & Q(_bgp_down=True)
+        )
+
+        if value:
+            return qs.filter(abandoned_filter)
+        return qs.exclude(abandoned_filter)
 
 
 class RoutingPolicyFilterSet(OrganisationalModelFilterSet):
