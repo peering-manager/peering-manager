@@ -1,14 +1,11 @@
-import json
-
 import pyixapi
 from django.conf import settings
-from django.core.cache import caches
+from django.core.cache import cache
 from django.db.models import Count
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiResponse, extend_schema
+from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ViewSet
@@ -20,6 +17,7 @@ from peering.functions import (
     call_irr_as_set_resolver,
     parse_irr_as_set,
 )
+from peering_manager.api.authentication import IsAuthenticatedOrLoginNotRequired
 from peering_manager.api.viewsets import PeeringManagerModelViewSet
 
 from ..filtersets import (
@@ -193,67 +191,31 @@ class WebhookViewSet(PeeringManagerModelViewSet):
     filterset_class = WebhookFilterSet
 
 
-class BGPq4ViewSet(ViewSet):
+class PrefixListViewSet(ViewSet):
     """
-    ViewSet for BGPq4 prefix queries using existing Redis cache and BGPq infrastructure
+    ViewSet for prefix list queries using cache and BGPq infrastructure
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
 
-    def get_redis_client(self):
-        """Get Redis client using existing Django cache configuration"""
-
-        # Get the default cache backend
-        cache = caches["default"]
-
-        # For django-redis, access the client directly
-        if hasattr(cache, "client"):
-            return cache.client.get_client()
-
-        # Fallback: create Redis client from Django settings
-        import redis
-        from django.conf import settings
-
-        # Assuming CACHES config has Redis URL or connection params
-        cache_config = settings.CACHES.get("default", {})
-        location = cache_config.get("LOCATION", "redis://redis:6379/0")
-
-        return redis.from_url(location)
-
-    def get_cache_key(self, query_type: str, target: str, af: int) -> str:
+    def get_cache_key(self, target: str, af: int) -> str:
         """Generate cache key for BGPq results"""
-        return f"bgpq4:{query_type}:{target}:ipv{af}"
+        return f"extras.api.prefix_list__{target}__ipv{af}"
 
-    def cached_bgpq_query(
-        self,
-        query_type: str,
-        target: str,
-        af: int,
-        invalidate: bool = False,
-        no_cache: bool = False,
-    ) -> list[str]:
+    def cached_prefix_list_query(self, target: str, af: int) -> list[str]:
         """Query BGPq with caching support"""
-        cache_key = self.get_cache_key(query_type, target, af)
-        redis_client = self.get_redis_client()
-
-        # Skip cache if requested
-        if no_cache:
-            return self._bgpq_query(target, af)
-
-        # Invalidate cache if requested
-        if invalidate:
-            redis_client.delete(cache_key)
+        cache_key = self.get_cache_key(target, af)
 
         # Try to get from cache
-        cached_result = redis_client.get(cache_key)
-        if cached_result:
-            return json.loads(cached_result)
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            return cached_result
 
         # Fetch fresh data
         result = self._bgpq_query(target, af)
 
-        # Cache for 1 hour
-        redis_client.setex(cache_key, 3600, json.dumps(result))
+        # Cache with configurable timeout (default 1 hour)
+        cache.set(cache_key, result, settings.CACHE_PREFIX_LIST_TIMEOUT)
 
         return result
 
@@ -283,103 +245,114 @@ class BGPq4ViewSet(ViewSet):
             return []
 
     @extend_schema(
-        operation_id="extras_bgpq4_list",
+        operation_id="extras_prefix_list",
+        parameters=[
+            OpenApiParameter(
+                name="asn",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+                description="ASN number (e.g., 201281). Either 'asn' or 'as-set' is required.",
+                required=False,
+            ),
+            OpenApiParameter(
+                name="as-set",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                description="AS-SET name (e.g., AS201281:AS-MAZOYER-eu). Either 'asn' or 'as-set' is required.",
+                required=False,
+            ),
+            OpenApiParameter(
+                name="af",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                description="Address families, comma-separated. Valid values: 4, 6, or 4,6 (default: 4,6)",
+                required=False,
+                default="4,6",
+            ),
+        ],
         responses={
             200: OpenApiResponse(
                 response=OpenApiTypes.OBJECT,
-                description="List of cached ASNs and AS-SETs",
-            )
+                description="Prefix list for the specified ASN or AS-SET",
+            ),
+            400: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="Invalid request parameters",
+            ),
         },
     )
     def list(self, request):
         """
-        List all cached ASNs and AS-SETs
+        Get prefixes for a specific ASN or AS-SET with address family specification.
+
+        Query parameters:
+        - asn: ASN number (e.g., 201281)
+        - as-set: AS-SET name (e.g., AS201281:AS-MAZOYER-eu)
+        - af: Address families, comma-separated (e.g., 4,6 or 4 or 6)
+
+        Either 'asn' or 'as-set' is required.
         """
-        try:
-            redis_client = self.get_redis_client()
-            keys = redis_client.keys("bgpq4:*")
+        asn = request.query_params.get("asn")
+        as_set = request.query_params.get("as-set")
+        af_param = request.query_params.get("af", "4,6")
 
-            asns = set()
-            as_sets = set()
-
-            for key in keys:
-                key_str = key.decode() if isinstance(key, bytes) else key
-                parts = key_str.split(":")
-                if len(parts) >= 3:
-                    target = parts[2]
-                    if target.startswith("AS") and target[2:].isdigit():
-                        asns.add(int(target[2:]))
-                    else:
-                        as_sets.add(target)
-
-            return Response({"asns": sorted(asns), "as_sets": sorted(as_sets)})
-        except Exception as e:
+        # Validate that either asn or as-set is provided
+        if not asn and not as_set:
             return Response(
-                {"error": f"Failed to retrieve cached data: {e!s}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                {"error": "Either 'asn' or 'as-set' query parameter is required"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-    @extend_schema(
-        operation_id="extras_bgpq4_asn",
-        request=None,
-        responses={200: OpenApiTypes.OBJECT},
-    )
-    @action(detail=False, methods=["get"], url_path=r"asn/(?P<asn>[0-9]+)")
-    def asn(self, request, asn=None):
-        """
-        Get prefixes for a specific ASN
-        """
-        invalidate = request.query_params.get("invalidate", "false").lower() == "true"
-        no_cache = request.query_params.get("no_cache", "false").lower() == "true"
+        if asn and as_set:
+            return Response(
+                {"error": "Provide either 'asn' or 'as-set', not both"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Validate ASN format
+        if asn:
+            try:
+                asn_int = int(asn)
+                if asn_int < 0 or asn_int > 4294967295:  # Max 32-bit ASN
+                    return Response(
+                        {"error": "ASN must be between 0 and 4294967295"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+            except ValueError:
+                return Response(
+                    {"error": "ASN must be a valid integer"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        # Parse address families
+        try:
+            afs = [int(af.strip()) for af in af_param.split(",")]
+            if not all(af in [4, 6] for af in afs):
+                return Response(
+                    {"error": "Address family must be 4 or 6"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        except ValueError:
+            return Response(
+                {"error": "Invalid address family format. Use 4, 6, or 4,6"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Determine target
+        target = f"AS{asn}" if asn else as_set
 
         try:
-            asn_target = f"AS{asn}"
-            return Response(
-                {
-                    "ipv4": self.cached_bgpq_query(
-                        "asn", asn_target, 4, invalidate, no_cache
-                    ),
-                    "ipv6": self.cached_bgpq_query(
-                        "asn", asn_target, 6, invalidate, no_cache
-                    ),
-                }
-            )
+            result = {}
+            if 4 in afs:
+                result["ipv4"] = self.cached_prefix_list_query(target, 4)
+            if 6 in afs:
+                result["ipv6"] = self.cached_prefix_list_query(target, 6)
+
+            return Response(result)
         except ValueError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response(
-                {"error": f"Failed to fetch prefixes for AS{asn}: {e!s}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-    @extend_schema(
-        operation_id="extras_bgpq4_as_set",
-        request=None,
-        responses={200: OpenApiTypes.OBJECT},
-    )
-    @action(detail=False, methods=["get"], url_path=r"as-set/(?P<as_set>[^/]+)")
-    def as_set(self, request, as_set=None):
-        """
-        Get prefixes for a specific AS-SET
-        """
-        invalidate = request.query_params.get("invalidate", "false").lower() == "true"
-        no_cache = request.query_params.get("no_cache", "false").lower() == "true"
-
-        try:
-            return Response(
-                {
-                    "ipv4": self.cached_bgpq_query(
-                        "as_set", as_set, 4, invalidate, no_cache
-                    ),
-                    "ipv6": self.cached_bgpq_query(
-                        "as_set", as_set, 6, invalidate, no_cache
-                    ),
-                }
-            )
-        except ValueError as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response(
-                {"error": f"Failed to fetch prefixes for AS-SET {as_set}: {e!s}"},
+                {"error": f"Failed to fetch prefixes for {target}: {e!s}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
