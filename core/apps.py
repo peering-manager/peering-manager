@@ -1,4 +1,6 @@
 from django.apps import AppConfig
+from django.conf import settings
+from django.core.cache import cache
 
 
 class CoreConfig(AppConfig):
@@ -11,3 +13,6 @@ class CoreConfig(AppConfig):
         from . import data_backends  # noqa: F401
 
         register_models(*self.get_models())
+
+        if settings.DEBUG:
+            cache.clear()
