@@ -3,6 +3,10 @@ html {
   min-height: 100%;
   font-size: 14px;
 }
+/* Need to revisit why we need this */
+body {
+  overflow-x: hidden;
+}
 a:not([class*="btn"]) {
   text-decoration: none;
 }
