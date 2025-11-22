@@ -31,7 +31,7 @@ Default: `"peering_manager.authentication.RemoteUserBackend"`
 
 This is the Python path to the custom [Django authentication
 backend](https://docs.djangoproject.com/en/stable/topics/auth/customizing/) to
-use for external user authentication. Peering Manager provides two built-in
+use for external user authentication. Peering Manager provides four built-in
 backends (listed below), though custom authentication backends may also be
 provided by other packages or plugins. Provide a string for a single backend,
 or an iterable for multiple backends, which will be attempted in the order
@@ -39,6 +39,8 @@ given.
 
 * `peering_manager.authentication.RemoteUserBackend`
 * `peering_manager.authentication.LDAPBackend`
+* `peering_manager.authentication.RADIUSBackend`
+* `peering_manager.authentication.RADIUSRealmBackend`
 
 ---
 
