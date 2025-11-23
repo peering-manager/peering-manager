@@ -2,11 +2,7 @@ from unittest.mock import patch
 
 from django.test import TestCase, override_settings
 
-from ..functions import (
-    call_irr_as_set_as_list_resolver,
-    call_irr_as_set_resolver,
-    parse_irr_as_set,
-)
+from ..functions import *
 from .mocked_data import *
 
 

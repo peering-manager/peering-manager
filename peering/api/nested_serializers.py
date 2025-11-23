@@ -3,11 +3,19 @@ from peering_manager.api.serializers import WritableNestedSerializer
 from ..models import (
     AutonomousSystem,
     BGPGroup,
-    Community,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
     RoutingPolicy,
+)
+
+__all__ = (
+    "NestedAutonomousSystemSerializer",
+    "NestedBGPGroupSerializer",
+    "NestedDirectPeeringSessionSerializer",
+    "NestedInternetExchangePeeringSessionSerializer",
+    "NestedInternetExchangeSerializer",
+    "NestedRoutingPolicySerializer",
 )
 
 
@@ -30,21 +38,6 @@ class NestedBGPGroupSerializer(WritableNestedSerializer):
     class Meta:
         model = BGPGroup
         fields = ["id", "url", "display_url", "display", "name", "slug", "status"]
-
-
-class NestedCommunitySerializer(WritableNestedSerializer):
-    class Meta:
-        model = Community
-        fields = [
-            "id",
-            "url",
-            "display_url",
-            "display",
-            "name",
-            "slug",
-            "value",
-            "type",
-        ]
 
 
 class NestedDirectPeeringSessionSerializer(WritableNestedSerializer):

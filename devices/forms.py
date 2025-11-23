@@ -3,9 +3,10 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
+from bgp.models import Community
 from core.forms import PushedDataMixin, SynchronisedDataMixin
 from extras.netbox import NetBox
-from peering.models import AutonomousSystem, Community
+from peering.models import AutonomousSystem
 from peering_manager.forms import (
     PeeringManagerModelFilterSetForm,
     PeeringManagerModelForm,

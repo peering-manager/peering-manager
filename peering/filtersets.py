@@ -21,17 +21,10 @@ from peering_manager.filtersets import (
 )
 from peeringdb.models import Network, NetworkIXLan
 
-from .enums import (
-    BGPGroupStatus,
-    BGPSessionStatus,
-    BGPState,
-    CommunityType,
-    RoutingPolicyType,
-)
+from .enums import BGPGroupStatus, BGPSessionStatus, BGPState, RoutingPolicyType
 from .models import (
     AutonomousSystem,
     BGPGroup,
-    Community,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -73,24 +66,6 @@ class BGPGroupFilterSet(OrganisationalModelFilterSet):
     class Meta:
         model = BGPGroup
         fields = ["id"]
-
-
-class CommunityFilterSet(PeeringManagerModelFilterSet):
-    type = django_filters.MultipleChoiceFilter(choices=CommunityType, null_value="")
-
-    class Meta:
-        model = Community
-        fields = ["id", "value", "type"]
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(
-            Q(name__icontains=value)
-            | Q(value__icontains=value)
-            | Q(slug__icontains=value)
-            | Q(description__icontains=value)
-        )
 
 
 class DirectPeeringSessionFilterSet(PeeringManagerModelFilterSet):

@@ -4,16 +4,8 @@ from bgp.models import Relationship
 from net.models import Connection
 from utils.testing import ViewTestCases
 
-from ..enums import BGPSessionStatus, CommunityType, RoutingPolicyType
-from ..models import (
-    AutonomousSystem,
-    BGPGroup,
-    Community,
-    DirectPeeringSession,
-    InternetExchange,
-    InternetExchangePeeringSession,
-    RoutingPolicy,
-)
+from ..enums import BGPSessionStatus, RoutingPolicyType
+from ..models import *
 
 
 class AutonomousSystemTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -68,30 +60,6 @@ class BGPGroupTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "communities": [],
             "export_routing_policies": [],
             "import_routing_policies": [],
-            "comments": "",
-            "tags": [],
-        }
-        cls.bulk_edit_data = {"description": "New description"}
-
-
-class CommunityTestCase(ViewTestCases.PrimaryObjectViewTestCase):
-    model = Community
-
-    @classmethod
-    def setUpTestData(cls):
-        Community.objects.bulk_create(
-            [
-                Community(name="Community 1", slug="community-1", value="64500:1"),
-                Community(name="Community 2", slug="community-2", value="64500:2"),
-                Community(name="Community 3", slug="community-3", value="64500:3"),
-            ]
-        )
-
-        cls.form_data = {
-            "name": "Community 4",
-            "slug": "community-4",
-            "value": "64500:4",
-            "type": CommunityType.INGRESS,
             "comments": "",
             "tags": [],
         }

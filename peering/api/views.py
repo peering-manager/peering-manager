@@ -17,7 +17,6 @@ from peeringdb.api.serializers import FacilitySerializer, NetworkIXLanSerializer
 from ..filtersets import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
-    CommunityFilterSet,
     DirectPeeringSessionFilterSet,
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
@@ -27,7 +26,6 @@ from ..jobs import import_sessions_to_internet_exchange
 from ..models import (
     AutonomousSystem,
     BGPGroup,
-    Community,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -36,7 +34,6 @@ from ..models import (
 from .serializers import (
     AutonomousSystemSerializer,
     BGPGroupSerializer,
-    CommunitySerializer,
     DirectPeeringSessionSerializer,
     InternetExchangePeeringSessionSerializer,
     InternetExchangeSerializer,
@@ -279,12 +276,6 @@ class BGPGroupViewSet(PeeringManagerModelViewSet):
             JobSerializer(jobs, many=True, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )
-
-
-class CommunityViewSet(PeeringManagerModelViewSet):
-    queryset = Community.objects.all()
-    serializer_class = CommunitySerializer
-    filterset_class = CommunityFilterSet
 
 
 class DirectPeeringSessionViewSet(PeeringManagerModelViewSet):

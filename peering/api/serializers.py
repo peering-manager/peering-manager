@@ -6,7 +6,8 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from bgp.api.serializers import NestedRelationshipSerializer
+from bgp.api.serializers import NestedCommunitySerializer, NestedRelationshipSerializer
+from bgp.models import Community
 from devices.api.serializers import NestedRouterSerializer
 from extras.api.serializers import NestedIXAPISerializer
 from net.api.serializers import NestedBFDSerializer, NestedConnectionSerializer
@@ -17,7 +18,6 @@ from ..enums import BGPGroupStatus, BGPSessionStatus, IPFamily
 from ..models import (
     AutonomousSystem,
     BGPGroup,
-    Community,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -31,13 +31,11 @@ if TYPE_CHECKING:
 __all__ = (
     "AutonomousSystemSerializer",
     "BGPGroupSerializer",
-    "CommunitySerializer",
     "DirectPeeringSessionSerializer",
     "InternetExchangePeeringSessionSerializer",
     "InternetExchangeSerializer",
     "NestedAutonomousSystemSerializer",
     "NestedBGPGroupSerializer",
-    "NestedCommunitySerializer",
     "NestedDirectPeeringSessionSerializer",
     "NestedInternetExchangePeeringSessionSerializer",
     "NestedInternetExchangeSerializer",

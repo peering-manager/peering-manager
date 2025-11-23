@@ -1,6 +1,6 @@
 from peering_manager.filtersets import OrganisationalModelFilterSet
 
-from .models import Relationship
+from ..models import Relationship
 
 __all__ = ("RelationshipFilterSet",)
 

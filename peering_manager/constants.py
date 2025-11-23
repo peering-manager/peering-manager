@@ -1,5 +1,8 @@
 from collections import OrderedDict
 
+from bgp.filtersets import CommunityFilterSet
+from bgp.models import Community
+from bgp.tables import CommunityTable
 from devices.filtersets import ConfigurationFilterSet, RouterFilterSet
 from devices.models import Configuration, Router
 from devices.tables import ConfigurationTable, RouterTable
@@ -12,7 +15,6 @@ from net.tables import BFDTable, ConnectionTable
 from peering.filtersets import (
     AutonomousSystemFilterSet,
     BGPGroupFilterSet,
-    CommunityFilterSet,
     DirectPeeringSessionFilterSet,
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
@@ -21,7 +23,6 @@ from peering.filtersets import (
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
-    Community,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -30,7 +31,6 @@ from peering.models import (
 from peering.tables import (
     AutonomousSystemTable,
     BGPGroupTable,
-    CommunityTable,
     DirectPeeringSessionTable,
     InternetExchangePeeringSessionTable,
     InternetExchangeTable,
@@ -130,7 +130,7 @@ SEARCH_TYPES = OrderedDict(
                 "queryset": Community.objects.all(),
                 "filterset": CommunityFilterSet,
                 "table": CommunityTable,
-                "url": "peering:community_list",
+                "url": "bgp:community_list",
             },
         ),
         (

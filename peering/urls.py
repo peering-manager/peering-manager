@@ -29,16 +29,6 @@ urlpatterns = [
         include(get_model_urls(app_label="peering", model_name="bgpgroup")),
     ),
     path(
-        "communities/",
-        include(
-            get_model_urls(app_label="peering", model_name="community", detail=False)
-        ),
-    ),
-    path(
-        "communities/<int:pk>/",
-        include(get_model_urls(app_label="peering", model_name="community")),
-    ),
-    path(
         "direct-peering-sessions/",
         include(
             get_model_urls(

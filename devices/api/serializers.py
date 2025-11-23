@@ -1,10 +1,10 @@
 from rest_framework import serializers
 
+from bgp.models import Community
 from peering.api.nested_serializers import (
     NestedAutonomousSystemSerializer,
     NestedCommunitySerializer,
 )
-from peering.models import Community
 from peering_manager.api.fields import ChoiceField, SerializedPKRelatedField
 from peering_manager.api.serializers import PeeringManagerModelSerializer
 

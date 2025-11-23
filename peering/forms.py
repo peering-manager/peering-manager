@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
-from bgp.models import Relationship
+from bgp.models import Community, Relationship
 from devices.enums import DeviceStatus
 from devices.models import Router
 from extras.models import IXAPI
@@ -35,14 +35,12 @@ from .enums import (
     BGPGroupStatus,
     BGPSessionStatus,
     BGPState,
-    CommunityType,
     IPFamily,
     RoutingPolicyType,
 )
 from .models import (
     AutonomousSystem,
     BGPGroup,
-    Community,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -280,69 +278,6 @@ class BGPGroupFilterForm(PeeringManagerModelFilterSetForm):
     model = BGPGroup
     status = forms.MultipleChoiceField(
         required=False, choices=BGPGroupStatus, widget=StaticSelectMultiple
-    )
-    tag = TagFilterField(model)
-
-
-class CommunityForm(PeeringManagerModelForm):
-    slug = SlugField(max_length=255)
-    type = forms.ChoiceField(
-        required=False,
-        choices=add_blank_choice(CommunityType),
-        widget=StaticSelect,
-        help_text="Optional, Ingress for received routes, Egress for advertised routes",
-    )
-    local_context_data = JSONField(required=False)
-    tags = TagField(required=False)
-    fieldsets = (
-        (
-            "Community",
-            (
-                "name",
-                "slug",
-                "description",
-                "type",
-                "value",
-            ),
-        ),
-        ("Config Context", ("local_context_data",)),
-    )
-
-    class Meta:
-        model = Community
-
-        fields = (
-            "name",
-            "slug",
-            "description",
-            "type",
-            "value",
-            "local_context_data",
-            "tags",
-        )
-        help_texts = {
-            "value": 'Community (<a target="_blank" href="https://tools.ietf.org/html/rfc1997">RFC1997</a>), Extended Community (<a target="_blank" href="https://tools.ietf.org/html/rfc4360">RFC4360</a>) or Large Community (<a target="_blank" href="https://tools.ietf.org/html/rfc8092">RFC8092</a>)'
-        }
-
-
-class CommunityBulkEditForm(PeeringManagerModelBulkEditForm):
-    type = forms.ChoiceField(
-        required=False,
-        choices=add_blank_choice(CommunityType),
-        widget=StaticSelect,
-    )
-    local_context_data = JSONField(required=False)
-
-    model = Community
-    nullable_fields = ("type", "description", "local_context_data")
-
-
-class CommunityFilterForm(PeeringManagerModelFilterSetForm):
-    model = Community
-    type = forms.MultipleChoiceField(
-        required=False,
-        choices=add_blank_choice(CommunityType),
-        widget=StaticSelectMultiple,
     )
     tag = TagFilterField(model)
 
