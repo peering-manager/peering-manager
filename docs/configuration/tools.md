@@ -12,6 +12,17 @@ of the caching functionality.
 
 ---
 
+## CACHE_PREFIX_LIST_TIMEOUT
+
+Default: `3600`
+
+The number of seconds to retain cache entries for IRR prefix list data before
+automatically invalidating them. This applies to the prefix list API endpoint
+(`/api/extras/prefix-list/`). Setting the value to 0 will disable the use of
+the caching functionality.
+
+---
+
 ## PEERINGDB_API_KEY
 
 PeeringDB API key used to authenticate against PeeringDB allowing Peering

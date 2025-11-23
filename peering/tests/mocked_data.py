@@ -62,6 +62,8 @@ def mocked_subprocess_popen(*args, **kwargs):
             return MockResponse(0, PREFIXES6.encode(), b"")
         if "-4" in args[0]:
             return MockResponse(0, PREFIXES4.encode(), b"")
+    if "AS-NOPREFIXES" in args[0]:
+        return MockResponse(0, b'{"prefix_list": []}', b"")
     if "AS-ERROR" in args[0]:
         return MockResponse(1, b"", b"Exit with error")
 

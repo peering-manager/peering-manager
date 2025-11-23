@@ -6,6 +6,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from peering.models import AutonomousSystem
+from peering.tests.mocked_data import mocked_subprocess_popen
 from utils.testing import APITestCase, APIViewTestCases, MockedResponse
 
 from ..models import (
@@ -358,3 +359,118 @@ class WebhookTest(APIViewTestCases.View):
         )
         for webhook in webhooks:
             webhook.content_types.set([as_ct])
+
+
+class PrefixListViewTest(APITestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse("extras-api:api-prefix-list")
+
+    @patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen)
+    def test_get_prefix_list_with_as_set(self, mocked_popen):
+        response = self.client.get(
+            self.url, data={"as-set": "AS-MOCKED"}, format="json", **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIn("AS-MOCKED", response.data)
+        self.assertIn("ipv4", response.data["AS-MOCKED"])
+        self.assertIn("ipv6", response.data["AS-MOCKED"])
+        self.assertEqual(len(response.data["AS-MOCKED"]["ipv4"]), 1)
+        self.assertEqual(len(response.data["AS-MOCKED"]["ipv6"]), 1)
+
+    @patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen)
+    def test_get_prefix_list_with_multiple_as_sets(self, mocked_popen):
+        response = self.client.get(
+            self.url, data={"as-set": "AS-MOCKED,AS65537"}, format="json", **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIn("AS-MOCKED", response.data)
+        self.assertIn("AS65537", response.data)
+
+    @patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen)
+    def test_get_prefix_list_ipv4_only(self, mocked_popen):
+        response = self.client.get(
+            self.url,
+            data={"as-set": "AS-MOCKED", "af": "4"},
+            format="json",
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIn("AS-MOCKED", response.data)
+        self.assertIn("ipv4", response.data["AS-MOCKED"])
+        self.assertNotIn("ipv6", response.data["AS-MOCKED"])
+        self.assertEqual(len(response.data["AS-MOCKED"]["ipv4"]), 1)
+
+    @patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen)
+    def test_get_prefix_list_ipv6_only(self, mocked_popen):
+        response = self.client.get(
+            self.url,
+            data={"as-set": "AS-MOCKED", "af": "6"},
+            format="json",
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIn("AS-MOCKED", response.data)
+        self.assertIn("ipv6", response.data["AS-MOCKED"])
+        self.assertNotIn("ipv4", response.data["AS-MOCKED"])
+        self.assertEqual(len(response.data["AS-MOCKED"]["ipv6"]), 1)
+
+    def test_get_prefix_list_missing_as_set(self):
+        response = self.client.get(self.url, format="json", **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("detail", response.data)
+
+    def test_get_prefix_list_invalid_af(self):
+        response = self.client.get(
+            self.url,
+            data={"as-set": "AS-MOCKED", "af": "5"},
+            format="json",
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("detail", response.data)
+
+    @patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen)
+    def test_get_prefix_list_with_cache(self, mocked_popen):
+        response = self.client.get(
+            self.url, data={"as-set": "AS-MOCKED"}, format="json", **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        call_count = mocked_popen.call_count
+
+        cached_response = self.client.get(
+            self.url, data={"as-set": "AS-MOCKED"}, format="json", **self.header
+        )
+        self.assertHttpStatus(cached_response, status.HTTP_200_OK)
+        self.assertEqual(mocked_popen.call_count, call_count)
+        self.assertEqual(response.data, cached_response.data)
+
+    @patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen)
+    def test_get_prefix_list_skip_cache(self, mocked_popen):
+        response = self.client.get(
+            self.url,
+            data={"as-set": "AS-MOCKED", "skip-cache": "true"},
+            format="json",
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        call_count = mocked_popen.call_count
+
+        second_response = self.client.get(
+            self.url,
+            data={"as-set": "AS-MOCKED", "skip-cache": "true"},
+            format="json",
+            **self.header,
+        )
+        self.assertHttpStatus(second_response, status.HTTP_200_OK)
+        self.assertGreater(mocked_popen.call_count, call_count)
+
+    @patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen)
+    def test_get_prefix_list_no_prefixes_found(self, mocked_popen):
+        response = self.client.get(
+            self.url, data={"as-set": "AS-NOPREFIXES"}, format="json", **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIn("AS-NOPREFIXES", response.data)
+        self.assertEqual(len(response.data["AS-NOPREFIXES"]["ipv4"]), 0)
+        self.assertEqual(len(response.data["AS-NOPREFIXES"]["ipv6"]), 0)
