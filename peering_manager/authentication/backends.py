@@ -254,3 +254,56 @@ class LDAPBackend:
             ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, ca_cert_file)
 
         return obj
+
+
+def _get_radius_backend(backend_name: str):
+    try:
+        from .radius import RADIUSBackend as _RADIUSBackend
+        from .radius import RADIUSRealmBackend as _RADIUSRealmBackend
+    except ModuleNotFoundError as e:
+        if e.name == "pyrad":
+            raise ImproperlyConfigured(
+                "RADIUS authentication has been configured, but pyrad is not installed."
+            ) from e
+        raise e
+
+    try:
+        from peering_manager import radius_config
+    except ModuleNotFoundError as e:
+        if e.name == "radius_config":
+            raise ImproperlyConfigured(
+                "RADIUS configuration file not found: Check that radius_config.py has been created alongside configuration.py."
+            ) from e
+        raise e
+
+    required = ["RADIUS_SERVER", "RADIUS_PORT", "RADIUS_SECRET"]
+    for param in required:
+        if not hasattr(radius_config, param):
+            raise ImproperlyConfigured(
+                f"Required parameter {param} is missing from radius_config.py."
+            )
+
+    backend_parameters = {
+        "radius_server": radius_config.RADIUS_SERVER,
+        "radius_port": radius_config.RADIUS_PORT,
+        "radius_secret": radius_config.RADIUS_SECRET,
+        "radius_attributes": getattr(radius_config, "RADIUS_ATTRIBUTES", None),
+    }
+
+    match backend_name:
+        case "RADIUSBackend":
+            return _RADIUSBackend(**backend_parameters)
+        case "RADIUSRealmBackend":
+            return _RADIUSRealmBackend(**backend_parameters)
+        case _:
+            raise ImproperlyConfigured(f"Unknown RADIUS backend: {backend_name}")
+
+
+class RADIUSBackend:
+    def __new__(cls, *args, **kwargs):
+        return _get_radius_backend("RADIUSBackend")
+
+
+class RADIUSRealmBackend:
+    def __new__(cls, *args, **kwargs):
+        return _get_radius_backend("RADIUSRealmBackend")
