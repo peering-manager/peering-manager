@@ -1,4 +1,4 @@
-{% extends 'peering/community/_base.html' %}
+{% extends 'bgp/community/_base.html' %}
 {% load helpers %}
 {% block subcontent %}
 <div class="row">
@@ -40,7 +40,7 @@
     </div>
   </div>
   <div class="col-md-6">
-    {% include 'includes/tags_card.html' with tags=instance.tags.all url='peering:community_list' %}
+    {% include 'includes/tags_card.html' with tags=instance.tags.all url='bgp:community_list' %}
   </div>
 </div>
 {% endblock %}
