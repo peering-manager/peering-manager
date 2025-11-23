@@ -1,15 +1,26 @@
+from collections import defaultdict
+from typing import Literal
+
 import pyixapi
 from django.conf import settings
+from django.core.cache import cache
 from django.db.models import Count
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiResponse, extend_schema
+from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
+from rest_framework.views import APIView
 
 from core.api.serializers import JobSerializer
 from core.models import Job
+from peering.functions import (
+    NoPrefixesFoundError,
+    call_irr_as_set_resolver,
+    parse_irr_as_set,
+)
+from peering_manager.api.authentication import IsAuthenticatedOrLoginNotRequired
 from peering_manager.api.viewsets import PeeringManagerModelViewSet
 
 from ..filtersets import (
@@ -181,3 +192,103 @@ class WebhookViewSet(PeeringManagerModelViewSet):
     queryset = Webhook.objects.all()
     serializer_class = WebhookSerializer
     filterset_class = WebhookFilterSet
+
+
+class PrefixListView(APIView):
+    """
+    A simple endpoint to fetch prefixes from an IRR AS-SET or an AS number.
+    """
+
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
+
+    def get_cache_key(self, as_set: str, address_family: int) -> str:
+        return f"extras:prefixlist:{as_set}:{address_family}"
+
+    def get_from_cache(self, key: str) -> list[dict[str, str]] | None:
+        return cache.get(key=key)
+
+    def store_in_cache(self, key: str, prefixes: list[dict[str, str]]) -> None:
+        cache.set(key=key, value=prefixes, timeout=settings.CACHE_PREFIX_LIST_TIMEOUT)
+
+    @extend_schema(
+        operation_id="extras_prefixlist_get",
+        parameters=[
+            OpenApiParameter(
+                name="as-set",
+                type=OpenApiTypes.STR,
+                description="One or more IRR AS-SETs or AS numbers (comma-separated) to fetch prefixes for.",
+                required=True,
+            ),
+            OpenApiParameter(
+                name="af",
+                type=OpenApiTypes.STR,
+                description="Address family to fetch prefixes for (4, 6 or both separated by a comma). Default is both.",
+                required=False,
+            ),
+            OpenApiParameter(
+                name="skip-cache",
+                type=OpenApiTypes.BOOL,
+                description="If set, the cache will be skipped and prefixes will be fetched from the IRR sources directly.",
+                required=False,
+            ),
+        ],
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="Fetch the prefixes from an IRR AS-SET or an AS number.",
+            )
+        },
+    )
+    def get(self, request):
+        skip_cache = "skip-cache" in request.query_params
+
+        address_families = [
+            int(i.strip()) for i in request.query_params.get("af", "4,6").split(",")
+        ]
+        if any(family not in (4, 6) for family in address_families):
+            return Response(
+                {"detail": "Invalid af parameter, must be 4, 6 or both."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        request_as_set = request.query_params.get("as-set")
+        if not request_as_set:
+            return Response(
+                {"detail": "No valid IRR AS-SETs or AS numbers given."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        # Turn AS numbers into AS-SET format for consistency
+        requested_as_set = []
+        for as_set in request_as_set.split(","):
+            try:
+                int(as_set.strip())
+                requested_as_set.append(f"AS{as_set.strip()}")
+            except ValueError:
+                requested_as_set.append(as_set.strip())
+
+        irr_as_sets = parse_irr_as_set(0, ",".join(requested_as_set))
+        prefixes: dict[str, dict[Literal["ipv6", "ipv4"], list[dict[str, str]]]] = (
+            defaultdict(dict)
+        )
+        for source, as_set in irr_as_sets:
+            for family in address_families:
+                cache_key = self.get_cache_key(as_set=as_set, address_family=family)
+
+                if not skip_cache and (
+                    cached_prefixes := self.get_from_cache(key=cache_key)
+                ):
+                    prefixes[as_set][f"ipv{family}"] = cached_prefixes
+                    continue
+
+                try:
+                    p = call_irr_as_set_resolver(
+                        as_set=as_set, source=source, address_family=family
+                    )
+                    prefixes[as_set][f"ipv{family}"] = p
+
+                    if not skip_cache:
+                        self.store_in_cache(key=cache_key, prefixes=p)
+                except NoPrefixesFoundError:
+                    prefixes[as_set][f"ipv{family}"] = []
+
+        return Response(prefixes)

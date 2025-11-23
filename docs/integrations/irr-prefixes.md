@@ -18,6 +18,8 @@ network will probably advertise. These objects can be translated into prefix
 lists by using tools such as [bgpq3](https://github.com/snar/bgpq3) and
 [bgpq4](https://github.com/bgp/bgpq4).
 
+## Settings
+
 Peering Manager can use bgpq3/bpgq4 to fetch prefix lists in a JSON format to
 store them in its database and/or to provide them within the templating
 engine. One of the mentioned tools must be installed on the same host and the
@@ -42,6 +44,8 @@ value to `True` in the configuration.
 !!! warning
     `get_irr_data` replaces `grab_prefixes`. While `grab_prefixes` still
     works, it is deprecated and will be removed in a future version.
+
+## Command
 
 To store prefixes and AS lists in the database, Peering Manager provides a
 command. It can be run regularly, like housekeeping. It will take care of
@@ -73,4 +77,76 @@ given. in the list.
 
 ```no-highlight
 # venv/bin/python3 manage.py get_irr_data --asn 65535,65536
+```
+
+## API Endpoint
+
+Peering Manager provides a REST API endpoint to fetch prefixes from IRR
+AS-SETs or AS numbers on-demand. This endpoint can be used to retrieve prefix
+lists without storing them in the database.
+
+### Endpoint URL
+
+```
+GET /api/extras/prefix-list/
+```
+
+### Query Parameters
+
+| Parameter    | Type    | Required | Description                                     |
+|--------------|---------|----------|-------------------------------------------------|
+| `as-set`     | string  | Yes      | IRR AS-SETs or AS numbers (comma-separated).    |
+| `af`         | string  | No       | Address family: `4`, `6`, or `4,6` (default).   |
+| `skip-cache` | boolean | No       | Skip cache and fetch directly from IRR sources. |
+
+### Caching
+
+By default, the API endpoint caches the results to improve performance and
+reduce load on IRR sources. The cache timeout is controlled by the
+`CACHE_PREFIX_LIST_TIMEOUT` setting in your configuration. Use the
+`skip-cache` parameter to bypass the cache when you need fresh data.
+
+### Response Format
+
+The API returns a JSON object where each key is an AS-SET or AS number,
+containing nested objects for IPv4 and/or IPv6 prefix lists:
+
+```json
+{
+  "AS-EXAMPLE": {
+    "ipv4": [
+      {"prefix": "192.0.2.0/24", "exact": false},
+      {"prefix": "192.168.100.0/24", "exact": true}
+    ],
+    "ipv6": [
+      {"prefix": "2001:db8::/32", "exact": false}
+    ]
+  }
+}
+```
+
+### Example Requests
+
+Fetch IPv4 and IPv6 prefixes for a single AS-SET:
+```bash
+curl -H "Authorization: Token YOUR_API_TOKEN" \
+  "https://peering-manager.example.com/api/extras/prefix-list/?as-set=AS-EXAMPLE"
+```
+
+Fetch only IPv4 prefixes for multiple AS-SETs:
+```bash
+curl -H "Authorization: Token YOUR_API_TOKEN" \
+  "https://peering-manager.example.com/api/extras/prefix-list/?as-set=AS-EXAMPLE,AS-OTHER&af=4"
+```
+
+Fetch prefixes with a specific IRR source:
+```bash
+curl -H "Authorization: Token YOUR_API_TOKEN" \
+  "https://peering-manager.example.com/api/extras/prefix-list/?as-set=RIPE::AS-EXAMPLE"
+```
+
+Fetch prefixes bypassing the cache:
+```bash
+curl -H "Authorization: Token YOUR_API_TOKEN" \
+  "https://peering-manager.example.com/api/extras/prefix-list/?as-set=AS-EXAMPLE&skip-cache=true"
 ```
