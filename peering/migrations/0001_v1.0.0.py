@@ -6,6 +6,7 @@ import netfields.fields
 import taggit.managers
 from django.db import migrations, models
 
+import bgp.fields
 import peering.fields
 import utils.validators
 
@@ -336,7 +337,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("name", models.CharField(max_length=128)),
-                ("value", peering.fields.CommunityField(max_length=50)),
+                ("value", bgp.fields.CommunityField(max_length=50)),
                 ("comment", models.TextField(blank=True)),
                 (
                     "type",

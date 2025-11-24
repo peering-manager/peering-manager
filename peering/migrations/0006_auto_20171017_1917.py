@@ -3,7 +3,7 @@
 
 from django.db import migrations, models
 
-import peering.fields
+import bgp.fields
 
 
 class Migration(migrations.Migration):
@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("name", models.CharField(max_length=128)),
-                ("value", peering.fields.CommunityField(max_length=50)),
+                ("value", bgp.fields.CommunityField(max_length=50)),
                 ("comment", models.TextField(blank=True)),
             ],
             options={"verbose_name_plural": "communities", "ordering": ["name"]},
