@@ -6,16 +6,8 @@ from net.models import Connection
 
 from ..constants import *
 from ..enums import *
-from ..forms import (
-    AutonomousSystemEmailForm,
-    AutonomousSystemForm,
-    CommunityForm,
-    DirectPeeringSessionForm,
-    InternetExchangeForm,
-    InternetExchangePeeringSessionForm,
-    RoutingPolicyForm,
-)
-from ..models import AutonomousSystem, InternetExchange
+from ..forms import *
+from ..models import *
 
 
 class AutonomousSystemTest(TestCase):
@@ -41,20 +33,6 @@ class AutonomousSystemTest(TestCase):
             ("null@example.org", "Contact #2"),
         ]
         self.assertTrue(test.is_valid())
-
-
-class CommunityTest(TestCase):
-    def test_community_form(self):
-        test = CommunityForm(
-            data={
-                "name": "test",
-                "slug": "test",
-                "value": "64500:1",
-                "type": CommunityType.EGRESS,
-            }
-        )
-        self.assertTrue(test.is_valid())
-        self.assertTrue(test.save())
 
 
 class DirectPeeringSessionTest(TestCase):

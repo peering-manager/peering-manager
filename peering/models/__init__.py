@@ -24,13 +24,12 @@ from peeringdb.models import (
     NetworkIXLan,
 )
 
-from ..enums import BGPState, CommunityType, IPFamily, RoutingPolicyType
-from ..fields import ASNField, CommunityField
+from ..enums import BGPState, IPFamily, RoutingPolicyType
+from ..fields import ASNField
 from ..functions import (
     NoPrefixesFoundError,
     call_irr_as_set_as_list_resolver,
     call_irr_as_set_resolver,
-    get_community_kind,
     parse_irr_as_set,
     validate_ip_address_not_network_nor_broadcast,
 )
@@ -41,7 +40,6 @@ __all__ = (
     "AutonomousSystem",
     "BGPGroup",
     "BGPSession",
-    "Community",
     "DirectPeeringSession",
     "InternetExchange",
     "InternetExchangePeeringSession",
@@ -78,7 +76,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
     export_routing_policies = models.ManyToManyField(
         "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
     )
-    communities = models.ManyToManyField("Community", blank=True)
+    communities = models.ManyToManyField("bgp.Community", blank=True)
     prefixes = models.JSONField(blank=True, null=True, editable=False)
     retrieve_prefixes = models.BooleanField(blank=True, default=True)
     as_list = ArrayField(
@@ -602,43 +600,6 @@ class BGPGroup(AbstractGroup):
         return Router.objects.filter(
             pk__in=self.get_peering_sessions().values_list("router", flat=True)
         )
-
-
-class Community(OrganisationalModel):
-    value = CommunityField(max_length=50)
-    type = models.CharField(max_length=50, choices=CommunityType, blank=True, null=True)
-
-    class Meta:
-        verbose_name_plural = "communities"
-        ordering = ["value", "name"]
-
-    @property
-    def kind(self) -> str | None:
-        if not settings.VALIDATE_BGP_COMMUNITY_VALUE:
-            return None
-        try:
-            return get_community_kind(self.value)
-        except ValueError:
-            return None
-
-    def __str__(self) -> str:
-        return self.name
-
-    def get_type_html(self, display_name=False):
-        if self.type == CommunityType.EGRESS:
-            badge_type = "text-bg-primary"
-            text = self.get_type_display()
-        elif self.type == CommunityType.INGRESS:
-            badge_type = "text-bg-info"
-            text = self.get_type_display()
-        else:
-            badge_type = "text-bg-secondary"
-            text = "Not set"
-
-        if display_name:
-            text = self.name
-
-        return mark_safe(f'<span class="badge {badge_type}">{text}</span>')
 
 
 class DirectPeeringSession(BGPSession):
@@ -1182,7 +1143,7 @@ class RoutingPolicy(OrganisationalModel):
     address_family = models.PositiveSmallIntegerField(
         default=IPFamily.ALL, choices=IPFamily
     )
-    communities = models.ManyToManyField("Community", blank=True)
+    communities = models.ManyToManyField("bgp.Community", blank=True)
 
     class Meta:
         verbose_name_plural = "routing policies"

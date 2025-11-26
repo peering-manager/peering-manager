@@ -26,7 +26,7 @@ class AbstractGroup(OrganisationalModel, PolicyMixin):
     export_routing_policies = models.ManyToManyField(
         "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
     )
-    communities = models.ManyToManyField("Community", blank=True)
+    communities = models.ManyToManyField("bgp.Community", blank=True)
 
     class Meta:
         abstract = True
@@ -130,7 +130,7 @@ class BGPSession(PrimaryModel, PolicyMixin):
         blank=True,
         related_name="%(class)s_export_routing_policies",
     )
-    communities = models.ManyToManyField(to="Community", blank=True)
+    communities = models.ManyToManyField(to="bgp.Community", blank=True)
     bfd = models.ForeignKey(
         to="net.BFD", on_delete=models.SET_NULL, blank=True, null=True
     )

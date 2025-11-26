@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.views.generic import View
 from packaging import version
 
+from bgp.models import Community
 from core.models import ObjectChange
 from devices.models import Configuration, Router
 from messaging.models import Contact, Email
@@ -12,7 +13,6 @@ from net.models import BFD, Connection
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
-    Community,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,

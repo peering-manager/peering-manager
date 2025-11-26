@@ -8,16 +8,8 @@ from net.models import Connection
 from utils.testing import APITestCase, APIViewTestCases
 
 from ..constants import *
-from ..enums import BGPSessionStatus, CommunityType, RoutingPolicyType
-from ..models import (
-    AutonomousSystem,
-    BGPGroup,
-    Community,
-    DirectPeeringSession,
-    InternetExchange,
-    InternetExchangePeeringSession,
-    RoutingPolicy,
-)
+from ..enums import *
+from ..models import *
 from .mocked_data import load_peeringdb_data, mocked_subprocess_popen
 
 
@@ -137,66 +129,6 @@ class BGPGroupTest(APIViewTestCases.View):
         )
         response = self.client.post(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
-
-
-class CommunityTest(APIViewTestCases.View):
-    model = Community
-    brief_fields = [
-        "id",
-        "url",
-        "display_url",
-        "display",
-        "name",
-        "slug",
-        "value",
-        "type",
-    ]
-    create_data = [
-        {
-            "name": "Test1",
-            "slug": "test1",
-            "value": "64500:11",
-            "type": CommunityType.EGRESS,
-        },
-        {
-            "name": "Test2",
-            "slug": "test2",
-            "value": "64500:12",
-            "type": CommunityType.EGRESS,
-        },
-        {
-            "name": "Test3",
-            "slug": "test3",
-            "value": "64500:13",
-            "type": CommunityType.EGRESS,
-        },
-    ]
-    bulk_update_data = {"description": "Awesome community"}
-
-    @classmethod
-    def setUpTestData(cls):
-        Community.objects.bulk_create(
-            [
-                Community(
-                    name="Example 1",
-                    slug="example-1",
-                    value="64500:1",
-                    type=CommunityType.EGRESS,
-                ),
-                Community(
-                    name="Example 2",
-                    slug="example-2",
-                    value="64500:2",
-                    type=CommunityType.EGRESS,
-                ),
-                Community(
-                    name="Example 3",
-                    slug="example-3",
-                    value="64500:3",
-                    type=CommunityType.EGRESS,
-                ),
-            ]
-        )
 
 
 class DirectPeeringSessionTest(APIViewTestCases.View):

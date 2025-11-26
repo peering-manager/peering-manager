@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
+from bgp.tables import CommunityColumn
 from net.models import Connection
-from peering.tables.columns import CommunityColumn
 from peering_manager.tables import PeeringManagerTable, columns
 
 from .models import Configuration, Platform, Router

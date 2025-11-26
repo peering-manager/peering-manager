@@ -59,25 +59,6 @@ class BGPState(ChoiceSet):
     )
 
 
-class CommunityKind(ChoiceSet):
-    STANDARD = "standard"
-    EXTENDED = "extended"
-    LARGE = "large"
-
-    CHOICES = (
-        (STANDARD, "Community"),
-        (EXTENDED, "Extended Community"),
-        (LARGE, "Large Community"),
-    )
-
-
-class CommunityType(ChoiceSet):
-    EGRESS = "egress"
-    INGRESS = "ingress"
-
-    CHOICES = ((EGRESS, "Egress"), (INGRESS, "Ingress"))
-
-
 class IPFamily(ChoiceSet):
     ALL = 0
     IPV4 = 4

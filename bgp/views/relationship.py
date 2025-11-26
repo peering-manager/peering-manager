@@ -7,10 +7,10 @@ from peering_manager.views.generic import (
 )
 from utils.views import register_model_view
 
-from .filtersets import RelationshipFilterSet
-from .forms import RelationshipFilterForm, RelationshipForm
-from .models import Relationship
-from .tables import RelationshipTable
+from ..filtersets import RelationshipFilterSet
+from ..forms import RelationshipFilterForm, RelationshipForm
+from ..models import Relationship
+from ..tables import RelationshipTable
 
 __all__ = (
     "RelationshipBulkDelete",

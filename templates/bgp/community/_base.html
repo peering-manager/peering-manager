@@ -2,19 +2,19 @@
 {% load helpers %}
 {% load tabs %}
 {% block actions %}
-{% if perms.peering.change_community %}
-<a href="{% url 'peering:community_edit' pk=instance.pk %}" class="btn btn-warning">
+{% if perms.bgp.change_community %}
+<a href="{% url 'bgp:community_edit' pk=instance.pk %}" class="btn btn-warning">
   <i class="fa-fw fa-solid fa-edit"></i> Edit
 </a>
 {% endif %}
-{% if perms.peering.delete_community %}
-<a href="{% url 'peering:community_delete' pk=instance.pk %}" class="btn btn-danger">
+{% if perms.bgp.delete_community %}
+<a href="{% url 'bgp:community_delete' pk=instance.pk %}" class="btn btn-danger">
   <i class="fa-fw fa-solid fa-trash"></i> Delete
 </a>
 {% endif %}
 {% endblock %}
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'peering:community_list' %}">Communities</a></li>
+<li class="breadcrumb-item"><a href="{% url 'bgp:community_list' %}">Communities</a></li>
 <li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
 {% endblock %}
 {% block content %}

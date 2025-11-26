@@ -2,7 +2,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from .constants import ASN_MAX, ASN_MIN, TTL_MAX, TTL_MIN
-from .functions import validate_bgp_community
 
 
 class ASNField(models.BigIntegerField):
@@ -20,11 +19,6 @@ class ASNField(models.BigIntegerField):
         defaults = {"min_value": ASN_MIN, "max_value": ASN_MAX}
         defaults.update(**kwargs)
         return super().formfield(**defaults)
-
-
-class CommunityField(models.CharField):
-    description = "Community, Extended Community, or Large Community field"
-    default_validators = [validate_bgp_community]
 
 
 class TTLField(models.PositiveSmallIntegerField):

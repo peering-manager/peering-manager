@@ -6,7 +6,7 @@ from peering_manager.forms import (
 )
 from utils.forms.fields import SlugField, TagFilterField
 
-from .models import Relationship
+from ..models import Relationship
 
 __all__ = ("RelationshipFilterForm", "RelationshipForm")
 

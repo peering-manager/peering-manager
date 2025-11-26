@@ -93,7 +93,7 @@
                   <span class="submenu-icon float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
                 </a>
                 <ul id="policyoptions-menu" class="collapse list-unstyled">
-                  <li class="nav-item"><a href="{% url 'peering:community_list' %}" class="nav-link{% if url_path|contains:'/communities/' %} active{% endif %}">Communities</a></li>
+                  <li class="nav-item"><a href="{% url 'bgp:community_list' %}" class="nav-link{% if url_path|contains:'/communities/' %} active{% endif %}">Communities</a></li>
                   <li class="nav-item"><a href="{% url 'peering:routingpolicy_list' %}" class="nav-link{% if url_path|contains:'/routing-policies/' %} active{% endif %}">Routing Policies</a></li>
                 </ul>
               </li>

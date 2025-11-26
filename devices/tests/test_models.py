@@ -3,13 +3,12 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
-from bgp.models import Relationship
+from bgp.models import Community, Relationship
 from net.models import Connection
 from peering.enums import BGPSessionStatus
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
-    Community,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,

@@ -9,12 +9,12 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 
+from bgp.models import Community
 from net.models import BFD, Connection
 from peering.enums import BGPState
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
-    Community,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -140,7 +140,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
     configuration_template = models.ForeignKey(
         "devices.Configuration", blank=True, null=True, on_delete=models.SET_NULL
     )
-    communities = models.ManyToManyField(to="peering.Community", blank=True)
+    communities = models.ManyToManyField(to="bgp.Community", blank=True)
     netbox_device_id = models.PositiveIntegerField(
         blank=True, default=0, verbose_name="NetBox device"
     )

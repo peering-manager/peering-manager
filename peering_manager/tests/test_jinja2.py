@@ -5,21 +5,17 @@ import yaml
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
+from bgp.enums import CommunityType
+from bgp.models import Community
 from devices.enums import DeviceStatus
 from devices.models import Configuration, Router
 from extras.models import ExportTemplate, Tag
 from messaging.models import Contact, ContactAssignment, ContactRole, Email
 from net.enums import ConnectionStatus
 from net.models import Connection
-from peering.enums import (
-    BGPGroupStatus,
-    BGPSessionStatus,
-    CommunityType,
-    IPFamily,
-)
+from peering.enums import BGPGroupStatus, BGPSessionStatus, IPFamily
 from peering.models import (
     AutonomousSystem,
-    Community,
     InternetExchange,
     InternetExchangePeeringSession,
     RoutingPolicy,

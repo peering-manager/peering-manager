@@ -109,6 +109,9 @@ nav:
     - Conditions: "reference/conditions.md"
     - Filtering: "reference/filtering.md"
     - Data Model:
+      - BGP:
+        - Relationship: "models/bgp/relationship.md"
+        - Community: "models/bgp/community.md"
       - Core:
         - Data Source: "models/core/datasource.md"
         - Data File: "models/core/datafile.md"
@@ -122,12 +125,10 @@ nav:
       - Peering:
         - Autonomous System: "models/peering/autonomoussystem.md"
         - BGP Group: "models/peering/bgpgroup.md"
-        - Community: "models/peering/community.md"
         - Direct Peering Session: "models/peering/directpeeringsession.md"
         - Internet Exchange: "models/peering/internetexchange.md"
         - Internet Exchange Peering Session: "models/peering/internetexchangepeeringsession.md"
         - Routing Policy: "models/peering/routingpolicy.md"
-        - Relationship: "models/bgp/relationship.md"
       - Messaging:
         - Contact: "models/messaging/contact.md"
         - Contact Role: "models/messaging/contactrole.md"
