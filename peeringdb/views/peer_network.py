@@ -6,6 +6,7 @@ from django.views.generic import View
 
 from peering.models import InternetExchange as Ixp
 from peering_manager.views.generic import ObjectListView, PermissionRequiredMixin
+from utils.functions import normalize_querydict
 
 from ..filtersets import NetworkIXLanFilterSet
 from ..forms import NetworkIXLanFilterForm, SendEmailToNetwork
@@ -35,7 +36,7 @@ class EmailNetwork(PermissionRequiredMixin, View):
     permission_required = "peering.send_email"
 
     def get(self, request, *args, **kwargs):
-        form = SendEmailToNetwork()
+        form = SendEmailToNetwork(initial=normalize_querydict(request.GET))
         form.fields["recipients"].choices = []
         form.fields["cc"].choices = settings.EMAIL_CC_CONTACTS
         return render(

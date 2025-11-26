@@ -2,7 +2,7 @@
 {% load render_table from django_tables2 %}
 {% block actions %}
 {% if perms.devices.add_router %}
-<a href="{% url 'devices:router_add' %}" class="btn btn-primary">
+<a href="{% url 'devices:router_add' %}{% if context_as %}?local_autonomous_system={{ context_as.pk }}{% endif %}" class="btn btn-primary">
   <i class="fa-fw fa-solid fa-plus"></i> Add
 </a>
 {% endif %}
