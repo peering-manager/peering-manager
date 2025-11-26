@@ -114,6 +114,7 @@ Default: `False`
 Setting this to `True` will permit only authenticated users to access any part
 of Peering Manager. By default, anonymous users are permitted to access most
 data in Peering Manager but not make any changes.
+
 ---
 
 ## LOGIN_TIMEOUT
@@ -123,6 +124,17 @@ Default: `1209600` seconds (2 weeks, in seconds)
 The lifetime (in seconds) of the authentication cookie issued to a Peering
 Manager user upon login. This setting is actually a wrapper around Django's
 [`SESSION_COOKIE_AGE`](https://docs.djangoproject.com/en/stable/ref/settings/#session-cookie-age)
+
+---
+
+## LOGIN_FORM_HIDDEN
+
+Default: `False`
+
+When set to `True`, the login form will be hidden on the login page, keeping
+only SSO authentication buttons available. This is useful when you want to
+enforce SSO-only authentication and prevent users from logging in with
+username/password credentials.
 
 ---
 

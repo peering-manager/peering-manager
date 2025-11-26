@@ -83,7 +83,11 @@ class LoginView(View):
         return render(
             request,
             self.template,
-            {"form": form, "auth_backends": self.get_auth_backends(request)},
+            {
+                "form": form,
+                "auth_backends": self.get_auth_backends(request),
+                "login_form_hidden": settings.LOGIN_FORM_HIDDEN,
+            },
         )
 
     def post(self, request):
