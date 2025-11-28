@@ -371,6 +371,30 @@ def iter_import_policies(value, field="", family=-1):
     return list(policies)
 
 
+def routing_policies(value, field="", family=-1):
+    """
+    Returns a list of all unique routing policies needed for a router.
+
+    This filter gathers all routing policies from the resources that the router needs
+    to have configured.
+
+    An optional `field` can be passed as parameter to return only this field's value.
+    An optional `family` can be passed to return only policies matching the address
+    family.
+    """
+    if not isinstance(value, Router):
+        raise ValueError("value is not a router")
+
+    policies = value.get_routing_policies()
+    if family in IPFamily.values():
+        policies = filter(policies, address_family__in=[0, family])
+
+    if field:
+        return [getattr(p, field) for p in policies]
+
+    return list(policies)
+
+
 def communities(value, field=""):
     """
     Returns a list of communities applied to an AS, a group, an IXP or a session.
@@ -884,6 +908,7 @@ FILTER_DICT = {
     "iter_import_policies": iter_import_policies,
     "merge_export_policies": merge_export_policies,
     "merge_import_policies": merge_import_policies,
+    "routing_policies": routing_policies,
     # Config contexts
     "context_has_key": context_has_key,
     "context_has_not_key": context_has_not_key,
