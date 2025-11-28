@@ -20,7 +20,7 @@ Additionally, the `OPTIONS` verb can be used to inspect a particular REST API
 endpoint and return all supported actions and their available parameters.
 
 One of the primary benefits of a REST API is its human-friendliness. Because
-it utilizes HTTP and JSON, it's very easy to interact with Peering Manager
+it utilises HTTP and JSON, it's very easy to interact with Peering Manager
 data on the command line using common tools. For example, we can get an IXP
 BGP session from Peering Manager and output the JSON using `curl` and `jq`.
 The following command makes an HTTP `GET` request for information about a

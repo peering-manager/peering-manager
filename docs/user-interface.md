@@ -11,7 +11,7 @@ about the state of various objects (BGP sessions, IXPs, routers, and more).
 
 With the sidebar's help, you can switch between categories and reach pages
 displaying lists of objects. Most of these lists can be sorted and their
-columns can also be organized as the users feel. Note that column setup and
+columns can also be organised as the users feel. Note that column setup and
 pagination count are individual of a user.
 
 ![Table Config](media/ui/table-config.png "Table Configuration")

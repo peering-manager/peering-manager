@@ -1,6 +1,6 @@
 # Contact Roles
 
-Contacts can be organized by functional roles, which are fully customizable by
+Contacts can be organised by functional roles, which are fully customisable by
 the user. For example, you might create roles for administrative, operational,
 or peering contacts.
 

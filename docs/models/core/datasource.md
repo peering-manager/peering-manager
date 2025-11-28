@@ -25,7 +25,7 @@ The URL identifying the remote source. Some examples are included below.
 | Type      | Example URL                                        |
 |-----------|----------------------------------------------------|
 | Local     | file:///path/to/my/data/                           |
-| git       | https://github.com/my-organization/my-repo         |
+| git       | https://github.com/my-organisation/my-repo         |
 
 ### Status
 

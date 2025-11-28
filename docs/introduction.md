@@ -4,7 +4,7 @@
 
 Peering Manager was originally and still is developed by its lead maintainer,
 [Guillaume Mazoyer](https://github.com/gmazoyer) in 2017 as part of an effort
-to automate BGP peering provisionning.
+to automate BGP peering provisioning.
 
 Since then, many organisations around the world have used Peering Manager as
 their central network source of truth to empower both network operators and
@@ -19,7 +19,7 @@ core features it provides.
 * Autonomous system management
 * BGP groups
 * Internet Exchange Points
-* BGP sessions with with differences between classic ones and IXP ones
+* BGP sessions with differences between classic ones and IXP ones
 * BGP communities and routing policies
 * Devices and configuration rendering leveraging Jinja2
 * Configuration installation for NAPALM supported platforms
