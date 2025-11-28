@@ -9,11 +9,18 @@ from django.contrib.auth.middleware import (
 )
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponseRedirect
+from django_prometheus import middleware
 
 from core.context_managers import change_logging
+from peering_manager.metrics import Metrics
 from utils.api import is_api_request
 
-__all__ = ("CoreMiddleware",)
+__all__ = (
+    "CoreMiddleware",
+    "PrometheusAfterMiddleware",
+    "PrometheusBeforeMiddleware",
+    "RemoteUserMiddleware",
+)
 
 
 class CoreMiddleware:
@@ -151,3 +158,30 @@ class RemoteUserMiddleware(DjangoRemoteUserMiddleware):
             groups = []
         logger.debug(f"groups are {groups}")
         return groups
+
+
+class PrometheusBeforeMiddleware(middleware.PrometheusBeforeMiddleware):
+    metrics_cls = Metrics
+
+
+class PrometheusAfterMiddleware(middleware.PrometheusAfterMiddleware):
+    metrics_cls = Metrics
+
+    def process_response(self, request, response):
+        response = super().process_response(request, response)
+
+        # Increment REST API request counters
+        if is_api_request(request):
+            method = self._method(request)
+            name = self._get_view_name(request)
+            self.label_metric(
+                metric=self.metrics.rest_api_requests, request=request, method=method
+            ).inc()
+            self.label_metric(
+                metric=self.metrics.rest_api_requests_by_view_by_method,
+                request=request,
+                method=method,
+                view=name,
+            ).inc()
+
+        return response
