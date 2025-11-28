@@ -300,19 +300,81 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
             | Q(internetexchangepeeringsession__ixp_connection__router=self)
         ).distinct()
 
+    def get_routing_policies(self):
+        """
+        Returns all routing policies that this router should have.
+        """
+        q = Q()
+
+        if direct_sessions := list(
+            self.get_direct_peering_sessions().values_list("pk", flat=True)
+        ):
+            q |= Q(
+                directpeeringsession_import_routing_policies__in=direct_sessions
+            ) | Q(directpeeringsession_export_routing_policies__in=direct_sessions)
+
+            direct_as = (
+                DirectPeeringSession.objects.filter(pk__in=direct_sessions)
+                .values_list("autonomous_system", flat=True)
+                .distinct()
+            )
+            q |= Q(autonomoussystem_import_routing_policies__in=direct_as) | Q(
+                autonomoussystem_export_routing_policies__in=direct_as
+            )
+
+            if bgp_groups := (
+                DirectPeeringSession.objects.filter(
+                    pk__in=direct_sessions, bgp_group__isnull=False
+                )
+                .values_list("bgp_group", flat=True)
+                .distinct()
+            ):
+                q |= Q(bgpgroup_import_routing_policies__in=bgp_groups) | Q(
+                    bgpgroup_export_routing_policies__in=bgp_groups
+                )
+
+        if ixp_sessions := list(
+            self.get_ixp_peering_sessions().values_list("pk", flat=True)
+        ):
+            q |= Q(
+                internetexchangepeeringsession_import_routing_policies__in=ixp_sessions
+            ) | Q(
+                internetexchangepeeringsession_export_routing_policies__in=ixp_sessions
+            )
+
+            ixp_as = (
+                InternetExchangePeeringSession.objects.filter(pk__in=ixp_sessions)
+                .values_list("autonomous_system", flat=True)
+                .distinct()
+            )
+            q |= Q(autonomoussystem_import_routing_policies__in=ixp_as) | Q(
+                autonomoussystem_export_routing_policies__in=ixp_as
+            )
+
+            ixps = (
+                InternetExchangePeeringSession.objects.filter(pk__in=ixp_sessions)
+                .values_list("ixp_connection__internet_exchange_point", flat=True)
+                .distinct()
+            )
+            q |= Q(internetexchange_import_routing_policies__in=ixps) | Q(
+                internetexchange_export_routing_policies__in=ixps
+            )
+
+        return RoutingPolicy.objects.filter(q).distinct().order_by("name")
+
     def get_configuration_context(self):
         """
         Returns a dict, to be used in a Jinja2 environment, that holds enough data to
         help in creating a configuration from a template.
         """
         return {
+            "router": self,
+            "local_as": self.local_autonomous_system,
             "autonomous_systems": self.get_autonomous_systems(),
             "bgp_groups": self.get_bgp_groups(),
-            "communities": Community.objects.all(),
             "internet_exchange_points": self.get_internet_exchange_points(),
-            "local_as": self.local_autonomous_system,
-            "routing_policies": RoutingPolicy.objects.all(),
-            "router": self,
+            "communities": Community.objects.all(),
+            "routing_policies": self.get_routing_policies(),
         }
 
     def render_configuration(self):

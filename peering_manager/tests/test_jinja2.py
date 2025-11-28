@@ -601,3 +601,31 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual("  a\n  b\n  c", FILTER_DICT["indent"](data, 2, reset=True))
         data = "a\nb\nc"
         self.assertEqual("\ta\n\tb\n\tc", FILTER_DICT["indent"](data, 1, chars="\t"))
+
+    def test_routing_policies(self):
+        expected = {
+            "accept-all",
+            "export-supernets",
+            "import-known-prefixes",
+            "export-deaggregated-v4",
+            "export-deaggregated-v6",
+            "reject-all",
+        }
+        policies = FILTER_DICT["routing_policies"](self.router)
+        self.assertEqual(expected, {p.slug for p in policies})
+
+        policy_slugs = FILTER_DICT["routing_policies"](self.router, field="slug")
+        self.assertEqual(expected, set(policy_slugs))
+
+        ipv6_policies = FILTER_DICT["routing_policies"](self.router, family=6)
+        ipv6_slugs = {p.slug for p in ipv6_policies}
+        self.assertIn("export-deaggregated-v6", ipv6_slugs)
+        self.assertIn("accept-all", ipv6_slugs)
+        self.assertNotIn("export-deaggregated-v4", ipv6_slugs)
+
+        ipv6_slugs = set(
+            FILTER_DICT["routing_policies"](self.router, field="slug", family=6)
+        )
+        self.assertIn("export-deaggregated-v6", ipv6_slugs)
+        self.assertIn("accept-all", ipv6_slugs)
+        self.assertNotIn("export-deaggregated-v4", ipv6_slugs)

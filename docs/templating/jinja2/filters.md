@@ -475,6 +475,38 @@ export [ {{ session | merge_export_policies | iterate('slug') | join(' ') }} ];
 import [ {{ session | merge_import_policies('reverse') | iterate('slug') | join(' ') }} ];
 ```
 
+## `routing_policies`
+
+For a router, returns a list of all unique routing policies that need to be
+configured on the router.
+
+The returned list contains only unique policies, ordered by their name. This
+is useful for generating the routing policy configuration section of a router.
+
+You can use a string as an option to this filter to select only a specific
+field of the policies. Another optional argument named `family` can be used to
+get policies only matching a given address family. Values for the family
+parameter can be `4` or `6`.
+
+Examples:
+
+```no-highlight
+{% for policy in router | routing_policies %}
+route-policy {{ policy.slug }}
+  # {{ policy.name }}
+  ...
+end-policy
+{% endfor %}
+
+policies [ {{ router | routing_policies('slug') | join(' ') }} ];
+
+{% for policy in router | routing_policies(family=6) %}
+route-policy {{ policy.slug }}
+  ...
+end-policy
+{% endfor %}
+```
+
 ## `communities`
 
 Fetches communities applied to an object.
