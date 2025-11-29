@@ -14,6 +14,7 @@ Minor releases are published when developers feel that enough new features
 and/or important changes have been added to the code base. Patch releases are
 published as needed to address bugs and fulfill minor feature requests.
 
+* [Version 1.10](./version-1.10.md) (November 2025)
 * [Version 1.9](./version-1.9.md) (November 2024)
 * [Version 1.8](./version-1.8.md) (September 2023)
 * [Version 1.7](./version-1.7.md) (August 2022)
