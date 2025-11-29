@@ -42,6 +42,8 @@ language, already a favorite among network engineers.
   deployment up and running
 * Or try the community [Docker image](./setup/container.md) for a low-touch
   approach
+* Read the [getting started guide](./getting-started.md) to learn the core
+  concepts and set up your first peering sessions
 
 ## :material-handshake: Helping
 
