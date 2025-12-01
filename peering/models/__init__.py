@@ -27,7 +27,7 @@ from peeringdb.models import (
 from ..enums import BGPState, IPFamily, RoutingPolicyType
 from ..fields import ASNField
 from ..functions import (
-    NoPrefixesFoundError,
+    UnresolvableIRRObjectError,
     call_irr_as_set_as_list_resolver,
     call_irr_as_set_resolver,
     parse_irr_as_set,
@@ -395,7 +395,6 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         expected to be slow due to network operations and depending on the size of the
         data to process.
         """
-        fallback = False
         prefixes = {"ipv6": [], "ipv4": []}
 
         if not self.retrieve_prefixes:
@@ -424,25 +423,8 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
                         irr_ipv4_prefixes_args_override=self.irr_ipv4_prefixes_args_override,
                     )
                 )
-        except NoPrefixesFoundError:
-            # The AS-SET came back empty, we will try to fallback to the AS number
-            fallback = True
-
-        # If fallback is triggered or no prefixes found, try prefix lookup by ASN
-        if fallback or (not prefixes["ipv6"] and not prefixes["ipv4"]):
-            logger.debug(
-                f"falling back to AS number lookup to search for AS{self.asn} prefixes"
-            )
-            try:
-                prefixes["ipv6"].extend(
-                    call_irr_as_set_resolver(as_set=f"AS{self.asn}", address_family=6)
-                )
-                prefixes["ipv4"].extend(
-                    call_irr_as_set_resolver(as_set=f"AS{self.asn}", address_family=4)
-                )
-            except NoPrefixesFoundError:
-                # No prefixes found for the AS number, ignore it
-                pass
+        except UnresolvableIRRObjectError:
+            pass
 
         return prefixes
 

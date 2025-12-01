@@ -9,6 +9,7 @@ from net.models import Connection
 from utils.testing import load_json
 
 from ..enums import *
+from ..functions import *
 from ..models import *
 from .mocked_data import load_peeringdb_data, mocked_subprocess_popen
 
@@ -85,8 +86,8 @@ class AutonomousSystemTest(TestCase):
             "peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen
         ):
             self.autonomous_system.irr_as_set = "AS-ERROR"
-            with self.assertRaises(ValueError, msg="bgpq3 exit code is 1"):
-                prefixes = self.autonomous_system.retrieve_irr_as_set_prefixes()
+            prefixes = self.autonomous_system.retrieve_irr_as_set_prefixes()
+            self.assertEqual({"ipv6": [], "ipv4": []}, prefixes)
 
     def test_get_irr_as_set_prefixes(self):
         with patch(

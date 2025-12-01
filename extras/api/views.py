@@ -16,7 +16,7 @@ from rest_framework.views import APIView
 from core.api.serializers import JobSerializer
 from core.models import Job
 from peering.functions import (
-    NoPrefixesFoundError,
+    UnresolvableIRRObjectError,
     call_irr_as_set_resolver,
     parse_irr_as_set,
 )
@@ -288,7 +288,7 @@ class PrefixListView(APIView):
 
                     if not skip_cache:
                         self.store_in_cache(key=cache_key, prefixes=p)
-                except NoPrefixesFoundError:
+                except UnresolvableIRRObjectError:
                     prefixes[as_set][f"ipv{family}"] = []
 
         return Response(prefixes)

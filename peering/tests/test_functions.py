@@ -19,7 +19,7 @@ class IRRASSetFunctions(TestCase):
         call_irr_as_set_resolver(as_set="")
 
         # Make sure an error is raised in case of issue
-        with self.assertRaises(ValueError):
+        with self.assertRaises(UnresolvableIRRObjectError):
             call_irr_as_set_resolver(as_set="AS-WRONG")
 
     @patch(
@@ -34,7 +34,7 @@ class IRRASSetFunctions(TestCase):
         self.assertEqual(as_list, [65535])
 
         # Make sure an error is raised in case of issue
-        with self.assertRaises(ValueError):
+        with self.assertRaises(UnresolvableIRRObjectError):
             call_irr_as_set_as_list_resolver(first_as=65535, as_set="AS-WRONG")
 
     def test_parse_irr_as_set(self):

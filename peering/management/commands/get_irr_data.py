@@ -2,6 +2,7 @@ from typing import Any
 
 from django.core.management.base import BaseCommand, CommandError
 
+from peering.functions import UnresolvableIRRObjectError
 from peering.models import AutonomousSystem
 
 
@@ -99,7 +100,7 @@ class Command(BaseCommand):
                 autonomous_system.as_list = self.retrieve_as_list(
                     autonomous_system=autonomous_system, quiet=quiet
                 )
-            except ValueError as exc:
-                raise CommandError(str(exc)) from exc
+            except UnresolvableIRRObjectError:
+                continue
 
             autonomous_system.save(update_fields=["prefixes", "as_list"])

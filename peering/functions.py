@@ -17,13 +17,16 @@ if TYPE_CHECKING:
 logger = logging.getLogger("peering.manager.peering")
 
 
-class NoPrefixesFoundError(Exception):
-    """Exception raised when no prefixes are found for an IRR object."""
+class UnresolvableIRRObjectError(Exception):
+    """Exception raised when an IRR object cannot be resolved."""
 
-    def __init__(self, object: str, address_family: Literal[4, 6]):
+    def __init__(
+        self, object: str, address_family: Literal[4, 6] | None = None, reason: str = ""
+    ):
         super().__init__()
         self.object = object
         self.address_family = address_family
+        self.reason = reason
 
 
 def _is_using_bgpq4() -> bool:
@@ -31,7 +34,7 @@ def _is_using_bgpq4() -> bool:
 
 
 def _call_bgpq_binary(command: Sequence[str]) -> str:
-    logger.debug(f"calling {settings.BGPQ3_PATH} with command: {command}")
+    logger.debug(f"calling {settings.BGPQ3_PATH} with command: {' '.join(command)}")
 
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = process.communicate()
@@ -131,16 +134,13 @@ def call_irr_as_set_resolver(
     try:
         out = _call_bgpq_binary(command)
     except ValueError as exc:
-        logger.error(
-            f"calling {settings.BGPQ3_PATH} with command '{' '.join(command)}' failed: {exc!s}"
-        )
-        raise exc
+        error_message = f"calling {settings.BGPQ3_PATH} with command '{' '.join(command)}' failed: {exc!s}"
+        logger.error(error_message)
+        raise UnresolvableIRRObjectError(
+            object=as_set, address_family=address_family, reason=error_message
+        ) from exc
 
-    prefix_list = json.loads(out)["prefix_list"]
-    if not prefix_list:
-        raise NoPrefixesFoundError(object=as_set, address_family=address_family)
-
-    return list(prefix_list)
+    return list(json.loads(out)["prefix_list"])
 
 
 def call_irr_as_set_as_list_resolver(
@@ -173,10 +173,9 @@ def call_irr_as_set_as_list_resolver(
     try:
         out = _call_bgpq_binary(command)
     except ValueError as exc:
-        logger.error(
-            f"calling {settings.BGPQ3_PATH} with command '{' '.join(command)}' failed: {exc!s}"
-        )
-        raise exc
+        error_message = f"calling {settings.BGPQ3_PATH} with command '{' '.join(command)}' failed: {exc!s}"
+        logger.error(error_message)
+        raise UnresolvableIRRObjectError(object=as_set, reason=error_message) from exc
 
     # Always add the first ASN, and remove AS_TRANS
     return sorted(
