@@ -1,3 +1,11 @@
+## Version 1.10.1 | MARK I (Bug fixes release) | 2025-12-01
+
+### Bug Fixes
+
+* Fix global search page that failed to render properly
+* Fix IRR data no properly gathered if the prefix list for either IPv6 or IPv4 was empty
+* Improve `get_irr_data` command to avoid early exits if prefix lists for an AS failed to be retrieved
+
 ## Version 1.10.0 | MARK I (Features release) | 2025-11-29
 
 The 1.10.x releases require Python 3.10 or later as well as PostgreSQL 14 or later.
