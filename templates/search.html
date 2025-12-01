@@ -12,7 +12,7 @@
 <div class="row">
   <div class="col col-md-9">
     {% for obj_type in results %}
-    <h5>{{ obj_type|meta:"verbose_name"|title_with_uppers }}</h5>
+    <h5>{{ obj_type.name|title_with_uppers }}</h5>
     {% render_table obj_type.table 'includes/table.html' %}
     <div class="text-end">
       <a href="{{ obj_type.url }}" class="btn btn-sm btn-primary">
@@ -39,7 +39,7 @@
             <div class="float-end">
               <span class="badge text-bg-pill text-bg-primary">{{ obj_type.table.page.paginator.count }}</span>
             </div>
-            {{ obj_type|meta:"verbose_name"|title_with_uppers }}
+            {{ obj_type.name|title_with_uppers }}
           </a>
           {% endfor %}
         </div>
