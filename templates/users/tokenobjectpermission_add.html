@@ -1,0 +1,97 @@
+{% extends 'generic/edit.html' %}
+{% load form_helpers %}
+
+{% block form %}
+<div class="alert alert-info">
+  <i class="fas fa-info-circle"></i>
+  <strong>Configure which API token can access this router</strong>
+  <p class="mb-0 mt-2">
+    Select a token and choose what actions it can perform. Unchecked actions will be denied for this token.
+  </p>
+</div>
+
+          <fieldset>
+            <legend class="h6 text-muted"><i class="fas fa-key"></i> Select Token</legend>
+            {% render_field form.token %}
+          </fieldset>
+
+          <hr>
+
+          <fieldset class="mt-4">
+            <legend class="h6 text-muted"><i class="fas fa-check-circle"></i> Basic Permissions</legend>
+            <p class="text-muted small">Control standard CRUD operations</p>
+
+            <div class="form-check">
+              {{ form.can_view }}
+              <label class="form-check-label" for="{{ form.can_view.id_for_label }}">
+                <strong>Can View</strong> - Allow viewing this router's details
+              </label>
+              <small class="form-text text-muted d-block ms-4">Allows GET /api/devices/routers/{{ object.pk }}/</small>
+            </div>
+
+            <div class="form-check mt-2">
+              {{ form.can_edit }}
+              <label class="form-check-label" for="{{ form.can_edit.id_for_label }}">
+                <strong>Can Edit</strong> - Allow modifying this router's settings
+              </label>
+              <small class="form-text text-muted d-block ms-4">Allows PATCH /api/devices/routers/{{ object.pk }}/</small>
+            </div>
+
+            <div class="form-check mt-2">
+              {{ form.can_delete }}
+              <label class="form-check-label" for="{{ form.can_delete.id_for_label }}">
+                <strong>Can Delete</strong> - Allow deleting this router
+              </label>
+              <small class="form-text text-muted d-block ms-4">Allows DELETE /api/devices/routers/{{ object.pk }}/</small>
+            </div>
+          </fieldset>
+
+          <hr>
+
+          <fieldset class="mt-4">
+            <legend class="h6 text-muted"><i class="fas fa-cogs"></i> Router Actions</legend>
+            <p class="text-muted small">Control specific router operations</p>
+
+            <div class="form-check">
+              {{ form.action_configuration }}
+              <label class="form-check-label" for="{{ form.action_configuration.id_for_label }}">
+                <strong>View Configuration</strong> - Render and view router configuration
+              </label>
+              <small class="form-text text-muted d-block ms-4">Allows GET /api/devices/routers/{{ object.pk }}/configuration/</small>
+            </div>
+
+            <div class="form-check mt-2">
+              {{ form.action_configure }}
+              <label class="form-check-label" for="{{ form.action_configure.id_for_label }}">
+                <strong>Deploy Configuration</strong> - Push configuration to router
+              </label>
+              <small class="form-text text-muted d-block ms-4">Allows POST /api/devices/routers/configure/</small>
+            </div>
+
+            <div class="form-check mt-2">
+              {{ form.action_poll_bgp_sessions }}
+              <label class="form-check-label" for="{{ form.action_poll_bgp_sessions.id_for_label }}">
+                <strong>Poll BGP Sessions</strong> - Query BGP session states
+              </label>
+              <small class="form-text text-muted d-block ms-4">Allows POST /api/devices/routers/{{ object.pk }}/poll-bgp-sessions/</small>
+            </div>
+
+            <div class="form-check mt-2">
+              {{ form.action_test_napalm_connection }}
+              <label class="form-check-label" for="{{ form.action_test_napalm_connection.id_for_label }}">
+                <strong>Test NAPALM Connection</strong> - Test connection to router
+              </label>
+              <small class="form-text text-muted d-block ms-4">Allows GET /api/devices/routers/{{ object.pk }}/test-napalm-connection/</small>
+            </div>
+
+            <div class="form-check mt-2">
+              {{ form.action_push_datasource }}
+              <label class="form-check-label" for="{{ form.action_push_datasource.id_for_label }}">
+                <strong>Push to Data Source</strong> - Push config to data sources
+              </label>
+              <small class="form-text text-muted d-block ms-4">Allows POST /api/devices/routers/push-datasource/</small>
+            </div>
+          </fieldset>
+
+{% endblock %}
+

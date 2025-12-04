@@ -1,0 +1,51 @@
+{% extends 'generic/object_delete.html' %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body">
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle"></i>
+          <strong>Are you sure you want to delete this token permission?</strong>
+        </div>
+
+        <dl class="row">
+          <dt class="col-sm-4">Token:</dt>
+          <dd class="col-sm-8">{{ permission.token.key|truncatechars:20 }} ({{ permission.token.user.username }})</dd>
+
+          <dt class="col-sm-4">Object:</dt>
+          <dd class="col-sm-8">{{ object }}</dd>
+
+          <dt class="col-sm-4">Current Permissions:</dt>
+          <dd class="col-sm-8">
+            {% if permission.can_view %}<span class="badge bg-success">View</span>{% endif %}
+            {% if permission.can_edit %}<span class="badge bg-success">Edit</span>{% endif %}
+            {% if permission.can_delete %}<span class="badge bg-success">Delete</span>{% endif %}
+          </dd>
+        </dl>
+
+        <div class="alert alert-info mt-3">
+          <i class="fas fa-info-circle"></i>
+          <strong>After deletion:</strong>
+          <p class="mb-0">
+            {% if settings.TOKEN_PERMISSIONS_DEFAULT_MODE == 'allow' %}
+            This token will have <strong>full access</strong> to this object (default: allow mode).
+            {% else %}
+            This token will be <strong>denied all access</strong> to this object (default: deny mode).
+            {% endif %}
+          </p>
+        </div>
+        <div class="text-end">
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form.hidden_fields %}
+                {{ field }}
+                {% endfor %}
+                <button type="submit" class="btn btn-danger">Confirm</button>
+                <a class="btn btn-secondary" href="{{ return_url }}">Cancel</a>
+          </form>
+        </div>
+
+  </div>
+</div>
+{% endblock %}
+

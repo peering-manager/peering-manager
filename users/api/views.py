@@ -10,9 +10,17 @@ from rest_framework.viewsets import ViewSet
 from peering_manager.api.viewsets import PeeringManagerModelViewSet
 from utils.functions import merge_hash
 
-from ..filtersets import GroupFilterSet, UserFilterSet
-from ..models import UserPreferences
-from .serializers import GroupSerializer, UserSerializer
+from ..filtersets import (
+    GroupFilterSet,
+    TokenObjectPermissionFilterSet,
+    UserFilterSet,
+)
+from ..models import TokenObjectPermission, UserPreferences
+from .serializers import (
+    GroupSerializer,
+    TokenObjectPermissionSerializer,
+    UserSerializer,
+)
 
 
 class UsersRootView(APIRootView):
@@ -30,6 +38,57 @@ class UserViewSet(PeeringManagerModelViewSet):
     queryset = User.objects.all().prefetch_related("groups").order_by("username")
     serializer_class = UserSerializer
     filterset_class = UserFilterSet
+
+
+class TokenObjectPermissionViewSet(PeeringManagerModelViewSet):
+    """
+    API endpoint for managing token object permissions.
+
+    Access is restricted based on the token's can_manage_permissions flag:
+    - If False (default): Can only view their own token's permissions
+    - If True: Can view/create/update/delete all token permissions
+    """
+
+    queryset = TokenObjectPermission.objects.select_related(
+        "token", "token__user", "content_type"
+    ).order_by("-created")
+    serializer_class = TokenObjectPermissionSerializer
+    filterset_class = TokenObjectPermissionFilterSet
+
+    def get_queryset(self):
+        """Filter queryset based on token's can_manage_permissions flag."""
+        queryset = super().get_queryset()
+
+        # If using token authentication
+        if hasattr(self.request, "auth") and self.request.auth:
+            token = self.request.auth
+
+            # If token doesn't have permission management flag, only show their own permissions
+            if not token.can_manage_permissions:
+                queryset = queryset.filter(token=token)
+
+        return queryset
+
+    def check_permissions(self, request):
+        """Check if token has permission to perform this action."""
+        super().check_permissions(request)
+
+        # If using token authentication
+        if hasattr(request, "auth") and request.auth:
+            token = request.auth
+
+            # Only allow GET (list/retrieve) if token doesn't have can_manage_permissions
+            if not token.can_manage_permissions and request.method not in [
+                "GET",
+                "HEAD",
+                "OPTIONS",
+            ]:
+                from rest_framework.exceptions import PermissionDenied
+
+                raise PermissionDenied(
+                    "This token does not have permission to manage token permissions. "
+                    "Set can_manage_permissions=True on the token to enable this."
+                )
 
 
 class UserPreferencesViewSet(ViewSet):

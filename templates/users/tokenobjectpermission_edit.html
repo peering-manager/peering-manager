@@ -1,0 +1,79 @@
+{% extends 'generic/edit.html' %}
+{% load form_helpers %}
+
+{% block form %}
+
+          <fieldset>
+            <legend class="h6 text-muted"><i class="fas fa-key"></i> Token</legend>
+            {% render_field form.token %}
+          </fieldset>
+
+          <hr>
+
+          <fieldset class="mt-4">
+            <legend class="h6 text-muted"><i class="fas fa-check-circle"></i> Basic Permissions</legend>
+
+            <div class="form-check">
+              {{ form.can_view }}
+              <label class="form-check-label" for="{{ form.can_view.id_for_label }}">
+                <strong>Can View</strong>
+              </label>
+            </div>
+
+            <div class="form-check mt-2">
+              {{ form.can_edit }}
+              <label class="form-check-label" for="{{ form.can_edit.id_for_label }}">
+                <strong>Can Edit</strong>
+              </label>
+            </div>
+
+            <div class="form-check mt-2">
+              {{ form.can_delete }}
+              <label class="form-check-label" for="{{ form.can_delete.id_for_label }}">
+                <strong>Can Delete</strong>
+              </label>
+            </div>
+          </fieldset>
+
+          <hr>
+
+          <fieldset class="mt-4">
+            <legend class="h6 text-muted"><i class="fas fa-cogs"></i> Router Actions</legend>
+
+            <div class="form-check">
+              {{ form.action_configuration }}
+              <label class="form-check-label" for="{{ form.action_configuration.id_for_label }}">
+                <strong>View Configuration</strong>
+              </label>
+            </div>
+
+            <div class="form-check mt-2">
+              {{ form.action_configure }}
+              <label class="form-check-label" for="{{ form.action_configure.id_for_label }}">
+                <strong>Deploy Configuration</strong>
+              </label>
+            </div>
+
+            <div class="form-check mt-2">
+              {{ form.action_poll_bgp_sessions }}
+              <label class="form-check-label" for="{{ form.action_poll_bgp_sessions.id_for_label }}">
+                <strong>Poll BGP Sessions</strong>
+              </label>
+            </div>
+
+            <div class="form-check mt-2">
+              {{ form.action_test_napalm_connection }}
+              <label class="form-check-label" for="{{ form.action_test_napalm_connection.id_for_label }}">
+                <strong>Test NAPALM Connection</strong>
+              </label>
+            </div>
+
+            <div class="form-check mt-2">
+              {{ form.action_push_datasource }}
+              <label class="form-check-label" for="{{ form.action_push_datasource.id_for_label }}">
+                <strong>Push to Data Source</strong>
+              </label>
+            </div>
+          </fieldset>
+{% endblock %}
+
