@@ -4,15 +4,12 @@ repos:
   rev: "1.8.4"
   hooks:
   - id: poetry-check
-    language_version: python3.10
   - id: poetry-lock
-    language_version: python3.10
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: v0.7.4
   hooks:
   - id: ruff
-    args: [ --fix ]
   - id: ruff-format
 
 - repo: local
