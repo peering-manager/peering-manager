@@ -47,3 +47,8 @@ REDIS = {
 RQ_DEFAULT_TIMEOUT = 3600
 
 LOGIN_REQUIRED = True
+
+# Token Object Permissions - Default behavior when no explicit permission exists
+# Set to "allow" (default) for permissive mode - tokens can do everything unless restricted
+# Set to "deny" for restrictive mode - tokens can do nothing unless explicitly allowed
+# TOKEN_PERMISSIONS_DEFAULT_MODE = "allow"

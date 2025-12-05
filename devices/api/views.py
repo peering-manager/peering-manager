@@ -9,6 +9,7 @@ from rest_framework.routers import APIRootView
 
 from core.api.serializers import JobSerializer
 from core.models import Job
+from peering_manager.api.permissions import TokenObjectPermission
 from peering_manager.api.viewsets import PeeringManagerModelViewSet
 
 from ..enums import DeviceStatus
@@ -50,6 +51,33 @@ class RouterViewSet(PeeringManagerModelViewSet):
     queryset = Router.objects.all()
     serializer_class = RouterSerializer
     filterset_class = RouterFilterSet
+
+    def get_permissions(self):
+        """
+        Apply token object permissions for sensitive router actions.
+
+        Restricted actions: configuration, configure, poll_bgp_sessions,
+        test_napalm_connection, push_datasource, update, partial_update,
+        destroy, retrieve.
+        """
+        restricted_actions = [
+            "configuration",
+            "configure",
+            "poll_bgp_sessions",
+            "test_napalm_connection",
+            "push_datasource",
+            "update",
+            "partial_update",
+            "destroy",
+            "retrieve",
+        ]
+
+        print(f"Action: {self.action}")  # Debugging line to check the current action
+
+        if self.action in restricted_actions:
+            return [TokenObjectPermission(), *super().get_permissions()]
+
+        return super().get_permissions()
 
     @extend_schema(
         operation_id="devices_routers_configuration",
@@ -128,6 +156,8 @@ class RouterViewSet(PeeringManagerModelViewSet):
 
         jobs = []
         for router in routers:
+            self.check_object_permissions(request, router)
+
             job = Job.enqueue(
                 set_napalm_configuration,
                 router,

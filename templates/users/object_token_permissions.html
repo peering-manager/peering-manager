@@ -1,0 +1,46 @@
+{% extends 'devices/router/_base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block subcontent %}
+<div class="row">
+  <div class="col">
+    <div class="card">
+      <div class="card-header">
+        <div class="float-end">
+          {% if can_add %}
+          <a href="{% url 'users:tokenobjectpermission_add' content_type_id=content_type.pk object_id=object.pk %}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus"></i> Add Token Permission
+          </a>
+          {% endif %}
+        </div>
+        <h5 class="card-title"><i class="fas fa-key"></i> Token Permissions</h5>
+      </div>
+      <div class="card-body">
+        {% if table.rows %}
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            <strong>Control which API tokens can perform actions on this router.</strong>
+          </div>
+          {% render_table table %}
+        {% else %}
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>No token permissions configured.</strong>
+            <p class="mb-0 mt-2">
+              All API tokens currently have full access to this router. Create a permission to restrict specific tokens.
+            </p>
+          </div>
+          {% if can_add %}
+          <div class="text-center">
+            <a href="{% url 'users:tokenobjectpermission_add' content_type_id=content_type.pk object_id=object.pk %}" class="btn btn-primary">
+              <i class="fas fa-plus"></i> Create First Permission
+            </a>
+          </div>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
