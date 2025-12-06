@@ -84,5 +84,5 @@ ttp==0.10.0
 typing-extensions==4.15.0
 tzdata==2025.2
 uritemplate==4.2.0
-urllib3==2.5.0
+urllib3==2.6.0
 yamlordereddictloader==0.4.2
