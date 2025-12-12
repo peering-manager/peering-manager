@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import EmailMessage
@@ -32,9 +34,11 @@ from ..forms import (
     AutonomousSystemEmailForm,
     AutonomousSystemFilterForm,
     AutonomousSystemForm,
+    AutonomousSystemPrefixFilterForm,
     DirectPeeringSessionFilterForm,
     InternetExchangePeeringSessionFilterForm,
 )
+from ..functions import build_irr_as_set_command, parse_irr_as_set
 from ..models import (
     AutonomousSystem,
     DirectPeeringSession,
@@ -42,6 +46,7 @@ from ..models import (
     NetworkIXLan,
 )
 from ..tables import (
+    AutonomousSystemPrefixTable,
     AutonomousSystemTable,
     DirectPeeringSessionTable,
     InternetExchangePeeringSessionTable,
@@ -58,6 +63,7 @@ __all__ = (
     "AutonomousSystemList",
     "AutonomousSystemPeeringDB",
     "AutonomousSystemPeers",
+    "AutonomousSystemPrefixes",
     "AutonomousSystemView",
 )
 
@@ -150,6 +156,74 @@ class AutonomousSystemPeeringDB(ObjectView):
             facilities = []
 
         return {"contacts": instance.peeringdb_contacts, "facilities": facilities}
+
+
+@register_model_view(AutonomousSystem, name="prefixes")
+class AutonomousSystemPrefixes(ObjectView):
+    permission_required = "peering.view_autonomoussystem"
+    queryset = AutonomousSystem.objects.all()
+    template_name = "peering/autonomoussystem/prefixes.html"
+    tab = ViewTab(label="Prefixes", weight=1500)
+
+    def get_extra_context(self, request, instance):
+        family: str = request.GET.get("family", "")
+        search: str = request.GET.get("q", "").strip().lower()
+
+        prefixes_data: dict[str, list[dict[str, Any]]] = instance.prefixes or {
+            "ipv6": [],
+            "ipv4": [],
+        }
+        ipv6_prefixes: list[dict[str, Any]] = prefixes_data.get("ipv6", [])
+        ipv4_prefixes: list[dict[str, Any]] = prefixes_data.get("ipv4", [])
+
+        all_prefixes: list[dict[str, Any]] = []
+        for af, prefix_list in [("ipv6", ipv6_prefixes), ("ipv4", ipv4_prefixes)]:
+            if family and family != af:
+                continue
+            filtered = (
+                [p for p in prefix_list if p["prefix"].lower().startswith(search)]
+                if search
+                else prefix_list
+            )
+            all_prefixes.extend({**p, "family": af} for p in filtered)
+
+        filter_form = AutonomousSystemPrefixFilterForm(request.GET)
+        table = AutonomousSystemPrefixTable(all_prefixes, user=request.user)
+        table.configure(request)
+
+        irr_commands: list[dict[str, str]] = []
+        for source, as_set in parse_irr_as_set(
+            asn=instance.asn, irr_as_set=instance.irr_as_set
+        ):
+            for af, af_label, override in [
+                (6, "IPv6", instance.irr_ipv6_prefixes_args_override),
+                (4, "IPv4", instance.irr_ipv4_prefixes_args_override),
+            ]:
+                cmd = build_irr_as_set_command(
+                    as_set=as_set,
+                    source=source,
+                    address_family=af,
+                    irr_sources_override=instance.irr_sources_override,
+                    **{f"irr_ipv{af}_prefixes_args_override": override},
+                )
+                irr_commands.append(
+                    {
+                        "family": af_label,
+                        "as_set": as_set,
+                        "source": source,
+                        "command": " ".join(cmd),
+                    }
+                )
+
+        return {
+            "table": table,
+            "filter_form": filter_form,
+            "ipv6_count": len(ipv6_prefixes),
+            "ipv4_count": len(ipv4_prefixes),
+            "total_count": len(ipv6_prefixes) + len(ipv4_prefixes),
+            "irr_commands": irr_commands,
+            "as_list": sorted(instance.as_list),
+        }
 
 
 @register_model_view(

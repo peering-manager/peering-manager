@@ -1,0 +1,198 @@
+{% extends 'peering/autonomoussystem/_base.html' %}
+{% load render_table from django_tables2 %}
+{% block subcontent %}
+<div class="row">
+  <div class="col-md-9">
+    <div class="card mb-3">
+      <div class="card-header"><strong>Statistics</strong></div>
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-md-3">
+            <a href="." class="text-decoration-none">
+              <div class="h3 text-primary">{{ total_count }}</div>
+            </a>
+            <div class="text-muted small">Total Prefixes</div>
+          </div>
+          <div class="col-md-3">
+            <a href="?family=ipv6" class="text-decoration-none">
+              <div class="h3 text-info">{{ ipv6_count }}</div>
+            </a>
+            <div class="text-muted small">IPv6 Prefixes</div>
+          </div>
+          <div class="col-md-3">
+            <a href="?family=ipv4" class="text-decoration-none">
+              <div class="h3 text-success">{{ ipv4_count }}</div>
+            </a>
+            <div class="text-muted small">IPv4 Prefixes</div>
+          </div>
+          <div class="col-md-3">
+            {% if as_list %}
+            <a href="#" data-bs-toggle="modal" data-bs-target="#as-list-modal" class="text-decoration-none">
+              <div class="h3 text-warning">{{ as_list|length }}</div>
+            </a>
+            {% else %}
+            <div class="h3 text-muted">{{ as_list|length }}</div>
+            {% endif %}
+            <div class="text-muted small">AS List</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% if total_count > 0 %}
+    <div class="card mb-2">
+      <div class="card-header"><strong>Prefixes</strong></div>
+      <div class="card-body p-0">
+        {% render_table table 'includes/table.html' %}
+      </div>
+    </div>
+    {% include 'includes/pagination.html' with paginator=table.paginator page=table.page %}
+    {% else %}
+    <div class="card">
+      <div class="card-body text-center text-muted">
+        {% if not instance.retrieve_prefixes %}
+        <i class="fa-fw fa-solid fa-info-circle"></i> Prefix retrieval is disabled for this AS.
+        {% elif not instance.irr_as_set %}
+        <i class="fa-fw fa-solid fa-info-circle"></i> No IRR AS-SET configured for this AS.
+        {% else %}
+        <i class="fa-fw fa-solid fa-info-circle"></i> No prefixes found.
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  <div class="col-md-3">
+    <div class="card">
+      <div class="card-header">
+        <i class="fa-fw fa-solid fa-search"></i> <strong>Search</strong>
+      </div>
+      <div class="card-body">
+        <form action="." method="get">
+          {% for field in filter_form %}
+          <div class="mb-3">
+            {% if field.name == "q" %}
+            <div class="input-group">
+              <input type="text" name="q" class="form-control" placeholder="Search" {% if request.GET.q %}value="{{ request.GET.q }}" {% endif %}/>
+              <button type="submit" class="btn btn-primary"><i class="fa-fw fa-solid fa-search"></i></button>
+            </div>
+            {% else %}
+            <label for="{{ field.id_for_label }}" class="form-label"><strong>{{ field.label }}</strong></label>
+            {{ field }}
+            {% endif %}
+          </div>
+          {% endfor %}
+          <div class="text-end">
+            <button type="submit" class="btn btn-primary">
+              <i class="fa-fw fa-solid fa-search"></i> Apply
+            </button>
+            <a href="." class="btn btn-secondary">
+              <i class="fa-fw fa-solid fa-times"></i> Clear
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% if total_count or irr_commands %}
+    <div class="card mt-3">
+      <div class="card-header"><strong>Actions</strong></div>
+      <div class="card-body">
+        <div class="d-grid gap-2">
+          {% if total_count > 0 %}
+          <div data-bs-toggle="tooltip" data-bs-placement="left" title="Download the prefix list in JSON format">
+            <a href="{% url 'peering-api:autonomoussystem-as-set-prefixes' pk=instance.pk %}?format=json" class="btn btn-sm btn-outline-primary w-100" target="_blank">
+              <i class="fa-fw fa-solid fa-download"></i> Export JSON
+            </a>
+          </div>
+          {% endif %}
+          {% if irr_commands %}
+          <div data-bs-toggle="tooltip" data-bs-placement="left" title="View the commands used to retrieve prefixes from IRR sources">
+            <button type="button" class="btn btn-sm btn-outline-info w-100" data-bs-toggle="modal" data-bs-target="#irr-commands-modal">
+              <i class="fa-fw fa-solid fa-terminal"></i> Show Commands
+            </button>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% if as_list %}
+<div class="modal fade" id="as-list-modal" tabindex="-1" aria-labelledby="as-list-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="as-list-modal-label">
+          <i class="fa-fw fa-solid fa-list"></i> AS List from IRR AS-SET
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted">{{ as_list|length }} autonomous system{{ as_list|length|pluralize }} found in the IRR AS-SET:</p>
+        <div class="card">
+          <div class="card-body" style="font-family: monospace;">
+            {% for asn in as_list %}{{ asn }}{% if not forloop.last %}, {% endif %}{% if forloop.counter|divisibleby:10 and not forloop.last %}<br>{% endif %}{% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% if irr_commands %}
+<div class="modal fade" id="irr-commands-modal" tabindex="-1" aria-labelledby="irr-commands-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="irr-commands-modal-label">
+          <i class="fa-fw fa-solid fa-terminal"></i> IRR Prefix Retrieval Commands
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted">The following commands are used to retrieve prefixes from IRR sources:</p>
+        {% for cmd in irr_commands %}
+        <div class="card mb-3">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <code>{% if cmd.source %}{{ cmd.source }}::{% endif %}{{ cmd.as_set }}</code> - {{ cmd.family }}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary copy-command" data-command="{{ cmd.command }}" title="Copy command">
+              <i class="fa-fw fa-solid fa-copy"></i> Copy
+            </button>
+          </div>
+          <div class="card-body">
+            <pre class="p-2 mb-0"><code>{{ cmd.command }}</code></pre>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block javascript %}
+<script>
+  $(document).ready(function() {
+    $('.copy-command').on('click', function() {
+      const $btn = $(this);
+      const command = $btn.data('command');
+      const originalHTML = $btn.html();
+      navigator.clipboard.writeText(command).then(function() {
+        $btn.html('<i class="fa-fw fa-solid fa-check"></i> Copied').removeClass('btn-outline-secondary').addClass('btn-success');
+        setTimeout(function() {
+          $btn.html(originalHTML).removeClass('btn-success').addClass('btn-outline-secondary');
+        }, 2000);
+      }).catch(function(err) {
+        console.error('Failed to copy text: ', err);
+      });
+    });
+  });
+</script>
+{% endblock %}

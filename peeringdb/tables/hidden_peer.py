@@ -10,8 +10,6 @@ __all__ = ("HiddenPeerTable",)
 
 
 class HiddenPeerTable(PeeringManagerTable):
-    empty_text = "No hidden peers found."
-
     pk = SelectColumn()
     asn = tables.Column(
         verbose_name="ASN", accessor="peeringdb_network__asn", linkify=True

@@ -192,6 +192,15 @@ class AutonomousSystemEmailForm(BootstrapMixin, forms.Form):
     body = TextareaField(label="Body")
 
 
+class AutonomousSystemPrefixFilterForm(PeeringManagerModelFilterSetForm):
+    family = forms.ChoiceField(
+        required=False,
+        label="IP Version",
+        choices=[("", "All"), ("ipv6", "IPv6"), ("ipv4", "IPv4")],
+        widget=StaticSelect(),
+    )
+
+
 class BGPGroupForm(PeeringManagerModelForm):
     slug = SlugField(
         max_length=255,
