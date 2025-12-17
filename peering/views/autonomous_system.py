@@ -101,11 +101,17 @@ class AutonomousSystemView(ObjectView):
                     pk=request.user.preferences.get("context.as")
                 )
             except AutonomousSystem.DoesNotExist:
-                affiliated = None
+                return {"shared_internet_exchanges": shared_internet_exchanges}
 
-            for ix in instance.get_shared_internet_exchange_points(affiliated):
-                shared_internet_exchanges[ix] = instance.get_missing_peering_sessions(
-                    affiliated, ix
+            ixlans_with_missing_sessions = set(
+                instance.get_missing_peering_sessions(affiliated).values_list(
+                    "ixlan_id", flat=True
+                )
+            )
+
+            for ixp in instance.get_shared_internet_exchange_points(affiliated):
+                shared_internet_exchanges[ixp] = (
+                    ixp.peeringdb_ixlan_id in ixlans_with_missing_sessions
                 )
 
         return {"shared_internet_exchanges": shared_internet_exchanges}
