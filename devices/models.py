@@ -1,9 +1,11 @@
 import ipaddress
 import logging
+import re
 
 import napalm
 from django.conf import settings
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
@@ -877,11 +879,20 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
                 )
                 continue
 
-            # Get info that we are actually looking for
-            state = neighbor_detail["connection_state"].lower()
-            self.logger.debug(
-                f"found session {ip_address} on {self.hostname} in {state} state"
-            )
+            state = None
+            for possible_state in BGPState.values():
+                # We do this because the device may return additional information in the string
+                # e.g. "idle (close in progress)"
+                if re.match(
+                    rf"^({possible_state}).*",
+                    neighbor_detail["connection_state"],
+                    re.IGNORECASE,
+                ):
+                    state = possible_state
+                    self.logger.debug(
+                        f"found session {ip_address} on {self.hostname} in {state} state"
+                    )
+                    break
 
             # Update fields
             session = match.first()
@@ -898,11 +909,19 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
             # Update the BGP state of the session
             if session.bgp_state == BGPState.ESTABLISHED:
                 session.last_established_state = timezone.now()
-            session.save()
-            self.logger.debug(
-                f"session {ip_address} on {self.hostname} saved as {state}"
-            )
-            count += 1
+
+            try:
+                session.clean_fields()
+                session.save()
+                self.logger.debug(
+                    f"session {ip_address} on {self.hostname} saved as {state}"
+                )
+                count += 1
+            except ValidationError as exc:
+                self.logger.error(
+                    f"unable to set bgp state for session {ip_address} on {self.hostname} reason '{exc}'"
+                )
+                continue
 
         # Save last session states update
         self.poll_bgp_sessions_last_updated = timezone.now()
