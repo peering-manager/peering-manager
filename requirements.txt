@@ -70,7 +70,7 @@ rich==14.2.0
 rpds-py==0.30.0
 rq==2.6.1
 ruamel-yaml-clib==0.2.15
-ruamel-yaml==0.18.16
+ruamel-yaml==0.18.17
 scp==0.15.0
 setuptools==80.9.0
 six==1.17.0
@@ -82,7 +82,7 @@ transitions==0.9.3
 ttp-templates==0.3.7
 ttp==0.10.0
 typing-extensions==4.15.0
-tzdata==2025.2
+tzdata==2025.3
 uritemplate==4.2.0
-urllib3==2.6.0
+urllib3==2.6.2
 yamlordereddictloader==0.4.2
