@@ -52,7 +52,7 @@ class JournalEntryDeleteView(ObjectDeleteView):
     queryset = JournalEntry.objects.all()
 
 
-@register_model_view(model=JournalEntry, name="delete")
+@register_model_view(model=JournalEntry, name="bulk_edit", path="edit", detail=False)
 class JournalEntryBulkEditView(BulkEditView):
     permission_required = "extras.change_journalentry"
     queryset = JournalEntry.objects.all()
