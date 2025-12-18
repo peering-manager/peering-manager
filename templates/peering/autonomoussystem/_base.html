@@ -27,10 +27,6 @@
 
   {# Include tabs for registered model views #}
   {% model_view_tabs instance %}
-
-  <li class="nav-item">
-    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Last updated: {{ instance.updated | date_span }}</a>
-  </li>
 </ul>
 {% endblock tabs %}
 {% block subcontent %}{% endblock %}

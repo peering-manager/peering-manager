@@ -62,4 +62,4 @@ def model_view_tabs(
                     }
                 )
 
-    return {"tabs": sorted(tabs, key=lambda x: x["weight"])}
+    return {"instance": instance, "tabs": sorted(tabs, key=lambda x: x["weight"])}
