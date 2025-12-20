@@ -2,10 +2,22 @@
 {% load helpers %}
 {% block title %}API Tokens{% endblock %}
 {% block user_content %}
+{% if perms.users.add_token %}
+<a href="{% url 'users:token_add' %}" class="btn btn-primary mb-2">
+  <i class="fa-fw fa-solid fa-plus""></i> Add a token
+</a>
+{% else %}
+<div class="alert alert-info text-center mb-2" role="alert">
+  You do not have permission to create new API tokens. If needed, ask an administrator to enable token creation for your account or an assigned group.
+</div>
+{% endif %}
 {% for token in tokens %}
 <div class="card{% if token.is_expired %} card-danger{% endif %} mb-2">
   <div class="card-header">
     <div class="float-end">
+      <button type="button" class="btn btn-xs btn-secondary copy-token" data-token="{{ token.key }}" title="Copy token to clipboard">
+        <i class="fa-fw fa-solid fa-copy"></i> Copy
+      </button>
       {% if perms.users.change_token %}
       <a href="{% url 'users:token_edit' pk=token.pk %}" class="btn btn-xs btn-warning"><i class="fa-fw fa-solid fa-edit"></i> Edit</a>
       {% endif %}
@@ -41,6 +53,24 @@
         <small class="text-muted">Create/edit/delete operations</small>
       </div>
     </div>
+    <div class="row mt-2">
+      <div class="col-4">
+        {% if token.last_used %}
+        {{ token.last_used|date_span }}<br />
+        {% else %}
+        <span>Never</span><br />
+        {% endif %}
+        <small class="text-muted">Last used</small>
+      </div>
+      <div class="col-8">
+        {% if token.allowed_ips %}
+        <span>{{ token.allowed_ips | join:", " }}</span>
+        {% else %}
+        <span class="text-muted">No IP restrictions</span>
+        {% endif %}<br />
+        <small class="text-muted">Allowed IPs</small>
+      </div>
+    </div>
     {% if token.description %}
     <br /><span>{{ token.description }}</span>
     {% endif %}
@@ -49,13 +79,23 @@
 {% empty %}
 <p>You do not have any API tokens.</p>
 {% endfor %}
-{% if perms.users.add_token %}
-<a href="{% url 'users:token_add' %}" class="btn btn-primary">
-  <i class="fa-fw fa-solid fa-plus""></i> Add a token
-</a>
-{% else %}
-<div class="alert alert-info text-center" role="alert">
-  You do not have permission to create new API tokens. If needed, ask an administrator to enable token creation for your account or an assigned group.
-</div>
-{% endif %}
+{% endblock %}
+{% block javascript %}
+<script>
+  $(document).ready(function() {
+    $('.copy-token').on('click', function() {
+      const $btn = $(this);
+      const token = $btn.data('token');
+      const originalHTML = $btn.html();
+      navigator.clipboard.writeText(token).then(function() {
+        $btn.html('<i class="fa-fw fa-solid fa-check"></i> Copied').removeClass('btn-secondary').addClass('btn-success');
+        setTimeout(function() {
+          $btn.html(originalHTML).removeClass('btn-success').addClass('btn-secondary');
+        }, 2000);
+      }).catch(function(err) {
+        console.error('Failed to copy text: ', err);
+      });
+    });
+  });
+</script>
 {% endblock %}

@@ -14,3 +14,9 @@ options.
 
 A token can also be programmed to expire at a specific time. This can be
 useful if an external client needs to be granted temporary access.
+
+Additionally, tokens can be restricted to specific IP networks by configuring
+the "Allowed IPs" field. This field accepts a comma-separated list of IP
+networks in CIDR notation (e.g.,
+`10.1.1.0/24,192.168.10.16/32,2001:db8:1::/64`). When this field is left
+blank, the token can be used from any IP address.

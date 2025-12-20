@@ -1,12 +1,13 @@
 from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
+from django.contrib.postgres.forms import SimpleArrayField
 
 from peering.models import AutonomousSystem
 from utils.forms import BootstrapMixin
-from utils.forms.fields import DynamicModelChoiceField
+from utils.forms.fields import DynamicModelChoiceField, IPNetworkFormField
 from utils.forms.utils import add_blank_choice
-from utils.forms.widgets import StaticSelect
+from utils.forms.widgets import DateTimePicker, StaticSelect
 
 from .models import Token
 
@@ -26,11 +27,20 @@ class TokenForm(BootstrapMixin, forms.ModelForm):
         required=False,
         help_text="If no key is provided, one will be generated automatically.",
     )
+    allowed_ips = SimpleArrayField(
+        base_field=IPNetworkFormField(),
+        required=False,
+        label="Allowed IPs",
+        help_text=(
+            "Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for no restrictions. "
+            "Example: <kbd>10.1.1.0/24,192.168.10.16/32,2001:db8:1::/64</kbd>"
+        ),
+    )
 
     class Meta:
         model = Token
-        fields = ["key", "write_enabled", "expires", "description"]
-        help_texts = {"expires": "YYYY-MM-DD [HH:MM:SS]"}
+        fields = ["key", "write_enabled", "expires", "description", "allowed_ips"]
+        widgets = {"expires": DateTimePicker()}
 
 
 class UserPreferencesForm(BootstrapMixin, forms.Form):

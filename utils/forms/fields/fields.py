@@ -1,6 +1,8 @@
+import ipaddress
 from json import dumps as json_dumps
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Count
@@ -12,6 +14,7 @@ from ..widgets import ColourSelect, StaticSelectMultiple
 __all__ = (
     "ColourField",
     "CommentField",
+    "IPNetworkFormField",
     "JSONField",
     "PasswordField",
     "SlugField",
@@ -65,6 +68,29 @@ class CommentField(TextareaField):
             help_text='Styling with <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank"><i class="fab fa-markdown"></i> Markdown</a> is supported',
             **kwargs,
         )
+
+
+class IPNetworkFormField(forms.Field):
+    default_error_messages = {
+        "invalid": "Enter a valid IPv4 or IPv6 address (with CIDR mask)."
+    }
+
+    def to_python(self, value):
+        if not value:
+            return None
+
+        if isinstance(value, ipaddress.IPv4Network | ipaddress.IPv6Network):
+            return value
+
+        if "/" not in value:
+            raise ValidationError("CIDR mask (e.g. /24) is required.")
+
+        try:
+            return ipaddress.ip_network(value)
+        except ValueError as exc:
+            raise ValidationError(
+                "Please specify a valid IPv4 or IPv6 network."
+            ) from exc
 
 
 class JSONField(_JSONField):
