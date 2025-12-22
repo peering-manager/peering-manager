@@ -103,7 +103,7 @@ def decrypt(value):
 
     chars = value.split("$9$", 1)[1]
     first, chars = __nibble(chars, 1)
-    toss, chars = __nibble(chars, EXTRA[first])
+    _, chars = __nibble(chars, EXTRA[first])
     previous = first
     decrypted = ""
 
