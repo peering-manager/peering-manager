@@ -29,6 +29,7 @@ from utils.forms.fields import (
 from utils.forms.widgets import (
     APISelectMultiple,
     ColourSelect,
+    DateTimePicker,
     StaticSelect,
     StaticSelectMultiple,
 )
@@ -213,8 +214,12 @@ class JournalEntryBulkEditForm(BulkEditForm):
 
 class JournalEntryFilterForm(PeeringManagerModelFilterSetForm):
     model = JournalEntry
-    created_after = forms.DateTimeField(required=False, label="After")
-    created_before = forms.DateTimeField(required=False, label="Before")
+    created_after = forms.DateTimeField(
+        required=False, label="After", widget=DateTimePicker()
+    )
+    created_before = forms.DateTimeField(
+        required=False, label="Before", widget=DateTimePicker()
+    )
     created_by_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,
