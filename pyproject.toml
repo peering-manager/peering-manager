@@ -1,7 +1,7 @@
 [project]
 name = "peering-manager"
 description = "BGP sessions management tool"
-version = "1.10.2"
+version = "1.10.3-dev"
 authors = [{ name = "Guillaume Mazoyer", email = "pm@mazoyer.eu" }]
 readme = "README.md"
 license = "Apache-2.0"
