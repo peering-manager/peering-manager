@@ -1311,7 +1311,7 @@ wheels = [
 
 [[package]]
 name = "peering-manager"
-version = "1.10.2.dev0"
+version = "1.10.2"
 source = { virtual = "." }
 dependencies = [
     { name = "django" },
