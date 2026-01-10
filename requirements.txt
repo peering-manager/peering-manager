@@ -22,12 +22,12 @@ django-taggit==6.1.0
 djangorestframework==3.16.1
 drf-spectacular==0.29.0
 drf-spectacular-sidecar==2025.12.1
-dulwich==0.25.0
+dulwich==0.25.1
 idna==3.11
 inflection==0.5.1
 invoke==2.2.1
 jinja2==3.1.6
-jsonschema==4.25.1
+jsonschema==4.26.0
 jsonschema-specifications==2025.9.1
 junos-eznc==2.7.5
 lxml==6.0.2
@@ -82,5 +82,5 @@ ttp-templates==0.3.7
 typing-extensions==4.15.0
 tzdata==2025.3
 uritemplate==4.2.0
-urllib3==2.6.2
+urllib3==2.6.3
 yamlordereddictloader==0.4.2
