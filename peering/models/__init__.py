@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from netfields import InetAddressField
 
+from bgp.models import Relationship
 from net.models import Connection
 from peering_manager.models import JournalingMixin, OrganisationalModel, PrimaryModel
 from peeringdb.functions import get_shared_facilities, get_shared_internet_exchanges
@@ -199,6 +200,21 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
                 autonomous_system=self, bgp_group=bgp_group
             )
         return DirectPeeringSession.objects.filter(autonomous_system=self)
+
+    def get_relationships(self, local_autonomous_system=None):
+        """
+        Returns a queryset of unique relationships that this AS has via direct peering
+        sessions.
+
+        If `local_autonomous_system` is provided, only relationships from direct
+        peering sessions with that affiliated AS are returned.
+        """
+        sessions = self.get_direct_peering_sessions()
+        if local_autonomous_system:
+            sessions = sessions.filter(local_autonomous_system=local_autonomous_system)
+        return Relationship.objects.filter(
+            pk__in=sessions.values_list("relationship", flat=True)
+        ).distinct()
 
     def get_ixp_peering_sessions(self, internet_exchange_point=None):
         """

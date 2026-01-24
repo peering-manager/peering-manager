@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from bgp.enums import CommunityType
-from bgp.models import Community
+from bgp.models import Community, Relationship
 from devices.enums import DeviceStatus
 from devices.models import Configuration, Router
 from extras.models import ExportTemplate, Tag
@@ -16,6 +16,7 @@ from net.models import Connection
 from peering.enums import BGPGroupStatus, BGPSessionStatus, IPFamily
 from peering.models import (
     AutonomousSystem,
+    DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
     RoutingPolicy,
@@ -67,6 +68,7 @@ class Jinja2FilterTestCase(TestCase):
         ]
         Community.objects.bulk_create(cls.communities)
         AutonomousSystem.objects.create(asn=64520, name="Useless")
+        cls.local_as = AutonomousSystem.objects.create(asn=65534, name="Local")
         cls.a_s = AutonomousSystem.objects.create(
             asn=64510, name="Test", ipv6_max_prefixes=100
         )
@@ -144,6 +146,19 @@ class Jinja2FilterTestCase(TestCase):
         )
         ContactAssignment.objects.create(
             object=cls.a_s, contact=cls.contact, role=cls.contact_role
+        )
+        cls.relationship_customer = Relationship.objects.create(
+            name="Transit Customer", slug="transit-customer"
+        )
+        cls.relationship_peer = Relationship.objects.create(
+            name="Private Peer", slug="private-peer"
+        )
+        DirectPeeringSession.objects.create(
+            local_autonomous_system=cls.local_as,
+            autonomous_system=cls.a_s,
+            local_ip_address="192.0.2.100",
+            ip_address="192.0.2.101",
+            relationship=cls.relationship_customer,
         )
 
     def test_ipv4(self):
@@ -629,3 +644,24 @@ class Jinja2FilterTestCase(TestCase):
         self.assertIn("export-deaggregated-v6", ipv6_slugs)
         self.assertIn("accept-all", ipv6_slugs)
         self.assertNotIn("export-deaggregated-v4", ipv6_slugs)
+
+    def test_relationships(self):
+        relationships = FILTER_DICT["relationships"](self.a_s)
+        self.assertEqual(1, relationships.count())
+        self.assertIn(self.relationship_customer, relationships)
+        self.assertNotIn(self.relationship_peer, relationships)
+
+        relationships_filtered = FILTER_DICT["relationships"](
+            self.a_s, local_autonomous_system=self.local_as
+        )
+        self.assertEqual(1, relationships_filtered.count())
+        self.assertIn(self.relationship_customer, relationships_filtered)
+
+        other_as = AutonomousSystem.objects.get(asn=64500)
+        relationships_other = FILTER_DICT["relationships"](
+            self.a_s, local_autonomous_system=other_as
+        )
+        self.assertEqual(0, relationships_other.count())
+
+        with self.assertRaises(ValueError):
+            FILTER_DICT["relationships"](self.ixp_connection)

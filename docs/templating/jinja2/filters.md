@@ -301,6 +301,33 @@ Example:
 {% set as_list = autonomous_system | as_list %}
 ```
 
+## `relationships`
+
+Returns a queryset of unique relationships for the given autonomous system.
+This filter returns all unique `Relationship` that exist for an autonomous
+system via its direct peering sessions. Use with `iterate` to extract
+specific fields like `slug` or `name`.
+
+An optional `local_autonomous_system` parameter can be passed to filter
+relationships only from direct peering sessions with that affiliated AS.
+
+Examples:
+
+```no-highlight
+{% if 'transit-customer' in autonomous_system | relationships | iterate('slug') %}
+This AS is a transit customer
+{% endif %}
+
+{# Filter by local AS #}
+{% if 'transit-customer' in autonomous_system | relationships(my_as) | iterate('slug') %}
+This AS is a transit customer of my_as
+{% endif %}
+
+{% for rel in autonomous_system | relationships %}
+- {{ rel.name }} ({{ rel.slug }})
+{% endfor %}
+```
+
 ## `connections`
 
 On an IXP or a router, it will return all connections attached to it.

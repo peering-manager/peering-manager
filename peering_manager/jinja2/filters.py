@@ -712,6 +712,27 @@ def as_list(value, family=0):
     raise ValueError("value has no AS list")
 
 
+def relationships(value, local_autonomous_system=None):
+    """
+    Returns a queryset of unique relationships for the given autonomous system.
+
+    This filter returns all unique relationships that exist for an autonomous
+    system via its direct peering sessions. Combinee with `iterate` to extract
+    specific fields like slug or name.
+
+    If `local_autonomous_system` is provided, only relationships from direct
+    peering sessions with that affiliated AS are returned.
+
+    Example:
+        {% if 'transit-customer' in asn | relationships | iterate('slug') %}
+        {% if 'transit-customer' in asn | relationships(my_as) | iterate('slug') %}
+    """
+    if type(value) is AutonomousSystem:
+        return value.get_relationships(local_autonomous_system=local_autonomous_system)
+
+    raise ValueError("value has no relationships")
+
+
 def safe_string(value):
     """
     Returns a safe string (retaining only ASCII characters).
@@ -881,6 +902,7 @@ FILTER_DICT = {
     "missing_sessions": missing_sessions,
     "prefix_list": prefix_list,
     "as_list": as_list,
+    "relationships": relationships,
     # BGP groups
     "local_ips": local_ips,
     # BGP sessions
