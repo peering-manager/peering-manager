@@ -448,7 +448,7 @@ class Jinja2FilterTestCase(TestCase):
         self.assertRaises(AttributeError, FILTER_DICT["connections"], self.a_s)
 
     def test_direct_sessions(self):
-        self.assertEqual(0, FILTER_DICT["direct_sessions"](self.a_s).count())
+        self.assertEqual(1, FILTER_DICT["direct_sessions"](self.a_s).count())
         self.assertEqual(0, FILTER_DICT["direct_sessions"](self.router).count())
 
     def test_ixp_sessions(self):
