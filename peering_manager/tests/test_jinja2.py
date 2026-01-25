@@ -496,6 +496,38 @@ class Jinja2FilterTestCase(TestCase):
     def test_as_list(self):
         pass
 
+    def test_strip_irr_sources(self):
+        result = FILTER_DICT["strip_irr_sources"](self.a_s)
+        self.assertEqual(["AS64510"], result)
+
+        result = FILTER_DICT["strip_irr_sources"](
+            AutonomousSystem(
+                asn=64530, name="Test IRR", irr_as_set="RIPE::AS-TEST RADB:AS-OTHER"
+            )
+        )
+        self.assertEqual(sorted(["AS-TEST", "AS-OTHER"]), sorted(result))
+
+        result = FILTER_DICT["strip_irr_sources"](
+            AutonomousSystem(
+                asn=64531,
+                name="Test IRR Dup",
+                irr_as_set="RIPE::AS-EXAMPLE RADB:AS-EXAMPLE",
+            )
+        )
+        self.assertEqual(["AS-EXAMPLE"], result)
+
+        result = FILTER_DICT["strip_irr_sources"]("RIPE::AS-TEST")
+        self.assertEqual(["AS-TEST"], result)
+
+        result = FILTER_DICT["strip_irr_sources"]("RIPE::AS-EXAMPLE RADB:AS-EXAMPLE")
+        self.assertEqual(["AS-EXAMPLE"], result)
+
+        result = FILTER_DICT["strip_irr_sources"]("AS-PLAIN")
+        self.assertEqual(["AS-PLAIN"], result)
+
+        with self.assertRaises(ValueError):
+            FILTER_DICT["strip_irr_sources"](12345)
+
     def test_safe_string(self):
         self.assertEqual("Tele_a_ciu", FILTER_DICT["safe_string"]("Téle_à_çiu"))
 

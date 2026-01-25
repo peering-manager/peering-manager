@@ -15,6 +15,7 @@ from devices.models import Router
 from net.enums import ConnectionStatus
 from net.models import Connection
 from peering.enums import BGPGroupStatus, BGPSessionStatus, IPFamily
+from peering.functions import parse_irr_as_set
 from peering.models import (
     AutonomousSystem,
     BGPGroup,
@@ -712,6 +713,34 @@ def as_list(value, family=0):
     raise ValueError("value has no AS list")
 
 
+def strip_irr_sources(value):
+    """
+    Returns a list of unique AS-SETs without their IRR source prefixes.
+
+    IRR AS-SETs are often prefixed with a source like "RIPE::AS-EXAMPLE" or
+    "RADB:AS-EXAMPLE". This filter strips those prefixes and returns just the
+    unique AS-SET names.
+
+    Example:
+        {% for as_set in autonomous_system | strip_irr_sources %}
+        {{ as_set }}
+        {% endfor %}
+
+        {% for as_set in "RIPE::AS-EXAMPLE" | strip_irr_sources %}
+        {{ as_set }}
+        {% endfor %}
+    """
+    if type(value) is AutonomousSystem:
+        parsed = parse_irr_as_set(value.asn, value.irr_as_set)
+        return list({as_set for _, as_set in parsed})
+
+    if isinstance(value, str):
+        parsed = parse_irr_as_set(0, value)
+        return list({as_set for _, as_set in parsed})
+
+    raise ValueError("value has no IRR AS-SET")
+
+
 def relationships(value, local_autonomous_system=None):
     """
     Returns a queryset of unique relationships for the given autonomous system.
@@ -902,6 +931,7 @@ FILTER_DICT = {
     "missing_sessions": missing_sessions,
     "prefix_list": prefix_list,
     "as_list": as_list,
+    "strip_irr_sources": strip_irr_sources,
     "relationships": relationships,
     # BGP groups
     "local_ips": local_ips,
