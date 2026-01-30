@@ -41,7 +41,7 @@ class TokenForm(BootstrapMixin, forms.ModelForm):
         model = Token
         fields = ["key", "write_enabled", "can_manage_permissions", "expires", "description", "allowed_ips"]
         widgets = {"expires": DateTimePicker()}
-        help_texts = 
+        help_texts = {
             "can_manage_permissions": "Allow this token to manage token object permissions via API",
         }
 
