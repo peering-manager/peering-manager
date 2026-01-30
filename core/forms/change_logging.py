@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 from utils.forms import BootstrapMixin
 from utils.forms.fields import DynamicModelMultipleChoiceField
-from utils.forms.widgets import APISelectMultiple, StaticSelectMultiple
+from utils.forms.widgets import APISelectMultiple, DateTimePicker, StaticSelectMultiple
 
 from ..enums import ObjectChangeAction
 from ..models import ObjectChange
@@ -13,14 +13,10 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     model = ObjectChange
     q = forms.CharField(required=False, label="Search")
     time_after = forms.DateTimeField(
-        label="After",
-        required=False,
-        widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
+        label="After", required=False, widget=DateTimePicker()
     )
     time_before = forms.DateTimeField(
-        label="Before",
-        required=False,
-        widget=forms.TextInput(attrs={"placeholder": "YYYY-MM-DD hh:mm:ss"}),
+        label="Before", required=False, widget=DateTimePicker()
     )
     action = forms.ChoiceField(
         required=False, choices=ObjectChangeAction, widget=StaticSelectMultiple

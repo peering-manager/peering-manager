@@ -5,48 +5,46 @@ on:
   - pull_request
 
 jobs:
-  poetry-check:
+  uv-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.10"
-      - name: Install Poetry
-        run: pipx install poetry==1.8.5
-      - name: Validate pyproject.toml and poetry.lock
-        run: poetry check
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+      - name: Validate pyproject.toml and uv.lock
+        run: uv lock --locked --offline --no-cache --check
 
   python-lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.10"
-      - name: Setup environment
-        run: |
-          pipx install poetry==1.8.5
-          poetry config virtualenvs.prefer-active-python true
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
       - name: Install dependencies
-        run: poetry install --no-root --only dev
+        run: uv sync --only-dev
       - name: Run Ruff formatter
-        run: poetry run ruff format --check --diff
+        run: uv run ruff format --check --diff
 
   tests:
     runs-on: ubuntu-latest
     needs:
-      - poetry-check
+      - uv-check
       - python-lint
     strategy:
       matrix:
@@ -76,31 +74,30 @@ jobs:
           - 6379:6379
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
       - name: Setup environment
-        run: |
-          pipx install poetry==1.8.5
-          poetry config virtualenvs.prefer-active-python true
-          cp peering_manager/configuration.example.py peering_manager/configuration.py
+        run: cp peering_manager/configuration.example.py peering_manager/configuration.py
       - name: Install dependencies
-        run: poetry install --no-root --with dev,docs
+        run: uv sync --locked --all-groups
       - name: Build documentation
-        run: poetry run mkdocs build
+        run: uv run mkdocs build
       - name: Collect static files
-        run: poetry run python manage.py collectstatic --no-input
+        run: uv run python manage.py collectstatic --no-input
       - name: Check for missing migrations
-        run: poetry run python manage.py makemigrations --check
+        run: uv run python manage.py makemigrations --check
       - name: Run tests
-        run: poetry run coverage run manage.py test
+        run: uv run coverage run manage.py test
       - name: Generate coverage report
-        run: poetry run coverage xml -i
+        run: uv run coverage xml -i
       - name: Report coverage
         uses: coverallsapp/github-action@v2
         with:

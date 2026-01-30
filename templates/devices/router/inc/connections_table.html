@@ -1,0 +1,8 @@
+{% extends 'generic/object_list.html' %}
+{% block extra_buttons %}
+{% if perms.devices.change_router and perms.net.add_connection %}
+<a href="{% url 'net:connection_add' %}?router={{ instance.pk }}&return_url={% url 'devices:router_connections' pk=instance.pk %}" class="btn btn-sm btn-primary">
+  <i class="fa-fw fa-solid fa-plus"></i> Add
+</a>
+{% endif %}
+{% endblock %}

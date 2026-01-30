@@ -1,3 +1,4 @@
+import contextlib
 import logging
 from urllib.parse import urlparse
 
@@ -19,7 +20,12 @@ from social_core.backends.utils import load_backends
 from peering_manager.authentication import get_auth_backend_display, get_saml_idps
 from utils.forms import ConfirmationForm
 
-from .forms import LoginForm, TokenForm, UserPasswordChangeForm
+from .forms import (
+    LoginForm,
+    TokenForm,
+    UserPasswordChangeForm,
+    UserPreferencesForm,
+)
 from .models import Token, UserPreferences
 
 logger = logging.getLogger("peering.manager.users")
@@ -152,32 +158,84 @@ class PreferencesView(View, LoginRequiredMixin):
     template_name = "users/preferences.html"
 
     def get(self, request):
+        preferences = request.user.preferences
+        initial = {
+            "page_length": str(
+                preferences.get("pagination.per_page") or settings.PAGINATE_COUNT
+            ),
+            "config_context_format": preferences.get("configcontext.format"),
+        }
+
+        if context_as_id := preferences.get("context.as"):
+            with contextlib.suppress(ValueError):
+                initial["context_as"] = int(context_as_id)
+
+        form = UserPreferencesForm(initial=initial)
+        table_preferences = []
+        for k, v in preferences.all().items():
+            if not k.startswith("tables."):
+                continue
+            table_name = k.removeprefix("tables.").removesuffix(".columns")
+            table_preferences.append({"key": k, "table_name": table_name, "value": v})
+
         return render(
             request,
             self.template_name,
             {
-                "preferences": request.user.preferences.all(),
+                "form": form,
+                "table_preferences": table_preferences,
                 "tab": "preferences",
             },
         )
 
     def post(self, request):
         preferences = request.user.preferences
-        data = preferences.all()
 
-        if "as_id" in request.POST:
-            preferences.set("context.as", request.POST.get("as_id"), commit=True)
-            return redirect("home")
+        form = UserPreferencesForm(request.POST)
+        if form.is_valid():
+            if context_as := form.cleaned_data.get("context_as"):
+                preferences.set("context.as", context_as.pk, commit=False)
+            elif "context_as" in form.cleaned_data:
+                preferences.delete("context.as", commit=False)
 
-        # Delete selected preferences
-        for key in request.POST.getlist("pk"):
-            if key in data:
-                preferences.delete(key)
+            if page_length := form.cleaned_data.get("page_length"):
+                preferences.set("pagination.per_page", int(page_length), commit=False)
+            elif "page_length" in form.cleaned_data:
+                preferences.delete("pagination.per_page", commit=False)
 
-        preferences.save()
-        messages.success(request, "Your preferences have been updated.")
+            if config_context_format := form.cleaned_data.get("config_context_format"):
+                preferences.set(
+                    "configcontext.format", config_context_format, commit=False
+                )
+            elif "config_context_format" in form.cleaned_data:
+                preferences.delete("configcontext.format", commit=False)
 
-        return redirect("users:preferences")
+            table_preferences_to_clear = request.POST.getlist("clear_table_preferences")
+            for key in table_preferences_to_clear:
+                if key.startswith("tables."):
+                    preferences.delete(key, commit=False)
+
+            preferences.save()
+            messages.success(request, "Your preferences have been updated.")
+
+            return redirect("users:preferences")
+
+        table_preferences = []
+        for k, v in preferences.all().items():
+            if not k.startswith("tables."):
+                continue
+            table_name = k.removeprefix("tables.").removesuffix(".columns")
+            table_preferences.append({"key": k, "table_name": table_name, "value": v})
+
+        return render(
+            request,
+            self.template_name,
+            {
+                "form": form,
+                "table_preferences": table_preferences,
+                "tab": "preferences",
+            },
+        )
 
 
 class ChangePasswordView(View, LoginRequiredMixin):

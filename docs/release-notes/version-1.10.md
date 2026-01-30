@@ -1,3 +1,32 @@
+## Version 1.10.2 | MARK I (Bug fixes release) | 2025-12-23
+
+### Enhancements
+
+* [#914](https://github.com/peering-manager/peering-manager/issues/914) Add a view to see prefixes for an AS
+* Improve shared IXP query performance
+* Add created/update date and time under a dropdown in object tabs
+* Rework user preferences view to be able to change preferences
+* Add `last_used` and `allowed_ips` fields for tokens
+* Use date and time picker where appropriate
+
+### Bug Fixes
+
+* Fix exception for orphaned IXP sessions
+* Fix URL for messaging views, they are now all nested under `/messaging/`
+* Normalise text when no routing policies are assigned to an object
+* Fix connection view for router not having bulk action buttons
+* Fix fields not being validated when saving the BGP state of sessions
+* Fix journal entries bulk edit view
+* Allow picking a date and time in the past (needed for filter forms)
+
+### Code Housekeeping / Code Quality
+
+* Support poetry 2.x and uv
+
+### Documentation
+
+* Fix mention of PostgreSQL version (by @henriklb)
+
 ## Version 1.10.1 | MARK I (Bug fixes release) | 2025-12-01
 
 ### Bug Fixes

@@ -265,7 +265,7 @@
         $.ajax({
           method: 'post',
           url: "{% url 'users:preferences' %}",
-          data: { csrfmiddlewaretoken: '{{ csrf_token }}', as_id: $(this).attr("data-as-id") }
+          data: { csrfmiddlewaretoken: '{{ csrf_token }}', context_as: $(this).attr("data-as-id") }
         }).done(function () { location.reload(); });
       });
     </script>

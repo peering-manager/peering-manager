@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from bgp.tables import CommunityColumn
-from peering_manager.tables import PeeringManagerTable, columns
+from peering_manager.tables import BaseTable, PeeringManagerTable, columns
 
 from ..models import (
     AutonomousSystem,
@@ -308,6 +308,22 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
             "is_route_server",
             "actions",
         )
+
+
+class AutonomousSystemPrefixTable(BaseTable):
+    prefix = tables.Column(verbose_name="Prefix")
+    exact = columns.BooleanColumn(verbose_name="Exact")
+    less_equal = tables.Column(verbose_name="Less or Equal", empty_values=())
+
+    def render_less_equal(self, record):
+        if record["exact"]:
+            return "—"
+        return record.get("less-equal", "—")
+
+    class Meta(BaseTable.Meta):
+        empty_text = "No prefixes found"
+        fields = ("prefix", "exact", "less_equal")
+        default_columns = ("prefix", "exact", "less_equal")
 
 
 class RoutingPolicyTable(PeeringManagerTable):

@@ -1,12 +1,15 @@
 import binascii
+import ipaddress
 import os
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils import timezone
+from netfields.fields import CidrAddressField
 
 __all__ = ("Token", "TokenObjectPermission", "UserPreferences")
 
@@ -20,6 +23,7 @@ class Token(models.Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="tokens")
     created = models.DateTimeField(auto_now_add=True)
     expires = models.DateTimeField(blank=True, null=True)
+    last_used = models.DateTimeField(blank=True, null=True)
     key = models.CharField(
         max_length=40, unique=True, validators=[MinLengthValidator(40)]
     )
@@ -31,6 +35,13 @@ class Token(models.Model):
         help_text="Allow managing token object permissions via API (view/create/update/delete)",
     )
     description = models.CharField(max_length=100, blank=True)
+    allowed_ips = ArrayField(
+        base_field=CidrAddressField(),
+        blank=True,
+        null=True,
+        verbose_name="allowed IPs",
+        help_text="Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for no restrictions.",
+    )
 
     class Meta:
         pass
@@ -55,6 +66,14 @@ class Token(models.Model):
         Says if this token is expired if it has an expiration date.
         """
         return (self.expires is not None) and (timezone.now() >= self.expires)
+
+    def validate_client_ip(
+        self, ip_address: ipaddress.IPv4Address | ipaddress.IPv6Address
+    ) -> bool:
+        if not self.allowed_ips:
+            return True
+
+        return any(ip_address in allowed for allowed in self.allowed_ips)
 
 
 class TokenObjectPermission(models.Model):

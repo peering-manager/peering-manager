@@ -26,7 +26,7 @@ __patterns = [
     path("core/", include("core.urls")),
     path("devices/", include("devices.urls")),
     path("extras/", include("extras.urls")),
-    path("", include("messaging.urls")),
+    path("messaging/", include("messaging.urls")),
     path("net/", include("net.urls")),
     path("", include("peering.urls")),
     path("peeringdb/", include("peeringdb.urls")),

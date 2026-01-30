@@ -24,7 +24,6 @@ $(document).ready(function () {
     enableTime: true,
     time_24hr: true,
     dateFormat: "Y-m-d H:i",
-    minDate: "today",
     prevArrow: "<i class='fa-solid fa-chevron-left'></i>",
     nextArrow: "<i class='fa-solid fa-chevron-right'></i>"
   });

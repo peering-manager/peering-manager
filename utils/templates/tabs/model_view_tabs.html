@@ -1,3 +1,4 @@
+{% load helpers %}
 {% for tab in tabs %}
 <li role="presentation" class="nav-item">
   <a href="{{ tab.url }}" class="nav-link{% if tab.is_active %} active{% endif %}">
@@ -8,3 +9,23 @@
   </a>
 </li>
 {% endfor %}
+{% if instance.created or instance.updated %}
+<li role="presentation" class="nav-item dropdown ms-auto align-self-center">
+  <a class="nav-link text-muted dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Timestamps" style="text-decoration: none;">
+    <i class="fa-solid fa-clock-rotate-left"></i>
+  </a>
+  <ul class="dropdown-menu dropdown-menu-end">
+    {% if instance.created %}
+    <li class="dropdown-item-text text-nowrap">
+      <i class="fa-solid fa-calendar-plus me-1"></i> Created: {{ instance.created | date_span }}
+    </li>
+    {% endif %}
+    {% if instance.updated %}
+    <li class="dropdown-item-text text-nowrap">
+      <i class="fa-solid fa-clock me-1"></i> Updated: {{ instance.updated | date_span }}
+    </li>
+    {% endif %}
+  </ul>
+</li>
+{% endif %}
+
