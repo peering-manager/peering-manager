@@ -11,7 +11,13 @@ from utils.forms.widgets import DateTimePicker, StaticSelect
 
 from .models import Token, TokenObjectPermission
 
-__all__ = ("LoginForm", "TokenForm", "TokenObjectPermissionForm", "UserPasswordChangeForm", "UserPreferencesForm")
+__all__ = (
+    "LoginForm",
+    "TokenForm",
+    "TokenObjectPermissionForm",
+    "UserPasswordChangeForm",
+    "UserPreferencesForm",
+)
 
 
 class LoginForm(BootstrapMixin, AuthenticationForm):
@@ -39,7 +45,14 @@ class TokenForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Token
-        fields = ["key", "write_enabled", "can_manage_permissions", "expires", "description", "allowed_ips"]
+        fields = [
+            "key",
+            "write_enabled",
+            "can_manage_permissions",
+            "expires",
+            "description",
+            "allowed_ips",
+        ]
         widgets = {"expires": DateTimePicker()}
         help_texts = {
             "can_manage_permissions": "Allow this token to manage token object permissions via API",
@@ -127,7 +140,6 @@ class TokenObjectPermissionForm(BootstrapMixin, forms.ModelForm):
             instance.save()
 
         return instance
-        
 
 
 class UserPreferencesForm(BootstrapMixin, forms.Form):
