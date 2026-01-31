@@ -175,9 +175,6 @@ def _hashkey(pw: bytes) -> bytes:
 class AristaType7Cipher(PasswordCipher):
     """
     Arista Type 7 password encryption/decryption implementation.
-
-    This uses TripleDES CBC encryption. Unlike Cisco Type 7, it requires a key
-    derived from the peer group name or neighbor IP address.
     """
 
     def is_encrypted(self, value: str) -> bool:
@@ -192,9 +189,7 @@ class AristaType7Cipher(PasswordCipher):
         if not value:
             return False
 
-        # Check if it looks like base64 encoded TripleDES output
         try:
-            # Must be valid base64
             data = base64.b64decode(value)
             # TripleDES produces output in 8-byte blocks, minimum 8 bytes
             return len(data) >= 8 and len(data) % 8 == 0
