@@ -290,24 +290,31 @@ class BGPSession(PrimaryModel, PolicyMixin):
                 self.save()
             return True
 
+        encryption_key = str(self.ip_address)
         if not self.encrypted_password:
             # If the password is not encrypted yet, do it
-            self.encrypted_password = router.platform.encrypt_password(self.password)
+            self.encrypted_password = router.platform.encrypt_password(
+                password=self.password, key=encryption_key
+            )
         else:
             # Try to re-encrypt the encrypted password, if the resulting string is the
             # same it means the password matches the router platform algorithm
             is_up_to_date = self.encrypted_password == router.platform.encrypt_password(
-                self.encrypted_password
+                password=self.encrypted_password, key=encryption_key
             )
             if not is_up_to_date:
                 self.encrypted_password = router.platform.encrypt_password(
-                    self.password
+                    password=self.password, key=encryption_key
                 )
 
         # Check if the encrypted password matches the clear one
         # Force re-encryption if there a difference
-        if self.password != router.platform.decrypt_password(self.encrypted_password):
-            self.encrypted_password = router.platform.encrypt_password(self.password)
+        if self.password != router.platform.decrypt_password(
+            password=self.encrypted_password, key=encryption_key
+        ):
+            self.encrypted_password = router.platform.encrypt_password(
+                password=self.password, key=encryption_key
+            )
 
         if commit:
             self.save()

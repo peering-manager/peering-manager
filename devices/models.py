@@ -31,7 +31,7 @@ from peering_manager.models import (
     TemplateModel,
 )
 
-from .crypto import *
+from .crypto import get_cipher
 from .enums import DeviceStatus, PasswordAlgorithm
 
 __all__ = ("Configuration", "Platform", "Router")
@@ -84,7 +84,7 @@ class Platform(OrganisationalModel):
     def get_absolute_url(self) -> str:
         return f"{reverse('devices:router_list')}?platform_id={self.pk}"
 
-    def encrypt_password(self, password) -> str:
+    def encrypt_password(self, password: str, key: str = "") -> str:
         """
         Encrypts a password using the defined algorithm.
 
@@ -95,9 +95,13 @@ class Platform(OrganisationalModel):
         if not self.password_algorithm:
             return password
 
-        return ENCRYPTERS[self.password_algorithm](password)
+        cipher = get_cipher(algorithm=self.password_algorithm)
+        if not cipher:
+            return password
 
-    def decrypt_password(self, password) -> str:
+        return cipher.encrypt(value=password, key=key)
+
+    def decrypt_password(self, password: str, key: str = "") -> str:
         """
         Decrypts a password using the defined algorithm.
 
@@ -108,7 +112,11 @@ class Platform(OrganisationalModel):
         if not self.password_algorithm:
             return password
 
-        return DECRYPTERS[self.password_algorithm](password)
+        cipher = get_cipher(algorithm=self.password_algorithm)
+        if not cipher:
+            return password
+
+        return cipher.decrypt(value=password, key=key)
 
 
 class Router(JobsMixin, PushedDataMixin, PrimaryModel):

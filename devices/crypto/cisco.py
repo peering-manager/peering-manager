@@ -1,12 +1,14 @@
-import random
-import re
-
 # Let's bring some fun, this code is based on the following readings
 #
 # https://pen-testing.sans.org/resources/papers/gcih/cisco-ios-type-7-password-vulnerability-100566
 # http://wiki.nil.com/Deobfuscating_Cisco_IOS_Passwords
 
-__all__ = ("decrypt", "encrypt", "is_encrypted")
+import random
+import re
+
+from .base import PasswordCipher
+
+__all__ = ("CiscoType7Cipher",)
 
 MAGIC = "7 "
 XLAT = [
@@ -66,51 +68,66 @@ XLAT = [
 ]
 
 
-def is_encrypted(value):
-    return value.startswith(MAGIC)
+class CiscoType7Cipher(PasswordCipher):
+    """
+    Cisco Type 7 password encryption/decryption implementation.
 
+    This is a weak, reversible obfuscation scheme used in Cisco IOS devices.
+    The key parameter is not used for this algorithm.
+    """
 
-def decrypt(value):
-    if not value:
-        return ""
+    def is_encrypted(self, value: str) -> bool:
+        """
+        Check if a value is Cisco Type 7 encrypted.
+        """
+        if not value:
+            return False
+        return value.startswith(MAGIC)
 
-    if not is_encrypted(value):
-        return value
+    def decrypt(self, value: str, key: str = "") -> str:
+        """
+        Decrypt a Cisco Type 7 encrypted password.
+        """
+        if not value:
+            return ""
+        if not self.is_encrypted(value):
+            return value
 
-    value = value.replace(MAGIC, "")
+        value = value.replace(MAGIC, "")
 
-    decrypted = ""
+        decrypted = ""
 
-    regex = re.compile("(^[0-9A-Fa-f]{2})([0-9A-Fa-f]+)")
-    result = regex.search(value)
+        regex = re.compile("(^[0-9A-Fa-f]{2})([0-9A-Fa-f]+)")
+        result = regex.search(value)
 
-    s, e = int(result.group(1), 16), result.group(2)
-    for position in range(0, len(e), 2):
-        magic = int(e[position] + e[position + 1], 16)
-        if s <= 50:
-            new_character = format((magic ^ XLAT[s]), "c")
-            s += 1
-        if s == 51:
-            s = 0
-        decrypted += new_character
+        s, e = int(result.group(1), 16), result.group(2)
+        for position in range(0, len(e), 2):
+            magic = int(e[position] + e[position + 1], 16)
+            if s <= 50:
+                new_character = format((magic ^ XLAT[s]), "c")
+                s += 1
+            if s == 51:
+                s = 0
+            decrypted += new_character
 
-    return decrypted
+        return decrypted
 
+    def encrypt(self, value: str, key: str = "") -> str:
+        """
+        Encrypt a password using Cisco Type 7.
+        """
+        if not value:
+            return ""
+        if self.is_encrypted(value=value):
+            return value
 
-def encrypt(value):
-    if not value:
-        return ""
+        salt = random.randrange(0, 15)
+        encrypted = format(salt, "02x")
 
-    if is_encrypted(value):
-        return value
+        for i in range(len(value)):
+            encrypted += format((ord(value[i]) ^ XLAT[salt]), "02x")
+            salt += 1
+            if salt == 51:
+                salt = 0
 
-    salt = random.randrange(0, 15)
-    encrypted = format(salt, "02x")
-
-    for i in range(len(value)):
-        encrypted += format((ord(value[i]) ^ XLAT[salt]), "02x")
-        salt += 1
-        if salt == 51:
-            salt = 0
-
-    return f"{MAGIC}{encrypted.upper()}"
+        return f"{MAGIC}{encrypted.upper()}"

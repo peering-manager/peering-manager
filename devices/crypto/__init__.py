@@ -1,16 +1,20 @@
 from ..enums import PasswordAlgorithm
-from .cisco import decrypt as cisco_type7_decrypt
-from .cisco import encrypt as cisco_type7_encrypt
-from .juniper import decrypt as juniper_type9_decrypt
-from .juniper import encrypt as juniper_type9_encrypt
+from .arista import AristaType7Cipher
+from .base import PasswordCipher
+from .cisco import CiscoType7Cipher
+from .juniper import JuniperType9Cipher
 
-ENCRYPTERS = {
-    PasswordAlgorithm.CISCO_TYPE7: cisco_type7_encrypt,
-    PasswordAlgorithm.JUNIPER_TYPE9: juniper_type9_encrypt,
-}
-DECRYPTERS = {
-    PasswordAlgorithm.CISCO_TYPE7: cisco_type7_decrypt,
-    PasswordAlgorithm.JUNIPER_TYPE9: juniper_type9_decrypt,
+__all__ = ("PasswordCipher", "get_cipher")
+
+CIPHERS: dict[str, PasswordCipher] = {
+    PasswordAlgorithm.ARISTA_TYPE7: AristaType7Cipher(),
+    PasswordAlgorithm.CISCO_TYPE7: CiscoType7Cipher(),
+    PasswordAlgorithm.JUNIPER_TYPE9: JuniperType9Cipher(),
 }
 
-__all__ = ("DECRYPTERS", "ENCRYPTERS")
+
+def get_cipher(algorithm: str) -> PasswordCipher | None:
+    """
+    Retrieve the password cipher instance based on the specified algorithm.
+    """
+    return CIPHERS.get(algorithm)
