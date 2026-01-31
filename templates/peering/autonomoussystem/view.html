@@ -14,7 +14,7 @@
             <i class="fa-fw fa-solid fa-external-link-alt"></i> PeeringDB
           </a>
           {% if perms.peering.change_autonomoussystem and peeringdb_last_synchronisation %}
-          <button class="btn btn-xs btn-success" id="synchronise-with-peeringdb">
+          <button class="btn btn-xs btn-success" id="synchronise-with-peeringdb" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Update data according to PeeringDB record cached at {{ peeringdb_last_synchronisation.time|date:'Y-m-d H:i' }}">
             <i class="fa-fw fa-solid fa-rotate"></i> Synchronise
           </button>
           {% endif %}
