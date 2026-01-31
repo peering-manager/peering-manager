@@ -9,7 +9,7 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.query import QuerySet
 
-from devices.crypto.cisco import MAGIC as CISCO_MAGIC
+from devices.crypto.cisco import MAGIC as CISCO_TYPE7_MAGIC
 from devices.enums import DeviceStatus
 from devices.models import Router
 from net.enums import ConnectionStatus
@@ -236,7 +236,7 @@ def cisco_password(password):
     """
     Returns a Cisco type 7 password without the magic word.
     """
-    if password.startswith(CISCO_MAGIC):
+    if password.startswith(CISCO_TYPE7_MAGIC):
         return password[2:]
     return password
 
