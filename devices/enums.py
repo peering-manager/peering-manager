@@ -18,7 +18,12 @@ class DeviceStatus(ChoiceSet):
 
 
 class PasswordAlgorithm(ChoiceSet):
+    ARISTA_TYPE7 = "arista-type7"
     CISCO_TYPE7 = "cisco-type7"
     JUNIPER_TYPE9 = "juniper-type9"
 
-    CHOICES = ((CISCO_TYPE7, "Cisco Type 7"), (JUNIPER_TYPE9, "Juniper Type 9"))
+    CHOICES = (
+        (ARISTA_TYPE7, "Arista Type 7"),
+        (CISCO_TYPE7, "Cisco Type 7"),
+        (JUNIPER_TYPE9, "Juniper Type 9"),
+    )
