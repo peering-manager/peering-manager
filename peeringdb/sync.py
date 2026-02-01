@@ -20,6 +20,7 @@ from .models import (
     Carrier,
     CarrierFacility,
     Facility,
+    HiddenPeer,
     InternetExchange,
     InternetExchangeFacility,
     IXLan,
@@ -243,6 +244,8 @@ class PeeringDB:
             c.link_to_peeringdb()
         for i in Ixp.objects.all():
             i.link_to_peeringdb()
+        for h in HiddenPeer.objects.all():
+            h.link_to_peeringdb()
 
     def synchronise_objects(
         self, namespace: str, model: type[BaseModel]
@@ -346,6 +349,7 @@ class PeeringDB:
             peeringdb_netixlan=None
         )
         Ixp.objects.filter(peeringdb_ixlan__isnull=False).update(peeringdb_ixlan=None)
+        HiddenPeer.objects.update(peeringdb_network=None, peeringdb_ixlan=None)
 
         # The use of reversed is important to avoid fk issues
         for model in reversed(list(NAMESPACES.values())):
