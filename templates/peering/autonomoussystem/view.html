@@ -34,22 +34,22 @@
           <td>Description</td>
           <td>{{ instance.description|render_none }}</td>
         </tr>
-        <tr{% if not instance.is_private and instance.irr_as_set_peeringdb_sync %} data-bs-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
+        <tr>
           <td>IRR AS-SET</td>
-          <td id="id_irr_as_set">{{ instance.irr_as_set|render_none }}</td>
+          <td class="d-flex justify-content-between align-items-center"><span id="id_irr_as_set">{{ instance.irr_as_set|render_none }}</span>{% if not instance.is_private and instance.irr_as_set_peeringdb_sync %}<span class="fas fa-fw fa-circle-info" data-bs-toggle="tooltip" data-placement="right" title="From PeeringDB"></span>{% endif %}</td>
         </tr>
-        <tr{% if not instance.is_private and instance.ipv6_max_prefixes_peeringdb_sync %} data-bs-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
+        <tr>
           <td>IPv6 Max Prefixes</td>
-          <td id="id_ipv6_max_prefixes">{{ instance.ipv6_max_prefixes|render_none }}</td>
+          <td class="d-flex justify-content-between align-items-center"><span id="id_ipv6_max_prefixes">{{ instance.ipv6_max_prefixes|render_none }}</span>{% if not instance.is_private and instance.ipv6_max_prefixes_peeringdb_sync %}<span class="fas fa-fw fa-circle-info" data-bs-toggle="tooltip" data-placement="right" title="From PeeringDB"></span>{% endif %}</td>
         </tr>
-        <tr{% if not instance.is_private and instance.ipv4_max_prefixes_peeringdb_sync %} data-bs-toggle="tooltip" data-placement="right" title="From PeeringDB"{% endif %}>
+        <tr>
           <td>IPv4 Max Prefixes</td>
-          <td id="id_ipv4_max_prefixes">{{ instance.ipv4_max_prefixes|render_none }}</td>
+          <td class="d-flex justify-content-between align-items-center"><span id="id_ipv4_max_prefixes">{{ instance.ipv4_max_prefixes|render_none }}</span>{% if not instance.is_private and instance.ipv4_max_prefixes_peeringdb_sync %}<span class="fas fa-fw fa-circle-info" data-bs-toggle="tooltip" data-placement="right" title="From PeeringDB"></span>{% endif %}</td>
         </tr>
         {% if not instance.is_private and instance.general_policy %}
-        <tr data-bs-toggle="tooltip" data-placement="right" title="From PeeringDB">
+        <tr data-bs-toggle="tooltip">
           <td>General Policy</td>
-          <td id="peering_policy">{{ instance.general_policy }}</td>
+          <td id="peering_policy" class="d-flex justify-content-between align-items-center">{{ instance.general_policy }}<span class="fas fa-fw fa-circle-info" data-bs-toggle="tooltip" data-placement="right" title="From PeeringDB"></span></td>
         </tr>
         {% endif %}
         <tr>
@@ -162,24 +162,24 @@
       }).done(function(response) {
         var changedFields = [];
         if (response['irr_as_set_peeringdb_sync']) {
-          $('#id_irr_as_set').text(response['irr_as_set']);
+          $('#id_irr_as_set').html(response['irr_as_set']);
           changedFields.push($('#id_irr_as_set'));
         }
         if (response['ipv6_max_prefixes_peeringdb_sync']) {
-          $('#id_ipv6_max_prefixes').text(response['ipv6_max_prefixes']);
+          $('#id_ipv6_max_prefixes').html(response['ipv6_max_prefixes']);
           changedFields.push($('#id_ipv6_max_prefixes'));
         }
         if (response['ipv4_max_prefixes_peeringdb_sync']) {
-          $('#id_ipv4_max_prefixes').text(response['ipv4_max_prefixes']);
+          $('#id_ipv4_max_prefixes').html(response['ipv4_max_prefixes']);
           changedFields.push($('#id_ipv4_max_prefixes'));
         }
 
         changedFields.forEach(function(value) {
-          value.parent().toggleClass('alert-success');
+          value.parent().toggleClass('bg-success bg-opacity-75');
         });
         setTimeout(function() {
           changedFields.forEach(function(value) {
-            value.parent().toggleClass('alert-success');
+            value.parent().toggleClass('bg-success bg-opacity-75');
           });
         }, 2000);
       });
