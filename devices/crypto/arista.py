@@ -15,6 +15,7 @@ from .base import PasswordCipher
 
 __all__ = ("AristaType7Cipher",)
 
+MAGIC = "7 "
 SEED = b"\xd5\xa8\xc9\x1e\xf5\xd5\x8a\x23"
 
 PARITY_BITS = [
@@ -179,22 +180,11 @@ class AristaType7Cipher(PasswordCipher):
 
     def is_encrypted(self, value: str) -> bool:
         """
-        Check if a value appears to be Arista Type 7 encrypted.
-
-        Note: Arista Type 7 encryption produces opaque ciphertext with no visible
-        prefix. This method uses a heuristic: valid base64 of the right length
-        (multiple of 4, decodes to multiple of 8 bytes for TripleDES block size).
-        This is not 100% reliable but provides a reasonable check.
+        Check if a value is Arista Type 7 encrypted.
         """
         if not value:
             return False
-
-        try:
-            data = base64.b64decode(value)
-            # TripleDES produces output in 8-byte blocks, minimum 8 bytes
-            return len(data) >= 8 and len(data) % 8 == 0
-        except binascii.Error:
-            return False
+        return value.startswith(MAGIC)
 
     def decrypt(self, value: str, key: str = "") -> str:
         """
@@ -210,7 +200,7 @@ class AristaType7Cipher(PasswordCipher):
             return value
 
         try:
-            data = base64.b64decode(value)
+            data = base64.b64decode(value[len(MAGIC) :])
         except binascii.Error:
             return value
 
@@ -255,4 +245,4 @@ class AristaType7Cipher(PasswordCipher):
         result = encryptor.update(ciphertext)
         encryptor.finalize()
 
-        return base64.b64encode(result).decode(encoding="UTF-8")
+        return MAGIC + base64.b64encode(result).decode(encoding="UTF-8")

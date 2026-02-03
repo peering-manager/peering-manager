@@ -442,10 +442,10 @@ unicast {
 }
 ```
 
-## `cisco_password`
+## `arista_password` / `cisco_password`
 
-From a valid Cisco type 7 password, returns the password stripping the magic
-word prefix.
+From a valid Arista or Cisco type 7 password, returns the password stripping
+the magic word prefix.
 
 Example:
 

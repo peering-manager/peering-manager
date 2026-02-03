@@ -9,6 +9,7 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.query import QuerySet
 
+from devices.crypto.arista import MAGIC as ARISTA_TYPE7_MAGIC
 from devices.crypto.cisco import MAGIC as CISCO_TYPE7_MAGIC
 from devices.enums import DeviceStatus
 from devices.models import Router
@@ -232,11 +233,11 @@ def max_prefix(value):
     return value.autonomous_system.ipv4_max_prefixes
 
 
-def cisco_password(password):
+def type7_password(password):
     """
     Returns a Cisco type 7 password without the magic word.
     """
-    if password.startswith(CISCO_TYPE7_MAGIC):
+    if password.startswith((CISCO_TYPE7_MAGIC, ARISTA_TYPE7_MAGIC)):
         return password[2:]
     return password
 
@@ -943,7 +944,8 @@ FILTER_DICT = {
     "ip": ip,
     "ip_version": ip_version,
     "max_prefix": max_prefix,
-    "cisco_password": cisco_password,
+    "arista_password": type7_password,
+    "cisco_password": type7_password,
     # Connections
     "connections": connections,
     # Routers

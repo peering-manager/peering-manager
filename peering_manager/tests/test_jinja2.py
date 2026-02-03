@@ -347,8 +347,15 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(6, FILTER_DICT["length"](RoutingPolicy.objects.all()))
         self.assertEqual(0, FILTER_DICT["length"](RoutingPolicy.objects.none()))
 
-    def test_cisco_password(self):
-        pass
+    def test_type7_password(self):
+        self.assertEqual(
+            "04480E051A33490C1E0F",
+            FILTER_DICT["cisco_password"]("7 04480E051A33490C1E0F"),
+        )
+        self.assertEqual(
+            "D5A81E1EF5D58A23",
+            FILTER_DICT["arista_password"]("7 D5A81E1EF5D58A23"),
+        )
 
     def test_iter_export_policies(self):
         self.assertListEqual(
