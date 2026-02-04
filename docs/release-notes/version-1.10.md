@@ -1,3 +1,24 @@
+## Version 1.10.3 | MARK I (Bug fixes release) | 2026-02-05
+
+> [!NOTE]
+> Password hashes encrypted with the Juniper Junos cipher may change upon re-encryption. This is because the cipher now uses the remote neighbor IP address as a salt during hashing. After re-encryption, password hashes for Juniper Junos devices should remain consistent, preventing unnecessary configuration differences in the future.
+
+### Enhancements
+
+* Add `relationships` Jinja2 filter, to get a list of relationships for an autonomous
+system
+* Add `strip_irr_sources` Jinja2 filter, get a list of AS-SET with each item stripped of its source prefix
+* Global refactoring of password encryption logic
+* Add Arista password encryption/decryption and migrate existing platform to use it
+* Adjust Juniper password encryption logic to use a salt based on the remote neighbor IP
+* Add tooltip to AS synchronise button
+* Slight tweak for PeeringDB tooltips in AS view
+
+### Bug Fixes
+
+* Fix changing affiliated AS via top bar dropdown
+* Fix PeeringDB cache flush with existing hidden peers objects, objects will also be restored after re-building the PeeringDB cache
+
 ## Version 1.10.2 | MARK I (Bug fixes release) | 2025-12-23
 
 ### Enhancements
