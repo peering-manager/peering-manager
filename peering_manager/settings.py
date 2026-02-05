@@ -194,7 +194,7 @@ FILTERS_NULL_CHOICE_VALUE = "null"
 
 
 # Use major.minor as API version
-REST_FRAMEWORK_VERSION = ".".join(VERSION.split("-")[0].split(".")[:2])
+REST_FRAMEWORK_VERSION = ".".join(VERSION.split("-", maxsplit=1)[0].split(".")[:2])
 REST_FRAMEWORK = {
     "ALLOWED_VERSIONS": [REST_FRAMEWORK_VERSION],
     "COERCE_DECIMAL_TO_STRING": False,

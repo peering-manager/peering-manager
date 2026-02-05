@@ -454,9 +454,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
 
         The stored database value will be used if it exists.
         """
-        prefixes = (
-            self.prefixes if self.prefixes else self.retrieve_irr_as_set_prefixes()
-        )
+        prefixes = self.prefixes or self.retrieve_irr_as_set_prefixes()
         self.save(update_fields=["prefixes"])
 
         if address_family == 6:

@@ -39,7 +39,7 @@ def multivalue_field_factory(field_class):
             field = field_class()
             # Only append non-empty values (this avoids e.g. trying to cast '' as an
             # integer)
-            return [field.to_python(v) for v in value if v not in [""]]
+            return [field.to_python(v) for v in value if v != ""]
 
         def run_validators(self, value):
             for v in value:
