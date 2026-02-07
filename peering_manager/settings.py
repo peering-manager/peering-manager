@@ -550,6 +550,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "peering_manager.context_processors.settings",
+                "peering_manager.context_processors.navigation",
                 "peering_manager.context_processors.affiliated_autonomous_systems",
             ]
         },

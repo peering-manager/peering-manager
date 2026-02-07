@@ -1,0 +1,27 @@
+<div class="collapse navbar-collapse flex-column align-items-stretch" id="sidebar-menu">
+  <ul class="navbar-nav flex-column pt-lg-2">
+    {% for entry in navigation %}
+    {% if entry.type == "item" %}
+    <li class="nav-item">
+      <a href="{{ entry.url }}" class="nav-link{% if entry.is_active %} active{% endif %}">
+        <i class="fa-fw {{ entry.icon }} me-2"></i>
+        {{ entry.label }}
+      </a>
+    </li>
+    {% elif entry.type == "group" %}
+    <li class="nav-item">
+      <a href="#{{ entry.menu_id }}" data-bs-toggle="collapse" aria-expanded="false" class="nav-link">
+        <i class="fa-fw {{ entry.icon }} me-2"></i>
+        {{ entry.label }}
+        <span class="submenu-icon float-end"><i class="fa-fw fa-solid fa-caret-right"></i></span>
+      </a>
+      <ul id="{{ entry.menu_id }}" class="collapse list-unstyled">
+        {% for item in entry.items %}
+        <li class="nav-item"><a href="{{ item.url }}" class="nav-link{% if item.is_active %} active{% endif %}">{{ item.label }}</a></li>
+        {% endfor %}
+      </ul>
+    </li>
+    {% endif %}
+    {% endfor %}
+  </ul>
+</div>
