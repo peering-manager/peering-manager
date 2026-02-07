@@ -203,6 +203,7 @@ class InternetExchangeIXAPI(PermissionRequiredMixin, View):
         label="IX-API",
         permission="peering.view_internet_exchange_point_ixapi",
         weight=4000,
+        visible=lambda instance: bool(instance.ixapi_endpoint_id),
     )
 
     def get(self, request, pk):

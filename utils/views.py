@@ -100,15 +100,19 @@ class ViewTab:
         weight: int = 1000,
         permission: str | None = None,
         hide_if_empty: bool = False,
+        visible: Callable[[models.Model], bool] | None = None,
     ) -> None:
         self.label = label
         self.badge = badge
         self.weight = weight
         self.permission = permission
         self.hide_if_empty = hide_if_empty
+        self.visible = visible
 
     def render(self, instance: models.Model) -> dict[str, Any] | None:
         """Return the attributes needed to render a tab in HTML."""
+        if self.visible is not None and not self.visible(instance):
+            return None
         badge_value = self._get_badge_value(instance)
         if self.badge and self.hide_if_empty and not badge_value:
             return None

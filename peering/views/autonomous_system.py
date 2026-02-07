@@ -150,7 +150,9 @@ class AutonomousSystemPeeringDB(ObjectView):
     permission_required = "peering.view_autonomoussystem"
     queryset = AutonomousSystem.objects.all()
     template_name = "peering/autonomoussystem/peeringdb.html"
-    tab = ViewTab(label="PeeringDB")
+    tab = ViewTab(
+        label="PeeringDB", visible=lambda instance: bool(instance.peeringdb_network)
+    )
 
     def get_extra_context(self, request, instance):
         try:
@@ -299,7 +301,11 @@ class AutonomousSystemPeers(ObjectChildrenView):
     child_model = NetworkIXLan
     table = NetworkIXLanTable
     template_name = "peering/autonomoussystem/peers.html"
-    tab = ViewTab(label="Available Sessions", weight=4000)
+    tab = ViewTab(
+        label="Available Sessions",
+        weight=4000,
+        visible=lambda instance: bool(instance.peeringdb_network),
+    )
 
     def get_children(self, request, parent):
         try:
