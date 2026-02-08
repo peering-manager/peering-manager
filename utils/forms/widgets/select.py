@@ -20,7 +20,7 @@ class BulkEditNullBooleanSelect(forms.NullBooleanSelect):
         super().__init__(*args, **kwargs)
 
         self.choices = (("1", "---------"), ("2", "Yes"), ("3", "No"))
-        self.attrs["class"] = "custom-select2-static"
+        self.attrs["class"] = "custom-tomselect-static"
 
 
 class ColourSelect(forms.Select):
@@ -33,22 +33,22 @@ class ColourSelect(forms.Select):
     def __init__(self, *args, **kwargs):
         kwargs["choices"] = add_blank_choice(Colour)
         super().__init__(*args, **kwargs)
-        self.attrs["class"] = "custom-select2-colour-picker"
+        self.attrs["class"] = "custom-tomselect-colour-picker"
 
 
 class StaticSelect(forms.Select):
     """
-    Select widget for static choices leveraging the select2 component.
+    Select widget for static choices leveraging TomSelect.
     """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.attrs["class"] = "custom-select2-static"
+        self.attrs["class"] = "custom-tomselect-static"
 
 
 class StaticSelectMultiple(StaticSelect, forms.SelectMultiple):
     """
-    Same static select widget using select2 but allowing multiple choices.
+    Same static select widget using TomSelect but allowing multiple choices.
     """
 
     def __init__(self, *args, **kwargs):

@@ -50,29 +50,30 @@
 {% endblock %}
 {% block javascript %}
 <script>
-  function renderEmail() {
-    var affiliated = $('#id_affiliated').select2('data')[0].id;
-    var network = $('#id_network').select2('data')[0].id;
-    var email = $('#id_email').select2('data')[0].id;
+  $(document).ready(function () {
+    function renderEmail() {
+      var affiliated = document.getElementById('id_affiliated').tomselect.getValue();
+      var network = document.getElementById('id_network').tomselect.getValue();
+      var email = document.getElementById('id_email').tomselect.getValue();
 
-    if (!affiliated || !network || !email) {
-      return;
+      if (!affiliated || !network || !email) {
+        return;
+      }
+
+      $.ajax({
+        method: 'post',
+        url: "{% url 'peeringdb-api:network-render-email' %}",
+        headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+        data: { 'email': email, 'autonomous_system': affiliated, 'network': network },
+      }).done(function(response) {
+        $('#id_subject').val(response['subject']);
+        $('#id_body').val(response['body']);
+      });
     }
 
-    $.ajax({
-      method: 'post',
-      url: "{% url 'peeringdb-api:network-render-email' %}",
-      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
-      data: { 'email': email, 'autonomous_system': affiliated, 'network': network },
-    }).done(function(response) {
-      $('#id_subject').val(response['subject']);
-      $('#id_body').val(response['body']);
+    ['id_email', 'id_affiliated', 'id_network'].forEach(function(id) {
+      document.getElementById(id).tomselect.on('change', renderEmail);
     });
-  }
-
-  const selections = ['#id_email', '#id_affiliated', '#id_network'];
-  selections.forEach((select) => $(select).on('select2:select', function() {
-    renderEmail();
-  }));
+  });
 </script>
 {% endblock %}

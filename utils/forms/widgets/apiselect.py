@@ -14,7 +14,7 @@ class APISelect(forms.Select):
 
     def __init__(self, api_url=None, full=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.attrs["class"] = "custom-select2-api"
+        self.attrs["class"] = "custom-tomselect-api"
 
         if api_url:
             self.attrs["data-url"] = f"/{settings.BASE_PATH}{api_url.lstrip('/')}"
@@ -35,7 +35,7 @@ class APISelect(forms.Select):
 
 class APISelectMultiple(APISelect, forms.SelectMultiple):
     """
-    Same API select widget using select2 but allowing multiple choices.
+    Same API select widget using TomSelect but allowing multiple choices.
     """
 
     def __init__(self, *args, **kwargs):

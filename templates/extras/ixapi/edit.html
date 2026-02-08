@@ -1,38 +1,40 @@
 {% extends 'generic/edit.html' %}
 {% block javascript %}
 <script>
-  var api_url = document.getElementById("id_api_url");
-  var api_key = document.getElementById("id_api_key");
-  var api_secret = document.getElementById("id_api_secret");
-  var timeout = null;
-  var selectedIdentity = {% if instance.pk %}"{{ instance.identity }}"{% else %}null{% endif %};
+  $(document).ready(function () {
+    var api_url = document.getElementById("id_api_url");
+    var api_key = document.getElementById("id_api_key");
+    var api_secret = document.getElementById("id_api_secret");
+    var timeout = null;
+    var selectedIdentity = {% if instance.pk %}"{{ instance.identity }}"{% else %}null{% endif %};
 
-  function getCustomers() {
-    if (api_url.value.length < 1 || api_key.value.length < 1 || api_secret.value.length < 1) {
-      return;
+    function getCustomers() {
+      if (api_url.value.length < 1 || api_key.value.length < 1 || api_secret.value.length < 1) {
+        return;
+      }
+
+      $.ajax({
+        method: "get",
+        data: {
+          api_url: api_url.value,
+          api_key: api_key.value,
+          api_secret: api_secret.value,
+        },
+        url: "{% url 'extras-api:ixapi-accounts' %}"
+      }).done(function (r) {
+        PeeringManager.populateTomSelect($('#id_identity'), r);
+      });
     }
 
-    $.ajax({
-      method: "get",
-      data: {
-        api_url: api_url.value,
-        api_key: api_key.value,
-        api_secret: api_secret.value,
-      },
-      url: "{% url 'extras-api:ixapi-accounts' %}"
-    }).done(function (r) {
-      PeeringManager.populateSelect2($('#id_identity'), r);
+    [ api_url, api_key, api_secret ].forEach(function (element) {
+      element.addEventListener("keyup", function () {
+        clearTimeout(timeout);
+        timeout = setTimeout(getCustomers, 500);
+      });
     });
-  }
-
-  [ api_url, api_key, api_secret ].forEach(function (element) {
-    element.addEventListener("keyup", function () {
-      clearTimeout(timeout);
-      timeout = setTimeout(getCustomers, 500);
-    });
+    {% if instance.pk %}
+    getCustomers();
+    {% endif %}
   });
-  {% if instance.pk %}
-  getCustomers();
-  {% endif %}
 </script>
 {% endblock %}

@@ -40,15 +40,18 @@
 {% endblock %}
 {% block javascript %}
 <script>
-  $('#id_email').on('select2:select', function(e) {
-    $.ajax({
-      method: 'post',
-      url: "{% url 'peering-api:autonomoussystem-generate-email' pk=instance.pk %}",
-      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
-      data: { 'email': e.params.data['id'] },
-    }).done(function(response) {
-      $('#id_subject').val(response['subject']);
-      $('#id_body').val(response['body']);
+  $(document).ready(function () {
+    document.getElementById('id_email').tomselect.on('change', function(value) {
+      if (!value) return;
+      $.ajax({
+        method: 'post',
+        url: "{% url 'peering-api:autonomoussystem-generate-email' pk=instance.pk %}",
+        headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+        data: { 'email': value },
+      }).done(function(response) {
+        $('#id_subject').val(response['subject']);
+        $('#id_body').val(response['body']);
+      });
     });
   });
 </script>
