@@ -71,7 +71,7 @@ $(document).ready(function () {
 
   // Shared loading spinner using Font Awesome
   var loadingRender = function () {
-    return '<div class="spinner"><i class="fa-solid fa-spinner fa-spin"></i></div>';
+    return '<div class="spinner"><i class="fa-solid fa-circle-notch fa-spin"></i></div>';
   };
 
   // Build plugins object for TomSelect instances
