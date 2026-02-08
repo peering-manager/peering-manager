@@ -1,5 +1,5 @@
 project-static/bootstrap-5.3.8-dist/* linguist-vendored
-project-static/fontawesome-7.0.1/* linguist-vendored
+project-static/fontawesome-7.1.0/* linguist-vendored
 project-static/js/flatpicker-*.js linguist-vendored
 project-static/js/jquery-*.js linguist-vendored
 project-static/js/tom-select-*.js linguist-vendored
