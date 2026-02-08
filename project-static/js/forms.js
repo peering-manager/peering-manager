@@ -18,6 +18,76 @@ $(document).ready(function () {
     return rendered_url;
   }
 
+  // Build query params from element attributes for API selects
+  function buildQueryParams(el, query) {
+    var params = { q: query, limit: 50 };
+
+    // Allow for controlling the brief setting from within APISelect
+    if (!el.hasAttribute('data-full')) {
+      params.brief = true;
+    }
+
+    // Query params from data-query-param-* attributes
+    Array.from(el.attributes).forEach(function (attr) {
+      if (attr.name.indexOf('data-query-param-') === 0) {
+        var param_name = attr.name.split('data-query-param-')[1];
+        var values = JSON.parse(attr.value);
+
+        values.forEach(function (value) {
+          // Reference of a value from another form field
+          if (typeof value === 'string' && value.startsWith('$')) {
+            var refField = $('#id_' + value.slice(1));
+            if (refField.val() && refField.is(':visible')) {
+              value = refField.val();
+            } else if (refField.attr('required') && refField.attr('data-null-option')) {
+              value = 'null';
+            } else {
+              return; // Skip if reference field has no value
+            }
+          }
+          if (param_name in params) {
+            if (Array.isArray(params[param_name])) {
+              params[param_name].push(value);
+            } else {
+              params[param_name] = [params[param_name], value];
+            }
+          } else {
+            params[param_name] = value;
+          }
+        });
+      }
+    });
+
+    return $.param(params, true);
+  }
+
+  // Shared clear button plugin config using Font Awesome icon
+  var clearButtonConfig = {
+    html: function (data) {
+      return '<div class="' + data.className + '" title="' + data.title + '">' +
+        '<i class="fa-solid fa-xmark"></i></div>';
+    },
+  };
+
+  // Shared loading spinner using Font Awesome
+  var loadingRender = function () {
+    return '<div class="spinner"><i class="fa-solid fa-circle-notch fa-spin"></i></div>';
+  };
+
+  // Build plugins object for TomSelect instances
+  function buildPlugins(isMultiple, extras) {
+    var plugins = { 'clear_button': clearButtonConfig };
+    if (isMultiple) {
+      plugins['remove_button'] = {};
+    }
+    if (extras) {
+      Object.keys(extras).forEach(function (key) {
+        plugins[key] = extras[key];
+      });
+    }
+    return plugins;
+  }
+
   // DateTime Picker
   flatpickr(".datetime-picker", {
     wrap: true,
@@ -28,120 +98,106 @@ $(document).ready(function () {
     nextArrow: "<i class='fa-solid fa-chevron-right'></i>"
   });
 
-  // Select2
-  $.fn.select2.defaults.set('theme', 'bootstrap-5');
-  $('.custom-select2-static').select2({
-    placeholder: '---------',
-    allowClear: true
+  // TomSelect: Static selects
+  document.querySelectorAll('.custom-tomselect-static').forEach(function (el) {
+    var isMultiple = el.hasAttribute('data-multiple');
+    new TomSelect(el, {
+      plugins: buildPlugins(isMultiple),
+      allowEmptyOption: true,
+      maxItems: isMultiple ? null : 1,
+    });
   });
-  $('.custom-select2-api').select2({
-    placeholder: '---------',
-    allowClear: true,
-    ajax: {
-      delay: 500,
-      url: function (params) {
-        var element = this[0];
-        var url = parseURL(element.getAttribute('data-url'));
 
-        if (url.includes('{{')) {
-          // URL is not fully rendered yet, abort the request
-          return false;
+  // TomSelect: API-driven selects
+  document.querySelectorAll('.custom-tomselect-api').forEach(function (el) {
+    var isMultiple = el.hasAttribute('data-multiple');
+    var displayField = el.getAttribute('display-field') || 'name';
+    var valueField = el.getAttribute('value-field') || 'id';
+    var disabledIndicator = el.getAttribute('disabled-indicator');
+    var nullOption = el.getAttribute('data-null-option');
+
+    new TomSelect(el, {
+      plugins: buildPlugins(isMultiple, { 'virtual_scroll': {} }),
+      valueField: valueField,
+      labelField: displayField,
+      searchField: [],
+      maxItems: isMultiple ? null : 1,
+      closeAfterSelect: !isMultiple,
+      preload: 'focus',
+      placeholder: '---------',
+      firstUrl: function (query) {
+        var url = parseURL(el.getAttribute('data-url'));
+        if (url.indexOf('{{') !== -1) {
+          return null;
         }
-        return url;
+        return url + '?' + buildQueryParams(el, query);
       },
-      data: function (params) {
-        var element = this[0];
-        // Paging. Note that `params.page` indexes at 1
-        var offset = (params.page - 1) * 50 || 0;
-        // Base query params
-        var parameters = { q: params.term, limit: 50, offset: offset };
+      load: function (query, callback) {
+        var self = this;
+        var url = self.getUrl(query);
+        if (!url) {
+          callback();
+          return;
+        }
+        fetch(url, { headers: { 'Accept': 'application/json' } })
+          .then(function (r) { return r.json(); })
+          .then(function (json) {
+            if (json.next) {
+              self.setNextUrl(query, json.next);
+            }
 
-        // Allow for controlling the brief setting from within APISelect
-        parameters.brief = $(element).is('[data-full]') ? undefined : true;
-
-        // Query params
-        $.each(element.attributes, function (index, attr) {
-          if (attr.name.includes('data-query-param-')) {
-            var param_name = attr.name.split('data-query-param-')[1];
-
-            $.each($.parseJSON(attr.value), function (index, value) {
-              // Reference of a value from another form field
-              if (value.startsWith('$')) {
-                let refField = $('#id_' + value.slice(1));
-                if (refField.val() && refField.is(':visible')) {
-                  value = refField.val();
-                } else if (refField.attr('required') && refField.attr('data-null-option')) {
-                  value = 'null';
-                } else {
-                  // Skip if reference field has no value
-                  return true;
-                }
+            var results = json.results.map(function (record) {
+              record[displayField] = record[displayField] || record.name;
+              record[valueField] = record[valueField] !== undefined ? record[valueField] : record.id;
+              if (disabledIndicator && record[disabledIndicator]) {
+                record.disabled = true;
               }
-              if (param_name in parameters) {
-                if (Array.isArray(parameters[param_name])) {
-                  parameters[param_name].push(value);
-                } else {
-                  parameters[param_name] = [parameters[param_name], value];
-                }
-              } else {
-                parameters[param_name] = value;
-              }
+              return record;
             });
-          }
-        });
 
-        return $.param(parameters, true);
+            // Handle the null option, but only add it once on first page
+            if (nullOption && json.previous === null) {
+              var nullRecord = { disabled: false };
+              nullRecord[valueField] = 'null';
+              nullRecord[displayField] = nullOption;
+              results.unshift(nullRecord);
+            }
+
+            callback(results);
+          })
+          .catch(function () { callback(); });
       },
-      processResults: function (data) {
-        var element = this.$element[0];
-        $(element).children('option').attr('disabled', false);
-        var results = data.results;
-
-        results = results.reduce((results, record, idx) => {
-          record.text = record[element.getAttribute('display-field')] || record.name;
-          record.id = record[element.getAttribute('value-field')] || record.id;
-          if (element.getAttribute('disabled-indicator') && record[element.getAttribute('disabled-indicator')]) {
-            // The disabled-indicator equated to true, so we disable this option
-            record.disabled = true;
+      render: {
+        option: function (data, escape) {
+          var label = escape(data[displayField] || '');
+          if (data.disabled) {
+            return '<div class="option" data-disabled>' + label + '</div>';
           }
-          results[idx] = record;
-
-          return results;
-        }, Object.create(null));
-
-        results = Object.values(results);
-
-        // Handle the null option, but only add it once
-        if (element.getAttribute('data-null-option') && (data.previous === null)) {
-          results.unshift({
-            id: 'null',
-            text: element.getAttribute('data-null-option')
-          });
-        }
-
-        return { results: results, pagination: { more: data.next !== null } };
-      }
-    }
+          return '<div>' + label + '</div>';
+        },
+        item: function (data, escape) {
+          return '<div>' + escape(data[displayField] || '') + '</div>';
+        },
+        loading: loadingRender,
+      },
+    });
   });
 
-  // Assign colour picker selection classes
-  function colourPickerClassCopy(data, container) {
-    if (data.element) {
-      // Remove any existing colour-selection classes
-      $(container).attr('class', function (i, c) {
-        return c.replace(/(^|\s)colour-selection-\S+/g, '');
-      });
-      $(container).addClass($(data.element).attr("class"));
-    }
-    return data.text;
-  }
-
-  // Colour Picker
-  $('.custom-select2-colour-picker').select2({
-    placeholder: "---------",
-    allowClear: true,
-    templateResult: colourPickerClassCopy,
-    templateSelection: colourPickerClassCopy
+  // TomSelect: Colour picker
+  document.querySelectorAll('.custom-tomselect-colour-picker').forEach(function (el) {
+    new TomSelect(el, {
+      plugins: buildPlugins(false),
+      allowEmptyOption: true,
+      maxItems: 1,
+      render: {
+        option: function (data, escape) {
+          return '<div class="colour-selection-' + escape(data.value) + '">' + escape(data.text) + '</div>';
+        },
+        item: function (data, escape) {
+          return '<div class="colour-selection-' + escape(data.value) + '">' + escape(data.text) + '</div>';
+        },
+      },
+    });
   });
 
   function generateSlug(value) {
@@ -212,70 +268,78 @@ $(document).ready(function () {
   $('input:checkbox[name=_nullify]').click(function () {
     var elementToHide = $('#id_' + this.value);
     if (elementToHide.is('select')) {
-      elementToHide.toggle('disabled');
-      elementToHide.next().toggle('disabled');
+      var ts = elementToHide[0].tomselect;
+      if (ts) {
+        if (ts.isDisabled) {
+          ts.enable();
+        } else {
+          ts.disable();
+        }
+      }
     } else {
       elementToHide.toggle('disabled');
     }
   });
 
-  // Grab tags in the text input
-  var tags = $('#id_tags');
-  if ((tags.length > 0) && (tags.val().length > 0)) {
-    tags = $('#id_tags').val().split(/,\s*/);
-  } else {
-    tags = [];
-  }
-  // Generate a map of tags to be used in the select element
-  tag_objects = $.map(tags, function (tag) {
-    return { id: tag, text: tag, selected: true }
-  });
-  // Replace the text input with a select element
-  $('#id_tags').replaceWith('<select name="tags" id="id_tags" class="form-control"></select>');
-  // Improve the previously added select element with select2
-  $('#id_tags').select2({
-    placeholder: 'Tags',
-    allowClear: true,
-    multiple: true,
-    tags: true,
-    tokenSeparators: [','],
-    data: tag_objects,
-    ajax: {
-      delay: 250,
-      url: our_api_path + 'extras/tags/', // API endpoint to query
-      data: function (params) {
-        var offset = (params.page - 1) * 50 || 0;
-        var parameters = {
-          q: params.term,
-          brief: 1,
-          limit: 50,
-          offset: offset,
-        };
-        return parameters;
+  // Grab tags from the text input, replace it with a <select>, and init TomSelect
+  var tagsInput = document.getElementById('id_tags');
+  if (tagsInput && tagsInput.tagName === 'INPUT') {
+    var rawValue = tagsInput.value;
+    var tags = rawValue.length > 0 ? rawValue.split(/,\s*/).filter(Boolean) : [];
+    var tagOptions = tags.map(function (tag) { return { name: tag }; });
+
+    // Replace text input with a select element for TomSelect
+    var tagsSelect = document.createElement('select');
+    tagsSelect.name = 'tags';
+    tagsSelect.id = 'id_tags';
+    tagsSelect.multiple = true;
+    tagsInput.replaceWith(tagsSelect);
+    var tagsEl = tagsSelect;
+
+    new TomSelect(tagsEl, {
+      plugins: ['remove_button'],
+      create: false,
+      preload: 'focus',
+      maxItems: null,
+      valueField: 'name',
+      labelField: 'name',
+      searchField: ['name'],
+      placeholder: 'Tags',
+      options: tagOptions,
+      items: tags,
+      render: { loading: loadingRender },
+      load: function (query, callback) {
+        fetch(our_api_path + 'extras/tags/?q=' + encodeURIComponent(query) + '&brief=1&limit=50', {
+          headers: { 'Accept': 'application/json' },
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (json) {
+            callback(json.results.map(function (obj) {
+              // If tag contains space add double quotes
+              var name = /\s/.test(obj.name) ? '"' + obj.name + '"' : obj.name;
+              return { name: name };
+            }));
+          })
+          .catch(function () { callback(); });
       },
-      processResults: function (data) {
-        var results = $.map(data.results, function (obj) {
-          // If tag contains space add double quotes
-          if (/\s/.test(obj.name)) {
-            obj.name = '"' + obj.name + '"'
-          }
-          return { id: obj.name, text: obj.name };
-        });
-        var page = data.next !== null;
-        return { results: results, pagination: { more: page } };
+    });
+
+    // On form submit, django-taggit expects a single comma-separated string
+    tagsEl.closest('form').addEventListener('submit', function () {
+      var ts = tagsEl.tomselect;
+      var value = ts.items;
+      if (value.length > 0) {
+        var hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'tags';
+        hidden.value = value.join(', ');
+        this.appendChild(hidden);
+        // Clear the TomSelect so the <select> doesn't also submit individual values
+        ts.clear(true);
       }
-    }
-  });
-  $('#id_tags').closest('form').submit(function (event) {
-    // django-taggit can only accept a single comma seperated string value
-    var value = $('#id_tags').val();
-    if (value.length > 0) {
-      var final_tags = value.join(', ');
-      $('#id_tags').val(null).trigger('change');
-      var option = new Option(final_tags, final_tags, true, true);
-      $('#id_tags').append(option).trigger('change');
-    }
-  });
+    });
+  }
+
   // Rearrange options within a <select> list
   $('#move-option-up').bind('click', function () {
     var selectID = '#' + $(this).attr('data-target');
