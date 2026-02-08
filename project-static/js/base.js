@@ -65,26 +65,23 @@ var PeeringManager = {
       method: 'get', url: job['url']
     }).done(doneHandler).fail(failHandler);
   },
-  populateSelect2: function (element, values, id_field = 'id', text_field = 'name') {
+  populateTomSelect: function (element, values, id_field = 'id', text_field = 'name') {
     if (values.length < 1) {
       return;
     }
 
-    // Clear all options before re-populating them
-    element.empty().trigger('change');
-
+    var el = element instanceof jQuery ? element[0] : element;
+    var ts = el.tomselect;
+    var valueKey = ts.settings.valueField;
+    var labelKey = ts.settings.labelField;
+    ts.clearOptions();
     for (var i = 0; i < values.length; i++) {
-      var item = values[i];
-      var id_value = item[id_field];
-      var text_value = item[text_field];
-
-      // Do not duplicate values
-      if (!element.find("option[value='" + id_value + "']").length) {
-        var opt = new Option(text_value, id_value, false, false);
-        element.append(opt);
-      }
-      element.trigger("change");
+      var option = {};
+      option[valueKey] = values[i][id_field];
+      option[labelKey] = values[i][text_field];
+      ts.addOption(option);
     }
+    ts.refreshOptions(false);
   }
 };
 
