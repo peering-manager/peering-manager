@@ -188,6 +188,16 @@ VALIDATE_BGP_COMMUNITY_VALUE = getattr(
     configuration, "VALIDATE_BGP_COMMUNITY_VALUE", True
 )
 
+# Token Object Permissions - Default behavior when no permission exists
+# Options: "allow" (permissive) or "deny" (restrictive)
+TOKEN_PERMISSIONS_DEFAULT_MODE = getattr(
+    configuration, "TOKEN_PERMISSIONS_DEFAULT_MODE", "allow"
+).lower()
+if TOKEN_PERMISSIONS_DEFAULT_MODE not in ["allow", "deny"]:
+    raise ImproperlyConfigured(
+        f"TOKEN_PERMISSIONS_DEFAULT_MODE must be 'allow' or 'deny', not '{TOKEN_PERMISSIONS_DEFAULT_MODE}'"
+    )
+
 # Django filters
 FILTERS_NULL_CHOICE_LABEL = "-- None --"
 FILTERS_NULL_CHOICE_VALUE = "null"

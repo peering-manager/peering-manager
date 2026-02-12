@@ -6,7 +6,7 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-    dependencies = [("users", "0004_auto_20210420_2144")]
+    dependencies = [("users", "0006_add_can_manage_permissions_to_token")]
 
     operations = [
         migrations.AddField(

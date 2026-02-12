@@ -18,6 +18,7 @@ from peering_manager.views.generic import (
     ObjectListView,
     ObjectView,
 )
+from users.views_permissions import ObjectTokenPermissionsView
 from utils.views import PermissionRequiredMixin, ViewTab, register_model_view
 
 from ..filtersets import RouterFilterSet
@@ -35,6 +36,7 @@ __all__ = (
     "RouterDirectPeeringSessions",
     "RouterEdit",
     "RouterList",
+    "RouterTokenPermissions",
     "RouterView",
 )
 
@@ -162,3 +164,33 @@ class RouterDirectPeeringSessions(ObjectChildrenView):
 
     def get_children(self, request, parent):
         return parent.directpeeringsession_set.order_by("relationship", "ip_address")
+
+
+@register_model_view(model=Router, name="token_permissions", path="token-permissions")
+class RouterTokenPermissions(ObjectTokenPermissionsView):
+    """
+    Display and manage token object permissions for a router.
+
+    This tab shows which API tokens have specific permissions for this router,
+    allowing administrators to control fine-grained access.
+    """
+
+    permission_required = ("devices.view_router", "users.view_tokenobjectpermission")
+    queryset = Router.objects.all()
+    tab = ViewTab(
+        label="Token Permissions",
+        permission="users.view_tokenobjectpermission",
+        weight=9000,
+    )
+
+    @staticmethod
+    def _get_badge_count(instance):
+        """Count token permissions for this router."""
+        from django.contrib.contenttypes.models import ContentType
+
+        from users.models import TokenObjectPermission
+
+        content_type = ContentType.objects.get_for_model(instance)
+        return TokenObjectPermission.objects.filter(
+            content_type=content_type, object_id=instance.pk
+        ).count()
