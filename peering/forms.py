@@ -316,6 +316,7 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
     connection = DynamicModelChoiceField(
         required=False,
         queryset=Connection.objects.all(),
+        query_params={"router_id": "$router"},
         help_text="Network connection on which this session lives",
     )
     import_routing_policies = DynamicModelMultipleChoiceField(
@@ -345,7 +346,7 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
         ("Peer", ("bgp_group", "relationship", "autonomous_system", "ip_address")),
         (
             "Local",
-            ("local_autonomous_system", "local_ip_address", "router", "connection"),
+            ("local_autonomous_system", "router", "connection", "local_ip_address"),
         ),
         (
             "Properties",
