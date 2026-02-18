@@ -14,6 +14,9 @@ class PeeringManagerLoader(BaseLoader):
         attributes (a template or a rendered template).
         """
         attribute = "template"
+        raw = kind.endswith(".raw")
+        if raw:
+            kind = kind[:-4]
 
         if kind == "configuration":
             from devices.models import Configuration
@@ -27,7 +30,8 @@ class PeeringManagerLoader(BaseLoader):
             from extras.models import ExportTemplate
 
             model = ExportTemplate
-            attribute = "rendered"
+            if not raw:
+                attribute = "rendered"
         else:
             return ""
 

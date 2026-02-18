@@ -31,6 +31,58 @@ Examples:
 {% include_email 1 %} {# ID of the e-mail object #}
 ```
 
+## `import_configuration` / `import_email` / `import_exporttemplate`
+
+Imports a template as a module, making its macros available under an alias.
+This is the equivalent of Jinja2's `{% import %}` tag but looks up templates
+stored in the database.
+
+Use this when you have macros defined in one template that you want to reuse
+in another.
+
+`import_*` functions take a template name or ID followed by `as` and a
+variable name.
+
+Examples:
+
+```no-highlight
+{% import_configuration "Macros" as macros %}
+{{ macros.render_session(session) }}
+{{ macros.render_prefix_list(autonomous_system) }}
+```
+
+```no-highlight
+{% import_email "Helpers" as helpers %}
+{{ helpers.format_contact(contact) }}
+```
+
+## `from_configuration` / `from_email` / `from_exporttemplate`
+
+Imports specific macros from a template directly into the current namespace.
+This is the equivalent of Jinja2's `{% from ... import %}` tag but looks up
+templates stored in the database.
+
+`from_*` functions take a template name or ID followed by `import` and one
+or more macro names. Macros can be aliased using `as`.
+
+Examples:
+
+```no-highlight
+{% from_configuration "Macros" import render_session %}
+{{ render_session(session) }}
+```
+
+```no-highlight
+{% from_configuration "Macros" import render_session, render_prefix_list %}
+{{ render_session(session) }}
+{{ render_prefix_list(autonomous_system) }}
+```
+
+```no-highlight
+{% from_email "Helpers" import format_contact as fc %}
+{{ fc(contact) }}
+```
+
 ## `safe_string`
 
 Converts a string to another one using only safe characters (retaining only

@@ -588,6 +588,79 @@ class Jinja2FilterTestCase(TestCase):
         )
         self.assertEqual("this is a test - this is a test", main.render())
 
+    def test_import_template_extension(self):
+        macro_body = "{% macro test_macro() %}macro works{% endmacro %}"
+
+        Configuration.objects.create(name="macros", template=macro_body)
+        main = Configuration.objects.create(
+            name="import_test",
+            template="{% import_configuration 'macros' as m %}{{ m.test_macro() }}",
+        )
+        self.assertEqual("macro works", main.render({}))
+
+        Email.objects.create(name="macros", subject="macros", template=macro_body)
+        main = Email.objects.create(
+            name="import_test",
+            subject="import_test",
+            template="{% import_email 'macros' as m %}{{ m.test_macro() }}",
+        )
+        self.assertEqual(("import_test", "macro works"), main.render({}))
+
+        content_type = ContentType.objects.get_for_model(AutonomousSystem)
+        ExportTemplate.objects.create(
+            name="macros", content_type=content_type, template=macro_body
+        )
+        main = ExportTemplate.objects.create(
+            name="import_test",
+            content_type=content_type,
+            template="{% import_exporttemplate 'macros' as m %}{{ m.test_macro() }}",
+        )
+        self.assertEqual("macro works", main.render())
+
+    def test_from_import_template_extension(self):
+        macro_body = (
+            "{% macro test_macro() %}macro works{% endmacro %}"
+            "{% macro other_macro() %}other works{% endmacro %}"
+        )
+
+        Configuration.objects.create(name="macros2", template=macro_body)
+        main = Configuration.objects.create(
+            name="from_test",
+            template="{% from_configuration 'macros2' import test_macro %}{{ test_macro() }}",
+        )
+        self.assertEqual("macro works", main.render({}))
+
+        main = Configuration.objects.create(
+            name="from_alias_test",
+            template="{% from_configuration 'macros2' import test_macro as t %}{{ t() }}",
+        )
+        self.assertEqual("macro works", main.render({}))
+
+        main = Configuration.objects.create(
+            name="from_multi_test",
+            template="{% from_configuration 'macros2' import test_macro, other_macro %}{{ test_macro() }} {{ other_macro() }}",
+        )
+        self.assertEqual("macro works other works", main.render({}))
+
+        Email.objects.create(name="macros2", subject="macros2", template=macro_body)
+        main = Email.objects.create(
+            name="from_test",
+            subject="from_test",
+            template="{% from_email 'macros2' import test_macro %}{{ test_macro() }}",
+        )
+        self.assertEqual(("from_test", "macro works"), main.render({}))
+
+        content_type = ContentType.objects.get_for_model(AutonomousSystem)
+        ExportTemplate.objects.create(
+            name="macros2", content_type=content_type, template=macro_body
+        )
+        main = ExportTemplate.objects.create(
+            name="from_test",
+            content_type=content_type,
+            template="{% from_exporttemplate 'macros2' import test_macro %}{{ test_macro() }}",
+        )
+        self.assertEqual("macro works", main.render())
+
     def test_context_has_key(self):
         self.assertEqual(True, FILTER_DICT["context_has_key"](self.router, "foo"))
         self.assertEqual(False, FILTER_DICT["context_has_key"](self.router, "bar"))
