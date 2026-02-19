@@ -38,7 +38,18 @@
       <div class="modal-body" id="main-body">
       </div>
       <div class="modal-footer" id="main-footer">
-        <button type="button" class="btn btn-primary invisible" id="commit">Commit changes</button>
+        <div class="btn-group invisible" id="commit-group">
+          <button type="button" class="btn btn-primary" id="commit">Commit changes</button>
+          <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" id="commit-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="visually-hidden">More actions</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            {% if perms.devices.push_router_configuration_to_data_source and instance.data_source and instance.data_path %}
+            <li><a class="dropdown-item" href="#" id="push-diff-datasource"><i class="fa fa-upload"></i> Push Diff to Data Source</a></li>
+            {% endif %}
+            <li><a class="dropdown-item" href="#" id="download-diff"><i class="fa fa-download"></i> Download Diff</a></li>
+          </ul>
+        </div>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
@@ -98,6 +109,7 @@
   {% if perms.devices.deploy_router_configuration and instance.is_usable_for_task %}
   function deployFailHandler() {
     PeeringManager.setFailedButton($('#commit'), 'An error occurred');
+    syncCommitToggle();
   }
   function deployDoneHandler(r) {
     switch (r['status']['value']) {
@@ -109,12 +121,14 @@
         break;
       case 'completed':
         PeeringManager.setSuccessButton($('#commit'), 'Configuration saved');
+        syncCommitToggle();
         break;
       case 'errored':
       case 'failed':
       default:
         $('#main-body').html('<p>An error occured while trying to commit the configuration changes.</p><p>You can find more details in the napalm logs or below.</p><pre class="pre-scrollable">' + r['output'] + '</pre>');
         PeeringManager.setFailedButton($('#commit'), 'Configuration not saved');
+        syncCommitToggle();
         break;
     }
   }
@@ -136,7 +150,8 @@
           if (maintenance) {
             modal_text = '<div class="alert alert-warning" role="alert">This router is in maintenance, proceed with care!</div>' + modal_text;
           }
-          $('#commit').removeClass('invisible');
+          currentDiffOutput = output;
+          $('#commit-group').removeClass('invisible');
         }
         $('#main-body').html(modal_text);
         break;
@@ -148,15 +163,34 @@
     }
   }
 
-  // When the modal is closed, reset the button back to its defaults
+  // Sync the dropdown toggle colour with the commit button
+  function syncCommitToggle() {
+    var toggle = $('#commit-dropdown');
+    toggle.removeClass('btn-primary btn-warning btn-danger btn-success');
+    var commit = $('#commit');
+    if (commit.hasClass('btn-warning')) toggle.addClass('btn-warning');
+    else if (commit.hasClass('btn-danger')) toggle.addClass('btn-danger');
+    else if (commit.hasClass('btn-success')) toggle.addClass('btn-success');
+    else toggle.addClass('btn-primary');
+  }
+
+  // When the modal is closed, reset the buttons back to their defaults
   $('#main-modal').on('hidden.bs.modal', function (e) {
     var button = $('#commit');
     button.removeAttr('disabled');
-    button.removeClass(['btn-warning', 'btn-danger', 'btn-success']).addClass(['btn-primary', 'invisible']);
+    button.removeClass(['btn-warning', 'btn-danger', 'btn-success']).addClass('btn-primary');
     button.html('Commit changes');
-    console.log(button);
+
+    $('#commit-group').addClass('invisible');
+    $('#commit-dropdown').removeClass('btn-warning btn-danger btn-success').addClass('btn-primary');
+
+    $('#push-diff-datasource').removeClass('disabled').html('<i class="fa fa-upload"></i> Push Diff to Data Source');
+    $('#download-diff').html('<i class="fa fa-download"></i> Download Diff');
+
+    currentDiffOutput = '';
   });
 
+  var currentDiffOutput = '';
   var maintenance = {% if instance.status == 'maintenance' %}true{% else %}false{% endif %};
   $('#deploy').click(function () {
     // Enable compare before commit if switch is checked or if the router is in maintenance mode
@@ -187,8 +221,61 @@
       data: { 'routers': [{{ instance.pk }}], 'commit': true },
     }).done(function (r) {
       PeeringManager.setWorkingButton($('#commit'));
+      syncCommitToggle();
       deployDoneHandler(r[0]);
     });
+  });
+
+  // Push diff to data source
+  function pushDiffDoneHandler(r) {
+    var item = $('#push-diff-datasource');
+    switch (r['status']['value']) {
+      case 'pending':
+      case 'running':
+        setTimeout(function () {
+          PeeringManager.pollJob(r, pushDiffDoneHandler);
+        }, 2000);
+        break;
+      case 'completed':
+        item.addClass('disabled').html('<i class="fa-fw fa-solid fa-check text-success"></i> Diff pushed to data source');
+        break;
+      case 'errored':
+      case 'failed':
+      default:
+        item.addClass('disabled').html('<i class="fa-fw fa-solid fa-times text-danger"></i> Failed to push diff');
+        break;
+    }
+  }
+  $('#push-diff-datasource').click(function (e) {
+    e.preventDefault();
+    if ($(this).hasClass('disabled')) return;
+    var item = $(this);
+    item.addClass('disabled').html('<i class="fa-fw fa-solid fa-sync fa-spin"></i> Pushing...');
+    $.ajax({
+      method: 'post',
+      url: "{% url 'devices-api:router-push-diff-datasource' %}",
+      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+      contentType: 'application/json',
+      data: JSON.stringify({ 'router': {{ instance.pk }}, 'diff_content': currentDiffOutput }),
+    }).done(function (r) {
+      pushDiffDoneHandler(r);
+    }).fail(function () {
+      item.html('<i class="fa-fw fa-solid fa-times text-danger"></i> Failed to push diff');
+    });
+  });
+
+  // Download diff as local file
+  $('#download-diff').click(function (e) {
+    e.preventDefault();
+    var blob = new Blob([currentDiffOutput], { type: 'text/plain' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = '{{ instance.name }}.diff';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   });
   {% endif %}
   {% if perms.devices.push_router_configuration_to_data_source %}
