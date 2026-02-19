@@ -59,130 +59,75 @@
 {% endblock %}
 {% block javascript %}
 <script>
+  var POLL_INTERVAL_MS = 2000;
+
+  // Generic job result handler — eliminates the duplicated switch/case polling pattern
+  function handleJobResult(r, callbacks) {
+    switch (r['status']['value']) {
+      case 'pending':
+      case 'running':
+        setTimeout(function () {
+          PeeringManager.pollJob(r, function (r) { handleJobResult(r, callbacks); }, callbacks.onPollError);
+        }, POLL_INTERVAL_MS);
+        break;
+      case 'completed':
+        if (callbacks.onCompleted) callbacks.onCompleted(r);
+        break;
+      case 'errored':
+      case 'failed':
+      default:
+        if (callbacks.onFailed) callbacks.onFailed(r);
+        break;
+    }
+  }
+
   $(document).ready(function () {
     $.ajax({
       method: 'get',
       url: "{% url 'devices-api:router-configuration' pk=instance.pk %}"
     }).done(function (r) {
       $('#configuration').html('<div class="text-center" style="font-size: 2rem;"><i class="fa-fw fa-solid fa-rotate fa-spin"></i> Working</div>');
-      configDoneHandler(r);
+      handleJobResult(r, {
+        onCompleted: function (r) {
+          var config = r['output'];
+          if (config == "") {
+            $('#configuration').html('<p>Configuration is empty.</p>');
+          } else {
+            $('#configuration').html('<pre class="pre-scrollable"><code>' + PeeringManager.escapeHTML(config) + '</code></pre>');
+          }
+        },
+        onFailed: function () {
+          $('#configuration').html('<p>An error occured while generating the configuration.</p>');
+        }
+      });
     }).fail(function () {
       $('#configuration').html('<p>Unable to render router configuration.</p>');
     });
   });
 
-  // Bind copy to clipboard function to the button
+  // Copy to clipboard
   $('#copy-config').click(function () {
-    var temp = $('<textarea>');
-    $('body').append(temp);
-    temp.val($('.pre-scrollable').text()).select();
-    document.execCommand('copy');
-    temp.remove();
+    navigator.clipboard.writeText($('.pre-scrollable').text());
   });
 
-  function configDoneHandler(r) {
-    switch (r['status']['value']) {
-      case 'pending':
-      case 'running':
-        setTimeout(function() {
-          PeeringManager.pollJob(r, configDoneHandler);
-        }, 2000);
-        break;
-      case 'completed':
-        var formatted;
-        var config = r['output'];
-        if (config == "") {
-          formatted = '<p>Configuration is empty.</p>';
-        } else {
-          formatted = '<pre class="pre-scrollable"><code>' + PeeringManager.escapeHTML(config) + '</code></pre>';
-        }
-        $('#configuration').html(formatted);
-        break;
-      case 'errored':
-      case 'failed':
-      default:
-        $('#configuration').html('<p>An error occured while generating the configuration.</p>');
-        break;
-    }
-  }
-
   {% if perms.devices.deploy_router_configuration and instance.is_usable_for_task %}
-  function deployFailHandler() {
-    PeeringManager.setFailedButton($('#commit'), 'An error occurred');
-    syncCommitToggle();
-  }
-  function deployDoneHandler(r) {
-    switch (r['status']['value']) {
-      case 'pending':
-      case 'running':
-        setTimeout(function () {
-          PeeringManager.pollJob(r, deployDoneHandler, deployFailHandler);
-        }, 2000);
-        break;
-      case 'completed':
-        PeeringManager.setSuccessButton($('#commit'), 'Configuration saved');
-        syncCommitToggle();
-        break;
-      case 'errored':
-      case 'failed':
-      default:
-        $('#main-body').html('<p>An error occured while trying to commit the configuration changes.</p><p>You can find more details in the napalm logs or below.</p><pre class="pre-scrollable">' + r['output'] + '</pre>');
-        PeeringManager.setFailedButton($('#commit'), 'Configuration not saved');
-        syncCommitToggle();
-        break;
-    }
-  }
-  function checkDoneHandler(r) {
-    switch (r['status']['value']) {
-      case 'pending':
-      case 'running':
-        setTimeout(function() {
-          PeeringManager.pollJob(r, checkDoneHandler);
-        }, 2000);
-        break;
-      case 'completed':
-        var modal_text;
-        var output = r['output'];
-        if (output == "") {
-          modal_text = '<p>No configuration differences found.</p>';
-        } else {
-          modal_text = '<p>Configuration differences:</p><pre class="pre-scrollable">' + PeeringManager.escapeHTML(output) + '</pre>';
-          if (maintenance) {
-            modal_text = '<div class="alert alert-warning" role="alert">This router is in maintenance, proceed with care!</div>' + modal_text;
-          }
-          currentDiffOutput = output;
-          $('#commit-group').removeClass('invisible');
-        }
-        $('#main-body').html(modal_text);
-        break;
-      case 'errored':
-      case 'failed':
-      default:
-        $('#main-body').html('<p>An error occured while trying to check for changes.</p><p>The router may be unreachable, the configuration may be locked by another user or the configuration may be invalid.</p><p>You can find more details in the <code>logs/napalm.log</code> logs file or below.</p><pre class="pre-scrollable">' + r['output'] + '</pre>');
-        break;
-    }
+  var currentDiffOutput = '';
+  var maintenance = {% if instance.status == 'maintenance' %}true{% else %}false{% endif %};
+
+  // Set the dropdown toggle variant to match the commit button
+  function setCommitToggleVariant(variant) {
+    $('#commit-dropdown').removeClass('btn-primary btn-warning btn-danger btn-success').addClass(variant);
   }
 
-  // Sync the dropdown toggle colour with the commit button
-  function syncCommitToggle() {
-    var toggle = $('#commit-dropdown');
-    toggle.removeClass('btn-primary btn-warning btn-danger btn-success');
-    var commit = $('#commit');
-    if (commit.hasClass('btn-warning')) toggle.addClass('btn-warning');
-    else if (commit.hasClass('btn-danger')) toggle.addClass('btn-danger');
-    else if (commit.hasClass('btn-success')) toggle.addClass('btn-success');
-    else toggle.addClass('btn-primary');
-  }
-
-  // When the modal is closed, reset the buttons back to their defaults
-  $('#main-modal').on('hidden.bs.modal', function (e) {
+  // When the modal is closed, reset all buttons to defaults
+  $('#main-modal').on('hidden.bs.modal', function () {
     var button = $('#commit');
     button.removeAttr('disabled');
     button.removeClass(['btn-warning', 'btn-danger', 'btn-success']).addClass('btn-primary');
     button.html('Commit changes');
 
     $('#commit-group').addClass('invisible');
-    $('#commit-dropdown').removeClass('btn-warning btn-danger btn-success').addClass('btn-primary');
+    setCommitToggleVariant('btn-primary');
 
     $('#push-diff-datasource').removeClass('disabled').html('<i class="fa fa-upload"></i> Push Diff to Data Source');
     $('#download-diff').html('<i class="fa fa-download"></i> Download Diff');
@@ -190,14 +135,8 @@
     currentDiffOutput = '';
   });
 
-  var currentDiffOutput = '';
-  var maintenance = {% if instance.status == 'maintenance' %}true{% else %}false{% endif %};
   $('#deploy').click(function () {
-    // Enable compare before commit if switch is checked or if the router is in maintenance mode
-    var commit = true;
-    if ($('#compare-switch').is(':checked') || maintenance) {
-      commit = false;
-    }
+    var commit = !($('#compare-switch').is(':checked') || maintenance);
 
     $.ajax({
       method: 'post',
@@ -207,12 +146,32 @@
     }).done(function (r) {
       $('#main-body').html('<div class="text-center" style="font-size: 2rem;"><i class="fa-fw fa-solid fa-rotate fa-spin"></i> Working</div>');
       $('#main-modal').modal('show');
-      checkDoneHandler(r[0]);
+      handleJobResult(r[0], {
+        onCompleted: function (r) {
+          var output = r['output'];
+          var modal_text;
+          if (output == "") {
+            modal_text = '<p>No configuration differences found.</p>';
+          } else {
+            modal_text = '<p>Configuration differences:</p><pre class="pre-scrollable">' + PeeringManager.escapeHTML(output) + '</pre>';
+            if (maintenance) {
+              modal_text = '<div class="alert alert-warning" role="alert">This router is in maintenance, proceed with care!</div>' + modal_text;
+            }
+            currentDiffOutput = output;
+            $('#commit-group').removeClass('invisible');
+          }
+          $('#main-body').html(modal_text);
+        },
+        onFailed: function (r) {
+          $('#main-body').html('<p>An error occured while trying to check for changes.</p><p>The router may be unreachable, the configuration may be locked by another user or the configuration may be invalid.</p><p>You can find more details in the <code>logs/napalm.log</code> logs file or below.</p><pre class="pre-scrollable">' + r['output'] + '</pre>');
+        }
+      });
     }).fail(function (r) {
       $('#main-body').html('<p>Unable to schedule configuration deployment.</p><pre class="pre-scrollable">' + r + '</pre>');
       $('#main-modal').modal('show');
     });
   });
+
   $('#commit').click(function () {
     $.ajax({
       method: 'post',
@@ -221,31 +180,29 @@
       data: { 'routers': [{{ instance.pk }}], 'commit': true },
     }).done(function (r) {
       PeeringManager.setWorkingButton($('#commit'));
-      syncCommitToggle();
-      deployDoneHandler(r[0]);
+      setCommitToggleVariant('btn-warning');
+      handleJobResult(r[0], {
+        onCompleted: function () {
+          PeeringManager.setSuccessButton($('#commit'), 'Configuration saved');
+          setCommitToggleVariant('btn-success');
+        },
+        onFailed: function (r) {
+          $('#main-body').html('<p>An error occured while trying to commit the configuration changes.</p><p>You can find more details in the napalm logs or below.</p><pre class="pre-scrollable">' + r['output'] + '</pre>');
+          PeeringManager.setFailedButton($('#commit'), 'Configuration not saved');
+          setCommitToggleVariant('btn-danger');
+        },
+        onPollError: function () {
+          PeeringManager.setFailedButton($('#commit'), 'An error occurred');
+          setCommitToggleVariant('btn-danger');
+        }
+      });
+    }).fail(function () {
+      PeeringManager.setFailedButton($('#commit'), 'An error occurred');
+      setCommitToggleVariant('btn-danger');
     });
   });
 
   // Push diff to data source
-  function pushDiffDoneHandler(r) {
-    var item = $('#push-diff-datasource');
-    switch (r['status']['value']) {
-      case 'pending':
-      case 'running':
-        setTimeout(function () {
-          PeeringManager.pollJob(r, pushDiffDoneHandler);
-        }, 2000);
-        break;
-      case 'completed':
-        item.addClass('disabled').html('<i class="fa-fw fa-solid fa-check text-success"></i> Diff pushed to data source');
-        break;
-      case 'errored':
-      case 'failed':
-      default:
-        item.addClass('disabled').html('<i class="fa-fw fa-solid fa-times text-danger"></i> Failed to push diff');
-        break;
-    }
-  }
   $('#push-diff-datasource').click(function (e) {
     e.preventDefault();
     if ($(this).hasClass('disabled')) return;
@@ -258,7 +215,14 @@
       contentType: 'application/json',
       data: JSON.stringify({ 'router': {{ instance.pk }}, 'diff_content': currentDiffOutput }),
     }).done(function (r) {
-      pushDiffDoneHandler(r);
+      handleJobResult(r, {
+        onCompleted: function () {
+          item.html('<i class="fa-fw fa-solid fa-check text-success"></i> Diff pushed to data source');
+        },
+        onFailed: function () {
+          item.html('<i class="fa-fw fa-solid fa-times text-danger"></i> Failed to push diff');
+        }
+      });
     }).fail(function () {
       item.html('<i class="fa-fw fa-solid fa-times text-danger"></i> Failed to push diff');
     });
@@ -278,25 +242,8 @@
     URL.revokeObjectURL(url);
   });
   {% endif %}
+
   {% if perms.devices.push_router_configuration_to_data_source %}
-  function configPushDataSourceHandler(r) {
-    switch (r['status']['value']) {
-      case 'pending':
-      case 'running':
-        setTimeout(function() {
-          PeeringManager.pollJob(r, configPushDataSourceHandler);
-        }, 2000);
-        break;
-      case 'completed':
-        PeeringManager.setSuccessOutlineButton($('#push-datasource'), 'Pushed to data source');
-        break;
-      case 'errored':
-      case 'failed':
-      default:
-        PeeringManager.setFailedOutlineButton($('#push-datasource'), 'Failed data source push');
-        break;
-    }
-  }
   $('#push-datasource').click(function () {
     $.ajax({
       method: 'post',
@@ -305,7 +252,14 @@
       data: { 'routers': [{{ instance.pk }}] },
     }).done(function (r) {
       PeeringManager.setWorkingOutlineButton($('#push-datasource'));
-      configPushDataSourceHandler(r[0]);
+      handleJobResult(r[0], {
+        onCompleted: function () {
+          PeeringManager.setSuccessOutlineButton($('#push-datasource'), 'Pushed to data source');
+        },
+        onFailed: function () {
+          PeeringManager.setFailedOutlineButton($('#push-datasource'), 'Failed data source push');
+        }
+      });
     });
   });
   {% endif %}
