@@ -16,6 +16,7 @@ from ..filtersets import ConfigurationFilterSet, PlatformFilterSet, RouterFilter
 from ..jobs import (
     poll_bgp_sessions,
     push_configuration_to_data_source,
+    push_diff_to_data_source,
     render_configuration,
     set_napalm_configuration,
     test_napalm_connection,
@@ -25,6 +26,7 @@ from .serializers import (
     ConfigurationSerializer,
     PlatformSerializer,
     RouterConfigureSerializer,
+    RouterPushDiffSerializer,
     RouterSerializer,
 )
 
@@ -375,5 +377,50 @@ class RouterViewSet(PeeringManagerModelViewSet):
 
         return Response(
             JobSerializer(jobs, many=True, context={"request": request}).data,
+            status=status.HTTP_202_ACCEPTED,
+        )
+
+    @extend_schema(
+        operation_id="devices_routers_push_diff_datasource",
+        request=RouterPushDiffSerializer,
+        responses={
+            202: OpenApiResponse(
+                response=JobSerializer,
+                description="Job scheduled to push configuration diff to data source.",
+            ),
+            400: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="Invalid request (missing fields, empty diff, or router without data source).",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to push to data sources.",
+            ),
+        },
+    )
+    @action(detail=False, methods=["post"], url_path="push-diff-datasource")
+    def push_diff_datasource(self, request):
+        if not request.user.has_perm(
+            "devices.push_router_configuration_to_data_source"
+        ):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        serializer = RouterPushDiffSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        router = Router.objects.get(pk=serializer.validated_data["router"])
+        diff_content = serializer.validated_data["diff_content"]
+
+        job = Job.enqueue(
+            push_diff_to_data_source,
+            router,
+            diff_content,
+            name="devices.router.push_diff_to_data_source",
+            object=router,
+            user=request.user,
+        )
+
+        return Response(
+            JobSerializer(instance=job, context={"request": request}).data,
             status=status.HTTP_202_ACCEPTED,
         )

@@ -134,3 +134,36 @@ def push_configuration_to_data_source(router, job):
         raise e
 
     return True
+
+
+@job("default")
+def push_diff_to_data_source(router, diff_content, job):
+    if not router.data_source or not router.data_path:
+        job.mark_completed("No data source and file to push diff to")
+        return False
+
+    diff_path = f"{router.data_path}.diff"
+    job.mark_running(
+        f"Pushing configuration diff to {router.data_source}:{diff_path}.",
+        object=router,
+        logger=logger,
+    )
+
+    try:
+        router.data_source.push(diff_path, diff_content)
+        job.mark_completed("Diff pushed to data source.", object=router, logger=logger)
+    except Exception as e:
+        job.set_output(str(e))
+        job.mark_failed(
+            "Failed to push diff to data source.", object=router, logger=logger
+        )
+        router.data_source.status = DataSourceStatus.FAILED
+        router.data_source.save()
+
+        if isinstance(e, SynchronisationError):
+            logger.error(e)
+            return False
+
+        raise e
+
+    return True

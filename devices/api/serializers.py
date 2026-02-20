@@ -10,7 +10,12 @@ from ..enums import DeviceStatus
 from ..models import Configuration, Platform, Router
 from .nested_serializers import *
 
-__all__ = ("ConfigurationSerializer", "PlatformSerializer", "RouterSerializer")
+__all__ = (
+    "ConfigurationSerializer",
+    "PlatformSerializer",
+    "RouterPushDiffSerializer",
+    "RouterSerializer",
+)
 
 
 class ConfigurationSerializer(PeeringManagerModelSerializer):
@@ -99,3 +104,20 @@ class RouterSerializer(PeeringManagerModelSerializer):
 class RouterConfigureSerializer(serializers.Serializer):
     routers = serializers.ListField(child=serializers.IntegerField())
     commit = serializers.BooleanField(required=False, default=False)
+
+
+class RouterPushDiffSerializer(serializers.Serializer):
+    router = serializers.IntegerField()
+    diff_content = serializers.CharField(allow_blank=False)
+
+    def validate_router(self, value):
+        try:
+            router = Router.objects.get(pk=value)
+        except Router.DoesNotExist as exc:
+            raise serializers.ValidationError("Router not found.") from exc
+
+        if not router.data_source or not router.data_path:
+            raise serializers.ValidationError(
+                "Router does not have a data source and data path configured."
+            )
+        return value
