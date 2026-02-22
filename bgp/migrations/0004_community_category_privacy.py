@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("bgp", "0003_move_community"), ("peering", "0108_move_community")]
 
     operations = [

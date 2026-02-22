@@ -894,6 +894,17 @@ def indent(value, n, chars=" ", reset=False):
     return r
 
 
+def encrypt_password(value, router, key=""):
+    """
+    Encrypts a password using the router's platform algorithm and a given key.
+    """
+    if not isinstance(router, Router):
+        raise ValueError("value is not a router")
+    if not router.platform:
+        return value
+    return router.platform.encrypt_password(value, key=key)
+
+
 def bfds(value):
     """
     Returns all the BFDs that have at least one session configured on the router.
@@ -944,6 +955,7 @@ FILTER_DICT = {
     "ip": ip,
     "ip_version": ip_version,
     "max_prefix": max_prefix,
+    "encrypt_password": encrypt_password,
     "arista_password": type7_password,
     "cisco_password": type7_password,
     # Connections

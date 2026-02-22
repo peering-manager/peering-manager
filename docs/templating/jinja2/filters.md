@@ -509,6 +509,31 @@ password clear {{ session.password }}
 {% endif %}
 ```
 
+## `encrypt_password`
+
+Encrypts a password using the router's platform password algorithm and a
+user-supplied key. This is useful when the encryption key is not the session
+IP address, for example when configuring passwords on a peer group where the
+device uses the peer-group name as the key.
+
+The `router` variable (available in the template context) must be passed as
+the second argument. An optional `key` string can be passed as the third
+argument; it defaults to an empty string.
+
+If the router has no platform or the platform has no password algorithm, the
+password is returned unchanged.
+
+Examples:
+
+```no-highlight
+{# Peer-group password with the group name as key #}
+{% set pg_name = "peer-" ~ bgp_group.slug ~ "-v4" %}
+neighbor {{ pg_name }} password {{ session.password | encrypt_password(router, pg_name) }}
+
+{# Individual session password with IP as key #}
+neighbor {{ session | ip }} password {{ session.password | encrypt_password(router, session | ip) }}
+```
+
 ## `direct_peers` / `ixp_peers`
 
 For a router, fetches all peers connected to it. When using `direct_peers`

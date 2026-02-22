@@ -8,7 +8,7 @@ from django.test import TestCase
 from bgp.enums import CommunityType
 from bgp.models import Community, Relationship
 from devices.enums import DeviceStatus
-from devices.models import Configuration, Router
+from devices.models import Configuration, Platform, Router
 from extras.models import ExportTemplate, Tag
 from messaging.models import Contact, ContactAssignment, ContactRole, Email
 from net.enums import ConnectionStatus
@@ -777,3 +777,65 @@ class Jinja2FilterTestCase(TestCase):
 
         with self.assertRaises(ValueError):
             FILTER_DICT["relationships"](self.ixp_connection)
+
+    def test_encrypt_password(self):
+        password = "mypassword"
+
+        # Arista Type 7 with a key: encrypts and is decryptable with the same key
+        arista_platform = Platform.objects.get(slug="arista-eos")
+        arista_router = Router.objects.create(
+            name="arista-router",
+            hostname="arista.example.com",
+            platform=arista_platform,
+        )
+        key = "peer-group-v4"
+        encrypted = FILTER_DICT["encrypt_password"](password, arista_router, key)
+        self.assertNotEqual(password, encrypted)
+        self.assertEqual(password, arista_platform.decrypt_password(encrypted, key=key))
+
+        # Cisco Type 7: works (key is ignored by the cipher)
+        cisco_platform = Platform.objects.get(slug="cisco-ios")
+        cisco_router = Router.objects.create(
+            name="cisco-router",
+            hostname="cisco.example.com",
+            platform=cisco_platform,
+        )
+        encrypted = FILTER_DICT["encrypt_password"](password, cisco_router, key)
+        self.assertNotEqual(password, encrypted)
+        self.assertEqual(password, cisco_platform.decrypt_password(encrypted))
+
+        # Juniper Type 9: encrypts and is decryptable (even without a key)
+        juniper_platform = Platform.objects.get(slug="juniper-junos")
+        juniper_router = Router.objects.create(
+            name="juniper-router",
+            hostname="juniper.example.com",
+            platform=juniper_platform,
+        )
+        key = "100.64.1.1"
+        encrypted = FILTER_DICT["encrypt_password"](password, juniper_router)
+        self.assertNotEqual(password, encrypted)
+        self.assertEqual(password, juniper_platform.decrypt_password(encrypted))
+
+        # Router with no platform: returns password unchanged
+        no_platform_router = Router.objects.create(
+            name="no-platform-router",
+            hostname="noplatform.example.com",
+        )
+        self.assertEqual(
+            password,
+            FILTER_DICT["encrypt_password"](password, no_platform_router),
+        )
+
+        # Platform with no algorithm: returns password unchanged
+        no_algo_platform = Platform.objects.create(
+            name="Generic", slug="generic", password_algorithm=""
+        )
+        no_algo_router = Router.objects.create(
+            name="generic-router",
+            hostname="generic.example.com",
+            platform=no_algo_platform,
+        )
+        self.assertEqual(
+            password,
+            FILTER_DICT["encrypt_password"](password, no_algo_router),
+        )
