@@ -6,7 +6,7 @@ from django.utils.safestring import mark_safe
 
 from peering_manager.models import OrganisationalModel
 
-from ..enums import CommunityType
+from ..enums import CommunityCategory, CommunityType
 from ..fields import CommunityField
 from ..functions import get_community_kind
 
@@ -16,6 +16,13 @@ __all__ = ("Community",)
 class Community(OrganisationalModel):
     value = CommunityField(max_length=50)
     type = models.CharField(max_length=50, choices=CommunityType, blank=True, null=True)
+    category = models.CharField(
+        max_length=50, choices=CommunityCategory, blank=True, null=True
+    )
+    private = models.BooleanField(
+        default=False,
+        help_text="Indicates whether this community can be published publicly or not",
+    )
 
     class Meta:
         verbose_name_plural = "communities"

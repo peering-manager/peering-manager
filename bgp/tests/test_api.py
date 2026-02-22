@@ -4,7 +4,7 @@ from rest_framework import status
 from utils.enums import Colour
 from utils.testing import APITestCase, APIViewTestCases
 
-from ..enums import CommunityType
+from ..enums import CommunityCategory, CommunityType
 from ..models import *
 
 
@@ -57,18 +57,21 @@ class CommunityTest(APIViewTestCases.View):
                     slug="test4",
                     value="64500:4",
                     type=CommunityType.INGRESS,
+                    category=CommunityCategory.INFORMATIONAL,
                 ),
                 Community(
                     name="Test5",
                     slug="test5",
                     value="64500:5",
                     type=CommunityType.INGRESS,
+                    category=CommunityCategory.ACTION,
                 ),
                 Community(
                     name="Test6",
                     slug="test6",
                     value="64500:6",
                     type=CommunityType.EGRESS,
+                    private=True,
                 ),
             ]
         )

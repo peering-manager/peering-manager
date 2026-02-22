@@ -6,11 +6,11 @@ from peering_manager.forms import (
     PeeringManagerModelForm,
 )
 from peering_manager.forms.base import PeeringManagerModelBulkEditForm
-from utils.forms import add_blank_choice
+from utils.forms import BOOLEAN_WITH_BLANK_CHOICES, add_blank_choice
 from utils.forms.fields import JSONField, SlugField, TagFilterField
 from utils.forms.widgets import StaticSelect, StaticSelectMultiple
 
-from ..enums import CommunityType
+from ..enums import CommunityCategory, CommunityType
 from ..models import Community
 
 __all__ = ("CommunityBulkEditForm", "CommunityFilterForm", "CommunityForm")
@@ -24,6 +24,9 @@ class CommunityForm(PeeringManagerModelForm):
         widget=StaticSelect,
         help_text="Optional, Ingress for received routes, Egress for advertised routes",
     )
+    category = forms.ChoiceField(
+        required=False, choices=add_blank_choice(CommunityCategory), widget=StaticSelect
+    )
     local_context_data = JSONField(required=False)
     tags = TagField(required=False)
     fieldsets = (
@@ -34,6 +37,8 @@ class CommunityForm(PeeringManagerModelForm):
                 "slug",
                 "description",
                 "type",
+                "category",
+                "private",
                 "value",
             ),
         ),
@@ -48,6 +53,8 @@ class CommunityForm(PeeringManagerModelForm):
             "slug",
             "description",
             "type",
+            "category",
+            "private",
             "value",
             "local_context_data",
             "tags",
@@ -63,10 +70,19 @@ class CommunityBulkEditForm(PeeringManagerModelBulkEditForm):
         choices=add_blank_choice(CommunityType),
         widget=StaticSelect,
     )
+    category = forms.ChoiceField(
+        required=False,
+        choices=add_blank_choice(CommunityCategory),
+        widget=StaticSelect,
+    )
+    private = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
+    )
     local_context_data = JSONField(required=False)
 
     model = Community
-    nullable_fields = ("type", "description", "local_context_data")
+    nullable_fields = ("type", "category", "description", "local_context_data")
 
 
 class CommunityFilterForm(PeeringManagerModelFilterSetForm):
@@ -75,5 +91,14 @@ class CommunityFilterForm(PeeringManagerModelFilterSetForm):
         required=False,
         choices=add_blank_choice(CommunityType),
         widget=StaticSelectMultiple,
+    )
+    category = forms.MultipleChoiceField(
+        required=False,
+        choices=add_blank_choice(CommunityCategory),
+        widget=StaticSelectMultiple,
+    )
+    private = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
     tag = TagFilterField(model)

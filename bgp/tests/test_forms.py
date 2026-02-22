@@ -19,6 +19,17 @@ class CommunityTest(TestCase):
         self.assertTrue(test.is_valid())
         self.assertTrue(test.save())
 
+        test = CommunityForm(
+            data={
+                "name": "test-cat",
+                "slug": "test-cat",
+                "value": "64500:2",
+                "category": CommunityCategory.ACTION,
+            }
+        )
+        self.assertTrue(test.is_valid())
+        test.save()
+
 
 class Relationshipest(TestCase):
     def test_relationship_form(self):

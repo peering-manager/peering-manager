@@ -14,6 +14,7 @@ def update_content_types(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ("bgp", "0003_move_community"),
+        ("devices", "0010_move_community"),
         ("peering", "0107_autonomoussystem_bgpq_overrides"),
     ]
 

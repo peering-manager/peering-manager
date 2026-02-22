@@ -21,6 +21,8 @@ class CommunitySerializer(PeeringManagerModelSerializer):
             "description",
             "value",
             "type",
+            "category",
+            "private",
             "kind",
             "local_context_data",
             "config_context",

@@ -20,8 +20,15 @@ class CommunityTest(TestCase):
                 slug="test-2",
                 value="64500:2",
                 type=CommunityType.INGRESS,
+                category=CommunityCategory.INFORMATIONAL,
             ),
-            Community(name="test-3", slug="test-3", value="64500:3", type="unknown"),
+            Community(
+                name="test-3",
+                slug="test-3",
+                value="64500:3",
+                type="unknown",
+                private=True,
+            ),
         ]
         Community.objects.bulk_create(cls.communities)
 

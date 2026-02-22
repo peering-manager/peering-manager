@@ -26,6 +26,8 @@ optional):
    automatically generated from the community's name.
 * `Value`: actual value of the community.
 * `Type`: when to apply the community - on ingress or egress.
+* `Category`: semantic category of the community, informational or action.
+* `Private`: whether this community should be excluded from public exports.
 * `Comments`: text to explain what the community is for. Can use Markdown
   formatting.
 * `Tags`: a list of tags to help identifying and searching for a community.

@@ -13,6 +13,13 @@ class CommunityKind(ChoiceSet):
     )
 
 
+class CommunityCategory(ChoiceSet):
+    INFORMATIONAL = "informational"
+    ACTION = "action"
+
+    CHOICES = ((INFORMATIONAL, "Informational"), (ACTION, "Action"))
+
+
 class CommunityType(ChoiceSet):
     EGRESS = "egress"
     INGRESS = "ingress"

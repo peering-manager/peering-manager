@@ -21,12 +21,15 @@ class CommunityTestCase(TestCase, BaseFilterSetTests):
                     slug="community-1",
                     value="64500:1",
                     type=CommunityType.EGRESS,
+                    category=CommunityCategory.INFORMATIONAL,
+                    private=True,
                 ),
                 Community(
                     name="Community 2",
                     slug="community-2",
                     value="64500:2",
                     type=CommunityType.INGRESS,
+                    category=CommunityCategory.ACTION,
                 ),
                 Community(name="Community 3", slug="community-3", value="64500:3"),
             ]
@@ -45,6 +48,20 @@ class CommunityTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"type": [CommunityType.EGRESS]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_category(self):
+        params = {"category": [CommunityCategory.INFORMATIONAL]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"category": [CommunityCategory.ACTION]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"category": [""]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_private(self):
+        params = {"private": True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"private": False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_value(self):
         params = {"value": ["64500:1"]}

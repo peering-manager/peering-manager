@@ -3,7 +3,7 @@ from django.db.models import Q
 
 from peering_manager.filtersets import PeeringManagerModelFilterSet
 
-from ..enums import CommunityType
+from ..enums import CommunityCategory, CommunityType
 from ..models import Community
 
 __all__ = ("CommunityFilterSet",)
@@ -11,10 +11,13 @@ __all__ = ("CommunityFilterSet",)
 
 class CommunityFilterSet(PeeringManagerModelFilterSet):
     type = django_filters.MultipleChoiceFilter(choices=CommunityType, null_value="")
+    category = django_filters.MultipleChoiceFilter(
+        choices=CommunityCategory, null_value=""
+    )
 
     class Meta:
         model = Community
-        fields = ["id", "value", "type"]
+        fields = ["id", "value", "type", "category", "private"]
 
     def search(self, queryset, name, value):
         if not value.strip():
