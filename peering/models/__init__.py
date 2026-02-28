@@ -3,7 +3,8 @@ import logging
 from typing import Any
 
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
 from django.db.models import Q
@@ -15,7 +16,12 @@ from netfields import InetAddressField
 
 from bgp.models import Relationship
 from net.models import Connection
-from peering_manager.models import JournalingMixin, OrganisationalModel, PrimaryModel
+from peering_manager.models import (
+    ChangeLoggedModel,
+    JournalingMixin,
+    OrganisationalModel,
+    PrimaryModel,
+)
 from peeringdb.functions import get_shared_facilities, get_shared_internet_exchanges
 from peeringdb.models import (
     HiddenPeer,
@@ -31,6 +37,7 @@ from ..enums import (
     IPFamily,
     PeeringRequestStatus,
     PeeringRequestType,
+    RequestedSessionStatus,
     RoutingPolicyType,
 )
 from ..fields import ASNField
@@ -51,6 +58,8 @@ __all__ = (
     "DirectPeeringSession",
     "InternetExchange",
     "InternetExchangePeeringSession",
+    "PeeringRequest",
+    "RequestedSession",
     "RoutingPolicy",
 )
 
@@ -1170,6 +1179,49 @@ class PeeringRequest(PrimaryModel):
             return Network.objects.get(asn=self.requesting_asn)
         except Network.DoesNotExist:
             return None
+
+
+class RequestedSession(ChangeLoggedModel):
+    peering_request = models.ForeignKey(
+        to="peering.PeeringRequest",
+        on_delete=models.CASCADE,
+        related_name="requested_sessions",
+    )
+    internet_exchange = models.ForeignKey(
+        to="peering.InternetExchange", on_delete=models.SET_NULL, blank=True, null=True
+    )
+    peeringdb_facility = models.ForeignKey(
+        to="peeringdb.Facility", on_delete=models.SET_NULL, blank=True, null=True
+    )
+    ip_address = InetAddressField(store_prefix_length=True, verbose_name="IP address")
+    wants_password = models.BooleanField(default=False)
+    wants_bfd = models.BooleanField(default=False)
+    status = models.CharField(
+        max_length=20,
+        choices=RequestedSessionStatus,
+        default=RequestedSessionStatus.PENDING,
+    )
+    rejection_comment = models.TextField(blank=True)
+    created_session_type = models.ForeignKey(
+        to=ContentType, on_delete=models.SET_NULL, blank=True, null=True
+    )
+    created_session_id = models.PositiveIntegerField(blank=True, null=True)
+    created_session = GenericForeignKey("created_session_type", "created_session_id")
+
+    class Meta:
+        ordering = ["peering_request", "internet_exchange", "ip_address"]
+
+    def __str__(self) -> str:
+        return f"Requested session {self.ip_address}"
+
+    @property
+    def address_family(self) -> int:
+        if isinstance(self.ip_address, str):
+            return ipaddress.ip_interface(self.ip_address).version
+        return self.ip_address.version
+
+    def get_status_colour(self):
+        return RequestedSessionStatus.colours.get(self.status)
 
 
 class RoutingPolicy(OrganisationalModel):

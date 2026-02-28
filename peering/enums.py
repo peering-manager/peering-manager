@@ -88,6 +88,20 @@ class PeeringRequestType(ChoiceSet):
     CHOICES = ((IXP, "IXP"), (PRIVATE, "Private"))
 
 
+class RequestedSessionStatus(ChoiceSet):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
+    CANCELLED = "cancelled"
+
+    CHOICES = (
+        (PENDING, "Pending", "info"),
+        (ACCEPTED, "Accepted", "success"),
+        (REJECTED, "Rejected", "danger"),
+        (CANCELLED, "Cancelled", "warning"),
+    )
+
+
 class RoutingPolicyType(ChoiceSet):
     EXPORT = "export-policy"
     IMPORT = "import-policy"
