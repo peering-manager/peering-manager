@@ -67,6 +67,27 @@ class IPFamily(ChoiceSet):
     CHOICES = ((ALL, "All"), (IPV4, "IPv4"), (IPV6, "IPv6"))
 
 
+class PeeringRequestStatus(ChoiceSet):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    REFUSED = "refused"
+    CANCELLED = "cancelled"
+
+    CHOICES = (
+        (PENDING, "Pending", "info"),
+        (ACCEPTED, "Accepted", "success"),
+        (REFUSED, "Refused", "danger"),
+        (CANCELLED, "Cancelled", "warning"),
+    )
+
+
+class PeeringRequestType(ChoiceSet):
+    IXP = "ixp"
+    PRIVATE = "private"
+
+    CHOICES = ((IXP, "IXP"), (PRIVATE, "Private"))
+
+
 class RoutingPolicyType(ChoiceSet):
     EXPORT = "export-policy"
     IMPORT = "import-policy"

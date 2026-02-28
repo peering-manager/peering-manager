@@ -25,7 +25,14 @@ from peeringdb.models import (
     NetworkIXLan,
 )
 
-from ..enums import BGPState, IPFamily, RoutingPolicyType
+from ..enums import (
+    BGPSessionStatus,
+    BGPState,
+    IPFamily,
+    PeeringRequestStatus,
+    PeeringRequestType,
+    RoutingPolicyType,
+)
 from ..fields import ASNField
 from ..functions import (
     UnresolvableIRRObjectError,
@@ -1127,6 +1134,42 @@ class InternetExchangePeeringSession(BGPSession):
             return True
 
         return False
+
+
+class PeeringRequest(PrimaryModel):
+    tracking_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    requesting_asn = ASNField(verbose_name="Requesting ASN")
+    requester_email = models.EmailField(verbose_name="Requester email", blank=True)
+    local_autonomous_system = models.ForeignKey(
+        to="peering.AutonomousSystem",
+        on_delete=models.CASCADE,
+        limit_choices_to={"affiliated": True},
+        related_name="peering_requests",
+        verbose_name="Local AS",
+    )
+    request_type = models.CharField(max_length=20, choices=PeeringRequestType)
+    status = models.CharField(
+        max_length=20,
+        choices=PeeringRequestStatus,
+        default=PeeringRequestStatus.PENDING,
+    )
+    decision_comment = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["-created"]
+        permissions = [("review_peering_request", "Can review peering requests")]
+
+    def __str__(self) -> str:
+        return f"Peering request from AS{self.requesting_asn} - {self.tracking_id}"
+
+    def get_status_colour(self):
+        return PeeringRequestStatus.colours.get(self.status)
+
+    def get_requesting_network(self) -> Network | None:
+        try:
+            return Network.objects.get(asn=self.requesting_asn)
+        except Network.DoesNotExist:
+            return None
 
 
 class RoutingPolicy(OrganisationalModel):
