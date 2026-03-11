@@ -43,6 +43,15 @@ class Migration(migrations.Migration):
                 ("status", models.CharField(default="pending", max_length=20)),
                 ("decision_comment", models.TextField(blank=True)),
                 (
+                    "bfd",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="net.bfd",
+                    ),
+                ),
+                (
                     "local_autonomous_system",
                     models.ForeignKey(
                         limit_choices_to={"affiliated": True},

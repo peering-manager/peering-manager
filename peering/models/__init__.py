@@ -1,6 +1,6 @@
 import ipaddress
 import logging
-from typing import Any
+from typing import Any, Literal
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -1163,6 +1163,9 @@ class PeeringRequest(PrimaryModel):
         default=PeeringRequestStatus.PENDING,
     )
     decision_comment = models.TextField(blank=True)
+    bfd = models.ForeignKey(
+        to="net.BFD", on_delete=models.SET_NULL, blank=True, null=True
+    )
 
     class Meta:
         ordering = ["-created"]
@@ -1215,7 +1218,7 @@ class RequestedSession(ChangeLoggedModel):
         return f"Requested session {self.ip_address}"
 
     @property
-    def address_family(self) -> int:
+    def address_family(self) -> Literal[4, 6]:
         if isinstance(self.ip_address, str):
             return ipaddress.ip_interface(self.ip_address).version
         return self.ip_address.version
