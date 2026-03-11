@@ -14,13 +14,22 @@ from net.api.serializers import NestedBFDSerializer, NestedConnectionSerializer
 from peering_manager.api.fields import ChoiceField, SerializedPKRelatedField
 from peering_manager.api.serializers import PeeringManagerModelSerializer
 
-from ..enums import BGPGroupStatus, BGPSessionStatus, IPFamily
+from ..enums import (
+    BGPGroupStatus,
+    BGPSessionStatus,
+    IPFamily,
+    PeeringRequestStatus,
+    PeeringRequestType,
+    RequestedSessionStatus,
+)
 from ..models import (
     AutonomousSystem,
     BGPGroup,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
+    PeeringRequest,
+    RequestedSession,
     RoutingPolicy,
 )
 from .nested_serializers import *
@@ -39,7 +48,11 @@ __all__ = (
     "NestedDirectPeeringSessionSerializer",
     "NestedInternetExchangePeeringSessionSerializer",
     "NestedInternetExchangeSerializer",
+    "NestedPeeringRequestSerializer",
+    "NestedRequestedSessionSerializer",
     "NestedRoutingPolicySerializer",
+    "PeeringRequestSerializer",
+    "RequestedSessionSerializer",
     "RouterConfigureSerializer",
     "RouterSerializer",
     "RoutingPolicySerializer",
@@ -366,6 +379,64 @@ class InternetExchangePeeringSessionSerializer(PeeringManagerModelSerializer):
             "accepted_prefix_count",
             "advertised_prefix_count",
             "last_established_state",
+            "comments",
+            "tags",
+            "created",
+            "updated",
+        ]
+
+
+class RequestedSessionSerializer(PeeringManagerModelSerializer):
+    peering_request = NestedPeeringRequestSerializer(read_only=True)
+    address_family = serializers.IntegerField(read_only=True)
+    status = ChoiceField(read_only=True, choices=RequestedSessionStatus)
+
+    class Meta:
+        model = RequestedSession
+        fields = [
+            "id",
+            "url",
+            "display",
+            "peering_request",
+            "internet_exchange",
+            "peeringdb_facility",
+            "ip_address",
+            "address_family",
+            "wants_password",
+            "wants_bfd",
+            "status",
+            "rejection_comment",
+            "created_session_type",
+            "created_session_id",
+            "created",
+            "updated",
+        ]
+
+
+class PeeringRequestSerializer(PeeringManagerModelSerializer):
+    local_autonomous_system = NestedAutonomousSystemSerializer()
+    request_type = ChoiceField(required=False, choices=PeeringRequestType)
+    status = ChoiceField(read_only=True, choices=PeeringRequestStatus)
+    bfd = NestedBFDSerializer(required=False, allow_null=True)
+    requested_sessions = RequestedSessionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = PeeringRequest
+        fields = [
+            "id",
+            "url",
+            "display_url",
+            "display",
+            "tracking_id",
+            "requesting_asn",
+            "requester_email",
+            "local_autonomous_system",
+            "request_type",
+            "status",
+            "decision_comment",
+            "bfd",
+            "requested_sessions",
+            "description",
             "comments",
             "tags",
             "created",

@@ -20,6 +20,8 @@ from ..filtersets import (
     DirectPeeringSessionFilterSet,
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
+    PeeringRequestFilterSet,
+    RequestedSessionFilterSet,
     RoutingPolicyFilterSet,
 )
 from ..jobs import import_sessions_to_internet_exchange
@@ -29,6 +31,8 @@ from ..models import (
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
+    PeeringRequest,
+    RequestedSession,
     RoutingPolicy,
 )
 from .serializers import (
@@ -38,6 +42,8 @@ from .serializers import (
     InternetExchangePeeringSessionSerializer,
     InternetExchangeSerializer,
     NestedInternetExchangeSerializer,
+    PeeringRequestSerializer,
+    RequestedSessionSerializer,
     RoutingPolicySerializer,
 )
 
@@ -588,6 +594,18 @@ class InternetExchangePeeringSessionViewSet(PeeringManagerModelViewSet):
                 status.HTTP_200_OK if success else status.HTTP_503_SERVICE_UNAVAILABLE
             )
         )
+
+
+class PeeringRequestViewSet(PeeringManagerModelViewSet):
+    queryset = PeeringRequest.objects.prefetch_related("requested_sessions").all()
+    serializer_class = PeeringRequestSerializer
+    filterset_class = PeeringRequestFilterSet
+
+
+class RequestedSessionViewSet(PeeringManagerModelViewSet):
+    queryset = RequestedSession.objects.select_related("peering_request").all()
+    serializer_class = RequestedSessionSerializer
+    filterset_class = RequestedSessionFilterSet
 
 
 class RoutingPolicyViewSet(PeeringManagerModelViewSet):

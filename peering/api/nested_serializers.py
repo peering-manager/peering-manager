@@ -6,6 +6,8 @@ from ..models import (
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
+    PeeringRequest,
+    RequestedSession,
     RoutingPolicy,
 )
 
@@ -15,6 +17,8 @@ __all__ = (
     "NestedDirectPeeringSessionSerializer",
     "NestedInternetExchangePeeringSessionSerializer",
     "NestedInternetExchangeSerializer",
+    "NestedPeeringRequestSerializer",
+    "NestedRequestedSessionSerializer",
     "NestedRoutingPolicySerializer",
 )
 
@@ -64,6 +68,26 @@ class NestedInternetExchangePeeringSessionSerializer(WritableNestedSerializer):
             "status",
             "is_route_server",
         ]
+
+
+class NestedPeeringRequestSerializer(WritableNestedSerializer):
+    class Meta:
+        model = PeeringRequest
+        fields = [
+            "id",
+            "url",
+            "display_url",
+            "display",
+            "tracking_id",
+            "requesting_asn",
+            "status",
+        ]
+
+
+class NestedRequestedSessionSerializer(WritableNestedSerializer):
+    class Meta:
+        model = RequestedSession
+        fields = ["id", "url", "display", "ip_address", "address_family", "status"]
 
 
 class NestedRoutingPolicySerializer(WritableNestedSerializer):
