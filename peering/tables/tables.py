@@ -9,6 +9,8 @@ from ..models import (
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
+    PeeringRequest,
+    RequestedSession,
     RoutingPolicy,
 )
 from .columns import BGPSessionStateColumn, RoutingPolicyColumn
@@ -312,6 +314,78 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
             "ip_address",
             "status",
             "is_route_server",
+            "actions",
+        )
+
+
+class PeeringRequestTable(PeeringManagerTable):
+    tracking_id = tables.Column(linkify=True, verbose_name="Tracking ID")
+    requesting_asn = tables.Column(verbose_name="Requesting ASN")
+    local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
+    request_type = columns.ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn()
+    bfd = tables.Column(linkify=True, verbose_name="BFD")
+    tags = columns.TagColumn(url_name="peering:peeringrequest_list")
+
+    class Meta(PeeringManagerTable.Meta):
+        model = PeeringRequest
+        fields = (
+            "pk",
+            "id",
+            "tracking_id",
+            "requesting_asn",
+            "local_autonomous_system",
+            "request_type",
+            "status",
+            "created",
+            "bfd",
+            "tags",
+            "actions",
+        )
+        default_columns = (
+            "pk",
+            "tracking_id",
+            "requesting_asn",
+            "local_autonomous_system",
+            "request_type",
+            "status",
+            "created",
+            "actions",
+        )
+
+
+class RequestedSessionTable(PeeringManagerTable):
+    ip_address = tables.Column(verbose_name="IP Address")
+    internet_exchange = tables.Column(verbose_name="Internet Exchange", linkify=True)
+    status = columns.ChoiceFieldColumn()
+    wants_password = columns.BooleanColumn(verbose_name="Password")
+    wants_bfd = columns.BooleanColumn(verbose_name="BFD")
+    created_session = tables.Column(
+        linkify=True, verbose_name="Session", orderable=False
+    )
+    actions = columns.ActionsColumn(actions=())
+
+    class Meta(PeeringManagerTable.Meta):
+        model = RequestedSession
+        fields = (
+            "pk",
+            "id",
+            "ip_address",
+            "internet_exchange",
+            "status",
+            "created_session",
+            "wants_password",
+            "wants_bfd",
+            "actions",
+        )
+        default_columns = (
+            "pk",
+            "ip_address",
+            "internet_exchange",
+            "status",
+            "created_session",
+            "wants_password",
+            "wants_bfd",
             "actions",
         )
 
