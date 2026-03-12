@@ -71,6 +71,18 @@ urlpatterns = [
         ),
     ),
     path(
+        "peering-requests/",
+        include(
+            get_model_urls(
+                app_label="peering", model_name="peeringrequest", detail=False
+            )
+        ),
+    ),
+    path(
+        "peering-requests/<int:pk>/",
+        include(get_model_urls(app_label="peering", model_name="peeringrequest")),
+    ),
+    path(
         "routing-policies/",
         include(
             get_model_urls(

@@ -1,0 +1,194 @@
+{% extends 'peering/peeringrequest/_base.html' %}
+{% load helpers %}
+{% block subcontent %}
+{% if perms.peering.review_peering_request and instance.status == "pending" %}
+{% include 'includes/alerts_success_danger.html' %}
+{% endif %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header"><strong>Details</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Tracking ID</td>
+          <td>{{ instance.tracking_id }}</td>
+        </tr>
+        {% if not requesting_autonomous_system %}
+        <tr>
+          <td>Requesting ASN</td>
+          <td>AS{{ instance.requesting_asn }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td>Requesting AS</td>
+          <td>{{ requesting_autonomous_system|as_link }}</td>
+        </tr>
+        {% endif %}
+        <tr>
+          <td>Requester Email</td>
+          <td>{{ instance.requester_email|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Local AS</td>
+          <td>{{ instance.local_autonomous_system|as_link }}</td>
+        </tr>
+        <tr>
+          <td>Request Type</td>
+          <td>{{ instance.get_request_type_display }}</td>
+        </tr>
+        <tr>
+          <td>Status</td>
+          <td>{{ instance|status_as_badge }}</td>
+        </tr>
+        <tr>
+          <td>BFD</td>
+          <td>{{ instance.bfd|as_link|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Decision Comment</td>
+          <td>{{ instance.decision_comment|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Description</td>
+          <td>{{ instance.description|render_none }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="col-md-6">
+    {% include 'includes/tags_card.html' with tags=instance.tags.all url='peering:peeringrequest_list' %}
+    {% include 'includes/comments_card.html' %}
+  </div>
+</div>
+{% if perms.peering.review_peering_request and instance.status == "pending" %}
+<div class="modal fade" id="accept_modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Accept Peering Request</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>The following sessions will be created if accepted:</p>
+        {% if pending_sessions %}
+        <table class="table table-hover table-sm">
+          <thead>
+            <tr>
+              <th>ASN</th>
+              <th>IP Address</th>
+              <th>Location</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for session in pending_sessions %}
+            <tr>
+              <td>AS{{ session.peering_request.requesting_asn }}</td>
+              <td>{{ session.ip_address }}</td>
+              <td>{{ session.internet_exchange|render_none }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted">No pending sessions.</p>
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        {% if pending_sessions %}
+        <button type="button" class="btn btn-success" id="accept_request">Accept</button>
+        {% endif %}
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="refuse_modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Refuse Peering Request</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="refuse_comment" class="form-label">Rejection comment</label>
+          <textarea class="form-control" id="refuse_comment" rows="3" placeholder="Optional reason for refusing this request"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" id="refuse_request">Refuse</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block javascript %}
+{% if perms.peering.review_peering_request and instance.status == "pending" %}
+<script>
+  $('.alert').hide();
+
+  $('#accept_request').click(function () {
+    var button = $(this);
+    PeeringManager.setWorkingButton(button);
+    $.ajax({
+      method: 'post',
+      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+      url: "{% url 'peering-api:peeringrequest-accept' pk=instance.pk %}",
+    }).done(function (r) {
+      PeeringManager.setSuccessButton(button, 'Accepted');
+      var message = r.accepted_sessions + ' session(s) accepted';
+      if (r.rejected_sessions > 0) {
+        message += ', ' + r.rejected_sessions + ' session(s) auto-rejected';
+        if (r.details) {
+          message += ':<ul class="m-0">';
+          for (var i = 0; i < r.details.length; i++) {
+            if (r.details[i].result === 'auto_rejected') {
+              message += '<li>' + r.details[i].ip_address + ': ' + r.details[i].reason + '</li>';
+            }
+          }
+          message += '</ul>';
+        }
+      }
+      $('#id_message_success').html(message);
+      $('#id_alert_success').slideDown();
+      setTimeout(function () { location.reload(); }, 2000);
+    }).fail(function (xhr) {
+      PeeringManager.setFailedButton(button, 'Failed');
+      var message = 'Failed to accept peering request.';
+      if (xhr.responseJSON && xhr.responseJSON.error) {
+        message = xhr.responseJSON.error;
+      }
+      $('#id_message_danger').html(message);
+      $('#id_alert_danger').slideDown();
+    });
+  });
+
+  $('#refuse_request').click(function () {
+    var button = $(this);
+    PeeringManager.setWorkingButton(button);
+    $.ajax({
+      method: 'post',
+      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+      url: "{% url 'peering-api:peeringrequest-reject' pk=instance.pk %}",
+      contentType: 'application/json',
+      data: JSON.stringify({ comment: $('#refuse_comment').val() }),
+    }).done(function () {
+      PeeringManager.setSuccessButton(button, 'Refused');
+      $('#id_message_success').html('Peering request has been refused.');
+      $('#id_alert_success').slideDown();
+      setTimeout(function () { location.reload(); }, 2000);
+    }).fail(function (xhr) {
+      PeeringManager.setFailedButton(button, 'Failed');
+      var message = 'Failed to refuse peering request.';
+      if (xhr.responseJSON && xhr.responseJSON.error) {
+        message = xhr.responseJSON.error;
+      }
+      $('#id_message_danger').html(message);
+      $('#id_alert_danger').slideDown();
+    });
+  });
+</script>
+{% endif %}
+{% endblock %}

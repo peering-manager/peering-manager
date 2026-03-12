@@ -1,0 +1,9 @@
+{% extends 'peering/peeringrequest/_base.html' %}
+{% load render_table from django_tables2 %}
+{% block subcontent %}
+<div class="row">
+  <div class="col-md-12">
+    {% render_table table 'django_tables2/bootstrap-responsive.html' %}
+  </div>
+</div>
+{% endblock %}

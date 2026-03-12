@@ -1,0 +1,52 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% load tabs %}
+{% block actions %}
+{% if perms.peering.review_peering_request and instance.status == "pending" %}
+<div class="btn-group" role="group">
+  <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fa-fw fa-solid fa-gavel"></i> Review
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li>
+      <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#accept_modal">
+        <i class="fa-fw fa-solid fa-check text-success"></i> Accept
+      </button>
+    </li>
+    <li>
+      <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#refuse_modal">
+        <i class="fa-fw fa-solid fa-times text-danger"></i> Refuse
+      </button>
+    </li>
+  </ul>
+</div>
+{% endif %}
+{% if perms.peering.change_peeringrequest %}
+<a href="{% url 'peering:peeringrequest_edit' pk=instance.pk %}" class="btn btn-warning">
+  <i class="fa-fw fa-solid fa-edit"></i> Edit
+</a>
+{% endif %}
+{% if perms.peering.delete_peeringrequest %}
+<a href="{% url 'peering:peeringrequest_delete' pk=instance.pk %}" class="btn btn-danger">
+  <i class="fa-fw fa-solid fa-trash"></i> Delete
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'peering:peeringrequest_list' %}">Peering Requests</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
+{% endblock %}
+{% block content %}
+{% block tabs %}
+<ul class="nav nav-tabs mb-3" role="presentation">
+  {# Primary tab #}
+  <li class="nav-item">
+    <a class="nav-link{% if not tab %} active{% endif %}" href="{{ instance.get_absolute_url }}">{{ instance|meta:"verbose_name"|title_with_uppers }}</a>
+  </li>
+
+  {# Include tabs for registered model views #}
+  {% model_view_tabs instance %}
+</ul>
+{% endblock tabs %}
+{% block subcontent %}{% endblock %}
+{% endblock %}
