@@ -35,6 +35,8 @@ from .enums import (
     BGPSessionStatus,
     BGPState,
     IPFamily,
+    PeeringRequestStatus,
+    PeeringRequestType,
     RoutingPolicyType,
 )
 from .models import (
@@ -43,6 +45,8 @@ from .models import (
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
+    PeeringRequest,
+    RequestedSession,
     RoutingPolicy,
 )
 
@@ -880,6 +884,104 @@ class InternetExchangePeeringSessionFilterForm(PeeringManagerModelFilterSetForm)
         required=False, choices=BGPState, widget=StaticSelectMultiple, label="BGP state"
     )
     tag = TagFilterField(model)
+
+
+class PeeringRequestForm(PeeringManagerModelForm):
+    local_autonomous_system = DynamicModelChoiceField(
+        queryset=AutonomousSystem.objects.all(),
+        query_params={"affiliated": True},
+        label="Local AS",
+    )
+    request_type = forms.ChoiceField(choices=PeeringRequestType, widget=StaticSelect)
+    status = forms.ChoiceField(choices=PeeringRequestStatus, widget=StaticSelect)
+    bfd = DynamicModelChoiceField(
+        required=False,
+        queryset=BFD.objects.all(),
+        label="BFD",
+        help_text="BFD configuration to apply to created sessions",
+    )
+    comments = CommentField()
+    tags = TagField(required=False)
+
+    fieldsets = (
+        (
+            "Peering Request",
+            (
+                "requesting_asn",
+                "requester_email",
+                "local_autonomous_system",
+                "request_type",
+                "status",
+                "decision_comment",
+                "bfd",
+            ),
+        ),
+    )
+
+    class Meta:
+        model = PeeringRequest
+        fields = (
+            "requesting_asn",
+            "requester_email",
+            "local_autonomous_system",
+            "request_type",
+            "status",
+            "decision_comment",
+            "bfd",
+            "description",
+            "comments",
+            "tags",
+        )
+
+
+class PeeringRequestFilterForm(PeeringManagerModelFilterSetForm):
+    model = PeeringRequest
+    status = forms.MultipleChoiceField(
+        required=False, choices=PeeringRequestStatus, widget=StaticSelectMultiple
+    )
+    request_type = forms.MultipleChoiceField(
+        required=False, choices=PeeringRequestType, widget=StaticSelectMultiple
+    )
+    local_autonomous_system_id = DynamicModelChoiceField(
+        required=False,
+        queryset=AutonomousSystem.objects.all(),
+        query_params={"affiliated": True},
+        label="Local AS",
+    )
+    bfd_id = DynamicModelMultipleChoiceField(
+        required=False, queryset=BFD.objects.all(), to_field_name="pk", label="BFD"
+    )
+    tag = TagFilterField(model)
+
+
+class RequestedSessionForm(PeeringManagerModelForm):
+    peering_request = DynamicModelChoiceField(queryset=PeeringRequest.objects.all())
+    internet_exchange = DynamicModelChoiceField(
+        required=False, queryset=InternetExchange.objects.all()
+    )
+
+    fieldsets = (
+        (
+            "Requested Session",
+            (
+                "peering_request",
+                "internet_exchange",
+                "ip_address",
+                "wants_password",
+                "wants_bfd",
+            ),
+        ),
+    )
+
+    class Meta:
+        model = RequestedSession
+        fields = (
+            "peering_request",
+            "internet_exchange",
+            "ip_address",
+            "wants_password",
+            "wants_bfd",
+        )
 
 
 class RoutingPolicyForm(PeeringManagerModelForm):
