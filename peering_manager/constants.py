@@ -18,6 +18,7 @@ from peering.filtersets import (
     DirectPeeringSessionFilterSet,
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
+    PeeringRequestFilterSet,
     RoutingPolicyFilterSet,
 )
 from peering.models import (
@@ -26,6 +27,7 @@ from peering.models import (
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
+    PeeringRequest,
     RoutingPolicy,
 )
 from peering.tables import (
@@ -34,6 +36,7 @@ from peering.tables import (
     DirectPeeringSessionTable,
     InternetExchangePeeringSessionTable,
     InternetExchangeTable,
+    PeeringRequestTable,
     RoutingPolicyTable,
 )
 from utils.functions import count_related
@@ -157,6 +160,17 @@ SEARCH_TYPES = OrderedDict(
                 "filterset": InternetExchangeFilterSet,
                 "table": InternetExchangeTable,
                 "url": "peering:internetexchange_list",
+            },
+        ),
+        (
+            "peeringrequest",
+            {
+                "queryset": PeeringRequest.objects.select_related(
+                    "local_autonomous_system"
+                ),
+                "filterset": PeeringRequestFilterSet,
+                "table": PeeringRequestTable,
+                "url": "peering:peeringrequest_list",
             },
         ),
         (

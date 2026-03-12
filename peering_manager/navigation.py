@@ -75,6 +75,7 @@ NAVIGATION: list[MenuItem | MenuGroup] = [
         icon="fa-solid fa-folder-tree",
         menu_id="provisioning-menu",
         items=[
+            MenuItem(label="Peering Requests", url_name="peering:peeringrequest_list"),
             MenuItem(label="Available IXP Peers", url_name="peeringdb:ixp_peers"),
             MenuItem(label="Hidden Peers", url_name="peeringdb:hiddenpeer_list"),
             MenuItem(
