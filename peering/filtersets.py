@@ -392,6 +392,15 @@ class PeeringRequestFilterSet(PeeringManagerModelFilterSet):
     local_autonomous_system_id = django_filters.ModelMultipleChoiceFilter(
         queryset=AutonomousSystem.objects.all(), label="Local AS (ID)"
     )
+    relationship_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Relationship.objects.all(), label="Relationship (ID)"
+    )
+    relationship = django_filters.ModelMultipleChoiceFilter(
+        field_name="relationship__name",
+        queryset=Relationship.objects.all(),
+        to_field_name="name",
+        label="Relationship (Name)",
+    )
     bfd_id = django_filters.ModelMultipleChoiceFilter(
         queryset=BFD.objects.all(), label="BFD (ID)"
     )

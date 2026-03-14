@@ -1166,6 +1166,9 @@ class PeeringRequest(PrimaryModel):
     bfd = models.ForeignKey(
         to="net.BFD", on_delete=models.SET_NULL, blank=True, null=True
     )
+    relationship = models.ForeignKey(
+        to="bgp.Relationship", on_delete=models.SET_NULL, blank=True, null=True
+    )
 
     class Meta:
         ordering = ["-created"]
@@ -1202,11 +1205,11 @@ class PeeringRequest(PrimaryModel):
         if self.status != PeeringRequestStatus.PENDING:
             raise ValueError(f"Cannot cancel a request with status '{self.status}'.")
 
-        self.status = PeeringRequestStatus.CANCELLED
-        self.save(update_fields=["status", "updated"])
         self.requested_sessions.filter(status=RequestedSessionStatus.PENDING).update(
             status=RequestedSessionStatus.CANCELLED
         )
+        self.status = PeeringRequestStatus.CANCELLED
+        self.save(update_fields=["status", "updated"])
 
 
 class RequestedSession(ChangeLoggedModel):

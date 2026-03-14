@@ -52,6 +52,15 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
+                    "relationship",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="bgp.relationship",
+                    ),
+                ),
+                (
                     "local_autonomous_system",
                     models.ForeignKey(
                         limit_choices_to={"affiliated": True},

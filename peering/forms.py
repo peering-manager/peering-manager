@@ -894,6 +894,9 @@ class PeeringRequestForm(PeeringManagerModelForm):
     )
     request_type = forms.ChoiceField(choices=PeeringRequestType, widget=StaticSelect)
     status = forms.ChoiceField(choices=PeeringRequestStatus, widget=StaticSelect)
+    relationship = DynamicModelChoiceField(
+        required=False, queryset=Relationship.objects.all()
+    )
     bfd = DynamicModelChoiceField(
         required=False,
         queryset=BFD.objects.all(),
@@ -913,6 +916,7 @@ class PeeringRequestForm(PeeringManagerModelForm):
                 "request_type",
                 "status",
                 "decision_comment",
+                "relationship",
                 "bfd",
             ),
         ),
@@ -927,6 +931,7 @@ class PeeringRequestForm(PeeringManagerModelForm):
             "request_type",
             "status",
             "decision_comment",
+            "relationship",
             "bfd",
             "description",
             "comments",
@@ -947,6 +952,12 @@ class PeeringRequestFilterForm(PeeringManagerModelFilterSetForm):
         queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
         label="Local AS",
+    )
+    relationship_id = DynamicModelMultipleChoiceField(
+        required=False,
+        queryset=Relationship.objects.all(),
+        to_field_name="pk",
+        label="Relationship",
     )
     bfd_id = DynamicModelMultipleChoiceField(
         required=False, queryset=BFD.objects.all(), to_field_name="pk", label="BFD"
