@@ -1226,6 +1226,42 @@ class RequestedSession(ChangeLoggedModel):
     def get_status_colour(self):
         return RequestedSessionStatus.colours.get(self.status)
 
+    def _find_connection(self) -> Connection | None:
+        if not self.internet_exchange:
+            return None
+        connections = Connection.objects.filter(
+            internet_exchange_point=self.internet_exchange
+        )
+        if self.address_family == 4:
+            connections = connections.filter(ipv4_address__isnull=False)
+        else:
+            connections = connections.filter(ipv6_address__isnull=False)
+        return connections.first()
+
+    def validate_creation(self) -> None:
+        """
+        Checks if this requested session can be created as an actual peering session.
+        """
+        match self.peering_request.request_type:
+            case PeeringRequestType.IXP:
+                if not self.internet_exchange:
+                    raise ValueError("No internet exchange specified.")
+                if not self._find_connection():
+                    raise ValueError(
+                        f"No connection with IPv{self.address_family} address found on {self.internet_exchange}."
+                    )
+                if InternetExchangePeeringSession.objects.filter(
+                    ixp_connection__internet_exchange_point=self.internet_exchange,
+                    ip_address=self.ip_address,
+                ).exists():
+                    raise ValueError(
+                        f"A session with IP {self.ip_address} already exists on {self.internet_exchange}."
+                    )
+
+            case PeeringRequestType.PRIVATE:
+                if not self.peeringdb_facility:
+                    raise ValueError("No facility specified.")
+
 
 class RoutingPolicy(OrganisationalModel):
     type = models.CharField(
