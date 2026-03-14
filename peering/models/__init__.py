@@ -1183,6 +1183,17 @@ class PeeringRequest(PrimaryModel):
         except Network.DoesNotExist:
             return None
 
+    @transaction.atomic
+    def cancel(self) -> None:
+        if self.status != PeeringRequestStatus.PENDING:
+            raise ValueError(f"Cannot cancel a request with status '{self.status}'.")
+
+        self.status = PeeringRequestStatus.CANCELLED
+        self.save(update_fields=["status", "updated"])
+        self.requested_sessions.filter(status=RequestedSessionStatus.PENDING).update(
+            status=RequestedSessionStatus.CANCELLED
+        )
+
 
 class RequestedSession(ChangeLoggedModel):
     peering_request = models.ForeignKey(
