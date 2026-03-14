@@ -559,3 +559,132 @@ class RoutingPolicyTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"address_family": 4}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+
+class PeeringRequestTestCase(TestCase, BaseFilterSetTests):
+    queryset = PeeringRequest.objects.all()
+    filterset = PeeringRequestFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.local_as = AutonomousSystem.objects.create(
+            asn=64500, name="Affiliated AS", affiliated=True
+        )
+        PeeringRequest.objects.bulk_create(
+            [
+                PeeringRequest(
+                    requesting_asn=64501,
+                    local_autonomous_system=cls.local_as,
+                    request_type=PeeringRequestType.IXP,
+                    status=PeeringRequestStatus.PENDING,
+                ),
+                PeeringRequest(
+                    requesting_asn=64502,
+                    local_autonomous_system=cls.local_as,
+                    request_type=PeeringRequestType.IXP,
+                    status=PeeringRequestStatus.ACCEPTED,
+                ),
+                PeeringRequest(
+                    requesting_asn=64503,
+                    local_autonomous_system=cls.local_as,
+                    request_type=PeeringRequestType.PRIVATE,
+                    status=PeeringRequestStatus.REFUSED,
+                ),
+            ]
+        )
+
+    def test_q(self):
+        params = {"q": "64501"}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_status(self):
+        params = {"status": [PeeringRequestStatus.PENDING]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"status": [PeeringRequestStatus.ACCEPTED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"status": [PeeringRequestStatus.REFUSED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {
+            "status": [PeeringRequestStatus.PENDING, PeeringRequestStatus.ACCEPTED]
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_request_type(self):
+        params = {"request_type": [PeeringRequestType.IXP]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"request_type": [PeeringRequestType.PRIVATE]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_local_autonomous_system_id(self):
+        params = {"local_autonomous_system_id": [self.local_as.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+
+class RequestedSessionTestCase(TestCase, BaseFilterSetTests):
+    queryset = RequestedSession.objects.all()
+    filterset = RequestedSessionFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.local_as = AutonomousSystem.objects.create(
+            asn=64500, name="Affiliated AS", affiliated=True
+        )
+        cls.ixp = InternetExchange.objects.create(
+            local_autonomous_system=cls.local_as,
+            name="Internet Exchange 1",
+            slug="ix-1",
+        )
+        cls.peering_request = PeeringRequest.objects.create(
+            requesting_asn=64501,
+            local_autonomous_system=cls.local_as,
+            request_type=PeeringRequestType.IXP,
+            status=PeeringRequestStatus.PENDING,
+        )
+        RequestedSession.objects.bulk_create(
+            [
+                RequestedSession(
+                    peering_request=cls.peering_request,
+                    internet_exchange=cls.ixp,
+                    ip_address="192.0.2.1",
+                    status=RequestedSessionStatus.PENDING,
+                ),
+                RequestedSession(
+                    peering_request=cls.peering_request,
+                    internet_exchange=cls.ixp,
+                    ip_address="2001:db8::1",
+                    status=RequestedSessionStatus.ACCEPTED,
+                ),
+                RequestedSession(
+                    peering_request=cls.peering_request,
+                    internet_exchange=cls.ixp,
+                    ip_address="192.0.2.2",
+                    status=RequestedSessionStatus.REJECTED,
+                ),
+            ]
+        )
+
+    def test_status(self):
+        params = {"status": [RequestedSessionStatus.PENDING]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"status": [RequestedSessionStatus.ACCEPTED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"status": [RequestedSessionStatus.REJECTED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {
+            "status": [RequestedSessionStatus.PENDING, RequestedSessionStatus.ACCEPTED]
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_peering_request_id(self):
+        params = {"peering_request_id": [self.peering_request.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_internet_exchange_id(self):
+        params = {"internet_exchange_id": [self.ixp.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_address_family(self):
+        params = {"address_family": 4}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"address_family": 6}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)

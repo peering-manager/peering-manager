@@ -4,7 +4,12 @@ from bgp.models import Relationship
 from net.models import Connection
 from utils.testing import ViewTestCases
 
-from ..enums import BGPSessionStatus, RoutingPolicyType
+from ..enums import (
+    BGPSessionStatus,
+    PeeringRequestStatus,
+    PeeringRequestType,
+    RoutingPolicyType,
+)
 from ..models import *
 
 
@@ -271,3 +276,47 @@ class RoutingPolicyTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "tags": [],
         }
         cls.bulk_edit_data = {"weight": 10, "description": "New description"}
+
+
+class PeeringRequestTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = PeeringRequest
+
+    test_bulk_edit_objects = None
+
+    @classmethod
+    def setUpTestData(cls):
+        local_as = AutonomousSystem.objects.create(
+            asn=64501, name="Autonomous System 1", affiliated=True
+        )
+        PeeringRequest.objects.bulk_create(
+            [
+                PeeringRequest(
+                    requesting_asn=64601,
+                    local_autonomous_system=local_as,
+                    request_type=PeeringRequestType.IXP,
+                    status=PeeringRequestStatus.PENDING,
+                ),
+                PeeringRequest(
+                    requesting_asn=64602,
+                    local_autonomous_system=local_as,
+                    request_type=PeeringRequestType.IXP,
+                    status=PeeringRequestStatus.PENDING,
+                ),
+                PeeringRequest(
+                    requesting_asn=64603,
+                    local_autonomous_system=local_as,
+                    request_type=PeeringRequestType.PRIVATE,
+                    status=PeeringRequestStatus.PENDING,
+                ),
+            ]
+        )
+
+        cls.form_data = {
+            "requesting_asn": 64604,
+            "local_autonomous_system": local_as.pk,
+            "request_type": PeeringRequestType.IXP,
+            "status": PeeringRequestStatus.PENDING,
+            "decision_comment": "",
+            "comments": "",
+            "tags": [],
+        }

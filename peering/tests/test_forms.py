@@ -120,3 +120,24 @@ class RoutingPolicyTest(TestCase):
         )
         self.assertTrue(test.is_valid())
         self.assertTrue(test.save())
+
+
+class PeeringRequestTest(TestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.local_autonomous_system = AutonomousSystem.objects.create(
+            asn=201281, name="Guillaume Mazoyer", affiliated=True
+        )
+
+    def test_peering_request_form(self):
+        test = PeeringRequestForm(
+            data={
+                "requesting_asn": 64500,
+                "local_autonomous_system": self.local_autonomous_system.pk,
+                "request_type": PeeringRequestType.IXP,
+                "status": PeeringRequestStatus.PENDING,
+            }
+        )
+        self.assertTrue(test.is_valid())
+        self.assertTrue(test.save())
