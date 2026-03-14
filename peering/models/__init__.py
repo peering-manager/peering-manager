@@ -1184,6 +1184,20 @@ class PeeringRequest(PrimaryModel):
             return None
 
     @transaction.atomic
+    def reject(self, comment: str = "") -> None:
+        if self.status != PeeringRequestStatus.PENDING:
+            raise ValueError(f"Cannot reject a request with status '{self.status}'.")
+
+        for session in self.requested_sessions.filter(
+            status=RequestedSessionStatus.PENDING
+        ):
+            session.reject(comment=comment)
+
+        self.status = PeeringRequestStatus.REFUSED
+        self.decision_comment = comment
+        self.save(update_fields=["status", "decision_comment", "updated"])
+
+    @transaction.atomic
     def cancel(self) -> None:
         if self.status != PeeringRequestStatus.PENDING:
             raise ValueError(f"Cannot cancel a request with status '{self.status}'.")
@@ -1272,6 +1286,14 @@ class RequestedSession(ChangeLoggedModel):
             case PeeringRequestType.PRIVATE:
                 if not self.peeringdb_facility:
                     raise ValueError("No facility specified.")
+
+    def reject(self, comment: str = "") -> None:
+        if self.status != RequestedSessionStatus.PENDING:
+            raise ValueError(f"Cannot reject a session with status '{self.status}'.")
+
+        self.status = RequestedSessionStatus.REJECTED
+        self.rejection_comment = comment
+        self.save(update_fields=["status", "rejection_comment", "updated"])
 
 
 class RoutingPolicy(OrganisationalModel):
