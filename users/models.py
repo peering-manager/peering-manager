@@ -3,13 +3,15 @@ import ipaddress
 import os
 
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils import timezone
 from netfields.fields import CidrAddressField
 
-__all__ = ("Token", "UserPreferences")
+__all__ = ("Token", "TokenObjectPermission", "UserPreferences")
 
 
 class Token(models.Model):
@@ -27,6 +29,10 @@ class Token(models.Model):
     )
     write_enabled = models.BooleanField(
         default=True, help_text="Permit create/update/delete operations using this key"
+    )
+    can_manage_permissions = models.BooleanField(
+        default=False,
+        help_text="Allow managing token object permissions via API (view/create/update/delete)",
     )
     description = models.CharField(max_length=100, blank=True)
     allowed_ips = ArrayField(
@@ -68,6 +74,75 @@ class Token(models.Model):
             return True
 
         return any(ip_address in allowed for allowed in self.allowed_ips)
+
+
+class TokenObjectPermission(models.Model):
+    """
+    Fine-grained permissions linking API tokens to specific objects with action controls.
+
+    By default, tokens have full access unless an explicit TokenObjectPermission restricts them.
+    Use enforce_token_permissions flag on objects to require explicit permissions.
+    """
+
+    token = models.ForeignKey(
+        to="Token", on_delete=models.CASCADE, related_name="object_permissions"
+    )
+    content_type = models.ForeignKey(
+        to=ContentType, on_delete=models.CASCADE, related_name="token_permissions"
+    )
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey("content_type", "object_id")
+
+    # CRUD permissions
+    can_view = models.BooleanField(default=True)
+    can_edit = models.BooleanField(default=True)
+    can_delete = models.BooleanField(default=True)
+
+    # Custom action permissions (e.g., {"configure": true, "poll_bgp_sessions": false})
+    custom_actions = models.JSONField(default=dict, blank=True)
+
+    # Reserved for future use
+    constraints = models.JSONField(default=dict, blank=True)
+
+    created = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["token", "content_type", "object_id"]
+        unique_together = ("token", "content_type", "object_id")
+        indexes = [
+            models.Index(fields=["content_type", "object_id"]),
+            models.Index(fields=["token", "content_type"]),
+        ]
+        verbose_name = "Token Object Permission"
+        verbose_name_plural = "Token Object Permissions"
+
+    def __str__(self):
+        return f"{self.token} → {self.content_type.model} #{self.object_id}"
+
+    def has_permission(self, action):
+        """
+        Check if this permission grants access to a specific action.
+
+        Args:
+            action: The action to check (e.g., 'retrieve', 'update', 'configure')
+
+        Returns:
+            bool: True if the action is permitted, False otherwise
+        """
+        # Check standard CRUD permissions
+        if action in ("retrieve", "list"):
+            return self.can_view
+        if action in ("create", "update", "partial_update"):
+            return self.can_edit
+        if action == "destroy":
+            return self.can_delete
+        # Check custom actions - default to False if not explicitly set
+        return self.custom_actions.get(action, False)
+
+    def set_custom_action(self, action, allowed=True):
+        """Set permission for a custom action."""
+        self.custom_actions[action] = allowed
 
 
 class UserPreferences(models.Model):
