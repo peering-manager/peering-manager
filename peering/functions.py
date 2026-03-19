@@ -97,7 +97,7 @@ def build_irr_as_set_command(
     Build the command to expand the given AS-SET for an IP version.
     """
     if _is_using_bgpq4() and settings.BGPQ4_KEEP_SOURCE_IN_SET and source:
-        as_set = f"{source}:{as_set}"
+        as_set = f"{source}::{as_set}"
 
     # Set the arguments to pass to bgpq3/bgpq4
     command_args: list[str] = []
@@ -199,9 +199,6 @@ def call_irr_as_set_as_list_resolver(
     """
     if not as_set:
         return [first_as]
-
-    if _is_using_bgpq4() and settings.BGPQ4_KEEP_SOURCE_IN_SET and source:
-        as_set = f"{source}::{as_set}"
 
     command = build_irr_as_set_as_list_command(
         first_as=first_as,
