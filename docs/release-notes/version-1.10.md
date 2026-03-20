@@ -1,3 +1,16 @@
+## Version 1.10.4 | MARK I (Bug fixes release) | 2026-03-20
+
+### Enhancements
+
+* Build sidebar programmatically instead of statically in templates
+
+### Bug Fixes
+
+* [#960](https://github.com/peering-manager/peering-manager/issues/960) Fix storing prefix list in the database
+* Hide tabs when there are no points of showing them
+* Add connections filter based on router value in direct peering session forms
+* Fix IRR object lookup with `BGPQ4_KEEP_SOURCE_IN_SET = True`, fetching IRR data was failing due to using invalid object names
+
 ## Version 1.10.3 | MARK I (Bug fixes release) | 2026-02-05
 
 > [!NOTE]

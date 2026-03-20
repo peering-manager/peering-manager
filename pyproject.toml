@@ -1,7 +1,7 @@
 [project]
 name = "peering-manager"
 description = "BGP sessions management tool"
-version = "1.10.4-dev"
+version = "1.10.5-dev"
 authors = [{ name = "Guillaume Mazoyer", email = "pm@mazoyer.eu" }]
 readme = "README.md"
 license = "Apache-2.0"
@@ -30,6 +30,7 @@ dependencies = [
     "PyYAML>=6.0,<6.1",
     "requests>=2.32,<2.33",
     "social-auth-app-django>=5.7,<5.8",
+    "pytz>=2026",
 ]
 
 [dependency-groups]
