@@ -575,19 +575,19 @@ class PeeringRequestTestCase(TestCase, BaseFilterSetTests):
                 PeeringRequest(
                     requesting_asn=64501,
                     local_autonomous_system=cls.local_as,
-                    request_type=PeeringRequestType.IXP,
+                    request_type=PeeringRequestType.PUBLIC_PEERING,
                     status=PeeringRequestStatus.PENDING,
                 ),
                 PeeringRequest(
                     requesting_asn=64502,
                     local_autonomous_system=cls.local_as,
-                    request_type=PeeringRequestType.IXP,
+                    request_type=PeeringRequestType.PUBLIC_PEERING,
                     status=PeeringRequestStatus.ACCEPTED,
                 ),
                 PeeringRequest(
                     requesting_asn=64503,
                     local_autonomous_system=cls.local_as,
-                    request_type=PeeringRequestType.PRIVATE,
+                    request_type=PeeringRequestType.PRIVATE_PEERING,
                     status=PeeringRequestStatus.REFUSED,
                 ),
             ]
@@ -610,9 +610,9 @@ class PeeringRequestTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_request_type(self):
-        params = {"request_type": [PeeringRequestType.IXP]}
+        params = {"request_type": [PeeringRequestType.PUBLIC_PEERING]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {"request_type": [PeeringRequestType.PRIVATE]}
+        params = {"request_type": [PeeringRequestType.PRIVATE_PEERING]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_local_autonomous_system_id(self):
@@ -637,7 +637,7 @@ class RequestedSessionTestCase(TestCase, BaseFilterSetTests):
         cls.peering_request = PeeringRequest.objects.create(
             requesting_asn=64501,
             local_autonomous_system=cls.local_as,
-            request_type=PeeringRequestType.IXP,
+            request_type=PeeringRequestType.PUBLIC_PEERING,
             status=PeeringRequestStatus.PENDING,
         )
         RequestedSession.objects.bulk_create(

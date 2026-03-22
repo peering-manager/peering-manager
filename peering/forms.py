@@ -895,7 +895,9 @@ class PeeringRequestForm(PeeringManagerModelForm):
     request_type = forms.ChoiceField(choices=PeeringRequestType, widget=StaticSelect)
     status = forms.ChoiceField(choices=PeeringRequestStatus, widget=StaticSelect)
     relationship = DynamicModelChoiceField(
-        required=False, queryset=Relationship.objects.all()
+        required=False,
+        queryset=Relationship.objects.all(),
+        help_text="Relationship to apply to sessions if the request is accepted",
     )
     bfd = DynamicModelChoiceField(
         required=False,

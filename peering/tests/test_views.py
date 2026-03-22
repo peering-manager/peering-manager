@@ -293,19 +293,19 @@ class PeeringRequestTestCase(ViewTestCases.PrimaryObjectViewTestCase):
                 PeeringRequest(
                     requesting_asn=64601,
                     local_autonomous_system=local_as,
-                    request_type=PeeringRequestType.IXP,
+                    request_type=PeeringRequestType.PUBLIC_PEERING,
                     status=PeeringRequestStatus.PENDING,
                 ),
                 PeeringRequest(
                     requesting_asn=64602,
                     local_autonomous_system=local_as,
-                    request_type=PeeringRequestType.IXP,
+                    request_type=PeeringRequestType.PUBLIC_PEERING,
                     status=PeeringRequestStatus.PENDING,
                 ),
                 PeeringRequest(
                     requesting_asn=64603,
                     local_autonomous_system=local_as,
-                    request_type=PeeringRequestType.PRIVATE,
+                    request_type=PeeringRequestType.PRIVATE_PEERING,
                     status=PeeringRequestStatus.PENDING,
                 ),
             ]
@@ -314,7 +314,7 @@ class PeeringRequestTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             "requesting_asn": 64604,
             "local_autonomous_system": local_as.pk,
-            "request_type": PeeringRequestType.IXP,
+            "request_type": PeeringRequestType.PUBLIC_PEERING,
             "status": PeeringRequestStatus.PENDING,
             "decision_comment": "",
             "comments": "",

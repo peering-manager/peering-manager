@@ -82,10 +82,10 @@ class PeeringRequestStatus(ChoiceSet):
 
 
 class PeeringRequestType(ChoiceSet):
-    IXP = "ixp"
-    PRIVATE = "private"
+    PUBLIC_PEERING = "public"
+    PRIVATE_PEERING = "private"
 
-    CHOICES = ((IXP, "IXP"), (PRIVATE, "Private"))
+    CHOICES = ((PUBLIC_PEERING, "Public Peering"), (PRIVATE_PEERING, "Private Peering"))
 
 
 class RequestedSessionStatus(ChoiceSet):

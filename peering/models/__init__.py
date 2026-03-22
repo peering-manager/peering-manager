@@ -1212,7 +1212,10 @@ class PeeringRequest(PrimaryModel):
     def accept(self) -> AcceptResult:
         if self.status != PeeringRequestStatus.PENDING:
             raise ValueError(f"Cannot accept a request with status '{self.status}'.")
-        if self.request_type == PeeringRequestType.PRIVATE and not self.relationship:
+        if (
+            self.request_type == PeeringRequestType.PRIVATE_PEERING
+            and not self.relationship
+        ):
             raise ValueError(
                 "A relationship must be set before accepting a private peering request."
             )
@@ -1324,7 +1327,7 @@ class RequestedSession(ChangeLoggedModel):
         Checks if this requested session can be created as an actual peering session.
         """
         match self.peering_request.request_type:
-            case PeeringRequestType.IXP:
+            case PeeringRequestType.PUBLIC_PEERING:
                 if not self.internet_exchange:
                     raise ValueError("No internet exchange specified.")
                 if not self._find_connection():
@@ -1339,7 +1342,7 @@ class RequestedSession(ChangeLoggedModel):
                         f"A session with IP {self.ip_address} already exists on {self.internet_exchange}."
                     )
 
-            case PeeringRequestType.PRIVATE:
+            case PeeringRequestType.PRIVATE_PEERING:
                 if not self.peeringdb_facility:
                     raise ValueError("No facility specified.")
 
@@ -1361,7 +1364,7 @@ class RequestedSession(ChangeLoggedModel):
         bfd = pr.bfd if self.bfd_enabled and pr.bfd else None
 
         match pr.request_type:
-            case PeeringRequestType.IXP:
+            case PeeringRequestType.PUBLIC_PEERING:
                 connection = self._find_connection()
                 session = InternetExchangePeeringSession.objects.create(
                     autonomous_system=autonomous_system,
@@ -1371,7 +1374,7 @@ class RequestedSession(ChangeLoggedModel):
                     bfd=bfd,
                 )
 
-            case PeeringRequestType.PRIVATE:
+            case PeeringRequestType.PRIVATE_PEERING:
                 session = DirectPeeringSession.objects.create(
                     autonomous_system=autonomous_system,
                     local_autonomous_system=pr.local_autonomous_system,

@@ -135,7 +135,7 @@ class PeeringRequestTest(TestCase):
             data={
                 "requesting_asn": 64500,
                 "local_autonomous_system": self.local_autonomous_system.pk,
-                "request_type": PeeringRequestType.IXP,
+                "request_type": PeeringRequestType.PUBLIC_PEERING,
                 "status": PeeringRequestStatus.PENDING,
             }
         )
