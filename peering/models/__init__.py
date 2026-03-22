@@ -1225,8 +1225,7 @@ class RequestedSession(ChangeLoggedModel):
         to="peeringdb.Facility", on_delete=models.SET_NULL, blank=True, null=True
     )
     ip_address = InetAddressField(store_prefix_length=True, verbose_name="IP address")
-    wants_password = models.BooleanField(default=False)
-    wants_bfd = models.BooleanField(default=False)
+    bfd_enabled = models.BooleanField(default=False)
     status = models.CharField(
         max_length=20,
         choices=RequestedSessionStatus,

@@ -95,8 +95,7 @@ class Migration(migrations.Migration):
                 ("created", models.DateTimeField(auto_now_add=True, null=True)),
                 ("updated", models.DateTimeField(auto_now=True, null=True)),
                 ("ip_address", netfields.fields.InetAddressField(max_length=39)),
-                ("wants_password", models.BooleanField(default=False)),
-                ("wants_bfd", models.BooleanField(default=False)),
+                ("bfd_enabled", models.BooleanField(default=False)),
                 ("status", models.CharField(default="pending", max_length=20)),
                 ("rejection_comment", models.TextField(blank=True)),
                 (

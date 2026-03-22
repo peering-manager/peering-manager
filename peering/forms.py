@@ -974,25 +974,13 @@ class RequestedSessionForm(PeeringManagerModelForm):
     fieldsets = (
         (
             "Requested Session",
-            (
-                "peering_request",
-                "internet_exchange",
-                "ip_address",
-                "wants_password",
-                "wants_bfd",
-            ),
+            ("peering_request", "internet_exchange", "ip_address", "bfd_enabled"),
         ),
     )
 
     class Meta:
         model = RequestedSession
-        fields = (
-            "peering_request",
-            "internet_exchange",
-            "ip_address",
-            "wants_password",
-            "wants_bfd",
-        )
+        fields = ("peering_request", "internet_exchange", "ip_address", "bfd_enabled")
 
 
 class RoutingPolicyForm(PeeringManagerModelForm):

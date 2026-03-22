@@ -358,8 +358,7 @@ class RequestedSessionTable(PeeringManagerTable):
     ip_address = tables.Column(verbose_name="IP Address")
     internet_exchange = tables.Column(verbose_name="Internet Exchange", linkify=True)
     status = columns.ChoiceFieldColumn()
-    wants_password = columns.BooleanColumn(verbose_name="Password")
-    wants_bfd = columns.BooleanColumn(verbose_name="BFD")
+    bfd_enabled = columns.BooleanColumn(verbose_name="BFD")
     created_session = tables.Column(
         linkify=True, verbose_name="Session", orderable=False
     )
@@ -374,8 +373,7 @@ class RequestedSessionTable(PeeringManagerTable):
             "internet_exchange",
             "status",
             "created_session",
-            "wants_password",
-            "wants_bfd",
+            "bfd_enabled",
             "actions",
         )
         default_columns = (
@@ -384,8 +382,7 @@ class RequestedSessionTable(PeeringManagerTable):
             "internet_exchange",
             "status",
             "created_session",
-            "wants_password",
-            "wants_bfd",
+            "bfd_enabled",
             "actions",
         )
 

@@ -41,6 +41,10 @@
           <td>{{ instance|status_as_badge }}</td>
         </tr>
         <tr>
+          <td>Relationship</td>
+          <td>{{ instance.relationship|as_link|render_none }}</td>
+        </tr>
+        <tr>
           <td>BFD</td>
           <td>{{ instance.bfd|as_link|render_none }}</td>
         </tr>
