@@ -1,5 +1,7 @@
 import ipaddress
 import logging
+import uuid
+from dataclasses import dataclass
 from typing import Any, Literal
 
 from django.conf import settings
@@ -1145,6 +1147,26 @@ class InternetExchangePeeringSession(BGPSession):
         return False
 
 
+@dataclass(frozen=True)
+class SessionResult:
+    ip_address: ipaddress.IPv4Interface | ipaddress.IPv6Interface
+    accepted: bool
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class AcceptResult:
+    details: list[SessionResult]
+
+    @property
+    def accepted_count(self) -> int:
+        return sum(1 for d in self.details if d.accepted)
+
+    @property
+    def rejected_count(self) -> int:
+        return sum(1 for d in self.details if not d.accepted)
+
+
 class PeeringRequest(PrimaryModel):
     tracking_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     requesting_asn = ASNField(verbose_name="Requesting ASN")
@@ -1185,6 +1207,38 @@ class PeeringRequest(PrimaryModel):
             return Network.objects.get(asn=self.requesting_asn)
         except Network.DoesNotExist:
             return None
+
+    @transaction.atomic
+    def accept(self) -> AcceptResult:
+        if self.status != PeeringRequestStatus.PENDING:
+            raise ValueError(f"Cannot accept a request with status '{self.status}'.")
+        if self.request_type == PeeringRequestType.PRIVATE and not self.relationship:
+            raise ValueError(
+                "A relationship must be set before accepting a private peering request."
+            )
+
+        details: list[SessionResult] = []
+        for session in self.requested_sessions.select_related(
+            "internet_exchange"
+        ).filter(status=RequestedSessionStatus.PENDING):
+            try:
+                session.validate_creation()
+                session.accept()
+            except ValueError as e:
+                reason = str(e)
+                session.reject(comment=f"Auto-rejected: {reason}")
+                details.append(
+                    SessionResult(
+                        ip_address=session.ip_address, accepted=False, reason=reason
+                    )
+                )
+                continue
+
+            details.append(SessionResult(ip_address=session.ip_address, accepted=True))
+
+        self.status = PeeringRequestStatus.ACCEPTED
+        self.save(update_fields=["status", "updated"])
+        return AcceptResult(details=details)
 
     @transaction.atomic
     def reject(self, comment: str = "") -> None:
@@ -1288,6 +1342,55 @@ class RequestedSession(ChangeLoggedModel):
             case PeeringRequestType.PRIVATE:
                 if not self.peeringdb_facility:
                     raise ValueError("No facility specified.")
+
+    @transaction.atomic
+    def accept(self) -> None:
+        if self.status != RequestedSessionStatus.PENDING:
+            raise ValueError(f"Cannot accept a session with status '{self.status}'.")
+
+        self.validate_creation()
+
+        pr = self.peering_request
+        try:
+            autonomous_system = AutonomousSystem.objects.get(asn=pr.requesting_asn)
+        except AutonomousSystem.DoesNotExist as exc:
+            raise ValueError(
+                f"Autonomous system AS{pr.requesting_asn} does not exist."
+            ) from exc
+
+        bfd = pr.bfd if self.bfd_enabled and pr.bfd else None
+
+        match pr.request_type:
+            case PeeringRequestType.IXP:
+                connection = self._find_connection()
+                session = InternetExchangePeeringSession.objects.create(
+                    autonomous_system=autonomous_system,
+                    ixp_connection=connection,
+                    ip_address=self.ip_address,
+                    status=BGPSessionStatus.ENABLED,
+                    bfd=bfd,
+                )
+
+            case PeeringRequestType.PRIVATE:
+                session = DirectPeeringSession.objects.create(
+                    autonomous_system=autonomous_system,
+                    local_autonomous_system=pr.local_autonomous_system,
+                    ip_address=self.ip_address,
+                    status=BGPSessionStatus.REQUESTED,
+                    relationship=pr.relationship,
+                    bfd=bfd,
+                )
+
+        self.created_session = session
+        self.status = RequestedSessionStatus.ACCEPTED
+        self.save(
+            update_fields=[
+                "status",
+                "created_session_type",
+                "created_session_id",
+                "updated",
+            ]
+        )
 
     def reject(self, comment: str = "") -> None:
         if self.status != RequestedSessionStatus.PENDING:
