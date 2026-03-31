@@ -8,7 +8,7 @@ charset-normalizer==3.4.6
 click==8.3.1
 colorama==0.4.6
 croniter==6.2.2
-cryptography==46.0.5
+cryptography==46.0.6
 defusedxml==0.7.1
 django==5.2.12
 django-debug-toolbar==6.1.0
@@ -50,7 +50,7 @@ psycopg-binary==3.3.3
 psycopg-pool==3.3.0
 pycparser==3.0
 pyeapi==1.0.4
-pygments==2.19.2
+pygments==2.20.0
 pyixapi==0.2.8
 pyjwt==2.12.1
 pynacl==1.6.2
@@ -61,9 +61,9 @@ python-dateutil==2.9.0.post0
 python3-openid==3.2.0
 pytz==2026.1.post1
 pyyaml==6.0.3
-redis==7.3.0
+redis==7.4.0
 referencing==0.37.0
-requests==2.32.5
+requests==2.33.1
 requests-oauthlib==2.0.0
 rich==14.3.3
 rpds-py==0.30.0
@@ -77,8 +77,8 @@ social-auth-core==4.8.5
 sqlparse==0.5.5
 textfsm==2.1.0
 transitions==0.9.3
-ttp==0.10.0
-ttp-templates==0.4.0
+ttp==0.10.1
+ttp-templates==0.5.1
 typing-extensions==4.15.0
 tzdata==2025.3
 uritemplate==4.2.0
