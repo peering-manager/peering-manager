@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from . import views, views_permissions
 
 app_name = "users"
 urlpatterns = [
@@ -12,5 +12,21 @@ urlpatterns = [
     path("api-tokens/<int:pk>/edit/", views.TokenAddEdit.as_view(), name="token_edit"),
     path(
         "api-tokens/<int:pk>/delete/", views.TokenDelete.as_view(), name="token_delete"
+    ),
+    # Token Object Permissions
+    path(
+        "token-permissions/add/<int:content_type_id>/<int:object_id>/",
+        views_permissions.TokenObjectPermissionAddView.as_view(),
+        name="tokenobjectpermission_add",
+    ),
+    path(
+        "token-permissions/<int:pk>/edit/",
+        views_permissions.TokenObjectPermissionEditView.as_view(),
+        name="tokenobjectpermission_edit",
+    ),
+    path(
+        "token-permissions/<int:pk>/delete/",
+        views_permissions.TokenObjectPermissionDeleteView.as_view(),
+        name="tokenobjectpermission_delete",
     ),
 ]
