@@ -401,15 +401,6 @@ class PeeringRequestFilterSet(PeeringManagerModelFilterSet):
         to_field_name="name",
         label="Relationship (Name)",
     )
-    bfd_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=BFD.objects.all(), label="BFD (ID)"
-    )
-    bfd = django_filters.ModelMultipleChoiceFilter(
-        field_name="bfd__name",
-        queryset=BFD.objects.all(),
-        to_field_name="name",
-        label="BFD (Name)",
-    )
 
     class Meta:
         model = PeeringRequest

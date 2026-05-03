@@ -324,7 +324,6 @@ class PeeringRequestTable(PeeringManagerTable):
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     request_type = columns.ChoiceFieldColumn()
     status = columns.ChoiceFieldColumn()
-    bfd = tables.Column(linkify=True, verbose_name="BFD")
     tags = columns.TagColumn(url_name="peering:peeringrequest_list")
 
     class Meta(PeeringManagerTable.Meta):
@@ -338,7 +337,6 @@ class PeeringRequestTable(PeeringManagerTable):
             "request_type",
             "status",
             "created",
-            "bfd",
             "tags",
             "actions",
         )
@@ -358,7 +356,6 @@ class RequestedSessionTable(PeeringManagerTable):
     ip_address = tables.Column(verbose_name="IP Address")
     internet_exchange = tables.Column(verbose_name="Internet Exchange", linkify=True)
     status = columns.ChoiceFieldColumn()
-    bfd_enabled = columns.BooleanColumn(verbose_name="BFD")
     created_session = tables.Column(
         linkify=True, verbose_name="Session", orderable=False
     )
@@ -373,7 +370,6 @@ class RequestedSessionTable(PeeringManagerTable):
             "internet_exchange",
             "status",
             "created_session",
-            "bfd_enabled",
             "actions",
         )
         default_columns = (
@@ -382,7 +378,6 @@ class RequestedSessionTable(PeeringManagerTable):
             "internet_exchange",
             "status",
             "created_session",
-            "bfd_enabled",
             "actions",
         )
 

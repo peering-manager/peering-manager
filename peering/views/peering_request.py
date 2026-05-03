@@ -27,9 +27,7 @@ __all__ = (
 @register_model_view(PeeringRequest, name="list", path="", detail=False)
 class PeeringRequestList(ObjectListView):
     permission_required = "peering.view_peeringrequest"
-    queryset = PeeringRequest.objects.select_related(
-        "local_autonomous_system", "bfd"
-    ).all()
+    queryset = PeeringRequest.objects.select_related("local_autonomous_system").all()
     filterset = PeeringRequestFilterSet
     filterset_form = PeeringRequestFilterForm
     table = PeeringRequestTable

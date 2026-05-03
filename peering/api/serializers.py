@@ -402,7 +402,7 @@ class RequestedSessionSerializer(PeeringManagerModelSerializer):
             "peeringdb_facility",
             "ip_address",
             "address_family",
-            "bfd_enabled",
+            "session_secret",
             "status",
             "rejection_comment",
             "created_session_type",
@@ -417,7 +417,6 @@ class PeeringRequestSerializer(PeeringManagerModelSerializer):
     request_type = ChoiceField(required=False, choices=PeeringRequestType)
     status = ChoiceField(read_only=True, choices=PeeringRequestStatus)
     relationship = NestedRelationshipSerializer(required=False, allow_null=True)
-    bfd = NestedBFDSerializer(required=False, allow_null=True)
     requested_sessions = RequestedSessionSerializer(many=True, read_only=True)
 
     class Meta:
@@ -435,7 +434,6 @@ class PeeringRequestSerializer(PeeringManagerModelSerializer):
             "status",
             "decision_comment",
             "relationship",
-            "bfd",
             "requested_sessions",
             "description",
             "comments",

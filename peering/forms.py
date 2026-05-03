@@ -899,12 +899,6 @@ class PeeringRequestForm(PeeringManagerModelForm):
         queryset=Relationship.objects.all(),
         help_text="Relationship to apply to sessions if the request is accepted",
     )
-    bfd = DynamicModelChoiceField(
-        required=False,
-        queryset=BFD.objects.all(),
-        label="BFD",
-        help_text="BFD configuration to apply to created sessions",
-    )
     comments = CommentField()
     tags = TagField(required=False)
 
@@ -919,7 +913,6 @@ class PeeringRequestForm(PeeringManagerModelForm):
                 "status",
                 "decision_comment",
                 "relationship",
-                "bfd",
             ),
         ),
     )
@@ -934,7 +927,6 @@ class PeeringRequestForm(PeeringManagerModelForm):
             "status",
             "decision_comment",
             "relationship",
-            "bfd",
             "description",
             "comments",
             "tags",
@@ -961,9 +953,6 @@ class PeeringRequestFilterForm(PeeringManagerModelFilterSetForm):
         to_field_name="pk",
         label="Relationship",
     )
-    bfd_id = DynamicModelMultipleChoiceField(
-        required=False, queryset=BFD.objects.all(), to_field_name="pk", label="BFD"
-    )
     tag = TagFilterField(model)
 
 
@@ -976,13 +965,18 @@ class RequestedSessionForm(PeeringManagerModelForm):
     fieldsets = (
         (
             "Requested Session",
-            ("peering_request", "internet_exchange", "ip_address", "bfd_enabled"),
+            ("peering_request", "internet_exchange", "ip_address", "session_secret"),
         ),
     )
 
     class Meta:
         model = RequestedSession
-        fields = ("peering_request", "internet_exchange", "ip_address", "bfd_enabled")
+        fields = (
+            "peering_request",
+            "internet_exchange",
+            "ip_address",
+            "session_secret",
+        )
 
 
 class RoutingPolicyForm(PeeringManagerModelForm):

@@ -43,15 +43,6 @@ class Migration(migrations.Migration):
                 ("status", models.CharField(default="pending", max_length=20)),
                 ("decision_comment", models.TextField(blank=True)),
                 (
-                    "bfd",
-                    models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        to="net.bfd",
-                    ),
-                ),
-                (
                     "relationship",
                     models.ForeignKey(
                         blank=True,
@@ -95,7 +86,7 @@ class Migration(migrations.Migration):
                 ("created", models.DateTimeField(auto_now_add=True, null=True)),
                 ("updated", models.DateTimeField(auto_now=True, null=True)),
                 ("ip_address", netfields.fields.InetAddressField(max_length=39)),
-                ("bfd_enabled", models.BooleanField(default=False)),
+                ("session_secret", models.CharField(blank=True, max_length=255)),
                 ("status", models.CharField(default="pending", max_length=20)),
                 ("rejection_comment", models.TextField(blank=True)),
                 (

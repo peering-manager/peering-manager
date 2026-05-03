@@ -1185,9 +1185,6 @@ class PeeringRequest(PrimaryModel):
         default=PeeringRequestStatus.PENDING,
     )
     decision_comment = models.TextField(blank=True)
-    bfd = models.ForeignKey(
-        to="net.BFD", on_delete=models.SET_NULL, blank=True, null=True
-    )
     relationship = models.ForeignKey(
         to="bgp.Relationship", on_delete=models.SET_NULL, blank=True, null=True
     )
@@ -1282,7 +1279,7 @@ class RequestedSession(ChangeLoggedModel):
         to="peeringdb.Facility", on_delete=models.SET_NULL, blank=True, null=True
     )
     ip_address = InetAddressField(store_prefix_length=True, verbose_name="IP address")
-    bfd_enabled = models.BooleanField(default=False)
+    session_secret = models.CharField(max_length=255, blank=True)
     status = models.CharField(
         max_length=20,
         choices=RequestedSessionStatus,
@@ -1361,7 +1358,7 @@ class RequestedSession(ChangeLoggedModel):
                 f"Autonomous system AS{pr.requesting_asn} does not exist."
             ) from exc
 
-        bfd = pr.bfd if self.bfd_enabled and pr.bfd else None
+        password = self.session_secret or ""
 
         match pr.request_type:
             case PeeringRequestType.PUBLIC_PEERING:
@@ -1371,7 +1368,7 @@ class RequestedSession(ChangeLoggedModel):
                     ixp_connection=connection,
                     ip_address=self.ip_address,
                     status=BGPSessionStatus.ENABLED,
-                    bfd=bfd,
+                    password=password,
                 )
 
             case PeeringRequestType.PRIVATE_PEERING:
@@ -1381,7 +1378,7 @@ class RequestedSession(ChangeLoggedModel):
                     ip_address=self.ip_address,
                     status=BGPSessionStatus.REQUESTED,
                     relationship=pr.relationship,
-                    bfd=bfd,
+                    password=password,
                 )
 
         self.created_session = session
