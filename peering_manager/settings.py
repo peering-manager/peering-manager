@@ -187,6 +187,10 @@ GIT_COMMIT_MESSAGE = getattr(
 VALIDATE_BGP_COMMUNITY_VALUE = getattr(
     configuration, "VALIDATE_BGP_COMMUNITY_VALUE", True
 )
+PEERING_REQUEST_SESSION_STATUS = getattr(
+    configuration, "PEERING_REQUEST_SESSION_STATUS", "requested"
+)
+
 
 # Django filters
 FILTERS_NULL_CHOICE_LABEL = "-- None --"

@@ -159,6 +159,21 @@ fit the user needs.
 
 ---
 
+## PEERING_REQUEST_SESSION_STATUS
+
+Default: `"requested"`
+
+The initial status assigned to BGP sessions created when a peering request is
+accepted. Accepted values are any of the BGP session statuses: `requested`,
+`provisioning`, `enabled`, `pre-maintenance`, `maintenance`, `post-maintenance`,
+`disabled`, `decommissioning`, `decommissioned`.
+
+Use `requested` (the default) if you want to manually advance accepted sessions
+through their lifecycle (e.g., toward `provisioning` and then `enabled`). Use
+`enabled` to make sessions immediately active upon acceptance.
+
+---
+
 ## DEFAULT_USER_PREFERENCES
 
 Default: `{}` (empty dictionary)

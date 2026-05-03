@@ -34,7 +34,6 @@ from peeringdb.models import (
 )
 
 from ..enums import (
-    BGPSessionStatus,
     BGPState,
     IPFamily,
     PeeringRequestStatus,
@@ -1358,6 +1357,7 @@ class RequestedSession(ChangeLoggedModel):
                 f"Autonomous system AS{pr.requesting_asn} does not exist."
             ) from exc
 
+        session_status = settings.PEERING_REQUEST_SESSION_STATUS
         password = self.session_secret or ""
 
         match pr.request_type:
@@ -1367,7 +1367,7 @@ class RequestedSession(ChangeLoggedModel):
                     autonomous_system=autonomous_system,
                     ixp_connection=connection,
                     ip_address=self.ip_address,
-                    status=BGPSessionStatus.ENABLED,
+                    status=session_status,
                     password=password,
                 )
 
@@ -1376,7 +1376,7 @@ class RequestedSession(ChangeLoggedModel):
                     autonomous_system=autonomous_system,
                     local_autonomous_system=pr.local_autonomous_system,
                     ip_address=self.ip_address,
-                    status=BGPSessionStatus.REQUESTED,
+                    status=session_status,
                     relationship=pr.relationship,
                     password=password,
                 )
