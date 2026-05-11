@@ -2,10 +2,20 @@
 {% load helpers %}
 {% load tabs %}
 {% block actions %}
+{% if perms.peering.change_peeringrequest %}
+<a href="{% url 'peering:peeringrequest_edit' pk=instance.pk %}" class="btn btn-warning">
+  <i class="fa-fw fa-solid fa-edit"></i> Edit
+</a>
+{% endif %}
+{% if perms.peering.delete_peeringrequest %}
+<a href="{% url 'peering:peeringrequest_delete' pk=instance.pk %}" class="btn btn-danger">
+  <i class="fa-fw fa-solid fa-trash"></i> Delete
+</a>
+{% endif %}
 {% if perms.peering.review_peering_request and instance.status == "pending" %}
 <div class="btn-group" role="group">
-  <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="fa-fw fa-solid fa-gavel"></i> Review
+  <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fa-solid fa-gavel"></i> Review
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
     <li>
@@ -20,16 +30,6 @@
     </li>
   </ul>
 </div>
-{% endif %}
-{% if perms.peering.change_peeringrequest %}
-<a href="{% url 'peering:peeringrequest_edit' pk=instance.pk %}" class="btn btn-warning">
-  <i class="fa-fw fa-solid fa-edit"></i> Edit
-</a>
-{% endif %}
-{% if perms.peering.delete_peeringrequest %}
-<a href="{% url 'peering:peeringrequest_delete' pk=instance.pk %}" class="btn btn-danger">
-  <i class="fa-fw fa-solid fa-trash"></i> Delete
-</a>
 {% endif %}
 {% endblock %}
 {% block breadcrumb %}
