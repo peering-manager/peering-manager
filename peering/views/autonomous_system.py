@@ -95,14 +95,8 @@ class AutonomousSystemView(ObjectView):
     def get_extra_context(self, request, instance):
         shared_internet_exchanges = {}
 
-        if not request.user.is_anonymous and request.user.preferences.get("context.as"):
-            try:
-                affiliated = AutonomousSystem.objects.get(
-                    pk=request.user.preferences.get("context.as")
-                )
-            except AutonomousSystem.DoesNotExist:
-                return {"shared_internet_exchanges": shared_internet_exchanges}
-
+        affiliated = AutonomousSystem.get_for_user(user=request.user)
+        if affiliated is not None:
             ixlans_with_missing_sessions = set(
                 instance.get_missing_peering_sessions(affiliated).values_list(
                     "ixlan_id", flat=True
@@ -155,13 +149,11 @@ class AutonomousSystemPeeringDB(ObjectView):
     )
 
     def get_extra_context(self, request, instance):
-        try:
-            affiliated = AutonomousSystem.objects.get(
-                pk=request.user.preferences.get("context.as")
-            )
-            facilities = instance.get_peeringdb_shared_facilities(affiliated)
-        except AutonomousSystem.DoesNotExist:
+        affiliated = AutonomousSystem.get_for_user(user=request.user)
+        if affiliated is None:
             facilities = []
+        else:
+            facilities = instance.get_peeringdb_shared_facilities(affiliated)
 
         return {"contacts": instance.peeringdb_contacts, "facilities": facilities}
 
@@ -308,13 +300,7 @@ class AutonomousSystemPeers(ObjectChildrenView):
     )
 
     def get_children(self, request, parent):
-        try:
-            affiliated = AutonomousSystem.objects.get(
-                pk=request.user.preferences.get("context.as")
-            )
-        except AutonomousSystem.DoesNotExist:
-            affiliated = None
-
+        affiliated = AutonomousSystem.get_for_user(user=request.user)
         return parent.get_missing_peering_sessions(affiliated)
 
 

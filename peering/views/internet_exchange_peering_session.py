@@ -112,11 +112,8 @@ class InternetExchangePeeringSessionImportFromPeeringDB(ImportFromObjectView):
     template_name = "peering/internetexchangepeeringsession/add_from_peeringdb.html"
 
     def process_base_object(self, request, base):
-        try:
-            affiliated = AutonomousSystem.objects.get(
-                pk=request.user.preferences.get("context.as")
-            )
-        except AutonomousSystem.DoesNotExist:
+        affiliated = AutonomousSystem.get_for_user(user=request.user)
+        if affiliated is None:
             return []
 
         ixp = None

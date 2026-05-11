@@ -234,11 +234,8 @@ class InternetExchangePeeringDBImport(GetReturnURLMixin, PermissionRequiredMixin
     default_return_url = "peering:internetexchange_list"
 
     def get_missing_ixps(self, request):
-        try:
-            affiliated = AutonomousSystem.objects.get(
-                pk=request.user.preferences.get("context.as")
-            )
-        except AutonomousSystem.DoesNotExist:
+        affiliated = AutonomousSystem.get_for_user(user=request.user)
+        if affiliated is None:
             messages.error(
                 request, "Unable to import IXPs and connections without affiliated AS."
             )

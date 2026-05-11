@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import ipaddress
 import logging
 import uuid
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -51,6 +53,9 @@ from ..functions import (
 )
 from .abstracts import *
 from .mixins import *
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractUser
 
 __all__ = (
     "AutonomousSystem",
@@ -187,6 +192,20 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         )
 
         return autonomous_system
+
+    @staticmethod
+    def get_for_user(user: AbstractUser) -> AutonomousSystem | None:
+        """
+        Returns the affiliated AS the given user is currently acting on behalf of.
+        Returns `None` if the user is anonymous, has no preference set, or the
+        preference points to an AS that no longer exists.
+        """
+        if user is None or user.is_anonymous:
+            return None
+        try:
+            return AutonomousSystem.objects.get(pk=user.preferences.get("context.as"))
+        except AutonomousSystem.DoesNotExist:
+            return None
 
     def __str__(self) -> str:
         return f"AS{self.asn} - {self.name}"
