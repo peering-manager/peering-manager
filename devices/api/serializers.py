@@ -13,6 +13,7 @@ from .nested_serializers import *
 __all__ = (
     "ConfigurationSerializer",
     "PlatformSerializer",
+    "RouterConfigureSerializer",
     "RouterPushDiffSerializer",
     "RouterSerializer",
 )

@@ -1369,12 +1369,11 @@ class RequestedSession(ChangeLoggedModel):
         self.validate_creation()
 
         pr = self.peering_request
-        try:
-            autonomous_system = AutonomousSystem.objects.get(asn=pr.requesting_asn)
-        except AutonomousSystem.DoesNotExist as exc:
+        autonomous_system = AutonomousSystem.create_from_peeringdb(pr.requesting_asn)
+        if autonomous_system is None:
             raise ValueError(
-                f"Autonomous system AS{pr.requesting_asn} does not exist."
-            ) from exc
+                f"AS{pr.requesting_asn} cannot be created: no PeeringDB record found."
+            )
 
         session_status = settings.PEERING_REQUEST_SESSION_STATUS
         password = self.session_secret or ""
