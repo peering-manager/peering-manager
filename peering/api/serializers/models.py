@@ -396,7 +396,7 @@ class RequestedSessionSerializer(PeeringManagerModelSerializer):
             "url",
             "display",
             "peering_request",
-            "internet_exchange",
+            "ixp_connection",
             "peeringdb_facility",
             "ip_address",
             "address_family",

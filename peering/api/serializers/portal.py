@@ -38,7 +38,7 @@ class PortalNetworkSerializer(serializers.Serializer):
 
 class PortalSessionInfoSerializer(serializers.Serializer):
     local_ip = serializers.CharField()
-    peer_ip = serializers.CharField(allow_null=True)
+    peer_ip = serializers.CharField()
     address_family = serializers.IntegerField()
     existing = serializers.BooleanField()
 
@@ -46,6 +46,7 @@ class PortalSessionInfoSerializer(serializers.Serializer):
 class PortalSessionEntrySerializer(serializers.Serializer):
     local_ip = serializers.CharField(required=True)
     location = serializers.CharField(required=False, allow_blank=True)
+    peer_ip = serializers.CharField(required=False, allow_blank=True, default="")
     session_secret = serializers.CharField(required=False, allow_blank=True, default="")
 
 
@@ -73,15 +74,17 @@ class PortalRequestedSessionStatusSerializer(serializers.Serializer):
     rejection_comment = serializers.CharField()
 
     def get_location(self, obj) -> str:
-        if obj.internet_exchange and obj.internet_exchange.peeringdb_ixlan:
-            return f"{IX_LOCATION_PREFIX}{obj.internet_exchange.peeringdb_ixlan.pk}"
+        if obj.ixp_connection and obj.ixp_connection.internet_exchange_point:
+            ix = obj.ixp_connection.internet_exchange_point
+            if ix.peeringdb_ixlan:
+                return f"{IX_LOCATION_PREFIX}{ix.peeringdb_ixlan.pk}"
         if obj.peeringdb_facility:
             return str(obj.peeringdb_facility.pk)
         return ""
 
     def get_location_name(self, obj) -> str:
-        if obj.internet_exchange:
-            return obj.internet_exchange.name
+        if obj.ixp_connection and obj.ixp_connection.internet_exchange_point:
+            return obj.ixp_connection.internet_exchange_point.name
         if obj.peeringdb_facility:
             return obj.peeringdb_facility.name
         return ""

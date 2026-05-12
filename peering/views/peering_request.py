@@ -50,7 +50,7 @@ class PeeringRequestView(ObjectView):
             "requested_sessions": instance.requested_sessions.all(),
             "pending_sessions": instance.requested_sessions.filter(
                 status=RequestedSessionStatus.PENDING
-            ).select_related("internet_exchange"),
+            ).select_related("ixp_connection__internet_exchange_point"),
         }
 
 
@@ -94,4 +94,6 @@ class PeeringRequestRequestedSessions(ObjectChildrenView):
     )
 
     def get_children(self, request, parent):
-        return parent.requested_sessions.select_related("internet_exchange").all()
+        return parent.requested_sessions.select_related(
+            "ixp_connection__internet_exchange_point"
+        ).all()

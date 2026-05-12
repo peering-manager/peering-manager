@@ -429,13 +429,18 @@ class RequestedSessionFilterSet(ChangeLoggedModelFilterSet):
         queryset=PeeringRequest.objects.all(), label="Peering Request (ID)"
     )
     internet_exchange_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=InternetExchange.objects.all(), label="Internet Exchange (ID)"
+        field_name="ixp_connection__internet_exchange_point",
+        queryset=InternetExchange.objects.all(),
+        label="Internet Exchange (ID)",
+    )
+    ixp_connection_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Connection.objects.all(), label="IXP Connection (ID)"
     )
     address_family = django_filters.NumberFilter(method="address_family_search")
 
     class Meta:
         model = RequestedSession
-        fields = ["id", "peering_request", "status", "internet_exchange"]
+        fields = ["id", "peering_request", "status", "ixp_connection"]
 
     def address_family_search(self, queryset, name, value):
         if value in [4, 6]:

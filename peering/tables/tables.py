@@ -354,7 +354,12 @@ class PeeringRequestTable(PeeringManagerTable):
 
 class RequestedSessionTable(PeeringManagerTable):
     ip_address = tables.Column(verbose_name="IP Address")
-    internet_exchange = tables.Column(verbose_name="Internet Exchange", linkify=True)
+    internet_exchange_point = tables.Column(
+        verbose_name="Internet Exchange",
+        accessor="ixp_connection__internet_exchange_point",
+        linkify=True,
+    )
+    ixp_connection = tables.Column(verbose_name="IXP Connection", linkify=True)
     status = columns.ChoiceFieldColumn()
     created_session = tables.Column(
         linkify=True, verbose_name="Session", orderable=False
@@ -367,7 +372,8 @@ class RequestedSessionTable(PeeringManagerTable):
             "pk",
             "id",
             "ip_address",
-            "internet_exchange",
+            "internet_exchange_point",
+            "ixp_connection",
             "status",
             "created_session",
             "actions",
@@ -375,7 +381,8 @@ class RequestedSessionTable(PeeringManagerTable):
         default_columns = (
             "pk",
             "ip_address",
-            "internet_exchange",
+            "internet_exchange_point",
+            "ixp_connection",
             "status",
             "created_session",
             "actions",

@@ -84,7 +84,7 @@
             <tr>
               <td>AS{{ session.peering_request.requesting_asn }}</td>
               <td>{{ session.ip_address }}</td>
-              <td>{{ session.internet_exchange|render_none }}</td>
+              <td>{{ session.ixp_connection.internet_exchange_point|render_none }}</td>
             </tr>
             {% endfor %}
           </tbody>

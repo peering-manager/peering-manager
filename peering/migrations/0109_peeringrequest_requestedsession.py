@@ -14,6 +14,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ("contenttypes", "0002_remove_content_type_name"),
         ("extras", "0021_ixapi_api_url_field"),
+        ("net", "0001_initial"),
         ("peering", "0108_move_community"),
         ("peeringdb", "0033_hiddenpeer_peeringdb_fk_ids"),
     ]
@@ -103,12 +104,14 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "internet_exchange",
+                    "ixp_connection",
                     models.ForeignKey(
                         blank=True,
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
-                        to="peering.internetexchange",
+                        to="net.connection",
+                        help_text="Connection this requested session targets.",
+                        verbose_name="IXP connection",
                     ),
                 ),
                 (
@@ -130,7 +133,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "ordering": ["peering_request", "internet_exchange", "ip_address"],
+                "ordering": ["peering_request", "ixp_connection", "ip_address"],
             },
         ),
     ]

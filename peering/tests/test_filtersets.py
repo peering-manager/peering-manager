@@ -634,6 +634,9 @@ class RequestedSessionTestCase(TestCase, BaseFilterSetTests):
             name="Internet Exchange 1",
             slug="ix-1",
         )
+        cls.connection = Connection.objects.create(
+            vlan=2000, internet_exchange_point=cls.ixp
+        )
         cls.peering_request = PeeringRequest.objects.create(
             requesting_asn=64501,
             local_autonomous_system=cls.local_as,
@@ -644,19 +647,19 @@ class RequestedSessionTestCase(TestCase, BaseFilterSetTests):
             [
                 RequestedSession(
                     peering_request=cls.peering_request,
-                    internet_exchange=cls.ixp,
+                    ixp_connection=cls.connection,
                     ip_address="192.0.2.1",
                     status=RequestedSessionStatus.PENDING,
                 ),
                 RequestedSession(
                     peering_request=cls.peering_request,
-                    internet_exchange=cls.ixp,
+                    ixp_connection=cls.connection,
                     ip_address="2001:db8::1",
                     status=RequestedSessionStatus.ACCEPTED,
                 ),
                 RequestedSession(
                     peering_request=cls.peering_request,
-                    internet_exchange=cls.ixp,
+                    ixp_connection=cls.connection,
                     ip_address="192.0.2.2",
                     status=RequestedSessionStatus.REJECTED,
                 ),

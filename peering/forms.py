@@ -958,25 +958,20 @@ class PeeringRequestFilterForm(PeeringManagerModelFilterSetForm):
 
 class RequestedSessionForm(PeeringManagerModelForm):
     peering_request = DynamicModelChoiceField(queryset=PeeringRequest.objects.all())
-    internet_exchange = DynamicModelChoiceField(
-        required=False, queryset=InternetExchange.objects.all()
+    ixp_connection = DynamicModelChoiceField(
+        required=False, queryset=Connection.objects.all(), label="IXP connection"
     )
 
     fieldsets = (
         (
             "Requested Session",
-            ("peering_request", "internet_exchange", "ip_address", "session_secret"),
+            ("peering_request", "ixp_connection", "ip_address", "session_secret"),
         ),
     )
 
     class Meta:
         model = RequestedSession
-        fields = (
-            "peering_request",
-            "internet_exchange",
-            "ip_address",
-            "session_secret",
-        )
+        fields = ("peering_request", "ixp_connection", "ip_address", "session_secret")
 
 
 class RoutingPolicyForm(PeeringManagerModelForm):
