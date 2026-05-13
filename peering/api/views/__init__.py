@@ -1,6 +1,7 @@
 from rest_framework.routers import APIRootView
 
 from .models import *
+from .portal import *
 
 
 class PeeringRootView(APIRootView):

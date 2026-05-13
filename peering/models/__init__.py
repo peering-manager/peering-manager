@@ -4,7 +4,7 @@ import ipaddress
 import logging
 import uuid
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -55,7 +55,11 @@ from .abstracts import *
 from .mixins import *
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from django.contrib.auth.models import AbstractUser
+
+    from peeringdb.models import Facility
 
 __all__ = (
     "AutonomousSystem",
@@ -70,6 +74,14 @@ __all__ = (
 )
 
 logger = logging.getLogger("peering.manager.peering")
+
+IPAddressAnyType: TypeAlias = (
+    str
+    | ipaddress.IPv4Address
+    | ipaddress.IPv6Address
+    | ipaddress.IPv4Interface
+    | ipaddress.IPv6Interface
+)
 
 
 class AutonomousSystemManager(models.Manager):
@@ -1055,6 +1067,19 @@ class InternetExchangePeeringSession(BGPSession):
             )
         ]
 
+    @classmethod
+    def exists_at(
+        cls, ixp_connection: Connection, ip_address: IPAddressAnyType
+    ) -> bool:
+        """
+        Returns `True` if an `InternetExchangePeeringSession` already uses
+        `ip_address` on `ixp_connection`.  The unique constraint on the model
+        is `(ixp_connection, ip_address)`.
+        """
+        return cls.objects.filter(
+            ixp_connection=ixp_connection, ip_address=ip_address
+        ).exists()
+
     @property
     def exists_in_peeringdb(self):
         """
@@ -1222,6 +1247,42 @@ class PeeringRequest(PrimaryModel):
             return Network.objects.get(asn=self.requesting_asn)
         except Network.DoesNotExist:
             return None
+
+    @classmethod
+    @transaction.atomic
+    def create_with_sessions(
+        cls,
+        *,
+        local_autonomous_system: AutonomousSystem,
+        requesting_asn: int,
+        request_type: str,
+        sessions: Sequence[tuple[dict, Facility | None, Connection | None]],
+        requester_email: str = "",
+    ) -> PeeringRequest:
+        """
+        Atomically creates a `PeeringRequest` and its `RequestedSession`s.
+
+        `sessions` is a sequence of `(session_data, facility, ixp_connection)`
+        tuples where `session_data` is a dict with `local_ip` and (optional)
+        `session_secret` keys.  For public peering, `ixp_connection` is set
+        and identifies which operator router the session should land on.
+        For private peering, `facility` is set and `ixp_connection` is None.
+        """
+        pr = cls.objects.create(
+            requesting_asn=requesting_asn,
+            requester_email=requester_email,
+            local_autonomous_system=local_autonomous_system,
+            request_type=request_type,
+        )
+        for session_data, facility, ixp_connection in sessions:
+            RequestedSession.objects.create(
+                peering_request=pr,
+                ixp_connection=ixp_connection,
+                peeringdb_facility=facility,
+                ip_address=session_data["local_ip"],
+                session_secret=session_data.get("session_secret", ""),
+            )
+        return pr
 
     @transaction.atomic
     def accept(self) -> AcceptResult:
