@@ -1298,7 +1298,7 @@ class PeeringRequest(PrimaryModel):
 
         details: list[SessionResult] = []
         for session in self.requested_sessions.select_related(
-            "internet_exchange"
+            "ixp_connection__internet_exchange_point"
         ).filter(status=RequestedSessionStatus.PENDING):
             try:
                 session.validate_creation()
