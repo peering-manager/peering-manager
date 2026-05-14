@@ -87,6 +87,16 @@ class Migration(migrations.Migration):
                 ("created", models.DateTimeField(auto_now_add=True, null=True)),
                 ("updated", models.DateTimeField(auto_now=True, null=True)),
                 ("ip_address", netfields.fields.InetAddressField(max_length=39)),
+                (
+                    "peer_ip_address",
+                    netfields.fields.InetAddressField(
+                        blank=True,
+                        null=True,
+                        max_length=39,
+                        verbose_name="Peer IP address",
+                        help_text="IP address that should be used locally for private peering session.",
+                    ),
+                ),
                 ("session_secret", models.CharField(blank=True, max_length=255)),
                 ("status", models.CharField(default="pending", max_length=20)),
                 ("rejection_comment", models.TextField(blank=True)),

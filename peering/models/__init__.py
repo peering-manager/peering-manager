@@ -1280,6 +1280,7 @@ class PeeringRequest(PrimaryModel):
                 ixp_connection=ixp_connection,
                 peeringdb_facility=facility,
                 ip_address=session_data["local_ip"],
+                peer_ip_address=session_data.get("peer_ip") or None,
                 session_secret=session_data.get("session_secret", ""),
             )
         return pr
@@ -1363,6 +1364,13 @@ class RequestedSession(ChangeLoggedModel):
         to="peeringdb.Facility", on_delete=models.SET_NULL, blank=True, null=True
     )
     ip_address = InetAddressField(store_prefix_length=True, verbose_name="IP address")
+    peer_ip_address = InetAddressField(
+        store_prefix_length=True,
+        blank=True,
+        null=True,
+        verbose_name="Peer IP address",
+        help_text="IP address that should be used locally for private peering session.",
+    )
     session_secret = models.CharField(max_length=255, blank=True)
     status = models.CharField(
         max_length=20,
@@ -1442,6 +1450,7 @@ class RequestedSession(ChangeLoggedModel):
                     autonomous_system=autonomous_system,
                     local_autonomous_system=pr.local_autonomous_system,
                     ip_address=self.ip_address,
+                    local_ip_address=self.peer_ip_address,
                     status=session_status,
                     relationship=pr.relationship,
                     password=password,

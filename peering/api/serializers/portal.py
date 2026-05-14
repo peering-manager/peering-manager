@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from rest_framework import serializers
 
+from peering_manager.api.fields import IPInterfaceField
+
 from ...enums import PeeringRequestType
 from ..constants import IX_LOCATION_PREFIX
 
@@ -37,16 +39,16 @@ class PortalNetworkSerializer(serializers.Serializer):
 
 
 class PortalSessionInfoSerializer(serializers.Serializer):
-    local_ip = serializers.CharField()
-    peer_ip = serializers.CharField()
+    local_ip = IPInterfaceField()
+    peer_ip = IPInterfaceField()
     address_family = serializers.IntegerField()
     existing = serializers.BooleanField()
 
 
 class PortalSessionEntrySerializer(serializers.Serializer):
-    local_ip = serializers.CharField(required=True)
+    local_ip = IPInterfaceField(required=True)
     location = serializers.CharField(required=False, allow_blank=True)
-    peer_ip = serializers.CharField(required=False, allow_blank=True, default="")
+    peer_ip = IPInterfaceField(required=False, allow_blank=True, default="")
     session_secret = serializers.CharField(required=False, allow_blank=True, default="")
 
 
@@ -67,7 +69,8 @@ class PortalSessionSubmitResponseSerializer(serializers.Serializer):
 
 class PortalRequestedSessionStatusSerializer(serializers.Serializer):
     session_id = serializers.IntegerField(source="id")
-    local_ip = serializers.CharField(source="ip_address")
+    local_ip = IPInterfaceField(source="ip_address")
+    peer_ip = IPInterfaceField(source="peer_ip_address", default="")
     location = serializers.SerializerMethodField()
     location_name = serializers.SerializerMethodField()
     status = serializers.CharField()

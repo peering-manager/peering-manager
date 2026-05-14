@@ -191,6 +191,8 @@ class PortalSessionCreateView(PortalAPIView):
             connection = None
             if ix is not None:
                 connection = resolve_peer_connection(ix, s.get("peer_ip", ""))
+            elif facility is not None and not s.get("peer_ip"):
+                raise ValidationError({"peer_ip": "Required for private peering."})
             resolved.append((s, facility, connection))
 
         # Reject IPs already covered by a pending request from the same ASN

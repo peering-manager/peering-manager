@@ -1,4 +1,5 @@
 import contextlib
+import ipaddress
 
 from django.core.exceptions import ObjectDoesNotExist
 from drf_spectacular.types import OpenApiTypes
@@ -7,7 +8,31 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import PrimaryKeyRelatedField, RelatedField
 
-__all__ = ("ChoiceField", "ContentTypeField", "SerializedPKRelatedField")
+__all__ = (
+    "ChoiceField",
+    "ContentTypeField",
+    "IPInterfaceField",
+    "SerializedPKRelatedField",
+)
+
+
+@extend_schema_field(OpenApiTypes.STR)
+class IPInterfaceField(serializers.CharField):
+    """
+    Inbound IP address field that accepts both bare IPs (`192.0.2.1`) and IPs with
+    prefix length (`192.0.2.1/30`). The validated value is the original string, so it
+    can be stored as-is on a `netfields.InetAddressField`.
+    """
+
+    def to_internal_value(self, data) -> str:
+        value = super().to_internal_value(data).strip()
+        if not value:
+            return value
+        try:
+            ipaddress.ip_interface(value)
+        except ValueError as exc:
+            raise ValidationError(f"Not a valid IP address: {value!r}.") from exc
+        return value
 
 
 @extend_schema_field(OpenApiTypes.STR)
