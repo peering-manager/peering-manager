@@ -190,6 +190,9 @@ VALIDATE_BGP_COMMUNITY_VALUE = getattr(
 PEERING_REQUEST_SESSION_STATUS = getattr(
     configuration, "PEERING_REQUEST_SESSION_STATUS", "requested"
 )
+PEERING_REQUEST_BLOCKS_SESSION_CREATION = getattr(
+    configuration, "PEERING_REQUEST_BLOCKS_SESSION_CREATION", False
+)
 
 
 # Django filters

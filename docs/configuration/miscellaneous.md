@@ -174,6 +174,20 @@ through their lifecycle (e.g., toward `provisioning` and then `enabled`). Use
 
 ---
 
+## PEERING_REQUEST_BLOCKS_SESSION_CREATION
+
+Default: `False`
+
+When set to `True`, creating a BGP session (direct or IXP) whose IP address
+matches a pending peering request will be refused with a validation error.
+This prevents operators from accidentally configuring a session out-of-band
+while a peering request for it is still awaiting review.
+
+When left at `False` (the default) the conflict is only logged as a warning
+and the session is still created.
+
+---
+
 ## DEFAULT_USER_PREFERENCES
 
 Default: `{}` (empty dictionary)
