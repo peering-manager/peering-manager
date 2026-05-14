@@ -228,7 +228,7 @@ class PortalSessionCreateView(PortalAPIView):
         if conflicting:
             return Response(
                 {
-                    "detail": "Sessions with these IPs are already configured in Peering Manager.",
+                    "detail": "Sessions with these IPs are already configured.",
                     "existing_session_ips": sorted(set(conflicting)),
                 },
                 status=status.HTTP_409_CONFLICT,
