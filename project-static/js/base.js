@@ -65,6 +65,9 @@ var PeeringManager = {
       method: 'get', url: job['url']
     }).done(doneHandler).fail(failHandler);
   },
+  pluralize: function (count, singular, plural) {
+    return count + ' ' + (count === 1 ? singular : (plural || singular + 's'));
+  },
   populateTomSelect: function (element, values, id_field = 'id', text_field = 'name') {
     if (values.length < 1) {
       return;

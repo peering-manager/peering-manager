@@ -138,18 +138,17 @@
       url: "{% url 'peering-api:peeringrequest-accept' pk=instance.pk %}",
     }).done(function (r) {
       PeeringManager.setSuccessButton(button, 'Accepted');
-      var message = r.accepted_sessions + ' session(s) accepted';
-      if (r.rejected_sessions > 0) {
-        message += ', ' + r.rejected_sessions + ' session(s) auto-rejected';
-        if (r.details) {
-          message += ':<ul class="m-0">';
-          for (var i = 0; i < r.details.length; i++) {
-            if (r.details[i].result === 'auto_rejected') {
-              message += '<li>' + r.details[i].ip_address + ': ' + r.details[i].reason + '</li>';
-            }
-          }
-          message += '</ul>';
-        }
+      var details = r.details || [];
+      var accepted = details.filter(function (d) { return d.accepted; });
+      var rejected = details.filter(function (d) { return !d.accepted; });
+      var message = PeeringManager.pluralize(accepted.length, 'session') + ' accepted';
+      if (rejected.length > 0) {
+        message += ', ' + PeeringManager.pluralize(rejected.length, 'session') + ' auto-rejected:';
+        message += '<ul class="m-0">';
+        rejected.forEach(function (d) {
+          message += '<li>' + d.ip_address + ': ' + d.reason + '</li>';
+        });
+        message += '</ul>';
       }
       $('#id_message_success').html(message);
       $('#id_alert_success').slideDown();
@@ -157,8 +156,8 @@
     }).fail(function (xhr) {
       PeeringManager.setFailedButton(button, 'Failed');
       var message = 'Failed to accept peering request.';
-      if (xhr.responseJSON && xhr.responseJSON.error) {
-        message = xhr.responseJSON.error;
+      if (xhr.responseJSON && xhr.responseJSON.detail) {
+        message = xhr.responseJSON.detail;
       }
       $('#id_message_danger').html(message);
       $('#id_alert_danger').slideDown();
@@ -182,8 +181,8 @@
     }).fail(function (xhr) {
       PeeringManager.setFailedButton(button, 'Failed');
       var message = 'Failed to refuse peering request.';
-      if (xhr.responseJSON && xhr.responseJSON.error) {
-        message = xhr.responseJSON.error;
+      if (xhr.responseJSON && xhr.responseJSON.detail) {
+        message = xhr.responseJSON.detail;
       }
       $('#id_message_danger').html(message);
       $('#id_alert_danger').slideDown();
