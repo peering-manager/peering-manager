@@ -28,7 +28,7 @@ dependencies = [
     "pyixapi>=0.2,<0.3",
     "pynetbox>=7.5,<7.6",
     "PyYAML>=6.0,<6.1",
-    "requests>=2.32,<2.33",
+    "requests>=2.33,<2.34",
     "social-auth-app-django>=5.7,<5.8",
     "pytz>=2026",
 ]
