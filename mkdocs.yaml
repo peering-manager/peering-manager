@@ -81,6 +81,7 @@ nav:
   - User Interface: "user-interface.md"
   - Integration:
     - REST API: "integrations/rest-api.md"
+    - Peering Portal API: "integrations/peering-portal.md"
     - Webhooks: "integrations/webhooks.md"
     - PeeringDB: "integrations/peeringdb.md"
     - IX-API: "integrations/ix-api.md"
