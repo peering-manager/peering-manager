@@ -42,15 +42,6 @@ homepage = "https://peering-manager.net"
 documentation = "https://docs.peering-manager.net"
 repository = "https://github.com/peering-manager/peering-manager.git"
 
-[tool.poetry]
-package-mode = false
-
-[tool.poetry.group.dev]
-optional = true
-
-[tool.poetry.group.docs]
-optional = true
-
 [tool.uv]
 package = false
 
