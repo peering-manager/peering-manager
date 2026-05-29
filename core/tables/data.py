@@ -55,6 +55,7 @@ class DataSourceTable(PeeringManagerTable):
             "created",
             "updated",
             "file_count",
+            "tags",
         )
         default_columns = (
             "pk",

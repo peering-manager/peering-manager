@@ -70,6 +70,9 @@ class NetworkIXLanTable(BaseTable):
     policy_contracts = tables.Column(
         verbose_name="Contract Requirement", accessor="net__policy_contracts"
     )
+    net_side = tables.Column(verbose_name="Net Side")
+    ix_side = tables.Column(verbose_name="IX Side")
+    notes = tables.Column(verbose_name="Notes")
     actions = ActionsColumn(actions=(), extra_buttons=append_template)
 
     class Meta(BaseTable.Meta):
@@ -95,6 +98,9 @@ class NetworkIXLanTable(BaseTable):
             "policy_locations",
             "policy_ratio",
             "policy_contracts",
+            "net_side",
+            "ix_side",
+            "notes",
             "actions",
         )
         default_columns = (

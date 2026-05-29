@@ -14,6 +14,7 @@ class ConnectionTable(PeeringManagerTable):
     ipv4_address = tables.Column(linkify=True, verbose_name="IPv4")
     internet_exchange_point = tables.Column(linkify=True)
     router = tables.Column(linkify=True)
+    tags = columns.TagColumn(url_name="net:connection_list")
 
     class Meta(PeeringManagerTable.Meta):
         model = Connection
@@ -28,6 +29,9 @@ class ConnectionTable(PeeringManagerTable):
             "internet_exchange_point",
             "router",
             "interface",
+            "description",
+            "comments",
+            "tags",
             "actions",
         )
         default_columns = (

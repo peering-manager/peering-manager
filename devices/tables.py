@@ -18,6 +18,10 @@ class ConfigurationTable(PeeringManagerTable):
     name = tables.Column(linkify=True)
     jinja2_trim = columns.BooleanColumn(verbose_name="Trim")
     jinja2_lstrip = columns.BooleanColumn(verbose_name="Lstrip")
+    data_source = tables.Column(linkify=True)
+    data_file = tables.Column(linkify=True)
+    data_synchronised = columns.DateTimeColumn()
+    auto_synchronisation_enabled = columns.BooleanColumn(verbose_name="Auto Sync")
     tags = columns.TagColumn(url_name="devices:configuration_list")
 
     class Meta(PeeringManagerTable.Meta):
@@ -26,8 +30,14 @@ class ConfigurationTable(PeeringManagerTable):
             "pk",
             "id",
             "name",
+            "description",
+            "comments",
             "jinja2_trim",
             "jinja2_lstrip",
+            "data_source",
+            "data_file",
+            "data_synchronised",
+            "auto_synchronisation_enabled",
             "updated",
             "tags",
             "actions",
@@ -88,6 +98,8 @@ class RouterTable(PeeringManagerTable):
         verbose_name="IX Sessions",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
+    data_source = tables.Column(linkify=True)
+    data_pushed = columns.DateTimeColumn()
     tags = columns.TagColumn(url_name="devices:router_list")
 
     class Meta(PeeringManagerTable.Meta):
@@ -101,6 +113,8 @@ class RouterTable(PeeringManagerTable):
             "platform",
             "communities",
             "status",
+            "description",
+            "comments",
             "encrypt_passwords",
             "poll_bgp_sessions_state",
             "poll_bgp_sessions_last_updated",
@@ -108,6 +122,10 @@ class RouterTable(PeeringManagerTable):
             "connection_count",
             "directpeeringsession_count",
             "internetexchangepeeringsession_count",
+            "netbox_device_id",
+            "data_source",
+            "data_path",
+            "data_pushed",
             "tags",
             "actions",
         )

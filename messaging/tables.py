@@ -64,12 +64,13 @@ class EmailTable(PeeringManagerTable):
     name = tables.Column(linkify=True)
     jinja2_trim = columns.BooleanColumn(verbose_name="Trim")
     jinja2_lstrip = columns.BooleanColumn(verbose_name="Lstrip")
-    tags = columns.TagColumn(url_name="devices:configuration_list")
+    tags = columns.TagColumn(url_name="messaging:email_list")
 
     class Meta(PeeringManagerTable.Meta):
         model = Email
         fields = (
             "pk",
+            "id",
             "name",
             "subject",
             "jinja2_trim",

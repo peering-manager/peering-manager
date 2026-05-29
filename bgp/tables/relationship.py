@@ -10,8 +10,18 @@ __all__ = ("RelationshipTable",)
 class RelationshipTable(PeeringManagerTable):
     name = tables.Column(linkify=True)
     color = columns.ColourColumn()
+    tags = columns.TagColumn(url_name="bgp:relationship_list")
 
     class Meta(PeeringManagerTable.Meta):
         model = Relationship
-        fields = ("pk", "id", "name", "slug", "description", "color", "actions")
+        fields = (
+            "pk",
+            "id",
+            "name",
+            "slug",
+            "description",
+            "color",
+            "tags",
+            "actions",
+        )
         default_columns = ("pk", "name", "color", "actions")

@@ -34,6 +34,7 @@ class HiddenPeerTable(PeeringManagerTable):
             "ixp_name",
             "until",
             "is_expired",
+            "comments",
             "actions",
         )
         default_columns = (

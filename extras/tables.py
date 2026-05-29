@@ -81,12 +81,12 @@ class ExportTemplateTable(PeeringManagerTable):
 
 class IXAPITable(PeeringManagerTable):
     name = tables.Column(linkify=True)
-    url = tables.URLColumn()
+    api_url = tables.URLColumn(verbose_name="URL")
 
     class Meta(PeeringManagerTable.Meta):
         model = IXAPI
-        fields = ("id", "name", "url", "api_key", "actions")
-        default_columns = ("name", "url", "api_key", "actions")
+        fields = ("id", "name", "api_url", "api_key", "actions")
+        default_columns = ("name", "api_url", "api_key", "actions")
 
 
 class JournalEntryTable(PeeringManagerTable):
@@ -162,7 +162,7 @@ class WebhookTable(PeeringManagerTable):
     type_create = columns.BooleanColumn(verbose_name="Create")
     type_update = columns.BooleanColumn(verbose_name="Update")
     type_delete = columns.BooleanColumn(verbose_name="Delete")
-    ssl_validation = columns.BooleanColumn(verbose_name="SSL Validation")
+    ssl_verification = columns.BooleanColumn(verbose_name="SSL Verification")
     actions = columns.ActionsColumn()
 
     class Meta(PeeringManagerTable.Meta):
@@ -179,7 +179,7 @@ class WebhookTable(PeeringManagerTable):
             "http_method",
             "payload_url",
             "secret",
-            "ssl_validation",
+            "ssl_verification",
             "ca_file_path",
             "created",
             "last_updated",

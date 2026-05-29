@@ -40,6 +40,7 @@ class AutonomousSystemTable(PeeringManagerTable):
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
     affiliated = columns.BooleanColumn(verbose_name="Affiliated")
+    general_policy = tables.Column(verbose_name="General Policy", orderable=False)
     tags = columns.TagColumn(url_name="peering:autonomoussystem_list")
 
     class Meta(PeeringManagerTable.Meta):
@@ -50,6 +51,7 @@ class AutonomousSystemTable(PeeringManagerTable):
             "asn",
             "name",
             "description",
+            "comments",
             "irr_as_set",
             "ipv6_max_prefixes",
             "ipv4_max_prefixes",
@@ -93,6 +95,7 @@ class BGPGroupTable(PeeringManagerTable):
             "id",
             "name",
             "slug",
+            "description",
             "status",
             "import_routing_policies",
             "export_routing_policies",
@@ -210,10 +213,13 @@ class InternetExchangeTable(PeeringManagerTable):
             "local_autonomous_system",
             "name",
             "slug",
+            "description",
             "status",
             "import_routing_policies",
             "export_routing_policies",
             "communities",
+            "ixapi_endpoint",
+            "peeringdb_ixlan",
             "connection_count",
             "session_count",
             "tags",
@@ -338,6 +344,8 @@ class RoutingPolicyTable(PeeringManagerTable):
             "pk",
             "id",
             "name",
+            "slug",
+            "description",
             "type",
             "weight",
             "address_family",
