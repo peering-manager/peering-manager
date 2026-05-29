@@ -79,6 +79,7 @@ class CommunityBulkEditForm(PeeringManagerModelBulkEditForm):
         required=False,
         widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
+    description = forms.CharField(max_length=200, required=False)
     local_context_data = JSONField(required=False)
 
     model = Community

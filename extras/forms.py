@@ -265,9 +265,10 @@ class TagBulkEditForm(BulkEditForm):
         queryset=Tag.objects.all(), widget=forms.MultipleHiddenInput
     )
     color = forms.CharField(max_length=6, required=False, widget=ColourSelect())
+    description = forms.CharField(max_length=200, required=False)
 
     model = Tag
-    nullable_fields = ["comments"]
+    nullable_fields = ["description"]
 
 
 class TagFilterForm(BootstrapMixin, forms.Form):

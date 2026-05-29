@@ -454,6 +454,9 @@ class DirectPeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm):
         required=False, queryset=BFD.objects.all(), label="BFD"
     )
     router = DynamicModelChoiceField(required=False, queryset=Router.objects.all())
+    connection = DynamicModelChoiceField(
+        required=False, queryset=Connection.objects.all()
+    )
     local_context_data = JSONField(required=False)
     comments = CommentField()
 
@@ -922,6 +925,7 @@ class RoutingPolicyBulkEditForm(PeeringManagerModelBulkEditForm):
     communities = DynamicModelMultipleChoiceField(
         required=False, queryset=Community.objects.all()
     )
+    description = forms.CharField(max_length=200, required=False)
     local_context_data = JSONField(required=False)
 
     model = RoutingPolicy
