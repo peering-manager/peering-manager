@@ -50,6 +50,11 @@ class ConfigContextSerializer(ValidatedModelSerializer):
             "description",
             "is_active",
             "data",
+            "data_source",
+            "data_file",
+            "data_path",
+            "data_synchronised",
+            "auto_synchronisation_enabled",
         ]
 
 
@@ -96,6 +101,11 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
             "template",
             "jinja2_trim",
             "jinja2_lstrip",
+            "data_source",
+            "data_file",
+            "data_path",
+            "data_synchronised",
+            "auto_synchronisation_enabled",
         ]
 
 
