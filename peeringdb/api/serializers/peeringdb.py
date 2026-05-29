@@ -49,7 +49,16 @@ class CampusSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Campus
-        fields = ["name", "name_long", "aka", "website", "social_media", "notes", "org"]
+        fields = [
+            "id",
+            "name",
+            "name_long",
+            "aka",
+            "website",
+            "social_media",
+            "notes",
+            "org",
+        ]
 
 
 class InternetExchangeSerializer(serializers.ModelSerializer):

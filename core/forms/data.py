@@ -121,10 +121,6 @@ class DataSourceBulkEditForm(PeeringManagerModelBulkEditForm):
     ignore_rules = forms.CharField(required=False, widget=forms.Textarea())
 
     model = DataSource
-    fieldsets = (
-        None,
-        ("type", "enabled", "description", "comments", "parameters", "ignore_rules"),
-    )
     nullable_fields = ("description", "parameters", "comments", "ignore_rules")
 
 

@@ -177,7 +177,6 @@ class WebhookFilterSet(BaseFilterSet):
             "enabled",
             "http_method",
             "http_content_type",
-            "secret",
             "ssl_verification",
             "ca_file_path",
         ]
