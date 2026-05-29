@@ -8,7 +8,6 @@ from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
 from bgp.models import Community, Relationship
-from devices.enums import DeviceStatus
 from devices.models import Router
 from extras.models import IXAPI
 from messaging.models import Email
@@ -207,7 +206,7 @@ class BGPGroupForm(PeeringManagerModelForm):
         help_text="Friendly unique shorthand used for URL and config. Warning: may result in change of operational state on a router if being used in the configuration.",
     )
     status = forms.ChoiceField(
-        required=False, choices=DeviceStatus, widget=StaticSelect
+        required=False, choices=BGPGroupStatus, widget=StaticSelect
     )
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
@@ -258,7 +257,7 @@ class BGPGroupForm(PeeringManagerModelForm):
 
 class BGPGroupBulkEditForm(PeeringManagerModelBulkEditForm):
     status = forms.ChoiceField(
-        required=False, choices=add_blank_choice(DeviceStatus), widget=StaticSelect
+        required=False, choices=add_blank_choice(BGPGroupStatus), widget=StaticSelect
     )
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
@@ -540,7 +539,7 @@ class InternetExchangeForm(PeeringManagerModelForm):
         help_text="Friendly unique shorthand used for URL and config. Warning: may result in change of operational state on a router if being used in the configuration.",
     )
     status = forms.ChoiceField(
-        required=False, choices=DeviceStatus, widget=StaticSelect
+        required=False, choices=BGPGroupStatus, widget=StaticSelect
     )
     local_autonomous_system = DynamicModelChoiceField(
         queryset=AutonomousSystem.objects.all(),
@@ -598,7 +597,7 @@ class InternetExchangeForm(PeeringManagerModelForm):
 
 class InternetExchangeBulkEditForm(PeeringManagerModelBulkEditForm):
     status = forms.ChoiceField(
-        required=False, choices=add_blank_choice(DeviceStatus), widget=StaticSelect
+        required=False, choices=add_blank_choice(BGPGroupStatus), widget=StaticSelect
     )
     local_autonomous_system = DynamicModelChoiceField(
         required=False,
