@@ -79,9 +79,18 @@ class ContactBulkEditForm(PeeringManagerModelBulkEditForm):
     phone = forms.CharField(max_length=50, required=False)
     email = forms.EmailField(required=False)
     address = forms.CharField(max_length=200, required=False)
+    description = forms.CharField(max_length=200, required=False)
+    comments = CommentField()
 
     model = Contact
-    nullable_fields = ("title", "phone", "email", "address")
+    nullable_fields = (
+        "title",
+        "phone",
+        "email",
+        "address",
+        "description",
+        "comments",
+    )
 
 
 class ContactFilterForm(PeeringManagerModelFilterSetForm):

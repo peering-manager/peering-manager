@@ -87,6 +87,9 @@ class ConnectionBulkEditForm(PeeringManagerModelBulkEditForm):
         choices=add_blank_choice(ConnectionStatus),
         widget=StaticSelect,
     )
+    vlan = forms.IntegerField(required=False, min_value=1, max_value=4094, label="VLAN")
+    mac_address = forms.CharField(max_length=17, required=False, label="MAC address")
+    interface = forms.CharField(max_length=200, required=False)
     internet_exchange_point = DynamicModelChoiceField(
         required=False,
         queryset=InternetExchange.objects.all(),
@@ -97,8 +100,19 @@ class ConnectionBulkEditForm(PeeringManagerModelBulkEditForm):
         queryset=Router.objects.all(),
         help_text="Router on which this connection is setup",
     )
+    description = forms.CharField(max_length=200, required=False)
+    comments = CommentField()
     local_context_data = JSONField(required=False)
-    nullable_fields = ("router",)
+
+    nullable_fields = (
+        "vlan",
+        "mac_address",
+        "interface",
+        "router",
+        "description",
+        "comments",
+        "local_context_data",
+    )
 
 
 class ConnectionFilterForm(PeeringManagerModelFilterSetForm):

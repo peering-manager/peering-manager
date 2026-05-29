@@ -50,11 +50,14 @@ class BFDForm(PeeringManagerModelForm):
 
 class BFDBulkEditForm(PeeringManagerModelBulkEditForm):
     model = BFD
+    description = forms.CharField(max_length=200, required=False)
     minimum_transmit_interval = forms.IntegerField(required=False)
     minimum_receive_interval = forms.IntegerField(required=False)
     detection_multiplier = forms.IntegerField(required=False)
     hold_time = forms.IntegerField(required=False)
     local_context_data = JSONField(required=False)
+
+    nullable_fields = ("description", "local_context_data")
 
 
 class BFDFilterForm(PeeringManagerModelFilterSetForm):

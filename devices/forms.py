@@ -234,6 +234,7 @@ class RouterBulkEditForm(PeeringManagerModelBulkEditForm):
         choices=add_blank_choice(DeviceStatus),
         widget=StaticSelect,
     )
+    description = forms.CharField(max_length=200, required=False)
     encrypt_passwords = forms.NullBooleanField(
         required=False,
         widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
@@ -249,11 +250,26 @@ class RouterBulkEditForm(PeeringManagerModelBulkEditForm):
     communities = DynamicModelMultipleChoiceField(
         required=False, queryset=Community.objects.all()
     )
+    napalm_username = forms.CharField(max_length=256, required=False)
+    napalm_password = PasswordField(required=False, render_value=True)
+    napalm_timeout = forms.IntegerField(required=False, min_value=0)
+    napalm_args = JSONField(required=False)
+    netbox_device_id = forms.IntegerField(
+        required=False, min_value=0, label="NetBox device ID"
+    )
     local_context_data = JSONField(required=False)
     comments = CommentField()
 
     model = Router
-    nullable_fields = ("communities", "local_context_data", "comments")
+    nullable_fields = (
+        "description",
+        "communities",
+        "napalm_username",
+        "napalm_password",
+        "napalm_args",
+        "local_context_data",
+        "comments",
+    )
 
 
 class RouterFilterForm(PeeringManagerModelFilterSetForm):

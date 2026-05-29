@@ -456,6 +456,10 @@ class DirectPeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm):
     connection = DynamicModelChoiceField(
         required=False, queryset=Connection.objects.all()
     )
+    multihop_ttl = forms.IntegerField(
+        required=False, min_value=1, max_value=255, label="Multi-hop TTL"
+    )
+    service_reference = forms.CharField(max_length=255, required=False)
     local_context_data = JSONField(required=False)
     comments = CommentField()
 
@@ -467,6 +471,7 @@ class DirectPeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm):
         "bfd",
         "router",
         "connection",
+        "service_reference",
         "local_context_data",
         "comments",
     )
@@ -618,6 +623,7 @@ class InternetExchangeBulkEditForm(PeeringManagerModelBulkEditForm):
     communities = DynamicModelMultipleChoiceField(
         required=False, queryset=Community.objects.all()
     )
+    description = forms.CharField(max_length=200, required=False)
     local_context_data = JSONField(required=False)
     ixapi_endpoint = DynamicModelChoiceField(
         required=False, label="IX-API endpoint", queryset=IXAPI.objects.all()
@@ -706,6 +712,10 @@ class InternetExchangePeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm
     bfd = DynamicModelChoiceField(
         required=False, queryset=BFD.objects.all(), label="BFD"
     )
+    multihop_ttl = forms.IntegerField(
+        required=False, min_value=1, max_value=255, label="Multi-hop TTL"
+    )
+    service_reference = forms.CharField(max_length=255, required=False)
     local_context_data = JSONField(required=False)
     comments = CommentField()
 
@@ -715,6 +725,7 @@ class InternetExchangePeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm
         "export_routing_policies",
         "communities",
         "bfd",
+        "service_reference",
         "local_context_data",
         "comments",
     )
