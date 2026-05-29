@@ -2,9 +2,13 @@ from copy import deepcopy
 
 import django_filters
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django_filters.exceptions import FieldLookupError
 from django_filters.utils import get_model_field, resolve_field
+from drf_spectacular.contrib.django_filters import DjangoFilterExtension
+from drf_spectacular.drainage import set_override
+from drf_spectacular.types import OpenApiTypes
 from netfields import MACAddressField
 
 from core.enums import ObjectChangeAction
@@ -16,6 +20,70 @@ from utils.constants import (
     FILTER_NEGATION_LOOKUP_MAP,
     FILTER_NUMERIC_BASED_LOOKUP_MAP,
 )
+
+# Maps Django model field classes to drf-spectacular OpenAPI types.
+_MODEL_FIELD_TO_OPENAPI = {
+    models.AutoField: OpenApiTypes.INT,
+    models.BigAutoField: OpenApiTypes.INT,
+    models.BigIntegerField: OpenApiTypes.INT,
+    models.IntegerField: OpenApiTypes.INT,
+    models.PositiveBigIntegerField: OpenApiTypes.INT,
+    models.PositiveIntegerField: OpenApiTypes.INT,
+    models.PositiveSmallIntegerField: OpenApiTypes.INT,
+    models.SmallIntegerField: OpenApiTypes.INT,
+    models.UUIDField: OpenApiTypes.UUID,
+}
+
+
+def _annotate_filter_field_schema(filter_field):
+    """
+    Set the OpenAPI type override on a `ModelMultipleChoiceFilter` based on the column
+    type referenced by its `to_field_name`.
+
+    drf-spectacular's built-in resolver concatenates `field_name` and `to_field_name`
+    when both are set, which breaks the traversal and falls back to `string` with a
+    warning. The filter's own queryset already knows the target column type, so we
+    read it from there.
+    """
+    if not isinstance(filter_field, django_filters.ModelMultipleChoiceFilter):
+        return
+    if "_spectacular_annotation" in vars(filter_field):
+        return  # explicit @extend_schema_field wins
+    to_field_name = filter_field.extra.get("to_field_name")
+    if not to_field_name or filter_field.queryset is None:
+        return
+    try:
+        model_field = filter_field.queryset.model._meta.get_field(to_field_name)
+    except FieldDoesNotExist:
+        return
+    api_type = next(
+        (
+            api
+            for cls_, api in _MODEL_FIELD_TO_OPENAPI.items()
+            if isinstance(model_field, cls_)
+        ),
+        OpenApiTypes.STR,
+    )
+    set_override(filter_field, "field", api_type)
+
+
+class AutoAnnotatedDjangoFilterExtension(DjangoFilterExtension):
+    """
+    Replace drf-spectacular's default django-filter extension to auto-annotate
+    `ModelMultipleChoiceFilter` instances. A higher priority ensures this subclass
+    wins over the built-in extension.
+    """
+
+    priority = 1
+
+    def resolve_filter_field(
+        self, auto_schema, model, filterset_class, field_name, filter_field
+    ):
+        _annotate_filter_field_schema(filter_field)
+        return super().resolve_filter_field(
+            auto_schema, model, filterset_class, field_name, filter_field
+        )
+
 
 __all__ = (
     "BaseFilterSet",

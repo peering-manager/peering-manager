@@ -11,6 +11,8 @@ from django.db.models import (
     Value,
     When,
 )
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 
 from bgp.models import Relationship
 from devices.models import Router
@@ -173,6 +175,7 @@ class DirectPeeringSessionFilterSet(PeeringManagerModelFilterSet):
             pass
         return queryset.filter(qs_filter)
 
+    @extend_schema_field(OpenApiTypes.INT)
     def address_family_search(self, queryset, name, value):
         if value in [4, 6]:
             return queryset.filter(Q(ip_address__family=value))
@@ -286,6 +289,7 @@ class InternetExchangePeeringSessionFilterSet(PeeringManagerModelFilterSet):
             pass
         return queryset.filter(qs_filter)
 
+    @extend_schema_field(OpenApiTypes.INT)
     def address_family_search(self, queryset, name, value):
         if value in [4, 6]:
             return queryset.filter(Q(ip_address__family=value))
