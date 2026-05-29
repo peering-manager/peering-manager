@@ -850,6 +850,7 @@ class InternetExchangePeeringSessionFilterForm(PeeringManagerModelFilterSetForm)
     passive = forms.NullBooleanField(
         required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES)
     )
+    multihop_ttl = forms.IntegerField(required=False, label="Multi-hop TTL")
     is_route_server = forms.NullBooleanField(
         required=False,
         label="Route server",

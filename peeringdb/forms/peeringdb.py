@@ -1,6 +1,6 @@
 from django import forms
 
-from utils.forms import BOOLEAN_WITH_BLANK_CHOICES, BootstrapMixin, add_blank_choice
+from utils.forms import BOOLEAN_WITH_BLANK_CHOICES, BootstrapMixin
 from utils.forms.widgets import StaticSelect, StaticSelectMultiple
 
 from ..enums import (
@@ -30,34 +30,34 @@ class NetworkIXLanFilterForm(BootstrapMixin, forms.Form):
         label="BFD Support",
         widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
-    net__info_traffic = forms.ChoiceField(
+    net__info_traffic = forms.MultipleChoiceField(
         label="Traffic",
         required=False,
-        choices=add_blank_choice(Traffic.choices),
+        choices=Traffic.choices,
         widget=StaticSelectMultiple,
     )
-    net__info_scope = forms.ChoiceField(
+    net__info_scope = forms.MultipleChoiceField(
         label="Scope",
         required=False,
-        choices=add_blank_choice(Scope.choices),
+        choices=Scope.choices,
         widget=StaticSelectMultiple,
     )
-    net__info_type = forms.ChoiceField(
+    net__info_type = forms.MultipleChoiceField(
         label="Type",
         required=False,
-        choices=add_blank_choice(NetType.choices),
+        choices=NetType.choices,
         widget=StaticSelectMultiple,
     )
-    net__policy_general = forms.ChoiceField(
+    net__policy_general = forms.MultipleChoiceField(
         label="Peering Policy",
         required=False,
-        choices=add_blank_choice(GeneralPolicy.choices),
+        choices=GeneralPolicy.choices,
         widget=StaticSelectMultiple,
     )
-    net__policy_locations = forms.ChoiceField(
+    net__policy_locations = forms.MultipleChoiceField(
         label="Multiple Locations",
         required=False,
-        choices=add_blank_choice(LocationsPolicy.choices),
+        choices=LocationsPolicy.choices,
         widget=StaticSelectMultiple,
     )
     net__policy_ratio = forms.NullBooleanField(
@@ -65,9 +65,9 @@ class NetworkIXLanFilterForm(BootstrapMixin, forms.Form):
         label="Ratio Requirement",
         widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
-    net__policy_contracts = forms.ChoiceField(
+    net__policy_contracts = forms.MultipleChoiceField(
         label="Contract Requirement",
         required=False,
-        choices=add_blank_choice(ContractsPolicy.choices),
+        choices=ContractsPolicy.choices,
         widget=StaticSelectMultiple,
     )

@@ -10,6 +10,14 @@ from django.db.models import Q
 if TYPE_CHECKING:
     from django.db.models import QuerySet
 
+from ..enums import (
+    ContractsPolicy,
+    GeneralPolicy,
+    LocationsPolicy,
+    NetType,
+    Scope,
+    Traffic,
+)
 from ..models import (
     Campus,
     Facility,
@@ -206,6 +214,18 @@ class NetworkIXLanFilterSet(django_filters.FilterSet):
     ixlan_id = django_filters.ModelMultipleChoiceFilter(
         queryset=IXLan.objects.all(), label="IXLan (ID)"
     )
+    net__info_traffic = django_filters.MultipleChoiceFilter(choices=Traffic.choices)
+    net__info_scope = django_filters.MultipleChoiceFilter(choices=Scope.choices)
+    net__info_type = django_filters.MultipleChoiceFilter(choices=NetType.choices)
+    net__policy_general = django_filters.MultipleChoiceFilter(
+        choices=GeneralPolicy.choices
+    )
+    net__policy_locations = django_filters.MultipleChoiceFilter(
+        choices=LocationsPolicy.choices
+    )
+    net__policy_contracts = django_filters.MultipleChoiceFilter(
+        choices=ContractsPolicy.choices
+    )
 
     class Meta:
         model = NetworkIXLan
@@ -214,13 +234,7 @@ class NetworkIXLanFilterSet(django_filters.FilterSet):
             "asn",
             "is_rs_peer",
             "bfd_support",
-            "net__info_traffic",
-            "net__info_scope",
-            "net__info_type",
-            "net__policy_general",
-            "net__policy_locations",
             "net__policy_ratio",
-            "net__policy_contracts",
         ]
 
     def search(

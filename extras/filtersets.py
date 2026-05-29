@@ -160,6 +160,11 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
 
 class WebhookFilterSet(BaseFilterSet):
     http_method = django_filters.MultipleChoiceFilter(choices=HttpMethod)
+    content_type_id = django_filters.ModelMultipleChoiceFilter(
+        field_name="content_types",
+        queryset=ContentType.objects.all(),
+        label="Object type (ID)",
+    )
 
     class Meta:
         model = Webhook

@@ -199,6 +199,12 @@ class InternetExchangeFilterSet(OrganisationalModelFilterSet):
         to_field_name="name",
         label="Local AS (Name)",
     )
+    import_routing_policies = django_filters.ModelMultipleChoiceFilter(
+        queryset=RoutingPolicy.objects.all(), label="Import routing policies"
+    )
+    export_routing_policies = django_filters.ModelMultipleChoiceFilter(
+        queryset=RoutingPolicy.objects.all(), label="Export routing policies"
+    )
 
     class Meta:
         model = InternetExchange

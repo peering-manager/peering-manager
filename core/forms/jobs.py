@@ -1,9 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
 
-from utils.forms import BootstrapMixin, add_blank_choice
+from utils.forms import BootstrapMixin
 from utils.forms.fields import DynamicModelMultipleChoiceField
-from utils.forms.widgets import APISelectMultiple, StaticSelect
+from utils.forms.widgets import APISelectMultiple, StaticSelectMultiple
 
 from ..enums import JobStatus
 from ..models import Job
@@ -20,8 +20,6 @@ class JobFilterForm(BootstrapMixin, forms.Form):
         queryset=User.objects.all(),
         widget=APISelectMultiple(api_url="/api/users/users/"),
     )
-    status = forms.ChoiceField(
-        required=False,
-        choices=add_blank_choice(JobStatus),
-        widget=StaticSelect(),
+    status = forms.MultipleChoiceField(
+        required=False, choices=JobStatus, widget=StaticSelectMultiple
     )

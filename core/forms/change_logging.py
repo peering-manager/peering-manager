@@ -18,7 +18,7 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     time_before = forms.DateTimeField(
         label="Before", required=False, widget=DateTimePicker()
     )
-    action = forms.ChoiceField(
+    action = forms.MultipleChoiceField(
         required=False, choices=ObjectChangeAction, widget=StaticSelectMultiple
     )
     user_id = DynamicModelMultipleChoiceField(
