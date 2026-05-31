@@ -16,6 +16,7 @@ from peering_manager.forms import HiddenControlFormSet
 from utils.exceptions import AbortRequestError, PermissionsViolationError
 from utils.forms import ConfirmationForm
 from utils.functions import get_permission_for_model, handle_protectederror
+from utils.htmx import htmx_partial
 from utils.views import GetReturnURLMixin, PermissionRequiredMixin
 
 from .base import BaseMultiObjectView
@@ -49,6 +50,13 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         # Render the objects table
         table = self.get_table(self.queryset, request, has_bulk_actions)
+
+        if htmx_partial(request):
+            return render(
+                request,
+                "htmx/table.html",
+                {"model": model, "table": table, "actions": actions},
+            )
 
         context = {
             "model": model,

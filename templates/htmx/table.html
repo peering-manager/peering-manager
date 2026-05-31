@@ -1,8 +1,10 @@
 {% load helpers %}
 {% load render_table from django_tables2 %}
-<div class="htmx-container table-responsive">
-  {% render_table table %}
-  {% include 'includes/pagination.html' with paginator=table.paginator page=table.page %}
+<div class="htmx-container">
+  <div class="table-responsive">
+    {% render_table table 'includes/table_htmx.html' %}
+  </div>
+  {% include 'includes/pagination_htmx.html' with paginator=table.paginator page=table.page %}
 </div>
 
 {% if request.htmx %}

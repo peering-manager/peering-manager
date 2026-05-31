@@ -268,6 +268,22 @@ class ViewTestCases:
             # Try GET with permission
             self.assertHttpStatus(self.client.get(self._get_url("list")), 200)
 
+        @override_settings(LOGIN_REQUIRED=True)
+        def test_list_objects_htmx(self):
+            self.add_permissions("view")
+
+            # An htmx GET should return only the table fragment, not the full
+            # page layout.
+            response = self.client.get(
+                self._get_url("list"), headers={"HX-Request": "true"}
+            )
+            self.assertHttpStatus(response, 200)
+            body = response.content.decode()
+            self.assertIn('class="htmx-container"', body)
+            # Sidebar markup only appears in the full page layout.
+            self.assertNotIn("_sidebar.html", body)
+            self.assertNotIn("navbar-brand", body)
+
     class PrimaryObjectViewTestCase(
         GetObjectViewTestCase,
         GetObjectChangelogViewTestCase,
