@@ -1,0 +1,14 @@
+{% comment %}
+Inner body for the global #htmx-modal placeholder. Views render this fragment
+in response to htmx requests that should appear as a modal. The caller is
+expected to set `modal_title` and `modal_body` (or override the whole block) in
+the rendering context.
+{% endcomment %}
+<div class="modal-header">
+  <h2 class="modal-title">{% block modal_title %}{{ modal_title }}{% endblock %}</h2>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+  {% block modal_body %}{{ modal_body }}{% endblock %}
+</div>
+{% block modal_footer %}{% endblock %}

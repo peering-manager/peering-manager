@@ -1,0 +1,16 @@
+{% load form_helpers %}
+{% for field in form.hidden_fields %}{{ field }}{% endfor %}
+{% if form.non_field_errors %}
+  <div class="alert alert-danger" role="alert">
+    {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+  </div>
+{% endif %}
+{% if form.fieldsets %}
+  {% for group, fields in form.fieldsets %}
+    {% if group %}<fieldset class="mb-3"><legend>{{ group }}</legend>{% endif %}
+    {% for name in fields %}{% with field=form|get_field:name %}{% render_field field %}{% endwith %}{% endfor %}
+    {% if group %}</fieldset>{% endif %}
+  {% endfor %}
+{% else %}
+  {% for field in form.visible_fields %}{% render_field field %}{% endfor %}
+{% endif %}
