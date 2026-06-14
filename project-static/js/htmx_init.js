@@ -17,18 +17,4 @@
             if (selectAll) selectAll.checked = false;
         }
     });
-
-    // Auto-show the global modal when its content node receives a swap.
-    document.addEventListener("htmx:afterSwap", function (evt) {
-        if (!evt.target || evt.target.id !== "htmx-modal-content") {
-            return;
-        }
-        if (typeof bootstrap === "undefined" || !bootstrap.Modal) {
-            return;
-        }
-        var modalEl = document.getElementById("htmx-modal");
-        if (modalEl) {
-            bootstrap.Modal.getOrCreateInstance(modalEl).show();
-        }
-    });
 })();

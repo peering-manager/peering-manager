@@ -280,8 +280,10 @@ class ViewTestCases:
             self.assertHttpStatus(response, 200)
             body = response.content.decode()
             self.assertIn('class="htmx-container"', body)
-            # Sidebar markup only appears in the full page layout.
-            self.assertNotIn("_sidebar.html", body)
+            # Page chrome (full document, sidebar, navbar) is absent from the
+            # fragment.
+            self.assertNotIn("</html>", body.lower())
+            self.assertNotIn("sidebar-menu", body)
             self.assertNotIn("navbar-brand", body)
 
     class PrimaryObjectViewTestCase(
