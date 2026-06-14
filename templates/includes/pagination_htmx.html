@@ -7,7 +7,7 @@
       <ul class="pagination pagination-sm">
         {% if page.has_previous %}
         <li class="page-item">
-          <a class="page-link" href="{% querystring request page=page.previous_page_number %}" hx-get="{% querystring request page=page.previous_page_number %}"><i class="fa-fw fa-solid fa-angle-double-left"></i></a>
+          <a id="paginator-prev" class="page-link" href="{% querystring request page=page.previous_page_number %}" hx-get="{% querystring request page=page.previous_page_number %}"><i class="fa-fw fa-solid fa-angle-double-left"></i></a>
         </li>
         {% endif %}
         {% for p in page.smart_pages %}
@@ -21,7 +21,7 @@
         {% endfor %}
         {% if page.has_next %}
         <li class="page-item">
-          <a class="page-link" href="{% querystring request page=page.next_page_number %}" hx-get="{% querystring request page=page.next_page_number %}"><i class="fa-fw fa-solid fa-angle-double-right"></i></a>
+          <a id="paginator-next" class="page-link" href="{% querystring request page=page.next_page_number %}" hx-get="{% querystring request page=page.next_page_number %}"><i class="fa-fw fa-solid fa-angle-double-right"></i></a>
         </li>
         {% endif %}
       </ul>

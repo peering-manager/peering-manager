@@ -3,6 +3,13 @@
 (function () {
     "use strict";
 
+    var focusedIdBeforeSwap = null;
+
+    document.addEventListener("htmx:beforeSwap", function () {
+        var active = document.activeElement;
+        focusedIdBeforeSwap = active && active.id ? active.id : null;
+    });
+
     document.addEventListener("htmx:afterSettle", function (evt) {
         var root = evt.target || document.body;
         window.initBootstrapWidgets(root);
@@ -13,6 +20,12 @@
             if (box) box.classList.add("d-none");
             var selectAll = document.getElementById("select_all");
             if (selectAll) selectAll.checked = false;
+        }
+
+        if (focusedIdBeforeSwap) {
+            var target = document.getElementById(focusedIdBeforeSwap);
+            if (target) target.focus();
+            focusedIdBeforeSwap = null;
         }
     });
 })();
