@@ -100,6 +100,19 @@ class ViewTestCases:
             url = self._get_url("changelog", self._get_queryset().first())
             self.assertHttpStatus(self.client.get(url), 200)
 
+        @override_settings(LOGIN_REQUIRED=True)
+        def test_get_object_changelog_htmx(self):
+            url = self._get_url("changelog", self._get_queryset().first())
+            response = self.client.get(url, headers={"HX-Request": "true"})
+            self.assertHttpStatus(response, 200)
+            body = response.content.decode()
+            self.assertIn('class="htmx-container"', body)
+            # No bulk-action form on changelog tabs, so the OOB return-url
+            # input must not fire, its target only exists on list views.
+            self.assertNotIn('id="object-list-return-url"', body)
+            self.assertNotIn("</html>", body.lower())
+            self.assertNotIn("navbar-brand", body)
+
     class CreateObjectViewTestCase(ModelViewTestCase):
         """
         Create a single new instance.
@@ -271,17 +284,12 @@ class ViewTestCases:
         @override_settings(LOGIN_REQUIRED=True)
         def test_list_objects_htmx(self):
             self.add_permissions("view")
-
-            # An htmx GET should return only the table fragment, not the full
-            # page layout.
             response = self.client.get(
                 self._get_url("list"), headers={"HX-Request": "true"}
             )
             self.assertHttpStatus(response, 200)
             body = response.content.decode()
             self.assertIn('class="htmx-container"', body)
-            # Page chrome (full document, sidebar, navbar) is absent from the
-            # fragment.
             self.assertNotIn("</html>", body.lower())
             self.assertNotIn("sidebar-menu", body)
             self.assertNotIn("navbar-brand", body)
