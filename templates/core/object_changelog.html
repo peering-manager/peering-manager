@@ -1,8 +1,7 @@
 {% extends base_template %}
 {% block title %}{% if instance %}{{ instance }}{% else %}{{ block.super }}{% endif %} - Changelog{% endblock %}
 {% block subcontent %}
-{% include 'includes/table.html' %}
-{% include 'includes/pagination.html' with paginator=table.paginator page=table.page %}
+{% include 'htmx/table.html' %}
 {% if settings.CHANGELOG_RETENTION %}
 <div class="text-muted">
     Changelog retention: {{ settings.CHANGELOG_RETENTION }} days

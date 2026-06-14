@@ -9,6 +9,7 @@ from core.tables import JobTable, ObjectChangeTable
 from extras.forms import JournalEntryForm
 from extras.models import JournalEntry
 from extras.tables import JournalEntryTable
+from utils.htmx import htmx_partial
 from utils.views import ViewTab
 
 __all__ = ("ObjectChangeLogView", "ObjectJobsView", "ObjectJournalView")
@@ -45,6 +46,13 @@ class ObjectChangeLogView(View):
             data=objectchanges, orderable=False, user=request.user
         )
         objectchanges_table.configure(request)
+
+        if htmx_partial(request):
+            return render(
+                request,
+                "htmx/table.html",
+                {"instance": instance, "table": objectchanges_table},
+            )
 
         # Check whether a header template exists for this model
         base_template = f"{model._meta.app_label}/{model._meta.model_name}/_base.html"
@@ -95,6 +103,13 @@ class ObjectJobsView(View):
         jobs_table = JobTable(data=jobs, orderable=False, user=request.user)
         jobs_table.configure(request)
 
+        if htmx_partial(request):
+            return render(
+                request,
+                "htmx/table.html",
+                {"instance": instance, "table": jobs_table},
+            )
+
         # Check whether a header template exists for this model
         base_template = f"{model._meta.app_label}/{model._meta.model_name}/_base.html"
         try:
@@ -141,6 +156,13 @@ class ObjectJournalView(View):
         journalentry_table.configure(request)
         journalentry_table.columns.hide("assigned_object_type")
         journalentry_table.columns.hide("assigned_object")
+
+        if htmx_partial(request):
+            return render(
+                request,
+                "htmx/table.html",
+                {"instance": instance, "table": journalentry_table},
+            )
 
         if request.user.has_perm("extras.add_journalentry"):
             form = JournalEntryForm(

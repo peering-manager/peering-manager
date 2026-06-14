@@ -1,3 +1,43 @@
+const BUTTON_STATES = {
+  working: { add: 'btn-warning', remove: 'btn-primary', icon: 'fa-sync fa-spin', text: 'Working' },
+  failed: { add: 'btn-danger', remove: 'btn-primary', icon: 'fa-times', text: 'Failed' },
+  success: { add: 'btn-success', remove: 'btn-warning', icon: 'fa-check', text: 'Successful' },
+  workingOutline: { add: 'btn-outline-warning', remove: 'btn-outline-primary', icon: 'fa-sync fa-spin', text: 'Working' },
+  failedOutline: { add: 'btn-outline-danger', remove: 'btn-outline-primary', icon: 'fa-times', text: 'Failed' },
+  successOutline: { add: 'btn-outline-success', remove: 'btn-outline-warning', icon: 'fa-check', text: 'Successful' },
+};
+
+function applyButtonState(button, key, textOverride) {
+  var s = BUTTON_STATES[key];
+  button.attr('disabled', 'disabled');
+  button.removeClass(s.remove).addClass(s.add);
+  button.html('<i class="fa-fw fa-solid ' + s.icon + '"></i> ' + (textOverride || s.text));
+}
+
+const BUTTON_RESETS = {
+  ping: { add: 'btn-primary', remove: ['btn-warning', 'btn-danger', 'btn-success'], icon: 'fa-plug', text: 'Ping' },
+  deploy: { add: 'btn-primary', remove: ['btn-warning', 'btn-danger', 'btn-success'], icon: 'fa-cogs', text: 'Deploy' },
+  synchronise: { add: 'btn-success', remove: ['btn-warning', 'btn-danger'], icon: 'fa-rotate', text: 'Synchronise' },
+  pollSessions: { add: 'btn-success', remove: ['btn-warning', 'btn-danger', 'btn-primary'], icon: 'fa-rotate', text: 'Poll Sessions' },
+  confirm: { add: 'btn-primary', remove: ['btn-warning', 'btn-danger', 'btn-success'], icon: null, text: 'Confirm' },
+};
+
+function applyButtonReset(button, key, classOverride) {
+  var r = BUTTON_RESETS[key];
+  button.removeAttr('disabled');
+  button.removeClass(r.remove);
+  button.addClass(classOverride || r.add);
+  var icon = r.icon ? '<i class="fa-fw fa-solid ' + r.icon + '"></i> ' : '';
+  button.html(icon + r.text);
+}
+
+window.initOnce = function (el, key, init) {
+  var marker = '_pm_init_' + key;
+  if (el[marker]) return;
+  el[marker] = true;
+  init(el);
+};
+
 var PeeringManager = {
   escapeHTML: function (unsafe) {
     return unsafe.replace(
@@ -5,73 +45,28 @@ var PeeringManager = {
       c => '&#' + ('000' + c.charCodeAt(0)).slice(-4) + ';'
     )
   },
-  setWorkingButton: function (button, text = 'Working') {
-    button.attr('disabled', 'disabled');
-    button.removeClass('btn-primary').addClass('btn-warning');
-    button.html('<i class="fa-fw fa-solid fa-sync fa-spin"></i> ' + text);
-  },
-  setFailedButton: function (button, text = 'Failed') {
-    button.attr('disabled', 'disabled');
-    button.removeClass('btn-primary').addClass('btn-danger');
-    button.html('<i class="fa-fw fa-solid fa-times"></i> ' + text);
-  },
-  setSuccessButton: function (button, text = 'Successful') {
-    button.attr('disabled', 'disabled');
-    button.removeClass('btn-warning').addClass('btn-success');
-    button.html('<i class="fa-fw fa-solid fa-check"></i> ' + text);
-  },
-  setWorkingOutlineButton: function (button, text = 'Working') {
-    button.attr('disabled', 'disabled');
-    button.removeClass('btn-outline-primary').addClass('btn-outline-warning');
-    button.html('<i class="fa-fw fa-solid fa-sync fa-spin"></i> ' + text);
-  },
-  setFailedOutlineButton: function (button, text = 'Failed') {
-    button.attr('disabled', 'disabled');
-    button.removeClass('btn-outline-primary').addClass('btn-outline-danger');
-    button.html('<i class="fa-fw fa-solid fa-times"></i> ' + text);
-  },
-  setSuccessOutlineButton: function (button, text = 'Successful') {
-    button.attr('disabled', 'disabled');
-    button.removeClass('btn-outline-warning').addClass('btn-outline-success');
-    button.html('<i class="fa-fw fa-solid fa-check"></i> ' + text);
-  },
-  resetPingButton: function (button) {
-    button.removeAttr('disabled');
-    button.removeClass(['btn-warning', 'btn-danger', 'btn-success']);
-    button.addClass('btn-primary').html('<i class="fa-fw fa-solid fa-plug"></i> Ping');
-  },
-  resetDeployButton: function (button) {
-    button.removeAttr('disabled');
-    button.removeClass(['btn-warning', 'btn-danger', 'btn-success']);
-    button.addClass('btn-primary').html('<i class="fa-fw fa-solid fa-cogs"></i> Deploy');
-  },
-  resetSynchroniseButton: function (button, css_class = "btn-success") {
-    button.removeAttr('disabled');
-    button.removeClass(['btn-warning', 'btn-danger']);
-    button.addClass(css_class).html('<i class="fa-fw fa-solid fa-rotate"></i> Synchronise');
-  },
-  resetPollSessionsButton: function (button) {
-    button.removeAttr('disabled');
-    button.removeClass(['btn-warning', 'btn-danger', 'btn-primary']);
-    button.addClass('btn-success').html('<i class="fa-fw fa-solid fa-rotate"></i> Poll Sessions');
-  },
-  resetConfirmButton: function (button) {
-    button.removeAttr('disabled');
-    button.removeClass(['btn-warning', 'btn-danger', 'btn-success']);
-    button.addClass('btn-primary').html('Confirm');
-  },
-  pollJob: function (job, doneHandler, failHandler = undefined) {
-    $.ajax({
-      method: 'get', url: job['url']
-    }).done(doneHandler).fail(failHandler);
+
+  setWorkingButton: function (button, text) { applyButtonState(button, 'working', text); },
+  setFailedButton: function (button, text) { applyButtonState(button, 'failed', text); },
+  setSuccessButton: function (button, text) { applyButtonState(button, 'success', text); },
+  setWorkingOutlineButton: function (button, text) { applyButtonState(button, 'workingOutline', text); },
+  setFailedOutlineButton: function (button, text) { applyButtonState(button, 'failedOutline', text); },
+  setSuccessOutlineButton: function (button, text) { applyButtonState(button, 'successOutline', text); },
+
+  resetPingButton: function (button) { applyButtonReset(button, 'ping'); },
+  resetDeployButton: function (button) { applyButtonReset(button, 'deploy'); },
+  resetSynchroniseButton: function (button, css_class) { applyButtonReset(button, 'synchronise', css_class); },
+  resetPollSessionsButton: function (button) { applyButtonReset(button, 'pollSessions'); },
+  resetConfirmButton: function (button) { applyButtonReset(button, 'confirm'); },
+
+  pollJob: function (job, doneHandler, failHandler) {
+    $.ajax({ method: 'get', url: job['url'] }).done(doneHandler).fail(failHandler);
   },
   pluralize: function (count, singular, plural) {
     return count + ' ' + (count === 1 ? singular : (plural || singular + 's'));
   },
   populateTomSelect: function (element, values, id_field = 'id', text_field = 'name') {
-    if (values.length < 1) {
-      return;
-    }
+    if (values.length < 1) return;
 
     var el = element instanceof jQuery ? element[0] : element;
     var ts = el.tomselect;
@@ -88,9 +83,18 @@ var PeeringManager = {
   }
 };
 
+window.initBootstrapWidgets = function (root) {
+  root = root || document;
+  root.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
+    bootstrap.Popover.getOrCreateInstance(el, { html: true });
+  });
+  root.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+    bootstrap.Tooltip.getOrCreateInstance(el, { trigger: 'hover' });
+  });
+};
+
 $(document).ready(function () {
-  // This is to play nice with DRF, when using false, list will get converted
-  // to varname[] instead of staying as varname
+  // DRF expects `list=foo&list=bar`, jQuery's default is `list[]=foo&list[]=bar`
   $.ajaxSettings.traditional = true;
 
   const colourModeButton = document.getElementById('colour-mode-button');
@@ -100,18 +104,8 @@ $(document).ready(function () {
   });
   setColourMode(getCurrentColourMode(), colourModeButton, true);
 
-  // Popovers
-  const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
-  [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl, {
-    html: true
-  }));
-  // Tooltips
-  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl, {
-    trigger: 'hover'
-  }));
+  window.initBootstrapWidgets(document);
 
-  // Toggle icon when a submenu is clicked
   function toggleIcon(e) {
     icon = $(e.target).prev().find('.submenu-icon');
     if (icon.html().indexOf('caret-right') !== -1) {
@@ -123,7 +117,6 @@ $(document).ready(function () {
   $('aside > div > div > ul > li > .collapse').on('hidden.bs.collapse', toggleIcon);
   $('aside > div > div > ul > li > .collapse').on('show.bs.collapse', toggleIcon);
 
-  // Make sure menu is expanded when sub-item is selected
   const active_collapse = $('#sidebar-menu > ul > li:has(.nav-link.active) > a[data-bs-toggle="collapse"]');
   if (active_collapse.length == 1) {
     active_collapse[0].click();

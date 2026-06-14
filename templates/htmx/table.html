@@ -1,0 +1,13 @@
+{% load helpers %}
+{% load render_table from django_tables2 %}
+<div class="htmx-container">
+  <div class="table-responsive">
+    {% render_table table 'includes/table_htmx.html' %}
+  </div>
+  {% include 'includes/pagination_htmx.html' with paginator=table.paginator page=table.page %}
+</div>
+
+{% if request.htmx and actions %}
+  {# OOB sync of the bulk-action return URL after a list swap. #}
+  <input type="hidden" id="object-list-return-url" name="return_url" value="{{ request.get_full_path }}" hx-swap-oob="outerHTML:#object-list-return-url" />
+{% endif %}

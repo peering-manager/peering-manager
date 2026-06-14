@@ -13,6 +13,7 @@ from extras.signals import clear_webhooks
 from utils.exceptions import AbortRequestError, PermissionsViolationError
 from utils.forms import ConfirmationForm
 from utils.functions import get_permission_for_model, normalize_querydict
+from utils.htmx import htmx_partial
 from utils.views import GetReturnURLMixin
 
 from .base import BaseObjectView
@@ -106,6 +107,18 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
 
         table_data = self.prep_table_data(request, child_objects, instance)
         table = self.get_table(table_data, request, has_bulk_actions)
+
+        if htmx_partial(request):
+            return render(
+                request,
+                "htmx/table.html",
+                {
+                    "instance": instance,
+                    "model": self.child_model,
+                    "table": table,
+                    "actions": actions,
+                },
+            )
 
         return render(
             request,

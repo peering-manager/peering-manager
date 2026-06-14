@@ -2,7 +2,7 @@
 {% if actions %}
   <form method="post">
     {% csrf_token %}
-    <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
+    <input type="hidden" id="object-list-return-url" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
     {% for key, value in extra_context.items %}
     <input type="hidden" name="{{ key }}" value="{{ value }}" />
     {% endfor %}
@@ -28,7 +28,7 @@
       </div>
     </div>
     {% endif %}
-    {% include 'utils/responsive_table.html' %}
+    {% include 'htmx/table.html' %}
     <div class="float-start">
       {% if request.user.is_authenticated and table_modal %}
       <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#{{ table_modal }}">
@@ -56,7 +56,6 @@
 {% else %}
   {% include 'utils/responsive_table.html' %}
 {% endif %}
-{% include 'includes/pagination.html' with paginator=table.paginator page=table.page %}
 <div class="clearfix"></div>
 {% if request.user.is_authenticated and table_modal %}
 {% table_config_form table %}

@@ -471,6 +471,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "debug_toolbar",
     "django_filters",
+    "django_htmx",
     "django_tables2",
     "rest_framework",
     "netfields",
@@ -501,6 +502,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
     "peering_manager.middleware.RemoteUserMiddleware",
     "peering_manager.middleware.CoreMiddleware",
 ]
