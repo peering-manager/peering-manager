@@ -8,9 +8,6 @@
 </div>
 
 {% if request.htmx %}
-  {# Keep peripherals coherent after a swap #}
-  {% if not table.embedded %}
-    <span hx-swap-oob="innerHTML:#objects_count">{{ table.rows|length }}</span>
-    <input type="hidden" id="object-list-return-url" name="return_url" value="{{ request.get_full_path }}" hx-swap-oob="outerHTML:#object-list-return-url" />
-  {% endif %}
+  {# Keep the bulk-action return URL in sync with the page we just swapped to #}
+  <input type="hidden" id="object-list-return-url" name="return_url" value="{{ request.get_full_path }}" hx-swap-oob="outerHTML:#object-list-return-url" />
 {% endif %}

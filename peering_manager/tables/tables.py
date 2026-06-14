@@ -4,8 +4,6 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import RelatedField
-from django.urls import NoReverseMatch, reverse
-from django.utils.functional import cached_property
 from django_tables2.data import TableQuerysetData
 
 from utils.paginators import EnhancedPaginator, get_paginate_count
@@ -30,7 +28,6 @@ class BaseTable(tables.Table):
     """
 
     exempt_columns = ()
-    embedded = False
 
     class Meta:
         attrs = {"class": "table table-sm table-hover table-headings"}
@@ -135,25 +132,6 @@ class BaseTable(tables.Table):
         if not hasattr(self, "_objects_count"):
             self._objects_count = sum(1 for obj in self.data if hasattr(obj, "pk"))
         return self._objects_count
-
-    @cached_property
-    def htmx_url(self):
-        """
-        Return the URL htmx should target when this table is embedded inside another
-        view (e.g. a list of connections rendered inside a router detail page). Empty
-        when the table is rendered as the primary view, in which case htmx requests
-        target the current page directly.
-        """
-        if not self.embedded:
-            return ""
-        meta = getattr(self.Meta, "model", None)
-        if meta is None:
-            return ""
-        url_name = f"{meta._meta.app_label}:{meta._meta.model_name}_list"
-        try:
-            return reverse(url_name)
-        except NoReverseMatch:
-            return ""
 
     def configure(self, request):
         """

@@ -7,13 +7,13 @@
       <ul class="pagination pagination-sm">
         {% if page.has_previous %}
         <li class="page-item">
-          <a class="page-link" href="{{ table.htmx_url }}{% querystring request page=page.previous_page_number %}" hx-get="{{ table.htmx_url }}{% querystring request page=page.previous_page_number %}"><i class="fa-fw fa-solid fa-angle-double-left"></i></a>
+          <a class="page-link" href="{% querystring request page=page.previous_page_number %}" hx-get="{% querystring request page=page.previous_page_number %}"><i class="fa-fw fa-solid fa-angle-double-left"></i></a>
         </li>
         {% endif %}
         {% for p in page.smart_pages %}
         {% if p %}
         <li class="page-item{% if page.number == p %} active{% endif %}">
-          <a class="page-link" href="{{ table.htmx_url }}{% querystring request page=p %}" hx-get="{{ table.htmx_url }}{% querystring request page=p %}">{{ p }}</a>
+          <a class="page-link" href="{% querystring request page=p %}" hx-get="{% querystring request page=p %}">{{ p }}</a>
         </li>
         {% else %}
         <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
@@ -21,7 +21,7 @@
         {% endfor %}
         {% if page.has_next %}
         <li class="page-item">
-          <a class="page-link" href="{{ table.htmx_url }}{% querystring request page=page.next_page_number %}" hx-get="{{ table.htmx_url }}{% querystring request page=page.next_page_number %}"><i class="fa-fw fa-solid fa-angle-double-right"></i></a>
+          <a class="page-link" href="{% querystring request page=page.next_page_number %}" hx-get="{% querystring request page=page.next_page_number %}"><i class="fa-fw fa-solid fa-angle-double-right"></i></a>
         </li>
         {% endif %}
       </ul>
@@ -35,7 +35,7 @@
     </button>
     <ul class="dropdown-menu">
       {% for n in page.paginator.get_page_lengths %}
-      <a class="dropdown-item" href="{{ table.htmx_url }}{% querystring request per_page=n %}" hx-get="{{ table.htmx_url }}{% querystring request per_page=n %}">{{ n }}</a>
+      <a class="dropdown-item" href="{% querystring request per_page=n %}" hx-get="{% querystring request per_page=n %}">{{ n }}</a>
       {% endfor %}
     </ul>
   </div>

@@ -5,20 +5,24 @@
     <i class="fa-fw fa-solid fa-search"></i> <strong>Search</strong>
   </div>
   <div class="card-body">
-    <form action="." method="get">
+    <form action="."
+          method="get"
+          hx-get="."
+          hx-target=".htmx-container"
+          hx-swap="outerHTML"
+          hx-push-url="true"
+          hx-trigger="submit, input changed delay:500ms from:#quicksearch, search from:#quicksearch">
       {% for field in filterset_form %}
       <div class="mb-3">
         {% if field.name == "q" %}
-        <div class="input-group" hx-target=".htmx-container" hx-swap="outerHTML" hx-push-url="true">
+        <div class="input-group">
           <span class="input-group-text"><i class="fa-fw fa-solid fa-search"></i></span>
           <input type="search"
                  name="q"
                  id="quicksearch"
                  class="form-control"
                  placeholder="Search"
-                 value="{{ request.GET.q|default:'' }}"
-                 hx-get="{{ request.path }}{% querystring q=None %}"
-                 hx-trigger="keyup changed delay:500ms, search" />
+                 value="{{ request.GET.q|default:'' }}" />
         </div>
         {% else %}
         <label for="{{ field.id_for_label }}" class="form-label"><strong>{{ field.label_tag }}</strong></label>

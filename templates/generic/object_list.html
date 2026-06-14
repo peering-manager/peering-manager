@@ -2,7 +2,7 @@
 {% if actions %}
   <form method="post">
     {% csrf_token %}
-    <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
+    <input type="hidden" id="object-list-return-url" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
     {% for key, value in extra_context.items %}
     <input type="hidden" name="{{ key }}" value="{{ value }}" />
     {% endfor %}
