@@ -7,6 +7,7 @@
   <div class="card-body">
     <form action="."
           method="get"
+          role="search"
           hx-get="."
           hx-target=".htmx-container"
           hx-swap="outerHTML"
@@ -22,6 +23,7 @@
                  id="quicksearch"
                  class="form-control"
                  placeholder="Search"
+                 aria-label="Quick search"
                  value="{{ request.GET.q|default:'' }}" />
         </div>
         {% else %}

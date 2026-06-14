@@ -113,6 +113,48 @@ class ViewTestCases:
             self.assertNotIn("</html>", body.lower())
             self.assertNotIn("navbar-brand", body)
 
+    class GetObjectJobsViewTestCase(ModelViewTestCase):
+        """
+        View the jobs for an instance (models that mix in `JobsMixin`).
+        """
+
+        @override_settings(LOGIN_REQUIRED=True)
+        def test_get_object_jobs(self):
+            url = self._get_url("jobs", self._get_queryset().first())
+            self.assertHttpStatus(self.client.get(url), 200)
+
+        @override_settings(LOGIN_REQUIRED=True)
+        def test_get_object_jobs_htmx(self):
+            url = self._get_url("jobs", self._get_queryset().first())
+            response = self.client.get(url, headers={"HX-Request": "true"})
+            self.assertHttpStatus(response, 200)
+            body = response.content.decode()
+            self.assertIn('class="htmx-container"', body)
+            self.assertNotIn('id="object-list-return-url"', body)
+            self.assertNotIn("</html>", body.lower())
+            self.assertNotIn("navbar-brand", body)
+
+    class GetObjectJournalViewTestCase(ModelViewTestCase):
+        """
+        View the journal for an instance (models that mix in `JournalingMixin`).
+        """
+
+        @override_settings(LOGIN_REQUIRED=True)
+        def test_get_object_journal(self):
+            url = self._get_url("journal", self._get_queryset().first())
+            self.assertHttpStatus(self.client.get(url), 200)
+
+        @override_settings(LOGIN_REQUIRED=True)
+        def test_get_object_journal_htmx(self):
+            url = self._get_url("journal", self._get_queryset().first())
+            response = self.client.get(url, headers={"HX-Request": "true"})
+            self.assertHttpStatus(response, 200)
+            body = response.content.decode()
+            self.assertIn('class="htmx-container"', body)
+            self.assertNotIn('id="object-list-return-url"', body)
+            self.assertNotIn("</html>", body.lower())
+            self.assertNotIn("navbar-brand", body)
+
     class CreateObjectViewTestCase(ModelViewTestCase):
         """
         Create a single new instance.
@@ -283,13 +325,16 @@ class ViewTestCases:
 
         @override_settings(LOGIN_REQUIRED=True)
         def test_list_objects_htmx(self):
-            self.add_permissions("view")
+            # delete perm enables the bulk_delete action, which is what gates
+            # the OOB return-url swap asserted below
+            self.add_permissions("view", "delete")
             response = self.client.get(
                 self._get_url("list"), headers={"HX-Request": "true"}
             )
             self.assertHttpStatus(response, 200)
             body = response.content.decode()
             self.assertIn('class="htmx-container"', body)
+            self.assertIn('id="object-list-return-url"', body)
             self.assertNotIn("</html>", body.lower())
             self.assertNotIn("sidebar-menu", body)
             self.assertNotIn("navbar-brand", body)

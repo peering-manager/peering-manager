@@ -8,7 +8,6 @@
 </div>
 
 {% if request.htmx and actions %}
-  {# Keep the bulk-action return URL in sync with the page we just swapped to.
-     Only emitted when the page actually has a bulk-action form to receive it. #}
+  {# OOB sync of the bulk-action return URL after a list swap. #}
   <input type="hidden" id="object-list-return-url" name="return_url" value="{{ request.get_full_path }}" hx-swap-oob="outerHTML:#object-list-return-url" />
 {% endif %}

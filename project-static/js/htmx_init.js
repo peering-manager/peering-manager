@@ -8,9 +8,7 @@
         window.initBootstrapWidgets(root);
         window.initFormWidgets(root);
 
-        // The "select all matching" prompt lives outside the swap target, so
-        // it needs to be reset whenever the underlying rows are replaced.
-        if (root.classList && root.classList.contains("htmx-container")) {
+        if (root.closest && root.closest(".htmx-container")) {
             var box = document.getElementById("select_all_box");
             if (box) box.classList.add("d-none");
             var selectAll = document.getElementById("select_all");

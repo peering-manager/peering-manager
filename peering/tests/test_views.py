@@ -13,7 +13,10 @@ from ..enums import (
 from ..models import *
 
 
-class AutonomousSystemTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+class AutonomousSystemTestCase(
+    ViewTestCases.PrimaryObjectViewTestCase,
+    ViewTestCases.GetObjectJournalViewTestCase,
+):
     model = AutonomousSystem
 
     test_bulk_edit_objects = None
