@@ -31,12 +31,19 @@ class BaseViewSet(GenericViewSet):
         return super().initialize_request(request, *args, **kwargs)
 
     def get_serializer(self, *args, **kwargs):
-        if self.requested_fields:
-            kwargs["fields"] = self.requested_fields
-
-        # if self.brief:
-        #   return get_serializer_for_model(serializer.Meta.model, prefix="Nested")
+        if (fields := self._effective_fields()) is not None:
+            kwargs["fields"] = fields
         return super().get_serializer(*args, **kwargs)
+
+    def _effective_fields(self) -> list[str] | None:
+        fields = self.requested_fields
+        if not (excluded := self.excluded_fields):
+            return fields
+
+        if fields is None:
+            serializer_class = self.get_serializer_class()
+            fields = list(getattr(serializer_class.Meta, "fields", ()))
+        return [f for f in fields if f not in excluded]
 
     @cached_property
     def requested_fields(self) -> list[str] | None:
@@ -52,6 +59,12 @@ class BaseViewSet(GenericViewSet):
             serializer_class = get_serializer_for_model(model, prefix="Nested")
             return getattr(serializer_class.Meta, "fields", None)
 
+        return None
+
+    @cached_property
+    def excluded_fields(self) -> list[str] | None:
+        if excluded := self.request.query_params.get("exclude"):
+            return excluded.split(",")
         return None
 
 
@@ -91,18 +104,6 @@ class PeeringManagerModelViewSet(
         if hasattr(obj, "snapshot"):
             obj.snapshot()
         return obj
-
-    def get_serializer_class(self):
-        serializer = self.serializer_class
-        context = self.get_serializer_context()
-
-        if excludes := context["request"].query_params.get("exclude", []):
-            serializer.Meta.fields = [
-                f for f in serializer.Meta.fields if f not in excludes
-            ]
-            return serializer
-
-        return self.serializer_class
 
     def get_serializer(self, *args, **kwargs):
         # If a list of objects has been provided, initialize the serializer with many=True

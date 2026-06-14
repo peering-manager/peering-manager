@@ -10,6 +10,7 @@ from drf_spectacular.plumbing import (
     get_doc,
 )
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter
 from rest_framework.relations import ManyRelatedField
 
 from peering_manager.api import serializers
@@ -190,6 +191,43 @@ class PeeringManagerAutoSchema(AutoSchema):
             )
 
         return self.writable_serializers[type(serializer)]
+
+    def get_override_parameters(self):
+        # Expose the ?fields, ?exclude, and ?brief query parameters supported by
+        # PeeringManagerModelViewSet for all non-bulk GET operations (list and detail)
+        params = super().get_override_parameters()
+        if not self.is_bulk_action and self.method == "GET":
+            params = [
+                *params,
+                OpenApiParameter(
+                    name="fields",
+                    location=OpenApiParameter.QUERY,
+                    required=False,
+                    type=OpenApiTypes.STR,
+                    description=(
+                        "Comma-separated list of fields to include in the response. "
+                        "Example: `fields=id,name`."
+                    ),
+                ),
+                OpenApiParameter(
+                    name="exclude",
+                    location=OpenApiParameter.QUERY,
+                    required=False,
+                    type=OpenApiTypes.STR,
+                    description=(
+                        "Comma-separated list of fields to exclude from the response. "
+                        "Example: `exclude=description,tags`."
+                    ),
+                ),
+                OpenApiParameter(
+                    name="brief",
+                    location=OpenApiParameter.QUERY,
+                    required=False,
+                    type=OpenApiTypes.BOOL,
+                    description="Return only brief fields for each object.",
+                ),
+            ]
+        return params
 
     def get_filter_backends(self):
         # bulk operations don't have filter params
