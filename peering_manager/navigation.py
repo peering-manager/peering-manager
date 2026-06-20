@@ -153,6 +153,7 @@ NAVIGATION: list[MenuItem | MenuGroup] = [
         staff_only=True,
         items=[
             MenuItem(label="System", url_name="core:system"),
+            MenuItem(label="Scheduled Tasks", url_name="core:scheduledtask_list"),
             MenuItem(
                 label="Background Tasks",
                 url_name="core:background_queue_list",
