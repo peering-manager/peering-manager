@@ -25,7 +25,11 @@
         <tr>
           <td>Object Type</td>
           <td>
-            <a href="{% url 'core:job_list' %}?object_type={{ instance.object_type_id }}">{{ instance.object_type }}</a>
+            {% if instance.object_type %}
+              <a href="{% url 'core:job_list' %}?object_type={{ instance.object_type_id }}">{{ instance.object_type }}</a>
+            {% else %}
+              {{ ''|render_none }}
+            {% endif %}
           </td>
         </tr>
       </table>

@@ -43,6 +43,8 @@ from utils.functions import count_related
 
 __all__ = ("NESTED_SERIALIZER_PREFIX", "SEARCH_MAX_RESULTS", "SEARCH_TYPES")
 
+ADVISORY_LOCK_KEYS = {"job-schedules": 110100}
+
 # Prefix for nested serializers
 NESTED_SERIALIZER_PREFIX = "Nested"
 

@@ -4,6 +4,7 @@ __all__ = (
     "DATA_BACKENDS_KEY",
     "MODELS_KEY",
     "MODEL_FEATURES_KEY",
+    "SYSTEM_JOBS_KEY",
     "VIEWS_KEY",
     "registry",
 )
@@ -33,6 +34,7 @@ class Registry(dict):
 DATA_BACKENDS_KEY = "data_backends"
 MODEL_FEATURES_KEY = "model_features"
 MODELS_KEY = "models"
+SYSTEM_JOBS_KEY = "system_jobs"
 VIEWS_KEY = "views"
 
 # Initialize the global registry
@@ -41,6 +43,7 @@ registry = Registry(
         DATA_BACKENDS_KEY: {},
         MODEL_FEATURES_KEY: {},
         MODELS_KEY: defaultdict(set),
+        SYSTEM_JOBS_KEY: {},
         VIEWS_KEY: defaultdict(dict),
     }
 )
