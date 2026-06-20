@@ -2,10 +2,9 @@ import logging
 
 from django.core.management.base import BaseCommand
 
-from core.models import Job
 from peering.models import AutonomousSystem
 
-from ...jobs import synchronise
+from ...jobs import PeeringDBSynchronisationJob
 from ...models import Synchronisation
 from ...sync import PeeringDB
 
@@ -54,9 +53,7 @@ class Command(BaseCommand):
             return
 
         if options["tasks"]:
-            job = Job.enqueue(
-                synchronise, name="peeringdb.synchronise", object_model=Synchronisation
-            )
+            job = PeeringDBSynchronisationJob.enqueue(object_model=Synchronisation)
             if not quiet:
                 self.stdout.write(self.style.SUCCESS(f"task #{job.id}"))
         else:
