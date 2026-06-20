@@ -635,6 +635,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/16/08/034a97f1f9bff7a5e8ae3180d7a33cba4154a75e444d167366aee78ea61a/django-netfields-1.3.2.tar.gz", hash = "sha256:e54943601bb88573b70f8843e7080f5d7327e41f5500ce30a198c384cc325a60", size = 36764, upload-time = "2023-12-13T17:41:36.256Z" }
 
 [[package]]
+name = "django-pglocks"
+version = "1.0.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "six" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/59/76/2c7d104151316077dcaa103e1d5652ded6c32798c8d706570fb7b48385cb/django-pglocks-1.0.4.tar.gz", hash = "sha256:3c47c66fbfbd268ef46269673a0516a039539b0972b8ed2ec9cfee44c4b65523", size = 4085, upload-time = "2019-12-26T19:57:23.873Z" }
+
+[[package]]
 name = "django-prometheus"
 version = "2.4.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1363,6 +1372,7 @@ dependencies = [
     { name = "django-filter" },
     { name = "django-htmx" },
     { name = "django-netfields" },
+    { name = "django-pglocks" },
     { name = "django-prometheus" },
     { name = "django-redis" },
     { name = "django-rq" },
@@ -1402,6 +1412,7 @@ requires-dist = [
     { name = "django-filter", specifier = ">=25.2,<25.3" },
     { name = "django-htmx", specifier = ">=1.27,<1.28" },
     { name = "django-netfields", specifier = ">=1.3,<1.4" },
+    { name = "django-pglocks", specifier = ">=1.0,<1.1" },
     { name = "django-prometheus", specifier = ">=2.4,<2.5" },
     { name = "django-redis", specifier = ">=6.0,<6.1" },
     { name = "django-rq", specifier = ">=3.2,<3.3" },
