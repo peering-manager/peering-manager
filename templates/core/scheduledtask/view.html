@@ -1,0 +1,75 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% block actions %}
+{% if perms.core.change_scheduledtask %}
+<form method="post" action="{% url 'core:scheduledtask_run' pk=instance.pk %}" class="d-inline">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-primary" title="Clear any stuck run and queue an immediate one.">
+    <i class="fa-fw fa-solid fa-play"></i> Run Now
+  </button>
+</form>
+<a href="{% url 'core:scheduledtask_edit' pk=instance.pk %}" class="btn btn-warning">
+  <i class="fa-fw fa-solid fa-edit"></i> Edit
+</a>
+{% endif %}
+{% if perms.core.delete_scheduledtask %}
+<a href="{% url 'core:scheduledtask_delete' pk=instance.pk %}" class="btn btn-danger">
+  <i class="fa-fw fa-solid fa-trash"></i> Delete
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'core:scheduledtask_list' %}">Scheduled Tasks</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}{{ instance }}{% endblock %}</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header"><strong>Details</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Task</td>
+          <td>{{ instance.task_label }}</td>
+        </tr>
+        <tr>
+          <td>Enabled</td>
+          <td>{{ instance.enabled|boolean_as_icon }}</td>
+        </tr>
+        <tr>
+          <td>Interval</td>
+          <td>{{ instance.interval }} minutes</td>
+        </tr>
+        {% if not instance.is_known %}
+        <tr>
+          <td>Status</td>
+          <td><span class="badge text-bg-danger">Unknown task</span></td>
+        </tr>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header"><strong>Runs</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Last run</td>
+          <td>
+            {% if instance.last_job %}
+            <a href="{{ instance.last_job.get_absolute_url }}">{{ instance.last_job.completed|date_span|render_none }}</a>
+            {{ instance.last_job|status_as_badge }}
+            {% else %}
+            {{ ''|render_none }}
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td>Next run</td>
+          <td>{{ instance.next_run|date_span|render_none }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

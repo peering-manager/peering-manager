@@ -1,7 +1,13 @@
 import logging
 import traceback
 
-__all__ = ("FetchError", "PushError", "SynchronisationError", "exception_handler")
+__all__ = (
+    "FetchError",
+    "JobFailedError",
+    "PushError",
+    "SynchronisationError",
+    "exception_handler",
+)
 
 
 def exception_handler(rq_job, exc_type, exc_value, trace):
@@ -25,6 +31,14 @@ def exception_handler(rq_job, exc_type, exc_value, trace):
 
 class FetchError(Exception):
     pass
+
+
+class JobFailedError(Exception):
+    """
+    Raised to signal that the job failed for a known/handled reason. This should be
+    caught to mark the job as `FAILED` (rather than `ERRORED`, which is for unhandled
+    exceptions).
+    """
 
 
 class PushError(Exception):

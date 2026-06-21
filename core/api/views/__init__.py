@@ -3,6 +3,7 @@ from rest_framework.routers import APIRootView
 from .change_logging import *
 from .data import *
 from .jobs import *
+from .scheduled_tasks import *
 
 
 class CoreRootView(APIRootView):

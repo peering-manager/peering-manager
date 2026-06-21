@@ -7,9 +7,8 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
 from core.api.serializers import JobSerializer
-from core.models import Job
 
-from ...jobs import synchronise
+from ...jobs import PeeringDBSynchronisationJob
 from ...models import (
     Campus,
     Carrier,
@@ -68,9 +67,7 @@ class CacheViewSet(ViewSet):
     )
     @action(detail=False, methods=["post"], url_path="update-local")
     def update_local(self, request):
-        job = Job.enqueue(
-            synchronise,
-            name="peeringdb.synchronise",
+        job = PeeringDBSynchronisationJob.enqueue(
             object_model=Synchronisation,
             user=request.user,
         )

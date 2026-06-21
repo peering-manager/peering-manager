@@ -1,0 +1,18 @@
+{% extends '_base.html' %}
+{% block actions %}
+{% if perms.core.add_scheduledtask %}
+<a href="{% url 'core:scheduledtask_add' %}" class="btn btn-primary">
+  <i class="fa-fw fa-solid fa-plus"></i> Add
+</a>
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">{% block title %}Scheduled Tasks{% endblock %}</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col">
+    {% include 'generic/object_list.html' with table_modal='ScheduledTaskTable_config' %}
+  </div>
+</div>
+{% endblock %}

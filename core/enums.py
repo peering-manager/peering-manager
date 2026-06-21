@@ -21,6 +21,7 @@ class DataSourceStatus(ChoiceSet):
 
 class JobStatus(ChoiceSet):
     PENDING = "pending"
+    SCHEDULED = "scheduled"
     RUNNING = "running"
     COMPLETED = "completed"
     ERRORED = "errored"
@@ -28,10 +29,36 @@ class JobStatus(ChoiceSet):
 
     CHOICES = (
         (PENDING, "Pending", "primary"),
+        (SCHEDULED, "Scheduled", "secondary"),
         (RUNNING, "Running", "warning"),
         (COMPLETED, "Completed", "success"),
         (ERRORED, "Errored", "danger"),
         (FAILED, "Failed", "danger"),
+    )
+
+    ENQUEUED_STATE_CHOICES = (PENDING, SCHEDULED, RUNNING)
+    TERMINAL_STATE_CHOICES = (COMPLETED, ERRORED, FAILED)
+
+
+class JobInterval(ChoiceSet):
+    """
+    Predefined recurrence intervals (in minutes) for periodic jobs.
+    """
+
+    MINUTELY = 1
+    HOURLY = 60
+    HALF_DAILY = 60 * 12
+    DAILY = 60 * 24
+    WEEKLY = 60 * 24 * 7
+    MONTHLY = 60 * 24 * 30
+
+    CHOICES = (
+        (MINUTELY, "Every minute"),
+        (HOURLY, "Hourly"),
+        (HALF_DAILY, "Every 12 hours"),
+        (DAILY, "Daily"),
+        (WEEKLY, "Weekly"),
+        (MONTHLY, "Every 30 days"),
     )
 
 

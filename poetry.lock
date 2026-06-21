@@ -769,6 +769,20 @@ netaddr = "*"
 six = "*"
 
 [[package]]
+name = "django-pglocks"
+version = "1.0.4"
+description = "django_pglocks provides useful context managers for advisory locks for PostgreSQL."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "django-pglocks-1.0.4.tar.gz", hash = "sha256:3c47c66fbfbd268ef46269673a0516a039539b0972b8ed2ec9cfee44c4b65523"},
+]
+
+[package.dependencies]
+six = ">=1.0.0"
+
+[[package]]
 name = "django-prometheus"
 version = "2.4.1"
 description = "Django middlewares to monitor your application with Prometheus.io."
@@ -3090,4 +3104,4 @@ test = ["coverage", "hypothesis", "pytest"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.15"
-content-hash = "2a4122f62165ae0cde29a390556eea3cb0aa31dc9abfe9fc3e838dbd357eab7b"
+content-hash = "d1c2072b5b57cca54a9d8101a5213693c1a953c2cf29b653105e60e6abc790e4"

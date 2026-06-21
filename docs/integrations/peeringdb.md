@@ -16,6 +16,12 @@ Peering Manager can cache all data provided by PeeringDB via its API. Even if
 some data is not useful yet, everything is getting synchronised to simplify
 maintenance.
 
+!!! tip
+    PeeringDB synchronisation is scheduled automatically by the `rqworker`
+    process as a [system job](../administration/system-jobs.md) (daily by
+    default). Use the manual command below for one-off refreshes or to trigger
+    a sync immediately.
+
 !!! note:
     Forcing data update can also be done by clicking the "Update" button in
     the "3rd Party > PeeringDB" section of the user interface.
@@ -40,7 +46,8 @@ synchronise some data which are hidden for unknown users, such as contacts.
 
 
 This command does not need to be run very often. For example, running it every
-5 minutes is overkill, running it once a day should be enough.
+5 minutes is overkill, the daily system-job schedule should be enough for most
+deployments.
 
 The first cache synchronisation can take a lot of time due to the amount of
 data to be stored. Later runs will be faster because only the differences with

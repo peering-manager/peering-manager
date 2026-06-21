@@ -42,6 +42,16 @@ urlpatterns = [
         "jobs/<int:pk>/",
         include(get_model_urls(app_label="core", model_name="job")),
     ),
+    path(
+        "scheduled-tasks/",
+        include(
+            get_model_urls(app_label="core", model_name="scheduledtask", detail=False)
+        ),
+    ),
+    path(
+        "scheduled-tasks/<int:pk>/",
+        include(get_model_urls(app_label="core", model_name="scheduledtask")),
+    ),
     # Background Tasks
     path(
         "background-queues/",
