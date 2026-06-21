@@ -76,6 +76,7 @@ nav:
       - LDAP: "administration/authentication/ldap.md"
       - OIDC: "administration/authentication/oidc.md"
       - RADIUS: "administration/authentication/radius.md"
+    - System Jobs: "administration/system-jobs.md"
     - Housekeeping: "administration/housekeeping.md"
     - Replication: "administration/replication.md"
   - User Interface: "user-interface.md"

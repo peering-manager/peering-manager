@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from core.enums import JobInterval, JobStatus
 from core.models import Job, ScheduledTask
-from core.scheduling import reconcile_schedules
+from core.scheduling import reconcile_schedules, run_now
 from core.tests.jobs_utils import MockedQueueTestCase
 from peering_manager.jobs import JobRunner, system_job
 from peering_manager.registry import SYSTEM_JOBS_KEY, registry
@@ -200,6 +200,17 @@ class SignalTests(MockedQueueTestCase):
         )
 
 
+class RunNowTests(MockedQueueTestCase):
+    def test_clears_stuck_run_and_queues_an_immediate_one(self):
+        _make_task(enabled=True)
+        stuck = _make_job(JobStatus.RUNNING, started=timezone.now() - timedelta(days=2))
+        run_now(TASK_KEY)
+        self.assertFalse(Job.objects.filter(pk=stuck.pk).exists())
+        fresh = Job.objects.filter(name=TASK_LABEL).first()
+        self.assertIsNotNone(fresh)
+        self.assertEqual(fresh.status, JobStatus.PENDING)
+
+
 class ScheduledTaskViewTests(MockedQueueTestCase):
     @classmethod
     def setUpTestData(cls):
@@ -237,6 +248,21 @@ class ScheduledTaskViewTests(MockedQueueTestCase):
             )
         self.assertEqual(response.status_code, 302)
         self.assertTrue(ScheduledTask.objects.filter(task=TASK_KEY).exists())
+        self.assertTrue(
+            Job.objects.filter(
+                name=TASK_LABEL, status__in=JobStatus.ENQUEUED_STATE_CHOICES
+            ).exists()
+        )
+
+    def test_run_now_recovers_a_stuck_task(self):
+        task = _make_task(enabled=True)
+        stuck = _make_job(JobStatus.RUNNING, started=timezone.now() - timedelta(days=2))
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(
+                reverse("core:scheduledtask_run", args=[task.pk])
+            )
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Job.objects.filter(pk=stuck.pk).exists())
         self.assertTrue(
             Job.objects.filter(
                 name=TASK_LABEL, status__in=JobStatus.ENQUEUED_STATE_CHOICES

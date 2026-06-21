@@ -2,6 +2,12 @@
 {% load helpers %}
 {% block actions %}
 {% if perms.core.change_scheduledtask %}
+<form method="post" action="{% url 'core:scheduledtask_run' pk=instance.pk %}" class="d-inline">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-primary" title="Clear any stuck run and queue an immediate one.">
+    <i class="fa-fw fa-solid fa-play"></i> Run Now
+  </button>
+</form>
 <a href="{% url 'core:scheduledtask_edit' pk=instance.pk %}" class="btn btn-warning">
   <i class="fa-fw fa-solid fa-edit"></i> Edit
 </a>

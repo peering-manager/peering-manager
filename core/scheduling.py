@@ -14,7 +14,12 @@ from .models import ScheduledTask
 if TYPE_CHECKING:
     from peering_manager.jobs import JobRunner
 
-__all__ = ("reconcile_scheduled_task", "reconcile_schedules", "reconcile_task")
+__all__ = (
+    "reconcile_scheduled_task",
+    "reconcile_schedules",
+    "reconcile_task",
+    "run_now",
+)
 
 
 def _cancel_schedule(cls: type[JobRunner]) -> None:
@@ -75,3 +80,22 @@ def reconcile_task(task_key: str) -> None:
 
 def reconcile_scheduled_task(sender, instance, **kwargs) -> None:
     transaction.on_commit(lambda: reconcile_task(instance.task))
+
+
+def run_now(task_key: str):
+    """
+    Clear any enqueued or stuck jobs for a task and queue an immediate run.
+    Recovers a task left stuck after a worker died mid-run, and doubles as a manual
+    trigger.
+    """
+    meta = registry[SYSTEM_JOBS_KEY].get(task_key)
+    if meta is None:
+        return None
+
+    cls = meta["cls"]
+    for job in cls.get_jobs().filter(status__in=JobStatus.ENQUEUED_STATE_CHOICES):
+        job.delete()
+
+    row = ScheduledTask.objects.filter(task=task_key).first()
+    interval = row.interval if row else meta["default_interval"]
+    return cls.enqueue_once(interval=interval)
