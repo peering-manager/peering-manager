@@ -45,10 +45,7 @@ class TableConfigForm(BootstrapMixin, forms.Form):
     """
 
     columns = forms.MultipleChoiceField(
-        choices=[],
-        required=False,
-        widget=forms.SelectMultiple(attrs={"size": 10, "class": "form-select"}),
-        help_text="Use the buttons below to arrange columns in the desired order, then select all columns to display.",
+        choices=[], required=False, widget=forms.MultipleHiddenInput()
     )
 
     def __init__(self, table, *args, **kwargs):

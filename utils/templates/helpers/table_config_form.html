@@ -1,29 +1,57 @@
-{% load form_helpers %}
 <div class="modal fade" tabindex="-1" id="{{ table_name }}_config">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Table Configuration</h5>
+        <h5 class="modal-title"><i class="fa-fw fa-solid fa-cog"></i> Table Configuration</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form action="" method="post">
+        <form action="" method="post" class="table-config-form">
           {% csrf_token %}
-          {% render_form form %}
-          <div class="row mb-2">
-            <div class="col-md-9 ms-auto">
-              <a class="btn btn-secondary btn-sm" id="move-option-up" data-target="id_columns">
-                <i class="fa-fw fa-solid fa-arrow-up"></i> Move up
-              </a>
-              <a class="btn btn-secondary btn-sm" id="move-option-down" data-target="id_columns">
-                <i class="fa-fw fa-solid fa-arrow-down"></i> Move down
-              </a>
-              <a class="btn btn-outline-secondary btn-sm" id="select-all-options" data-target="id_columns">
-                <i class="fa-fw fa-solid fa-ellipsis-v"></i> Select all
-              </a>
+          <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text"><i class="fa-fw fa-solid fa-search"></i></span>
+            <input type="text" class="form-control table-config-search" placeholder="Filter columns&hellip;" autocomplete="off" aria-label="Filter columns">
+          </div>
+          <div class="row g-3 table-config-transfer">
+            <div class="col">
+              <div class="card h-100">
+                <div class="card-header py-1 px-2 d-flex justify-content-between align-items-center text-muted">
+                  <span>Available</span>
+                  <span class="badge bg-secondary table-config-count">{{ available_columns|length }}</span>
+                </div>
+                <ul class="list-group list-group-flush table-config-list" data-pane="available">
+                  {% for name, label in available_columns %}
+                  <li class="list-group-item list-group-item-action table-config-item" data-name="{{ name }}">
+                    <i class="fa-fw fa-solid fa-grip-vertical text-muted me-1 table-config-grip"></i>{{ label }}
+                    <input type="hidden" name="columns" value="{{ name }}" disabled>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+            <div class="col">
+              <div class="card h-100">
+                <div class="card-header py-1 px-2 d-flex justify-content-between align-items-center text-muted">
+                  <span>Displayed <span class="text-body-tertiary">(in order)</span></span>
+                  <span class="badge bg-primary table-config-count">{{ displayed_columns|length }}</span>
+                </div>
+                <ul class="list-group list-group-flush table-config-list" data-pane="displayed">
+                  {% for name, label in displayed_columns %}
+                  <li class="list-group-item list-group-item-action table-config-item" data-name="{{ name }}">
+                    <i class="fa-fw fa-solid fa-grip-vertical text-muted me-1 table-config-grip"></i>{{ label }}
+                    <input type="hidden" name="columns" value="{{ name }}">
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
             </div>
           </div>
-          <div class="text-end">
+          <p class="form-text mt-2 mb-0">
+            Drag columns between the lists to show or hide them, and drag within
+            <strong>Displayed</strong> to set their left-to-right order. Double-click a
+            column to move it to the other list.
+          </p>
+          <div class="text-end mt-3">
             <input type="submit" class="btn btn-outline-danger" name="reset" value="Reset" />
             <input type="submit" class="btn btn-primary" name="save" value="Save" />
           </div>

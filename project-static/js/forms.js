@@ -91,6 +91,22 @@ function generateSlug(value) {
   return value.substring(0, 50);
 }
 
+// Only the rows in the "displayed" list submit their hidden `columns` input,
+// in DOM order, which is the order the table renders them in.
+function syncTableConfig(formEl) {
+  formEl.querySelectorAll('.table-config-list').forEach(function (list) {
+    var displayed = list.getAttribute('data-pane') === 'displayed';
+    list.querySelectorAll('.table-config-item input[name="columns"]').forEach(function (input) {
+      input.disabled = !displayed;
+    });
+    var card = list.closest('.card');
+    var badge = card && card.querySelector('.table-config-count');
+    if (badge) {
+      badge.textContent = list.querySelectorAll('.table-config-item').length;
+    }
+  });
+}
+
 // Called on DOMContentLoaded and again by htmx_init.js after every swap,
 // scoped to the swap target. Per-widget guards keep overlapping calls safe.
 window.initFormWidgets = function (root) {
@@ -107,6 +123,22 @@ window.initFormWidgets = function (root) {
         prevArrow: "<i class='fa-solid fa-chevron-left'></i>",
         nextArrow: "<i class='fa-solid fa-chevron-right'></i>"
       });
+    });
+  });
+
+  $root.find('.table-config-form').each(function () {
+    initOnce(this, 'tableConfig', function (formEl) {
+      var modal = formEl.closest('.modal');
+      var group = 'table-config-' + (modal ? modal.id : 'default');
+      formEl.querySelectorAll('.table-config-list').forEach(function (list) {
+        Sortable.create(list, {
+          group: group,
+          animation: 150,
+          fallbackOnBody: true,
+          onSort: function () { syncTableConfig(formEl); },
+        });
+      });
+      syncTableConfig(formEl);
     });
   });
 
@@ -351,30 +383,28 @@ $(document).ready(function () {
     }
   });
 
-  $(document).on('click', '#move-option-up', function () {
-    var selectID = '#' + $(this).attr('data-target');
-    $(selectID + ' option:selected').each(function () {
-      var newPos = $(selectID + ' option').index(this) - 1;
-      if (newPos > -1) {
-        $(selectID + ' option').eq(newPos).before("<option value='" + $(this).val() + "' selected='selected'>" + $(this).text() + "</option>");
-        $(this).remove();
-      }
+  // Double-click a column to send it to the other list.
+  $(document).on('dblclick', '.table-config-item', function () {
+    var item = this;
+    var form = item.closest('.table-config-form');
+    var current = item.closest('.table-config-list');
+    var targetPane = current.getAttribute('data-pane') === 'available' ? 'displayed' : 'available';
+    var target = form.querySelector('.table-config-list[data-pane="' + targetPane + '"]');
+    target.appendChild(item);
+    syncTableConfig(form);
+  });
+
+  // Live-filter the column lists.
+  $(document).on('input', '.table-config-search', function () {
+    var form = this.closest('.table-config-form');
+    var query = this.value.trim().toLowerCase();
+    form.querySelectorAll('.table-config-item').forEach(function (item) {
+      var match = item.textContent.toLowerCase().indexOf(query) !== -1;
+      item.classList.toggle('d-none', query !== '' && !match);
     });
   });
-  $(document).on('click', '#move-option-down', function () {
-    var selectID = '#' + $(this).attr('data-target');
-    var countOptions = $(selectID + ' option').length;
-    var countSelectedOptions = $(selectID + ' option:selected').length;
-    $(selectID + ' option:selected').each(function () {
-      var newPos = $(selectID + ' option').index(this) + countSelectedOptions;
-      if (newPos < countOptions) {
-        $(selectID + ' option').eq(newPos).after("<option value='" + $(this).val() + "' selected='selected'>" + $(this).text() + "</option>");
-        $(this).remove();
-      }
-    });
-  });
-  $(document).on('click', '#select-all-options', function () {
-    var selectID = '#' + $(this).attr('data-target');
-    $(selectID + ' option').prop('selected', true);
+
+  $(document).on('submit', '.table-config-form', function () {
+    syncTableConfig(this);
   });
 });

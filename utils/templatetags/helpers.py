@@ -284,9 +284,17 @@ def doc_version(version):
 
 @register.inclusion_tag("helpers/table_config_form.html")
 def table_config_form(table, table_name=None):
+    # Columns currently shown, in order, and the remaining hidden ones
+    displayed_columns = table.selected_columns
+    selected_names = {name for name, _ in displayed_columns}
+    available_columns = [
+        column for column in table.available_columns if column[0] not in selected_names
+    ]
     return {
         "table_name": table_name or table.__class__.__name__,
         "form": TableConfigForm(table=table),
+        "displayed_columns": displayed_columns,
+        "available_columns": available_columns,
     }
 
 
