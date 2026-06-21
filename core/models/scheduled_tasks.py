@@ -73,12 +73,13 @@ class ScheduledTask(ChangeLoggedModel):
         runner = self.runner
         if runner is None:
             return None
+        # Postgres orders NULLs last by default, so order them first explicitly
         job = (
             Job.objects.filter(
                 name=runner.name,
                 status__in=(JobStatus.PENDING, JobStatus.SCHEDULED),
             )
-            .order_by("scheduled")
+            .order_by(models.F("scheduled").asc(nulls_first=True))
             .first()
         )
         return job.scheduled if job else None
