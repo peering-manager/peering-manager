@@ -7,7 +7,7 @@ from netfields import InetAddressField, NetManager
 
 from peering_manager.models import OrganisationalModel, PrimaryModel
 
-from ..enums import BGPGroupStatus, BGPSessionStatus, BGPState, IPFamily
+from ..enums import BGPGroupStatus, BGPRole, BGPSessionStatus, BGPState, IPFamily
 from ..fields import TTLField
 from .mixins import PolicyMixin
 
@@ -120,6 +120,14 @@ class BGPSession(PrimaryModel, PolicyMixin):
         help_text="Use a value greater than 1 for BGP multihop sessions",
     )
     passive = models.BooleanField(blank=True, default=False)
+    bgp_role = models.CharField(
+        max_length=50,
+        choices=BGPRole,
+        blank=True,
+        null=True,
+        verbose_name="BGP role",
+        help_text="RFC 9234 role advertised over this eBGP session",
+    )
     import_routing_policies = models.ManyToManyField(
         to="peering.RoutingPolicy",
         blank=True,
@@ -164,6 +172,34 @@ class BGPSession(PrimaryModel, PolicyMixin):
 
     def get_status_colour(self):
         return BGPSessionStatus.colours.get(self.status)
+
+    def get_bgp_role_colour(self):
+        return BGPRole.colours.get(self.bgp_role)
+
+    def get_bgp_role_html(self):
+        if not self.bgp_role:
+            return mark_safe('<span class="text-muted">&mdash;</span>')
+        return mark_safe(
+            f'<span class="badge text-bg-{self.get_bgp_role_colour()}">'
+            f"{self.get_bgp_role_display()}</span>"
+        )
+
+    @property
+    def bgp_role_code(self) -> int | None:
+        """
+        Returns the RFC 9234 capability code for this session's BGP role, or `None` if
+        no role is set. This is the canonical wire value usable from configuration
+        templates.
+        """
+        return BGPRole.CODES.get(self.bgp_role)
+
+    @property
+    def remote_bgp_role(self) -> str | None:
+        """
+        Returns the remote AS role expected for this session per RFC 9234 Table 2 (the
+        complement of the local role), or `None` if no role is set.
+        """
+        return BGPRole.complement(self.bgp_role)
 
     def _merge_policies(self, merged_policies, new_policies):
         if type(self.ip_address) in (int, str):

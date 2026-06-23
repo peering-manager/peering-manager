@@ -26,6 +26,7 @@ from peeringdb.models import Network, NetworkIXLan
 
 from .enums import (
     BGPGroupStatus,
+    BGPRole,
     BGPSessionStatus,
     BGPState,
     PeeringRequestStatus,
@@ -125,6 +126,7 @@ class DirectPeeringSessionFilterSet(PeeringManagerModelFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=BGPSessionStatus, null_value=""
     )
+    bgp_role = django_filters.MultipleChoiceFilter(choices=BGPRole, null_value="")
     bfd_id = django_filters.ModelMultipleChoiceFilter(
         queryset=BFD.objects.all(), label="BFD (ID)"
     )
@@ -277,6 +279,7 @@ class InternetExchangePeeringSessionFilterSet(PeeringManagerModelFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=BGPSessionStatus, null_value=""
     )
+    bgp_role = django_filters.MultipleChoiceFilter(choices=BGPRole, null_value="")
     exists_in_peeringdb = django_filters.BooleanFilter(
         method="exists_in_peeringdb_search"
     )

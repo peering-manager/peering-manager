@@ -314,6 +314,25 @@ class InternetExchangePeeringSessionTest(TestCase):
             self.assertTrue(self.session.poll())
             self.assertEqual(567_257, self.session.received_prefix_count)
 
+    def test_bgp_role_route_server_consistency(self):
+        self.session.bgp_role = BGPRole.RS_CLIENT
+        self.session.is_route_server = False
+        with self.assertRaises(ValidationError):
+            self.session.clean()
+
+        self.session.bgp_role = BGPRole.PEER
+        self.session.is_route_server = True
+        with self.assertRaises(ValidationError):
+            self.session.clean()
+
+        self.session.bgp_role = BGPRole.RS_CLIENT
+        self.session.is_route_server = True
+        self.session.clean()
+
+        self.session.bgp_role = None
+        self.session.is_route_server = True
+        self.session.clean()
+
 
 class RoutingPolicyTest(TestCase):
     @classmethod

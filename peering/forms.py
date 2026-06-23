@@ -32,6 +32,7 @@ from utils.forms.widgets import StaticSelect, StaticSelectMultiple
 
 from .enums import (
     BGPGroupStatus,
+    BGPRole,
     BGPSessionStatus,
     BGPState,
     IPFamily,
@@ -311,6 +312,13 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
         widget=StaticSelect,
     )
     relationship = DynamicModelChoiceField(queryset=Relationship.objects.all())
+    bgp_role = forms.ChoiceField(
+        required=False,
+        choices=add_blank_choice(BGPRole),
+        widget=StaticSelect,
+        label="BGP role",
+        help_text="RFC 9234 role advertised over this eBGP session",
+    )
     router = DynamicModelChoiceField(
         required=False,
         queryset=Router.objects.all(),
@@ -356,6 +364,7 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
             (
                 "service_reference",
                 "status",
+                "bgp_role",
                 "password",
                 "multihop_ttl",
                 "passive",
@@ -379,6 +388,7 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
             "bgp_group",
             "status",
             "relationship",
+            "bgp_role",
             "ip_address",
             "password",
             "multihop_ttl",
@@ -434,6 +444,12 @@ class DirectPeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm):
     relationship = DynamicModelChoiceField(
         required=False, queryset=Relationship.objects.all()
     )
+    bgp_role = forms.ChoiceField(
+        required=False,
+        choices=add_blank_choice(BGPRole),
+        widget=StaticSelect,
+        label="BGP role",
+    )
     bgp_group = DynamicModelChoiceField(
         required=False, queryset=BGPGroup.objects.all(), label="BGP group"
     )
@@ -469,6 +485,7 @@ class DirectPeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm):
 
     model = DirectPeeringSession
     nullable_fields = (
+        "bgp_role",
         "import_routing_policies",
         "export_routing_policies",
         "communities",
@@ -508,6 +525,12 @@ class DirectPeeringSessionFilterForm(PeeringManagerModelFilterSetForm):
     )
     status = forms.MultipleChoiceField(
         required=False, choices=BGPSessionStatus, widget=StaticSelectMultiple
+    )
+    bgp_role = forms.MultipleChoiceField(
+        required=False,
+        choices=BGPRole,
+        widget=StaticSelectMultiple,
+        label="BGP role",
     )
     relationship_id = DynamicModelMultipleChoiceField(
         required=False,
@@ -692,6 +715,12 @@ class InternetExchangePeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm
         choices=add_blank_choice(BGPSessionStatus),
         widget=StaticSelect,
     )
+    bgp_role = forms.ChoiceField(
+        required=False,
+        choices=add_blank_choice(BGPRole),
+        widget=StaticSelect,
+        label="BGP role",
+    )
     is_route_server = forms.NullBooleanField(
         required=False,
         label="Route server",
@@ -725,6 +754,7 @@ class InternetExchangePeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm
 
     model = InternetExchangePeeringSession
     nullable_fields = (
+        "bgp_role",
         "import_routing_policies",
         "export_routing_policies",
         "communities",
@@ -750,6 +780,13 @@ class InternetExchangePeeringSessionForm(PeeringManagerModelForm):
         choices=BGPSessionStatus,
         initial=BGPSessionStatus.ENABLED,
         widget=StaticSelect,
+    )
+    bgp_role = forms.ChoiceField(
+        required=False,
+        choices=add_blank_choice(BGPRole),
+        widget=StaticSelect,
+        label="BGP role",
+        help_text="RFC 9234 role advertised over this eBGP session",
     )
     password = PasswordField(required=False, render_value=True)
     import_routing_policies = DynamicModelMultipleChoiceField(
@@ -782,6 +819,7 @@ class InternetExchangePeeringSessionForm(PeeringManagerModelForm):
             (
                 "service_reference",
                 "status",
+                "bgp_role",
                 "password",
                 "multihop_ttl",
                 "passive",
@@ -802,6 +840,7 @@ class InternetExchangePeeringSessionForm(PeeringManagerModelForm):
             "autonomous_system",
             "ixp_connection",
             "status",
+            "bgp_role",
             "ip_address",
             "password",
             "multihop_ttl",
@@ -860,6 +899,12 @@ class InternetExchangePeeringSessionFilterForm(PeeringManagerModelFilterSetForm)
     )
     status = forms.MultipleChoiceField(
         required=False, choices=BGPSessionStatus, widget=StaticSelectMultiple
+    )
+    bgp_role = forms.MultipleChoiceField(
+        required=False,
+        choices=BGPRole,
+        widget=StaticSelectMultiple,
+        label="BGP role",
     )
     passive = forms.NullBooleanField(
         required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES)

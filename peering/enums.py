@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from utils.enums import ChoiceSet
 
 
@@ -39,6 +41,54 @@ class BGPSessionStatus(ChoiceSet):
         (DECOMMISSIONING, "Decommissioning", "warning"),
         (DECOMMISSIONED, "Decommissioned", "danger"),
     )
+
+
+class BGPRole(ChoiceSet):
+    """
+    BGP roles as defined by RFC 9234.
+    """
+
+    PROVIDER = "provider"
+    RS = "rs"
+    RS_CLIENT = "rs-client"
+    CUSTOMER = "customer"
+    PEER = "peer"
+
+    CHOICES = (
+        (PROVIDER, "Provider", "primary"),
+        (RS, "Route server", "info"),
+        (RS_CLIENT, "Route server client", "secondary"),
+        (CUSTOMER, "Customer", "success"),
+        (PEER, "Peer", "warning"),
+    )
+
+    # RFC 9234 Table 1 capability codes
+    CODES = {PROVIDER: 0, RS: 1, RS_CLIENT: 2, CUSTOMER: 3, PEER: 4}
+
+    # RFC 9234 Table 2: for a given local AS role, the only allowed remote AS role.
+    # The stored `bgp_role` is always the *local* AS role.
+    PAIRS = {
+        PROVIDER: CUSTOMER,
+        CUSTOMER: PROVIDER,
+        RS: RS_CLIENT,
+        RS_CLIENT: RS,
+        PEER: PEER,
+    }
+
+    @classmethod
+    def complement(cls, role: str | None) -> str | None:
+        """
+        Returns the remote AS role expected to face the local AS role per RFC 9234
+        Table 2, or `None` if `role` is unknown/unset.
+        """
+        return cls.PAIRS.get(role)
+
+    @classmethod
+    def is_valid_pair(cls, local: str | None, remote: str | None) -> bool:
+        """
+        Returns `True` if `(local, remote)` is an allowed RFC 9234 Table 2 role pair.
+        """
+        return local in cls.PAIRS and cls.PAIRS[local] == remote
 
 
 class BGPState(ChoiceSet):

@@ -20,6 +20,18 @@ properties can be configured (n.b. some are optional):
 * `Internet Exchange`: Internet exchange providing a LAN and IP addresses
   for autonomous systems to peer.
 * `Status`: session's status such as `enabled`, `disabled`, etc.
+* `BGP Role`: optional [RFC 9234](https://www.rfc-editor.org/rfc/rfc9234.txt)
+  role (`provider`, `route server`, `route server client`, `customer` or
+  `peer`) advertised over this eBGP session. The stored value is the *local* AS
+  role. It can be referenced from configuration templates to emit the relevant
+  role and leak-prevention configuration on the router. Helpers are available on
+  the session object for templating:
+    * `bgp_role_code`: the RFC 9234 capability code (`0`-`4`).
+    * `remote_bgp_role`: the remote AS role expected per Table 2.
+
+    Per RFC 9234 Table 2, when `Route Server` is enabled the role must be
+    `route server client` (the route server itself holds the `route server`
+    role); inconsistent combinations are rejected on save.
 * `Password`: a password to secure a BGP session; it can be a clear text
   password or an encrypted one. In the latter case, make sure that the router
   will not try to encrypt the password again.

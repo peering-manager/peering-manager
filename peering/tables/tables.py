@@ -136,6 +136,7 @@ class DirectPeeringSessionTable(PeeringManagerTable):
     relationship = tables.TemplateColumn(
         verbose_name="Relationship", template_code=BGP_RELATIONSHIP
     )
+    bgp_role = columns.ChoiceFieldColumn(verbose_name="BGP Role")
     passive = columns.BooleanColumn()
     service_reference = tables.Column(verbose_name="Service ID", linkify=True)
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
@@ -158,6 +159,7 @@ class DirectPeeringSessionTable(PeeringManagerTable):
             "autonomous_system",
             "bgp_group",
             "relationship",
+            "bgp_role",
             "ip_address",
             "status",
             "multihop_ttl",
@@ -263,6 +265,7 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
     ip_address = tables.Column(verbose_name="IP Address", linkify=True)
     status = columns.ChoiceFieldColumn()
     service_reference = tables.Column(verbose_name="Service ID", linkify=True)
+    bgp_role = columns.ChoiceFieldColumn(verbose_name="BGP Role")
     passive = columns.BooleanColumn()
     is_route_server = columns.BooleanColumn(verbose_name="Route Server")
     import_routing_policies = RoutingPolicyColumn(verbose_name="Import Policies")
@@ -290,6 +293,7 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
             "internet_exchange_point",
             "ip_address",
             "status",
+            "bgp_role",
             "multihop_ttl",
             "passive",
             "is_route_server",

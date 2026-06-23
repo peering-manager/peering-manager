@@ -16,6 +16,7 @@ from peering_manager.api.serializers import PeeringManagerModelSerializer
 
 from ...enums import (
     BGPGroupStatus,
+    BGPRole,
     BGPSessionStatus,
     IPFamily,
     PeeringRequestStatus,
@@ -184,6 +185,7 @@ class DirectPeeringSessionSerializer(PeeringManagerModelSerializer):
     autonomous_system = NestedAutonomousSystemSerializer()
     bgp_group = NestedBGPGroupSerializer(required=False, allow_null=True)
     status = ChoiceField(required=False, choices=BGPSessionStatus)
+    bgp_role = ChoiceField(required=False, choices=BGPRole, allow_blank=True)
     relationship = NestedRelationshipSerializer()
     import_routing_policies = SerializedPKRelatedField(
         queryset=RoutingPolicy.objects.all(),
@@ -222,6 +224,7 @@ class DirectPeeringSessionSerializer(PeeringManagerModelSerializer):
             "ip_address",
             "status",
             "relationship",
+            "bgp_role",
             "password",
             "encrypted_password",
             "multihop_ttl",
@@ -325,6 +328,7 @@ class InternetExchangePeeringSessionSerializer(PeeringManagerModelSerializer):
     autonomous_system = NestedAutonomousSystemSerializer()
     ixp_connection = NestedConnectionSerializer()
     status = ChoiceField(required=False, choices=BGPSessionStatus)
+    bgp_role = ChoiceField(required=False, choices=BGPRole, allow_blank=True)
     import_routing_policies = SerializedPKRelatedField(
         queryset=RoutingPolicy.objects.all(),
         serializer=NestedRoutingPolicySerializer,
@@ -359,6 +363,7 @@ class InternetExchangePeeringSessionSerializer(PeeringManagerModelSerializer):
             "ixp_connection",
             "ip_address",
             "status",
+            "bgp_role",
             "password",
             "encrypted_password",
             "multihop_ttl",

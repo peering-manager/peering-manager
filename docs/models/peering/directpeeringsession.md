@@ -22,6 +22,14 @@ properties can be configured (n.b. some are optional):
 * `BGP Group`: group to which the BGP session belongs to.
 * `Relationship`: the relationship with the remote peer such as customer,
   transit provider or private peer.
+* `BGP Role`: optional [RFC 9234](https://www.rfc-editor.org/rfc/rfc9234.txt)
+  role (`provider`, `route server`, `route server client`, `customer` or
+  `peer`) advertised over this eBGP session. The stored value is the *local* AS
+  role. It can be referenced from configuration templates to emit the relevant
+  role and leak-prevention configuration on the router. Helpers are available on
+  the session object for templating:
+    * `bgp_role_code`: the RFC 9234 capability code (`0`-`4`).
+    * `remote_bgp_role`: the remote AS role expected per Table 2.
 * `IP Address`: IPv6 or IPv4 address of the remote peer.
 * `Password`: MD5 password to secure the BGP session ; it can be a clear text
   password or an encrypted one. In the latter case, make sure that the router

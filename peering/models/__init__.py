@@ -36,6 +36,7 @@ from peeringdb.models import (
 )
 
 from ..enums import (
+    BGPRole,
     BGPState,
     IPFamily,
     PeeringRequestStatus,
@@ -1066,6 +1067,30 @@ class InternetExchangePeeringSession(BGPSession):
                 name="unique_internetexchangepeeringsession_connection_ip",
             )
         ]
+
+    def clean(self):
+        super().clean()
+
+        # Guard against an inconsistent role/flag combination
+        if self.bgp_role == BGPRole.RS_CLIENT and not self.is_route_server:
+            raise ValidationError(
+                {
+                    "bgp_role": "The RS-Client role requires a session with a route "
+                    "server (RFC 9234 Table 2). Enable 'Route server' or pick "
+                    "another role."
+                }
+            )
+        if (
+            self.is_route_server
+            and self.bgp_role
+            and self.bgp_role != BGPRole.RS_CLIENT
+        ):
+            raise ValidationError(
+                {
+                    "bgp_role": "A session with a route server must use the RS-Client "
+                    "role (RFC 9234 Table 2)."
+                }
+            )
 
     @classmethod
     def exists_at(
