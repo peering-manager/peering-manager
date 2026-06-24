@@ -182,4 +182,4 @@ class TemplateField(TextareaField):
         super().__init__(*args, widget=widget, label=label, **kwargs)
 
         if not self.help_text:
-            self.help_text = '<i class="fa-fw fa-solid fa-info-circle"></i> <a href="https://peering-manager.readthedocs.io/en/latest/templating/" target="_blank">Jinja2 template</a> syntax is supported.'
+            self.help_text = '<i class="fa-fw fa-solid fa-info-circle"></i> <a href="https://docs.peering-manager.net/templating/" target="_blank">Jinja2 template</a> syntax is supported.'
