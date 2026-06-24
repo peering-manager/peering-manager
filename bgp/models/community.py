@@ -37,6 +37,20 @@ class Community(OrganisationalModel):
         except ValueError:
             return None
 
+    @property
+    def is_ingress(self) -> bool:
+        """
+        Tells whether this community is meant to be applied on ingress.
+        """
+        return self.type in (CommunityType.INGRESS, CommunityType.INGRESS_EGRESS)
+
+    @property
+    def is_egress(self) -> bool:
+        """
+        Tells whether this community is meant to be applied on egress.
+        """
+        return self.type in (CommunityType.EGRESS, CommunityType.INGRESS_EGRESS)
+
     def __str__(self) -> str:
         return self.name
 
@@ -46,6 +60,9 @@ class Community(OrganisationalModel):
             text = self.get_type_display()
         elif self.type == CommunityType.INGRESS:
             badge_type = "text-bg-info"
+            text = self.get_type_display()
+        elif self.type == CommunityType.INGRESS_EGRESS:
+            badge_type = "text-bg-success"
             text = self.get_type_display()
         else:
             badge_type = "text-bg-secondary"

@@ -22,6 +22,14 @@ The following tags are used in this tutorial:
 
 Untagged communities are simply not exported.
 
+A community has a _type_ telling when it should be applied: on ingress, on
+egress, or both (ingress+egress). To keep templates working regardless of the
+exact type, prefer the `is_ingress` and `is_egress` properties over comparing
+`community.type` to a string: a community typed as ingress+egress satisfies
+both, whereas `community.type == "ingress"` would miss it. The `communities`
+filter also accepts a `direction` argument (`ingress` or `egress`) that filters
+inclusively, e.g. `{% for community in session | communities(direction="ingress") %}`.
+
 The following template code only shows how large communities are
 exported - the syntax for extended and normal communities is similar.
 
@@ -41,7 +49,7 @@ be applied, we show it here for Autonomous Systems only.
     ! Communities for AS{{as.asn}}
     large-community-set large-communities-as{{ as.asn }}-in
       {%- for community in as.communities.all() %}
-        {%-if community.type == "ingress" and community | has_tag("large-community")%}
+        {%-if community.is_ingress and community | has_tag("large-community")%}
           {{ community.value }},
         {%- endif %}
       {%- endfor %}
@@ -49,7 +57,7 @@ be applied, we show it here for Autonomous Systems only.
     end-set
     large-community-set large-communities-as{{ as.asn }}-out
       {%- for community in as.communities.all() %}
-        {%- if community.type == "egress" and community | has_tag("large-community")%}
+        {%- if community.is_egress and community | has_tag("large-community")%}
           {{ community.value }},
     	  {%- endif %}
       {%- endfor %}

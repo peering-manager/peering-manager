@@ -9,6 +9,7 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.query import QuerySet
 
+from bgp.enums import CommunityType
 from devices.crypto.arista import MAGIC as ARISTA_TYPE7_MAGIC
 from devices.crypto.cisco import MAGIC as CISCO_TYPE7_MAGIC
 from devices.enums import DeviceStatus
@@ -397,9 +398,14 @@ def routing_policies(value, field="", family=-1):
     return list(policies)
 
 
-def communities(value, field=""):
+def communities(value, field="", direction=""):
     """
     Returns a list of communities applied to an AS, a group, an IXP or a session.
+
+    An optional `field` can be passed as parameter to return only this field's value.
+    An optional `direction` (`ingress` or `egress`) can be passed to return only the
+    communities meant to be applied in that direction. Communities typed as
+    ingress+egress match both directions.
     """
     c = None
 
@@ -410,12 +416,22 @@ def communities(value, field=""):
     if hasattr(value, "communities"):
         c = value.communities
 
-    if c:
-        if field:
-            return [getattr(i, field) for i in c]
-        return c.all()
+    if not c:
+        return []
 
-    return []
+    items = list(c.all())
+
+    if direction == CommunityType.INGRESS:
+        items = [i for i in items if i.is_ingress]
+    elif direction == CommunityType.EGRESS:
+        items = [i for i in items if i.is_egress]
+    elif direction:
+        raise ValueError(f"unknown community direction: {direction}")
+
+    if field:
+        return [getattr(i, field) for i in items]
+
+    return items
 
 
 def merge_communities(value):

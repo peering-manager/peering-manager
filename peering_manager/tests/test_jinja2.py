@@ -65,6 +65,16 @@ class Jinja2FilterTestCase(TestCase):
                 value="123:3",
                 type=CommunityType.INGRESS,
             ),
+            Community(name="In", slug="in", value="123:10", type=CommunityType.INGRESS),
+            Community(
+                name="Out", slug="out", value="123:11", type=CommunityType.EGRESS
+            ),
+            Community(
+                name="Both",
+                slug="both",
+                value="123:12",
+                type=CommunityType.INGRESS_EGRESS,
+            ),
         ]
         Community.objects.bulk_create(cls.communities)
         AutonomousSystem.objects.create(asn=64520, name="Useless")
@@ -435,6 +445,25 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(1, len(FILTER_DICT["communities"](self.ixp)))
         self.assertEqual(0, len(FILTER_DICT["communities"](self.session6)))
         self.assertEqual(0, len(FILTER_DICT["communities"](self.router)))
+
+        # Filtering by direction, the combined community matching both ways
+        ingress = Community.objects.get(slug="in")
+        egress = Community.objects.get(slug="out")
+        both = Community.objects.get(slug="both")
+        self.ixp.communities.add(ingress, egress, both)
+
+        self.assertEqual(4, len(FILTER_DICT["communities"](self.ixp)))
+        self.assertEqual(
+            {ingress, both},
+            set(FILTER_DICT["communities"](self.ixp, direction=CommunityType.INGRESS)),
+        )
+        self.assertEqual(
+            {egress, both},
+            set(FILTER_DICT["communities"](self.ixp, direction=CommunityType.EGRESS)),
+        )
+
+        with self.assertRaises(ValueError):
+            FILTER_DICT["communities"](self.ixp, direction="nonsense")
 
     def test_merge_communities(self):
         self.assertEqual(2, len(FILTER_DICT["merge_communities"](self.session6)))

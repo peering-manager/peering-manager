@@ -29,6 +29,12 @@ class CommunityTest(TestCase):
                 type="unknown",
                 private=True,
             ),
+            Community(
+                name="test-4",
+                slug="test-4",
+                value="64500:4",
+                type=CommunityType.INGRESS_EGRESS,
+            ),
         ]
         Community.objects.bulk_create(cls.communities)
 
@@ -37,10 +43,26 @@ class CommunityTest(TestCase):
             '<span class="badge text-bg-primary">Egress</span>',
             '<span class="badge text-bg-info">Ingress</span>',
             '<span class="badge text-bg-secondary">Not set</span>',
+            '<span class="badge text-bg-success">Ingress+Egress</span>',
         ]
 
         for i in range(len(expected)):
             self.assertEqual(expected[i], self.communities[i].get_type_html())
+
+    def test_is_ingress_is_egress(self):
+        egress, ingress, unknown, ingress_egress = self.communities
+
+        self.assertFalse(egress.is_ingress)
+        self.assertTrue(egress.is_egress)
+
+        self.assertTrue(ingress.is_ingress)
+        self.assertFalse(ingress.is_egress)
+
+        self.assertFalse(unknown.is_ingress)
+        self.assertFalse(unknown.is_egress)
+
+        self.assertTrue(ingress_egress.is_ingress)
+        self.assertTrue(ingress_egress.is_egress)
 
     def test_community_validator(self):
         valid = [

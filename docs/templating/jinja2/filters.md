@@ -225,7 +225,7 @@ Examples:
 ```no-highlight
 {% for autonomous_system in autonomous_systems | filter(ipv6_max_prefixes__gt=100) %}
 {% for session in bgpgroup | session | filter(router=router) %}
-{% for community in session | merge_communities | filter(type='ingress') %}
+{% for community in session | merge_communities | filter(is_ingress=True) %}
 ```
 
 ## `get`
@@ -641,11 +641,17 @@ Fetches communities applied to an object.
 You can use a string as an option to this filter to select only a specific
 field of communities.
 
+A `direction` argument (`ingress` or `egress`) can be passed to return only the
+communities meant to be applied in that direction. Communities typed as
+ingress+egress match both directions, so this is the recommended way to split
+communities by direction.
+
 Examples:
 
 ```no-highlight
 communities [ {{ session | communities('value') | join(' ') }} ];
 communities [ {{ ixp | communities | join(' ') }} ];
+communities [ {{ session | communities(direction='ingress') | join(' ') }} ];
 ```
 
 ## `merge_communities`

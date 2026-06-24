@@ -25,7 +25,8 @@ optional):
 * `Slug`: unique configuration and URL friendly name; usually it is
    automatically generated from the community's name.
 * `Value`: actual value of the community.
-* `Type`: when to apply the community - on ingress or egress.
+* `Type`: when to apply the community - on ingress, egress or both
+  (ingress+egress).
 * `Category`: semantic category of the community, informational or action.
 * `Private`: whether this community should be excluded from public exports.
 * `Comments`: text to explain what the community is for. Can use Markdown

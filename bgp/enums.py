@@ -23,5 +23,10 @@ class CommunityCategory(ChoiceSet):
 class CommunityType(ChoiceSet):
     EGRESS = "egress"
     INGRESS = "ingress"
+    INGRESS_EGRESS = "ingress-egress"
 
-    CHOICES = ((EGRESS, "Egress"), (INGRESS, "Ingress"))
+    CHOICES = (
+        (EGRESS, "Egress"),
+        (INGRESS, "Ingress"),
+        (INGRESS_EGRESS, "Ingress+Egress"),
+    )
