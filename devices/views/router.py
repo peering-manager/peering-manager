@@ -9,6 +9,7 @@ from peering.filtersets import DirectPeeringSessionFilterSet
 from peering.forms import DirectPeeringSessionFilterForm
 from peering.models import DirectPeeringSession
 from peering.tables import DirectPeeringSessionTable
+from peering.views.mixins import AffiliatedAutonomousSystemMixin
 from peering_manager.views.generic import (
     BulkDeleteView,
     BulkEditView,
@@ -70,7 +71,7 @@ class RouterView(ObjectView):
 
 @register_model_view(model=Router, name="add", detail=False)
 @register_model_view(model=Router, name="edit")
-class RouterEdit(ObjectEditView):
+class RouterEdit(AffiliatedAutonomousSystemMixin, ObjectEditView):
     queryset = Router.objects.all()
     form = RouterForm
 

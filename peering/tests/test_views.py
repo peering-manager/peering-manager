@@ -136,6 +136,38 @@ class DirectPeeringSessionTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "comments": "New comments",
         }
 
+    def test_local_autonomous_system_defaults_to_context_as(self):
+        self.add_permissions("add")
+        local_as = AutonomousSystem.objects.get(affiliated=True)
+        self._set_context_as(local_as)
+
+        response = self.client.get(self._get_url("add"))
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(
+            local_as.pk,
+            response.context["form"].initial["local_autonomous_system"],
+        )
+
+    def test_context_as_default_is_overridden_by_query_string(self):
+        self.add_permissions("add")
+        local_as = AutonomousSystem.objects.get(affiliated=True)
+        other = AutonomousSystem.objects.get(asn=64502)
+        self._set_context_as(local_as)
+
+        response = self.client.get(
+            self._get_url("add"), data={"local_autonomous_system": other.pk}
+        )
+
+        self.assertEqual(
+            str(other.pk),
+            response.context["form"].initial["local_autonomous_system"],
+        )
+
+    def _set_context_as(self, autonomous_system):
+        self.user.preferences.refresh_from_db()
+        self.user.preferences.set("context.as", autonomous_system.pk, commit=True)
+
 
 class InternetExchangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = InternetExchange

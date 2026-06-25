@@ -45,6 +45,7 @@ from ..models import (
     NetworkIXLan,
 )
 from ..tables import InternetExchangePeeringSessionTable, InternetExchangeTable
+from .mixins import AffiliatedAutonomousSystemMixin
 
 __all__ = (
     "InternetExchangeBulkDelete",
@@ -102,7 +103,7 @@ class InternetExchangeView(ObjectView):
 
 @register_model_view(model=InternetExchange, name="add", detail=False)
 @register_model_view(model=InternetExchange, name="edit")
-class InternetExchangeEdit(ObjectEditView):
+class InternetExchangeEdit(AffiliatedAutonomousSystemMixin, ObjectEditView):
     queryset = InternetExchange.objects.all()
     form = InternetExchangeForm
 

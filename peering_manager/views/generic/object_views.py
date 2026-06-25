@@ -182,12 +182,24 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         """
         return {}
 
+    def get_extra_initial(self, request):
+        """
+        Provides a hook for views to set default form field initial values.
+
+        Values provided through the query string take precedence over the ones
+        returned here.
+        """
+        return {}
+
     def get(self, request, *args, **kwargs):
         instance = self.get_object(**kwargs)
         instance = self.alter_object(instance, request, args, kwargs)
         model = self.queryset.model
 
-        initial_data = normalize_querydict(request.GET)
+        initial_data = {
+            **self.get_extra_initial(request),
+            **normalize_querydict(request.GET),
+        }
         form = self.form(instance=instance, initial=initial_data)
 
         return render(

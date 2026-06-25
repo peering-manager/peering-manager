@@ -4,6 +4,7 @@ from django.core.mail import EmailMessage
 from django.shortcuts import redirect, render
 from django.views.generic import View
 
+from peering.models import AutonomousSystem
 from peering.models import InternetExchange as Ixp
 from peering_manager.views.generic import ObjectListView, PermissionRequiredMixin
 from utils.functions import normalize_querydict
@@ -36,7 +37,12 @@ class EmailNetwork(PermissionRequiredMixin, View):
     permission_required = "peering.send_email"
 
     def get(self, request, *args, **kwargs):
-        form = SendEmailToNetwork(initial=normalize_querydict(request.GET))
+        initial = normalize_querydict(request.GET)
+        context_as = AutonomousSystem.get_for_user(request.user)
+        if context_as is not None:
+            initial.setdefault("affiliated", context_as.pk)
+
+        form = SendEmailToNetwork(initial=initial)
         form.fields["recipients"].choices = []
         form.fields["cc"].choices = settings.EMAIL_CC_CONTACTS
         return render(

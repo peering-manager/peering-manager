@@ -17,6 +17,7 @@ from ..forms import (
 )
 from ..models import DirectPeeringSession
 from ..tables import DirectPeeringSessionTable
+from .mixins import AffiliatedAutonomousSystemMixin
 
 __all__ = (
     "DirectPeeringSessionBulkDelete",
@@ -58,7 +59,7 @@ class DirectPeeringSessionView(ObjectView):
 
 @register_model_view(model=DirectPeeringSession, name="add", detail=False)
 @register_model_view(model=DirectPeeringSession, name="edit")
-class DirectPeeringSessionEdit(ObjectEditView):
+class DirectPeeringSessionEdit(AffiliatedAutonomousSystemMixin, ObjectEditView):
     queryset = DirectPeeringSession.objects.all()
     form = DirectPeeringSessionForm
 

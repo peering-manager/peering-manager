@@ -13,6 +13,7 @@ from ..filtersets import PeeringRequestFilterSet, RequestedSessionFilterSet
 from ..forms import PeeringRequestFilterForm, PeeringRequestForm
 from ..models import AutonomousSystem, PeeringRequest, RequestedSession
 from ..tables import PeeringRequestTable, RequestedSessionTable
+from .mixins import AffiliatedAutonomousSystemMixin
 
 __all__ = (
     "PeeringRequestBulkDelete",
@@ -56,7 +57,7 @@ class PeeringRequestView(ObjectView):
 
 @register_model_view(model=PeeringRequest, name="add", detail=False)
 @register_model_view(model=PeeringRequest, name="edit")
-class PeeringRequestEdit(ObjectEditView):
+class PeeringRequestEdit(AffiliatedAutonomousSystemMixin, ObjectEditView):
     queryset = PeeringRequest.objects.all()
     form = PeeringRequestForm
 
