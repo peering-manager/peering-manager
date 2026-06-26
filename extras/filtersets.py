@@ -17,6 +17,7 @@ from .models import (
     ConfigContextAssignment,
     ExportTemplate,
     JournalEntry,
+    TableConfig,
     Tag,
     Webhook,
 )
@@ -27,6 +28,7 @@ __all__ = (
     "ExportTemplateFilterSet",
     "IXAPIFilterSet",
     "JournalEntryFilterSet",
+    "TableConfigFilterSet",
     "TagFilterSet",
     "WebhookFilterSet",
 )
@@ -115,6 +117,25 @@ class JournalEntryFilterSet(ChangeLoggedModelFilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(comments__icontains=value)
+
+
+class TableConfigFilterSet(ChangeLoggedModelFilterSet):
+    q = django_filters.CharFilter(method="search", label="Search")
+    object_type = ContentTypeFilter()
+    object_type_id = django_filters.ModelMultipleChoiceFilter(
+        field_name="object_type",
+        queryset=ContentType.objects.all(),
+        label="Object type (ID)",
+    )
+
+    class Meta:
+        model = TableConfig
+        fields = ["id", "table", "object_type"]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(table__icontains=value)
 
 
 class TagFilterSet(ChangeLoggedModelFilterSet):

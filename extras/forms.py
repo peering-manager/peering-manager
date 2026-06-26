@@ -41,6 +41,7 @@ from .models import (
     ConfigContextAssignment,
     ExportTemplate,
     JournalEntry,
+    TableConfig,
     Tag,
     Webhook,
 )
@@ -56,6 +57,7 @@ __all__ = (
     "IXAPIForm",
     "JournalEntryBulkEditForm",
     "JournalEntryForm",
+    "TableConfigFilterForm",
     "TagBulkEditForm",
     "TagFilterForm",
     "TagForm",
@@ -258,6 +260,16 @@ class JournalEntryForm(PeeringManagerModelForm):
             "assigned_object_type": forms.HiddenInput,
             "assigned_object_id": forms.HiddenInput,
         }
+
+
+class TableConfigFilterForm(BootstrapMixin, forms.Form):
+    model = TableConfig
+    q = forms.CharField(required=False, label="Search")
+    object_type_id = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.filter(table_configs__isnull=False).distinct(),
+        required=False,
+        label="Object type",
+    )
 
 
 class TagBulkEditForm(BulkEditForm):

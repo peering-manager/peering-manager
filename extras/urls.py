@@ -61,6 +61,16 @@ urlpatterns = [
         include(get_model_urls(app_label="extras", model_name="journalentry")),
     ),
     path(
+        "table-configs/",
+        include(
+            get_model_urls(app_label="extras", model_name="tableconfig", detail=False)
+        ),
+    ),
+    path(
+        "table-configs/<int:pk>/",
+        include(get_model_urls(app_label="extras", model_name="tableconfig")),
+    ),
+    path(
         "tags/",
         include(get_model_urls(app_label="extras", model_name="tag", detail=False)),
     ),

@@ -15,6 +15,7 @@ from ..models import (
     ConfigContextAssignment,
     ExportTemplate,
     JournalEntry,
+    TableConfig,
     Tag,
     Webhook,
 )
@@ -102,6 +103,28 @@ class ConfigContextAssignmentTest(APIViewTestCases.View):
                 "weight": 1000,
             },
         ]
+
+
+class TableConfigTest(APIViewTestCases.View):
+    model = TableConfig
+    brief_fields = ["display", "display_url", "id", "table", "url"]
+
+    @classmethod
+    def setUpTestData(cls):
+        TableConfig.objects.bulk_create(
+            [
+                TableConfig(table="AutonomousSystemTable", columns=["asn", "name"]),
+                TableConfig(table="RouterTable", columns=["name", "hostname"]),
+                TableConfig(table="InternetExchangeTable", columns=["name", "slug"]),
+            ]
+        )
+
+        cls.create_data = [
+            {"table": "BGPGroupTable", "columns": ["name", "slug"]},
+            {"table": "CommunityTable", "columns": ["name", "value"]},
+            {"table": "ConnectionTable", "columns": ["name"]},
+        ]
+        cls.bulk_update_data = {"columns": ["name"]}
 
 
 class ExportTemplateTest(APIViewTestCases.View):

@@ -6,7 +6,7 @@ from django.test import TestCase
 from peering.models import AutonomousSystem
 from utils.testing import MockedResponse
 
-from ..models import IXAPI, ExportTemplate
+from ..models import IXAPI, ExportTemplate, TableConfig
 
 
 class ExportTemplateTest(TestCase):
@@ -199,3 +199,12 @@ class IXAPITest(TestCase):
             i = self.ix_api.get_network_services()
             self.assertEqual("1234", i[0].id)
             self.assertEqual(1234, i[0].peeringdb_ixid)
+
+
+class TableConfigTest(TestCase):
+    def test_columns(self):
+        columns = ["asn", "name", "irr_as_set"]
+        TableConfig.objects.create(table="AutonomousSystemTable", columns=columns)
+
+        config = TableConfig.objects.get(table="AutonomousSystemTable")
+        self.assertEqual(columns, config.columns)

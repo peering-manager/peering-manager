@@ -12,6 +12,7 @@ router.register("config-context-assignments", views.ConfigContextAssignmentViewS
 router.register("export-templates", views.ExportTemplateViewSet)
 router.register("ix-api", views.IXAPIViewSet)
 router.register("journal-entries", views.JournalEntryViewSet)
+router.register("table-configs", views.TableConfigViewSet)
 router.register("tags", views.TagViewSet)
 router.register("webhooks", views.WebhookViewSet)
 

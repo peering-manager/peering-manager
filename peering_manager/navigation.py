@@ -143,6 +143,7 @@ NAVIGATION: list[MenuItem | MenuGroup] = [
             MenuItem(label="Relationships", url_name="bgp:relationship_list"),
             MenuItem(label="Config Contexts", url_name="extras:configcontext_list"),
             MenuItem(label="Export Templates", url_name="extras:exporttemplate_list"),
+            MenuItem(label="Table Configurations", url_name="extras:tableconfig_list"),
             MenuItem(label="Tags", url_name="extras:tag_list"),
         ],
     ),

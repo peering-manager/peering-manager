@@ -1,0 +1,37 @@
+{% extends 'extras/tableconfig/_base.html' %}
+{% load helpers %}
+{% block subcontent %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header"><strong>Details</strong></div>
+      <table class="card-body table table-hover attr-table mb-0">
+        <tr>
+          <td>Table</td>
+          <td>{{ instance.table }}</td>
+        </tr>
+        <tr>
+          <td>Object type</td>
+          <td>{{ instance.object_type|render_none }}</td>
+        </tr>
+        <tr>
+          <td>Last update</td>
+          <td>{{ instance.updated|date_span }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header"><strong>Default columns</strong> <span class="text-body-tertiary">(in order)</span></div>
+      <ul class="list-group list-group-flush">
+        {% for column in instance.columns %}
+        <li class="list-group-item">{{ column }}</li>
+        {% empty %}
+        <li class="list-group-item text-muted">No columns defined.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
