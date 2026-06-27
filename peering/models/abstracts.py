@@ -5,9 +5,10 @@ from django.db import models
 from django.utils.safestring import mark_safe
 from netfields import InetAddressField, NetManager
 
+from peering_manager.enums import IPFamily
 from peering_manager.models import OrganisationalModel, PrimaryModel
 
-from ..enums import BGPGroupStatus, BGPRole, BGPSessionStatus, BGPState, IPFamily
+from ..enums import BGPGroupStatus, BGPRole, BGPSessionStatus, BGPState
 from ..fields import TTLField
 from .mixins import PolicyMixin
 
@@ -21,10 +22,14 @@ class AbstractGroup(OrganisationalModel, PolicyMixin):
         default=BGPGroupStatus.ENABLED,
     )
     import_routing_policies = models.ManyToManyField(
-        "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
+        "bgp.RoutingPolicy",
+        blank=True,
+        related_name="%(class)s_import_routing_policies",
     )
     export_routing_policies = models.ManyToManyField(
-        "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
+        "bgp.RoutingPolicy",
+        blank=True,
+        related_name="%(class)s_export_routing_policies",
     )
     communities = models.ManyToManyField("bgp.Community", blank=True)
 
@@ -129,12 +134,12 @@ class BGPSession(PrimaryModel, PolicyMixin):
         help_text="RFC 9234 role advertised over this eBGP session",
     )
     import_routing_policies = models.ManyToManyField(
-        to="peering.RoutingPolicy",
+        to="bgp.RoutingPolicy",
         blank=True,
         related_name="%(class)s_import_routing_policies",
     )
     export_routing_policies = models.ManyToManyField(
-        to="peering.RoutingPolicy",
+        to="bgp.RoutingPolicy",
         blank=True,
         related_name="%(class)s_export_routing_policies",
     )

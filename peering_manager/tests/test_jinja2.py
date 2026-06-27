@@ -6,21 +6,21 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from bgp.enums import CommunityType
-from bgp.models import Community, Relationship
+from bgp.models import Community, Relationship, RoutingPolicy
 from devices.enums import DeviceStatus
 from devices.models import Configuration, Platform, Router
 from extras.models import ExportTemplate, Tag
 from messaging.models import Contact, ContactAssignment, ContactRole, Email
 from net.enums import ConnectionStatus
 from net.models import Connection
-from peering.enums import BGPGroupStatus, BGPSessionStatus, IPFamily
+from peering.enums import BGPGroupStatus, BGPSessionStatus
 from peering.models import (
     AutonomousSystem,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
-    RoutingPolicy,
 )
+from peering_manager.enums import IPFamily
 from peering_manager.jinja2 import FILTER_DICT
 
 

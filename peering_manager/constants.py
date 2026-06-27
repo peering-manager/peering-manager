@@ -1,8 +1,8 @@
 from collections import OrderedDict
 
-from bgp.filtersets import CommunityFilterSet
-from bgp.models import Community
-from bgp.tables import CommunityTable
+from bgp.filtersets import CommunityFilterSet, RoutingPolicyFilterSet
+from bgp.models import Community, RoutingPolicy
+from bgp.tables import CommunityTable, RoutingPolicyTable
 from devices.filtersets import ConfigurationFilterSet, RouterFilterSet
 from devices.models import Configuration, Router
 from devices.tables import ConfigurationTable, RouterTable
@@ -19,7 +19,6 @@ from peering.filtersets import (
     InternetExchangeFilterSet,
     InternetExchangePeeringSessionFilterSet,
     PeeringRequestFilterSet,
-    RoutingPolicyFilterSet,
 )
 from peering.models import (
     AutonomousSystem,
@@ -28,7 +27,6 @@ from peering.models import (
     InternetExchange,
     InternetExchangePeeringSession,
     PeeringRequest,
-    RoutingPolicy,
 )
 from peering.tables import (
     AutonomousSystemTable,
@@ -37,7 +35,6 @@ from peering.tables import (
     InternetExchangePeeringSessionTable,
     InternetExchangeTable,
     PeeringRequestTable,
-    RoutingPolicyTable,
 )
 from utils.functions import count_related
 
@@ -203,7 +200,7 @@ SEARCH_TYPES = OrderedDict(
                 "queryset": RoutingPolicy.objects.all(),
                 "filterset": RoutingPolicyFilterSet,
                 "table": RoutingPolicyTable,
-                "url": "peering:routingpolicy_list",
+                "url": "bgp:routingpolicy_list",
             },
         ),
     ),

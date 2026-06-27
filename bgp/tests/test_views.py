@@ -1,7 +1,7 @@
 from utils.enums import Colour
 from utils.testing import ViewTestCases
 
-from ..enums import CommunityType
+from ..enums import CommunityType, RoutingPolicyType
 from ..models import *
 
 
@@ -44,3 +44,43 @@ class RelationshipTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.form_data = {"name": "Test4", "slug": "test4", "color": Colour.RED}
         cls.bulk_edit_data = {"description": "Foo"}
+
+
+class RoutingPolicyTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = RoutingPolicy
+
+    @classmethod
+    def setUpTestData(cls):
+        RoutingPolicy.objects.bulk_create(
+            [
+                RoutingPolicy(
+                    name="Routing Policy 1",
+                    slug="routing-policy-1",
+                    type=RoutingPolicyType.EXPORT,
+                    weight=0,
+                ),
+                RoutingPolicy(
+                    name="Routing Policy 2",
+                    slug="routing-policy-2",
+                    type=RoutingPolicyType.IMPORT,
+                    weight=0,
+                ),
+                RoutingPolicy(
+                    name="Routing Policy 3",
+                    slug="routing-policy-3",
+                    type=RoutingPolicyType.IMPORT_EXPORT,
+                    weight=0,
+                ),
+            ]
+        )
+
+        cls.form_data = {
+            "name": "Routing Policy 4",
+            "slug": "routing-policy-4",
+            "type": RoutingPolicyType.IMPORT,
+            "address_family": 6,
+            "weight": 1,
+            "comments": "",
+            "tags": [],
+        }
+        cls.bulk_edit_data = {"weight": 10, "description": "New description"}

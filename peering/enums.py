@@ -109,14 +109,6 @@ class BGPState(ChoiceSet):
     )
 
 
-class IPFamily(ChoiceSet):
-    ALL = 0
-    IPV4 = 4
-    IPV6 = 6
-
-    CHOICES = ((ALL, "All"), (IPV4, "IPv4"), (IPV6, "IPv6"))
-
-
 class PeeringRequestStatus(ChoiceSet):
     PENDING = "pending"
     ACCEPTED = "accepted"
@@ -150,11 +142,3 @@ class RequestedSessionStatus(ChoiceSet):
         (REJECTED, "Rejected", "danger"),
         (CANCELLED, "Cancelled", "warning"),
     )
-
-
-class RoutingPolicyType(ChoiceSet):
-    EXPORT = "export-policy"
-    IMPORT = "import-policy"
-    IMPORT_EXPORT = "import-export-policy"
-
-    CHOICES = ((EXPORT, "Export"), (IMPORT, "Import"), (IMPORT_EXPORT, "Import+Export"))

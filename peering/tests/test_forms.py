@@ -107,21 +107,6 @@ class InternetExchangePeeringSessionTest(TestCase):
         self.assertTrue(test.save())
 
 
-class RoutingPolicyTest(TestCase):
-    def test_routing_policy_form(self):
-        test = RoutingPolicyForm(
-            data={
-                "name": "Test",
-                "slug": "test",
-                "type": RoutingPolicyType.IMPORT,
-                "weight": 0,
-                "address_family": 0,
-            }
-        )
-        self.assertTrue(test.is_valid())
-        self.assertTrue(test.save())
-
-
 class PeeringRequestTest(TestCase):
     def setUp(self):
         super().setUp()

@@ -3,7 +3,8 @@ from unittest.mock import patch
 from django.urls import reverse
 from rest_framework import status
 
-from bgp.models import Relationship
+from bgp.enums import RoutingPolicyType
+from bgp.models import Relationship, RoutingPolicy
 from net.models import Connection
 from utils.testing import APITestCase, APIViewTestCases
 
@@ -345,54 +346,3 @@ class InternetExchangePeeringSessionTest(APIViewTestCases.View):
                 "ip_address": "198.51.100.3",
             },
         ]
-
-
-class RoutingPolicyTest(APIViewTestCases.View):
-    model = RoutingPolicy
-    brief_fields = ["id", "url", "display_url", "display", "name", "slug", "type"]
-    create_data = [
-        {
-            "name": "Test1",
-            "slug": "test1",
-            "type": RoutingPolicyType.EXPORT,
-            "weight": 1,
-        },
-        {
-            "name": "Test2",
-            "slug": "test2",
-            "type": RoutingPolicyType.EXPORT,
-            "weight": 2,
-        },
-        {
-            "name": "Test3",
-            "slug": "test3",
-            "type": RoutingPolicyType.IMPORT_EXPORT,
-            "weight": 3,
-        },
-    ]
-    bulk_update_data = {"description": "Awesome routing policy"}
-
-    @classmethod
-    def setUpTestData(cls):
-        RoutingPolicy.objects.bulk_create(
-            [
-                RoutingPolicy(
-                    name="Example 1",
-                    slug="example-1",
-                    type=RoutingPolicyType.EXPORT,
-                    weight=0,
-                ),
-                RoutingPolicy(
-                    name="Example 2",
-                    slug="example-2",
-                    type=RoutingPolicyType.IMPORT,
-                    weight=0,
-                ),
-                RoutingPolicy(
-                    name="Example 3",
-                    slug="example-3",
-                    type=RoutingPolicyType.EXPORT,
-                    weight=0,
-                ),
-            ]
-        )

@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 
-from bgp.models import Community
+from bgp.models import Community, RoutingPolicy
 from net.models import BFD, Connection
 from peering.enums import BGPState
 from peering.models import (
@@ -20,7 +20,6 @@ from peering.models import (
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
-    RoutingPolicy,
 )
 from peering_manager.models import (
     JobsMixin,

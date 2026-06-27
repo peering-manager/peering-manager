@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
-from bgp.models import Community, Relationship
+from bgp.models import Community, Relationship, RoutingPolicy
 from net.models import Connection
 from peering.enums import BGPSessionStatus, BGPState
 from peering.models import (
@@ -12,7 +12,6 @@ from peering.models import (
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
-    RoutingPolicy,
 )
 from utils.testing import load_json
 

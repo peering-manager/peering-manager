@@ -16,7 +16,7 @@ from devices.enums import DeviceStatus
 from devices.models import Router
 from net.enums import ConnectionStatus
 from net.models import Connection
-from peering.enums import BGPGroupStatus, BGPSessionStatus, IPFamily
+from peering.enums import BGPGroupStatus, BGPSessionStatus
 from peering.functions import parse_irr_as_set
 from peering.models import (
     AutonomousSystem,
@@ -26,6 +26,7 @@ from peering.models import (
     InternetExchange,
     InternetExchangePeeringSession,
 )
+from peering_manager.enums import IPFamily
 from peering_manager.models.features import ConfigContextMixin, TagsMixin
 from peeringdb.functions import get_possible_peering_sessions, get_shared_facilities
 from peeringdb.models import Network

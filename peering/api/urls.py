@@ -16,7 +16,6 @@ router.register(
 )
 router.register("peering-requests", views.PeeringRequestViewSet)
 router.register("requested-sessions", views.RequestedSessionViewSet)
-router.register("routing-policies", views.RoutingPolicyViewSet)
 
 portal_urlpatterns = [
     path("affiliated", views.PortalAffiliatedView.as_view(), name="affiliated"),
