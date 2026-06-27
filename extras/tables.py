@@ -8,6 +8,7 @@ from .models import (
     ConfigContextAssignment,
     ExportTemplate,
     JournalEntry,
+    TableConfig,
     Tag,
     TaggedItem,
     Webhook,
@@ -19,6 +20,7 @@ __all__ = (
     "ExportTemplateTable",
     "IXAPITable",
     "JournalEntryTable",
+    "TableConfigTable",
     "TagTable",
     "TaggedItemTable",
     "WebhookTable",
@@ -128,6 +130,17 @@ class JournalEntryTable(PeeringManagerTable):
             "kind",
             "comments",
         )
+
+
+class TableConfigTable(PeeringManagerTable):
+    table = tables.Column(linkify=True)
+    object_type = columns.ContentTypeColumn(verbose_name="Object Type")
+    actions = columns.ActionsColumn(actions=("delete",))
+
+    class Meta(PeeringManagerTable.Meta):
+        model = TableConfig
+        fields = ("pk", "id", "table", "object_type", "actions")
+        default_columns = ("table", "object_type", "actions")
 
 
 class TagTable(PeeringManagerTable):

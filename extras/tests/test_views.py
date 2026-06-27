@@ -8,7 +8,14 @@ from peering.models import AutonomousSystem
 from utils.testing import ViewTestCases
 
 from ..enums import JournalEntryKind
-from ..models import IXAPI, ConfigContext, ExportTemplate, JournalEntry, Tag
+from ..models import (
+    IXAPI,
+    ConfigContext,
+    ExportTemplate,
+    JournalEntry,
+    TableConfig,
+    Tag,
+)
 
 
 class ConfigContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -214,6 +221,24 @@ class JournalEntryTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "kind": "success",
             "comments": "Overwritten",
         }
+
+
+class TableConfigTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+):
+    model = TableConfig
+
+    @classmethod
+    def setUpTestData(cls):
+        TableConfig.objects.bulk_create(
+            [
+                TableConfig(table="AutonomousSystemTable", columns=["asn", "name"]),
+                TableConfig(table="RouterTable", columns=["name", "hostname"]),
+                TableConfig(table="InternetExchangeTable", columns=["name", "slug"]),
+            ]
+        )
 
 
 class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):

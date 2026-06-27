@@ -6,6 +6,7 @@ from ..models import (
     ConfigContextAssignment,
     ExportTemplate,
     JournalEntry,
+    TableConfig,
     Tag,
     Webhook,
 )
@@ -41,6 +42,12 @@ class NestedJournalEntrySerializer(WritableNestedSerializer):
     class Meta:
         model = JournalEntry
         fields = ["id", "url", "display_url", "display", "created"]
+
+
+class NestedTableConfigSerializer(WritableNestedSerializer):
+    class Meta:
+        model = TableConfig
+        fields = ["id", "url", "display_url", "display", "table"]
 
 
 class NestedTagSerializer(WritableNestedSerializer):

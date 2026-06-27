@@ -29,6 +29,7 @@ from ..filtersets import (
     ExportTemplateFilterSet,
     IXAPIFilterSet,
     JournalEntryFilterSet,
+    TableConfigFilterSet,
     TagFilterSet,
     WebhookFilterSet,
 )
@@ -39,6 +40,7 @@ from ..models import (
     ConfigContextAssignment,
     ExportTemplate,
     JournalEntry,
+    TableConfig,
     Tag,
     Webhook,
 )
@@ -49,6 +51,7 @@ from .serializers import (
     IXAPIAccountSerializer,
     IXAPISerializer,
     JournalEntrySerializer,
+    TableConfigSerializer,
     TagSerializer,
     WebhookSerializer,
 )
@@ -63,6 +66,12 @@ class ConfigContextViewSet(PeeringManagerModelViewSet):
     queryset = ConfigContext.objects.all()
     serializer_class = ConfigContextSerializer
     filterset_class = ConfigContextFilterSet
+
+
+class TableConfigViewSet(PeeringManagerModelViewSet):
+    queryset = TableConfig.objects.all()
+    serializer_class = TableConfigSerializer
+    filterset_class = TableConfigFilterSet
 
 
 class ConfigContextAssignmentViewSet(PeeringManagerModelViewSet):

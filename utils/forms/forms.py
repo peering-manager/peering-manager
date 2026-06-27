@@ -6,7 +6,7 @@ __all__ = (
     "BulkEditForm",
     "ConfirmationForm",
     "FilterForm",
-    "TableConfigForm",
+    "TableColumnsForm",
 )
 
 
@@ -39,9 +39,9 @@ class FilterForm(BootstrapMixin, forms.Form):
     q = forms.CharField(required=False, label="Search")
 
 
-class TableConfigForm(BootstrapMixin, forms.Form):
+class TableColumnsForm(BootstrapMixin, forms.Form):
     """
-    Form used to configure table and store the result in user's preferences.
+    Form used to configure table columns and store the result in user's preferences.
     """
 
     columns = forms.MultipleChoiceField(

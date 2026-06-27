@@ -5,6 +5,7 @@ from pathlib import Path
 
 import yaml
 from django import template
+from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import date
@@ -12,7 +13,7 @@ from django.utils.html import escape, strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown as md
 
-from ..forms import TableConfigForm
+from ..forms import TableColumnsForm
 
 register = template.Library()
 
@@ -282,19 +283,31 @@ def doc_version(version):
     return f"v{version}"
 
 
-@register.inclusion_tag("helpers/table_config_form.html")
-def table_config_form(table, table_name=None):
+@register.inclusion_tag("helpers/table_config_form.html", takes_context=True)
+def table_config_form(context, table, table_name=None):
     # Columns currently shown, in order, and the remaining hidden ones
     displayed_columns = table.selected_columns
     selected_names = {name for name, _ in displayed_columns}
     available_columns = [
         column for column in table.available_columns if column[0] not in selected_names
     ]
+    name = table_name or table.__class__.__name__
+
+    # An operator with the right permission can create a default layout
+    user = getattr(context.get("request"), "user", None)
+    can_manage_default = user is not None and user.has_perm("extras.change_tableconfig")
+    has_default = False
+    if can_manage_default:
+        table_config = apps.get_model("extras", "TableConfig")
+        has_default = table_config.objects.filter(table=name).exists()
+
     return {
-        "table_name": table_name or table.__class__.__name__,
-        "form": TableConfigForm(table=table),
+        "table_name": name,
+        "form": TableColumnsForm(table=table),
         "displayed_columns": displayed_columns,
         "available_columns": available_columns,
+        "can_manage_default": can_manage_default,
+        "has_default": has_default,
     }
 
 

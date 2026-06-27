@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -22,6 +23,16 @@ def linkify_phone(value):
     return f"tel:{value}"
 
 
+def get_default_columns(table_name: str) -> list[str] | None:
+    """
+    Returns the operator-defined default columns for a table, or `None` if none has
+    been set. This is a single indexed lookup on a unique column.
+    """
+    table_config = apps.get_model("extras", "TableConfig")
+    config = table_config.objects.filter(table=table_name).first()
+    return config.columns if config else None
+
+
 class BaseTable(tables.Table):
     """
     Default table for object lists
@@ -43,13 +54,19 @@ class BaseTable(tables.Table):
 
         # Determine the table columns to display by checking the following:
         #   1. User's preferences for the table
-        #   2. Meta.default_columns
-        #   3. Meta.fields
+        #   2. Operator-defined default for the table (TableConfig)
+        #   3. DEFAULT_USER_PREFERENCES (anonymous users)
+        #   4. Meta.default_columns
+        #   5. Meta.fields
         selected_columns = None
         if user is not None and not isinstance(user, AnonymousUser):
             selected_columns = user.preferences.get(f"tables.{name}.columns")
-        elif isinstance(user, AnonymousUser) and hasattr(
-            settings, "DEFAULT_USER_PREFERENCES"
+        if not selected_columns:
+            selected_columns = get_default_columns(name)
+        if (
+            not selected_columns
+            and isinstance(user, AnonymousUser)
+            and hasattr(settings, "DEFAULT_USER_PREFERENCES")
         ):
             selected_columns = (
                 settings.DEFAULT_USER_PREFERENCES.get("tables", {})

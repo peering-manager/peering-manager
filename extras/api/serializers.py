@@ -19,6 +19,7 @@ from ..models import (
     ConfigContextAssignment,
     ExportTemplate,
     JournalEntry,
+    TableConfig,
     Tag,
     Webhook,
 )
@@ -33,6 +34,7 @@ __all__ = (
     "NestedJournalEntrySerializer",
     "NestedTagSerializer",
     "NestedWebhookSerializer",
+    "TableConfigSerializer",
     "TagSerializer",
     "WebhookSerializer",
 )
@@ -106,6 +108,26 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
             "data_path",
             "data_synchronised",
             "auto_synchronisation_enabled",
+        ]
+
+
+class TableConfigSerializer(ValidatedModelSerializer):
+    object_type = ContentTypeField(
+        queryset=ContentType.objects.all(), required=False, allow_null=True
+    )
+
+    class Meta:
+        model = TableConfig
+        fields = [
+            "id",
+            "display",
+            "display_url",
+            "url",
+            "table",
+            "object_type",
+            "columns",
+            "created",
+            "updated",
         ]
 
 

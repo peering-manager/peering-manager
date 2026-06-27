@@ -51,9 +51,19 @@
             <strong>Displayed</strong> to set their left-to-right order. Double-click a
             column to move it to the other list.
           </p>
-          <div class="text-end mt-3">
-            <input type="submit" class="btn btn-outline-danger" name="reset" value="Reset" />
-            <input type="submit" class="btn btn-primary" name="save" value="Save" />
+          <div class="d-flex justify-content-between align-items-center mt-3">
+            <div>
+              {% if can_manage_default %}
+              <input type="submit" class="btn btn-outline-secondary" name="set_default" value="Set as default for all users" />
+              {% if has_default %}
+              <input type="submit" class="btn btn-outline-danger" name="clear_default" value="Clear default" />
+              {% endif %}
+              {% endif %}
+            </div>
+            <div>
+              <input type="submit" class="btn btn-outline-danger" name="reset" value="Reset" />
+              <input type="submit" class="btn btn-primary" name="save" value="Save" />
+            </div>
           </div>
         </form>
       </div>

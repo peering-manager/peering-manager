@@ -12,6 +12,7 @@ from ..filtersets import (
     ConfigContextFilterSet,
     ExportTemplateFilterSet,
     JournalEntryFilterSet,
+    TableConfigFilterSet,
     TagFilterSet,
     WebhookFilterSet,
 )
@@ -20,6 +21,7 @@ from ..models import (
     ConfigContextAssignment,
     ExportTemplate,
     JournalEntry,
+    TableConfig,
     Tag,
     Webhook,
 )
@@ -249,6 +251,52 @@ class JournalEntryTestCase(TestCase, BaseFilterSetTests):
     def test_kind(self):
         params = {"kind": [JournalEntryKind.INFO, JournalEntryKind.SUCCESS]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+
+class TableConfigTestCase(TestCase, BaseFilterSetTests):
+    queryset = TableConfig.objects.all()
+    filterset = TableConfigFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        as_type = ContentType.objects.get_for_model(AutonomousSystem)
+        router_type = ContentType.objects.get_for_model(Router)
+        TableConfig.objects.bulk_create(
+            [
+                TableConfig(
+                    table="AutonomousSystemTable",
+                    object_type=as_type,
+                    columns=["asn", "name"],
+                ),
+                TableConfig(
+                    table="RouterTable",
+                    object_type=router_type,
+                    columns=["name", "hostname"],
+                ),
+                TableConfig(table="InternetExchangeTable", columns=["name", "slug"]),
+            ]
+        )
+
+    def test_id(self):
+        params = {"id": self.queryset.values_list("pk", flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_table(self):
+        params = {"table": ["AutonomousSystemTable", "RouterTable"]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_object_type(self):
+        params = {"object_type": "peering.autonomoussystem"}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_object_type_id(self):
+        params = {
+            "object_type_id": [
+                ContentType.objects.get_for_model(AutonomousSystem).pk,
+                ContentType.objects.get_for_model(Router).pk,
+            ]
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class TagTestCase(TestCase, BaseFilterSetTests):
