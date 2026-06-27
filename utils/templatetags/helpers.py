@@ -12,7 +12,7 @@ from django.utils.html import escape, strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown as md
 
-from ..forms import TableConfigForm
+from ..forms import TableColumnsForm
 
 register = template.Library()
 
@@ -292,7 +292,7 @@ def table_config_form(table, table_name=None):
     ]
     return {
         "table_name": table_name or table.__class__.__name__,
-        "form": TableConfigForm(table=table),
+        "form": TableColumnsForm(table=table),
         "displayed_columns": displayed_columns,
         "available_columns": available_columns,
     }

@@ -3,7 +3,7 @@ from collections import defaultdict
 from django.contrib import messages
 from django.shortcuts import redirect
 
-from utils.forms import TableConfigForm
+from utils.forms import TableColumnsForm
 from utils.functions import get_permission_for_model
 
 __all__ = ("ActionsMixin", "TableMixin")
@@ -50,7 +50,7 @@ class TableMixin:
 
     def post(self, request, **kwargs):
         table = self.table(self.queryset)
-        form = TableConfigForm(table=table, data=request.POST)
+        form = TableColumnsForm(table=table, data=request.POST)
 
         if form.is_valid():
             preference = f"tables.{form.table_name}.columns"
