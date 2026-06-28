@@ -848,14 +848,14 @@ testing = ["pytest (>=7.0)", "pytest-django (>=4.5)"]
 
 [[package]]
 name = "django-tables2"
-version = "2.8.0"
+version = "3.0.0"
 description = "Table/data-grid framework for Django"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "django_tables2-2.8.0-py3-none-any.whl", hash = "sha256:860633b0f448216af73fca6005c7e38dc9b46931dc36c08a9281a71ee250b1ee"},
-    {file = "django_tables2-2.8.0.tar.gz", hash = "sha256:0dea3401bb99a0164ba09e20d59a7d90856fdc05e5ae2da9a14d0fa14d99257c"},
+    {file = "django_tables2-3.0.0-py3-none-any.whl", hash = "sha256:2a5b5447f10d7a8cfb7a2e8f0b139d969c7eb2e675079a4b8ba0107956345bfa"},
+    {file = "django_tables2-3.0.0.tar.gz", hash = "sha256:3c5343f72663b0d6684e8e6cbcb16caae10d7621a51c1cf3c581f57ce605f8ee"},
 ]
 
 [package.dependencies]
@@ -3126,4 +3126,4 @@ test = ["coverage", "hypothesis", "pytest"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.15"
-content-hash = "5feffb00d51f75bc0c18c5d8a36ba11d0d17a4ecbdb24754b7c34c8f0d2d4da4"
+content-hash = "9a04b1df55b173c34d23725363b0f6b98532067d9c0f13b27d50d5bbe4bfbb5d"

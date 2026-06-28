@@ -686,14 +686,14 @@ wheels = [
 
 [[package]]
 name = "django-tables2"
-version = "2.8.0"
+version = "3.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/28/ab/3533314e818b04a9e1f04ae167845fec509f4e78ebaa6cf507d12eabcce3/django_tables2-2.8.0.tar.gz", hash = "sha256:0dea3401bb99a0164ba09e20d59a7d90856fdc05e5ae2da9a14d0fa14d99257c", size = 129204, upload-time = "2025-11-21T10:17:43.813Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e2/95/8e28e76c04b91d15cf595607040e2e821fd48b517428c2bae5d62af89b18/django_tables2-3.0.0.tar.gz", hash = "sha256:3c5343f72663b0d6684e8e6cbcb16caae10d7621a51c1cf3c581f57ce605f8ee", size = 130242, upload-time = "2026-04-13T07:42:44.463Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/79/8b/047bb29359953b1c76f8886377845538144033d87da622c6b743f597a50b/django_tables2-2.8.0-py3-none-any.whl", hash = "sha256:860633b0f448216af73fca6005c7e38dc9b46931dc36c08a9281a71ee250b1ee", size = 95968, upload-time = "2025-11-21T10:17:42.363Z" },
+    { url = "https://files.pythonhosted.org/packages/e3/61/55caa8304cdfdf40717227640d2cdfe8118e8f32b9d5cc1b81b972147185/django_tables2-3.0.0-py3-none-any.whl", hash = "sha256:2a5b5447f10d7a8cfb7a2e8f0b139d969c7eb2e675079a4b8ba0107956345bfa", size = 96405, upload-time = "2026-04-13T07:42:42.651Z" },
 ]
 
 [[package]]
@@ -1434,7 +1434,7 @@ requires-dist = [
     { name = "django-prometheus", specifier = ">=2.4,<2.6" },
     { name = "django-redis", specifier = ">=6.0,<7.1" },
     { name = "django-rq", specifier = ">=3.2,<3.3" },
-    { name = "django-tables2", specifier = ">=2.8,<2.9" },
+    { name = "django-tables2", specifier = ">=3.0,<3.1" },
     { name = "django-taggit", specifier = ">=6.1,<6.2" },
     { name = "djangorestframework", specifier = ">=3.16,<3.18" },
     { name = "drf-spectacular", specifier = ">=0.29,<0.30" },
