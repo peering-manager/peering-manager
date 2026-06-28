@@ -826,14 +826,14 @@ pyzstd = ["pyzstd (>=0.15)"]
 
 [[package]]
 name = "django-rq"
-version = "3.2.2"
+version = "4.1.0"
 description = "An app that provides django integration for RQ (Redis Queue)"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "django_rq-3.2.2-py3-none-any.whl", hash = "sha256:f3808d014a0943774b9425fd1f68366cef23945635b2cf333afcf97af7a3b67d"},
-    {file = "django_rq-3.2.2.tar.gz", hash = "sha256:2eaac4e05092895ec09b6da978e5ae9fafc917574934bb2db1bebf1b3395c049"},
+    {file = "django_rq-4.1.0-py3-none-any.whl", hash = "sha256:ba6e30cfbaefc3b96d9d9c9bd752ad5a9aa8b886e5d9483500b307c1733d2d39"},
+    {file = "django_rq-4.1.0.tar.gz", hash = "sha256:d08eabd70f3a17f289cd9fc68b15efe8e1f45b0fe64c5504161277e8cd9eeb8e"},
 ]
 
 [package.dependencies]
@@ -843,7 +843,6 @@ rq = ">=2.6.1"
 
 [package.extras]
 prometheus = ["prometheus-client (>=0.4.0)"]
-sentry = ["sentry-sdk (>=1.0.0)"]
 testing = ["pytest (>=7.0)", "pytest-django (>=4.5)"]
 
 [[package]]
@@ -2672,14 +2671,14 @@ files = [
 
 [[package]]
 name = "rq"
-version = "2.9.1"
+version = "2.10.0"
 description = "RQ is a simple, lightweight, library for creating background jobs, and processing them."
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "rq-2.9.1-py3-none-any.whl", hash = "sha256:092624e1bc3b3ca9d2ce7ff4049bd7667f772f84695c9dc66a7a662f67f1939a"},
-    {file = "rq-2.9.1.tar.gz", hash = "sha256:2ae30c452bd1e8e26b4a213340d4b6e3957cae23176a92f9132c661d73d0c179"},
+    {file = "rq-2.10.0-py3-none-any.whl", hash = "sha256:1f072e0ff79771f3d3a810170df4c4836dca9ce9f31330a9fc25e25277620ec8"},
+    {file = "rq-2.10.0.tar.gz", hash = "sha256:2d8c533dd27500fedabec06295f18db595966e4f22744e6988fe31155b8f7a21"},
 ]
 
 [package.dependencies]
@@ -3126,4 +3125,4 @@ test = ["coverage", "hypothesis", "pytest"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.15"
-content-hash = "9a04b1df55b173c34d23725363b0f6b98532067d9c0f13b27d50d5bbe4bfbb5d"
+content-hash = "2d0dc238eb580e8e58191e1b465e0023dcb03d75eb827e7ab06617d26b2f9fec"

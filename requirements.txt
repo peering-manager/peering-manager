@@ -20,7 +20,7 @@ django-pglocks==2.1.0
 django-pgware==1.0.0
 django-prometheus==2.5.0
 django-redis==7.0.0
-django-rq==3.2.2
+django-rq==4.1.0
 django-tables2==3.0.0
 django-taggit==6.1.0
 djangorestframework==3.17.1
@@ -74,7 +74,7 @@ requests-oauthlib==2.0.0
 rich==15.0.0
 rpds-py==0.30.0
 rpds-py==2026.5.1
-rq==2.9.1
+rq==2.10.0
 ruamel-yaml==0.19.1
 scp==0.15.0
 setuptools==82.0.1

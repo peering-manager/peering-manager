@@ -436,6 +436,8 @@ if TASKS_REDIS_CA_CERT_PATH:
 
 RQ_QUEUES = {"high": RQ_PARAMS, "default": RQ_PARAMS, "low": RQ_PARAMS}
 RQ_EXCEPTION_HANDLERS = ["core.exceptions.exception_handler"]
+# django-rq 4.0 changed the default to "on_db_commit"
+RQ = {"COMMIT_MODE": "auto"}
 
 if LOGIN_TIMEOUT is not None:
     # Django default is 1209600 seconds (14 days)
