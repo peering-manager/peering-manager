@@ -31,17 +31,17 @@ __all__ = (
 
 @register_model_view(RoutingPolicy, name="list", path="", detail=False)
 class RoutingPolicyList(ObjectListView):
-    permission_required = "peering.view_routingpolicy"
+    permission_required = "bgp.view_routingpolicy"
     queryset = RoutingPolicy.objects.all()
     filterset = RoutingPolicyFilterSet
     filterset_form = RoutingPolicyFilterForm
     table = RoutingPolicyTable
-    template_name = "peering/routingpolicy/list.html"
+    template_name = "bgp/routingpolicy/list.html"
 
 
 @register_model_view(RoutingPolicy)
 class RoutingPolicyView(ObjectView):
-    permission_required = "peering.view_routingpolicy"
+    permission_required = "bgp.view_routingpolicy"
     queryset = RoutingPolicy.objects.all()
 
 
@@ -54,13 +54,13 @@ class RoutingPolicyEdit(ObjectEditView):
 
 @register_model_view(RoutingPolicy, name="delete")
 class RoutingPolicyDelete(ObjectDeleteView):
-    permission_required = "peering.delete_routingpolicy"
+    permission_required = "bgp.delete_routingpolicy"
     queryset = RoutingPolicy.objects.all()
 
 
 @register_model_view(RoutingPolicy, name="bulk_edit", path="edit", detail=False)
 class RoutingPolicyBulkEdit(BulkEditView):
-    permission_required = "peering.change_routingpolicy"
+    permission_required = "bgp.change_routingpolicy"
     queryset = RoutingPolicy.objects.all()
     filterset = RoutingPolicyFilterSet
     table = RoutingPolicyTable
@@ -76,6 +76,6 @@ class RoutingPolicyBulkDelete(BulkDeleteView):
 
 @register_model_view(RoutingPolicy, name="configcontext", path="config-context")
 class RoutingPolicyConfigContext(ObjectConfigContextView):
-    permission_required = "peering.view_routingpolicy"
+    permission_required = "bgp.view_routingpolicy"
     queryset = RoutingPolicy.objects.all()
-    base_template = "peering/routingpolicy/_base.html"
+    base_template = "bgp/routingpolicy/_base.html"

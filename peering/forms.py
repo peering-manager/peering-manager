@@ -7,11 +7,12 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
-from bgp.models import Community, Relationship
+from bgp.models import Community, Relationship, RoutingPolicy
 from devices.models import Router
 from extras.models import IXAPI
 from messaging.models import Email
 from net.models import BFD, Connection
+from peering_manager.enums import IPFamily
 from peering_manager.forms import (
     PeeringManagerModelBulkEditForm,
     PeeringManagerModelFilterSetForm,
@@ -35,10 +36,8 @@ from .enums import (
     BGPRole,
     BGPSessionStatus,
     BGPState,
-    IPFamily,
     PeeringRequestStatus,
     PeeringRequestType,
-    RoutingPolicyType,
 )
 from .models import (
     AutonomousSystem,
@@ -48,7 +47,6 @@ from .models import (
     InternetExchangePeeringSession,
     PeeringRequest,
     RequestedSession,
-    RoutingPolicy,
 )
 
 if TYPE_CHECKING:
@@ -1017,78 +1015,3 @@ class RequestedSessionForm(PeeringManagerModelForm):
     class Meta:
         model = RequestedSession
         fields = ("peering_request", "ixp_connection", "ip_address", "session_secret")
-
-
-class RoutingPolicyForm(PeeringManagerModelForm):
-    slug = SlugField(max_length=255)
-    type = forms.ChoiceField(choices=RoutingPolicyType, widget=StaticSelect)
-    address_family = forms.ChoiceField(choices=IPFamily, widget=StaticSelect)
-    communities = DynamicModelMultipleChoiceField(
-        required=False, queryset=Community.objects.all()
-    )
-    local_context_data = JSONField(required=False)
-    tags = TagField(required=False)
-    fieldsets = (
-        (
-            "Routing Policy",
-            (
-                "name",
-                "slug",
-                "description",
-                "type",
-                "weight",
-                "address_family",
-                "communities",
-            ),
-        ),
-        ("Config Context", ("local_context_data",)),
-    )
-
-    class Meta:
-        model = RoutingPolicy
-
-        fields = (
-            "name",
-            "slug",
-            "description",
-            "type",
-            "weight",
-            "address_family",
-            "communities",
-            "local_context_data",
-            "tags",
-        )
-
-
-class RoutingPolicyBulkEditForm(PeeringManagerModelBulkEditForm):
-    type = forms.ChoiceField(
-        required=False,
-        choices=add_blank_choice(RoutingPolicyType),
-        widget=StaticSelect,
-    )
-    weight = forms.IntegerField(required=False, min_value=0, max_value=32767)
-    address_family = forms.ChoiceField(
-        required=False, choices=IPFamily, widget=StaticSelect
-    )
-    communities = DynamicModelMultipleChoiceField(
-        required=False, queryset=Community.objects.all()
-    )
-    description = forms.CharField(max_length=200, required=False)
-    local_context_data = JSONField(required=False)
-
-    model = RoutingPolicy
-    nullable_fields = ("description", "communities", "local_context_data")
-
-
-class RoutingPolicyFilterForm(PeeringManagerModelFilterSetForm):
-    model = RoutingPolicy
-    type = forms.MultipleChoiceField(
-        required=False,
-        choices=add_blank_choice(RoutingPolicyType),
-        widget=StaticSelectMultiple,
-    )
-    weight = forms.IntegerField(required=False, min_value=0, max_value=32767)
-    address_family = forms.ChoiceField(
-        required=False, choices=add_blank_choice(IPFamily), widget=StaticSelect
-    )
-    tag = TagFilterField(model)

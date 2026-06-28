@@ -21,7 +21,6 @@ from ...filtersets import (
     InternetExchangePeeringSessionFilterSet,
     PeeringRequestFilterSet,
     RequestedSessionFilterSet,
-    RoutingPolicyFilterSet,
 )
 from ...jobs import import_sessions_to_internet_exchange
 from ...models import (
@@ -32,7 +31,6 @@ from ...models import (
     InternetExchangePeeringSession,
     PeeringRequest,
     RequestedSession,
-    RoutingPolicy,
 )
 from ..serializers import (
     AutonomousSystemSerializer,
@@ -43,7 +41,6 @@ from ..serializers import (
     NestedInternetExchangeSerializer,
     PeeringRequestSerializer,
     RequestedSessionSerializer,
-    RoutingPolicySerializer,
 )
 
 
@@ -684,9 +681,3 @@ class RequestedSessionViewSet(PeeringManagerModelViewSet):
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"status": "rejected"})
-
-
-class RoutingPolicyViewSet(PeeringManagerModelViewSet):
-    queryset = RoutingPolicy.objects.all()
-    serializer_class = RoutingPolicySerializer
-    filterset_class = RoutingPolicyFilterSet

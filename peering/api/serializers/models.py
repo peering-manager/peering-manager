@@ -6,19 +6,23 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from bgp.api.serializers import NestedCommunitySerializer, NestedRelationshipSerializer
-from bgp.models import Community
+from bgp.api.serializers import (
+    NestedCommunitySerializer,
+    NestedRelationshipSerializer,
+    NestedRoutingPolicySerializer,
+)
+from bgp.models import Community, RoutingPolicy
 from devices.api.serializers import NestedRouterSerializer
 from extras.api.serializers import NestedIXAPISerializer
 from net.api.serializers import NestedBFDSerializer, NestedConnectionSerializer
 from peering_manager.api.fields import ChoiceField, SerializedPKRelatedField
 from peering_manager.api.serializers import PeeringManagerModelSerializer
+from peering_manager.enums import IPFamily
 
 from ...enums import (
     BGPGroupStatus,
     BGPRole,
     BGPSessionStatus,
-    IPFamily,
     PeeringRequestStatus,
     PeeringRequestType,
     RequestedSessionStatus,
@@ -31,7 +35,6 @@ from ...models import (
     InternetExchangePeeringSession,
     PeeringRequest,
     RequestedSession,
-    RoutingPolicy,
 )
 from ..nested_serializers import *
 
@@ -51,10 +54,8 @@ __all__ = (
     "NestedInternetExchangeSerializer",
     "NestedPeeringRequestSerializer",
     "NestedRequestedSessionSerializer",
-    "NestedRoutingPolicySerializer",
     "PeeringRequestSerializer",
     "RequestedSessionSerializer",
-    "RoutingPolicySerializer",
 )
 
 
@@ -440,36 +441,6 @@ class PeeringRequestSerializer(PeeringManagerModelSerializer):
             "requested_sessions",
             "description",
             "comments",
-            "tags",
-            "created",
-            "updated",
-        ]
-
-
-class RoutingPolicySerializer(PeeringManagerModelSerializer):
-    communities = SerializedPKRelatedField(
-        queryset=Community.objects.all(),
-        serializer=NestedCommunitySerializer,
-        required=False,
-        many=True,
-    )
-
-    class Meta:
-        model = RoutingPolicy
-        fields = [
-            "id",
-            "url",
-            "display_url",
-            "display",
-            "name",
-            "slug",
-            "description",
-            "type",
-            "weight",
-            "address_family",
-            "communities",
-            "local_context_data",
-            "config_context",
             "tags",
             "created",
             "updated",

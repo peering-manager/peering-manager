@@ -332,17 +332,3 @@ class InternetExchangePeeringSessionTest(TestCase):
         self.session.bgp_role = None
         self.session.is_route_server = True
         self.session.clean()
-
-
-class RoutingPolicyTest(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.routing_policies = [
-            RoutingPolicy(name="test-1", slug="test-1", type=RoutingPolicyType.EXPORT),
-            RoutingPolicy(name="test-2", slug="test-2", type=RoutingPolicyType.IMPORT),
-            RoutingPolicy(
-                name="test-3", slug="test-3", type=RoutingPolicyType.IMPORT_EXPORT
-            ),
-            RoutingPolicy(name="test-4", slug="test-4", type="unknown"),
-        ]
-        RoutingPolicy.objects.bulk_create(cls.routing_policies)

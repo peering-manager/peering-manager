@@ -30,3 +30,11 @@ class CommunityType(ChoiceSet):
         (INGRESS, "Ingress"),
         (INGRESS_EGRESS, "Ingress+Egress"),
     )
+
+
+class RoutingPolicyType(ChoiceSet):
+    EXPORT = "export-policy"
+    IMPORT = "import-policy"
+    IMPORT_EXPORT = "import-export-policy"
+
+    CHOICES = ((EXPORT, "Export"), (IMPORT, "Import"), (IMPORT_EXPORT, "Import+Export"))

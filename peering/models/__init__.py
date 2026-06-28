@@ -15,7 +15,6 @@ from django.db.models import Q
 from django.forms import ValidationError
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from netfields import InetAddressField
 
 from bgp.models import Relationship
@@ -23,7 +22,6 @@ from net.models import Connection
 from peering_manager.models import (
     ChangeLoggedModel,
     JournalingMixin,
-    OrganisationalModel,
     PrimaryModel,
 )
 from peeringdb.functions import get_shared_facilities, get_shared_internet_exchanges
@@ -38,11 +36,9 @@ from peeringdb.models import (
 from ..enums import (
     BGPRole,
     BGPState,
-    IPFamily,
     PeeringRequestStatus,
     PeeringRequestType,
     RequestedSessionStatus,
-    RoutingPolicyType,
 )
 from ..fields import ASNField
 from ..functions import (
@@ -71,7 +67,6 @@ __all__ = (
     "InternetExchangePeeringSession",
     "PeeringRequest",
     "RequestedSession",
-    "RoutingPolicy",
 )
 
 logger = logging.getLogger("peering.manager.peering")
@@ -107,10 +102,14 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
     )
     ipv4_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
     import_routing_policies = models.ManyToManyField(
-        "RoutingPolicy", blank=True, related_name="%(class)s_import_routing_policies"
+        "bgp.RoutingPolicy",
+        blank=True,
+        related_name="%(class)s_import_routing_policies",
     )
     export_routing_policies = models.ManyToManyField(
-        "RoutingPolicy", blank=True, related_name="%(class)s_export_routing_policies"
+        "bgp.RoutingPolicy",
+        blank=True,
+        related_name="%(class)s_export_routing_policies",
     )
     communities = models.ManyToManyField("bgp.Community", blank=True)
     prefixes = models.JSONField(blank=True, null=True, editable=False)
@@ -1499,44 +1498,3 @@ class RequestedSession(ChangeLoggedModel):
         self.status = RequestedSessionStatus.REJECTED
         self.rejection_comment = comment
         self.save(update_fields=["status", "rejection_comment", "updated"])
-
-
-class RoutingPolicy(OrganisationalModel):
-    type = models.CharField(
-        max_length=50,
-        choices=RoutingPolicyType,
-        default=RoutingPolicyType.IMPORT,
-    )
-    weight = models.PositiveSmallIntegerField(
-        default=0, help_text="The higher the number, the higher the priority"
-    )
-    address_family = models.PositiveSmallIntegerField(
-        default=IPFamily.ALL, choices=IPFamily
-    )
-    communities = models.ManyToManyField("bgp.Community", blank=True)
-
-    class Meta:
-        verbose_name_plural = "routing policies"
-        ordering = ["-weight", "name"]
-
-    def __str__(self) -> str:
-        return self.name
-
-    def get_type_html(self, display_name=False):
-        if self.type == RoutingPolicyType.EXPORT:
-            badge_type = "text-bg-primary"
-            text = self.get_type_display()
-        elif self.type == RoutingPolicyType.IMPORT:
-            badge_type = "text-bg-info"
-            text = self.get_type_display()
-        elif self.type == RoutingPolicyType.IMPORT_EXPORT:
-            badge_type = "text-bg-dark"
-            text = self.get_type_display()
-        else:
-            badge_type = "text-bg-secondary"
-            text = "Unknown"
-
-        if display_name:
-            text = self.name
-
-        return mark_safe(f'<span class="badge {badge_type}">{text}</span>')

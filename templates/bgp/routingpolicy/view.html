@@ -1,4 +1,4 @@
-{% extends 'peering/routingpolicy/_base.html' %}
+{% extends 'bgp/routingpolicy/_base.html' %}
 {% load helpers %}
 {% block subcontent %}
 <div class="row">
@@ -35,7 +35,7 @@
   </div>
   <div class="col-md-6">
     {% include 'includes/communities_card.html' %}
-    {% include 'includes/tags_card.html' with tags=instance.tags.all url='peering:routingpolicy_list' %}
+    {% include 'includes/tags_card.html' with tags=instance.tags.all url='bgp:routingpolicy_list' %}
   </div>
 </div>
 {% endblock %}

@@ -1,6 +1,6 @@
 import django_tables2 as tables
 
-from bgp.tables import CommunityColumn
+from bgp.tables import CommunityColumn, RoutingPolicyColumn
 from peering_manager.tables import BaseTable, PeeringManagerTable, columns
 
 from ..models import (
@@ -11,13 +11,11 @@ from ..models import (
     InternetExchangePeeringSession,
     PeeringRequest,
     RequestedSession,
-    RoutingPolicy,
 )
-from .columns import BGPSessionStateColumn, RoutingPolicyColumn
+from .columns import BGPSessionStateColumn
 
 BGP_RELATIONSHIP = "{{ record.relationship.get_html }}"
 COMMUNITY_TYPE = "{{ record.get_type_html }}"
-ROUTING_POLICY_TYPE = "{{ record.get_type_html }}"
 
 
 class AutonomousSystemTable(PeeringManagerTable):
@@ -407,27 +405,3 @@ class AutonomousSystemPrefixTable(BaseTable):
         empty_text = "No prefixes found"
         fields = ("prefix", "exact", "less_equal")
         default_columns = ("prefix", "exact", "less_equal")
-
-
-class RoutingPolicyTable(PeeringManagerTable):
-    name = tables.Column(linkify=True)
-    type = tables.TemplateColumn(template_code=ROUTING_POLICY_TYPE)
-    communities = CommunityColumn()
-    tags = columns.TagColumn(url_name="peering:routingpolicy_list")
-
-    class Meta(PeeringManagerTable.Meta):
-        model = RoutingPolicy
-        fields = (
-            "pk",
-            "id",
-            "name",
-            "slug",
-            "description",
-            "type",
-            "weight",
-            "address_family",
-            "communities",
-            "tags",
-            "actions",
-        )
-        default_columns = ("pk", "name", "type", "weight", "address_family", "actions")

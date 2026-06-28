@@ -91,7 +91,7 @@ NAVIGATION: list[MenuItem | MenuGroup] = [
         menu_id="policyoptions-menu",
         items=[
             MenuItem(label="Communities", url_name="bgp:community_list"),
-            MenuItem(label="Routing Policies", url_name="peering:routingpolicy_list"),
+            MenuItem(label="Routing Policies", url_name="bgp:routingpolicy_list"),
         ],
     ),
     MenuGroup(

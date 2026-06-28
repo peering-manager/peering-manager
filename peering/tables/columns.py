@@ -1,7 +1,6 @@
 import django_tables2 as tables
-from django.utils.safestring import mark_safe
 
-__all__ = ("BGPSessionStateColumn", "RoutingPolicyColumn")
+__all__ = ("BGPSessionStateColumn",)
 
 
 class BGPSessionStateColumn(tables.TemplateColumn):
@@ -14,16 +13,5 @@ class BGPSessionStateColumn(tables.TemplateColumn):
             default=default,
             verbose_name=verbose_name,
             template_code=template_code,
-            **kwargs,
-        )
-
-
-class RoutingPolicyColumn(tables.ManyToManyColumn):
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            *args,
-            default=mark_safe('<span class="text-muted">&mdash;</span>'),
-            separator=" ",
-            transform=lambda p: p.get_type_html(display_name=True),
             **kwargs,
         )

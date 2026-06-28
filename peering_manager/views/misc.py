@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.views.generic import View
 from packaging import version
 
-from bgp.models import Community
+from bgp.models import Community, RoutingPolicy
 from core.models import ObjectChange
 from devices.models import Configuration, Router
 from messaging.models import Contact, Email
@@ -16,7 +16,6 @@ from peering.models import (
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
-    RoutingPolicy,
 )
 from peering_manager.constants import SEARCH_MAX_RESULTS, SEARCH_TYPES
 from peering_manager.forms import SearchForm

@@ -8,7 +8,6 @@ from ..models import (
     InternetExchangePeeringSession,
     PeeringRequest,
     RequestedSession,
-    RoutingPolicy,
 )
 
 __all__ = (
@@ -19,7 +18,6 @@ __all__ = (
     "NestedInternetExchangeSerializer",
     "NestedPeeringRequestSerializer",
     "NestedRequestedSessionSerializer",
-    "NestedRoutingPolicySerializer",
 )
 
 
@@ -88,9 +86,3 @@ class NestedRequestedSessionSerializer(WritableNestedSerializer):
     class Meta:
         model = RequestedSession
         fields = ["id", "url", "display", "ip_address", "address_family", "status"]
-
-
-class NestedRoutingPolicySerializer(WritableNestedSerializer):
-    class Meta:
-        model = RoutingPolicy
-        fields = ["id", "url", "display_url", "display", "name", "slug", "type"]

@@ -14,7 +14,7 @@ from django.db.models import (
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 
-from bgp.models import Relationship
+from bgp.models import Relationship, RoutingPolicy
 from devices.models import Router
 from net.models import BFD, Connection
 from peering_manager.filtersets import (
@@ -32,7 +32,6 @@ from .enums import (
     PeeringRequestStatus,
     PeeringRequestType,
     RequestedSessionStatus,
-    RoutingPolicyType,
 )
 from .models import (
     AutonomousSystem,
@@ -42,7 +41,6 @@ from .models import (
     InternetExchangePeeringSession,
     PeeringRequest,
     RequestedSession,
-    RoutingPolicy,
 )
 
 
@@ -449,19 +447,3 @@ class RequestedSessionFilterSet(ChangeLoggedModelFilterSet):
         if value in [4, 6]:
             return queryset.filter(Q(ip_address__family=value))
         return queryset
-
-
-class RoutingPolicyFilterSet(OrganisationalModelFilterSet):
-    type = django_filters.MultipleChoiceFilter(
-        method="type_search", choices=RoutingPolicyType, null_value=None
-    )
-
-    class Meta:
-        model = RoutingPolicy
-        fields = ["id", "weight", "address_family"]
-
-    def type_search(self, queryset, name, value):
-        qs_filter = Q(type=RoutingPolicyType.IMPORT_EXPORT)
-        for v in value:
-            qs_filter |= Q(type=v)
-        return queryset.filter(qs_filter)

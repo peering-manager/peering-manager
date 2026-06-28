@@ -4,4 +4,3 @@ from .direct_peering_session import *
 from .internet_exchange import *
 from .internet_exchange_peering_session import *
 from .peering_request import *
-from .routing_policy import *
