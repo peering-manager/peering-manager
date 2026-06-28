@@ -16,8 +16,8 @@ dependencies = [
     "django-pglocks>=1.0,<2.2",
     "django-prometheus>=2.4,<2.6",
     "django-redis>=6.0,<7.1",
-    "django-rq>=3.2,<3.3",       # held: 4.x breaks the worker and webhook enqueue tests
-    "django-tables2>=2.8,<2.9",  # held: 3.0 drops the querystring tag our table templates rely on
+    "django-rq>=3.2,<3.3",                 # held: 4.x breaks the worker and webhook enqueue tests
+    "django-tables2>=2.8,<2.9",            # held: 3.0 drops the querystring tag our table templates rely on
     "django-taggit>=6.1,<6.2",
     "drf-spectacular>=0.29,<0.30",
     "drf-spectacular-sidecar>=2025,<2027",
@@ -27,11 +27,11 @@ dependencies = [
     "napalm>=5.1,<5.2",
     "packaging==25.0",
     "psycopg[binary,pool]>=3.3,<3.4",
-    "pyixapi>=0.2,<0.3",
+    "pyixapi>=0.3,<0.4",
     "pynetbox>=7.5,<7.9",
     "PyYAML>=6.0,<6.1",
     "requests>=2.33,<2.35",
-    "rq>=2.9,<2.10",            # held: companion to django-rq, 2.10 breaks webhook enqueuing
+    "rq>=2.9,<2.10",                       # held: companion to django-rq, 2.10 breaks webhook enqueuing
     "social-auth-app-django>=5.7,<5.10",
     "pytz>=2026",
 ]

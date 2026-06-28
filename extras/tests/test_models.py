@@ -138,7 +138,9 @@ class IXAPITest(TestCase):
         # If API yields more than one account
         with patch(
             "requests.sessions.Session.get",
-            fixture="extras/tests/fixtures/ix_api/accounts.json",
+            return_value=MockedResponse(
+                fixture="extras/tests/fixtures/ix_api/accounts.json"
+            ),
         ):
             self.assertIsNone(self.ix_api.get_identity())
 
