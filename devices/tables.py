@@ -78,6 +78,12 @@ class PlatformTable(PeeringManagerTable):
 
 
 class RouterTable(PeeringManagerTable):
+    append_template = """
+    {% if perms.devices.view_router_configuration %}
+    <a href="{% url 'devices:router_configuration' pk=record.pk %}" class="btn btn-sm btn-primary" title="Configuration"><i class="fa-fw fa-solid fa-file-code"></i></a>
+    {% endif %}
+    """
+
     local_autonomous_system = tables.Column(verbose_name="Local AS", linkify=True)
     name = tables.Column(linkify=True)
     platform = tables.Column(linkify=True)
@@ -101,6 +107,7 @@ class RouterTable(PeeringManagerTable):
     data_source = tables.Column(linkify=True)
     data_pushed = columns.DateTimeColumn()
     tags = columns.TagColumn(url_name="devices:router_list")
+    actions = columns.ActionsColumn(extra_buttons=append_template)
 
     class Meta(PeeringManagerTable.Meta):
         model = Router
