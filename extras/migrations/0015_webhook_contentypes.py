@@ -16,9 +16,7 @@ class Migration(migrations.Migration):
             name="webhook",
             unique_together=set(),
         ),
-        migrations.RenameField(
-            model_name="webhook", old_name="url", new_name="payload_url"
-        ),
+        migrations.RenameField(model_name="webhook", old_name="url", new_name="payload_url"),
         migrations.AddField(
             model_name="webhook",
             name="additional_headers",
@@ -67,8 +65,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name="webhook",
-            unique_together={
-                ("type_create", "type_update", "type_delete", "payload_url")
-            },
+            unique_together={("type_create", "type_update", "type_delete", "payload_url")},
         ),
     ]

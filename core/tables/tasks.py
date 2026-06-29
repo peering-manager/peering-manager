@@ -21,9 +21,7 @@ class RQJobStatusColumn(tables.Column):
 
     def render(self, value):
         status = RQ_TASK_STATUSES.get(value)
-        return mark_safe(
-            f'<span class="badge badge-{status.colour}">{status.label}</span>'
-        )
+        return mark_safe(f'<span class="badge badge-{status.colour}">{status.label}</span>')
 
     def value(self, value):
         status = RQ_TASK_STATUSES.get(value)
@@ -57,9 +55,7 @@ class BackgroundQueueTable(BaseTable):
         linkify=("core:background_task_list", [A("index"), "scheduled"]),
         verbose_name="Scheduled",
     )
-    workers = tables.Column(
-        linkify=("core:worker_list", [A("index")]), verbose_name="Workers"
-    )
+    workers = tables.Column(linkify=("core:worker_list", [A("index")]), verbose_name="Workers")
     host = tables.Column(accessor="connection_kwargs__host", verbose_name="Host")
     port = tables.Column(accessor="connection_kwargs__port", verbose_name="Port")
     db = tables.Column(accessor="connection_kwargs__db", verbose_name="DB")

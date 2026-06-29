@@ -18,9 +18,7 @@ class Migration(migrations.Migration):
         ContentType = apps.get_model("contenttypes", "ContentType")
         AutonomousSystemType = ContentType.objects.get_for_model(AutonomousSystem)
 
-        as_with_contact = AutonomousSystem.objects.using(db_alias).exclude(
-            contact_email__exact=""
-        )
+        as_with_contact = AutonomousSystem.objects.using(db_alias).exclude(contact_email__exact="")
         if not as_with_contact:
             return
 

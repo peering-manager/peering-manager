@@ -41,20 +41,12 @@ class ExportTemplate(SynchronisedDataMixin, ChangeLoggedModel):
     template = models.TextField(
         help_text="Jinja2 template code. The list of objects being exported is passed as a context variable named <code>dataset</code>."
     )
-    jinja2_trim = models.BooleanField(
-        default=False, help_text="Removes new line after tag"
-    )
-    jinja2_lstrip = models.BooleanField(
-        default=False, help_text="Strips whitespaces before block"
-    )
+    jinja2_trim = models.BooleanField(default=False, help_text="Removes new line after tag")
+    jinja2_lstrip = models.BooleanField(default=False, help_text="Strips whitespaces before block")
 
     class Meta:
         ordering = ["content_type", "name"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["content_type", "name"], name="contenttype_per_name"
-            )
-        ]
+        constraints = [models.UniqueConstraint(fields=["content_type", "name"], name="contenttype_per_name")]
 
     @property
     def rendered(self) -> str:
@@ -70,11 +62,7 @@ class ExportTemplate(SynchronisedDataMixin, ChangeLoggedModel):
         super().clean()
 
         if self.name.lower() == "table":
-            raise ValidationError(
-                {
-                    "name": f'"{self.name}" is a reserved name. Please choose a different name.'
-                }
-            )
+            raise ValidationError({"name": f'"{self.name}" is a reserved name. Please choose a different name.'})
 
     def synchronise_data(self) -> None:
         self.template = self.data_file.data_as_string
@@ -83,9 +71,7 @@ class ExportTemplate(SynchronisedDataMixin, ChangeLoggedModel):
         """
         Renders the content of the export template.
         """
-        return render_jinja2(
-            self.template, {"dataset": self.content_type.model_class().objects.all()}
-        )
+        return render_jinja2(self.template, {"dataset": self.content_type.model_class().objects.all()})
 
 
 class JournalEntry(TagsMixin, ExportTemplatesMixin, ChangeLoggedModel):
@@ -99,19 +85,11 @@ class JournalEntry(TagsMixin, ExportTemplatesMixin, ChangeLoggedModel):
     autonomous system.
     """
 
-    assigned_object_type = models.ForeignKey(
-        to="contenttypes.ContentType", on_delete=models.CASCADE
-    )
+    assigned_object_type = models.ForeignKey(to="contenttypes.ContentType", on_delete=models.CASCADE)
     assigned_object_id = models.PositiveBigIntegerField()
-    assigned_object = GenericForeignKey(
-        ct_field="assigned_object_type", fk_field="assigned_object_id"
-    )
-    created_by = models.ForeignKey(
-        to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True
-    )
-    kind = models.CharField(
-        max_length=30, choices=JournalEntryKind, default=JournalEntryKind.INFO
-    )
+    assigned_object = GenericForeignKey(ct_field="assigned_object_type", fk_field="assigned_object_id")
+    created_by = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True)
+    kind = models.CharField(max_length=30, choices=JournalEntryKind, default=JournalEntryKind.INFO)
     comments = models.TextField()
 
     class Meta:
@@ -121,7 +99,9 @@ class JournalEntry(TagsMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
     def __str__(self) -> str:
         created = timezone.localtime(self.created)
-        return f"{created.date().isoformat()} {created.time().isoformat(timespec='minutes')} ({self.get_kind_display()})"
+        return (
+            f"{created.date().isoformat()} {created.time().isoformat(timespec='minutes')} ({self.get_kind_display()})"
+        )
 
     def get_absolute_url(self) -> str:
         return reverse("extras:journalentry", args=[self.pk])
@@ -140,9 +120,7 @@ class JournalEntry(TagsMixin, ExportTemplatesMixin, ChangeLoggedModel):
         """
         Creates and saves a new journal entry for an object.
         """
-        return cls.objects.create(
-            assigned_object=object, created_by=user, kind=kind, comments=comments
-        )
+        return cls.objects.create(assigned_object=object, created_by=user, kind=kind, comments=comments)
 
 
 class Webhook(ChangeLoggedModel):
@@ -160,15 +138,9 @@ class Webhook(ChangeLoggedModel):
         help_text="The object(s) to which this webhook applies.",
     )
     name = models.CharField(max_length=100, unique=True)
-    type_create = models.BooleanField(
-        default=False, help_text="Call this webhook when an object is created."
-    )
-    type_update = models.BooleanField(
-        default=False, help_text="Call this webhook when an object is updated."
-    )
-    type_delete = models.BooleanField(
-        default=False, help_text="Call this webhook when an object is deleted."
-    )
+    type_create = models.BooleanField(default=False, help_text="Call this webhook when an object is created.")
+    type_update = models.BooleanField(default=False, help_text="Call this webhook when an object is updated.")
+    type_delete = models.BooleanField(default=False, help_text="Call this webhook when an object is deleted.")
     payload_url = models.CharField(
         max_length=512,
         verbose_name="URL",
@@ -232,9 +204,7 @@ class Webhook(ChangeLoggedModel):
         super().clean()
 
         if not any([self.type_create, self.type_update, self.type_delete]):
-            raise ValidationError(
-                "At least one event type must be selected: create, update, and/or delete."
-            )
+            raise ValidationError("At least one event type must be selected: create, update, and/or delete.")
         if self.conditions:
             try:
                 ConditionSet(self.conditions)
@@ -242,9 +212,7 @@ class Webhook(ChangeLoggedModel):
                 raise ValidationError({"conditions": e}) from e
         if not self.ssl_verification and self.ca_file_path:
             raise ValidationError(
-                {
-                    "ca_file_path": "Do not specify a CA certificate file if SSL verification is disabled."
-                }
+                {"ca_file_path": "Do not specify a CA certificate file if SSL verification is disabled."}
             )
 
     def render_headers(self, context) -> dict[str, str]:

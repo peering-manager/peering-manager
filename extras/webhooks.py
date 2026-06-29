@@ -27,9 +27,7 @@ def serialize_for_webhook(instance):
 def get_snapshots(instance, action):
     return {
         "prechange": getattr(instance, "_prechange_snapshot", None),
-        "postchange": (
-            serialize_object(instance) if action != ObjectChangeAction.DELETE else None
-        ),
+        "postchange": (serialize_object(instance) if action != ObjectChangeAction.DELETE else None),
     }
 
 
@@ -38,9 +36,7 @@ def generate_signature(request_body, secret):
     Return a cryptographic signature that can be used to verify the authenticity of
     webhook data.
     """
-    hmac_prep = hmac.new(
-        key=secret.encode("utf8"), msg=request_body, digestmod=hashlib.sha512
-    )
+    hmac_prep = hmac.new(key=secret.encode("utf8"), msg=request_body, digestmod=hashlib.sha512)
     return hmac_prep.hexdigest()
 
 

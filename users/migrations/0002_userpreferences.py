@@ -13,9 +13,7 @@ def create_userprefs(apps, schema_editor):
     """
     User = get_user_model()
     UserPreferences = apps.get_model("users", "UserPreferences")
-    UserPreferences.objects.bulk_create(
-        [UserPreferences(user_id=user.pk) for user in User.objects.all()]
-    )
+    UserPreferences.objects.bulk_create([UserPreferences(user_id=user.pk) for user in User.objects.all()])
 
 
 class Migration(migrations.Migration):
@@ -53,7 +51,5 @@ class Migration(migrations.Migration):
                 "ordering": ["user"],
             },
         ),
-        migrations.RunPython(
-            code=create_userprefs, reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=create_userprefs, reverse_code=migrations.RunPython.noop),
     ]

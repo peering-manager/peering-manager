@@ -63,16 +63,8 @@ class BaseTable(tables.Table):
             selected_columns = user.preferences.get(f"tables.{name}.columns")
         if not selected_columns:
             selected_columns = get_default_columns(name)
-        if (
-            not selected_columns
-            and isinstance(user, AnonymousUser)
-            and hasattr(settings, "DEFAULT_USER_PREFERENCES")
-        ):
-            selected_columns = (
-                settings.DEFAULT_USER_PREFERENCES.get("tables", {})
-                .get(name, {})
-                .get("columns")
-            )
+        if not selected_columns and isinstance(user, AnonymousUser) and hasattr(settings, "DEFAULT_USER_PREFERENCES"):
+            selected_columns = settings.DEFAULT_USER_PREFERENCES.get("tables", {}).get(name, {}).get("columns")
         if not selected_columns:
             selected_columns = getattr(self.Meta, "default_columns", self.Meta.fields)
 
@@ -162,18 +154,12 @@ class BaseTable(tables.Table):
                     # If an ordering has been specified as a query parameter, save it
                     # as the user's preferred ordering for this table
                     ordering = request.GET.getlist(self.prefixed_order_by_field)
-                    request.user.preferences.set(
-                        f"tables.{table_name}.ordering", ordering, commit=True
-                    )
+                    request.user.preferences.set(f"tables.{table_name}.ordering", ordering, commit=True)
                 else:
                     # If the ordering has been set to none (empty), clear any existing
                     # preference
-                    request.user.preferences.delete(
-                        f"tables.{table_name}.ordering", commit=True
-                    )
-            elif ordering := request.user.preferences.get(
-                f"tables.{table_name}.ordering"
-            ):
+                    request.user.preferences.delete(f"tables.{table_name}.ordering", commit=True)
+            elif ordering := request.user.preferences.get(f"tables.{table_name}.ordering"):
                 # If no ordering has been specified, set the preferred ordering
                 self.order_by = ordering
 

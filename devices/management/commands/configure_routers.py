@@ -44,25 +44,17 @@ class Command(BaseCommand):
         # Override default configuration linked in the Router object
         if config_override:
             try:
-                router.configuration_template = Configuration.objects.get(
-                    name=config_override
-                )
+                router.configuration_template = Configuration.objects.get(name=config_override)
             except Configuration.DoesNotExist:
                 router.configuration_template = None
-                self.stdout.write(
-                    self.style.ERROR(
-                        f"Configuration object with name '{config_override}' not found"
-                    )
-                )
+                self.stdout.write(self.style.ERROR(f"Configuration object with name '{config_override}' not found"))
 
         if not quiet:
             self.stdout.write(f"  - {router.hostname} ... ", ending="")
 
         if not as_task:
             configuration = router.render_configuration()
-            error, changes = router.set_napalm_configuration(
-                configuration, commit=no_commit_check
-            )
+            error, changes = router.set_napalm_configuration(configuration, commit=no_commit_check)
             if not no_commit_check and not error and changes:
                 error, _ = router.set_napalm_configuration(configuration, commit=True)
 
@@ -87,17 +79,13 @@ class Command(BaseCommand):
 
         # Configuration can be applied only if there is a template and the router
         # is running on a supported platform
-        routers = Router.objects.filter(
-            configuration_template__isnull=False, platform__isnull=False
-        )
+        routers = Router.objects.filter(configuration_template__isnull=False, platform__isnull=False)
         if options["limit"]:
             routers = routers.filter(hostname__in=options["limit"].split(","))
 
         if not quiet:
             if options["config"]:
-                self.stdout.write(
-                    f"[*] Selecting configuration template '{options['config']}'"
-                )
+                self.stdout.write(f"[*] Selecting configuration template '{options['config']}'")
 
             self.stdout.write("[*] Deploying configurations")
 

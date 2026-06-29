@@ -27,9 +27,7 @@ __all__ = (
 @register_model_view(model=Contact, name="list", path="", detail=False)
 class ContactList(ObjectListView):
     permission_required = "messaging.view_contact"
-    queryset = Contact.objects.annotate(
-        assignment_count=count_related(ContactAssignment, "contact")
-    )
+    queryset = Contact.objects.annotate(assignment_count=count_related(ContactAssignment, "contact"))
     filterset = ContactFilterSet
     filterset_form = ContactFilterForm
     table = ContactTable
@@ -49,9 +47,7 @@ class ContactView(ObjectView):
 
         return {
             "assignments_table": assignments_table,
-            "assignment_count": ContactAssignment.objects.filter(
-                contact=instance
-            ).count(),
+            "assignment_count": ContactAssignment.objects.filter(contact=instance).count(),
         }
 
 
@@ -71,9 +67,7 @@ class ContactDelete(ObjectDeleteView):
 @register_model_view(model=Contact, name="bulk_edit", path="edit", detail=False)
 class ContactBulkEdit(BulkEditView):
     permission_required = "messaging.change_contact"
-    queryset = Contact.objects.annotate(
-        assignment_count=count_related(ContactAssignment, "contact")
-    )
+    queryset = Contact.objects.annotate(assignment_count=count_related(ContactAssignment, "contact"))
     filterset = ContactFilterSet
     table = ContactTable
     form = ContactBulkEditForm
@@ -81,8 +75,6 @@ class ContactBulkEdit(BulkEditView):
 
 @register_model_view(model=Contact, name="bulk_delete", path="delete", detail=False)
 class ContactBulkDelete(BulkDeleteView):
-    queryset = Contact.objects.annotate(
-        assignment_count=count_related(ContactAssignment, "contact")
-    )
+    queryset = Contact.objects.annotate(assignment_count=count_related(ContactAssignment, "contact"))
     filterset = ContactFilterSet
     table = ContactTable

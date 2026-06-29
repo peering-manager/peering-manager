@@ -13,9 +13,7 @@ class IncludeTemplateExtension(Extension):
     inside the database.
     """
 
-    tags = {
-        f"{prefix}_{kind}" for prefix in ("include", "import", "from") for kind in KINDS
-    }
+    tags = {f"{prefix}_{kind}" for prefix in ("include", "import", "from") for kind in KINDS}
 
     def parse(self, parser):
         token = next(parser.stream)

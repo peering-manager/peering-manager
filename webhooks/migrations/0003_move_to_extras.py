@@ -10,7 +10,5 @@ class Migration(migrations.Migration):
     state_operations = [migrations.DeleteModel("Webhook")]
 
     operations = [
-        migrations.SeparateDatabaseAndState(
-            database_operations=database_operations, state_operations=state_operations
-        )
+        migrations.SeparateDatabaseAndState(database_operations=database_operations, state_operations=state_operations)
     ]

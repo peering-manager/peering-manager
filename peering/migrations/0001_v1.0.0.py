@@ -40,9 +40,7 @@ class Migration(migrations.Migration):
         db_alias = schema_editor.connection.alias
         for key, value in models.items():
             model = apps.get_model("peering", key)
-            model.objects.using(db_alias).filter(**value["filters"]).update(
-                **value["updates"]
-            )
+            model.objects.using(db_alias).filter(**value["filters"]).update(**value["updates"])
 
     def reverse_transition_from_none_to_zero(apps, schema_editor):
         models = {
@@ -73,9 +71,7 @@ class Migration(migrations.Migration):
         for key, value in models:
             model = apps.get_model("peering", key)
             for field in value:
-                model.objects.using(db_alias).filter(**value["filters"]).update(
-                    **value["updates"]
-                )
+                model.objects.using(db_alias).filter(**value["filters"]).update(**value["updates"])
 
     def forward_transition_from_minus_one_to_zero(apps, schema_editor):
         models = {
@@ -99,9 +95,7 @@ class Migration(migrations.Migration):
         db_alias = schema_editor.connection.alias
         for key, value in models.items():
             model = apps.get_model("peering", key)
-            model.objects.using(db_alias).filter(**value["filters"]).update(
-                **value["updates"]
-            )
+            model.objects.using(db_alias).filter(**value["filters"]).update(**value["updates"])
 
     def reverse_transition_from_minus_one_to_zero(apps, schema_editor):
         models = {
@@ -126,23 +120,21 @@ class Migration(migrations.Migration):
         for key, value in models:
             model = apps.get_model("peering", key)
             for field in value:
-                model.objects.using(db_alias).filter(**value["filters"]).update(
-                    **value["updates"]
-                )
+                model.objects.using(db_alias).filter(**value["filters"]).update(**value["updates"])
 
     def forward_transition_from_none_to_empty_list(apps, schema_editor):
         AutonomousSystem = apps.get_model("peering", "AutonomousSystem")
         db_alias = schema_editor.connection.alias
-        AutonomousSystem.objects.using(db_alias).filter(
-            potential_internet_exchange_peering_sessions=None
-        ).update(potential_internet_exchange_peering_sessions=[])
+        AutonomousSystem.objects.using(db_alias).filter(potential_internet_exchange_peering_sessions=None).update(
+            potential_internet_exchange_peering_sessions=[]
+        )
 
     def reverse_transition_from_none_to_empty_list(apps, schema_editor):
         AutonomousSystem = apps.get_model("peering", "AutonomousSystem")
         db_alias = schema_editor.connection.alias
-        AutonomousSystem.objects.using(db_alias).filter(
-            potential_internet_exchange_peering_sessions=[]
-        ).update(potential_internet_exchange_peering_sessions=None)
+        AutonomousSystem.objects.using(db_alias).filter(potential_internet_exchange_peering_sessions=[]).update(
+            potential_internet_exchange_peering_sessions=None
+        )
 
     def add_permissions(apps, schema_editor):
         pass
@@ -153,9 +145,7 @@ class Migration(migrations.Migration):
         Permission = apps.get_model("auth.Permission")
 
         try:
-            content_type = ContentType.objects.get(
-                model="internetexchange", app_label="peering"
-            )
+            content_type = ContentType.objects.get(model="internetexchange", app_label="peering")
             Permission.objects.filter(
                 content_type=content_type,
                 codename__in=("view_configuration", "deploy_configuration"),
@@ -758,9 +748,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="autonomoussystem",
             name="contact_email",
-            field=models.EmailField(
-                blank=True, max_length=254, verbose_name="Contact E-mail"
-            ),
+            field=models.EmailField(blank=True, max_length=254, verbose_name="Contact E-mail"),
         ),
         migrations.AddField(
             model_name="autonomoussystem",
@@ -775,9 +763,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="routingpolicy",
             name="address_family",
-            field=models.PositiveSmallIntegerField(
-                choices=[(0, "All"), (4, "IPv4"), (6, "IPv6")], default=0
-            ),
+            field=models.PositiveSmallIntegerField(choices=[(0, "All"), (4, "IPv4"), (6, "IPv6")], default=0),
         ),
         migrations.AlterField(
             model_name="autonomoussystem",
@@ -1023,9 +1009,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="directpeeringsession",
             name="local_ip_address",
-            field=netfields.fields.InetAddressField(
-                blank=True, max_length=39, null=True
-            ),
+            field=netfields.fields.InetAddressField(blank=True, max_length=39, null=True),
         ),
         migrations.AddField(
             model_name="autonomoussystem",
@@ -1107,36 +1091,20 @@ class Migration(migrations.Migration):
                 verbose_name="Tags",
             ),
         ),
-        migrations.RenameField(
-            model_name="autonomoussystem", old_name="comment", new_name="comments"
-        ),
-        migrations.RenameField(
-            model_name="community", old_name="comment", new_name="comments"
-        ),
-        migrations.RenameField(
-            model_name="directpeeringsession", old_name="comment", new_name="comments"
-        ),
-        migrations.RenameField(
-            model_name="internetexchange", old_name="comment", new_name="comments"
-        ),
+        migrations.RenameField(model_name="autonomoussystem", old_name="comment", new_name="comments"),
+        migrations.RenameField(model_name="community", old_name="comment", new_name="comments"),
+        migrations.RenameField(model_name="directpeeringsession", old_name="comment", new_name="comments"),
+        migrations.RenameField(model_name="internetexchange", old_name="comment", new_name="comments"),
         migrations.RenameField(
             model_name="internetexchangepeeringsession",
             old_name="comment",
             new_name="comments",
         ),
-        migrations.RenameField(
-            model_name="router", old_name="comment", new_name="comments"
-        ),
-        migrations.RenameField(
-            model_name="routingpolicy", old_name="comment", new_name="comments"
-        ),
-        migrations.RenameField(
-            model_name="template", old_name="comment", new_name="comments"
-        ),
+        migrations.RenameField(model_name="router", old_name="comment", new_name="comments"),
+        migrations.RenameField(model_name="routingpolicy", old_name="comment", new_name="comments"),
+        migrations.RenameField(model_name="template", old_name="comment", new_name="comments"),
         migrations.AlterModelOptions(name="internetexchange", options={}),
-        migrations.RemoveField(
-            model_name="internetexchange", name="configuration_template"
-        ),
+        migrations.RemoveField(model_name="internetexchange", name="configuration_template"),
         migrations.RunPython(code=add_permissions, reverse_code=remove_permissions),
         migrations.AlterField(
             model_name="autonomoussystem",

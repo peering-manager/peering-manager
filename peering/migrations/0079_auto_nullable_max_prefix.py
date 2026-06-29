@@ -10,15 +10,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="autonomoussystem",
             name="ipv4_max_prefixes",
-            field=models.PositiveIntegerField(
-                blank=True, default=0, null=True, verbose_name="IPv4 max prefix"
-            ),
+            field=models.PositiveIntegerField(blank=True, default=0, null=True, verbose_name="IPv4 max prefix"),
         ),
         migrations.AlterField(
             model_name="autonomoussystem",
             name="ipv6_max_prefixes",
-            field=models.PositiveIntegerField(
-                blank=True, default=0, null=True, verbose_name="IPv6 max prefix"
-            ),
+            field=models.PositiveIntegerField(blank=True, default=0, null=True, verbose_name="IPv6 max prefix"),
         ),
     ]

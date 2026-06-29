@@ -47,9 +47,7 @@ class RouterList(ObjectListView):
         Router.objects.annotate(
             connection_count=Count("connection", distinct=True),
             directpeeringsession_count=Count("directpeeringsession", distinct=True),
-            internetexchangepeeringsession_count=Count(
-                "connection__internetexchangepeeringsession", distinct=True
-            ),
+            internetexchangepeeringsession_count=Count("connection__internetexchangepeeringsession", distinct=True),
         )
         .prefetch_related("configuration_template")
         .order_by("local_autonomous_system", "name")
@@ -114,9 +112,7 @@ class RouterConfiguration(PermissionRequiredMixin, View):
         instance = get_object_or_404(Router, pk=pk)
 
         if "raw" in request.GET:
-            return HttpResponse(
-                instance.render_configuration(), content_type="text/plain"
-            )
+            return HttpResponse(instance.render_configuration(), content_type="text/plain")
 
         return render(
             request,
@@ -143,9 +139,7 @@ class RouterConnections(ObjectChildrenView):
         return Connection.objects.filter(router=parent)
 
 
-@register_model_view(
-    model=Router, name="direct_peering_sessions", path="direct-peering-sessions"
-)
+@register_model_view(model=Router, name="direct_peering_sessions", path="direct-peering-sessions")
 class RouterDirectPeeringSessions(ObjectChildrenView):
     permission_required = ("devices.view_router", "peering.view_directpeeringsession")
     queryset = Router.objects.all()

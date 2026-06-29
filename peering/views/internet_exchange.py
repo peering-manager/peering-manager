@@ -227,9 +227,7 @@ class InternetExchangeIXAPI(PermissionRequiredMixin, View):
             )
 
 
-@register_model_view(
-    InternetExchange, name="peeringdb_import", path="peeringdb-import", detail=False
-)
+@register_model_view(InternetExchange, name="peeringdb_import", path="peeringdb-import", detail=False)
 class InternetExchangePeeringDBImport(GetReturnURLMixin, PermissionRequiredMixin, View):
     permission_required = "peering.add_internetexchange"
     default_return_url = "peering:internetexchange_list"
@@ -237,19 +235,15 @@ class InternetExchangePeeringDBImport(GetReturnURLMixin, PermissionRequiredMixin
     def get_missing_ixps(self, request):
         affiliated = AutonomousSystem.get_for_user(user=request.user)
         if affiliated is None:
-            messages.error(
-                request, "Unable to import IXPs and connections without affiliated AS."
-            )
+            messages.error(request, "Unable to import IXPs and connections without affiliated AS.")
             return redirect(self.get_return_url(request))
 
         # Get known IXPs and their connections
-        netixlans = Connection.objects.filter(
-            peeringdb_netixlan__isnull=False
-        ).values_list("peeringdb_netixlan", flat=True)
-        # Find missing connections
-        missing_netixlans = NetworkIXLan.objects.filter(asn=affiliated.asn).exclude(
-            pk__in=netixlans
+        netixlans = Connection.objects.filter(peeringdb_netixlan__isnull=False).values_list(
+            "peeringdb_netixlan", flat=True
         )
+        # Find missing connections
+        missing_netixlans = NetworkIXLan.objects.filter(asn=affiliated.asn).exclude(pk__in=netixlans)
 
         # Map missing IXPs based on missing connections
         missing_ixps = {}
@@ -327,9 +321,7 @@ class InternetExchangePeeringDBImport(GetReturnURLMixin, PermissionRequiredMixin
                 if ixp_number > 0:
                     message.append(f"{ixp_number} IXP{pluralize(ixp_number)}")
                 if connection_number > 0:
-                    message.append(
-                        f"{connection_number} connection{pluralize(connection_number)}"
-                    )
+                    message.append(f"{connection_number} connection{pluralize(connection_number)}")
                 messages.success(request, f"{' '.join(message)}.")
 
         return redirect(self.get_return_url(request))

@@ -29,9 +29,7 @@ class UserPreferencesTest(TestCase):
         self.assertEqual(ordering, ["asn"])
 
         # Check that a recorded preference is honored by default
-        self.user.preferences.set(
-            "tables.AutonomousSystemTable.ordering", ["-asn"], commit=True
-        )
+        self.user.preferences.set("tables.AutonomousSystemTable.ordering", ["-asn"], commit=True)
         table = AutonomousSystemTable(AutonomousSystem.objects.all())
         request = RequestFactory().get(url)
         request.user = self.user

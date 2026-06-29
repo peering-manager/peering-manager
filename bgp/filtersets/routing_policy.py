@@ -10,9 +10,7 @@ __all__ = ("RoutingPolicyFilterSet",)
 
 
 class RoutingPolicyFilterSet(OrganisationalModelFilterSet):
-    type = django_filters.MultipleChoiceFilter(
-        method="type_search", choices=RoutingPolicyType, null_value=None
-    )
+    type = django_filters.MultipleChoiceFilter(method="type_search", choices=RoutingPolicyType, null_value=None)
 
     class Meta:
         model = RoutingPolicy

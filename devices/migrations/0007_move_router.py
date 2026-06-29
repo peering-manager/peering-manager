@@ -87,9 +87,7 @@ class Migration(migrations.Migration):
                         ),
                         (
                             "netbox_device_id",
-                            models.PositiveIntegerField(
-                                blank=True, default=0, verbose_name="NetBox device"
-                            ),
+                            models.PositiveIntegerField(blank=True, default=0, verbose_name="NetBox device"),
                         ),
                         (
                             "napalm_username",

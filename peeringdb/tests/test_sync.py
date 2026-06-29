@@ -60,22 +60,16 @@ class HiddenPeerLinkTestCase(TestCase):
         cls.ixlan = IXLan.objects.create(ix=cls.ix)
 
     def test_hidden_peer_save_ids(self):
-        hidden_peer = HiddenPeer.objects.create(
-            peeringdb_network=self.network, peeringdb_ixlan=self.ixlan
-        )
+        hidden_peer = HiddenPeer.objects.create(peeringdb_network=self.network, peeringdb_ixlan=self.ixlan)
 
         self.assertEqual(hidden_peer.peeringdb_network_id_copy, self.network.pk)
         self.assertEqual(hidden_peer.peeringdb_ixlan_id_copy, self.ixlan.pk)
 
     def test_hidden_peer_link_to_peeringdb(self):
-        hidden_peer = HiddenPeer.objects.create(
-            peeringdb_network=self.network, peeringdb_ixlan=self.ixlan
-        )
+        hidden_peer = HiddenPeer.objects.create(peeringdb_network=self.network, peeringdb_ixlan=self.ixlan)
 
         # Simulate cache clear
-        HiddenPeer.objects.filter(pk=hidden_peer.pk).update(
-            peeringdb_network=None, peeringdb_ixlan=None
-        )
+        HiddenPeer.objects.filter(pk=hidden_peer.pk).update(peeringdb_network=None, peeringdb_ixlan=None)
         hidden_peer.refresh_from_db()
 
         self.assertIsNone(hidden_peer.peeringdb_network)
@@ -90,13 +84,9 @@ class HiddenPeerLinkTestCase(TestCase):
         self.assertEqual(hidden_peer.peeringdb_ixlan, self.ixlan)
 
     def test_hidden_peer_link_to_peeringdb_partial_failure(self):
-        hidden_peer = HiddenPeer.objects.create(
-            peeringdb_network=self.network, peeringdb_ixlan=self.ixlan
-        )
+        hidden_peer = HiddenPeer.objects.create(peeringdb_network=self.network, peeringdb_ixlan=self.ixlan)
 
-        HiddenPeer.objects.filter(pk=hidden_peer.pk).update(
-            peeringdb_network=None, peeringdb_ixlan=None
-        )
+        HiddenPeer.objects.filter(pk=hidden_peer.pk).update(peeringdb_network=None, peeringdb_ixlan=None)
         hidden_peer.refresh_from_db()
 
         # Delete only the network from cache

@@ -7,10 +7,7 @@ from peering.models import AutonomousSystem
 
 
 class Command(BaseCommand):
-    help = (
-        "Get prefixes and AS lists of Autonomous Systems with IRR AS-SETs and "
-        "store them in the database"
-    )
+    help = "Get prefixes and AS lists of Autonomous Systems with IRR AS-SETs and store them in the database"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -34,9 +31,7 @@ class Command(BaseCommand):
     ) -> dict[str, list[dict[str, Any]]]:
         if not autonomous_system.retrieve_prefixes:
             if not quiet:
-                self.stdout.write(
-                    "    skipped (prefixes retrieval disabled)", self.style.WARNING
-                )
+                self.stdout.write("    skipped (prefixes retrieval disabled)", self.style.WARNING)
             return {"ipv6": [], "ipv4": []}
 
         prefixes = autonomous_system.retrieve_irr_as_set_prefixes()
@@ -45,23 +40,17 @@ class Command(BaseCommand):
 
             if limit and count > limit:
                 if not quiet:
-                    self.stdout.write(
-                        f"    {count:>6} {family} (ignored)", self.style.WARNING
-                    )
+                    self.stdout.write(f"    {count:>6} {family} (ignored)", self.style.WARNING)
                 prefixes[family] = []
             elif not quiet:
                 self.stdout.write(f"    {count:>6} {family}", self.style.SUCCESS)
 
         return prefixes
 
-    def retrieve_as_list(
-        self, autonomous_system: AutonomousSystem, quiet: bool
-    ) -> list[int]:
+    def retrieve_as_list(self, autonomous_system: AutonomousSystem, quiet: bool) -> list[int]:
         if not autonomous_system.retrieve_as_list:
             if not quiet:
-                self.stdout.write(
-                    "    skipped (AS list retrieval disabled)", self.style.WARNING
-                )
+                self.stdout.write("    skipped (AS list retrieval disabled)", self.style.WARNING)
             return []
 
         as_list = autonomous_system.retrieve_irr_as_set_as_list()
@@ -97,9 +86,7 @@ class Command(BaseCommand):
                 autonomous_system.prefixes = self.retrieve_prefixes(
                     autonomous_system=autonomous_system, limit=limit, quiet=quiet
                 )
-                autonomous_system.as_list = self.retrieve_as_list(
-                    autonomous_system=autonomous_system, quiet=quiet
-                )
+                autonomous_system.as_list = self.retrieve_as_list(autonomous_system=autonomous_system, quiet=quiet)
             except UnresolvableIRRObjectError:
                 continue
 

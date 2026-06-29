@@ -92,9 +92,7 @@ class AutonomousSystemTestCase(ViewTestCases.PrimaryObjectViewTestCase):
                     until=str(datetime(2025, 1, 1, 0, 0, tzinfo=pytz.UTC)),
                     comments="Bar",
                 ),
-                HiddenPeer(
-                    peeringdb_network=cls.networks[2], peeringdb_ixlan=cls.ixlans[0]
-                ),
+                HiddenPeer(peeringdb_network=cls.networks[2], peeringdb_ixlan=cls.ixlans[0]),
             ]
         )
 

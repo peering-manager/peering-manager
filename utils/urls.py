@@ -14,20 +14,14 @@ if TYPE_CHECKING:
 __all__ = ("get_model_urls",)
 
 
-def get_model_urls(
-    app_label: str, model_name: str, detail: bool = True
-) -> list[URLPattern]:
+def get_model_urls(app_label: str, model_name: str, detail: bool = True) -> list[URLPattern]:
     """
     Return a list of URL paths for views registered to the given model.
     """
     paths: list[URLPattern] = []
 
     try:
-        views = [
-            v
-            for v in registry[VIEWS_KEY][app_label][model_name]
-            if v["detail"] == detail
-        ]
+        views = [v for v in registry[VIEWS_KEY][app_label][model_name] if v["detail"] == detail]
     except KeyError:
         return []
 
@@ -42,8 +36,6 @@ def get_model_urls(
 
         name = f"{model_name}_{config['name']}" if config["name"] else model_name
         url_path = f"{config['path']}/" if config["path"] else ""
-        paths.append(
-            path(route=url_path, view=view, name=name, kwargs=config["kwargs"])
-        )
+        paths.append(path(route=url_path, view=view, name=name, kwargs=config["kwargs"]))
 
     return paths

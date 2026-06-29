@@ -118,7 +118,5 @@ class RouterPushDiffSerializer(serializers.Serializer):
             raise serializers.ValidationError("Router not found.") from exc
 
         if not router.data_source or not router.data_path:
-            raise serializers.ValidationError(
-                "Router does not have a data source and data path configured."
-            )
+            raise serializers.ValidationError("Router does not have a data source and data path configured.")
         return value

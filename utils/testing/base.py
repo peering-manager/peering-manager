@@ -20,9 +20,7 @@ __all__ = ("MockedResponse", "ModelTestCase", "TestCase")
 
 
 class MockedResponse:
-    def __init__(
-        self, status_code=status.HTTP_200_OK, ok=True, fixture=None, content=None
-    ):
+    def __init__(self, status_code=status.HTTP_200_OK, ok=True, fixture=None, content=None):
         self.status_code = status_code
         if fixture:
             self.content = self.load_fixture(fixture)
@@ -40,11 +38,7 @@ class MockedResponse:
         return json.loads(self.content)
 
     def raise_for_status(self):
-        if (
-            status.HTTP_400_BAD_REQUEST
-            <= self.status_code
-            <= status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED
-        ):
+        if status.HTTP_400_BAD_REQUEST <= self.status_code <= status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED:
             raise HTTPError("", response=self)
 
 
@@ -67,9 +61,7 @@ class TestCase(_TestCase):
         """
         for name in names:
             app, codename = name.split(".")
-            perm = Permission.objects.get(
-                content_type__app_label=app, codename=codename
-            )
+            perm = Permission.objects.get(content_type__app_label=app, codename=codename)
             self.user.user_permissions.add(perm)
 
     def remove_permissions(self, *names):
@@ -78,9 +70,7 @@ class TestCase(_TestCase):
         """
         for name in names:
             app, codename = name.split(".")
-            perm = Permission.objects.get(
-                content_type__app_label=app, codename=codename
-            )
+            perm = Permission.objects.get(content_type__app_label=app, codename=codename)
             self.user.user_permissions.remove(perm)
 
     def assertHttpStatus(self, response, expected_status):  # noqa: N802
@@ -111,17 +101,13 @@ class ModelTestCase(TestCase):
     def add_permissions(self, *names):
         perms = []
         for name in names:
-            perms.append(
-                f"{self.model._meta.app_label}.{name}_{self.model._meta.model_name}"
-            )
+            perms.append(f"{self.model._meta.app_label}.{name}_{self.model._meta.model_name}")
         super().add_permissions(*perms)
 
     def remove_permissions(self, *names):
         perms = []
         for name in names:
-            perms.append(
-                f"{self.model._meta.app_label}.{name}_{self.model._meta.model_name}"
-            )
+            perms.append(f"{self.model._meta.app_label}.{name}_{self.model._meta.model_name}")
         super().add_permissions(*perms)
 
     def _get_queryset(self):
@@ -159,9 +145,7 @@ class ModelTestCase(TestCase):
             # Handle ManyToManyFields
             if value and type(field) in (ManyToManyField, TaggableManager) and api:
                 if field.related_model is ContentType:
-                    model_dict[key] = sorted(
-                        [content_type_identifier(ct) for ct in value]
-                    )
+                    model_dict[key] = sorted([content_type_identifier(ct) for ct in value])
                 else:
                     model_dict[key] = sorted([obj.pk for obj in value])
             elif api:
@@ -194,8 +178,6 @@ class ModelTestCase(TestCase):
         model_dict = self.model_to_dict(instance, fields=fields, api=api)
 
         # Omit any dictionary keys which are not instance attributes or have been excluded
-        relevant_data = {
-            k: v for k, v in data.items() if hasattr(instance, k) and k not in exclude
-        }
+        relevant_data = {k: v for k, v in data.items() if hasattr(instance, k) and k not in exclude}
 
         self.assertDictEqual(model_dict, relevant_data)

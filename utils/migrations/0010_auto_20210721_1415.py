@@ -9,15 +9,9 @@ class Migration(migrations.Migration):
     def move_from_int_to_char(apps, schema_editor):
         ObjectChange = apps.get_model("utils", "ObjectChange")
         db_alias = schema_editor.connection.alias
-        ObjectChange.objects.using(db_alias).filter(old_action=1).update(
-            action="create"
-        )
-        ObjectChange.objects.using(db_alias).filter(old_action=2).update(
-            action="update"
-        )
-        ObjectChange.objects.using(db_alias).filter(old_action=3).update(
-            action="delete"
-        )
+        ObjectChange.objects.using(db_alias).filter(old_action=1).update(action="create")
+        ObjectChange.objects.using(db_alias).filter(old_action=2).update(action="update")
+        ObjectChange.objects.using(db_alias).filter(old_action=3).update(action="delete")
 
     operations = [
         migrations.RemoveField(model_name="objectchange", name="object_data"),

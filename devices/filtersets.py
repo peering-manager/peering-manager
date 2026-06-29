@@ -25,9 +25,7 @@ class ConfigurationFilterSet(PeeringManagerModelFilterSet):
 
 
 class PlatformFilterSet(OrganisationalModelFilterSet):
-    password_algorithm = django_filters.MultipleChoiceFilter(
-        choices=PasswordAlgorithm, null_value=None
-    )
+    password_algorithm = django_filters.MultipleChoiceFilter(choices=PasswordAlgorithm, null_value=None)
 
     class Meta:
         model = Platform
@@ -50,9 +48,7 @@ class RouterFilterSet(PeeringManagerModelFilterSet):
         to_field_name="name",
         label="Local AS (Name)",
     )
-    platform_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Platform.objects.all(), label="Platform (ID)"
-    )
+    platform_id = django_filters.ModelMultipleChoiceFilter(queryset=Platform.objects.all(), label="Platform (ID)")
     platform = django_filters.ModelMultipleChoiceFilter(
         field_name="platform__name",
         queryset=Platform.objects.all(),
@@ -78,7 +74,5 @@ class RouterFilterSet(PeeringManagerModelFilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(name__icontains=value)
-            | Q(hostname__icontains=value)
-            | Q(platform__name__icontains=value)
+            Q(name__icontains=value) | Q(hostname__icontains=value) | Q(platform__name__icontains=value)
         )

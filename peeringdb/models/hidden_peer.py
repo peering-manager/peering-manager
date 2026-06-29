@@ -39,9 +39,7 @@ class HiddenPeer(ChangeLoggedModel):
         related_name="hidden_peers",
         verbose_name="PeeringDB IX LAN",
     )
-    peeringdb_ixlan_id_copy = models.PositiveBigIntegerField(
-        null=True, blank=True, verbose_name="PeeringDB IX LAN ID"
-    )
+    peeringdb_ixlan_id_copy = models.PositiveBigIntegerField(null=True, blank=True, verbose_name="PeeringDB IX LAN ID")
     until = models.DateTimeField(blank=True, null=True)
     comments = models.TextField(blank=True)
 
@@ -60,15 +58,9 @@ class HiddenPeer(ChangeLoggedModel):
 
     def __str__(self) -> str:
         network_str = (
-            str(self.peeringdb_network)
-            if self.peeringdb_network
-            else f"Network ID {self.peeringdb_network_id_copy}"
+            str(self.peeringdb_network) if self.peeringdb_network else f"Network ID {self.peeringdb_network_id_copy}"
         )
-        ixlan_str = (
-            str(self.peeringdb_ixlan)
-            if self.peeringdb_ixlan
-            else f"IX LAN ID {self.peeringdb_ixlan_id_copy}"
-        )
+        ixlan_str = str(self.peeringdb_ixlan) if self.peeringdb_ixlan else f"IX LAN ID {self.peeringdb_ixlan_id_copy}"
         return f"{network_str} hidden on {ixlan_str}"
 
     def get_absolute_url(self) -> str:
@@ -87,15 +79,11 @@ class HiddenPeer(ChangeLoggedModel):
 
         if not self.peeringdb_network:
             with contextlib.suppress(Network.DoesNotExist):
-                self.peeringdb_network = Network.objects.get(
-                    pk=self.peeringdb_network_id_copy
-                )
+                self.peeringdb_network = Network.objects.get(pk=self.peeringdb_network_id_copy)
                 changed_fields.append("peeringdb_network")
         if not self.peeringdb_ixlan:
             with contextlib.suppress(IXLan.DoesNotExist):
-                self.peeringdb_ixlan = IXLan.objects.get(
-                    pk=self.peeringdb_ixlan_id_copy
-                )
+                self.peeringdb_ixlan = IXLan.objects.get(pk=self.peeringdb_ixlan_id_copy)
                 changed_fields.append("peeringdb_ixlan")
 
         if changed_fields:

@@ -17,9 +17,7 @@ class ViewTestCase(TestCase):
     def setUp(self):
         self.model = None
         self.credentials = {"username": "dummy", "password": "dummy"}
-        self.user = User.objects.create_user(
-            **self.credentials, is_staff=True, is_superuser=True
-        )
+        self.user = User.objects.create_user(**self.credentials, is_staff=True, is_superuser=True)
 
     def authenticate_user(self):
         # Login
@@ -75,9 +73,7 @@ class ViewTestCase(TestCase):
             params = {}
 
         # Perform the POST request
-        response = self.client.post(
-            reverse(path, kwargs=params), data=data, follow=True
-        )
+        response = self.client.post(reverse(path, kwargs=params), data=data, follow=True)
 
         # Ensure that the status code is the expected one
         self.assertEqual(expected_status_code, response.status_code)

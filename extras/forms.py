@@ -87,9 +87,7 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
 
     def clean(self):
         if not self.cleaned_data["data"] and not self.cleaned_data["data_file"]:
-            raise ValidationError(
-                "Either data or a file from a data source must be provided"
-            )
+            raise ValidationError("Either data or a file from a data source must be provided")
         return super().clean()
 
 
@@ -104,9 +102,7 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
 
 
 class ConfigContextAssignmentForm(BootstrapMixin, forms.ModelForm):
-    config_context = DynamicModelChoiceField(
-        queryset=ConfigContext.objects.filter(is_active=True)
-    )
+    config_context = DynamicModelChoiceField(queryset=ConfigContext.objects.filter(is_active=True))
 
     class Meta:
         model = ConfigContextAssignment
@@ -154,9 +150,7 @@ class ExportTemplateForm(BootstrapMixin, SynchronisedDataMixin, forms.ModelForm)
 
     def clean(self):
         if not self.cleaned_data["template"] and not self.cleaned_data["data_file"]:
-            raise ValidationError(
-                "Either the template code or a file from a data source must be provided"
-            )
+            raise ValidationError("Either the template code or a file from a data source must be provided")
         return super().clean()
 
 
@@ -203,12 +197,8 @@ class IXAPIFilterForm(BootstrapMixin, forms.Form):
 
 
 class JournalEntryBulkEditForm(BulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=JournalEntry.objects.all(), widget=forms.MultipleHiddenInput
-    )
-    kind = forms.ChoiceField(
-        choices=add_blank_choice(JournalEntryKind), widget=StaticSelect, required=False
-    )
+    pk = forms.ModelMultipleChoiceField(queryset=JournalEntry.objects.all(), widget=forms.MultipleHiddenInput)
+    kind = forms.ChoiceField(choices=add_blank_choice(JournalEntryKind), widget=StaticSelect, required=False)
     comments = CommentField()
 
     model = JournalEntry
@@ -216,12 +206,8 @@ class JournalEntryBulkEditForm(BulkEditForm):
 
 class JournalEntryFilterForm(PeeringManagerModelFilterSetForm):
     model = JournalEntry
-    created_after = forms.DateTimeField(
-        required=False, label="After", widget=DateTimePicker()
-    )
-    created_before = forms.DateTimeField(
-        required=False, label="Before", widget=DateTimePicker()
-    )
+    created_after = forms.DateTimeField(required=False, label="After", widget=DateTimePicker())
+    created_before = forms.DateTimeField(required=False, label="Before", widget=DateTimePicker())
     created_by_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,
@@ -235,16 +221,12 @@ class JournalEntryFilterForm(PeeringManagerModelFilterSetForm):
         required=False,
         label="Object Type",
     )
-    kind = forms.ChoiceField(
-        choices=add_blank_choice(JournalEntryKind), widget=StaticSelect, required=False
-    )
+    kind = forms.ChoiceField(choices=add_blank_choice(JournalEntryKind), widget=StaticSelect, required=False)
     tag = TagFilterField(model)
 
 
 class JournalEntryForm(PeeringManagerModelForm):
-    kind = forms.ChoiceField(
-        choices=add_blank_choice(JournalEntryKind), widget=StaticSelect, required=False
-    )
+    kind = forms.ChoiceField(choices=add_blank_choice(JournalEntryKind), widget=StaticSelect, required=False)
     comments = CommentField()
 
     class Meta:
@@ -273,9 +255,7 @@ class TableConfigFilterForm(BootstrapMixin, forms.Form):
 
 
 class TagBulkEditForm(BulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Tag.objects.all(), widget=forms.MultipleHiddenInput
-    )
+    pk = forms.ModelMultipleChoiceField(queryset=Tag.objects.all(), widget=forms.MultipleHiddenInput)
     color = forms.CharField(max_length=6, required=False, widget=ColourSelect())
     description = forms.CharField(max_length=200, required=False)
 
@@ -302,9 +282,7 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(), limit_choices_to=FeatureQuery("webhooks")
     )
-    http_method = forms.ChoiceField(
-        choices=HttpMethod, widget=StaticSelect, label="HTTP method"
-    )
+    http_method = forms.ChoiceField(choices=HttpMethod, widget=StaticSelect, label="HTTP method")
 
     fieldsets = (
         ("Webhook", ("name", "content_types", "enabled")),
@@ -368,9 +346,7 @@ class WebhookFilterForm(BootstrapMixin, forms.Form):
         widget=StaticSelectMultiple,
         label="HTTP method",
     )
-    enabled = forms.NullBooleanField(
-        required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES)
-    )
+    enabled = forms.NullBooleanField(required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES))
     type_create = forms.NullBooleanField(
         required=False,
         widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),

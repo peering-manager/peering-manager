@@ -8,9 +8,7 @@ app_name = "core"
 urlpatterns = [
     path(
         "changelog/",
-        include(
-            get_model_urls(app_label="core", model_name="objectchange", detail=False)
-        ),
+        include(get_model_urls(app_label="core", model_name="objectchange", detail=False)),
     ),
     path(
         "changelog/<int:pk>/",
@@ -18,9 +16,7 @@ urlpatterns = [
     ),
     path(
         "data-sources/",
-        include(
-            get_model_urls(app_label="core", model_name="datasource", detail=False)
-        ),
+        include(get_model_urls(app_label="core", model_name="datasource", detail=False)),
     ),
     path(
         "data-sources/<int:pk>/",
@@ -44,9 +40,7 @@ urlpatterns = [
     ),
     path(
         "scheduled-tasks/",
-        include(
-            get_model_urls(app_label="core", model_name="scheduledtask", detail=False)
-        ),
+        include(get_model_urls(app_label="core", model_name="scheduledtask", detail=False)),
     ),
     path(
         "scheduled-tasks/<int:pk>/",

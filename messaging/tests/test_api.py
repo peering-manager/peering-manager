@@ -85,15 +85,9 @@ class ContactAssignmentTest(APIViewTestCases.View):
         ContactRole.objects.bulk_create(contact_roles)
 
         contact_assignments = [
-            ContactAssignment(
-                object=asns[0], contact=contacts[0], role=contact_roles[0]
-            ),
-            ContactAssignment(
-                object=asns[0], contact=contacts[1], role=contact_roles[1]
-            ),
-            ContactAssignment(
-                object=asns[0], contact=contacts[2], role=contact_roles[2]
-            ),
+            ContactAssignment(object=asns[0], contact=contacts[0], role=contact_roles[0]),
+            ContactAssignment(object=asns[0], contact=contacts[1], role=contact_roles[1]),
+            ContactAssignment(object=asns[0], contact=contacts[2], role=contact_roles[2]),
         ]
         ContactAssignment.objects.bulk_create(contact_assignments)
 

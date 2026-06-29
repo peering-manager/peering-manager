@@ -56,9 +56,7 @@ class TemplateTagsTestCase(TestCase):
     def test_markdown(self):
         self.assertEqual("<p>Title</p>", markdown("Title"))
         self.assertEqual("<h1>Title</h1>", markdown("# Title"))
-        self.assertEqual(
-            "&lt;h1&gt;Title&lt;/h1&gt;", markdown("# Title", escape_html=True)
-        )
+        self.assertEqual("&lt;h1&gt;Title&lt;/h1&gt;", markdown("# Title", escape_html=True))
 
     def test_render_json(self):
         self.assertEqual(

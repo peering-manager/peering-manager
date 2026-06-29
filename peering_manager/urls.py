@@ -46,9 +46,7 @@ __patterns = [
     # API Schema and docs
     path(
         "api/schema/",
-        cache_page(timeout=86400, key_prefix=f"api_schema_{settings.VERSION}")(
-            SpectacularAPIView.as_view()
-        ),
+        cache_page(timeout=86400, key_prefix=f"api_schema_{settings.VERSION}")(SpectacularAPIView.as_view()),
         name="schema",
     ),
     path(

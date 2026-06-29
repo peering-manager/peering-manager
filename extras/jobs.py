@@ -9,9 +9,7 @@ logger = logging.getLogger("peering.manager.extras.jobs")
 
 @job("default")
 def render_export_template(export_template, job):
-    job.mark_running(
-        "Rendering export template.", object=export_template, logger=logger
-    )
+    job.mark_running("Rendering export template.", object=export_template, logger=logger)
 
     rendered = export_template.render()
 
@@ -25,6 +23,4 @@ def render_export_template(export_template, job):
             logger=logger,
         )
 
-    job.mark_completed(
-        "Export template rendered.", object=export_template, logger=logger
-    )
+    job.mark_completed("Export template rendered.", object=export_template, logger=logger)

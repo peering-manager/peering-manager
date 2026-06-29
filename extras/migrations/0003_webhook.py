@@ -106,13 +106,9 @@ class Migration(migrations.Migration):
             ],
             options={
                 "ordering": ["name"],
-                "unique_together": {
-                    ("type_create", "type_update", "type_delete", "url")
-                },
+                "unique_together": {("type_create", "type_update", "type_delete", "url")},
             },
         )
     ]
 
-    operations = [
-        migrations.SeparateDatabaseAndState(state_operations=state_operations)
-    ]
+    operations = [migrations.SeparateDatabaseAndState(state_operations=state_operations)]

@@ -8,9 +8,7 @@ app_name = "messaging"
 urlpatterns = [
     path(
         "contacts/",
-        include(
-            get_model_urls(app_label="messaging", model_name="contact", detail=False)
-        ),
+        include(get_model_urls(app_label="messaging", model_name="contact", detail=False)),
     ),
     path(
         "contacts/<int:pk>/",
@@ -18,11 +16,7 @@ urlpatterns = [
     ),
     path(
         "contact-roles/",
-        include(
-            get_model_urls(
-                app_label="messaging", model_name="contactrole", detail=False
-            )
-        ),
+        include(get_model_urls(app_label="messaging", model_name="contactrole", detail=False)),
     ),
     path(
         "contact-roles/<int:pk>/",
@@ -30,11 +24,7 @@ urlpatterns = [
     ),
     path(
         "contact-assignments/",
-        include(
-            get_model_urls(
-                app_label="messaging", model_name="contactassignment", detail=False
-            )
-        ),
+        include(get_model_urls(app_label="messaging", model_name="contactassignment", detail=False)),
     ),
     path(
         "contact-assignments/<int:pk>/",
@@ -42,9 +32,7 @@ urlpatterns = [
     ),
     path(
         "emails/",
-        include(
-            get_model_urls(app_label="messaging", model_name="email", detail=False)
-        ),
+        include(get_model_urls(app_label="messaging", model_name="email", detail=False)),
     ),
     path(
         "emails/<int:pk>/",

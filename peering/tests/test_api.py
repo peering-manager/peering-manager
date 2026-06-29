@@ -44,12 +44,8 @@ class AutonomousSystemTest(APIViewTestCases.View):
         AutonomousSystem.objects.bulk_create(
             [
                 AutonomousSystem(asn=65536, name="Example 1", irr_as_set="AS-MOCKED"),
-                AutonomousSystem(
-                    asn=64496, name="Example 2", irr_as_set="AS-EXAMPLE-2"
-                ),
-                AutonomousSystem(
-                    asn=64497, name="Example 3", irr_as_set="AS-EXAMPLE-3"
-                ),
+                AutonomousSystem(asn=64496, name="Example 2", irr_as_set="AS-EXAMPLE-2"),
+                AutonomousSystem(asn=64497, name="Example 3", irr_as_set="AS-EXAMPLE-3"),
             ]
         )
         cls.autonomous_system = AutonomousSystem.objects.get(asn=65536)
@@ -64,9 +60,7 @@ class AutonomousSystemTest(APIViewTestCases.View):
         self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
 
     def test_synchronise_with_peeringdb(self):
-        autonomous_system = AutonomousSystem.objects.create(
-            asn=201281, name="Test", irr_as_set="AS-TEST"
-        )
+        autonomous_system = AutonomousSystem.objects.create(asn=201281, name="Test", irr_as_set="AS-TEST")
         url = reverse(
             "peering-api:autonomoussystem-sync-with-peeringdb",
             kwargs={"pk": autonomous_system.pk},
@@ -75,9 +69,7 @@ class AutonomousSystemTest(APIViewTestCases.View):
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
     def test_get_irr_as_set_prefixes(self):
-        with patch(
-            "peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen
-        ):
+        with patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen):
             url = reverse(
                 "peering-api:autonomoussystem-as-set-prefixes",
                 kwargs={"pk": self.autonomous_system.pk},
@@ -88,9 +80,7 @@ class AutonomousSystemTest(APIViewTestCases.View):
             self.assertEqual(len(response.data["ipv4"]), 1)
 
     def test_shared_internet_exchanges(self):
-        local_as = AutonomousSystem.objects.create(
-            asn=65535, name="Local", irr_as_set="AS-LOCAL", affiliated=True
-        )
+        local_as = AutonomousSystem.objects.create(asn=65535, name="Local", irr_as_set="AS-LOCAL", affiliated=True)
         self.user.preferences.set("context.as", local_as.pk, commit=True)
         url = reverse(
             "peering-api:autonomoussystem-shared-ixps",
@@ -139,13 +129,9 @@ class DirectPeeringSessionTest(APIViewTestCases.View):
 
     @classmethod
     def setUpTestData(cls):
-        local_autonomous_system = AutonomousSystem.objects.create(
-            asn=201281, name="Guillaume Mazoyer", affiliated=True
-        )
+        local_autonomous_system = AutonomousSystem.objects.create(asn=201281, name="Guillaume Mazoyer", affiliated=True)
         autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Dummy")
-        relationship_private_peering = Relationship.objects.create(
-            name="Private Peering", slug="private-peering"
-        )
+        relationship_private_peering = Relationship.objects.create(name="Private Peering", slug="private-peering")
         connection = Connection.objects.create(vlan=2000)
         routing_policy = RoutingPolicy.objects.create(
             name="Import", slug="import", type=RoutingPolicyType.IMPORT, weight=0
@@ -297,16 +283,10 @@ class InternetExchangePeeringSessionTest(APIViewTestCases.View):
 
     @classmethod
     def setUpTestData(cls):
-        local_autonomous_system = AutonomousSystem.objects.create(
-            asn=201281, name="Guillaume Mazoyer", affiliated=True
-        )
+        local_autonomous_system = AutonomousSystem.objects.create(asn=201281, name="Guillaume Mazoyer", affiliated=True)
         autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Dummy")
-        ixp = InternetExchange.objects.create(
-            name="Test", slug="test", local_autonomous_system=local_autonomous_system
-        )
-        ixp_connection = Connection.objects.create(
-            vlan=2000, internet_exchange_point=ixp
-        )
+        ixp = InternetExchange.objects.create(name="Test", slug="test", local_autonomous_system=local_autonomous_system)
+        ixp_connection = Connection.objects.create(vlan=2000, internet_exchange_point=ixp)
 
         InternetExchangePeeringSession.objects.bulk_create(
             [

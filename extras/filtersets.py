@@ -44,9 +44,7 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(
-            Q(name__icontains=value) | Q(description__icontains=value)
-        )
+        return queryset.filter(Q(name__icontains=value) | Q(description__icontains=value))
 
 
 class ConfigContextAssignmentFilterSet(ChangeLoggedModelFilterSet):
@@ -70,9 +68,7 @@ class ExportTemplateFilterSet(ChangeLoggedModelFilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(
-            Q(name__icontains=value) | Q(description__icontains=value)
-        )
+        return queryset.filter(Q(name__icontains=value) | Q(description__icontains=value))
 
 
 class IXAPIFilterSet(ChangeLoggedModelFilterSet):
@@ -85,11 +81,7 @@ class IXAPIFilterSet(ChangeLoggedModelFilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(
-            Q(name__icontains=value)
-            | Q(api_url__icontains=value)
-            | Q(api_key__icontains=value)
-        )
+        return queryset.filter(Q(name__icontains=value) | Q(api_url__icontains=value) | Q(api_key__icontains=value))
 
 
 class JournalEntryFilterSet(ChangeLoggedModelFilterSet):
@@ -98,9 +90,7 @@ class JournalEntryFilterSet(ChangeLoggedModelFilterSet):
     assigned_object_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ContentType.objects.all(),
     )
-    created_by_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=User.objects.all(), label="User (ID)"
-    )
+    created_by_id = django_filters.ModelMultipleChoiceFilter(queryset=User.objects.all(), label="User (ID)")
     created_by = django_filters.ModelMultipleChoiceFilter(
         field_name="created_by__username",
         queryset=User.objects.all(),
@@ -150,11 +140,7 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(
-            Q(name__icontains=value)
-            | Q(slug__icontains=value)
-            | Q(description__icontains=value)
-        )
+        return queryset.filter(Q(name__icontains=value) | Q(slug__icontains=value) | Q(description__icontains=value))
 
     def _content_type(self, queryset, name, values):
         ct_filter = Q()
@@ -168,15 +154,11 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
                 pass
 
         content_types = ContentType.objects.filter(ct_filter)
-        return queryset.filter(
-            extras_taggeditem_items__content_type__in=content_types
-        ).distinct()
+        return queryset.filter(extras_taggeditem_items__content_type__in=content_types).distinct()
 
     def _content_type_id(self, queryset, name, values):
         content_types = ContentType.objects.filter(pk__in=values)
-        return queryset.filter(
-            extras_taggeditem_items__content_type__in=content_types
-        ).distinct()
+        return queryset.filter(extras_taggeditem_items__content_type__in=content_types).distinct()
 
 
 class WebhookFilterSet(BaseFilterSet):

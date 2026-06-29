@@ -21,9 +21,7 @@ def _ip_host(value) -> ipaddress.IPv4Address | ipaddress.IPv6Address:
     return ipaddress.ip_interface(str(value)).ip
 
 
-def _format_ip_with_prefix(
-    value, networks: list[ipaddress.IPv4Network | ipaddress.IPv6Network]
-) -> str:
+def _format_ip_with_prefix(value, networks: list[ipaddress.IPv4Network | ipaddress.IPv6Network]) -> str:
     host = _ip_host(value)
     for net in networks:
         if host in net:
@@ -31,9 +29,7 @@ def _format_ip_with_prefix(
     return str(host)
 
 
-def resolve_location(
-    peer_type: str, location: str
-) -> tuple[InternetExchange | None, Facility | None]:
+def resolve_location(peer_type: str, location: str) -> tuple[InternetExchange | None, Facility | None]:
     """
     Resolves a portal session `location` identifier into the matching
     `InternetExchange` (for public peering) or `Facility` (for private peering)
@@ -42,11 +38,7 @@ def resolve_location(
     """
     if peer_type == PeeringRequestType.PUBLIC_PEERING:
         if not location.startswith(IX_LOCATION_PREFIX):
-            raise ValidationError(
-                {
-                    "location": f"Public peering location must use '{IX_LOCATION_PREFIX}<id>' format."
-                }
-            )
+            raise ValidationError({"location": f"Public peering location must use '{IX_LOCATION_PREFIX}<id>' format."})
 
         try:
             ixlan = IXLan.objects.get(pk=int(location.removeprefix(IX_LOCATION_PREFIX)))
@@ -61,9 +53,7 @@ def resolve_location(
 
     # If not public, then we are in a private peering context
     if not location:
-        raise ValidationError(
-            {"location": "Private peering requires a facility location."}
-        )
+        raise ValidationError({"location": "Private peering requires a facility location."})
 
     try:
         facility = Facility.objects.get(pk=int(location))
@@ -84,9 +74,7 @@ def resolve_peer_connection(ixp: InternetExchange, peer_ip: str) -> Connection:
     try:
         host = str(ipaddress.ip_interface(peer_ip).ip)
     except ValueError as exc:
-        raise ValidationError(
-            {"peer_ip": f"Not a valid IP address: {peer_ip!r}."}
-        ) from exc
+        raise ValidationError({"peer_ip": f"Not a valid IP address: {peer_ip!r}."}) from exc
 
     conn = (
         Connection.objects.filter(internet_exchange_point=ixp)
@@ -119,15 +107,13 @@ def session_proposals(ixp: InternetExchange, peer_network: Network) -> list[dict
     if not ixp.peeringdb_ixlan:
         return []
 
-    peer_netixlans = NetworkIXLan.objects.filter(
-        net=peer_network, ixlan=ixp.peeringdb_ixlan
-    )
+    peer_netixlans = NetworkIXLan.objects.filter(net=peer_network, ixlan=ixp.peeringdb_ixlan)
 
     # Group connections by AF (one IXP can have several)
     connections: dict[int, list[tuple[int, str]]] = {4: [], 6: []}
-    for connection_id, ipv4, ipv6 in Connection.objects.filter(
-        internet_exchange_point=ixp
-    ).values_list("id", "ipv4_address", "ipv6_address"):
+    for connection_id, ipv4, ipv6 in Connection.objects.filter(internet_exchange_point=ixp).values_list(
+        "id", "ipv4_address", "ipv6_address"
+    ):
         if ipv4 is not None:
             connections[4].append((connection_id, str(ipv4)))
         if ipv6 is not None:

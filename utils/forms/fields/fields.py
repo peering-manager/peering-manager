@@ -71,9 +71,7 @@ class CommentField(TextareaField):
 
 
 class IPNetworkFormField(forms.Field):
-    default_error_messages = {
-        "invalid": "Enter a valid IPv4 or IPv6 address (with CIDR mask)."
-    }
+    default_error_messages = {"invalid": "Enter a valid IPv4 or IPv6 address (with CIDR mask)."}
 
     def to_python(self, value):
         if not value:
@@ -88,9 +86,7 @@ class IPNetworkFormField(forms.Field):
         try:
             return ipaddress.ip_network(value)
         except ValueError as exc:
-            raise ValidationError(
-                "Please specify a valid IPv4 or IPv6 network."
-            ) from exc
+            raise ValidationError("Please specify a valid IPv4 or IPv6 network.") from exc
 
 
 class JSONField(_JSONField):
@@ -102,9 +98,7 @@ class JSONField(_JSONField):
         widget = kwargs.pop("widget", forms.Textarea(attrs={"class": "text-monospace"}))
         super().__init__(*args, widget=widget, **kwargs)
         if not self.help_text:
-            self.help_text = (
-                'Enter data in <a href="https://json.org/">JSON</a> format.'
-            )
+            self.help_text = 'Enter data in <a href="https://json.org/">JSON</a> format.'
             self.widget.attrs["placeholder"] = ""
 
     def prepare_value(self, value):
@@ -129,9 +123,7 @@ class PasswordField(forms.CharField):
         widget = kwargs.pop("widget", password_input)
         label = kwargs.pop("label", "Password")
         empty_value = kwargs.pop("empty_value", None)
-        super().__init__(
-            *args, widget=widget, label=label, empty_value=empty_value, **kwargs
-        )
+        super().__init__(*args, widget=widget, label=label, empty_value=empty_value, **kwargs)
         self.widget.attrs["password-source"] = password_source
 
 
@@ -159,15 +151,11 @@ class TagFilterField(forms.MultipleChoiceField):
 
     def __init__(self, model, *args, **kwargs):
         def get_choices():
-            tags = model.tags.annotate(count=Count("extras_taggeditem_items")).order_by(
-                "name"
-            )
+            tags = model.tags.annotate(count=Count("extras_taggeditem_items")).order_by("name")
             return [(str(tag.slug), f"{tag.name} ({tag.count})") for tag in tags]
 
         # Choices are fetched each time the form is initialized
-        super().__init__(
-            *args, label="Tags", choices=get_choices, required=False, **kwargs
-        )
+        super().__init__(*args, label="Tags", choices=get_choices, required=False, **kwargs)
 
 
 class TemplateField(TextareaField):

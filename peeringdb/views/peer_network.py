@@ -45,9 +45,7 @@ class EmailNetwork(PermissionRequiredMixin, View):
         form = SendEmailToNetwork(initial=initial)
         form.fields["recipients"].choices = []
         form.fields["cc"].choices = settings.EMAIL_CC_CONTACTS
-        return render(
-            request, "peering/provisioning/email_network.html", {"form": form}
-        )
+        return render(request, "peering/provisioning/email_network.html", {"form": form})
 
     def post(self, request, *args, **kwargs):
         form = SendEmailToNetwork(request.POST)
@@ -59,8 +57,7 @@ class EmailNetwork(PermissionRequiredMixin, View):
 
         # Guess the set of possible recipients given the network ID
         form.fields["recipients"].choices = [
-            (contact.email, contact.email)
-            for contact in NetworkContact.objects.filter(net_id=network_id)
+            (contact.email, contact.email) for contact in NetworkContact.objects.filter(net_id=network_id)
         ]
         form.fields["cc"].choices = settings.EMAIL_CC_CONTACTS
 

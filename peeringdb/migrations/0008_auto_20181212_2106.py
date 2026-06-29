@@ -7,22 +7,14 @@ class Migration(migrations.Migration):
     def forwards_func(apps, schema_editor):
         Network = apps.get_model("peeringdb", "Network")
         db_alias = schema_editor.connection.alias
-        Network.objects.using(db_alias).filter(info_prefixes4=None).update(
-            info_prefixes4=0
-        )
-        Network.objects.using(db_alias).filter(info_prefixes6=None).update(
-            info_prefixes6=0
-        )
+        Network.objects.using(db_alias).filter(info_prefixes4=None).update(info_prefixes4=0)
+        Network.objects.using(db_alias).filter(info_prefixes6=None).update(info_prefixes6=0)
 
     def reverse_func(apps, schema_editor):
         Network = apps.get_model("peeringdb", "Network")
         db_alias = schema_editor.connection.alias
-        Network.objects.using(db_alias).filter(info_prefixes4=0).update(
-            info_prefixes4=None
-        )
-        Network.objects.using(db_alias).filter(info_prefixes6=0).update(
-            info_prefixes6=None
-        )
+        Network.objects.using(db_alias).filter(info_prefixes4=0).update(info_prefixes4=None)
+        Network.objects.using(db_alias).filter(info_prefixes6=0).update(info_prefixes6=None)
 
     dependencies = [("peeringdb", "0007_peerrecord")]
 

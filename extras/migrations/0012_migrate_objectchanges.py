@@ -12,9 +12,7 @@ def migrate_objectchanges(apps, schema_editor):
         OldObjectChange = apps.get_model("utils", "ObjectChange")
 
         object_changes = []
-        for object_change in OldObjectChange.objects.order_by("pk").iterator(
-            chunk_size=100
-        ):
+        for object_change in OldObjectChange.objects.order_by("pk").iterator(chunk_size=100):
             object_changes.append(
                 ObjectChange(
                     time=object_change.time,
@@ -44,7 +42,5 @@ class Migration(migrations.Migration):
     dependencies = [("extras", "0011_objectchange")]
 
     operations = [
-        migrations.RunPython(
-            code=migrate_objectchanges, reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=migrate_objectchanges, reverse_code=migrations.RunPython.noop),
     ]

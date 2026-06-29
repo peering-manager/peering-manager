@@ -57,11 +57,7 @@ def _annotate_filter_field_schema(filter_field):
     except FieldDoesNotExist:
         return
     api_type = next(
-        (
-            api
-            for cls_, api in _MODEL_FIELD_TO_OPENAPI.items()
-            if isinstance(model_field, cls_)
-        ),
+        (api for cls_, api in _MODEL_FIELD_TO_OPENAPI.items() if isinstance(model_field, cls_)),
         OpenApiTypes.STR,
     )
     set_override(filter_field, "field", api_type)
@@ -76,13 +72,9 @@ class AutoAnnotatedDjangoFilterExtension(DjangoFilterExtension):
 
     priority = 1
 
-    def resolve_filter_field(
-        self, auto_schema, model, filterset_class, field_name, filter_field
-    ):
+    def resolve_filter_field(self, auto_schema, model, filterset_class, field_name, filter_field):
         _annotate_filter_field_schema(filter_field)
-        return super().resolve_filter_field(
-            auto_schema, model, filterset_class, field_name, filter_field
-        )
+        return super().resolve_filter_field(auto_schema, model, filterset_class, field_name, filter_field)
 
 
 __all__ = (
@@ -110,12 +102,8 @@ class BaseFilterSet(django_filters.FilterSet):
             models.EmailField: {"filter_class": filters.MultiValueCharFilter},
             models.FloatField: {"filter_class": filters.MultiValueNumberFilter},
             models.IntegerField: {"filter_class": filters.MultiValueNumberFilter},
-            models.PositiveIntegerField: {
-                "filter_class": filters.MultiValueNumberFilter
-            },
-            models.PositiveSmallIntegerField: {
-                "filter_class": filters.MultiValueNumberFilter
-            },
+            models.PositiveIntegerField: {"filter_class": filters.MultiValueNumberFilter},
+            models.PositiveSmallIntegerField: {"filter_class": filters.MultiValueNumberFilter},
             models.SlugField: {"filter_class": filters.MultiValueCharFilter},
             models.SmallIntegerField: {"filter_class": filters.MultiValueNumberFilter},
             models.TimeField: {"filter_class": filters.MultiValueTimeFilter},
@@ -144,9 +132,7 @@ class BaseFilterSet(django_filters.FilterSet):
             return FILTER_NUMERIC_BASED_LOOKUP_MAP
         if isinstance(
             existing_filter,
-            django_filters.ModelChoiceFilter
-            | django_filters.ModelMultipleChoiceFilter
-            | TagFilter,
+            django_filters.ModelChoiceFilter | django_filters.ModelMultipleChoiceFilter | TagFilter,
         ) or existing_filter.extra.get("choices"):
             # These filter types support only negation
             return FILTER_NEGATION_LOOKUP_MAP
@@ -197,14 +183,8 @@ class BaseFilterSet(django_filters.FilterSet):
                     # class so we must manually create the new filter with the same
                     # type because there is no guarantee the defined type is the same
                     # as the default type for the field
-                    resolve_field(
-                        field, lookup_expr
-                    )  # Will raise FieldLookupError if the lookup is invalid
-                    filter_cls = (
-                        django_filters.BooleanFilter
-                        if lookup_expr == "empty"
-                        else type(existing_filter)
-                    )
+                    resolve_field(field, lookup_expr)  # Will raise FieldLookupError if the lookup is invalid
+                    filter_cls = django_filters.BooleanFilter if lookup_expr == "empty" else type(existing_filter)
                     new_filter = filter_cls(
                         field_name=field_name,
                         lookup_expr=lookup_expr,
@@ -246,9 +226,7 @@ class BaseFilterSet(django_filters.FilterSet):
 
         additional_filters = {}
         for existing_filter_name, existing_filter in filters.items():
-            additional_filters.update(
-                cls.get_additional_lookups(existing_filter_name, existing_filter)
-            )
+            additional_filters.update(cls.get_additional_lookups(existing_filter_name, existing_filter))
 
         filters.update(additional_filters)
 
@@ -303,7 +281,5 @@ class OrganisationalModelFilterSet(PeeringManagerModelFilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(
-            models.Q(name__icontains=value)
-            | models.Q(slug__icontains=value)
-            | models.Q(description__icontains=value)
+            models.Q(name__icontains=value) | models.Q(slug__icontains=value) | models.Q(description__icontains=value)
         )

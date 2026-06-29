@@ -37,12 +37,8 @@ class InternetExchangeTestCase(TestCase):
 
     def test_name(self):
         for name in self.names:
-            self.assertEqual(
-                self.filterset({"name": name}, self.queryset).qs.count(), 1
-            )
-        self.assertEqual(
-            self.filterset({"name": "Unknown"}, self.queryset).qs.count(), 0
-        )
+            self.assertEqual(self.filterset({"name": name}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({"name": "Unknown"}, self.queryset).qs.count(), 0)
 
     def test_org_id(self):
         params = {"org_id": [self.organisations[0].pk]}
@@ -136,12 +132,8 @@ class FacilityTestCase(TestCase):
 
     def test_name(self):
         for name in self.names:
-            self.assertEqual(
-                self.filterset({"name": name}, self.queryset).qs.count(), 1
-            )
-        self.assertEqual(
-            self.filterset({"name": "Unknown"}, self.queryset).qs.count(), 0
-        )
+            self.assertEqual(self.filterset({"name": name}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({"name": "Unknown"}, self.queryset).qs.count(), 0)
 
     def test_org_id(self):
         params = {"org_id": [self.organisations[0].pk]}
@@ -319,12 +311,8 @@ class NetworkTestCase(TestCase):
 
     def test_name(self):
         for name in self.names:
-            self.assertEqual(
-                self.filterset({"name": name}, self.queryset).qs.count(), 1
-            )
-        self.assertEqual(
-            self.filterset({"name": "Unknown"}, self.queryset).qs.count(), 0
-        )
+            self.assertEqual(self.filterset({"name": name}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({"name": "Unknown"}, self.queryset).qs.count(), 0)
 
     def test_org_id(self):
         params = {"org_id": [self.organisations[0].pk]}
@@ -353,15 +341,9 @@ class NetworkContactTestCase(TestCase):
         cls.asns = [64500, 64496, 64498]
         cls.networks = Network.objects.bulk_create(
             [
-                Network(
-                    asn=cls.asns[0], name=cls.org_names[0], org=cls.organisations[0]
-                ),
-                Network(
-                    asn=cls.asns[1], name=cls.org_names[1], org=cls.organisations[1]
-                ),
-                Network(
-                    asn=cls.asns[2], name=cls.org_names[2], org=cls.organisations[2]
-                ),
+                Network(asn=cls.asns[0], name=cls.org_names[0], org=cls.organisations[0]),
+                Network(asn=cls.asns[1], name=cls.org_names[1], org=cls.organisations[1]),
+                Network(asn=cls.asns[2], name=cls.org_names[2], org=cls.organisations[2]),
             ]
         )
 
@@ -394,30 +376,18 @@ class NetworkContactTestCase(TestCase):
         )
 
     def test_role(self):
-        self.assertEqual(
-            self.filterset({"role": POCRole.NOC}, self.queryset).qs.count(), 1
-        )
-        self.assertEqual(
-            self.filterset({"role": POCRole.MAINTENANCE}, self.queryset).qs.count(), 0
-        )
+        self.assertEqual(self.filterset({"role": POCRole.NOC}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({"role": POCRole.MAINTENANCE}, self.queryset).qs.count(), 0)
 
     def test_name(self):
         for name in self.names:
-            self.assertEqual(
-                self.filterset({"name": name}, self.queryset).qs.count(), 1
-            )
-        self.assertEqual(
-            self.filterset({"name": "unknown"}, self.queryset).qs.count(), 0
-        )
+            self.assertEqual(self.filterset({"name": name}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({"name": "unknown"}, self.queryset).qs.count(), 0)
 
     def test_email(self):
         for email in self.emails:
-            self.assertEqual(
-                self.filterset({"email": email}, self.queryset).qs.count(), 1
-            )
-        self.assertEqual(
-            self.filterset({"email": "unknown"}, self.queryset).qs.count(), 0
-        )
+            self.assertEqual(self.filterset({"email": email}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({"email": "unknown"}, self.queryset).qs.count(), 0)
 
     def test_net_id(self):
         params = {"net_id": [self.networks[0].pk]}
@@ -454,15 +424,9 @@ class NetworkFacilityTestCase(TestCase):
         cls.asns = [64500, 64496, 64498]
         cls.networks = Network.objects.bulk_create(
             [
-                Network(
-                    asn=cls.asns[0], name=cls.org_names[0], org=cls.organisations[0]
-                ),
-                Network(
-                    asn=cls.asns[1], name=cls.org_names[1], org=cls.organisations[1]
-                ),
-                Network(
-                    asn=cls.asns[2], name=cls.org_names[2], org=cls.organisations[2]
-                ),
+                Network(asn=cls.asns[0], name=cls.org_names[0], org=cls.organisations[0]),
+                Network(asn=cls.asns[1], name=cls.org_names[1], org=cls.organisations[1]),
+                Network(asn=cls.asns[2], name=cls.org_names[2], org=cls.organisations[2]),
             ]
         )
 
@@ -477,26 +441,16 @@ class NetworkFacilityTestCase(TestCase):
         cls.asns = [64500, 64496, 64498]
         cls.netfacilities = NetworkFacility.objects.bulk_create(
             [
-                NetworkFacility(
-                    net=cls.networks[0], fac=cls.facilities[0], local_asn=cls.asns[0]
-                ),
-                NetworkFacility(
-                    net=cls.networks[1], fac=cls.facilities[0], local_asn=cls.asns[1]
-                ),
-                NetworkFacility(
-                    net=cls.networks[2], fac=cls.facilities[1], local_asn=cls.asns[2]
-                ),
+                NetworkFacility(net=cls.networks[0], fac=cls.facilities[0], local_asn=cls.asns[0]),
+                NetworkFacility(net=cls.networks[1], fac=cls.facilities[0], local_asn=cls.asns[1]),
+                NetworkFacility(net=cls.networks[2], fac=cls.facilities[1], local_asn=cls.asns[2]),
             ]
         )
 
     def test_asn(self):
         for asn in self.asns:
-            self.assertEqual(
-                self.filterset({"local_asn": asn}, self.queryset).qs.count(), 1
-            )
-        self.assertEqual(
-            self.filterset({"local_asn": "64555"}, self.queryset).qs.count(), 0
-        )
+            self.assertEqual(self.filterset({"local_asn": asn}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({"local_asn": "64555"}, self.queryset).qs.count(), 0)
 
     def test_net_id(self):
         params = {"net_id": [self.networks[0].pk]}
@@ -580,9 +534,7 @@ class NetworkIXLanTestCase(TestCase):
     def test_q(self):
         self.assertEqual(self.filterset({"q": "stark"}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({"q": "64500"}, self.queryset).qs.count(), 1)
-        self.assertEqual(
-            self.filterset({"q": "2001:db8:100::1"}, self.queryset).qs.count(), 1
-        )
+        self.assertEqual(self.filterset({"q": "2001:db8:100::1"}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({"q": "unknown"}, self.queryset).qs.count(), 0)
 
     def test_net_id(self):
@@ -631,12 +583,8 @@ class OrganizationTestCase(TestCase):
 
     def test_name(self):
         for name in self.names:
-            self.assertEqual(
-                self.filterset({"name": name}, self.queryset).qs.count(), 1
-            )
-        self.assertEqual(
-            self.filterset({"name": "Unknown"}, self.queryset).qs.count(), 0
-        )
+            self.assertEqual(self.filterset({"name": name}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({"name": "Unknown"}, self.queryset).qs.count(), 0)
 
 
 class SynchronisationTestCase(TestCase):
@@ -759,9 +707,7 @@ class HiddenPeerTestCase(TestCase):
 
     def test_q(self):
         self.assertEqual(self.filterset({"q": "64500"}, self.queryset).qs.count(), 1)
-        self.assertEqual(
-            self.filterset({"q": "The Avengers"}, self.queryset).qs.count(), 1
-        )
+        self.assertEqual(self.filterset({"q": "The Avengers"}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({"q": "unknown"}, self.queryset).qs.count(), 0)
 
     def test_peeringdb_network_id(self):

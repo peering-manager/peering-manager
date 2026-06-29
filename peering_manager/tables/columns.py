@@ -82,9 +82,7 @@ class ActionsColumn(tables.Column):
         filtered = {}
 
         for action, attrs in self.actions.items():
-            permission = (
-                f"{model._meta.app_label}.{attrs.permission}_{model._meta.model_name}"
-            )
+            permission = f"{model._meta.app_label}.{attrs.permission}_{model._meta.model_name}"
             if attrs.permission is None or user.has_perm(permission):
                 filtered[action] = attrs
 
@@ -95,9 +93,7 @@ class ActionsColumn(tables.Column):
 
     def render(self, record, table, **kwargs):
         # Skip dummy records (no PK) or those with no actions
-        if (
-            not getattr(record, "pk", None) or not self.actions
-        ) and not self.extra_buttons:
+        if (not getattr(record, "pk", None) or not self.actions) and not self.extra_buttons:
             return ""
 
         model = table.Meta.model
@@ -217,9 +213,7 @@ class ColourColumn(tables.Column):
     """
 
     def render(self, value):
-        return mark_safe(
-            f'<span class="label colour-block" style="background-color: #{value}">&nbsp;</span>'
-        )
+        return mark_safe(f'<span class="label colour-block" style="background-color: #{value}">&nbsp;</span>')
 
 
 class ContentTypeColumn(tables.Column):
@@ -294,9 +288,7 @@ class LinkedCountColumn(tables.Column):
     :param url_params: A dict of query parameters to append to the URL (e.g. ?foo=bar) (optional)
     """
 
-    def __init__(
-        self, viewname, *args, view_kwargs=None, url_params=None, default=0, **kwargs
-    ):
+    def __init__(self, viewname, *args, view_kwargs=None, url_params=None, default=0, **kwargs):
         self.viewname = viewname
         self.view_kwargs = view_kwargs or {}
         self.url_params = url_params
@@ -358,9 +350,7 @@ class SelectColumn(tables.CheckBoxColumn):
 
     @property
     def header(self):
-        return mark_safe(
-            '<input type="checkbox" class="toggle form-check-input" title="Select all" />'
-        )
+        return mark_safe('<input type="checkbox" class="toggle form-check-input" title="Select all" />')
 
 
 class TagColumn(tables.TemplateColumn):
@@ -377,9 +367,7 @@ class TagColumn(tables.TemplateColumn):
     """
 
     def __init__(self, url_name=None):
-        super().__init__(
-            template_code=self.template_code, extra_context={"url_name": url_name}
-        )
+        super().__init__(template_code=self.template_code, extra_context={"url_name": url_name})
 
 
 class ToggleColumn(tables.CheckBoxColumn):

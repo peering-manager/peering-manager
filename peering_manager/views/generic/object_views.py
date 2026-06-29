@@ -76,9 +76,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         """
         Returns a `QuerySet` of child objects.
         """
-        raise NotImplementedError(
-            f"{self.__class__.__name__} must implement get_children()"
-        )
+        raise NotImplementedError(f"{self.__class__.__name__} must implement get_children()")
 
     def prep_table_data(self, request, queryset, parent):
         """
@@ -244,9 +242,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
                 )
                 logger.info(f"{msg} {instance} (PK: {instance.pk})")
                 if hasattr(instance, "get_absolute_url"):
-                    msg = mark_safe(
-                        f'{msg} <a href="{instance.get_absolute_url()}">{escape(instance)}</a>'
-                    )
+                    msg = mark_safe(f'{msg} <a href="{instance.get_absolute_url()}">{escape(instance)}</a>')
                 else:
                     msg = f"{msg} {instance}"
                 messages.success(request, msg)

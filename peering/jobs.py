@@ -10,17 +10,11 @@ logger = logging.getLogger("peering.manager.peering.jobs")
 
 @job("default")
 def import_sessions_to_internet_exchange(internet_exchange, job):
-    job.mark_running(
-        "Trying to import peering sessions.", object=internet_exchange, logger=logger
-    )
+    job.mark_running("Trying to import peering sessions.", object=internet_exchange, logger=logger)
 
-    connections = Connection.objects.filter(
-        internet_exchange_point=internet_exchange, router__isnull=False
-    )
+    connections = Connection.objects.filter(internet_exchange_point=internet_exchange, router__isnull=False)
     if connections.count() < 1:
-        job.mark_completed(
-            "No usable connections.", object=internet_exchange, logger=logger
-        )
+        job.mark_completed("No usable connections.", object=internet_exchange, logger=logger)
         return False
 
     job.log(

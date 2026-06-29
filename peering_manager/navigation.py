@@ -38,9 +38,7 @@ class MenuGroup:
 def _affiliated_query_params(request: HttpRequest) -> str:
     if request.user.is_authenticated:
         with contextlib.suppress(AutonomousSystem.DoesNotExist):
-            context_as = AutonomousSystem.objects.get(
-                pk=request.user.preferences.get("context.as")
-            )
+            context_as = AutonomousSystem.objects.get(pk=request.user.preferences.get("context.as"))
             return f"?affiliated={context_as.pk}"
     return ""
 

@@ -128,12 +128,8 @@ class DirectPeeringSessionTable(PeeringManagerTable):
     autonomous_system = tables.Column(verbose_name="AS", linkify=True)
     ip_address = tables.Column(verbose_name="IP Address", linkify=True)
     status = columns.ChoiceFieldColumn()
-    bgp_group = tables.Column(
-        verbose_name="BGP Group", accessor="bgp_group", linkify=True
-    )
-    relationship = tables.TemplateColumn(
-        verbose_name="Relationship", template_code=BGP_RELATIONSHIP
-    )
+    bgp_group = tables.Column(verbose_name="BGP Group", accessor="bgp_group", linkify=True)
+    relationship = tables.TemplateColumn(verbose_name="Relationship", template_code=BGP_RELATIONSHIP)
     bgp_role = columns.ChoiceFieldColumn(verbose_name="BGP Role")
     passive = columns.BooleanColumn()
     service_reference = tables.Column(verbose_name="Service ID", linkify=True)
@@ -251,9 +247,7 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
     {% endif %}
     """
 
-    autonomous_system = tables.Column(
-        verbose_name="AS", accessor="autonomous_system", linkify=True
-    )
+    autonomous_system = tables.Column(verbose_name="AS", accessor="autonomous_system", linkify=True)
     internet_exchange_point = tables.Column(
         verbose_name="IXP",
         accessor="ixp_connection__internet_exchange_point",
@@ -273,9 +267,7 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
     exists_in_peeringdb = columns.BooleanColumn(
         accessor="exists_in_peeringdb", verbose_name="In PeeringDB", orderable=False
     )
-    is_abandoned = columns.BooleanColumn(
-        accessor="is_abandoned", verbose_name="Is Abandoned", orderable=False
-    )
+    is_abandoned = columns.BooleanColumn(accessor="is_abandoned", verbose_name="Is Abandoned", orderable=False)
     state = BGPSessionStateColumn(accessor="bgp_state")
     tags = columns.TagColumn(url_name="peering:internetexchangepeeringsession_list")
     actions = columns.ActionsColumn(extra_buttons=append_template)
@@ -363,9 +355,7 @@ class RequestedSessionTable(PeeringManagerTable):
     )
     ixp_connection = tables.Column(verbose_name="IXP Connection", linkify=True)
     status = columns.ChoiceFieldColumn()
-    created_session = tables.Column(
-        linkify=True, verbose_name="Session", orderable=False
-    )
+    created_session = tables.Column(linkify=True, verbose_name="Session", orderable=False)
     actions = columns.ActionsColumn(actions=())
 
     class Meta(PeeringManagerTable.Meta):

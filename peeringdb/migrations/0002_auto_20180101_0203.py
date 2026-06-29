@@ -25,15 +25,11 @@ class Migration(migrations.Migration):
                 ("asn", peering.fields.ASNField()),
                 (
                     "ipaddr6",
-                    models.GenericIPAddressField(
-                        blank=True, null=True, protocol="IPv6"
-                    ),
+                    models.GenericIPAddressField(blank=True, null=True, protocol="IPv6"),
                 ),
                 (
                     "ipaddr4",
-                    models.GenericIPAddressField(
-                        blank=True, null=True, protocol="IPv4"
-                    ),
+                    models.GenericIPAddressField(blank=True, null=True, protocol="IPv4"),
                 ),
                 ("is_rs_peer", models.BooleanField(default=False)),
                 ("ix_id", models.PositiveIntegerField()),
@@ -41,7 +37,5 @@ class Migration(migrations.Migration):
             options={"ordering": ["asn", "ipaddr6", "ipaddr4"]},
         ),
         migrations.AlterModelOptions(name="network", options={"ordering": ["asn"]}),
-        migrations.AlterModelOptions(
-            name="synchronization", options={"ordering": ["-time"]}
-        ),
+        migrations.AlterModelOptions(name="synchronization", options={"ordering": ["-time"]}),
     ]

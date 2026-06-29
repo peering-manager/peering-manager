@@ -21,9 +21,7 @@ class GroupTest(APIViewTestCases.View):
 
     @classmethod
     def setUpTestData(cls):
-        Group.objects.bulk_create(
-            [Group(name="Group 1"), Group(name="Group 2"), Group(name="Group 3")]
-        )
+        Group.objects.bulk_create([Group(name="Group 1"), Group(name="Group 2"), Group(name="Group 3")])
 
 
 class UserTest(APIViewTestCases.View):
@@ -83,9 +81,7 @@ class UserPreferencesTest(APITestCase):
         self.assertDictEqual(preferences.data, data)
 
         update_data = {"c": 123}
-        response = self.client.patch(
-            url, data=update_data, format="json", **self.header
-        )
+        response = self.client.patch(url, data=update_data, format="json", **self.header)
         new_data = merge_hash(data, update_data)
         self.assertDictEqual(response.data, new_data)
         preferences.refresh_from_db()

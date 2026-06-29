@@ -11,9 +11,7 @@ router.register("autonomous-systems", views.AutonomousSystemViewSet)
 router.register("bgp-groups", views.BGPGroupViewSet)
 router.register("direct-peering-sessions", views.DirectPeeringSessionViewSet)
 router.register("internet-exchanges", views.InternetExchangeViewSet)
-router.register(
-    "internet-exchange-peering-sessions", views.InternetExchangePeeringSessionViewSet
-)
+router.register("internet-exchange-peering-sessions", views.InternetExchangePeeringSessionViewSet)
 router.register("peering-requests", views.PeeringRequestViewSet)
 router.register("requested-sessions", views.RequestedSessionViewSet)
 

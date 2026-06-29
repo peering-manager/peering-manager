@@ -39,7 +39,5 @@ class Migration(migrations.Migration):
     dependencies = [("core", "0001_initial")]
 
     operations = [
-        migrations.RunPython(
-            code=migrate_jobresults, reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=migrate_jobresults, reverse_code=migrations.RunPython.noop),
     ]

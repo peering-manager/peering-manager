@@ -35,9 +35,7 @@ class SynchronisationTest(APITestCase):
         super().setUp()
 
         for i in range(1, 10):
-            Synchronisation.objects.create(
-                time=timezone.now(), created=i, updated=i, deleted=i
-            )
+            Synchronisation.objects.create(time=timezone.now(), created=i, updated=i, deleted=i)
 
     def test_get_synchronisation(self):
         url = reverse("peeringdb-api:synchronisation-detail", kwargs={"pk": 1})
@@ -136,9 +134,7 @@ class HiddenPeerTest(APIViewTestCases.View):
                     until=str(datetime(2025, 1, 1, 0, 0, tzinfo=pytz.UTC)),
                     comments="Bar",
                 ),
-                HiddenPeer(
-                    peeringdb_network=cls.networks[2], peeringdb_ixlan=cls.ixlans[0]
-                ),
+                HiddenPeer(peeringdb_network=cls.networks[2], peeringdb_ixlan=cls.ixlans[0]),
             ]
         )
 

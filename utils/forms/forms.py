@@ -26,9 +26,7 @@ class ConfirmationForm(BootstrapMixin, forms.Form):
     """
 
     return_url = forms.CharField(required=False, widget=forms.HiddenInput())
-    confirm = forms.BooleanField(
-        required=True, widget=forms.HiddenInput(), initial=True
-    )
+    confirm = forms.BooleanField(required=True, widget=forms.HiddenInput(), initial=True)
 
 
 class FilterForm(BootstrapMixin, forms.Form):
@@ -44,9 +42,7 @@ class TableColumnsForm(BootstrapMixin, forms.Form):
     Form used to configure table columns and store the result in user's preferences.
     """
 
-    columns = forms.MultipleChoiceField(
-        choices=[], required=False, widget=forms.MultipleHiddenInput()
-    )
+    columns = forms.MultipleChoiceField(choices=[], required=False, widget=forms.MultipleHiddenInput())
 
     def __init__(self, table, *args, **kwargs):
         self.table = table

@@ -40,9 +40,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         model = self.queryset.model
 
         if self.filterset:
-            self.queryset = self.filterset(
-                request.GET, self.queryset, request=request
-            ).qs
+            self.queryset = self.filterset(request.GET, self.queryset, request=request).qs
 
         # Determine the available actions
         actions = self.get_permitted_actions(request.user)
@@ -62,11 +60,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             "model": model,
             "table": table,
             "actions": actions,
-            "filterset_form": (
-                self.filterset_form(request.GET, label_suffix="")
-                if self.filterset_form
-                else None
-            ),
+            "filterset_form": (self.filterset_form(request.GET, label_suffix="") if self.filterset_form else None),
             "prerequisite_model": get_prerequisite_model(self.queryset),
             **self.get_extra_context(request),
         }
@@ -150,9 +144,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
         # If we are editing *all* objects in the queryset, replace the PK list with
         # all matched objects
         if request.POST.get("_all") and self.filterset is not None:
-            pk_list = self.filterset(
-                request.GET, self.queryset.values_list("pk", flat=True)
-            ).qs
+            pk_list = self.filterset(request.GET, self.queryset.values_list("pk", flat=True)).qs
         else:
             pk_list = request.POST.getlist("pk")
 
@@ -192,9 +184,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
         if "actions" in table.base_columns:
             table.columns.hide("actions")
         if not table.rows:
-            messages.warning(
-                request, f"No {model._meta.verbose_name_plural} were selected."
-            )
+            messages.warning(request, f"No {model._meta.verbose_name_plural} were selected.")
             return redirect(self.get_return_url(request))
 
         return render(
@@ -228,9 +218,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
         """
 
         class BulkDeleteForm(ConfirmationForm):
-            pk = ModelMultipleChoiceField(
-                queryset=self.queryset, widget=MultipleHiddenInput
-            )
+            pk = ModelMultipleChoiceField(queryset=self.queryset, widget=MultipleHiddenInput)
 
         return BulkDeleteForm
 
@@ -267,9 +255,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                             obj.snapshot()
                         obj.delete()
                 except ProtectedError as e:
-                    logger.info(
-                        "caught ProtectedError while attempting to delete objects"
-                    )
+                    logger.info("caught ProtectedError while attempting to delete objects")
                     handle_protectederror(queryset, request, e)
                     return redirect(self.get_return_url(request))
                 except AbortRequestError as e:
@@ -284,9 +270,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
 
             logger.debug("form validation failed")
         else:
-            form = form_cls(
-                initial={"pk": pk_list, "return_url": self.get_return_url(request)}
-            )
+            form = form_cls(initial={"pk": pk_list, "return_url": self.get_return_url(request)})
 
         # Retrieve objects being deleted
         table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
@@ -348,13 +332,9 @@ class ImportFromObjectView(GetReturnURLMixin, PermissionRequiredMixin, View):
 
         # Prepare the form
         if not self.custom_formset:
-            object_form_set = formset_factory(
-                self.form_model, formset=HiddenControlFormSet, extra=0, can_delete=True
-            )
+            object_form_set = formset_factory(self.form_model, formset=HiddenControlFormSet, extra=0, can_delete=True)
         else:
-            object_form_set = formset_factory(
-                self.form_model, formset=self.custom_formset, extra=0, can_delete=True
-            )
+            object_form_set = formset_factory(self.form_model, formset=self.custom_formset, extra=0, can_delete=True)
 
         # Get dependencies
         base_objects = self.get_base_objects(request.POST.getlist("pk"))
@@ -364,9 +344,7 @@ class ImportFromObjectView(GetReturnURLMixin, PermissionRequiredMixin, View):
             formset = object_form_set(data=request.POST)
         else:
             # Proceed base object and fill in the form
-            processed_base_objects = [
-                self.process_base_object(request, o) for o in base_objects
-            ]
+            processed_base_objects = [self.process_base_object(request, o) for o in base_objects]
             formset = object_form_set(initial=self.sort_objects(processed_base_objects))
 
         created_objects = []

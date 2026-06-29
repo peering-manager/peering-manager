@@ -113,9 +113,7 @@ class PeeringManagerModelViewSet(
         return super().get_serializer(*args, **kwargs)
 
     def dispatch(self, request, *args, **kwargs):
-        logger = logging.getLogger(
-            f"peering_manager.api.views.{self.__class__.__name__}"
-        )
+        logger = logging.getLogger(f"peering_manager.api.views.{self.__class__.__name__}")
 
         try:
             return super().dispatch(request, *args, **kwargs)
@@ -124,22 +122,16 @@ class PeeringManagerModelViewSet(
             msg = f"unable to delete object. {len(protected_objects)} dependent objects were found: "
             msg += ", ".join([f"{obj} ({obj.pk})" for obj in protected_objects])
             logger.warning(msg)
-            return self.finalize_response(
-                request, Response({"detail": msg}, status=409), *args, **kwargs
-            )
+            return self.finalize_response(request, Response({"detail": msg}, status=409), *args, **kwargs)
         except AbortRequestError as e:
             logger.debug(e.message)
-            return self.finalize_response(
-                request, Response({"detail": e.message}, status=400), *args, **kwargs
-            )
+            return self.finalize_response(request, Response({"detail": e.message}, status=400), *args, **kwargs)
 
     # Creates
 
     def perform_create(self, serializer):
         model = self.queryset.model
-        logger = logging.getLogger(
-            f"peering_manager.api.views.{self.__class__.__name__}"
-        )
+        logger = logging.getLogger(f"peering_manager.api.views.{self.__class__.__name__}")
         logger.info(f"creating new {model._meta.verbose_name}")
 
         # Enforce object-level permissions on save()
@@ -159,12 +151,8 @@ class PeeringManagerModelViewSet(
 
     def perform_update(self, serializer):
         model = self.queryset.model
-        logger = logging.getLogger(
-            f"peering_manager.api.views.{self.__class__.__name__}"
-        )
-        logger.info(
-            f"updating {model._meta.verbose_name} {serializer.instance} (pk: {serializer.instance.pk})"
-        )
+        logger = logging.getLogger(f"peering_manager.api.views.{self.__class__.__name__}")
+        logger.info(f"updating {model._meta.verbose_name} {serializer.instance} (pk: {serializer.instance.pk})")
 
         # Enforce object-level permissions on save()
         try:
@@ -183,11 +171,7 @@ class PeeringManagerModelViewSet(
 
     def perform_destroy(self, instance):
         model = self.queryset.model
-        logger = logging.getLogger(
-            f"peering_manager.api.views.{self.__class__.__name__}"
-        )
-        logger.info(
-            f"deleting {model._meta.verbose_name} {instance} (pk: {instance.pk})"
-        )
+        logger = logging.getLogger(f"peering_manager.api.views.{self.__class__.__name__}")
+        logger.info(f"deleting {model._meta.verbose_name} {instance} (pk: {instance.pk})")
 
         return super().perform_destroy(instance)

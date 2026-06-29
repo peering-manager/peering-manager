@@ -15,9 +15,7 @@ class Migration(migrations.Migration):
         Permission = apps.get_model("auth.Permission")
 
         try:
-            content_type = ContentType.objects.get(
-                model="internetexchange", app_label="peering"
-            )
+            content_type = ContentType.objects.get(model="internetexchange", app_label="peering")
             Permission.objects.filter(
                 content_type=content_type,
                 codename__in=("view_configuration", "deploy_configuration"),
@@ -27,8 +25,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterModelOptions(name="internetexchange", options={}),
-        migrations.RemoveField(
-            model_name="internetexchange", name="configuration_template"
-        ),
+        migrations.RemoveField(model_name="internetexchange", name="configuration_template"),
         migrations.RunPython(remove_permissions, add_permissions),
     ]

@@ -8,14 +8,10 @@ __all__ = ("ScheduledTaskTable",)
 
 
 class ScheduledTaskTable(BaseTable):
-    task = tables.Column(
-        accessor="task_label", linkify=True, orderable=False, verbose_name="Task"
-    )
+    task = tables.Column(accessor="task_label", linkify=True, orderable=False, verbose_name="Task")
     enabled = columns.BooleanColumn()
     interval = tables.Column(verbose_name="Interval (minutes)")
-    last_run = columns.DateTimeColumn(
-        accessor="last_job.completed", orderable=False, verbose_name="Last run"
-    )
+    last_run = columns.DateTimeColumn(accessor="last_job.completed", orderable=False, verbose_name="Last run")
     next_run = columns.DateTimeColumn(accessor="next_run", orderable=False)
     actions = columns.ActionsColumn(actions=("edit", "delete"))
 

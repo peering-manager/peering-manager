@@ -94,7 +94,5 @@ class ScheduledTask(ChangeLoggedModel):
         min_interval = entry["min_interval"]
         if self.interval < min_interval:
             raise ValidationError(
-                {
-                    "interval": f"{self.task_label} cannot run more often than every {min_interval} minutes."
-                }
+                {"interval": f"{self.task_label} cannot run more often than every {min_interval} minutes."}
             )

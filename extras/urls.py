@@ -8,9 +8,7 @@ app_name = "extras"
 urlpatterns = [
     path(
         "config-contexts/",
-        include(
-            get_model_urls(app_label="extras", model_name="configcontext", detail=False)
-        ),
+        include(get_model_urls(app_label="extras", model_name="configcontext", detail=False)),
     ),
     path(
         "config-contexts/<int:pk>/",
@@ -18,25 +16,15 @@ urlpatterns = [
     ),
     path(
         "config-context-assignments/",
-        include(
-            get_model_urls(
-                app_label="extras", model_name="configcontextassignment", detail=False
-            )
-        ),
+        include(get_model_urls(app_label="extras", model_name="configcontextassignment", detail=False)),
     ),
     path(
         "config-context-assignments/<int:pk>/",
-        include(
-            get_model_urls(app_label="extras", model_name="configcontextassignment")
-        ),
+        include(get_model_urls(app_label="extras", model_name="configcontextassignment")),
     ),
     path(
         "export-templates/",
-        include(
-            get_model_urls(
-                app_label="extras", model_name="exporttemplate", detail=False
-            )
-        ),
+        include(get_model_urls(app_label="extras", model_name="exporttemplate", detail=False)),
     ),
     path(
         "export-templates/<int:pk>/",
@@ -52,9 +40,7 @@ urlpatterns = [
     ),
     path(
         "journal-entries/",
-        include(
-            get_model_urls(app_label="extras", model_name="journalentry", detail=False)
-        ),
+        include(get_model_urls(app_label="extras", model_name="journalentry", detail=False)),
     ),
     path(
         "journal-entries/<int:pk>/",
@@ -62,9 +48,7 @@ urlpatterns = [
     ),
     path(
         "table-configs/",
-        include(
-            get_model_urls(app_label="extras", model_name="tableconfig", detail=False)
-        ),
+        include(get_model_urls(app_label="extras", model_name="tableconfig", detail=False)),
     ),
     path(
         "table-configs/<int:pk>/",
@@ -74,9 +58,7 @@ urlpatterns = [
         "tags/",
         include(get_model_urls(app_label="extras", model_name="tag", detail=False)),
     ),
-    path(
-        "tags/<int:pk>/", include(get_model_urls(app_label="extras", model_name="tag"))
-    ),
+    path("tags/<int:pk>/", include(get_model_urls(app_label="extras", model_name="tag"))),
     path(
         "webhooks/",
         include(get_model_urls(app_label="extras", model_name="webhook", detail=False)),

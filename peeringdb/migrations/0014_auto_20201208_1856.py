@@ -45,15 +45,11 @@ class Migration(migrations.Migration):
                 ("country", models.CharField(blank=True, max_length=7)),
                 (
                     "latitude",
-                    models.DecimalField(
-                        blank=True, decimal_places=6, max_digits=9, null=True
-                    ),
+                    models.DecimalField(blank=True, decimal_places=6, max_digits=9, null=True),
                 ),
                 (
                     "longitude",
-                    models.DecimalField(
-                        blank=True, decimal_places=6, max_digits=9, null=True
-                    ),
+                    models.DecimalField(blank=True, decimal_places=6, max_digits=9, null=True),
                 ),
                 ("name", models.CharField(max_length=255, unique=True)),
                 ("website", peeringdb.models.URLField(blank=True, max_length=255)),
@@ -205,9 +201,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "ixf_ixp_member_list_url",
-                    models.URLField(
-                        blank=True, null=True, verbose_name="IX-F Member Export URL"
-                    ),
+                    models.URLField(blank=True, null=True, verbose_name="IX-F Member Export URL"),
                 ),
                 (
                     "ixf_ixp_member_list_url_visible",
@@ -253,9 +247,7 @@ class Migration(migrations.Migration):
                 ("notes", models.CharField(blank=True, max_length=255)),
                 (
                     "protocol",
-                    models.CharField(
-                        choices=[("IPv4", "Ipv4"), ("IPv6", "Ipv6")], max_length=64
-                    ),
+                    models.CharField(choices=[("IPv4", "Ipv4"), ("IPv6", "Ipv6")], max_length=64),
                 ),
                 (
                     "prefix",
@@ -337,9 +329,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "local_asn",
-                    peering.fields.ASNField(
-                        blank=True, null=True, verbose_name="Local ASN"
-                    ),
+                    peering.fields.ASNField(blank=True, null=True, verbose_name="Local ASN"),
                 ),
                 ("avail_sonet", models.BooleanField(default=False)),
                 ("avail_ethernet", models.BooleanField(default=False)),
@@ -380,15 +370,11 @@ class Migration(migrations.Migration):
                 ("country", models.CharField(blank=True, max_length=7)),
                 (
                     "latitude",
-                    models.DecimalField(
-                        blank=True, decimal_places=6, max_digits=9, null=True
-                    ),
+                    models.DecimalField(blank=True, decimal_places=6, max_digits=9, null=True),
                 ),
                 (
                     "longitude",
-                    models.DecimalField(
-                        blank=True, decimal_places=6, max_digits=9, null=True
-                    ),
+                    models.DecimalField(blank=True, decimal_places=6, max_digits=9, null=True),
                 ),
                 ("name", models.CharField(max_length=255, unique=True)),
                 ("website", peeringdb.models.URLField(blank=True, max_length=255)),
@@ -429,9 +415,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="network",
             name="aka",
-            field=models.CharField(
-                blank=True, max_length=255, verbose_name="Also Known As"
-            ),
+            field=models.CharField(blank=True, max_length=255, verbose_name="Also Known As"),
         ),
         migrations.AddField(
             model_name="network",

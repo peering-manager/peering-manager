@@ -31,9 +31,7 @@ class IXAPI(ChangeLoggedModel):
     api_url = models.CharField(max_length=2000, verbose_name="URL")
     api_key = models.CharField(max_length=2000, verbose_name="API key")
     api_secret = models.CharField(max_length=2000, verbose_name="API secret")
-    identity = models.CharField(
-        max_length=256, help_text="Identity used to interact with the IX-API"
-    )
+    identity = models.CharField(max_length=256, help_text="Identity used to interact with the IX-API")
     access_token = models.TextField(blank=True, null=True)
     access_token_expiration = models.DateTimeField(blank=True, null=True)
     refresh_token = models.TextField(blank=True, null=True)
@@ -48,11 +46,7 @@ class IXAPI(ChangeLoggedModel):
     class Meta:
         verbose_name = "IX-API"
         ordering = ["name", "api_url", "-created"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["api_url", "api_key"], name="unique_ixapi_url_key"
-            )
-        ]
+        constraints = [models.UniqueConstraint(fields=["api_url", "api_key"], name="unique_ixapi_url_key")]
 
     @property
     def _cache_key(self) -> str:
@@ -308,9 +302,7 @@ class IXAPI(ChangeLoggedModel):
         for ns in network_services:
             # Product IX-APi v1/v2 compatibility
             if hasattr(ns, "product"):
-                ns.product = self.search_in_list(
-                    self.get_cached_data("product_offerings"), ns.product
-                )
+                ns.product = self.search_in_list(self.get_cached_data("product_offerings"), ns.product)
             if hasattr(ns, "product_offering"):
                 ns.product_offering = self.search_in_list(
                     self.get_cached_data("product_offerings"), ns.product_offering
@@ -323,9 +315,7 @@ class IXAPI(ChangeLoggedModel):
             if hasattr(ns, "network_features"):
                 features = []
                 for feature in ns.network_features:
-                    f = self.search_in_list(
-                        self.get_cached_data("network_features"), feature
-                    )
+                    f = self.search_in_list(self.get_cached_data("network_features"), feature)
                     if f:
                         features.append(f)
                 ns.network_features = features

@@ -41,26 +41,20 @@ class ConfigContextView(ObjectView):
         if request.GET.get("format") in ("json", "yaml"):
             format = request.GET.get("format")
             if request.user.is_authenticated:
-                request.user.preferences.set(
-                    "configcontext.format", format, commit=True
-                )
+                request.user.preferences.set("configcontext.format", format, commit=True)
         elif request.user.is_authenticated:
             format = request.user.preferences.get("configcontext.format", "json")
         else:
             format = "json"
 
-        config_context_assignments = ConfigContextAssignment.objects.filter(
-            config_context=instance
-        )
+        config_context_assignments = ConfigContextAssignment.objects.filter(config_context=instance)
         assignments_table = ConfigContextAssignmentTable(config_context_assignments)
         assignments_table.columns.hide("config_context")
         assignments_table.configure(request)
 
         return {
             "assignments_table": assignments_table,
-            "assignment_count": ConfigContextAssignment.objects.filter(
-                config_context=instance
-            ).count(),
+            "assignment_count": ConfigContextAssignment.objects.filter(config_context=instance).count(),
             "configcontext_format": format,
         }
 
@@ -89,17 +83,13 @@ class ConfigContextBulkDeleteView(BulkDeleteView):
 class ObjectConfigContextView(ObjectView):
     base_template = None
     template_name = "extras/object_configcontext.html"
-    tab = ViewTab(
-        label="Config Context", permission="extras.view_configcontext", weight=9800
-    )
+    tab = ViewTab(label="Config Context", permission="extras.view_configcontext", weight=9800)
 
     def get_extra_context(self, request, instance):
         if request.GET.get("format") in ("json", "yaml"):
             format = request.GET.get("format")
             if request.user.is_authenticated:
-                request.user.preferences.set(
-                    "configcontext.format", format, commit=True
-                )
+                request.user.preferences.set("configcontext.format", format, commit=True)
         elif request.user.is_authenticated:
             format = request.user.preferences.get("configcontext.format", "json")
         else:

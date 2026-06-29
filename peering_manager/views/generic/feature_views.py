@@ -36,15 +36,11 @@ class ObjectChangeLogView(View):
 
         # Gather all changes for this object (and its related objects)
         content_type = ContentType.objects.get_for_model(model)
-        objectchanges = ObjectChange.objects.prefetch_related(
-            "user", "changed_object_type"
-        ).filter(
+        objectchanges = ObjectChange.objects.prefetch_related("user", "changed_object_type").filter(
             Q(changed_object_type=content_type, changed_object_id=instance.pk)
             | Q(related_object_type=content_type, related_object_id=instance.pk)
         )
-        objectchanges_table = ObjectChangeTable(
-            data=objectchanges, orderable=False, user=request.user
-        )
+        objectchanges_table = ObjectChangeTable(data=objectchanges, orderable=False, user=request.user)
         objectchanges_table.configure(request)
 
         if htmx_partial(request):

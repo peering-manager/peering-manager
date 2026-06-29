@@ -49,9 +49,7 @@ class Command(BaseCommand):
 
         # Configuration can be pushed for routers with a configuration template and a
         # data source
-        routers = Router.objects.filter(
-            configuration_template__isnull=False, data_source__isnull=False
-        )
+        routers = Router.objects.filter(configuration_template__isnull=False, data_source__isnull=False)
         if options["limit"]:
             routers = routers.filter(hostname__in=options["limit"].split(","))
 

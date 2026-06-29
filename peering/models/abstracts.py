@@ -107,9 +107,7 @@ class BGPSession(PrimaryModel, PolicyMixin):
         null=True,
         help_text="Optional internal service reference",
     )
-    autonomous_system = models.ForeignKey(
-        to="peering.AutonomousSystem", on_delete=models.CASCADE
-    )
+    autonomous_system = models.ForeignKey(to="peering.AutonomousSystem", on_delete=models.CASCADE)
     ip_address = InetAddressField(store_prefix_length=False, verbose_name="IP address")
     status = models.CharField(
         max_length=50,
@@ -144,9 +142,7 @@ class BGPSession(PrimaryModel, PolicyMixin):
         related_name="%(class)s_export_routing_policies",
     )
     communities = models.ManyToManyField(to="bgp.Community", blank=True)
-    bfd = models.ForeignKey(
-        to="net.BFD", on_delete=models.SET_NULL, blank=True, null=True
-    )
+    bfd = models.ForeignKey(to="net.BFD", on_delete=models.SET_NULL, blank=True, null=True)
     bgp_state = models.CharField(max_length=50, choices=BGPState, blank=True, null=True)
     received_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     accepted_prefix_count = models.PositiveIntegerField(blank=True, default=0)
@@ -170,10 +166,7 @@ class BGPSession(PrimaryModel, PolicyMixin):
         return self.status == BGPSessionStatus.ENABLED
 
     def __str__(self):
-        return (
-            self.service_reference
-            or f"AS{self.autonomous_system.asn} - {self.ip_address}"
-        )
+        return self.service_reference or f"AS{self.autonomous_system.asn} - {self.ip_address}"
 
     def get_status_colour(self):
         return BGPSessionStatus.colours.get(self.status)
@@ -185,8 +178,7 @@ class BGPSession(PrimaryModel, PolicyMixin):
         if not self.bgp_role:
             return mark_safe('<span class="text-muted">&mdash;</span>')
         return mark_safe(
-            f'<span class="badge text-bg-{self.get_bgp_role_colour()}">'
-            f"{self.get_bgp_role_display()}</span>"
+            f'<span class="badge text-bg-{self.get_bgp_role_colour()}">{self.get_bgp_role_display()}</span>'
         )
 
     @property
@@ -309,9 +301,7 @@ class BGPSession(PrimaryModel, PolicyMixin):
         else:
             badge = "secondary"
 
-        return mark_safe(
-            f'<span class="badge text-bg-{badge}">{self.get_bgp_state_display() or "Unknown"}</span>'
-        )
+        return mark_safe(f'<span class="badge text-bg-{badge}">{self.get_bgp_state_display() or "Unknown"}</span>')
 
     def encrypt_password(self, commit=True):
         """
@@ -334,9 +324,7 @@ class BGPSession(PrimaryModel, PolicyMixin):
         encryption_key = str(self.ip_address)
         if not self.encrypted_password:
             # If the password is not encrypted yet, do it
-            self.encrypted_password = router.platform.encrypt_password(
-                password=self.password, key=encryption_key
-            )
+            self.encrypted_password = router.platform.encrypt_password(password=self.password, key=encryption_key)
         else:
             # Try to re-encrypt the encrypted password, if the resulting string is the
             # same it means the password matches the router platform algorithm
@@ -344,18 +332,12 @@ class BGPSession(PrimaryModel, PolicyMixin):
                 password=self.encrypted_password, key=encryption_key
             )
             if not is_up_to_date:
-                self.encrypted_password = router.platform.encrypt_password(
-                    password=self.password, key=encryption_key
-                )
+                self.encrypted_password = router.platform.encrypt_password(password=self.password, key=encryption_key)
 
         # Check if the encrypted password matches the clear one
         # Force re-encryption if there a difference
-        if self.password != router.platform.decrypt_password(
-            password=self.encrypted_password, key=encryption_key
-        ):
-            self.encrypted_password = router.platform.encrypt_password(
-                password=self.password, key=encryption_key
-            )
+        if self.password != router.platform.decrypt_password(password=self.encrypted_password, key=encryption_key):
+            self.encrypted_password = router.platform.encrypt_password(password=self.password, key=encryption_key)
 
         if commit:
             self.save()

@@ -153,12 +153,8 @@ class MultipleChoiceField(models.CharField):
 
 class BaseModel(models.Model):
     # No auto_add in this case as we want to keep PeeringDB's values
-    created = models.DateTimeField(
-        default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
-    )
-    updated = models.DateTimeField(
-        default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
-    )
+    created = models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc))
+    updated = models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc))
 
     class Meta:
         abstract = True
@@ -173,12 +169,8 @@ class Address(BaseModel):
     country = models.CharField(max_length=7, blank=True)
     suite = models.CharField(max_length=255, blank=True)
     floor = models.CharField(max_length=255, blank=True)
-    latitude = models.DecimalField(
-        decimal_places=6, max_digits=9, blank=True, null=True
-    )
-    longitude = models.DecimalField(
-        decimal_places=6, max_digits=9, blank=True, null=True
-    )
+    latitude = models.DecimalField(decimal_places=6, max_digits=9, blank=True, null=True)
+    longitude = models.DecimalField(decimal_places=6, max_digits=9, blank=True, null=True)
 
     class Meta:
         abstract = True
@@ -233,9 +225,7 @@ class Facility(Address):
     tech_phone = models.CharField(max_length=192, blank=True)
     sales_email = models.EmailField(max_length=254, blank=True)
     sales_phone = models.CharField(max_length=192, blank=True)
-    property = models.CharField(
-        max_length=27, null=True, blank=True, choices=Property.choices
-    )
+    property = models.CharField(max_length=27, null=True, blank=True, choices=Property.choices)
     diverse_serving_substations = models.BooleanField(null=True, blank=True)
     available_voltage_services = MultipleChoiceField(
         max_length=255, null=True, blank=True, choices=AvailableVoltage.choices
@@ -342,15 +332,9 @@ class Network(BaseModel):
     notes = models.TextField(blank=True)
     notes_private = models.TextField(blank=True)
     info_traffic = models.CharField(max_length=39, blank=True, choices=Traffic.choices)
-    info_ratio = models.CharField(
-        max_length=45, blank=True, choices=Ratio.choices, default=Ratio.NOT_DISCLOSED
-    )
-    info_scope = models.CharField(
-        max_length=39, blank=True, choices=Scope.choices, default=Scope.NOT_DISCLOSED
-    )
-    info_types = MultipleChoiceField(
-        max_length=255, null=True, blank=True, choices=NetTypeMultiChoice.choices
-    )
+    info_ratio = models.CharField(max_length=45, blank=True, choices=Ratio.choices, default=Ratio.NOT_DISCLOSED)
+    info_scope = models.CharField(max_length=39, blank=True, choices=Scope.choices, default=Scope.NOT_DISCLOSED)
+    info_types = MultipleChoiceField(max_length=255, null=True, blank=True, choices=NetTypeMultiChoice.choices)
     info_type = models.CharField(
         max_length=60,
         blank=True,
@@ -375,16 +359,10 @@ class Network(BaseModel):
         help_text="Indicates if this network will announce its routes via route servers or not",
     )
     policy_url = URLField(blank=True)
-    policy_general = models.CharField(
-        max_length=72, blank=True, choices=GeneralPolicy.choices
-    )
-    policy_locations = models.CharField(
-        max_length=72, blank=True, choices=LocationsPolicy.choices
-    )
+    policy_general = models.CharField(max_length=72, blank=True, choices=GeneralPolicy.choices)
+    policy_locations = models.CharField(max_length=72, blank=True, choices=LocationsPolicy.choices)
     policy_ratio = models.BooleanField(default=False)
-    policy_contracts = models.CharField(
-        max_length=36, blank=True, choices=ContractsPolicy.choices
-    )
+    policy_contracts = models.CharField(max_length=36, blank=True, choices=ContractsPolicy.choices)
     status_dashboard = URLField(null=True, blank=True)
     rir_status = models.CharField(blank=True, null=True, max_length=255)
     rir_status_updated = models.DateTimeField(blank=True, null=True)
@@ -434,9 +412,7 @@ class InternetExchange(BaseModel):
         choices=ServiceLevels.choices,
         default=ServiceLevels.NOT_DISCLOSED,
     )
-    terms = models.CharField(
-        max_length=60, blank=True, choices=Terms.choices, default=Terms.NOT_DISCLOSED
-    )
+    terms = models.CharField(max_length=60, blank=True, choices=Terms.choices, default=Terms.NOT_DISCLOSED)
     status_dashboard = URLField(null=True, blank=True)
     org = models.ForeignKey(
         to="peeringdb.Organization",
@@ -494,12 +470,8 @@ class IXLan(BaseModel):
         blank=True,
         default=0,
     )
-    arp_sponge = MACAddressField(
-        verbose_name="ARP sponging MAC", null=True, unique=True, blank=True
-    )
-    ixf_ixp_member_list_url = models.URLField(
-        verbose_name="IX-F Member Export URL", null=True, blank=True
-    )
+    arp_sponge = MACAddressField(verbose_name="ARP sponging MAC", null=True, unique=True, blank=True)
+    ixf_ixp_member_list_url = models.URLField(verbose_name="IX-F Member Export URL", null=True, blank=True)
     ixf_ixp_member_list_url_visible = models.CharField(
         verbose_name="IX-F Member Export URL Visibility",
         max_length=64,
@@ -547,9 +519,7 @@ class IXLanPrefix(BaseModel):
 
 class NetworkContact(BaseModel):
     role = models.CharField(max_length=27, choices=POCRole.choices)
-    visible = models.CharField(
-        max_length=64, choices=Visibility.choices, default=Visibility.PUBLIC
-    )
+    visible = models.CharField(max_length=64, choices=Visibility.choices, default=Visibility.PUBLIC)
     name = models.CharField(max_length=254, blank=True)
     phone = models.CharField(max_length=100, blank=True)
     email = models.EmailField(max_length=254, blank=True)
@@ -700,9 +670,7 @@ class NetworkIXLan(BaseModel):
 
         return r
 
-    def cidr(
-        self, address_family=4
-    ) -> ipaddress.IPv4Interface | ipaddress.IPv6Interface:
+    def cidr(self, address_family=4) -> ipaddress.IPv4Interface | ipaddress.IPv6Interface:
         """
         Returns a Python IP interface object with the IP address and prefix length
         set.

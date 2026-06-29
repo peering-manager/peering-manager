@@ -8,11 +8,7 @@ app_name = "devices"
 urlpatterns = [
     path(
         "configurations/",
-        include(
-            get_model_urls(
-                app_label="devices", model_name="configuration", detail=False
-            )
-        ),
+        include(get_model_urls(app_label="devices", model_name="configuration", detail=False)),
     ),
     path(
         "configurations/<int:pk>/",
@@ -20,9 +16,7 @@ urlpatterns = [
     ),
     path(
         "platforms/",
-        include(
-            get_model_urls(app_label="devices", model_name="platform", detail=False)
-        ),
+        include(get_model_urls(app_label="devices", model_name="platform", detail=False)),
     ),
     path(
         "platforms/<int:pk>/",

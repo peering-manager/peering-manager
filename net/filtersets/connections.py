@@ -14,9 +14,7 @@ __all__ = ("ConnectionFilterSet",)
 
 
 class ConnectionFilterSet(PeeringManagerModelFilterSet):
-    status = django_filters.MultipleChoiceFilter(
-        choices=ConnectionStatus, null_value=None
-    )
+    status = django_filters.MultipleChoiceFilter(choices=ConnectionStatus, null_value=None)
     internet_exchange_point_id = django_filters.ModelMultipleChoiceFilter(
         queryset=InternetExchange.objects.all(), label="IXP (ID)"
     )
@@ -26,9 +24,7 @@ class ConnectionFilterSet(PeeringManagerModelFilterSet):
         to_field_name="name",
         label="IXP (Name)",
     )
-    router_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Router.objects.all(), label="Router (ID)"
-    )
+    router_id = django_filters.ModelMultipleChoiceFilter(queryset=Router.objects.all(), label="Router (ID)")
     router_name = django_filters.ModelMultipleChoiceFilter(
         field_name="router__name",
         queryset=Router.objects.all(),

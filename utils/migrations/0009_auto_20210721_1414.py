@@ -6,8 +6,4 @@ from django.db import migrations
 class Migration(migrations.Migration):
     dependencies = [("utils", "0008_auto_20210420_2144")]
 
-    operations = [
-        migrations.RenameField(
-            model_name="objectchange", old_name="action", new_name="old_action"
-        )
-    ]
+    operations = [migrations.RenameField(model_name="objectchange", old_name="action", new_name="old_action")]

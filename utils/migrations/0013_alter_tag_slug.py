@@ -10,8 +10,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="tag",
             name="slug",
-            field=models.SlugField(
-                allow_unicode=True, max_length=100, unique=True, verbose_name="slug"
-            ),
+            field=models.SlugField(allow_unicode=True, max_length=100, unique=True, verbose_name="slug"),
         ),
     ]

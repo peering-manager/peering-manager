@@ -39,9 +39,7 @@ class Migration(migrations.Migration):
                 tags=t.tags,
             )
         # Delete changes of old templates
-        ObjectChange.objects.using(db_alias).filter(
-            changed_object_type__model="template"
-        ).delete()
+        ObjectChange.objects.using(db_alias).filter(changed_object_type__model="template").delete()
 
     @transaction.atomic()
     def merge_template_to_config_and_email(apps, schema_editor):
@@ -127,9 +125,7 @@ class Migration(migrations.Migration):
             ],
             options={"ordering": ["name"], "abstract": False},
         ),
-        migrations.RunPython(
-            split_template_to_config_and_email, merge_template_to_config_and_email
-        ),
+        migrations.RunPython(split_template_to_config_and_email, merge_template_to_config_and_email),
         migrations.AlterField(
             model_name="router",
             name="configuration_template",

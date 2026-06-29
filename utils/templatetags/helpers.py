@@ -35,9 +35,7 @@ def status_as_badge(value):
     if not hasattr(value, "status"):
         return ""
 
-    return mark_safe(
-        f'<span class="badge text-bg-{value.get_status_colour()}">{value.get_status_display()}</span>'
-    )
+    return mark_safe(f'<span class="badge text-bg-{value.get_status_colour()}">{value.get_status_display()}</span>')
 
 
 @register.filter()
@@ -148,9 +146,7 @@ def render_yaml(value):
     """
     Render a dictionary as formatted YAML.
     """
-    return yaml.dump(
-        json.loads(json.dumps(value)), explicit_start=True, explicit_end=False, indent=2
-    )
+    return yaml.dump(json.loads(json.dumps(value)), explicit_start=True, explicit_end=False, indent=2)
 
 
 @register.filter()
@@ -247,11 +243,7 @@ def date_span(date_value):
         return ""
 
     if isinstance(date_value, str):
-        date_value = (
-            datetime.datetime.strptime(date_value, "%Y-%m-%d")
-            .astimezone(tz=settings.TIME_ZONE)
-            .date()
-        )
+        date_value = datetime.datetime.strptime(date_value, "%Y-%m-%d").astimezone(tz=settings.TIME_ZONE).date()
 
     if type(date_value) is datetime.date:
         long = date(date_value, settings.DATE_FORMAT)
@@ -288,9 +280,7 @@ def table_config_form(context, table, table_name=None):
     # Columns currently shown, in order, and the remaining hidden ones
     displayed_columns = table.selected_columns
     selected_names = {name for name, _ in displayed_columns}
-    available_columns = [
-        column for column in table.available_columns if column[0] not in selected_names
-    ]
+    available_columns = [column for column in table.available_columns if column[0] not in selected_names]
     name = table_name or table.__class__.__name__
 
     # An operator with the right permission can create a default layout

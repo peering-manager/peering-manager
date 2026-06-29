@@ -26,9 +26,7 @@ def eval_conditions(webhook, data):
 
 
 @job("default")
-def process_webhook(
-    webhook, model_name, event, data, snapshots, timestamp, username, request_id
-):
+def process_webhook(webhook, model_name, event, data, snapshots, timestamp, username, request_id):
     """
     Makes a request to the defined Webhook endpoint.
     """
@@ -72,9 +70,7 @@ def process_webhook(
         "data": body.encode("utf8"),
     }
 
-    logger.info(
-        f"sending {params['method']} request to {params['url']} ({model_name} {event})"
-    )
+    logger.info(f"sending {params['method']} request to {params['url']} ({model_name} {event})")
     logger.debug(params)
     try:
         prepared_request = requests.Request(**params).prepare()
@@ -84,9 +80,7 @@ def process_webhook(
 
     # If a secret key is defined, sign the request with a hash (key + content)
     if webhook.secret != "":
-        prepared_request.headers["X-Hook-Signature"] = generate_signature(
-            prepared_request.body, webhook.secret
-        )
+        prepared_request.headers["X-Hook-Signature"] = generate_signature(prepared_request.body, webhook.secret)
 
     # Send the request
     with requests.Session() as session:
@@ -99,9 +93,7 @@ def process_webhook(
         logger.info(f"request succeeded; response status {response.status_code}")
         return f"status {response.status_code} returned, webhook successfully processed"
 
-    logger.warning(
-        f"request failed; response status {response.status_code}: {response.content}"
-    )
+    logger.warning(f"request failed; response status {response.status_code}: {response.content}")
     raise requests.exceptions.RequestException(
         f"status {response.status_code} returned with content '{response.content}', webhook FAILED to process"
     )

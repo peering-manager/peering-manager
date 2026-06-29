@@ -13,9 +13,7 @@ class Migration(migrations.Migration):
         except LookupError:
             ObjectChange = apps.get_model("core", "ObjectChange")
 
-        ObjectChange.objects.using(schema_editor.connection.alias).filter(
-            changed_object_type__model="tag"
-        ).delete()
+        ObjectChange.objects.using(schema_editor.connection.alias).filter(changed_object_type__model="tag").delete()
 
     operations = [
         migrations.RunPython(delete_old_tags_changelog),

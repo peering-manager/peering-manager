@@ -92,9 +92,7 @@ SEARCH_TYPES = OrderedDict(
         (
             "connection",
             {
-                "queryset": Connection.objects.prefetch_related(
-                    "internet_exchange_point", "router"
-                ),
+                "queryset": Connection.objects.prefetch_related("internet_exchange_point", "router"),
                 "filterset": ConnectionFilterSet,
                 "table": ConnectionTable,
                 "url": "net:connection_list",
@@ -105,9 +103,7 @@ SEARCH_TYPES = OrderedDict(
             "autonomousystem",
             {
                 "queryset": AutonomousSystem.objects.all().annotate(
-                    directpeeringsession_count=count_related(
-                        DirectPeeringSession, "autonomous_system"
-                    ),
+                    directpeeringsession_count=count_related(DirectPeeringSession, "autonomous_system"),
                     internetexchangepeeringsession_count=count_related(
                         InternetExchangePeeringSession, "autonomous_system"
                     ),
@@ -138,9 +134,7 @@ SEARCH_TYPES = OrderedDict(
         (
             "directpeeringsession",
             {
-                "queryset": DirectPeeringSession.objects.prefetch_related(
-                    "autonomous_system", "bgp_group", "router"
-                ),
+                "queryset": DirectPeeringSession.objects.prefetch_related("autonomous_system", "bgp_group", "router"),
                 "filterset": DirectPeeringSessionFilterSet,
                 "table": DirectPeeringSessionTable,
                 "url": "peering:directpeeringsession_list",
@@ -149,12 +143,8 @@ SEARCH_TYPES = OrderedDict(
         (
             "internetexchange",
             {
-                "queryset": InternetExchange.objects.prefetch_related(
-                    "local_autonomous_system"
-                ).annotate(
-                    connection_count=count_related(
-                        Connection, "internet_exchange_point"
-                    )
+                "queryset": InternetExchange.objects.prefetch_related("local_autonomous_system").annotate(
+                    connection_count=count_related(Connection, "internet_exchange_point")
                 ),
                 "filterset": InternetExchangeFilterSet,
                 "table": InternetExchangeTable,
@@ -164,9 +154,7 @@ SEARCH_TYPES = OrderedDict(
         (
             "peeringrequest",
             {
-                "queryset": PeeringRequest.objects.select_related(
-                    "local_autonomous_system"
-                ),
+                "queryset": PeeringRequest.objects.select_related("local_autonomous_system"),
                 "filterset": PeeringRequestFilterSet,
                 "table": PeeringRequestTable,
                 "url": "peering:peeringrequest_list",

@@ -75,9 +75,7 @@ class PeeringRequestBulkDelete(BulkDeleteView):
     table = PeeringRequestTable
 
 
-@register_model_view(
-    PeeringRequest, name="requested_sessions", path="requested-sessions"
-)
+@register_model_view(PeeringRequest, name="requested_sessions", path="requested-sessions")
 class PeeringRequestRequestedSessions(ObjectChildrenView):
     permission_required = (
         "peering.view_peeringrequest",
@@ -95,6 +93,4 @@ class PeeringRequestRequestedSessions(ObjectChildrenView):
     )
 
     def get_children(self, request, parent):
-        return parent.requested_sessions.select_related(
-            "ixp_connection__internet_exchange_point"
-        ).all()
+        return parent.requested_sessions.select_related("ixp_connection__internet_exchange_point").all()

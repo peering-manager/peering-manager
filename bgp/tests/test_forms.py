@@ -33,9 +33,7 @@ class CommunityTest(TestCase):
 
 class Relationshipest(TestCase):
     def test_relationship_form(self):
-        test = RelationshipForm(
-            data={"name": "test", "slug": "test", "color": Colour.BLUE}
-        )
+        test = RelationshipForm(data={"name": "test", "slug": "test", "color": Colour.BLUE})
         self.assertTrue(test.is_valid())
         self.assertTrue(test.save())
 

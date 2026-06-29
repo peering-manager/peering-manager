@@ -4,9 +4,7 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-    dependencies = [
-        ("net", "0004_rename_config_context_connection_local_config_context")
-    ]
+    dependencies = [("net", "0004_rename_config_context_connection_local_config_context")]
 
     operations = [
         migrations.AlterModelOptions(

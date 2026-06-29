@@ -17,18 +17,14 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False
-                    ),
+                    models.BigAutoField(auto_created=True, primary_key=True, serialize=False),
                 ),
                 ("created", models.DateTimeField(auto_now_add=True, null=True)),
                 ("updated", models.DateTimeField(auto_now=True, null=True)),
                 ("table", models.CharField(max_length=100, unique=True)),
                 (
                     "columns",
-                    django.contrib.postgres.fields.ArrayField(
-                        base_field=models.CharField(max_length=100), size=None
-                    ),
+                    django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100), size=None),
                 ),
                 (
                     "object_type",

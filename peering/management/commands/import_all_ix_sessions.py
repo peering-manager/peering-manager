@@ -29,6 +29,4 @@ class Command(BaseCommand):
                     continue
 
                 session_number, asn_number = ix.import_sessions(connection)
-                self.stdout.write(
-                    f"[*] Imported {session_number} sessions for {asn_number} autonomous systems"
-                )
+                self.stdout.write(f"[*] Imported {session_number} sessions for {asn_number} autonomous systems")

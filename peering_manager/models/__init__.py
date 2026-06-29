@@ -34,9 +34,7 @@ class PeeringManagerFeatureSet(
         return f"{settings.STATIC_URL}docs/models/{self._meta.app_label}/{self._meta.model_name}/"
 
     def get_absolute_url(self) -> str:
-        return reverse(
-            f"{self._meta.app_label}:{self._meta.model_name}", kwargs={"pk": self.pk}
-        )
+        return reverse(f"{self._meta.app_label}:{self._meta.model_name}", kwargs={"pk": self.pk})
 
 
 class ChangeLoggedModel(ChangeLoggingMixin, models.Model):
@@ -69,21 +67,15 @@ class PeeringManagerModel(PeeringManagerFeatureSet, models.Model):
                 fk_value = getattr(self, field.fk_field, None)
 
                 if ct_value is None and fk_value is not None:
-                    raise ValidationError(
-                        {field.ct_field: "This field cannot be null."}
-                    )
+                    raise ValidationError({field.ct_field: "This field cannot be null."})
                 if fk_value is None and ct_value is not None:
-                    raise ValidationError(
-                        {field.fk_field: "This field cannot be null."}
-                    )
+                    raise ValidationError({field.fk_field: "This field cannot be null."})
 
                 if ct_value and fk_value:
                     klass = getattr(self, field.ct_field).model_class()
                     if not klass.objects.filter(pk=fk_value).exists():
                         raise ValidationError(
-                            {
-                                field.fk_field: f"Related object not found using the provided value: {fk_value}."
-                            }
+                            {field.fk_field: f"Related object not found using the provided value: {fk_value}."}
                         )
 
 
@@ -122,12 +114,8 @@ class OrganisationalModel(PeeringManagerFeatureSet, models.Model):
 class TemplateModel(PrimaryModel):
     name = models.CharField(max_length=100)
     template = models.TextField()
-    jinja2_trim = models.BooleanField(
-        default=False, help_text="Removes new line after tag"
-    )
-    jinja2_lstrip = models.BooleanField(
-        default=False, help_text="Strips whitespaces before block"
-    )
+    jinja2_trim = models.BooleanField(default=False, help_text="Removes new line after tag")
+    jinja2_lstrip = models.BooleanField(default=False, help_text="Strips whitespaces before block")
 
     class Meta:
         abstract = True

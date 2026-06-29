@@ -36,9 +36,7 @@ class Jinja2FilterTestCase(TestCase):
         cls.routing_policies = [
             RoutingPolicy(name="Reject All", slug="reject-all", weight=255),
             RoutingPolicy(name="Accept All", slug="accept-all", weight=255),
-            RoutingPolicy(
-                name="Import Known Prefixes", slug="import-known-prefixes", weight=128
-            ),
+            RoutingPolicy(name="Import Known Prefixes", slug="import-known-prefixes", weight=128),
             RoutingPolicy(name="Export Supernets", slug="export-supernets", weight=64),
             RoutingPolicy(
                 name="Export Deaggregated v4",
@@ -66,9 +64,7 @@ class Jinja2FilterTestCase(TestCase):
                 type=CommunityType.INGRESS,
             ),
             Community(name="In", slug="in", value="123:10", type=CommunityType.INGRESS),
-            Community(
-                name="Out", slug="out", value="123:11", type=CommunityType.EGRESS
-            ),
+            Community(name="Out", slug="out", value="123:11", type=CommunityType.EGRESS),
             Community(
                 name="Both",
                 slug="both",
@@ -79,12 +75,8 @@ class Jinja2FilterTestCase(TestCase):
         Community.objects.bulk_create(cls.communities)
         AutonomousSystem.objects.create(asn=64520, name="Useless")
         cls.local_as = AutonomousSystem.objects.create(asn=65534, name="Local")
-        cls.a_s = AutonomousSystem.objects.create(
-            asn=64510, name="Test", ipv6_max_prefixes=100
-        )
-        cls.a_s.import_routing_policies.add(
-            RoutingPolicy.objects.get(slug="import-known-prefixes")
-        )
+        cls.a_s = AutonomousSystem.objects.create(asn=64510, name="Test", ipv6_max_prefixes=100)
+        cls.a_s.import_routing_policies.add(RoutingPolicy.objects.get(slug="import-known-prefixes"))
         cls.a_s.export_routing_policies.add(
             RoutingPolicy.objects.get(slug="export-supernets"),
             RoutingPolicy.objects.get(slug="export-deaggregated-v4"),
@@ -104,12 +96,8 @@ class Jinja2FilterTestCase(TestCase):
             name="Test IXP",
             slug="test-ixp",
         )
-        cls.ixp.import_routing_policies.add(
-            RoutingPolicy.objects.get(slug="reject-all")
-        )
-        cls.ixp.export_routing_policies.add(
-            RoutingPolicy.objects.get(slug="reject-all")
-        )
+        cls.ixp.import_routing_policies.add(RoutingPolicy.objects.get(slug="reject-all"))
+        cls.ixp.export_routing_policies.add(RoutingPolicy.objects.get(slug="reject-all"))
         cls.ixp.communities.add(Community.objects.get(slug="learnt-from-ixp"))
         cls.ixp_connection = Connection.objects.create(
             vlan=10,
@@ -143,26 +131,16 @@ class Jinja2FilterTestCase(TestCase):
             ip_address="192.0.2.255",
             is_route_server=True,
         )
-        cls.session6.import_routing_policies.add(
-            RoutingPolicy.objects.get(slug="accept-all")
-        )
+        cls.session6.import_routing_policies.add(RoutingPolicy.objects.get(slug="accept-all"))
         cls.session6.export_routing_policies.add(
             RoutingPolicy.objects.get(slug="accept-all"),
             RoutingPolicy.objects.get(slug="export-supernets"),
         )
         cls.contact = Contact.objects.create(name="Contact 1")
-        cls.contact_role = ContactRole.objects.create(
-            name="Contact Role 1", slug="contact-role-1"
-        )
-        ContactAssignment.objects.create(
-            object=cls.a_s, contact=cls.contact, role=cls.contact_role
-        )
-        cls.relationship_customer = Relationship.objects.create(
-            name="Transit Customer", slug="transit-customer"
-        )
-        cls.relationship_peer = Relationship.objects.create(
-            name="Private Peer", slug="private-peer"
-        )
+        cls.contact_role = ContactRole.objects.create(name="Contact Role 1", slug="contact-role-1")
+        ContactAssignment.objects.create(object=cls.a_s, contact=cls.contact, role=cls.contact_role)
+        cls.relationship_customer = Relationship.objects.create(name="Transit Customer", slug="transit-customer")
+        cls.relationship_peer = Relationship.objects.create(name="Private Peer", slug="private-peer")
         DirectPeeringSession.objects.create(
             local_autonomous_system=cls.local_as,
             autonomous_system=cls.a_s,
@@ -210,9 +188,7 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(ip4, FILTER_DICT["ip"](ipaddress.ip_address(ip4)))
         self.assertEqual(ip4, FILTER_DICT["ip"](ipaddress.ip_interface(f"{ip4}/24")))
 
-        self.assertListEqual(
-            [ip6, ip4], FILTER_DICT["ip"]([self.session6, self.session4])
-        )
+        self.assertListEqual([ip6, ip4], FILTER_DICT["ip"]([self.session6, self.session4]))
 
         with self.assertRaises(ValueError):
             FILTER_DICT["ip"]("notanip")
@@ -224,15 +200,11 @@ class Jinja2FilterTestCase(TestCase):
     def test_local_ips(self):
         self.assertEqual(
             Connection.objects.get(pk=self.ixp_connection.pk).ipv4_address,
-            FILTER_DICT["local_ips"](
-                InternetExchangePeeringSession.objects.get(pk=self.session4.pk)
-            ),
+            FILTER_DICT["local_ips"](InternetExchangePeeringSession.objects.get(pk=self.session4.pk)),
         )
         self.assertEqual(
             Connection.objects.get(pk=self.ixp_connection.pk).ipv6_address,
-            FILTER_DICT["local_ips"](
-                InternetExchangePeeringSession.objects.get(pk=self.session6.pk)
-            ),
+            FILTER_DICT["local_ips"](InternetExchangePeeringSession.objects.get(pk=self.session6.pk)),
         )
         self.assertListEqual(
             [
@@ -249,38 +221,24 @@ class Jinja2FilterTestCase(TestCase):
             [Connection.objects.get(pk=self.ixp_connection.pk).ipv4_address],
             FILTER_DICT["local_ips"](InternetExchange.objects.get(pk=self.ixp.pk), 4),
         )
-        self.assertIsNone(
-            FILTER_DICT["local_ips"](Connection.objects.get(pk=self.ixp_connection.pk))
-        )
+        self.assertIsNone(FILTER_DICT["local_ips"](Connection.objects.get(pk=self.ixp_connection.pk)))
 
     def test_mac(self):
         self.assertEqual("00:1b:77:49:54:fd", FILTER_DICT["mac"](self.ixp_connection))
         self.assertEqual("00:1b:77:49:54:fd", FILTER_DICT["mac"]("00:1b:77:49:54:fd"))
-        self.assertEqual(
-            "001b.7749.54fd", FILTER_DICT["mac"]("00:1b:77:49:54:fd", "cisco")
-        )
-        self.assertEqual(
-            "001b774954fd", FILTER_DICT["mac"]("00:1b:77:49:54:fd", "bare")
-        )
+        self.assertEqual("001b.7749.54fd", FILTER_DICT["mac"]("00:1b:77:49:54:fd", "cisco"))
+        self.assertEqual("001b774954fd", FILTER_DICT["mac"]("00:1b:77:49:54:fd", "bare"))
         with self.assertRaises(ValueError):
             self.assertEqual("", FILTER_DICT["mac"](""))
 
     def test_inherited_status(self):
-        self.assertEqual(
-            BGPSessionStatus.ENABLED, FILTER_DICT["inherited_status"](self.session6)
-        )
+        self.assertEqual(BGPSessionStatus.ENABLED, FILTER_DICT["inherited_status"](self.session6))
         self.router.status = DeviceStatus.MAINTENANCE
-        self.assertEqual(
-            BGPSessionStatus.MAINTENANCE, FILTER_DICT["inherited_status"](self.session6)
-        )
+        self.assertEqual(BGPSessionStatus.MAINTENANCE, FILTER_DICT["inherited_status"](self.session6))
         self.ixp_connection.status = ConnectionStatus.DISABLED
         # Inherit from connection
-        self.assertEqual(
-            BGPSessionStatus.DISABLED, FILTER_DICT["inherited_status"](self.session6)
-        )
-        self.assertEqual(
-            DeviceStatus.MAINTENANCE, FILTER_DICT["inherited_status"](self.router)
-        )
+        self.assertEqual(BGPSessionStatus.DISABLED, FILTER_DICT["inherited_status"](self.session6))
+        self.assertEqual(DeviceStatus.MAINTENANCE, FILTER_DICT["inherited_status"](self.router))
         self.assertEqual(
             ConnectionStatus.DISABLED,
             FILTER_DICT["inherited_status"](self.ixp_connection),
@@ -292,17 +250,13 @@ class Jinja2FilterTestCase(TestCase):
             FILTER_DICT["inherited_status"](self.ixp_connection),
         )
         self.ixp.status = BGPGroupStatus.MAINTENANCE
-        self.assertEqual(
-            BGPGroupStatus.MAINTENANCE, FILTER_DICT["inherited_status"](self.ixp)
-        )
+        self.assertEqual(BGPGroupStatus.MAINTENANCE, FILTER_DICT["inherited_status"](self.ixp))
         # Inherit from IXP
         self.assertEqual(
             ConnectionStatus.MAINTENANCE,
             FILTER_DICT["inherited_status"](self.ixp_connection),
         )
-        self.assertEqual(
-            BGPSessionStatus.MAINTENANCE, FILTER_DICT["inherited_status"](self.session6)
-        )
+        self.assertEqual(BGPSessionStatus.MAINTENANCE, FILTER_DICT["inherited_status"](self.session6))
 
     def test_max_prefix(self):
         self.assertEqual(100, FILTER_DICT["max_prefix"](self.session6))
@@ -331,9 +285,7 @@ class Jinja2FilterTestCase(TestCase):
 
     def test_get(self):
         ixps = InternetExchange.objects.all()
-        self.assertIsInstance(
-            FILTER_DICT["get"](ixps, pk=self.ixp.pk), InternetExchange
-        )
+        self.assertIsInstance(FILTER_DICT["get"](ixps, pk=self.ixp.pk), InternetExchange)
         sessions = InternetExchangePeeringSession.objects.all()
         self.assertIsInstance(
             FILTER_DICT["get"](sessions, ip_address="2001:db8::1"),
@@ -343,9 +295,7 @@ class Jinja2FilterTestCase(TestCase):
 
     def test_unique(self):
         sessions = InternetExchangePeeringSession.objects.all()
-        self.assertEqual(
-            1, len(FILTER_DICT["unique_items"](sessions, "autonomous_system"))
-        )
+        self.assertEqual(1, len(FILTER_DICT["unique_items"](sessions, "autonomous_system")))
         self.assertEqual(4, len(FILTER_DICT["unique_items"](sessions, "ip_address")))
 
     def test_iterate(self):
@@ -469,12 +419,8 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(2, len(FILTER_DICT["merge_communities"](self.session6)))
 
     def test_contact(self):
-        self.assertEqual(
-            self.contact, FILTER_DICT["contact"](self.a_s, "Contact Role 1")
-        )
-        self.assertEqual(
-            self.contact, FILTER_DICT["contact"](self.session6, "Contact Role 1")
-        )
+        self.assertEqual(self.contact, FILTER_DICT["contact"](self.a_s, "Contact Role 1"))
+        self.assertEqual(self.contact, FILTER_DICT["contact"](self.session6, "Contact Role 1"))
         self.assertIsNone(FILTER_DICT["contact"](self.session6, "test"))
         self.assertRaises(AttributeError, FILTER_DICT["contact"], self.router, "test")
 
@@ -505,9 +451,7 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(5, FILTER_DICT["ixp_sessions"](self.a_s).count())
         self.assertEqual(2, FILTER_DICT["ixp_sessions"](self.a_s, family=6).count())
         self.assertEqual(3, FILTER_DICT["ixp_sessions"](self.a_s, family=4).count())
-        self.assertEqual(
-            4, FILTER_DICT["ixp_sessions"](self.router, ixp=self.ixp).count()
-        )
+        self.assertEqual(4, FILTER_DICT["ixp_sessions"](self.router, ixp=self.ixp).count())
         self.assertEqual(1, FILTER_DICT["ixp_sessions"](self.a_s, ixp=tmp_ixp).count())
         self.assertEqual(4, FILTER_DICT["ixp_sessions"](self.a_s, ixp=self.ixp).count())
 
@@ -537,9 +481,7 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(["AS64510"], result)
 
         result = FILTER_DICT["strip_irr_sources"](
-            AutonomousSystem(
-                asn=64530, name="Test IRR", irr_as_set="RIPE::AS-TEST RADB:AS-OTHER"
-            )
+            AutonomousSystem(asn=64530, name="Test IRR", irr_as_set="RIPE::AS-TEST RADB:AS-OTHER")
         )
         self.assertEqual(sorted(["AS-TEST", "AS-OTHER"]), sorted(result))
 
@@ -607,9 +549,7 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(("main", "this is a test - this is a test"), main.render({}))
 
         content_type = ContentType.objects.get_for_model(AutonomousSystem)
-        ExportTemplate.objects.create(
-            name="test", content_type=content_type, template="this is a test"
-        )
+        ExportTemplate.objects.create(name="test", content_type=content_type, template="this is a test")
         main = ExportTemplate.objects.create(
             name="main",
             content_type=content_type,
@@ -636,9 +576,7 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(("import_test", "macro works"), main.render({}))
 
         content_type = ContentType.objects.get_for_model(AutonomousSystem)
-        ExportTemplate.objects.create(
-            name="macros", content_type=content_type, template=macro_body
-        )
+        ExportTemplate.objects.create(name="macros", content_type=content_type, template=macro_body)
         main = ExportTemplate.objects.create(
             name="import_test",
             content_type=content_type,
@@ -648,8 +586,7 @@ class Jinja2FilterTestCase(TestCase):
 
     def test_from_import_template_extension(self):
         macro_body = (
-            "{% macro test_macro() %}macro works{% endmacro %}"
-            "{% macro other_macro() %}other works{% endmacro %}"
+            "{% macro test_macro() %}macro works{% endmacro %}{% macro other_macro() %}other works{% endmacro %}"
         )
 
         Configuration.objects.create(name="macros2", template=macro_body)
@@ -680,9 +617,7 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(("from_test", "macro works"), main.render({}))
 
         content_type = ContentType.objects.get_for_model(AutonomousSystem)
-        ExportTemplate.objects.create(
-            name="macros2", content_type=content_type, template=macro_body
-        )
+        ExportTemplate.objects.create(name="macros2", content_type=content_type, template=macro_body)
         main = ExportTemplate.objects.create(
             name="from_test",
             content_type=content_type,
@@ -694,9 +629,7 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(True, FILTER_DICT["context_has_key"](self.router, "foo"))
         self.assertEqual(False, FILTER_DICT["context_has_key"](self.router, "bar"))
 
-        self.assertEqual(
-            True, FILTER_DICT["context_has_key"](self.router, "inside", recursive=True)
-        )
+        self.assertEqual(True, FILTER_DICT["context_has_key"](self.router, "inside", recursive=True))
         self.assertEqual(
             False,
             FILTER_DICT["context_has_key"](self.router, "inside", recursive=False),
@@ -719,15 +652,11 @@ class Jinja2FilterTestCase(TestCase):
         self.assertEqual(None, FILTER_DICT["context_get_key"](self.router, "bar"))
         self.assertEqual(
             "nope",
-            FILTER_DICT["context_get_key"](
-                self.router, "inside", default="nope", recursive=False
-            ),
+            FILTER_DICT["context_get_key"](self.router, "inside", default="nope", recursive=False),
         )
         self.assertEqual(
             True,
-            FILTER_DICT["context_get_key"](
-                self.router, "inside", default="nope", recursive=True
-            ),
+            FILTER_DICT["context_get_key"](self.router, "inside", default="nope", recursive=True),
         )
 
     def test_as_json(self):
@@ -779,9 +708,7 @@ class Jinja2FilterTestCase(TestCase):
         self.assertIn("accept-all", ipv6_slugs)
         self.assertNotIn("export-deaggregated-v4", ipv6_slugs)
 
-        ipv6_slugs = set(
-            FILTER_DICT["routing_policies"](self.router, field="slug", family=6)
-        )
+        ipv6_slugs = set(FILTER_DICT["routing_policies"](self.router, field="slug", family=6))
         self.assertIn("export-deaggregated-v6", ipv6_slugs)
         self.assertIn("accept-all", ipv6_slugs)
         self.assertNotIn("export-deaggregated-v4", ipv6_slugs)
@@ -792,16 +719,12 @@ class Jinja2FilterTestCase(TestCase):
         self.assertIn(self.relationship_customer, relationships)
         self.assertNotIn(self.relationship_peer, relationships)
 
-        relationships_filtered = FILTER_DICT["relationships"](
-            self.a_s, local_autonomous_system=self.local_as
-        )
+        relationships_filtered = FILTER_DICT["relationships"](self.a_s, local_autonomous_system=self.local_as)
         self.assertEqual(1, relationships_filtered.count())
         self.assertIn(self.relationship_customer, relationships_filtered)
 
         other_as = AutonomousSystem.objects.get(asn=64500)
-        relationships_other = FILTER_DICT["relationships"](
-            self.a_s, local_autonomous_system=other_as
-        )
+        relationships_other = FILTER_DICT["relationships"](self.a_s, local_autonomous_system=other_as)
         self.assertEqual(0, relationships_other.count())
 
         with self.assertRaises(ValueError):
@@ -856,9 +779,7 @@ class Jinja2FilterTestCase(TestCase):
         )
 
         # Platform with no algorithm: returns password unchanged
-        no_algo_platform = Platform.objects.create(
-            name="Generic", slug="generic", password_algorithm=""
-        )
+        no_algo_platform = Platform.objects.create(name="Generic", slug="generic", password_algorithm="")
         no_algo_router = Router.objects.create(
             name="generic-router",
             hostname="generic.example.com",

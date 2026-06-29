@@ -37,9 +37,9 @@ __all__ = (
 @register_model_view(BGPGroup, name="list", path="", detail=False)
 class BGPGroupList(ObjectListView):
     permission_required = "peering.view_bgpgroup"
-    queryset = BGPGroup.objects.annotate(
-        directpeeringsession_count=Count("directpeeringsession")
-    ).order_by("name", "slug")
+    queryset = BGPGroup.objects.annotate(directpeeringsession_count=Count("directpeeringsession")).order_by(
+        "name", "slug"
+    )
     filterset = BGPGroupFilterSet
     filterset_form = BGPGroupFilterForm
     table = BGPGroupTable
@@ -104,6 +104,6 @@ class BGPGroupPeeringSessions(ObjectChildrenView):
     )
 
     def get_children(self, request, parent):
-        return parent.directpeeringsession_set.prefetch_related(
-            "autonomous_system", "router"
-        ).order_by("autonomous_system", "ip_address")
+        return parent.directpeeringsession_set.prefetch_related("autonomous_system", "router").order_by(
+            "autonomous_system", "ip_address"
+        )

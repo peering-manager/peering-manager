@@ -108,30 +108,22 @@ class LoginView(View):
 
             # Back fill user preferences with defined defaults
             if not hasattr(request.user, "preferences"):
-                UserPreferences(
-                    user=request.user, data=settings.DEFAULT_USER_PREFERENCES
-                ).save()
+                UserPreferences(user=request.user, data=settings.DEFAULT_USER_PREFERENCES).save()
 
             return self.redirect_to_next(request)
 
-        logger.debug(
-            f"Login form validation failed for username: {form['username'].value()}"
-        )
+        logger.debug(f"Login form validation failed for username: {form['username'].value()}")
         return render(request, self.template, {"form": form})
 
     def redirect_to_next(self, request):
         data = request.POST if request.method == "POST" else request.GET
         redirect_url = data.get("next", settings.BASE_PATH)
 
-        if redirect_url and url_has_allowed_host_and_scheme(
-            redirect_url, allowed_hosts=None
-        ):
+        if redirect_url and url_has_allowed_host_and_scheme(redirect_url, allowed_hosts=None):
             logger.debug(f"Redirecting user to {redirect_url}")
         else:
             if redirect_url:
-                logger.warning(
-                    f"ignoring unsafe 'next' URL passed to login form: {redirect_url}"
-                )
+                logger.warning(f"ignoring unsafe 'next' URL passed to login form: {redirect_url}")
             redirect_url = reverse("home")
 
         return HttpResponseRedirect(redirect_url)
@@ -160,9 +152,7 @@ class PreferencesView(View, LoginRequiredMixin):
     def get(self, request):
         preferences = request.user.preferences
         initial = {
-            "page_length": str(
-                preferences.get("pagination.per_page") or settings.PAGINATE_COUNT
-            ),
+            "page_length": str(preferences.get("pagination.per_page") or settings.PAGINATE_COUNT),
             "config_context_format": preferences.get("configcontext.format"),
         }
 
@@ -204,9 +194,7 @@ class PreferencesView(View, LoginRequiredMixin):
                 preferences.delete("pagination.per_page", commit=False)
 
             if config_context_format := form.cleaned_data.get("config_context_format"):
-                preferences.set(
-                    "configcontext.format", config_context_format, commit=False
-                )
+                preferences.set("configcontext.format", config_context_format, commit=False)
             elif "config_context_format" in form.cleaned_data:
                 preferences.delete("configcontext.format", commit=False)
 
@@ -316,9 +304,7 @@ class TokenAddEdit(LoginRequiredMixin, View):
             token.user = request.user
             token.save()
 
-            messages.success(
-                request, f"{'Modified' if pk else 'Created'} token {token}"
-            )
+            messages.success(request, f"{'Modified' if pk else 'Created'} token {token}")
 
             if "_addanother" in request.POST:
                 return redirect(request.path)

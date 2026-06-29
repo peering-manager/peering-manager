@@ -209,9 +209,7 @@ class JournalEntryTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         JournalEntry.objects.bulk_create(journal_entries)
 
         cls.form_data = {
-            "assigned_object_type": ContentType.objects.get_for_model(
-                AutonomousSystem
-            ).pk,
+            "assigned_object_type": ContentType.objects.get_for_model(AutonomousSystem).pk,
             "assigned_object_id": autonomous_systems[0].pk,
             "kind": "info",
             "comments": "A new entry",

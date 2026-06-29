@@ -74,9 +74,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "ordering": ["name"],
-                "permissions": [
-                    ("synchronise_datasource", "Can synchronise data source")
-                ],
+                "permissions": [("synchronise_datasource", "Can synchronise data source")],
             },
         ),
         migrations.CreateModel(
@@ -162,9 +160,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name="datafile",
-            constraint=models.UniqueConstraint(
-                fields=("source", "path"), name="core_datafile_unique_source_path"
-            ),
+            constraint=models.UniqueConstraint(fields=("source", "path"), name="core_datafile_unique_source_path"),
         ),
         migrations.AddConstraint(
             model_name="autosynchronisationrecord",

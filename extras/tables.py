@@ -94,9 +94,7 @@ class IXAPITable(PeeringManagerTable):
 class JournalEntryTable(PeeringManagerTable):
     created = columns.DateTimeColumn(timespec="minutes", linkify=True)
     assigned_object_type = columns.ContentTypeColumn(verbose_name="Object Type")
-    assigned_object = tables.Column(
-        linkify=True, orderable=False, verbose_name="Object"
-    )
+    assigned_object = tables.Column(linkify=True, orderable=False, verbose_name="Object")
     kind = columns.ChoiceFieldColumn()
     comments = columns.MarkdownColumn()
     comments_short = tables.TemplateColumn(

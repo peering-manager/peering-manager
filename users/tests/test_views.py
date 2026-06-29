@@ -81,9 +81,7 @@ class UserTestCase(ViewTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_user_token_edit_view(self):
-        response = self.client.get(
-            reverse("users:token_edit", kwargs={"pk": self.token.pk})
-        )
+        response = self.client.get(reverse("users:token_edit", kwargs={"pk": self.token.pk}))
         # Without been logged -> redirection
         self.assertEqual(response.status_code, 302)
 
@@ -91,15 +89,11 @@ class UserTestCase(ViewTestCase):
         response = self.client.post(reverse("login"), self.credentials, follow=True)
         # Should be logged in, so page should work
         self.assertTrue(response.context["user"].is_active)
-        response = self.client.get(
-            reverse("users:token_edit", kwargs={"pk": self.token.pk})
-        )
+        response = self.client.get(reverse("users:token_edit", kwargs={"pk": self.token.pk}))
         self.assertEqual(response.status_code, 200)
 
     def test_user_token_delete_view(self):
-        response = self.client.get(
-            reverse("users:token_delete", kwargs={"pk": self.token.pk})
-        )
+        response = self.client.get(reverse("users:token_delete", kwargs={"pk": self.token.pk}))
         # Without been logged -> redirection
         self.assertEqual(response.status_code, 302)
 
@@ -107,7 +101,5 @@ class UserTestCase(ViewTestCase):
         response = self.client.post(reverse("login"), self.credentials, follow=True)
         # Should be logged in, so page should work
         self.assertTrue(response.context["user"].is_active)
-        response = self.client.get(
-            reverse("users:token_delete", kwargs={"pk": self.token.pk})
-        )
+        response = self.client.get(reverse("users:token_delete", kwargs={"pk": self.token.pk}))
         self.assertEqual(response.status_code, 200)

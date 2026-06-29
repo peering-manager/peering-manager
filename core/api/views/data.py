@@ -21,9 +21,7 @@ class DataFileViewSet(PeeringManagerReadOnlyModelViewSet):
 
 
 class DataSourceViewSet(PeeringManagerModelViewSet):
-    queryset = models.DataSource.objects.annotate(
-        file_count=count_related(models.DataFile, "source")
-    )
+    queryset = models.DataSource.objects.annotate(file_count=count_related(models.DataFile, "source"))
     serializer_class = serializers.DataSourceSerializer
     filterset_class = filtersets.DataSourceFilterSet
 

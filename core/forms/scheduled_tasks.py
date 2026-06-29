@@ -33,7 +33,5 @@ class ScheduledTaskForm(BootstrapMixin, forms.ModelForm):
             # Offer only catalog tasks without a schedule yet
             configured = set(ScheduledTask.objects.values_list("task", flat=True))
             self.fields["task"].choices = [
-                (key, meta["label"])
-                for key, meta in catalog.items()
-                if key not in configured
+                (key, meta["label"]) for key, meta in catalog.items() if key not in configured
             ]

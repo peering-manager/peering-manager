@@ -46,6 +46,4 @@ class ConnectionViewSet(PeeringManagerModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         success = self.get_object().set_ixapi_mac_address()
-        return Response(
-            status=status.HTTP_200_OK if success else status.HTTP_400_BAD_REQUEST
-        )
+        return Response(status=status.HTTP_200_OK if success else status.HTTP_400_BAD_REQUEST)

@@ -34,9 +34,7 @@ __all__ = (
 
 class DataFileFilterForm(PeeringManagerModelFilterSetForm):
     model = DataFile
-    source_id = DynamicModelMultipleChoiceField(
-        required=False, queryset=DataSource.objects.all(), label="Data source"
-    )
+    source_id = DynamicModelMultipleChoiceField(required=False, queryset=DataSource.objects.all(), label="Data source")
 
 
 class DataSourceForm(PeeringManagerModelForm):
@@ -126,21 +124,13 @@ class DataSourceBulkEditForm(PeeringManagerModelBulkEditForm):
 
 class DataSourceFilterForm(PeeringManagerModelFilterSetForm):
     model = DataSource
-    type = forms.MultipleChoiceField(
-        required=False, choices=get_data_backend_choices, widget=StaticSelectMultiple
-    )
-    status = forms.MultipleChoiceField(
-        required=False, choices=DataSourceStatus, widget=StaticSelectMultiple
-    )
-    enabled = forms.NullBooleanField(
-        required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES)
-    )
+    type = forms.MultipleChoiceField(required=False, choices=get_data_backend_choices, widget=StaticSelectMultiple)
+    status = forms.MultipleChoiceField(required=False, choices=DataSourceStatus, widget=StaticSelectMultiple)
+    enabled = forms.NullBooleanField(required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES))
 
 
 class PushedDataMixin(forms.Form):
-    data_source = DynamicModelChoiceField(
-        required=False, queryset=DataSource.objects.all()
-    )
+    data_source = DynamicModelChoiceField(required=False, queryset=DataSource.objects.all())
     data_path = forms.CharField(
         required=False,
         max_length=200,
@@ -149,9 +139,7 @@ class PushedDataMixin(forms.Form):
 
 
 class SynchronisedDataMixin(forms.Form):
-    data_source = DynamicModelChoiceField(
-        required=False, queryset=DataSource.objects.all()
-    )
+    data_source = DynamicModelChoiceField(required=False, queryset=DataSource.objects.all())
     data_file = DynamicModelChoiceField(
         required=False,
         queryset=DataFile.objects.all(),

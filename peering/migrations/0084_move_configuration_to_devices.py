@@ -29,9 +29,7 @@ class Migration(migrations.Migration):
             )
             mapping[c.pk] = n.pk
 
-        for r in Router.objects.using(db_alias).filter(
-            configuration_template__isnull=False
-        ):
+        for r in Router.objects.using(db_alias).filter(configuration_template__isnull=False):
             r.configuration_id = mapping[r.configuration_template.pk]
             r.save()
 

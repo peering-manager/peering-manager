@@ -69,9 +69,7 @@ class TestCiscoType7Cipher(TestCase):
         self.assertEqual(decrypted, self.plain_password)
 
     def test_key_parameter_ignored(self):
-        encrypted_with_key = self.cipher.encrypt(
-            value=self.plain_password, key="somekey"
-        )
+        encrypted_with_key = self.cipher.encrypt(value=self.plain_password, key="somekey")
         encrypted_without_key = self.cipher.encrypt(value=self.plain_password)
         self.assertEqual(
             self.cipher.decrypt(encrypted_with_key),
@@ -149,15 +147,11 @@ class TestAristaType7Cipher(TestCase):
         self.encryption_key = "192.0.2.1"
 
     def test_encrypt_return_encrypted(self):
-        encrypted = self.cipher.encrypt(
-            value=self.plain_password, key=self.encryption_key
-        )
+        encrypted = self.cipher.encrypt(value=self.plain_password, key=self.encryption_key)
         self.assertIsInstance(encrypted, str)
 
     def test_encrypt_return_base64(self):
-        encrypted = self.cipher.encrypt(
-            value=self.plain_password, key=self.encryption_key
-        )
+        encrypted = self.cipher.encrypt(value=self.plain_password, key=self.encryption_key)
         try:
             base64.b64decode(encrypted)
         except Exception:
@@ -170,9 +164,7 @@ class TestAristaType7Cipher(TestCase):
         self.assertEqual(decrypted, self.plain_password)
 
     def test_encrypt_decrypt_roundtrip(self):
-        encrypted = self.cipher.encrypt(
-            value=self.plain_password, key=self.encryption_key
-        )
+        encrypted = self.cipher.encrypt(value=self.plain_password, key=self.encryption_key)
         decrypted = self.cipher.decrypt(value=encrypted, key=self.encryption_key)
         self.assertEqual(decrypted, self.plain_password)
 
@@ -184,52 +176,36 @@ class TestAristaType7Cipher(TestCase):
         self.assertEqual(decrypted, "")
 
     def test_is_encrypted(self):
-        encrypted = self.cipher.encrypt(
-            value=self.plain_password, key=self.encryption_key
-        )
+        encrypted = self.cipher.encrypt(value=self.plain_password, key=self.encryption_key)
         self.assertTrue(self.cipher.is_encrypted(value=encrypted))
         self.assertFalse(self.cipher.is_encrypted(value=self.plain_password))
         self.assertFalse(self.cipher.is_encrypted(value=""))
 
     def test_encrypt_already_encrypted(self):
-        encrypted = self.cipher.encrypt(
-            value=self.plain_password, key=self.encryption_key
-        )
+        encrypted = self.cipher.encrypt(value=self.plain_password, key=self.encryption_key)
         double_encrypted = self.cipher.encrypt(value=encrypted, key=self.encryption_key)
         self.assertEqual(encrypted, double_encrypted)
 
     def test_decrypt_not_encrypted(self):
-        decrypted = self.cipher.decrypt(
-            value=self.plain_password, key=self.encryption_key
-        )
+        decrypted = self.cipher.decrypt(value=self.plain_password, key=self.encryption_key)
         self.assertEqual(decrypted, self.plain_password)
 
     def test_key_produces_deterministic_encryption(self):
-        encrypted1 = self.cipher.encrypt(
-            value=self.plain_password, key=self.encryption_key
-        )
-        encrypted2 = self.cipher.encrypt(
-            value=self.plain_password, key=self.encryption_key
-        )
-        encrypted3 = self.cipher.encrypt(
-            value=self.plain_password, key=self.encryption_key
-        )
+        encrypted1 = self.cipher.encrypt(value=self.plain_password, key=self.encryption_key)
+        encrypted2 = self.cipher.encrypt(value=self.plain_password, key=self.encryption_key)
+        encrypted3 = self.cipher.encrypt(value=self.plain_password, key=self.encryption_key)
         self.assertEqual(encrypted1, encrypted2)
         self.assertEqual(encrypted2, encrypted3)
 
     def test_different_keys_produce_different_ciphertext(self):
-        encrypted1 = self.cipher.encrypt(
-            value=self.plain_password, key=self.encryption_key
-        )
+        encrypted1 = self.cipher.encrypt(value=self.plain_password, key=self.encryption_key)
         encrypted2 = self.cipher.encrypt(value=self.plain_password, key="192.0.2.2")
         self.assertNotEqual(encrypted1, encrypted2)
         self.assertEqual(
             self.cipher.decrypt(value=encrypted1, key=self.encryption_key),
             self.plain_password,
         )
-        self.assertEqual(
-            self.cipher.decrypt(value=encrypted2, key="192.0.2.2"), self.plain_password
-        )
+        self.assertEqual(self.cipher.decrypt(value=encrypted2, key="192.0.2.2"), self.plain_password)
 
     def test_different_passwords_produce_different_ciphertext(self):
         encrypted1 = self.cipher.encrypt(value="password1", key=self.encryption_key)

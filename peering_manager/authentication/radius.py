@@ -61,9 +61,7 @@ class RADIUSBackend:
     supports_anonymous_user = False
     supports_object_permissions = False
 
-    def __init__(
-        self, radius_server, radius_port, radius_secret, radius_attributes=None
-    ):
+    def __init__(self, radius_server, radius_port, radius_secret, radius_attributes=None):
         self.radius_server = radius_server
         self.radius_port = radius_port
         self.radius_secret = radius_secret.encode("utf-8")
@@ -116,9 +114,7 @@ class RADIUSBackend:
         try:
             reply = client.SendPacket(packet)
         except Timeout:
-            logging.error(
-                f"RADIUS timeout occurred contacting {client.server}:{client.authport}"
-            )
+            logging.error(f"RADIUS timeout occurred contacting {client.server}:{client.authport}")
             return None
         except Exception as e:
             logging.error(f"RADIUS error: {e}")
@@ -130,9 +126,7 @@ class RADIUSBackend:
             logging.warning(f"RADIUS access rejected for user '{username}'")
             return None
         if reply.code != AccessAccept:
-            logging.error(
-                f"RADIUS access error for user '{username}' (code {reply.code})"
-            )
+            logging.error(f"RADIUS access error for user '{username}' (code {reply.code})")
             return None
 
         logging.info(f"RADIUS access granted for user '{username}'")
@@ -148,9 +142,7 @@ class RADIUSBackend:
         packet = self._get_auth_packet(username, password, client)
         return self._perform_radius_auth(client, packet)
 
-    def get_django_user(
-        self, username, password=None, groups=None, is_staff=False, is_superuser=False
-    ):
+    def get_django_user(self, username, password=None, groups=None, is_staff=False, is_superuser=False):
         """
         Get the Django user with the given username, or create one if it
         doesn't already exist. If `password` is given, then set the user's
@@ -195,9 +187,7 @@ class RADIUSBackend:
         if result:
             group_names, is_staff, is_superuser = result
             groups = self.get_user_groups(group_names)
-            return self.get_django_user(
-                username, password, groups, is_staff, is_superuser
-            )
+            return self.get_django_user(username, password, groups, is_staff, is_superuser)
 
         return None
 
@@ -265,8 +255,6 @@ class RADIUSRealmBackend(RADIUSBackend):
             full_username = self.construct_full_username(username, realm)
             group_names, is_staff, is_superuser = result
             groups = self.get_user_groups(group_names)
-            return self.get_django_user(
-                full_username, password, groups, is_staff, is_superuser
-            )
+            return self.get_django_user(full_username, password, groups, is_staff, is_superuser)
 
         return None

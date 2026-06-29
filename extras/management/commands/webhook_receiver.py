@@ -17,9 +17,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
         raise AttributeError
 
     def log_message(self, format_str, *args):
-        print(
-            f"[{request_counter}] {self.date_time_string()} {self.address_string()} {format_str % args}"
-        )
+        print(f"[{request_counter}] {self.date_time_string()} {self.address_string()} {format_str % args}")
 
     def do_any(self):
         global request_counter  # noqa: PLW0603
@@ -59,9 +57,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         port = options["port"]
 
-        self.stdout.write(
-            f"Listening on port http://localhost:{port}. Stop with CTRL+C."
-        )
+        self.stdout.write(f"Listening on port http://localhost:{port}. Stop with CTRL+C.")
         httpd = HTTPServer(("localhost", port), WebhookHandler)
 
         try:

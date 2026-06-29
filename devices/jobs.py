@@ -45,9 +45,7 @@ def poll_bgp_sessions(router, job):
             logger=logger,
         )
     else:
-        job.mark_failed(
-            "Error while polling BGP sessions state.", object=router, logger=logger
-        )
+        job.mark_failed("Error while polling BGP sessions state.", object=router, logger=logger)
 
     return success
 
@@ -60,15 +58,11 @@ def set_napalm_configuration(router, commit, job):
 
     job.mark_running("Trying to install configuration.", object=router, logger=logger)
 
-    error, changes = router.set_napalm_configuration(
-        router.render_configuration(), commit=commit
-    )
+    error, changes = router.set_napalm_configuration(router.render_configuration(), commit=commit)
 
     if error:
         job.set_output(error)
-        job.mark_failed(
-            "Failed to install configuration.", object=router, logger=logger
-        )
+        job.mark_failed("Failed to install configuration.", object=router, logger=logger)
         return False
 
     if not changes:
@@ -76,11 +70,7 @@ def set_napalm_configuration(router, commit, job):
     else:
         job.set_output(changes)
         job.mark_completed(
-            (
-                "Configuration installed."
-                if commit
-                else "Configuration differences found."
-            ),
+            ("Configuration installed." if commit else "Configuration differences found."),
             object=router,
             logger=logger,
         )
@@ -154,9 +144,7 @@ def push_diff_to_data_source(router, diff_content, job):
         job.mark_completed("Diff pushed to data source.", object=router, logger=logger)
     except Exception as e:
         job.set_output(str(e))
-        job.mark_failed(
-            "Failed to push diff to data source.", object=router, logger=logger
-        )
+        job.mark_failed("Failed to push diff to data source.", object=router, logger=logger)
         router.data_source.status = DataSourceStatus.FAILED
         router.data_source.save()
 

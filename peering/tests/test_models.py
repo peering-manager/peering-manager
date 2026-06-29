@@ -17,9 +17,7 @@ from .mocked_data import load_peeringdb_data, mocked_subprocess_popen
 class AutonomousSystemTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.autonomous_system = AutonomousSystem.objects.create(
-            asn=65537, name="Test", irr_as_set="AS-MOCKED"
-        )
+        cls.autonomous_system = AutonomousSystem.objects.create(asn=65537, name="Test", irr_as_set="AS-MOCKED")
         load_peeringdb_data()
 
     def test_create_from_peeringdb(self, *_):
@@ -75,27 +73,19 @@ class AutonomousSystemTest(TestCase):
         self.assertFalse(a_s.synchronise_with_peeringdb())
 
     def test_retrieve_irr_as_set_prefixes(self):
-        with patch(
-            "peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen
-        ):
+        with patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen):
             prefixes = self.autonomous_system.retrieve_irr_as_set_prefixes()
             self.assertEqual(1, len(prefixes["ipv6"]))
             self.assertEqual(1, len(prefixes["ipv4"]))
 
-        with patch(
-            "peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen
-        ):
+        with patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen):
             self.autonomous_system.irr_as_set = "AS-ERROR"
             prefixes = self.autonomous_system.retrieve_irr_as_set_prefixes()
             self.assertEqual({"ipv6": [], "ipv4": []}, prefixes)
 
     def test_get_irr_as_set_prefixes(self):
-        with patch(
-            "peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen
-        ):
-            self.autonomous_system.prefixes = (
-                self.autonomous_system.retrieve_irr_as_set_prefixes()
-            )
+        with patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen):
+            self.autonomous_system.prefixes = self.autonomous_system.retrieve_irr_as_set_prefixes()
             self.assertEqual(1, len(self.autonomous_system.prefixes["ipv6"]))
             self.assertEqual(1, len(self.autonomous_system.prefixes["ipv4"]))
 
@@ -116,9 +106,7 @@ class AutonomousSystemTest(TestCase):
 class DirectPeeringSessionTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.local_as = AutonomousSystem.objects.create(
-            asn=64500, name="Local Test", affiliated=True
-        )
+        cls.local_as = AutonomousSystem.objects.create(asn=64500, name="Local Test", affiliated=True)
         cls.autonomous_system = AutonomousSystem.objects.create(asn=64501, name="Test")
         cls.group = BGPGroup.objects.create(name="Test Group", slug="testgroup")
         cls.router = Router.objects.create(
@@ -150,9 +138,7 @@ class DirectPeeringSessionTest(TestCase):
             self.assertEqual(567_257, self.session.received_prefix_count)
 
     def test_verify_ip_addresses_inputs(self):
-        with self.assertRaises(
-            ValidationError, msg="cannot be the same as remote IP address"
-        ):
+        with self.assertRaises(ValidationError, msg="cannot be the same as remote IP address"):
             DirectPeeringSession(
                 local_autonomous_system=self.local_as,
                 autonomous_system=self.autonomous_system,
@@ -217,9 +203,7 @@ class DirectPeeringSessionTest(TestCase):
 class InternetExchangeTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.autonomous_system = AutonomousSystem.objects.create(
-            asn=65537, name="Test", irr_as_set="AS-MOCKED"
-        )
+        cls.autonomous_system = AutonomousSystem.objects.create(asn=65537, name="Test", irr_as_set="AS-MOCKED")
         cls.internet_exchange = InternetExchange.objects.create(
             local_autonomous_system=cls.autonomous_system, name="Test", slug="test"
         )
@@ -229,9 +213,7 @@ class InternetExchangeTest(TestCase):
 class InternetExchangePeeringSessionTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.local_as = AutonomousSystem.objects.create(
-            asn=64500, name="Local Test", affiliated=True
-        )
+        cls.local_as = AutonomousSystem.objects.create(asn=64500, name="Local Test", affiliated=True)
         cls.a_s = AutonomousSystem.objects.create(asn=64510, name="Test")
         cls.router = Router.objects.create(
             local_autonomous_system=cls.local_as,
@@ -243,9 +225,7 @@ class InternetExchangePeeringSessionTest(TestCase):
         cls.ixp = InternetExchange.objects.create(
             local_autonomous_system=cls.local_as, name="Test Group", slug="testgroup"
         )
-        cls.ixp_connection = Connection.objects.create(
-            vlan=2000, internet_exchange_point=cls.ixp, router=cls.router
-        )
+        cls.ixp_connection = Connection.objects.create(vlan=2000, internet_exchange_point=cls.ixp, router=cls.router)
         cls.session = InternetExchangePeeringSession.objects.create(
             autonomous_system=cls.a_s,
             ixp_connection=cls.ixp_connection,

@@ -22,12 +22,8 @@ class Token(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     expires = models.DateTimeField(blank=True, null=True)
     last_used = models.DateTimeField(blank=True, null=True)
-    key = models.CharField(
-        max_length=40, unique=True, validators=[MinLengthValidator(40)]
-    )
-    write_enabled = models.BooleanField(
-        default=True, help_text="Permit create/update/delete operations using this key"
-    )
+    key = models.CharField(max_length=40, unique=True, validators=[MinLengthValidator(40)])
+    write_enabled = models.BooleanField(default=True, help_text="Permit create/update/delete operations using this key")
     description = models.CharField(max_length=100, blank=True)
     allowed_ips = ArrayField(
         base_field=CidrAddressField(),
@@ -61,9 +57,7 @@ class Token(models.Model):
         """
         return (self.expires is not None) and (timezone.now() >= self.expires)
 
-    def validate_client_ip(
-        self, ip_address: ipaddress.IPv4Address | ipaddress.IPv6Address
-    ) -> bool:
+    def validate_client_ip(self, ip_address: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
         if not self.allowed_ips:
             return True
 
@@ -75,9 +69,7 @@ class UserPreferences(models.Model):
     This model stores user-specific preferences as JSON.
     """
 
-    user = models.OneToOneField(
-        to=User, on_delete=models.CASCADE, related_name="preferences"
-    )
+    user = models.OneToOneField(to=User, on_delete=models.CASCADE, related_name="preferences")
     data = models.JSONField(default=dict)
 
     class Meta:
@@ -154,9 +146,7 @@ class UserPreferences(models.Model):
         # Now set the actual value of the preference
         key = keys[-1]
         if key in data and isinstance(data[key], dict):
-            raise TypeError(
-                f"'{path}' is a category, it cannot be converted to a value."
-            )
+            raise TypeError(f"'{path}' is a category, it cannot be converted to a value.")
 
         data[key] = value
         if commit:

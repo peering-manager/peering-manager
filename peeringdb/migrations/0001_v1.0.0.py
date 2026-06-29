@@ -12,42 +12,26 @@ class Migration(migrations.Migration):
     def forward_transition_from_none_to_zero(apps, schema_editor):
         Network = apps.get_model("peeringdb", "Network")
         db_alias = schema_editor.connection.alias
-        Network.objects.using(db_alias).filter(info_prefixes4=None).update(
-            info_prefixes4=0
-        )
-        Network.objects.using(db_alias).filter(info_prefixes6=None).update(
-            info_prefixes6=0
-        )
+        Network.objects.using(db_alias).filter(info_prefixes4=None).update(info_prefixes4=0)
+        Network.objects.using(db_alias).filter(info_prefixes6=None).update(info_prefixes6=0)
 
     def reverse_transition_from_none_to_zero(apps, schema_editor):
         Network = apps.get_model("peeringdb", "Network")
         db_alias = schema_editor.connection.alias
-        Network.objects.using(db_alias).filter(info_prefixes4=0).update(
-            info_prefixes4=None
-        )
-        Network.objects.using(db_alias).filter(info_prefixes6=0).update(
-            info_prefixes6=None
-        )
+        Network.objects.using(db_alias).filter(info_prefixes4=0).update(info_prefixes4=None)
+        Network.objects.using(db_alias).filter(info_prefixes6=0).update(info_prefixes6=None)
 
     def forward_transition_from_minus_one_to_zero(apps, schema_editor):
         Network = apps.get_model("peeringdb", "Network")
         db_alias = schema_editor.connection.alias
-        Network.objects.using(db_alias).filter(info_prefixes4=-1).update(
-            info_prefixes4=0
-        )
-        Network.objects.using(db_alias).filter(info_prefixes6=-1).update(
-            info_prefixes6=0
-        )
+        Network.objects.using(db_alias).filter(info_prefixes4=-1).update(info_prefixes4=0)
+        Network.objects.using(db_alias).filter(info_prefixes6=-1).update(info_prefixes6=0)
 
     def reverse_transition_from_minus_one_to_zero(apps, schema_editor):
         Network = apps.get_model("peeringdb", "Network")
         db_alias = schema_editor.connection.alias
-        Network.objects.using(db_alias).filter(info_prefixes4=0).update(
-            info_prefixes4=-1
-        )
-        Network.objects.using(db_alias).filter(info_prefixes6=0).update(
-            info_prefixes6=-1
-        )
+        Network.objects.using(db_alias).filter(info_prefixes4=0).update(info_prefixes4=-1)
+        Network.objects.using(db_alias).filter(info_prefixes6=0).update(info_prefixes6=-1)
 
     replaces = [
         ("peeringdb", "0001_initial"),
@@ -143,15 +127,11 @@ class Migration(migrations.Migration):
                 ("asn", peering.fields.ASNField()),
                 (
                     "ipaddr6",
-                    models.GenericIPAddressField(
-                        blank=True, null=True, protocol="IPv6"
-                    ),
+                    models.GenericIPAddressField(blank=True, null=True, protocol="IPv6"),
                 ),
                 (
                     "ipaddr4",
-                    models.GenericIPAddressField(
-                        blank=True, null=True, protocol="IPv4"
-                    ),
+                    models.GenericIPAddressField(blank=True, null=True, protocol="IPv4"),
                 ),
                 ("is_rs_peer", models.BooleanField(default=False)),
                 ("ix_id", models.PositiveIntegerField()),

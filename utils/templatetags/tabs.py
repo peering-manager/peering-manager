@@ -20,9 +20,7 @@ register = template.Library()
 
 
 @register.inclusion_tag("tabs/model_view_tabs.html", takes_context=True)
-def model_view_tabs(
-    context: Context, instance: models.Model
-) -> dict[str, list[dict[str, Any]]]:
+def model_view_tabs(context: Context, instance: models.Model) -> dict[str, list[dict[str, Any]]]:
     app_label = instance._meta.app_label
     model_name = instance._meta.model_name
     user = context.get("request").user
@@ -34,11 +32,7 @@ def model_view_tabs(
         views = []
 
     for config in views:
-        view = (
-            import_string(config["view"])
-            if type(config["view"]) is str
-            else config["view"]
-        )
+        view = import_string(config["view"]) if type(config["view"]) is str else config["view"]
         if tab := getattr(view, "tab", None):
             if tab.permission and not user.has_perm(tab.permission):
                 continue

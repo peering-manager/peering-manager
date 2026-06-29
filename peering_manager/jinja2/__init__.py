@@ -14,9 +14,7 @@ def render_jinja2(template, context, trim=False, lstrip=False):
     from jinja2 import TemplateSyntaxError
     from jinja2.sandbox import SandboxedEnvironment
 
-    environment = SandboxedEnvironment(
-        loader=PeeringManagerLoader(), trim_blocks=trim, lstrip_blocks=lstrip
-    )
+    environment = SandboxedEnvironment(loader=PeeringManagerLoader(), trim_blocks=trim, lstrip_blocks=lstrip)
     environment.add_extension(IncludeTemplateExtension)
     for extension in settings.JINJA2_TEMPLATE_EXTENSIONS:
         environment.add_extension(extension)

@@ -8,11 +8,7 @@ app_name = "peering"
 urlpatterns = [
     path(
         "autonomous-systems/",
-        include(
-            get_model_urls(
-                app_label="peering", model_name="autonomoussystem", detail=False
-            )
-        ),
+        include(get_model_urls(app_label="peering", model_name="autonomoussystem", detail=False)),
     ),
     path(
         "autonomous-systems/<int:pk>/",
@@ -20,9 +16,7 @@ urlpatterns = [
     ),
     path(
         "bgp-groups/",
-        include(
-            get_model_urls(app_label="peering", model_name="bgpgroup", detail=False)
-        ),
+        include(get_model_urls(app_label="peering", model_name="bgpgroup", detail=False)),
     ),
     path(
         "bgp-groups/<int:pk>/",
@@ -30,11 +24,7 @@ urlpatterns = [
     ),
     path(
         "direct-peering-sessions/",
-        include(
-            get_model_urls(
-                app_label="peering", model_name="directpeeringsession", detail=False
-            )
-        ),
+        include(get_model_urls(app_label="peering", model_name="directpeeringsession", detail=False)),
     ),
     path(
         "direct-peering-sessions/<int:pk>/",
@@ -42,11 +32,7 @@ urlpatterns = [
     ),
     path(
         "internet-exchanges/",
-        include(
-            get_model_urls(
-                app_label="peering", model_name="internetexchange", detail=False
-            )
-        ),
+        include(get_model_urls(app_label="peering", model_name="internetexchange", detail=False)),
     ),
     path(
         "internet-exchanges/<int:pk>/",
@@ -64,19 +50,11 @@ urlpatterns = [
     ),
     path(
         "internet-exchange-peering-sessions/<int:pk>/",
-        include(
-            get_model_urls(
-                app_label="peering", model_name="internetexchangepeeringsession"
-            )
-        ),
+        include(get_model_urls(app_label="peering", model_name="internetexchangepeeringsession")),
     ),
     path(
         "peering-requests/",
-        include(
-            get_model_urls(
-                app_label="peering", model_name="peeringrequest", detail=False
-            )
-        ),
+        include(get_model_urls(app_label="peering", model_name="peeringrequest", detail=False)),
     ),
     path(
         "peering-requests/<int:pk>/",

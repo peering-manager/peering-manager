@@ -7,9 +7,7 @@ class Migration(migrations.Migration):
     dependencies = [("messaging", "0004_move_tags_to_extras")]
 
     operations = [
-        migrations.AlterModelOptions(
-            name="contactrole", options={"ordering": ("name",)}
-        ),
+        migrations.AlterModelOptions(name="contactrole", options={"ordering": ("name",)}),
         migrations.AddField(
             model_name="contact",
             name="description",

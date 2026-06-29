@@ -39,9 +39,7 @@ class Job(models.Model):
         null=True,
     )
     object_id = models.PositiveBigIntegerField(blank=True, null=True)
-    object = GenericForeignKey(
-        ct_field="object_type", fk_field="object_id", for_concrete_model=False
-    )
+    object = GenericForeignKey(ct_field="object_type", fk_field="object_id", for_concrete_model=False)
     name = models.CharField(max_length=200)
     created = models.DateTimeField(auto_now_add=True)
     scheduled = models.DateTimeField(blank=True, null=True)
@@ -53,12 +51,8 @@ class Job(models.Model):
     )
     started = models.DateTimeField(null=True, blank=True)
     completed = models.DateTimeField(blank=True, null=True)
-    user = models.ForeignKey(
-        to=User, on_delete=models.SET_NULL, related_name="+", null=True, blank=True
-    )
-    status = models.CharField(
-        max_length=30, choices=JobStatus, default=JobStatus.PENDING
-    )
+    user = models.ForeignKey(to=User, on_delete=models.SET_NULL, related_name="+", null=True, blank=True)
+    status = models.CharField(max_length=30, choices=JobStatus, default=JobStatus.PENDING)
     data = models.JSONField(encoder=DjangoJSONEncoder, null=True, blank=True)
     error = models.TextField(editable=False, blank=True)
     job_id = models.UUIDField(unique=True)
@@ -110,15 +104,11 @@ class Job(models.Model):
         can't leave Redis ahead of the database.
         """
         if schedule_at and immediate:
-            raise ValueError(
-                "enqueue() cannot be called with values for both schedule_at and immediate."
-            )
+            raise ValueError("enqueue() cannot be called with values for both schedule_at and immediate.")
 
         target = object_model or object
         object_type = (
-            ContentType.objects.get_for_model(target, for_concrete_model=False)
-            if target is not None
-            else None
+            ContentType.objects.get_for_model(target, for_concrete_model=False) if target is not None else None
         )
         rq_queue_name = queue_name or "default"
 
@@ -166,9 +156,7 @@ class Job(models.Model):
 
     @staticmethod
     def _data_grouping_struct():
-        return OrderedDict(
-            [("success", 0), ("info", 0), ("warning", 0), ("failure", 0), ("log", [])]
-        )
+        return OrderedDict([("success", 0), ("info", 0), ("warning", 0), ("failure", 0), ("log", [])])
 
     @property
     def output(self) -> str:
@@ -214,8 +202,7 @@ class Job(models.Model):
     def terminate(self, status=JobStatus.COMPLETED, error=None):
         if status not in JobStatus.TERMINAL_STATE_CHOICES:
             raise ValidationError(
-                f"Invalid status for job termination: {status}. "
-                f"Choices: {', '.join(JobStatus.TERMINAL_STATE_CHOICES)}"
+                f"Invalid status for job termination: {status}. Choices: {', '.join(JobStatus.TERMINAL_STATE_CHOICES)}"
             )
         self.status = status
         if error:
@@ -251,11 +238,7 @@ class Job(models.Model):
                 timezone.now().isoformat(),
                 level_choice,
                 str(object) if object else None,
-                (
-                    object.get_absolute_url()
-                    if hasattr(object, "get_absolute_url")
-                    else None
-                ),
+                (object.get_absolute_url() if hasattr(object, "get_absolute_url") else None),
                 str(message),
             ]
         )
@@ -281,9 +264,7 @@ class Job(models.Model):
         if save:
             self.save()
 
-    def log_warning(
-        self, message, object=None, grouping="main", logger=None, save=True
-    ):
+    def log_warning(self, message, object=None, grouping="main", logger=None, save=True):
         self.log(
             message,
             object=object,

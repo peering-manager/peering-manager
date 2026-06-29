@@ -97,9 +97,7 @@ class NetworkViewSet(ReadOnlyModelViewSet):
     @extend_schema(
         operation_id="peeringdb_networks_render_email",
         responses={
-            200: OpenApiResponse(
-                response=OpenApiTypes.OBJECT, description="Renders the e-mail template."
-            ),
+            200: OpenApiResponse(response=OpenApiTypes.OBJECT, description="Renders the e-mail template."),
             404: OpenApiResponse(
                 response=OpenApiTypes.NONE,
                 description="The network or e-mail template does not exist.",
@@ -114,9 +112,7 @@ class NetworkViewSet(ReadOnlyModelViewSet):
 
         try:
             template = Email.objects.get(pk=serializer.validated_data.get("email"))
-            autonomous_system = AutonomousSystem.objects.get(
-                pk=serializer.validated_data.get("autonomous_system")
-            )
+            autonomous_system = AutonomousSystem.objects.get(pk=serializer.validated_data.get("autonomous_system"))
             network = Network.objects.get(pk=serializer.validated_data.get("network"))
             rendered = network.render_email(template, autonomous_system)
             return Response(data={"subject": rendered[0], "body": rendered[1]})

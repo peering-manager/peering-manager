@@ -35,12 +35,8 @@ class ObjectChangeTable(PeeringManagerTable):
     time = columns.DateTimeColumn(linkify=True)
     action = tables.TemplateColumn(template_code=OBJECT_CHANGE_ACTION)
     changed_object_type = tables.Column(verbose_name="Type")
-    object_repr = tables.TemplateColumn(
-        template_code=OBJECT_CHANGE_OBJECT, verbose_name="Object"
-    )
-    request_id = tables.TemplateColumn(
-        template_code=OBJECT_CHANGE_REQUEST_ID, verbose_name="Request ID"
-    )
+    object_repr = tables.TemplateColumn(template_code=OBJECT_CHANGE_OBJECT, verbose_name="Object")
+    request_id = tables.TemplateColumn(template_code=OBJECT_CHANGE_REQUEST_ID, verbose_name="Request ID")
     actions = columns.ActionsColumn(actions=())
 
     class Meta(PeeringManagerTable.Meta):

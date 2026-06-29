@@ -22,30 +22,22 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="autonomoussystem",
             name="contact_email",
-            field=models.EmailField(
-                blank=True, max_length=254, verbose_name="Contact e-mail"
-            ),
+            field=models.EmailField(blank=True, max_length=254, verbose_name="Contact e-mail"),
         ),
         migrations.AlterField(
             model_name="autonomoussystem",
             name="ipv4_max_prefixes",
-            field=models.PositiveIntegerField(
-                blank=True, default=0, verbose_name="IPv4 max prefix"
-            ),
+            field=models.PositiveIntegerField(blank=True, default=0, verbose_name="IPv4 max prefix"),
         ),
         migrations.AlterField(
             model_name="autonomoussystem",
             name="ipv6_max_prefixes",
-            field=models.PositiveIntegerField(
-                blank=True, default=0, verbose_name="IPv6 max prefix"
-            ),
+            field=models.PositiveIntegerField(blank=True, default=0, verbose_name="IPv6 max prefix"),
         ),
         migrations.AlterField(
             model_name="autonomoussystem",
             name="irr_as_set",
-            field=models.CharField(
-                blank=True, max_length=255, null=True, verbose_name="IRR AS-SET"
-            ),
+            field=models.CharField(blank=True, max_length=255, null=True, verbose_name="IRR AS-SET"),
         ),
         migrations.AlterField(
             model_name="directpeeringsession",
@@ -61,9 +53,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="directpeeringsession",
             name="ip_address",
-            field=netfields.fields.InetAddressField(
-                max_length=39, verbose_name="IP address"
-            ),
+            field=netfields.fields.InetAddressField(max_length=39, verbose_name="IP address"),
         ),
         migrations.AlterField(
             model_name="directpeeringsession",
@@ -75,16 +65,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="internetexchangepeeringsession",
             name="ip_address",
-            field=netfields.fields.InetAddressField(
-                max_length=39, verbose_name="IP address"
-            ),
+            field=netfields.fields.InetAddressField(max_length=39, verbose_name="IP address"),
         ),
         migrations.AlterField(
             model_name="internetexchangepeeringsession",
             name="is_route_server",
-            field=models.BooleanField(
-                blank=True, default=False, verbose_name="Route server"
-            ),
+            field=models.BooleanField(blank=True, default=False, verbose_name="Route server"),
         ),
         migrations.AlterField(
             model_name="internetexchangepeeringsession",
@@ -99,8 +85,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="router",
             name="netbox_device_id",
-            field=models.PositiveIntegerField(
-                blank=True, default=0, verbose_name="NetBox device"
-            ),
+            field=models.PositiveIntegerField(blank=True, default=0, verbose_name="NetBox device"),
         ),
     ]

@@ -24,9 +24,7 @@ def exception_handler(rq_job, exc_type, exc_value, trace):
         logger.error(f"could not find job id {rq_job.id}, cannot log exception")
 
     job.set_output("".join(traceback.format_exception(exc_type, exc_value, trace)))
-    job.mark_errored(
-        "An exception occurred, see output for more details.", logger=logger
-    )
+    job.mark_errored("An exception occurred, see output for more details.", logger=logger)
 
 
 class FetchError(Exception):

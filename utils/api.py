@@ -24,9 +24,7 @@ def get_serializer_for_model(model, prefix="", suffix=""):
     app_name, model_name = model._meta.label.split(".")
     if app_name == "auth":
         app_name = "users"
-    serializer_name = (
-        f"{app_name}.api.serializers.{prefix}{model_name}{suffix}Serializer"
-    )
+    serializer_name = f"{app_name}.api.serializers.{prefix}{model_name}{suffix}Serializer"
     try:
         # Try importing the serializer class
         components = serializer_name.split(".")
@@ -48,9 +46,7 @@ def get_view_name(view, suffix=None):
     if hasattr(view, "queryset"):
         # Determine the model name from the queryset
         name = view.queryset.model._meta.verbose_name
-        name = " ".join(
-            [w[0].upper() + w[1:] for w in name.split()]
-        )  # Capitalize each word
+        name = " ".join([w[0].upper() + w[1:] for w in name.split()])  # Capitalize each word
     else:
         # Replicate DRF's built-in behavior
         name = view.__class__.__name__

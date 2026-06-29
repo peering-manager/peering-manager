@@ -57,8 +57,7 @@ class TokenAuthentication(authentication.TokenAuthentication):
                     )
                 if not token.validate_client_ip(client_ip):
                     raise exceptions.AuthenticationFailed(
-                        f"Source IP {client_ip} is not permitted to authenticate "
-                        "using this token."
+                        f"Source IP {client_ip} is not permitted to authenticate using this token."
                     )
 
         return result
@@ -76,10 +75,7 @@ class TokenAuthentication(authentication.TokenAuthentication):
             raise exceptions.AuthenticationFailed("Token expired")
 
         # 60 seconds delay to avoid updating last_used too frequently
-        if (
-            not token.last_used
-            or (timezone.now() - token.last_used).total_seconds() > 60
-        ):
+        if not token.last_used or (timezone.now() - token.last_used).total_seconds() > 60:
             Token.objects.filter(pk=token.pk).update(last_used=timezone.now())
 
         if not token.user.is_active:
@@ -102,11 +98,7 @@ class TokenPermissions(DjangoModelPermissions):
     def has_permission(self, request, view):
         # If token authentication is in use, verify that the token allows write
         # operations (for unsafe methods).
-        if (
-            request.method not in SAFE_METHODS
-            and isinstance(request.auth, Token)
-            and not request.auth.write_enabled
-        ):
+        if request.method not in SAFE_METHODS and isinstance(request.auth, Token) and not request.auth.write_enabled:
             return False
         # If action is not part of default CRUD, allow it
         # Restriction must be performed in the view itself

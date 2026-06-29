@@ -24,9 +24,7 @@ class CommunityForm(PeeringManagerModelForm):
         widget=StaticSelect,
         help_text="Optional, Ingress for received routes, Egress for advertised routes",
     )
-    category = forms.ChoiceField(
-        required=False, choices=add_blank_choice(CommunityCategory), widget=StaticSelect
-    )
+    category = forms.ChoiceField(required=False, choices=add_blank_choice(CommunityCategory), widget=StaticSelect)
     local_context_data = JSONField(required=False)
     tags = TagField(required=False)
     fieldsets = (

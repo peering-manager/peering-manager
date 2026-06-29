@@ -27,9 +27,7 @@ class ContentTypeChoiceField(ContentTypeChoiceMixin, forms.ModelChoiceField):
     widget = widgets.StaticSelect
 
 
-class ContentTypeMultipleChoiceField(
-    ContentTypeChoiceMixin, forms.ModelMultipleChoiceField
-):
+class ContentTypeMultipleChoiceField(ContentTypeChoiceMixin, forms.ModelMultipleChoiceField):
     """
     Selection field for one or more content types.
     """

@@ -60,9 +60,7 @@ class ConfigurationForm(PeeringManagerModelForm, SynchronisedDataMixin):
 
     def clean(self):
         if not self.cleaned_data["template"] and not self.cleaned_data["data_file"]:
-            raise ValidationError(
-                "Either the template code or a file from a data source must be provided"
-            )
+            raise ValidationError("Either the template code or a file from a data source must be provided")
         return super().clean()
 
 
@@ -112,18 +110,14 @@ class PlatformForm(PeeringManagerModelForm):
 class RouterForm(PushedDataMixin, PeeringManagerModelForm):
     netbox_device_id = forms.IntegerField(required=False, label="NetBox device")
     platform = DynamicModelChoiceField(required=False, queryset=Platform.objects.all())
-    status = forms.ChoiceField(
-        required=False, choices=DeviceStatus, widget=StaticSelect
-    )
+    status = forms.ChoiceField(required=False, choices=DeviceStatus, widget=StaticSelect)
     configuration_template = DynamicModelChoiceField(
         required=False,
         queryset=Configuration.objects.all(),
         label="Configuration",
         help_text="Template used to generate device configuration",
     )
-    communities = DynamicModelMultipleChoiceField(
-        required=False, queryset=Community.objects.all()
-    )
+    communities = DynamicModelMultipleChoiceField(required=False, queryset=Community.objects.all())
     local_autonomous_system = DynamicModelChoiceField(
         queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
@@ -244,19 +238,13 @@ class RouterBulkEditForm(PeeringManagerModelBulkEditForm):
         widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
         label="Poll BGP sessions state",
     )
-    configuration_template = DynamicModelChoiceField(
-        required=False, queryset=Configuration.objects.all()
-    )
-    communities = DynamicModelMultipleChoiceField(
-        required=False, queryset=Community.objects.all()
-    )
+    configuration_template = DynamicModelChoiceField(required=False, queryset=Configuration.objects.all())
+    communities = DynamicModelMultipleChoiceField(required=False, queryset=Community.objects.all())
     napalm_username = forms.CharField(max_length=256, required=False)
     napalm_password = PasswordField(required=False, render_value=True)
     napalm_timeout = forms.IntegerField(required=False, min_value=0)
     napalm_args = JSONField(required=False)
-    netbox_device_id = forms.IntegerField(
-        required=False, min_value=0, label="NetBox device ID"
-    )
+    netbox_device_id = forms.IntegerField(required=False, min_value=0, label="NetBox device ID")
     local_context_data = JSONField(required=False)
     comments = CommentField()
 
@@ -287,9 +275,7 @@ class RouterFilterForm(PeeringManagerModelFilterSetForm):
         null_option="None",
         label="Platform",
     )
-    status = forms.MultipleChoiceField(
-        required=False, choices=DeviceStatus, widget=StaticSelectMultiple
-    )
+    status = forms.MultipleChoiceField(required=False, choices=DeviceStatus, widget=StaticSelectMultiple)
     encrypt_passwords = forms.NullBooleanField(
         required=False,
         widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),

@@ -7,7 +7,5 @@ class Migration(migrations.Migration):
     dependencies = [("messaging", "0002_email")]
 
     operations = [
-        migrations.AlterField(
-            model_name="contact", name="name", field=models.CharField(max_length=100)
-        ),
+        migrations.AlterField(model_name="contact", name="name", field=models.CharField(max_length=100)),
     ]

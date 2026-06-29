@@ -14,9 +14,7 @@ class Migration(migrations.Migration):
         db_alias = schema_editor.connection.alias
         Connection = apps.get_model("net.Connection")
         InternetExchange = apps.get_model("peering.InternetExchange")
-        InternetExchangePeeringSession = apps.get_model(
-            "peering.InternetExchangePeeringSession"
-        )
+        InternetExchangePeeringSession = apps.get_model("peering.InternetExchangePeeringSession")
 
         for ixp in InternetExchange.objects.using(db_alias).all():
             connection = Connection.objects.using(db_alias).create(
@@ -25,9 +23,9 @@ class Migration(migrations.Migration):
                 internet_exchange_point=ixp,
                 router=ixp.router,
             )
-            InternetExchangePeeringSession.objects.using(db_alias).filter(
-                internet_exchange=ixp
-            ).update(ixp_connection=connection)
+            InternetExchangePeeringSession.objects.using(db_alias).filter(internet_exchange=ixp).update(
+                ixp_connection=connection
+            )
 
     operations = [
         migrations.AddField(
@@ -42,9 +40,7 @@ class Migration(migrations.Migration):
         migrations.RunPython(create_ixp_connections),
         migrations.RemoveField(model_name="internetexchange", name="ipv4_address"),
         migrations.RemoveField(model_name="internetexchange", name="ipv6_address"),
-        migrations.RemoveField(
-            model_name="internetexchange", name="peeringdb_netixlan"
-        ),
+        migrations.RemoveField(model_name="internetexchange", name="peeringdb_netixlan"),
         migrations.RemoveField(model_name="internetexchange", name="peeringdb_ix"),
         migrations.RemoveField(model_name="internetexchange", name="router"),
         migrations.AddField(

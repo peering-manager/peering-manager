@@ -38,12 +38,8 @@ class ContactAssignment(ChangeLoggedModel):
     content_type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     object = GenericForeignKey(ct_field="content_type", fk_field="object_id")
-    contact = models.ForeignKey(
-        to="messaging.Contact", on_delete=models.PROTECT, related_name="assignments"
-    )
-    role = models.ForeignKey(
-        to="messaging.ContactRole", on_delete=models.PROTECT, related_name="assignments"
-    )
+    contact = models.ForeignKey(to="messaging.Contact", on_delete=models.PROTECT, related_name="assignments")
+    role = models.ForeignKey(to="messaging.ContactRole", on_delete=models.PROTECT, related_name="assignments")
 
     class Meta:
         ordering = ["contact"]
@@ -71,11 +67,7 @@ class Email(SynchronisedDataMixin, TemplateModel):
         """
         Render the template using Jinja2.
         """
-        subject = render_jinja2(
-            self.subject, variables, trim=self.jinja2_trim, lstrip=self.jinja2_lstrip
-        )
-        body = render_jinja2(
-            self.template, variables, trim=self.jinja2_trim, lstrip=self.jinja2_lstrip
-        )
+        subject = render_jinja2(self.subject, variables, trim=self.jinja2_trim, lstrip=self.jinja2_lstrip)
+        body = render_jinja2(self.template, variables, trim=self.jinja2_trim, lstrip=self.jinja2_lstrip)
 
         return subject, body

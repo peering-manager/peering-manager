@@ -23,11 +23,7 @@ class BulkOperationMetadata(SimpleMetadata):
                 if hasattr(view, "check_permissions"):
                     view.check_permissions(view.request)
                 # Test object permissions (if viewing a specific object)
-                if (
-                    method == "PUT"
-                    and view.lookup_url_kwarg
-                    and hasattr(view, "get_object")
-                ):
+                if method == "PUT" and view.lookup_url_kwarg and hasattr(view, "get_object"):
                     view.get_object()
             except (exceptions.APIException, PermissionDenied, Http404):
                 pass
@@ -45,11 +41,7 @@ class BulkOperationMetadata(SimpleMetadata):
 class ContentTypeMetadata(BulkOperationMetadata):
     def get_field_info(self, field):
         field_info = super().get_field_info(field)
-        if (
-            hasattr(field, "queryset")
-            and not field_info.get("read_only")
-            and isinstance(field, ContentTypeField)
-        ):
+        if hasattr(field, "queryset") and not field_info.get("read_only") and isinstance(field, ContentTypeField):
             field_info["choices"] = [
                 {
                     "value": choice_value,

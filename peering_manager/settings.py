@@ -29,9 +29,7 @@ VERSION = "1.10.5-dev"
 
 major, minor, _ = platform.python_version_tuple()
 if (int(major), int(minor)) < (3, 10):
-    raise RuntimeError(
-        f"Peering Manager requires Python 3.10 or higher (current: Python {platform.python_version()})"
-    )
+    raise RuntimeError(f"Peering Manager requires Python 3.10 or higher (current: Python {platform.python_version()})")
 
 # Import configuration parameters
 config_path = os.getenv("PEERINGMANAGER_CONFIGURATION", "peering_manager.configuration")
@@ -46,9 +44,7 @@ except ModuleNotFoundError as e:
 
 for setting in ["ALLOWED_HOSTS", "DATABASE", "SECRET_KEY"]:
     if not hasattr(configuration, setting):
-        raise ImproperlyConfigured(
-            f"Mandatory setting {setting} is not in the configuration.py file."
-        )
+        raise ImproperlyConfigured(f"Mandatory setting {setting} is not in the configuration.py file.")
 
 # Set required parameters
 ALLOWED_HOSTS = configuration.ALLOWED_HOSTS
@@ -58,17 +54,13 @@ SECRET_KEY = configuration.SECRET_KEY
 # Deprecated, to be removed in 2.0.0
 MY_ASN = getattr(configuration, "MY_ASN", None)
 if MY_ASN:
-    warnings.warn(
-        "MY_ASN is no longer supported and will be removed in 2.0.", stacklevel=1
-    )
+    warnings.warn("MY_ASN is no longer supported and will be removed in 2.0.", stacklevel=1)
 
 BASE_PATH = getattr(configuration, "BASE_PATH", "")
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip("/") + "/"  # Enforce trailing slash only
 CENSUS_REPORTING_ENABLED = getattr(configuration, "CENSUS_REPORTING_ENABLED", True)
-CSRF_COOKIE_PATH = LANGUAGE_COOKIE_PATH = SESSION_COOKIE_PATH = (
-    f"/{BASE_PATH.rstrip('/')}"
-)
+CSRF_COOKIE_PATH = LANGUAGE_COOKIE_PATH = SESSION_COOKIE_PATH = f"/{BASE_PATH.rstrip('/')}"
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, "CORS_ORIGIN_ALLOW_ALL", False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, "CORS_ORIGIN_REGEX_WHITELIST", [])
 CORS_ORIGIN_WHITELIST = getattr(configuration, "CORS_ORIGIN_WHITELIST", [])
@@ -102,42 +94,24 @@ SESSION_COOKIE_NAME = getattr(configuration, "SESSION_COOKIE_NAME", "sessionid")
 SESSION_COOKIE_SECURE = getattr(configuration, "SESSION_COOKIE_SECURE", False)
 
 REMOTE_AUTH_ENABLED = getattr(configuration, "REMOTE_AUTH_ENABLED", False)
-REMOTE_AUTH_AUTO_CREATE_GROUPS = getattr(
-    configuration, "REMOTE_AUTH_AUTO_CREATE_GROUPS", False
-)
-REMOTE_AUTH_AUTO_CREATE_USER = getattr(
-    configuration, "REMOTE_AUTH_AUTO_CREATE_USER", False
-)
+REMOTE_AUTH_AUTO_CREATE_GROUPS = getattr(configuration, "REMOTE_AUTH_AUTO_CREATE_GROUPS", False)
+REMOTE_AUTH_AUTO_CREATE_USER = getattr(configuration, "REMOTE_AUTH_AUTO_CREATE_USER", False)
 REMOTE_AUTH_BACKEND = getattr(
     configuration,
     "REMOTE_AUTH_BACKEND",
     "peering_manager.authentication.RemoteUserBackend",
 )
 REMOTE_AUTH_DEFAULT_GROUPS = getattr(configuration, "REMOTE_AUTH_DEFAULT_GROUPS", [])
-REMOTE_AUTH_DEFAULT_PERMISSIONS = getattr(
-    configuration, "REMOTE_AUTH_DEFAULT_PERMISSIONS", []
-)
-REMOTE_AUTH_GROUP_HEADER = getattr(
-    configuration, "REMOTE_AUTH_GROUP_HEADER", "HTTP_REMOTE_USER_GROUP"
-)
+REMOTE_AUTH_DEFAULT_PERMISSIONS = getattr(configuration, "REMOTE_AUTH_DEFAULT_PERMISSIONS", [])
+REMOTE_AUTH_GROUP_HEADER = getattr(configuration, "REMOTE_AUTH_GROUP_HEADER", "HTTP_REMOTE_USER_GROUP")
 REMOTE_AUTH_GROUP_SEPARATOR = getattr(configuration, "REMOTE_AUTH_GROUP_SEPARATOR", "|")
-REMOTE_AUTH_GROUP_SYNC_ENABLED = getattr(
-    configuration, "REMOTE_AUTH_GROUP_SYNC_ENABLED", False
-)
+REMOTE_AUTH_GROUP_SYNC_ENABLED = getattr(configuration, "REMOTE_AUTH_GROUP_SYNC_ENABLED", False)
 REMOTE_AUTH_HEADER = getattr(configuration, "REMOTE_AUTH_HEADER", "HTTP_REMOTE_USER")
-REMOTE_AUTH_SUPERUSER_GROUPS = getattr(
-    configuration, "REMOTE_AUTH_SUPERUSER_GROUPS", []
-)
+REMOTE_AUTH_SUPERUSER_GROUPS = getattr(configuration, "REMOTE_AUTH_SUPERUSER_GROUPS", [])
 REMOTE_AUTH_SUPERUSERS = getattr(configuration, "REMOTE_AUTH_SUPERUSERS", [])
-REMOTE_AUTH_USER_EMAIL = getattr(
-    configuration, "REMOTE_AUTH_USER_EMAIL", "HTTP_REMOTE_USER_EMAIL"
-)
-REMOTE_AUTH_USER_FIRST_NAME = getattr(
-    configuration, "REMOTE_AUTH_USER_FIRST_NAME", "HTTP_REMOTE_USER_FIRST_NAME"
-)
-REMOTE_AUTH_USER_LAST_NAME = getattr(
-    configuration, "REMOTE_AUTH_USER_LAST_NAME", "HTTP_REMOTE_USER_LAST_NAME"
-)
+REMOTE_AUTH_USER_EMAIL = getattr(configuration, "REMOTE_AUTH_USER_EMAIL", "HTTP_REMOTE_USER_EMAIL")
+REMOTE_AUTH_USER_FIRST_NAME = getattr(configuration, "REMOTE_AUTH_USER_FIRST_NAME", "HTTP_REMOTE_USER_FIRST_NAME")
+REMOTE_AUTH_USER_LAST_NAME = getattr(configuration, "REMOTE_AUTH_USER_LAST_NAME", "HTTP_REMOTE_USER_LAST_NAME")
 REMOTE_AUTH_STAFF_GROUPS = getattr(configuration, "REMOTE_AUTH_STAFF_GROUPS", [])
 REMOTE_AUTH_STAFF_USERS = getattr(configuration, "REMOTE_AUTH_STAFF_USERS", [])
 
@@ -178,21 +152,11 @@ CONFIG_CONTEXT_MERGE_STRATEGY = {
     "recursive": getattr(configuration, "CONFIG_CONTEXT_RECURSIVE_MERGE", True),
     "list_merge": getattr(configuration, "CONFIG_CONTEXT_LIST_MERGE", "replace"),
 }
-GIT_COMMIT_AUTHOR = getattr(
-    configuration, "GIT_COMMIT_AUTHOR", "Peering Manager <no-reply@peering-manager.net>"
-)
-GIT_COMMIT_MESSAGE = getattr(
-    configuration, "GIT_COMMIT_MESSAGE", "Committed using Peering Manager"
-)
-VALIDATE_BGP_COMMUNITY_VALUE = getattr(
-    configuration, "VALIDATE_BGP_COMMUNITY_VALUE", True
-)
-PEERING_REQUEST_SESSION_STATUS = getattr(
-    configuration, "PEERING_REQUEST_SESSION_STATUS", "requested"
-)
-PEERING_REQUEST_BLOCKS_SESSION_CREATION = getattr(
-    configuration, "PEERING_REQUEST_BLOCKS_SESSION_CREATION", False
-)
+GIT_COMMIT_AUTHOR = getattr(configuration, "GIT_COMMIT_AUTHOR", "Peering Manager <no-reply@peering-manager.net>")
+GIT_COMMIT_MESSAGE = getattr(configuration, "GIT_COMMIT_MESSAGE", "Committed using Peering Manager")
+VALIDATE_BGP_COMMUNITY_VALUE = getattr(configuration, "VALIDATE_BGP_COMMUNITY_VALUE", True)
+PEERING_REQUEST_SESSION_STATUS = getattr(configuration, "PEERING_REQUEST_SESSION_STATUS", "requested")
+PEERING_REQUEST_BLOCKS_SESSION_CREATION = getattr(configuration, "PEERING_REQUEST_BLOCKS_SESSION_CREATION", False)
 
 
 # Django filters
@@ -220,9 +184,7 @@ REST_FRAMEWORK = {
         "rest_framework.parsers.FormParser",
         "rest_framework.parsers.MultiPartParser",
     ),
-    "DEFAULT_PERMISSION_CLASSES": (
-        "peering_manager.api.authentication.TokenPermissions",
-    ),
+    "DEFAULT_PERMISSION_CLASSES": ("peering_manager.api.authentication.TokenPermissions",),
     "DEFAULT_RENDERER_CLASSES": (
         "rest_framework.renderers.JSONRenderer",
         "peering_manager.api.renderers.FormlessBrowsableAPIRenderer",
@@ -258,9 +220,7 @@ TAGGIT_CASE_INSENSITIVE = True
 
 
 # User-Agent for requests
-REQUESTS_USER_AGENT = getattr(
-    configuration, "REQUESTS_USER_AGENT", f"PeeringManager/{VERSION[0:3]}"
-)
+REQUESTS_USER_AGENT = getattr(configuration, "REQUESTS_USER_AGENT", f"PeeringManager/{VERSION[0:3]}")
 
 
 # NetBox API configuration
@@ -271,9 +231,7 @@ if NETBOX_URL.endswith("/api"):
 NETBOX_API_TOKEN = getattr(configuration, "NETBOX_API_TOKEN", "")
 NETBOX_API_THREADING = getattr(configuration, "NETBOX_API_THREADING", False)
 NETBOX_API_VERIFY_SSL = getattr(configuration, "NETBOX_API_VERIFY_SSL", True)
-NETBOX_DEVICE_ROLES = getattr(
-    configuration, "NETBOX_DEVICE_ROLES", ["router", "firewall"]
-)
+NETBOX_DEVICE_ROLES = getattr(configuration, "NETBOX_DEVICE_ROLES", ["router", "firewall"])
 # TODO: Defaults to ["peering-manager"] as of next major release
 NETBOX_TAGS = set(getattr(configuration, "NETBOX_TAGS", []))
 
@@ -319,9 +277,7 @@ AUTHENTICATION_BACKENDS = [
 # If RADIUS auth has been configured, make sure it can be used
 if "radiusauth.backends.RADIUSBackend" in AUTHENTICATION_BACKENDS:
     if find_spec("radiusauth") is None:
-        raise ImproperlyConfigured(
-            "RADIUS authentication has been configured, but django-radius is not installed."
-        )
+        raise ImproperlyConfigured("RADIUS authentication has been configured, but django-radius is not installed.")
     try:
         from peering_manager.radius_config import *  # type: ignore
     except ModuleNotFoundError as e:
@@ -339,16 +295,12 @@ DATABASES = {"default": configuration.DATABASE}
 # Redis
 # Background task queuing
 if "tasks" not in REDIS:
-    raise ImproperlyConfigured(
-        "REDIS section in configuration.py is missing the 'tasks' subsection."
-    )
+    raise ImproperlyConfigured("REDIS section in configuration.py is missing the 'tasks' subsection.")
 TASKS_REDIS = REDIS["tasks"]
 TASKS_REDIS_HOST = TASKS_REDIS.get("HOST", "localhost")
 TASKS_REDIS_PORT = TASKS_REDIS.get("PORT", 6379)
 TASKS_REDIS_SENTINELS = TASKS_REDIS.get("SENTINELS", [])
-TASKS_REDIS_USING_SENTINEL = all(
-    [isinstance(TASKS_REDIS_SENTINELS, list | tuple), len(TASKS_REDIS_SENTINELS) > 0]
-)
+TASKS_REDIS_USING_SENTINEL = all([isinstance(TASKS_REDIS_SENTINELS, list | tuple), len(TASKS_REDIS_SENTINELS) > 0])
 TASKS_REDIS_SENTINEL_SERVICE = TASKS_REDIS.get("SENTINEL_SERVICE", "default")
 TASKS_REDIS_SENTINEL_TIMEOUT = TASKS_REDIS.get("SENTINEL_TIMEOUT", 10)
 TASKS_REDIS_USERNAME = TASKS_REDIS.get("USERNAME", "")
@@ -361,17 +313,13 @@ TASKS_REDIS_UNIX_SOCKET_PATH = TASKS_REDIS.get("UNIX_SOCKET_PATH", "")
 
 # Caching
 if "caching" not in REDIS:
-    raise ImproperlyConfigured(
-        "REDIS section in configuration.py is missing caching subsection."
-    )
+    raise ImproperlyConfigured("REDIS section in configuration.py is missing caching subsection.")
 CACHING_REDIS = REDIS["caching"]
 CACHING_REDIS_HOST = CACHING_REDIS.get("HOST", "localhost")
 CACHING_REDIS_PORT = CACHING_REDIS.get("PORT", 6379)
 CACHING_REDIS_DATABASE = CACHING_REDIS.get("DATABASE", 0)
 CACHING_REDIS_USERNAME = CACHING_REDIS.get("USERNAME", "")
-CACHING_REDIS_USERNAME_HOST = "@".join(
-    filter(None, [CACHING_REDIS_USERNAME, CACHING_REDIS_HOST])
-)
+CACHING_REDIS_USERNAME_HOST = "@".join(filter(None, [CACHING_REDIS_USERNAME, CACHING_REDIS_HOST]))
 CACHING_REDIS_PASSWORD = CACHING_REDIS.get("PASSWORD", "")
 CACHING_REDIS_SENTINELS = CACHING_REDIS.get("SENTINELS", [])
 CACHING_REDIS_SENTINEL_SERVICE = CACHING_REDIS.get("SENTINEL_SERVICE", "default")
@@ -382,11 +330,11 @@ CACHING_REDIS_UNIX_SOCKET_PATH = CACHING_REDIS.get("UNIX_SOCKET_PATH", "")
 
 
 if CACHING_REDIS_UNIX_SOCKET_PATH:
-    CACHING_REDIS_LOCATION = (
-        f"unix://{CACHING_REDIS_UNIX_SOCKET_PATH}?db={CACHING_REDIS_DATABASE}"
-    )
+    CACHING_REDIS_LOCATION = f"unix://{CACHING_REDIS_UNIX_SOCKET_PATH}?db={CACHING_REDIS_DATABASE}"
 else:
-    CACHING_REDIS_LOCATION = f"{CACHING_REDIS_PROTO}://{CACHING_REDIS_USERNAME_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}"
+    CACHING_REDIS_LOCATION = (
+        f"{CACHING_REDIS_PROTO}://{CACHING_REDIS_USERNAME_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}"
+    )
 
 CACHES = {
     "default": {
@@ -530,9 +478,7 @@ for param in dir(configuration):
 
 # Force usage of PostgreSQL's JSONB field for extra data
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
-SOCIAL_AUTH_CLEAN_USERNAME_FUNCTION = (
-    "peering_manager.authentication.utils.clean_username"
-)
+SOCIAL_AUTH_CLEAN_USERNAME_FUNCTION = "peering_manager.authentication.utils.clean_username"
 
 # Prometheus setup
 if METRICS_ENABLED:
@@ -543,9 +489,7 @@ if METRICS_ENABLED:
         *MIDDLEWARE,
         "peering_manager.middleware.PrometheusAfterMiddleware",
     ]
-    configuration.DATABASE.update(
-        {"ENGINE": "django_prometheus.db.backends.postgresql"}
-    )
+    configuration.DATABASE.update({"ENGINE": "django_prometheus.db.backends.postgresql"})
 
 ROOT_URLCONF = "peering_manager.urls"
 
@@ -570,17 +514,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "peering_manager.wsgi.application"
-SECURE_PROXY_SSL_HEADER = getattr(
-    configuration, "SECURE_PROXY_SSL_HEADER", ("HTTP_X_FORWARDED_PROTO", "https")
-)
+SECURE_PROXY_SSL_HEADER = getattr(configuration, "SECURE_PROXY_SSL_HEADER", ("HTTP_X_FORWARDED_PROTO", "https"))
 USE_X_FORWARDED_HOST = getattr(configuration, "USE_X_FORWARDED_HOST", True)
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -625,6 +565,4 @@ CENSUS_PARAMETERS = {
 }
 if CENSUS_REPORTING_ENABLED and not DEBUG and "test" not in sys.argv:
     with contextlib.suppress(requests.RequestException):
-        requests.post(
-            CENSUS_URL, json=CENSUS_PARAMETERS, timeout=3, proxies=HTTP_PROXIES
-        )
+        requests.post(CENSUS_URL, json=CENSUS_PARAMETERS, timeout=3, proxies=HTTP_PROXIES)

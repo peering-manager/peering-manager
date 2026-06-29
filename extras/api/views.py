@@ -75,9 +75,7 @@ class TableConfigViewSet(PeeringManagerModelViewSet):
 
 
 class ConfigContextAssignmentViewSet(PeeringManagerModelViewSet):
-    queryset = ConfigContextAssignment.objects.prefetch_related(
-        "object", "config_context"
-    )
+    queryset = ConfigContextAssignment.objects.prefetch_related("object", "config_context")
     serializer_class = ConfigContextAssignmentSerializer
     filterset_class = ConfigContextAssignmentFilterSet
 
@@ -190,9 +188,7 @@ class JournalEntryViewSet(PeeringManagerModelViewSet):
 
 
 class TagViewSet(PeeringManagerModelViewSet):
-    queryset = Tag.objects.annotate(
-        tagged_items=Count("extras_taggeditem_items", distinct=True)
-    )
+    queryset = Tag.objects.annotate(tagged_items=Count("extras_taggeditem_items", distinct=True))
     serializer_class = TagSerializer
     filterset_class = TagFilterSet
 
@@ -251,9 +247,7 @@ class PrefixListView(APIView):
     def get(self, request):
         skip_cache = "skip-cache" in request.query_params
 
-        address_families = [
-            int(i.strip()) for i in request.query_params.get("af", "4,6").split(",")
-        ]
+        address_families = [int(i.strip()) for i in request.query_params.get("af", "4,6").split(",")]
         if any(family not in (4, 6) for family in address_families):
             return Response(
                 {"detail": "Invalid af parameter, must be 4, 6 or both."},
@@ -276,23 +270,17 @@ class PrefixListView(APIView):
                 requested_as_set.append(as_set.strip())
 
         irr_as_sets = parse_irr_as_set(0, ",".join(requested_as_set))
-        prefixes: dict[str, dict[Literal["ipv6", "ipv4"], list[dict[str, str]]]] = (
-            defaultdict(dict)
-        )
+        prefixes: dict[str, dict[Literal["ipv6", "ipv4"], list[dict[str, str]]]] = defaultdict(dict)
         for source, as_set in irr_as_sets:
             for family in address_families:
                 cache_key = self.get_cache_key(as_set=as_set, address_family=family)
 
-                if not skip_cache and (
-                    cached_prefixes := self.get_from_cache(key=cache_key)
-                ):
+                if not skip_cache and (cached_prefixes := self.get_from_cache(key=cache_key)):
                     prefixes[as_set][f"ipv{family}"] = cached_prefixes
                     continue
 
                 try:
-                    p = call_irr_as_set_resolver(
-                        as_set=as_set, source=source, address_family=family
-                    )
+                    p = call_irr_as_set_resolver(as_set=as_set, source=source, address_family=family)
                     prefixes[as_set][f"ipv{family}"] = p
 
                     if not skip_cache:

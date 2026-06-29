@@ -10,8 +10,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="routingpolicy",
             name="address_family",
-            field=models.PositiveSmallIntegerField(
-                choices=[(0, "All"), (4, "IPv4"), (6, "IPv6")], default=0
-            ),
+            field=models.PositiveSmallIntegerField(choices=[(0, "All"), (4, "IPv4"), (6, "IPv6")], default=0),
         )
     ]

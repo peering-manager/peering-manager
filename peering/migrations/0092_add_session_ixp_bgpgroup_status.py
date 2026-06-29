@@ -8,22 +8,18 @@ class Migration(migrations.Migration):
 
     def move_session_enabled_to_status(apps, schema_editor):
         DirectPeeringSession = apps.get_model("peering.DirectPeeringSession")
-        InternetExchangePeeringSession = apps.get_model(
-            "peering.InternetExchangePeeringSession"
-        )
+        InternetExchangePeeringSession = apps.get_model("peering.InternetExchangePeeringSession")
 
-        DirectPeeringSession.objects.using(schema_editor.connection.alias).filter(
-            enabled=True
-        ).update(status="enabled")
-        DirectPeeringSession.objects.using(schema_editor.connection.alias).filter(
-            enabled=False
-        ).update(status="disabled")
-        InternetExchangePeeringSession.objects.using(
-            schema_editor.connection.alias
-        ).filter(enabled=True).update(status="enabled")
-        InternetExchangePeeringSession.objects.using(
-            schema_editor.connection.alias
-        ).filter(enabled=False).update(status="disabled")
+        DirectPeeringSession.objects.using(schema_editor.connection.alias).filter(enabled=True).update(status="enabled")
+        DirectPeeringSession.objects.using(schema_editor.connection.alias).filter(enabled=False).update(
+            status="disabled"
+        )
+        InternetExchangePeeringSession.objects.using(schema_editor.connection.alias).filter(enabled=True).update(
+            status="enabled"
+        )
+        InternetExchangePeeringSession.objects.using(schema_editor.connection.alias).filter(enabled=False).update(
+            status="disabled"
+        )
 
     operations = [
         migrations.AddField(

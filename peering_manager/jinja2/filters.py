@@ -185,10 +185,7 @@ def inherited_status(value):
             if value.router.status == DeviceStatus.POST_MAINTENANCE:
                 return ConnectionStatus.POST_MAINTENANCE
 
-    if (
-        type(value) is DirectPeeringSession
-        and value.status != BGPSessionStatus.DISABLED
-    ):
+    if type(value) is DirectPeeringSession and value.status != BGPSessionStatus.DISABLED:
         if value.bgp_group:
             # Disabled group probably means sessions should be teared down
             if value.bgp_group.status == BGPGroupStatus.DISABLED:
@@ -205,10 +202,7 @@ def inherited_status(value):
             if value.router.status == DeviceStatus.POST_MAINTENANCE:
                 return BGPSessionStatus.POST_MAINTENANCE
 
-    if (
-        type(value) is InternetExchangePeeringSession
-        and value.status != BGPSessionStatus.DISABLED
-    ):
+    if type(value) is InternetExchangePeeringSession and value.status != BGPSessionStatus.DISABLED:
         # Disabled connection probably means sessions should be teared down
         if inherited_status(value.ixp_connection) == ConnectionStatus.DISABLED:
             return BGPSessionStatus.DISABLED
@@ -584,9 +578,7 @@ def sessions(value, family=0):
     be returned.
     """
     if not hasattr(value, "get_peering_sessions"):
-        raise AttributeError(
-            f"{value} has no generic peering sessions, try `direct_sessions` or `ixp_sessions`"
-        )
+        raise AttributeError(f"{value} has no generic peering sessions, try `direct_sessions` or `ixp_sessions`")
 
     if family not in (4, 6):
         return value.get_peering_sessions()
@@ -861,9 +853,7 @@ def context_get_key(value, key, default=None, recursive=True):
     if not isinstance(value, ConfigContextMixin):
         raise AttributeError("object has no config context")
 
-    value, _ = get_key_in_hash(
-        value.get_config_context(), key, default=default, recursive=recursive
-    )
+    value, _ = get_key_in_hash(value.get_config_context(), key, default=default, recursive=recursive)
     return value
 
 
@@ -892,9 +882,7 @@ def as_yaml(value, indent=2, sort_keys=True):
     """
     Render something as YAML.
     """
-    return yaml.dump(
-        _serialize(value), indent=indent, sort_keys=sort_keys, default_flow_style=False
-    )
+    return yaml.dump(_serialize(value), indent=indent, sort_keys=sort_keys, default_flow_style=False)
 
 
 def indent(value, n, chars=" ", reset=False):

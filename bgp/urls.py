@@ -18,9 +18,7 @@ urlpatterns = [
     # Relationships
     path(
         "relationships/",
-        include(
-            get_model_urls(app_label="bgp", model_name="relationship", detail=False)
-        ),
+        include(get_model_urls(app_label="bgp", model_name="relationship", detail=False)),
     ),
     path(
         "relationships/<int:pk>/",
@@ -29,9 +27,7 @@ urlpatterns = [
     # Routing policies
     path(
         "routing-policies/",
-        include(
-            get_model_urls(app_label="bgp", model_name="routingpolicy", detail=False)
-        ),
+        include(get_model_urls(app_label="bgp", model_name="routingpolicy", detail=False)),
     ),
     path(
         "routing-policies/<int:pk>/",

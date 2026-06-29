@@ -72,11 +72,7 @@ __all__ = (
 logger = logging.getLogger("peering.manager.peering")
 
 IPAddressAnyType: TypeAlias = (
-    str
-    | ipaddress.IPv4Address
-    | ipaddress.IPv6Address
-    | ipaddress.IPv4Interface
-    | ipaddress.IPv6Interface
+    str | ipaddress.IPv4Address | ipaddress.IPv6Address | ipaddress.IPv4Interface | ipaddress.IPv6Interface
 )
 
 
@@ -89,17 +85,11 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
     asn = ASNField(unique=True, verbose_name="ASN")
     name = models.CharField(max_length=200)
     name_peeringdb_sync = models.BooleanField(default=True)
-    irr_as_set = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="IRR AS-SET"
-    )
+    irr_as_set = models.CharField(max_length=255, blank=True, null=True, verbose_name="IRR AS-SET")
     irr_as_set_peeringdb_sync = models.BooleanField(default=True)
-    ipv6_max_prefixes = models.PositiveIntegerField(
-        blank=True, null=True, default=0, verbose_name="IPv6 max prefix"
-    )
+    ipv6_max_prefixes = models.PositiveIntegerField(blank=True, null=True, default=0, verbose_name="IPv6 max prefix")
     ipv6_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
-    ipv4_max_prefixes = models.PositiveIntegerField(
-        blank=True, null=True, default=0, verbose_name="IPv4 max prefix"
-    )
+    ipv4_max_prefixes = models.PositiveIntegerField(blank=True, null=True, default=0, verbose_name="IPv4 max prefix")
     ipv4_max_prefixes_peeringdb_sync = models.BooleanField(default=True)
     import_routing_policies = models.ManyToManyField(
         "bgp.RoutingPolicy",
@@ -114,18 +104,13 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
     communities = models.ManyToManyField("bgp.Community", blank=True)
     prefixes = models.JSONField(blank=True, null=True, editable=False)
     retrieve_prefixes = models.BooleanField(blank=True, default=True)
-    as_list = ArrayField(
-        models.PositiveIntegerField(), default=list, blank=True, editable=False
-    )
+    as_list = ArrayField(models.PositiveIntegerField(), default=list, blank=True, editable=False)
     retrieve_as_list = models.BooleanField(blank=True, default=True)
     irr_sources_override = models.CharField(
         max_length=255,
         blank=True,
         verbose_name="IRR sources override",
-        help_text=(
-            "Override for BGPQ3_SOURCES, use a comma separated list of "
-            "sources, e.g. RIPE,RADB"
-        ),
+        help_text=("Override for BGPQ3_SOURCES, use a comma separated list of sources, e.g. RIPE,RADB"),
     )
     irr_ipv6_prefixes_args_override = models.CharField(
         max_length=255,
@@ -151,8 +136,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
     @property
     def is_private(self):
         return (
-            self.asn
-            in (0, 23456, 65535, 4294967295)  # RFC 7607, RFC 4893, RFC 7300, RFC 7300
+            self.asn in (0, 23456, 65535, 4294967295)  # RFC 7607, RFC 4893, RFC 7300, RFC 7300
             or (self.asn >= 64496 and self.asn <= 64511)  # RFC 5398
             or (self.asn >= 64512 and self.asn <= 65534)  # RFC 6996
             or (self.asn >= 65536 and self.asn <= 65551)  # RFC 5398
@@ -235,18 +219,14 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         )
 
     def get_direct_peering_sessions_list_url(self):
-        return reverse(
-            "peering:autonomoussystem_direct_peering_sessions", args=[self.pk]
-        )
+        return reverse("peering:autonomoussystem_direct_peering_sessions", args=[self.pk])
 
     def get_direct_peering_sessions(self, bgp_group=None):
         """
         Returns all direct peering sessions with this AS.
         """
         if bgp_group:
-            return DirectPeeringSession.objects.filter(
-                autonomous_system=self, bgp_group=bgp_group
-            )
+            return DirectPeeringSession.objects.filter(autonomous_system=self, bgp_group=bgp_group)
         return DirectPeeringSession.objects.filter(autonomous_system=self)
 
     def get_relationships(self, local_autonomous_system=None):
@@ -260,9 +240,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         sessions = self.get_direct_peering_sessions()
         if local_autonomous_system:
             sessions = sessions.filter(local_autonomous_system=local_autonomous_system)
-        return Relationship.objects.filter(
-            pk__in=sessions.values_list("relationship", flat=True)
-        ).distinct()
+        return Relationship.objects.filter(pk__in=sessions.values_list("relationship", flat=True)).distinct()
 
     def get_ixp_peering_sessions(self, internet_exchange_point=None):
         """
@@ -270,9 +248,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         """
         sessions = InternetExchangePeeringSession.objects.filter(autonomous_system=self)
         if internet_exchange_point:
-            return sessions.filter(
-                ixp_connection__internet_exchange_point=internet_exchange_point
-            )
+            return sessions.filter(ixp_connection__internet_exchange_point=internet_exchange_point)
 
         return sessions
 
@@ -282,9 +258,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         """
         return InternetExchange.objects.filter(
             pk__in=Connection.objects.filter(
-                pk__in=self.get_ixp_peering_sessions().values_list(
-                    "ixp_connection", flat=True
-                )
+                pk__in=self.get_ixp_peering_sessions().values_list("ixp_connection", flat=True)
             ).values_list("internet_exchange_point", flat=True),
             local_autonomous_system=other,
         )
@@ -327,12 +301,8 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
 
         filter = {"autonomous_system": self}
         if internet_exchange_point:
-            filter["ixp_connection__id__in"] = (
-                internet_exchange_point.get_connections().values_list("id", flat=True)
-            )
-        ip_addresses = InternetExchangePeeringSession.objects.filter(
-            **filter
-        ).values_list("ip_address", flat=True)
+            filter["ixp_connection__id__in"] = internet_exchange_point.get_connections().values_list("id", flat=True)
+        ip_addresses = InternetExchangePeeringSession.objects.filter(**filter).values_list("ip_address", flat=True)
 
         qs_filter = Q(asn=self.asn) & (
             (Q(ipaddr6__isnull=False) & ~Q(ipaddr6__in=ip_addresses))
@@ -342,9 +312,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
             qs_filter &= Q(ixlan=internet_exchange_point.peeringdb_ixlan)
         else:
             qs_filter &= Q(
-                ixlan__in=self.get_shared_internet_exchange_points(other).values_list(
-                    "peeringdb_ixlan", flat=True
-                )
+                ixlan__in=self.get_shared_internet_exchange_points(other).values_list("peeringdb_ixlan", flat=True)
             )
         return NetworkIXLan.objects.filter(qs_filter)
 
@@ -356,20 +324,12 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         from devices.models import Router
 
         connections = Connection.objects.filter(
-            pk__in=self.get_ixp_peering_sessions().values_list(
-                "ixp_connection", flat=True
-            )
+            pk__in=self.get_ixp_peering_sessions().values_list("ixp_connection", flat=True)
         )
-        routers = Router.objects.filter(
-            pk__in=self.get_direct_peering_sessions().values_list("router", flat=True)
-        )
+        routers = Router.objects.filter(pk__in=self.get_direct_peering_sessions().values_list("router", flat=True))
 
         if connections:
-            return routers.union(
-                Router.objects.filter(
-                    pk__in=connections.values_list("router", flat=True)
-                )
-            )
+            return routers.union(Router.objects.filter(pk__in=connections.values_list("router", flat=True)))
 
         return routers
 
@@ -466,9 +426,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
 
         try:
             # For each AS-SET try getting IPv6 and IPv4 prefixes
-            for source, as_set in parse_irr_as_set(
-                asn=self.asn, irr_as_set=self.irr_as_set
-            ):
+            for source, as_set in parse_irr_as_set(asn=self.asn, irr_as_set=self.irr_as_set):
                 prefixes["ipv6"].extend(
                     call_irr_as_set_resolver(
                         as_set=as_set,
@@ -526,9 +484,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
             return []
 
         as_list: list[int] = []
-        for source, as_set in parse_irr_as_set(
-            asn=self.asn, irr_as_set=self.irr_as_set
-        ):
+        for source, as_set in parse_irr_as_set(asn=self.asn, irr_as_set=self.irr_as_set):
             as_list.extend(
                 call_irr_as_set_as_list_resolver(
                     first_as=self.asn,
@@ -583,11 +539,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
                 addresses.append(
                     (
                         contact.email,
-                        (
-                            f"{contact.name} - {contact.email}"
-                            if contact.name
-                            else contact.email
-                        ),
+                        (f"{contact.name} - {contact.email}" if contact.name else contact.email),
                     )
                 )
         return addresses
@@ -643,9 +595,7 @@ class BGPGroup(AbstractGroup):
     def get_routers(self):
         from devices.models import Router
 
-        return Router.objects.filter(
-            pk__in=self.get_peering_sessions().values_list("router", flat=True)
-        )
+        return Router.objects.filter(pk__in=self.get_peering_sessions().values_list("router", flat=True))
 
 
 class DirectPeeringSession(BGPSession):
@@ -670,9 +620,7 @@ class DirectPeeringSession(BGPSession):
         verbose_name="BGP group",
     )
     relationship = models.ForeignKey(to="bgp.Relationship", on_delete=models.PROTECT)
-    router = models.ForeignKey(
-        to="devices.Router", blank=True, null=True, on_delete=models.SET_NULL
-    )
+    router = models.ForeignKey(to="devices.Router", blank=True, null=True, on_delete=models.SET_NULL)
     connection = models.ForeignKey(
         to="net.Connection",
         on_delete=models.SET_NULL,
@@ -709,22 +657,16 @@ class DirectPeeringSession(BGPSession):
 
         # Make sure that local and remote IP addresses are not the same
         if ip_src == ip_dst:
-            raise ValidationError(
-                f"Local IP address {ip_src} cannot be the same as remote IP address {ip_dst}."
-            )
+            raise ValidationError(f"Local IP address {ip_src} cannot be the same as remote IP address {ip_dst}.")
 
         if self.multihop_ttl == 1 and ip_src.network != ip_dst.network:
-            raise ValidationError(
-                f"{ip_src} and {ip_dst} don't belong to the same subnet."
-            )
+            raise ValidationError(f"{ip_src} and {ip_dst} don't belong to the same subnet.")
 
         validate_ip_address_not_network_nor_broadcast(value=ip_src)
 
     def poll(self):
         if not self.router:
-            logger.debug(
-                f"cannot poll bgp session state for {self.ip_address}, no router"
-            )
+            logger.debug(f"cannot poll bgp session state for {self.ip_address}, no router")
             return False
 
         state = self.router.poll_bgp_session(self.ip_address)
@@ -742,9 +684,7 @@ class DirectPeeringSession(BGPSession):
 
 
 class InternetExchange(AbstractGroup):
-    peeringdb_ixlan = models.ForeignKey(
-        to="peeringdb.IXLan", on_delete=models.SET_NULL, blank=True, null=True
-    )
+    peeringdb_ixlan = models.ForeignKey(to="peeringdb.IXLan", on_delete=models.SET_NULL, blank=True, null=True)
     ixapi_endpoint = models.ForeignKey(
         to="extras.IXAPI",
         on_delete=models.SET_NULL,
@@ -753,9 +693,7 @@ class InternetExchange(AbstractGroup):
         verbose_name="IX-API",
         help_text="URL and authentication details to interact with IX-API",
     )
-    local_autonomous_system = models.ForeignKey(
-        to="peering.AutonomousSystem", on_delete=models.CASCADE, null=True
-    )
+    local_autonomous_system = models.ForeignKey(to="peering.AutonomousSystem", on_delete=models.CASCADE, null=True)
     contacts = GenericRelation(to="messaging.ContactAssignment")
 
     class Meta(AbstractGroup.Meta):
@@ -780,12 +718,7 @@ class InternetExchange(AbstractGroup):
 
     @property
     def has_connected_routers(self):
-        return (
-            Connection.objects.filter(
-                internet_exchange_point=self, router__isnull=False
-            ).count()
-            > 0
-        )
+        return Connection.objects.filter(internet_exchange_point=self, router__isnull=False).count() > 0
 
     @property
     def peeringdb_prefixes(self):
@@ -861,26 +794,20 @@ class InternetExchange(AbstractGroup):
     def get_routers(self):
         from devices.models import Router
 
-        return Router.objects.filter(
-            pk__in=self.get_connections().values_list("router", flat=True)
-        )
+        return Router.objects.filter(pk__in=self.get_connections().values_list("router", flat=True))
 
     def get_peering_sessions(self):
         """
         Returns all peering sessions setup over this IXP.
         """
-        return InternetExchangePeeringSession.objects.filter(
-            ixp_connection__in=self.get_connections()
-        )
+        return InternetExchangePeeringSession.objects.filter(ixp_connection__in=self.get_connections())
 
     def get_autonomous_systems(self):
         """
         Returns all autonomous systems with setup peering sessions over this IXP.
         """
         return AutonomousSystem.objects.filter(
-            pk__in=self.get_peering_sessions().values_list(
-                "autonomous_system", flat=True
-            )
+            pk__in=self.get_peering_sessions().values_list("autonomous_system", flat=True)
         )
 
     def get_hidden_peers(self):
@@ -888,8 +815,7 @@ class InternetExchange(AbstractGroup):
         Return all potential peers that are hidden on this IXP.
         """
         return HiddenPeer.objects.filter(
-            Q(peeringdb_ixlan=self.peeringdb_ixlan)
-            & (Q(until__isnull=True) | Q(until__gt=timezone.now()))
+            Q(peeringdb_ixlan=self.peeringdb_ixlan) & (Q(until__isnull=True) | Q(until__gt=timezone.now()))
         )
 
     def get_available_peers(self, show_hidden=False):
@@ -906,23 +832,19 @@ class InternetExchange(AbstractGroup):
         ip_addresses_per_connection = []
         for connection in self.get_connections():
             ip_addresses_per_connection.append(
-                InternetExchangePeeringSession.objects.filter(
-                    ixp_connection=connection
-                ).values_list("ip_address", flat=True)
+                InternetExchangePeeringSession.objects.filter(ixp_connection=connection).values_list(
+                    "ip_address", flat=True
+                )
             )
         # Intersect all lists to find common sessions, these sessions can be excluded
         # from the lookup performed after this
         ip_addresses = (
-            list(set.intersection(*map(set, ip_addresses_per_connection)))
-            if ip_addresses_per_connection
-            else []
+            list(set.intersection(*map(set, ip_addresses_per_connection))) if ip_addresses_per_connection else []
         )
 
         hidden_peer_asn = [self.local_autonomous_system.asn]
         if not show_hidden:
-            hidden_peer_asn += list(
-                self.get_hidden_peers().values_list("peeringdb_network__asn", flat=True)
-            )
+            hidden_peer_asn += list(self.get_hidden_peers().values_list("peeringdb_network__asn", flat=True))
 
         return NetworkIXLan.objects.filter(
             ~Q(asn__in=hidden_peer_asn)
@@ -944,9 +866,7 @@ class InternetExchange(AbstractGroup):
 
         # First we try to get a match using known connections if any
         networks = []
-        for ipv4, ipv6 in self.get_connections().values_list(
-            "ipv4_address", "ipv6_address"
-        ):
+        for ipv4, ipv6 in self.get_connections().values_list("ipv4_address", "ipv6_address"):
             if ipv4.network not in networks:
                 networks.append(ipv4.network)
             if ipv6.network not in networks:
@@ -961,10 +881,7 @@ class InternetExchange(AbstractGroup):
         network_service = None
         for candidate in candidates:
             # If PeeringDB's IX IDs match, we are on the right track
-            if (
-                self.peeringdb_ixlan
-                and self.peeringdb_ixlan.ix.id == candidate.peeringdb_ixid
-            ):
+            if self.peeringdb_ixlan and self.peeringdb_ixlan.ix.id == candidate.peeringdb_ixid:
                 # Check if prefixes between IX-API and PeeringDB match
                 found_v4 = False
                 found_v6 = False
@@ -1000,18 +917,14 @@ class InternetExchange(AbstractGroup):
         for session in sessions:
             ip = ipaddress.ip_address(session["ip_address"])
             if not is_valid(ip):
-                logger.debug(
-                    f"ignoring ixp session, {ip!s} does not fit in any prefixes"
-                )
+                logger.debug(f"ignoring ixp session, {ip!s} does not fit in any prefixes")
                 continue
 
             logger.debug(f"processing ixp session {ip!s}")
             remote_asn = session["remote_asn"]
 
             try:
-                InternetExchangePeeringSession.objects.get(
-                    ixp_connection=connection, ip_address=ip
-                )
+                InternetExchangePeeringSession.objects.get(ixp_connection=connection, ip_address=ip)
                 logger.debug(f"ixp session {ip!s} with as{remote_asn} already exists")
                 continue
             except InternetExchangePeeringSession.DoesNotExist:
@@ -1049,9 +962,7 @@ class InternetExchangePeeringSession(BGPSession):
         null=True,
         verbose_name="IXP connection",
     )
-    is_route_server = models.BooleanField(
-        blank=True, default=False, verbose_name="Route server"
-    )
+    is_route_server = models.BooleanField(blank=True, default=False, verbose_name="Route server")
 
     class Meta(BGPSession.Meta):
         ordering = [
@@ -1079,30 +990,19 @@ class InternetExchangePeeringSession(BGPSession):
                     "another role."
                 }
             )
-        if (
-            self.is_route_server
-            and self.bgp_role
-            and self.bgp_role != BGPRole.RS_CLIENT
-        ):
+        if self.is_route_server and self.bgp_role and self.bgp_role != BGPRole.RS_CLIENT:
             raise ValidationError(
-                {
-                    "bgp_role": "A session with a route server must use the RS-Client "
-                    "role (RFC 9234 Table 2)."
-                }
+                {"bgp_role": "A session with a route server must use the RS-Client role (RFC 9234 Table 2)."}
             )
 
     @classmethod
-    def exists_at(
-        cls, ixp_connection: Connection, ip_address: IPAddressAnyType
-    ) -> bool:
+    def exists_at(cls, ixp_connection: Connection, ip_address: IPAddressAnyType) -> bool:
         """
         Returns `True` if an `InternetExchangePeeringSession` already uses
         `ip_address` on `ixp_connection`.  The unique constraint on the model
         is `(ixp_connection, ip_address)`.
         """
-        return cls.objects.filter(
-            ixp_connection=ixp_connection, ip_address=ip_address
-        ).exists()
+        return cls.objects.filter(ixp_connection=ixp_connection, ip_address=ip_address).exists()
 
     @property
     def exists_in_peeringdb(self):
@@ -1140,10 +1040,7 @@ class InternetExchangePeeringSession(BGPSession):
         """
         return not (
             not self.ixp_connection.linked_to_peeringdb
-            or (
-                self.ixp_connection.router
-                and not self.ixp_connection.router.poll_bgp_sessions_state
-            )
+            or (self.ixp_connection.router and not self.ixp_connection.router.poll_bgp_sessions_state)
             or not self.autonomous_system.peeringdb_network
             or self.exists_in_peeringdb
             or self.bgp_state not in [BGPState.IDLE, BGPState.ACTIVE]
@@ -1162,9 +1059,7 @@ class InternetExchangePeeringSession(BGPSession):
             internet_exchange = InternetExchange.objects.filter(
                 local_autonomous_system=affiliated, peeringdb_ixlan=netixlan.ixlan
             ).first()
-        available_connections = Connection.objects.filter(
-            internet_exchange_point=internet_exchange
-        )
+        available_connections = Connection.objects.filter(internet_exchange_point=internet_exchange)
 
         for connection in available_connections:
             for version in (6, 4):
@@ -1173,9 +1068,7 @@ class InternetExchangePeeringSession(BGPSession):
                     continue
 
                 params = {
-                    "autonomous_system": AutonomousSystem.create_from_peeringdb(
-                        netixlan.asn
-                    ),
+                    "autonomous_system": AutonomousSystem.create_from_peeringdb(netixlan.asn),
                     "ixp_connection": connection,
                     "ip_address": ip_address.ip,
                 }
@@ -1195,9 +1088,7 @@ class InternetExchangePeeringSession(BGPSession):
 
     def poll(self):
         if not self.ixp_connection.router:
-            logger.debug(
-                f"cannot poll bgp session state for {self.ip_address}, no router"
-            )
+            logger.debug(f"cannot poll bgp session state for {self.ip_address}, no router")
             return False
 
         state = self.ixp_connection.router.poll_bgp_session(self.ip_address)
@@ -1252,9 +1143,7 @@ class PeeringRequest(PrimaryModel):
         default=PeeringRequestStatus.PENDING,
     )
     decision_comment = models.TextField(blank=True)
-    relationship = models.ForeignKey(
-        to="bgp.Relationship", on_delete=models.SET_NULL, blank=True, null=True
-    )
+    relationship = models.ForeignKey(to="bgp.Relationship", on_delete=models.SET_NULL, blank=True, null=True)
 
     class Meta:
         ordering = ["-created"]
@@ -1313,29 +1202,20 @@ class PeeringRequest(PrimaryModel):
     def accept(self) -> AcceptResult:
         if self.status != PeeringRequestStatus.PENDING:
             raise ValueError(f"Cannot accept a request with status '{self.status}'.")
-        if (
-            self.request_type == PeeringRequestType.PRIVATE_PEERING
-            and not self.relationship
-        ):
-            raise ValueError(
-                "A relationship must be set before accepting a private peering request."
-            )
+        if self.request_type == PeeringRequestType.PRIVATE_PEERING and not self.relationship:
+            raise ValueError("A relationship must be set before accepting a private peering request.")
 
         details: list[SessionResult] = []
-        for session in self.requested_sessions.select_related(
-            "ixp_connection__internet_exchange_point"
-        ).filter(status=RequestedSessionStatus.PENDING):
+        for session in self.requested_sessions.select_related("ixp_connection__internet_exchange_point").filter(
+            status=RequestedSessionStatus.PENDING
+        ):
             try:
                 session.validate_creation()
                 session.accept()
             except ValueError as e:
                 reason = str(e)
                 session.reject(comment=f"Auto-rejected: {reason}")
-                details.append(
-                    SessionResult(
-                        ip_address=session.ip_address, accepted=False, reason=reason
-                    )
-                )
+                details.append(SessionResult(ip_address=session.ip_address, accepted=False, reason=reason))
                 continue
 
             details.append(SessionResult(ip_address=session.ip_address, accepted=True))
@@ -1349,9 +1229,7 @@ class PeeringRequest(PrimaryModel):
         if self.status != PeeringRequestStatus.PENDING:
             raise ValueError(f"Cannot reject a request with status '{self.status}'.")
 
-        for session in self.requested_sessions.filter(
-            status=RequestedSessionStatus.PENDING
-        ):
+        for session in self.requested_sessions.filter(status=RequestedSessionStatus.PENDING):
             session.reject(comment=comment)
 
         self.status = PeeringRequestStatus.REFUSED
@@ -1384,9 +1262,7 @@ class RequestedSession(ChangeLoggedModel):
         verbose_name="IXP connection",
         help_text="Connection this requested session targets.",
     )
-    peeringdb_facility = models.ForeignKey(
-        to="peeringdb.Facility", on_delete=models.SET_NULL, blank=True, null=True
-    )
+    peeringdb_facility = models.ForeignKey(to="peeringdb.Facility", on_delete=models.SET_NULL, blank=True, null=True)
     ip_address = InetAddressField(store_prefix_length=True, verbose_name="IP address")
     peer_ip_address = InetAddressField(
         store_prefix_length=True,
@@ -1402,9 +1278,7 @@ class RequestedSession(ChangeLoggedModel):
         default=RequestedSessionStatus.PENDING,
     )
     rejection_comment = models.TextField(blank=True)
-    created_session_type = models.ForeignKey(
-        to=ContentType, on_delete=models.SET_NULL, blank=True, null=True
-    )
+    created_session_type = models.ForeignKey(to=ContentType, on_delete=models.SET_NULL, blank=True, null=True)
     created_session_id = models.PositiveIntegerField(blank=True, null=True)
     created_session = GenericForeignKey("created_session_type", "created_session_id")
 
@@ -1431,12 +1305,8 @@ class RequestedSession(ChangeLoggedModel):
             case PeeringRequestType.PUBLIC_PEERING:
                 if not self.ixp_connection:
                     raise ValueError("No connection specified.")
-                if InternetExchangePeeringSession.exists_at(
-                    self.ixp_connection, self.ip_address
-                ):
-                    raise ValueError(
-                        f"A session with IP {self.ip_address} already exists on {self.ixp_connection}."
-                    )
+                if InternetExchangePeeringSession.exists_at(self.ixp_connection, self.ip_address):
+                    raise ValueError(f"A session with IP {self.ip_address} already exists on {self.ixp_connection}.")
 
             case PeeringRequestType.PRIVATE_PEERING:
                 if not self.peeringdb_facility:
@@ -1452,9 +1322,7 @@ class RequestedSession(ChangeLoggedModel):
         pr = self.peering_request
         autonomous_system = AutonomousSystem.create_from_peeringdb(pr.requesting_asn)
         if autonomous_system is None:
-            raise ValueError(
-                f"AS{pr.requesting_asn} cannot be created: no PeeringDB record found."
-            )
+            raise ValueError(f"AS{pr.requesting_asn} cannot be created: no PeeringDB record found.")
 
         session_status = settings.PEERING_REQUEST_SESSION_STATUS
         password = self.session_secret or ""

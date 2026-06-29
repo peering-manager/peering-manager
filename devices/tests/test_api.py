@@ -61,9 +61,7 @@ class RouterTest(APIViewTestCases.View):
             asn=201281, name="Guillaume Mazoyer", affiliated=True
         )
         cls.platform = Platform.objects.create(name="No Bugs OS", slug="nobugsos")
-        cls.template = Configuration.objects.create(
-            name="Test", template="Nothing useful"
-        )
+        cls.template = Configuration.objects.create(name="Test", template="Nothing useful")
         Router.objects.bulk_create(
             [
                 Router(
@@ -123,16 +121,12 @@ class RouterTest(APIViewTestCases.View):
         self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
 
     def test_poll_bgp_sessions(self):
-        url = reverse(
-            "devices-api:router-poll-bgp-sessions", kwargs={"pk": self.router.pk}
-        )
+        url = reverse("devices-api:router-poll-bgp-sessions", kwargs={"pk": self.router.pk})
         response = self.client.post(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
 
     def test_test_napalm_connection(self):
-        url = reverse(
-            "devices-api:router-test-napalm-connection", kwargs={"pk": self.router.pk}
-        )
+        url = reverse("devices-api:router-test-napalm-connection", kwargs={"pk": self.router.pk})
         response = self.client.get(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_202_ACCEPTED)
 
@@ -140,13 +134,9 @@ class RouterTest(APIViewTestCases.View):
         url = reverse("devices-api:router-update-from-netbox")
         response = self.client.post(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
-        response = self.client.post(
-            url, **self.header, data={"event": "created"}, format="json"
-        )
+        response = self.client.post(url, **self.header, data={"event": "created"}, format="json")
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
-        response = self.client.post(
-            url, **self.header, data={"data": {}}, format="json"
-        )
+        response = self.client.post(url, **self.header, data={"data": {}}, format="json")
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
         data = {

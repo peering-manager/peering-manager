@@ -22,9 +22,7 @@ __all__ = ("TagBulkDelete", "TagBulkEdit", "TagDelete", "TagEdit", "TagList", "T
 @register_model_view(Tag, name="list", path="", detail=False)
 class TagList(ObjectListView):
     permission_required = "extras.view_tag"
-    queryset = Tag.objects.annotate(
-        items=Count("extras_taggeditem_items", distinct=True)
-    ).order_by("name")
+    queryset = Tag.objects.annotate(items=Count("extras_taggeditem_items", distinct=True)).order_by("name")
     filterset = TagFilterSet
     filterset_form = TagFilterForm
     table = TagTable
@@ -46,9 +44,7 @@ class TagView(ObjectView):
                 "content_type": ContentType.objects.get(pk=ti["content_type"]),
                 "item_count": ti["item_count"],
             }
-            for ti in tagged_items.values("content_type").annotate(
-                item_count=Count("pk")
-            )
+            for ti in tagged_items.values("content_type").annotate(item_count=Count("pk"))
         ]
 
         return {
@@ -74,9 +70,7 @@ class TagDelete(ObjectDeleteView):
 @register_model_view(model=Tag, name="bulk_edit", path="edit", detail=False)
 class TagBulkEdit(BulkEditView):
     permission_required = "extras.change_tag"
-    queryset = Tag.objects.annotate(
-        items=Count("extras_taggeditem_items", distinct=True)
-    ).order_by("name")
+    queryset = Tag.objects.annotate(items=Count("extras_taggeditem_items", distinct=True)).order_by("name")
     filterset = TagFilterSet
     table = TagTable
     form = TagBulkEditForm
@@ -85,8 +79,6 @@ class TagBulkEdit(BulkEditView):
 @register_model_view(model=Tag, name="bulk_delete", path="delete", detail=False)
 class TagBulkDelete(BulkDeleteView):
     permission_required = "extras.delete_tag"
-    queryset = Tag.objects.annotate(
-        items=Count("extras_taggeditem_items", distinct=True)
-    ).order_by("name")
+    queryset = Tag.objects.annotate(items=Count("extras_taggeditem_items", distinct=True)).order_by("name")
     filterset = TagFilterSet
     table = TagTable

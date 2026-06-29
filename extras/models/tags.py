@@ -29,9 +29,7 @@ class Tag(TagBase, ChangeLoggedModel):
 
 
 class TaggedItem(GenericTaggedItemBase):
-    tag = models.ForeignKey(
-        to=Tag, related_name="%(app_label)s_%(class)s_items", on_delete=models.CASCADE
-    )
+    tag = models.ForeignKey(to=Tag, related_name="%(app_label)s_%(class)s_items", on_delete=models.CASCADE)
 
     class Meta:
         indexes = [models.Index(fields=["content_type", "object_id"])]

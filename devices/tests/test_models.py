@@ -35,31 +35,19 @@ class ConfigurationTest(TestCase):
 class PlatformTest(TestCase):
     def test_password_encryption_decryption(self):
         clear_text_password = "mypassword"
-        junos = Platform.objects.filter(
-            password_algorithm=PasswordAlgorithm.JUNIPER_TYPE9
-        ).first()
+        junos = Platform.objects.filter(password_algorithm=PasswordAlgorithm.JUNIPER_TYPE9).first()
         encrypted_password = junos.encrypt_password(password=clear_text_password)
         self.assertNotEqual(clear_text_password, encrypted_password)
-        self.assertEqual(
-            clear_text_password, junos.decrypt_password(password=encrypted_password)
-        )
+        self.assertEqual(clear_text_password, junos.decrypt_password(password=encrypted_password))
 
-        cisco = Platform.objects.filter(
-            password_algorithm=PasswordAlgorithm.CISCO_TYPE7
-        ).first()
+        cisco = Platform.objects.filter(password_algorithm=PasswordAlgorithm.CISCO_TYPE7).first()
         encrypted_password = cisco.encrypt_password(password=clear_text_password)
         self.assertNotEqual(clear_text_password, encrypted_password)
-        self.assertEqual(
-            clear_text_password, cisco.decrypt_password(password=encrypted_password)
-        )
+        self.assertEqual(clear_text_password, cisco.decrypt_password(password=encrypted_password))
 
-        arista = Platform.objects.filter(
-            password_algorithm=PasswordAlgorithm.ARISTA_TYPE7
-        ).first()
+        arista = Platform.objects.filter(password_algorithm=PasswordAlgorithm.ARISTA_TYPE7).first()
         encryption_key = "192.0.2.1"
-        encrypted_password = arista.encrypt_password(
-            password=clear_text_password, key=encryption_key
-        )
+        encrypted_password = arista.encrypt_password(password=clear_text_password, key=encryption_key)
         self.assertNotEqual(clear_text_password, encrypted_password)
         self.assertEqual(
             clear_text_password,
@@ -70,20 +58,14 @@ class PlatformTest(TestCase):
         wrong = Platform.objects.filter(password_algorithm="").first()
         encrypted_password = wrong.encrypt_password(password=clear_text_password)
         self.assertEqual(clear_text_password, encrypted_password)
-        self.assertEqual(
-            clear_text_password, wrong.decrypt_password(password=encrypted_password)
-        )
+        self.assertEqual(clear_text_password, wrong.decrypt_password(password=encrypted_password))
 
 
 class RouterTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.local_as = AutonomousSystem.objects.create(
-            asn=64500, name="Autonomous System", affiliated=True
-        )
-        cls.bgp_neighbors_detail = load_json(
-            "devices/tests/fixtures/get_bgp_neighbors_detail.json"
-        )
+        cls.local_as = AutonomousSystem.objects.create(asn=64500, name="Autonomous System", affiliated=True)
+        cls.bgp_neighbors_detail = load_json("devices/tests/fixtures/get_bgp_neighbors_detail.json")
         cls.router = Router.objects.create(
             local_autonomous_system=cls.local_as,
             name="Test",
@@ -99,9 +81,7 @@ class RouterTest(TestCase):
         for i in range(1, 6):
             AutonomousSystem.objects.create(asn=i, name=f"Test {i}")
         bgp_group = BGPGroup.objects.create(name="Test Group", slug="testgroup")
-        relationship_private_peering = Relationship.objects.create(
-            name="Private Peering", slug="private-peering"
-        )
+        relationship_private_peering = Relationship.objects.create(name="Private Peering", slug="private-peering")
         for i in range(1, 6):
             DirectPeeringSession.objects.create(
                 local_autonomous_system=self.local_as,
@@ -110,39 +90,23 @@ class RouterTest(TestCase):
                 bgp_group=bgp_group,
                 relationship=relationship_private_peering,
                 ip_address=f"10.0.0.{i}",
-                status=(
-                    BGPSessionStatus.ENABLED
-                    if bool(i % 2)
-                    else BGPSessionStatus.DISABLED
-                ),
+                status=(BGPSessionStatus.ENABLED if bool(i % 2) else BGPSessionStatus.DISABLED),
                 router=self.router,
             )
-        ixp = InternetExchange.objects.create(
-            local_autonomous_system=self.local_as, name="Test IX", slug="test-ix"
-        )
-        ixp_connection = Connection.objects.create(
-            vlan=2000, internet_exchange_point=ixp, router=self.router
-        )
+        ixp = InternetExchange.objects.create(local_autonomous_system=self.local_as, name="Test IX", slug="test-ix")
+        ixp_connection = Connection.objects.create(vlan=2000, internet_exchange_point=ixp, router=self.router)
         for i in range(1, 6):
             InternetExchangePeeringSession.objects.create(
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
                 ixp_connection=ixp_connection,
                 ip_address=f"2001:db8::{i}",
-                status=(
-                    BGPSessionStatus.ENABLED
-                    if bool(i % 2)
-                    else BGPSessionStatus.DISABLED
-                ),
+                status=(BGPSessionStatus.ENABLED if bool(i % 2) else BGPSessionStatus.DISABLED),
             )
             InternetExchangePeeringSession.objects.create(
                 autonomous_system=AutonomousSystem.objects.get(asn=i),
                 ixp_connection=ixp_connection,
                 ip_address=f"192.0.2.{i}",
-                status=(
-                    BGPSessionStatus.ENABLED
-                    if bool(i % 2)
-                    else BGPSessionStatus.DISABLED
-                ),
+                status=(BGPSessionStatus.ENABLED if bool(i % 2) else BGPSessionStatus.DISABLED),
             )
 
         # Generate expected result
@@ -156,9 +120,7 @@ class RouterTest(TestCase):
             "router": self.router,
         }
 
-        self.assertEqual(
-            sorted(self.router.get_configuration_context()), sorted(expected)
-        )
+        self.assertEqual(sorted(self.router.get_configuration_context()), sorted(expected))
 
     def test_napalm_bgp_neighbors_to_peer_list(self):
         # Expected results
@@ -221,68 +183,38 @@ class RouterTest(TestCase):
             expected,
             [
                 (n["local_address"], n["remote_address"])
-                for n in self.router.bgp_neighbors_detail_as_list(
-                    self.bgp_neighbors_detail
-                )
+                for n in self.router.bgp_neighbors_detail_as_list(self.bgp_neighbors_detail)
             ],
         )
 
     def test_find_bgp_neighbor_detail(self):
+        self.assertIsNone(self.router.find_bgp_neighbor_detail(self.bgp_neighbors_detail, "192.0.2.250"))
         self.assertIsNone(
-            self.router.find_bgp_neighbor_detail(
-                self.bgp_neighbors_detail, "192.0.2.250"
-            )
+            self.router.find_bgp_neighbor_detail(self.bgp_neighbors_detail, ipaddress.ip_address("192.0.2.250"))
         )
+        self.assertIsNotNone(self.router.find_bgp_neighbor_detail(self.bgp_neighbors_detail, "192.0.2.1"))
+        self.assertIsNotNone(
+            self.router.find_bgp_neighbor_detail(self.bgp_neighbors_detail, ipaddress.ip_address("192.0.2.1"))
+        )
+        self.assertIsNone(self.router.find_bgp_neighbor_detail(self.bgp_neighbors_detail, "2001:db8::1337"))
         self.assertIsNone(
-            self.router.find_bgp_neighbor_detail(
-                self.bgp_neighbors_detail, ipaddress.ip_address("192.0.2.250")
-            )
+            self.router.find_bgp_neighbor_detail(self.bgp_neighbors_detail, ipaddress.ip_address("2001:db8::1337"))
         )
+        self.assertIsNotNone(self.router.find_bgp_neighbor_detail(self.bgp_neighbors_detail, "2001:db8::1"))
         self.assertIsNotNone(
-            self.router.find_bgp_neighbor_detail(self.bgp_neighbors_detail, "192.0.2.1")
-        )
-        self.assertIsNotNone(
-            self.router.find_bgp_neighbor_detail(
-                self.bgp_neighbors_detail, ipaddress.ip_address("192.0.2.1")
-            )
-        )
-        self.assertIsNone(
-            self.router.find_bgp_neighbor_detail(
-                self.bgp_neighbors_detail, "2001:db8::1337"
-            )
-        )
-        self.assertIsNone(
-            self.router.find_bgp_neighbor_detail(
-                self.bgp_neighbors_detail, ipaddress.ip_address("2001:db8::1337")
-            )
-        )
-        self.assertIsNotNone(
-            self.router.find_bgp_neighbor_detail(
-                self.bgp_neighbors_detail, "2001:db8::1"
-            )
-        )
-        self.assertIsNotNone(
-            self.router.find_bgp_neighbor_detail(
-                self.bgp_neighbors_detail, ipaddress.ip_address("2001:db8::1")
-            )
+            self.router.find_bgp_neighbor_detail(self.bgp_neighbors_detail, ipaddress.ip_address("2001:db8::1"))
         )
 
     def test_poll_bgp_sessions(self):
         with patch(
             "devices.models.Router.get_bgp_neighbors_detail",
-            return_value=load_json(
-                "devices/tests/fixtures/get_bgp_neighbors_detail.json"
-            ),
+            return_value=load_json("devices/tests/fixtures/get_bgp_neighbors_detail.json"),
         ):
             self.assertTupleEqual((False, 0), self.router.poll_bgp_sessions())
 
-            autonomous_system = AutonomousSystem.objects.create(
-                asn=64666, name="Poll Testing"
-            )
+            autonomous_system = AutonomousSystem.objects.create(asn=64666, name="Poll Testing")
             group = BGPGroup.objects.create(name="Poll Testing", slug="poll-testing")
-            relationship = Relationship.objects.create(
-                name="Poll Testing", slug="poll-testing"
-            )
+            relationship = Relationship.objects.create(name="Poll Testing", slug="poll-testing")
             self.router.platform = Platform.objects.get(slug="juniper-junos")
             self.router.save()
             session = DirectPeeringSession.objects.create(

@@ -11,9 +11,7 @@ __all__ = ("CommunityFilterSet",)
 
 class CommunityFilterSet(OrganisationalModelFilterSet):
     type = django_filters.MultipleChoiceFilter(choices=CommunityType, null_value="")
-    category = django_filters.MultipleChoiceFilter(
-        choices=CommunityCategory, null_value=""
-    )
+    category = django_filters.MultipleChoiceFilter(choices=CommunityCategory, null_value="")
 
     class Meta:
         model = Community

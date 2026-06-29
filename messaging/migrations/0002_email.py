@@ -30,15 +30,11 @@ class Migration(migrations.Migration):
                 ("template", models.TextField()),
                 (
                     "jinja2_trim",
-                    models.BooleanField(
-                        default=False, help_text="Removes new line after tag"
-                    ),
+                    models.BooleanField(default=False, help_text="Removes new line after tag"),
                 ),
                 (
                     "jinja2_lstrip",
-                    models.BooleanField(
-                        default=False, help_text="Strips whitespaces before block"
-                    ),
+                    models.BooleanField(default=False, help_text="Strips whitespaces before block"),
                 ),
                 ("comments", models.TextField(blank=True)),
                 ("subject", models.CharField(max_length=512)),
@@ -56,6 +52,4 @@ class Migration(migrations.Migration):
         ),
     ]
 
-    operations = [
-        migrations.SeparateDatabaseAndState(state_operations=state_operations)
-    ]
+    operations = [migrations.SeparateDatabaseAndState(state_operations=state_operations)]

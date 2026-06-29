@@ -12,9 +12,7 @@ class CommunityTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.communities = [
-            Community(
-                name="test-1", slug="test-1", value="64500:1", type=CommunityType.EGRESS
-            ),
+            Community(name="test-1", slug="test-1", value="64500:1", type=CommunityType.EGRESS),
             Community(
                 name="test-2",
                 slug="test-2",
@@ -80,9 +78,7 @@ class CommunityTest(TestCase):
             try:
                 validate_bgp_community(community)
             except ValidationError:
-                self.fail(
-                    f"validate_bgp_community raised ValidationError unexpectedly for {community}"
-                )
+                self.fail(f"validate_bgp_community raised ValidationError unexpectedly for {community}")
 
         invalid = [
             "65000",
@@ -100,9 +96,7 @@ class CommunityTest(TestCase):
             "65000:-1:100",
         ]
         for community in invalid:
-            with self.assertRaises(
-                ValidationError, msg=f"{community} should be invalid"
-            ):
+            with self.assertRaises(ValidationError, msg=f"{community} should be invalid"):
                 validate_bgp_community(community)
 
 
@@ -127,9 +121,7 @@ class RoutingPolicyTest(TestCase):
         cls.routing_policies = [
             RoutingPolicy(name="test-1", slug="test-1", type=RoutingPolicyType.EXPORT),
             RoutingPolicy(name="test-2", slug="test-2", type=RoutingPolicyType.IMPORT),
-            RoutingPolicy(
-                name="test-3", slug="test-3", type=RoutingPolicyType.IMPORT_EXPORT
-            ),
+            RoutingPolicy(name="test-3", slug="test-3", type=RoutingPolicyType.IMPORT_EXPORT),
             RoutingPolicy(name="test-4", slug="test-4", type="unknown"),
         ]
         RoutingPolicy.objects.bulk_create(cls.routing_policies)

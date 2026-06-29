@@ -11,15 +11,9 @@ __all__ = ("HiddenPeerTable",)
 
 class HiddenPeerTable(PeeringManagerTable):
     pk = SelectColumn()
-    asn = tables.Column(
-        verbose_name="ASN", accessor="peeringdb_network__asn", linkify=True
-    )
-    network_name = tables.Column(
-        verbose_name="AS Name", accessor="peeringdb_network__name"
-    )
-    ixp_name = tables.Column(
-        verbose_name="IXP Name", accessor="peeringdb_ixlan__ix__name"
-    )
+    asn = tables.Column(verbose_name="ASN", accessor="peeringdb_network__asn", linkify=True)
+    network_name = tables.Column(verbose_name="AS Name", accessor="peeringdb_network__name")
+    ixp_name = tables.Column(verbose_name="IXP Name", accessor="peeringdb_ixlan__ix__name")
     until = tables.DateTimeColumn(verbose_name="Hidden Until")
     is_expired = columns.BooleanColumn(verbose_name="Expired")
     actions = columns.ActionsColumn()

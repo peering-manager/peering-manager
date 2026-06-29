@@ -52,12 +52,8 @@ class PeeringManagerModelBulkEditForm(BootstrapMixin, forms.Form):
         queryset=None,
         widget=forms.MultipleHiddenInput,  # Set from self.model on init
     )
-    add_tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(), required=False
-    )
-    remove_tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(), required=False
-    )
+    add_tags = DynamicModelMultipleChoiceField(queryset=Tag.objects.all(), required=False)
+    remove_tags = DynamicModelMultipleChoiceField(queryset=Tag.objects.all(), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

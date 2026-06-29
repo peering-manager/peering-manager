@@ -27,15 +27,11 @@ class Migration(migrations.Migration):
                 ("template", models.TextField()),
                 (
                     "jinja2_lstrip",
-                    models.BooleanField(
-                        default=False, help_text="Strips whitespaces before block"
-                    ),
+                    models.BooleanField(default=False, help_text="Strips whitespaces before block"),
                 ),
                 (
                     "jinja2_trim",
-                    models.BooleanField(
-                        default=False, help_text="Removes new line after tag"
-                    ),
+                    models.BooleanField(default=False, help_text="Removes new line after tag"),
                 ),
                 ("comments", models.TextField(blank=True)),
                 (

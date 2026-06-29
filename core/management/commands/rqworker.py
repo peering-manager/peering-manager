@@ -23,8 +23,7 @@ class Command(_Command):
         if len(args) < 1:
             queues = ", ".join(DEFAULT_QUEUES)
             logger.warning(
-                "No queues have been specified. This process will service the "
-                f"following queues by default: {queues}"
+                f"No queues have been specified. This process will service the following queues by default: {queues}"
             )
             args = DEFAULT_QUEUES
 

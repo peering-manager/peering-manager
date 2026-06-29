@@ -8,9 +8,7 @@ import requests
 
 
 def setup_cli():
-    parser = argparse.ArgumentParser(
-        description="Import JSON data using Peering Manager's API"
-    )
+    parser = argparse.ArgumentParser(description="Import JSON data using Peering Manager's API")
     parser.add_argument("url", help="URL of the API (endpoint included)")
     parser.add_argument("token", help="token to be used for API authentication")
     parser.add_argument("json_file", help="file containing JSON data")

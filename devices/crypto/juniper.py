@@ -154,10 +154,7 @@ class JuniperType9Cipher(PasswordCipher):
         else:
             input_hash = hashlib.sha256(key.encode()).digest()
             salt = NUM_ALPHA[input_hash[0] % len(NUM_ALPHA)]
-            rand = "".join(
-                NUM_ALPHA[input_hash[1 + i] % len(NUM_ALPHA)]
-                for i in range(EXTRA[salt])
-            )
+            rand = "".join(NUM_ALPHA[input_hash[1 + i] % len(NUM_ALPHA)] for i in range(EXTRA[salt]))
 
         previous = salt
         crypted = MAGIC + salt + rand

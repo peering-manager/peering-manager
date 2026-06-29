@@ -19,9 +19,7 @@ class Connection(PrimaryModel):
     peeringdb_netixlan = models.ForeignKey(
         to="peeringdb.NetworkIXLan", on_delete=models.SET_NULL, blank=True, null=True
     )
-    status = models.CharField(
-        max_length=20, choices=ConnectionStatus, default=ConnectionStatus.ENABLED
-    )
+    status = models.CharField(max_length=20, choices=ConnectionStatus, default=ConnectionStatus.ENABLED)
     vlan = VLANField(verbose_name="VLAN", blank=True, null=True)
     mac_address = MACAddressField(
         verbose_name="MAC address",
@@ -44,9 +42,7 @@ class Connection(PrimaryModel):
     internet_exchange_point = models.ForeignKey(
         to="peering.InternetExchange", blank=True, null=True, on_delete=models.CASCADE
     )
-    router = models.ForeignKey(
-        to="devices.Router", blank=True, null=True, on_delete=models.SET_NULL
-    )
+    router = models.ForeignKey(to="devices.Router", blank=True, null=True, on_delete=models.SET_NULL)
     interface = models.CharField(max_length=200, blank=True)
 
     objects = NetManager()
@@ -97,24 +93,14 @@ class Connection(PrimaryModel):
             return None
 
         # Prepare value for database lookup
-        ipaddr6 = (
-            self.ipv6_address.ip
-            if hasattr(self.ipv6_address, "ip")
-            else self.ipv6_address
-        )
-        ipaddr4 = (
-            self.ipv4_address.ip
-            if hasattr(self.ipv4_address, "ip")
-            else self.ipv4_address
-        )
+        ipaddr6 = self.ipv6_address.ip if hasattr(self.ipv6_address, "ip") else self.ipv6_address
+        ipaddr4 = self.ipv4_address.ip if hasattr(self.ipv4_address, "ip") else self.ipv4_address
 
         try:
             netixlan = NetworkIXLan.objects.get(ipaddr6=ipaddr6, ipaddr4=ipaddr4)
             logger.debug(f"linked connection {self} (pk: {self.pk}) to peeringdb")
         except NetworkIXLan.DoesNotExist:
-            logger.debug(
-                f"linking connection {self} (pk: {self.pk}) to peeringdb failed"
-            )
+            logger.debug(f"linking connection {self} (pk: {self.pk}) to peeringdb failed")
             return None
 
         self.peeringdb_netixlan = netixlan
@@ -126,15 +112,10 @@ class Connection(PrimaryModel):
         """
         Returns the corresponding IX-API network service config for this connection.
         """
-        if (
-            not self.internet_exchange_point
-            or not self.internet_exchange_point.ixapi_endpoint
-        ):
+        if not self.internet_exchange_point or not self.internet_exchange_point.ixapi_endpoint:
             return None
 
-        for (
-            config
-        ) in self.internet_exchange_point.ixapi_endpoint.get_network_service_configs():
+        for config in self.internet_exchange_point.ixapi_endpoint.get_network_service_configs():
             if config.connection == self:
                 return config
 
@@ -156,29 +137,21 @@ class Connection(PrimaryModel):
         """
         if not self.mac_address:
             # If connection has not MAC, update cannot be performed
-            logger.debug(
-                f"connection #{self.pk} has no mac address, cannot change in ix-api"
-            )
+            logger.debug(f"connection #{self.pk} has no mac address, cannot change in ix-api")
             return False
 
         network_service_config = self.ixapi_network_service_config()
         if not network_service_config:
             # If connection has not IX-API network service config, update cannot be
             # performed
-            logger.debug(
-                f"cannot find ix-api network service config for connection #{self.pk}"
-            )
+            logger.debug(f"cannot find ix-api network service config for connection #{self.pk}")
             return False
 
-        mac = self.internet_exchange_point.ixapi_endpoint.create_mac_address(
-            self.mac_address
-        )
+        mac = self.internet_exchange_point.ixapi_endpoint.create_mac_address(self.mac_address)
         if not mac:
             # If MAC failed to be created and does not already exist, update cannot be
             # performed
-            logger.debug(
-                f"cannot create mac address {self.mac_address} in ix-api for connection #{self.pk}"
-            )
+            logger.debug(f"cannot create mac address {self.mac_address} in ix-api for connection #{self.pk}")
             return False
 
         logger.debug(

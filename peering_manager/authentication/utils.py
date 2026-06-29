@@ -17,9 +17,7 @@ def user_default_groups_handler(backend, user, response, *args, **kwargs):
     Custom pipeline handler which adds remote auth users to the default group
     specified in theconfiguration file.
     """
-    logger = logging.getLogger(
-        "peering_manager.authentication.user_default_groups_handler"
-    )
+    logger = logging.getLogger("peering_manager.authentication.user_default_groups_handler")
     if settings.REMOTE_AUTH_DEFAULT_GROUPS:
         # Assign default groups to the user
         group_list = []
@@ -27,12 +25,8 @@ def user_default_groups_handler(backend, user, response, *args, **kwargs):
             try:
                 group_list.append(Group.objects.get(name=name))
             except Group.DoesNotExist:
-                logging.error(
-                    f"could not assign group {name} to remote user {user}: group not found"
-                )
+                logging.error(f"could not assign group {name} to remote user {user}: group not found")
         if group_list:
             user.groups.add(*group_list)
         else:
-            logger.info(
-                f"no valid group assignments for {user} - REMOTE_AUTH_DEFAULT_GROUPS may be incorrectly set?"
-            )
+            logger.info(f"no valid group assignments for {user} - REMOTE_AUTH_DEFAULT_GROUPS may be incorrectly set?")

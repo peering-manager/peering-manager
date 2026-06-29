@@ -120,9 +120,7 @@ class DataSource(PrimaryModel, JobsMixin):
         # Ensure URL scheme matches the selected backend type
         if self.backend_class.is_local and self.url_scheme not in ("file", ""):
             raise ValidationError(
-                {
-                    "source_url": "URLs for local sources must start with file:// (or should not have one)"
-                }
+                {"source_url": "URLs for local sources must start with file:// (or should not have one)"}
             )
 
     def to_objectchange(self, action) -> ObjectChange:
@@ -182,17 +180,11 @@ class DataSource(PrimaryModel, JobsMixin):
         process.
         """
         if not self.enabled:
-            raise SynchronisationError(
-                "Data source if disabled, synchronisation aborted."
-            )
+            raise SynchronisationError("Data source if disabled, synchronisation aborted.")
         if self.status == DataSourceStatus.SYNCHRONISING:
-            raise SynchronisationError(
-                "Synchronisation already in progress, not starting a new one."
-            )
+            raise SynchronisationError("Synchronisation already in progress, not starting a new one.")
         if self.status == DataSourceStatus.PUSHING:
-            raise SynchronisationError(
-                "Push in progress, not starting a new synchronisation."
-            )
+            raise SynchronisationError("Push in progress, not starting a new synchronisation.")
 
         pre_synchronisation.send(sender=self.__class__, instance=self)
 
@@ -226,9 +218,7 @@ class DataSource(PrimaryModel, JobsMixin):
                     continue
 
             # Update changed files
-            changed_count = DataFile.objects.bulk_update(
-                changed_files, ("updated", "size", "hash", "data")
-            )
+            changed_count = DataFile.objects.bulk_update(changed_files, ("updated", "size", "hash", "data"))
             logger.debug(f"changed {changed_count} files")
             # Delete files marked for deletion
             deleted_count = DataFile.objects.filter(pk__in=deleted_file_ids).delete()
@@ -243,9 +233,7 @@ class DataSource(PrimaryModel, JobsMixin):
                 data_file.full_clean()
                 new_data_files.append(data_file)
 
-            created_count = len(
-                DataFile.objects.bulk_create(new_data_files, batch_size=100)
-            )
+            created_count = len(DataFile.objects.bulk_create(new_data_files, batch_size=100))
             logger.debug(f"created {created_count} files")
 
         self.status = DataSourceStatus.COMPLETED
@@ -261,13 +249,9 @@ class DataSource(PrimaryModel, JobsMixin):
         if not self.enabled:
             raise SynchronisationError("Data source if disabled, push aborted.")
         if self.status == DataSourceStatus.SYNCHRONISING:
-            raise SynchronisationError(
-                "Synchronisation in progress, not starting a new push."
-            )
+            raise SynchronisationError("Synchronisation in progress, not starting a new push.")
         if self.status == DataSourceStatus.PUSHING:
-            raise SynchronisationError(
-                "Pushing already in progress, not starting a new one."
-            )
+            raise SynchronisationError("Pushing already in progress, not starting a new one.")
 
         self.status = DataSourceStatus.PUSHING
         self.save()
@@ -400,12 +384,8 @@ class AutoSynchronisationRecord(models.Model):
     Map a `DataFile` to a synchronised object to update it automatically.
     """
 
-    data_file = models.ForeignKey(
-        to="DataFile", on_delete=models.CASCADE, related_name="+"
-    )
-    object_type = models.ForeignKey(
-        to="contenttypes.ContentType", on_delete=models.CASCADE, related_name="+"
-    )
+    data_file = models.ForeignKey(to="DataFile", on_delete=models.CASCADE, related_name="+")
+    object_type = models.ForeignKey(to="contenttypes.ContentType", on_delete=models.CASCADE, related_name="+")
     object_id = models.PositiveBigIntegerField()
     object = GenericForeignKey(ct_field="object_type", fk_field="object_id")
 

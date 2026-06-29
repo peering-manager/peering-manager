@@ -48,9 +48,7 @@ def require_asn(request: Request) -> int:
     try:
         return int(asn)
     except ValueError as exc:
-        raise ValidationError(
-            {"asn": "The 'asn' query parameter is not a valid integer."}
-        ) from exc
+        raise ValidationError({"asn": "The 'asn' query parameter is not a valid integer."}) from exc
 
 
 class HasPeeringRequestPermission(BasePermission):
@@ -60,8 +58,7 @@ class HasPeeringRequestPermission(BasePermission):
 
     def has_permission(self, request, view) -> bool:
         return request.user and all(
-            request.user.has_perm(p)
-            for p in ("peering.add_peering_request", "peering.change_peering_request")
+            request.user.has_perm(p) for p in ("peering.add_peering_request", "peering.change_peering_request")
         )
 
 
@@ -285,9 +282,7 @@ class PortalSessionDetailView(PortalAPIView):
     def delete(self, request, request_id: str):
         affiliated = require_affiliated_as(user=request.user)
         try:
-            pr = PeeringRequest.objects.get(
-                tracking_id=request_id, local_autonomous_system=affiliated
-            )
+            pr = PeeringRequest.objects.get(tracking_id=request_id, local_autonomous_system=affiliated)
         except (PeeringRequest.DoesNotExist, ValueError):
             return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 

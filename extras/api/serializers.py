@@ -112,9 +112,7 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
 
 
 class TableConfigSerializer(ValidatedModelSerializer):
-    object_type = ContentTypeField(
-        queryset=ContentType.objects.all(), required=False, allow_null=True
-    )
+    object_type = ContentTypeField(queryset=ContentType.objects.all(), required=False, allow_null=True)
 
     class Meta:
         model = TableConfig
@@ -186,9 +184,7 @@ class JournalEntrySerializer(PeeringManagerModelSerializer):
         # Validate that the parent object exists
         if "assigned_object_type" in data and "assigned_object_id" in data:
             try:
-                data["assigned_object_type"].get_object_for_this_type(
-                    id=data["assigned_object_id"]
-                )
+                data["assigned_object_type"].get_object_for_this_type(id=data["assigned_object_id"])
             except ObjectDoesNotExist:
                 raise serializers.ValidationError(
                     f"Invalid assigned_object: {data['assigned_object_type']} ID {data['assigned_object_id']}"
@@ -198,9 +194,7 @@ class JournalEntrySerializer(PeeringManagerModelSerializer):
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_assigned_object(self, instance):
-        serializer = get_serializer_for_model(
-            instance.assigned_object_type.model_class(), prefix="Nested"
-        )
+        serializer = get_serializer_for_model(instance.assigned_object_type.model_class(), prefix="Nested")
         return serializer(
             instance.assigned_object,
             context={"request": self.context["request"]},

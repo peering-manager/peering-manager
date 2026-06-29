@@ -34,12 +34,8 @@ class ConfigContextTestCase(TestCase, BaseFilterSetTests):
     @classmethod
     def setUpTestData(cls):
         config_contexts = [
-            ConfigContext(
-                name="Test 1", description="This is test 1", data={"test": 1}
-            ),
-            ConfigContext(
-                name="Test 2", description="This is test 2", data={"test": 2}
-            ),
+            ConfigContext(name="Test 1", description="This is test 1", data={"test": 1}),
+            ConfigContext(name="Test 2", description="This is test 2", data={"test": 2}),
             ConfigContext(
                 name="Test 3",
                 description="This is test 3",
@@ -88,15 +84,9 @@ class ConfigContextAssignmentTestCase(TestCase, BaseFilterSetTests):
         ConfigContext.objects.bulk_create(config_contexts)
 
         config_context_assignments = [
-            ConfigContextAssignment(
-                object=asns[0], config_context=config_contexts[0], weight=1000
-            ),
-            ConfigContextAssignment(
-                object=asns[0], config_context=config_contexts[1], weight=1000
-            ),
-            ConfigContextAssignment(
-                object=asns[1], config_context=config_contexts[2], weight=2000
-            ),
+            ConfigContextAssignment(object=asns[0], config_context=config_contexts[0], weight=1000),
+            ConfigContextAssignment(object=asns[0], config_context=config_contexts[1], weight=1000),
+            ConfigContextAssignment(object=asns[1], config_context=config_contexts[2], weight=2000),
         ]
         ConfigContextAssignment.objects.bulk_create(config_context_assignments)
 
@@ -234,11 +224,7 @@ class JournalEntryTestCase(TestCase, BaseFilterSetTests):
     def test_assigned_object_type(self):
         params = {"assigned_object_type": "peering.autonomoussystem"}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-        params = {
-            "assigned_object_type_id": [
-                ContentType.objects.get_for_model(AutonomousSystem).pk
-            ]
-        }
+        params = {"assigned_object_type_id": [ContentType.objects.get_for_model(AutonomousSystem).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_assigned_object(self):

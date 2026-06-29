@@ -51,9 +51,7 @@ __all__ = (
 
 class CampusFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
-    org_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Organization.objects.all(), label="Org (ID)"
-    )
+    org_id = django_filters.ModelMultipleChoiceFilter(queryset=Organization.objects.all(), label="Org (ID)")
 
     class Meta:
         model = Campus
@@ -68,9 +66,7 @@ class CampusFilterSet(django_filters.FilterSet):
 
 class FacilityFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
-    org_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Organization.objects.all(), label="Org (ID)"
-    )
+    org_id = django_filters.ModelMultipleChoiceFilter(queryset=Organization.objects.all(), label="Org (ID)")
 
     class Meta:
         model = Facility
@@ -85,17 +81,13 @@ class FacilityFilterSet(django_filters.FilterSet):
 
 class InternetExchangeFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
-    org_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Organization.objects.all(), label="Org (ID)"
-    )
+    org_id = django_filters.ModelMultipleChoiceFilter(queryset=Organization.objects.all(), label="Org (ID)")
 
     class Meta:
         model = InternetExchange
         fields = ["id", "name"]
 
-    def search(
-        self, queryset: QuerySet, name: str, value: Any
-    ) -> QuerySet[InternetExchange]:
+    def search(self, queryset: QuerySet, name: str, value: Any) -> QuerySet[InternetExchange]:
         if not value.strip():
             return queryset
 
@@ -103,12 +95,8 @@ class InternetExchangeFilterSet(django_filters.FilterSet):
 
 
 class InternetExchangeFacilityFilterSet(django_filters.FilterSet):
-    fac_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Facility.objects.all(), label="Fac (ID)"
-    )
-    ix_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=InternetExchange.objects.all(), label="IX (ID)"
-    )
+    fac_id = django_filters.ModelMultipleChoiceFilter(queryset=Facility.objects.all(), label="Fac (ID)")
+    ix_id = django_filters.ModelMultipleChoiceFilter(queryset=InternetExchange.objects.all(), label="IX (ID)")
 
     class Meta:
         model = InternetExchangeFacility
@@ -116,9 +104,7 @@ class InternetExchangeFacilityFilterSet(django_filters.FilterSet):
 
 
 class IXLanFilterSet(django_filters.FilterSet):
-    ix_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=InternetExchange.objects.all(), label="IX (ID)"
-    )
+    ix_id = django_filters.ModelMultipleChoiceFilter(queryset=InternetExchange.objects.all(), label="IX (ID)")
 
     class Meta:
         model = IXLan
@@ -127,17 +113,13 @@ class IXLanFilterSet(django_filters.FilterSet):
 
 class IXLanPrefixFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
-    ixlan_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=IXLan.objects.all(), label="IXLan (ID)"
-    )
+    ixlan_id = django_filters.ModelMultipleChoiceFilter(queryset=IXLan.objects.all(), label="IXLan (ID)")
 
     class Meta:
         model = IXLanPrefix
         fields = ["id", "in_dfz"]
 
-    def search(
-        self, queryset: QuerySet, name: str, value: Any
-    ) -> QuerySet[IXLanPrefix]:
+    def search(self, queryset: QuerySet, name: str, value: Any) -> QuerySet[IXLanPrefix]:
         if not value.strip():
             return queryset
 
@@ -152,9 +134,7 @@ class IXLanPrefixFilterSet(django_filters.FilterSet):
 
 class NetworkFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
-    org_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Organization.objects.all(), label="Org (ID)"
-    )
+    org_id = django_filters.ModelMultipleChoiceFilter(queryset=Organization.objects.all(), label="Org (ID)")
 
     class Meta:
         model = Network
@@ -172,9 +152,7 @@ class NetworkFilterSet(django_filters.FilterSet):
 
 
 class NetworkContactFilterSet(django_filters.FilterSet):
-    net_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Network.objects.all(), label="Network (ID)"
-    )
+    net_id = django_filters.ModelMultipleChoiceFilter(queryset=Network.objects.all(), label="Network (ID)")
     net_asn = django_filters.ModelMultipleChoiceFilter(
         field_name="net__asn",
         queryset=Network.objects.all(),
@@ -188,12 +166,8 @@ class NetworkContactFilterSet(django_filters.FilterSet):
 
 
 class NetworkFacilityFilterSet(django_filters.FilterSet):
-    fac_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Facility.objects.all(), label="Fac (ID)"
-    )
-    net_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Network.objects.all(), label="Network (ID)"
-    )
+    fac_id = django_filters.ModelMultipleChoiceFilter(queryset=Facility.objects.all(), label="Fac (ID)")
+    net_id = django_filters.ModelMultipleChoiceFilter(queryset=Network.objects.all(), label="Network (ID)")
 
     class Meta:
         model = NetworkFacility
@@ -202,30 +176,20 @@ class NetworkFacilityFilterSet(django_filters.FilterSet):
 
 class NetworkIXLanFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
-    net_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Network.objects.all(), label="Network (ID)"
-    )
+    net_id = django_filters.ModelMultipleChoiceFilter(queryset=Network.objects.all(), label="Network (ID)")
     net_asn = django_filters.ModelMultipleChoiceFilter(
         field_name="net__asn",
         queryset=Network.objects.all(),
         to_field_name="asn",
         label="Network (ASN)",
     )
-    ixlan_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=IXLan.objects.all(), label="IXLan (ID)"
-    )
+    ixlan_id = django_filters.ModelMultipleChoiceFilter(queryset=IXLan.objects.all(), label="IXLan (ID)")
     net__info_traffic = django_filters.MultipleChoiceFilter(choices=Traffic.choices)
     net__info_scope = django_filters.MultipleChoiceFilter(choices=Scope.choices)
     net__info_type = django_filters.MultipleChoiceFilter(choices=NetType.choices)
-    net__policy_general = django_filters.MultipleChoiceFilter(
-        choices=GeneralPolicy.choices
-    )
-    net__policy_locations = django_filters.MultipleChoiceFilter(
-        choices=LocationsPolicy.choices
-    )
-    net__policy_contracts = django_filters.MultipleChoiceFilter(
-        choices=ContractsPolicy.choices
-    )
+    net__policy_general = django_filters.MultipleChoiceFilter(choices=GeneralPolicy.choices)
+    net__policy_locations = django_filters.MultipleChoiceFilter(choices=LocationsPolicy.choices)
+    net__policy_contracts = django_filters.MultipleChoiceFilter(choices=ContractsPolicy.choices)
 
     class Meta:
         model = NetworkIXLan
@@ -237,9 +201,7 @@ class NetworkIXLanFilterSet(django_filters.FilterSet):
             "net__policy_ratio",
         ]
 
-    def search(
-        self, queryset: QuerySet, name: str, value: Any
-    ) -> QuerySet[NetworkIXLan]:
+    def search(self, queryset: QuerySet, name: str, value: Any) -> QuerySet[NetworkIXLan]:
         if not value.strip():
             return queryset
 
@@ -265,9 +227,7 @@ class OrganizationFilterSet(django_filters.FilterSet):
         model = Organization
         fields = ["id", "name"]
 
-    def search(
-        self, queryset: QuerySet, name: str, value: Any
-    ) -> QuerySet[Organization]:
+    def search(self, queryset: QuerySet, name: str, value: Any) -> QuerySet[Organization]:
         if not value.strip():
             return queryset
 

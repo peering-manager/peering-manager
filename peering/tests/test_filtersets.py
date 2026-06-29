@@ -122,24 +122,16 @@ class DirectPeeringSessionTestCase(TestCase, BaseFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-        cls.local_as = AutonomousSystem.objects.create(
-            asn=64501, name="Autonomous System 1", affiliated=True
-        )
+        cls.local_as = AutonomousSystem.objects.create(asn=64501, name="Autonomous System 1", affiliated=True)
         cls.a_s = AutonomousSystem.objects.create(asn=64502, name="Autonomous System 2")
         cls.router = Router.objects.create(
             name="Router 1",
             hostname="router1.example.net",
             local_autonomous_system=cls.local_as,
         )
-        cls.relationship_transit = Relationship.objects.create(
-            name="Transit", slug="transit"
-        )
-        relationship_private_peering = Relationship.objects.create(
-            name="Private Peering", slug="private-peering"
-        )
-        relationship_customer = Relationship.objects.create(
-            name="Customer", slug="customer"
-        )
+        cls.relationship_transit = Relationship.objects.create(name="Transit", slug="transit")
+        relationship_private_peering = Relationship.objects.create(name="Private Peering", slug="private-peering")
+        relationship_customer = Relationship.objects.create(name="Customer", slug="customer")
         cls.bfd = BFD.objects.create(
             name="Default",
             slug="default",
@@ -247,9 +239,7 @@ class InternetExchangeTestCase(TestCase, BaseFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-        cls.local_as = AutonomousSystem.objects.create(
-            asn=64501, name="Autonomous System 1", affiliated=True
-        )
+        cls.local_as = AutonomousSystem.objects.create(asn=64501, name="Autonomous System 1", affiliated=True)
         InternetExchange.objects.bulk_create(
             [
                 InternetExchange(name="Internet Exchange 1", slug="ix-1"),
@@ -288,9 +278,7 @@ class InternetExchangePeeringSessionTestCase(TestCase, BaseFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-        cls.local_as = AutonomousSystem.objects.create(
-            asn=64500, name="Autonomous System 1", affiliated=True
-        )
+        cls.local_as = AutonomousSystem.objects.create(asn=64500, name="Autonomous System 1", affiliated=True)
         cls.a_s = AutonomousSystem.objects.create(asn=64501, name="Autonomous System 1")
         cls.ixp = InternetExchange.objects.create(
             local_autonomous_system=cls.local_as,
@@ -437,9 +425,7 @@ class InternetExchangePeeringSessionTestCase(TestCase, BaseFilterSetTests):
             speed=1000,
             ixlan=IXLan.objects.create(
                 name="TestIXLan",
-                ix=Ix.objects.create(
-                    name="TestIX", org=Organization.objects.create(name="TestIXOrg")
-                ),
+                ix=Ix.objects.create(name="TestIX", org=Organization.objects.create(name="TestIXOrg")),
             ),
             net=Network.objects.create(
                 name="TestNet",
@@ -464,9 +450,7 @@ class InternetExchangePeeringSessionTestCase(TestCase, BaseFilterSetTests):
         session = InternetExchangePeeringSession.objects.first()
         ixlan = IXLan.objects.create(
             name="TestIXLan",
-            ix=Ix.objects.create(
-                name="TestIX", org=Organization.objects.create(name="TestIXOrg")
-            ),
+            ix=Ix.objects.create(name="TestIX", org=Organization.objects.create(name="TestIXOrg")),
         )
         netixlan = NetworkIXLan.objects.create(
             asn=self.local_as.asn,
@@ -510,9 +494,7 @@ class PeeringRequestTestCase(TestCase, BaseFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-        cls.local_as = AutonomousSystem.objects.create(
-            asn=64500, name="Affiliated AS", affiliated=True
-        )
+        cls.local_as = AutonomousSystem.objects.create(asn=64500, name="Affiliated AS", affiliated=True)
         PeeringRequest.objects.bulk_create(
             [
                 PeeringRequest(
@@ -547,9 +529,7 @@ class PeeringRequestTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"status": [PeeringRequestStatus.REFUSED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {
-            "status": [PeeringRequestStatus.PENDING, PeeringRequestStatus.ACCEPTED]
-        }
+        params = {"status": [PeeringRequestStatus.PENDING, PeeringRequestStatus.ACCEPTED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_request_type(self):
@@ -569,17 +549,13 @@ class RequestedSessionTestCase(TestCase, BaseFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-        cls.local_as = AutonomousSystem.objects.create(
-            asn=64500, name="Affiliated AS", affiliated=True
-        )
+        cls.local_as = AutonomousSystem.objects.create(asn=64500, name="Affiliated AS", affiliated=True)
         cls.ixp = InternetExchange.objects.create(
             local_autonomous_system=cls.local_as,
             name="Internet Exchange 1",
             slug="ix-1",
         )
-        cls.connection = Connection.objects.create(
-            vlan=2000, internet_exchange_point=cls.ixp
-        )
+        cls.connection = Connection.objects.create(vlan=2000, internet_exchange_point=cls.ixp)
         cls.peering_request = PeeringRequest.objects.create(
             requesting_asn=64501,
             local_autonomous_system=cls.local_as,
@@ -616,9 +592,7 @@ class RequestedSessionTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"status": [RequestedSessionStatus.REJECTED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {
-            "status": [RequestedSessionStatus.PENDING, RequestedSessionStatus.ACCEPTED]
-        }
+        params = {"status": [RequestedSessionStatus.PENDING, RequestedSessionStatus.ACCEPTED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_peering_request_id(self):

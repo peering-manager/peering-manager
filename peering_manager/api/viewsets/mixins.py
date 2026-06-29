@@ -39,20 +39,14 @@ class BriefModeMixin:
         return super().initialize_request(request, *args, **kwargs)
 
     def get_serializer_class(self):
-        logger = logging.getLogger(
-            f"peering_manager.api.views.{self.__class__.__name__}"
-        )
+        logger = logging.getLogger(f"peering_manager.api.views.{self.__class__.__name__}")
 
         # If using 'brief' mode, find and return the nested serializer for this model,
         # if one exists
         if self.brief:
-            logger.debug(
-                "Request is for 'brief' format; initializing nested serializer"
-            )
+            logger.debug("Request is for 'brief' format; initializing nested serializer")
             try:
-                return get_serializer_for_model(
-                    self.queryset.model, prefix=NESTED_SERIALIZER_PREFIX
-                )
+                return get_serializer_for_model(self.queryset.model, prefix=NESTED_SERIALIZER_PREFIX)
             except SerializerNotFoundError:
                 logger.debug(
                     f"Nested serializer for {self.queryset.model} not found. Using serializer {self.serializer_class}"
@@ -66,9 +60,7 @@ class BriefModeMixin:
         # If using brief mode, clear all prefetches from the queryset and append only
         # brief_prefetch_fields (if any)
         if self.brief:
-            return qs.prefetch_related(None).prefetch_related(
-                *self.brief_prefetch_fields
-            )
+            return qs.prefetch_related(None).prefetch_related(*self.brief_prefetch_fields)
 
         return qs
 
@@ -80,12 +72,8 @@ class ExportTemplatesMixin:
 
     def list(self, request, *args, **kwargs):
         if "export" in request.GET:
-            content_type = ContentType.objects.get_for_model(
-                self.get_serializer_class().Meta.model
-            )
-            et = ExportTemplate.objects.filter(
-                content_types=content_type, name=request.GET["export"]
-            ).first()
+            content_type = ContentType.objects.get_for_model(self.get_serializer_class().Meta.model)
+            et = ExportTemplate.objects.filter(content_types=content_type, name=request.GET["export"]).first()
             if et is None:
                 raise Http404
             queryset = self.filter_queryset(self.get_queryset())
@@ -189,9 +177,7 @@ class ObjectValidationMixin:
         """
         if isinstance(instance, list):
             # Check that all instances are still included in the view's queryset
-            conforming_count = self.queryset.filter(
-                pk__in=[obj.pk for obj in instance]
-            ).count()
+            conforming_count = self.queryset.filter(pk__in=[obj.pk for obj in instance]).count()
             if conforming_count != len(instance):
                 raise ObjectDoesNotExist
         elif not self.queryset.filter(pk=instance.pk).exists():

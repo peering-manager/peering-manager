@@ -28,12 +28,7 @@ class ActionsMixin:
         return [
             action
             for action in self.actions
-            if user.has_perms(
-                [
-                    get_permission_for_model(model, name)
-                    for name in self.action_perms[action]
-                ]
-            )
+            if user.has_perms([get_permission_for_model(model, name) for name in self.action_perms[action]])
         ]
 
 
@@ -49,9 +44,7 @@ class TableMixin:
 
     def _reset_columns(self, request, form):
         """Drop the current user's column preference for the table."""
-        request.user.preferences.delete(
-            f"tables.{form.table_name}.columns", commit=True
-        )
+        request.user.preferences.delete(f"tables.{form.table_name}.columns", commit=True)
         messages.success(request, "Your preferences have been updated")
 
     def _set_default_columns(self, request, form, table):
@@ -71,9 +64,7 @@ class TableMixin:
             table=form.table_name,
             defaults={
                 "columns": columns,
-                "object_type": (
-                    ContentType.objects.get_for_model(model) if model else None
-                ),
+                "object_type": (ContentType.objects.get_for_model(model) if model else None),
             },
         )
         messages.success(request, "The default columns for all users have been updated")
@@ -81,17 +72,13 @@ class TableMixin:
     def _clear_default_columns(self, request, form):
         """Remove the operator-defined default for the table, if any."""
         if not request.user.has_perm("extras.delete_tableconfig"):
-            messages.error(
-                request, "You do not have permission to clear default columns"
-            )
+            messages.error(request, "You do not have permission to clear default columns")
             return
 
         table_config = apps.get_model("extras", "TableConfig")
         deleted, _ = table_config.objects.filter(table=form.table_name).delete()
         if deleted:
-            messages.success(
-                request, "The default columns for all users have been cleared"
-            )
+            messages.success(request, "The default columns for all users have been cleared")
         else:
             messages.info(request, "There was no default to clear")
 

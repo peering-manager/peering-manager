@@ -74,13 +74,9 @@ class DirectPeeringSessionTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        local_as = AutonomousSystem.objects.create(
-            asn=64501, name="Autonomous System 1", affiliated=True
-        )
+        local_as = AutonomousSystem.objects.create(asn=64501, name="Autonomous System 1", affiliated=True)
         a_s = AutonomousSystem.objects.create(asn=64502, name="Autonomous System 2")
-        relationship_private_peering = Relationship.objects.create(
-            name="Private Peering", slug="private-peering"
-        )
+        relationship_private_peering = Relationship.objects.create(name="Private Peering", slug="private-peering")
         DirectPeeringSession.objects.bulk_create(
             [
                 DirectPeeringSession(
@@ -150,9 +146,7 @@ class DirectPeeringSessionTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         other = AutonomousSystem.objects.get(asn=64502)
         self._set_context_as(local_as)
 
-        response = self.client.get(
-            self._get_url("add"), data={"local_autonomous_system": other.pk}
-        )
+        response = self.client.get(self._get_url("add"), data={"local_autonomous_system": other.pk})
 
         self.assertEqual(
             str(other.pk),
@@ -169,9 +163,7 @@ class InternetExchangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        local_as = AutonomousSystem.objects.create(
-            asn=64501, name="Autonomous System 1", affiliated=True
-        )
+        local_as = AutonomousSystem.objects.create(asn=64501, name="Autonomous System 1", affiliated=True)
         InternetExchange.objects.bulk_create(
             [
                 InternetExchange(
@@ -211,16 +203,12 @@ class InternetExchangePeeringSessionTestCase(ViewTestCases.PrimaryObjectViewTest
 
     @classmethod
     def setUpTestData(cls):
-        local_as = AutonomousSystem.objects.create(
-            asn=64501, name="Autonomous System 1", affiliated=True
-        )
+        local_as = AutonomousSystem.objects.create(asn=64501, name="Autonomous System 1", affiliated=True)
         cls.a_s = AutonomousSystem.objects.create(asn=64502, name="Autonomous System 2")
         cls.ixp = InternetExchange.objects.create(
             name="Internet Exchange 1", slug="ix-1", local_autonomous_system=local_as
         )
-        cls.ixp_connection = Connection.objects.create(
-            vlan=2000, internet_exchange_point=cls.ixp
-        )
+        cls.ixp_connection = Connection.objects.create(vlan=2000, internet_exchange_point=cls.ixp)
         InternetExchangePeeringSession.objects.bulk_create(
             [
                 InternetExchangePeeringSession(
@@ -275,9 +263,7 @@ class PeeringRequestTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        local_as = AutonomousSystem.objects.create(
-            asn=64501, name="Autonomous System 1", affiliated=True
-        )
+        local_as = AutonomousSystem.objects.create(asn=64501, name="Autonomous System 1", affiliated=True)
         PeeringRequest.objects.bulk_create(
             [
                 PeeringRequest(

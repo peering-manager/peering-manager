@@ -15,9 +15,7 @@ class Migration(migrations.Migration):
             model_name="internetexchangepeeringsession",
             name="enabled",
         ),
-        migrations.RenameField(
-            model_name="router", old_name="device_state", new_name="status"
-        ),
+        migrations.RenameField(model_name="router", old_name="device_state", new_name="status"),
         migrations.AlterField(
             model_name="router",
             name="status",

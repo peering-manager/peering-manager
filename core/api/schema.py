@@ -119,9 +119,7 @@ class PeeringManagerAutoSchema(AutoSchema):
             if writable_class is not None:
                 if hasattr(serializer, "child"):
                     child_serializer = self.get_writable_class(serializer.child)
-                    serializer = writable_class(
-                        context=serializer.context, child=child_serializer
-                    )
+                    serializer = writable_class(context=serializer.context, child=child_serializer)
                 else:
                     serializer = writable_class(context=serializer.context)
 
@@ -145,9 +143,7 @@ class PeeringManagerAutoSchema(AutoSchema):
         serializer_name = type(serializer).__name__
         if hasattr(serializer_meta, "ref_name"):
             ref_name = serializer_meta.ref_name
-        elif serializer_name == "NestedSerializer" and isinstance(
-            serializer, serializers.ModelSerializer
-        ):
+        elif serializer_name == "NestedSerializer" and isinstance(serializer, serializers.ModelSerializer):
             ref_name = None
         else:
             ref_name = serializer_name.removesuffix("Serializer")
@@ -163,8 +159,7 @@ class PeeringManagerAutoSchema(AutoSchema):
             if "read_only" in dir(child) and child.read_only:
                 remove_fields.append(child_name)
             if isinstance(child, ChoiceField | WritableNestedSerializer) or (
-                isinstance(child, ManyRelatedField)
-                and isinstance(child.child_relation, SerializedPKRelatedField)
+                isinstance(child, ManyRelatedField) and isinstance(child.child_relation, SerializedPKRelatedField)
             ):
                 properties[child_name] = None
 
@@ -180,15 +175,11 @@ class PeeringManagerAutoSchema(AutoSchema):
                 fields = list(meta_class.fields)
                 for field in remove_fields:
                     fields.remove(field)
-                writable_meta = type(
-                    "Meta", (meta_class,), {"ref_name": ref_name, "fields": fields}
-                )
+                writable_meta = type("Meta", (meta_class,), {"ref_name": ref_name, "fields": fields})
 
                 properties["Meta"] = writable_meta
 
-            self.writable_serializers[type(serializer)] = type(
-                writable_name, (type(serializer),), properties
-            )
+            self.writable_serializers[type(serializer)] = type(writable_name, (type(serializer),), properties)
 
         return self.writable_serializers[type(serializer)]
 
@@ -205,8 +196,7 @@ class PeeringManagerAutoSchema(AutoSchema):
                     required=False,
                     type=OpenApiTypes.STR,
                     description=(
-                        "Comma-separated list of fields to include in the response. "
-                        "Example: `fields=id,name`."
+                        "Comma-separated list of fields to include in the response. Example: `fields=id,name`."
                     ),
                 ),
                 OpenApiParameter(
@@ -265,9 +255,7 @@ class PeeringManagerAutoSchema(AutoSchema):
                 content.append((media_type, schema, examples))
                 request_body_required &= partial_request_body_required
         else:
-            schema, request_body_required = self._get_request_for_media_type(
-                request_serializer, direction
-            )
+            schema, request_body_required = self._get_request_for_media_type(request_serializer, direction)
             if schema is None:
                 return None
             content = [
@@ -281,8 +269,7 @@ class PeeringManagerAutoSchema(AutoSchema):
 
         request_body = {
             "content": {
-                media_type: build_media_type_object(schema, examples)
-                for media_type, schema, examples in content
+                media_type: build_media_type_object(schema, examples) for media_type, schema, examples in content
             }
         }
         if request_body_required:
@@ -300,9 +287,7 @@ class PeeringManagerAutoSchema(AutoSchema):
 
         # When the action method is decorated with @action, use the docstring of the
         # method
-        action_or_method = getattr(
-            self.view, getattr(self.view, "action", self.method.lower()), None
-        )
+        action_or_method = getattr(self.view, getattr(self.view, "action", self.method.lower()), None)
         if action_or_method and action_or_method.__doc__:
             return get_doc(action_or_method)
 

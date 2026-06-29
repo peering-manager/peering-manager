@@ -96,15 +96,9 @@ class HousekeepingJob(JobRunner):
 
         releases = []
         for release in response.json():
-            if (
-                "tag_name" not in release
-                or release.get("devrelease")
-                or release.get("prerelease")
-            ):
+            if "tag_name" not in release or release.get("devrelease") or release.get("prerelease"):
                 continue
-            releases.append(
-                (version.parse(release["tag_name"]), release.get("html_url"))
-            )
+            releases.append((version.parse(release["tag_name"]), release.get("html_url")))
 
         if not releases:
             self.logger.info("No usable releases found")

@@ -10,19 +10,11 @@ __all__ = ("HiddenPeerFilterForm", "HidePeerForm")
 
 
 class HidePeerForm(BootstrapMixin, forms.ModelForm):
-    peeringdb_network = DynamicModelChoiceField(
-        queryset=Network.objects.all(), label="Autonomous System"
-    )
-    peeringdb_ixlan = DynamicModelChoiceField(
-        queryset=IXLan.objects.all(), label="Internet Exchange LAN"
-    )
-    until = forms.DateTimeField(
-        required=False, label="Hide until", widget=DateTimePicker()
-    )
+    peeringdb_network = DynamicModelChoiceField(queryset=Network.objects.all(), label="Autonomous System")
+    peeringdb_ixlan = DynamicModelChoiceField(queryset=IXLan.objects.all(), label="Internet Exchange LAN")
+    until = forms.DateTimeField(required=False, label="Hide until", widget=DateTimePicker())
     comments = CommentField()
-    fieldsets = (
-        ("Peer to hide", ("peeringdb_network", "peeringdb_ixlan", "until", "comments")),
-    )
+    fieldsets = (("Peer to hide", ("peeringdb_network", "peeringdb_ixlan", "until", "comments")),)
 
     class Meta:
         model = HiddenPeer
@@ -32,12 +24,8 @@ class HidePeerForm(BootstrapMixin, forms.ModelForm):
 class HiddenPeerFilterForm(BootstrapMixin, forms.Form):
     model = HiddenPeer
     q = forms.CharField(required=False, label="Search")
-    peeringdb_network = DynamicModelChoiceField(
-        required=False, queryset=Network.objects.all(), label="AS"
-    )
-    peeringdb_ixlan = DynamicModelChoiceField(
-        required=False, queryset=IXLan.objects.all(), label="IXP LAN"
-    )
+    peeringdb_network = DynamicModelChoiceField(required=False, queryset=Network.objects.all(), label="AS")
+    peeringdb_ixlan = DynamicModelChoiceField(required=False, queryset=IXLan.objects.all(), label="IXP LAN")
     is_expired = forms.NullBooleanField(
         required=False,
         widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),

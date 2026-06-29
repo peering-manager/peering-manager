@@ -87,9 +87,7 @@ class WebhookTest(APITestCase):
         self.assertEqual(job.kwargs["data"]["id"], response.data["id"])
         self.assertEqual(len(job.kwargs["data"]["tags"]), len(response.data["tags"]))
         self.assertEqual(job.kwargs["snapshots"]["postchange"]["name"], "AS 1")
-        self.assertEqual(
-            sorted(job.kwargs["snapshots"]["postchange"]["tags"]), ["Bar", "Foo"]
-        )
+        self.assertEqual(sorted(job.kwargs["snapshots"]["postchange"]["tags"]), ["Bar", "Foo"])
 
     def test_enqueue_webhook_bulk_create(self):
         # Create multiple objects via the REST API
@@ -107,21 +105,13 @@ class WebhookTest(APITestCase):
         # Verify that a webhook was queued for each object
         self.assertEqual(self.queue.count, 3)
         for i, job in enumerate(self.queue.jobs):
-            self.assertEqual(
-                job.kwargs["webhook"], Webhook.objects.get(type_create=True)
-            )
+            self.assertEqual(job.kwargs["webhook"], Webhook.objects.get(type_create=True))
             self.assertEqual(job.kwargs["event"], ObjectChangeAction.CREATE)
             self.assertEqual(job.kwargs["model_name"], "autonomoussystem")
             self.assertEqual(job.kwargs["data"]["id"], response.data[i]["id"])
-            self.assertEqual(
-                len(job.kwargs["data"]["tags"]), len(response.data[i]["tags"])
-            )
-            self.assertEqual(
-                job.kwargs["snapshots"]["postchange"]["name"], response.data[i]["name"]
-            )
-            self.assertEqual(
-                sorted(job.kwargs["snapshots"]["postchange"]["tags"]), ["Bar", "Foo"]
-            )
+            self.assertEqual(len(job.kwargs["data"]["tags"]), len(response.data[i]["tags"]))
+            self.assertEqual(job.kwargs["snapshots"]["postchange"]["name"], response.data[i]["name"])
+            self.assertEqual(sorted(job.kwargs["snapshots"]["postchange"]["tags"]), ["Bar", "Foo"])
 
     def test_enqueue_webhook_update(self):
         asn = AutonomousSystem.objects.create(asn=64500, name="AS 1")
@@ -146,9 +136,7 @@ class WebhookTest(APITestCase):
         self.assertEqual(job.kwargs["data"]["id"], asn.pk)
         self.assertEqual(len(job.kwargs["data"]["tags"]), len(response.data["tags"]))
         self.assertEqual(job.kwargs["snapshots"]["prechange"]["name"], "AS 1")
-        self.assertEqual(
-            sorted(job.kwargs["snapshots"]["prechange"]["tags"]), ["Bar", "Foo"]
-        )
+        self.assertEqual(sorted(job.kwargs["snapshots"]["prechange"]["tags"]), ["Bar", "Foo"])
         self.assertEqual(job.kwargs["snapshots"]["postchange"]["name"], "My AS")
         self.assertEqual(sorted(job.kwargs["snapshots"]["postchange"]["tags"]), ["Baz"])
 
@@ -175,25 +163,15 @@ class WebhookTest(APITestCase):
         # Verify that a job was queued for the object update webhook
         self.assertEqual(self.queue.count, 3)
         for i, job in enumerate(self.queue.jobs):
-            self.assertEqual(
-                job.kwargs["webhook"], Webhook.objects.get(type_update=True)
-            )
+            self.assertEqual(job.kwargs["webhook"], Webhook.objects.get(type_update=True))
             self.assertEqual(job.kwargs["event"], ObjectChangeAction.UPDATE)
             self.assertEqual(job.kwargs["model_name"], "autonomoussystem")
             self.assertEqual(job.kwargs["data"]["id"], data[i]["id"])
-            self.assertEqual(
-                len(job.kwargs["data"]["tags"]), len(response.data[i]["tags"])
-            )
+            self.assertEqual(len(job.kwargs["data"]["tags"]), len(response.data[i]["tags"]))
             self.assertEqual(job.kwargs["snapshots"]["prechange"]["name"], asns[i].name)
-            self.assertEqual(
-                sorted(job.kwargs["snapshots"]["prechange"]["tags"]), ["Bar", "Foo"]
-            )
-            self.assertEqual(
-                job.kwargs["snapshots"]["postchange"]["name"], response.data[i]["name"]
-            )
-            self.assertEqual(
-                sorted(job.kwargs["snapshots"]["postchange"]["tags"]), ["Baz"]
-            )
+            self.assertEqual(sorted(job.kwargs["snapshots"]["prechange"]["tags"]), ["Bar", "Foo"])
+            self.assertEqual(job.kwargs["snapshots"]["postchange"]["name"], response.data[i]["name"])
+            self.assertEqual(sorted(job.kwargs["snapshots"]["postchange"]["tags"]), ["Baz"])
 
     def test_enqueue_webhook_delete(self):
         asn = AutonomousSystem.objects.create(asn=64500, name="AS 1")
@@ -212,9 +190,7 @@ class WebhookTest(APITestCase):
         self.assertEqual(job.kwargs["model_name"], "autonomoussystem")
         self.assertEqual(job.kwargs["data"]["id"], asn.pk)
         self.assertEqual(job.kwargs["snapshots"]["prechange"]["name"], "AS 1")
-        self.assertEqual(
-            sorted(job.kwargs["snapshots"]["prechange"]["tags"]), ["Bar", "Foo"]
-        )
+        self.assertEqual(sorted(job.kwargs["snapshots"]["prechange"]["tags"]), ["Bar", "Foo"])
 
     def test_enqueue_webhook_bulk_delete(self):
         asns = (
@@ -235,16 +211,12 @@ class WebhookTest(APITestCase):
         # Verify that a job was queued for the object update webhook
         self.assertEqual(self.queue.count, 3)
         for i, job in enumerate(self.queue.jobs):
-            self.assertEqual(
-                job.kwargs["webhook"], Webhook.objects.get(type_delete=True)
-            )
+            self.assertEqual(job.kwargs["webhook"], Webhook.objects.get(type_delete=True))
             self.assertEqual(job.kwargs["event"], ObjectChangeAction.DELETE)
             self.assertEqual(job.kwargs["model_name"], "autonomoussystem")
             self.assertEqual(job.kwargs["data"]["id"], asns[i].pk)
             self.assertEqual(job.kwargs["snapshots"]["prechange"]["name"], asns[i].name)
-            self.assertEqual(
-                sorted(job.kwargs["snapshots"]["prechange"]["tags"]), ["Bar", "Foo"]
-            )
+            self.assertEqual(sorted(job.kwargs["snapshots"]["prechange"]["tags"]), ["Bar", "Foo"])
 
     def test_worker(self):
         request_id = uuid.uuid4()

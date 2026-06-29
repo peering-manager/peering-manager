@@ -51,9 +51,7 @@ class IRRASSetFunctions(TestCase):
             parse_irr_as_set(asn=65535, irr_as_set="AS65535:AS-MEMBERS"),
         )
         self.assertEqual([("", "AS65535")], parse_irr_as_set(asn=65535, irr_as_set=""))
-        self.assertEqual(
-            [("", "AS65535")], parse_irr_as_set(asn=65535, irr_as_set=None)
-        )
+        self.assertEqual([("", "AS65535")], parse_irr_as_set(asn=65535, irr_as_set=None))
 
     @override_settings(BGPQ3_PATH="/bin/bgpq4")
     @override_settings(BGPQ4_KEEP_SOURCE_IN_SET=True)
@@ -71,6 +69,4 @@ class IRRASSetFunctions(TestCase):
             parse_irr_as_set(asn=65535, irr_as_set="AS65535:AS-MEMBERS"),
         )
         self.assertEqual([("", "AS65535")], parse_irr_as_set(asn=65535, irr_as_set=""))
-        self.assertEqual(
-            [("", "AS65535")], parse_irr_as_set(asn=65535, irr_as_set=None)
-        )
+        self.assertEqual([("", "AS65535")], parse_irr_as_set(asn=65535, irr_as_set=None))

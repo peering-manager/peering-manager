@@ -31,18 +31,12 @@ class NetworkIXLanTable(BaseTable):
     """
     pk = SelectColumn()
     name = tables.Column(verbose_name="AS Name", accessor="net__name")
-    internet_exchange = tables.Column(
-        verbose_name="IX Name", accessor="ixlan__ix__name"
-    )
+    internet_exchange = tables.Column(verbose_name="IX Name", accessor="ixlan__ix__name")
     ipaddr6 = tables.Column("IPv6", accessor="ipaddr6")
     ipaddr4 = tables.Column("IPv4", accessor="ipaddr4")
     irr_as_set = tables.Column(verbose_name="IRR AS-SET", accessor="net__irr_as_set")
-    ipv6_max_prefix = tables.Column(
-        verbose_name="IPv6 Max Prefix", accessor="net__info_prefixes6"
-    )
-    ipv4_max_prefix = tables.Column(
-        verbose_name="IPv4 Max Prefix", accessor="net__info_prefixes4"
-    )
+    ipv6_max_prefix = tables.Column(verbose_name="IPv6 Max Prefix", accessor="net__info_prefixes6")
+    ipv4_max_prefix = tables.Column(verbose_name="IPv4 Max Prefix", accessor="net__info_prefixes4")
     is_rs_peer = BooleanColumn(
         verbose_name="On RS",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
@@ -64,12 +58,8 @@ class NetworkIXLanTable(BaseTable):
         accessor="net__policy_locations",
         attrs={"td": {"class": "text-center"}, "th": {"class": "text-center"}},
     )
-    policy_ratio = BooleanColumn(
-        verbose_name="Ratio Requirement", accessor="net__policy_ratio"
-    )
-    policy_contracts = tables.Column(
-        verbose_name="Contract Requirement", accessor="net__policy_contracts"
-    )
+    policy_ratio = BooleanColumn(verbose_name="Ratio Requirement", accessor="net__policy_ratio")
+    policy_contracts = tables.Column(verbose_name="Contract Requirement", accessor="net__policy_contracts")
     net_side = tables.Column(verbose_name="Net Side")
     ix_side = tables.Column(verbose_name="IX Side")
     notes = tables.Column(verbose_name="Notes")

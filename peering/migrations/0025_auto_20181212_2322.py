@@ -26,9 +26,7 @@ class Migration(migrations.Migration):
         db_alias = schema_editor.connection.alias
         for key, value in models.items():
             model = apps.get_model("peering", key)
-            model.objects.using(db_alias).filter(**value["filters"]).update(
-                **value["updates"]
-            )
+            model.objects.using(db_alias).filter(**value["filters"]).update(**value["updates"])
 
     def reverse_func(apps, schema_editor):
         models = {
@@ -53,9 +51,7 @@ class Migration(migrations.Migration):
         for key, value in models:
             model = apps.get_model("peering", key)
             for field in value:
-                model.objects.using(db_alias).filter(**value["filters"]).update(
-                    **value["updates"]
-                )
+                model.objects.using(db_alias).filter(**value["filters"]).update(**value["updates"])
 
     dependencies = [("peering", "0024_auto_20181212_2106")]
 

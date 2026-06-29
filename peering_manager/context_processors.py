@@ -15,15 +15,11 @@ if TYPE_CHECKING:
 def affiliated_autonomous_systems(request: HttpRequest) -> dict[str, Any]:
     if request.user.is_authenticated:
         try:
-            context_as = AutonomousSystem.objects.get(
-                pk=request.user.preferences.get("context.as")
-            )
+            context_as = AutonomousSystem.objects.get(pk=request.user.preferences.get("context.as"))
         except AutonomousSystem.DoesNotExist:
             context_as = None
         return {
-            "affiliated_autonomous_systems": AutonomousSystem.objects.filter(
-                affiliated=True
-            ),
+            "affiliated_autonomous_systems": AutonomousSystem.objects.filter(affiliated=True),
             "context_as": context_as,
         }
     return {}

@@ -29,9 +29,7 @@ class HiddenPeerFilterSet(django_filters.FilterSet):
     peeringdb_ixlan_id = django_filters.ModelMultipleChoiceFilter(
         queryset=IXLan.objects.all(), label="PeeringDB IXLAN (ID)"
     )
-    is_expired = django_filters.BooleanFilter(
-        method="is_expired_search", label="Expired"
-    )
+    is_expired = django_filters.BooleanFilter(method="is_expired_search", label="Expired")
 
     class Meta:
         model = HiddenPeer
@@ -51,9 +49,7 @@ class HiddenPeerFilterSet(django_filters.FilterSet):
 
         return queryset.filter(qs_filter)
 
-    def is_expired_search(
-        self, queryset: QuerySet, name: str, value: Any
-    ) -> QuerySet[HiddenPeer]:
+    def is_expired_search(self, queryset: QuerySet, name: str, value: Any) -> QuerySet[HiddenPeer]:
         """
         Annotate queryset with an `is_expired` boolean and filter by it.
         """

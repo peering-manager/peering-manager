@@ -67,9 +67,7 @@ class ChangeLoggingMixin(models.Model):
         if hasattr(self, "_prechange_snapshot"):
             object_change.prechange_data = self._prechange_snapshot
         if action in (ObjectChangeAction.CREATE, ObjectChangeAction.UPDATE):
-            object_change.postchange_data = serialize_object(
-                self, exclude=self.excluded_fields
-            )
+            object_change.postchange_data = serialize_object(self, exclude=self.excluded_fields)
 
         return object_change
 
@@ -93,11 +91,7 @@ class ConfigContextMixin(models.Model):
 
         # Verify that JSON data is provided as an object
         if self.local_context_data and not isinstance(self.local_context_data, dict):
-            raise ValidationError(
-                {
-                    "local_context_data": 'JSON data must be in object form. Example: {"foo": 123}'
-                }
-            )
+            raise ValidationError({"local_context_data": 'JSON data must be in object form. Example: {"foo": 123}'})
 
     def get_config_context(self):
         """
@@ -120,9 +114,7 @@ class ConfigContextMixin(models.Model):
         if not rendered:
             return self.local_context_data
 
-        return merge_hash(
-            rendered, self.local_context_data, **settings.CONFIG_CONTEXT_MERGE_STRATEGY
-        )
+        return merge_hash(rendered, self.local_context_data, **settings.CONFIG_CONTEXT_MERGE_STRATEGY)
 
 
 class ExportTemplatesMixin(models.Model):
@@ -228,9 +220,7 @@ class PushedDataMixin(models.Model):
 
         if self.data_source and self.data_path:
             try:
-                return DataFile.objects.get(
-                    source=self.data_source, path=self.data_path
-                )
+                return DataFile.objects.get(source=self.data_source, path=self.data_path)
             except DataFile.DoesNotExist:
                 pass
         return None
@@ -346,9 +336,7 @@ class SynchronisedDataMixin(models.Model):
 
         if self.data_source and self.data_path:
             try:
-                return DataFile.objects.get(
-                    source=self.data_source, path=self.data_path
-                )
+                return DataFile.objects.get(source=self.data_source, path=self.data_path)
             except DataFile.DoesNotExist:
                 pass
 

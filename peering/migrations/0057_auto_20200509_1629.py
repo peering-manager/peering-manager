@@ -12,9 +12,7 @@ class Migration(migrations.Migration):
             name="bgpgroup",
             options={"ordering": ["name", "slug"], "verbose_name": "BGP group"},
         ),
-        migrations.AlterModelOptions(
-            name="internetexchange", options={"ordering": ["name", "slug"]}
-        ),
+        migrations.AlterModelOptions(name="internetexchange", options={"ordering": ["name", "slug"]}),
         migrations.AddField(
             model_name="router",
             name="napalm_args",

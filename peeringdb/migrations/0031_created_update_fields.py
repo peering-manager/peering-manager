@@ -12,235 +12,131 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="campus",
             name="created",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="campus",
             name="updated",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="carrier",
             name="created",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="carrier",
             name="updated",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="carrierfacility",
             name="created",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="carrierfacility",
             name="updated",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="facility",
             name="created",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="facility",
             name="updated",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="internetexchange",
             name="created",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="internetexchange",
             name="updated",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="internetexchangefacility",
             name="created",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="internetexchangefacility",
             name="updated",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="ixlan",
             name="created",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="ixlan",
             name="updated",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="ixlanprefix",
             name="created",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="ixlanprefix",
             name="updated",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="network",
             name="created",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="network",
             name="updated",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="networkcontact",
             name="created",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="networkcontact",
             name="updated",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="networkfacility",
             name="created",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="networkfacility",
             name="updated",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="networkixlan",
             name="created",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="networkixlan",
             name="updated",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="organization",
             name="created",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
         migrations.AddField(
             model_name="organization",
             name="updated",
-            field=models.DateTimeField(
-                default=datetime.datetime(
-                    1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
-                )
-            ),
+            field=models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         ),
     ]

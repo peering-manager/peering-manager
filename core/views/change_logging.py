@@ -17,9 +17,7 @@ __all__ = ("ObjectChangeList", "ObjectChangeView")
 @register_model_view(ObjectChange, name="list", path="", detail=False)
 class ObjectChangeList(ObjectListView):
     permission_required = "core.view_objectchange"
-    queryset = ObjectChange.objects.select_related("user").prefetch_related(
-        "changed_object"
-    )
+    queryset = ObjectChange.objects.select_related("user").prefetch_related("changed_object")
     filterset = ObjectChangeFilterSet
     filterset_form = ObjectChangeFilterForm
     table = ObjectChangeTable
@@ -33,29 +31,20 @@ class ObjectChangeView(PermissionRequiredMixin, View):
     def get(self, request, pk):
         instance = get_object_or_404(ObjectChange, pk=pk)
 
-        related_changes = ObjectChange.objects.filter(
-            request_id=instance.request_id
-        ).exclude(pk=instance.pk)
-        related_changes_table = ObjectChangeTable(
-            data=related_changes[:50], orderable=False
-        )
+        related_changes = ObjectChange.objects.filter(request_id=instance.request_id).exclude(pk=instance.pk)
+        related_changes_table = ObjectChangeTable(data=related_changes[:50], orderable=False)
 
         object_changes = ObjectChange.objects.filter(
             changed_object_type=instance.changed_object_type,
             changed_object_id=instance.changed_object_id,
         )
 
-        next_change = (
-            object_changes.filter(time__gt=instance.time).order_by("time").first()
-        )
-        previous_change = (
-            object_changes.filter(time__lt=instance.time).order_by("-time").first()
-        )
+        next_change = object_changes.filter(time__gt=instance.time).order_by("time").first()
+        previous_change = object_changes.filter(time__lt=instance.time).order_by("-time").first()
 
         if (
             not instance.prechange_data
-            and instance.action
-            in [ObjectChangeAction.UPDATE, ObjectChangeAction.DELETE]
+            and instance.action in [ObjectChangeAction.UPDATE, ObjectChangeAction.DELETE]
             and previous_change
         ):
             non_atomic_change = True
@@ -70,9 +59,7 @@ class ObjectChangeView(PermissionRequiredMixin, View):
                 instance.postchange_data or {},
                 exclude=["updated"],
             )
-            diff_removed = (
-                {x: prechange_data.get(x) for x in diff_added} if prechange_data else {}
-            )
+            diff_removed = {x: prechange_data.get(x) for x in diff_added} if prechange_data else {}
         else:
             diff_added = None
             diff_removed = None

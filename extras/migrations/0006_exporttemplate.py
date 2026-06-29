@@ -37,15 +37,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "jinja2_trim",
-                    models.BooleanField(
-                        default=False, help_text="Removes new line after tag"
-                    ),
+                    models.BooleanField(default=False, help_text="Removes new line after tag"),
                 ),
                 (
                     "jinja2_lstrip",
-                    models.BooleanField(
-                        default=False, help_text="Strips whitespaces before block"
-                    ),
+                    models.BooleanField(default=False, help_text="Strips whitespaces before block"),
                 ),
                 (
                     "content_type",
@@ -60,8 +56,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name="exporttemplate",
-            constraint=models.UniqueConstraint(
-                fields=("content_type", "name"), name="contenttype_per_name"
-            ),
+            constraint=models.UniqueConstraint(fields=("content_type", "name"), name="contenttype_per_name"),
         ),
     ]

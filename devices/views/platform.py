@@ -19,9 +19,7 @@ __all__ = ("PlatformBulkDelete", "PlatformDelete", "PlatformEdit", "PlatformList
 @register_model_view(model=Platform, name="list", path="", detail=False)
 class PlatformList(ObjectListView):
     permission_required = "devices.view_platform"
-    queryset = Platform.objects.annotate(
-        router_count=Count("router", distinct=True)
-    ).order_by("name")
+    queryset = Platform.objects.annotate(router_count=Count("router", distinct=True)).order_by("name")
     table = PlatformTable
     template_name = "devices/platform/list.html"
 

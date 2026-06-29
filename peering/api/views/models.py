@@ -69,9 +69,9 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
     @action(detail=True, methods=["post"], url_path="poll-bgp-sessions")
     def poll_bgp_sessions(self, request, pk=None):
         # Check user permission first
-        if not request.user.has_perm(
-            "peering.change_directpeeringsession"
-        ) or not request.user.has_perm("peering.change_internetexchangepeeringsession"):
+        if not request.user.has_perm("peering.change_directpeeringsession") or not request.user.has_perm(
+            "peering.change_internetexchangepeeringsession"
+        ):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         jobs = []
@@ -105,9 +105,7 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
                 response=OpenApiTypes.NONE,
                 description="The user does not have the permission update the AS.",
             ),
-            404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT, description="The AS does not exist."
-            ),
+            404: OpenApiResponse(response=OpenApiTypes.OBJECT, description="The AS does not exist."),
         },
     )
     @action(detail=True, methods=["post"], url_path="sync-with-peeringdb")
@@ -117,9 +115,7 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         success = self.get_object().synchronise_with_peeringdb()
-        return Response(
-            status=status.HTTP_200_OK if success else status.HTTP_204_NO_CONTENT
-        )
+        return Response(status=status.HTTP_200_OK if success else status.HTTP_204_NO_CONTENT)
 
     @extend_schema(
         operation_id="peering_autonomous_systems_as_set_prefixes",
@@ -128,9 +124,7 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
                 response=OpenApiTypes.OBJECT,
                 description="Retrieves the prefix list for the AS.",
             ),
-            404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT, description="The AS does not exist."
-            ),
+            404: OpenApiResponse(response=OpenApiTypes.OBJECT, description="The AS does not exist."),
         },
     )
     @action(detail=True, methods=["get"], url_path="as-set-prefixes")
@@ -144,9 +138,7 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
                 response=NestedInternetExchangeSerializer(many=True),
                 description="Retrieves the shared IXPs with the AS.",
             ),
-            404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT, description="The AS does not exist."
-            ),
+            404: OpenApiResponse(response=OpenApiTypes.OBJECT, description="The AS does not exist."),
             503: OpenApiResponse(
                 response=OpenApiTypes.OBJECT,
                 description="The user has no affiliated AS.",
@@ -174,9 +166,7 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
                 response=NestedInternetExchangeSerializer(many=True),
                 description="Retrieves the shared facilities with the AS.",
             ),
-            404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT, description="The AS does not exist."
-            ),
+            404: OpenApiResponse(response=OpenApiTypes.OBJECT, description="The AS does not exist."),
             503: OpenApiResponse(
                 response=OpenApiTypes.OBJECT,
                 description="The user has no affiliated AS.",
@@ -201,9 +191,7 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
     @extend_schema(
         operation_id="peering_autonomous_systems_render_email",
         responses={
-            200: OpenApiResponse(
-                response=OpenApiTypes.OBJECT, description="Renders the e-mail template."
-            ),
+            200: OpenApiResponse(response=OpenApiTypes.OBJECT, description="Renders the e-mail template."),
             404: OpenApiResponse(
                 response=OpenApiTypes.NONE,
                 description="The AS or e-mail template does not exist.",
@@ -302,11 +290,7 @@ class DirectPeeringSessionViewSet(PeeringManagerModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         success = self.get_object().encrypt_password(commit=True)
-        return Response(
-            status=(
-                status.HTTP_200_OK if success else status.HTTP_503_SERVICE_UNAVAILABLE
-            )
-        )
+        return Response(status=(status.HTTP_200_OK if success else status.HTTP_503_SERVICE_UNAVAILABLE))
 
     @extend_schema(
         operation_id="peering_direct_peering_sessions_poll",
@@ -336,11 +320,7 @@ class DirectPeeringSessionViewSet(PeeringManagerModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         success = self.get_object().poll()
-        return Response(
-            status=(
-                status.HTTP_200_OK if success else status.HTTP_503_SERVICE_UNAVAILABLE
-            )
-        )
+        return Response(status=(status.HTTP_200_OK if success else status.HTTP_503_SERVICE_UNAVAILABLE))
 
 
 class InternetExchangeViewSet(PeeringManagerModelViewSet):
@@ -359,9 +339,7 @@ class InternetExchangeViewSet(PeeringManagerModelViewSet):
                 response=OpenApiTypes.NONE,
                 description="The user does not have the permission to update the IXP.",
             ),
-            404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT, description="The IXP does not exist."
-            ),
+            404: OpenApiResponse(response=OpenApiTypes.OBJECT, description="The IXP does not exist."),
             503: OpenApiResponse(
                 response=OpenApiTypes.NONE,
                 description="The IXP is not linked with a PeeringDB record.",
@@ -375,13 +353,7 @@ class InternetExchangeViewSet(PeeringManagerModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         ixlan = self.get_object().link_to_peeringdb()
-        return Response(
-            status=(
-                status.HTTP_200_OK
-                if ixlan is not None
-                else status.HTTP_503_SERVICE_UNAVAILABLE
-            )
-        )
+        return Response(status=(status.HTTP_200_OK if ixlan is not None else status.HTTP_503_SERVICE_UNAVAILABLE))
 
     @extend_schema(
         operation_id="peering_internet_exchange_available_peers",
@@ -390,9 +362,7 @@ class InternetExchangeViewSet(PeeringManagerModelViewSet):
                 response=NetworkIXLanSerializer(many=True),
                 description="The PeeringDB records of available peers.",
             ),
-            404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT, description="The IXP does not exist."
-            ),
+            404: OpenApiResponse(response=OpenApiTypes.OBJECT, description="The IXP does not exist."),
         },
     )
     @action(detail=True, methods=["get"], url_path="available-peers")
@@ -416,9 +386,7 @@ class InternetExchangeViewSet(PeeringManagerModelViewSet):
                 response=OpenApiTypes.NONE,
                 description="The user does not have the permission to update the IXP sessions.",
             ),
-            404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT, description="The IXP does not exist."
-            ),
+            404: OpenApiResponse(response=OpenApiTypes.OBJECT, description="The IXP does not exist."),
         },
     )
     @action(detail=True, methods=["post"], url_path="import-sessions")
@@ -449,9 +417,7 @@ class InternetExchangeViewSet(PeeringManagerModelViewSet):
                 response=OpenApiTypes.OBJECT,
                 description="The prefixes attached to the IXP sorted by address family.",
             ),
-            404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT, description="The IXP does not exist."
-            ),
+            404: OpenApiResponse(response=OpenApiTypes.OBJECT, description="The IXP does not exist."),
         },
     )
     @action(detail=True, methods=["get"], url_path="prefixes")
@@ -540,11 +506,7 @@ class InternetExchangePeeringSessionViewSet(PeeringManagerModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         success = self.get_object().encrypt_password(commit=True)
-        return Response(
-            status=(
-                status.HTTP_200_OK if success else status.HTTP_503_SERVICE_UNAVAILABLE
-            )
-        )
+        return Response(status=(status.HTTP_200_OK if success else status.HTTP_503_SERVICE_UNAVAILABLE))
 
     @extend_schema(
         operation_id="peering_internet_exchange_peering_sessions_poll",
@@ -574,11 +536,7 @@ class InternetExchangePeeringSessionViewSet(PeeringManagerModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         success = self.get_object().poll()
-        return Response(
-            status=(
-                status.HTTP_200_OK if success else status.HTTP_503_SERVICE_UNAVAILABLE
-            )
-        )
+        return Response(status=(status.HTTP_200_OK if success else status.HTTP_503_SERVICE_UNAVAILABLE))
 
 
 class PeeringRequestViewSet(PeeringManagerModelViewSet):
@@ -589,9 +547,7 @@ class PeeringRequestViewSet(PeeringManagerModelViewSet):
     @extend_schema(
         operation_id="peering_peering_requests_accept",
         responses={
-            200: OpenApiResponse(
-                description="Acceptance result with per-session outcomes"
-            ),
+            200: OpenApiResponse(description="Acceptance result with per-session outcomes"),
             400: OpenApiResponse(description="Cannot accept (wrong status)"),
         },
     )
@@ -647,9 +603,7 @@ class RequestedSessionViewSet(PeeringManagerModelViewSet):
         operation_id="peering_requested_sessions_accept",
         responses={
             200: OpenApiResponse(description="Session accepted"),
-            400: OpenApiResponse(
-                description="Cannot accept (wrong status or validation failure)"
-            ),
+            400: OpenApiResponse(description="Cannot accept (wrong status or validation failure)"),
         },
     )
     @action(detail=True, methods=["post"])

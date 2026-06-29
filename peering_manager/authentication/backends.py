@@ -59,13 +59,9 @@ def get_saml_idps():
 def resolve_permission(name):
     try:
         app_label, codename = name.split(".")
-        return Permission.objects.get(
-            content_type__app_label=app_label, codename=codename
-        )
+        return Permission.objects.get(content_type__app_label=app_label, codename=codename)
     except (ValueError, Permission.DoesNotExist) as e:
-        raise ValueError(
-            f"Invalid permission name: {name}. Must be in the format <app_label>.<action>_<model>"
-        ) from e
+        raise ValueError(f"Invalid permission name: {name}. Must be in the format <app_label>.<action>_<model>") from e
 
 
 class ModelBackend(DjangoModelBackend):
@@ -119,9 +115,7 @@ class RemoteUserBackend(DjangoRemoteUserBackend):
                 if settings.REMOTE_AUTH_AUTO_CREATE_GROUPS:
                     groups.append(Group.objects.create(name=name))
                 else:
-                    logging.error(
-                        f"could not assign group '{name}' to remote user '{user}': group not found"
-                    )
+                    logging.error(f"could not assign group '{name}' to remote user '{user}': group not found")
 
         if groups:
             user.groups.set(groups)
@@ -146,9 +140,7 @@ class RemoteUserBackend(DjangoRemoteUserBackend):
                 try:
                     groups.append(Group.objects.get(name=name))
                 except Group.DoesNotExist:
-                    logger.debug(
-                        f"cannot assign group '{name}' to remote user {user}: group not found"
-                    )
+                    logger.debug(f"cannot assign group '{name}' to remote user {user}: group not found")
 
             if groups:
                 user.groups.add(*groups)
@@ -174,9 +166,7 @@ class RemoteUserBackend(DjangoRemoteUserBackend):
         return user
 
     def authenticate(self, request, remote_user, remote_groups=None):
-        logger.debug(
-            f"trying to authenticate '{remote_user}' with groups '{remote_groups}'"
-        )
+        logger.debug(f"trying to authenticate '{remote_user}' with groups '{remote_groups}'")
         if not remote_user:
             return None
 
@@ -184,9 +174,7 @@ class RemoteUserBackend(DjangoRemoteUserBackend):
         username = self.clean_username(remote_user)
 
         if self.create_unknown_user:
-            user, created = User._default_manager.get_or_create(
-                **{User.USERNAME_FIELD: username}
-            )
+            user, created = User._default_manager.get_or_create(**{User.USERNAME_FIELD: username})
             if created:
                 user = self.configure_user(request, user)
         else:
@@ -194,11 +182,7 @@ class RemoteUserBackend(DjangoRemoteUserBackend):
                 user = User._default_manager.get_by_natural_key(username)
 
         if self.user_can_authenticate(user):
-            if (
-                settings.REMOTE_AUTH_GROUP_SYNC_ENABLED
-                and user is not None
-                and not isinstance(user, AnonymousUser)
-            ):
+            if settings.REMOTE_AUTH_GROUP_SYNC_ENABLED and user is not None and not isinstance(user, AnonymousUser):
                 return self.configure_groups(user, remote_groups)
             return user
 
@@ -228,9 +212,7 @@ class LDAPBackend:
             raise e
 
         if not hasattr(ldap_config, "AUTH_LDAP_SERVER_URI"):
-            raise ImproperlyConfigured(
-                "Required parameter AUTH_LDAP_SERVER_URI is missing from ldap_config.py."
-            )
+            raise ImproperlyConfigured("Required parameter AUTH_LDAP_SERVER_URI is missing from ldap_config.py.")
 
         obj = _LDAPBackend()
 
@@ -262,9 +244,7 @@ def _get_radius_backend(backend_name: str):
         from .radius import RADIUSRealmBackend as _RADIUSRealmBackend
     except ModuleNotFoundError as e:
         if e.name == "pyrad":
-            raise ImproperlyConfigured(
-                "RADIUS authentication has been configured, but pyrad is not installed."
-            ) from e
+            raise ImproperlyConfigured("RADIUS authentication has been configured, but pyrad is not installed.") from e
         raise e
 
     try:
@@ -279,9 +259,7 @@ def _get_radius_backend(backend_name: str):
     required = ["RADIUS_SERVER", "RADIUS_PORT", "RADIUS_SECRET"]
     for param in required:
         if not hasattr(radius_config, param):
-            raise ImproperlyConfigured(
-                f"Required parameter {param} is missing from radius_config.py."
-            )
+            raise ImproperlyConfigured(f"Required parameter {param} is missing from radius_config.py.")
 
     backend_parameters = {
         "radius_server": radius_config.RADIUS_SERVER,

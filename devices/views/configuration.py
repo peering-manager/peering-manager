@@ -56,9 +56,7 @@ class ConfigurationDelete(ObjectDeleteView):
     queryset = Configuration.objects.all()
 
 
-@register_model_view(
-    model=Configuration, name="bulk_delete", path="delete", detail=False
-)
+@register_model_view(model=Configuration, name="bulk_delete", path="delete", detail=False)
 class ConfigurationBulkDelete(BulkDeleteView):
     queryset = Configuration.objects.all()
     filterset = ConfigurationFilterSet

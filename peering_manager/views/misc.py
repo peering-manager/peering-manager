@@ -53,9 +53,7 @@ class HomeView(View):
 
         context = {
             "statistics": statistics,
-            "changelog": ObjectChange.objects.select_related(
-                "user", "changed_object_type"
-            )[:15],
+            "changelog": ObjectChange.objects.select_related("user", "changed_object_type")[:15],
             "synchronisations": Synchronisation.objects.all()[:5],
             "new_release": new_release,
         }
@@ -75,9 +73,7 @@ class SearchView(View):
                 url = SEARCH_TYPES[obj_type]["url"]
 
                 # Construct the results table for this object type
-                filtered_queryset = filterset(
-                    {"q": form.cleaned_data["q"]}, queryset=queryset
-                ).qs
+                filtered_queryset = filterset({"q": form.cleaned_data["q"]}, queryset=queryset).qs
                 table = table(filtered_queryset, orderable=False, no_actions=True)
                 table.paginate(per_page=SEARCH_MAX_RESULTS)
 

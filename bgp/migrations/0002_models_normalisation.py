@@ -8,9 +8,7 @@ class Migration(migrations.Migration):
     dependencies = [("extras", "0010_migrate_tags"), ("bgp", "0001_initial")]
 
     operations = [
-        migrations.AlterModelOptions(
-            name="relationship", options={"ordering": ("name",)}
-        ),
+        migrations.AlterModelOptions(name="relationship", options={"ordering": ("name",)}),
         migrations.AddField(
             model_name="relationship",
             name="local_context_data",

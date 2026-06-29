@@ -32,9 +32,7 @@ def handler_500(request, template_name=ERROR_500_TEMPLATE_NAME):
     try:
         template = loader.get_template(template_name)
     except TemplateDoesNotExist:
-        return HttpResponseServerError(
-            "<h1>Server Error (500)</h1>", content_type="text/html"
-        )
+        return HttpResponseServerError("<h1>Server Error (500)</h1>", content_type="text/html")
 
     return HttpResponseServerError(
         template.render(

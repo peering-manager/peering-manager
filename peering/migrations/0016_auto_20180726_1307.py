@@ -7,9 +7,7 @@ class Migration(migrations.Migration):
     dependencies = [("peering", "0015_peeringsession_password")]
 
     operations = [
-        migrations.RemoveField(
-            model_name="autonomoussystem", name="keep_synced_with_peeringdb"
-        ),
+        migrations.RemoveField(model_name="autonomoussystem", name="keep_synced_with_peeringdb"),
         migrations.AddField(
             model_name="autonomoussystem",
             name="ipv4_max_prefixes_peeringdb_sync",

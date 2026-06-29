@@ -20,9 +20,7 @@ logger = logging.getLogger("peering.manager.peering")
 class UnresolvableIRRObjectError(Exception):
     """Exception raised when an IRR object cannot be resolved."""
 
-    def __init__(
-        self, object: str, address_family: Literal[4, 6] | None = None, reason: str = ""
-    ):
+    def __init__(self, object: str, address_family: Literal[4, 6] | None = None, reason: str = ""):
         super().__init__()
         self.object = object
         self.address_family = address_family
@@ -71,9 +69,7 @@ def parse_irr_as_set(asn: int, irr_as_set: str) -> list[tuple[str, str]]:
         as_set = value
 
         if match := re.match(
-            r"^(?P<source>{}):+\s*(?P<as_set>.+)$".format(
-                settings.BGPQ3_SOURCES.replace(",", "|")
-            ),
+            r"^(?P<source>{}):+\s*(?P<as_set>.+)$".format(settings.BGPQ3_SOURCES.replace(",", "|")),
             value,
         ):
             source = match.group("source")
@@ -158,9 +154,7 @@ def call_irr_as_set_resolver(
     except ValueError as exc:
         error_message = f"calling {settings.BGPQ3_PATH} with command '{' '.join(command)}' failed: {exc!s}"
         logger.error(error_message)
-        raise UnresolvableIRRObjectError(
-            object=as_set, address_family=address_family, reason=error_message
-        ) from exc
+        raise UnresolvableIRRObjectError(object=as_set, address_family=address_family, reason=error_message) from exc
 
     return list(json.loads(out)["prefix_list"])
 
@@ -215,9 +209,7 @@ def call_irr_as_set_as_list_resolver(
         raise UnresolvableIRRObjectError(object=as_set, reason=error_message) from exc
 
     # Always add the first ASN, and remove AS_TRANS
-    return sorted(
-        {first_as} | {int(i) for i in list(json.loads(out)["as_list"])} - {23456}
-    )
+    return sorted({first_as} | {int(i) for i in list(json.loads(out)["as_list"])} - {23456})
 
 
 def validate_ip_address_not_network(value: IPv6Interface | IPv4Interface) -> None:
@@ -225,9 +217,7 @@ def validate_ip_address_not_network(value: IPv6Interface | IPv4Interface) -> Non
         return
 
     if value.ip == value.network.network_address:
-        raise ValidationError(
-            f"IP address {value} is a network address, please use a host address."
-        )
+        raise ValidationError(f"IP address {value} is a network address, please use a host address.")
 
 
 def validate_ip_address_not_broadcast(value: IPv6Interface | IPv4Interface) -> None:
@@ -235,9 +225,7 @@ def validate_ip_address_not_broadcast(value: IPv6Interface | IPv4Interface) -> N
         return
 
     if value.ip == value.network.broadcast_address:
-        raise ValidationError(
-            f"IP address {value} is a broadcast address, please use a host address."
-        )
+        raise ValidationError(f"IP address {value} is a broadcast address, please use a host address.")
 
 
 def validate_ip_address_not_network_nor_broadcast(

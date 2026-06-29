@@ -43,9 +43,7 @@ def migrate_tagged_items(apps, schema_editor):
         OldTaggedItem = apps.get_model("utils", "TaggedItem")
 
         tagged_items = []
-        for tagged_item in OldTaggedItem.objects.order_by("pk").iterator(
-            chunk_size=100
-        ):
+        for tagged_item in OldTaggedItem.objects.order_by("pk").iterator(chunk_size=100):
             tag = Tag.objects.get(name=tagged_item.tag.name)
             tagged_items.append(
                 TaggedItem(
@@ -68,7 +66,5 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(code=migrate_tags, reverse_code=migrations.RunPython.noop),
-        migrations.RunPython(
-            code=migrate_tagged_items, reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=migrate_tagged_items, reverse_code=migrations.RunPython.noop),
     ]

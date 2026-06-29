@@ -12,9 +12,7 @@ class Migration(migrations.Migration):
         connections = Connection.objects.filter(internet_exchange_point__isnull=True)
 
         for c in connections:
-            print(
-                f"Deleting orphaned connection: {c} - {c.ipv4_address}/{c.ipv6_address}"
-            )
+            print(f"Deleting orphaned connection: {c} - {c.ipv4_address}/{c.ipv6_address}")
 
         connections.delete()
 

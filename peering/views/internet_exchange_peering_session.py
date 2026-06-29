@@ -40,9 +40,7 @@ __all__ = (
 class InternetExchangePeeringSessionList(ObjectListView):
     permission_required = "peering.view_internetexchangepeeringsession"
     queryset = (
-        InternetExchangePeeringSession.objects.order_by(
-            "autonomous_system", "ip_address"
-        )
+        InternetExchangePeeringSession.objects.order_by("autonomous_system", "ip_address")
         .select_related("autonomous_system")
         .defer("autonomous_system__prefixes", "autonomous_system__as_list")
     )
@@ -71,40 +69,32 @@ class InternetExchangePeeringSessionDelete(ObjectDeleteView):
     queryset = InternetExchangePeeringSession.objects.all()
 
 
-@register_model_view(
-    InternetExchangePeeringSession, name="bulk_edit", path="edit", detail=False
-)
+@register_model_view(InternetExchangePeeringSession, name="bulk_edit", path="edit", detail=False)
 class InternetExchangePeeringSessionBulkEdit(BulkEditView):
     permission_required = "peering.change_internetexchangepeeringsession"
-    queryset = InternetExchangePeeringSession.objects.select_related(
-        "autonomous_system"
-    ).defer("autonomous_system__prefixes", "autonomous_system__as_list")
+    queryset = InternetExchangePeeringSession.objects.select_related("autonomous_system").defer(
+        "autonomous_system__prefixes", "autonomous_system__as_list"
+    )
     filterset = InternetExchangePeeringSessionFilterSet
     table = InternetExchangePeeringSessionTable
     form = InternetExchangePeeringSessionBulkEditForm
 
 
-@register_model_view(
-    InternetExchangePeeringSession, name="bulk_delete", path="delete", detail=False
-)
+@register_model_view(InternetExchangePeeringSession, name="bulk_delete", path="delete", detail=False)
 class InternetExchangePeeringSessionBulkDelete(BulkDeleteView):
     queryset = InternetExchangePeeringSession.objects.all()
     filterset = InternetExchangePeeringSessionFilterSet
     table = InternetExchangePeeringSessionTable
 
 
-@register_model_view(
-    InternetExchangePeeringSession, name="configcontext", path="config-context"
-)
+@register_model_view(InternetExchangePeeringSession, name="configcontext", path="config-context")
 class InternetExchangePeeringSessionConfigContext(ObjectConfigContextView):
     permission_required = "peering.view_internetexchangepeeringsession"
     queryset = InternetExchangePeeringSession.objects.all()
     base_template = "peering/internetexchangepeeringsession/_base.html"
 
 
-@register_model_view(
-    InternetExchangePeeringSession, name="add_from_peeringdb", detail=False
-)
+@register_model_view(InternetExchangePeeringSession, name="add_from_peeringdb", detail=False)
 class InternetExchangePeeringSessionImportFromPeeringDB(ImportFromObjectView):
     permission_required = "peering.add_internetexchangepeeringsession"
     queryset = NetworkIXLan.objects.all()
@@ -118,13 +108,9 @@ class InternetExchangePeeringSessionImportFromPeeringDB(ImportFromObjectView):
 
         ixp = None
         if "internet_exchange_id" in request.POST:
-            ixp = InternetExchange.objects.get(
-                pk=request.POST.get("internet_exchange_id")
-            )
+            ixp = InternetExchange.objects.get(pk=request.POST.get("internet_exchange_id"))
 
-        return InternetExchangePeeringSession.create_from_peeringdb(
-            affiliated, ixp, base
-        )
+        return InternetExchangePeeringSession.create_from_peeringdb(affiliated, ixp, base)
 
     def sort_objects(self, object_list):
         objects = []

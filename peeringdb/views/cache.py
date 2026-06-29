@@ -25,9 +25,7 @@ __all__ = ("CacheManagementView",)
 class CacheManagementView(View):
     def get(self, request):
         if not request.user.is_staff and not request.user.is_superuser:
-            messages.error(
-                request, "You do not have the permissions to manage PeeringDB's cache."
-            )
+            messages.error(request, "You do not have the permissions to manage PeeringDB's cache.")
             return redirect(reverse("home"))
 
         last_synchronisation = PeeringDB().get_last_synchronisation()

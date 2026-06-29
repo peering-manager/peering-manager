@@ -64,11 +64,7 @@ class GetReturnURLMixin:
             return return_url
 
         # Check if the object being modified (if any) has an absolute URL
-        if (
-            instance is not None
-            and instance.pk
-            and hasattr(instance, "get_absolute_url")
-        ):
+        if instance is not None and instance.pk and hasattr(instance, "get_absolute_url"):
             return instance.get_absolute_url()
 
         # Fall back to the default URL (if specified) for the view
@@ -126,9 +122,7 @@ class ViewTab:
         return self.badge
 
 
-def get_viewname(
-    model: type[models.Model], action: str | None = None, rest_api: bool = False
-) -> str:
+def get_viewname(model: type[models.Model], action: str | None = None, rest_api: bool = False) -> str:
     """
     Return the view name for a given model and action.
     """

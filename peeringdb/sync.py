@@ -107,9 +107,7 @@ class PeeringDB:
 
         return response.json()
 
-    def record_last_sync(
-        self, time: int, changes: SyncChanges
-    ) -> Synchronisation | None:
+    def record_last_sync(self, time: int, changes: SyncChanges) -> Synchronisation | None:
         """
         Saves the last synchronisation details (number of objects and time) for later
         use (and logs).
@@ -164,9 +162,7 @@ class PeeringDB:
         Sets the value for a single field of an object.
         """
         # Fields not to process
-        if name == "status" or (
-            hasattr(obj, "ignored_fields") and name in model.ignored_fields
-        ):
+        if name == "status" or (hasattr(obj, "ignored_fields") and name in model.ignored_fields):
             return
 
         # If the field looks like one of the FK
@@ -191,21 +187,13 @@ class PeeringDB:
 
             setattr(obj, name, value)
         except FieldDoesNotExist:
-            logger.error(
-                f"field: {name} not in model: {model._meta.verbose_name.lower()}"
-            )
+            logger.error(f"field: {name} not in model: {model._meta.verbose_name.lower()}")
 
-    def _process_object(
-        self, model: type[BaseModel], data: dict[str, Any]
-    ) -> tuple[BaseModel, ObjectChangeAction]:
+    def _process_object(self, model: type[BaseModel], data: dict[str, Any]) -> tuple[BaseModel, ObjectChangeAction]:
         """
         Synchronises a single object.
         """
-        action = (
-            ObjectChangeAction.DELETE
-            if data["status"] == "deleted"
-            else ObjectChangeAction.UPDATE
-        )
+        action = ObjectChangeAction.DELETE if data["status"] == "deleted" else ObjectChangeAction.UPDATE
 
         try:
             # Get the local object by its ID
@@ -213,9 +201,7 @@ class PeeringDB:
 
             # Object marked as deleted so remove it locally too
             if action == ObjectChangeAction.DELETE:
-                logger.debug(
-                    f"deleted {model._meta.verbose_name.lower()} #{local_object.pk} from local database"
-                )
+                logger.debug(f"deleted {model._meta.verbose_name.lower()} #{local_object.pk} from local database")
                 local_object.delete()
                 return None, action
         except model.DoesNotExist:
@@ -223,11 +209,7 @@ class PeeringDB:
             local_object = model()
 
         # Make a list of foreign key field names
-        fk = [
-            f.name
-            for f in model._meta.get_fields()
-            if f.get_internal_type() == "ForeignKey"
-        ]
+        fk = [f.name for f in model._meta.get_fields() if f.get_internal_type() == "ForeignKey"]
 
         # Set the value for each field
         for field_name, field_value in data.items():
@@ -247,9 +229,7 @@ class PeeringDB:
         for h in HiddenPeer.objects.all():
             h.link_to_peeringdb()
 
-    def synchronise_objects(
-        self, namespace: str, model: type[BaseModel]
-    ) -> tuple[int, int, int]:
+    def synchronise_objects(self, namespace: str, model: type[BaseModel]) -> tuple[int, int, int]:
         """
         Synchronises all the objects of a namespace of the PeeringDB to the
         local database. This function is meant to be run regularly to update
@@ -274,9 +254,7 @@ class PeeringDB:
             return (created, updated, deleted)
 
         if "generated" in result["meta"]:
-            peeringdb_cache_timestamp = datetime.fromtimestamp(
-                result["meta"]["generated"], tz=timezone.utc
-            )
+            peeringdb_cache_timestamp = datetime.fromtimestamp(result["meta"]["generated"], tz=timezone.utc)
             self._caching_timestamps.append(peeringdb_cache_timestamp)
             logger.debug(f"peeringdb {namespace} cached at {peeringdb_cache_timestamp}")
 
@@ -296,14 +274,10 @@ class PeeringDB:
             match action:
                 case ObjectChangeAction.CREATE:
                     created += 1
-                    logger.debug(
-                        f"created {model._meta.verbose_name.lower()} #{local_object.pk} from peeringdb"
-                    )
+                    logger.debug(f"created {model._meta.verbose_name.lower()} #{local_object.pk} from peeringdb")
                 case ObjectChangeAction.UPDATE:
                     updated += 1
-                    logger.debug(
-                        f"updated {model._meta.verbose_name.lower()} #{local_object.pk} from peeringdb"
-                    )
+                    logger.debug(f"updated {model._meta.verbose_name.lower()} #{local_object.pk} from peeringdb")
                 case ObjectChangeAction.DELETE:
                     deleted += 1
 
@@ -333,9 +307,7 @@ class PeeringDB:
         )
 
         # Save the last sync time based on the oldest PeeringDB cache timestamp
-        last_sync_at = min(
-            self._caching_timestamps, default=datetime.now(tz=timezone.utc)
-        )
+        last_sync_at = min(self._caching_timestamps, default=datetime.now(tz=timezone.utc))
         logger.debug(f"last peeringdb synchronisation time set at {last_sync_at}")
         return self.record_last_sync(last_sync_at, objects_changes)
 
@@ -345,9 +317,7 @@ class PeeringDB:
         fresh start.
         """
         # Unlink main objects from PeeringDB's before emptying the local database
-        Connection.objects.filter(peeringdb_netixlan__isnull=False).update(
-            peeringdb_netixlan=None
-        )
+        Connection.objects.filter(peeringdb_netixlan__isnull=False).update(peeringdb_netixlan=None)
         Ixp.objects.filter(peeringdb_ixlan__isnull=False).update(peeringdb_ixlan=None)
         HiddenPeer.objects.update(peeringdb_network=None, peeringdb_ixlan=None)
 

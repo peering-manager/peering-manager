@@ -42,9 +42,7 @@ class Migration(migrations.Migration):
                 ("request_id", models.UUIDField(editable=False)),
                 (
                     "action",
-                    models.PositiveSmallIntegerField(
-                        choices=[(1, "Created"), (2, "Updated"), (3, "Deleted")]
-                    ),
+                    models.PositiveSmallIntegerField(choices=[(1, "Created"), (2, "Updated"), (3, "Deleted")]),
                 ),
                 ("changed_object_id", models.PositiveIntegerField()),
                 (

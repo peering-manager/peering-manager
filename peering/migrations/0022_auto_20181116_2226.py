@@ -7,24 +7,12 @@ class Migration(migrations.Migration):
     dependencies = [("peering", "0021_auto_20181113_2136")]
 
     operations = [
-        migrations.RemoveField(
-            model_name="directpeeringsession", name="export_routing_policy"
-        ),
-        migrations.RemoveField(
-            model_name="directpeeringsession", name="import_routing_policy"
-        ),
-        migrations.RemoveField(
-            model_name="internetexchange", name="export_routing_policy"
-        ),
-        migrations.RemoveField(
-            model_name="internetexchange", name="import_routing_policy"
-        ),
-        migrations.RemoveField(
-            model_name="internetexchangepeeringsession", name="export_routing_policy"
-        ),
-        migrations.RemoveField(
-            model_name="internetexchangepeeringsession", name="import_routing_policy"
-        ),
+        migrations.RemoveField(model_name="directpeeringsession", name="export_routing_policy"),
+        migrations.RemoveField(model_name="directpeeringsession", name="import_routing_policy"),
+        migrations.RemoveField(model_name="internetexchange", name="export_routing_policy"),
+        migrations.RemoveField(model_name="internetexchange", name="import_routing_policy"),
+        migrations.RemoveField(model_name="internetexchangepeeringsession", name="export_routing_policy"),
+        migrations.RemoveField(model_name="internetexchangepeeringsession", name="import_routing_policy"),
         migrations.AddField(
             model_name="directpeeringsession",
             name="export_routing_policies",

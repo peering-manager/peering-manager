@@ -16,9 +16,7 @@ class Migration(migrations.Migration):
         Router = apps.get_model("peering.Router")
 
         for p in Platform.objects.using(db_alias).all():
-            Router.objects.using(db_alias).filter(platform=p.napalm_driver).update(
-                platform_fk=p
-            )
+            Router.objects.using(db_alias).filter(platform=p.napalm_driver).update(platform_fk=p)
 
     operations = [
         migrations.AddField(
@@ -34,7 +32,5 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(move_to_platform_objects),
         migrations.RemoveField(model_name="router", name="platform"),
-        migrations.RenameField(
-            model_name="router", old_name="platform_fk", new_name="platform"
-        ),
+        migrations.RenameField(model_name="router", old_name="platform_fk", new_name="platform"),
     ]

@@ -64,9 +64,7 @@ class AutonomousSystemForm(PeeringManagerModelForm):
         queryset=RoutingPolicy.objects.all(),
         query_params={"type": "export-policy"},
     )
-    communities = DynamicModelMultipleChoiceField(
-        required=False, queryset=Community.objects.all()
-    )
+    communities = DynamicModelMultipleChoiceField(required=False, queryset=Community.objects.all())
     local_context_data = JSONField(required=False)
     comments = CommentField()
     tags = TagField(required=False)
@@ -181,15 +179,9 @@ class AutonomousSystemFilterForm(PeeringManagerModelFilterSetForm):
 
 
 class AutonomousSystemEmailForm(BootstrapMixin, forms.Form):
-    email = DynamicModelChoiceField(
-        required=False, queryset=Email.objects.all(), label="Template"
-    )
-    recipient = forms.MultipleChoiceField(
-        widget=StaticSelectMultiple, label="Recipients"
-    )
-    cc = forms.MultipleChoiceField(
-        widget=StaticSelectMultiple, label="Carbon copy", required=False
-    )
+    email = DynamicModelChoiceField(required=False, queryset=Email.objects.all(), label="Template")
+    recipient = forms.MultipleChoiceField(widget=StaticSelectMultiple, label="Recipients")
+    cc = forms.MultipleChoiceField(widget=StaticSelectMultiple, label="Carbon copy", required=False)
     subject = forms.CharField(label="Subject")
     body = TextareaField(label="Body")
 
@@ -208,9 +200,7 @@ class BGPGroupForm(PeeringManagerModelForm):
         max_length=255,
         help_text="Friendly unique shorthand used for URL and config. Warning: may result in change of operational state on a router if being used in the configuration.",
     )
-    status = forms.ChoiceField(
-        required=False, choices=BGPGroupStatus, widget=StaticSelect
-    )
+    status = forms.ChoiceField(required=False, choices=BGPGroupStatus, widget=StaticSelect)
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
@@ -221,9 +211,7 @@ class BGPGroupForm(PeeringManagerModelForm):
         queryset=RoutingPolicy.objects.all(),
         query_params={"type": "export-policy"},
     )
-    communities = DynamicModelMultipleChoiceField(
-        required=False, queryset=Community.objects.all()
-    )
+    communities = DynamicModelMultipleChoiceField(required=False, queryset=Community.objects.all())
     local_context_data = JSONField(required=False)
     tags = TagField(required=False)
     fieldsets = (
@@ -259,9 +247,7 @@ class BGPGroupForm(PeeringManagerModelForm):
 
 
 class BGPGroupBulkEditForm(PeeringManagerModelBulkEditForm):
-    status = forms.ChoiceField(
-        required=False, choices=add_blank_choice(BGPGroupStatus), widget=StaticSelect
-    )
+    status = forms.ChoiceField(required=False, choices=add_blank_choice(BGPGroupStatus), widget=StaticSelect)
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
@@ -272,9 +258,7 @@ class BGPGroupBulkEditForm(PeeringManagerModelBulkEditForm):
         queryset=RoutingPolicy.objects.all(),
         query_params={"type": "export-policy"},
     )
-    communities = DynamicModelMultipleChoiceField(
-        required=False, queryset=Community.objects.all()
-    )
+    communities = DynamicModelMultipleChoiceField(required=False, queryset=Community.objects.all())
 
     model = BGPGroup
     nullable_fields = (
@@ -287,9 +271,7 @@ class BGPGroupBulkEditForm(PeeringManagerModelBulkEditForm):
 
 class BGPGroupFilterForm(PeeringManagerModelFilterSetForm):
     model = BGPGroup
-    status = forms.MultipleChoiceField(
-        required=False, choices=BGPGroupStatus, widget=StaticSelectMultiple
-    )
+    status = forms.MultipleChoiceField(required=False, choices=BGPGroupStatus, widget=StaticSelectMultiple)
     tag = TagFilterField(model)
 
 
@@ -300,9 +282,7 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
         label="Local AS",
     )
     autonomous_system = DynamicModelChoiceField(queryset=AutonomousSystem.objects.all())
-    bgp_group = DynamicModelChoiceField(
-        required=False, queryset=BGPGroup.objects.all(), label="BGP Group"
-    )
+    bgp_group = DynamicModelChoiceField(required=False, queryset=BGPGroup.objects.all(), label="BGP Group")
     status = forms.ChoiceField(
         required=False,
         choices=BGPSessionStatus,
@@ -338,9 +318,7 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
         queryset=RoutingPolicy.objects.all(),
         query_params={"type": "export-policy"},
     )
-    communities = DynamicModelMultipleChoiceField(
-        required=False, queryset=Community.objects.all()
-    )
+    communities = DynamicModelMultipleChoiceField(required=False, queryset=Community.objects.all())
     bfd = DynamicModelChoiceField(
         required=False,
         queryset=BFD.objects.all(),
@@ -418,9 +396,7 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
         ip_dst: IPv6Interface | IPv4Interface = cleaned_data["ip_address"]
 
         # Make sure that routing policies are compatible (address family)
-        for policy in cleaned_data["import_routing_policies"].union(
-            cleaned_data["export_routing_policies"]
-        ):
+        for policy in cleaned_data["import_routing_policies"].union(cleaned_data["export_routing_policies"]):
             if policy.address_family not in (IPFamily.ALL, ip_dst.version):
                 raise ValidationError(
                     f"Routing policy '{policy.name}' cannot be used for this session, address families mismatch."
@@ -439,21 +415,15 @@ class DirectPeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm):
         choices=add_blank_choice(BGPSessionStatus),
         widget=StaticSelect,
     )
-    relationship = DynamicModelChoiceField(
-        required=False, queryset=Relationship.objects.all()
-    )
+    relationship = DynamicModelChoiceField(required=False, queryset=Relationship.objects.all())
     bgp_role = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(BGPRole),
         widget=StaticSelect,
         label="BGP role",
     )
-    bgp_group = DynamicModelChoiceField(
-        required=False, queryset=BGPGroup.objects.all(), label="BGP group"
-    )
-    passive = forms.NullBooleanField(
-        required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES)
-    )
+    bgp_group = DynamicModelChoiceField(required=False, queryset=BGPGroup.objects.all(), label="BGP group")
+    passive = forms.NullBooleanField(required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES))
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
@@ -464,19 +434,11 @@ class DirectPeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm):
         queryset=RoutingPolicy.objects.all(),
         query_params={"type": "export-policy"},
     )
-    communities = DynamicModelMultipleChoiceField(
-        required=False, queryset=Community.objects.all()
-    )
-    bfd = DynamicModelChoiceField(
-        required=False, queryset=BFD.objects.all(), label="BFD"
-    )
+    communities = DynamicModelMultipleChoiceField(required=False, queryset=Community.objects.all())
+    bfd = DynamicModelChoiceField(required=False, queryset=BFD.objects.all(), label="BFD")
     router = DynamicModelChoiceField(required=False, queryset=Router.objects.all())
-    connection = DynamicModelChoiceField(
-        required=False, queryset=Connection.objects.all()
-    )
-    multihop_ttl = forms.IntegerField(
-        required=False, min_value=1, max_value=255, label="Multi-hop TTL"
-    )
+    connection = DynamicModelChoiceField(required=False, queryset=Connection.objects.all())
+    multihop_ttl = forms.IntegerField(required=False, min_value=1, max_value=255, label="Multi-hop TTL")
     service_reference = forms.CharField(max_length=255, required=False)
     local_context_data = JSONField(required=False)
     comments = CommentField()
@@ -518,12 +480,8 @@ class DirectPeeringSessionFilterForm(PeeringManagerModelFilterSetForm):
         null_option="None",
         label="BGP group",
     )
-    address_family = forms.ChoiceField(
-        required=False, choices=IPFamily, widget=StaticSelect
-    )
-    status = forms.MultipleChoiceField(
-        required=False, choices=BGPSessionStatus, widget=StaticSelectMultiple
-    )
+    address_family = forms.ChoiceField(required=False, choices=IPFamily, widget=StaticSelect)
+    status = forms.MultipleChoiceField(required=False, choices=BGPSessionStatus, widget=StaticSelectMultiple)
     bgp_role = forms.MultipleChoiceField(
         required=False,
         choices=BGPRole,
@@ -554,9 +512,7 @@ class DirectPeeringSessionFilterForm(PeeringManagerModelFilterSetForm):
         null_option="None",
         label="Connection",
     )
-    passive = forms.NullBooleanField(
-        required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES)
-    )
+    passive = forms.NullBooleanField(required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES))
     bgp_state = forms.MultipleChoiceField(
         required=False, choices=BGPState, widget=StaticSelectMultiple, label="BGP state"
     )
@@ -568,9 +524,7 @@ class InternetExchangeForm(PeeringManagerModelForm):
         max_length=255,
         help_text="Friendly unique shorthand used for URL and config. Warning: may result in change of operational state on a router if being used in the configuration.",
     )
-    status = forms.ChoiceField(
-        required=False, choices=BGPGroupStatus, widget=StaticSelect
-    )
+    status = forms.ChoiceField(required=False, choices=BGPGroupStatus, widget=StaticSelect)
     local_autonomous_system = DynamicModelChoiceField(
         queryset=AutonomousSystem.objects.all(),
         query_params={"affiliated": True},
@@ -586,13 +540,9 @@ class InternetExchangeForm(PeeringManagerModelForm):
         queryset=RoutingPolicy.objects.all(),
         query_params={"type": "export-policy"},
     )
-    communities = DynamicModelMultipleChoiceField(
-        required=False, queryset=Community.objects.all()
-    )
+    communities = DynamicModelMultipleChoiceField(required=False, queryset=Community.objects.all())
     local_context_data = JSONField(required=False)
-    ixapi_endpoint = DynamicModelChoiceField(
-        required=False, label="IX-API endpoint", queryset=IXAPI.objects.all()
-    )
+    ixapi_endpoint = DynamicModelChoiceField(required=False, label="IX-API endpoint", queryset=IXAPI.objects.all())
     tags = TagField(required=False)
     fieldsets = (
         (
@@ -626,9 +576,7 @@ class InternetExchangeForm(PeeringManagerModelForm):
 
 
 class InternetExchangeBulkEditForm(PeeringManagerModelBulkEditForm):
-    status = forms.ChoiceField(
-        required=False, choices=add_blank_choice(BGPGroupStatus), widget=StaticSelect
-    )
+    status = forms.ChoiceField(required=False, choices=add_blank_choice(BGPGroupStatus), widget=StaticSelect)
     local_autonomous_system = DynamicModelChoiceField(
         required=False,
         queryset=AutonomousSystem.objects.all(),
@@ -645,14 +593,10 @@ class InternetExchangeBulkEditForm(PeeringManagerModelBulkEditForm):
         queryset=RoutingPolicy.objects.all(),
         query_params={"type": "export-policy"},
     )
-    communities = DynamicModelMultipleChoiceField(
-        required=False, queryset=Community.objects.all()
-    )
+    communities = DynamicModelMultipleChoiceField(required=False, queryset=Community.objects.all())
     description = forms.CharField(max_length=200, required=False)
     local_context_data = JSONField(required=False)
-    ixapi_endpoint = DynamicModelChoiceField(
-        required=False, label="IX-API endpoint", queryset=IXAPI.objects.all()
-    )
+    ixapi_endpoint = DynamicModelChoiceField(required=False, label="IX-API endpoint", queryset=IXAPI.objects.all())
 
     model = InternetExchange
     nullable_fields = (
@@ -681,9 +625,7 @@ class InternetExchangePeeringDBForm(BootstrapMixin, forms.ModelForm):
 
 class InternetExchangeFilterForm(PeeringManagerModelFilterSetForm):
     model = InternetExchange
-    status = forms.MultipleChoiceField(
-        required=False, choices=BGPGroupStatus, widget=StaticSelectMultiple
-    )
+    status = forms.MultipleChoiceField(required=False, choices=BGPGroupStatus, widget=StaticSelectMultiple)
     local_autonomous_system_id = DynamicModelChoiceField(
         required=False,
         queryset=AutonomousSystem.objects.all(),
@@ -724,9 +666,7 @@ class InternetExchangePeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm
         label="Route server",
         widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
-    passive = forms.NullBooleanField(
-        required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES)
-    )
+    passive = forms.NullBooleanField(required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES))
     import_routing_policies = DynamicModelMultipleChoiceField(
         required=False,
         queryset=RoutingPolicy.objects.all(),
@@ -737,15 +677,9 @@ class InternetExchangePeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm
         queryset=RoutingPolicy.objects.all(),
         query_params={"type": "export-policy"},
     )
-    communities = DynamicModelMultipleChoiceField(
-        required=False, queryset=Community.objects.all()
-    )
-    bfd = DynamicModelChoiceField(
-        required=False, queryset=BFD.objects.all(), label="BFD"
-    )
-    multihop_ttl = forms.IntegerField(
-        required=False, min_value=1, max_value=255, label="Multi-hop TTL"
-    )
+    communities = DynamicModelMultipleChoiceField(required=False, queryset=Community.objects.all())
+    bfd = DynamicModelChoiceField(required=False, queryset=BFD.objects.all(), label="BFD")
+    multihop_ttl = forms.IntegerField(required=False, min_value=1, max_value=255, label="Multi-hop TTL")
     service_reference = forms.CharField(max_length=255, required=False)
     local_context_data = JSONField(required=False)
     comments = CommentField()
@@ -765,9 +699,7 @@ class InternetExchangePeeringSessionBulkEditForm(PeeringManagerModelBulkEditForm
 
 class InternetExchangePeeringSessionForm(PeeringManagerModelForm):
     autonomous_system = DynamicModelChoiceField(queryset=AutonomousSystem.objects.all())
-    internet_exchange = DynamicModelChoiceField(
-        required=False, queryset=InternetExchange.objects.all(), label="IXP"
-    )
+    internet_exchange = DynamicModelChoiceField(required=False, queryset=InternetExchange.objects.all(), label="IXP")
     ixp_connection = DynamicModelChoiceField(
         queryset=Connection.objects.all(),
         query_params={"internet_exchange_point_id": "$internet_exchange"},
@@ -797,9 +729,7 @@ class InternetExchangePeeringSessionForm(PeeringManagerModelForm):
         queryset=RoutingPolicy.objects.all(),
         query_params={"type": "export-policy"},
     )
-    communities = DynamicModelMultipleChoiceField(
-        required=False, queryset=Community.objects.all()
-    )
+    communities = DynamicModelMultipleChoiceField(required=False, queryset=Community.objects.all())
     bfd = DynamicModelChoiceField(
         required=False,
         queryset=BFD.objects.all(),
@@ -862,10 +792,7 @@ class InternetExchangePeeringSessionForm(PeeringManagerModelForm):
         cleaned_data = super().clean()
 
         # Make sure that routing policies are compatible (address family)
-        for policy in (
-            cleaned_data["import_routing_policies"]
-            | cleaned_data["export_routing_policies"]
-        ):
+        for policy in cleaned_data["import_routing_policies"] | cleaned_data["export_routing_policies"]:
             if policy.address_family not in (
                 IPFamily.ALL,
                 cleaned_data["ip_address"].version,
@@ -892,21 +819,15 @@ class InternetExchangePeeringSessionFilterForm(PeeringManagerModelFilterSetForm)
     bfd_id = DynamicModelMultipleChoiceField(
         required=False, queryset=BFD.objects.all(), to_field_name="pk", label="BFD"
     )
-    address_family = forms.ChoiceField(
-        required=False, choices=IPFamily, widget=StaticSelect
-    )
-    status = forms.MultipleChoiceField(
-        required=False, choices=BGPSessionStatus, widget=StaticSelectMultiple
-    )
+    address_family = forms.ChoiceField(required=False, choices=IPFamily, widget=StaticSelect)
+    status = forms.MultipleChoiceField(required=False, choices=BGPSessionStatus, widget=StaticSelectMultiple)
     bgp_role = forms.MultipleChoiceField(
         required=False,
         choices=BGPRole,
         widget=StaticSelectMultiple,
         label="BGP role",
     )
-    passive = forms.NullBooleanField(
-        required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES)
-    )
+    passive = forms.NullBooleanField(required=False, widget=StaticSelect(choices=BOOLEAN_WITH_BLANK_CHOICES))
     multihop_ttl = forms.IntegerField(required=False, label="Multi-hop TTL")
     is_route_server = forms.NullBooleanField(
         required=False,
@@ -978,12 +899,8 @@ class PeeringRequestForm(PeeringManagerModelForm):
 
 class PeeringRequestFilterForm(PeeringManagerModelFilterSetForm):
     model = PeeringRequest
-    status = forms.MultipleChoiceField(
-        required=False, choices=PeeringRequestStatus, widget=StaticSelectMultiple
-    )
-    request_type = forms.MultipleChoiceField(
-        required=False, choices=PeeringRequestType, widget=StaticSelectMultiple
-    )
+    status = forms.MultipleChoiceField(required=False, choices=PeeringRequestStatus, widget=StaticSelectMultiple)
+    request_type = forms.MultipleChoiceField(required=False, choices=PeeringRequestType, widget=StaticSelectMultiple)
     local_autonomous_system_id = DynamicModelChoiceField(
         required=False,
         queryset=AutonomousSystem.objects.all(),
@@ -1001,9 +918,7 @@ class PeeringRequestFilterForm(PeeringManagerModelFilterSetForm):
 
 class RequestedSessionForm(PeeringManagerModelForm):
     peering_request = DynamicModelChoiceField(queryset=PeeringRequest.objects.all())
-    ixp_connection = DynamicModelChoiceField(
-        required=False, queryset=Connection.objects.all(), label="IXP connection"
-    )
+    ixp_connection = DynamicModelChoiceField(required=False, queryset=Connection.objects.all(), label="IXP connection")
 
     fieldsets = (
         (

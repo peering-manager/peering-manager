@@ -39,9 +39,7 @@ class NetBox:
 
         filter = {}
         if settings.NETBOX_DEVICE_ROLES:
-            logger.debug(
-                f"will call dcim.devices.filter: role={settings.NETBOX_DEVICE_ROLES}"
-            )
+            logger.debug(f"will call dcim.devices.filter: role={settings.NETBOX_DEVICE_ROLES}")
             filter["role"] = settings.NETBOX_DEVICE_ROLES
         if settings.NETBOX_TAGS:
             logger.debug(f"will call dcim.devices.filter: tag={settings.NETBOX_TAGS}")

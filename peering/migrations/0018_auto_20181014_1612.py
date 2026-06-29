@@ -75,7 +75,5 @@ class Migration(migrations.Migration):
             ],
             options={"abstract": False},
         ),
-        migrations.RenameModel(
-            old_name="PeeringSession", new_name="InternetExchangePeeringSession"
-        ),
+        migrations.RenameModel(old_name="PeeringSession", new_name="InternetExchangePeeringSession"),
     ]

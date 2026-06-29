@@ -60,9 +60,7 @@ class BaseModelSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_config_context(self, obj: type[Model]):
-        if obj._meta.model_name not in registry[MODEL_FEATURES_KEY][
-            "config-contexts"
-        ].get(obj._meta.app_label, []):
+        if obj._meta.model_name not in registry[MODEL_FEATURES_KEY]["config-contexts"].get(obj._meta.app_label, []):
             return None
         return obj.get_config_context()
 

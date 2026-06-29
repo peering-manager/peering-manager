@@ -17,12 +17,8 @@ class RoutingPolicy(OrganisationalModel):
         choices=RoutingPolicyType,
         default=RoutingPolicyType.IMPORT,
     )
-    weight = models.PositiveSmallIntegerField(
-        default=0, help_text="The higher the number, the higher the priority"
-    )
-    address_family = models.PositiveSmallIntegerField(
-        default=IPFamily.ALL, choices=IPFamily
-    )
+    weight = models.PositiveSmallIntegerField(default=0, help_text="The higher the number, the higher the priority")
+    address_family = models.PositiveSmallIntegerField(default=IPFamily.ALL, choices=IPFamily)
     communities = models.ManyToManyField("Community", blank=True)
 
     class Meta:

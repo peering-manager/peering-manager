@@ -19,8 +19,7 @@ class Command(BaseCommand):
         quiet = options["verbosity"] == 0
 
         self.stdout.write(
-            "This command is deprecated and will be removed in a future release. "
-            "Use `get_irr_data` instead.",
+            "This command is deprecated and will be removed in a future release. Use `get_irr_data` instead.",
             self.style.WARNING,
         )
 
@@ -33,9 +32,7 @@ class Command(BaseCommand):
 
             if not autonomous_system.retrieve_prefixes:
                 if not quiet:
-                    self.stdout.write(
-                        "    skipped (prefixes retrieval disabled)", self.style.WARNING
-                    )
+                    self.stdout.write("    skipped (prefixes retrieval disabled)", self.style.WARNING)
                 continue
 
             try:
@@ -48,9 +45,7 @@ class Command(BaseCommand):
 
                 if limit and count > limit:
                     if not quiet:
-                        self.stdout.write(
-                            f"    {count:>6} {family} (ignored)", self.style.WARNING
-                        )
+                        self.stdout.write(f"    {count:>6} {family} (ignored)", self.style.WARNING)
                     prefixes[family] = []
                 elif not quiet:
                     self.stdout.write(f"    {count:>6} {family}", self.style.SUCCESS)

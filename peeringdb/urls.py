@@ -15,9 +15,7 @@ urlpatterns = [
     # Hidden peers
     path(
         "hidden-peers/",
-        include(
-            get_model_urls(app_label="peeringdb", model_name="hiddenpeer", detail=False)
-        ),
+        include(get_model_urls(app_label="peeringdb", model_name="hiddenpeer", detail=False)),
     ),
     path(
         "hidden-peers/<int:pk>/",

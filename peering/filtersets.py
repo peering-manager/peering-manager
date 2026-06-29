@@ -61,11 +61,7 @@ class AutonomousSystemFilterSet(PeeringManagerModelFilterSet):
         if not value.strip():
             return queryset
 
-        qs_filter = (
-            Q(name__icontains=value)
-            | Q(description__icontains=value)
-            | Q(irr_as_set__icontains=value)
-        )
+        qs_filter = Q(name__icontains=value) | Q(description__icontains=value) | Q(irr_as_set__icontains=value)
         with contextlib.suppress(ValueError):
             qs_filter |= Q(asn__startswith=int(value.strip()))
 
@@ -111,9 +107,7 @@ class DirectPeeringSessionFilterSet(PeeringManagerModelFilterSet):
         to_field_name="name",
         label="Remote AS (Name)",
     )
-    bgp_group_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=BGPGroup.objects.all(), label="BGP Group (ID)"
-    )
+    bgp_group_id = django_filters.ModelMultipleChoiceFilter(queryset=BGPGroup.objects.all(), label="BGP Group (ID)")
     bgp_group = django_filters.ModelMultipleChoiceFilter(
         field_name="bgp_group__name",
         queryset=BGPGroup.objects.all(),
@@ -121,13 +115,9 @@ class DirectPeeringSessionFilterSet(PeeringManagerModelFilterSet):
         label="BGP Group (Name)",
     )
     address_family = django_filters.NumberFilter(method="address_family_search")
-    status = django_filters.MultipleChoiceFilter(
-        choices=BGPSessionStatus, null_value=""
-    )
+    status = django_filters.MultipleChoiceFilter(choices=BGPSessionStatus, null_value="")
     bgp_role = django_filters.MultipleChoiceFilter(choices=BGPRole, null_value="")
-    bfd_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=BFD.objects.all(), label="BFD (ID)"
-    )
+    bfd_id = django_filters.ModelMultipleChoiceFilter(queryset=BFD.objects.all(), label="BFD (ID)")
     bfd = django_filters.ModelMultipleChoiceFilter(
         field_name="bfd__name",
         queryset=BFD.objects.all(),
@@ -143,9 +133,7 @@ class DirectPeeringSessionFilterSet(PeeringManagerModelFilterSet):
         to_field_name="name",
         label="Relationship (Name)",
     )
-    router_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Router.objects.all(), label="Router (ID)"
-    )
+    router_id = django_filters.ModelMultipleChoiceFilter(queryset=Router.objects.all(), label="Router (ID)")
     router_name = django_filters.ModelMultipleChoiceFilter(
         field_name="router__name",
         queryset=Router.objects.all(),
@@ -158,9 +146,7 @@ class DirectPeeringSessionFilterSet(PeeringManagerModelFilterSet):
         to_field_name="hostname",
         label="Router (Hostname)",
     )
-    connection_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Connection.objects.all(), label="Connection (ID)"
-    )
+    connection_id = django_filters.ModelMultipleChoiceFilter(queryset=Connection.objects.all(), label="Connection (ID)")
     bgp_state = django_filters.MultipleChoiceFilter(choices=BGPState, null_value="")
 
     class Meta:
@@ -225,9 +211,7 @@ class InternetExchangeFilterSet(OrganisationalModelFilterSet):
         if not value.strip():
             return queryset
         qs_filter = (
-            Q(name__icontains=value)
-            | Q(slug__icontains=value)
-            | Q(local_autonomous_system__name__icontains=value)
+            Q(name__icontains=value) | Q(slug__icontains=value) | Q(local_autonomous_system__name__icontains=value)
         )
         with contextlib.suppress(ValueError):
             qs_filter |= Q(local_autonomous_system__asn=int(value.strip()))
@@ -264,9 +248,7 @@ class InternetExchangePeeringSessionFilterSet(PeeringManagerModelFilterSet):
         to_field_name="name",
         label="IX (Name)",
     )
-    bfd_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=BFD.objects.all(), label="BFD (ID)"
-    )
+    bfd_id = django_filters.ModelMultipleChoiceFilter(queryset=BFD.objects.all(), label="BFD (ID)")
     bfd = django_filters.ModelMultipleChoiceFilter(
         field_name="bfd__name",
         queryset=BFD.objects.all(),
@@ -274,13 +256,9 @@ class InternetExchangePeeringSessionFilterSet(PeeringManagerModelFilterSet):
         label="BFD (Name)",
     )
     address_family = django_filters.NumberFilter(method="address_family_search")
-    status = django_filters.MultipleChoiceFilter(
-        choices=BGPSessionStatus, null_value=""
-    )
+    status = django_filters.MultipleChoiceFilter(choices=BGPSessionStatus, null_value="")
     bgp_role = django_filters.MultipleChoiceFilter(choices=BGPRole, null_value="")
-    exists_in_peeringdb = django_filters.BooleanFilter(
-        method="exists_in_peeringdb_search"
-    )
+    exists_in_peeringdb = django_filters.BooleanFilter(method="exists_in_peeringdb_search")
     is_abandoned = django_filters.BooleanFilter(method="is_abandoned_search")
     bgp_state = django_filters.MultipleChoiceFilter(choices=BGPState, null_value="")
 
@@ -324,9 +302,7 @@ class InternetExchangePeeringSessionFilterSet(PeeringManagerModelFilterSet):
         )
 
         # Check for a matching netixlan record existence
-        return queryset.annotate(_netixlan_exists=Exists(netixlan_exists)).filter(
-            _netixlan_exists=bool(value)
-        )
+        return queryset.annotate(_netixlan_exists=Exists(netixlan_exists)).filter(_netixlan_exists=bool(value))
 
     def is_abandoned_search(self, queryset, name, value):
         if value is None:
@@ -338,9 +314,7 @@ class InternetExchangePeeringSessionFilterSet(PeeringManagerModelFilterSet):
             net__asn=OuterRef("autonomous_system__asn"),
         )
         # net subquery to check for existence in PeeringDB
-        net_peeringdb_subquery = Network.objects.filter(
-            asn=OuterRef("autonomous_system__asn")
-        )
+        net_peeringdb_subquery = Network.objects.filter(asn=OuterRef("autonomous_system__asn"))
 
         qs = queryset.annotate(
             _session_in_peeringdb=Exists(netixlan_exists),
@@ -354,8 +328,7 @@ class InternetExchangePeeringSessionFilterSet(PeeringManagerModelFilterSet):
             ),
             _router_ok=Case(
                 When(
-                    Q(ixp_connection__router__isnull=True)
-                    | Q(ixp_connection__router__poll_bgp_sessions_state=True),
+                    Q(ixp_connection__router__isnull=True) | Q(ixp_connection__router__poll_bgp_sessions_state=True),
                     then=Value(True),
                 ),
                 default=Value(False),
@@ -384,12 +357,8 @@ class InternetExchangePeeringSessionFilterSet(PeeringManagerModelFilterSet):
 
 
 class PeeringRequestFilterSet(PeeringManagerModelFilterSet):
-    status = django_filters.MultipleChoiceFilter(
-        choices=PeeringRequestStatus, null_value=""
-    )
-    request_type = django_filters.MultipleChoiceFilter(
-        choices=PeeringRequestType, null_value=""
-    )
+    status = django_filters.MultipleChoiceFilter(choices=PeeringRequestStatus, null_value="")
+    request_type = django_filters.MultipleChoiceFilter(choices=PeeringRequestType, null_value="")
     local_autonomous_system_id = django_filters.ModelMultipleChoiceFilter(
         queryset=AutonomousSystem.objects.all(), label="Local AS (ID)"
     )
@@ -423,9 +392,7 @@ class PeeringRequestFilterSet(PeeringManagerModelFilterSet):
 
 
 class RequestedSessionFilterSet(ChangeLoggedModelFilterSet):
-    status = django_filters.MultipleChoiceFilter(
-        choices=RequestedSessionStatus, null_value=""
-    )
+    status = django_filters.MultipleChoiceFilter(choices=RequestedSessionStatus, null_value="")
     peering_request_id = django_filters.ModelMultipleChoiceFilter(
         queryset=PeeringRequest.objects.all(), label="Peering Request (ID)"
     )

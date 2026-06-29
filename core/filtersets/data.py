@@ -15,9 +15,7 @@ __all__ = ("DataFileFilterSet", "DataSourceFilterSet")
 
 class DataFileFilterSet(ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
-    source_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=DataSource.objects.all(), label="Data source (ID)"
-    )
+    source_id = django_filters.ModelMultipleChoiceFilter(queryset=DataSource.objects.all(), label="Data source (ID)")
     source = django_filters.ModelMultipleChoiceFilter(
         field_name="source__name",
         queryset=DataSource.objects.all(),
@@ -36,12 +34,8 @@ class DataFileFilterSet(ChangeLoggedModelFilterSet):
 
 
 class DataSourceFilterSet(PeeringManagerModelFilterSet):
-    type = django_filters.MultipleChoiceFilter(
-        choices=get_data_backend_choices, null_value=None
-    )
-    status = django_filters.MultipleChoiceFilter(
-        choices=DataSourceStatus, null_value=None
-    )
+    type = django_filters.MultipleChoiceFilter(choices=get_data_backend_choices, null_value=None)
+    status = django_filters.MultipleChoiceFilter(choices=DataSourceStatus, null_value=None)
 
     class Meta:
         model = DataSource
@@ -51,7 +45,5 @@ class DataSourceFilterSet(PeeringManagerModelFilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(name__icontains=value)
-            | Q(description__icontains=value)
-            | Q(comments__icontains=value)
+            Q(name__icontains=value) | Q(description__icontains=value) | Q(comments__icontains=value)
         )

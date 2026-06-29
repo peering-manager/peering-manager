@@ -8,9 +8,7 @@ def update_arista_platform(apps, schema_editor):
     db_alias = schema_editor.connection.alias
     Platform = apps.get_model("devices", "Platform")
 
-    Platform.objects.using(db_alias).filter(slug="arista-eos").update(
-        password_algorithm="arista-type7"
-    )
+    Platform.objects.using(db_alias).filter(slug="arista-eos").update(password_algorithm="arista-type7")
 
 
 def revert_arista_platform(apps, schema_editor):
@@ -20,9 +18,7 @@ def revert_arista_platform(apps, schema_editor):
     db_alias = schema_editor.connection.alias
     Platform = apps.get_model("devices", "Platform")
 
-    Platform.objects.using(db_alias).filter(slug="arista-eos").update(
-        password_algorithm="cisco-type7"
-    )
+    Platform.objects.using(db_alias).filter(slug="arista-eos").update(password_algorithm="cisco-type7")
 
 
 class Migration(migrations.Migration):

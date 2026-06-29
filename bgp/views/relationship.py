@@ -50,9 +50,7 @@ class RelationshipDelete(ObjectDeleteView):
     queryset = Relationship.objects.all()
 
 
-@register_model_view(
-    model=Relationship, name="bulk_delete", path="delete", detail=False
-)
+@register_model_view(model=Relationship, name="bulk_delete", path="delete", detail=False)
 class RelationshipBulkDelete(BulkDeleteView):
     queryset = Relationship.objects.all()
     filterset = RelationshipFilterSet

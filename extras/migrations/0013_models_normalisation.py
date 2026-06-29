@@ -7,9 +7,7 @@ class Migration(migrations.Migration):
     dependencies = [("extras", "0012_migrate_objectchanges")]
 
     operations = [
-        migrations.AlterField(
-            model_name="ixapi", name="name", field=models.CharField(max_length=100)
-        ),
+        migrations.AlterField(model_name="ixapi", name="name", field=models.CharField(max_length=100)),
         migrations.AlterField(
             model_name="webhook",
             name="name",

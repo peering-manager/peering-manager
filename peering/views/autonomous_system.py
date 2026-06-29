@@ -75,9 +75,7 @@ class AutonomousSystemList(ObjectListView):
         AutonomousSystem.objects.all()
         .annotate(
             directpeeringsession_count=Count("directpeeringsession", distinct=True),
-            internetexchangepeeringsession_count=Count(
-                "internetexchangepeeringsession", distinct=True
-            ),
+            internetexchangepeeringsession_count=Count("internetexchangepeeringsession", distinct=True),
         )
         .order_by("affiliated", "asn")
     )
@@ -98,15 +96,11 @@ class AutonomousSystemView(ObjectView):
         affiliated = AutonomousSystem.get_for_user(user=request.user)
         if affiliated is not None:
             ixlans_with_missing_sessions = set(
-                instance.get_missing_peering_sessions(affiliated).values_list(
-                    "ixlan_id", flat=True
-                )
+                instance.get_missing_peering_sessions(affiliated).values_list("ixlan_id", flat=True)
             )
 
             for ixp in instance.get_shared_internet_exchange_points(affiliated):
-                shared_internet_exchanges[ixp] = (
-                    ixp.peeringdb_ixlan_id in ixlans_with_missing_sessions
-                )
+                shared_internet_exchanges[ixp] = ixp.peeringdb_ixlan_id in ixlans_with_missing_sessions
 
         return {"shared_internet_exchanges": shared_internet_exchanges}
 
@@ -144,9 +138,7 @@ class AutonomousSystemPeeringDB(ObjectView):
     permission_required = "peering.view_autonomoussystem"
     queryset = AutonomousSystem.objects.all()
     template_name = "peering/autonomoussystem/peeringdb.html"
-    tab = ViewTab(
-        label="PeeringDB", visible=lambda instance: bool(instance.peeringdb_network)
-    )
+    tab = ViewTab(label="PeeringDB", visible=lambda instance: bool(instance.peeringdb_network))
 
     def get_extra_context(self, request, instance):
         affiliated = AutonomousSystem.get_for_user(user=request.user)
@@ -180,11 +172,7 @@ class AutonomousSystemPrefixes(ObjectView):
         for af, prefix_list in [("ipv6", ipv6_prefixes), ("ipv4", ipv4_prefixes)]:
             if family and family != af:
                 continue
-            filtered = (
-                [p for p in prefix_list if p["prefix"].lower().startswith(search)]
-                if search
-                else prefix_list
-            )
+            filtered = [p for p in prefix_list if p["prefix"].lower().startswith(search)] if search else prefix_list
             all_prefixes.extend({**p, "family": af} for p in filtered)
 
         filter_form = AutonomousSystemPrefixFilterForm(request.GET)
@@ -192,9 +180,7 @@ class AutonomousSystemPrefixes(ObjectView):
         table.configure(request)
 
         irr_commands: list[dict[str, str]] = []
-        for source, as_set in parse_irr_as_set(
-            asn=instance.asn, irr_as_set=instance.irr_as_set
-        ):
+        for source, as_set in parse_irr_as_set(asn=instance.asn, irr_as_set=instance.irr_as_set):
             for af, af_label, override in [
                 (6, "IPv6", instance.irr_ipv6_prefixes_args_override),
                 (4, "IPv4", instance.irr_ipv4_prefixes_args_override),
@@ -226,9 +212,7 @@ class AutonomousSystemPrefixes(ObjectView):
         }
 
 
-@register_model_view(
-    AutonomousSystem, name="direct_peering_sessions", path="direct-peering-sessions"
-)
+@register_model_view(AutonomousSystem, name="direct_peering_sessions", path="direct-peering-sessions")
 class AutonomousSystemDirectPeeringSessions(ObjectChildrenView):
     permission_required = (
         "peering.view_autonomoussystem",
@@ -375,9 +359,7 @@ class AutonomousSystemEmail(PermissionRequiredMixin, View):
                     body=mail.body,
                 ),
                 user=request.user,
-                kind=(
-                    JournalEntryKind.DANGER if error_message else JournalEntryKind.INFO
-                ),
+                kind=(JournalEntryKind.DANGER if error_message else JournalEntryKind.INFO),
             )
 
         return redirect(instance.get_absolute_url())

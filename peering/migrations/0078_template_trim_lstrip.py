@@ -10,29 +10,21 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="configuration",
             name="jinja2_lstrip",
-            field=models.BooleanField(
-                default=False, help_text="Strips whitespaces before block"
-            ),
+            field=models.BooleanField(default=False, help_text="Strips whitespaces before block"),
         ),
         migrations.AddField(
             model_name="configuration",
             name="jinja2_trim",
-            field=models.BooleanField(
-                default=False, help_text="Removes new line after tag"
-            ),
+            field=models.BooleanField(default=False, help_text="Removes new line after tag"),
         ),
         migrations.AddField(
             model_name="email",
             name="jinja2_lstrip",
-            field=models.BooleanField(
-                default=False, help_text="Strips whitespaces before block"
-            ),
+            field=models.BooleanField(default=False, help_text="Strips whitespaces before block"),
         ),
         migrations.AddField(
             model_name="email",
             name="jinja2_trim",
-            field=models.BooleanField(
-                default=False, help_text="Removes new line after tag"
-            ),
+            field=models.BooleanField(default=False, help_text="Removes new line after tag"),
         ),
     ]

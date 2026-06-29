@@ -32,9 +32,7 @@ class Migration(migrations.Migration):
 
         # Update direct sessions objects
         for r in Relationship.objects.using(db_alias).all():
-            DirectPeeringSession.objects.using(db_alias).filter(
-                relationship=r.slug
-            ).update(relationship_fk=r)
+            DirectPeeringSession.objects.using(db_alias).filter(relationship=r.slug).update(relationship_fk=r)
 
     operations = [
         migrations.RunPython(create_existing_relationships),

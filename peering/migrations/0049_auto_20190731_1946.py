@@ -18,8 +18,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="directpeeringsession",
             name="local_ip_address",
-            field=netfields.fields.InetAddressField(
-                blank=True, max_length=39, null=True
-            ),
+            field=netfields.fields.InetAddressField(blank=True, max_length=39, null=True),
         ),
     ]

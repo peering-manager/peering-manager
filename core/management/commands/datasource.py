@@ -21,13 +21,9 @@ class Command(BaseCommand):
             data_sources = DataSource.objects.all()
         elif options["name"]:
             data_sources = DataSource.objects.filter(name__in=options["name"])
-            invalid_names = set(options["name"]) - {
-                d["name"] for d in data_sources.values("name")
-            }
+            invalid_names = set(options["name"]) - {d["name"] for d in data_sources.values("name")}
             if invalid_names:
-                raise CommandError(
-                    f"Invalid data source names: {', '.join(invalid_names)}"
-                )
+                raise CommandError(f"Invalid data source names: {', '.join(invalid_names)}")
         else:
             raise CommandError("Must specify at least one data source, or set --all")
 

@@ -15,13 +15,11 @@ class Migration(migrations.Migration):
         EmailType = ContentType.objects.get_for_model(Email)
         ObjectChange = apps.get_model("utils.ObjectChange")
 
-        ObjectChange.objects.using(schema_editor.connection.alias).filter(
-            changed_object_type=EmailType
-        )._raw_delete(schema_editor.connection.alias)
+        ObjectChange.objects.using(schema_editor.connection.alias).filter(changed_object_type=EmailType)._raw_delete(
+            schema_editor.connection.alias
+        )
 
     operations = [
         migrations.RunPython(cleanup_object_changes, migrations.RunPython.noop),
-        migrations.SeparateDatabaseAndState(
-            database_operations=database_operations, state_operations=state_operations
-        ),
+        migrations.SeparateDatabaseAndState(database_operations=database_operations, state_operations=state_operations),
     ]

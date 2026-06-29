@@ -46,9 +46,7 @@ class Configuration(SynchronisedDataMixin, TemplateModel):
         """
         from peering_manager.jinja2 import render_jinja2
 
-        return render_jinja2(
-            self.template, context, trim=self.jinja2_trim, lstrip=self.jinja2_lstrip
-        )
+        return render_jinja2(self.template, context, trim=self.jinja2_trim, lstrip=self.jinja2_lstrip)
 
 
 class Platform(OrganisationalModel):
@@ -119,9 +117,7 @@ class Platform(OrganisationalModel):
 
 
 class Router(JobsMixin, PushedDataMixin, PrimaryModel):
-    local_autonomous_system = models.ForeignKey(
-        to="peering.AutonomousSystem", on_delete=models.CASCADE, null=True
-    )
+    local_autonomous_system = models.ForeignKey(to="peering.AutonomousSystem", on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=128, unique=True)
     hostname = models.CharField(max_length=256)
     platform = models.ForeignKey(
@@ -131,9 +127,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         null=True,
         help_text="The router platform, used to interact with it",
     )
-    status = models.CharField(
-        max_length=50, choices=DeviceStatus, default=DeviceStatus.ENABLED
-    )
+    status = models.CharField(max_length=50, choices=DeviceStatus, default=DeviceStatus.ENABLED)
     encrypt_passwords = models.BooleanField(
         blank=True,
         default=False,
@@ -150,9 +144,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         "devices.Configuration", blank=True, null=True, on_delete=models.SET_NULL
     )
     communities = models.ManyToManyField(to="bgp.Community", blank=True)
-    netbox_device_id = models.PositiveIntegerField(
-        blank=True, default=0, verbose_name="NetBox device"
-    )
+    netbox_device_id = models.PositiveIntegerField(blank=True, default=0, verbose_name="NetBox device")
     napalm_username = models.CharField(blank=True, null=True, max_length=256)
     napalm_password = models.CharField(blank=True, null=True, max_length=256)
     napalm_timeout = models.PositiveIntegerField(blank=True, default=0)
@@ -200,9 +192,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         # Check if the router runs on a supported platform
         if not self.platform:
             if job:
-                job.log_warning(
-                    "Router has no assigned platform.", object=self, logger=logger
-                )
+                job.log_warning("Router has no assigned platform.", object=self, logger=logger)
             return False
         if not self.platform.napalm_driver:
             if job:
@@ -223,9 +213,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         the group are also attached to the router.
         """
         return BGPGroup.objects.filter(
-            pk__in=DirectPeeringSession.objects.filter(router=self).values_list(
-                "bgp_group", flat=True
-            )
+            pk__in=DirectPeeringSession.objects.filter(router=self).values_list("bgp_group", flat=True)
         )
 
     def get_connections(self, internet_exchange_point=None):
@@ -233,9 +221,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         Returns connections attached to this router.
         """
         if internet_exchange_point:
-            return Connection.objects.filter(
-                internet_exchange_point=internet_exchange_point, router=self
-            )
+            return Connection.objects.filter(internet_exchange_point=internet_exchange_point, router=self)
         return Connection.objects.filter(router=self)
 
     def get_internet_exchange_points(self):
@@ -243,9 +229,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         Returns IXPs that this router is connected to.
         """
         return InternetExchange.objects.filter(
-            pk__in=self.get_connections().values_list(
-                "internet_exchange_point", flat=True
-            )
+            pk__in=self.get_connections().values_list("internet_exchange_point", flat=True)
         )
 
     def get_direct_autonomous_systems(self, bgp_group=None):
@@ -253,13 +237,11 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         Returns autonomous systems that are directly peered with this router.
         """
         if bgp_group:
-            sessions = DirectPeeringSession.objects.filter(
-                bgp_group=bgp_group, router=self
-            ).values_list("autonomous_system", flat=True)
-        else:
-            sessions = DirectPeeringSession.objects.filter(router=self).values_list(
+            sessions = DirectPeeringSession.objects.filter(bgp_group=bgp_group, router=self).values_list(
                 "autonomous_system", flat=True
             )
+        else:
+            sessions = DirectPeeringSession.objects.filter(router=self).values_list("autonomous_system", flat=True)
         return AutonomousSystem.objects.filter(pk__in=sessions)
 
     def get_ixp_autonomous_systems(self, internet_exchange_point=None):
@@ -268,9 +250,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         """
         return AutonomousSystem.objects.filter(
             pk__in=InternetExchangePeeringSession.objects.filter(
-                ixp_connection__in=self.get_connections(
-                    internet_exchange_point=internet_exchange_point
-                )
+                ixp_connection__in=self.get_connections(internet_exchange_point=internet_exchange_point)
             ).values_list("autonomous_system", flat=True)
         )
 
@@ -278,9 +258,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         """
         Returns all autonomous systems with which this router peers.
         """
-        return self.get_direct_autonomous_systems().union(
-            self.get_ixp_autonomous_systems()
-        )
+        return self.get_direct_autonomous_systems().union(self.get_ixp_autonomous_systems())
 
     def get_direct_peering_sessions(self, bgp_group=None):
         """
@@ -295,9 +273,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         Returns all IXP peering sessions setup on this router.
         """
         return InternetExchangePeeringSession.objects.filter(
-            ixp_connection__in=self.get_connections(
-                internet_exchange_point=internet_exchange_point
-            )
+            ixp_connection__in=self.get_connections(internet_exchange_point=internet_exchange_point)
         )
 
     def get_bfd_configs(self):
@@ -305,8 +281,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         Returns all the BFDs that have at least one session configured on the router.
         """
         return BFD.objects.filter(
-            Q(directpeeringsession__router=self)
-            | Q(internetexchangepeeringsession__ixp_connection__router=self)
+            Q(directpeeringsession__router=self) | Q(internetexchangepeeringsession__ixp_connection__router=self)
         ).distinct()
 
     def get_routing_policies(self):
@@ -315,12 +290,10 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         """
         q = Q()
 
-        if direct_sessions := list(
-            self.get_direct_peering_sessions().values_list("pk", flat=True)
-        ):
-            q |= Q(
-                directpeeringsession_import_routing_policies__in=direct_sessions
-            ) | Q(directpeeringsession_export_routing_policies__in=direct_sessions)
+        if direct_sessions := list(self.get_direct_peering_sessions().values_list("pk", flat=True)):
+            q |= Q(directpeeringsession_import_routing_policies__in=direct_sessions) | Q(
+                directpeeringsession_export_routing_policies__in=direct_sessions
+            )
 
             direct_as = (
                 DirectPeeringSession.objects.filter(pk__in=direct_sessions)
@@ -332,9 +305,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
             )
 
             if bgp_groups := (
-                DirectPeeringSession.objects.filter(
-                    pk__in=direct_sessions, bgp_group__isnull=False
-                )
+                DirectPeeringSession.objects.filter(pk__in=direct_sessions, bgp_group__isnull=False)
                 .values_list("bgp_group", flat=True)
                 .distinct()
             ):
@@ -342,12 +313,8 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
                     bgpgroup_export_routing_policies__in=bgp_groups
                 )
 
-        if ixp_sessions := list(
-            self.get_ixp_peering_sessions().values_list("pk", flat=True)
-        ):
-            q |= Q(
-                internetexchangepeeringsession_import_routing_policies__in=ixp_sessions
-            ) | Q(
+        if ixp_sessions := list(self.get_ixp_peering_sessions().values_list("pk", flat=True)):
+            q |= Q(internetexchangepeeringsession_import_routing_policies__in=ixp_sessions) | Q(
                 internetexchangepeeringsession_export_routing_policies__in=ixp_sessions
             )
 
@@ -402,9 +369,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         else:
             rendered = ""
 
-        post_configuration_rendering.send(
-            sender=self.__class__, instance=self, configuration=rendered
-        )
+        post_configuration_rendering.send(sender=self.__class__, instance=self, configuration=rendered)
 
         return rendered
 
@@ -463,9 +428,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
             self.logger.debug(f"connecting to {self.hostname}")
             device.open()
         except napalm.base.exceptions.ConnectionException as e:
-            self.logger.error(
-                f'error while trying to connect to {self.hostname} reason "{e}"'
-            )
+            self.logger.error(f'error while trying to connect to {self.hostname} reason "{e}"')
         except Exception:
             self.logger.error(f"error while trying to connect to {self.hostname}")
         else:
@@ -516,9 +479,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
 
         # Issue while opening or closing the connection
         if not opened or not closed or not alive:
-            self.logger.error(
-                f"cannot connect to {self.hostname}, napalm functions won't work"
-            )
+            self.logger.error(f"cannot connect to {self.hostname}, napalm functions won't work")
 
         return opened and closed and alive
 
@@ -539,9 +500,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
 
         # Ensure device is enabled, we allow maintenance mode to force a config push
         if not self.is_usable_for_task():
-            self.logger.debug(
-                f"{self.hostname}: unusable (due to disabled state or platform), exiting config push"
-            )
+            self.logger.debug(f"{self.hostname}: unusable (due to disabled state or platform), exiting config push")
             return (
                 "device is unusable (check state or platform), cannot deploy config",
                 changes,
@@ -563,9 +522,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
                 self.logger.debug(f"merged configuration\n{config}")
 
                 # Get the config diff
-                self.logger.debug(
-                    f"checking for configuration changes on {self.hostname}"
-                )
+                self.logger.debug(f"checking for configuration changes on {self.hostname}")
                 changes = device.compare_config()
                 if not changes:
                     self.logger.debug("no configuration changes detected")
@@ -574,42 +531,28 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
 
                     # Commit the config if required
                     if commit:
-                        pre_device_configuration.send(
-                            sender=self.__class__, instance=self
-                        )
+                        pre_device_configuration.send(sender=self.__class__, instance=self)
                         self.logger.debug(f"commiting configuration on {self.hostname}")
                         device.commit_config()
-                        post_device_configuration.send(
-                            sender=self.__class__, instance=self, configuration=config
-                        )
+                        post_device_configuration.send(sender=self.__class__, instance=self, configuration=config)
                     else:
-                        self.logger.debug(
-                            f"discarding configuration on {self.hostname}"
-                        )
+                        self.logger.debug(f"discarding configuration on {self.hostname}")
                         device.discard_config()
             except Exception as e:
                 try:
                     # Try to restore initial config
                     device.discard_config()
                 except Exception as f:
-                    self.logger.debug(
-                        f'unable to discard configuration on {self.hostname} reason "{f}"'
-                    )
+                    self.logger.debug(f'unable to discard configuration on {self.hostname} reason "{f}"')
                 changes = None
                 error = str(e)
-                self.logger.debug(
-                    f'unable to merge configuration on {self.hostname} reason "{e}"'
-                )
+                self.logger.debug(f'unable to merge configuration on {self.hostname} reason "{e}"')
             else:
-                self.logger.debug(
-                    f"successfully merged configuration on {self.hostname}"
-                )
+                self.logger.debug(f"successfully merged configuration on {self.hostname}")
             finally:
                 closed = self.close_napalm_device(device)
                 if not closed:
-                    self.logger.debug(
-                        f"error while closing connection with {self.hostname}"
-                    )
+                    self.logger.debug(f"error while closing connection with {self.hostname}")
         else:
             error = f"unable to connect to {self.hostname}"
 
@@ -625,9 +568,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         for vrf in napalm_dict:
             # Get peers inside it
             peers = napalm_dict[vrf]["peers"]
-            self.logger.debug(
-                f"found {len(peers)} bgp neighbors in {vrf} vrf on {self.hostname}"
-            )
+            self.logger.debug(f"found {len(peers)} bgp neighbors in {vrf} vrf on {self.hostname}")
 
             # For each peer handle its IP address and the needed details
             for ip, details in peers.items():
@@ -676,21 +617,15 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
             self.logger.debug(f"getting bgp neighbors on {self.hostname}")
             bgp_neighbors = device.get_bgp_neighbors()
             self.logger.debug(f"raw napalm output {bgp_neighbors}")
-            self.logger.debug(
-                f"found {len(bgp_neighbors)} vrfs with bgp neighbors on {self.hostname}"
-            )
+            self.logger.debug(f"found {len(bgp_neighbors)} vrfs with bgp neighbors on {self.hostname}")
 
             bgp_sessions = self._napalm_bgp_neighbors_to_peer_list(bgp_neighbors)
-            self.logger.debug(
-                f"found {len(bgp_sessions)} bgp neighbors on {self.hostname}"
-            )
+            self.logger.debug(f"found {len(bgp_sessions)} bgp neighbors on {self.hostname}")
 
             # Close connection to the device
             closed = self.close_napalm_device(device)
             if not closed:
-                self.logger.debug(
-                    f"error while closing connection with {self.hostname}"
-                )
+                self.logger.debug(f"error while closing connection with {self.hostname}")
 
         return bgp_sessions
 
@@ -721,9 +656,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         for _, asn in bgp_neighbors.items():
             for _, neighbors in asn.items():
                 for neighbor in neighbors:
-                    neighbor_ip_address = ipaddress.ip_address(
-                        neighbor["remote_address"]
-                    )
+                    neighbor_ip_address = ipaddress.ip_address(neighbor["remote_address"])
                     if ip_address.ip == neighbor_ip_address:
                         return neighbor
 
@@ -747,21 +680,15 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
             self.logger.debug(f"getting bgp neighbors detail on {self.hostname}")
             bgp_neighbors_detail = device.get_bgp_neighbors_detail()
             self.logger.debug(f"raw napalm output {bgp_neighbors_detail}")
-            self.logger.debug(
-                f"found {len(bgp_neighbors_detail)} vrfs with bgp neighbors on {self.hostname}"
-            )
+            self.logger.debug(f"found {len(bgp_neighbors_detail)} vrfs with bgp neighbors on {self.hostname}")
 
             # Close connection to the device
             closed = self.close_napalm_device(device)
             if not closed:
-                self.logger.debug(
-                    f"error while closing connection with {self.hostname}"
-                )
+                self.logger.debug(f"error while closing connection with {self.hostname}")
 
         return (
-            bgp_neighbors_detail
-            if not ip_address
-            else self.find_bgp_neighbor_detail(bgp_neighbors_detail, ip_address)
+            bgp_neighbors_detail if not ip_address else self.find_bgp_neighbor_detail(bgp_neighbors_detail, ip_address)
         )
 
     def get_bgp_neighbors_detail(self, ip_address=None):
@@ -807,14 +734,10 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         Polls the state of a single session given its IP address.
         """
         if not self.is_usable_for_task():
-            self.logger.debug(
-                f"cannot poll bgp sessions state for {self.hostname}, disabled or platform unusable"
-            )
+            self.logger.debug(f"cannot poll bgp sessions state for {self.hostname}, disabled or platform unusable")
             return False
         if not self.poll_bgp_sessions_state:
-            self.logger.debug(
-                f"bgp sessions state polling disabled for {self.hostname}"
-            )
+            self.logger.debug(f"bgp sessions state polling disabled for {self.hostname}")
             return False
 
         # Get BGP session detail
@@ -822,15 +745,9 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         if bgp_neighbor_detail:
             return {
                 "bgp_state": bgp_neighbor_detail["connection_state"].lower(),
-                "received_prefix_count": max(
-                    0, bgp_neighbor_detail["received_prefix_count"]
-                ),
-                "accepted_prefix_count": max(
-                    0, bgp_neighbor_detail["accepted_prefix_count"]
-                ),
-                "advertised_prefix_count": max(
-                    0, bgp_neighbor_detail["advertised_prefix_count"]
-                ),
+                "received_prefix_count": max(0, bgp_neighbor_detail["received_prefix_count"]),
+                "accepted_prefix_count": max(0, bgp_neighbor_detail["accepted_prefix_count"]),
+                "advertised_prefix_count": max(0, bgp_neighbor_detail["advertised_prefix_count"]),
             }
 
         return {}
@@ -842,14 +759,10 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
         corresponding IXP or direct sessions found in records.
         """
         if not self.is_usable_for_task():
-            self.logger.debug(
-                f"cannot poll bgp sessions state for {self.hostname}, disabled or platform unusable"
-            )
+            self.logger.debug(f"cannot poll bgp sessions state for {self.hostname}, disabled or platform unusable")
             return False, 0
         if not self.poll_bgp_sessions_state:
-            self.logger.debug(
-                f"bgp sessions state polling disabled for {self.hostname}"
-            )
+            self.logger.debug(f"bgp sessions state polling disabled for {self.hostname}")
             return False, 0
 
         directs = self.get_direct_peering_sessions()
@@ -860,9 +773,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
             return True, 0
 
         # Get BGP neighbors details from router, but only get them once
-        bgp_neighbors_detail = self.bgp_neighbors_detail_as_list(
-            self.get_bgp_neighbors_detail()
-        )
+        bgp_neighbors_detail = self.bgp_neighbors_detail_as_list(self.get_bgp_neighbors_detail())
         if not bgp_neighbors_detail:
             self.logger.debug(f"no bgp sessions found on {self.hostname}")
             return True, 0
@@ -874,16 +785,12 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
 
             # Check if the session is in our database, skip it if not
             # NAPALM ignores prefix length, so __host is used to lookup the actual IP
-            match = directs.filter(ip_address__host=ip_address) or ixps.filter(
-                ip_address__host=ip_address
-            )
+            match = directs.filter(ip_address__host=ip_address) or ixps.filter(ip_address__host=ip_address)
             if not match:
                 self.logger.debug(f"session {ip_address} not found for {self.hostname}")
                 continue
             if match.count() > 1:
-                self.logger.debug(
-                    f"multiple sessions found for {ip_address} and {self.hostname}, ignoring"
-                )
+                self.logger.debug(f"multiple sessions found for {ip_address} and {self.hostname}, ignoring")
                 continue
 
             state = None
@@ -896,23 +803,15 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
                     re.IGNORECASE,
                 ):
                     state = possible_state
-                    self.logger.debug(
-                        f"found session {ip_address} on {self.hostname} in {state} state"
-                    )
+                    self.logger.debug(f"found session {ip_address} on {self.hostname} in {state} state")
                     break
 
             # Update fields
             session = match.first()
             session.bgp_state = state
-            session.received_prefix_count = max(
-                0, neighbor_detail["received_prefix_count"]
-            )
-            session.accepted_prefix_count = max(
-                0, neighbor_detail["accepted_prefix_count"]
-            )
-            session.advertised_prefix_count = max(
-                0, neighbor_detail["advertised_prefix_count"]
-            )
+            session.received_prefix_count = max(0, neighbor_detail["received_prefix_count"])
+            session.accepted_prefix_count = max(0, neighbor_detail["accepted_prefix_count"])
+            session.advertised_prefix_count = max(0, neighbor_detail["advertised_prefix_count"])
             # Update the BGP state of the session
             if session.bgp_state == BGPState.ESTABLISHED:
                 session.last_established_state = timezone.now()
@@ -920,14 +819,10 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
             try:
                 session.clean_fields()
                 session.save()
-                self.logger.debug(
-                    f"session {ip_address} on {self.hostname} saved as {state}"
-                )
+                self.logger.debug(f"session {ip_address} on {self.hostname} saved as {state}")
                 count += 1
             except ValidationError as exc:
-                self.logger.error(
-                    f"unable to set bgp state for session {ip_address} on {self.hostname} reason '{exc}'"
-                )
+                self.logger.error(f"unable to set bgp state for session {ip_address} on {self.hostname} reason '{exc}'")
                 continue
 
         # Save last session states update

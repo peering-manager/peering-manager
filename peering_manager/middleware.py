@@ -37,19 +37,12 @@ class CoreMiddleware:
             and not request.user.is_authenticated
             and not request.path_info.startswith(settings.AUTH_EXEMPT_PATHS)
         ):
-            return HttpResponseRedirect(
-                f"{settings.LOGIN_URL}?next={parse.quote(request.get_full_path_info())}"
-            )
+            return HttpResponseRedirect(f"{settings.LOGIN_URL}?next={parse.quote(request.get_full_path_info())}")
 
         # Set last search path if the user just performed a search (query string not
         # empty), this variable will last all the session life time
-        if (
-            not request.path_info.startswith(settings.AUTH_EXEMPT_PATHS)
-            and request.META["QUERY_STRING"]
-        ):
-            request.session["last_search"] = (
-                f"{request.path_info}?{request.META['QUERY_STRING']}"
-            )
+        if not request.path_info.startswith(settings.AUTH_EXEMPT_PATHS) and request.META["QUERY_STRING"]:
+            request.session["last_search"] = f"{request.path_info}?{request.META['QUERY_STRING']}"
 
         # Enable the change_logging context manager and process the request.
         with change_logging(request):
@@ -84,9 +77,7 @@ class RemoteUserMiddleware(DjangoRemoteUserMiddleware):
         return settings.REMOTE_AUTH_HEADER
 
     def __call__(self, request):
-        logger = logging.getLogger(
-            "peering.manager.authentication.RemoteUserMiddleware"
-        )
+        logger = logging.getLogger("peering.manager.authentication.RemoteUserMiddleware")
 
         # Bypass middleware if remote authentication is not enabled
         if not settings.REMOTE_AUTH_ENABLED:
@@ -123,9 +114,7 @@ class RemoteUserMiddleware(DjangoRemoteUserMiddleware):
         # authenticate the user
         if settings.REMOTE_AUTH_GROUP_SYNC_ENABLED:
             logger.debug("trying to sync groups")
-            user = auth.authenticate(
-                request, remote_user=username, remote_groups=self._get_groups(request)
-            )
+            user = auth.authenticate(request, remote_user=username, remote_groups=self._get_groups(request))
         else:
             user = auth.authenticate(request, remote_user=username)
 
@@ -147,9 +136,7 @@ class RemoteUserMiddleware(DjangoRemoteUserMiddleware):
         return self.get_response(request)
 
     def _get_groups(self, request):
-        logger = logging.getLogger(
-            "peering.manager.authentication.RemoteUserMiddleware"
-        )
+        logger = logging.getLogger("peering.manager.authentication.RemoteUserMiddleware")
 
         groups_string = request.META.get(settings.REMOTE_AUTH_GROUP_HEADER, None)
         if groups_string:
@@ -174,9 +161,7 @@ class PrometheusAfterMiddleware(middleware.PrometheusAfterMiddleware):
         if is_api_request(request):
             method = self._method(request)
             name = self._get_view_name(request)
-            self.label_metric(
-                metric=self.metrics.rest_api_requests, request=request, method=method
-            ).inc()
+            self.label_metric(metric=self.metrics.rest_api_requests, request=request, method=method).inc()
             self.label_metric(
                 metric=self.metrics.rest_api_requests_by_view_by_method,
                 request=request,

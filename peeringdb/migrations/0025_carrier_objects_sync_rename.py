@@ -28,21 +28,15 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "aka",
-                    models.CharField(
-                        blank=True, max_length=255, verbose_name="Also Known As"
-                    ),
+                    models.CharField(blank=True, max_length=255, verbose_name="Also Known As"),
                 ),
                 (
                     "name_long",
-                    models.CharField(
-                        blank=True, max_length=255, verbose_name="Long Name"
-                    ),
+                    models.CharField(blank=True, max_length=255, verbose_name="Long Name"),
                 ),
                 (
                     "website",
-                    peeringdb.models.URLField(
-                        blank=True, max_length=255, null=True, verbose_name="Website"
-                    ),
+                    peeringdb.models.URLField(blank=True, max_length=255, null=True, verbose_name="Website"),
                 ),
                 ("notes", models.TextField(blank=True, verbose_name="Notes")),
                 (
@@ -95,9 +89,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="ixlan",
             name="mtu",
-            field=models.PositiveIntegerField(
-                blank=True, choices=[(1500, "1500"), (9000, "9000")], null=True
-            ),
+            field=models.PositiveIntegerField(blank=True, choices=[(1500, "1500"), (9000, "9000")], null=True),
         ),
         migrations.RenameModel(old_name="Synchronization", new_name="Synchronisation"),
     ]

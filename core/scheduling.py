@@ -25,9 +25,7 @@ __all__ = (
 def _cancel_schedule(cls: type[JobRunner]) -> None:
     # Only enqueued-but-not-started jobs are cancelled; a running job is left to
     # finish (its reschedule then no-ops because the row is disabled).
-    for job in cls.get_jobs().filter(
-        status__in=(JobStatus.PENDING, JobStatus.SCHEDULED)
-    ):
+    for job in cls.get_jobs().filter(status__in=(JobStatus.PENDING, JobStatus.SCHEDULED)):
         job.delete()
 
 

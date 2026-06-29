@@ -209,9 +209,7 @@ class ViewTestCases:
 
             # Try GET without permission
             with disable_warnings("django.request"):
-                self.assertHttpStatus(
-                    self.client.get(self._get_url("edit", instance)), 403
-                )
+                self.assertHttpStatus(self.client.get(self._get_url("edit", instance)), 403)
 
             # Try POST without permission
             request = {
@@ -235,9 +233,7 @@ class ViewTestCases:
                 "data": post_data(self.form_data),
             }
             self.assertHttpStatus(self.client.post(**request), 302)
-            self.assertInstanceEqual(
-                self._get_queryset().get(pk=instance.pk), self.form_data
-            )
+            self.assertInstanceEqual(self._get_queryset().get(pk=instance.pk), self.form_data)
 
             # Verify ObjectChange creation
             if issubclass(instance.__class__, ChangeLoggingMixin):
@@ -258,9 +254,7 @@ class ViewTestCases:
 
             # Try GET without permission
             with disable_warnings("django.request"):
-                self.assertHttpStatus(
-                    self.client.get(self._get_url("delete", instance)), 403
-                )
+                self.assertHttpStatus(self.client.get(self._get_url("delete", instance)), 403)
 
             # Try POST without permission
             request = {
@@ -276,9 +270,7 @@ class ViewTestCases:
             self.add_permissions("delete")
 
             # Try GET with permission
-            self.assertHttpStatus(
-                self.client.get(self._get_url("delete", instance)), 200
-            )
+            self.assertHttpStatus(self.client.get(self._get_url("delete", instance)), 200)
 
             # Try POST with permission
             request = {
@@ -328,9 +320,7 @@ class ViewTestCases:
             # delete perm enables the bulk_delete action, which is what gates
             # the OOB return-url swap asserted below
             self.add_permissions("view", "delete")
-            response = self.client.get(
-                self._get_url("list"), headers={"HX-Request": "true"}
-            )
+            response = self.client.get(self._get_url("list"), headers={"HX-Request": "true"})
             self.assertHttpStatus(response, 200)
             body = response.content.decode()
             self.assertIn('class="htmx-container"', body)

@@ -7,9 +7,7 @@ class Migration(migrations.Migration):
     dependencies = [("net", "0005_alter_connection_options")]
 
     operations = [
-        migrations.RenameField(
-            model_name="connection", old_name="state", new_name="status"
-        ),
+        migrations.RenameField(model_name="connection", old_name="state", new_name="status"),
         migrations.AlterField(
             model_name="connection",
             name="status",

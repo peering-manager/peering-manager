@@ -20,6 +20,4 @@ class JobFilterForm(BootstrapMixin, forms.Form):
         queryset=User.objects.all(),
         widget=APISelectMultiple(api_url="/api/users/users/"),
     )
-    status = forms.MultipleChoiceField(
-        required=False, choices=JobStatus, widget=StaticSelectMultiple
-    )
+    status = forms.MultipleChoiceField(required=False, choices=JobStatus, widget=StaticSelectMultiple)

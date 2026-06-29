@@ -12,11 +12,7 @@ def is_ruleset(data):
     """
     Determine whether the given dictionary looks like a rule set.
     """
-    return (
-        isinstance(data, dict)
-        and len(data) == 1
-        and next(iter(data.keys())) in (AND, OR)
-    )
+    return isinstance(data, dict) and len(data) == 1 and next(iter(data.keys())) in (AND, OR)
 
 
 class Condition:
@@ -46,9 +42,7 @@ class Condition:
 
     def __init__(self, attr, value, op=EQ, negate=False):
         if op not in self.OPERATORS:
-            raise ValueError(
-                f"Unknown operator: {op}. Must be one of: {', '.join(self.OPERATORS)}"
-            )
+            raise ValueError(f"Unknown operator: {op}. Must be one of: {', '.join(self.OPERATORS)}")
         if type(value) not in self.TYPES:
             raise ValueError(f"Unsupported value type: {type(value)}")
         if op not in self.TYPES[type(value)]:
@@ -135,9 +129,7 @@ class ConditionSet:
         if not isinstance(ruleset, dict):
             raise ValueError(f"Ruleset must be a dictionary, not {type(ruleset)}.")
         if len(ruleset) != 1:
-            raise ValueError(
-                f"Ruleset must have exactly one logical operator (found {len(ruleset)})"
-            )
+            raise ValueError(f"Ruleset must have exactly one logical operator (found {len(ruleset)})")
 
         # Determine the logic type
         logic = next(iter(ruleset.keys()))
@@ -147,8 +139,7 @@ class ConditionSet:
 
         # Compile the set of Conditions
         self.conditions = [
-            ConditionSet(rule) if is_ruleset(rule) else Condition(**rule)
-            for rule in ruleset[self.logic]
+            ConditionSet(rule) if is_ruleset(rule) else Condition(**rule) for rule in ruleset[self.logic]
         ]
 
     def eval(self, data):

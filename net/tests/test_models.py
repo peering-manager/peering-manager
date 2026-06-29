@@ -28,9 +28,7 @@ class BFDTest(TestCase):
 class ConnectionTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        local_autonomous_system = AutonomousSystem.objects.create(
-            asn=201281, name="Guillaume Mazoyer", affiliated=True
-        )
+        local_autonomous_system = AutonomousSystem.objects.create(asn=201281, name="Guillaume Mazoyer", affiliated=True)
         internet_exchange_point = InternetExchange.objects.create(
             name="Test", slug="test", local_autonomous_system=local_autonomous_system
         )

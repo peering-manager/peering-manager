@@ -21,9 +21,7 @@ def validate_standard_community(values: list[str]) -> None:
 
     asn, com = int(values[0]), int(values[1])
     if asn <= 0 or asn > ASN_MAX_2_OCTETS or com > ASN_MAX_2_OCTETS:
-        raise ValueError(
-            "ASN and community value must be 16-bit numbers for BGP communities"
-        )
+        raise ValueError("ASN and community value must be 16-bit numbers for BGP communities")
 
 
 def validate_extended_community(values: list[str]) -> None:
@@ -37,34 +35,20 @@ def validate_extended_community(values: list[str]) -> None:
             "Administrator value must be a ASN number or an IPv4 address for BGP extended communities"
         ) from None
 
-    assigned_number_max_value = (
-        ASN_MAX_2_OCTETS if int(admin) > ASN_MAX_2_OCTETS else ASN_MAX
-    )
-    if (
-        not values[2].isdigit()
-        or int(values[2]) <= 0
-        or int(values[2]) > assigned_number_max_value
-    ):
-        raise ValueError(
-            "Assigned number must be a 16-bit or 32-bit number for BGP extended communities"
-        )
+    assigned_number_max_value = ASN_MAX_2_OCTETS if int(admin) > ASN_MAX_2_OCTETS else ASN_MAX
+    if not values[2].isdigit() or int(values[2]) <= 0 or int(values[2]) > assigned_number_max_value:
+        raise ValueError("Assigned number must be a 16-bit or 32-bit number for BGP extended communities")
 
 
 def validate_large_community(values: list[str]) -> None:
     if any(not p.isdigit() for p in values):
-        raise ValueError(
-            "Global administrator and assigned numbers must be 32-bit numbers for BGP large communities"
-        )
+        raise ValueError("Global administrator and assigned numbers must be 32-bit numbers for BGP large communities")
 
     admin, assigned_number_1, assigned_number_2 = (int(v) for v in values)
     if admin <= 0 or admin > ASN_MAX:
-        raise ValueError(
-            "Global administrator must be a 32-bit number of BGP large communities"
-        )
+        raise ValueError("Global administrator must be a 32-bit number of BGP large communities")
     if any(p < 0 or p > ASN_MAX for p in (assigned_number_1, assigned_number_2)):
-        raise ValueError(
-            "Assigned numbers must be a 32-bit numbers for BGP large communities"
-        )
+        raise ValueError("Assigned numbers must be a 32-bit numbers for BGP large communities")
 
 
 def get_community_kind(value: str) -> CommunityKind:

@@ -18,8 +18,6 @@ class Migration(migrations.Migration):
         migrations.RenameField(model_name="ixapi", old_name="url", new_name="api_url"),
         migrations.AddConstraint(
             model_name="ixapi",
-            constraint=models.UniqueConstraint(
-                fields=("api_url", "api_key"), name="unique_ixapi_url_key"
-            ),
+            constraint=models.UniqueConstraint(fields=("api_url", "api_key"), name="unique_ixapi_url_key"),
         ),
     ]

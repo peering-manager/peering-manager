@@ -6,14 +6,10 @@ from django.db import migrations, models
 
 def copy_fk_identifiers(apps, schema_editor):
     HiddenPeer = apps.get_model("peeringdb", "HiddenPeer")
-    for hidden_peer in HiddenPeer.objects.select_related(
-        "peeringdb_network", "peeringdb_ixlan"
-    ).all():
+    for hidden_peer in HiddenPeer.objects.select_related("peeringdb_network", "peeringdb_ixlan").all():
         hidden_peer.peeringdb_network_id_copy = hidden_peer.peeringdb_network.pk
         hidden_peer.peeringdb_ixlan_id_copy = hidden_peer.peeringdb_ixlan.pk
-        hidden_peer.save(
-            update_fields=["peeringdb_network_id_copy", "peeringdb_ixlan_id_copy"]
-        )
+        hidden_peer.save(update_fields=["peeringdb_network_id_copy", "peeringdb_ixlan_id_copy"])
 
 
 class Migration(migrations.Migration):
@@ -53,9 +49,7 @@ class Migration(migrations.Migration):
                 to="peeringdb.network",
             ),
         ),
-        migrations.RemoveConstraint(
-            model_name="hiddenpeer", name="network_ixlan_unique_hiddenpeer"
-        ),
+        migrations.RemoveConstraint(model_name="hiddenpeer", name="network_ixlan_unique_hiddenpeer"),
         migrations.AddConstraint(
             model_name="hiddenpeer",
             constraint=models.UniqueConstraint(

@@ -20,10 +20,7 @@ def is_same_object(instance, webhook_data, request_id):
     Compare the given instance to the most recent queued webhook object, returning True
     if they match. This check is used to avoid creating duplicate webhook entries.
     """
-    return (
-        instance.pk == webhook_data["object_id"]
-        and request_id == webhook_data["request_id"]
-    )
+    return instance.pk == webhook_data["object_id"] and request_id == webhook_data["request_id"]
 
 
 @receiver((post_save, m2m_changed))
@@ -74,9 +71,7 @@ def handle_changed_object(sender, instance, **kwargs):
     if m2m_changed and queue and is_same_object(instance, queue[-1], request.id):
         instance.refresh_from_db()  # Ensure that we're working with fresh M2M assignments
         queue[-1]["data"] = serialize_for_webhook(instance)
-        queue[-1]["snapshots"]["postchange"] = get_snapshots(instance, action)[
-            "postchange"
-        ]
+        queue[-1]["snapshots"]["postchange"] = get_snapshots(instance, action)["postchange"]
     else:
         enqueue_object(queue, instance, request.user, request.id, action)
     webhooks_queue.set(queue)
@@ -125,7 +120,5 @@ def auto_synchronisation(instance, **kwargs):
     """
     from .models import AutoSynchronisationRecord
 
-    for record in AutoSynchronisationRecord.objects.filter(
-        data_file__source=instance
-    ).prefetch_related("object"):
+    for record in AutoSynchronisationRecord.objects.filter(data_file__source=instance).prefetch_related("object"):
         record.object.synchronise(save=True)

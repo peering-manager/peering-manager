@@ -127,9 +127,7 @@ class EnqueueOnceTests(MockedQueueTestCase):
         second = _SuccessRunner.enqueue_once(interval=15)
         self.assertEqual(first.pk, second.pk)
         self.assertEqual(
-            Job.objects.filter(
-                name="test.success", status__in=JobStatus.ENQUEUED_STATE_CHOICES
-            ).count(),
+            Job.objects.filter(name="test.success", status__in=JobStatus.ENQUEUED_STATE_CHOICES).count(),
             1,
         )
 

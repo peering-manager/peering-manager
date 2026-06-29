@@ -84,9 +84,7 @@ class DynamicModelChoiceMixin:
         # Set the data URL on the APISelect widget (if not already set)
         widget = bound_field.field.widget
         if not widget.attrs.get("data-url"):
-            data_url = reverse(
-                f"{self.queryset.model._meta.app_label}-api:{self.queryset.model._meta.model_name}-list"
-            )
+            data_url = reverse(f"{self.queryset.model._meta.app_label}-api:{self.queryset.model._meta.model_name}-list")
             widget.attrs["data-url"] = data_url
 
         return bound_field
@@ -105,9 +103,7 @@ class DynamicModelChoiceField(DynamicModelChoiceMixin, forms.ModelChoiceField):
         return super().clean(value)
 
 
-class DynamicModelMultipleChoiceField(
-    DynamicModelChoiceMixin, forms.ModelMultipleChoiceField
-):
+class DynamicModelMultipleChoiceField(DynamicModelChoiceMixin, forms.ModelMultipleChoiceField):
     """
     A multiple-choice version of DynamicModelChoiceField.
     """

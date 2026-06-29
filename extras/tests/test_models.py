@@ -50,9 +50,7 @@ class IXAPITest(TestCase):
 
     @patch(
         "requests.sessions.Session.post",
-        return_value=MockedResponse(
-            fixture="extras/tests/fixtures/ix_api/authenticate.json"
-        ),
+        return_value=MockedResponse(fixture="extras/tests/fixtures/ix_api/authenticate.json"),
     )
     def test_version(self, *_):
         with patch("pyixapi.core.query.Request.get_version", return_value=1):
@@ -64,9 +62,7 @@ class IXAPITest(TestCase):
 
     @patch(
         "requests.sessions.Session.post",
-        return_value=MockedResponse(
-            fixture="extras/tests/fixtures/ix_api/authenticate.json"
-        ),
+        return_value=MockedResponse(fixture="extras/tests/fixtures/ix_api/authenticate.json"),
     )
     def test_dial(self, *_):
         a = self.ix_api.dial()
@@ -74,9 +70,7 @@ class IXAPITest(TestCase):
 
     @patch(
         "requests.sessions.Session.post",
-        return_value=MockedResponse(
-            fixture="extras/tests/fixtures/ix_api/authenticate.json"
-        ),
+        return_value=MockedResponse(fixture="extras/tests/fixtures/ix_api/authenticate.json"),
     )
     def test_get_health(self, *_):
         # health endpoint not available in version 1
@@ -104,26 +98,20 @@ class IXAPITest(TestCase):
 
     @patch(
         "requests.sessions.Session.post",
-        return_value=MockedResponse(
-            fixture="extras/tests/fixtures/ix_api/authenticate.json"
-        ),
+        return_value=MockedResponse(fixture="extras/tests/fixtures/ix_api/authenticate.json"),
     )
     @patch("pyixapi.core.api.API.version", return_value=1)
     def test_get_accounts(self, *_):
         with patch(
             "requests.sessions.Session.get",
-            return_value=MockedResponse(
-                fixture="extras/tests/fixtures/ix_api/accounts.json"
-            ),
+            return_value=MockedResponse(fixture="extras/tests/fixtures/ix_api/accounts.json"),
         ):
             a = self.ix_api.get_accounts()
             self.assertEqual(2, len(a))
 
     @patch(
         "requests.sessions.Session.post",
-        return_value=MockedResponse(
-            fixture="extras/tests/fixtures/ix_api/authenticate.json"
-        ),
+        return_value=MockedResponse(fixture="extras/tests/fixtures/ix_api/authenticate.json"),
     )
     @patch("pyixapi.core.api.API.version", return_value=1)
     def test_get_identity(self, *_):
@@ -138,32 +126,22 @@ class IXAPITest(TestCase):
         # If API yields more than one account
         with patch(
             "requests.sessions.Session.get",
-            return_value=MockedResponse(
-                fixture="extras/tests/fixtures/ix_api/accounts.json"
-            ),
+            return_value=MockedResponse(fixture="extras/tests/fixtures/ix_api/accounts.json"),
         ):
             self.assertIsNone(self.ix_api.get_identity())
 
     @patch(
         "requests.sessions.Session.post",
-        return_value=MockedResponse(
-            fixture="extras/tests/fixtures/ix_api/authenticate.json"
-        ),
+        return_value=MockedResponse(fixture="extras/tests/fixtures/ix_api/authenticate.json"),
     )
     @patch("pyixapi.core.api.API.version", return_value=1)
     def test_get_network_service_configs(self, *_):
         with patch(
             "requests.sessions.Session.get",
             side_effect=[
-                MockedResponse(
-                    fixture="extras/tests/fixtures/ix_api/network_service_configs.json"
-                ),
-                MockedResponse(
-                    fixture="extras/tests/fixtures/ix_api/network_services.json"
-                ),
-                MockedResponse(
-                    fixture="extras/tests/fixtures/ix_api/network_features.json"
-                ),
+                MockedResponse(fixture="extras/tests/fixtures/ix_api/network_service_configs.json"),
+                MockedResponse(fixture="extras/tests/fixtures/ix_api/network_services.json"),
+                MockedResponse(fixture="extras/tests/fixtures/ix_api/network_features.json"),
                 MockedResponse(fixture="extras/tests/fixtures/ix_api/products.json"),
                 MockedResponse(fixture="extras/tests/fixtures/ix_api/macs.json"),
                 MockedResponse(fixture="extras/tests/fixtures/ix_api/ips.json"),
@@ -175,24 +153,16 @@ class IXAPITest(TestCase):
 
     @patch(
         "requests.sessions.Session.post",
-        return_value=MockedResponse(
-            fixture="extras/tests/fixtures/ix_api/authenticate.json"
-        ),
+        return_value=MockedResponse(fixture="extras/tests/fixtures/ix_api/authenticate.json"),
     )
     @patch("pyixapi.core.api.API.version", return_value=1)
     def test_get_network_services(self, *_):
         with patch(
             "requests.sessions.Session.get",
             side_effect=[
-                MockedResponse(
-                    fixture="extras/tests/fixtures/ix_api/network_service_configs.json"
-                ),
-                MockedResponse(
-                    fixture="extras/tests/fixtures/ix_api/network_services.json"
-                ),
-                MockedResponse(
-                    fixture="extras/tests/fixtures/ix_api/network_features.json"
-                ),
+                MockedResponse(fixture="extras/tests/fixtures/ix_api/network_service_configs.json"),
+                MockedResponse(fixture="extras/tests/fixtures/ix_api/network_services.json"),
+                MockedResponse(fixture="extras/tests/fixtures/ix_api/network_features.json"),
                 MockedResponse(fixture="extras/tests/fixtures/ix_api/products.json"),
                 MockedResponse(fixture="extras/tests/fixtures/ix_api/macs.json"),
                 MockedResponse(fixture="extras/tests/fixtures/ix_api/ips.json"),

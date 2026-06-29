@@ -34,9 +34,7 @@ __all__ = (
 class DirectPeeringSessionList(ObjectListView):
     permission_required = "peering.view_directpeeringsession"
     queryset = (
-        DirectPeeringSession.objects.order_by(
-            "local_autonomous_system", "autonomous_system", "ip_address"
-        )
+        DirectPeeringSession.objects.order_by("local_autonomous_system", "autonomous_system", "ip_address")
         .select_related("local_autonomous_system", "autonomous_system")
         .defer(
             "local_autonomous_system__prefixes",
@@ -81,9 +79,7 @@ class DirectPeeringSessionBulkEdit(BulkEditView):
     form = DirectPeeringSessionBulkEditForm
 
 
-@register_model_view(
-    DirectPeeringSession, name="bulk_delete", path="delete", detail=False
-)
+@register_model_view(DirectPeeringSession, name="bulk_delete", path="delete", detail=False)
 class DirectPeeringSessionBulkDelete(BulkDeleteView):
     queryset = DirectPeeringSession.objects.all()
     filterset = DirectPeeringSessionFilterSet

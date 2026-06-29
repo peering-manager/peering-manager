@@ -42,9 +42,7 @@ def tearDownModule():
 
 
 def _make_task(enabled=True, interval=JobInterval.DAILY):
-    return ScheduledTask.objects.create(
-        task=TASK_KEY, enabled=enabled, interval=interval
-    )
+    return ScheduledTask.objects.create(task=TASK_KEY, enabled=enabled, interval=interval)
 
 
 def _make_job(status, *, scheduled=None, started=None, completed=None, interval=None):
@@ -100,9 +98,7 @@ class ScheduledTaskPropertyTests(TestCase):
 
     def test_next_run_returns_soonest_scheduled(self):
         _make_job(JobStatus.SCHEDULED, scheduled=timezone.now() + timedelta(hours=2))
-        sooner = _make_job(
-            JobStatus.SCHEDULED, scheduled=timezone.now() + timedelta(hours=1)
-        )
+        sooner = _make_job(JobStatus.SCHEDULED, scheduled=timezone.now() + timedelta(hours=1))
         self.assertEqual(self.task.next_run, sooner.scheduled)
 
     def test_next_run_prefers_run_now_pending_job(self):
@@ -122,20 +118,14 @@ class ReconcileTests(MockedQueueTestCase):
     def test_enabled_row_is_enqueued(self):
         _make_task(enabled=True)
         reconcile_schedules()
-        self.assertTrue(
-            Job.objects.filter(
-                name=TASK_LABEL, status__in=JobStatus.ENQUEUED_STATE_CHOICES
-            ).exists()
-        )
+        self.assertTrue(Job.objects.filter(name=TASK_LABEL, status__in=JobStatus.ENQUEUED_STATE_CHOICES).exists())
 
     def test_disabled_row_cancels_pending_jobs(self):
         _make_task(enabled=False)
         _make_job(JobStatus.SCHEDULED, scheduled=timezone.now())
         reconcile_schedules()
         self.assertFalse(
-            Job.objects.filter(
-                name=TASK_LABEL, status__in=(JobStatus.PENDING, JobStatus.SCHEDULED)
-            ).exists()
+            Job.objects.filter(name=TASK_LABEL, status__in=(JobStatus.PENDING, JobStatus.SCHEDULED)).exists()
         )
 
     def test_disabled_row_leaves_running_job_alone(self):
@@ -146,9 +136,7 @@ class ReconcileTests(MockedQueueTestCase):
 
     def test_unknown_task_row_is_skipped(self):
         # a row with no matching catalog entry is tolerated, not fatal
-        ScheduledTask.objects.create(
-            task="ghost-task", enabled=True, interval=JobInterval.DAILY
-        )
+        ScheduledTask.objects.create(task="ghost-task", enabled=True, interval=JobInterval.DAILY)
         reconcile_schedules()  # must not raise
         self.assertTrue(ScheduledTask.objects.filter(task="ghost-task").exists())
 
@@ -168,9 +156,7 @@ class HandleRescheduleTests(MockedQueueTestCase):
     def test_reschedules_at_current_row_interval(self):
         _make_task(enabled=True, interval=JobInterval.HOURLY)
         # successor takes the row interval, not the job's stale one
-        job = _make_job(
-            JobStatus.SCHEDULED, scheduled=timezone.now(), interval=JobInterval.DAILY
-        )
+        job = _make_job(JobStatus.SCHEDULED, scheduled=timezone.now(), interval=JobInterval.DAILY)
         _ScheduledRunner.handle(job)
         successor = Job.objects.filter(name=TASK_LABEL).exclude(pk=job.pk).first()
         self.assertIsNotNone(successor)
@@ -182,11 +168,7 @@ class SignalTests(MockedQueueTestCase):
     def test_save_triggers_reconcile(self):
         with self.captureOnCommitCallbacks(execute=True):
             _make_task(enabled=True, interval=JobInterval.HOURLY)
-        self.assertTrue(
-            Job.objects.filter(
-                name=TASK_LABEL, status__in=JobStatus.ENQUEUED_STATE_CHOICES
-            ).exists()
-        )
+        self.assertTrue(Job.objects.filter(name=TASK_LABEL, status__in=JobStatus.ENQUEUED_STATE_CHOICES).exists())
 
     def test_delete_triggers_reconcile_and_cancels(self):
         with self.captureOnCommitCallbacks(execute=True):
@@ -194,9 +176,7 @@ class SignalTests(MockedQueueTestCase):
         with self.captureOnCommitCallbacks(execute=True):
             task.delete()
         self.assertFalse(
-            Job.objects.filter(
-                name=TASK_LABEL, status__in=(JobStatus.PENDING, JobStatus.SCHEDULED)
-            ).exists()
+            Job.objects.filter(name=TASK_LABEL, status__in=(JobStatus.PENDING, JobStatus.SCHEDULED)).exists()
         )
 
 
@@ -214,9 +194,7 @@ class RunNowTests(MockedQueueTestCase):
 class ScheduledTaskViewTests(MockedQueueTestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = User.objects.create_superuser(
-            username="admin", email="admin@example.net", password="password"
-        )
+        cls.user = User.objects.create_superuser(username="admin", email="admin@example.net", password="password")
 
     def setUp(self):
         super().setUp()
@@ -248,23 +226,13 @@ class ScheduledTaskViewTests(MockedQueueTestCase):
             )
         self.assertEqual(response.status_code, 302)
         self.assertTrue(ScheduledTask.objects.filter(task=TASK_KEY).exists())
-        self.assertTrue(
-            Job.objects.filter(
-                name=TASK_LABEL, status__in=JobStatus.ENQUEUED_STATE_CHOICES
-            ).exists()
-        )
+        self.assertTrue(Job.objects.filter(name=TASK_LABEL, status__in=JobStatus.ENQUEUED_STATE_CHOICES).exists())
 
     def test_run_now_recovers_a_stuck_task(self):
         task = _make_task(enabled=True)
         stuck = _make_job(JobStatus.RUNNING, started=timezone.now() - timedelta(days=2))
         with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(
-                reverse("core:scheduledtask_run", args=[task.pk])
-            )
+            response = self.client.post(reverse("core:scheduledtask_run", args=[task.pk]))
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Job.objects.filter(pk=stuck.pk).exists())
-        self.assertTrue(
-            Job.objects.filter(
-                name=TASK_LABEL, status__in=JobStatus.ENQUEUED_STATE_CHOICES
-            ).exists()
-        )
+        self.assertTrue(Job.objects.filter(name=TASK_LABEL, status__in=JobStatus.ENQUEUED_STATE_CHOICES).exists())

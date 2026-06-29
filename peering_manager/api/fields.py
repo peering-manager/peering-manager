@@ -83,9 +83,7 @@ class ChoiceField(serializers.Field):
 
         # Provide an explicit error message if the request is trying to write a dict or list
         if isinstance(data, dict | list):
-            raise ValidationError(
-                'Value must be passed directly (e.g. "foo": 123); do not use a dictionary or list.'
-            )
+            raise ValidationError('Value must be passed directly (e.g. "foo": 123); do not use a dictionary or list.')
 
         # Check for string representations of boolean/integer values
         if hasattr(data, "lower"):

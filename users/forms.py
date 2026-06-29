@@ -74,6 +74,4 @@ class UserPreferencesForm(BootstrapMixin, forms.Form):
             page_lengths.append(settings.PAGINATE_COUNT)
             page_lengths.sort()
 
-        self.fields["page_length"].choices = add_blank_choice(
-            [(str(n), str(n)) for n in page_lengths]
-        )
+        self.fields["page_length"].choices = add_blank_choice([(str(n), str(n)) for n in page_lengths])

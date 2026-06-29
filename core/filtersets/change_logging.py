@@ -13,12 +13,8 @@ __all__ = ("ObjectChangeFilterSet",)
 class ObjectChangeFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(method="search", label="Search")
     time = django_filters.DateTimeFromToRangeFilter()
-    action = django_filters.MultipleChoiceFilter(
-        choices=ObjectChangeAction, null_value=None
-    )
-    user_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=User.objects.all(), label="User (ID)"
-    )
+    action = django_filters.MultipleChoiceFilter(choices=ObjectChangeAction, null_value=None)
+    user_id = django_filters.ModelMultipleChoiceFilter(queryset=User.objects.all(), label="User (ID)")
     user = django_filters.ModelMultipleChoiceFilter(
         field_name="user__username",
         queryset=User.objects.all(),
@@ -42,6 +38,4 @@ class ObjectChangeFilterSet(BaseFilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(
-            Q(user_name__icontains=value) | Q(object_repr__icontains=value)
-        )
+        return queryset.filter(Q(user_name__icontains=value) | Q(object_repr__icontains=value))

@@ -71,15 +71,9 @@ class ConfigContextAssignmentTest(APIViewTestCases.View):
         ConfigContext.objects.bulk_create(config_contexts)
 
         config_context_assignments = [
-            ConfigContextAssignment(
-                object=asns[0], config_context=config_contexts[0], weight=1000
-            ),
-            ConfigContextAssignment(
-                object=asns[0], config_context=config_contexts[1], weight=1000
-            ),
-            ConfigContextAssignment(
-                object=asns[0], config_context=config_contexts[2], weight=1000
-            ),
+            ConfigContextAssignment(object=asns[0], config_context=config_contexts[0], weight=1000),
+            ConfigContextAssignment(object=asns[0], config_context=config_contexts[1], weight=1000),
+            ConfigContextAssignment(object=asns[0], config_context=config_contexts[2], weight=1000),
         ]
         ConfigContextAssignment.objects.bulk_create(config_context_assignments)
 
@@ -229,9 +223,7 @@ class IXAPITest(APIViewTestCases.View):
 
     @patch(
         "requests.sessions.Session.post",
-        return_value=MockedResponse(
-            fixture="extras/tests/fixtures/ix_api/authenticate.json"
-        ),
+        return_value=MockedResponse(fixture="extras/tests/fixtures/ix_api/authenticate.json"),
     )
     @patch("pyixapi.core.api.API.version", return_value=1)
     def test_accounts(self, *_):
@@ -245,11 +237,7 @@ class IXAPITest(APIViewTestCases.View):
         # With query params
         with patch(
             "pyixapi.core.query.Request.get",
-            return_value=iter(
-                MockedResponse(
-                    fixture="extras/tests/fixtures/ix_api/accounts.json"
-                ).json()
-            ),
+            return_value=iter(MockedResponse(fixture="extras/tests/fixtures/ix_api/accounts.json").json()),
         ):
             response = self.client.get(
                 url,
@@ -391,9 +379,7 @@ class PrefixListViewTest(APITestCase):
 
     @patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen)
     def test_get_prefix_list_with_as_set(self, mocked_popen):
-        response = self.client.get(
-            self.url, data={"as-set": "AS-MOCKED"}, format="json", **self.header
-        )
+        response = self.client.get(self.url, data={"as-set": "AS-MOCKED"}, format="json", **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertIn("AS-MOCKED", response.data)
         self.assertIn("ipv4", response.data["AS-MOCKED"])
@@ -403,9 +389,7 @@ class PrefixListViewTest(APITestCase):
 
     @patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen)
     def test_get_prefix_list_with_multiple_as_sets(self, mocked_popen):
-        response = self.client.get(
-            self.url, data={"as-set": "AS-MOCKED,AS65537"}, format="json", **self.header
-        )
+        response = self.client.get(self.url, data={"as-set": "AS-MOCKED,AS65537"}, format="json", **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertIn("AS-MOCKED", response.data)
         self.assertIn("AS65537", response.data)
@@ -455,15 +439,11 @@ class PrefixListViewTest(APITestCase):
 
     @patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen)
     def test_get_prefix_list_with_cache(self, mocked_popen):
-        response = self.client.get(
-            self.url, data={"as-set": "AS-MOCKED"}, format="json", **self.header
-        )
+        response = self.client.get(self.url, data={"as-set": "AS-MOCKED"}, format="json", **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         call_count = mocked_popen.call_count
 
-        cached_response = self.client.get(
-            self.url, data={"as-set": "AS-MOCKED"}, format="json", **self.header
-        )
+        cached_response = self.client.get(self.url, data={"as-set": "AS-MOCKED"}, format="json", **self.header)
         self.assertHttpStatus(cached_response, status.HTTP_200_OK)
         self.assertEqual(mocked_popen.call_count, call_count)
         self.assertEqual(response.data, cached_response.data)
@@ -490,9 +470,7 @@ class PrefixListViewTest(APITestCase):
 
     @patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen)
     def test_get_prefix_list_no_prefixes_found(self, mocked_popen):
-        response = self.client.get(
-            self.url, data={"as-set": "AS-NOPREFIXES"}, format="json", **self.header
-        )
+        response = self.client.get(self.url, data={"as-set": "AS-NOPREFIXES"}, format="json", **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertIn("AS-NOPREFIXES", response.data)
         self.assertEqual(len(response.data["AS-NOPREFIXES"]["ipv4"]), 0)

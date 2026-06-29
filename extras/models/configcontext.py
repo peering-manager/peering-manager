@@ -34,9 +34,7 @@ class ConfigContext(SynchronisedDataMixin, ChangeLoggedModel):
 
         # Verify that JSON data is provided as an object
         if not isinstance(self.data, dict):
-            raise ValidationError(
-                {"data": 'JSON data must be in object form. Example: {"foo": 123}'}
-            )
+            raise ValidationError({"data": 'JSON data must be in object form. Example: {"foo": 123}'})
 
     def synchronise_data(self) -> None:
         self.data = self.data_file.get_data()
@@ -46,9 +44,7 @@ class ConfigContextAssignment(ChangeLoggedModel):
     content_type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     object = GenericForeignKey(ct_field="content_type", fk_field="object_id")
-    config_context = models.ForeignKey(
-        to="extras.ConfigContext", on_delete=models.PROTECT, related_name="assignments"
-    )
+    config_context = models.ForeignKey(to="extras.ConfigContext", on_delete=models.PROTECT, related_name="assignments")
     weight = models.PositiveSmallIntegerField(default=1000)
 
     class Meta:

@@ -31,9 +31,7 @@ class NetBoxTestCase(TestCase):
 
     @patch(
         "requests.sessions.Session.get",
-        return_value=MockedResponse(
-            fixture="extras/tests/fixtures/netbox/devices.json"
-        ),
+        return_value=MockedResponse(fixture="extras/tests/fixtures/netbox/devices.json"),
     )
     def test_get_devices(self, *_):
         devices = self.netbox.get_devices()

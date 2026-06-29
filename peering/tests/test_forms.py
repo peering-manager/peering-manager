@@ -42,9 +42,7 @@ class DirectPeeringSessionTest(TestCase):
         self.local_autonomous_system = AutonomousSystem.objects.create(
             asn=201281, name="Guillaume Mazoyer", affiliated=True
         )
-        self.autonomous_system = AutonomousSystem.objects.create(
-            asn=64500, name="Dummy"
-        )
+        self.autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Dummy")
         self.relationship = Relationship.objects.create(name="Test", slug="test")
 
     def test_direct_peering_session_form(self):
@@ -84,16 +82,12 @@ class InternetExchangePeeringSessionTest(TestCase):
     def setUp(self):
         super().setUp()
 
-        local_autonomous_system = AutonomousSystem.objects.create(
-            asn=201281, name="Guillaume Mazoyer", affiliated=True
-        )
+        local_autonomous_system = AutonomousSystem.objects.create(asn=201281, name="Guillaume Mazoyer", affiliated=True)
         self.autonomous_system = AutonomousSystem.objects.create(asn=64500, name="Test")
         self.ixp = InternetExchange.objects.create(
             local_autonomous_system=local_autonomous_system, name="Test", slug="test"
         )
-        self.ixp_connection = Connection.objects.create(
-            vlan=2000, internet_exchange_point=self.ixp
-        )
+        self.ixp_connection = Connection.objects.create(vlan=2000, internet_exchange_point=self.ixp)
 
     def test_internet_exchange_peering_session_form(self):
         test = InternetExchangePeeringSessionForm(

@@ -48,9 +48,7 @@ class Command(BaseCommand):
 
             # If IPs belong to the same network, no need to fix prefix length
             if s.local_ip_address.network == s.ip_address.network:
-                self.stdout.write(
-                    self.style.SUCCESS("  - Session does not need to be fixed")
-                )
+                self.stdout.write(self.style.SUCCESS("  - Session does not need to be fixed"))
                 continue
 
             try:
@@ -65,9 +63,7 @@ class Command(BaseCommand):
 
             s.local_ip_address = f"{old_local.ip}/{network.prefixlen}"
             s.ip_address = f"{old_remote.ip}/{network.prefixlen}"
-            self.stdout.write(
-                f"  - Local IP {old_local} changed to {s.local_ip_address}"
-            )
+            self.stdout.write(f"  - Local IP {old_local} changed to {s.local_ip_address}")
             self.stdout.write(f"  - Remote IP {old_remote} changed to {s.ip_address}")
 
             if not dry_run:

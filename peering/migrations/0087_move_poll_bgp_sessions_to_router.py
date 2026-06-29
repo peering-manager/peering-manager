@@ -14,12 +14,8 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RemoveField(model_name="bgpgroup", name="bgp_session_states_update"),
         migrations.RemoveField(model_name="bgpgroup", name="check_bgp_session_states"),
-        migrations.RemoveField(
-            model_name="internetexchange", name="bgp_session_states_update"
-        ),
-        migrations.RemoveField(
-            model_name="internetexchange", name="check_bgp_session_states"
-        ),
+        migrations.RemoveField(model_name="internetexchange", name="bgp_session_states_update"),
+        migrations.RemoveField(model_name="internetexchange", name="check_bgp_session_states"),
         migrations.AddField(
             model_name="router",
             name="poll_bgp_sessions_last_updated",

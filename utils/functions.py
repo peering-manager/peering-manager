@@ -81,9 +81,7 @@ def is_taggable(instance):
     """
     Returns `True` if the instance can have tags, `False` otherwise.
     """
-    return hasattr(instance, "tags") and issubclass(
-        instance.tags.__class__, _TaggableManager
-    )
+    return hasattr(instance, "tags") and issubclass(instance.tags.__class__, _TaggableManager)
 
 
 def count_related(model, field):
@@ -91,11 +89,7 @@ def count_related(model, field):
     Returns a `Subquery` suitable for annotating a child object count.
     """
     subquery = Subquery(
-        model.objects.filter(**{field: OuterRef("pk")})
-        .order_by()
-        .values(field)
-        .annotate(c=Count("*"))
-        .values("c")
+        model.objects.filter(**{field: OuterRef("pk")}).order_by().values(field).annotate(c=Count("*")).values("c")
     )
     return Coalesce(subquery, 0)
 
@@ -188,18 +182,14 @@ def handle_protectederror(obj_list, request, e):
     exception.
     """
     protected_objects = list(e.protected_objects)
-    protected_count = (
-        len(protected_objects) if len(protected_objects) <= 50 else "More than 50"
-    )
+    protected_count = len(protected_objects) if len(protected_objects) <= 50 else "More than 50"
     err_message = f"Unable to delete <strong>{', '.join(str(obj) for obj in obj_list)}</strong>. {protected_count} dependent objects were found: "
 
     # Append dependent objects to error message
     dependent_objects = []
     for dependent in protected_objects[:50]:
         if hasattr(dependent, "get_absolute_url"):
-            dependent_objects.append(
-                f'<a href="{dependent.get_absolute_url()}">{escape(dependent)}</a>'
-            )
+            dependent_objects.append(f'<a href="{dependent.get_absolute_url()}">{escape(dependent)}</a>')
         else:
             dependent_objects.append(str(dependent))
     err_message += ", ".join(dependent_objects)
@@ -253,9 +243,7 @@ def merge_hash(a, b, recursive=True, list_merge="replace"):
 
     # Check that a and b are dicts
     if not isinstance(a, dict) or not isinstance(b, dict):
-        raise ValueError(
-            f"Failed to combine variables, expected dicts but got '{type(a)}' and '{type(b)}'"
-        )
+        raise ValueError(f"Failed to combine variables, expected dicts but got '{type(a)}' and '{type(b)}'")
 
     # Performance tweak: if a is empty or equal to b, return b
     if a in ({}, b):

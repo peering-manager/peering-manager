@@ -121,9 +121,7 @@ class GitRepositoryBackend(DataBackend):
     def init_config(self):
         config = ConfigDict()
 
-        if settings.HTTP_PROXIES and (
-            proxy := settings.HTTP_PROXIES.get(self.url_scheme, None)
-        ):
+        if settings.HTTP_PROXIES and (proxy := settings.HTTP_PROXIES.get(self.url_scheme, None)):
             config.set("http", "proxy", proxy)
 
         return config
@@ -151,9 +149,7 @@ class GitRepositoryBackend(DataBackend):
         try:
             porcelain.clone(source=self.url, target=local_path.name, **clone_args)
         except BaseException as e:
-            raise SynchronisationError(
-                f"Fetching remote data failed ({type(e).__name__})"
-            ) from e
+            raise SynchronisationError(f"Fetching remote data failed ({type(e).__name__})") from e
 
         yield local_path.name
 
@@ -185,18 +181,14 @@ class GitRepositoryBackend(DataBackend):
                 logger.debug(f"no changes found for git repository: {self.url}")
                 return
 
-            logger.debug(
-                f"staged {added}, ignored {list(ignored)} for git repository: {self.url}"
-            )
+            logger.debug(f"staged {added}, ignored {list(ignored)} for git repository: {self.url}")
             commit_sha = porcelain.commit(
                 repo=local_path,
                 message=commit_message,
                 author=settings.GIT_COMMIT_AUTHOR,
             )
 
-            logger.debug(
-                f"pushing commit {commit_sha.decode()} to remote git repository: {self.url}"
-            )
+            logger.debug(f"pushing commit {commit_sha.decode()} to remote git repository: {self.url}")
 
             try:
                 # Fetch stderr to catch errors not raising exceptions
@@ -211,12 +203,8 @@ class GitRepositoryBackend(DataBackend):
 
                 # This does not feel really robust, but that's the best we can do
                 if err := errstream.getvalue().decode(errors="replace"):
-                    err_output = unicodedata.normalize("NFKC", err).replace(
-                        "\u0000", ""
-                    )
+                    err_output = unicodedata.normalize("NFKC", err).replace("\u0000", "")
                     if any(match in err_output for match in GIT_ERROR_MATCHES):
                         raise PushError(err_output)
             except BaseException as e:
-                raise PushError(
-                    f"Pushing to remote failed ({type(e).__name__}): {e!s}"
-                ) from e
+                raise PushError(f"Pushing to remote failed ({type(e).__name__}): {e!s}") from e

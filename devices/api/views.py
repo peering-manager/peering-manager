@@ -64,9 +64,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
                 response=OpenApiTypes.NONE,
                 description="The user does not have the permission to render a configuration.",
             ),
-            404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT, description="The router does not exist."
-            ),
+            404: OpenApiResponse(response=OpenApiTypes.OBJECT, description="The router does not exist."),
         },
     )
     @action(detail=True, methods=["get"], url_path="configuration")
@@ -104,9 +102,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
                 response=OpenApiTypes.NONE,
                 description="The user does not have the permission to configure routers.",
             ),
-            404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT, description="The router does not exist."
-            ),
+            404: OpenApiResponse(response=OpenApiTypes.OBJECT, description="The router does not exist."),
         },
     )
     @action(detail=False, methods=["post"], url_path="configure")
@@ -165,9 +161,9 @@ class RouterViewSet(PeeringManagerModelViewSet):
     @action(detail=True, methods=["post"], url_path="poll-bgp-sessions")
     def poll_bgp_sessions(self, request, pk=None):
         # Check user permission first
-        if not request.user.has_perm(
-            "peering.change_directpeeringsession"
-        ) or not request.user.has_perm("peering.change_internetexchangepeeringsession"):
+        if not request.user.has_perm("peering.change_directpeeringsession") or not request.user.has_perm(
+            "peering.change_internetexchangepeeringsession"
+        ):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         router = self.get_object()
@@ -191,9 +187,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
                 response=JobSerializer,
                 description="Job scheduled to test the router NAPALM connection.",
             ),
-            404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT, description="The router does not exist."
-            ),
+            404: OpenApiResponse(response=OpenApiTypes.OBJECT, description="The router does not exist."),
         },
     )
     @action(detail=True, methods=["get"], url_path="test-napalm-connection")
@@ -271,10 +265,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
 
         # Fail if not in device roles and/or not with correct tag(s)
-        if (
-            settings.NETBOX_DEVICE_ROLES
-            and data["device_role"]["slug"] not in settings.NETBOX_DEVICE_ROLES
-        ):
+        if settings.NETBOX_DEVICE_ROLES and data["device_role"]["slug"] not in settings.NETBOX_DEVICE_ROLES:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         if settings.NETBOX_TAGS:
             tags = {t.slug for t in data["tags"]}
@@ -286,9 +277,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
                 number, _ = Router.objects.get(netbox_device_id=data["id"]).delete()
             except Router.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-            return Response(
-                status=status.HTTP_200_OK if number == 1 else status.HTTP_404_NOT_FOUND
-            )
+            return Response(status=status.HTTP_200_OK if number == 1 else status.HTTP_404_NOT_FOUND)
 
         try:
             # Platform slugs must be the same in NetBox and Peering Manager
@@ -297,11 +286,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
             # If platform does not exist, we can proceed
             return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
         # Map NetBox status to Peering Manager's
-        device_status = (
-            DeviceStatus.ENABLED
-            if data["status"]["value"] == "active"
-            else DeviceStatus.DISABLED
-        )
+        device_status = DeviceStatus.ENABLED if data["status"]["value"] == "active" else DeviceStatus.DISABLED
 
         router, created = Router.objects.get_or_create(
             netbox_device_id=data["id"],
@@ -339,17 +324,13 @@ class RouterViewSet(PeeringManagerModelViewSet):
                 response=OpenApiTypes.NONE,
                 description="The user does not have the permission to push router configurations to data sources.",
             ),
-            404: OpenApiResponse(
-                response=OpenApiTypes.OBJECT, description="The router does not exist."
-            ),
+            404: OpenApiResponse(response=OpenApiTypes.OBJECT, description="The router does not exist."),
         },
     )
     @action(detail=False, methods=["post"], url_path="push-datasource")
     def push_datasource(self, request):
         # Check user permission first
-        if not request.user.has_perm(
-            "devices.push_router_configuration_to_data_source"
-        ):
+        if not request.user.has_perm("devices.push_router_configuration_to_data_source"):
             return Response(None, status=status.HTTP_403_FORBIDDEN)
 
         # Make sure request is valid
@@ -400,9 +381,7 @@ class RouterViewSet(PeeringManagerModelViewSet):
     )
     @action(detail=False, methods=["post"], url_path="push-diff-datasource")
     def push_diff_datasource(self, request):
-        if not request.user.has_perm(
-            "devices.push_router_configuration_to_data_source"
-        ):
+        if not request.user.has_perm("devices.push_router_configuration_to_data_source"):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         serializer = RouterPushDiffSerializer(data=request.data)

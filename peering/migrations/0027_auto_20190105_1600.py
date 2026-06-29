@@ -15,16 +15,16 @@ class Migration(migrations.Migration):
     def forwards_func(apps, schema_editor):
         AutonomousSystem = apps.get_model("peering", "AutonomousSystem")
         db_alias = schema_editor.connection.alias
-        AutonomousSystem.objects.using(db_alias).filter(
-            potential_internet_exchange_peering_sessions=None
-        ).update(potential_internet_exchange_peering_sessions=[])
+        AutonomousSystem.objects.using(db_alias).filter(potential_internet_exchange_peering_sessions=None).update(
+            potential_internet_exchange_peering_sessions=[]
+        )
 
     def reverse_func(apps, schema_editor):
         AutonomousSystem = apps.get_model("peering", "AutonomousSystem")
         db_alias = schema_editor.connection.alias
-        AutonomousSystem.objects.using(db_alias).filter(
-            potential_internet_exchange_peering_sessions=[]
-        ).update(potential_internet_exchange_peering_sessions=None)
+        AutonomousSystem.objects.using(db_alias).filter(potential_internet_exchange_peering_sessions=[]).update(
+            potential_internet_exchange_peering_sessions=None
+        )
 
     operations = [
         migrations.AlterField(

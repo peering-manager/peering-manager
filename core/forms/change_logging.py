@@ -12,15 +12,9 @@ from ..models import ObjectChange
 class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     model = ObjectChange
     q = forms.CharField(required=False, label="Search")
-    time_after = forms.DateTimeField(
-        label="After", required=False, widget=DateTimePicker()
-    )
-    time_before = forms.DateTimeField(
-        label="Before", required=False, widget=DateTimePicker()
-    )
-    action = forms.MultipleChoiceField(
-        required=False, choices=ObjectChangeAction, widget=StaticSelectMultiple
-    )
+    time_after = forms.DateTimeField(label="After", required=False, widget=DateTimePicker())
+    time_before = forms.DateTimeField(label="Before", required=False, widget=DateTimePicker())
+    action = forms.MultipleChoiceField(required=False, choices=ObjectChangeAction, widget=StaticSelectMultiple)
     user_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,

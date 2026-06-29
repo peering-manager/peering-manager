@@ -44,9 +44,7 @@ class ConnectionView(ObjectView):
         ixapi_network_service_config = instance.ixapi_network_service_config()
         return {
             "ixapi_network_service_config": ixapi_network_service_config,
-            "ixapi_mac_address": instance.ixapi_mac_address(
-                ixapi_network_service_config
-            ),
+            "ixapi_mac_address": instance.ixapi_mac_address(ixapi_network_service_config),
         }
 
 

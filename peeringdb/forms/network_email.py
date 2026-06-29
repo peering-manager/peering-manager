@@ -21,18 +21,12 @@ class SendEmailToNetwork(BootstrapMixin, forms.Form):
         query_params={"affiliated": True},
         label="Local AS",
     )
-    network = DynamicModelChoiceField(
-        queryset=Network.objects.all(), label="Autonomous system"
-    )
-    email = DynamicModelChoiceField(
-        required=False, queryset=Email.objects.all(), label="Template"
-    )
+    network = DynamicModelChoiceField(queryset=Network.objects.all(), label="Autonomous system")
+    email = DynamicModelChoiceField(required=False, queryset=Email.objects.all(), label="Template")
     recipients = DynamicModelMultipleChoiceField(
         queryset=NetworkContact.objects.exclude(email=""),
         query_params={"net_id": "$network"},
     )
-    cc = forms.MultipleChoiceField(
-        widget=StaticSelectMultiple, label="Carbon copy", required=False
-    )
+    cc = forms.MultipleChoiceField(widget=StaticSelectMultiple, label="Carbon copy", required=False)
     subject = forms.CharField(label="Subject")
     body = TextareaField(label="Body", required=True)

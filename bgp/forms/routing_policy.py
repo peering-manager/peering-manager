@@ -30,9 +30,7 @@ class RoutingPolicyForm(PeeringManagerModelForm):
     slug = SlugField(max_length=255)
     type = forms.ChoiceField(choices=RoutingPolicyType, widget=StaticSelect)
     address_family = forms.ChoiceField(choices=IPFamily, widget=StaticSelect)
-    communities = DynamicModelMultipleChoiceField(
-        required=False, queryset=Community.objects.all()
-    )
+    communities = DynamicModelMultipleChoiceField(required=False, queryset=Community.objects.all())
     local_context_data = JSONField(required=False)
     tags = TagField(required=False)
     fieldsets = (
@@ -74,12 +72,8 @@ class RoutingPolicyBulkEditForm(PeeringManagerModelBulkEditForm):
         widget=StaticSelect,
     )
     weight = forms.IntegerField(required=False, min_value=0, max_value=32767)
-    address_family = forms.ChoiceField(
-        required=False, choices=IPFamily, widget=StaticSelect
-    )
-    communities = DynamicModelMultipleChoiceField(
-        required=False, queryset=Community.objects.all()
-    )
+    address_family = forms.ChoiceField(required=False, choices=IPFamily, widget=StaticSelect)
+    communities = DynamicModelMultipleChoiceField(required=False, queryset=Community.objects.all())
     description = forms.CharField(max_length=200, required=False)
     local_context_data = JSONField(required=False)
 
@@ -95,7 +89,5 @@ class RoutingPolicyFilterForm(PeeringManagerModelFilterSetForm):
         widget=StaticSelectMultiple,
     )
     weight = forms.IntegerField(required=False, min_value=0, max_value=32767)
-    address_family = forms.ChoiceField(
-        required=False, choices=add_blank_choice(IPFamily), widget=StaticSelect
-    )
+    address_family = forms.ChoiceField(required=False, choices=add_blank_choice(IPFamily), widget=StaticSelect)
     tag = TagFilterField(model)

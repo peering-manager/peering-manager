@@ -29,20 +29,18 @@ class Migration(migrations.Migration):
 
         # Set local AS for direct sessions
         DirectPeeringSession = apps.get_model("peering", "DirectPeeringSession")
-        DirectPeeringSession.objects.using(db_alias).filter(
-            local_autonomous_system=None
-        ).update(local_autonomous_system=my_asn)
+        DirectPeeringSession.objects.using(db_alias).filter(local_autonomous_system=None).update(
+            local_autonomous_system=my_asn
+        )
 
         # Same thing for IXPs
         InternetExchange = apps.get_model("peering", "InternetExchange")
-        InternetExchange.objects.using(db_alias).filter(
-            local_autonomous_system=None
-        ).update(local_autonomous_system=my_asn)
+        InternetExchange.objects.using(db_alias).filter(local_autonomous_system=None).update(
+            local_autonomous_system=my_asn
+        )
 
         # Same thing for Routers
         Router = apps.get_model("peering", "Router")
-        Router.objects.using(db_alias).filter(local_autonomous_system=None).update(
-            local_autonomous_system=my_asn
-        )
+        Router.objects.using(db_alias).filter(local_autonomous_system=None).update(local_autonomous_system=my_asn)
 
     operations = [migrations.RunPython(set_local_autonomous_system)]

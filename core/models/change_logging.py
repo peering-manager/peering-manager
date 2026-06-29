@@ -33,13 +33,9 @@ class ObjectChange(models.Model):
     user_name = models.CharField(max_length=150, editable=False)
     request_id = models.UUIDField(editable=False)
     action = models.CharField(max_length=50, choices=ObjectChangeAction)
-    changed_object_type = models.ForeignKey(
-        to=ContentType, on_delete=models.PROTECT, related_name="+"
-    )
+    changed_object_type = models.ForeignKey(to=ContentType, on_delete=models.PROTECT, related_name="+")
     changed_object_id = models.PositiveIntegerField()
-    changed_object = GenericForeignKey(
-        ct_field="changed_object_type", fk_field="changed_object_id"
-    )
+    changed_object = GenericForeignKey(ct_field="changed_object_type", fk_field="changed_object_id")
     related_object_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.PROTECT,
@@ -48,9 +44,7 @@ class ObjectChange(models.Model):
         null=True,
     )
     related_object_id = models.PositiveIntegerField(blank=True, null=True)
-    related_object = GenericForeignKey(
-        ct_field="related_object_type", fk_field="related_object_id"
-    )
+    related_object = GenericForeignKey(ct_field="related_object_type", fk_field="related_object_id")
     object_repr = models.CharField(max_length=200, editable=False)
     prechange_data = models.JSONField(editable=False, blank=True, null=True)
     postchange_data = models.JSONField(editable=False, blank=True, null=True)
@@ -86,9 +80,7 @@ class ObjectChange(models.Model):
             case _:
                 badge = "secondary"
 
-        return mark_safe(
-            f'<span class="badge text-bg-{badge}">{self.get_action_display() or "Unknown"}</span>'
-        )
+        return mark_safe(f'<span class="badge text-bg-{badge}">{self.get_action_display() or "Unknown"}</span>')
 
     @property
     def has_changes(self) -> bool:

@@ -11,8 +11,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="autonomoussystem",
             name="prefixes",
-            field=django.contrib.postgres.fields.jsonb.JSONField(
-                blank=True, editable=False, null=True
-            ),
+            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, editable=False, null=True),
         )
     ]

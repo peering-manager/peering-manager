@@ -20,12 +20,8 @@ class ContactAssignmentEditView(ObjectEditView):
 
     def alter_object(self, instance, request, args, kwargs):
         if not instance.pk:
-            content_type = get_object_or_404(
-                ContentType, pk=request.GET.get("content_type")
-            )
-            instance.object = get_object_or_404(
-                content_type.model_class(), pk=request.GET.get("object_id")
-            )
+            content_type = get_object_or_404(ContentType, pk=request.GET.get("content_type"))
+            instance.object = get_object_or_404(content_type.model_class(), pk=request.GET.get("object_id"))
         return instance
 
 

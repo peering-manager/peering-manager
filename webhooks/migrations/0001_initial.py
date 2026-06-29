@@ -105,9 +105,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "ordering": ["name"],
-                "unique_together": {
-                    ("type_create", "type_update", "type_delete", "url")
-                },
+                "unique_together": {("type_create", "type_update", "type_delete", "url")},
             },
         )
     ]

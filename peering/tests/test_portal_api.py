@@ -25,9 +25,7 @@ class PortalAPITestMixin:
         # This test relies on the fact that ASNs must be public, so we use high 32-bit
         # ASNs unlikely to be allocated to actual networks today
         cls.org = Organization.objects.create(id=1, name="Test Org")
-        cls.affiliated_as = AutonomousSystem.objects.create(
-            asn=4199999990, name="Affiliated AS", affiliated=True
-        )
+        cls.affiliated_as = AutonomousSystem.objects.create(asn=4199999990, name="Affiliated AS", affiliated=True)
         cls.peeringdb_network = Network.objects.create(
             id=1,
             org=cls.org,
@@ -208,9 +206,7 @@ class PortalSessionCreateViewTest(PortalAPITestMixin, APITestCase):
 
     def test_submit_rejects_existing_ixp_session(self):
         # Create an existing BGP session with the IP the requester is about to ask for
-        requester_as = AutonomousSystem.objects.create(
-            asn=4199999991, name="Requester Network"
-        )
+        requester_as = AutonomousSystem.objects.create(asn=4199999991, name="Requester Network")
         InternetExchangePeeringSession.objects.create(
             autonomous_system=requester_as,
             ixp_connection=self.connection,
@@ -324,9 +320,7 @@ class PeeringRequestAcceptRejectTest(PortalAPITestMixin, APITestCase):
     def test_reject_request_with_comment(self):
         pr = self._create_peering_request()
         url = reverse("peering-api:peeringrequest-reject", kwargs={"pk": pr.pk})
-        response = self.client.post(
-            url, {"comment": "Not peering at this time"}, format="json", **self.header
-        )
+        response = self.client.post(url, {"comment": "Not peering at this time"}, format="json", **self.header)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         pr.refresh_from_db()
         self.assertEqual(pr.status, PeeringRequestStatus.REFUSED)
@@ -353,9 +347,7 @@ class PeeringRequestAcceptRejectTest(PortalAPITestMixin, APITestCase):
         pr = self._create_peering_request()
         session = pr.requested_sessions.first()
         url = reverse("peering-api:requestedsession-reject", kwargs={"pk": session.pk})
-        response = self.client.post(
-            url, {"comment": "No IPv4"}, format="json", **self.header
-        )
+        response = self.client.post(url, {"comment": "No IPv4"}, format="json", **self.header)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         session.refresh_from_db()
         self.assertEqual(session.status, RequestedSessionStatus.REJECTED)

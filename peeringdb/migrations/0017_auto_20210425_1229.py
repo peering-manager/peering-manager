@@ -10,9 +10,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="facility",
             name="aka",
-            field=models.CharField(
-                blank=True, max_length=255, verbose_name="Also Known As"
-            ),
+            field=models.CharField(blank=True, max_length=255, verbose_name="Also Known As"),
         ),
         migrations.AddField(
             model_name="facility",
@@ -22,9 +20,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="internetexchange",
             name="aka",
-            field=models.CharField(
-                blank=True, max_length=255, verbose_name="Also Known As"
-            ),
+            field=models.CharField(blank=True, max_length=255, verbose_name="Also Known As"),
         ),
         migrations.AddField(
             model_name="network",
@@ -34,9 +30,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="organization",
             name="aka",
-            field=models.CharField(
-                blank=True, max_length=255, verbose_name="Also Known As"
-            ),
+            field=models.CharField(blank=True, max_length=255, verbose_name="Also Known As"),
         ),
         migrations.AddField(
             model_name="organization",

@@ -56,12 +56,8 @@ class RouterTestCase(TestCase, BaseFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-        cls.local_as = AutonomousSystem.objects.create(
-            asn=64501, name="Autonomous System 1", affiliated=True
-        )
-        cls.configuration = Configuration.objects.create(
-            name="Configuration 1", template="Configuration 1"
-        )
+        cls.local_as = AutonomousSystem.objects.create(asn=64501, name="Autonomous System 1", affiliated=True)
+        cls.configuration = Configuration.objects.create(name="Configuration 1", template="Configuration 1")
         Router.objects.bulk_create(
             [
                 Router(

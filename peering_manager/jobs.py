@@ -179,9 +179,7 @@ class JobRunner(ABC):
     def get_jobs(cls, instance=None):
         jobs = Job.objects.filter(name=cls.name)
         if instance is not None:
-            object_type = ContentType.objects.get_for_model(
-                instance, for_concrete_model=False
-            )
+            object_type = ContentType.objects.get_for_model(instance, for_concrete_model=False)
             jobs = jobs.filter(object_type=object_type, object_id=instance.pk)
         return jobs
 
@@ -194,23 +192,15 @@ class JobRunner(ABC):
 
     @classmethod
     @advisory_lock(ADVISORY_LOCK_KEYS["job-schedules"])
-    def enqueue_once(
-        cls, instance=None, schedule_at=None, interval=None, *args, **kwargs
-    ) -> Job:
+    def enqueue_once(cls, instance=None, schedule_at=None, interval=None, *args, **kwargs) -> Job:
         """
         Idempotent enqueue. If a row with matching params is already enqueued
         (PENDING/SCHEDULED/RUNNING), return it; otherwise replace and enqueue.
         Advisory-locked so concurrent worker starts can't both insert.
         """
-        existing = (
-            cls.get_jobs(instance)
-            .filter(status__in=JobStatus.ENQUEUED_STATE_CHOICES)
-            .first()
-        )
+        existing = cls.get_jobs(instance).filter(status__in=JobStatus.ENQUEUED_STATE_CHOICES).first()
         if existing:
-            if (
-                not schedule_at or existing.scheduled == schedule_at
-            ) and existing.interval == interval:
+            if (not schedule_at or existing.scheduled == schedule_at) and existing.interval == interval:
                 return existing
             existing.delete()
         return cls.enqueue(

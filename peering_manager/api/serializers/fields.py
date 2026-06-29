@@ -36,9 +36,7 @@ class BaseHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
         return self.reverse(view_name, kwargs=kwargs, request=request, format=format)
 
     def get_view_name(self, model):
-        raise NotImplementedError(
-            f"{self.__class__.__name__} must implement get_view_name()"
-        )
+        raise NotImplementedError(f"{self.__class__.__name__} must implement get_view_name()")
 
 
 class PeeringManagerAPIHyperlinkedIdentityField(BaseHyperlinkedIdentityField):

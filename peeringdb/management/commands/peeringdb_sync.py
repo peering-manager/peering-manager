@@ -15,9 +15,7 @@ class Command(BaseCommand):
     help = "Cache PeeringDB data locally and update AS data."
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            "-f", "--flush", action="store_true", help="Remove cached PeeringDB data"
-        )
+        parser.add_argument("-f", "--flush", action="store_true", help="Remove cached PeeringDB data")
         parser.add_argument(
             "-t",
             "--tasks",

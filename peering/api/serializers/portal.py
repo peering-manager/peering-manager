@@ -54,9 +54,7 @@ class PortalSessionEntrySerializer(serializers.Serializer):
 
 class PortalSessionSubmitSerializer(serializers.Serializer):
     local_asn = serializers.IntegerField(required=True)
-    peer_type = serializers.ChoiceField(
-        choices=PeeringRequestType.CHOICES, required=True
-    )
+    peer_type = serializers.ChoiceField(choices=PeeringRequestType.CHOICES, required=True)
     email = serializers.EmailField(required=False, allow_blank=True, default="")
     sessions = PortalSessionEntrySerializer(many=True, min_length=1)
 
@@ -100,9 +98,7 @@ class PortalRequestStatusSerializer(serializers.Serializer):
     local_asn = serializers.IntegerField(source="requesting_asn")
     peer_asn = serializers.SerializerMethodField()
     decision_comment = serializers.CharField()
-    sessions = PortalRequestedSessionStatusSerializer(
-        source="requested_sessions", many=True
-    )
+    sessions = PortalRequestedSessionStatusSerializer(source="requested_sessions", many=True)
     created = serializers.DateTimeField()
     updated = serializers.DateTimeField()
 
@@ -111,9 +107,7 @@ class PortalRequestStatusSerializer(serializers.Serializer):
 
 
 class PortalLocationSerializer(serializers.Serializer):
-    location = serializers.CharField(
-        help_text=f"RFC format: {IX_LOCATION_PREFIX}$IX_ID"
-    )
+    location = serializers.CharField(help_text=f"RFC format: {IX_LOCATION_PREFIX}$IX_ID")
     name = serializers.CharField()
     peering_type = serializers.CharField()
     sessions = PortalSessionInfoSerializer(many=True)

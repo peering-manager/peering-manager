@@ -19,9 +19,7 @@ class APITestCase(ModelTestCase):
         """
         Creates a superuser and token for API calls.
         """
-        self.user = User.objects.create(
-            username="testuser", is_staff=True, is_superuser=True
-        )
+        self.user = User.objects.create(username="testuser", is_staff=True, is_superuser=True)
         self.token = Token.objects.create(user=self.user)
         self.header = {"HTTP_AUTHORIZATION": f"Token {self.token.key}"}
 
@@ -65,9 +63,7 @@ class APIViewTestCases:
 
             # Try GET to permitted object
             url = self._get_detail_url(instance)
-            self.assertHttpStatus(
-                self.client.get(url, **self.header), status.HTTP_200_OK
-            )
+            self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_200_OK)
 
         @override_settings(LOGIN_REQUIRED=True)
         def test_get_object_fields(self):
@@ -83,9 +79,7 @@ class APIViewTestCases:
 
             self.add_permissions("view")
 
-            fields = getattr(
-                self, "query_fields", ["id", "url", "display_url", "display"]
-            )
+            fields = getattr(self, "query_fields", ["id", "url", "display_url", "display"])
             url = f"{self._get_detail_url(instance)}?fields={','.join(fields)}"
             response = self.client.get(url, **self.header)
 
@@ -121,17 +115,13 @@ class APIViewTestCases:
             response = self.client.get(url, **self.header)
 
             self.assertEqual(len(response.data["results"]), self.model.objects.count())
-            self.assertEqual(
-                sorted(response.data["results"][0]), sorted(self.brief_fields)
-            )
+            self.assertEqual(sorted(response.data["results"][0]), sorted(self.brief_fields))
 
         def test_list_objects_fields(self):
             """
             GET a list of objects using the "fields" parameter.
             """
-            fields = getattr(
-                self, "query_fields", ["id", "url", "display_url", "display"]
-            )
+            fields = getattr(self, "query_fields", ["id", "url", "display_url", "display"])
             url = f"{self._get_list_url()}?fields={','.join(fields)}"
             response = self.client.get(url, **self.header)
 
@@ -148,9 +138,7 @@ class APIViewTestCases:
             """
             initial_count = self.model.objects.count()
             url = self._get_list_url()
-            response = self.client.post(
-                url, self.create_data[0], format="json", **self.header
-            )
+            response = self.client.post(url, self.create_data[0], format="json", **self.header)
 
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
             self.assertEqual(self.model.objects.count(), initial_count + 1)
@@ -167,14 +155,10 @@ class APIViewTestCases:
             """
             initial_count = self.model.objects.count()
             url = self._get_list_url()
-            response = self.client.post(
-                url, self.create_data, format="json", **self.header
-            )
+            response = self.client.post(url, self.create_data, format="json", **self.header)
 
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
-            self.assertEqual(
-                self.model.objects.count(), initial_count + len(self.create_data)
-            )
+            self.assertEqual(self.model.objects.count(), initial_count + len(self.create_data))
 
     class UpdateObjectView(APITestCase):
         update_data = {}
@@ -210,9 +194,7 @@ class APIViewTestCases:
             self.assertEqual(len(id_list), 3, "Not enough objects to test bulk update")
             data = [{"id": id, **self.bulk_update_data} for id in id_list]
 
-            response = self.client.patch(
-                self._get_list_url(), data, format="json", **self.header
-            )
+            response = self.client.patch(self._get_list_url(), data, format="json", **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
 
             for i, obj in enumerate(response.data):
@@ -242,18 +224,12 @@ class APIViewTestCases:
             DELETE a set of objects in a single request.
             """
             # Target the three most recently created objects
-            id_list = (
-                self._get_queryset().order_by("-id").values_list("id", flat=True)[:3]
-            )
-            self.assertEqual(
-                len(id_list), 3, "Not enough objects to test bulk deletion"
-            )
+            id_list = self._get_queryset().order_by("-id").values_list("id", flat=True)[:3]
+            self.assertEqual(len(id_list), 3, "Not enough objects to test bulk deletion")
             data = [{"id": id} for id in id_list]
 
             initial_count = self._get_queryset().count()
-            response = self.client.delete(
-                self._get_list_url(), data, format="json", **self.header
-            )
+            response = self.client.delete(self._get_list_url(), data, format="json", **self.header)
             self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
             self.assertEqual(self._get_queryset().count(), initial_count - 3)
 

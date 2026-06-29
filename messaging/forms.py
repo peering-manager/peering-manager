@@ -135,9 +135,7 @@ class EmailForm(PeeringManagerModelForm, SynchronisedDataMixin):
 
     def clean(self):
         if not self.cleaned_data["template"] and not self.cleaned_data["data_file"]:
-            raise ValidationError(
-                "Either the template code or a file from a data source must be provided"
-            )
+            raise ValidationError("Either the template code or a file from a data source must be provided")
         return super().clean()
 
 

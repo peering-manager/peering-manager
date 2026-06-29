@@ -4,16 +4,12 @@ from django.db import migrations, models
 def update_content_types(apps, schema_editor):
     ContentType = apps.get_model("contenttypes", "ContentType")
     ContentType.objects.filter(app_label="bgp", model="routingpolicy").delete()
-    ContentType.objects.filter(app_label="peering", model="routingpolicy").update(
-        app_label="bgp"
-    )
+    ContentType.objects.filter(app_label="peering", model="routingpolicy").update(app_label="bgp")
 
 
 def revert_content_types(apps, schema_editor):
     ContentType = apps.get_model("contenttypes", "ContentType")
-    ContentType.objects.filter(app_label="bgp", model="routingpolicy").update(
-        app_label="peering"
-    )
+    ContentType.objects.filter(app_label="bgp", model="routingpolicy").update(app_label="peering")
 
 
 class Migration(migrations.Migration):
@@ -27,20 +23,14 @@ class Migration(migrations.Migration):
             # Rename the existing table (and its sequence, indexes and
             # constraints) in place so no data is lost and no table is dropped.
             database_operations=[
-                migrations.AlterModelTable(
-                    name="RoutingPolicy", table="bgp_routingpolicy"
+                migrations.AlterModelTable(name="RoutingPolicy", table="bgp_routingpolicy"),
+                migrations.RunSQL(
+                    "ALTER SEQUENCE peering_routingpolicy_id_seq RENAME TO bgp_routingpolicy_id_seq",
+                    reverse_sql="ALTER SEQUENCE bgp_routingpolicy_id_seq RENAME TO peering_routingpolicy_id_seq",
                 ),
                 migrations.RunSQL(
-                    "ALTER SEQUENCE peering_routingpolicy_id_seq "
-                    "RENAME TO bgp_routingpolicy_id_seq",
-                    reverse_sql="ALTER SEQUENCE bgp_routingpolicy_id_seq "
-                    "RENAME TO peering_routingpolicy_id_seq",
-                ),
-                migrations.RunSQL(
-                    "ALTER INDEX peering_routingpolicy_pkey "
-                    "RENAME TO bgp_routingpolicy_pkey",
-                    reverse_sql="ALTER INDEX bgp_routingpolicy_pkey "
-                    "RENAME TO peering_routingpolicy_pkey",
+                    "ALTER INDEX peering_routingpolicy_pkey RENAME TO bgp_routingpolicy_pkey",
+                    reverse_sql="ALTER INDEX bgp_routingpolicy_pkey RENAME TO peering_routingpolicy_pkey",
                 ),
                 migrations.RunSQL(
                     "ALTER INDEX peering_routingpolicy_name_1f8b1c76_uniq "
@@ -55,10 +45,8 @@ class Migration(migrations.Migration):
                     "RENAME TO peering_routingpolicy_name_1f8b1c76_like",
                 ),
                 migrations.RunSQL(
-                    "ALTER INDEX peering_routingpolicy_slug_key "
-                    "RENAME TO bgp_routingpolicy_slug_key",
-                    reverse_sql="ALTER INDEX bgp_routingpolicy_slug_key "
-                    "RENAME TO peering_routingpolicy_slug_key",
+                    "ALTER INDEX peering_routingpolicy_slug_key RENAME TO bgp_routingpolicy_slug_key",
+                    reverse_sql="ALTER INDEX bgp_routingpolicy_slug_key RENAME TO peering_routingpolicy_slug_key",
                 ),
                 migrations.RunSQL(
                     "ALTER INDEX peering_routingpolicy_slug_0334cc6f_like "
@@ -177,7 +165,5 @@ class Migration(migrations.Migration):
                 migrations.DeleteModel(name="RoutingPolicy"),
             ],
         ),
-        migrations.RunPython(
-            code=update_content_types, reverse_code=revert_content_types
-        ),
+        migrations.RunPython(code=update_content_types, reverse_code=revert_content_types),
     ]

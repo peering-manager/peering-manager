@@ -31,11 +31,7 @@ class IXAPIView(ObjectView):
     queryset = IXAPI.objects.all()
 
     def get_extra_context(self, request, instance):
-        return {
-            "internet_exchange_points": InternetExchange.objects.filter(
-                ixapi_endpoint=instance
-            )
-        }
+        return {"internet_exchange_points": InternetExchange.objects.filter(ixapi_endpoint=instance)}
 
 
 @register_model_view(model=IXAPI, name="add", detail=False)

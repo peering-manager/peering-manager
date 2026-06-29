@@ -44,12 +44,8 @@ class ContactFilterSet(PeeringManagerModelFilterSet):
 
 class ContactAssignmentFilterSet(ChangeLoggedModelFilterSet):
     content_type = ContentTypeFilter()
-    contact_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Contact.objects.all(), label="Contact (ID)"
-    )
-    role_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=ContactRole.objects.all(), label="Contact role (ID)"
-    )
+    contact_id = django_filters.ModelMultipleChoiceFilter(queryset=Contact.objects.all(), label="Contact (ID)")
+    role_id = django_filters.ModelMultipleChoiceFilter(queryset=ContactRole.objects.all(), label="Contact role (ID)")
     role = django_filters.ModelMultipleChoiceFilter(
         field_name="role__slug",
         queryset=ContactRole.objects.all(),
@@ -70,8 +66,4 @@ class EmailFilterSet(PeeringManagerModelFilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(
-            Q(name__icontains=value)
-            | Q(subject__icontains=value)
-            | Q(template__icontains=value)
-        )
+        return queryset.filter(Q(name__icontains=value) | Q(subject__icontains=value) | Q(template__icontains=value))

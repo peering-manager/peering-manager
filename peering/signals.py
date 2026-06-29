@@ -30,9 +30,7 @@ def _check_peering_request_conflict(instance, **kwargs):
     if not instance._state.adding:
         return
 
-    conflicts = RequestedSession.objects.filter(
-        ip_address=instance.ip_address, status=RequestedSessionStatus.PENDING
-    )
+    conflicts = RequestedSession.objects.filter(ip_address=instance.ip_address, status=RequestedSessionStatus.PENDING)
     if not conflicts.exists():
         return
 

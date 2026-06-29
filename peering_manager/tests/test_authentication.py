@@ -50,9 +50,7 @@ class ExternalAuthenticationTestCase(TestCase):
             msg="Authentication failed",
         )
 
-    @override_settings(
-        REMOTE_AUTH_ENABLED=True, REMOTE_AUTH_HEADER="HTTP_FOO", LOGIN_REQUIRED=True
-    )
+    @override_settings(REMOTE_AUTH_ENABLED=True, REMOTE_AUTH_HEADER="HTTP_FOO", LOGIN_REQUIRED=True)
     def test_remote_auth_custom_header(self):
         """
         Test enabling remote authentication with a custom HTTP header.
@@ -86,19 +84,11 @@ class ExternalAuthenticationTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.user = User.objects.get(username="remoteuser1")
-        self.assertEqual(
-            self.user.first_name, "John", msg="User first name was not updated"
-        )
-        self.assertEqual(
-            self.user.last_name, "Smith", msg="User last name was not updated"
-        )
-        self.assertEqual(
-            self.user.email, "johnsmith@example.com", msg="User email was not updated"
-        )
+        self.assertEqual(self.user.first_name, "John", msg="User first name was not updated")
+        self.assertEqual(self.user.last_name, "Smith", msg="User last name was not updated")
+        self.assertEqual(self.user.email, "johnsmith@example.com", msg="User email was not updated")
 
-    @override_settings(
-        REMOTE_AUTH_ENABLED=True, REMOTE_AUTH_AUTO_CREATE_USER=True, LOGIN_REQUIRED=True
-    )
+    @override_settings(REMOTE_AUTH_ENABLED=True, REMOTE_AUTH_AUTO_CREATE_USER=True, LOGIN_REQUIRED=True)
     def test_remote_auth_auto_create(self):
         """
         Test enabling remote authentication with automatic user creation disabled.
@@ -181,9 +171,7 @@ class ExternalAuthenticationTestCase(TestCase):
             new_user.pk,
             msg="Authentication failed",
         )
-        self.assertTrue(
-            new_user.has_perms(["devices.add_router", "devices.change_router"])
-        )
+        self.assertTrue(new_user.has_perms(["devices.add_router", "devices.change_router"]))
 
     @override_settings(
         REMOTE_AUTH_ENABLED=True,

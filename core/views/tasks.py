@@ -151,9 +151,7 @@ class WorkerListView(TableMixin, BaseRQView):
 
         table = self.get_table(data, request, False)
 
-        return render(
-            request, "core/task/worker_list.html", {"table": table, "queue": queue}
-        )
+        return render(request, "core/task/worker_list.html", {"table": table, "queue": queue})
 
 
 class WorkerView(BaseRQView):

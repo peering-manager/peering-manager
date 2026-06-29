@@ -60,11 +60,7 @@ def get_paginate_count(request):
       3. `PAGINATE_COUNT` setting
     """
     if not request.user.is_authenticated:
-        return (
-            int(request.GET.get("per_page"))
-            if "per_page" in request.GET
-            else settings.PAGINATE_COUNT
-        )
+        return int(request.GET.get("per_page")) if "per_page" in request.GET else settings.PAGINATE_COUNT
 
     if "per_page" in request.GET:
         try:

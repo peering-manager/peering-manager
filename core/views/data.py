@@ -74,9 +74,7 @@ class DataSourceView(ObjectView):
 
     def get_extra_context(self, request, instance):
         return {
-            "datafile_count": DataFile.objects.filter(source=instance)
-            .defer("data")
-            .count(),
+            "datafile_count": DataFile.objects.filter(source=instance).defer("data").count(),
         }
 
 
@@ -122,8 +120,4 @@ class DataSourceFilesView(ObjectChildrenView):
     tab = ViewTab(label="Files", permission="core.view_datafile")
 
     def get_children(self, request, parent):
-        return (
-            DataFile.objects.filter(source=parent)
-            .defer("data")
-            .prefetch_related("source")
-        )
+        return DataFile.objects.filter(source=parent).defer("data").prefetch_related("source")

@@ -10,9 +10,7 @@ class GroupTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        Group.objects.bulk_create(
-            [Group(name="Group 1"), Group(name="Group 2"), Group(name="Group 3")]
-        )
+        Group.objects.bulk_create([Group(name="Group 1"), Group(name="Group 2"), Group(name="Group 3")])
 
     def test_id(self):
         params = {"id": self.queryset.first().pk}
