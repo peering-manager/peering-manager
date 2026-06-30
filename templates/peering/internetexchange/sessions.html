@@ -46,24 +46,15 @@
   function importFailHandler() {
     PeeringManager.setFailedButton($('#import_sessions'));
   }
-  function importDoneHandler(r) {
-    switch (r['status']['value']) {
-      case 'pending':
-      case 'running':
-        setTimeout(function () {
-          PeeringManager.pollJob(r, importDoneHandler, importFailHandler);
-        }, 2000);
-        break;
-      case 'completed':
-        PeeringManager.setSuccessButton($('#import_sessions'), 'Sessions imported');
-        break;
-      case 'errored':
-      case 'failed':
-      default:
-        PeeringManager.setFailedButton($('#import_sessions'), 'Failure importing sessions');
-        break;
-    }
-  }
+  var importCallbacks = {
+    onCompleted: function () {
+      PeeringManager.setSuccessButton($('#import_sessions'), 'Sessions imported');
+    },
+    onFailed: function () {
+      PeeringManager.setFailedButton($('#import_sessions'), 'Failure importing sessions');
+    },
+    onPollError: importFailHandler
+  };
 
   $('#import_sessions').click(function () {
     $.ajax({
@@ -72,7 +63,7 @@
       url: "{% url 'peering-api:internetexchange-import-sessions' pk=instance.pk %}",
     }).done(function (r) {
       PeeringManager.setWorkingButton($('#import_sessions'));
-      importDoneHandler(r);
+      PeeringManager.handleJobResult(r, importCallbacks);
     }).fail(importFailHandler);
   });
   {% endif %}

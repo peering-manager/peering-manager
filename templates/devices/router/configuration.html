@@ -59,35 +59,13 @@
 {% endblock %}
 {% block javascript %}
 <script>
-  var POLL_INTERVAL_MS = 2000;
-
-  // Generic job result handler — eliminates the duplicated switch/case polling pattern
-  function handleJobResult(r, callbacks) {
-    switch (r['status']['value']) {
-      case 'pending':
-      case 'running':
-        setTimeout(function () {
-          PeeringManager.pollJob(r, function (r) { handleJobResult(r, callbacks); }, callbacks.onPollError);
-        }, POLL_INTERVAL_MS);
-        break;
-      case 'completed':
-        if (callbacks.onCompleted) callbacks.onCompleted(r);
-        break;
-      case 'errored':
-      case 'failed':
-      default:
-        if (callbacks.onFailed) callbacks.onFailed(r);
-        break;
-    }
-  }
-
   $(document).ready(function () {
     $.ajax({
       method: 'get',
       url: "{% url 'devices-api:router-configuration' pk=instance.pk %}"
     }).done(function (r) {
       $('#configuration').html('<div class="text-center" style="font-size: 2rem;"><i class="fa-fw fa-solid fa-rotate fa-spin"></i> Working</div>');
-      handleJobResult(r, {
+      PeeringManager.handleJobResult(r, {
         onCompleted: function (r) {
           var config = r['output'];
           if (config == "") {
@@ -146,7 +124,7 @@
     }).done(function (r) {
       $('#main-body').html('<div class="text-center" style="font-size: 2rem;"><i class="fa-fw fa-solid fa-rotate fa-spin"></i> Working</div>');
       $('#main-modal').modal('show');
-      handleJobResult(r[0], {
+      PeeringManager.handleJobResult(r[0], {
         onCompleted: function (r) {
           var output = r['output'];
           var modal_text;
@@ -181,7 +159,7 @@
     }).done(function (r) {
       PeeringManager.setWorkingButton($('#commit'));
       setCommitToggleVariant('btn-warning');
-      handleJobResult(r[0], {
+      PeeringManager.handleJobResult(r[0], {
         onCompleted: function () {
           PeeringManager.setSuccessButton($('#commit'), 'Configuration saved');
           setCommitToggleVariant('btn-success');
@@ -215,7 +193,7 @@
       contentType: 'application/json',
       data: JSON.stringify({ 'router': {{ instance.pk }}, 'diff_content': currentDiffOutput }),
     }).done(function (r) {
-      handleJobResult(r, {
+      PeeringManager.handleJobResult(r, {
         onCompleted: function () {
           item.html('<i class="fa-fw fa-solid fa-check text-success"></i> Diff pushed to data source');
         },
@@ -252,7 +230,7 @@
       data: { 'routers': [{{ instance.pk }}] },
     }).done(function (r) {
       PeeringManager.setWorkingOutlineButton($('#push-datasource'));
-      handleJobResult(r[0], {
+      PeeringManager.handleJobResult(r[0], {
         onCompleted: function () {
           PeeringManager.setSuccessOutlineButton($('#push-datasource'), 'Pushed to data source');
         },

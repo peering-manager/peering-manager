@@ -62,6 +62,27 @@ var PeeringManager = {
   pollJob: function (job, doneHandler, failHandler) {
     $.ajax({ method: 'get', url: job['url'] }).done(doneHandler).fail(failHandler);
   },
+  handleJobResult: function (r, callbacks, intervalMs) {
+    intervalMs = intervalMs || 2000;
+    switch (r['status']['value']) {
+      case 'pending':
+      case 'running':
+        setTimeout(function () {
+          PeeringManager.pollJob(r, function (r) {
+            PeeringManager.handleJobResult(r, callbacks, intervalMs);
+          }, callbacks.onPollError);
+        }, intervalMs);
+        break;
+      case 'completed':
+        if (callbacks.onCompleted) callbacks.onCompleted(r);
+        break;
+      case 'errored':
+      case 'failed':
+      default:
+        if (callbacks.onFailed) callbacks.onFailed(r);
+        break;
+    }
+  },
   pluralize: function (count, singular, plural) {
     return count + ' ' + (count === 1 ? singular : (plural || singular + 's'));
   },

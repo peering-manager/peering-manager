@@ -149,35 +149,26 @@
   function pingFailHandler() {
     PeeringManager.resetPingButton($('#id_router_ping'));
   }
-  function pingDoneHandler(r) {
-    switch (r['status']['value']) {
-      case 'pending':
-      case 'running':
-        setTimeout(function () {
-          PeeringManager.pollJob(r, pingDoneHandler, pingFailHandler);
-        }, 2000);
-        break;
-      case 'completed':
-        $('#id_message_success').html('Successfully connected to the router.');
-        $('#id_alert_success').slideDown();
-        PeeringManager.resetPingButton($('#id_router_ping'));
-        break;
-      case 'errored':
-      case 'failed':
-      default:
-        $('#id_message_danger').html('Unable to connect to the router.');
-        $('#id_alert_danger').slideDown();
-        PeeringManager.resetPingButton($('#id_router_ping'));
-        break;
-    }
-  }
+  var pingCallbacks = {
+    onCompleted: function () {
+      $('#id_message_success').html('Successfully connected to the router.');
+      $('#id_alert_success').slideDown();
+      PeeringManager.resetPingButton($('#id_router_ping'));
+    },
+    onFailed: function () {
+      $('#id_message_danger').html('Unable to connect to the router.');
+      $('#id_alert_danger').slideDown();
+      PeeringManager.resetPingButton($('#id_router_ping'));
+    },
+    onPollError: pingFailHandler
+  };
   $("#id_router_ping").click(function () {
     $.ajax({
       method: "get",
       url: "{% url 'devices-api:router-test-napalm-connection' pk=instance.pk %}",
     }).done(function(r) {
       PeeringManager.setWorkingButton($('#id_router_ping'));
-      PeeringManager.pollJob(r, pingDoneHandler, pingFailHandler);
+      PeeringManager.handleJobResult(r, pingCallbacks);
     });
   });
   {% endif %}
@@ -187,26 +178,15 @@
     $('#id_message_danger').html('Failure polling BGP sessions state.');
     $('#id_alert_danger').slideDown();
   }
-  function pollSessionsDoneHandler(r) {
-    switch (r['status']['value']) {
-      case 'pending':
-      case 'running':
-        setTimeout(function () {
-          PeeringManager.pollJob(r, pollSessionsDoneHandler, pollSessionsFailHandler);
-        }, 2000);
-        break;
-      case 'completed':
-        PeeringManager.resetPollSessionsButton($('#id_poll_sessions_state'));
-        $('#id_message_success').html('Successfully polled BGP sessions state.');
-        $('#id_alert_success').slideDown();
-        break;
-      case 'errored':
-      case 'failed':
-      default:
-        pollSessionsFailHandler();
-        break;
-    }
-  }
+  var pollSessionsCallbacks = {
+    onCompleted: function () {
+      PeeringManager.resetPollSessionsButton($('#id_poll_sessions_state'));
+      $('#id_message_success').html('Successfully polled BGP sessions state.');
+      $('#id_alert_success').slideDown();
+    },
+    onFailed: pollSessionsFailHandler,
+    onPollError: pollSessionsFailHandler
+  };
   $('#id_poll_sessions_state').click(function () {
     $.ajax({
       method: 'post',
@@ -214,7 +194,7 @@
       url: "{% url 'devices-api:router-poll-bgp-sessions' pk=instance.pk %}",
     }).done(function (r) {
       PeeringManager.setWorkingButton($('#id_poll_sessions_state'));
-      PeeringManager.pollJob(r, pollSessionsDoneHandler, pollSessionsFailHandler);
+      PeeringManager.handleJobResult(r, pollSessionsCallbacks);
     }).fail(pollSessionsFailHandler);
   });
   {% endif %}

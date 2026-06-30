@@ -89,31 +89,21 @@
   });
 
   {% if instance.ready_for_synchronisation %}
-  function synchronisationFailHandler() {
-    PeeringManager.resetSynchroniseButton($('#id_synchronise'), "btn-primary");
-  }
-  function synchronisationDoneHandler(r) {
-    switch (r['status']['value']) {
-      case 'pending':
-      case 'running':
-        setTimeout(function () {
-          PeeringManager.pollJob(r, synchronisationDoneHandler, synchronisationFailHandler);
-        }, 2000);
-        break;
-      case 'completed':
-        $('#id_message_success').html('Successfully synchronised data source.');
-        $('#id_alert_success').slideDown();
-        PeeringManager.resetSynchroniseButton($('#id_synchronise'), "btn-primary");
-        break;
-      case 'errored':
-      case 'failed':
-      default:
-        $('#id_message_danger').html('Unable to synchronise data source.');
-        $('#id_alert_danger').slideDown();
-        PeeringManager.resetSynchroniseButton($('#id_synchronise'), "btn-primary");
-        break;
+  var synchronisationCallbacks = {
+    onCompleted: function () {
+      $('#id_message_success').html('Successfully synchronised data source.');
+      $('#id_alert_success').slideDown();
+      PeeringManager.resetSynchroniseButton($('#id_synchronise'), "btn-primary");
+    },
+    onFailed: function () {
+      $('#id_message_danger').html('Unable to synchronise data source.');
+      $('#id_alert_danger').slideDown();
+      PeeringManager.resetSynchroniseButton($('#id_synchronise'), "btn-primary");
+    },
+    onPollError: function () {
+      PeeringManager.resetSynchroniseButton($('#id_synchronise'), "btn-primary");
     }
-  }
+  };
   $("#id_synchronise").click(function () {
     $.ajax({
       method: "post",
@@ -121,7 +111,7 @@
       url: "{% url 'core-api:datasource-synchronise' pk=instance.pk %}",
     }).done(function(r) {
       PeeringManager.setWorkingButton($('#id_synchronise'));
-      PeeringManager.pollJob(r, synchronisationDoneHandler, synchronisationFailHandler);
+      PeeringManager.handleJobResult(r, synchronisationCallbacks);
     });
   });
   {% endif %}

@@ -93,31 +93,21 @@
     temp.remove();
   });
 
-  function exportDoneHandler(r) {
-    switch (r['status']['value']) {
-      case 'pending':
-      case 'running':
-        setTimeout(function() {
-          PeeringManager.pollJob(r, exportDoneHandler);
-        }, 2000);
-        break;
-      case 'completed':
-        var formatted;
-        var output = r['output'];
-        if (output == "") {
-          formatted = '<div class="card-body"><p class="card-text">Rendering result is empty.</p></div>';
-        } else {
-          formatted = '<pre class="pre-scrollable" id="result">' + PeeringManager.escapeHTML(output) + '</pre>';
-        }
-        $('#rendered').html(formatted);
-        break;
-      case 'errored':
-      case 'failed':
-      default:
-        $('#rendered').html('<div class="card-body"><p class="card-text">An error occured while rendering the export template.</p></div>');
-        break;
+  var exportCallbacks = {
+    onCompleted: function (r) {
+      var formatted;
+      var output = r['output'];
+      if (output == "") {
+        formatted = '<div class="card-body"><p class="card-text">Rendering result is empty.</p></div>';
+      } else {
+        formatted = '<pre class="pre-scrollable" id="result">' + PeeringManager.escapeHTML(output) + '</pre>';
+      }
+      $('#rendered').html(formatted);
+    },
+    onFailed: function () {
+      $('#rendered').html('<div class="card-body"><p class="card-text">An error occured while rendering the export template.</p></div>');
     }
-  }
+  };
 
   $(document).ready(function () {
     $.ajax({
@@ -125,7 +115,7 @@
       url: "{% url 'extras-api:exporttemplate-render' pk=instance.pk %}"
     }).done(function (r) {
       $('#rendered').html('<div class="text-center" style="font-size: 2rem;"><i class="fa-fw fa-solid fa-rotate fa-spin"></i> Working</div>');
-      exportDoneHandler(r);
+      PeeringManager.handleJobResult(r, exportCallbacks);
     }).fail(function () {
       $('#rendered').html('<div class="card-body"><p class="card-text">Unable to render the export template.</p></div>');
     });
