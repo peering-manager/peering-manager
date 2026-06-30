@@ -146,9 +146,6 @@
   });
 
   {% if instance.is_usable_for_task %}
-  function pingFailHandler() {
-    PeeringManager.resetPingButton($('#id_router_ping'));
-  }
   var pingCallbacks = {
     onCompleted: function () {
       $('#id_message_success').html('Successfully connected to the router.');
@@ -160,7 +157,9 @@
       $('#id_alert_danger').slideDown();
       PeeringManager.resetPingButton($('#id_router_ping'));
     },
-    onPollError: pingFailHandler
+    onPollError: function () {
+      PeeringManager.resetPingButton($('#id_router_ping'));
+    }
   };
   $("#id_router_ping").click(function () {
     $.ajax({

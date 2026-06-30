@@ -43,9 +43,6 @@
 {% block javascript %}
 <script>
   {% if 'add' in actions and instance.has_connected_routers %}
-  function importFailHandler() {
-    PeeringManager.setFailedButton($('#import_sessions'));
-  }
   var importCallbacks = {
     onCompleted: function () {
       PeeringManager.setSuccessButton($('#import_sessions'), 'Sessions imported');
@@ -53,7 +50,9 @@
     onFailed: function () {
       PeeringManager.setFailedButton($('#import_sessions'), 'Failure importing sessions');
     },
-    onPollError: importFailHandler
+    onPollError: function () {
+      PeeringManager.setFailedButton($('#import_sessions'));
+    }
   };
 
   $('#import_sessions').click(function () {
@@ -64,7 +63,9 @@
     }).done(function (r) {
       PeeringManager.setWorkingButton($('#import_sessions'));
       PeeringManager.handleJobResult(r, importCallbacks);
-    }).fail(importFailHandler);
+    }).fail(function () {
+      PeeringManager.setFailedButton($('#import_sessions'));
+    });
   });
   {% endif %}
   {% if instance.are_bgp_sessions_pollable %}
