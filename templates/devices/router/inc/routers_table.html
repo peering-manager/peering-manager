@@ -4,8 +4,6 @@
 <button type="submit" name="_review" formaction="{% url 'devices:router_bulk_configuration' %}" class="btn btn-sm btn-outline-primary" id="review-on-selected">
   <i class="fa fa-eye"></i> Review On Selected
 </button>
-{% endif %}
-{% if perms.devices.deploy_router_configuration %}
 <button type="button" class="btn btn-sm btn-primary" id="deploy-on-selected">
   <i class="fa fa-cogs"></i> Deploy On Selected
 </button>
