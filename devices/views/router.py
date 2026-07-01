@@ -1,6 +1,8 @@
+from django.contrib import messages
 from django.db.models import Count
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views import View
 
 from extras.views import ObjectConfigContextView
@@ -27,6 +29,7 @@ from ..models import Router
 from ..tables import RouterConnectionTable, RouterTable
 
 __all__ = (
+    "RouterBulkConfiguration",
     "RouterBulkDelete",
     "RouterBulkEdit",
     "RouterConfigContext",
@@ -118,6 +121,25 @@ class RouterConfiguration(PermissionRequiredMixin, View):
             request,
             "devices/router/configuration.html",
             {"instance": instance, "tab": self.tab},
+        )
+
+
+@register_model_view(model=Router, name="bulk_configuration", path="configuration", detail=False)
+class RouterBulkConfiguration(PermissionRequiredMixin, View):
+    permission_required = "devices.deploy_router_configuration"
+
+    def post(self, request):
+        pk_list = request.POST.getlist("pk")
+        routers = Router.objects.filter(pk__in=pk_list).order_by("local_autonomous_system", "name")
+
+        if not routers:
+            messages.warning(request, "No router selected for configuration review.")
+            return redirect("devices:router_list")
+
+        return render(
+            request,
+            "devices/router/bulk_configuration.html",
+            {"routers": routers, "return_url": reverse("devices:router_list")},
         )
 
 

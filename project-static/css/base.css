@@ -121,6 +121,14 @@ table.table thead th.desc.orderable > a::after {
   padding: 1% 1% 1% 1%;
   margin-bottom: 0%;
 }
+#router-mosaic {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 640px), 1fr));
+  gap: 1rem;
+}
+#router-mosaic .pre-scrollable {
+  max-height: 320px;
+}
 .pre-diff {
   display: block;
   padding: 9.5px;

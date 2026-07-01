@@ -1,0 +1,157 @@
+{% extends '_base.html' %}
+{% block actions %}
+<button type="button" class="btn btn-primary" id="commit-all">
+  <i class="fa fa-cogs"></i> Commit selected
+</button>
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'devices:router_list' %}">Routers</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% block title %}Configuration Review{% endblock %}</li>
+{% endblock %}
+{% block content %}
+<div id="router-mosaic">
+  {% for router in routers %}
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center text-truncate me-2">
+        {% if router.is_usable_for_task %}
+        <input class="form-check-input select-router mt-0 me-2 flex-shrink-0" type="checkbox" data-router="{{ router.pk }}" title="Include when committing" checked>
+        {% endif %}
+        <a href="{% url 'devices:router_configuration' pk=router.pk %}" class="text-decoration-none fw-semibold text-truncate" title="{{ router.name }}">{{ router.name }}</a>
+      </div>
+      <span class="badge bg-secondary flex-shrink-0" id="status-{{ router.pk }}">Pending</span>
+    </div>
+    <div class="card-body">
+      {% if router.is_usable_for_task %}
+      <div id="diff-{{ router.pk }}">
+        <div class="text-center"><i class="fa-fw fa-solid fa-rotate fa-spin"></i> Working</div>
+      </div>
+      {% else %}
+      <div class="alert alert-secondary mb-0" role="alert">
+        This router cannot be configured (disabled or missing platform/NAPALM driver).
+      </div>
+      {% endif %}
+    </div>
+    {% if router.is_usable_for_task %}
+    <div class="card-footer text-end">
+      <button type="button" class="btn btn-sm btn-secondary copy-diff" data-router="{{ router.pk }}" disabled>
+        <i class="fa fa-clipboard"></i> Copy
+      </button>
+      <button type="button" class="btn btn-sm btn-primary commit-diff" data-router="{{ router.pk }}" disabled>
+        Commit
+      </button>
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+{% block javascript %}
+<script>
+  var routerIds = [{% for router in routers %}{% if router.is_usable_for_task %}{{ router.pk }}, {% endif %}{% endfor %}];
+  var diffs = {};
+
+  function setStatus(pk, css, label) {
+    $('#status-' + pk).removeClass().addClass('badge ' + css).text(label);
+  }
+
+  function uncheckRouter(pk) {
+    $('.select-router[data-router="' + pk + '"]').prop('checked', false);
+  }
+
+  function pollDiff(job) {
+    var pk = job['object_id'];
+    PeeringManager.handleJobResult(job, {
+      onCompleted: function (r) {
+        var output = r['output'];
+        if (output == "") {
+          setStatus(pk, 'bg-success', 'No changes');
+          $('#diff-' + pk).html('<p class="mb-0">No configuration differences found.</p>');
+          uncheckRouter(pk);
+        } else {
+          setStatus(pk, 'bg-warning text-dark', 'Changes');
+          diffs[pk] = output;
+          $('#diff-' + pk).html('<pre class="pre-scrollable">' + PeeringManager.escapeHTML(output) + '</pre>');
+          $('.copy-diff[data-router="' + pk + '"]').prop('disabled', false);
+          $('.commit-diff[data-router="' + pk + '"]').prop('disabled', false);
+        }
+      },
+      onFailed: function (r) {
+        setStatus(pk, 'bg-danger', 'Error');
+        $('#diff-' + pk).html('<p class="text-danger">An error occured while generating the diff. The router may be unreachable or the configuration invalid.</p><pre class="pre-scrollable">' + PeeringManager.escapeHTML(r['output'] || '') + '</pre>');
+        uncheckRouter(pk);
+      },
+      onPollError: function () {
+        setStatus(pk, 'bg-danger', 'Error');
+        uncheckRouter(pk);
+      }
+    });
+  }
+
+  function commitRouter(pk) {
+    var btn = $('.commit-diff[data-router="' + pk + '"]');
+    if (btn.prop('disabled')) return;
+    PeeringManager.setWorkingButton(btn);
+    $.ajax({
+      method: 'post',
+      url: "{% url 'devices-api:router-configure' %}",
+      headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+      data: { 'routers': [pk], 'commit': true },
+    }).done(function (jobs) {
+      PeeringManager.handleJobResult(jobs[0], {
+        onCompleted: function () {
+          PeeringManager.setSuccessButton(btn, 'Committed');
+          setStatus(pk, 'bg-success', 'Committed');
+        },
+        onFailed: function () {
+          PeeringManager.setFailedButton(btn, 'Failed');
+          setStatus(pk, 'bg-danger', 'Error');
+        },
+        onPollError: function () {
+          PeeringManager.setFailedButton(btn, 'Failed');
+        }
+      });
+    }).fail(function () {
+      PeeringManager.setFailedButton(btn, 'Failed');
+    });
+  }
+
+  $(document).ready(function () {
+    if (routerIds.length > 0) {
+      $.ajax({
+        method: 'post',
+        url: "{% url 'devices-api:router-configure' %}",
+        headers: { 'X-CSRFTOKEN': '{{ csrf_token }}' },
+        data: { 'routers': routerIds, 'commit': false },
+      }).done(function (jobs) {
+        jobs.forEach(pollDiff);
+      }).fail(function () {
+        routerIds.forEach(function (pk) {
+          setStatus(pk, 'bg-danger', 'Error');
+          $('#diff-' + pk).html('<p class="text-danger">Unable to schedule diff generation.</p>');
+          uncheckRouter(pk);
+        });
+      });
+    }
+
+    $('.copy-diff').click(function () {
+      var pk = $(this).data('router');
+      var btn = $(this);
+      navigator.clipboard.writeText(diffs[pk] || '').then(function () {
+        btn.html('<i class="fa fa-check"></i> Copied');
+        setTimeout(function () { btn.html('<i class="fa fa-clipboard"></i> Copy'); }, 2000);
+      });
+    });
+
+    $('.commit-diff').click(function () {
+      commitRouter($(this).data('router'));
+    });
+
+    $('#commit-all').click(function () {
+      $('.select-router:checked').each(function () {
+        commitRouter($(this).data('router'));
+      });
+    });
+  });
+</script>
+{% endblock %}

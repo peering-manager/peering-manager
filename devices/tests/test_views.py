@@ -1,3 +1,6 @@
+from django.contrib.auth.models import Permission
+from django.urls import reverse
+
 from peering.models import AutonomousSystem
 from utils.testing import ViewTestCases
 
@@ -102,3 +105,29 @@ class RouterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "napalm_username": "",
         }
         cls.bulk_edit_data = {"comments": "New comments"}
+
+    def test_bulk_configuration_requires_permission(self):
+        url = reverse("devices:router_bulk_configuration")
+        pks = list(Router.objects.values_list("pk", flat=True))
+        self.assertHttpStatus(self.client.post(url, data={"pk": pks}), 403)
+
+    def test_bulk_configuration_review(self):
+        self.user.user_permissions.add(
+            Permission.objects.get(content_type__app_label="devices", codename="deploy_router_configuration")
+        )
+        url = reverse("devices:router_bulk_configuration")
+        pks = list(Router.objects.values_list("pk", flat=True)[:2])
+
+        response = self.client.post(url, data={"pk": pks})
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        self.assertIn("Router 1", content)
+        self.assertIn("Router 2", content)
+
+    def test_bulk_configuration_no_selection_redirects(self):
+        self.user.user_permissions.add(
+            Permission.objects.get(content_type__app_label="devices", codename="deploy_router_configuration")
+        )
+        url = reverse("devices:router_bulk_configuration")
+        response = self.client.post(url, data={"pk": []})
+        self.assertRedirects(response, reverse("devices:router_list"), fetch_redirect_response=False)
