@@ -2,6 +2,10 @@
 {% block subcontent %}
 <div class="row">
   <div class="col-md-2">
+    <div class="form-check form-switch w-100 mb-3">
+      <input class="form-check-input" type="checkbox" id="autorender-switch">
+      <label class="form-check-label" for="autorender-switch">Auto-generate</label>
+    </div>
     {% if perms.devices.deploy_router_configuration %}
     {% if instance.is_usable_for_task %}
     <div class="form-check form-switch w-100 mb-3">
@@ -47,6 +51,7 @@
             {% if perms.devices.push_router_configuration_to_data_source and instance.data_source and instance.data_path %}
             <li><a class="dropdown-item" href="#" id="push-diff-datasource"><i class="fa fa-upload"></i> Push Diff to Data Source</a></li>
             {% endif %}
+            <li><a class="dropdown-item" href="#" id="copy-diff"><i class="fa fa-clipboard"></i> Copy Diff</a></li>
             <li><a class="dropdown-item" href="#" id="download-diff"><i class="fa fa-download"></i> Download Diff</a></li>
           </ul>
         </div>
@@ -59,12 +64,16 @@
 {% endblock %}
 {% block javascript %}
 <script>
-  $(document).ready(function () {
+  var AUTORENDER_KEY = 'pm.router.autorender';
+  var GENERATE_BUTTON = '<div class="text-center my-4"><button type="button" class="btn btn-primary btn-square d-inline-flex flex-column align-items-center justify-content-center gap-2 p-2" id="generate-config"><i class="fa fa-rotate fa-lg"></i><span>Generate configuration</span></button></div>';
+
+  // Generate and display the router configuration (asynchronous job).
+  function renderConfiguration() {
+    $('#configuration').html('<div class="text-center" style="font-size: 2rem;"><i class="fa-fw fa-solid fa-rotate fa-spin"></i> Working</div>');
     $.ajax({
       method: 'get',
       url: "{% url 'devices-api:router-configuration' pk=instance.pk %}"
     }).done(function (r) {
-      $('#configuration').html('<div class="text-center" style="font-size: 2rem;"><i class="fa-fw fa-solid fa-rotate fa-spin"></i> Working</div>');
       PeeringManager.handleJobResult(r, {
         onCompleted: function (r) {
           var config = r['output'];
@@ -81,6 +90,24 @@
     }).fail(function () {
       $('#configuration').html('<p>Unable to render router configuration.</p>');
     });
+  }
+
+  $(document).ready(function () {
+    // Auto-generate is opt-out and remembered per browser (default on).
+    var autorender = localStorage.getItem(AUTORENDER_KEY) !== 'false';
+    $('#autorender-switch').prop('checked', autorender);
+
+    if (autorender) {
+      renderConfiguration();
+    } else {
+      $('#configuration').html(GENERATE_BUTTON);
+    }
+
+    $('#autorender-switch').on('change', function () {
+      localStorage.setItem(AUTORENDER_KEY, $(this).is(':checked') ? 'true' : 'false');
+    });
+
+    $('#configuration').on('click', '#generate-config', renderConfiguration);
   });
 
   // Copy to clipboard
@@ -108,6 +135,7 @@
     setCommitToggleVariant('btn-primary');
 
     $('#push-diff-datasource').removeClass('disabled').html('<i class="fa fa-upload"></i> Push Diff to Data Source');
+    $('#copy-diff').html('<i class="fa fa-clipboard"></i> Copy Diff');
     $('#download-diff').html('<i class="fa fa-download"></i> Download Diff');
 
     currentDiffOutput = '';
@@ -203,6 +231,15 @@
       });
     }).fail(function () {
       item.html('<i class="fa-fw fa-solid fa-times text-danger"></i> Failed to push diff');
+    });
+  });
+
+  // Copy diff to clipboard
+  $('#copy-diff').click(function (e) {
+    e.preventDefault();
+    var item = $(this);
+    navigator.clipboard.writeText(currentDiffOutput).then(function () {
+      item.html('<i class="fa fa-check text-success"></i> Copied');
     });
   });
 

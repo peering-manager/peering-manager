@@ -129,6 +129,10 @@ table.table thead th.desc.orderable > a::after {
 #router-mosaic .pre-scrollable {
   max-height: 320px;
 }
+.btn-square {
+  width: 7rem;
+  height: 7rem;
+}
 .pre-diff {
   display: block;
   padding: 9.5px;
