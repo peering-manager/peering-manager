@@ -31,19 +31,28 @@ class BaseViewSet(GenericViewSet):
         return super().initialize_request(request, *args, **kwargs)
 
     def get_serializer(self, *args, **kwargs):
-        if (fields := self._effective_fields()) is not None:
+        if (fields := self._effective_fields) is not None:
             kwargs["fields"] = fields
         return super().get_serializer(*args, **kwargs)
 
+    @cached_property
     def _effective_fields(self) -> list[str] | None:
         fields = self.requested_fields
-        if not (excluded := self.excluded_fields):
+        excluded = list(self.excluded_fields or [])
+        if fields is None and self.action in {"list", "retrieve"} and not getattr(self, "swagger_fake_view", False):
+            excluded += self._opt_in_fields
+        if not excluded:
             return fields
 
         if fields is None:
             serializer_class = self.get_serializer_class()
             fields = list(getattr(serializer_class.Meta, "fields", ()))
         return [f for f in fields if f not in excluded]
+
+    @cached_property
+    def _opt_in_fields(self) -> list[str]:
+        serializer_class = self.get_serializer_class()
+        return list(getattr(serializer_class.Meta, "opt_in_fields", ()))
 
     @cached_property
     def requested_fields(self) -> list[str] | None:

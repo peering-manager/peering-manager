@@ -114,6 +114,7 @@ class AutonomousSystemSerializer(PeeringManagerModelSerializer):
             "created",
             "updated",
         ]
+        opt_in_fields = ["prefixes", "as_list"]
 
 
 class BGPGroupSerializer(PeeringManagerModelSerializer):

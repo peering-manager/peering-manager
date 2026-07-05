@@ -1,5 +1,7 @@
 from unittest.mock import patch
 
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from rest_framework import status
 
@@ -67,6 +69,43 @@ class AutonomousSystemTest(APIViewTestCases.View):
         )
         response = self.client.post(url, format="json", **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def _store_prefixes(self):
+        self.autonomous_system.prefixes = {"ipv6": [], "ipv4": [{"prefix": "192.0.2.0/24"}]}
+        self.autonomous_system.as_list = [65536, 64500]
+        self.autonomous_system.save()
+
+    def test_opt_in_fields_not_in_default_representation(self):
+        self._store_prefixes()
+
+        url = reverse("peering-api:autonomoussystem-detail", kwargs={"pk": self.autonomous_system.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertNotIn("prefixes", response.data)
+        self.assertNotIn("as_list", response.data)
+
+        response = self.client.get(reverse("peering-api:autonomoussystem-list"), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertNotIn("prefixes", response.data["results"][0])
+        self.assertNotIn("as_list", response.data["results"][0])
+
+    def test_opt_in_fields_returned_when_requested(self):
+        self._store_prefixes()
+
+        url = reverse("peering-api:autonomoussystem-detail", kwargs={"pk": self.autonomous_system.pk})
+        response = self.client.get(url, {"fields": "asn,prefixes,as_list"}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data["prefixes"], {"ipv6": [], "ipv4": [{"prefix": "192.0.2.0/24"}]})
+        self.assertEqual(response.data["as_list"], [65536, 64500])
+
+    def test_opt_in_fields_in_write_responses(self):
+        self._store_prefixes()
+
+        url = reverse("peering-api:autonomoussystem-detail", kwargs={"pk": self.autonomous_system.pk})
+        response = self.client.patch(url, {"comments": "Awesome peer"}, format="json", **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIn("prefixes", response.data)
+        self.assertIn("as_list", response.data)
 
     def test_get_irr_as_set_prefixes(self):
         with patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen):
