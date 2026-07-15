@@ -4,14 +4,23 @@ from rest_framework import serializers
 
 from peering_manager.api.fields import IPInterfaceField
 
+from ...constants import (
+    ASN_MAX,
+    ASN_MIN,
+    FACILITY_LOCATION_PREFIX,
+    IX_LOCATION_PREFIX,
+    format_facility_location,
+    format_ix_location,
+)
 from ...enums import PeeringRequestType
-from ..constants import IX_LOCATION_PREFIX
 
 __all__ = (
+    "PortalAffiliatedSerializer",
     "PortalContactSerializer",
-    "PortalFacilitySerializer",
     "PortalLocationSerializer",
+    "PortalLocationsResponseSerializer",
     "PortalNetworkSerializer",
+    "PortalRequestListSerializer",
     "PortalRequestStatusSerializer",
     "PortalRequestedSessionStatusSerializer",
     "PortalSessionEntrySerializer",
@@ -19,6 +28,11 @@ __all__ = (
     "PortalSessionSubmitResponseSerializer",
     "PortalSessionSubmitSerializer",
 )
+
+
+class PortalAffiliatedSerializer(serializers.Serializer):
+    asn = serializers.IntegerField()
+    name = serializers.CharField()
 
 
 class PortalContactSerializer(serializers.Serializer):
@@ -31,8 +45,8 @@ class PortalNetworkSerializer(serializers.Serializer):
     asn = serializers.IntegerField()
     name = serializers.CharField()
     name_long = serializers.CharField()
-    info_prefixes4 = serializers.IntegerField()
-    info_prefixes6 = serializers.IntegerField()
+    info_prefixes4 = serializers.IntegerField(allow_null=True)
+    info_prefixes6 = serializers.IntegerField(allow_null=True)
     irr_as_set = serializers.CharField()
     policy_general = serializers.CharField()
     contacts = PortalContactSerializer(many=True)
@@ -45,15 +59,29 @@ class PortalSessionInfoSerializer(serializers.Serializer):
     existing = serializers.BooleanField()
 
 
+class PortalLocationSerializer(serializers.Serializer):
+    location = serializers.CharField(
+        help_text=f"{IX_LOCATION_PREFIX}$IX_ID for public peering, {FACILITY_LOCATION_PREFIX}$FACILITY_ID for private"
+    )
+    name = serializers.CharField()
+    peering_type = serializers.CharField()
+    sessions = PortalSessionInfoSerializer(many=True)
+
+
+class PortalLocationsResponseSerializer(serializers.Serializer):
+    locations = PortalLocationSerializer(many=True)
+    peer_asn = serializers.IntegerField()
+
+
 class PortalSessionEntrySerializer(serializers.Serializer):
     local_ip = IPInterfaceField(required=True)
-    location = serializers.CharField(required=False, allow_blank=True)
-    peer_ip = IPInterfaceField(required=False, allow_blank=True, default="")
+    location = serializers.CharField(required=True)
+    peer_ip = IPInterfaceField(required=True)
     session_secret = serializers.CharField(required=False, allow_blank=True, default="")
 
 
 class PortalSessionSubmitSerializer(serializers.Serializer):
-    local_asn = serializers.IntegerField(required=True)
+    local_asn = serializers.IntegerField(required=True, min_value=ASN_MIN, max_value=ASN_MAX)
     peer_type = serializers.ChoiceField(choices=PeeringRequestType.CHOICES, required=True)
     email = serializers.EmailField(required=False, allow_blank=True, default="")
     sessions = PortalSessionEntrySerializer(many=True, min_length=1)
@@ -68,7 +96,7 @@ class PortalSessionSubmitResponseSerializer(serializers.Serializer):
 class PortalRequestedSessionStatusSerializer(serializers.Serializer):
     session_id = serializers.IntegerField(source="id")
     local_ip = IPInterfaceField(source="ip_address")
-    peer_ip = IPInterfaceField(source="peer_ip_address", default="")
+    peer_ip = IPInterfaceField(source="peer_ip_address", allow_null=True)
     location = serializers.SerializerMethodField()
     location_name = serializers.SerializerMethodField()
     status = serializers.CharField()
@@ -78,9 +106,9 @@ class PortalRequestedSessionStatusSerializer(serializers.Serializer):
         if obj.ixp_connection and obj.ixp_connection.internet_exchange_point:
             ix = obj.ixp_connection.internet_exchange_point
             if ix.peeringdb_ixlan:
-                return f"{IX_LOCATION_PREFIX}{ix.peeringdb_ixlan.pk}"
+                return format_ix_location(ix.peeringdb_ixlan.pk)
         if obj.peeringdb_facility:
-            return str(obj.peeringdb_facility.pk)
+            return format_facility_location(obj.peeringdb_facility.pk)
         return ""
 
     def get_location_name(self, obj) -> str:
@@ -106,15 +134,5 @@ class PortalRequestStatusSerializer(serializers.Serializer):
         return obj.local_autonomous_system.asn
 
 
-class PortalLocationSerializer(serializers.Serializer):
-    location = serializers.CharField(help_text=f"RFC format: {IX_LOCATION_PREFIX}$IX_ID")
-    name = serializers.CharField()
-    peering_type = serializers.CharField()
-    sessions = PortalSessionInfoSerializer(many=True)
-
-
-class PortalFacilitySerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    name = serializers.CharField()
-    city = serializers.CharField()
-    country = serializers.CharField()
+class PortalRequestListSerializer(serializers.Serializer):
+    requests = PortalRequestStatusSerializer(many=True)

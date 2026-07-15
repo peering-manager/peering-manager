@@ -52,11 +52,7 @@ from .abstracts import *
 from .mixins import *
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     from django.contrib.auth.models import AbstractUser
-
-    from peeringdb.models import Facility
 
 __all__ = (
     "AutonomousSystem",
@@ -1161,43 +1157,6 @@ class PeeringRequest(PrimaryModel):
         except Network.DoesNotExist:
             return None
 
-    @classmethod
-    @transaction.atomic
-    def create_with_sessions(
-        cls,
-        *,
-        local_autonomous_system: AutonomousSystem,
-        requesting_asn: int,
-        request_type: str,
-        sessions: Sequence[tuple[dict, Facility | None, Connection | None]],
-        requester_email: str = "",
-    ) -> PeeringRequest:
-        """
-        Atomically creates a `PeeringRequest` and its `RequestedSession`s.
-
-        `sessions` is a sequence of `(session_data, facility, ixp_connection)`
-        tuples where `session_data` is a dict with `local_ip` and (optional)
-        `session_secret` keys.  For public peering, `ixp_connection` is set
-        and identifies which operator router the session should land on.
-        For private peering, `facility` is set and `ixp_connection` is None.
-        """
-        pr = cls.objects.create(
-            requesting_asn=requesting_asn,
-            requester_email=requester_email,
-            local_autonomous_system=local_autonomous_system,
-            request_type=request_type,
-        )
-        for session_data, facility, ixp_connection in sessions:
-            RequestedSession.objects.create(
-                peering_request=pr,
-                ixp_connection=ixp_connection,
-                peeringdb_facility=facility,
-                ip_address=session_data["local_ip"],
-                peer_ip_address=session_data.get("peer_ip") or None,
-                session_secret=session_data.get("session_secret", ""),
-            )
-        return pr
-
     @transaction.atomic
     def accept(self) -> AcceptResult:
         if self.status != PeeringRequestStatus.PENDING:
@@ -1210,10 +1169,9 @@ class PeeringRequest(PrimaryModel):
             status=RequestedSessionStatus.PENDING
         ):
             try:
-                session.validate_creation()
                 session.accept()
-            except ValueError as e:
-                reason = str(e)
+            except (ValueError, ValidationError) as e:
+                reason = "; ".join(e.messages) if isinstance(e, ValidationError) else str(e)
                 session.reject(comment=f"Auto-rejected: {reason}")
                 details.append(SessionResult(ip_address=session.ip_address, accepted=False, reason=reason))
                 continue
@@ -1311,6 +1269,8 @@ class RequestedSession(ChangeLoggedModel):
             case PeeringRequestType.PRIVATE_PEERING:
                 if not self.peeringdb_facility:
                     raise ValueError("No facility specified.")
+                if not self.peering_request.relationship:
+                    raise ValueError("A relationship must be set on the peering request before accepting.")
 
     @transaction.atomic
     def accept(self) -> None:
@@ -1329,7 +1289,7 @@ class RequestedSession(ChangeLoggedModel):
 
         match pr.request_type:
             case PeeringRequestType.PUBLIC_PEERING:
-                session = InternetExchangePeeringSession.objects.create(
+                session = InternetExchangePeeringSession(
                     autonomous_system=autonomous_system,
                     ixp_connection=self.ixp_connection,
                     ip_address=self.ip_address,
@@ -1338,7 +1298,7 @@ class RequestedSession(ChangeLoggedModel):
                 )
 
             case PeeringRequestType.PRIVATE_PEERING:
-                session = DirectPeeringSession.objects.create(
+                session = DirectPeeringSession(
                     autonomous_system=autonomous_system,
                     local_autonomous_system=pr.local_autonomous_system,
                     ip_address=self.ip_address,
@@ -1347,6 +1307,10 @@ class RequestedSession(ChangeLoggedModel):
                     relationship=pr.relationship,
                     password=password,
                 )
+
+        # Tell the conflict guard which request this session materialises, its own pending sessions must not block it
+        session._accepted_from_peering_request_id = pr.pk
+        session.save()
 
         self.created_session = session
         self.status = RequestedSessionStatus.ACCEPTED

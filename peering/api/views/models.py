@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
@@ -604,6 +605,7 @@ class RequestedSessionViewSet(PeeringManagerModelViewSet):
         responses={
             200: OpenApiResponse(description="Session accepted"),
             400: OpenApiResponse(description="Cannot accept (wrong status or validation failure)"),
+            409: OpenApiResponse(description="Another pending peering request covers the same IP"),
         },
     )
     @action(detail=True, methods=["post"])
@@ -615,6 +617,8 @@ class RequestedSessionViewSet(PeeringManagerModelViewSet):
             session.accept()
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as e:
+            return Response({"detail": "; ".join(e.messages)}, status=status.HTTP_409_CONFLICT)
         return Response({"status": "accepted"})
 
     @extend_schema(

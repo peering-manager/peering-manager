@@ -27,7 +27,7 @@ where compatible.
 | **Requested session**      | One BGP session entry inside a peering request, identified by `session_id`.                                                                                                                                               |
 | **Tracking ID**            | The UUID (`request_id`) that the portal hands back to the requester so they can poll status or cancel without authentication.                                                                                             |
 | **Local IP / Peer IP**     | Inside a session payload, `local_ip` is the requesting network's IP and `peer_ip` is the operator's IP on the connection. The pair `(peer_ip, location)` uniquely identifies which operator connection a session targets. |
-| **Location**               | Either an IXLan (public peering, format `pdb:ix:<ixlan_id>`) or a PeeringDB facility (private peering, format `<facility_id>`).                                                                                           |
+| **Location**               | Either an IXLan (public peering, format `pdb:ix:<ixlan_id>`) or a PeeringDB facility (private peering, format `pdb:fac:<facility_id>`).                                                                                   |
 
 ## Architecture Overview
 
@@ -70,7 +70,7 @@ The user account that owns the token needs:
    any other affiliated AS are not visible to this token.
 
 If a portal endpoint is called by a token whose owner has no affiliated AS
-set, it returns a HTTP 503 with an explicit error message.
+set, it returns a HTTP 422 with an explicit error message.
 
 The portal can ask Peering Manager which AS the token is bound to:
 
@@ -193,7 +193,7 @@ curl -s -H "Authorization: Token $PM_API_TOKEN" \
       ]
     },
     {
-      "location": "17",
+      "location": "pdb:fac:17",
       "name": "Example Facility",
       "peering_type": "private",
       "sessions": []
@@ -227,8 +227,8 @@ PeeringDB cache does not know which IPs are negotiated on a private
 interconnect): `local_ip` for their own end, `peer_ip` for the operator's
 end. Both are required at submission time, because the operator-side IP
 on a private link cannot be guessed from anything else except trivial
-/31 or /127 cases. The `location` value for a facility is its numeric
-PeeringDB ID as a string (for example `"17"`).
+/31 or /127 cases. The `location` value for a facility uses its PeeringDB
+ID (for example `"pdb:fac:17"`).
 
 ### Step 3, submit the peering request
 
@@ -280,7 +280,7 @@ curl -s -H "Authorization: Token $PM_API_TOKEN" \
         {
           "local_ip": "192.0.2.10/30",
           "peer_ip": "192.0.2.9/30",
-          "location": "17"
+          "location": "pdb:fac:17"
         }
       ]
     }'
@@ -295,35 +295,41 @@ tracking identifier.
     if the operator accepts the request (see
     [Operator decisions](#operator-decisions) below).
 
-The submission is rejected with a HTTP 409 in two cases:
+The submission is rejected with a HTTP 409 in two cases, distinguished by
+the machine-readable `code` field; `conflicting_ips` always lists the IPs
+at fault:
 
-* **Pending duplicate**: the requester already has a pending peering
-  request that contains one of the submitted IPs:
+* **Pending duplicate** (`code`: `duplicate_pending`): the requester
+  already has a pending peering request that contains one of the submitted
+  IPs:
 
     ```json
     {
       "detail": "Duplicate request: sessions with these IPs are already pending.",
-      "overlapping_ips": ["192.0.2.1/24"]
+      "code": "duplicate_pending",
+      "conflicting_ips": ["192.0.2.1"]
     }
     ```
 
-* **Existing session conflict**: one of the submitted sessions matches a
-  BGP session already configured in Peering Manager (same
-  `(operator connection, IP)` for public peering, or same `(peer ASN, IP)`
-  for private peering):
+* **Existing session conflict** (`code`: `already_configured`): one of the
+  submitted sessions matches a BGP session already configured in Peering
+  Manager (same `(operator connection, IP)` for public peering, or same
+  `(peer ASN, IP)` for private peering):
 
     ```json
     {
       "detail": "Sessions with these IPs are already configured.",
-      "existing_session_ips": ["192.0.2.1/24"]
+      "code": "already_configured",
+      "conflicting_ips": ["192.0.2.1"]
     }
     ```
 
 ### Step 4, show the user their past requests
 
 Because the portal is stateless on the server side, past requests are
-discovered via the tracking IDs. For each known tracking ID, the portal
-queries:
+discovered via the tracking IDs. Requests can also be listed for an ASN
+with `GET /api/peering/portal/sessions?asn={asn}`, with an optional
+`request_id` filter. For each known tracking ID, the portal queries:
 
 ```bash
 curl -s -H "Authorization: Token $PM_API_TOKEN" \
@@ -470,6 +476,7 @@ as a stateless container.
 | `GET`    | `/api/peering/portal/network/{asn}`                                      | Look up a network by ASN in the PeeringDB cache                     |
 | `GET`    | `/api/peering/portal/locations?asn={asn}&location_type={public,private}` | List shared IXPs and/or facilities                                  |
 | `POST`   | `/api/peering/portal/sessions`                                           | Submit a peering request                                            |
+| `GET`    | `/api/peering/portal/sessions?asn={asn}&request_id={request_id}`         | List peering requests filed for an ASN                              |
 | `GET`    | `/api/peering/portal/sessions/{request_id}`                              | Get the status of a request                                         |
 | `DELETE` | `/api/peering/portal/sessions/{request_id}`                              | Cancel a pending request                                            |
 

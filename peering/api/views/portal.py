@@ -1,43 +1,62 @@
 from __future__ import annotations
 
+import uuid
 from typing import TYPE_CHECKING
 
-from drf_spectacular.utils import OpenApiResponse, extend_schema
+from django.core.exceptions import ValidationError as DjangoValidationError
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from peering_manager.api.exceptions import ServiceUnavailable
-from peeringdb.models import Network, NetworkContact
+from peering_manager.api.exceptions import UnprocessableRequest
+from peeringdb.models import NetworkContact
 
-from ...enums import PeeringRequestStatus, PeeringRequestType
-from ...models import (
-    AutonomousSystem,
-    DirectPeeringSession,
-    InternetExchangePeeringSession,
-    PeeringRequest,
-    RequestedSession,
+from ...constants import ASN_MAX, ASN_MIN
+from ...enums import PeeringRequestType
+from ...models import AutonomousSystem
+from ...services import (
+    PeeringRequestConflictError,
+    build_location_discovery_service,
+    build_peering_request_service,
 )
-from ..constants import IX_LOCATION_PREFIX
 from ..serializers import (
+    PortalAffiliatedSerializer,
+    PortalLocationsResponseSerializer,
     PortalNetworkSerializer,
+    PortalRequestListSerializer,
     PortalRequestStatusSerializer,
     PortalSessionSubmitResponseSerializer,
     PortalSessionSubmitSerializer,
 )
-from .portal_helpers import resolve_location, resolve_peer_connection, session_proposals
+from .portal_helpers import get_network_or_404, get_peering_request_or_404, portal_request_queryset
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import AbstractUser
     from rest_framework.request import Request
 
+NO_AFFILIATED_AS = OpenApiResponse(description="Calling user has no affiliated AS")
+ASN_PARAM = OpenApiParameter("asn", OpenApiTypes.INT, OpenApiParameter.QUERY, required=True, description="Peer ASN")
+LOCATION_TYPE_PARAM = OpenApiParameter(
+    "location_type",
+    OpenApiTypes.STR,
+    OpenApiParameter.QUERY,
+    required=False,
+    enum=[PeeringRequestType.PUBLIC_PEERING, PeeringRequestType.PRIVATE_PEERING],
+    description="Filter to public or private peering; both when omitted",
+)
+REQUEST_ID_PARAM = OpenApiParameter(
+    "request_id", OpenApiTypes.UUID, OpenApiParameter.QUERY, required=False, description="Filter to one tracking ID"
+)
+
 
 def require_affiliated_as(user: AbstractUser) -> AutonomousSystem:
     affiliated = AutonomousSystem.get_for_user(user=user)
     if affiliated is None:
-        raise ServiceUnavailable("User must have an affiliated AS.")
+        raise UnprocessableRequest("User must have an affiliated AS.")
     return affiliated
 
 
@@ -46,9 +65,12 @@ def require_asn(request: Request) -> int:
     if not asn:
         raise ValidationError({"asn": "The 'asn' query parameter is required."})
     try:
-        return int(asn)
+        value = int(asn)
     except ValueError as exc:
         raise ValidationError({"asn": "The 'asn' query parameter is not a valid integer."}) from exc
+    if not ASN_MIN <= value <= ASN_MAX:
+        raise ValidationError({"asn": f"The 'asn' query parameter must be between {ASN_MIN} and {ASN_MAX}."})
+    return value
 
 
 class HasPeeringRequestPermission(BasePermission):
@@ -57,8 +79,9 @@ class HasPeeringRequestPermission(BasePermission):
     """
 
     def has_permission(self, request, view) -> bool:
-        return request.user and all(
-            request.user.has_perm(p) for p in ("peering.add_peering_request", "peering.change_peering_request")
+        return bool(
+            request.user
+            and all(request.user.has_perm(p) for p in ("peering.add_peeringrequest", "peering.change_peeringrequest"))
         )
 
 
@@ -69,30 +92,23 @@ class PortalAPIView(APIView):
 class PortalAffiliatedView(PortalAPIView):
     @extend_schema(
         operation_id="portal_affiliated",
-        responses={
-            200: OpenApiResponse(description="Affiliated AS for the calling token"),
-            503: OpenApiResponse(description="Calling user has no affiliated AS"),
-        },
+        responses={200: PortalAffiliatedSerializer, 422: NO_AFFILIATED_AS},
     )
     def get(self, request):
         affiliated = require_affiliated_as(user=request.user)
-        return Response({"asn": affiliated.asn, "name": affiliated.name})
+        return Response(PortalAffiliatedSerializer({"asn": affiliated.asn, "name": affiliated.name}).data)
 
 
 class PortalNetworkView(PortalAPIView):
     @extend_schema(
         operation_id="portal_network_lookup",
-        responses={200: OpenApiResponse(description="Network details from PeeringDB")},
+        responses={
+            200: PortalNetworkSerializer,
+            404: OpenApiResponse(description="ASN not found in the PeeringDB cache"),
+        },
     )
     def get(self, request, asn: int):
-        try:
-            network = Network.objects.get(asn=asn)
-        except Network.DoesNotExist:
-            return Response(
-                {"detail": f"ASN {asn} not found in PeeringDB cache."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
+        network = get_network_or_404(asn)
         contacts = [
             {"name": c.name, "email": c.email, "role": c.role}
             for c in NetworkContact.objects.filter(net=network).exclude(email="")
@@ -116,130 +132,90 @@ class PortalNetworkView(PortalAPIView):
 class PortalLocationView(PortalAPIView):
     @extend_schema(
         operation_id="portal_locations_list",
-        responses={200: OpenApiResponse(description="Mutual peering locations")},
+        parameters=[ASN_PARAM, LOCATION_TYPE_PARAM],
+        responses={
+            200: PortalLocationsResponseSerializer,
+            404: OpenApiResponse(description="ASN not found in the PeeringDB cache"),
+            422: NO_AFFILIATED_AS,
+        },
     )
     def get(self, request):
         asn = require_asn(request=request)
-        try:
-            network = Network.objects.get(asn=asn)
-        except Network.DoesNotExist:
-            return Response(
-                {"detail": f"ASN {asn} not found in PeeringDB cache."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
+        network = get_network_or_404(asn)
         affiliated = require_affiliated_as(user=request.user)
+
         location_type = request.query_params.get("location_type")
-        locations: list[dict] = []
+        if location_type is not None and location_type not in (
+            PeeringRequestType.PUBLIC_PEERING,
+            PeeringRequestType.PRIVATE_PEERING,
+        ):
+            raise ValidationError({"location_type": f"Unknown location type: {location_type!r}."})
 
-        if location_type in (None, PeeringRequestType.PUBLIC_PEERING):
-            for ixp in affiliated.get_shared_internet_exchange_points(network):
-                if not ixp.peeringdb_ixlan:
-                    continue
-                locations.append(
-                    {
-                        "location": f"{IX_LOCATION_PREFIX}{ixp.peeringdb_ixlan.pk}",
-                        "name": ixp.name,
-                        "peering_type": PeeringRequestType.PUBLIC_PEERING,
-                        "sessions": session_proposals(ixp, network),
-                    }
-                )
-
-        if location_type in (None, PeeringRequestType.PRIVATE_PEERING):
-            shared_facilities = affiliated.get_peeringdb_shared_facilities(network)
-            for fac in shared_facilities:
-                locations.append(
-                    {
-                        "location": str(fac.pk),
-                        "name": fac.name,
-                        "peering_type": PeeringRequestType.PRIVATE_PEERING,
-                        "sessions": [],
-                    }
-                )
-
-        return Response({"locations": locations, "peer_asn": affiliated.asn})
+        locations = build_location_discovery_service().discover(
+            affiliated=affiliated,
+            network=network,
+            location_type=location_type,
+        )
+        return Response(PortalLocationsResponseSerializer({"locations": locations, "peer_asn": affiliated.asn}).data)
 
 
-class PortalSessionCreateView(PortalAPIView):
+class PortalSessionsView(PortalAPIView):
+    @extend_schema(
+        operation_id="portal_sessions_list",
+        parameters=[ASN_PARAM, REQUEST_ID_PARAM],
+        responses={200: PortalRequestListSerializer, 422: NO_AFFILIATED_AS},
+    )
+    def get(self, request):
+        asn = require_asn(request=request)
+        affiliated = require_affiliated_as(user=request.user)
+        qs = portal_request_queryset(affiliated).filter(requesting_asn=asn)
+
+        request_id = request.query_params.get("request_id")
+        if request_id:
+            try:
+                tracking_id = uuid.UUID(request_id)
+            except ValueError as exc:
+                raise ValidationError({"request_id": "The 'request_id' query parameter is not a valid UUID."}) from exc
+            qs = qs.filter(tracking_id=tracking_id)
+
+        return Response(PortalRequestListSerializer({"requests": qs}).data)
+
     @extend_schema(
         operation_id="portal_sessions_create",
-        request=None,
-        responses={201: OpenApiResponse(description="Peering request created")},
+        request=PortalSessionSubmitSerializer,
+        responses={
+            201: PortalSessionSubmitResponseSerializer,
+            400: OpenApiResponse(description="Invalid submission"),
+            404: OpenApiResponse(description="ASN not found in the PeeringDB cache"),
+            409: OpenApiResponse(
+                description="Sessions conflict with pending or existing ones; `code` is `duplicate_pending` "
+                "or `already_configured` and `conflicting_ips` lists the culprits"
+            ),
+            422: NO_AFFILIATED_AS,
+        },
     )
     def post(self, request):
         serializer = PortalSessionSubmitSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
-        try:
-            Network.objects.get(asn=data["local_asn"])
-        except Network.DoesNotExist:
-            return Response(
-                {"detail": f"ASN {data['local_asn']} not found in PeeringDB cache."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
+        get_network_or_404(data["local_asn"])
         affiliated = require_affiliated_as(user=request.user)
 
-        # Resolve location + peer IP per session before writing anything
-        resolved: list[tuple[dict, object, object]] = []
-        for s in data["sessions"]:
-            ix, facility = resolve_location(data["peer_type"], s.get("location", ""))
-            connection = None
-            if ix is not None:
-                connection = resolve_peer_connection(ix, s.get("peer_ip", ""))
-            elif facility is not None and not s.get("peer_ip"):
-                raise ValidationError({"peer_ip": "Required for private peering."})
-            resolved.append((s, facility, connection))
-
-        # Reject IPs already covered by a pending request from the same ASN
-        pending_ips = set(
-            RequestedSession.objects.filter(
-                peering_request__requesting_asn=data["local_asn"],
-                peering_request__status=PeeringRequestStatus.PENDING,
-            ).values_list("ip_address", flat=True)
-        )
-        submitted_ips = {s["local_ip"] for s in data["sessions"]}
-        overlap = submitted_ips & {str(ip) for ip in pending_ips}
-        if overlap:
-            return Response(
-                {
-                    "detail": "Duplicate request: sessions with these IPs are already pending.",
-                    "overlapping_ips": sorted(overlap),
-                },
-                status=status.HTTP_409_CONFLICT,
+        try:
+            pr = build_peering_request_service().submit(
+                local_autonomous_system=affiliated,
+                requesting_asn=data["local_asn"],
+                request_type=data["peer_type"],
+                sessions=data["sessions"],
+                requester_email=data["email"],
             )
-
-        # Reject sessions already configured as real BGP sessions
-        conflicting: list[str] = []
-        for session_data, _facility, connection in resolved:
-            ip = session_data["local_ip"]
-            if connection is not None:
-                exists = InternetExchangePeeringSession.exists_at(connection, ip)
-            else:
-                exists = DirectPeeringSession.objects.filter(
-                    autonomous_system__asn=data["local_asn"], ip_address=ip
-                ).exists()
-
-            if exists:
-                conflicting.append(ip)
-
-        if conflicting:
+        except PeeringRequestConflictError as e:
             return Response(
-                {
-                    "detail": "Sessions with these IPs are already configured.",
-                    "existing_session_ips": sorted(set(conflicting)),
-                },
-                status=status.HTTP_409_CONFLICT,
+                {"detail": e.detail, "code": e.code, "conflicting_ips": e.ips}, status=status.HTTP_409_CONFLICT
             )
-
-        pr = PeeringRequest.create_with_sessions(
-            local_autonomous_system=affiliated,
-            requesting_asn=data["local_asn"],
-            request_type=data["peer_type"],
-            sessions=resolved,
-            requester_email=data.get("email", ""),
-        )
+        except DjangoValidationError as e:
+            raise ValidationError(e.message_dict) from e
 
         response_data = PortalSessionSubmitResponseSerializer(
             {
@@ -254,37 +230,29 @@ class PortalSessionCreateView(PortalAPIView):
 class PortalSessionDetailView(PortalAPIView):
     @extend_schema(
         operation_id="portal_sessions_retrieve",
-        responses={200: OpenApiResponse(description="Peering request status")},
+        responses={
+            200: PortalRequestStatusSerializer,
+            404: OpenApiResponse(description="Unknown tracking ID"),
+            422: NO_AFFILIATED_AS,
+        },
     )
     def get(self, request, request_id: str):
         affiliated = require_affiliated_as(user=request.user)
-        try:
-            pr = (
-                PeeringRequest.objects.select_related("local_autonomous_system")
-                .prefetch_related(
-                    "requested_sessions__ixp_connection__internet_exchange_point__peeringdb_ixlan",
-                    "requested_sessions__peeringdb_facility",
-                )
-                .get(tracking_id=request_id, local_autonomous_system=affiliated)
-            )
-        except (PeeringRequest.DoesNotExist, ValueError):
-            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
-
+        pr = get_peering_request_or_404(affiliated, request_id)
         return Response(PortalRequestStatusSerializer(pr).data)
 
     @extend_schema(
         operation_id="portal_sessions_cancel",
         responses={
             204: OpenApiResponse(description="Request cancelled"),
+            404: OpenApiResponse(description="Unknown tracking ID"),
             409: OpenApiResponse(description="Cannot cancel"),
+            422: NO_AFFILIATED_AS,
         },
     )
     def delete(self, request, request_id: str):
         affiliated = require_affiliated_as(user=request.user)
-        try:
-            pr = PeeringRequest.objects.get(tracking_id=request_id, local_autonomous_system=affiliated)
-        except (PeeringRequest.DoesNotExist, ValueError):
-            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        pr = get_peering_request_or_404(affiliated, request_id)
 
         try:
             pr.cancel()
@@ -294,25 +262,3 @@ class PortalSessionDetailView(PortalAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class PortalSessionListView(PortalAPIView):
-    @extend_schema(
-        operation_id="portal_sessions_list",
-        responses={200: OpenApiResponse(description="List of peering requests")},
-    )
-    def get(self, request):
-        asn = require_asn(request=request)
-        affiliated = require_affiliated_as(user=request.user)
-        qs = (
-            PeeringRequest.objects.select_related("local_autonomous_system")
-            .prefetch_related(
-                "requested_sessions__ixp_connection__internet_exchange_point__peeringdb_ixlan",
-                "requested_sessions__peeringdb_facility",
-            )
-            .filter(local_autonomous_system=affiliated, requesting_asn=int(asn))
-        )
-
-        request_id = request.query_params.get("request_id")
-        if request_id:
-            qs = qs.filter(tracking_id=request_id)
-
-        return Response({"requests": PortalRequestStatusSerializer(qs, many=True).data})

@@ -19,13 +19,8 @@ portal_urlpatterns = [
     path("affiliated", views.PortalAffiliatedView.as_view(), name="affiliated"),
     path("network/<int:asn>", views.PortalNetworkView.as_view(), name="network"),
     path("locations", views.PortalLocationView.as_view(), name="locations"),
-    path("sessions", views.PortalSessionCreateView.as_view(), name="sessions-create"),
-    path("sessions/list", views.PortalSessionListView.as_view(), name="sessions-list"),
-    path(
-        "sessions/<uuid:request_id>",
-        views.PortalSessionDetailView.as_view(),
-        name="sessions-detail",
-    ),
+    path("sessions", views.PortalSessionsView.as_view(), name="sessions"),
+    path("sessions/<uuid:request_id>", views.PortalSessionDetailView.as_view(), name="sessions-detail"),
 ]
 
 app_name = "peering-api"

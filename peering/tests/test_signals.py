@@ -1,11 +1,13 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 
+from bgp.models import Relationship
 from net.models import Connection
 
 from ..enums import PeeringRequestType
 from ..models import (
     AutonomousSystem,
+    DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
     PeeringRequest,
@@ -32,14 +34,47 @@ class PeeringRequestConflictSignalTest(TestCase):
         )
 
     @override_settings(PEERING_REQUEST_BLOCKS_SESSION_CREATION=True)
-    def test_blocking_setting_raises(self):
+    def test_blocking_scopes_ixp_by_connection(self):
+        # Same connection and IP as the pending request: blocked (the bare IP still matches the /24 on host)
         with self.assertRaises(ValidationError):
             InternetExchangePeeringSession.objects.create(
                 autonomous_system=self.peer_as,
                 ixp_connection=self.connection,
+                ip_address="192.0.2.1",
+            )
+        self.assertFalse(InternetExchangePeeringSession.objects.exists())
+
+        # Same IP on another connection is free: the reservation is per (connection, IP)
+        other_connection = Connection.objects.create(vlan=2001, internet_exchange_point=self.ixp)
+        session = InternetExchangePeeringSession.objects.create(
+            autonomous_system=self.peer_as,
+            ixp_connection=other_connection,
+            ip_address="192.0.2.1",
+        )
+        self.assertIsNotNone(session.pk)
+
+    @override_settings(PEERING_REQUEST_BLOCKS_SESSION_CREATION=True)
+    def test_blocking_setting_scopes_direct_sessions_by_asn(self):
+        relationship = Relationship.objects.create(name="Test", slug="test")
+
+        # Same IP, same ASN as the pending request: blocked
+        with self.assertRaises(ValidationError):
+            DirectPeeringSession.objects.create(
+                local_autonomous_system=self.local_as,
+                autonomous_system=self.peer_as,
+                relationship=relationship,
                 ip_address="192.0.2.1/24",
             )
-        self.assertFalse(InternetExchangePeeringSession.objects.filter(ip_address="192.0.2.1/24").exists())
+
+        # Unrelated peers legitimately reuse interconnect IP space: not blocked
+        other_as = AutonomousSystem.objects.create(asn=64520, name="Other")
+        session = DirectPeeringSession.objects.create(
+            local_autonomous_system=self.local_as,
+            autonomous_system=other_as,
+            relationship=relationship,
+            ip_address="192.0.2.1/24",
+        )
+        self.assertIsNotNone(session.pk)
 
     @override_settings(PEERING_REQUEST_BLOCKS_SESSION_CREATION=False)
     def test_default_setting_warns(self):

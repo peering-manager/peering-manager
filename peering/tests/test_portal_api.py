@@ -1,7 +1,12 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Permission, User
+from django.db import connection as db_connection
+from django.test import SimpleTestCase
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from drf_spectacular.generators import SchemaGenerator
 from rest_framework import status
 
+from bgp.models import Relationship
 from net.models import Connection
 from peeringdb.models import (
     Facility,
@@ -15,8 +20,15 @@ from peeringdb.models import InternetExchange as PeeringDBIX
 from users.models import Token
 from utils.testing import APITestCase
 
-from ..enums import *
-from ..models import *
+from ..enums import PeeringRequestStatus, PeeringRequestType
+from ..models import (
+    AutonomousSystem,
+    DirectPeeringSession,
+    InternetExchange,
+    InternetExchangePeeringSession,
+    PeeringRequest,
+    RequestedSession,
+)
 
 
 class PortalAPITestMixin:
@@ -91,6 +103,34 @@ class PortalAPITestMixin:
         # Avoid polluting next tests
         self.addCleanup(self.user.preferences.delete, "context", commit=True)
 
+    def _create_pending_request(self):
+        pr = PeeringRequest.objects.create(
+            requesting_asn=4199999991,
+            local_autonomous_system=self.affiliated_as,
+            request_type=PeeringRequestType.PUBLIC_PEERING,
+        )
+        RequestedSession.objects.create(
+            peering_request=pr,
+            ixp_connection=self.connection,
+            ip_address="192.0.2.1/24",
+        )
+        return pr
+
+
+class PortalAffiliatedViewTest(PortalAPITestMixin, APITestCase):
+    def test_affiliated_as(self):
+        url = reverse("peering-api:portal:affiliated")
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["asn"], 4199999990)
+        self.assertEqual(response.data["name"], "Affiliated AS")
+
+    def test_no_affiliated_as_returns_422(self):
+        self.user.preferences.delete("context", commit=True)
+        url = reverse("peering-api:portal:affiliated")
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
+
 
 class PortalNetworkViewTest(PortalAPITestMixin, APITestCase):
     def test_network_lookup_valid_asn(self):
@@ -107,6 +147,15 @@ class PortalNetworkViewTest(PortalAPITestMixin, APITestCase):
         response = self.client.get(url, **self.header)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_network_lookup_null_prefixes(self):
+        # PeeringDB networks may leave the prefix counts blank
+        Network.objects.create(id=3, org=self.org, asn=4199999992, name="No Limits Net")
+        url = reverse("peering-api:portal:network", kwargs={"asn": 4199999992})
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNone(response.data["info_prefixes4"])
+        self.assertIsNone(response.data["info_prefixes6"])
+
 
 class PortalLocationViewTest(PortalAPITestMixin, APITestCase):
     def test_locations_shared_ixps(self):
@@ -119,21 +168,103 @@ class PortalLocationViewTest(PortalAPITestMixin, APITestCase):
         self.assertEqual(loc["peering_type"], "public")
         self.assertGreaterEqual(len(loc["sessions"]), 1)
 
-    def test_locations_no_overlap(self):
+    def _add_second_shared_ixp(self):
+        ixlan = IXLan.objects.create(id=43, ix=self.pdb_ix, name="Test IX LAN 2")
+        ix = InternetExchange.objects.create(
+            name="Test IX 2",
+            slug="test-ix-2",
+            local_autonomous_system=self.affiliated_as,
+            peeringdb_ixlan=ixlan,
+        )
+        Connection.objects.create(internet_exchange_point=ix, ipv4_address="192.0.3.254/24")
+        NetworkIXLan.objects.create(
+            asn=4199999991, net=self.peeringdb_network, ixlan=ixlan, ipaddr4="192.0.3.1", speed=10000
+        )
+        NetworkIXLan.objects.create(
+            asn=4199999990, net=self.affiliated_pdb_network, ixlan=ixlan, ipaddr4="192.0.3.254", speed=10000
+        )
+
+    def test_locations_multiple_shared_ixps(self):
+        self._add_second_shared_ixp()
+        url = reverse("peering-api:portal:locations")
+        response = self.client.get(url, {"asn": 4199999991}, **self.header)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        by_location = {loc["location"]: loc for loc in response.data["locations"]}
+        self.assertIn("pdb:ix:42", by_location)
+        self.assertIn("pdb:ix:43", by_location)
+        self.assertGreaterEqual(len(by_location["pdb:ix:43"]["sessions"]), 1)
+
+    def test_locations_queries_do_not_scale_with_ixps(self):
+        url = reverse("peering-api:portal:locations")
+        # Warm-up request to fill caches (content types), then measure with a single shared IXP
+        self.client.get(url, {"asn": 4199999991}, **self.header)
+        with CaptureQueriesContext(db_connection) as baseline:
+            self.client.get(url, {"asn": 4199999991}, **self.header)
+
+        self._add_second_shared_ixp()
+        with CaptureQueriesContext(db_connection) as with_two_ixps:
+            self.client.get(url, {"asn": 4199999991}, **self.header)
+
+        self.assertEqual(len(with_two_ixps.captured_queries), len(baseline.captured_queries))
+
+    def test_locations_unknown_asn(self):
         url = reverse("peering-api:portal:locations")
         response = self.client.get(url, {"asn": 64501}, **self.header)
         # ASN 64501 doesn't exist in PeeringDB cache
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_locations_missing_asn_param(self):
+    def test_locations_rejects_invalid_params(self):
         url = reverse("peering-api:portal:locations")
+
+        # Missing asn
         response = self.client.get(url, **self.header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+        # Out-of-range asn
+        response = self.client.get(url, {"asn": 0}, **self.header)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-class PortalSessionCreateViewTest(PortalAPITestMixin, APITestCase):
+        # Unknown location_type
+        response = self.client.get(url, {"asn": 4199999991, "location_type": "carrier"}, **self.header)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class PortalSessionSubmitTest(PortalAPITestMixin, APITestCase):
+    def test_submit_rejects_invalid_payloads(self):
+        url = reverse("peering-api:portal:sessions")
+        session = {"local_ip": "192.0.2.1/24", "location": "pdb:ix:42", "peer_ip": "192.0.2.254"}
+
+        # Empty session list
+        data = {"local_asn": 4199999991, "peer_type": "public", "sessions": []}
+        response = self.client.post(url, data, format="json", **self.header)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Unknown peering type
+        data = {"local_asn": 4199999991, "peer_type": "carrier", "sessions": [session]}
+        response = self.client.post(url, data, format="json", **self.header)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Out-of-range ASN
+        data = {"local_asn": 0, "peer_type": "public", "sessions": [session]}
+        response = self.client.post(url, data, format="json", **self.header)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("local_asn", response.data)
+
+        self.assertEqual(PeeringRequest.objects.count(), 0)
+
+    def test_no_affiliated_as_returns_422(self):
+        self.user.preferences.delete("context", commit=True)
+        url = reverse("peering-api:portal:sessions")
+        data = {
+            "local_asn": 4199999991,
+            "peer_type": "public",
+            "sessions": [{"local_ip": "192.0.2.1/24", "location": "pdb:ix:42", "peer_ip": "192.0.2.254"}],
+        }
+        response = self.client.post(url, data, format="json", **self.header)
+        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
+
     def test_submit_peering_request(self):
-        url = reverse("peering-api:portal:sessions-create")
+        url = reverse("peering-api:portal:sessions")
         data = {
             "local_asn": 4199999991,
             "peer_type": "public",
@@ -167,8 +298,32 @@ class PortalSessionCreateViewTest(PortalAPITestMixin, APITestCase):
         # Verify no BGP sessions created
         self.assertEqual(InternetExchangePeeringSession.objects.count(), 0)
 
-    def test_submit_duplicate_request(self):
-        url = reverse("peering-api:portal:sessions-create")
+    def test_submit_duplicate_request_notation_insensitive(self):
+        url = reverse("peering-api:portal:sessions")
+        data = {
+            "local_asn": 4199999991,
+            "peer_type": "public",
+            "sessions": [
+                {
+                    "local_ip": "2001:db8::1/64",
+                    "location": "pdb:ix:42",
+                    "peer_ip": "2001:db8::ffff",
+                }
+            ],
+        }
+        response = self.client.post(url, data, format="json", **self.header)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Same host address written differently (uppercase, no prefix length)
+        data["sessions"][0]["local_ip"] = "2001:DB8::1"
+        response = self.client.post(url, data, format="json", **self.header)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data["code"], "duplicate_pending")
+        self.assertIn("2001:db8::1", response.data["conflicting_ips"])
+        self.assertEqual(PeeringRequest.objects.count(), 1)
+
+    def test_submit_duplicate_ips_in_payload(self):
+        url = reverse("peering-api:portal:sessions")
         data = {
             "local_asn": 4199999991,
             "peer_type": "public",
@@ -177,19 +332,48 @@ class PortalSessionCreateViewTest(PortalAPITestMixin, APITestCase):
                     "local_ip": "192.0.2.1/24",
                     "location": "pdb:ix:42",
                     "peer_ip": "192.0.2.254",
-                }
+                },
+                {
+                    "local_ip": "192.0.2.1",
+                    "location": "pdb:ix:42",
+                    "peer_ip": "192.0.2.254",
+                },
             ],
         }
-        # First submission should succeed
+        response = self.client.post(url, data, format="json", **self.header)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(PeeringRequest.objects.count(), 0)
+
+    def test_submit_same_ip_to_multiple_connections(self):
+        # The same requester IP towards two operator connections is a valid setup
+        Connection.objects.create(
+            internet_exchange_point=self.ix,
+            ipv4_address="192.0.2.253/24",
+        )
+
+        url = reverse("peering-api:portal:sessions")
+        data = {
+            "local_asn": 4199999991,
+            "peer_type": "public",
+            "sessions": [
+                {
+                    "local_ip": "192.0.2.1/24",
+                    "location": "pdb:ix:42",
+                    "peer_ip": "192.0.2.254",
+                },
+                {
+                    "local_ip": "192.0.2.1/24",
+                    "location": "pdb:ix:42",
+                    "peer_ip": "192.0.2.253",
+                },
+            ],
+        }
         response = self.client.post(url, data, format="json", **self.header)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        # Duplicate should be rejected
-        response = self.client.post(url, data, format="json", **self.header)
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data["sessions_count"], 2)
 
     def test_submit_unknown_asn(self):
-        url = reverse("peering-api:portal:sessions-create")
+        url = reverse("peering-api:portal:sessions")
         data = {
             "local_asn": 99999,
             "peer_type": "public",
@@ -205,15 +389,15 @@ class PortalSessionCreateViewTest(PortalAPITestMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_submit_rejects_existing_ixp_session(self):
-        # Create an existing BGP session with the IP the requester is about to ask for
+        # The session stores a bare host IP; the requester submits it with a prefix length
         requester_as = AutonomousSystem.objects.create(asn=4199999991, name="Requester Network")
         InternetExchangePeeringSession.objects.create(
             autonomous_system=requester_as,
             ixp_connection=self.connection,
-            ip_address="192.0.2.1/24",
+            ip_address="192.0.2.1",
         )
 
-        url = reverse("peering-api:portal:sessions-create")
+        url = reverse("peering-api:portal:sessions")
         data = {
             "local_asn": 4199999991,
             "peer_type": "public",
@@ -227,26 +411,72 @@ class PortalSessionCreateViewTest(PortalAPITestMixin, APITestCase):
         }
         response = self.client.post(url, data, format="json", **self.header)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertIn("existing_session_ips", response.data)
-        self.assertIn("192.0.2.1/24", response.data["existing_session_ips"])
+        self.assertEqual(response.data["code"], "already_configured")
+        self.assertIn("192.0.2.1", response.data["conflicting_ips"])
 
         # No PeeringRequest should have been created
         self.assertEqual(PeeringRequest.objects.count(), 0)
 
-    def test_submit_private_requires_peer_ip(self):
-        url = reverse("peering-api:portal:sessions-create")
+    def test_submit_rejects_existing_direct_session(self):
+        requester_as = AutonomousSystem.objects.create(asn=4199999991, name="Requester Network")
+        DirectPeeringSession.objects.create(
+            local_autonomous_system=self.affiliated_as,
+            autonomous_system=requester_as,
+            relationship=Relationship.objects.create(name="Test", slug="test"),
+            ip_address="192.0.2.2",
+        )
+
+        url = reverse("peering-api:portal:sessions")
         data = {
             "local_asn": 4199999991,
             "peer_type": "private",
-            "sessions": [{"local_ip": "192.0.2.1/30", "location": "17"}],
+            "sessions": [
+                {
+                    "local_ip": "192.0.2.2/30",
+                    "peer_ip": "192.0.2.1/30",
+                    "location": "pdb:fac:17",
+                }
+            ],
+        }
+        response = self.client.post(url, data, format="json", **self.header)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data["code"], "already_configured")
+        self.assertIn("192.0.2.2", response.data["conflicting_ips"])
+        self.assertEqual(PeeringRequest.objects.count(), 0)
+
+    def test_submit_requires_peer_ip(self):
+        # `peer_ip` is enforced by the serializer, so the error is per-session
+        url = reverse("peering-api:portal:sessions")
+        data = {
+            "local_asn": 4199999991,
+            "peer_type": "private",
+            "sessions": [{"local_ip": "192.0.2.1/30", "location": "pdb:fac:17"}],
         }
         response = self.client.post(url, data, format="json", **self.header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("peer_ip", response.data["sessions"][0])
+        self.assertEqual(PeeringRequest.objects.count(), 0)
+
+    def test_submit_private_requires_prefix_length(self):
+        url = reverse("peering-api:portal:sessions")
+        data = {
+            "local_asn": 4199999991,
+            "peer_type": "private",
+            "sessions": [{"local_ip": "192.0.2.1", "peer_ip": "192.0.2.2/30", "location": "pdb:fac:17"}],
+        }
+        response = self.client.post(url, data, format="json", **self.header)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("local_ip", response.data)
+
+        data["sessions"] = [{"local_ip": "192.0.2.1/30", "peer_ip": "192.0.2.2", "location": "pdb:fac:17"}]
+        response = self.client.post(url, data, format="json", **self.header)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("peer_ip", response.data)
+
         self.assertEqual(PeeringRequest.objects.count(), 0)
 
     def test_submit_private_with_peer_ip(self):
-        url = reverse("peering-api:portal:sessions-create")
+        url = reverse("peering-api:portal:sessions")
         data = {
             "local_asn": 4199999991,
             "peer_type": "private",
@@ -254,7 +484,7 @@ class PortalSessionCreateViewTest(PortalAPITestMixin, APITestCase):
                 {
                     "local_ip": "192.0.2.1/30",
                     "peer_ip": "192.0.2.2/30",
-                    "location": "17",
+                    "location": "pdb:fac:17",
                 }
             ],
         }
@@ -284,92 +514,25 @@ class PortalAuthTest(PortalAPITestMixin, APITestCase):
         response = self.client.get(url, **header)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-
-class PeeringRequestAcceptRejectTest(PortalAPITestMixin, APITestCase):
-    def _create_peering_request(self):
-        pr = PeeringRequest.objects.create(
-            requesting_asn=4199999991,
-            local_autonomous_system=self.affiliated_as,
-            request_type=PeeringRequestType.PUBLIC_PEERING,
+    def test_user_with_permissions_allowed(self):
+        # A regular user (not superuser) holding the documented permissions must get through;
+        # superusers pass `has_perm` unconditionally and would mask a broken permission check
+        user = User.objects.create(username="portal", is_staff=False)
+        user.user_permissions.add(
+            *Permission.objects.filter(
+                content_type__app_label="peering", codename__in=("add_peeringrequest", "change_peeringrequest")
+            )
         )
-        RequestedSession.objects.create(
-            peering_request=pr,
-            ixp_connection=self.connection,
-            ip_address="192.0.2.1/24",
-        )
-        return pr
-
-    def test_accept_request_auto_creates_as(self):
-        # Ensure the AutonomousSystem does not exist before acceptance
-        self.assertFalse(AutonomousSystem.objects.filter(asn=4199999991).exists())
-
-        pr = self._create_peering_request()
-        url = reverse("peering-api:peeringrequest-accept", kwargs={"pk": pr.pk})
-        response = self.client.post(url, **self.header)
+        token = Token.objects.create(user=user)
+        header = {"HTTP_AUTHORIZATION": f"Token {token.key}"}
+        url = reverse("peering-api:portal:network", kwargs={"asn": 4199999991})
+        response = self.client.get(url, **header)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["status"], "accepted")
-        pr.refresh_from_db()
-        self.assertEqual(pr.status, PeeringRequestStatus.ACCEPTED)
-
-        # AutonomousSystem record should have been created from PeeringDB data
-        autonomous_system = AutonomousSystem.objects.get(asn=4199999991)
-        self.assertEqual(autonomous_system.name, "Requester Network")
-        self.assertEqual(autonomous_system.ipv4_max_prefixes, 100)
-        self.assertEqual(autonomous_system.ipv6_max_prefixes, 50)
-
-    def test_reject_request_with_comment(self):
-        pr = self._create_peering_request()
-        url = reverse("peering-api:peeringrequest-reject", kwargs={"pk": pr.pk})
-        response = self.client.post(url, {"comment": "Not peering at this time"}, format="json", **self.header)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        pr.refresh_from_db()
-        self.assertEqual(pr.status, PeeringRequestStatus.REFUSED)
-        self.assertEqual(pr.decision_comment, "Not peering at this time")
-
-    def test_reject_already_accepted(self):
-        pr = self._create_peering_request()
-        pr.status = PeeringRequestStatus.ACCEPTED
-        pr.save()
-        url = reverse("peering-api:peeringrequest-reject", kwargs={"pk": pr.pk})
-        response = self.client.post(url, **self.header)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_per_session_accept(self):
-        pr = self._create_peering_request()
-        session = pr.requested_sessions.first()
-        url = reverse("peering-api:requestedsession-accept", kwargs={"pk": session.pk})
-        response = self.client.post(url, **self.header)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        session.refresh_from_db()
-        self.assertEqual(session.status, RequestedSessionStatus.ACCEPTED)
-
-    def test_per_session_reject(self):
-        pr = self._create_peering_request()
-        session = pr.requested_sessions.first()
-        url = reverse("peering-api:requestedsession-reject", kwargs={"pk": session.pk})
-        response = self.client.post(url, {"comment": "No IPv4"}, format="json", **self.header)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        session.refresh_from_db()
-        self.assertEqual(session.status, RequestedSessionStatus.REJECTED)
-        self.assertEqual(session.rejection_comment, "No IPv4")
 
 
 class PortalStatusAndCancelTest(PortalAPITestMixin, APITestCase):
-    def _create_request(self):
-        pr = PeeringRequest.objects.create(
-            requesting_asn=4199999991,
-            local_autonomous_system=self.affiliated_as,
-            request_type=PeeringRequestType.PUBLIC_PEERING,
-        )
-        RequestedSession.objects.create(
-            peering_request=pr,
-            ixp_connection=self.connection,
-            ip_address="192.0.2.1/24",
-        )
-        return pr
-
     def test_get_status_by_tracking_id(self):
-        pr = self._create_request()
+        pr = self._create_pending_request()
         url = reverse(
             "peering-api:portal:sessions-detail",
             kwargs={"request_id": str(pr.tracking_id)},
@@ -380,8 +543,10 @@ class PortalStatusAndCancelTest(PortalAPITestMixin, APITestCase):
         self.assertEqual(response.data["status"], "pending")
         self.assertEqual(response.data["local_asn"], 4199999991)
         self.assertGreaterEqual(len(response.data["sessions"]), 1)
+        # A session with no peer IP set serializes as null, not an error
+        self.assertIsNone(response.data["sessions"][0]["peer_ip"])
 
-    def test_get_status_invalid_uuid(self):
+    def test_get_status_unknown_tracking_id(self):
         url = reverse(
             "peering-api:portal:sessions-detail",
             kwargs={"request_id": "00000000-0000-0000-0000-000000000000"},
@@ -390,14 +555,26 @@ class PortalStatusAndCancelTest(PortalAPITestMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_list_requests_by_asn(self):
-        self._create_request()
-        url = reverse("peering-api:portal:sessions-list")
+        self._create_pending_request()
+        url = reverse("peering-api:portal:sessions")
         response = self.client.get(url, {"asn": 4199999991}, **self.header)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(len(response.data["requests"]), 1)
 
+    def test_list_requests_filter_by_request_id(self):
+        pr = self._create_pending_request()
+        url = reverse("peering-api:portal:sessions")
+        response = self.client.get(url, {"asn": 4199999991, "request_id": str(pr.tracking_id)}, **self.header)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["requests"]), 1)
+
+    def test_list_requests_invalid_request_id(self):
+        url = reverse("peering-api:portal:sessions")
+        response = self.client.get(url, {"asn": 4199999991, "request_id": "garbage"}, **self.header)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_cancel_pending_request(self):
-        pr = self._create_request()
+        pr = self._create_pending_request()
         url = reverse(
             "peering-api:portal:sessions-detail",
             kwargs={"request_id": str(pr.tracking_id)},
@@ -408,7 +585,7 @@ class PortalStatusAndCancelTest(PortalAPITestMixin, APITestCase):
         self.assertEqual(pr.status, PeeringRequestStatus.CANCELLED)
 
     def test_cancel_accepted_request_fails(self):
-        pr = self._create_request()
+        pr = self._create_pending_request()
         pr.status = PeeringRequestStatus.ACCEPTED
         pr.save()
         url = reverse(
@@ -417,3 +594,31 @@ class PortalStatusAndCancelTest(PortalAPITestMixin, APITestCase):
         )
         response = self.client.delete(url, **self.header)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+
+
+class PortalSchemaTest(SimpleTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.schema = SchemaGenerator().get_schema(request=None, public=True)
+
+    def _properties(self, component):
+        return self.schema["components"]["schemas"][component]["properties"]
+
+    def _param_names(self, path):
+        return {p["name"] for p in self.schema["paths"][path]["get"]["parameters"]}
+
+    def test_nullable_fields_declared(self):
+        network = self._properties("PortalNetwork")
+        self.assertTrue(network["info_prefixes4"].get("nullable"))
+        self.assertTrue(network["info_prefixes6"].get("nullable"))
+        self.assertTrue(self._properties("PortalRequestedSessionStatus")["peer_ip"].get("nullable"))
+
+    def test_query_parameters_declared(self):
+        locations = self._param_names("/api/peering/portal/locations")
+        self.assertIn("asn", locations)
+        self.assertIn("location_type", locations)
+
+        sessions = self._param_names("/api/peering/portal/sessions")
+        self.assertIn("asn", sessions)
+        self.assertIn("request_id", sessions)

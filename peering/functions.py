@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ipaddress
 import json
 import logging
 import re
@@ -12,9 +13,14 @@ from django.core.exceptions import ValidationError
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from ipaddress import IPv4Interface, IPv6Interface
+    from ipaddress import IPv4Address, IPv4Interface, IPv6Address, IPv6Interface
 
 logger = logging.getLogger("peering.manager.peering")
+
+
+def ip_host(value: Any) -> IPv4Address | IPv6Address:
+    """Returns the host address of an IP, with or without a prefix length."""
+    return ipaddress.ip_interface(str(value)).ip
 
 
 class UnresolvableIRRObjectError(Exception):
