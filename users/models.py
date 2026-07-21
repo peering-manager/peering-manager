@@ -129,7 +129,7 @@ class UserPreferences(models.Model):
         Sets a preference value based on its path. If the preference is nested inside
         categories and subcategories, these will be created in the process. If the
         preference already exists its value will be overwritten. Categories and
-        subcategories cannot be overwriten with values, a TypeError exception will be
+        subcategories cannot be overwritten with values, a TypeError exception will be
         raised in that case. This behavior is the same for preferences that cannot be
         changed to categories later on.
 
