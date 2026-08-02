@@ -19,32 +19,14 @@ from netfields import InetAddressField
 
 from bgp.models import Relationship
 from net.models import Connection
-from peering_manager.models import (
-    ChangeLoggedModel,
-    JournalingMixin,
-    PrimaryModel,
-)
+from peering_manager.models import ChangeLoggedModel, JournalingMixin, PrimaryModel
 from peeringdb.functions import get_shared_facilities, get_shared_internet_exchanges
-from peeringdb.models import (
-    HiddenPeer,
-    IXLanPrefix,
-    Network,
-    NetworkContact,
-    NetworkIXLan,
-)
+from peeringdb.models import HiddenPeer, IXLanPrefix, Network, NetworkContact, NetworkIXLan
 
-from ..enums import (
-    BGPRole,
-    BGPState,
-    PeeringRequestStatus,
-    PeeringRequestType,
-    RequestedSessionStatus,
-)
+from ..enums import BGPRole, BGPState, PeeringRequestStatus, PeeringRequestType, RequestedSessionStatus
 from ..fields import ASNField
 from ..functions import (
-    UnresolvableIRRObjectError,
     call_irr_as_set_as_list_resolver,
-    call_irr_as_set_resolver,
     parse_irr_as_set,
     validate_ip_address_not_network_nor_broadcast,
 )
@@ -56,6 +38,7 @@ if TYPE_CHECKING:
 
 __all__ = (
     "AutonomousSystem",
+    "AutonomousSystemPrefixListEntry",
     "BGPGroup",
     "BGPSession",
     "DirectPeeringSession",
@@ -74,7 +57,7 @@ IPAddressAnyType: TypeAlias = (
 
 class AutonomousSystemManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().defer("prefixes", "as_list")
+        return super().get_queryset().defer("as_list")
 
 
 class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
@@ -98,7 +81,13 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         related_name="%(class)s_export_routing_policies",
     )
     communities = models.ManyToManyField("bgp.Community", blank=True)
-    prefixes = models.JSONField(blank=True, null=True, editable=False)
+    prefix_list_entries = models.ManyToManyField(
+        "net.PrefixListEntry",
+        through="peering.AutonomousSystemPrefixListEntry",
+        related_name="autonomous_systems",
+        blank=True,
+    )
+    prefixes_updated = models.DateTimeField(blank=True, null=True, editable=False)
     retrieve_prefixes = models.BooleanField(blank=True, default=True)
     as_list = ArrayField(models.PositiveIntegerField(), default=list, blank=True, editable=False)
     retrieve_as_list = models.BooleanField(blank=True, default=True)
@@ -406,66 +395,31 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         except Exception:
             return False
 
-    def retrieve_irr_as_set_prefixes(self) -> dict[str, list[dict[str, Any]]]:
+    @property
+    def prefixes(self) -> dict[str, list[dict[str, Any]]] | None:
         """
-        Returns a prefix list for this AS' IRR AS-SET. If none is provided the
-        function will try to look for a prefix list based on the AS number.
+        Rebuilds the bgpq-style `{"ipv6": [...], "ipv4": [...]}` prefix dict from the `PrefixListEntry` rows linked to
+        this AS.
 
-        This function will actually retrieve prefixes from IRR online sources. It is
-        expected to be slow due to network operations and depending on the size of the
-        data to process.
+        Returns `None` when prefixes have never been fetched, once fetched it always returns a dict, even if the AS
+        has no prefixes. Entries are ordered deterministically by network.
         """
-        prefixes = {"ipv6": [], "ipv4": []}
+        if self.prefixes_updated is None:
+            return None
 
-        if not self.retrieve_prefixes:
-            return prefixes
+        result: dict[str, list[dict[str, Any]]] = {"ipv6": [], "ipv4": []}
+        entries = self.prefix_list_entries.order_by("prefix").values_list(
+            "prefix", "exact", "greater_equal", "less_equal"
+        )
+        for prefix, exact, greater_equal, less_equal in entries:
+            entry: dict[str, Any] = {"prefix": str(prefix), "exact": exact}
+            if greater_equal is not None:
+                entry["greater-equal"] = greater_equal
+            if less_equal is not None:
+                entry["less-equal"] = less_equal
+            result["ipv6" if prefix.version == 6 else "ipv4"].append(entry)
 
-        try:
-            # For each AS-SET try getting IPv6 and IPv4 prefixes
-            for source, as_set in parse_irr_as_set(asn=self.asn, irr_as_set=self.irr_as_set):
-                prefixes["ipv6"].extend(
-                    call_irr_as_set_resolver(
-                        as_set=as_set,
-                        source=source,
-                        address_family=6,
-                        irr_sources_override=self.irr_sources_override,
-                        irr_ipv6_prefixes_args_override=self.irr_ipv6_prefixes_args_override,
-                    )
-                )
-                prefixes["ipv4"].extend(
-                    call_irr_as_set_resolver(
-                        as_set=as_set,
-                        source=source,
-                        address_family=4,
-                        irr_sources_override=self.irr_sources_override,
-                        irr_ipv4_prefixes_args_override=self.irr_ipv4_prefixes_args_override,
-                    )
-                )
-        except UnresolvableIRRObjectError:
-            pass
-
-        return prefixes
-
-    def get_irr_as_set_prefixes(self, address_family=0):
-        """
-        Returns a prefix list for this AS' IRR AS-SET. If none is provided the list
-        will be empty.
-
-        If specified, only a list of the prefixes for the given address family will be
-        returned. 6 for IPv6, 4 for IPv4, both for all other values.
-
-        The stored database value will be used if it exists.
-        """
-        prefixes = self.prefixes or self.retrieve_irr_as_set_prefixes()
-        if prefixes != self.prefixes:
-            self.prefixes = prefixes
-            self.save(update_fields=["prefixes"])
-
-        if address_family == 6:
-            return prefixes["ipv6"]
-        if address_family == 4:
-            return prefixes["ipv4"]
-        return prefixes
+        return result
 
     def retrieve_irr_as_set_as_list(self) -> list[int]:
         """
@@ -505,15 +459,6 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
             self.save(update_fields=["as_list"])
 
         return self.as_list
-
-    def update_data_from_irr(self) -> None:
-        """
-        Update prefixes and AS list for this autonomous system from IRR sources.
-        """
-        self.prefixes = self.retrieve_irr_as_set_prefixes()
-        self.as_list = self.retrieve_irr_as_set_as_list()
-
-        self.save(update_fields=["prefixes", "as_list"])
 
     def get_contact_email_addresses(self):
         """
@@ -572,6 +517,26 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         Renders an e-mail from a template.
         """
         return email.render(self.get_email_context())
+
+
+class AutonomousSystemPrefixListEntry(models.Model):
+    """
+    Link between an autonomous system and the deduplicated prefix list entries resolved from its IRR AS-SET.
+
+    An explicit through model (rather than an automatic one) keeps the potentially huge set of linked prefixes out of
+    the AS' change-log and webhook snapshots.
+    """
+
+    autonomous_system = models.ForeignKey(to="peering.AutonomousSystem", on_delete=models.CASCADE, related_name="+")
+    entry = models.ForeignKey(to="net.PrefixListEntry", on_delete=models.CASCADE, related_name="+")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["autonomous_system", "entry"], name="peering_asprefixlistentry_unique")
+        ]
+
+    def __str__(self) -> str:
+        return f"AS{self.autonomous_system.asn} - {self.entry}"
 
 
 class BGPGroup(AbstractGroup):
@@ -905,10 +870,7 @@ class InternetExchange(AbstractGroup):
         sessions = connection.router.get_bgp_neighbors()
 
         def is_valid(ip_address):
-            for p in allowed_prefixes:
-                if p.prefix.version == ip_address.version and ip_address in p.prefix:
-                    return True
-            return False
+            return any(p.prefix.version == ip_address.version and ip_address in p.prefix for p in allowed_prefixes)
 
         for session in sessions:
             ip = ipaddress.ip_address(session["ip_address"])
