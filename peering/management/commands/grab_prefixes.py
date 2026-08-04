@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 
+from peering.functions import UnresolvableIRRObjectError
 from peering.models import AutonomousSystem
 
 
@@ -37,6 +38,11 @@ class Command(BaseCommand):
 
             try:
                 prefixes = autonomous_system.retrieve_irr_as_set_prefixes()
+            except UnresolvableIRRObjectError:
+                # Skip this AS, keeping its stored prefixes, instead of failing the run
+                if not quiet:
+                    self.stdout.write("    skipped (IRR lookup failed)", self.style.WARNING)
+                continue
             except ValueError as exc:
                 raise CommandError(str(exc)) from exc
 

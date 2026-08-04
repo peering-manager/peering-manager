@@ -418,35 +418,37 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         This function will actually retrieve prefixes from IRR online sources. It is
         expected to be slow due to network operations and depending on the size of the
         data to process.
+
+        Raises:
+            UnresolvableIRRObjectError: if an IRR object cannot be resolved. Callers
+            must not store the returned value in that case: an empty prefix set caused
+            by a failed lookup cannot be told apart from an AS announcing nothing.
         """
         prefixes = {"ipv6": [], "ipv4": []}
 
         if not self.retrieve_prefixes:
             return prefixes
 
-        try:
-            # For each AS-SET try getting IPv6 and IPv4 prefixes
-            for source, as_set in parse_irr_as_set(asn=self.asn, irr_as_set=self.irr_as_set):
-                prefixes["ipv6"].extend(
-                    call_irr_as_set_resolver(
-                        as_set=as_set,
-                        source=source,
-                        address_family=6,
-                        irr_sources_override=self.irr_sources_override,
-                        irr_ipv6_prefixes_args_override=self.irr_ipv6_prefixes_args_override,
-                    )
+        # For each AS-SET try getting IPv6 and IPv4 prefixes
+        for source, as_set in parse_irr_as_set(asn=self.asn, irr_as_set=self.irr_as_set):
+            prefixes["ipv6"].extend(
+                call_irr_as_set_resolver(
+                    as_set=as_set,
+                    source=source,
+                    address_family=6,
+                    irr_sources_override=self.irr_sources_override,
+                    irr_ipv6_prefixes_args_override=self.irr_ipv6_prefixes_args_override,
                 )
-                prefixes["ipv4"].extend(
-                    call_irr_as_set_resolver(
-                        as_set=as_set,
-                        source=source,
-                        address_family=4,
-                        irr_sources_override=self.irr_sources_override,
-                        irr_ipv4_prefixes_args_override=self.irr_ipv4_prefixes_args_override,
-                    )
+            )
+            prefixes["ipv4"].extend(
+                call_irr_as_set_resolver(
+                    as_set=as_set,
+                    source=source,
+                    address_family=4,
+                    irr_sources_override=self.irr_sources_override,
+                    irr_ipv4_prefixes_args_override=self.irr_ipv4_prefixes_args_override,
                 )
-        except UnresolvableIRRObjectError:
-            pass
+            )
 
         return prefixes
 
@@ -459,11 +461,26 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         returned. 6 for IPv6, 4 for IPv4, both for all other values.
 
         The stored database value will be used if it exists.
+
+        Unlike `retrieve_irr_as_set_prefixes`, this does not raise if the IRR lookup
+        fails: it is used while rendering configurations. It returns an empty prefix
+        set instead, without caching it. This covers unresolvable IRR objects as well
+        as unparsable resolver output, which surfaces as a `ValueError`.
         """
-        prefixes = self.prefixes or self.retrieve_irr_as_set_prefixes()
-        if prefixes != self.prefixes:
-            self.prefixes = prefixes
-            self.save(update_fields=["prefixes"])
+        prefixes = self.prefixes
+        if not prefixes:
+            try:
+                prefixes = self.retrieve_irr_as_set_prefixes()
+            except UnresolvableIRRObjectError as exc:
+                logger.warning(f"cannot resolve {exc.object} for as{self.asn}, not caching an empty prefix set")
+                prefixes = {"ipv6": [], "ipv4": []}
+            except ValueError as exc:
+                logger.warning(f"cannot parse irr prefixes for as{self.asn}, not caching an empty prefix set: {exc}")
+                prefixes = {"ipv6": [], "ipv4": []}
+            else:
+                if prefixes != self.prefixes:
+                    self.prefixes = prefixes
+                    self.save(update_fields=["prefixes"])
 
         if address_family == 6:
             return prefixes["ipv6"]

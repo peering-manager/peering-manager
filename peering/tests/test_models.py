@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
+from django.core.management import call_command
 from django.test import TestCase
 
 from bgp.models import Relationship
@@ -80,8 +81,22 @@ class AutonomousSystemTest(TestCase):
 
         with patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen):
             self.autonomous_system.irr_as_set = "AS-ERROR"
-            prefixes = self.autonomous_system.retrieve_irr_as_set_prefixes()
-            self.assertEqual({"ipv6": [], "ipv4": []}, prefixes)
+            with self.assertRaises(UnresolvableIRRObjectError):
+                self.autonomous_system.retrieve_irr_as_set_prefixes()
+
+    def test_get_irr_data_keeps_stored_prefixes_on_failure(self):
+        stored = {"ipv6": [{"prefix": "2001:db8::/32"}], "ipv4": [{"prefix": "192.0.2.0/24"}]}
+        # get_irr_data reads the autonomous systems back from the database, so the
+        # failing AS-SET has to be persisted alongside the prefixes we expect to keep.
+        self.autonomous_system.irr_as_set = "AS-ERROR"
+        self.autonomous_system.prefixes = stored
+        self.autonomous_system.save(update_fields=["irr_as_set", "prefixes"])
+
+        with patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen):
+            call_command("get_irr_data", verbosity=0)
+
+        self.autonomous_system.refresh_from_db()
+        self.assertEqual(stored, self.autonomous_system.prefixes)
 
     def test_get_irr_as_set_prefixes(self):
         with patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen):
@@ -92,6 +107,18 @@ class AutonomousSystemTest(TestCase):
         prefixes = self.autonomous_system.get_irr_as_set_prefixes()
         self.assertEqual(self.autonomous_system.prefixes["ipv6"], prefixes["ipv6"])
         self.assertEqual(self.autonomous_system.prefixes["ipv4"], prefixes["ipv4"])
+
+    def test_get_irr_as_set_prefixes_does_not_cache_failure(self):
+        self.autonomous_system.prefixes = None
+        self.autonomous_system.save(update_fields=["prefixes"])
+
+        with patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen):
+            self.autonomous_system.irr_as_set = "AS-ERROR"
+            prefixes = self.autonomous_system.get_irr_as_set_prefixes()
+
+        self.assertEqual({"ipv6": [], "ipv4": []}, prefixes)
+        self.autonomous_system.refresh_from_db()
+        self.assertIsNone(self.autonomous_system.prefixes)
 
     def test_peeringdb_network(self):
         self.assertIsNone(self.autonomous_system.peeringdb_network)

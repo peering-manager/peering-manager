@@ -88,6 +88,8 @@ class Command(BaseCommand):
                 )
                 autonomous_system.as_list = self.retrieve_as_list(autonomous_system=autonomous_system, quiet=quiet)
             except UnresolvableIRRObjectError:
+                if not quiet:
+                    self.stdout.write("    skipped (IRR lookup failed, keeping stored data)", self.style.WARNING)
                 continue
 
             autonomous_system.save(update_fields=["prefixes", "as_list"])
