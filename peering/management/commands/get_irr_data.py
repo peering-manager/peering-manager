@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 from peering.functions import UnresolvableIRRObjectError
 from peering.models import AutonomousSystem
+from peering.services import PrefixListEntryRepository, PrefixSynchroniser, build_prefix_synchroniser
 
 
 class Command(BaseCommand):
@@ -27,14 +28,14 @@ class Command(BaseCommand):
         )
 
     def retrieve_prefixes(
-        self, autonomous_system: AutonomousSystem, limit: int, quiet: bool
+        self, synchroniser: PrefixSynchroniser, autonomous_system: AutonomousSystem, limit: int, quiet: bool
     ) -> dict[str, list[dict[str, Any]]]:
         if not autonomous_system.retrieve_prefixes:
             if not quiet:
                 self.stdout.write("    skipped (prefixes retrieval disabled)", self.style.WARNING)
             return {"ipv6": [], "ipv4": []}
 
-        prefixes = autonomous_system.retrieve_irr_as_set_prefixes()
+        prefixes = synchroniser.retrieve(autonomous_system)
         for family in ("ipv6", "ipv4"):
             count = len(prefixes[family])
 
@@ -69,6 +70,7 @@ class Command(BaseCommand):
         if not quiet:
             self.stdout.write("[*] Fetching IRR data for autonomous systems")
 
+        synchroniser = build_prefix_synchroniser()
         autonomous_systems = AutonomousSystem.objects.all()
         if asn := options.get("asn"):
             try:
@@ -83,11 +85,17 @@ class Command(BaseCommand):
                 self.stdout.write(f"  - AS{autonomous_system.asn}:")
 
             try:
-                autonomous_system.prefixes = self.retrieve_prefixes(
-                    autonomous_system=autonomous_system, limit=limit, quiet=quiet
+                prefixes = self.retrieve_prefixes(
+                    synchroniser=synchroniser, autonomous_system=autonomous_system, limit=limit, quiet=quiet
                 )
-                autonomous_system.as_list = self.retrieve_as_list(autonomous_system=autonomous_system, quiet=quiet)
+                as_list = self.retrieve_as_list(autonomous_system=autonomous_system, quiet=quiet)
             except UnresolvableIRRObjectError:
                 continue
 
-            autonomous_system.save(update_fields=["prefixes", "as_list"])
+            synchroniser.synchronise(autonomous_system, prefixes)
+            autonomous_system.as_list = as_list
+            autonomous_system.save(update_fields=["as_list"])
+
+        deleted = PrefixListEntryRepository().delete_orphans()
+        if not quiet:
+            self.stdout.write(f"[*] Removed {deleted} orphaned prefixes", self.style.SUCCESS)

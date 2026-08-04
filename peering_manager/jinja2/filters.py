@@ -26,6 +26,7 @@ from peering.models import (
     InternetExchange,
     InternetExchangePeeringSession,
 )
+from peering.services import build_prefix_synchroniser
 from peering_manager.enums import IPFamily
 from peering_manager.models.features import ConfigContextMixin, TagsMixin
 from peeringdb.functions import get_possible_peering_sessions, get_shared_facilities
@@ -703,7 +704,7 @@ def prefix_list(value, family=0):
     Returns the prefixes for the given AS or IXP.
     """
     if type(value) is AutonomousSystem:
-        return value.get_irr_as_set_prefixes(address_family=family)
+        return build_prefix_synchroniser().get(value, address_family=family)
 
     if type(value) is InternetExchange:
         if family in (4, 6):

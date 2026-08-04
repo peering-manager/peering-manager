@@ -42,7 +42,7 @@ class InternetExchangePeeringSessionList(ObjectListView):
     queryset = (
         InternetExchangePeeringSession.objects.order_by("autonomous_system", "ip_address")
         .select_related("autonomous_system")
-        .defer("autonomous_system__prefixes", "autonomous_system__as_list")
+        .defer("autonomous_system__as_list")
     )
     table = InternetExchangePeeringSessionTable
     filterset = InternetExchangePeeringSessionFilterSet
@@ -73,7 +73,7 @@ class InternetExchangePeeringSessionDelete(ObjectDeleteView):
 class InternetExchangePeeringSessionBulkEdit(BulkEditView):
     permission_required = "peering.change_internetexchangepeeringsession"
     queryset = InternetExchangePeeringSession.objects.select_related("autonomous_system").defer(
-        "autonomous_system__prefixes", "autonomous_system__as_list"
+        "autonomous_system__as_list"
     )
     filterset = InternetExchangePeeringSessionFilterSet
     table = InternetExchangePeeringSessionTable

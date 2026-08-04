@@ -260,5 +260,3 @@ class PortalSessionDetailView(PortalAPIView):
             return Response({"detail": str(e)}, status=status.HTTP_409_CONFLICT)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-

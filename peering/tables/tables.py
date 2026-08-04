@@ -1,6 +1,7 @@
 import django_tables2 as tables
 
 from bgp.tables import CommunityColumn, RoutingPolicyColumn
+from net.models import PrefixListEntry
 from peering_manager.tables import BaseTable, PeeringManagerTable, columns
 
 from ..models import (
@@ -384,14 +385,21 @@ class RequestedSessionTable(PeeringManagerTable):
 class AutonomousSystemPrefixTable(BaseTable):
     prefix = tables.Column(verbose_name="Prefix")
     exact = columns.BooleanColumn(verbose_name="Exact")
+    greater_equal = tables.Column(verbose_name="Greater or Equal", empty_values=())
     less_equal = tables.Column(verbose_name="Less or Equal", empty_values=())
 
-    def render_less_equal(self, record):
-        if record["exact"]:
+    def render_greater_equal(self, record):
+        if record.exact or record.greater_equal is None:
             return "—"
-        return record.get("less-equal", "—")
+        return record.greater_equal
+
+    def render_less_equal(self, record):
+        if record.exact or record.less_equal is None:
+            return "—"
+        return record.less_equal
 
     class Meta(BaseTable.Meta):
+        model = PrefixListEntry
         empty_text = "No prefixes found"
-        fields = ("prefix", "exact", "less_equal")
+        fields = ("prefix", "exact", "greater_equal", "less_equal")
         default_columns = ("prefix", "exact", "less_equal")
