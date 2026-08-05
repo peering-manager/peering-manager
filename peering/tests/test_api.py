@@ -1,7 +1,5 @@
 from unittest.mock import patch
 
-from django.db import connection
-from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from rest_framework import status
 
@@ -13,6 +11,7 @@ from utils.testing import APITestCase, APIViewTestCases
 from ..constants import *
 from ..enums import *
 from ..models import *
+from ..services import build_prefix_synchroniser
 from .mocked_data import load_peeringdb_data, mocked_subprocess_popen
 
 
@@ -71,7 +70,9 @@ class AutonomousSystemTest(APIViewTestCases.View):
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
     def _store_prefixes(self):
-        self.autonomous_system.prefixes = {"ipv6": [], "ipv4": [{"prefix": "192.0.2.0/24"}]}
+        build_prefix_synchroniser().synchronise(
+            self.autonomous_system, {"ipv6": [], "ipv4": [{"prefix": "192.0.2.0/24"}]}
+        )
         self.autonomous_system.as_list = [65536, 64500]
         self.autonomous_system.save()
 
@@ -95,7 +96,7 @@ class AutonomousSystemTest(APIViewTestCases.View):
         url = reverse("peering-api:autonomoussystem-detail", kwargs={"pk": self.autonomous_system.pk})
         response = self.client.get(url, {"fields": "asn,prefixes,as_list"}, **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(response.data["prefixes"], {"ipv6": [], "ipv4": [{"prefix": "192.0.2.0/24"}]})
+        self.assertEqual(response.data["prefixes"], {"ipv6": [], "ipv4": [{"prefix": "192.0.2.0/24", "exact": False}]})
         self.assertEqual(response.data["as_list"], [65536, 64500])
 
     def test_opt_in_fields_in_write_responses(self):

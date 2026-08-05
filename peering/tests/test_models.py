@@ -11,7 +11,8 @@ from utils.testing import load_json
 from ..enums import *
 from ..functions import *
 from ..models import *
-from .mocked_data import load_peeringdb_data, mocked_subprocess_popen
+from ..services import build_prefix_synchroniser
+from .mocked_data import load_peeringdb_data
 
 
 class AutonomousSystemTest(TestCase):
@@ -72,26 +73,23 @@ class AutonomousSystemTest(TestCase):
         self.assertEqual(asn, a_s.asn)
         self.assertFalse(a_s.synchronise_with_peeringdb())
 
-    def test_retrieve_irr_as_set_prefixes(self):
-        with patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen):
-            prefixes = self.autonomous_system.retrieve_irr_as_set_prefixes()
-            self.assertEqual(1, len(prefixes["ipv6"]))
-            self.assertEqual(1, len(prefixes["ipv4"]))
+    def test_prefixes_property(self):
+        self.assertIsNone(self.autonomous_system.prefixes)
 
-        with patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen):
-            self.autonomous_system.irr_as_set = "AS-ERROR"
-            prefixes = self.autonomous_system.retrieve_irr_as_set_prefixes()
-            self.assertEqual({"ipv6": [], "ipv4": []}, prefixes)
-
-    def test_get_irr_as_set_prefixes(self):
-        with patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen):
-            self.autonomous_system.prefixes = self.autonomous_system.retrieve_irr_as_set_prefixes()
-            self.assertEqual(1, len(self.autonomous_system.prefixes["ipv6"]))
-            self.assertEqual(1, len(self.autonomous_system.prefixes["ipv4"]))
-
-        prefixes = self.autonomous_system.get_irr_as_set_prefixes()
-        self.assertEqual(self.autonomous_system.prefixes["ipv6"], prefixes["ipv6"])
-        self.assertEqual(self.autonomous_system.prefixes["ipv4"], prefixes["ipv4"])
+        build_prefix_synchroniser().synchronise(
+            self.autonomous_system,
+            {
+                "ipv6": [{"prefix": "2001:db8::/32", "exact": False, "greater-equal": 33, "less-equal": 48}],
+                "ipv4": [{"prefix": "192.0.2.0/24", "exact": True}],
+            },
+        )
+        self.assertEqual(
+            {
+                "ipv6": [{"prefix": "2001:db8::/32", "exact": False, "greater-equal": 33, "less-equal": 48}],
+                "ipv4": [{"prefix": "192.0.2.0/24", "exact": True}],
+            },
+            self.autonomous_system.prefixes,
+        )
 
     def test_peeringdb_network(self):
         self.assertIsNone(self.autonomous_system.peeringdb_network)

@@ -1,9 +1,10 @@
 import ipaddress
+from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from net.models import Connection
+from net.models import Connection, PrefixListEntry
 from peeringdb.models import (
     Facility,
     IXLan,
@@ -23,16 +24,23 @@ from ..models import (
     PeeringRequest,
 )
 from ..services import (
+    BgpqPrefixSource,
     DuplicatePendingRequestError,
     LocationDiscoveryService,
+    PrefixListEntryRepository,
+    PrefixSpec,
+    PrefixSynchroniser,
     PrivateLocationProvider,
     PublicLocationProvider,
     PublicSessionResolver,
     SessionsAlreadyConfiguredError,
     build_location_discovery_service,
     build_peering_request_service,
+    build_prefix_synchroniser,
+    normalise_prefix_list_entries,
 )
 from ..services.discovery import _format_ip_with_prefix, session_proposals_by_ixp
+from .mocked_data import mocked_subprocess_popen
 
 
 class PeeringServicesTestMixin:
@@ -219,3 +227,111 @@ class SessionProposalsTest(PeeringServicesTestMixin, TestCase):
         self.assertEqual(_format_ip_with_prefix("192.0.2.1", networks), "192.0.2.1/24")
         # No matching network falls back to the bare host
         self.assertEqual(_format_ip_with_prefix("192.0.2.1", []), "192.0.2.1")
+
+
+class _RecordingPrefixSource:
+    """Test double returning a canned prefix dict without touching bgpq/subprocess."""
+
+    def __init__(self, prefixes):
+        self._prefixes = prefixes
+        self.calls = 0
+
+    def retrieve(self, autonomous_system):
+        self.calls += 1
+        return self._prefixes
+
+
+class NormalisePrefixListEntriesTest(TestCase):
+    def test_normalise(self):
+        self.assertEqual(set(), normalise_prefix_list_entries(None))
+        self.assertEqual(set(), normalise_prefix_list_entries({"ipv6": [], "ipv4": []}))
+
+        entries = normalise_prefix_list_entries(
+            {
+                "ipv6": [
+                    {"prefix": "2001:DB8::/32", "exact": False, "greater-equal": 33, "less-equal": 48},
+                    {"prefix": "2001:0db8:0000::/32", "exact": False, "greater-equal": 33, "less-equal": 48},
+                ],
+                "ipv4": [{"prefix": "192.0.2.0/24", "exact": True}, {"prefix": "198.51.100.0/24"}],
+            }
+        )
+        self.assertEqual(
+            {
+                PrefixSpec("2001:db8::/32", False, 33, 48),
+                PrefixSpec("192.0.2.0/24", True),
+                PrefixSpec("198.51.100.0/24", False),
+            },
+            entries,
+        )
+
+
+class BgpqPrefixSourceTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.autonomous_system = AutonomousSystem.objects.create(asn=65537, name="Test", irr_as_set="AS-MOCKED")
+
+    def test_retrieve(self):
+        with patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen):
+            prefixes = BgpqPrefixSource().retrieve(self.autonomous_system)
+        self.assertEqual(1, len(prefixes["ipv6"]))
+        self.assertEqual(1, len(prefixes["ipv4"]))
+
+    def test_retrieve_disabled_returns_empty(self):
+        self.autonomous_system.retrieve_prefixes = False
+        self.assertEqual({"ipv6": [], "ipv4": []}, BgpqPrefixSource().retrieve(self.autonomous_system))
+
+    def test_retrieve_unresolvable_returns_empty(self):
+        self.autonomous_system.irr_as_set = "AS-ERROR"
+        with patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen):
+            self.assertEqual({"ipv6": [], "ipv4": []}, BgpqPrefixSource().retrieve(self.autonomous_system))
+
+
+class PrefixSynchroniserTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.a1 = AutonomousSystem.objects.create(asn=65538, name="AS1")
+        cls.a2 = AutonomousSystem.objects.create(asn=65539, name="AS2")
+
+    def test_synchronise_dedups_relinks_and_reclaims(self):
+        synchroniser = build_prefix_synchroniser()
+        synchroniser.synchronise(
+            self.a1,
+            {
+                "ipv6": [{"prefix": "2001:db8::/32", "exact": False, "greater-equal": 33, "less-equal": 48}],
+                "ipv4": [{"prefix": "192.0.2.0/24", "exact": True}, {"prefix": "198.51.100.0/24", "exact": True}],
+            },
+        )
+        self.assertEqual(3, PrefixListEntry.objects.count())
+
+        # A prefix shared with another AS is stored once and linked, not duplicated
+        synchroniser.synchronise(self.a2, {"ipv6": [], "ipv4": [{"prefix": "192.0.2.0/24", "exact": True}]})
+        self.assertEqual(3, PrefixListEntry.objects.count())
+        self.assertEqual(2, PrefixListEntry.objects.get(prefix="192.0.2.0/24", exact=True).autonomous_systems.count())
+
+        # Re-syncing drops stale links but keeps rows still shared with other autonomous systems
+        synchroniser.synchronise(self.a1, {"ipv6": [], "ipv4": [{"prefix": "198.51.100.0/24", "exact": True}]})
+        self.assertEqual(["198.51.100.0/24"], [str(e.prefix) for e in self.a1.prefix_list_entries.all()])
+        self.assertEqual(3, PrefixListEntry.objects.count())
+
+        # The now-unreferenced entry is reclaimed
+        self.assertEqual(1, PrefixListEntryRepository().delete_orphans())
+        self.assertEqual(2, PrefixListEntry.objects.count())
+
+    def test_get_reads_through_once(self):
+        source = _RecordingPrefixSource({"ipv6": [{"prefix": "2001:db8::/32", "exact": True}], "ipv4": []})
+        synchroniser = PrefixSynchroniser(source=source, repository=PrefixListEntryRepository())
+
+        self.assertEqual([{"prefix": "2001:db8::/32", "exact": True}], synchroniser.get(self.a1, address_family=6))
+        self.assertIsNotNone(self.a1.prefixes_updated)
+
+        # The stored value is reused, the source is not hit again
+        synchroniser.get(self.a1)
+        self.assertEqual(1, source.calls)
+
+        # An AS-SET resolving to nothing is still marked as fetched, so it does not refetch on every access
+        empty_source = _RecordingPrefixSource({"ipv6": [], "ipv4": []})
+        synchroniser = PrefixSynchroniser(source=empty_source, repository=PrefixListEntryRepository())
+        self.assertEqual({"ipv6": [], "ipv4": []}, synchroniser.get(self.a2))
+        self.assertIsNotNone(self.a2.prefixes_updated)
+        synchroniser.get(self.a2)
+        self.assertEqual(1, empty_source.calls)
