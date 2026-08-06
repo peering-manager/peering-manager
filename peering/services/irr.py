@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ipaddress
+import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Protocol
 
@@ -26,6 +27,8 @@ __all__ = (
     "build_prefix_synchroniser",
     "normalise_prefix_list_entries",
 )
+
+logger = logging.getLogger("peering.manager.peering")
 
 PREFIX_BATCH_SIZE = 1000
 
@@ -77,29 +80,26 @@ class BgpqPrefixSource:
         if not autonomous_system.retrieve_prefixes:
             return prefixes
 
-        try:
-            # For each AS-SET try getting IPv6 and IPv4 prefixes
-            for source, as_set in parse_irr_as_set(asn=autonomous_system.asn, irr_as_set=autonomous_system.irr_as_set):
-                prefixes["ipv6"].extend(
-                    call_irr_as_set_resolver(
-                        as_set=as_set,
-                        source=source,
-                        address_family=6,
-                        irr_sources_override=autonomous_system.irr_sources_override,
-                        irr_ipv6_prefixes_args_override=autonomous_system.irr_ipv6_prefixes_args_override,
-                    )
+        # For each AS-SET try getting IPv6 and IPv4 prefixes
+        for source, as_set in parse_irr_as_set(asn=autonomous_system.asn, irr_as_set=autonomous_system.irr_as_set):
+            prefixes["ipv6"].extend(
+                call_irr_as_set_resolver(
+                    as_set=as_set,
+                    source=source,
+                    address_family=6,
+                    irr_sources_override=autonomous_system.irr_sources_override,
+                    irr_ipv6_prefixes_args_override=autonomous_system.irr_ipv6_prefixes_args_override,
                 )
-                prefixes["ipv4"].extend(
-                    call_irr_as_set_resolver(
-                        as_set=as_set,
-                        source=source,
-                        address_family=4,
-                        irr_sources_override=autonomous_system.irr_sources_override,
-                        irr_ipv4_prefixes_args_override=autonomous_system.irr_ipv4_prefixes_args_override,
-                    )
+            )
+            prefixes["ipv4"].extend(
+                call_irr_as_set_resolver(
+                    as_set=as_set,
+                    source=source,
+                    address_family=4,
+                    irr_sources_override=autonomous_system.irr_sources_override,
+                    irr_ipv4_prefixes_args_override=autonomous_system.irr_ipv4_prefixes_args_override,
                 )
-        except UnresolvableIRRObjectError:
-            pass
+            )
 
         return prefixes
 
@@ -219,10 +219,15 @@ class PrefixSynchroniser:
         """
         Return the stored prefix list, synchronising once if it has never been fetched.
 
-        `address_family` selects a single family (6 or 4) or both otherwise.
+        `address_family` selects a single family (6 or 4) or both otherwise. A failed lookup keeps the stored
+        prefixes and leaves the AS unmarked, so that a later run retrieves them again.
         """
         if autonomous_system.prefixes_updated is None:
-            self.synchronise(autonomous_system)
+            try:
+                self.synchronise(autonomous_system)
+            except UnresolvableIRRObjectError:
+                # Catch unresolvable IRR object error and log it, but do not touch existing prefixes
+                logger.warning(f"cannot resolve irr objects for AS{autonomous_system.asn}, keeping the stored prefixes")
 
         prefixes = autonomous_system.prefixes or {"ipv6": [], "ipv4": []}
         if address_family == 6:

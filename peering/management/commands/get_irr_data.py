@@ -90,6 +90,8 @@ class Command(BaseCommand):
                 )
                 as_list = self.retrieve_as_list(autonomous_system=autonomous_system, quiet=quiet)
             except UnresolvableIRRObjectError:
+                if not quiet:
+                    self.stdout.write("    skipped (IRR lookup failed)", self.style.WARNING)
                 continue
 
             synchroniser.synchronise(autonomous_system, prefixes)

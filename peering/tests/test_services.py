@@ -17,6 +17,7 @@ from peeringdb.models import (
 from peeringdb.models import InternetExchange as PeeringDBIX
 
 from ..enums import PeeringRequestStatus, PeeringRequestType
+from ..functions import UnresolvableIRRObjectError
 from ..models import (
     AutonomousSystem,
     InternetExchange,
@@ -280,10 +281,13 @@ class BgpqPrefixSourceTest(TestCase):
         self.autonomous_system.retrieve_prefixes = False
         self.assertEqual({"ipv6": [], "ipv4": []}, BgpqPrefixSource().retrieve(self.autonomous_system))
 
-    def test_retrieve_unresolvable_returns_empty(self):
-        self.autonomous_system.irr_as_set = "AS-ERROR"
-        with patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen):
-            self.assertEqual({"ipv6": [], "ipv4": []}, BgpqPrefixSource().retrieve(self.autonomous_system))
+    def test_retrieve_unresolvable_raises(self):
+        self.autonomous_system.irr_as_set = "AS-MOCKED AS-ERROR"
+        with (
+            patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen),
+            self.assertRaises(UnresolvableIRRObjectError),
+        ):
+            BgpqPrefixSource().retrieve(self.autonomous_system)
 
 
 class PrefixSynchroniserTest(TestCase):
@@ -316,6 +320,25 @@ class PrefixSynchroniserTest(TestCase):
         # The now-unreferenced entry is reclaimed
         self.assertEqual(1, PrefixListEntryRepository().delete_orphans())
         self.assertEqual(2, PrefixListEntry.objects.count())
+
+    def test_failed_lookup_keeps_stored_prefixes(self):
+        synchroniser = build_prefix_synchroniser()
+        synchroniser.synchronise(self.a1, {"ipv6": [], "ipv4": [{"prefix": "192.0.2.0/24", "exact": True}]})
+        stored = self.a1.prefixes
+
+        self.a1.irr_as_set = "AS-ERROR"
+        with (
+            patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen),
+            self.assertRaises(UnresolvableIRRObjectError),
+        ):
+            synchroniser.synchronise(self.a1)
+        self.a1.refresh_from_db()
+        self.assertEqual(stored, self.a1.prefixes)
+
+        never_fetched = AutonomousSystem.objects.create(asn=65540, name="Broken", irr_as_set="AS-ERROR")
+        with patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen):
+            self.assertEqual({"ipv6": [], "ipv4": []}, synchroniser.get(never_fetched))
+        self.assertIsNone(never_fetched.prefixes_updated)
 
     def test_get_reads_through_once(self):
         source = _RecordingPrefixSource({"ipv6": [{"prefix": "2001:db8::/32", "exact": True}], "ipv4": []})
