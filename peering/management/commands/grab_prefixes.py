@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand, CommandError
 
+from peering.functions import UnresolvableIRRObjectError
 from peering.models import AutonomousSystem
+from peering.services import build_prefix_synchroniser
 
 
 class Command(BaseCommand):
@@ -26,6 +28,7 @@ class Command(BaseCommand):
         if not quiet:
             self.stdout.write("[*] Fetching prefixes for autonomous systems")
 
+        synchroniser = build_prefix_synchroniser()
         for autonomous_system in AutonomousSystem.objects.all():
             if not quiet:
                 self.stdout.write(f"  - AS{autonomous_system.asn}:")
@@ -36,7 +39,11 @@ class Command(BaseCommand):
                 continue
 
             try:
-                prefixes = autonomous_system.retrieve_irr_as_set_prefixes()
+                prefixes = synchroniser.retrieve(autonomous_system)
+            except UnresolvableIRRObjectError:
+                if not quiet:
+                    self.stdout.write("    skipped (IRR lookup failed)", self.style.WARNING)
+                continue
             except ValueError as exc:
                 raise CommandError(str(exc)) from exc
 
@@ -50,5 +57,4 @@ class Command(BaseCommand):
                 elif not quiet:
                     self.stdout.write(f"    {count:>6} {family}", self.style.SUCCESS)
 
-            autonomous_system.prefixes = prefixes
-            autonomous_system.save(update_fields=["prefixes"])
+            synchroniser.synchronise(autonomous_system, prefixes)

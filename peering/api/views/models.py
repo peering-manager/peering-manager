@@ -33,6 +33,7 @@ from ...models import (
     PeeringRequest,
     RequestedSession,
 )
+from ...services import build_prefix_synchroniser
 from ..serializers import (
     AutonomousSystemSerializer,
     BGPGroupSerializer,
@@ -130,7 +131,7 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
     )
     @action(detail=True, methods=["get"], url_path="as-set-prefixes")
     def as_set_prefixes(self, request, pk=None):
-        return Response(data=self.get_object().get_irr_as_set_prefixes())
+        return Response(data=build_prefix_synchroniser().get(self.get_object()))
 
     @extend_schema(
         operation_id="peering_autonomous_systems_shared_ixps",

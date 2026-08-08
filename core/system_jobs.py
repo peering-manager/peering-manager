@@ -10,6 +10,7 @@ from django.db import DEFAULT_DB_ALIAS
 from django.utils import timezone
 from packaging import version
 
+from peering.services import PrefixListEntryRepository
 from peering_manager.jobs import JobRunner, system_job
 
 from .enums import JobInterval
@@ -36,6 +37,7 @@ class HousekeepingJob(JobRunner):
         self._clear_expired_sessions()
         self._prune_changelog()
         self._delete_expired_jobs()
+        self._delete_orphaned_prefixes()
         self._check_for_new_releases()
 
     def _clear_expired_sessions(self) -> None:
@@ -76,6 +78,13 @@ class HousekeepingJob(JobRunner):
             expired._raw_delete(using=DEFAULT_DB_ALIAS)
         else:
             self.logger.info("No expired job records to delete")
+
+    def _delete_orphaned_prefixes(self) -> None:
+        deleted = PrefixListEntryRepository().delete_orphans()
+        if deleted:
+            self.logger.info(f"Deleted {deleted} orphaned prefix-list entries")
+        else:
+            self.logger.info("No orphaned prefix-list entries to delete")
 
     def _check_for_new_releases(self) -> None:
         if not settings.RELEASE_CHECK_URL:

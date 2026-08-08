@@ -42,7 +42,10 @@ Note that the best way to keep all of these properties up-to-date is to use the
 PeeringDB integration that can synchronise some of them automatically.
 
 The prefixes and the AS list resolved from the IRR AS-SET are cached in the
-database and can be very large. The REST API does not include them in
-autonomous system list and detail responses by default; fetch them explicitly
-with the `fields` query parameter (e.g. `?fields=asn,prefixes,as_list`) or
-through the `/api/peering/autonomous-systems/{id}/as-set-prefixes` endpoint.
+database and can be very large. Prefixes are stored as individual entries shared
+between autonomous systems, so a prefix appearing in several AS-SETs is only kept
+once; the `prefixes_updated` timestamp records when they were last refreshed. The
+REST API does not include the prefixes and the AS list in autonomous system list
+and detail responses by default; fetch them explicitly with the `fields` query
+parameter (e.g. `?fields=asn,prefixes,as_list`) or through the
+`/api/peering/autonomous-systems/{id}/as-set-prefixes` endpoint.

@@ -78,6 +78,9 @@ class AutonomousSystemSerializer(PeeringManagerModelSerializer):
         required=False,
         many=True,
     )
+    # Backed by the `prefixes` property, which rebuilds the bgpq-style dict
+    # Kept here for retrocompatibility, for now
+    prefixes = serializers.JSONField(read_only=True, allow_null=True)
 
     class Meta:
         model = AutonomousSystem
@@ -101,6 +104,7 @@ class AutonomousSystemSerializer(PeeringManagerModelSerializer):
             "export_routing_policies",
             "communities",
             "prefixes",
+            "prefixes_updated",
             "retrieve_prefixes",
             "as_list",
             "retrieve_as_list",

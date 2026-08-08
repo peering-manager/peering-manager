@@ -1,9 +1,7 @@
-from typing import Any
-
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import EmailMessage
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -142,10 +140,7 @@ class AutonomousSystemPeeringDB(ObjectView):
 
     def get_extra_context(self, request, instance):
         affiliated = AutonomousSystem.get_for_user(user=request.user)
-        if affiliated is None:
-            facilities = []
-        else:
-            facilities = instance.get_peeringdb_shared_facilities(affiliated)
+        facilities = [] if affiliated is None else instance.get_peeringdb_shared_facilities(affiliated)
 
         return {"contacts": instance.peeringdb_contacts, "facilities": facilities}
 
@@ -159,24 +154,23 @@ class AutonomousSystemPrefixes(ObjectView):
 
     def get_extra_context(self, request, instance):
         family: str = request.GET.get("family", "")
-        search: str = request.GET.get("q", "").strip().lower()
+        search: str = request.GET.get("q", "").strip()
 
-        prefixes_data: dict[str, list[dict[str, Any]]] = instance.prefixes or {
-            "ipv6": [],
-            "ipv4": [],
-        }
-        ipv6_prefixes: list[dict[str, Any]] = prefixes_data.get("ipv6", [])
-        ipv4_prefixes: list[dict[str, Any]] = prefixes_data.get("ipv4", [])
+        entries = instance.prefix_list_entries.order_by("prefix")
+        counts = entries.aggregate(
+            ipv6=Count("pk", filter=Q(prefix__family=6)),
+            ipv4=Count("pk", filter=Q(prefix__family=4)),
+        )
 
-        all_prefixes: list[dict[str, Any]] = []
-        for af, prefix_list in [("ipv6", ipv6_prefixes), ("ipv4", ipv4_prefixes)]:
-            if family and family != af:
-                continue
-            filtered = [p for p in prefix_list if p["prefix"].lower().startswith(search)] if search else prefix_list
-            all_prefixes.extend({**p, "family": af} for p in filtered)
+        if family == "ipv6":
+            entries = entries.filter(prefix__family=6)
+        elif family == "ipv4":
+            entries = entries.filter(prefix__family=4)
+        if search:
+            entries = entries.filter(prefix__istartswith=search)
 
         filter_form = AutonomousSystemPrefixFilterForm(request.GET)
-        table = AutonomousSystemPrefixTable(all_prefixes, user=request.user)
+        table = AutonomousSystemPrefixTable(entries, user=request.user)
         table.configure(request)
 
         irr_commands: list[dict[str, str]] = []
@@ -204,9 +198,9 @@ class AutonomousSystemPrefixes(ObjectView):
         return {
             "table": table,
             "filter_form": filter_form,
-            "ipv6_count": len(ipv6_prefixes),
-            "ipv4_count": len(ipv4_prefixes),
-            "total_count": len(ipv6_prefixes) + len(ipv4_prefixes),
+            "ipv6_count": counts["ipv6"],
+            "ipv4_count": counts["ipv4"],
+            "total_count": counts["ipv6"] + counts["ipv4"],
             "irr_commands": irr_commands,
             "as_list": sorted(instance.as_list),
         }

@@ -5,6 +5,15 @@ from .discovery import (
     PublicLocationProvider,
     build_location_discovery_service,
 )
+from .irr import (
+    BgpqPrefixSource,
+    PrefixListEntryRepository,
+    PrefixSource,
+    PrefixSpec,
+    PrefixSynchroniser,
+    build_prefix_synchroniser,
+    normalise_prefix_list_entries,
+)
 from .submission import (
     DuplicatePendingRequestError,
     PeeringRequestConflictError,
@@ -19,11 +28,16 @@ from .submission import (
 )
 
 __all__ = (
+    "BgpqPrefixSource",
     "DuplicatePendingRequestError",
     "LocationDiscoveryService",
     "MutualLocationProvider",
     "PeeringRequestConflictError",
     "PeeringRequestService",
+    "PrefixListEntryRepository",
+    "PrefixSource",
+    "PrefixSpec",
+    "PrefixSynchroniser",
     "PrivateLocationProvider",
     "PrivateSessionResolver",
     "PublicLocationProvider",
@@ -34,4 +48,6 @@ __all__ = (
     "SessionsAlreadyConfiguredError",
     "build_location_discovery_service",
     "build_peering_request_service",
+    "build_prefix_synchroniser",
+    "normalise_prefix_list_entries",
 )
