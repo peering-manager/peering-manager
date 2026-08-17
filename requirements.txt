@@ -1,13 +1,13 @@
 annotated-types==0.7.0
 asgiref==3.11.1
-async-timeout==5.0.1
+async-timeout==5.0.1 ; python_full_version < '3.11.3'
 attrs==26.1.0
 bcrypt==5.0.0
 certifi==2026.6.17
 cffi==2.0.0
 charset-normalizer==3.4.7
 click==8.4.2
-colorama==0.4.6
+colorama==0.4.6 ; sys_platform == 'win32'
 croniter==6.2.2
 cryptography==49.0.0
 defusedxml==0.7.1
@@ -50,9 +50,9 @@ packaging==25.0
 paramiko==4.0.0
 prometheus-client==0.25.0
 psycopg==3.3.4
-psycopg-binary==3.3.4
+psycopg-binary==3.3.4 ; implementation_name != 'pypy'
 psycopg-pool==3.3.1
-pycparser==3.0
+pycparser==3.0 ; implementation_name != 'PyPy'
 pydantic==2.13.4
 pydantic-core==2.46.4
 pyeapi==1.0.4
@@ -72,8 +72,8 @@ referencing==0.37.0
 requests==2.34.2
 requests-oauthlib==2.0.0
 rich==15.0.0
-rpds-py==0.30.0
-rpds-py==2026.5.1
+rpds-py==0.30.0 ; python_full_version < '3.11'
+rpds-py==2026.5.1 ; python_full_version >= '3.11'
 rq==2.10.0
 ruamel-yaml==0.19.1
 scp==0.15.0
@@ -88,7 +88,7 @@ ttp==0.10.1
 ttp-templates==0.5.8
 typing-extensions==4.15.0
 typing-inspection==0.4.2
-tzdata==2026.2
+tzdata==2026.2 ; sys_platform == 'win32'
 uritemplate==4.2.0
 urllib3==2.7.0
 yamlloader==1.6.0
