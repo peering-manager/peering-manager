@@ -192,6 +192,7 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "core.api.schema.PeeringManagerAutoSchema",
     "DEFAULT_VERSION": REST_FRAMEWORK_VERSION,
     "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.AcceptHeaderVersioning",
+    "EXCEPTION_HANDLER": "peering_manager.api.exceptions.exception_handler",
     "SCHEMA_COERCE_METHOD_NAMES": {
         # Default mappings
         "retrieve": "read",
