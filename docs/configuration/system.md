@@ -51,8 +51,7 @@ function accessible within the Peering Manager shell:
   'Test Email Subject',
   'Test Email Body',
   'noreply-peeringmanager@example.com',
-  ['users@example.com'],
-  fail_silently=False
+  ['users@example.com']
 )
 ```
 

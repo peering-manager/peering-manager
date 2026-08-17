@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, TypedDict
 
 import requests
@@ -254,7 +254,7 @@ class PeeringDB:
             return (created, updated, deleted)
 
         if "generated" in result["meta"]:
-            peeringdb_cache_timestamp = datetime.fromtimestamp(result["meta"]["generated"], tz=timezone.utc)
+            peeringdb_cache_timestamp = datetime.fromtimestamp(result["meta"]["generated"], tz=UTC)
             self._caching_timestamps.append(peeringdb_cache_timestamp)
             logger.debug(f"peeringdb {namespace} cached at {peeringdb_cache_timestamp}")
 
@@ -307,7 +307,7 @@ class PeeringDB:
         )
 
         # Save the last sync time based on the oldest PeeringDB cache timestamp
-        last_sync_at = min(self._caching_timestamps, default=datetime.now(tz=timezone.utc))
+        last_sync_at = min(self._caching_timestamps, default=datetime.now(tz=UTC))
         logger.debug(f"last peeringdb synchronisation time set at {last_sync_at}")
         return self.record_last_sync(last_sync_at, objects_changes)
 

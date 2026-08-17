@@ -13,7 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
 from django.utils.functional import classproperty
-from django_pglocks import advisory_lock
+from django_pg_utils.locks import advisory_lock
 from rq.timeouts import JobTimeoutException
 
 from core.enums import JobStatus, LogLevel

@@ -4,7 +4,7 @@ import ipaddress
 import logging
 import uuid
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Literal, TypeAlias
+from typing import TYPE_CHECKING, Any, Literal
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -50,7 +50,7 @@ __all__ = (
 
 logger = logging.getLogger("peering.manager.peering")
 
-IPAddressAnyType: TypeAlias = (
+type IPAddressAnyType = (
     str | ipaddress.IPv4Address | ipaddress.IPv6Address | ipaddress.IPv4Interface | ipaddress.IPv6Interface
 )
 

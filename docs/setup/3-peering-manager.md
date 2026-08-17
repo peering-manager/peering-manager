@@ -4,13 +4,13 @@
 
 First we need a proper text editor, Git and Python. We will use Git to get the
 code, and Python to run it. Peering Manager is mostly tested with Python
-version 3 (3.10 minimum) so we will setup the machine with this version.
+version 3 (3.12 minimum) so we will setup the machine with this version.
 
 !!! attention
     Note that your favourite distribution may not have Python's required
     version packaged. In that case, the following commands are applicable.
     Possible solutions are: using additional package repositories or
-    different packages like `python38` instead of `python3`.
+    different packages like `python3.12` instead of `python3`.
 
 === "Debian 11 / 12"
     ```no-highlight
@@ -95,7 +95,7 @@ and HTTP services to run under this account.
 ## Set Up Python Environment
 
 First create a Python
-[virtual environment](https://docs.python.org/3.10/tutorial/venv.html) to
+[virtual environment](https://docs.python.org/3.12/tutorial/venv.html) to
 ensure Peering Manager's required packages don't conflict with anything in the
 system. This will create a directory named `venv` in the Peering Manager root
 directory.

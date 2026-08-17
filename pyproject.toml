@@ -5,35 +5,35 @@ version = "1.10.5-dev"
 authors = [{ name = "Guillaume Mazoyer", email = "pm@mazoyer.eu" }]
 readme = "README.md"
 license = "Apache-2.0"
-requires-python = ">=3.10,<3.15"
+requires-python = ">=3.12,<3.15"
 dependencies = [
-    "Django>=5.2,<5.3",
-    "djangorestframework>=3.16,<3.18",
-    "django-debug-toolbar>=6.1,<7.1",
-    "django-filter>=25.2,<25.3",
-    "django-htmx>=1.27,<1.28",
-    "django-netfields>=1.3,<1.5",
-    "django-pglocks>=1.0,<2.2",
-    "django-prometheus>=2.4,<2.6",
-    "django-redis>=6.0,<7.1",
+    "Django>=6.1,<6.2",
+    "djangorestframework>=3.18,<3.19",
+    "django-debug-toolbar>=7.1,<7.2",
+    "django-filter>=26.1,<26.2",
+    "django-htmx>=1.29,<1.30",
+    "django-netfields>=1.4,<1.5",
+    "django-pgware>=1.0,<1.1",
+    # 2.5.0 caps Django below 6.1; 2.6.0 lifts the cap but is not released yet
+    "django-prometheus>=2.6.0.dev4,<2.7",
+    "django-redis>=7.0,<7.1",
     "django-rq>=4.1,<4.2",
     "django-tables2>=3.0,<3.1",
     "django-taggit>=6.1,<6.2",
-    "drf-spectacular>=0.29,<0.30",
-    "drf-spectacular-sidecar>=2025,<2027",
-    "dulwich>=0.25,<1.3",
+    "drf-spectacular>=0.30,<0.31",
+    "drf-spectacular-sidecar>=2026,<2027",
+    "dulwich>=1.2,<1.3",
     "Jinja2>=3.1,<3.2",
     "Markdown>=3.10,<3.11",
-    "napalm>=5.1,<5.2",
+    "napalm>=5.2,<5.3",
     "packaging==25.0",
     "psycopg[binary,pool]>=3.3,<3.4",
     "pyixapi>=0.3,<0.4",
-    "pynetbox>=7.5,<7.9",
+    "pynetbox>=7.8,<7.9",
     "PyYAML>=6.0,<6.1",
-    "requests>=2.33,<2.35",
-    "rq>=2.10,<2.11",
-    "social-auth-app-django>=5.7,<5.10",
-    "pytz>=2026",
+    "requests>=2.34,<2.35",
+    "rq>=2.11,<2.12",
+    "social-auth-app-django>=5.9,<6.0",
 ]
 
 [dependency-groups]
@@ -100,7 +100,8 @@ select = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"*/migrations/*" = ["B007", "N805", "N806", "N999"]
+# UP017: makemigrations writes `datetime.timezone.utc`, not the `datetime.UTC` alias
+"*/migrations/*" = ["B007", "N805", "N806", "N999", "UP017"]
 "peering_manager/configuration.example.py" = ["N999"]
 "peering_manager/saml2_config.example.py" = ["N999"]
 

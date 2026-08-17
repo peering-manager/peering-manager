@@ -28,8 +28,8 @@ DOCS_DIR = BASE_DIR / "docs"
 VERSION = "1.10.5-dev"
 
 major, minor, _ = platform.python_version_tuple()
-if (int(major), int(minor)) < (3, 10):
-    raise RuntimeError(f"Peering Manager requires Python 3.10 or higher (current: Python {platform.python_version()})")
+if (int(major), int(minor)) < (3, 12):
+    raise RuntimeError(f"Peering Manager requires Python 3.12 or higher (current: Python {platform.python_version()})")
 
 # Import configuration parameters
 config_path = os.getenv("PEERINGMANAGER_CONFIGURATION", "peering_manager.configuration")
@@ -397,21 +397,28 @@ if SESSION_FILE_PATH is not None:
 
 
 # Email
+# Always define MAILERS, even without an EMAIL configuration, so that Django never falls back to
+# the EMAIL_* settings it deprecated in 6.1
+MAILERS = {
+    "default": {
+        "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
+        "OPTIONS": {
+            "host": EMAIL.get("SERVER", "localhost"),
+            "port": EMAIL.get("PORT", 25),
+            "username": EMAIL.get("USERNAME"),
+            "password": EMAIL.get("PASSWORD"),
+            "use_ssl": EMAIL.get("USE_SSL", False),
+            "use_tls": EMAIL.get("USE_TLS", False),
+            "ssl_keyfile": EMAIL.get("SSL_KEYFILE"),
+            "ssl_certfile": EMAIL.get("SSL_CERTFILE"),
+            "timeout": EMAIL.get("TIMEOUT", 10),
+        },
+    }
+}
+EMAIL_CC_CONTACTS = EMAIL.get("CC_CONTACTS", [])
 if EMAIL:
-    EMAIL_HOST = EMAIL.get("SERVER")
-    EMAIL_PORT = EMAIL.get("PORT", 25)
-    EMAIL_HOST_USER = EMAIL.get("USERNAME")
-    EMAIL_HOST_PASSWORD = EMAIL.get("PASSWORD")
-    EMAIL_TIMEOUT = EMAIL.get("TIMEOUT", 10)
     SERVER_EMAIL = EMAIL.get("FROM_ADDRESS")
     EMAIL_SUBJECT_PREFIX = EMAIL.get("SUBJECT_PREFIX")
-    EMAIL_USE_SSL = EMAIL.get("USE_SSL")
-    EMAIL_USE_TLS = EMAIL.get("USE_TLS")
-    EMAIL_SSL_KEYFILE = EMAIL.get("SSL_KEYFILE")
-    EMAIL_SSL_CERTFILE = EMAIL.get("SSL_CERTFILE")
-    EMAIL_CC_CONTACTS = EMAIL.get("CC_CONTACTS", [])
-else:
-    EMAIL_CC_CONTACTS = []
 
 # Application definition
 INSTALLED_APPS = [
@@ -420,6 +427,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "django.contrib.postgres",
     "django.contrib.staticfiles",
     "debug_toolbar",
     "django_filters",

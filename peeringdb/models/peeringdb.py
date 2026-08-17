@@ -153,8 +153,8 @@ class MultipleChoiceField(models.CharField):
 
 class BaseModel(models.Model):
     # No auto_add in this case as we want to keep PeeringDB's values
-    created = models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc))
-    updated = models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc))
+    created = models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.UTC))
+    updated = models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.UTC))
 
     class Meta:
         abstract = True
