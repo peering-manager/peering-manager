@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import pluralize
 from django.utils.text import slugify
@@ -23,6 +24,7 @@ from peering_manager.views.generic import (
 )
 from peeringdb.filtersets import NetworkIXLanFilterSet
 from peeringdb.forms import NetworkIXLanFilterForm
+from peeringdb.models import IXLan
 from peeringdb.tables import NetworkIXLanTable
 from utils.forms import ConfirmationForm
 from utils.functions import count_related
@@ -232,11 +234,16 @@ class InternetExchangePeeringDBImport(GetReturnURLMixin, PermissionRequiredMixin
     permission_required = "peering.add_internetexchange"
     default_return_url = "peering:internetexchange_list"
 
-    def get_missing_ixps(self, request):
+    def get_missing_ixps(self, request) -> tuple[AutonomousSystem | None, dict[IXLan, list[NetworkIXLan]] | None]:
+        """
+        Returns the affiliated AS and its missing IXPs, keyed by PeeringDB IXLan.
+
+        Both values are `None` when the calling user has no affiliated AS.
+        """
         affiliated = AutonomousSystem.get_for_user(user=request.user)
         if affiliated is None:
             messages.error(request, "Unable to import IXPs and connections without affiliated AS.")
-            return redirect(self.get_return_url(request))
+            return None, None
 
         # Get known IXPs and their connections
         netixlans = Connection.objects.filter(peeringdb_netixlan__isnull=False).values_list(
@@ -248,13 +255,34 @@ class InternetExchangePeeringDBImport(GetReturnURLMixin, PermissionRequiredMixin
         # Map missing IXPs based on missing connections
         missing_ixps = {}
         for netixlan in missing_netixlans:
-            ixlan = missing_ixps.setdefault(netixlan.ixlan, [])
-            ixlan.append(netixlan)
+            missing_ixps.setdefault(netixlan.ixlan, []).append(netixlan)
 
         return affiliated, missing_ixps
 
+    def build_ixp_identity(self, ixlan: IXLan, local_as: AutonomousSystem) -> tuple[str, str]:
+        """
+        Returns a free name and slug for the IXP of `local_as` on `ixlan`.
+
+        Names and slugs are unique for the whole instance, so the AS number joins both values when another AS already
+        owns the plain ones. A setup with a single affiliated AS keeps the plain values.
+        """
+        max_length = InternetExchange._meta.get_field("name").max_length
+        base_name = ixlan.ix.name
+        base_slug = slugify(f"{ixlan.ix.name} {ixlan.ix.pk}")
+        name, slug = base_name[:max_length], base_slug[:max_length]
+
+        counter = 0
+        while InternetExchange.objects.filter(Q(name=name) | Q(slug=slug)).exists():
+            counter += 1
+            discriminator = f"AS{local_as.asn}" if counter == 1 else f"AS{local_as.asn}-{counter}"
+            # 3 characters keep room for the space and the brackets around the discriminator
+            name = f"{base_name[: max_length - len(discriminator) - 3]} ({discriminator})"
+            slug = f"{base_slug[: max_length - len(discriminator) - 1]}-{slugify(discriminator)}"
+
+        return name, slug
+
     @transaction.atomic
-    def import_ixps(self, local_as, missing_ixps):
+    def import_ixps(self, local_as: AutonomousSystem, missing_ixps: dict[IXLan, list[NetworkIXLan]]) -> tuple[int, int]:
         """
         Imports IXPs and connections in a single database transaction.
         """
@@ -263,25 +291,20 @@ class InternetExchangePeeringDBImport(GetReturnURLMixin, PermissionRequiredMixin
         if not missing_ixps:
             return imported_ixps, imported_connections
 
-        for ixp, connections in missing_ixps.items():
-            i, created = InternetExchange.objects.get_or_create(
-                slug=slugify(f"{ixp.ix.name} {ixp.ix.pk}"),
-                defaults={
-                    "peeringdb_ixlan": ixp,
-                    "local_autonomous_system": local_as,
-                    "name": ixp.ix.name,
-                },
+        for ixlan, netixlans in missing_ixps.items():
+            name, slug = self.build_ixp_identity(ixlan, local_as)
+            ixp, created = InternetExchange.objects.get_or_create(
+                local_autonomous_system=local_as, peeringdb_ixlan=ixlan, defaults={"name": name, "slug": slug}
             )
 
-            for connection in connections:
-                if not connection.cidr4 and not connection.cidr6:
-                    # PeeringDB has no address data; skip!
+            for netixlan in netixlans:
+                if not netixlan.cidr4 and not netixlan.cidr6:
                     continue
                 Connection.objects.create(
-                    peeringdb_netixlan=connection,
-                    internet_exchange_point=i,
-                    ipv4_address=connection.cidr4,
-                    ipv6_address=connection.cidr6,
+                    peeringdb_netixlan=netixlan,
+                    internet_exchange_point=ixp,
+                    ipv4_address=netixlan.cidr4,
+                    ipv6_address=netixlan.cidr6,
                 )
                 imported_connections += 1
 
@@ -291,7 +314,10 @@ class InternetExchangePeeringDBImport(GetReturnURLMixin, PermissionRequiredMixin
         return imported_ixps, imported_connections
 
     def get(self, request):
-        _, missing_ixps = self.get_missing_ixps(request)
+        local_as, missing_ixps = self.get_missing_ixps(request)
+
+        if local_as is None:
+            return redirect(self.get_return_url(request))
 
         if not missing_ixps:
             messages.warning(request, "No IXPs nor connections to import.")
@@ -309,6 +335,10 @@ class InternetExchangePeeringDBImport(GetReturnURLMixin, PermissionRequiredMixin
 
     def post(self, request):
         local_as, missing_ixps = self.get_missing_ixps(request)
+
+        if local_as is None:
+            return redirect(self.get_return_url(request))
+
         form = ConfirmationForm(request.POST)
 
         if form.is_valid():
