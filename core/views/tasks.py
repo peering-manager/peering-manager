@@ -5,7 +5,7 @@ from django.http import Http404
 from django.shortcuts import render
 from django.views.generic import View
 from django_rq.queues import get_queue_by_index, get_redis_connection
-from django_rq.settings import QUEUES_LIST, QUEUES_MAP
+from django_rq.settings import get_queues_list, get_queues_map
 from django_rq.utils import get_jobs, get_statistics
 from rq import Worker
 from rq.exceptions import NoSuchJobError
@@ -107,7 +107,7 @@ class BackgroundTaskListView(TableMixin, BaseRQView):
 class BackgroundTaskView(BaseRQView):
     def get(self, request, job_id):
         # All the RQ queues should use the same connection
-        config = QUEUES_LIST[0]
+        config = get_queues_list()[0]
         try:
             job = RQ_Job.fetch(
                 job_id,
@@ -116,7 +116,7 @@ class BackgroundTaskView(BaseRQView):
         except NoSuchJobError as e:
             raise Http404(f"Job {job_id} not found") from e
 
-        queue_index = QUEUES_MAP[job.origin]
+        queue_index = get_queues_map()[job.origin]
         queue = get_queue_by_index(queue_index)
 
         try:
@@ -156,7 +156,7 @@ class WorkerListView(TableMixin, BaseRQView):
 
 class WorkerView(BaseRQView):
     def get(self, request, key):
-        config = QUEUES_LIST[0]
+        config = get_queues_list()[0]
         worker = Worker.find_by_key(
             f"rq:worker:{key}",
             connection=get_redis_connection(config["connection_config"]),
