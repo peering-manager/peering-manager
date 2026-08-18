@@ -445,16 +445,23 @@ class PortalSessionSubmitTest(PortalAPITestMixin, APITestCase):
         self.assertEqual(PeeringRequest.objects.count(), 0)
 
     def test_submit_requires_peer_ip(self):
-        # `peer_ip` is enforced by the serializer, so the error is per-session
+        # `peer_ip` is enforced by the serializer, so the error is per-session and the errors stay
+        # aligned with the submitted sessions, empty for the sessions that validated
         url = reverse("peering-api:portal:sessions")
         data = {
             "local_asn": 4199999991,
             "peer_type": "private",
-            "sessions": [{"local_ip": "192.0.2.1/30", "location": "pdb:fac:17"}],
+            "sessions": [
+                {"local_ip": "192.0.2.1/30", "location": "pdb:fac:17"},
+                {"local_ip": "192.0.2.5/30", "peer_ip": "192.0.2.6/30", "location": "pdb:fac:17"},
+            ],
         }
         response = self.client.post(url, data, format="json", **self.header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIsInstance(response.data["sessions"], list)
+        self.assertEqual(len(response.data["sessions"]), 2)
         self.assertIn("peer_ip", response.data["sessions"][0])
+        self.assertEqual(response.data["sessions"][1], {})
         self.assertEqual(PeeringRequest.objects.count(), 0)
 
     def test_submit_private_requires_prefix_length(self):

@@ -1,6 +1,4 @@
-from datetime import datetime
-
-import pytz
+from datetime import UTC, datetime
 
 from utils.testing import ViewTestCases
 
@@ -89,7 +87,7 @@ class AutonomousSystemTestCase(ViewTestCases.PrimaryObjectViewTestCase):
                 HiddenPeer(
                     peeringdb_network=cls.networks[1],
                     peeringdb_ixlan=cls.ixlans[0],
-                    until=str(datetime(2025, 1, 1, 0, 0, tzinfo=pytz.UTC)),
+                    until=str(datetime(2025, 1, 1, 0, 0, tzinfo=UTC)),
                     comments="Bar",
                 ),
                 HiddenPeer(peeringdb_network=cls.networks[2], peeringdb_ixlan=cls.ixlans[0]),

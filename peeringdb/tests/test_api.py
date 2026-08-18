@@ -1,6 +1,5 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
-import pytz
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
@@ -131,7 +130,7 @@ class HiddenPeerTest(APIViewTestCases.View):
                 HiddenPeer(
                     peeringdb_network=cls.networks[1],
                     peeringdb_ixlan=cls.ixlans[0],
-                    until=str(datetime(2025, 1, 1, 0, 0, tzinfo=pytz.UTC)),
+                    until=str(datetime(2025, 1, 1, 0, 0, tzinfo=UTC)),
                     comments="Bar",
                 ),
                 HiddenPeer(peeringdb_network=cls.networks[2], peeringdb_ixlan=cls.ixlans[0]),

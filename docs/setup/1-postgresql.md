@@ -1,5 +1,5 @@
 # PostgreSQL
-Peering Manager requires a PostgreSQL (>= 14) database to store data. This can be
+Peering Manager requires a PostgreSQL (>= 15) database to store data. This can be
 hosted locally or on a remote server. Please note that Peering Manager does not
 support any other database backends as it uses some specific features of
 PostgreSQL.
@@ -15,9 +15,9 @@ PostgreSQL.
 === "CentOS 7"
     ```no-highlight
     # yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-    # yum install postgresql13-server
-    # /usr/pgsql-13/bin/postgresql-13-setup initdb
-    # systemctl enable postgresql-13 --now
+    # yum install postgresql15-server
+    # /usr/pgsql-15/bin/postgresql-15-setup initdb
+    # systemctl enable postgresql-15 --now
     ```
 
 === "CentOS 8"
@@ -35,7 +35,7 @@ PostgreSQL.
     the previously mentioned are the most trivial to use. Please note that especially
     `trust` can result in security risks and should only be used if you
     know what you are doing.
-    Please see the [PostgreSQL documentation](https://www.postgresql.org/docs/11/auth-pg-hba-conf.html)
+    Please see the [PostgreSQL documentation](https://www.postgresql.org/docs/15/auth-pg-hba-conf.html)
     for more information.
 
 
@@ -46,7 +46,7 @@ username and password for authentication.
 
 ```no-highlight
 # sudo -u postgres psql
-psql (13.15)
+psql (15.14)
 Type "help" for help.
 
 postgres=# CREATE DATABASE peering_manager ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TEMPLATE template0;
@@ -55,7 +55,6 @@ postgres=# CREATE USER peering_manager WITH PASSWORD 'DoNotUseThisPassword';
 CREATE ROLE
 postgres=# GRANT ALL PRIVILEGES ON DATABASE peering_manager TO peering_manager;
 GRANT
--- If running PostgreSQL v15 or above
 postgres=# GRANT ALL ON SCHEMA public TO peering_manager;
 GRANT
 ```

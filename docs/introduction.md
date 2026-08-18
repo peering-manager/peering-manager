@@ -63,5 +63,5 @@ It runs as a WSGI service behind your choice of HTTP server.
 | HTTP service       | nginx or Apache   |
 | WSGI service       | gunicorn or uWSGI |
 | Application        | Django/Python     |
-| Database           | PostgreSQL 14+    |
+| Database           | PostgreSQL 15+    |
 | Task queuing       | Redis/django-rq   |

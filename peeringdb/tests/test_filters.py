@@ -1,6 +1,5 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
-import pytz
 from django.test import TestCase
 from django.utils import timezone
 
@@ -699,7 +698,7 @@ class HiddenPeerTestCase(TestCase):
                 HiddenPeer(
                     peeringdb_network=cls.networks[1],
                     peeringdb_ixlan=cls.ixlans[1],
-                    until=str(datetime(2025, 1, 1, 0, 0, tzinfo=pytz.UTC)),
+                    until=str(datetime(2025, 1, 1, 0, 0, tzinfo=UTC)),
                     comments="Bar",
                 ),
             ]

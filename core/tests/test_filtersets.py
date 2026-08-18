@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -103,21 +103,21 @@ class DataFileTestCase(TestCase):
                 path="dir1/file1.txt",
                 size=1000,
                 hash="d3435304778be5165dd27620b7153ed9046c5387f0d708d714a4430bb3de35d8",
-                updated=datetime(2024, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
+                updated=datetime(2024, 1, 1, 0, 0, 0, tzinfo=UTC),
             ),
             DataFile(
                 source=data_sources[1],
                 path="dir1/file2.txt",
                 size=2000,
                 hash="e7f0c847c74df6fddaf14e58b4f2be1c06ed19b1e6efb0459d23310d9cdbc674",
-                updated=datetime(2024, 1, 2, 0, 0, 0, tzinfo=timezone.utc),
+                updated=datetime(2024, 1, 2, 0, 0, 0, tzinfo=UTC),
             ),
             DataFile(
                 source=data_sources[2],
                 path="dir1/file3.txt",
                 size=3000,
                 hash="45d473494d769d0b2aa64d564d6a31f7ed4501c13d78aaffb3a4160b0d27f383",
-                updated=datetime(2024, 1, 3, 0, 0, 0, tzinfo=timezone.utc),
+                updated=datetime(2024, 1, 3, 0, 0, 0, tzinfo=UTC),
             ),
         )
         DataFile.objects.bulk_create(data_files)
