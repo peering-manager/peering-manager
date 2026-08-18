@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import PropertyMock, patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
@@ -150,6 +150,16 @@ class IXAPITest(TestCase):
             i = self.ix_api.get_network_service_configs()
             self.assertEqual("1234", i[0].id)
             self.assertEqual("production", i[0].state)
+
+    def test_get_account_dict(self):
+        self.ix_api.identity = "1234"
+
+        with patch("extras.models.ixapi.IXAPI.version", new_callable=PropertyMock, return_value=1):
+            self.assertEqual(
+                {"managing_customer": "1234", "consuming_customer": "1234"}, self.ix_api.get_account_dict()
+            )
+        with patch("extras.models.ixapi.IXAPI.version", new_callable=PropertyMock, return_value=2):
+            self.assertEqual({"managing_account": "1234", "consuming_account": "1234"}, self.ix_api.get_account_dict())
 
     @patch(
         "requests.sessions.Session.post",

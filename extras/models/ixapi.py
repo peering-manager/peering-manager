@@ -104,18 +104,15 @@ class IXAPI(ChangeLoggedModel):
         """
         return build_api(api_url, api_key, api_secret).authenticate() is not None
 
-    def get_account_dict(self):
+    def get_account_dict(self) -> dict[str, str]:
         """
         Returns a key/value mapping for account fields to set in IX-API requests.
 
-        If the API version is 1, it'll use the `_customer` suffix. It'll use
-        `_account` for all other versions.
+        If the API version is 1, it'll use the `customer` suffix. It'll use `account` for all other
+        versions.
         """
-        suffix = "_customer" if self.version == 1 else "_account"
-        return {
-            f"managing_{suffix}": self.identity,
-            f"consuming_{suffix}": self.identity,
-        }
+        suffix = "customer" if self.version == 1 else "account"
+        return {f"managing_{suffix}": self.identity, f"consuming_{suffix}": self.identity}
 
     def dial(self):
         """
