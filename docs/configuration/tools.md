@@ -12,6 +12,16 @@ of the caching functionality.
 
 ---
 
+## IXAPI_TIMEOUT
+
+Default: `30` seconds
+
+The amount of time (in seconds) to wait for an IX-API to answer a request. Without
+it, an unresponsive IX-API can hold a Peering Manager worker until the operating
+system closes the connection.
+
+---
+
 ## CACHE_PREFIX_LIST_TIMEOUT
 
 Default: `3600`

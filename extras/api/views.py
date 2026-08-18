@@ -1,7 +1,6 @@
 from collections import defaultdict
 from typing import Literal
 
-import pyixapi
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Count
@@ -33,6 +32,7 @@ from ..filtersets import (
     TagFilterSet,
     WebhookFilterSet,
 )
+from ..ixapi import build_api
 from ..jobs import render_export_template
 from ..models import (
     IXAPI,
@@ -169,12 +169,10 @@ class IXAPIViewSet(PeeringManagerModelViewSet):
         serializer.is_valid(raise_exception=True)
 
         # Query IX-API with given parameters
-        api = pyixapi.api(
-            url=serializer.validated_data["api_url"],
-            key=serializer.validated_data["api_key"],
-            secret=serializer.validated_data["api_secret"],
-            user_agent=settings.REQUESTS_USER_AGENT,
-            proxies=settings.HTTP_PROXIES,
+        api = build_api(
+            serializer.validated_data["api_url"],
+            serializer.validated_data["api_key"],
+            serializer.validated_data["api_secret"],
         )
         api.authenticate()
 

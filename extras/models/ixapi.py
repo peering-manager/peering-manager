@@ -3,9 +3,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-import pyixapi
 from django.apps import apps
-from django.conf import settings
 from django.core.cache import cache
 from django.db import models
 from django.db.models import Q
@@ -13,6 +11,8 @@ from django.urls import reverse
 
 from core.constants import CENSORSHIP_STRING, CENSORSHIP_STRING_CHANGED
 from peering_manager.models import ChangeLoggedModel
+
+from ..ixapi import build_api
 
 if TYPE_CHECKING:
     from core.models import ObjectChange
@@ -102,16 +102,7 @@ class IXAPI(ChangeLoggedModel):
         """
         Performs a authentication and see if it succeeds.
         """
-        api = pyixapi.api(
-            url=api_url,
-            key=api_key,
-            secret=api_secret,
-            user_agent=settings.REQUESTS_USER_AGENT,
-            proxies=settings.HTTP_PROXIES,
-        )
-
-        # Perform an authentication
-        return api.authenticate() is not None
+        return build_api(api_url, api_key, api_secret).authenticate() is not None
 
     def get_account_dict(self):
         """
@@ -130,14 +121,12 @@ class IXAPI(ChangeLoggedModel):
         """
         Returns a API client to use for queries.
         """
-        api = pyixapi.api(
-            url=self.api_url,
-            key=self.api_key,
-            secret=self.api_secret,
-            access_token=self.access_token,
-            refresh_token=self.refresh_token,
-            user_agent=settings.REQUESTS_USER_AGENT,
-            proxies=settings.HTTP_PROXIES,
+        api = build_api(
+            self.api_url,
+            self.api_key,
+            self.api_secret,
+            access_token=self.access_token or "",
+            refresh_token=self.refresh_token or "",
         )
 
         # Perform an authentication
