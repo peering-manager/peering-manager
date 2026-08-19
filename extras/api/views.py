@@ -159,24 +159,39 @@ class IXAPIViewSet(PeeringManagerModelViewSet):
             200: OpenApiResponse(
                 response=OpenApiTypes.OBJECT,
                 description="The list of accounts returned by IX-API.",
-            )
+            ),
+            400: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="IX-API could not be queried with these details.",
+            ),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to set up an IX-API.",
+            ),
         },
     )
-    @action(detail=False, methods=["get"], url_path="accounts")
+    @action(detail=False, methods=["post"], url_path="accounts")
     def accounts(self, request, pk=None):
-        # Make sure request is valid
-        serializer = IXAPIAccountSerializer(data=request.query_params)
+        # The server connects to a URL chosen by the caller, so only IX-API operators may ask
+        if not request.user.has_perm("extras.add_ixapi") and not request.user.has_perm("extras.change_ixapi"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        serializer = IXAPIAccountSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # Query IX-API with given parameters
         api = build_api(
             serializer.validated_data["api_url"],
             serializer.validated_data["api_key"],
             serializer.validated_data["api_secret"],
         )
-        api.authenticate()
+        try:
+            api.authenticate()
+            # Only the values the account selector needs are returned
+            accounts = [{"id": a.id, "name": getattr(a, "name", a.id)} for a in api.accounts.all()]
+        except Exception as e:
+            return Response(data={"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(data=api.accounts.all())
+        return Response(data=accounts)
 
 
 class JournalEntryViewSet(PeeringManagerModelViewSet):

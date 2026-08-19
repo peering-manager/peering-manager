@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.core.validators import URLValidator
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -146,9 +148,34 @@ class IXAPISerializer(ValidatedModelSerializer):
 
 
 class IXAPIAccountSerializer(serializers.Serializer):
-    api_url = serializers.CharField()
-    api_key = serializers.CharField()
-    api_secret = serializers.CharField()
+    """
+    Details used to list the accounts of an IX-API that is not recorded yet.
+
+    An existing IX-API can be referenced instead of, or together with, the connection
+    details. The details that the caller omits are then read from that object, so the
+    key and the secret of a known IX-API never have to leave the server.
+    """
+
+    ixapi = serializers.PrimaryKeyRelatedField(queryset=IXAPI.objects.all(), required=False, allow_null=True)
+    api_url = serializers.CharField(required=False, allow_blank=True)
+    api_key = serializers.CharField(required=False, allow_blank=True)
+    api_secret = serializers.CharField(required=False, allow_blank=True)
+
+    def validate(self, data):
+        known = data.get("ixapi")
+        for field in ("api_url", "api_key", "api_secret"):
+            if not data.get(field):
+                data[field] = getattr(known, field, "")
+            if not data[field]:
+                raise serializers.ValidationError({field: "This field is required unless an existing IX-API is given."})
+
+        # The server connects to this URL, so only absolute HTTP URLs are accepted
+        try:
+            URLValidator(schemes=["http", "https"])(data["api_url"])
+        except DjangoValidationError as e:
+            raise serializers.ValidationError({"api_url": "Enter a valid HTTP or HTTPS URL."}) from e
+
+        return data
 
 
 class JournalEntrySerializer(PeeringManagerModelSerializer):

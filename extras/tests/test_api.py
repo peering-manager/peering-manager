@@ -7,6 +7,7 @@ from rest_framework import status
 
 from peering.models import AutonomousSystem
 from peering.tests.mocked_data import mocked_subprocess_popen
+from users.models import Token
 from utils.testing import APITestCase, APIViewTestCases, MockedResponse
 
 from ..models import (
@@ -221,6 +222,12 @@ class IXAPITest(APIViewTestCases.View):
             ]
         )
 
+    def _mocked_accounts(self):
+        return patch(
+            "pyixapi.core.query.Request.get",
+            return_value=iter(MockedResponse(fixture="extras/tests/fixtures/ix_api/accounts.json").json()),
+        )
+
     @patch(
         "requests.sessions.Session.post",
         return_value=MockedResponse(fixture="extras/tests/fixtures/ix_api/authenticate.json"),
@@ -230,16 +237,24 @@ class IXAPITest(APIViewTestCases.View):
         ixapi = IXAPI.objects.get(name="IXP 1")
         url = reverse("extras-api:ixapi-accounts")
 
-        # Query params required
-        response = self.client.get(url, format="json", **self.header)
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        # Credentials must not travel in a URL
+        self.assertHttpStatus(self.client.get(url, format="json", **self.header), status.HTTP_405_METHOD_NOT_ALLOWED)
 
-        # With query params
-        with patch(
-            "pyixapi.core.query.Request.get",
-            return_value=iter(MockedResponse(fixture="extras/tests/fixtures/ix_api/accounts.json").json()),
-        ):
-            response = self.client.get(
+        self.assertHttpStatus(self.client.post(url, data={}, format="json", **self.header), status.HTTP_400_BAD_REQUEST)
+
+        # The server connects to this URL, so only HTTP URLs are accepted
+        self.assertHttpStatus(
+            self.client.post(
+                url,
+                data={"api_url": "file:///etc/passwd", "api_key": "k", "api_secret": "s"},
+                format="json",
+                **self.header,
+            ),
+            status.HTTP_400_BAD_REQUEST,
+        )
+
+        with self._mocked_accounts():
+            response = self.client.post(
                 url,
                 data={
                     "api_url": ixapi.api_url,
@@ -250,6 +265,30 @@ class IXAPITest(APIViewTestCases.View):
                 **self.header,
             )
             self.assertHttpStatus(response, status.HTTP_200_OK)
+            # Only the identifier and the name are returned
+            self.assertEqual(
+                [{"id": "1234", "name": "Account 1"}, {"id": "5678", "name": "Account 2"}],
+                list(response.data),
+            )
+
+        # A known IX-API keeps its key and secret on the server
+        with self._mocked_accounts():
+            response = self.client.post(url, data={"ixapi": ixapi.pk}, format="json", **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_accounts_requires_permission(self):
+        user = User.objects.create(username="ixapi-reader")
+        token = Token.objects.create(user=user)
+        header = {"HTTP_AUTHORIZATION": f"Token {token.key}"}
+        ixapi = IXAPI.objects.get(name="IXP 1")
+
+        response = self.client.post(
+            reverse("extras-api:ixapi-accounts"),
+            data={"ixapi": ixapi.pk},
+            format="json",
+            **header,
+        )
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
 
 
 class JournalEntryTest(APIViewTestCases.View):
