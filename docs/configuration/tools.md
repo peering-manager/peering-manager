@@ -12,6 +12,18 @@ of the caching functionality.
 
 ---
 
+## CACHE_IXAPI_TIMEOUT
+
+Default: `900`
+
+The number of seconds to retain cache entries for IX-API data before automatically
+invalidating them. The cache holds the services, the configs, the IP and the MAC
+addresses of each IX-API endpoint, so the pages that show them do not query the
+remote API on every load. The cache of an IX-API is also dropped when you change
+its URL, key or secret, and when Peering Manager writes to that IX-API.
+
+---
+
 ## IXAPI_TIMEOUT
 
 Default: `30` seconds

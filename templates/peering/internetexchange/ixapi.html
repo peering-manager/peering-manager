@@ -34,15 +34,7 @@
         </tr>
         <tr>
           <td>Product</td>
-          <td>
-            {% if ixapi_service.product_offering %}
-            {{ ixapi_service.product_offering.name }}
-            {% elif ixapi_service.product %}
-            {{ ixapi_service.product.name }}
-            {% else %}
-            <span class="text-muted">&mdash;</span>
-            {% endif %}
-          </td>
+          <td>{{ ixapi_service.product_offering.name | render_none }}</td>
         </tr>
         <tr>
           <td>Name</td>
@@ -73,7 +65,7 @@
         {% else %}
         {% if perms.peering.change_internetexchange and perms.net.add_connection %}
         <a class="btn btn-xs btn-primary float-end"
-           href="{% url 'net:connection_add' %}?internet_exchange_point={{ instance.pk }}&vlan={{ config.outer_vlan }}{% if config.ipv6_address %}&ipv6_address={{ config.ipv6_address }}{% endif %}{% if config.ipv4_address %}&ipv4_address={{ config.ipv4_address }}{% endif %}{% if config.macs %}&mac_address={{ config.macs.0 }}{% endif %}&return_url={% url 'peering:internetexchange_ixapi' pk=instance.pk %}">
+           href="{% url 'net:connection_add' %}?internet_exchange_point={{ instance.pk }}&vlan={{ config.outer_vlan | urlencode }}{% if config.ipv6_address %}&ipv6_address={{ config.ipv6_address | urlencode }}{% endif %}{% if config.ipv4_address %}&ipv4_address={{ config.ipv4_address | urlencode }}{% endif %}{% if config.macs %}&mac_address={{ config.macs.0 | urlencode }}{% endif %}&return_url={% url 'peering:internetexchange_ixapi' pk=instance.pk %}">
           <i class="fa-fw fa-solid fa-plug"></i> Setup
         </a>
         {% endif %}

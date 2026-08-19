@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import logging
+from typing import TYPE_CHECKING
 
 from django.db import models
 from netfields import InetAddressField, MACAddressField, NetManager
@@ -9,6 +12,9 @@ from utils.validators import AddressFamilyValidator, MACAddressValidator
 
 from ..enums import ConnectionStatus
 from ..fields import VLANField
+
+if TYPE_CHECKING:
+    from extras.ixapi import NetworkServiceConfig
 
 logger = logging.getLogger("peering.manager.net")
 
@@ -108,53 +114,67 @@ class Connection(PrimaryModel):
 
         return netixlan
 
-    def ixapi_network_service_config(self):
+    def ixapi_network_service_config(self) -> NetworkServiceConfig | None:
         """
         Returns the corresponding IX-API network service config for this connection.
+
+        A failure to reach IX-API is logged and treated as no config found: the
+        connection details must stay readable when the IXP is unreachable.
         """
         if not self.internet_exchange_point or not self.internet_exchange_point.ixapi_endpoint:
             return None
 
-        for config in self.internet_exchange_point.ixapi_endpoint.get_network_service_configs():
+        try:
+            configs = self.internet_exchange_point.ixapi_endpoint.get_network_service_configs()
+        except Exception as e:
+            logger.error(f"cannot query ix-api for connection #{self.pk}: {e}")
+            return None
+
+        for config in configs:
             if config.connection == self:
                 return config
 
         return None
 
-    def ixapi_mac_address(self, network_service_config):
+    def ixapi_mac_address(self, network_service_config: NetworkServiceConfig | None) -> str | None:
         """
         Returns the MAC address found in IX-API for this connection.
         """
-        if not network_service_config or not len(network_service_config.macs):
+        if not network_service_config or not network_service_config.macs:
             return None
 
         return network_service_config.macs[0]
 
-    def set_ixapi_mac_address(self):
+    def set_ixapi_mac_address(self) -> bool:
         """
         Calls IX-API to set the MAC address to be used by the network service config
         related to this connection.
         """
         if not self.mac_address:
-            # If connection has not MAC, update cannot be performed
             logger.debug(f"connection #{self.pk} has no mac address, cannot change in ix-api")
             return False
 
         network_service_config = self.ixapi_network_service_config()
         if not network_service_config:
-            # If connection has not IX-API network service config, update cannot be
-            # performed
             logger.debug(f"cannot find ix-api network service config for connection #{self.pk}")
             return False
 
-        mac = self.internet_exchange_point.ixapi_endpoint.create_mac_address(self.mac_address)
-        if not mac:
-            # If MAC failed to be created and does not already exist, update cannot be
-            # performed
+        ixapi = self.internet_exchange_point.ixapi_endpoint
+        try:
+            mac = ixapi.create_mac_address(self.mac_address)
+        except Exception as e:
+            logger.error(f"cannot create mac address {self.mac_address} in ix-api for connection #{self.pk}: {e}")
+            return False
+
+        if not mac or not mac.id:
             logger.debug(f"cannot create mac address {self.mac_address} in ix-api for connection #{self.pk}")
             return False
 
         logger.debug(
             f"changing ix-api connection mac to {mac} on nsc {network_service_config} for connection #{self.pk}"
         )
-        return network_service_config.update({"macs": [mac]})
+        try:
+            return ixapi.set_network_service_config_macs(network_service_config.id, [mac.id])
+        except Exception as e:
+            logger.error(f"cannot set mac address in ix-api for connection #{self.pk}: {e}")
+            return False
