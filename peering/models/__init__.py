@@ -826,37 +826,29 @@ class InternetExchange(AbstractGroup):
         candidates = self.ixapi_endpoint.get_network_services()
 
         # First we try to get a match using known connections if any
-        networks = []
-        for ipv4, ipv6 in self.get_connections().values_list("ipv4_address", "ipv6_address"):
-            if ipv4.network not in networks:
-                networks.append(ipv4.network)
-            if ipv6.network not in networks:
-                networks.append(ipv6.network)
+        addresses = []
+        for row in self.get_connections().values_list("ipv4_address", "ipv6_address"):
+            # A connection can be single stack, so an address can be unset
+            addresses.extend(a.ip for a in row if a is not None)
 
         for candidate in candidates:
-            # Check if prefixes between IX-API and known connections match
-            if candidate.subnet_v4 in networks or candidate.subnet_v6 in networks:
+            # Compare addresses, not subnets: both sides can record a different prefix length
+            subnets = [s for s in (candidate.subnet_v4, candidate.subnet_v6) if s]
+            if any(a in s for s in subnets for a in addresses):
                 return candidate
 
         # Then we fall back to make a match using PeeringDB data
-        network_service = None
+        if not self.peeringdb_ixlan:
+            return None
+
+        prefixes = {i.prefix for i in self.get_prefixes()}
         for candidate in candidates:
-            # If PeeringDB's IX IDs match, we are on the right track
-            if self.peeringdb_ixlan and self.peeringdb_ixlan.ix.id == candidate.peeringdb_ixid:
-                # Check if prefixes between IX-API and PeeringDB match
-                found_v4 = False
-                found_v6 = False
-                for i in self.get_prefixes():
-                    if i.prefix == candidate.subnet_v4:
-                        found_v4 = True
-                    if i.prefix == candidate.subnet_v6:
-                        found_v6 = True
+            if self.peeringdb_ixlan.ix.id != candidate.record.get("peeringdb_ixid"):
+                continue
+            if candidate.subnet_v4 in prefixes and candidate.subnet_v6 in prefixes:
+                return candidate
 
-                if found_v4 and found_v6:
-                    network_service = candidate
-                    break
-
-        return network_service
+        return None
 
     @transaction.atomic
     def import_sessions(self, connection):

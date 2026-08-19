@@ -319,6 +319,17 @@ class IXAPIDataResolutionTest(TestCase):
         self.assertEqual("192.0.2.0/24", str(service.subnet_v4))
         self.assertEqual(["nsc-1"], [c.id for c in service.network_service_configs])
 
+    def test_get_ixapi_network_service(self):
+        service = self.internet_exchange_point.get_ixapi_network_service()
+        self.assertEqual("ns-1", service.id)
+
+    def test_get_ixapi_network_service_with_single_stack_connection(self):
+        self.connection.ipv4_address = None
+        self.connection.save()
+
+        service = self.internet_exchange_point.get_ixapi_network_service()
+        self.assertEqual("ns-1", service.id)
+
     def test_connection_network_service_config(self):
         config = self.connection.ixapi_network_service_config()
 
