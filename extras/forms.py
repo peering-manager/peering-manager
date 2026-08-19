@@ -160,6 +160,17 @@ class ExportTemplateFilterForm(BootstrapMixin, forms.Form):
 
 
 class IXAPIForm(BootstrapMixin, forms.ModelForm):
+    api_url = forms.URLField(
+        assume_scheme="https",
+        label="URL",
+        help_text="URL of the IX-API, for example https://ix-api.example.net/v2",
+    )
+    api_secret = forms.CharField(
+        widget=forms.PasswordInput(render_value=False),
+        required=False,
+        label="API secret",
+        help_text="Leave empty to keep the secret already recorded",
+    )
     identity = forms.CharField(widget=StaticSelect)
     fieldsets = (("IX-API", ("name", "api_url", "api_key", "api_secret", "identity")),)
 
@@ -167,18 +178,28 @@ class IXAPIForm(BootstrapMixin, forms.ModelForm):
         model = IXAPI
         fields = ("name", "api_url", "api_key", "api_secret", "identity")
 
+    def clean_api_secret(self):
+        # The secret never reaches the browser, so an empty value on an existing object keeps it
+        api_secret = self.cleaned_data.get("api_secret")
+        if not api_secret:
+            if self.instance.pk:
+                return self.instance.api_secret
+            raise ValidationError("This field is required.")
+        return api_secret
+
     def clean(self):
         cleaned_data = super().clean()
 
+        if not all(cleaned_data.get(f) for f in ("api_url", "api_key", "api_secret")):
+            return cleaned_data
+
         try:
-            # Try to query API and see if it raises an error
-            IXAPI.test_connectivity(
+            authenticated = IXAPI.test_connectivity(
                 cleaned_data["api_url"],
                 cleaned_data["api_key"],
                 cleaned_data["api_secret"],
             )
         except HTTPError as e1:
-            # Fail form validation on HTTP error to provide a feedback to the user
             if e1.response.status_code >= 400 and e1.response.status_code < 500:
                 possible_issue = "make sure the URL, key and secret are correct"
             else:
@@ -189,6 +210,11 @@ class IXAPIForm(BootstrapMixin, forms.ModelForm):
         except Exception as e2:
             # Raised by pyixapi
             raise ValidationError(str(e2)) from e2
+
+        if not authenticated:
+            raise ValidationError("Unable to authenticate against IX-API, make sure the key and secret are correct.")
+
+        return cleaned_data
 
 
 class IXAPIFilterForm(BootstrapMixin, forms.Form):

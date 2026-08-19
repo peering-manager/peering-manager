@@ -222,6 +222,13 @@ class IXAPITest(APIViewTestCases.View):
             ]
         )
 
+    def test_secret_is_not_exposed(self):
+        instance = IXAPI.objects.get(name="IXP 1")
+        response = self.client.get(self._get_detail_url(instance), format="json", **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertNotIn("api_secret", response.data)
+
     def _mocked_accounts(self):
         return patch(
             "pyixapi.core.query.Request.get",
@@ -283,10 +290,7 @@ class IXAPITest(APIViewTestCases.View):
         ixapi = IXAPI.objects.get(name="IXP 1")
 
         response = self.client.post(
-            reverse("extras-api:ixapi-accounts"),
-            data={"ixapi": ixapi.pk},
-            format="json",
-            **header,
+            reverse("extras-api:ixapi-accounts"), data={"ixapi": ixapi.pk}, format="json", **header
         )
         self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
 

@@ -15,5 +15,7 @@ in the IXP detail view.
 * `Name`: a name for the local IX-API object.
 * `URL`: the URL to connect to the remote IX-API.
 * `API key`: the unique key to connect to IX-API.
-* `API secret`: the unique secret to connect to IX-API.
+* `API secret`: the unique secret to connect to IX-API. It is never sent back to a
+  browser or to the REST API. Leave the field empty when you edit an object to keep
+  the recorded secret.
 * `Identity`: the account object found in IX-API to be used as primary identity.

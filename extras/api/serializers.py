@@ -132,6 +132,8 @@ class TableConfigSerializer(ValidatedModelSerializer):
 
 
 class IXAPISerializer(ValidatedModelSerializer):
+    api_secret = serializers.CharField(write_only=True)
+
     class Meta:
         model = IXAPI
         fields = [
