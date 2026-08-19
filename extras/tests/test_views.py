@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import PropertyMock, patch
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -134,6 +134,22 @@ class IXAPITestCase(ViewTestCases.PrimaryObjectViewTestCase):
             ],
         ):
             super().test_get_object_with_permission()
+
+    def test_get_object_with_unreachable_ixapi(self):
+        instance = self._get_queryset().first()
+
+        self.add_permissions("view")
+
+        # An unreachable IX-API must not break the page
+        with patch(
+            "extras.models.ixapi.IXAPI.version",
+            new_callable=PropertyMock,
+            side_effect=OSError("ix-api is down"),
+        ):
+            response = self.client.get(instance.get_absolute_url())
+
+        self.assertHttpStatus(response, 200)
+        self.assertIn("ix-api is down", response.content.decode())
 
     def test_create_object_with_permission(self):
         with patch("extras.models.ixapi.IXAPI.test_connectivity", return_value=True):

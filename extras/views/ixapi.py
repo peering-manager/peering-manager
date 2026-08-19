@@ -1,3 +1,7 @@
+import logging
+
+from django.contrib import messages
+
 from peering.models import InternetExchange
 from peering_manager.views.generic import (
     ObjectDeleteView,
@@ -13,6 +17,8 @@ from ..models import IXAPI
 from ..tables import IXAPITable
 
 __all__ = ("IXAPIDeleteView", "IXAPIEditView", "IXAPIListView", "IXAPIView")
+
+logger = logging.getLogger("peering.manager.extras.ixapi")
 
 
 @register_model_view(IXAPI, name="list", path="", detail=False)
@@ -31,7 +37,20 @@ class IXAPIView(ObjectView):
     queryset = IXAPI.objects.all()
 
     def get_extra_context(self, request, instance):
-        return {"internet_exchange_points": InternetExchange.objects.filter(ixapi_endpoint=instance)}
+        context = {
+            "internet_exchange_points": InternetExchange.objects.filter(ixapi_endpoint=instance),
+            "version": None,
+            "identity": None,
+        }
+
+        try:
+            context["version"] = instance.version
+            context["identity"] = instance.get_identity()
+        except Exception as e:
+            logger.error(f"cannot query ix-api {instance} (pk: {instance.pk}): {e}")
+            messages.error(request, f"Unable to fetch data from {instance}, check its URL, key and secret: {e}")
+
+        return context
 
 
 @register_model_view(model=IXAPI, name="add", detail=False)

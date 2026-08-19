@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Q
@@ -48,6 +50,8 @@ from ..models import (
 )
 from ..tables import InternetExchangePeeringSessionTable, InternetExchangeTable
 from .mixins import AffiliatedAutonomousSystemMixin
+
+logger = logging.getLogger("peering.manager.peering")
 
 __all__ = (
     "InternetExchangeBulkDelete",
@@ -211,22 +215,27 @@ class InternetExchangeIXAPI(PermissionRequiredMixin, View):
 
     def get(self, request, pk):
         instance = get_object_or_404(InternetExchange, pk=pk)
+        context = {"tab": self.tab, "instance": instance, "version": None, "health": "", "ixapi_service": None}
+
+        if not instance.ixapi_endpoint:
+            return render(request, "peering/internetexchange/ixapi.html", context)
+
         try:
-            return render(
-                request,
-                "peering/internetexchange/ixapi.html",
-                {
-                    "tab": self.tab,
-                    "instance": instance,
-                    "ixapi_service": instance.get_ixapi_network_service(),
-                },
-            )
+            version = instance.ixapi_endpoint.version
+            context |= {
+                "version": version,
+                "health": instance.ixapi_endpoint.get_health() if version != 1 else "",
+                "ixapi_service": instance.get_ixapi_network_service(),
+            }
         except Exception as e:
+            logger.error(f"cannot query ix-api for ixp {instance} (pk: {instance.pk}): {e}")
             return render(
                 request,
                 "peering/internetexchange/ixapi_error.html",
                 {"tab": self.tab, "instance": instance, "error": str(e)},
             )
+
+        return render(request, "peering/internetexchange/ixapi.html", context)
 
 
 @register_model_view(InternetExchange, name="peeringdb_import", path="peeringdb-import", detail=False)

@@ -10,17 +10,17 @@
           <td>IX-API</td>
           <td>
             {{ instance.ixapi_endpoint | as_link }}
-            {% if instance.ixapi_endpoint.version == 1 %}
+            {% if version == 1 %}
             <span class="float-end" data-bs-toggle="tooltip" data-placement="top" title="IX-API version 1 is deprecated and will be phased out on 2026-07-01.">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </span>
             {% endif %}
           </td>
         </tr>
-        {% if instance.ixapi_endpoint.version != 1 %}
+        {% if version and version != 1 %}
         <tr>
           <td>Status</td>
-          <td>{{ instance.ixapi_endpoint.get_health | title | render_none }}</td>
+          <td>{{ health | title | render_none }}</td>
         </tr>
         {% endif %}
       </table>
