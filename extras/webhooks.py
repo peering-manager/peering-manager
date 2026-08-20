@@ -25,10 +25,21 @@ def serialize_for_webhook(instance):
 
 
 def get_snapshots(instance, action):
-    return {
-        "prechange": getattr(instance, "_prechange_snapshot", None),
-        "postchange": (serialize_object(instance) if action != ObjectChangeAction.DELETE else None),
-    }
+    """
+    Returns the state of an object before and after a change, for a webhook body.
+
+    Fields excluded from the change log are left out and censored fields are hidden,
+    so a webhook never carries a credential.
+    """
+    prechange = getattr(instance, "_prechange_snapshot", None)
+    postchange = None
+    if action != ObjectChangeAction.DELETE:
+        postchange = serialize_object(instance, exclude=getattr(instance, "excluded_fields", None))
+
+    if censor_data := getattr(instance, "censor_data", None):
+        prechange, postchange = censor_data(prechange, postchange)
+
+    return {"prechange": prechange, "postchange": postchange}
 
 
 def generate_signature(request_body, secret):

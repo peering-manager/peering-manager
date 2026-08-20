@@ -10,7 +10,6 @@ from django.db import models
 from django.db.models import Q
 from django.urls import reverse
 
-from core.constants import CENSORSHIP_STRING, CENSORSHIP_STRING_CHANGED
 from peering_manager.models import ChangeLoggedModel
 
 from ..ixapi import IP, MAC, CachedRecord, NetworkService, NetworkServiceConfig, build_api, index_by_id
@@ -19,8 +18,6 @@ if TYPE_CHECKING:
     from ipaddress import IPv4Interface, IPv6Interface
 
     from pyixapi.core.api import API
-
-    from core.models import ObjectChange
 
 logger = logging.getLogger("peering.manager.extras.ixapi")
 
@@ -53,6 +50,7 @@ class IXAPI(ChangeLoggedModel):
     refresh_token = models.TextField(blank=True, null=True)
     refresh_token_expiration = models.DateTimeField(blank=True, null=True)
     changelog_excluded_fields = list(TOKEN_FIELDS)
+    changelog_censored_fields = ["api_key", "api_secret"]
 
     class Meta:
         verbose_name = "IX-API"
@@ -87,27 +85,12 @@ class IXAPI(ChangeLoggedModel):
     def get_absolute_url(self) -> str:
         return reverse("extras:ixapi", args=[self.pk])
 
-    def to_objectchange(self, action) -> ObjectChange:
-        object_change = super().to_objectchange(action)
-
-        prechange_data = {}
-        postchange_data = {}
-
-        if object_change.prechange_data:
-            prechange_data = object_change.prechange_data or {}
-        if object_change.postchange_data:
-            postchange_data = object_change.postchange_data or {}
-
-        for param in ["api_key", "api_secret"]:
-            if param in postchange_data:
-                if postchange_data.get(param) != prechange_data.get(param):
-                    postchange_data[param] = CENSORSHIP_STRING_CHANGED
-                else:
-                    postchange_data[param] = CENSORSHIP_STRING
-            if param in prechange_data:
-                prechange_data[param] = CENSORSHIP_STRING
-
-        return object_change
+    def invalidate_cache(self) -> None:
+        """
+        Drops the cached IX-API data and version for this endpoint.
+        """
+        if self.pk:
+            cache.delete_many([self._cache_key, self._version_cache_key])
 
     def save(self, *args: Any, **kwargs: Any) -> None:
         super().save(*args, **kwargs)
@@ -116,13 +99,6 @@ class IXAPI(ChangeLoggedModel):
     def delete(self, *args: Any, **kwargs: Any) -> tuple[int, dict[str, int]]:
         self.invalidate_cache()
         return super().delete(*args, **kwargs)
-
-    def invalidate_cache(self) -> None:
-        """
-        Drops the cached IX-API data and version for this endpoint.
-        """
-        if self.pk:
-            cache.delete_many([self._cache_key, self._version_cache_key])
 
     @staticmethod
     def test_connectivity(api_url: str, api_key: str, api_secret: str) -> bool:

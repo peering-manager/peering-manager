@@ -189,6 +189,7 @@ class Webhook(ChangeLoggedModel):
         verbose_name="CA File Path",
         help_text="CA certificate file to use for SSL verification. Leave blank to use the system defaults.",
     )
+    changelog_censored_fields = ["secret"]
 
     class Meta:
         ordering = ["name"]

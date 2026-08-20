@@ -4,18 +4,63 @@ from unittest.mock import patch
 
 import django_rq
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.http import HttpResponse
+from django.test import TestCase
+from django.test.utils import isolate_apps
 from django.urls import reverse
 from requests import Session
 from rest_framework import status
 
+from core.constants import CENSORSHIP_STRING, CENSORSHIP_STRING_CHANGED
 from core.enums import ObjectChangeAction
 from peering.models import AutonomousSystem
+from peering_manager.models import ChangeLoggedModel
 from utils.testing import APITestCase
 
 from ..models import Tag, Webhook
-from ..webhooks import enqueue_object, flush_webhooks, generate_signature
+from ..webhooks import enqueue_object, flush_webhooks, generate_signature, get_snapshots
 from ..workers import process_webhook
+
+
+@isolate_apps("extras")
+class GetSnapshotsTest(TestCase):
+    """
+    A webhook body must not carry what the change log leaves out or hides.
+    """
+
+    def build(self):
+        class Thing(ChangeLoggedModel):
+            secret = models.CharField(max_length=20)
+            token = models.CharField(max_length=20)
+            changelog_excluded_fields = ["token"]
+            changelog_censored_fields = ["secret"]
+
+            class Meta:
+                app_label = "extras"
+
+        return Thing(secret="old", token="a-token")
+
+    def test_snapshots_hide_and_exclude_fields(self):
+        thing = self.build()
+        thing.snapshot()
+        thing.secret = "new"
+
+        snapshots = get_snapshots(thing, ObjectChangeAction.UPDATE)
+
+        self.assertEqual(CENSORSHIP_STRING, snapshots["prechange"]["secret"])
+        self.assertEqual(CENSORSHIP_STRING_CHANGED, snapshots["postchange"]["secret"])
+        self.assertNotIn("token", snapshots["prechange"])
+        self.assertNotIn("token", snapshots["postchange"])
+
+    def test_a_deletion_has_no_state_after(self):
+        thing = self.build()
+        thing.snapshot()
+
+        snapshots = get_snapshots(thing, ObjectChangeAction.DELETE)
+
+        self.assertEqual(CENSORSHIP_STRING, snapshots["prechange"]["secret"])
+        self.assertIsNone(snapshots["postchange"])
 
 
 class WebhookTest(APITestCase):

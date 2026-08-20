@@ -10,6 +10,7 @@ from django.db import models
 from django.utils import timezone
 from taggit.managers import TaggableManager
 
+from core.constants import CENSORSHIP_STRING, CENSORSHIP_STRING_CHANGED
 from core.enums import JobStatus, ObjectChangeAction
 from utils.functions import merge_hash, serialize_object
 from utils.views import register_model_view
@@ -45,6 +46,40 @@ class ChangeLoggingMixin(models.Model):
     def excluded_fields(self):
         return ["updated", *getattr(self, "changelog_excluded_fields", [])]
 
+    @property
+    def censored_fields(self):
+        """
+        Fields kept in the change log and in webhooks, but with their value hidden.
+
+        Use it for a credential that the operator must see a change of, without the
+        value itself leaving the database.
+        """
+        return list(getattr(self, "changelog_censored_fields", []))
+
+    def censor_data(self, prechange_data, postchange_data):
+        """
+        Returns both data sets with the value of the censored fields hidden.
+
+        The data sets are copied, so the snapshot they come from keeps its values and
+        stays usable to tell whether a censored field changed.
+        """
+        if not self.censored_fields:
+            return prechange_data, postchange_data
+
+        before = dict(prechange_data) if prechange_data is not None else None
+        after = dict(postchange_data) if postchange_data is not None else None
+
+        for field in self.censored_fields:
+            if after is not None and field in after:
+                if after.get(field) != (before or {}).get(field):
+                    after[field] = CENSORSHIP_STRING_CHANGED
+                else:
+                    after[field] = CENSORSHIP_STRING
+            if before is not None and field in before:
+                before[field] = CENSORSHIP_STRING
+
+        return before, after
+
     def snapshot(self):
         """
         Save a snapshot of the object's current state in preparation for modification.
@@ -68,6 +103,10 @@ class ChangeLoggingMixin(models.Model):
             object_change.prechange_data = self._prechange_snapshot
         if action in (ObjectChangeAction.CREATE, ObjectChangeAction.UPDATE):
             object_change.postchange_data = serialize_object(self, exclude=self.excluded_fields)
+
+        object_change.prechange_data, object_change.postchange_data = self.censor_data(
+            object_change.prechange_data, object_change.postchange_data
+        )
 
         return object_change
 

@@ -19,3 +19,8 @@ in the IXP detail view.
   browser or to the REST API. Leave the field empty when you edit an object to keep
   the recorded secret.
 * `Identity`: the account object found in IX-API to be used as primary identity.
+
+The data that Peering Manager reads from IX-API is cached, see
+[`CACHE_IXAPI_TIMEOUT`](../../configuration/tools.md#cache_ixapi_timeout). The cache
+is dropped when you change the URL, the key or the secret of an IX-API object, and
+when Peering Manager writes to that IX-API.
