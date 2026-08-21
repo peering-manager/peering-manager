@@ -10,6 +10,7 @@ from django.test import TestCase
 from django.test.utils import isolate_apps
 from django.urls import reverse
 from requests import Session
+from requests.exceptions import RequestException
 from rest_framework import status
 
 from core.constants import CENSORSHIP_STRING, CENSORSHIP_STRING_CHANGED
@@ -308,3 +309,30 @@ class WebhookTest(APITestCase):
         # Patch the Session object with our dummy_send() method, then process the webhook for sending
         with patch.object(Session, "send", mock_send) as mock_send:
             process_webhook(**job.kwargs)
+
+    def test_worker_accepts_any_2xx(self):
+        webhooks_queue = []
+        enqueue_object(
+            webhooks_queue,
+            instance=AutonomousSystem.objects.create(asn=64501, name="AS 2"),
+            user=self.user,
+            request_id=uuid.uuid4(),
+            action=ObjectChangeAction.CREATE,
+        )
+        flush_webhooks(webhooks_queue)
+        job = self.queue.jobs[0]
+
+        for status_code in (200, 201, 204):
+            with (
+                self.subTest(status_code=status_code),
+                patch.object(Session, "send", return_value=HttpResponse(status=status_code)),
+            ):
+                self.assertIn("successfully processed", process_webhook(**job.kwargs))
+
+        for status_code in (301, 400, 500):
+            with (
+                self.subTest(status_code=status_code),
+                patch.object(Session, "send", return_value=HttpResponse(status=status_code)),
+                self.assertRaises(RequestException),
+            ):
+                process_webhook(**job.kwargs)

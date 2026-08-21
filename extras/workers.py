@@ -89,7 +89,8 @@ def process_webhook(webhook, model_name, event, data, snapshots, timestamp, user
             session.verify = webhook.ca_file_path
         response = session.send(prepared_request, proxies=settings.HTTP_PROXIES)
 
-    if response.status_code == requests.codes.ok:
+    # Accept any 2XX responses
+    if 200 <= response.status_code < 300:
         logger.info(f"request succeeded; response status {response.status_code}")
         return f"status {response.status_code} returned, webhook successfully processed"
 
