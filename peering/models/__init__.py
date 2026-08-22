@@ -807,14 +807,18 @@ class InternetExchange(AbstractGroup):
         if not show_hidden:
             hidden_peer_asn += list(self.get_hidden_peers().values_list("peeringdb_network__asn", flat=True))
 
-        return NetworkIXLan.objects.filter(
-            ~Q(asn__in=hidden_peer_asn)
-            & Q(ixlan=self.peeringdb_ixlan)
-            & (
-                (Q(ipaddr6__isnull=False) & ~Q(ipaddr6__in=ip_addresses))
-                | (Q(ipaddr4__isnull=False) & ~Q(ipaddr4__in=ip_addresses))
+        return (
+            NetworkIXLan.objects.filter(
+                ~Q(asn__in=hidden_peer_asn)
+                & Q(ixlan=self.peeringdb_ixlan)
+                & (
+                    (Q(ipaddr6__isnull=False) & ~Q(ipaddr6__in=ip_addresses))
+                    | (Q(ipaddr4__isnull=False) & ~Q(ipaddr4__in=ip_addresses))
+                )
             )
-        ).order_by("asn")
+            .select_related("net", "net_side", "ix_side", "ixlan__ix")
+            .order_by("asn")
+        )
 
     def get_ixapi_network_service(self):
         """

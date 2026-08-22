@@ -62,6 +62,7 @@ class NetworkIXLanTable(BaseTable):
     policy_contracts = tables.Column(verbose_name="Contract Requirement", accessor="net__policy_contracts")
     net_side = tables.Column(verbose_name="Net Side")
     ix_side = tables.Column(verbose_name="IX Side")
+    is_remote_peer = BooleanColumn(verbose_name="Remote Peer", accessor="is_remote_peer", orderable=False)
     notes = tables.Column(verbose_name="Notes")
     actions = ActionsColumn(actions=(), extra_buttons=append_template)
 
@@ -90,6 +91,7 @@ class NetworkIXLanTable(BaseTable):
             "policy_contracts",
             "net_side",
             "ix_side",
+            "is_remote_peer",
             "notes",
             "actions",
         )

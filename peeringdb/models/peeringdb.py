@@ -643,8 +643,14 @@ class NetworkIXLan(BaseModel):
             return None
 
     @property
-    def is_remote_peer(self) -> bool:
-        return self.net_side and self.ix_side and self.net_side != self.ix_side
+    def is_remote_peer(self) -> bool | None:
+        """
+        Tells if the network reaches the IXP from another facility, most likely over a L2 circuit. Returns `None`
+        when PeeringDB does not record both sides, as an unknown location proves nothing either way.
+        """
+        if not self.net_side_id or not self.ix_side_id:
+            return None
+        return self.net_side_id != self.ix_side_id
 
     def get_ixlan_prefix(self, address_family=0) -> list[CidrAddressField]:
         """

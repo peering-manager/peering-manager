@@ -172,10 +172,10 @@ class BooleanColumn(tables.BooleanColumn):
         super().__init__(*args, default=default, visible=visible, **kwargs)
 
     def render(self, value, record, bound_column):
-        if not self._get_bool_value(record, value, bound_column):
-            html = '<i class="fa-fw fa-solid fa-times text-danger"></i>'
-        elif value is None:
+        if value is None:
             html = '<span class="text-muted">&mdash;</span>'
+        elif not self._get_bool_value(record, value, bound_column):
+            html = '<i class="fa-fw fa-solid fa-times text-danger"></i>'
         else:
             html = '<i class="fa-fw fa-solid fa-check text-success"></i>'
 

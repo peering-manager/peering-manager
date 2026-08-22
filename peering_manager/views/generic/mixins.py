@@ -95,7 +95,8 @@ class TableMixin:
         return table
 
     def post(self, request, **kwargs):
-        table = self.table(self.queryset)
+        # Only the columns of the table matter here, so no need for data
+        table = self.table([])
         form = TableColumnsForm(table=table, data=request.POST)
 
         if form.is_valid():

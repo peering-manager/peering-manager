@@ -257,6 +257,7 @@ class NetworkFacilitySerializer(serializers.ModelSerializer):
 class NetworkIXLanSerializer(serializers.ModelSerializer):
     net_side = FacilitySerializer()
     ix_side = FacilitySerializer()
+    is_remote_peer = serializers.BooleanField(read_only=True, allow_null=True)
 
     class Meta:
         model = NetworkIXLan
@@ -274,6 +275,7 @@ class NetworkIXLanSerializer(serializers.ModelSerializer):
             "ixlan",
             "net_side",
             "ix_side",
+            "is_remote_peer",
         ]
 
 

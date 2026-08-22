@@ -5,7 +5,7 @@ import ipaddress
 from typing import TYPE_CHECKING, Any
 
 import django_filters
-from django.db.models import Q
+from django.db.models import F, Q
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -190,6 +190,13 @@ class NetworkIXLanFilterSet(django_filters.FilterSet):
     net__policy_general = django_filters.MultipleChoiceFilter(choices=GeneralPolicy.choices)
     net__policy_locations = django_filters.MultipleChoiceFilter(choices=LocationsPolicy.choices)
     net__policy_contracts = django_filters.MultipleChoiceFilter(choices=ContractsPolicy.choices)
+    net_side_id = django_filters.ModelMultipleChoiceFilter(
+        field_name="net_side", queryset=Facility.objects.all(), label="Network side facility (ID)"
+    )
+    ix_side_id = django_filters.ModelMultipleChoiceFilter(
+        field_name="ix_side", queryset=Facility.objects.all(), label="IXP side facility (ID)"
+    )
+    is_remote_peer = django_filters.BooleanFilter(method="filter_is_remote_peer", label="Remote peer")
 
     class Meta:
         model = NetworkIXLan
@@ -200,6 +207,11 @@ class NetworkIXLanFilterSet(django_filters.FilterSet):
             "bfd_support",
             "net__policy_ratio",
         ]
+
+    def filter_is_remote_peer(self, queryset: QuerySet, name: str, value: Any) -> QuerySet[NetworkIXLan]:
+        known = Q(net_side__isnull=False, ix_side__isnull=False)
+        same = Q(net_side=F("ix_side"))
+        return queryset.filter(known & (~same if value else same))
 
     def search(self, queryset: QuerySet, name: str, value: Any) -> QuerySet[NetworkIXLan]:
         if not value.strip():

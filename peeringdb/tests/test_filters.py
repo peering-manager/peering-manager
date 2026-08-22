@@ -503,6 +503,14 @@ class NetworkIXLanTestCase(TestCase):
             ]
         )
 
+        cls.fac_names = ["Stark Tower", "Avengers Compound"]
+        cls.facilities = Facility.objects.bulk_create(
+            [
+                Facility(name=cls.fac_names[0], org=cls.organisations[0]),
+                Facility(name=cls.fac_names[1], org=cls.organisations[1]),
+            ]
+        )
+
         cls.netixlans = NetworkIXLan.objects.bulk_create(
             [
                 NetworkIXLan(
@@ -511,6 +519,8 @@ class NetworkIXLanTestCase(TestCase):
                     asn=cls.asns[0],
                     ipaddr6="2001:db8:100::1/64",
                     speed=1000,
+                    net_side=cls.facilities[0],
+                    ix_side=cls.facilities[0],
                 ),
                 NetworkIXLan(
                     net=cls.networks[1],
@@ -518,6 +528,8 @@ class NetworkIXLanTestCase(TestCase):
                     asn=cls.asns[1],
                     ipaddr6="2001:db8:200::1/64",
                     speed=1000,
+                    net_side=cls.facilities[0],
+                    ix_side=cls.facilities[1],
                 ),
                 NetworkIXLan(
                     net=cls.networks[2],
@@ -559,6 +571,30 @@ class NetworkIXLanTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {"ixlan_id": [self.ixlans[2].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_sides(self):
+        params = {"net_side_id": [self.facilities[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"net_side_id": [self.facilities[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {"ix_side_id": [self.facilities[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"ix_side_id": [self.facilities[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_is_remote_peer(self):
+        self.assertIs(False, self.netixlans[0].is_remote_peer)
+        self.assertIs(True, self.netixlans[1].is_remote_peer)
+        self.assertIsNone(self.netixlans[2].is_remote_peer)
+
+        params = {"is_remote_peer": True}
+        self.assertEqual(
+            [self.netixlans[1].pk], list(self.filterset(params, self.queryset).qs.values_list("pk", flat=True))
+        )
+        params = {"is_remote_peer": False}
+        self.assertEqual(
+            [self.netixlans[0].pk], list(self.filterset(params, self.queryset).qs.values_list("pk", flat=True))
+        )
 
 
 class OrganizationTestCase(TestCase):
