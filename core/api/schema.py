@@ -86,13 +86,8 @@ class PeeringManagerAutoSchema(AutoSchema):
             tokenized_path = self._tokenize_path()
             # replace dashes as they can be problematic later in code generation
             tokenized_path = [t.replace("-", "_") for t in tokenized_path]
-
-            if self.method == "GET" and self._is_list_view():
-                # this shouldn't happen, but keeping it here to follow base code
-                action = "list"
-            else:
-                # use bulk name so partial_update -> bulk_partial_update
-                action = self.view.action.lower()
+            # use bulk name so partial_update -> bulk_partial_update
+            action = "list" if self.method == "GET" and self._is_list_view() else self.view.action.lower()
 
             if not tokenized_path:
                 tokenized_path.append("root")

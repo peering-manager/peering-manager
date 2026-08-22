@@ -26,10 +26,7 @@ def get_model_urls(app_label: str, model_name: str, detail: bool = True) -> list
         return []
 
     for config in views:
-        if type(config["view"]) is str:
-            view = import_string(config["view"])
-        else:
-            view = config["view"]
+        view = import_string(config["view"]) if type(config["view"]) is str else config["view"]
 
         if issubclass(view, View):
             view = view.as_view()

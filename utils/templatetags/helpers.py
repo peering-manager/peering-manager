@@ -260,12 +260,10 @@ def missing_sessions(context, autonomous_system):
     if "context_as" not in context or not context["context_as"]:
         return False
 
-    ix = autonomous_system.get_shared_internet_exchange_points(context["context_as"])
-    for i in ix:
-        if autonomous_system.get_missing_peering_sessions(context["context_as"], i):
-            return True
-
-    return False
+    return any(
+        autonomous_system.get_missing_peering_sessions(context["context_as"], i)
+        for i in autonomous_system.get_shared_internet_exchange_points(context["context_as"])
+    )
 
 
 @register.filter

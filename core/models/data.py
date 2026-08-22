@@ -89,10 +89,7 @@ class DataSource(PrimaryModel, JobsMixin):
     def _ignore(self, filename):
         if filename.startswith("."):
             return True
-        for rule in self.ignore_rules.splitlines():
-            if fnmatchcase(filename, rule):
-                return True
-        return False
+        return any(fnmatchcase(filename, rule) for rule in self.ignore_rules.splitlines())
 
     def _walk(self, root):
         logger.debug(f"walking {root}...")

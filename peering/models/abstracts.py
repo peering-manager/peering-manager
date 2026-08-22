@@ -199,10 +199,7 @@ class BGPSession(PrimaryModel, PolicyMixin):
         return BGPRole.complement(self.bgp_role)
 
     def _merge_policies(self, merged_policies, new_policies):
-        if type(self.ip_address) in (int, str):
-            ip_address = ipaddress.ip_address(self.ip_address)
-        else:
-            ip_address = self.ip_address
+        ip_address = ipaddress.ip_address(self.ip_address) if type(self.ip_address) in (int, str) else self.ip_address
 
         for policy in new_policies:
             # Only merge universal policies or policies of same IP family
@@ -223,12 +220,7 @@ class BGPSession(PrimaryModel, PolicyMixin):
         # Merge policies from nested objects (first AS, then BGP group)
         self._merge_policies(merged, self.autonomous_system.export_policies())
 
-        group = None
-        if hasattr(self, "ixp_connection"):
-            group = self.ixp_connection.internet_exchange_point
-        else:
-            group = self.bgp_group
-
+        group = self.ixp_connection.internet_exchange_point if hasattr(self, "ixp_connection") else self.bgp_group
         if group:
             self._merge_policies(merged, group.export_policies())
 
@@ -244,12 +236,7 @@ class BGPSession(PrimaryModel, PolicyMixin):
         # Merge policies from nested objects (first AS, then BGP group)
         self._merge_policies(merged, self.autonomous_system.import_policies())
 
-        group = None
-        if hasattr(self, "ixp_connection"):
-            group = self.ixp_connection.internet_exchange_point
-        else:
-            group = self.bgp_group
-
+        group = self.ixp_connection.internet_exchange_point if hasattr(self, "ixp_connection") else self.bgp_group
         if group:
             self._merge_policies(merged, group.import_policies())
 

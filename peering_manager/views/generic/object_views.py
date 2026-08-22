@@ -94,10 +94,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
 
         if self.filterset:
             child_objects = self.filterset(request.GET, child_objects).qs
-        if self.filterset_form:
-            filterset_form = self.filterset_form(request.GET, label_suffix="")
-        else:
-            filterset_form = None
+        filterset_form = self.filterset_form(request.GET, label_suffix="") if self.filterset_form else None
 
         # Determine the available actions
         actions = self.get_permitted_actions(request.user, model=self.child_model)
