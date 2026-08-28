@@ -13,6 +13,8 @@ from django.utils.html import escape, strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown as md
 
+from peering_manager.authentication import has_local_password
+
 from ..forms import TableColumnsForm
 
 register = template.Library()
@@ -25,6 +27,14 @@ def boolean_as_icon(value):
     else:
         icon, colour = "times", "danger"
     return mark_safe(f'<i class="fa-fw fa-solid fa-{icon} text-{colour}"></i>')
+
+
+@register.filter()
+def can_change_password(user):
+    """
+    Returns True if the user can change the password from the web interface.
+    """
+    return has_local_password(user)
 
 
 @register.filter()

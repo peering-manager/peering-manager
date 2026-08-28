@@ -46,6 +46,22 @@ class UserTest(APIViewTestCases.View):
             ]
         )
 
+    def test_password_is_hashed(self):
+        response = self.client.post(
+            self._get_list_url(), {"username": "user7", "password": "password7"}, format="json", **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertNotIn("password", response.data)
+        user = User.objects.get(username="user7")
+        self.assertTrue(user.check_password("password7"))
+
+        response = self.client.patch(
+            self._get_detail_url(user), {"password": "password8"}, format="json", **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        user.refresh_from_db()
+        self.assertTrue(user.check_password("password8"))
+
 
 class UserPreferencesTest(APITestCase):
     def test_get(self):

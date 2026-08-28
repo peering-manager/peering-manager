@@ -38,17 +38,24 @@ class UserSerializer(ValidatedModelSerializer):
         ]
         extra_kwargs = {"password": {"write_only": True}}
 
-    def create(self, validated_data):
+    def _set_password(self, user: User, password: str | None) -> User:
         """
-        Extract the password from validated data and set it separately to ensure
-        proper hash generation.
+        Set the password apart from the other fields, which stores its hash and not
+        the password itself.
         """
-        password = validated_data.pop("password")
-        user = super().create(validated_data)
-        user.set_password(password)
-        user.save()
+        if password is not None:
+            user.set_password(password)
+            user.save()
 
         return user
+
+    def create(self, validated_data):
+        password = validated_data.pop("password")
+        return self._set_password(super().create(validated_data), password)
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop("password", None)
+        return self._set_password(super().update(instance, validated_data), password)
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_display(self, o):

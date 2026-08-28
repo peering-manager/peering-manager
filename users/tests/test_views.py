@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from django.contrib.auth.models import User
 from django.test import override_settings
 from django.urls import reverse
 
@@ -81,6 +82,15 @@ class UserTestCase(ViewTestCase):
         self.assertTrue(response.context["user"].is_active)
         response = self.client.get(reverse("users:change_password"))
         self.assertEqual(response.status_code, 200)
+        self.assertContains(self.client.get(reverse("users:profile")), reverse("users:change_password"))
+
+        # A user that single sign-on or LDAP authenticates has no local password
+        remote_user = User.objects.create_user(username="remote")
+        self.assertFalse(remote_user.has_usable_password())
+        self.client.force_login(remote_user)
+        self.assertNotContains(self.client.get(reverse("users:profile")), reverse("users:change_password"))
+        for method in (self.client.get, self.client.post):
+            self.assertRedirects(method(reverse("users:change_password")), reverse("users:profile"))
 
     def test_user_token_list_view(self):
         response = self.client.get(reverse("users:token_list"))

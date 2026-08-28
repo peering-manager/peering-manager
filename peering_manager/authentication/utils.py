@@ -1,6 +1,7 @@
 import logging
 
 from django.conf import settings
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import Group
 from social_core.storage import NO_ASCII_REGEX, NO_SPECIAL_REGEX
 
@@ -10,6 +11,15 @@ def clean_username(value):
     Clean username by removing unsupported characters.
     """
     return NO_SPECIAL_REGEX.sub("", NO_ASCII_REGEX.sub("", value)).replace(":", "")
+
+
+def has_local_password(user: AbstractBaseUser) -> bool:
+    """
+    Return True we hold the password of the user.
+
+    A user that LDAP or single sign-on authenticates has no local password to change.
+    """
+    return user.has_usable_password() and not getattr(user, "ldap_username", None)
 
 
 def user_default_groups_handler(backend, user, response, *args, **kwargs):

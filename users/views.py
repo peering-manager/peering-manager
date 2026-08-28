@@ -18,7 +18,7 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
 from social_core.backends.utils import load_backends
 
-from peering_manager.authentication import get_auth_backend_display, get_saml_idps
+from peering_manager.authentication import get_auth_backend_display, get_saml_idps, has_local_password
 from utils.forms import ConfirmationForm
 
 from .forms import (
@@ -231,13 +231,16 @@ class PreferencesView(View, LoginRequiredMixin):
 class ChangePasswordView(View, LoginRequiredMixin):
     template = "users/change_password.html"
 
+    def redirect_to_profile(self, request: HttpRequest) -> HttpResponseRedirect:
+        messages.warning(request, "Your password is managed outside of Peering Manager.")
+        return redirect("users:profile")
+
     def get(self, request):
         if not is_user_logged_in(request):
             return redirect("home")
 
-        # LDAP users must not change their passwords
-        if getattr(request.user, "ldap_username", None):
-            return redirect("users:profile")
+        if not has_local_password(request.user):
+            return self.redirect_to_profile(request)
 
         form = UserPasswordChangeForm(user=request.user)
         context = {"form": form, "tab": "password"}
@@ -247,6 +250,9 @@ class ChangePasswordView(View, LoginRequiredMixin):
     def post(self, request):
         if not is_user_logged_in(request):
             return redirect("home")
+
+        if not has_local_password(request.user):
+            return self.redirect_to_profile(request)
 
         form = UserPasswordChangeForm(user=request.user, data=request.POST)
         context = {"form": form, "tab": "password"}
