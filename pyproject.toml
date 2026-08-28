@@ -33,7 +33,7 @@ dependencies = [
     "PyYAML>=6.0,<6.1",
     "requests>=2.34,<2.35",
     "rq>=2.11,<2.12",
-    "social-auth-app-django>=5.9,<6.0",
+    "social-auth-app-django>=6.0,<6.1",
 ]
 
 [dependency-groups]

@@ -1,3 +1,6 @@
+from unittest.mock import patch
+
+from django.test import override_settings
 from django.urls import reverse
 
 from utils.tests import ViewTestCase
@@ -19,6 +22,29 @@ class UserTestCase(ViewTestCase):
         # Should be logged in
         self.assertTrue(response.context["user"].is_active)
         self.assertEqual(response.status_code, 200)
+
+    @override_settings(SOCIAL_AUTH_SAML_ENABLED_IDPS={"idp-a": {}, "idp-b": {}})
+    @patch("users.views.load_backends", return_value={"github": None, "saml": None})
+    def test_login_view_sso_buttons(self, _):
+        response = self.client.get(reverse("login"), {"next": "/peering/autonomous-systems/"})
+        self.assertEqual(response.status_code, 200)
+
+        content = response.content.decode()
+        github_url = reverse("social:begin", args=["github"])
+        saml_url = reverse("social:begin", args=["saml"])
+
+        # The begin view only accepts POST so each button must be a form, not a link
+        self.assertNotIn(f'href="{github_url}', content)
+        self.assertIn(f'<form action="{github_url}" method="post">', content)
+        self.assertIn('name="csrfmiddlewaretoken"', content)
+        self.assertEqual(405, self.client.get(github_url).status_code)
+
+        self.assertIn('<input type="hidden" name="next" value="/peering/autonomous-systems/" />', content)
+        for idp in ("idp-a", "idp-b"):
+            self.assertIn(f'<input type="hidden" name="idp" value="{idp}" />', content)
+
+        saml_backends = [b for b in response.context["auth_backends"] if b["url"] == saml_url]
+        self.assertEqual(["idp-a", "idp-b"], [b["params"]["idp"] for b in saml_backends])
 
     def test_logout_view(self):
         response = self.client.get(reverse("logout"))

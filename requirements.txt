@@ -74,8 +74,8 @@ rq==2.11.0
 ruamel-yaml==0.19.1
 scp==0.15.0
 six==1.17.0
-social-auth-app-django==5.9.0
-social-auth-core==4.9.1
+social-auth-app-django==6.0.1
+social-auth-core==5.1.0
 sqlparse==0.5.5
 textfsm==2.1.0
 transitions==0.9.3

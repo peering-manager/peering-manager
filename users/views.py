@@ -1,5 +1,6 @@
 import contextlib
 import logging
+from typing import Any
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -8,11 +9,11 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.utils.http import url_has_allowed_host_and_scheme, urlencode
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
 from social_core.backends.utils import load_backends
@@ -50,17 +51,18 @@ class LoginView(View):
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
-    def generate_auth_data(self, name, url, params):
+    def generate_auth_data(self, name: str, url: str, params: dict[str, str]) -> dict[str, Any]:
         display_name, icon_name = get_auth_backend_display(name)
 
         return {
             "display_name": display_name,
             "icon_name": icon_name,
             "icon_is_url": bool(urlparse(icon_name).scheme),
-            "url": f"{url}?{urlencode(params)}",
+            "url": url,
+            "params": dict(params),
         }
 
-    def get_auth_backends(self, request):
+    def get_auth_backends(self, request: HttpRequest) -> list[dict[str, Any]]:
         auth_backends = []
         saml_idps = get_saml_idps()
 
