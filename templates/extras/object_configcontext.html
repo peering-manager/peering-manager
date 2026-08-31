@@ -2,7 +2,7 @@
 {% load helpers %}
 {% block subcontent %}
 <div class="row">
-  <div class="col">
+  <div class="col-12 col-md-6">
     <div class="card">
       <div class="card-header">
         <strong>Rendered context</strong>
@@ -11,7 +11,7 @@
       {% include 'includes/configcontext_data.html' with data=rendered_context format=configcontext_format %}
     </div>
   </div>
-  <div class="col">
+  <div class="col-12 col-md-6">
     <div class="card">
       <div class="card-header"><strong>Local context data</strong></div>
       {% include 'includes/configcontext_data.html' with data=instance.local_context_data format=configcontext_format %}

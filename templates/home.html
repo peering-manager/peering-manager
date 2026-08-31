@@ -115,40 +115,42 @@
         <div class="col">
           <div class="card">
             <h4 class="card-header">Changelog</h4>
-            <table class="card-body table align-middle table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">User</th>
-                  <th scope="col">Action</th>
-                  <th scope="col">Type</th>
-                  <th scope="col">Object</th>
-                  <th scope="col">Time</th>
-                  <th scope="col" align="right"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for change in changelog %}
-                <tr>
-                  <th scope="row">{{ change.user | default:change.user_name }}</th>
-                  <td>{{ change.get_action_html }}</td>
-                  <td>{{ change.changed_object_type.name | title_with_uppers }}</td>
-                  <td>
-                    {% if change.changed_object.get_absolute_url %}
-                    <a href="{{ change.changed_object.get_absolute_url }}" class="text-body">{{ change.changed_object }}</a>
-                    {% else %}
-                    {{ change.changed_object | default:change.object_repr }}
-                    {% endif %}
-                  </td>
-                  <td>{{ change.time | date:settings.SHORT_DATETIME_FORMAT }}</td>
-                  <td>
-                    <a role="button" class="text-body" href="{{ change.get_absolute_url }}">
-                      <i class="fa-fw fa-solid fa-ellipsis-h" data-bs-toggle="tooltip" data-placement="left" title="View Change Details"></i>
-                    </a>
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+            <div class="table-responsive">
+              <table class="card-body table align-middle table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">User</th>
+                    <th scope="col">Action</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Object</th>
+                    <th scope="col">Time</th>
+                    <th scope="col" align="right"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for change in changelog %}
+                  <tr>
+                    <th scope="row">{{ change.user | default:change.user_name }}</th>
+                    <td>{{ change.get_action_html }}</td>
+                    <td>{{ change.changed_object_type.name | title_with_uppers }}</td>
+                    <td>
+                      {% if change.changed_object.get_absolute_url %}
+                      <a href="{{ change.changed_object.get_absolute_url }}" class="text-body">{{ change.changed_object }}</a>
+                      {% else %}
+                      {{ change.changed_object | default:change.object_repr }}
+                      {% endif %}
+                    </td>
+                    <td>{{ change.time | date:settings.SHORT_DATETIME_FORMAT }}</td>
+                    <td>
+                      <a role="button" class="text-body" href="{{ change.get_absolute_url }}">
+                        <i class="fa-fw fa-solid fa-ellipsis-h" data-bs-toggle="tooltip" data-placement="left" title="View Change Details"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

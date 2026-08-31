@@ -11,15 +11,15 @@
   <p class="h5">{{ ixp.ix.name }}</p>
   {% for connection in connections %}
   <div class="row align-items-center mb-3">
-    <div class="col-2">
+    <div class="col-12 col-md-2">
       <input type="text" readonly class="form-control-plaintext mb-2" value="Connection #{{ forloop.counter }} - {{ connection.speed|render_bandwidth_speed }}" disabled>
     </div>
-    <div class="col">
-      <label class="sr-only" for="ipv4_address">IPv4 address</label>
+    <div class="col-12 col-md">
+      <label class="visually-hidden" for="ipv4_address">IPv4 address</label>
       <input type="text" class="form-control mb-2" id="ipv4_address" value="{{ connection.cidr4|default:'--' }}" disabled>
     </div>
-    <div class="col">
-      <label class="sr-only" for="ipv6_address">IPv6 address</label>
+    <div class="col-12 col-md">
+      <label class="visually-hidden" for="ipv6_address">IPv6 address</label>
       <input type="text" class="form-control mb-2" id="ipv6_address" value="{{ connection.cidr6|default:'--' }}" disabled>
     </div>
   </div>

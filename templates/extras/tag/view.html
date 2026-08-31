@@ -54,7 +54,9 @@
   <div class="col">
     <div class="card mb-3">
       <div class="card-header"><strong>Tagged Objects</strong></div>
-      {% render_table taggeditem_table 'includes/table.html' %}
+      <div class="table-responsive">
+        {% render_table taggeditem_table 'includes/table.html' %}
+      </div>
     </div>
     {% include 'includes/pagination.html' with paginator=taggeditem_table.paginator page=taggeditem_table.page %}
   </div>

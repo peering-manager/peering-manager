@@ -110,7 +110,7 @@ window.initBootstrapWidgets = function (root) {
     bootstrap.Popover.getOrCreateInstance(el, { html: true });
   });
   root.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
-    bootstrap.Tooltip.getOrCreateInstance(el, { trigger: 'hover' });
+    bootstrap.Tooltip.getOrCreateInstance(el, { trigger: 'hover focus' });
   });
 };
 
@@ -118,12 +118,16 @@ $(document).ready(function () {
   // DRF expects `list=foo&list=bar`, jQuery's default is `list[]=foo&list[]=bar`
   $.ajaxSettings.traditional = true;
 
+  // The login page has no colour mode button, and everything below this must
+  // still run there.
   const colourModeButton = document.getElementById('colour-mode-button');
-  colourModeButton.addEventListener('click', function () {
-    const currentMode = getCurrentColourMode();
-    setColourMode(currentMode === 'dark' ? 'light' : 'dark', colourModeButton);
-  });
-  setColourMode(getCurrentColourMode(), colourModeButton, true);
+  if (colourModeButton) {
+    colourModeButton.addEventListener('click', function () {
+      const currentMode = getCurrentColourMode();
+      setColourMode(currentMode === 'dark' ? 'light' : 'dark', colourModeButton);
+    });
+    setColourMode(getCurrentColourMode(), colourModeButton, true);
+  }
 
   window.initBootstrapWidgets(document);
 

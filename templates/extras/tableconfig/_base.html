@@ -14,7 +14,7 @@
 {% endblock %}
 {% block content %}
 {% block tabs %}
-<ul class="nav nav-tabs mb-3" role="presentation">
+<ul class="nav nav-tabs flex-nowrap overflow-x-auto mb-3" role="presentation">
   {# Primary tab #}
   <li class="nav-item">
     <a class="nav-link{% if not tab %} active{% endif %}" href="{{ instance.get_absolute_url }}">{{ instance|meta:"verbose_name"|title_with_uppers }}</a>

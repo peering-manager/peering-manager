@@ -71,24 +71,26 @@
       <div class="modal-body">
         <p>The following sessions will be created if accepted:</p>
         {% if pending_sessions %}
-        <table class="table table-hover table-sm">
-          <thead>
-            <tr>
-              <th>ASN</th>
-              <th>IP Address</th>
-              <th>Location</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for session in pending_sessions %}
-            <tr>
-              <td>AS{{ session.peering_request.requesting_asn }}</td>
-              <td>{{ session.ip_address }}</td>
-              <td>{{ session.ixp_connection.internet_exchange_point|render_none }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div class="table-responsive">
+          <table class="table table-hover table-sm">
+            <thead>
+              <tr>
+                <th>ASN</th>
+                <th>IP Address</th>
+                <th>Location</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for session in pending_sessions %}
+              <tr>
+                <td>AS{{ session.peering_request.requesting_asn }}</td>
+                <td>{{ session.ip_address }}</td>
+                <td>{{ session.ixp_connection.internet_exchange_point|render_none }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
         {% else %}
         <p class="text-muted">No pending sessions.</p>
         {% endif %}

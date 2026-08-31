@@ -2,7 +2,7 @@
 
 <div class="row mb-3{% if field.errors %} is-invalid{% endif %}">
   {% if field|widget_type == 'checkboxinput' %}
-  <div class="col-9 offset-3">
+  <div class="col-12 col-md-9 offset-md-3">
     <div class="form-check{% if field.errors %} is-invalid{% endif %}">
       {{ field }}
       <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
@@ -24,8 +24,8 @@
     {% endif %}
   </div>
   {% else %}
-  <label class="col-3 col-form-label{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
-  <div class="col-9">
+  <label class="col-12 col-md-3 col-form-label{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
+  <div class="col-12 col-md-9">
     {% if field|widget_type == 'passwordinput' %}
     <div class="input-group">
       {{ field }}

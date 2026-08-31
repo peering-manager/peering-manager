@@ -8,7 +8,7 @@
   {{ field }}
   {% endfor %}
   <div class="row justify-content-center">
-    <div class="col-8">
+    <div class="col-12 col-md-8">
       {% if form.non_field_errors %}
       <div class="card bg-danger text-white my-2">
         <div class="card-header"><strong>Errors</strong></div>
@@ -32,7 +32,7 @@
     </div>
   </div>
   <div class="row justify-content-center">
-    <div class="col-8 text-end">
+    <div class="col-12 col-md-8 text-end">
       <button type="submit" class="btn btn-primary">Send</button>
     </div>
   </div>

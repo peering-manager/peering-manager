@@ -26,7 +26,6 @@ __all__ = (
     "MarkdownColumn",
     "SelectColumn",
     "TagColumn",
-    "ToggleColumn",
 )
 
 
@@ -341,8 +340,8 @@ class SelectColumn(tables.CheckBoxColumn):
         visible = kwargs.pop("visible", False)
         if "attrs" not in kwargs:
             kwargs["attrs"] = {
-                "th": {"class": "w-1", "aria-label": "Select all"},
-                "td": {"class": "w-1"},
+                "th": {"class": "min-width", "aria-label": "Select all"},
+                "td": {"class": "min-width"},
                 "input": {"class": "form-check-input"},
             }
 
@@ -368,23 +367,3 @@ class TagColumn(tables.TemplateColumn):
 
     def __init__(self, url_name=None):
         super().__init__(template_code=self.template_code, extra_context={"url_name": url_name})
-
-
-class ToggleColumn(tables.CheckBoxColumn):
-    """
-    Extend CheckBoxColumn to add a "toggle all" checkbox in the column header.
-    """
-
-    def __init__(self, *args, **kwargs):
-        default = kwargs.pop("default", "")
-        visible = kwargs.pop("visible", False)
-        if "attrs" not in kwargs:
-            kwargs["attrs"] = {
-                # "td": {"class": "min-width"},
-                # "input": {"class": "form-check-input"},
-            }
-        super().__init__(*args, default=default, visible=visible, **kwargs)
-
-    @property
-    def header(self):
-        return mark_safe('<input type="checkbox" class="toggle" title="Toggle All" />')

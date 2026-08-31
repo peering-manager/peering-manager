@@ -9,7 +9,7 @@
         {% endfor %}
         {{ formset.management_form }}
         <div class="row justify-content-center">
-          <div class="col-10">
+          <div class="col-12 col-md-10">
             <h3>{% block title %}{{ object_type|title_with_uppers }} Import{% endblock %}</h3>
             {% for error in formset.non_form_errors %}
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -28,37 +28,39 @@
             {% endif %}
             {% endfor %}
             <div class="card my-2">
-              <table class="table">
-                {% for form in formset %}
-                {% if forloop.first %}
-                <thead><tr>
-                  {% for field in form.visible_fields %}
-                  <th>{{ field.label_tag }}</th>
-                  {% endfor %}
-                </tr></thead>
-                <tbody>
-                {% endif %}
-                  <tr>
+              <div class="table-responsive">
+                <table class="table">
+                  {% for form in formset %}
+                  {% if forloop.first %}
+                  <thead><tr>
                     {% for field in form.visible_fields %}
-                    <td>
-                      {% if forloop.first %}
-                      {% for hidden in form.hidden_fields %}
-                      {{ hidden }}
-                      {% endfor %}
-                      {% endif %}
-                      {{ field.errors.as_ul }}
-                      {{ field }}
-                    </td>
+                    <th>{{ field.label_tag }}</th>
                     {% endfor %}
-                  </tr>
-                {% endfor %}
-                </tbody>
-              </table>
+                  </tr></thead>
+                  <tbody>
+                  {% endif %}
+                    <tr>
+                      {% for field in form.visible_fields %}
+                      <td>
+                        {% if forloop.first %}
+                        {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                        {% endfor %}
+                        {% endif %}
+                        {{ field.errors.as_ul }}
+                        {{ field }}
+                      </td>
+                      {% endfor %}
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
         <div class="row justify-content-center">
-          <div class="col-10 text-end">
+          <div class="col-12 col-md-10 text-end">
             <button type="submit" class="btn btn-primary">Import</button>
             <a class="btn btn-secondary" href="{{ return_url }}">Cancel</a>
           </div>

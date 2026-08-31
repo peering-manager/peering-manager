@@ -10,10 +10,12 @@
 {% if request.GET.q %}
 {% if results %}
 <div class="row">
-  <div class="col col-md-9">
+  <div class="col-12 col-md-9">
     {% for obj_type in results %}
     <h5>{{ obj_type.name|title_with_uppers }}</h5>
-    {% render_table obj_type.table 'includes/table.html' %}
+    <div class="table-responsive">
+      {% render_table obj_type.table 'includes/table.html' %}
+    </div>
     <div class="text-end">
       <a href="{{ obj_type.url }}" class="btn btn-sm btn-primary">
         <i class="fa-fw fa-solid fa-arrow-right"></i>
@@ -29,7 +31,7 @@
     {% endif %}
     {% endfor %}
   </div>
-  <div class="col col-md-3">
+  <div class="col-12 col-md-3">
     <div class="card">
       <h5 class="card-header">Search Results</h5>
       <div class="card-body">
@@ -52,7 +54,7 @@
 {% endif %}
 {% else %}
 <div class="row">
-  <div class="col col-12 col-lg-8 offset-lg-2">
+  <div class="col-12 col-lg-8 offset-lg-2">
     <form action="{% url 'search' %}" method="get">
       <div class="card">
         <h5 class="card-header">Search</h5>

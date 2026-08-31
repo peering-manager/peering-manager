@@ -7,25 +7,25 @@
       <div class="card-header"><strong>Statistics</strong></div>
       <div class="card-body">
         <div class="row text-center">
-          <div class="col-md-3">
+          <div class="col-6 col-md-3">
             <a href="." class="text-decoration-none">
               <div class="h3 text-primary">{{ total_count }}</div>
             </a>
             <div class="text-muted small">Total Prefixes</div>
           </div>
-          <div class="col-md-3">
+          <div class="col-6 col-md-3">
             <a href="?family=ipv6" class="text-decoration-none">
               <div class="h3 text-info">{{ ipv6_count }}</div>
             </a>
             <div class="text-muted small">IPv6 Prefixes</div>
           </div>
-          <div class="col-md-3">
+          <div class="col-6 col-md-3">
             <a href="?family=ipv4" class="text-decoration-none">
               <div class="h3 text-success">{{ ipv4_count }}</div>
             </a>
             <div class="text-muted small">IPv4 Prefixes</div>
           </div>
-          <div class="col-md-3">
+          <div class="col-6 col-md-3">
             {% if as_list %}
             <a href="#" data-bs-toggle="modal" data-bs-target="#as-list-modal" class="text-decoration-none">
               <div class="h3 text-warning">{{ as_list|length }}</div>
@@ -42,7 +42,9 @@
     <div class="card mb-2">
       <div class="card-header"><strong>Prefixes</strong></div>
       <div class="card-body p-0">
-        {% render_table table 'includes/table.html' %}
+        <div class="table-responsive">
+          {% render_table table 'includes/table.html' %}
+        </div>
       </div>
     </div>
     {% include 'includes/pagination.html' with paginator=table.paginator page=table.page %}

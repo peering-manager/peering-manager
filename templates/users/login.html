@@ -7,7 +7,7 @@
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
 
     <title>Log In - Peering Manager</title>
 
@@ -19,9 +19,9 @@
     <link rel="icon" type="image/svg" href="{% static 'img/peering-manager.svg' %}">
   </head>
   <body>
-    <section class="vh-100 w-100">
-      <div class="container-fluid h-custom">
-        <div class="row d-flex justify-content-center align-items-center h-100">
+    <section class="min-vh-100 w-100 d-flex flex-column">
+      <div class="container-fluid flex-grow-1 d-flex align-items-center py-4">
+        <div class="row justify-content-center align-items-center flex-grow-1">
           <div class="col-md-9 col-lg-6 col-xl-5">
             <img class="img-fluid" src="{% static 'img/peering-manager.svg' %}" alt="Peering Manager Logo">
           </div>
@@ -44,9 +44,9 @@
             </div>
             {% endif %}
             {% if auth_backends %}
-            <div class="row">
+            <div class="row gy-2">
               {% for backend in auth_backends %}
-              <div class="col">
+              <div class="col-12 col-sm">
                 <form action="{{ backend.url }}" method="post">
                   {% csrf_token %}
                   {% for name, value in backend.params.items %}

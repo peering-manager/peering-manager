@@ -3,10 +3,6 @@ html {
   min-height: 100%;
   font-size: 14px;
 }
-/* Need to revisit why we need this */
-body {
-  overflow-x: hidden;
-}
 a:not([class*="btn"]) {
   text-decoration: none;
 }
@@ -24,6 +20,10 @@ a:not([class*="btn"]):hover {
   display: flex;
   flex-direction: column;
 }
+.page-wrapper > main {
+  padding-left: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
+  padding-right: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
+}
 .navbar-brand-image {
   height: 3rem;
   width: auto;
@@ -40,12 +40,22 @@ header.navbar {
   background: var(--bs-body-bg);
 }
 .navbar-vertical {
-  top: 0;
-  left: 0;
-  bottom: 0;
-  box-shadow: inset calc(-1 * 1px) 0 0 0 var(--bs-border-color);
-  overflow-y: scroll;
   padding: 0;
+}
+@media (max-width: 991.98px) {
+  .navbar-vertical {
+    box-shadow: inset 0 calc(-1 * 1px) 0 0 var(--bs-border-color);
+  }
+}
+@media (min-width: 992px) {
+  .navbar-vertical {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    box-shadow: inset calc(-1 * 1px) 0 0 0 var(--bs-border-color);
+    overflow-y: auto;
+  }
 }
 .navbar-brand {
   display: inline-flex;
@@ -68,6 +78,9 @@ nav > ol.breadcrumb {
 }
 .breadcrumb-item.active {
   color: var(--bs-text-body-emphasis);
+}
+.breadcrumb-item {
+  overflow-wrap: break-word;
 }
 .breadcrumb-divider-colour {
   --bs-breadcrumb-divider-color: var(--bs-text-body-emphasis);
@@ -93,8 +106,14 @@ tfoot td {
 td.min-width {
   width: 1%;
 }
-table.attr-table td:nth-child(1) {
-  width: 25%;
+table.attr-table td {
+  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 768px) {
+  table.attr-table td:nth-child(1) {
+    width: 25%;
+  }
 }
 table.attr-table tr:first-child td {
   border-top: 0; /* Fix extra border when using table in card */
@@ -153,9 +172,11 @@ table.table thead th.desc.orderable > a::after {
 nav ul.pagination {
   margin-top: 0;
   margin-bottom: 8px !important;
+  flex-wrap: wrap;
 }
-div.dropdown-menu {
+#affiliated-as-menu {
   width: 250px;
+  max-width: 100%;
 }
 .btn-group-xs > .btn, .btn-xs {
   padding: .25rem .4rem;
@@ -163,11 +184,22 @@ div.dropdown-menu {
   line-height: .5;
   border-radius: .2rem;
 }
+@media (pointer: coarse) {
+  td > .form-check-input,
+  th > .form-check-input {
+    width: 24px;
+    height: 24px;
+  }
+  .btn-group-xs > .btn, .btn-xs {
+    line-height: 1.25;
+  }
+}
 div#action_buttons {
   margin-left: 5px;
 }
+.card-header,
 .list-group-item {
-  position: inherit !important;
+  display: flow-root;
 }
 
 .colour-selection-aa1409 {

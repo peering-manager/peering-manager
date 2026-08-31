@@ -2,7 +2,7 @@
 {% load helpers %}
 {% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">{% block title %}{% endblock %}</li>{% endblock %}
 {% block content %}
-<ul class="nav nav-tabs mb-3">
+<ul class="nav nav-tabs flex-nowrap overflow-x-auto mb-3">
   <li class="nav-item">
     <a class="nav-link{% if tab == 'profile' %} active{% endif %}" href="{% url 'users:profile' %}">
       <i class="fa-fw fa-solid fa-user"></i> Profile
@@ -27,7 +27,7 @@
   </li>
 </ul>
 <div class="row">
-  <div class="col-6 offset-md-3">
+  <div class="col-12 col-md-6 offset-md-3">
     {% block user_content %}{% endblock %}
   </div>
 </div>

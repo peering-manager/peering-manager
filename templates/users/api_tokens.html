@@ -13,7 +13,7 @@
 {% endif %}
 {% for token in tokens %}
 <div class="card{% if token.is_expired %} card-danger{% endif %} mb-2">
-  <div class="card-header">
+  <div class="card-header text-break">
     <div class="float-end">
       <button type="button" class="btn btn-xs btn-secondary copy-token" data-token="{{ token.key }}" title="Copy token to clipboard">
         <i class="fa-fw fa-solid fa-copy"></i> Copy
@@ -32,11 +32,11 @@
   </div>
   <div class="card-body">
     <div class="row">
-      <div class="col-4">
+      <div class="col-6 col-md-4">
         {{ token.created|date_span }}<br />
         <small class="text-muted">Created</small>
       </div>
-      <div class="col-4">
+      <div class="col-6 col-md-4">
         {% if token.expires %}
         {{ token.expires|date_span }}<br />
         {% else %}
@@ -44,7 +44,7 @@
         {% endif %}
         <small class="text-muted">Expires</small>
       </div>
-      <div class="col-4">
+      <div class="col-6 col-md-4">
         {% if token.write_enabled %}
         <span class="label label-success">Enabled</span>
         {% else %}
@@ -54,7 +54,7 @@
       </div>
     </div>
     <div class="row mt-2">
-      <div class="col-4">
+      <div class="col-6 col-md-4">
         {% if token.last_used %}
         {{ token.last_used|date_span }}<br />
         {% else %}
@@ -62,7 +62,7 @@
         {% endif %}
         <small class="text-muted">Last used</small>
       </div>
-      <div class="col-8">
+      <div class="col-12 col-md-8">
         {% if token.allowed_ips %}
         <span>{{ token.allowed_ips | join:", " }}</span>
         {% else %}

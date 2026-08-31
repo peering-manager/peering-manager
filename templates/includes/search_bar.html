@@ -1,10 +1,8 @@
 <div class="row mb-3">
-  <div class="col-2"></div>
-  <div class="col">
+  <div class="col-12 col-md-8 offset-md-2">
     <form class="input-group" action="{% url 'search' %}" method="get">
       <input class="form-control form-control-lg" type="text" name="q" value="{{ request.GET.q }}" placeholder="Search"/>
       <button class="btn btn-lg btn-primary" type="submit"><i class="fa-fw fa-solid fa-search"></i></button>
     </form>
   </div>
-  <div class="col-2"></div>
 </div>

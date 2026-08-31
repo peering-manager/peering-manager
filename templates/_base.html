@@ -33,28 +33,28 @@
   </head>
   <body>
     <div class="page">
-      <aside class="navbar navbar-vertical navbar-expand-lg col-md-3 col-lg-2 position-fixed">
-        <div class="container-fluid flex-column align-items-stretch justify-content-start p-0" style="min-height: 100%">
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
+      <aside class="navbar navbar-vertical navbar-expand-lg col-lg-2">
+        <div class="container-fluid flex-row flex-lg-column align-items-center align-items-lg-stretch justify-content-between justify-content-lg-start px-2 px-lg-0" style="min-height: 100%">
           <h1 class="navbar-brand">
             <a href="{% url 'home' %}">
               <img class="navbar-brand-image hide-theme-light" src="{% static 'img/inline-dark.svg' %}" alt="Peering Manager Logo">
               <img class="navbar-brand-image hide-theme-dark" src="{% static 'img/inline-light.svg' %}" alt="Peering Manager Logo">
             </a>
           </h1>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
           {% include "_sidebar.html" %}
         </div>
       </aside>
-      <header class="navbar navbar-expand-md sticky-top d-lg-flex offset-md-3 offset-lg-2">
+      <header class="navbar navbar-expand-lg sticky-top offset-lg-2">
         <div class="container-fluid">
-          <div class="collapse navbar-collapse" id="navbar-collapse">
+          <div class="navbar-collapse d-flex flex-wrap align-items-center row-gap-2" id="navbar-collapse">
             <div id="action_buttons" class="me-2">{% block actions %}{% endblock %}</div>
             <nav aria-label="breadcrumb">
               <ol class="breadcrumb breadcrumb-divider-colour">{% block breadcrumb %}{% endblock %}</ol>
             </nav>
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav flex-row ms-auto">
               <button class="btn btn-outline-secondary me-3" type="button" id="colour-mode-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Set colour mode"><i class="fa-fw fa-solid fa-sun"></i></button>
               {% if request.user.is_authenticated %}
               {% if request.session.last_search %}
@@ -65,7 +65,7 @@
                 <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                   <i class="fa-fw fa-solid fa-server"></i>&nbsp;{% if context_as %}AS{{ context_as.asn }}{% else %}Select affiliated AS{% endif %}
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end">
+                <ul class="dropdown-menu dropdown-menu-end" id="affiliated-as-menu">
                   {% for a in affiliated_autonomous_systems %}
                   <li><a role="button" class="dropdown-item text-truncate{% if a.pk == context_as.pk %} active{% endif %} context-as" data-as-id="{{ a.pk }}">AS{{ a.asn }} - {{ a.name }}</a></li>
                   {% endfor %}
@@ -96,7 +96,7 @@
         </div>
       </header>
       <div class="page-wrapper">
-        <main class="ms-sm-auto col-md-9 col-lg-10 px-2">
+        <main class="col-12 col-lg-10 ms-lg-auto">
           <div class="justify-content-between align-items-center pt-3 flex-shrink-0">
             {% if request.user.is_authenticated and not context_as %}
             <div class="alert alert-warning text-center" role="alert">
