@@ -87,7 +87,7 @@ jobs:
       - name: Install dependencies
         run: uv sync --locked --all-groups
       - name: Build documentation
-        run: uv run mkdocs build
+        run: uv run zensical build --strict
       - name: Collect static files
         run: uv run python manage.py collectstatic --no-input
       - name: Check for missing migrations

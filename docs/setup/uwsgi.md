@@ -6,14 +6,14 @@
 
 ## Installation
 
+=== "Debian"
+    ```no-highlight
+    # a2enmod proxy_uwsgi
+    ```
+
 === "CentOS 7&8"
     ```no-highlight
     # yum install mod_proxy_uwsgi
-    ```
-
-=== "Debian 11 / 12"
-    ```no-highlight
-    # a2enmod proxy_uwsgi
     ```
 
 In your Peering Manager folder (usually `/opt/peering-manager`), run the

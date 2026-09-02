@@ -38,7 +38,7 @@ dependencies = [
 
 [dependency-groups]
 dev = ["pre-commit>=4.2", "ruff>=0.12", "coverage[toml]>=7.10"]
-docs = ["mkdocs-material"]
+docs = ["zensical>=0.0.57,<0.1"]
 
 [project.urls]
 homepage = "https://peering-manager.net"

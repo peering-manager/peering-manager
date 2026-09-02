@@ -99,8 +99,10 @@ ENV/
 # Rope project settings
 .ropeproject
 
-# mkdocs documentation
+# Built documentation site
 /site
+/site-publish
+mkdocs.publish.yaml
 
 ### Vim ###
 # swap

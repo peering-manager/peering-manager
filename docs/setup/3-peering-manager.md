@@ -12,7 +12,7 @@ version 3 (3.12 minimum) so we will setup the machine with this version.
     Possible solutions are: using additional package repositories or
     different packages like `python3.12` instead of `python3`.
 
-=== "Debian 11 / 12"
+=== "Debian"
     ```no-highlight
     # apt install python3 python3-dev python3-venv python3-pip git vim
     ```
@@ -150,11 +150,11 @@ TIME_ZONE = "Europe/Paris"
 
 # PostgreSQL database configuration
 DATABASE = {
-    "NAME": "peering_manager",           # Database name
-    "USER": "peering_manager",           # PostgreSQL username
+    "NAME": "peering_manager",  # Database name
+    "USER": "peering_manager",  # PostgreSQL username
     "PASSWORD": "DoNotUseThisPassword",  # PostgreSQL password
-    "HOST": "localhost",                 # Database server
-    "PORT": "",                          # Database port (leave blank for default)
+    "HOST": "localhost",  # Database server
+    "PORT": "",  # Database port (leave blank for default)
 }
 
 # Redis configuration
@@ -174,7 +174,7 @@ REDIS = {
         "CACHE_DATABASE": 1,
         "DEFAULT_TIMEOUT": 300,
         "SSL": False,
-    }
+    },
 }
 ```
 
