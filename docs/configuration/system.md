@@ -9,7 +9,7 @@ scheme or domain name. For example, if installed at
 `https://example.com/peering/`, set:
 
 ```python
-BASE_PATH = 'peering/'
+BASE_PATH = "peering/"
 ```
 
 ---
@@ -69,8 +69,8 @@ For example:
 
 ```python
 HTTP_PROXIES = {
-    'http': 'http://10.10.1.10:3128',
-    'https': 'http://10.10.1.10:1080',
+    "http": "http://10.10.1.10:3128",
+    "https": "http://10.10.1.10:1080",
 }
 ```
 
@@ -112,19 +112,19 @@ will write all INFO and higher messages to a local file:
 
 ```python
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': '/var/log/peering-manager.log',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": "/var/log/peering-manager.log",
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'INFO',
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "INFO",
         },
     },
 }

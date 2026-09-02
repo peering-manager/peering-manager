@@ -7,8 +7,8 @@ listed here. This should be a list of (name, email) tuples. For example:
 
 ```python
 ADMINS = [
-    ['Tony Stark', 'ironman@example.com'],
-    ['Steve Rogers', 'captain@example.com'],
+    ["Tony Stark", "ironman@example.com"],
+    ["Steve Rogers", "captain@example.com"],
 ]
 ```
 
@@ -198,15 +198,13 @@ users to 100, define the following:
 
 ```python
 DEFAULT_USER_PREFERENCES = {
-    "pagination": {
-        "per_page": 100
-    },
+    "pagination": {"per_page": 100},
     "tables": {
-        "AutonomousSystemTable" : {
+        "AutonomousSystemTable": {
             "columns": ["asn", "name", "irr_as_set"],
-            "ordering": ["-asn"]
+            "ordering": ["-asn"],
         }
-    }
+    },
 }
 ```
 

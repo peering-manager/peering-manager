@@ -42,7 +42,7 @@ expressions. (These settings have no effect if `CORS_ORIGIN_ALLOW_ALL` is
 
 ```python
 CORS_ORIGIN_WHITELIST = [
-    'https://example.com',
+    "https://example.com",
 ]
 ```
 
@@ -81,8 +81,8 @@ setting. Note that each host listed must specify a scheme (e.g. `http://` or
 
 ```python
 CSRF_TRUSTED_ORIGINS = (
-    'http://peering-manager.local',
-    'https://peering-manager.local',
+    "http://peering-manager.local",
+    "https://peering-manager.local",
 )
 ```
 

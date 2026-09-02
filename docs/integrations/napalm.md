@@ -29,11 +29,11 @@ configuration parameters.
 
 ```python
 # NAPALM
-NAPALM_USERNAME = 'peeringmanageruser'
-NAPALM_PASSWORD = 'letsfindabetterpassword'
-NAPALM_TIMEOUT  = 30 # Timeout which defaults to 30 seconds
-NAPALM_ARGS     = {} # Python dictionary of supported NAPALM arguments
-                     # https://napalm.readthedocs.io/en/latest/support/index.html#list-of-supported-optional-arguments
+NAPALM_USERNAME = "peeringmanageruser"
+NAPALM_PASSWORD = "letsfindabetterpassword"
+NAPALM_TIMEOUT = 30  # Timeout which defaults to 30 seconds
+NAPALM_ARGS = {}  # Python dictionary of supported NAPALM arguments
+# https://napalm.readthedocs.io/en/latest/support/index.html#list-of-supported-optional-arguments
 ```
 
 They can also be set in the device object.

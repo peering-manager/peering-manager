@@ -91,6 +91,6 @@ For instance, the OIDC backend may be customised with the following:
 
 ```python
 SOCIAL_AUTH_BACKEND_ATTRS = {
-    "oidc": ("My company SSO", "fa-solid fa-right-to-bracket")
+    "oidc": ("My company SSO", "fa-solid fa-right-to-bracket"),
 }
 ```

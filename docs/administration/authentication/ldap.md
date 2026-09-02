@@ -57,9 +57,7 @@ import ldap
 AUTH_LDAP_SERVER_URI = "ldaps://ad.example.com"
 
 # May be needed if you are binding to Active Directory
-AUTH_LDAP_CONNECTION_OPTIONS = {
-    ldap.OPT_REFERRALS: 0
-}
+AUTH_LDAP_CONNECTION_OPTIONS = {ldap.OPT_REFERRALS: 0}
 
 # Set the DN and password for the Peering service account
 AUTH_LDAP_BIND_DN = "CN=Peering,OU=Service Accounts,DC=example,DC=com"
@@ -74,12 +72,12 @@ LDAP_IGNORE_CERT_ERRORS = True
 # Include this setting if you want to validate the LDAP server certificates against a CA certificate directory on your server
 # Note that this is a Peering Manager specific setting which sets:
 #     ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, LDAP_CA_CERT_DIR)
-LDAP_CA_CERT_DIR = '/etc/ssl/certs'
+LDAP_CA_CERT_DIR = "/etc/ssl/certs"
 
 # Include this setting if you want to validate the LDAP server certificates against your own CA.
 # Note that this is a Peering Manager specific setting which sets:
 #     ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, LDAP_CA_CERT_FILE)
-LDAP_CA_CERT_FILE = '/path/to/example-CA.crt'
+LDAP_CA_CERT_FILE = "/path/to/example-CA.crt"
 ```
 
 STARTTLS can be configured by setting `AUTH_LDAP_START_TLS = True` and using
@@ -97,9 +95,11 @@ from django_auth_ldap.config import LDAPSearch
 # This search matches users with the sAMAccountName equal to the provided
 # username. This is required if the user's
 # username is not in their DN (Active Directory).
-AUTH_LDAP_USER_SEARCH = LDAPSearch("ou=Users,dc=example,dc=com",
-                                    ldap.SCOPE_SUBTREE,
-                                    "(sAMAccountName=%(user)s)")
+AUTH_LDAP_USER_SEARCH = LDAPSearch(
+    "ou=Users,dc=example,dc=com",
+    ldap.SCOPE_SUBTREE,
+    "(sAMAccountName=%(user)s)",
+)
 
 # If a user's DN is producible from their username, we don't need to search.
 AUTH_LDAP_USER_DN_TEMPLATE = "uid=%(user)s,ou=users,dc=example,dc=com"
@@ -108,7 +108,7 @@ AUTH_LDAP_USER_DN_TEMPLATE = "uid=%(user)s,ou=users,dc=example,dc=com"
 AUTH_LDAP_USER_ATTR_MAP = {
     "first_name": "givenName",
     "last_name": "sn",
-    "email": "mail"
+    "email": "mail",
 }
 ```
 
@@ -126,8 +126,11 @@ from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
 
 # Return all groups to which the user belongs. django_auth_ldap uses this to
 # determine group hierarchy
-AUTH_LDAP_GROUP_SEARCH = LDAPSearch("dc=example,dc=com", ldap.SCOPE_SUBTREE,
-                                    "(objectClass=group)")
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
+    "dc=example,dc=com",
+    ldap.SCOPE_SUBTREE,
+    "(objectClass=group)",
+)
 AUTH_LDAP_GROUP_TYPE = GroupOfNamesType()
 
 # Define a group required to login
@@ -137,7 +140,7 @@ AUTH_LDAP_REQUIRE_GROUP = "CN=PeeringGurus,DC=example,DC=com"
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {
     "is_active": "cn=active,ou=groups,dc=example,dc=com",
     "is_staff": "cn=staff,ou=groups,dc=example,dc=com",
-    "is_superuser": "cn=superuser,ou=groups,dc=example,dc=com"
+    "is_superuser": "cn=superuser,ou=groups,dc=example,dc=com",
 }
 
 # Map LDAP groups to Django groups
@@ -178,7 +181,7 @@ the following:
 AUTH_LDAP_USER_SEARCH = LDAPSearch(
     "ou=Users,dc=example,dc=com",
     ldap.SCOPE_SUBTREE,
-    "(|(userPrincipalName=%(user)s)(sAMAccountName=%(user)s))"
+    "(|(userPrincipalName=%(user)s)(sAMAccountName=%(user)s))",
 )
 ```
 
@@ -220,9 +223,7 @@ from django_auth_ldap.config import LDAPSearch, NestedGroupOfNamesType
 AUTH_LDAP_SERVER_URI = "ldaps://ad.example.com:3269"
 
 # The following may be needed if you are binding to Active Directory.
-AUTH_LDAP_CONNECTION_OPTIONS = {
-    ldap.OPT_REFERRALS: 0
-}
+AUTH_LDAP_CONNECTION_OPTIONS = {ldap.OPT_REFERRALS: 0}
 
 # Set the DN and password for the Peering Manager service account.
 AUTH_LDAP_BIND_DN = "CN=Peering,OU=Service Accounts,DC=example,DC=com"
@@ -238,13 +239,13 @@ LDAP_IGNORE_CERT_ERRORS = False
 # against a CA certificate directory on your server
 # Note that this is a Peering Manager specific setting which sets:
 #     ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, LDAP_CA_CERT_DIR)
-LDAP_CA_CERT_DIR = '/etc/ssl/certs'
+LDAP_CA_CERT_DIR = "/etc/ssl/certs"
 
 # Include this setting if you want to validate the LDAP server certificates
 # against your own CA.
 # Note that this is a Peering Manager specific setting which sets:
 #     ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, LDAP_CA_CERT_FILE)
-LDAP_CA_CERT_FILE = '/path/to/example-CA.crt'
+LDAP_CA_CERT_FILE = "/path/to/example-CA.crt"
 
 # This search matches users with the sAMAccountName equal to the provided
 # username. This is required if the user's
@@ -252,7 +253,7 @@ LDAP_CA_CERT_FILE = '/path/to/example-CA.crt'
 AUTH_LDAP_USER_SEARCH = LDAPSearch(
     "ou=Users,dc=example,dc=com",
     ldap.SCOPE_SUBTREE,
-    "(|(userPrincipalName=%(user)s)(sAMAccountName=%(user)s))"
+    "(|(userPrincipalName=%(user)s)(sAMAccountName=%(user)s))",
 )
 
 # If a user's DN is producible from their username, we don't need to search.
@@ -274,7 +275,7 @@ AUTH_LDAP_USER_QUERY_FIELD = "username"
 AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
     "dc=example,dc=com",
     ldap.SCOPE_SUBTREE,
-    "(objectClass=group)"
+    "(objectClass=group)",
 )
 AUTH_LDAP_GROUP_TYPE = NestedGroupOfNamesType()
 
@@ -288,7 +289,7 @@ AUTH_LDAP_MIRROR_GROUPS = True
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {
     "is_active": "cn=active,ou=groups,dc=example,dc=com",
     "is_staff": "cn=staff,ou=groups,dc=example,dc=com",
-    "is_superuser": "cn=superuser,ou=groups,dc=example,dc=com"
+    "is_superuser": "cn=superuser,ou=groups,dc=example,dc=com",
 }
 
 # For more granular permissions, we can map LDAP groups to Django groups.
