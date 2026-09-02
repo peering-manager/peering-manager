@@ -212,7 +212,7 @@ class Job(models.Model):
 
     terminate.alters_data = True
 
-    def log(
+    def log(  # noqa: PLR0917
         self,
         message,
         object=None,

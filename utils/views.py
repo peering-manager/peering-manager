@@ -89,7 +89,7 @@ class ViewTab:
     changelog or journal for a particular object.
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0917
         self,
         label: str,
         badge: str | None = None,

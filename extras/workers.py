@@ -26,7 +26,7 @@ def eval_conditions(webhook, data):
 
 
 @job("default")
-def process_webhook(webhook, model_name, event, data, snapshots, timestamp, username, request_id):
+def process_webhook(webhook, model_name, event, data, snapshots, timestamp, username, request_id):  # noqa: PLR0917
     """
     Makes a request to the defined Webhook endpoint.
     """

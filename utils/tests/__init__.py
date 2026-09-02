@@ -38,7 +38,7 @@ class ViewTestCase(TestCase):
     def does_object_not_exist(self, kwargs):
         self.assertFalse(self._check_if_object_exists(kwargs))
 
-    def get_request(
+    def get_request(  # noqa: PLR0917
         self,
         path,
         params=None,

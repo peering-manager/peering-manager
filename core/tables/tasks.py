@@ -6,12 +6,7 @@ from peering_manager.tables import BaseTable, columns
 
 from ..constants import RQ_TASK_STATUSES
 
-__all__ = (
-    "BackgroundQueueTable",
-    "BackgroundTaskTable",
-    "BackgroundTaskTable",
-    "WorkerTable",
-)
+__all__ = ("BackgroundQueueTable", "BackgroundTaskTable", "WorkerTable")
 
 
 class RQJobStatusColumn(tables.Column):

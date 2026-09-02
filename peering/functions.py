@@ -87,7 +87,7 @@ def parse_irr_as_set(asn: int, irr_as_set: str) -> list[tuple[str, str]]:
     return as_sets
 
 
-def build_irr_as_set_command(
+def build_irr_as_set_command(  # noqa: PLR0917
     as_set: str,
     source: str = "",
     address_family: Literal[4, 6] = 6,
@@ -132,7 +132,7 @@ def build_irr_as_set_command(
     return command
 
 
-def call_irr_as_set_resolver(
+def call_irr_as_set_resolver(  # noqa: PLR0917
     as_set: str,
     source: str = "",
     address_family: Literal[4, 6] = 6,
