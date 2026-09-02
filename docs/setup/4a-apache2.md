@@ -2,7 +2,7 @@
 
 ## Installation
 
-=== "Debian 11 / 12"
+=== "Debian"
 	```no-highlight
 	# apt install apache2
 	# a2enmod headers
@@ -57,7 +57,7 @@ The content of the file can be something like this.
 
 Remove the default virtual host and enable the new one.
 
-=== "Debian 11 / 12"
+=== "Debian"
 	```no-highlight
 	# a2dissite 000-default.conf
 	# a2ensite peering-manager.conf
