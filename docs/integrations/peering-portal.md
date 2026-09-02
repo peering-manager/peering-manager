@@ -16,6 +16,15 @@ design follows the IETF draft
 [draft-ramseyer-grow-peering-api](https://datatracker.ietf.org/doc/draft-ramseyer-grow-peering-api/)
 where compatible.
 
+!!! tip "You may not have to build one"
+    [Peering Portal](https://github.com/peering-manager/peering-portal) is a
+    ready to run portal that speaks this API, published as
+    `peeringmanager/peering-portal` and
+    `ghcr.io/peering-manager/peering-portal`. It walks a network through a
+    form based wizard, signs the visitor in with PeeringDB, and needs only
+    the URL and the API token of a Peering Manager instance. Read on if you
+    would rather write your own.
+
 ## Glossary
 
 | Term                       | Meaning                                                                                                                                                                                                                   |
@@ -105,6 +114,9 @@ hard-coding it on the portal side.
       lists the networks (ASNs) that user is affiliated with on PeeringDB.
     * Restrict every request operation in the portal to ASNs that appear
       in the authenticated user's affiliations.
+
+    [Peering Portal](https://github.com/peering-manager/peering-portal) does
+    exactly this, so running it saves you from writing the check.
 
 ## Example Portal Workflow
 
@@ -454,6 +466,10 @@ while the corresponding request is still awaiting review), enable the
 setting.
 
 ## Reference Implementation Hints
+
+[Peering Portal](https://github.com/peering-manager/peering-portal) is the
+reference implementation, and its source shows each of the calls below in
+context.
 
 A minimal portal implementation only needs to:
 
