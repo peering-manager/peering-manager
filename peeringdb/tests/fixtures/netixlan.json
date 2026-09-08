@@ -14,6 +14,8 @@
       "is_rs_peer": true,
       "bfd_support": false,
       "operational": true,
+      "net_side_id": 220,
+      "ix_side_id": 909,
       "created": "2012-06-26T00:00:00Z",
       "updated": "2021-10-15T12:59:47Z",
       "status": "ok"

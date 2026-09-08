@@ -165,19 +165,16 @@ class PeeringDB:
         if name == "status" or (hasattr(obj, "ignored_fields") and name in model.ignored_fields):
             return
 
-        # If the field looks like one of the FK
-        for f in foreign_keys:
-            if f in name:
-                # Handle special case where PeeringDB does not suffix with _id
-                if f in {"net_side", "ix_side"}:
-                    name = f"{f}_id"
-                # The field is the FK ID so set it
-                if name == f"{f}_id":
-                    setattr(obj, name, value)
-                # If the field starts with a foreign key name but is not
-                # suffixed by _id, just ignore it (it can be its name or
-                # something else)
-                return
+        # A foreign key ID comes suffixed with _id, or bare for some fields
+        fk_name = name.removesuffix("_id")
+        if fk_name in foreign_keys:
+            setattr(obj, f"{fk_name}_id", value)
+            return
+
+        # A field prefixed with a foreign key name is not the ID itself (it can
+        # be the related object's name or something else), so ignore it
+        if any(name.startswith(f"{f}_") for f in foreign_keys):
+            return
 
         try:
             # Latitude and longitude are special decimal values that must be

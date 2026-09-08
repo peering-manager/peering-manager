@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from utils.testing import MockedResponse
 
-from ..models import HiddenPeer, InternetExchange, IXLan, Network, Organization
+from ..models import HiddenPeer, InternetExchange, IXLan, Network, NetworkIXLan, Organization
 from ..sync import *
 
 
@@ -43,6 +43,11 @@ class PeeringDBSyncTestCase(TestCase):
         self.assertEqual(24, sync_result.created)
         self.assertEqual(0, sync_result.updated)
         self.assertEqual(0, sync_result.deleted)
+
+        # Verify _id values are properly sync'ed
+        netixlan = NetworkIXLan.objects.get(pk=11709)
+        self.assertEqual(220, netixlan.net_side_id)
+        self.assertEqual(909, netixlan.ix_side_id)
 
     def test_clear_local_database(self):
         try:
