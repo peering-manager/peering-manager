@@ -268,6 +268,8 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
     exists_in_peeringdb = columns.BooleanColumn(
         accessor="exists_in_peeringdb", verbose_name="In PeeringDB", orderable=False
     )
+    peeringdb_net_side = tables.Column(verbose_name="Net Side")
+    peeringdb_ix_side = tables.Column(verbose_name="IX Side")
     is_abandoned = columns.BooleanColumn(accessor="is_abandoned", verbose_name="Is Abandoned", orderable=False)
     state = BGPSessionStateColumn(accessor="bgp_state")
     tags = columns.TagColumn(url_name="peering:internetexchangepeeringsession_list")
@@ -293,6 +295,8 @@ class InternetExchangePeeringSessionTable(PeeringManagerTable):
             "communities",
             "bfd",
             "exists_in_peeringdb",
+            "peeringdb_net_side",
+            "peeringdb_ix_side",
             "is_abandoned",
             "state",
             "last_established_state",

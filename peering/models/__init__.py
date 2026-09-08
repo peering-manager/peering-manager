@@ -4,18 +4,18 @@ import ipaddress
 import logging
 import uuid
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, Self
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
-from django.db.models import Q
+from django.db.models import OuterRef, Q, Subquery
 from django.forms import ValidationError
 from django.urls import reverse
 from django.utils import timezone
-from netfields import InetAddressField
+from netfields import InetAddressField, NetManager
 
 from bgp.models import Relationship
 from net.models import Connection
@@ -909,6 +909,22 @@ class InternetExchange(AbstractGroup):
         return session_number, asn_number
 
 
+class InternetExchangePeeringSessionQuerySet(models.QuerySet):
+    def with_peeringdb_sides(self) -> Self:
+        """
+        Annotates each session with the facility names that PeeringDB records for the peer's port:
+        `peeringdb_net_side` and `peeringdb_ix_side`.
+        """
+        peer_netixlan = NetworkIXLan.objects.filter(
+            Q(ipaddr4=OuterRef("ip_address")) | Q(ipaddr6=OuterRef("ip_address")),
+            ixlan=OuterRef("ixp_connection__internet_exchange_point__peeringdb_ixlan"),
+        )
+        return self.annotate(
+            peeringdb_net_side=Subquery(peer_netixlan.values("net_side__name")[:1]),
+            peeringdb_ix_side=Subquery(peer_netixlan.values("ix_side__name")[:1]),
+        )
+
+
 class InternetExchangePeeringSession(BGPSession):
     ixp_connection = models.ForeignKey(
         to="net.Connection",
@@ -917,6 +933,8 @@ class InternetExchangePeeringSession(BGPSession):
         verbose_name="IXP connection",
     )
     is_route_server = models.BooleanField(blank=True, default=False, verbose_name="Route server")
+
+    objects = NetManager.from_queryset(InternetExchangePeeringSessionQuerySet)()
 
     class Meta(BGPSession.Meta):
         ordering = [

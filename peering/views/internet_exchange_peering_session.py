@@ -43,6 +43,7 @@ class InternetExchangePeeringSessionList(ObjectListView):
         InternetExchangePeeringSession.objects.order_by("autonomous_system", "ip_address")
         .select_related("autonomous_system")
         .defer("autonomous_system__as_list")
+        .with_peeringdb_sides()
     )
     table = InternetExchangePeeringSessionTable
     filterset = InternetExchangePeeringSessionFilterSet

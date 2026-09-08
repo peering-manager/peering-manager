@@ -182,7 +182,7 @@ class InternetExchangePeeringSessions(ObjectChildrenView):
     )
 
     def get_children(self, request, parent):
-        return parent.get_peering_sessions()
+        return parent.get_peering_sessions().with_peeringdb_sides()
 
 
 @register_model_view(InternetExchange, name="peers")

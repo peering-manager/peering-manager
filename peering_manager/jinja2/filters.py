@@ -243,7 +243,7 @@ def filter(value, **kwargs):
     """
     Returns a filtered queryset or iterable based on provided criteria.
     """
-    if type(value) is QuerySet:
+    if isinstance(value, QuerySet):
         return value.filter(**kwargs)
 
     try:
@@ -287,7 +287,7 @@ def unique_items(value, field):
     """
     Returns an iterable containing unique items based on a field (and its value).
     """
-    if type(value) is QuerySet:
+    if isinstance(value, QuerySet):
         return value.order_by().distinct(field)
 
     try:
@@ -466,7 +466,7 @@ def length(value):
     """
     Returns the number of items in a queryset or an iterable.
     """
-    if type(value) is QuerySet:
+    if isinstance(value, QuerySet):
         return value.count()
 
     # Fallback to python's len()
@@ -863,7 +863,7 @@ def _serialize(value):
     Serializes a queryset, an object or a basic value as something usable by a JSON or
     YAML dumper.
     """
-    if type(value) is QuerySet:
+    if isinstance(value, QuerySet):
         data = [serialize_object(i) for i in value]
     elif isinstance(value, models.Model):
         data = serialize_object(value)

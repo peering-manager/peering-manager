@@ -261,6 +261,7 @@ class AutonomousSystemInternetExchangesPeeringSessions(ObjectChildrenView):
             parent.get_ixp_peering_sessions()
             .prefetch_related("ixp_connection")
             .order_by("ixp_connection", "ip_address")
+            .with_peeringdb_sides()
         )
 
 
