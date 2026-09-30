@@ -116,7 +116,9 @@ SEARCH_TYPES = OrderedDict(
         (
             "bgpgroup",
             {
-                "queryset": BGPGroup.objects.all(),
+                "queryset": BGPGroup.objects.annotate(
+                    directpeeringsession_count=count_related(DirectPeeringSession, "bgp_group")
+                ),
                 "filterset": BGPGroupFilterSet,
                 "table": BGPGroupTable,
                 "url": "peering:bgpgroup_list",
@@ -144,7 +146,10 @@ SEARCH_TYPES = OrderedDict(
             "internetexchange",
             {
                 "queryset": InternetExchange.objects.prefetch_related("local_autonomous_system").annotate(
-                    connection_count=count_related(Connection, "internet_exchange_point")
+                    connection_count=count_related(Connection, "internet_exchange_point"),
+                    session_count=count_related(
+                        InternetExchangePeeringSession, "ixp_connection__internet_exchange_point"
+                    ),
                 ),
                 "filterset": InternetExchangeFilterSet,
                 "table": InternetExchangeTable,
@@ -165,7 +170,7 @@ SEARCH_TYPES = OrderedDict(
             {
                 "queryset": InternetExchangePeeringSession.objects.prefetch_related(
                     "autonomous_system", "ixp_connection"
-                ),
+                ).with_peeringdb_sides(),
                 "filterset": InternetExchangePeeringSessionFilterSet,
                 "table": InternetExchangePeeringSessionTable,
                 "url": "peering:internetexchangepeeringsession_list",
@@ -175,7 +180,11 @@ SEARCH_TYPES = OrderedDict(
             "router",
             {
                 "queryset": Router.objects.prefetch_related("platform").annotate(
-                    connection_count=count_related(Connection, "router")
+                    connection_count=count_related(Connection, "router"),
+                    directpeeringsession_count=count_related(DirectPeeringSession, "router"),
+                    internetexchangepeeringsession_count=count_related(
+                        InternetExchangePeeringSession, "ixp_connection__router"
+                    ),
                 ),
                 "filterset": RouterFilterSet,
                 "table": RouterTable,

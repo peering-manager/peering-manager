@@ -119,7 +119,10 @@ class AutonomousSystemDelete(ObjectDeleteView):
 
 @register_model_view(AutonomousSystem, name="bulk_delete", path="delete", detail=False)
 class AutonomousSystemBulkDelete(BulkDeleteView):
-    queryset = AutonomousSystem.objects.all()
+    queryset = AutonomousSystem.objects.annotate(
+        directpeeringsession_count=Count("directpeeringsession", distinct=True),
+        internetexchangepeeringsession_count=Count("internetexchangepeeringsession", distinct=True),
+    )
     filterset = AutonomousSystemFilterSet
     table = AutonomousSystemTable
 

@@ -39,6 +39,6 @@ class PlatformDelete(ObjectDeleteView):
 
 @register_model_view(model=Platform, name="bulk_delete", path="delete", detail=False)
 class PlatformBulkDelete(BulkDeleteView):
-    queryset = Platform.objects.all()
+    queryset = Platform.objects.annotate(router_count=Count("router", distinct=True))
     filterset = PlatformFilterSet
     table = PlatformTable

@@ -123,7 +123,13 @@ class InternetExchangeDelete(ObjectDeleteView):
 @register_model_view(InternetExchange, name="bulk_edit", path="edit", detail=False)
 class InternetExchangeBulkEdit(BulkEditView):
     permission_required = "peering.change_internetexchange"
-    queryset = InternetExchange.objects.all()
+    queryset = InternetExchange.objects.annotate(
+        connection_count=count_related(Connection, "internet_exchange_point"),
+        session_count=count_related(
+            InternetExchangePeeringSession,
+            "ixp_connection__internet_exchange_point",
+        ),
+    )
     filterset = InternetExchangeFilterSet
     table = InternetExchangeTable
     form = InternetExchangeBulkEditForm
@@ -131,7 +137,13 @@ class InternetExchangeBulkEdit(BulkEditView):
 
 @register_model_view(InternetExchange, name="bulk_delete", path="delete", detail=False)
 class InternetExchangeBulkDelete(BulkDeleteView):
-    queryset = InternetExchange.objects.all()
+    queryset = InternetExchange.objects.annotate(
+        connection_count=count_related(Connection, "internet_exchange_point"),
+        session_count=count_related(
+            InternetExchangePeeringSession,
+            "ixp_connection__internet_exchange_point",
+        ),
+    )
     filterset = InternetExchangeFilterSet
     table = InternetExchangeTable
 

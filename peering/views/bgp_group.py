@@ -68,7 +68,7 @@ class BGPGroupDelete(ObjectDeleteView):
 @register_model_view(BGPGroup, name="bulk_edit", path="edit", detail=False)
 class BGPGroupBulkEdit(BulkEditView):
     permission_required = "peering.change_bgpgroup"
-    queryset = BGPGroup.objects.all()
+    queryset = BGPGroup.objects.annotate(directpeeringsession_count=Count("directpeeringsession"))
     filterset = BGPGroupFilterSet
     table = BGPGroupTable
     form = BGPGroupBulkEditForm
@@ -76,7 +76,7 @@ class BGPGroupBulkEdit(BulkEditView):
 
 @register_model_view(BGPGroup, name="bulk_delete", path="delete", detail=False)
 class BGPGroupBulkDelete(BulkDeleteView):
-    queryset = BGPGroup.objects.all()
+    queryset = BGPGroup.objects.annotate(directpeeringsession_count=Count("directpeeringsession"))
     filterset = BGPGroupFilterSet
     table = BGPGroupTable
 

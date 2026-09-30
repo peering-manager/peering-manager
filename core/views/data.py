@@ -7,6 +7,7 @@ from peering_manager.views.generic import (
     ObjectListView,
     ObjectView,
 )
+from utils.functions import count_related
 from utils.views import ViewTab, register_model_view
 
 from .. import filtersets, forms, tables
@@ -60,7 +61,7 @@ class DataFileBulkDeleteView(BulkDeleteView):
 @register_model_view(DataSource, name="list", path="", detail=False)
 class DataSourceListView(ObjectListView):
     permission_required = "core.view_datasource"
-    queryset = DataSource.objects.all()
+    queryset = DataSource.objects.annotate(file_count=count_related(DataFile, "source"))
     filterset = filtersets.DataSourceFilterSet
     filterset_form = forms.DataSourceFilterForm
     table = tables.DataSourceTable
@@ -94,7 +95,7 @@ class DataSourceDeleteView(ObjectDeleteView):
 @register_model_view(DataSource, name="bulk_edit", path="edit", detail=False)
 class DataSourceBulkEdit(BulkEditView):
     permission_required = "core.change_datasource"
-    queryset = DataSource.objects.all()
+    queryset = DataSource.objects.annotate(file_count=count_related(DataFile, "source"))
     filterset = filtersets.DataSourceFilterSet
     table = tables.DataSourceTable
     form = forms.DataSourceBulkEditForm
@@ -103,7 +104,7 @@ class DataSourceBulkEdit(BulkEditView):
 @register_model_view(DataSource, name="bulk_delete", path="delete", detail=False)
 class DataSourceBulkDeleteView(BulkDeleteView):
     permission_required = "core.delete_datasource"
-    queryset = DataSource.objects.all()
+    queryset = DataSource.objects.annotate(file_count=count_related(DataFile, "source"))
     filterset = filtersets.DataSourceFilterSet
     table = tables.DataSourceTable
 

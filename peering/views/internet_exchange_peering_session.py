@@ -73,8 +73,10 @@ class InternetExchangePeeringSessionDelete(ObjectDeleteView):
 @register_model_view(InternetExchangePeeringSession, name="bulk_edit", path="edit", detail=False)
 class InternetExchangePeeringSessionBulkEdit(BulkEditView):
     permission_required = "peering.change_internetexchangepeeringsession"
-    queryset = InternetExchangePeeringSession.objects.select_related("autonomous_system").defer(
-        "autonomous_system__as_list"
+    queryset = (
+        InternetExchangePeeringSession.objects.select_related("autonomous_system")
+        .defer("autonomous_system__as_list")
+        .with_peeringdb_sides()
     )
     filterset = InternetExchangePeeringSessionFilterSet
     table = InternetExchangePeeringSessionTable
@@ -83,7 +85,7 @@ class InternetExchangePeeringSessionBulkEdit(BulkEditView):
 
 @register_model_view(InternetExchangePeeringSession, name="bulk_delete", path="delete", detail=False)
 class InternetExchangePeeringSessionBulkDelete(BulkDeleteView):
-    queryset = InternetExchangePeeringSession.objects.all()
+    queryset = InternetExchangePeeringSession.objects.with_peeringdb_sides()
     filterset = InternetExchangePeeringSessionFilterSet
     table = InternetExchangePeeringSessionTable
 

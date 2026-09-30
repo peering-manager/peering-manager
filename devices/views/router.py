@@ -86,7 +86,11 @@ class RouterDelete(ObjectDeleteView):
 @register_model_view(model=Router, name="bulk_edit", path="edit", detail=False)
 class RouterBulkEdit(BulkEditView):
     permission_required = "devices.change_router"
-    queryset = Router.objects.all()
+    queryset = Router.objects.annotate(
+        connection_count=Count("connection", distinct=True),
+        directpeeringsession_count=Count("directpeeringsession", distinct=True),
+        internetexchangepeeringsession_count=Count("connection__internetexchangepeeringsession", distinct=True),
+    )
     filterset = RouterFilterSet
     table = RouterTable
     form = RouterBulkEditForm
@@ -94,7 +98,11 @@ class RouterBulkEdit(BulkEditView):
 
 @register_model_view(model=Router, name="bulk_delete", path="delete", detail=False)
 class RouterBulkDelete(BulkDeleteView):
-    queryset = Router.objects.all()
+    queryset = Router.objects.annotate(
+        connection_count=Count("connection", distinct=True),
+        directpeeringsession_count=Count("directpeeringsession", distinct=True),
+        internetexchangepeeringsession_count=Count("connection__internetexchangepeeringsession", distinct=True),
+    )
     filterset = RouterFilterSet
     table = RouterTable
 
