@@ -54,8 +54,8 @@ pydantic==2.13.5
 pydantic-core==2.46.5
 pyeapi==1.0.4
 pygments==2.21.0
-pyixapi==0.3.0
-pyjwt==2.13.0
+pyixapi==0.3.2
+pyjwt==2.15.1
 pynacl==1.6.2
 pynetbox==7.8.0
 pyparsing==3.3.3
