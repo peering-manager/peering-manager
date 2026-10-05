@@ -242,6 +242,7 @@ NETBOX_TAGS = set(getattr(configuration, "NETBOX_TAGS", []))
 PEERINGDB = "https://www.peeringdb.com/"
 PEERINGDB_API = f"{PEERINGDB}api/"
 PEERINGDB_ASN = f"{PEERINGDB}asn/"
+PEERINGDB_IX = f"{PEERINGDB}ix/"
 # To be removed in v2.0
 PEERINGDB_USERNAME = getattr(configuration, "PEERINGDB_USERNAME", "")
 PEERINGDB_PASSWORD = getattr(configuration, "PEERINGDB_PASSWORD", "")

@@ -7,9 +7,11 @@
       <div class="card-header">
         <strong>IX Details</strong>
         {% if instance.linked_to_peeringdb %}
-        <span class="float-end" data-bs-toggle="tooltip" data-placement="right" title="Linked to PeeringDB">
-          <i class="fa-fw fa-solid fa-check-circle text-success"></i>
-        </span>
+        <div class="float-end">
+          <a class="btn btn-xs btn-primary" href="{{ settings.PEERINGDB_IX }}{{ instance.peeringdb_ixlan.ix_id }}" target="_blank">
+            <i class="fa-fw fa-solid fa-external-link-alt"></i> PeeringDB
+          </a>
+        </div>
         {% endif %}
       </div>
       <table class="card-body table table-hover attr-table mb-0">
