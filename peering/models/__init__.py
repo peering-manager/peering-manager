@@ -1216,6 +1216,7 @@ class RequestedSession(ChangeLoggedModel):
     created_session_type = models.ForeignKey(to=ContentType, on_delete=models.SET_NULL, blank=True, null=True)
     created_session_id = models.PositiveIntegerField(blank=True, null=True)
     created_session = GenericForeignKey("created_session_type", "created_session_id")
+    changelog_censored_fields = ["session_secret"]
 
     class Meta:
         ordering = ["peering_request", "ixp_connection", "ip_address"]

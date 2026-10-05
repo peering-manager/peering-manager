@@ -32,7 +32,8 @@ can be configured (n.b. some are optional):
 * `NAPALM Username`: a username for Peering Manager to use for connecting to
   the router. It overrides the `NAPALM_USERNAME` global setting.
 * `NAPALM Password`: a password for Peering Manager to use for connecting to
-  the router. It overrides the `NAPALM_PASSWORD` global setting.
+  the router. It overrides the `NAPALM_PASSWORD` global setting. The change
+  log hides its value and only tells when it changed.
 * `NAPALM Timeout`: a timeout for Peering Manager to use for connecting to
   the router. It overrides the `NAPALM_TIMEOUT` global setting.
 * `NAPALM Optional Arguments`: optional arguments for Peering Manager to use

@@ -148,6 +148,7 @@ class BGPSession(PrimaryModel, PolicyMixin):
     accepted_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     advertised_prefix_count = models.PositiveIntegerField(blank=True, default=0)
     last_established_state = models.DateTimeField(blank=True, null=True)
+    changelog_censored_fields = ["password", "encrypted_password"]
 
     objects = NetManager()
     logger = logging.getLogger("peering.manager.peering")

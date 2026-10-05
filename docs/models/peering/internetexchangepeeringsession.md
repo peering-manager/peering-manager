@@ -34,7 +34,8 @@ properties can be configured (n.b. some are optional):
     role); inconsistent combinations are rejected on save.
 * `Password`: a password to secure a BGP session; it can be a clear text
   password or an encrypted one. In the latter case, make sure that the router
-  will not try to encrypt the password again.
+  will not try to encrypt the password again. The change log hides
+  its value and only tells when it changed.
 * `Multihop TTL`: a value to set the time to leave interval for IP packets
   used for the BGP control traffic. It defaults to 1 for external BGP
   sessions but can be set to a higher value to establish sessions that have
