@@ -12,7 +12,7 @@ from ..enums import *
 from ..functions import *
 from ..models import *
 from ..services import build_prefix_synchroniser
-from .mocked_data import load_peeringdb_data
+from .mocked_data import load_peeringdb_data, mocked_subprocess_popen_as_list
 
 
 class AutonomousSystemTest(TestCase):
